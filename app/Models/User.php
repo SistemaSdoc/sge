@@ -12,34 +12,13 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
 
 #[Fillable(['instituicao_id', 'nome', 'email', 'bi', 'telefone', 'password', 'google_id', 'facebook_id', 'avatar'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements JWTSubject, PasskeyUser
+class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
-
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    public function getJWTCustomClaims()
-    {
-        $this->loadMissing('roles.permissions');
-
-        return [
-            'role' => $this->roles->first()?->nome,
-            'instituicao_id' => $this->instituicao_id,
-            'permissions' => $this->roles
-                ->flatMap(fn ($role) => $role->permissions->pluck('slug'))
-                ->unique()
-                ->values()
-                ->toArray(),
-        ];
-    }
 
     protected function casts(): array
     {
