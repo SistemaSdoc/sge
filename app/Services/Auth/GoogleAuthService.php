@@ -46,7 +46,7 @@ class GoogleAuthService
         $user = User::updateOrCreate(
             ['email' => $email],
             [
-                'name' => $name,
+                'nome' => $name,
                 'google_id' => $googleId,
                 'avatar' => $avatar,
             ]
