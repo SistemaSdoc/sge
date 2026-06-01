@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Http\Requests\InstituicaoCurso;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreProfessorRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'professor_id' => ['required', 'exists:professores,id'],
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+            'professor_id.required' => 'O professor é obrigatório.',
+            'professor_id.exists' => 'O professor selecionado é inválido.',
+        ];
+    }
+}

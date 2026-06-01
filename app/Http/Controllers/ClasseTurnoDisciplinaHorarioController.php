@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreClasseTurnoDisciplinaHorarioRequest;
+use App\Models\ClasseTurnoDisciplina;
+use App\Models\ClasseTurnoDisciplinaHorario;
+use App\Models\CursoClasse;
+use App\Models\CursoClasseTurno;
+use App\Models\CursoTutelado;
+use App\Models\Instituicao;
+use App\Models\Turma;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
+
+class ClasseTurnoDisciplinaHorarioController extends Controller
+{
+    /**
+     * Salvar horários de uma disciplina
+     */
+    public function store(
+        StoreClasseTurnoDisciplinaHorarioRequest $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        ClasseTurnoDisciplina $classeTurnoDisciplina
+    ): JsonResponse {
+        // Remover horários antigos
+        $classeTurnoDisciplina->horarios()->delete();
+
+        // Criar novos horários
+        $horarios = collect($request->validated()['horarios'])
+            ->map(fn ($horario) => array_merge($horario, [
+                'id' => (string) Str::uuid7(),
+                'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]))
+            ->toArray();
+
+        ClasseTurnoDisciplinaHorario::insert($horarios);
+
+        return response()->json([
+            'message' => 'Horários salvos com sucesso',
+            'data' => $classeTurnoDisciplina->horarios()->get(),
+        ], 201);
+    }
+}
