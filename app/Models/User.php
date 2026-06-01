@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\HasUuid;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -12,19 +12,35 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-#[Fillable(['name', 'email', 'password', 'google_id', 'facebook_id'])]
+#[Fillable(['instituicao_id', 'nome', 'email', 'bi', 'telefone', 'password', 'google_id', 'facebook_id', 'avatar'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements PasskeyUser
+class User extends Authenticatable implements JWTSubject, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        $this->loadMissing('roles.permissions');
+
+        return [
+            'role' => $this->roles->first()?->nome,
+            'instituicao_id' => $this->instituicao_id,
+            'permissions' => $this->roles
+                ->flatMap(fn ($role) => $role->permissions->pluck('slug'))
+                ->unique()
+                ->values()
+                ->toArray(),
+        ];
+    }
+
     protected function casts(): array
     {
         return [
@@ -32,5 +48,51 @@ class User extends Authenticatable implements PasskeyUser
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    public function professor()
+    {
+        return $this->hasOne(Professor::class);
+    }
+
+    public function aluno()
+    {
+        return $this->hasOne(Aluno::class);
+    }
+
+    public function candidato()
+    {
+        return $this->hasOne(Candidato::class);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->roles->contains('nome', 'Super Admin');
+    }
+
+    public function isDirector(): bool
+    {
+        return $this->roles->contains('nome', 'Director');
+    }
+
+    public function instituicaoFiltro(): ?string
+    {
+        if ($this->isSuperAdmin()) {
+            return null;
+        }
+
+        return $this->instituicao_id;
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id')
+            ->using(RoleUser::class)
+            ->withTimestamps();
+    }
+
+    public function instituicao()
+    {
+        return $this->belongsTo(Instituicao::class, 'instituicao_id');
     }
 }
