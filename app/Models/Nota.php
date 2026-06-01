@@ -7,7 +7,21 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['turma_aluno_id', 'turma_disciplina_professor_id', 'periodo', 'mac', 'nota_prova_professor', 'nota_prova_trimestral', 'media_trimestral', 'media_final', 'faltas', 'situacao_trimestral', 'situacao_anual', 'observacao'])]
+#[Fillable([
+    'turma_aluno_id',
+    'turma_disciplina_professor_id',
+    'periodo',
+    'mac',
+    'nota_prova_professor',
+    'nota_prova_trimestral',
+    'media_trimestral',
+    'media_final',
+    'faltas',
+    'situacao_trimestral',
+    'situacao_anual',
+    'observacao',
+])]
+
 class Nota extends Model
 {
     use HasUuid;

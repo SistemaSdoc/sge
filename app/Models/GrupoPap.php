@@ -6,7 +6,19 @@ use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['professor_tutor_id', 'turma_id', 'nome_grupo', 'tema_grupo', 'estudo_caso', 'trabalho_grupo', 'status', 'nota_final', 'data_defesa', 'local_defesa'])]
+#[Fillable([
+    'professor_tutor_id',
+    'turma_id',
+    'nome_grupo',
+    'tema_grupo',
+    'estudo_caso',
+    'trabalho_grupo',
+    'status',
+    'nota_final',
+    'data_defesa',
+    'local_defesa',
+])]
+
 class GrupoPap extends Model
 {
     use HasUuid;

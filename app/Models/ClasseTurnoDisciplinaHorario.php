@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['classe_turno_disciplina_id', 'dia_semana', 'hora_inicio', 'hora_fim'])]
+#[Fillable([
+    'classe_turno_disciplina_id',
+    'dia_semana', 'hora_inicio',
+    'hora_fim',
+])]
+
 class ClasseTurnoDisciplinaHorario extends Model
 {
     use HasUuid;

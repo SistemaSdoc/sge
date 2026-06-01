@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Classe\StoreClasseRequest;
+use App\Http\Requests\Classe\UpdateClasseRequest;
 use App\Models\Classe;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ClasseController extends Controller
@@ -31,9 +32,9 @@ class ClasseController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreClasseRequest $request)
     {
-        $classe = Classe::create($request->all());
+        Classe::create($request->validated());
 
         return to_route('classes.index')->with('toast', [
             'type' => 'success',
@@ -64,13 +65,26 @@ class ClasseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Classe $classe) {}
+    public function update(UpdateClasseRequest $request, Classe $classe)
+    {
+        Classe::update($request->validated());
+
+        return to_route('classes.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Classe actualizada com sucesso.',
+        ]);
+    }
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Classe $classe)
     {
-        //
+        Classe::destroy($classe);
+
+        return to_route('classes.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Classe removida com sucesso.',
+        ]);
     }
 }

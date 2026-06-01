@@ -6,7 +6,12 @@ use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['curso_classe_turno_id', 'nome', 'max_alunos'])]
+#[Fillable([
+    'curso_classe_turno_id',
+    'nome',
+    'max_alunos',
+])]
+
 class Turma extends Model
 {
     use HasUuid;

@@ -6,7 +6,11 @@ use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-#[Fillable(['classe_id', 'curso_tutelado_id'])]
+#[Fillable([
+    'classe_id',
+    'curso_tutelado_id',
+])]
+
 class CursoClasse extends Pivot
 {
     use HasUuid;

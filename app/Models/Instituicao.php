@@ -7,7 +7,19 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['nome', 'sigla', 'tipo', 'email', 'telefone', 'provincia', 'endereco', 'status', 'logo', 'descricao'])]
+#[Fillable([
+    'nome',
+    'sigla',
+    'tipo',
+    'email',
+    'telefone',
+    'provincia',
+    'endereco',
+    'status',
+    'logo',
+    'descricao',
+])]
+
 class Instituicao extends Model
 {
     use HasFactory, HasUuid;

@@ -6,7 +6,13 @@ use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['nome', 'duracao_anos', 'descricao', 'status'])]
+#[Fillable([
+    'nome',
+    'duracao_anos',
+    'descricao',
+    'status',
+])]
+
 class Curso extends Model
 {
     use HasUuid;

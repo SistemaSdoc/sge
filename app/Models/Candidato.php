@@ -6,7 +6,15 @@ use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['nome', 'bi', 'numero_estudante', 'morada', 'telefone', 'email', 'user_id'])]
+#[Fillable([
+    'nome',
+    'bi',
+    'numero_estudante',
+    'morada',
+    'telefone',
+    'email',
+    'user_id',
+])]
 class Candidato extends Model
 {
     use HasUuid;

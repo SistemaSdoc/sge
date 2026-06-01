@@ -6,7 +6,11 @@ use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['user_id', 'especialidade'])]
+#[Fillable([
+    'user_id',
+    'especialidade',
+])]
+
 class Professor extends Model
 {
     use HasUuid;

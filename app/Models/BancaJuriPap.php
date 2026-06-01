@@ -6,7 +6,11 @@ use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['professor_id', 'grupo_pap_id', 'funcao'])]
+#[Fillable([
+    'professor_id',
+    'grupo_pap_id',
+    'funcao',
+])]
 class BancaJuriPap extends Model
 {
     use HasUuid;
