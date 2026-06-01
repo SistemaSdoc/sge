@@ -1,0 +1,61 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('grupo_pap', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->uuid('turma_id');
+            $table->foreign('turma_id')->references('id')->on('turmas');
+            $table->uuid('professor_tutor_id');
+            $table->foreign('professor_tutor_id')->references('id')->on('professores');
+            $table->string('nome_grupo');
+            $table->string('tema_grupo');
+            $table->text('estudo_caso')->nullable();
+            $table->string('trabalho_grupo')->nullable();
+            $table->string('status')->default('Em andamento');
+            $table->decimal('nota_final', 5, 2)->nullable();
+            $table->date('data_defesa')->nullable();
+            $table->string('local_defesa')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('elementos_grupo_pap', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->uuid('grupo_pap_id');
+            $table->foreign('grupo_pap_id')->references('id')->on('grupo_pap');
+            $table->uuid('aluno_id');
+            $table->foreign('aluno_id')->references('id')->on('alunos');
+            $table->decimal('nota_individual', 5, 2)->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('banca_juri_pap', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->uuid('professor_id');
+            $table->foreign('professor_id')->references('id')->on('professores');
+            $table->uuid('grupo_pap_id');
+            $table->foreign('grupo_pap_id')->references('id')->on('grupo_pap');
+            $table->string('funcao');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('grupo_pap');
+        Schema::dropIfExists('elementos_grupo_pap');
+        Schema::dropIfExists('banca_juri_pap');
+
+    }
+};

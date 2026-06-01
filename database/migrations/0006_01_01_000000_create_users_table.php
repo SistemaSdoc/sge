@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,6 +15,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('avatar')->nullable();
+            $table->string('bi')->unique()->nullable();
+            $table->string('telefone')->nullable();
             $table->string('google_id')->unique()->nullable();
             $table->string('facebook_id')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
@@ -38,6 +39,19 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::create('candidatos', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->uuid('user_id')->nullable()->after('id');
+            $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
+            $table->string('nome');
+            $table->string('bi')->unique();
+            $table->string('numero_estudante')->unique();
+            $table->string('telefone')->nullable();
+            $table->string('email')->unique()->nullable();
+            $table->string('morada')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -48,5 +62,6 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('candidatos');
     }
 };
