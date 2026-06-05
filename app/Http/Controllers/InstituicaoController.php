@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\InstituicoesRequest;
-use App\Http\Resources\Instituicao\InstituicaoResourceIndex;
-use App\Http\Resources\Instituicao\InstituicaoResourceShow;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
@@ -13,6 +11,7 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class InstituicaoController extends Controller /* implements HasMiddleware */
 {
@@ -35,9 +34,15 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
 
         $instituicoes = Instituicao::all();
 
-        return InstituicaoResourceIndex::collection($instituicoes);
+        return Inertia::render('instituicoes/index', [
+            'instituicoes' => $instituicoes,
+        ]);
     }
 
+    public function create()
+    {
+        return Inertia::render('instituicoes/create');
+    }
     public function store(InstituicoesRequest $request)
     {
         $dados = $request->validated();
@@ -64,7 +69,10 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
             }
         }
 
-        return response()->noContent(201);
+        return to_route('instituicoes.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Instituição atualizada com sucesso!',
+        ]);
     }
 
     public function show(Instituicao $instituicao)
@@ -83,7 +91,34 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
             'instituicaoCursos.cursoTutelado.instituicaoTutora:id,nome',
         ]);
 
-        return new InstituicaoResourceShow($instituicao, 200);
+        $cursos = $instituicao->instituicaoCursos->map(fn ($instituicaoCurso) => [
+            'id' => $instituicaoCurso->curso->id,
+            'nome' => $instituicaoCurso->curso->nome,
+            'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,
+        ])->all();
+
+        return Inertia::render('instituicoes/show', [
+            'instituicao' => [
+                'id' => $instituicao->id,
+                'nome' => $instituicao->nome,
+                'sigla' => $instituicao->sigla,
+                'tipo' => $instituicao->tipo,
+                'email' => $instituicao->email,
+                'telefone' => $instituicao->telefone,
+                'endereco' => $instituicao->endereco,
+                'logo' => $instituicao->logo,
+                'descricao' => $instituicao->descricao,
+            ],
+            'cursos' => $cursos,
+            'storageUrl' => asset('storage'),
+        ]);
+    }
+
+    public function edit(Instituicao $instituicao)
+    {
+        return Inertia::render('instituicoes/edit', [
+            'instituicao' => $instituicao,
+        ]);
     }
 
     public function update(InstituicoesRequest $request, Instituicao $instituicao)
@@ -91,6 +126,10 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
         $dados = $request->validated();
 
         if ($request->hasFile('logo')) {
+            if ($instituicao->logo) {
+                Storage::disk('public')->delete($instituicao->logo);
+            }
+
             $dados['logo'] = $request->file('logo')->store('logos', 'public');
         }
 
@@ -133,7 +172,10 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
                     ]);
                 }*/
 
-        return response()->noContent();
+        return to_route('instituicoes.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Instituição atualizada com sucesso!',
+        ]);
     }
 
     public function destroy(Instituicao $instituicao)
@@ -144,6 +186,9 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
 
         $instituicao->delete();
 
-        return response()->noContent();
+        return to_route('instituicoes.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Instituição excluída com sucesso!',
+        ]);
     }
 }
