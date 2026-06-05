@@ -1,7 +1,7 @@
-import { Link, router } from "@inertiajs/react";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontalIcon, LayersIcon } from "lucide-react";
-import { EmptyState } from "@/components/empty-state";
+import { Link, router } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontalIcon, ClockIcon } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
 
 import {
   Card,
@@ -11,7 +11,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 import {
   Table,
@@ -20,7 +20,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
 import {
   DropdownMenu,
@@ -28,7 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 
 import {
   Pagination,
@@ -36,35 +36,19 @@ import {
   PaginationItem,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
-import classes from "../classes";
+} from '@/components/ui/pagination';
 
-interface Classe {
-  id: number;
-  nome: string;
-}
-
-interface Props {
-  classes: Classe[];
-}
-
-export default function Index({ classes }: Props) {
-  const isEmpty = !classes || classes.length === 0;
-
-  const excluir = (id: number) => {
-    if (confirm("Tem certeza que deseja excluir essa classe?")) {
-      router.delete(`/classes/${id}`);
-    }
-  };
+export function TurnoTable({ turnos, deleteFn }) {
+  const isEmpty = !turnos || turnos.length === 0;
 
   return (
-    <Card className="gap-0 w-full max-w-7xl mx-auto">
+    <Card className="mx-auto w-full max-w-7xl gap-0">
       <CardHeader className="border-b">
-        <CardTitle>Classes</CardTitle>
-        <CardDescription>Lista de classes cadastradas</CardDescription>
+        <CardTitle>Turnos</CardTitle>
+        <CardDescription>Lista de turnos cadastrados</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href="/classes/create">Adicionar</Link>
+            <Link href="/turnos/create">Adicionar</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -73,13 +57,13 @@ export default function Index({ classes }: Props) {
         {isEmpty ? (
           <EmptyState
             variant="table"
-            icon={LayersIcon}
-            title="Nenhum classe cadastrada"
-            description="Comece adicionando a primeiro classe à tabela"
+            icon={ClockIcon}
+            title="Nenhum turno cadastrado"
+            description="Comece adicionando o primeiro turno à tabela"
             action={{
-              label: "Adicionar Classe",
-              href: "/classes/create",
-              variant: "outline",
+              label: 'Adicionar Turno',
+              href: '/turnos/create',
+              variant: 'outline',
             }}
           />
         ) : (
@@ -91,13 +75,15 @@ export default function Index({ classes }: Props) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {classes.map((classe) => (
+              {turnos.map((turno) => (
                 <TableRow
-                  key={classe.id}
+                  key={turno.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/classes/${classe.id}`)}
+                  onClick={() => router.visit(`/turnos/${turno.id}`)}
                 >
-                  <TableCell className="px-4 font-medium">{classe.nome}</TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {turno.nome}
+                  </TableCell>
                   <TableCell className="px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -111,7 +97,7 @@ export default function Index({ classes }: Props) {
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.visit(`/classes/${classe.id}/edit`);
+                            router.visit(`turnos/${turno.id}/edit`);
                           }}
                         >
                           Editar
@@ -123,7 +109,7 @@ export default function Index({ classes }: Props) {
                           variant="destructive"
                           onClick={(e) => {
                             e.stopPropagation();
-                            excluir(classe.id);
+                            deleteFn(turno.id);
                           }}
                         >
                           Remover
@@ -147,6 +133,7 @@ export default function Index({ classes }: Props) {
               <PaginationItem>
                 <PaginationPrevious href="#" />
               </PaginationItem>
+
               <PaginationItem>
                 <PaginationNext href="#" />
               </PaginationItem>

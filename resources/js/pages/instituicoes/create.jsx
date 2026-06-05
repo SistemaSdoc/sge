@@ -1,15 +1,15 @@
-import { useForm } from "@inertiajs/react";
-import { InstituicaoForm } from "./components/instituicao-form";
+import { useForm } from '@inertiajs/react';
+import { InstituicaoForm } from './components/instituicao-form';
 
 export default function Create() {
   const { post, data, setData, processing, errors } = useForm({
-    nome: "",
-    sigla: "",
-    tipo: "",
-    telefone: "",
-    email: "",
-    endereco: "",
-    logo: null as File | null,
+    nome: '',
+    sigla: '',
+    tipo: '',
+    telefone: '',
+    email: '',
+    endereco: '',
+    logo: null,
   });
 
   return (
@@ -24,7 +24,7 @@ export default function Create() {
         e.preventDefault();
         post('/instituicoes', {
           forceFormData: true,
-        })
+        });
       }}
     />
   );

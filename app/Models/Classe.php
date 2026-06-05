@@ -6,7 +6,7 @@ use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['nome'])]
+#[Fillable(['nome', 'ordem'])]
 class Classe extends Model
 {
     use HasUuid;

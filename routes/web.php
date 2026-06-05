@@ -1,33 +1,25 @@
 <?php
 
-use App\Http\Controllers\InstituicaoController;
-use App\Http\Controllers\ClasseController;
-use App\Http\Controllers\CursosController;
-use App\Http\Controllers\TurnoController;
-use App\Http\Controllers\FinalistaController;
 use App\Http\Controllers\AlunoController;
-use App\Http\Controllers\CursoTuteladoController;
-use App\Http\Controllers\CursoTuteladoProfessorController;
-use App\Http\Controllers\CursoClasseController;
-use App\Http\Controllers\TurmaController;
-use App\Http\Controllers\ProgressaoController;
-use App\Http\Controllers\NotaController;
 use App\Http\Controllers\CertificadoController;
-use App\Http\Controllers\CursoClasseTurnoController;
+use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\ClasseTurnoDisciplinaController;
 use App\Http\Controllers\ClasseTurnoTurmaController;
-use App\Http\Controllers\GrupoPapController;
-use App\Http\Controllers\ExportarPautaController;
+use App\Http\Controllers\CursoClasseController;
+use App\Http\Controllers\CursoClasseTurnoController;
+use App\Http\Controllers\CursosController;
+use App\Http\Controllers\CursoTuteladoController;
+use App\Http\Controllers\CursoTuteladoProfessorController;
 use App\Http\Controllers\ExportarMiniPautaController;
-use App\Http\Controllers\ClasseController as ClasseControllerGeral;
-use App\Http\Controllers\Dashboards\DashboardAlunoController;
-use App\Http\Controllers\Dashboards\DashboardDirectorController;
-use App\Http\Controllers\Dashboards\DashboardProfessorController;
-use App\Http\Controllers\DisciplinaController as DisciplinaControllerGeral;
-use App\Http\Controllers\FolhaAprovacaoController;
-use App\Http\Controllers\InscricaoController;
-use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
+use App\Http\Controllers\ExportarPautaController;
+use App\Http\Controllers\FinalistaController;
+use App\Http\Controllers\GrupoPapController;
+use App\Http\Controllers\InstituicaoController;
+use App\Http\Controllers\NotaController;
+use App\Http\Controllers\ProgressaoController;
+use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurmaController as TurmaControllerGeral;
+use App\Http\Controllers\TurnoController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -37,7 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
-Route::resource('classes', ClasseController::class);
+Route::resource('classes', ClasseController::class)->parameters(['classes' => 'classe']);
 Route::resource('cursos', CursosController::class);
 Route::resource('turnos', TurnoController::class);
 
@@ -68,9 +60,9 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
             Route::post('alunos/{aluno}/concluir', [FinalistaController::class, 'concluir']);
             Route::post('alunos/{aluno}/reprovar', [FinalistaController::class, 'reprovar']);
             Route::post('alunos/{aluno}/desistente', [FinalistaController::class, 'marcarDesistente']);
-            //ver a pauta dos colegios tutelados
+            // ver a pauta dos colegios tutelados
             Route::get('/pauta', [NotaController::class, 'pauta']);
-            //gerar certificado de conclusão do curso dos colegios tutelados   
+            // gerar certificado de conclusão do curso dos colegios tutelados
             Route::get('/alunos/{aluno}/certificado', [CertificadoController::class, 'gerarTutora']);
         });
 
@@ -91,11 +83,11 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
                     ->parameters(['disciplinas' => 'classeTurnoDisciplina']);
 
                 Route::prefix('disciplinas/{classeTurnoDisciplina}')->group(function () {
-                    //Route::post('horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store']);
+                    // Route::post('horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store']);
 
                     Route::apiResource('notas', NotaController::class);
                     Route::get('mini-pauta/excel', [ExportarMiniPautaController::class, 'exportarDisciplina']);
-                    //Route::apiResource('professores', TurmaDisciplinaProfessorController::class);
+                    // Route::apiResource('professores', TurmaDisciplinaProfessorController::class);
                 });
 
                 Route::get('progressao/preview', [ProgressaoController::class, 'preview']);
@@ -110,7 +102,6 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
     });
 });
 
+require __DIR__.'/auth.php';
 
-require __DIR__ . '/auth.php';
-
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

@@ -1,13 +1,7 @@
-import { useForm } from "@inertiajs/react";
-import { TurnoForm } from "./components/turno-form";
+import { useForm } from '@inertiajs/react';
+import { TurnoForm } from './components/turno-form';
 
-interface Turno {
-  id: number;
-  nome: string;
-}
-
-
-export default function Edit({ turno }: { turno: Turno }) {
+export default function Edit({ turno }) {
   const { put, data, setData, processing, errors } = useForm({
     nome: turno.nome,
   });

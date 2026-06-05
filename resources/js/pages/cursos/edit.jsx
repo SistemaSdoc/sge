@@ -1,14 +1,7 @@
-import { useForm } from "@inertiajs/react";
-import { CursoForm } from "./components/curso-form";
+import { useForm } from '@inertiajs/react';
+import { CursoForm } from './components/curso-form';
 
-interface Curso {
-  id: number;
-  nome: string;
-  duracao_anos: number;
-  descricao: string;
-}
-
-export default function Edit({ curso }: { curso: Curso }) {
+export default function Edit({ curso }) {
   const { put, data, setData, processing, errors } = useForm({
     nome: curso.nome,
     duracao_anos: curso.duracao_anos,

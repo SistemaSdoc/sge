@@ -1,11 +1,11 @@
-import { useForm } from "@inertiajs/react";
-import { CursoForm } from "./components/curso-form";
+import { useForm } from '@inertiajs/react';
+import { CursoForm } from './components/curso-form';
 
 export default function Create() {
   const { post, data, setData, processing, errors } = useForm({
-    nome: "",
-    duracao_anos: "",
-    descricao: "",
+    nome: '',
+    duracao_anos: '',
+    descricao: '',
   });
 
   return (
@@ -22,4 +22,3 @@ export default function Create() {
     />
   );
 }
-

@@ -1,7 +1,7 @@
-import { Link, router } from "@inertiajs/react";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontalIcon, LayersIcon } from "lucide-react";
-import { EmptyState } from "@/components/empty-state";
+import { Link, router } from '@inertiajs/react';
+import { MoreHorizontalIcon, LayersIcon } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
+import { Button } from '@/components/ui/button';
 
 import {
   Card,
@@ -11,7 +11,23 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 import {
   Table,
@@ -20,51 +36,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import classes from "../classes";
-
-interface Curso {
-  id: number;
-  nome: string;
-}
-
-interface Props {
-  cursos: Curso[];
-}
-
-export default function Index({ cursos }: Props) {
-  const isEmpty = !cursos || cursos.length === 0;
-
-  const excluir = (id: number) => {
-    if (confirm("Tem certeza que deseja excluir esse curso?")) {
-      router.delete(`/cursos/${id}`);
-    }
-  };
+export function ClasseTable({ classes }) {
+  const isEmpty = !classes || classes.length === 0;
 
   return (
-    <Card className="gap-0 w-full max-w-7xl mx-auto">
+    <Card className="mx-auto w-full max-w-7xl gap-0">
       <CardHeader className="border-b">
-        <CardTitle>Cursos</CardTitle>
-        <CardDescription>Lista de cursos cadastrados</CardDescription>
+        <CardTitle>Classes</CardTitle>
+        <CardDescription>Lista de classes cadastradas</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href="/cursos/create">Adicionar</Link>
+            <Link href="/classes/create">Adicionar</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -74,12 +58,12 @@ export default function Index({ cursos }: Props) {
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title="Nenhum curso cadastrado"
-            description="Comece adicionando a primeiro curso à tabela"
+            title="Nenhum classe cadastrada"
+            description="Comece adicionando a primeiro classe à tabela"
             action={{
-              label: "Adicionar Curso",
-              href: "/cursos/create",
-              variant: "outline",
+              label: 'Adicionar Classe',
+              href: '/classes/create',
+              variant: 'outline',
             }}
           />
         ) : (
@@ -91,13 +75,15 @@ export default function Index({ cursos }: Props) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {cursos.map((curso) => (
+              {classes.map((classe) => (
                 <TableRow
-                  key={curso.id}
+                  key={classe.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/cursos/${curso.id}`)}
+                  onClick={() => router.visit(`/classes/${classe.id}`)}
                 >
-                  <TableCell className="px-4 font-medium">{curso.nome}</TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {classe.nome}
+                  </TableCell>
                   <TableCell className="px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -111,7 +97,7 @@ export default function Index({ cursos }: Props) {
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.visit(`/cursos/${curso.id}/edit`);
+                            router.visit(`/classes/${classe.id}/edit`);
                           }}
                         >
                           Editar
@@ -123,7 +109,7 @@ export default function Index({ cursos }: Props) {
                           variant="destructive"
                           onClick={(e) => {
                             e.stopPropagation();
-                            excluir(curso.id);
+                            excluir(classe.id);
                           }}
                         >
                           Remover

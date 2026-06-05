@@ -1,7 +1,31 @@
-import { Button } from "@/components/ui/button";
-import { BuildingIcon } from "lucide-react"
-import { EmptyState } from "@/components/empty-state";
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, router } from '@inertiajs/react';
+import { BuildingIcon } from 'lucide-react';
+import { MoreHorizontalIcon } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import {
   Table,
   TableBody,
@@ -9,39 +33,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { MoreHorizontalIcon } from "lucide-react"
+} from '@/components/ui/table';
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-
-import { Link, router } from '@inertiajs/react';
-
-interface Instituicao {
-  id: number;
-  nome: string;
-  sigla: string;
-  tipo: string;
-}
-
-interface props {
-  instituicoes: Instituicao[];
-  deleteFn: (id: number) => void;
-}
-
-export function InstituicaoTable({ instituicoes, deleteFn }: props) {
+export function InstituicaoTable({ instituicoes, deleteFn }) {
   const isEmpty = !instituicoes || instituicoes.length === 0;
 
   return (
@@ -64,9 +58,9 @@ export function InstituicaoTable({ instituicoes, deleteFn }: props) {
             title="Nenhuma instituição cadastrada"
             description="Comece adicionando a primeira instituição à tabela"
             action={{
-              label: "Adicionar Instituição",
-              href: "/instituicoes/create",
-              variant: "outline"
+              label: 'Adicionar Instituição',
+              href: '/instituicoes/create',
+              variant: 'outline',
             }}
           />
         ) : (
@@ -81,13 +75,17 @@ export function InstituicaoTable({ instituicoes, deleteFn }: props) {
             </TableHeader>
 
             <TableBody>
-              {instituicoes.map(instituicao => (
+              {instituicoes.map((instituicao) => (
                 <TableRow
                   key={instituicao.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/instituicoes/${instituicao.id}`)}
+                  onClick={() =>
+                    router.visit(`/instituicoes/${instituicao.id}`)
+                  }
                 >
-                  <TableCell className="px-4 font-medium">{instituicao.sigla}</TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {instituicao.sigla}
+                  </TableCell>
                   <TableCell>{instituicao.nome}</TableCell>
                   <TableCell>{instituicao.tipo}</TableCell>
                   <TableCell className="px-4 text-right">
@@ -100,19 +98,26 @@ export function InstituicaoTable({ instituicoes, deleteFn }: props) {
                       </DropdownMenuTrigger>
 
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={(e) => {
-                          e.stopPropagation()
-                          router.visit(`/instituicoes/${instituicao.id}/edit`)
-                        }}>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.visit(
+                              `/instituicoes/${instituicao.id}/edit`,
+                            );
+                          }}
+                        >
                           Editar
                         </DropdownMenuItem>
 
                         <DropdownMenuSeparator />
 
-                        <DropdownMenuItem variant="destructive" onClick={(e) => {
-                          e.stopPropagation()
-                          deleteFn(instituicao.id)
-                        }}>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteFn(instituicao.id);
+                          }}
+                        >
                           Remover
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -143,5 +148,5 @@ export function InstituicaoTable({ instituicoes, deleteFn }: props) {
         </CardFooter>
       )}
     </Card>
-  )
+  );
 }

@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CursoRequest;
-use App\Http\Resources\Curso\CursoResourceIndex;
-use App\Models\Classe;
+use App\Http\Requests\Curso\CursoStoreRequest;
+use App\Http\Requests\Curso\CursoUpdateRequest;
 use App\Models\Curso;
 use App\Models\InstituicaoCurso;
 use Illuminate\Http\Request;
@@ -23,27 +22,19 @@ class CursosController extends Controller
 
     public function create()
     {
-
         return Inertia::render('cursos/create');
     }
 
-    public function store(CursoRequest $request)
+    public function store(CursoStoreRequest $request)
     {
-        // Validação
         $request->validated();
 
-        // Criar curso
         $curso = Curso::create([
             'nome' => $request->nome,
             'duracao_anos' => $request->duracao_anos,
             'descricao' => $request->descricao,
             'status' => 1,
         ]);
-
-        /* // salvar relação N:N
-        if ($request->has('instituicoes')) {
-            $curso->instituicoes()->attach($request->instituicoes);
-        } */
 
         return to_route('cursos.index')->with('toast', [
             'type' => 'success',
@@ -53,18 +44,19 @@ class CursosController extends Controller
 
     public function show(Curso $curso)
     {
-        return response()->json($curso);
+        return Inertia::render('cursos/show', [
+            'curso' => $curso,
+        ]);
     }
 
     public function edit(Curso $curso)
     {
-
         return Inertia::render('cursos/edit', [
-            'curso' => $curso
+            'curso' => $curso,
         ]);
     }
 
-    public function update(CursoRequest $request, Curso $curso)
+    public function update(CursoUpdateRequest $request, Curso $curso)
     {
         $request->validated();
 
@@ -76,9 +68,6 @@ class CursosController extends Controller
 
         $curso->update($request->all());
 
-        //sincroniza pivot
-        //$curso->classes()->sync($request->classes);
-
         return to_route('cursos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Curso atualizado com sucesso!',
@@ -89,7 +78,10 @@ class CursosController extends Controller
     {
         $curso->delete();
 
-        return response(status: 204);
+        return to_route('cursos.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Curso excluído com sucesso!',
+        ]);
     }
 
     public function instituicoesTutoras(Curso $curso, Request $request)
@@ -100,15 +92,14 @@ class CursosController extends Controller
             ->where('curso_id', $curso->id)
             ->whereHas(
                 'instituicao',
-                fn($q) =>
-                $q->where('tipo', 'instituto')
+                fn ($q) => $q->where('tipo', 'instituto')
                     ->orWhere('id', $instituicaoId)
             )
             ->get()
             ->pluck('instituicao')
             ->unique('id')
             ->values()
-            ->map(fn($inst) => [
+            ->map(fn ($inst) => [
                 'id' => $inst->id,
                 'nome' => $inst->nome,
             ]);

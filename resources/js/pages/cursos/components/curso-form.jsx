@@ -1,34 +1,31 @@
-import { FormEventHandler } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
-interface CursoFormData {
-  nome: string;
-  duracao_anos: number | string;
-  descricao: string;
-}
-
-interface CursoFormProps {
-  title: string;
-  data: CursoFormData;
-  setData: (key: keyof CursoFormData, value: string) => void;
-  errors: Partial<Record<keyof CursoFormData, string>>;
-  processing: boolean;
-  submitFn: FormEventHandler;
-}
-
-export function CursoForm({ title, data, setData, errors, processing, submitFn }: CursoFormProps) {
+export function CursoForm({
+  title,
+  submitLabel = 'Guardar',
+  data,
+  setData,
+  errors,
+  processing,
+  submitFn,
+}) {
   return (
-    <div className="w-full max-w-sm px-6 py-6 mx-auto md:max-w-md lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-2xl">
       <form onSubmit={submitFn}>
         <Card>
           <CardHeader className="border-b">
             <CardTitle>{title}</CardTitle>
           </CardHeader>
-
           <CardContent>
             <FieldGroup>
               <FieldSet>
@@ -39,7 +36,7 @@ export function CursoForm({ title, data, setData, errors, processing, submitFn }
                     type="text"
                     placeholder="Ex.: Informática de gestão"
                     value={data.nome}
-                    onChange={(e) => setData("nome", e.target.value)}
+                    onChange={(e) => setData('nome', e.target.value)}
                   />
                   {errors.nome && <FieldError>{errors.nome}</FieldError>}
                 </Field>
@@ -51,9 +48,11 @@ export function CursoForm({ title, data, setData, errors, processing, submitFn }
                     type="number"
                     placeholder="Ex.: 3"
                     value={data.duracao_anos}
-                    onChange={(e) => setData("duracao_anos", e.target.value)}
+                    onChange={(e) => setData('duracao_anos', e.target.value)}
                   />
-                  {errors.duracao_anos && <FieldError>{errors.duracao_anos}</FieldError>}
+                  {errors.duracao_anos && (
+                    <FieldError>{errors.duracao_anos}</FieldError>
+                  )}
                 </Field>
 
                 <Field>
@@ -62,14 +61,16 @@ export function CursoForm({ title, data, setData, errors, processing, submitFn }
                     id="descricao"
                     placeholder="..."
                     value={data.descricao}
-                    onChange={(e) => setData("descricao", e.target.value)}
+                    onChange={(e) => setData('descricao', e.target.value)}
                   />
-                  {errors.descricao && <FieldError>{errors.descricao}</FieldError>}
+                  {errors.descricao && (
+                    <FieldError>{errors.descricao}</FieldError>
+                  )}
                 </Field>
 
                 <Field>
                   <Button type="submit" disabled={processing}>
-                    {processing ? "A guardar..." : "Adicionar"}
+                    {processing ? 'A guardar...' : submitLabel}
                   </Button>
                 </Field>
               </FieldSet>

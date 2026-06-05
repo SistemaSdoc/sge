@@ -1,38 +1,55 @@
-import { Link, router } from "@inertiajs/react";
+import { Link, router } from '@inertiajs/react';
 
-import { Button } from "@/components/ui/button";
-import { Minus, MoreHorizontalIcon, BookIcon } from "lucide-react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious, } from "@/components/ui/pagination";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { EmptyState } from "@/components/empty-state"
+import { Button } from '@/components/ui/button';
+import { Minus, MoreHorizontalIcon, BookIcon } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { EmptyState } from '@/components/empty-state';
 
-
-interface Curso {
-  id: number;
-  nome: string;
-  instituicao_tutora?: string | null;
-  duracao_anos?: number;
-}
-
-interface props {
-  data: Curso[] | undefined;
-  instituicaoId: number;
-  //deleteFn: (id: number) => void;
-}
-
-export function TabContentCursos({ data, instituicaoId }: props) {
+export function TabContentCursos({ data, instituicaoId }) {
   const isEmpty = !data || data.length === 0;
 
   return (
-    <Card className="gap-0 w-full max-w-7xl mx-auto">
+    <Card className="mx-auto w-full max-w-7xl gap-0">
       <CardHeader className="border-b">
         <CardTitle>Cursos</CardTitle>
-        <CardDescription>Cursos lecionados por esta instituição</CardDescription>
+        <CardDescription>
+          Cursos lecionados por esta instituição
+        </CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href={`/instituicoes/${instituicaoId}/cursos/create`} >Adicionar</Link>
+            <Link href={`/instituicoes/${instituicaoId}/cursos/create`}>
+              Adicionar
+            </Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -45,9 +62,9 @@ export function TabContentCursos({ data, instituicaoId }: props) {
             title="Nenhum curso cadastrado"
             description="Comece adicionando o primeiro curso à instituição"
             action={{
-              label: "Adicionar Curso",
+              label: 'Adicionar Curso',
               href: `/instituicoes/${instituicaoId}/cursos/create`,
-              variant: "outline"
+              variant: 'outline',
             }}
           />
         ) : (
@@ -60,15 +77,22 @@ export function TabContentCursos({ data, instituicaoId }: props) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map(curso => (
+              {data.map((curso) => (
                 <TableRow
                   key={curso.id}
                   className="hover:cursor-pointer"
                   onClick={() => router.visit(`/instituicoes/${instituicaoId}/cursos-tutelados/${curso.id}`)}
                 >
-                  <TableCell className="px-4 font-medium">{curso.nome}</TableCell>
-                  <TableCell>{curso.instituicao_tutora ? curso.instituicao_tutora
-                      : <Minus size={15} className="text-muted-foreground" />}</TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {curso.nome}
+                  </TableCell>
+                  <TableCell>
+                    {curso.instituicao_tutora ? (
+                      curso.instituicao_tutora
+                    ) : (
+                      <Minus size={15} className="text-muted-foreground" />
+                    )}
+                  </TableCell>
                   <TableCell className="px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -79,19 +103,28 @@ export function TabContentCursos({ data, instituicaoId }: props) {
                       </DropdownMenuTrigger>
 
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={(e) => {
-                          e.stopPropagation()
-                          router.visit(`/instituicoes/${instituicaoId}/cursos/${curso.id}/edit`)
-                        }}>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.visit(
+                              `/instituicoes/${instituicaoId}/cursos/${curso.id}/edit`,
+                            );
+                          }}
+                        >
                           Editar
                         </DropdownMenuItem>
 
                         <DropdownMenuSeparator />
 
-                        <DropdownMenuItem variant="destructive" onClick={(e) => {
-                          e.stopPropagation()
-                          router.visit(`/instituicoes/${instituicaoId}/cursos/${curso.id}/delete`)
-                        }}>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.visit(
+                              `/instituicoes/${instituicaoId}/cursos/${curso.id}/delete`,
+                            );
+                          }}
+                        >
                           Remover Curso
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -122,5 +155,5 @@ export function TabContentCursos({ data, instituicaoId }: props) {
         </CardFooter>
       )}
     </Card>
-  )
+  );
 }

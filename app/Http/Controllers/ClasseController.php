@@ -6,14 +6,13 @@ use App\Http\Requests\Classe\StoreClasseRequest;
 use App\Http\Requests\Classe\UpdateClasseRequest;
 use App\Models\Classe;
 use Inertia\Inertia;
-use Inertia\Response;
 
 class ClasseController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index()
     {
         $classes = Classe::orderBy('ordem')->get();
 
@@ -25,7 +24,7 @@ class ClasseController
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): Response
+    public function create()
     {
         return Inertia::render('classes/create');
     }
@@ -46,7 +45,7 @@ class ClasseController
     /**
      * Display the specified resource.
      */
-    public function show(Classe $classe): Response
+    public function show(Classe $classe)
     {
         return Inertia::render('classes/show', [
             'classe' => $classe,
@@ -56,7 +55,7 @@ class ClasseController
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Classe $classe): Response
+    public function edit(Classe $classe)
     {
         return Inertia::render('classes/edit', [
             'classe' => $classe,
