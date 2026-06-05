@@ -24,6 +24,12 @@ const mainNavItems: NavItem[] = [
   },
 
   {
+    title: 'Instituições',
+    href: (`/instituicoes`),
+    icon: LayersIcon,
+  },
+
+  {
     title: 'Cursos',
     href: (`/cursos`),
     icon: LayersIcon,

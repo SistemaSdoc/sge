@@ -92,7 +92,7 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
         ]);
 
         $cursos = $instituicao->instituicaoCursos->map(fn ($instituicaoCurso) => [
-            'id' => $instituicaoCurso->curso->id,
+            'id' => $instituicaoCurso->cursoTutelado->id,
             'nome' => $instituicaoCurso->curso->nome,
             'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,
         ])->all();

@@ -58,8 +58,15 @@ class CursoTuteladoResourceShow extends JsonResource
                 ->map(fn ($turma) => [
                     'id' => $turma->id,
                     'nome' => $turma->nome,
-                    'classe' => $turma->cursoClasseTurno->cursoClasse->classe->nome,
-                    'turno' => $turma->cursoClasseTurno->turno->nome,
+                    'max_alunos' => $turma->max_alunos,
+                    'classe' => [
+                        'id' => $turma->cursoClasseTurno->cursoClasse->classe->id,
+                        'nome' => $turma->cursoClasseTurno->cursoClasse->classe->nome,
+                    ],
+                    'turno' => [
+                        'id' => $turma->cursoClasseTurno->turno->id,
+                        'nome' => $turma->cursoClasseTurno->turno->nome,
+                    ],
                 ]),
         ];
     }

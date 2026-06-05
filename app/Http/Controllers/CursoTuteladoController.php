@@ -6,6 +6,7 @@ use App\Http\Requests\StoreCursoTuteladoRequest;
 use App\Http\Resources\CursoTutelado\CursoTuteladoResourceEdit;
 use App\Http\Resources\CursoTutelado\CursoTuteladoResourceIndex;
 use App\Http\Resources\CursoTutelado\CursoTuteladoResourceShow;
+use App\Models\Classe;
 use App\Models\Curso;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
@@ -14,10 +15,11 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
-class CursoTuteladoController extends Controller implements HasMiddleware
+class CursoTuteladoController extends Controller //implements HasMiddleware
 {
-    public static function middleware(): array
+    /*public static function middleware(): array
     {
         return [
             new Middleware('permission:cursos.index', only: ['index']),
@@ -26,7 +28,7 @@ class CursoTuteladoController extends Controller implements HasMiddleware
             new Middleware('permission:cursos.edit', only: ['update']),
             new Middleware('permission:cursos.delete', only: ['destroy']),
         ];
-    }
+    }*/
 
     public function index(Instituicao $instituicao)
     {
@@ -39,6 +41,26 @@ class CursoTuteladoController extends Controller implements HasMiddleware
             ->get();
 
         return CursoTuteladoResourceIndex::collection($cursosTutelados);
+    }
+
+    public function create(Instituicao $instituicao)
+    {
+        $classes = Classe::select('id', 'nome')
+            ->orderBy('nome')
+            ->get();
+
+        $cursos = Curso::select('id', 'nome')
+            ->orderBy('nome')
+            ->get();
+
+        return Inertia::render('cursos-tutelados/create', [
+            'instituicao' => [
+                'id' => $instituicao->id,
+                'nome' => $instituicao->nome,
+            ],
+            'classes' => $classes,
+            'cursos' => $cursos,
+        ]);
     }
 
     public function store(StoreCursoTuteladoRequest $request, Instituicao $instituicao): Response
@@ -65,7 +87,9 @@ class CursoTuteladoController extends Controller implements HasMiddleware
 
         // Usar transação para garantir integridade
         try {
-            DB::transaction(function () use ($instituicao, $curso, $validated) {
+            $cursoTutelado = null;
+
+            DB::transaction(function () use ($instituicao, $curso, $validated, &$cursoTutelado) {
                 // Criar InstituicaoCurso
                 $instituicaoCurso = InstituicaoCurso::create([
                     'curso_id' => $curso->id,
@@ -85,7 +109,10 @@ class CursoTuteladoController extends Controller implements HasMiddleware
             abort(500, 'Erro ao criar curso tutelado: ' . $e->getMessage());
         }
 
-        return response()->noContent(201);
+        return redirect()->route('instituicoes.cursos-tutelados.show', [
+            $instituicao,
+            $cursoTutelado,
+        ]);
     }
 
     public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado)
@@ -102,7 +129,11 @@ class CursoTuteladoController extends Controller implements HasMiddleware
             'cursoClasses.turnos.classeTurnoDisciplinas',              // ✅ para contar disciplinas
         ]);
 
-        return new CursoTuteladoResourceShow($cursoTutelado);
+        $resource = (new CursoTuteladoResourceShow($cursoTutelado))->resolve();
+
+        return Inertia::render('cursos-tutelados/show', [
+            'cursoTutelado' => $resource,
+        ]);
     }
 
     public function edit(Instituicao $instituicao, CursoTutelado $cursoTutelado)
@@ -114,7 +145,23 @@ class CursoTuteladoController extends Controller implements HasMiddleware
             'classes:id',
         ]);
 
-        return new CursoTuteladoResourceEdit($cursoTutelado);
+        $classes = Classe::select('id', 'nome')
+            ->orderBy('nome')
+            ->get();
+
+        $instituicoes = Instituicao::select('id', 'nome')
+            ->orderBy('nome')
+            ->get();
+
+        return Inertia::render('cursos-tutelados/edit', [
+            'instituicao' => [
+                'id' => $instituicao->id,
+                'nome' => $instituicao->nome,
+            ],
+            'cursoTutelado' => (new CursoTuteladoResourceEdit($cursoTutelado))->resolve(),
+            'classes' => $classes,
+            'instituicoes' => $instituicoes,
+        ]);
     }
 
     public function update(Instituicao $instituicao, CursoTutelado $cursoTutelado): Response

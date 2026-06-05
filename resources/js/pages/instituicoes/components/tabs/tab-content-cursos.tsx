@@ -64,7 +64,7 @@ export function TabContentCursos({ data, instituicaoId }: props) {
                 <TableRow
                   key={curso.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/instituicoes/${instituicaoId}/cursos/${curso.id}`)}
+                  onClick={() => router.visit(`/instituicoes/${instituicaoId}/cursos-tutelados/${curso.id}`)}
                 >
                   <TableCell className="px-4 font-medium">{curso.nome}</TableCell>
                   <TableCell>{curso.instituicao_tutora ? curso.instituicao_tutora
