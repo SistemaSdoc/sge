@@ -116,5 +116,5 @@
         "resources/js/**/*.ts",
         "resources/js/**/*.d.ts",
         "resources/js/**/*.tsx"
-    ]
+, "resources/js/components/classes/classe-form.jsx", "resources/js/pages/classes/index.jsx"    ]
 }

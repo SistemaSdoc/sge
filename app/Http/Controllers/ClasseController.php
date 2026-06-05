@@ -6,15 +6,16 @@ use App\Http\Requests\Classe\StoreClasseRequest;
 use App\Http\Requests\Classe\UpdateClasseRequest;
 use App\Models\Classe;
 use Inertia\Inertia;
+use Inertia\Response;
 
-class ClasseController extends Controller
+class ClasseController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Response
     {
-        $classes = Classe::all();
+        $classes = Classe::orderBy('ordem')->get();
 
         return Inertia::render('classes/index', [
             'classes' => $classes,
@@ -24,7 +25,7 @@ class ClasseController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Response
     {
         return Inertia::render('classes/create');
     }
@@ -45,7 +46,7 @@ class ClasseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Classe $classe)
+    public function show(Classe $classe): Response
     {
         return Inertia::render('classes/show', [
             'classe' => $classe,
@@ -55,7 +56,7 @@ class ClasseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Classe $classe)
+    public function edit(Classe $classe): Response
     {
         return Inertia::render('classes/edit', [
             'classe' => $classe,
@@ -67,7 +68,7 @@ class ClasseController extends Controller
      */
     public function update(UpdateClasseRequest $request, Classe $classe)
     {
-        Classe::update($request->validated());
+        $classe->update($request->validated());
 
         return to_route('classes.index')->with('toast', [
             'type' => 'success',
@@ -80,7 +81,7 @@ class ClasseController extends Controller
      */
     public function destroy(Classe $classe)
     {
-        Classe::destroy($classe);
+        $classe->delete();
 
         return to_route('classes.index')->with('toast', [
             'type' => 'success',

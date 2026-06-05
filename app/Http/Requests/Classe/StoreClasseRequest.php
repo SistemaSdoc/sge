@@ -23,7 +23,7 @@ class StoreClasseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nome' => ['required', 'string', 'max:50', 'regex:/^[\p{L}\s]+$/u'],
+            'nome' => ['required', 'string', 'max:50',],
             'ordem' => 'required|integer',
         ];
     }
@@ -31,7 +31,9 @@ class StoreClasseRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nome.regex' => 'Não é permitido inserir números neste campo.',
+            'nome.required' => 'O campo nome é obrigatório.',
+            'nome.string' => 'O campo nome deve ser uma string.',
+            'nome.max' => 'O campo nome deve ter no máximo 50 caracteres.',
             'ordem.integer' => 'Ordem deve ser um número inteiro.',
         ];
     }
