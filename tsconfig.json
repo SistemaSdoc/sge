@@ -143,5 +143,5 @@
     "resources/js/pages/turnos/create.jsx",
     "resources/js/pages/turnos/components/turno-form.jsx",
     "resources/js/pages/turnos/components/turno-table.jsx"
-  ]
+, "resources/js/pages/cursos-tutelados/show.jsx", "resources/js/pages/cursos-tutelados/edit.jsx", "resources/js/pages/cursos-tutelados/create.jsx", "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx", "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx", "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx", "resources/js/pages/cursos-tutelados/components/forms/create.form.jsx", "resources/js/components/ui/multiselect.jsx"  ]
 }

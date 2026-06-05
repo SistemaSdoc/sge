@@ -1,14 +1,16 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { EmptyState } from "@/components/empty-state"
-import { BookOpenIcon } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { EmptyState } from '@/components/empty-state';
+import { BookOpenIcon } from 'lucide-react';
 
-interface Props {
-  instituicaoId: number
-  cursoTuteladoId: number
-}
-
-export function TabProfessores({ instituicaoId }: Props) {
-  const isEmpty = true
+export function TabProfessores({ instituicaoId }) {
+  const isEmpty = true;
 
   return (
     <Card className="gap-0">
@@ -30,5 +32,5 @@ export function TabProfessores({ instituicaoId }: Props) {
         <span className="text-muted-foreground">Página 1 de 1</span>
       </CardFooter>
     </Card>
-  )
+  );
 }

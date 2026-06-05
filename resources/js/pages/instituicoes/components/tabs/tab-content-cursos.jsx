@@ -47,7 +47,7 @@ export function TabContentCursos({ data, instituicaoId }) {
         </CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href={`/instituicoes/${instituicaoId}/cursos/create`}>
+            <Link href={`/instituicoes/${instituicaoId}/cursos-tutelados/create`}>
               Adicionar
             </Link>
           </Button>
@@ -63,7 +63,7 @@ export function TabContentCursos({ data, instituicaoId }) {
             description="Comece adicionando o primeiro curso à instituição"
             action={{
               label: 'Adicionar Curso',
-              href: `/instituicoes/${instituicaoId}/cursos/create`,
+              href: `/instituicoes/${instituicaoId}/cursos-tutelados/create`,
               variant: 'outline',
             }}
           />
@@ -107,7 +107,7 @@ export function TabContentCursos({ data, instituicaoId }) {
                           onClick={(e) => {
                             e.stopPropagation();
                             router.visit(
-                              `/instituicoes/${instituicaoId}/cursos/${curso.id}/edit`,
+                              `/instituicoes/${instituicaoId}/cursos-tutelados/${curso.id}/edit`,
                             );
                           }}
                         >
@@ -121,7 +121,7 @@ export function TabContentCursos({ data, instituicaoId }) {
                           onClick={(e) => {
                             e.stopPropagation();
                             router.visit(
-                              `/instituicoes/${instituicaoId}/cursos/${curso.id}/delete`,
+                              `/instituicoes/${instituicaoId}/cursos-tutelados/${curso.id}`,
                             );
                           }}
                         >
