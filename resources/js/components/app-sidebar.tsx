@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BoxSelectIcon, LayoutGrid } from 'lucide-react';
+import { BoxSelectIcon, GraduationCapIcon, LayersIcon, LayoutGrid, LayoutListIcon } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -22,6 +22,26 @@ const mainNavItems: NavItem[] = [
     href: dashboard(),
     icon: LayoutGrid,
   },
+
+  {
+    title: 'Cursos',
+    href: (`/cursos`),
+    icon: LayersIcon,
+  },
+
+  {
+    title: 'Classes',
+    href: (`/classes`),
+    icon: GraduationCapIcon,
+  },
+
+  {
+    title: 'Turnos',
+    href: (`/turnos`),
+    icon: LayersIcon,
+  },
+
+
 ];
 
 const footerNavItems: NavItem[] = [

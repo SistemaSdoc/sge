@@ -29,6 +29,7 @@ return new class extends Migration {
             $table->uuid('id')->primary();
             $table->string('nome');
             $table->text('descricao')->nullable();
+            $table->integer('duracao_anos');
             $table->integer('status')->default(1);
             $table->timestamps();
         });

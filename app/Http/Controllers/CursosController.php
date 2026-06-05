@@ -8,14 +8,23 @@ use App\Models\Classe;
 use App\Models\Curso;
 use App\Models\InstituicaoCurso;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CursosController extends Controller
 {
     public function index()
     {
-        $cursos = Curso::orderBy('created_at', 'desc')->get();
+        $cursos = Curso::all();
 
-        return CursoResourceIndex::collection($cursos);
+        return Inertia::render('cursos/index', [
+            'cursos' => $cursos,
+        ]);
+    }
+
+    public function create()
+    {
+
+        return Inertia::render('cursos/create');
     }
 
     public function store(CursoRequest $request)
@@ -36,12 +45,23 @@ class CursosController extends Controller
             $curso->instituicoes()->attach($request->instituicoes);
         } */
 
-        return response()->json($curso, 201);
+        return to_route('cursos.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Curso criado com sucesso!',
+        ]);
     }
 
     public function show(Curso $curso)
     {
         return response()->json($curso);
+    }
+
+    public function edit(Curso $curso)
+    {
+
+        return Inertia::render('cursos/edit', [
+            'curso' => $curso
+        ]);
     }
 
     public function update(CursoRequest $request, Curso $curso)
@@ -57,9 +77,12 @@ class CursosController extends Controller
         $curso->update($request->all());
 
         //sincroniza pivot
-        $curso->classes()->sync($request->classes);
+        //$curso->classes()->sync($request->classes);
 
-        return response()->json(status: 200);
+        return to_route('cursos.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Curso atualizado com sucesso!',
+        ]);
     }
 
     public function destroy(Curso $curso)
@@ -86,7 +109,7 @@ class CursosController extends Controller
             ->unique('id')
             ->values()
             ->map(fn($inst) => [
-                'id'   => $inst->id,
+                'id' => $inst->id,
                 'nome' => $inst->nome,
             ]);
 

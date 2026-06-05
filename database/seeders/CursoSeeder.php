@@ -15,19 +15,24 @@ class CursoSeeder extends Seeder
         Curso::create([
             'nome' => 'Informática de Gestão',
             'descricao' => 'Curso de Informática de Gestão',
+            'duracao_anos' => 4,
             'status' => 1, // 1 = ativo, 0 = inativo
         ]);
 
         Curso::create([
             'nome' => 'Gestão Administrativa',
             'descricao' => 'Curso de Gestão Administrativa',
+            'duracao_anos' => 4,
             'status' => 1, // 1 = ativo, 0 = inativo
         ]);
 
         Curso::create([
             'nome' => 'Contabilidade',
             'descricao' => 'Curso de Contabilidade',
+            'duracao_anos' => 4,
             'status' => 1, // 1 = ativo, 0 = inativo
         ]);
     }
 }
+
+      
