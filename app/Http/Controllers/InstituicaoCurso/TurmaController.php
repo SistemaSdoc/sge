@@ -18,9 +18,9 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 
-class TurmaController extends Controller implements HasMiddleware
+class TurmaController extends Controller //implements HasMiddleware
 {
-    public static function middleware(): array
+    /*public static function middleware(): array
     {
         return [
             new Middleware('permission:turmas.index', only: ['index']),
@@ -29,7 +29,7 @@ class TurmaController extends Controller implements HasMiddleware
             new Middleware('permission:turmas.edit', only: ['update']),
             new Middleware('permission:turmas.delete', only: ['destroy', 'removerProfessor']),
         ];
-    }
+    }*/
 
     public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {

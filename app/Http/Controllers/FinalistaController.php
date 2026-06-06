@@ -12,15 +12,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
-class FinalistaController extends Controller implements HasMiddleware
+class FinalistaController extends Controller //implements HasMiddleware
 {
-    public static function middleware(): array
+    /*public static function middleware(): array
     {
         return [
             new Middleware('permission:turmas.show', only: ['index', 'historico']),
             new Middleware('permission:turmas.edit', only: ['papConcluido', 'concluir', 'reprovar', 'marcarDesistente']),
         ];
-    }
+    }*/
 
     // Lista alunos que defenderam o PAP (pap_concluido)
     public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado, Turma $turma): JsonResponse

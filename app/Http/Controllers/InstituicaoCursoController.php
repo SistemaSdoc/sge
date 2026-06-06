@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
-class InstituicaoCursoController extends Controller implements HasMiddleware
+class InstituicaoCursoController extends Controller //implements HasMiddleware
 {
-    public static function middleware(): array
+    /*public static function middleware(): array
     {
         return [
             new Middleware('permission:cursos.index',  only: ['index']),
@@ -26,7 +26,7 @@ class InstituicaoCursoController extends Controller implements HasMiddleware
             new Middleware('permission:cursos.edit',   only: ['update']),
             new Middleware('permission:cursos.delete', only: ['destroy']),
         ];
-    }
+    }*/
 
     public function store(StoreInstituicaoCursoRequest $request, Instituicao $instituicao)
     {

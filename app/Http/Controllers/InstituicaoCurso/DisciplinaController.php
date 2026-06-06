@@ -15,9 +15,9 @@ use App\Models\Instituicao;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
-class DisciplinaController extends Controller implements HasMiddleware
+class DisciplinaController extends Controller //implements HasMiddleware
 {
-    public static function middleware(): array
+    /*public static function middleware(): array
     {
         return [
             new Middleware('permission:disciplinas.index',  only: ['index']),
@@ -26,7 +26,7 @@ class DisciplinaController extends Controller implements HasMiddleware
             new Middleware('permission:disciplinas.edit',   only: ['update']),
             new Middleware('permission:disciplinas.delete', only: ['destroy']),
         ];
-    }
+    }*/
     
     public function index(Instituicao $instituicao, InstituicaoCurso $instituicaoCurso)
     {

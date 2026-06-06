@@ -1,4 +1,3 @@
-import { useForm, router } from '@inertiajs/react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -56,7 +55,7 @@ export function CursoForm({
                         setData('curso_id', '');
                       } else {
                         setModo('existente');
-                        setData('curso_id', value);
+                        setData('curso_id', String(value));
                       }
                     }}
                   >
@@ -93,7 +92,7 @@ export function CursoForm({
                     onChange={(opts) =>
                       setData(
                         'classes',
-                        opts.map((o) => o.value),
+                        opts.map((o) => String(o.value)),
                       )
                     }
                     value={data.classes.map((id) => ({

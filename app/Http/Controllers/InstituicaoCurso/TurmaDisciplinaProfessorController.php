@@ -23,9 +23,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 
-class TurmaDisciplinaProfessorController extends Controller implements HasMiddleware
+class TurmaDisciplinaProfessorController extends Controller //implements HasMiddleware
 {
-    public static function middleware(): array
+    /*public static function middleware(): array
     {
         return [
             new Middleware('permission:professores.index', only: ['index']),
@@ -34,7 +34,7 @@ class TurmaDisciplinaProfessorController extends Controller implements HasMiddle
             new Middleware('permission:professores.edit', only: ['update']),
             new Middleware('permission:professores.delete', only: ['destroy']),
         ];
-    }
+    }*/
 
     /**
      * Lista professores associados a um curso específico na instituição

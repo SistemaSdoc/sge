@@ -15,9 +15,9 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 
-class ClasseTurnoDisciplinaController extends Controller implements HasMiddleware
+class ClasseTurnoDisciplinaController extends Controller //implements HasMiddleware
 {
-    public static function middleware(): array
+    /*public static function middleware(): array
     {
         return [
             new Middleware('permission:disciplinas.index', only: ['index']),
@@ -25,7 +25,7 @@ class ClasseTurnoDisciplinaController extends Controller implements HasMiddlewar
             new Middleware('permission:disciplinas.edit', only: ['update']),
             new Middleware('permission:disciplinas.delete', only: ['destroy']),
         ];
-    }
+    }*/
 
     public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
     {

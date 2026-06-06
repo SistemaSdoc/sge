@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
-class ProfessorController extends Controller // implements HasMiddleware
+class ProfessorController extends Controller //implements HasMiddleware
 {
     /*public static function middleware(): array
     {

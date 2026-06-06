@@ -7,6 +7,7 @@ use App\Models\CursoClasse;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class CursoClasseTurnoController extends Controller
 {
@@ -17,7 +18,16 @@ class CursoClasseTurnoController extends Controller
             'cursoClasses.turnos.turno:id,nome',
         ]);
 
-        return CursoClasseTurnoResource::collection($cursoTutelado->cursoClasses);
+        // If the client expects JSON for a non-Inertia API request, return the resource collection
+        if (! request()->header('X-Inertia') && (request()->wantsJson() || request()->ajax())) {
+            return CursoClasseTurnoResource::collection($cursoTutelado->cursoClasses);
+        }
+
+        // Otherwise render the Inertia page so the frontend can mount
+        return Inertia::render('cursos-tutelados/classes/create', [
+            'instituicaoId' => $instituicao->id,
+            'cursoId' => $cursoTutelado->id,
+        ]);
     }
 
     public function update(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse)

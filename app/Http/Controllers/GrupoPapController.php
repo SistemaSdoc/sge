@@ -18,9 +18,9 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 
-class GrupoPapController extends Controller implements HasMiddleware
+class GrupoPapController extends Controller //implements HasMiddleware
 {
-    public static function middleware(): array
+    /*public static function middleware(): array
     {
         return [
             new Middleware('permission:pap.index', only: ['index', 'alunosDisponiveis']),
@@ -29,7 +29,7 @@ class GrupoPapController extends Controller implements HasMiddleware
             new Middleware('permission:pap.edit', only: ['update', 'actualizarNota']),
             new Middleware('permission:pap.delete', only: ['destroy', 'removerJurado']),
         ];
-    }
+    }*/
 
     public function index()
     {

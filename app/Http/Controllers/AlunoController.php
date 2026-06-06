@@ -11,9 +11,9 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 
-class AlunoController extends Controller implements HasMiddleware
+class AlunoController extends Controller //implements HasMiddleware
 {
-    public static function middleware(): array
+   /* public static function middleware(): array
     {
         return [
             new Middleware('permission:alunos.index', only: ['index']),
@@ -21,7 +21,7 @@ class AlunoController extends Controller implements HasMiddleware
             new Middleware('permission:alunos.edit', only: ['update']),
             new Middleware('permission:alunos.delete', only: ['destroy']),
         ];
-    }
+    }*/
 
     public function index()
     {

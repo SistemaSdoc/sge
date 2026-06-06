@@ -13,13 +13,13 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 
-class InscricaoController extends Controller implements HasMiddleware
+class InscricaoController extends Controller //implements HasMiddleware
 {
     public function __construct(
         private InscricaoService $inscricaoService
     ) {}
 
-    public static function middleware(): array
+    /*public static function middleware(): array
     {
         return [
             new Middleware('permission:inscricoes.index', only: ['index']),
@@ -28,7 +28,7 @@ class InscricaoController extends Controller implements HasMiddleware
             new Middleware('permission:inscricoes.edit', only: ['update']),
             new Middleware('permission:inscricoes.delete', only: ['destroy']),
         ];
-    }
+    }*/
 
     public function index()
     {
