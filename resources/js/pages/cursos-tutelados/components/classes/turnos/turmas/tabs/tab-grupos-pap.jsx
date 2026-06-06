@@ -1,23 +1,38 @@
-"use client"
-import { useRouter } from "next/navigation";
+import { router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Minus, Users2Icon } from "lucide-react";
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { EmptyState } from "@/components/empty-state";
-import Link from "next/link";
+import { Link } from "@inertiajs/react";
 
 export function TabGruposPAP({
-  data,
-  cursoId,
-  classeId,
-  turnoId,
-  turmaId,
+  turma,
   instituicaoId,
+  cursoTuteladoId,
+  cursoClasseId,
+  cursoClasseTurnoId,
 }) {
-  const router = useRouter()
-  const isEmpty = !data?.grupos_pap || data.grupos_pap.length === 0;
+  const turmaId = turma.id;
+  const grupos = turma.grupos_pap ?? [];
+  const isEmpty = grupos.length === 0;
+
+  const baseUrl = `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
 
   return (
     <Card className="gap-0 pb-0">
@@ -26,9 +41,7 @@ export function TabGruposPAP({
         <CardDescription>Grupos de aptidão profissional desta turma</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href={`/dashboard/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/grupos-pap/create`}>
-              Criar grupo
-            </Link>
+            <Link href={`${baseUrl}/pap/grupos/create`}>Criar grupo</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -42,8 +55,8 @@ export function TabGruposPAP({
             description="Comece adicionando grupos"
             action={{
               label: "Criar Grupo",
-              href: `/dashboard/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/grupos-pap/create`,
-              variant: "outline"
+              href: `${baseUrl}/pap/grupos/create`,
+              variant: "outline",
             }}
           />
         ) : (
@@ -57,52 +70,26 @@ export function TabGruposPAP({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data?.grupos_pap?.length > 0
-                ? data.grupos_pap.map(grupo => (
-                  <TableRow
-                    key={grupo.id}
-                    className="hover:cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      router.push(`/dashboard/pap/grupos/${grupo.id}`)
-                    }}
-                  >
-                    <TableCell className="px-4 font-medium">{grupo.nome_grupo}</TableCell>
-                    <TableCell>{grupo.tema_grupo}</TableCell>
-                    <TableCell>{grupo.status}</TableCell>
-                    <TableCell>{grupo.nota_final ?? <Minus size={15} className="text-muted-foreground" />}</TableCell>
-                  </TableRow>
-                ))
-                : (
-                  <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={6} className="px-4 py-6 text-center text-muted-foreground">
-                      Nenhum grupo PAP criado nesta turma
-                    </TableCell>
-                  </TableRow>
-                )
-              }
+              {grupos.map((grupo) => (
+                <TableRow
+                  key={grupo.id}
+                  className="hover:cursor-pointer"
+                  onClick={() => router.visit(`/pap/grupos/${grupo.id}`)}
+                >
+                  <TableCell className="px-4 font-medium">{grupo.nome_grupo}</TableCell>
+                  <TableCell>{grupo.tema_grupo}</TableCell>
+                  <TableCell>{grupo.status}</TableCell>
+                  <TableCell>
+                    {grupo.nota_final ?? (
+                      <Minus size={15} className="text-muted-foreground" />
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         )}
       </CardContent>
-
-      {!isEmpty && (
-        <CardFooter className="justify-between">
-          <span className="text-muted-foreground">Página 1 de 4</span>
-
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious href="#" />
-              </PaginationItem>
-
-              <PaginationItem>
-                <PaginationNext href="#" />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardFooter>
-      )}
     </Card>
-  )
+  );
 }

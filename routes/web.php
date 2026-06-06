@@ -47,7 +47,10 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
     Route::prefix('cursos-tutelados/{cursoTutelado}')->group(function () {
         Route::apiResource('professores', CursoTuteladoProfessorController::class)->only(['index', 'store', 'destroy']);
 
-        Route::apiResource('classes', CursoClasseController::class)->only(['show'])->parameters(['classes' => 'cursoClasse']);
+        Route::apiResource('classes', CursoClasseController::class)
+            ->only(['show'])
+            ->parameters(['classes' => 'cursoClasse'])
+            ->names(['show' => 'cursos-tutelados.classes.show']);
 
         Route::apiResource('turmas', TurmaController::class);
 
@@ -73,7 +76,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
         Route::put('classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'update']);
 
         Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')->group(function () {
-            Route::apiResource('disciplinas', ClasseTurnoDisciplinaController::class);
+            Route::resource('disciplinas', ClasseTurnoDisciplinaController::class);
             Route::apiResource('turmas', ClasseTurnoTurmaController::class);
 
             Route::prefix('turmas/{turma}')->group(function () {

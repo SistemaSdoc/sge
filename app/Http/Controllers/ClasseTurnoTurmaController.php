@@ -10,6 +10,7 @@ use App\Models\Turma;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Inertia\Inertia;
 
 class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware */
 {
@@ -31,9 +32,9 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         $turmas = Turma::where('curso_classe_turno_id', $cursoClasseTurno->id)->get();
 
         return response()->json(
-            $turmas->map(fn($turma) => [
-                'id'         => $turma->id,
-                'nome'       => $turma->nome,
+            $turmas->map(fn ($turma) => [
+                'id' => $turma->id,
+                'nome' => $turma->nome,
                 'max_alunos' => $turma->max_alunos,
                 'alunos_count' => $turma->alunos()->count(),
             ])
@@ -46,7 +47,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
     public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
     {
         $request->validate([
-            'nome'       => 'required|string|max:255',
+            'nome' => 'required|string|max:255',
             'max_alunos' => 'nullable|integer|min:1',
         ]);
 
@@ -60,8 +61,8 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
 
         Turma::create([
             'curso_classe_turno_id' => $cursoClasseTurno->id,
-            'nome'                  => $request->nome,
-            'max_alunos'            => $request->max_alunos,
+            'nome' => $request->nome,
+            'max_alunos' => $request->max_alunos,
         ]);
 
         return response()->json(status: 201);
@@ -70,9 +71,25 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
     {
-        //
+        $turma->load([
+            'cursoClasseTurno.cursoClasse.classe:id,nome',
+            'cursoClasseTurno.turno:id,nome',
+            'cursoClasseTurno.classeTurnoDisciplinas.disciplina:id,nome,sigla',
+            'alunos' => fn ($q) => $q->wherePivot('activo', true)
+                ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone']),
+            'turmaDisciplinaProfessor.professor.user:id,nome,email',
+            'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome',
+            'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
+        ]);
+
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
+            'cursoTutelado' => $cursoTutelado,
+            'cursoClasse' => $cursoClasse,
+            'cursoClasseTurno' => $cursoClasseTurno,
+            'turma' => $turma,
+        ]);
     }
 
     /**
@@ -83,7 +100,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         abort_if($turma->curso_classe_turno_id !== $cursoClasseTurno->id, 404);
 
         $request->validate([
-            'nome'       => 'sometimes|string|max:255',
+            'nome' => 'sometimes|string|max:255',
             'max_alunos' => 'nullable|integer|min:1',
         ]);
 
@@ -103,7 +120,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
 
         if ($temAlunos) {
             return response()->json([
-                'message' => 'Não é possível remover uma turma que tem alunos associados.'
+                'message' => 'Não é possível remover uma turma que tem alunos associados.',
             ], 422);
         }
 

@@ -1,10 +1,8 @@
-"use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -26,104 +24,81 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Minus, MoreHorizontalIcon, BookIcon, Clock } from "lucide-react";
+import { Minus, MoreHorizontalIcon, BookIcon } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
-import { HorariosDialog } from "../horarios/horarios-dialog";
-import Link from "next/link";
 
 export function TabDisciplinas({
-  data,
+  turma,
   instituicaoId,
-  cursoId,
-  classeId,
-  turnoId,
-  turmaId,
-  removerProfessorFn,
+  cursoTuteladoId,
+  cursoClasseId,
+  cursoClasseTurnoId,
 }) {
-  const router = useRouter();
-  const [horariosDialogOpen, setHorariosDialogOpen] = useState(false);
-  const [disciplinaSelectedParaHorario, setDisciplinaSelectedParaHorario] =
-    useState(null);
+  const turmaId = turma.id;
 
-  const isEmpty = !data?.disciplinas || data.disciplinas.length === 0;
+  // base para rotas nested
+  const baseUrl = `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
 
-  const abrirHorariosDialog = (disciplina, e) => {
-    e.stopPropagation();
-    setDisciplinaSelectedParaHorario(disciplina);
-    setHorariosDialogOpen(true);
-  };
-
-  const fecharHorariosDialog = () => {
-    setHorariosDialogOpen(false);
-    setDisciplinaSelectedParaHorario(null);
-  };
+  // disciplinas vêm do relacionamento carregado no controller
+  const disciplinas = turma.curso_classe_turno?.classe_turno_disciplinas ?? [];
+  const isEmpty = disciplinas.length === 0;
 
   return (
-    <>
-      <Card className="gap-0">
-        <CardHeader className="border-b">
-          <CardTitle>Disciplinas</CardTitle>
-          <CardDescription>Disciplinas lecionadas nesta turma</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0!">
-          {isEmpty ? (
-            <EmptyState
-              variant="table"
-              icon={BookIcon}
-              title="Nenhuma disciplina nesta turma"
-              description="Comece adicionando disciplinas"
-              action={{
-                label: "Adicionar Disciplina",
-                href: `/dashboard/instituicoes/${instituicaoId}/cursos/${cursoId}/turmas/${turmaId}/disciplinas/create`,
-                variant: "outline",
-              }}
-            />
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/72">
-                  <TableHead className="px-4">Nome</TableHead>
-                  <TableHead>Professor</TableHead>
-                  <TableHead className="px-4 text-right">Acções</TableHead>
-                </TableRow>
-              </TableHeader>
+    <Card className="gap-0">
+      <CardHeader className="border-b">
+        <CardTitle>Disciplinas</CardTitle>
+        <CardDescription>Disciplinas lecionadas nesta turma</CardDescription>
+      </CardHeader>
 
-              <TableBody>
-                {data?.disciplinas.map((disciplina) => (
+      <CardContent className="p-0!">
+        {isEmpty ? (
+          <EmptyState
+            variant="table"
+            icon={BookIcon}
+            title="Nenhuma disciplina nesta turma"
+            description="Comece adicionando disciplinas"
+          />
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/72">
+                <TableHead className="px-4">Nome</TableHead>
+                <TableHead>Professor</TableHead>
+                <TableHead className="px-4 text-right">Acções</TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {disciplinas.map((disciplina) => {
+                // professor atribuído a esta disciplina nesta turma
+                const professor = turma.turma_disciplina_professor?.find(
+                  (tdp) => tdp.classe_turno_disciplina_id === disciplina.id,
+                )?.professor?.user;
+
+                return (
                   <TableRow
-                    key={disciplina?.id}
+                    key={disciplina.id}
                     className="hover:cursor-pointer"
                     onClick={() =>
-                      router.push(
-                        `/dashboard/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplina.id}/notas`,
-                      )
+                      router.visit(`${baseUrl}/disciplinas/${disciplina.id}/notas`)
                     }
                   >
                     <TableCell className="px-4 font-medium">
-                      {disciplina.nome}
+                      {disciplina.disciplina?.nome}
                     </TableCell>
+
                     <TableCell>
-                      {disciplina?.professor?.nome ?? (
+                      {professor?.nome ?? (
                         <Minus size={15} className="text-muted-foreground" />
                       )}
                     </TableCell>
+
                     <TableCell className="px-4 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                          >
+                          <Button variant="ghost" size="icon" className="size-8">
                             <MoreHorizontalIcon />
-                            <span className="sr-only">Open menu</span>
+                            <span className="sr-only">Abrir menu</span>
                           </Button>
                         </DropdownMenuTrigger>
 
@@ -131,19 +106,10 @@ export function TabDisciplinas({
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.stopPropagation();
-                              router.push(
-                                `/dashboard/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplina.id}/professores/create`,
-                              );
+                              router.visit(`${baseUrl}/disciplinas/${disciplina.id}/notas`);
                             }}
                           >
-                            Definir professor
-                          </DropdownMenuItem>
-
-                          <DropdownMenuItem
-                            onClick={(e) => abrirHorariosDialog(disciplina, e)}
-                          >
-                            <Clock className="mr-2 size-4" />
-                            Definir horários
+                            Ver notas
                           </DropdownMenuItem>
 
                           <DropdownMenuSeparator />
@@ -152,7 +118,7 @@ export function TabDisciplinas({
                             variant="destructive"
                             onClick={(e) => {
                               e.stopPropagation();
-                              removerProfessorFn(disciplina.id);
+                              router.delete(`${baseUrl}/disciplinas/${disciplina.id}`);
                             }}
                           >
                             Remover
@@ -161,47 +127,12 @@ export function TabDisciplinas({
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-
-        {!isEmpty && (
-          <CardFooter className="justify-between">
-            <span className="text-muted-foreground">Página 1 de 4</span>
-
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious href="#" />
-                </PaginationItem>
-
-                <PaginationItem>
-                  <PaginationNext href="#" />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </CardFooter>
+                );
+              })}
+            </TableBody>
+          </Table>
         )}
-      </Card>
-
-      {disciplinaSelectedParaHorario && (
-        <HorariosDialog
-          isOpen={horariosDialogOpen}
-          onClose={fecharHorariosDialog}
-          disciplina={disciplinaSelectedParaHorario}
-          instituicaoId={instituicaoId}
-          cursoId={cursoId}
-          classeId={classeId}
-          turnoId={turnoId}
-          turmaId={turmaId}
-          onSuccess={() => {
-            // Refetch dos dados se necessário
-            console.log("Horários salvos com sucesso!");
-          }}
-        />
-      )}
-    </>
+      </CardContent>
+    </Card>
   );
 }

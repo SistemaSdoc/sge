@@ -6,6 +6,7 @@ use App\Models\ClasseTurnoDisciplina;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
+use App\Models\Disciplina;
 use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
 use App\Models\Turma;
@@ -14,8 +15,9 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
-class ClasseTurnoDisciplinaController extends Controller //implements HasMiddleware
+class ClasseTurnoDisciplinaController extends Controller // implements HasMiddleware
 {
     /*public static function middleware(): array
     {
@@ -53,6 +55,17 @@ class ClasseTurnoDisciplinaController extends Controller //implements HasMiddlew
         );
     }
 
+    public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
+    {
+        return Inertia::render('cursos-tutelados/classes/turnos/disciplinas/create', [
+            'disciplinas' => Disciplina::select('id', 'nome')->orderBy('nome')->get(),
+            'instituicaoId' => $instituicao->id,
+            'cursoId' => $cursoTutelado->id,
+            'classeId' => $cursoClasse->id,
+            'turnoId' => $cursoClasseTurno->id,
+        ]);
+    }
+
     public function indexByTurma(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
     {
         // Obter disciplinas que têm professores associados a esta turma
@@ -61,23 +74,23 @@ class ClasseTurnoDisciplinaController extends Controller //implements HasMiddlew
                 'disciplina:id,nome,sigla,componente',
                 'turmaDisciplinaProfessores' => function ($query) use ($turma) {
                     $query->where('turma_id', $turma->id)->with('professor.user:id,nome');
-                }
+                },
             ])
             ->get();
 
         return response()->json(
-            $disciplinas->map(fn($ctd) => [
-                'id'            => $ctd->id,
-                'disciplina'    => [
-                    'id'         => $ctd->disciplina->id,
-                    'nome'       => $ctd->disciplina->nome,
-                    'sigla'      => $ctd->disciplina->sigla,
+            $disciplinas->map(fn ($ctd) => [
+                'id' => $ctd->id,
+                'disciplina' => [
+                    'id' => $ctd->disciplina->id,
+                    'nome' => $ctd->disciplina->nome,
+                    'sigla' => $ctd->disciplina->sigla,
                     'componente' => $ctd->disciplina->componente,
                 ],
                 'carga_horaria' => $ctd->carga_horaria,
                 'tem_professor' => $ctd->tem_professor,
-                'professor'     => $ctd->turmaDisciplinaProfessores->first()?->professor ? [
-                    'id'   => $ctd->turmaDisciplinaProfessores->first()->professor->id,
+                'professor' => $ctd->turmaDisciplinaProfessores->first()?->professor ? [
+                    'id' => $ctd->turmaDisciplinaProfessores->first()->professor->id,
                     'nome' => $ctd->turmaDisciplinaProfessores->first()->professor->user->nome,
                 ] : null,
             ])
@@ -102,7 +115,9 @@ class ClasseTurnoDisciplinaController extends Controller //implements HasMiddlew
         $novas = array_diff($request->disciplina_ids, $jaExistentes);
 
         if (empty($novas)) {
-            return response()->json(['message' => 'Todas as disciplinas já estão associadas.'], 422);
+            return back()->withErrors([
+                'disciplina_ids' => 'Todas as disciplinas já estão associadas.',
+            ]);
         }
 
         $disciplinasAdicionadas = [];
@@ -116,10 +131,11 @@ class ClasseTurnoDisciplinaController extends Controller //implements HasMiddlew
             $disciplinasAdicionadas[] = $ctd;
         }
 
-        return response()->json([
-            'message' => 'Disciplina adicionada com sucesso.',
-            'data' => $disciplinasAdicionadas,
-        ], 201);
+        return to_route('cursos-tutelados.classes.show', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+        ]);
     }
 
     public function update(

@@ -1,37 +1,43 @@
-"use client"
-import DisciplinaForm from "@/features/curso-tutelado/components/classes/turnos/disciplinas/disciplina-form"
-import { useCreateDisciplina } from "@/features/curso-tutelado/hooks/classes/turnos/disciplinas/useCreateDisciplina"
-import { useDisciplinas } from "@/features/disciplinas/hooks/useDisciplinas"
-import { useRouter } from "next/navigation"
+import { Form } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
+import { store } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
+import { show } from '@/actions/App/Http/Controllers/CursoClasseController';
+import DisciplinaForm from '../../../components/classes/turnos/disciplinas/disciplina-form';
+import { useState } from 'react';
 
-export function CreateDisciplinas({
-  instituicaoId,
-  cursoId,
-  classeId,
-  turnoId,
-}) {
-  const router = useRouter()
-  const { data, isLoading } = useDisciplinas()
-  const mutation = useCreateDisciplina(
-    instituicaoId,
-    cursoId,
-    classeId,
-    turnoId,
-  )
+export default function Create() {
+  const { disciplinas, instituicaoId, cursoId, classeId, turnoId } =
+    usePage().props;
+  const [disciplinaIds, setDisciplinaIds] = useState([]);
 
   return (
-    <DisciplinaForm
-      title="Associar disciplina"
-      isLoading={isLoading}
-      isPending={mutation.isPending}
-      disciplinas={data ?? []}
-      defaultValues={{
-        disciplina_ids: []
-      }}
-      submitFn={(formData) => mutation.mutate(formData, {
-        onSuccess: () => router.push(`/dashboard/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}`),
-        onError: () => alert("Erro ao associar disciplina")
+    <Form
+      {...store.form({
+        instituicao: instituicaoId,
+        cursoTutelado: cursoId,
+        cursoClasse: classeId,
+        cursoClasseTurno: turnoId,
       })}
-    />
-  )
+      transform={(data) => ({ ...data, disciplina_ids: disciplinaIds })}
+      onSuccess={() =>
+        router.visit(
+          show({
+            instituicao: instituicaoId,
+            cursoTutelado: cursoId,
+            cursoClasse: classeId,
+          }),
+        )
+      }
+    >
+      {({ errors, processing }) => (
+        <DisciplinaForm
+          disciplinas={disciplinas}
+          disciplinaIds={disciplinaIds}
+          setDisciplinaIds={setDisciplinaIds}
+          errors={errors}
+          processing={processing}
+        />
+      )}
+    </Form>
+  );
 }
