@@ -16,6 +16,7 @@ use App\Http\Controllers\FinalistaController;
 use App\Http\Controllers\GrupoPapController;
 use App\Http\Controllers\InstituicaoController;
 use App\Http\Controllers\NotaController;
+use App\Http\Controllers\ProfessorController;
 use App\Http\Controllers\ProgressaoController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurmaController as TurmaControllerGeral;
@@ -32,6 +33,7 @@ Route::resource('instituicoes', InstituicaoController::class)->parameters(['inst
 Route::resource('classes', ClasseController::class)->parameters(['classes' => 'classe']);
 Route::resource('cursos', CursosController::class);
 Route::resource('turnos', TurnoController::class);
+Route::resource('professores', ProfessorController::class)->parameters(['professores' => 'professor']);
 
 Route::prefix('instituicoes/{instituicao}')->group(function () {
     Route::get('alunos/{aluno}/historico', [FinalistaController::class, 'historico']);

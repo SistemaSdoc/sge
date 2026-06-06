@@ -1,5 +1,11 @@
 import { Link } from '@inertiajs/react';
-import { BoxSelectIcon, GraduationCapIcon, LayersIcon, LayoutGrid, LayoutListIcon } from 'lucide-react';
+import {
+  BoxSelectIcon,
+  GraduationCapIcon,
+  LayersIcon,
+  LayoutGrid,
+  Users,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -25,29 +31,33 @@ const mainNavItems: NavItem[] = [
 
   {
     title: 'Instituições',
-    href: (`/instituicoes`),
+    href: `/instituicoes`,
     icon: LayersIcon,
   },
 
   {
     title: 'Cursos',
-    href: (`/cursos`),
+    href: `/cursos`,
     icon: LayersIcon,
   },
 
   {
     title: 'Classes',
-    href: (`/classes`),
+    href: `/classes`,
     icon: GraduationCapIcon,
   },
 
   {
     title: 'Turnos',
-    href: (`/turnos`),
+    href: `/turnos`,
     icon: LayersIcon,
   },
 
-
+  {
+    title: 'Professores',
+    href: `/professores`,
+    icon: Users,
+  },
 ];
 
 const footerNavItems: NavItem[] = [

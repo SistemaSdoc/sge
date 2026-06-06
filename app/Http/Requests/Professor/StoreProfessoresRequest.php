@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Professor;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProfessoresRequest extends FormRequest
+class StoreProfessoresRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -38,7 +38,7 @@ class ProfessoresRequest extends FormRequest
     {
         return [
             'nome.required' => 'O nome é obrigatório.',
-            'bi.required' => 'O BI é obrigatório.',
+            'bi.' => 'O BI é obrigatório.',
             'email.required' => 'O email é obrigatório.',
             'telefone.required' => 'O telefone é obrigatório.',
         ];
