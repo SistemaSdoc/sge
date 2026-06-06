@@ -26,7 +26,7 @@ export default function Show({ cursoTutelado }) {
   const cursoId = cursoTutelado.curso.id;
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       {/* Header */}
       <Card className="overflow-hidden pt-0!">
         <div className="relative flex h-56 w-full items-end bg-muted">
