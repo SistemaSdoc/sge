@@ -11,7 +11,6 @@ use App\Models\Curso;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
@@ -165,7 +164,7 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
         ]);
     }
 
-    public function update(Instituicao $instituicao, CursoTutelado $cursoTutelado): Response
+    public function update(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
         $validated = request()->validate([
             'instituicao_tutora_id' => ['required', 'string', 'exists:instituicoes,id'],
@@ -186,7 +185,10 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
             $cursoTutelado->classes()->sync($validated['classes']);
         });
 
-        return response()->noContent();
+        return to_route('instituicoes.show', $instituicao)->with('toast', [
+            'type' => 'success',
+            'message' => 'Curso tutelado atualizado com sucesso!',
+        ]);
     }
 
     public function destroy(Instituicao $instituicao, CursoTutelado $cursoTutelado): Response

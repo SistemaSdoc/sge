@@ -1,35 +1,27 @@
-"use client"
-import { TurmaForm } from "@/features/curso-tutelado/components/classes/turnos/turmas/turma-form"
-import { useCreateTurma } from "@/features/curso-tutelado/hooks/classes/turnos/turmas/useCreateTurma"
-import { useDisciplinas } from "@/features/curso-tutelado/hooks/classes/turnos/disciplinas/useDisciplinas"
-import { useRouter } from "next/navigation"
+import { useForm } from '@inertiajs/react';
+import { TurmaForm } from '../../../components/classes/turnos/turmas/turma-form';
 
-export function CreateTurma({
-  instituicaoId,
-  cursoId,
-  classeId,
-  turnoId,
-}) {
-  const router = useRouter()
-  const mutation = useCreateTurma(
-    instituicaoId,
-    cursoId,
-    classeId,
-    turnoId,
-  )
+export default function Create({ instituicao, cursoTutelado, cursoClasse, cursoClasseTurno }) {
+  const { data, setData, post, processing, errors } = useForm({
+    nome: '',
+    max_alunos: '',
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    post(
+      `/instituicoes/${instituicao.id}/cursos-tutelados/${cursoTutelado.id}/classes/${cursoClasse.id}/turnos/${cursoClasseTurno.id}/turmas`,
+      { preserveScroll: true },
+    );
+  };
 
   return (
     <TurmaForm
-      title="Criar turma"
-      isPending={mutation.isPending}
-      defaultValues={{
-        nome: "",
-        max_alunos: ""
-      }}
-      submitFn={(formData) => mutation.mutate(formData, {
-        onSuccess: () => router.push(`/dashboard/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}`),
-        onError: () => alert("Erro ao associar disciplina")
-      })}
+      data={data}
+      setData={setData}
+      errors={errors}
+      processing={processing}
+      onSubmit={handleSubmit}
     />
-  )
+  );
 }

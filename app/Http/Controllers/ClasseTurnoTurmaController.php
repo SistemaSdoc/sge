@@ -32,13 +32,34 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         $turmas = Turma::where('curso_classe_turno_id', $cursoClasseTurno->id)->get();
 
         return response()->json(
-            $turmas->map(fn ($turma) => [
+            $turmas->map(fn($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'max_alunos' => $turma->max_alunos,
                 'alunos_count' => $turma->alunos()->count(),
             ])
         );
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
+    {
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/create', [
+            'instituicao' => [
+                'id' => $instituicao->id,
+            ],
+            'cursoTutelado' => [
+                'id' => $cursoTutelado->id,
+            ],
+            'cursoClasse' => [
+                'id' => $cursoClasse->id,
+            ],
+            'cursoClasseTurno' => [
+                'id' => $cursoClasseTurno->id,
+            ],
+        ]);
     }
 
     /**
@@ -56,7 +77,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             ->exists();
 
         if ($jaExiste) {
-            return response()->json(['message' => 'Já existe uma turma com este nome neste turno.'], 422);
+            return back()->withErrors(['nome' => 'Já existe uma turma com este nome neste turno.']);
         }
 
         Turma::create([
@@ -65,7 +86,12 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             'max_alunos' => $request->max_alunos,
         ]);
 
-        return response()->json(status: 201);
+        //return back()->with('success', 'Turma criada com sucesso!');
+        return redirect()->to("/instituicoes/{$instituicao->id}/cursos-tutelados/{$cursoTutelado->id}/classes/{$cursoClasse->id}")
+            ->with('toast', [
+                'type' => 'success',
+                'message' => 'Turma criada com sucesso!',
+            ]);
     }
 
     /**

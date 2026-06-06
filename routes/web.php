@@ -77,7 +77,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 
         Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')->group(function () {
             Route::resource('disciplinas', ClasseTurnoDisciplinaController::class);
-            Route::apiResource('turmas', ClasseTurnoTurmaController::class);
+            Route::resource('turmas', ClasseTurnoTurmaController::class);
 
             Route::prefix('turmas/{turma}')->group(function () {
                 Route::post('pap/grupos', [GrupoPapController::class, 'store']);
