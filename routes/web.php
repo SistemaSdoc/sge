@@ -92,7 +92,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             Route::apiResource('classes', CursoClasseController::class)->only(['show'])->parameters(['classes' => 'cursoClasse']);
 
-            Route::apiResource('turmas', TurmaController::class);
+            Route::resource('turmas', ClasseTurnoTurmaController::class);
 
             Route::get('/alunos', [CursoTuteladoController::class, 'alunos']);
 
@@ -117,7 +117,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')->group(function () {
                 Route::apiResource('disciplinas', ClasseTurnoDisciplinaController::class);
-                Route::apiResource('turmas', ClasseTurnoTurmaController::class);
+                Route::resource('turmas', ClasseTurnoTurmaController::class);
 
                 Route::prefix('turmas/{turma}')->group(function () {
                     Route::post('pap/grupos', [GrupoPapController::class, 'store']);
