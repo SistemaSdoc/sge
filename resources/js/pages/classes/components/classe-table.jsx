@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { InfiniteScroll, Link, router } from '@inertiajs/react';
 import { MoreHorizontalIcon, LayersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
@@ -67,79 +67,68 @@ export function ClasseTable({ classes }) {
             }}
           />
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/72">
-                <TableHead className="px-4">Nome</TableHead>
-                <TableHead className="px-4 text-right">Acções</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {classes.map((classe) => (
-                <TableRow
-                  key={classe.id}
-                  className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/classes/${classe.id}`)}
-                >
-                  <TableCell className="px-4 font-medium">
-                    {classe.nome}
-                  </TableCell>
-                  <TableCell className="px-4 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <MoreHorizontalIcon />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.visit(`/classes/${classe.id}/edit`);
-                          }}
-                        >
-                          Editar
-                        </DropdownMenuItem>
-
-                        <DropdownMenuSeparator />
-
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            excluir(classe.id);
-                          }}
-                        >
-                          Remover
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <InfiniteScroll data="classes" itemsElement="#classes-tbody" buffer={-500}>
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/72">
+                  <TableHead className="px-4">Nome</TableHead>
+                  <TableHead className="px-4 text-right">Acções</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody  id="classes-tbody">
+                {classes.data.map((classe) => (
+                  <TableRow
+                    key={classe.id}
+                    className="hover:cursor-pointer"
+                    onClick={() => router.visit(`/classes/${classe.id}`)}
+                  >
+                    <TableCell className="px-4 font-medium">
+                      {classe.nome}
+                    </TableCell>
+                    <TableCell className="px-4 text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                          >
+                            <MoreHorizontalIcon />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.visit(`/classes/${classe.id}/edit`);
+                            }}
+                          >
+                            Editar
+                          </DropdownMenuItem>
+
+                          <DropdownMenuSeparator />
+
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              excluir(classe.id);
+                            }}
+                          >
+                            Remover
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </InfiniteScroll>
         )}
       </CardContent>
-
-      {!isEmpty && (
-        <CardFooter className="justify-between">
-          <span className="text-muted-foreground">Página 1 de 4</span>
-
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious href="#" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardFooter>
-      )}
     </Card>
   );
 }

@@ -1,7 +1,13 @@
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from '@/components/ui/field';
 import MultipleSelect from '@/components/multiple-select';
 
 export default function DisciplinaForm({
@@ -26,8 +32,13 @@ export default function DisciplinaForm({
 
                 <MultipleSelect
                   placeholder="Selecione as disciplinas"
-                  items={disciplinas.map((d) => ({ value: d.id, label: d.nome }))}
-                  onChange={(opts) => setDisciplinaIds(opts.map((o) => o.value))}
+                  items={disciplinas.map((d) => ({
+                    value: d.id,
+                    label: d.nome,
+                  }))}
+                  onChange={(opts) =>
+                    setDisciplinaIds(opts.map((o) => o.value))
+                  }
                   value={disciplinaIds.map((id) => ({
                     value: id,
                     label: disciplinas.find((d) => d.id === id)?.nome ?? id,
@@ -41,7 +52,11 @@ export default function DisciplinaForm({
 
               <Field>
                 <Button type="submit" disabled={processing}>
-                  {processing ? <Loader2 className="animate-spin" /> : 'Associar'}
+                  {processing ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    'Associar'
+                  )}
                 </Button>
               </Field>
             </FieldSet>

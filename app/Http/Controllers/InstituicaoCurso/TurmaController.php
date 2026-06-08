@@ -70,7 +70,7 @@ class TurmaController extends Controller //implements HasMiddleware
             )
             ->exists();
 
-        if (! $valido) {
+        if (!$valido) {
             return response()->json(['message' => 'Classe/turno inválido para este curso.'], 422);
         }
 

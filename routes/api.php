@@ -100,11 +100,11 @@ Route::middleware('auth:api')->group(function () {
         Route::resource('cursos-tutelados', CursoTuteladoController::class)->parameters(['cursos-tutelados' => 'cursoTutelado']);
 
         Route::prefix('cursos-tutelados/{cursoTutelado}')->group(function () {
-            Route::apiResource('professores', CursoTuteladoProfessorController::class)->only(['index', 'store', 'destroy']);
+            Route::resource('professores', CursoTuteladoProfessorController::class)->only(['index', 'store', 'destroy']);
 
-            Route::apiResource('classes', CursoClasseController::class)->only(['show'])->parameters(['classes' => 'cursoClasse']);
+            Route::resource('classes', CursoClasseController::class)->only(['show'])->parameters(['classes' => 'cursoClasse']);
 
-            Route::apiResource('turmas', TurmaController::class);
+            Route::resource('turmas', TurmaController::class);
 
             Route::get('/alunos', [CursoTuteladoController::class, 'alunos']);
 
@@ -117,9 +117,9 @@ Route::middleware('auth:api')->group(function () {
                 Route::post('alunos/{aluno}/concluir', [FinalistaController::class, 'concluir']);
                 Route::post('alunos/{aluno}/reprovar', [FinalistaController::class, 'reprovar']);
                 Route::post('alunos/{aluno}/desistente', [FinalistaController::class, 'marcarDesistente']);
-                //ver a pauta dos colegios tutelados
+                // ver a pauta dos colegios tutelados
                 Route::get('/pauta', [NotaController::class, 'pauta']);
-                //gerar certificado de conclusão do curso dos colegios tutelados   
+                // gerar certificado de conclusão do curso dos colegios tutelados
                 Route::get('/alunos/{aluno}/certificado', [CertificadoController::class, 'gerarTutora']);
             });
 
@@ -128,23 +128,23 @@ Route::middleware('auth:api')->group(function () {
             Route::put('classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'update']);
 
             Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')->group(function () {
-                Route::apiResource('disciplinas', ClasseTurnoDisciplinaController::class);
-                Route::apiResource('turmas', ClasseTurnoTurmaController::class);
+                Route::resource('disciplinas', ClasseTurnoDisciplinaController::class);
+                Route::resource('turmas', ClasseTurnoTurmaController::class);
 
                 Route::prefix('turmas/{turma}')->group(function () {
                     Route::post('pap/grupos', [GrupoPapController::class, 'store']);
                     Route::get('pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);
                     Route::post('pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
 
-                    Route::apiResource('disciplinas', ClasseTurnoDisciplinaController::class)->only(['index', 'update', 'destroy'])
+                    Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)->only(['index', 'update', 'destroy'])
                         ->parameters(['disciplinas' => 'classeTurnoDisciplina']);
 
                     Route::prefix('disciplinas/{classeTurnoDisciplina}')->group(function () {
                         Route::post('horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store']);
 
-                        Route::apiResource('notas', NotaController::class);
+                        Route::resource('notas', NotaController::class);
                         Route::get('mini-pauta/excel', [ExportarMiniPautaController::class, 'exportarDisciplina']);
-                        Route::apiResource('professores', TurmaDisciplinaProfessorController::class);
+                        Route::resource('professores', TurmaDisciplinaProfessorController::class);
                     });
 
                     Route::get('progressao/preview', [ProgressaoController::class, 'preview']);

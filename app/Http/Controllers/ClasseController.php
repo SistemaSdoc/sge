@@ -14,10 +14,8 @@ class ClasseController
      */
     public function index()
     {
-        $classes = Classe::orderBy('ordem')->get();
-
         return Inertia::render('classes/index', [
-            'classes' => $classes,
+            'classes' => Inertia::scroll(fn () => Classe::paginate(10)),
         ]);
     }
 
