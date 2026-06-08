@@ -1,4 +1,3 @@
-
 import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
 import { store } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
@@ -7,8 +6,7 @@ import ProfessorForm from '../components/professores/professor-form';
 import { useState } from 'react';
 
 export default function Create() {
-  const { professores, instituicaoId, cursoTuteladoId } =
-    usePage().props;
+  const { professores, instituicaoId, cursoTuteladoId } = usePage().props;
   const [professorId, setProfessorId] = useState('');
   const [tipo, setTipo] = useState('principal');
 

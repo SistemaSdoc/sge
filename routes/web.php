@@ -23,7 +23,6 @@ use App\Http\Controllers\FolhaAprovacaoController;
 use App\Http\Controllers\GrupoPapController;
 use App\Http\Controllers\InscricaoController;
 use App\Http\Controllers\InstituicaoController;
-use App\Http\Controllers\InstituicaoCurso\TurmaController;
 use App\Http\Controllers\InstituicaoCurso\TurmaDisciplinaProfessorController;
 use App\Http\Controllers\NotaController;
 use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
@@ -88,9 +87,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('cursos-tutelados', CursoTuteladoController::class)->parameters(['cursos-tutelados' => 'cursoTutelado']);
 
         Route::prefix('cursos-tutelados/{cursoTutelado}')->group(function () {
-            Route::apiResource('professores', CursoTuteladoProfessorController::class)->only(['index', 'store', 'destroy']);
+            Route::resource('professores', CursoTuteladoProfessorController::class);
 
-            Route::apiResource('classes', CursoClasseController::class)->only(['show'])->parameters(['classes' => 'cursoClasse']);
+            Route::apiResource('classes', CursoClasseController::class)
+                ->only(['show'])
+                ->parameters(['classes' => 'cursoClasse'])
+                ->names(['show' => 'cursos-tutelados.classes.show']);
 
             Route::resource('turmas', ClasseTurnoTurmaController::class);
 
@@ -116,7 +118,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'update']);
 
             Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')->group(function () {
-                Route::apiResource('disciplinas', ClasseTurnoDisciplinaController::class);
+                Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)
+                    ->parameters(['disciplinas' => 'classeTurnoDisciplina']);
                 Route::resource('turmas', ClasseTurnoTurmaController::class);
 
                 Route::prefix('turmas/{turma}')->group(function () {
