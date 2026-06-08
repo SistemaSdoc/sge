@@ -127,6 +127,7 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
             'cursoClasses.turnos.turmas.cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasses.turnos.classeTurnoDisciplinas.professores',  // ✅ para contar professores
             'cursoClasses.turnos.classeTurnoDisciplinas',              // ✅ para contar disciplinas
+            'professores.user:id,nome',                                // ✅ para listar professores
         ]);
 
         $resource = (new CursoTuteladoResourceShow($cursoTutelado))->resolve();

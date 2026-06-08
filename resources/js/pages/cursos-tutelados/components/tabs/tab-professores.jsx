@@ -19,7 +19,7 @@ export function TabProfessores({ professores,instituicaoId, cursoTuteladoId }) {
         <CardDescription>Professores associados a este curso</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href={`/instituicoes/${instituicaoId}/cursos/${cursoTuteladoId}/professores/create`}>
+            <Link href={`/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/professores/create`}>
               Adicionar
             </Link>
           </Button>
@@ -35,7 +35,7 @@ export function TabProfessores({ professores,instituicaoId, cursoTuteladoId }) {
             description="Comece adicionando professores ao curso"
             action={{
               label: "Adicionar Professor",
-              href: `/instituicoes/${instituicaoId}/cursos/${cursoTuteladoId}/professores/create`,
+              href: `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/professores/create`,
               variant: "outline"
             }}
           />

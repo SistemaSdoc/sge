@@ -8,6 +8,7 @@ use App\Models\Professor;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class CursoTuteladoProfessorController extends Controller
 {
@@ -19,19 +20,23 @@ class CursoTuteladoProfessorController extends Controller
         $cursoTutelado->load(['professores.user']);
 
         $professores = $cursoTutelado->professores->map(fn($prof) => [
-            'id'          => $prof->id,
-            'nome'        => $prof->user?->nome,
-            'email'       => $prof->user?->email,
-            'tipo'        => $prof->pivot->tipo,
+            'id' => $prof->id,
+            'nome' => $prof->user?->nome,
+            'email' => $prof->user?->email,
+            'tipo' => $prof->pivot->tipo,
             'coordenador' => $prof->pivot->coordenador,
         ]);
 
         return response()->json($professores);
     }
 
-    public function create()
+    public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
-        //
+        return Inertia::render('cursos-tutelados/professores/create', [
+            'professores' => Professor::with('user:id,nome')->orderBy('id')->get(),
+            'instituicaoId' => $instituicao->id,
+            'cursoTuteladoId' => $cursoTutelado->id,
+        ]);
     }
 
     /**
@@ -43,30 +48,23 @@ class CursoTuteladoProfessorController extends Controller
         $request->validate([
             'professor_id' => 'required|exists:professores,id',
             'tipo' => 'required|in:principal,colaborador',
-            'coordenador' => 'boolean'
         ]);
 
-        // Garantir 1 coordenador
-        if ($request->coordenador) {
-            CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
-                ->update(['coordenador' => false]);
-        }
-
-        $vinculo = CursoTuteladoProfessor::updateOrCreate(
+        CursoTuteladoProfessor::updateOrCreate(
             [
                 'curso_tutelado_id' => $cursoTutelado->id,
                 'professor_id' => $request->professor_id
             ],
             [
                 'tipo' => $request->tipo,
-                'coordenador' => $request->coordenador ?? false
+                'coordenador' => false
             ]
         );
 
-        return response()->json([
-            'message' => 'Professor associado ao curso com sucesso',
-            'data' => $vinculo
-        ], 201);
+        return to_route('cursos-tutelados.show', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+        ]);
     }
 
     public function show(string $id)

@@ -35,12 +35,7 @@ class CursoTuteladoResourceShow extends JsonResource
                     ->flatMap(fn ($cc) => $cc->turnos)
                     ->flatMap(fn ($cct) => $cct->turmas)
                     ->count(),
-                'professores' => $this->cursoClasses
-                    ->flatMap(fn ($cc) => $cc->turnos)
-                    ->flatMap(fn ($cct) => $cct->classeTurnoDisciplinas)
-                    ->flatMap(fn ($ctd) => $ctd->professores->pluck('id'))
-                    ->unique()
-                    ->count(),
+                'professores' => $this->professores->count(),
                 'disciplinas' => $this->cursoClasses
                     ->flatMap(fn ($cc) => $cc->turnos)
                     ->flatMap(fn ($cct) => $cct->classeTurnoDisciplinas)
@@ -51,6 +46,11 @@ class CursoTuteladoResourceShow extends JsonResource
                 'id' => $cc->id,
                 'nome' => $cc->classe->nome,
                 'turnos' => $cc->turnos->map(fn ($cct) => $cct->turno->nome),
+            ]),
+            'professores' => $this->professores->map(fn ($prof) => [
+                'id' => $prof->id,
+                'nome' => $prof->user?->nome,
+                'tipo' => $prof->pivot->tipo,
             ]),
             'turmas' => $this->cursoClasses
                 ->flatMap(fn ($cc) => $cc->turnos)
