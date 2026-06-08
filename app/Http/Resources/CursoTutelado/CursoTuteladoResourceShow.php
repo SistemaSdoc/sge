@@ -46,7 +46,7 @@ class CursoTuteladoResourceShow extends JsonResource
                     ->flatMap(fn ($cct) => $cct->classeTurnoDisciplinas)
                     ->count(),
             ],
-
+            
             'classes' => $this->cursoClasses->map(fn ($cc) => [
                 'id' => $cc->id,
                 'nome' => $cc->classe->nome,

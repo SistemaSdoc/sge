@@ -187,6 +187,7 @@ export default function Show({ cursoTutelado }) {
           <TabProfessores
             instituicaoId={instituicaoId}
             cursoTuteladoId={cursoTuteladoId}
+            professores={cursoTutelado.professores}
           />
         </TabsContent>
       </Tabs>
