@@ -22,6 +22,7 @@ use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
+use Inertia\Inertia;
 
 class TurmaDisciplinaProfessorController extends Controller //implements HasMiddleware
 {
@@ -77,6 +78,42 @@ class TurmaDisciplinaProfessorController extends Controller //implements HasMidd
         return ProfessorResource::collection($professores);
     }
 
+    public function create(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        ClasseTurnoDisciplina $classeTurnoDisciplina
+    ) {
+        $classeTurnoDisciplina->load('disciplina');
+
+        $professores = Professor::with('user:id,nome')
+            ->get()
+            ->map(fn (Professor $professor) => [
+                'id' => $professor->id,
+                'nome' => $professor->user?->nome ?? 'Sem nome',
+            ]);
+
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create', [
+            'professores' => $professores,
+            'disciplinas' => [
+                [
+                    'id' => $classeTurnoDisciplina->id,
+                    'disciplina' => [
+                        'id' => $classeTurnoDisciplina->disciplina?->id,
+                        'nome' => $classeTurnoDisciplina->disciplina?->nome,
+                    ],
+                ],
+            ],
+            'instituicaoId' => $instituicao->id,
+            'cursoId' => $cursoTutelado->id,
+            'classeId' => $cursoClasse->id,
+            'turnoId' => $cursoClasseTurno->id,
+            'turmaId' => $turma->id,
+            'disciplinaId' => $classeTurnoDisciplina->id,
+        ]);
+    }
     /**
      * Associa professor a turnos/disciplinas do curso
      */
@@ -103,7 +140,12 @@ class TurmaDisciplinaProfessorController extends Controller //implements HasMidd
             $classeTurnoDisciplina->update(['tem_professor' => true]);
         });
 
-        return response()->json(['message' => 'Professor associado com sucesso.'], 201);
+        // return response()->json(['message' => 'Professor associado com sucesso.'], 201);
+           return redirect()->to("/instituicoes/{$instituicao->id}/cursos-tutelados/{$cursoTutelado->id}/classes/{$cursoClasse->id}/turnos/{$cursoClasseTurno->id}/turmas/{$turma->id}")
+            ->with('toast', [
+                'type' => 'success',
+                'message' => 'Professor associado com sucesso!',
+            ]);
     }
 
     /**

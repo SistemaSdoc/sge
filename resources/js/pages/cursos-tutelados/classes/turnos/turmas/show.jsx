@@ -1,5 +1,5 @@
 import { Loader2, Minus } from 'lucide-react';
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontalIcon } from 'lucide-react';
@@ -22,7 +22,13 @@ export default function Show({
   cursoClasseTurno,
   turma,
 }) {
-  const instituicaoId = cursoTutelado.instituicao_id;
+  const { url } = usePage();
+
+  // Extract IDs from URL: /instituicoes/{id}/cursos-tutelados/{id}/classes/{id}/turnos/{id}/turmas/{id}
+  const urlParts = url.split('/').filter(Boolean);
+  const instituicaoIdx = urlParts.indexOf('instituicoes');
+  const instituicaoId = urlParts[instituicaoIdx + 1] || cursoTutelado?.instituicaoTutoraId;
+
   const cursoTuteladoId = cursoTutelado.id;
   const cursoClasseId = cursoClasse.id;
   const cursoClasseTurnoId = cursoClasseTurno.id;

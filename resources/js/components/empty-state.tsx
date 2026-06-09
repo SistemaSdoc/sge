@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
+import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LucideIcon } from "lucide-react";
 
 interface Action {
   label: string;

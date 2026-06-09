@@ -1,5 +1,6 @@
 import { Form, Head } from '@inertiajs/react';
 import { useState } from 'react';
+import { redirect } from '@/actions/App/Http/Controllers/Auth/PasswordConfirmationGoogleController';
 import {
   index as confirmOptions,
   store as confirmStore,
@@ -12,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { store } from '@/routes/password/confirm';
-import { redirect } from '@/actions/App/Http/Controllers/Auth/PasswordConfirmationGoogleController';
 
 export default function ConfirmPassword() {
   const [googleLoading, setGoogleLoading] = useState(false);

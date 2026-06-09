@@ -135,6 +135,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
                         Route::apiResource('notas', NotaController::class);
                         Route::get('mini-pauta/excel', [ExportarMiniPautaController::class, 'exportarDisciplina']);
+                        Route::get('professores/create', [TurmaDisciplinaProfessorController::class, 'create'])
+                            ->name('cursos-tutelados.classes.turnos.turmas.disciplinas.professores.create');
                         Route::apiResource('professores', TurmaDisciplinaProfessorController::class);
                     });
 
