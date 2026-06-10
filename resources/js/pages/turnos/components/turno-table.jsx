@@ -1,8 +1,7 @@
 import { Link, router } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
 import { MoreHorizontalIcon, ClockIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/empty-state';
-
 import {
   Card,
   CardAction,
@@ -12,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-
 import {
   Table,
   TableBody,
@@ -21,7 +19,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +26,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
 import {
   Pagination,
   PaginationContent,
@@ -38,7 +34,12 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
-export function TurnoTable({ turnos, deleteFn }) {
+export function TurnoTable({
+  turnos,
+  pagination = {},
+  onPageChange,
+  deleteFn,
+}) {
   const isEmpty = !turnos || turnos.length === 0;
 
   return (
@@ -97,7 +98,7 @@ export function TurnoTable({ turnos, deleteFn }) {
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.visit(`turnos/${turno.id}/edit`);
+                            router.visit(`/turnos/${turno.id}/edit`);
                           }}
                         >
                           Editar
@@ -124,18 +125,36 @@ export function TurnoTable({ turnos, deleteFn }) {
         )}
       </CardContent>
 
-      {!isEmpty && (
+      {pagination?.current_page && (
         <CardFooter className="justify-between">
-          <span className="text-muted-foreground">Página 1 de 4</span>
+          <span className="text-muted-foreground">
+            Página {pagination.current_page} de {pagination.last_page}
+          </span>
 
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious href="#" />
+                <PaginationPrevious
+                  onClick={() => onPageChange(pagination.current_page - 1)}
+                  disabled={pagination.current_page === 1}
+                  className={
+                    pagination.current_page === 1
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
               </PaginationItem>
 
               <PaginationItem>
-                <PaginationNext href="#" />
+                <PaginationNext
+                  onClick={() => onPageChange(pagination.current_page + 1)}
+                  disabled={pagination.current_page === pagination.last_page}
+                  className={
+                    pagination.current_page === pagination.last_page
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

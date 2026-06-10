@@ -2,7 +2,7 @@ import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
 import { store } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
 import { show } from '@/actions/App/Http/Controllers/CursoClasseController';
-import DisciplinaForm from '../../../components/classes/turnos/disciplinas/disciplina-form';
+import DisciplinaForm from './components/disciplina-form';
 import { useState } from 'react';
 
 export default function Create() {

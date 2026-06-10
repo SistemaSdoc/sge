@@ -1,7 +1,7 @@
 import { Form, router, usePage, useForm } from "@inertiajs/react"
 import { store } from "@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController"
 import { show } from "@/actions/App/Http/Controllers/ClasseTurnoTurmaController"
-import ProfessorForm from "../../../../../components/classes/turnos/turmas/disciplinas/professores/professor-form"
+import ProfessorForm from "./components/professor-form"
 
 export default function Create() {
   const {

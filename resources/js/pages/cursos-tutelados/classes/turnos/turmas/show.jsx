@@ -11,11 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { TabAlunos } from '../../../components/classes/turnos/turmas/tabs/tab-alunos';
-import { TabGruposPAP } from '../../../components/classes/turnos/turmas/tabs/tab-grupos-pap';
-import { TabDisciplinas } from '../../../components/classes/turnos/turmas/tabs/tab-disciplinas';
+import { TabAlunos } from './components/tabs/tab-alunos';
+import { TabGruposPAP } from './components/tabs/tab-grupos-pap';
+import { TabDisciplinas } from './components/tabs/tab-disciplinas';
 import { Badge } from '@/components/ui/badge';
-
+import { store } from '@/actions/App/Http/Controllers/InscricaoController';
 export default function Show({
   cursoTutelado,
   cursoClasse,
@@ -27,7 +27,8 @@ export default function Show({
   // Extract IDs from URL: /instituicoes/{id}/cursos-tutelados/{id}/classes/{id}/turnos/{id}/turmas/{id}
   const urlParts = url.split('/').filter(Boolean);
   const instituicaoIdx = urlParts.indexOf('instituicoes');
-  const instituicaoId = urlParts[instituicaoIdx + 1] || cursoTutelado?.instituicaoTutoraId;
+  const instituicaoId =
+    urlParts[instituicaoIdx + 1] || cursoTutelado?.instituicaoTutoraId;
 
   const cursoTuteladoId = cursoTutelado.id;
   const cursoClasseId = cursoClasse.id;
@@ -41,7 +42,7 @@ export default function Show({
   const baseUrl = `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       {/* Header */}
       <Card className="overflow-hidden pt-0! pb-0">
         <div className="relative flex h-56 w-full items-end bg-muted">

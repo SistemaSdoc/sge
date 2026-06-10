@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { TurmaForm } from '../../../components/classes/turnos/turmas/turma-form';
+import { TurmaForm } from './components/turma-form';
 
 export default function Create({ instituicao, cursoTutelado, cursoClasse, cursoClasseTurno }) {
   const { data, setData, post, processing, errors } = useForm({

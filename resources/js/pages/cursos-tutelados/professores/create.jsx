@@ -2,7 +2,7 @@ import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
 import { store } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
 import { show } from '@/actions/App/Http/Controllers/CursoTuteladoController';
-import ProfessorForm from '../components/professores/professor-form';
+import ProfessorForm from './components/professor-form';
 import { useState } from 'react';
 
 export default function Create() {

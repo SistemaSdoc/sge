@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClasseTurnoDisciplina;
+use App\Models\CursoClasse;
+use App\Models\CursoClasseTurno;
+use App\Models\CursoTutelado;
+use App\Models\Instituicao;
 use App\Models\Nota;
 use App\Models\Turma;
-use App\Models\Instituicao;
-use App\Models\CursoTutelado;
-use App\Models\CursoClasseTurno;
-use App\Models\CursoClasse;
 use App\Models\TurmaAluno;
 use App\Models\TurmaDisciplinaProfessor;
-use App\Models\ClasseTurnoDisciplina;
 use App\Services\NotaService;
 use App\Services\PautaService;
 use Illuminate\Http\JsonResponse;
@@ -22,8 +22,7 @@ class NotaController extends Controller
     public function __construct(
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
 
     // ──────────────────────────────────────────────
     // LISTAR NOTAS DA DISCIPLINA
@@ -35,16 +34,16 @@ class NotaController extends Controller
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
-        string $classeTurnoDisciplinaId
+        ClasseTurnoDisciplina $classeTurnoDisciplina
     ) {
         $tdp = TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
             ->where('turma_id', $turma->id)
-            ->where('classe_turno_disciplina_id', $classeTurnoDisciplinaId)
+            ->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
             ->firstOrFail();
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
         ])
             ->where('turma_id', $turma->id)
             ->where('situacao', 'activo')
@@ -60,15 +59,15 @@ class NotaController extends Controller
             'turmaId' => $turma->id,
             'tdpId' => $tdp->id,
             'disciplina' => [
-                'id' => $classeTurnoDisciplinaId,
+                'id' => $classeTurnoDisciplina->id,
                 'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
             ],
-            'alunos' => $turmaAlunos->map(fn($ta) => [
+            'alunos' => $turmaAlunos->map(fn ($ta) => [
                 'turma_aluno_id' => $ta->id,
                 'aluno_id' => $ta->aluno->id,
                 'nome' => $ta->aluno->inscricao?->candidato?->nome,
                 'notas' => $ta->notas
-                    ->map(fn($n) => $this->formatarNota($n))
+                    ->map(fn ($n) => $this->formatarNota($n))
                     ->keyBy('periodo'),
             ]),
         ]);
@@ -89,7 +88,7 @@ class NotaController extends Controller
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
         ])
             ->where('turma_id', $turma->id)
             ->where('situacao', 'activo')
@@ -103,22 +102,24 @@ class NotaController extends Controller
             'classeId' => $cursoClasse->id,
             'turnoId' => $cursoClasseTurno->id,
             'turmaId' => $turma->id,
-            'tdpId' => $tdp->id,
-            'disciplina' => [
-                'id' => $classeTurnoDisciplina->id,
-                'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
+            'data' => [
+                'tdp_id' => $tdp->id,
+                'disciplina' => [
+                    'id' => $classeTurnoDisciplina->id,
+                    'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
+                    'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
+                ],
+                'alunos' => $turmaAlunos->map(fn ($ta) => [
+                    'turma_aluno_id' => $ta->id,
+                    'aluno_id' => $ta->aluno->id,
+                    'nome' => $ta->aluno->inscricao?->candidato?->nome,
+                    'notas' => $ta->notas
+                        ->map(fn ($n) => $this->formatarNota($n))
+                        ->keyBy('periodo'),
+                ]),
             ],
-            'alunos' => $turmaAlunos->map(fn($ta) => [
-                'turma_aluno_id' => $ta->id,
-                'aluno_id' => $ta->aluno->id,
-                'nome' => $ta->aluno->inscricao?->candidato?->nome,
-                'notas' => $ta->notas
-                    ->map(fn($n) => $this->formatarNota($n))
-                    ->keyBy('periodo'),
-            ]),
         ]);
     }
-
 
     // No NotaService@lancarNotas, adicionar validação para periodo 4
     public function lancarNotas(array $notas, string $tdpId, int $periodo): void
@@ -167,7 +168,7 @@ class NotaController extends Controller
             ->contains($disciplinaId);
 
         abort_if(
-            !$disciplinaEmRecurso,
+            ! $disciplinaEmRecurso,
             403,
             'Esta disciplina não está em recurso.'
         );
@@ -175,7 +176,6 @@ class NotaController extends Controller
     // ──────────────────────────────────────────────
     // LANÇAR NOTAS
     // ──────────────────────────────────────────────
-
 
     public function store(
         Request $request,
@@ -214,8 +214,8 @@ class NotaController extends Controller
     }
 
     // ──────────────────────────────────────────────
-// LANÇAR NOTAS DE RECURSO
-// ──────────────────────────────────────────────
+    // LANÇAR NOTAS DE RECURSO
+    // ──────────────────────────────────────────────
 
     public function storeRecurso(
         Request $request,
@@ -235,7 +235,7 @@ class NotaController extends Controller
                 [
                     $lancamento['turma_aluno_id'] => [
                         'nota_recurso' => $lancamento['nota_recurso'],
-                    ]
+                    ],
                 ],
                 $lancamento['tdp_id'],
                 4
@@ -243,7 +243,7 @@ class NotaController extends Controller
         }
 
         return response()->json([
-            'message' => 'Notas de recurso lançadas com sucesso.'
+            'message' => 'Notas de recurso lançadas com sucesso.',
         ]);
     }
 
@@ -322,8 +322,6 @@ class NotaController extends Controller
 
         Turma $turma,
     ): JsonResponse {
-
-
 
         return response()->json(
             $this->pautaService->gerarPautaRecurso($turma)

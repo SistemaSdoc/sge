@@ -19,7 +19,7 @@ use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-class GrupoPapController extends Controller //implements HasMiddleware
+class GrupoPapController extends Controller // implements HasMiddleware
 {
     /*public static function middleware(): array
     {
@@ -46,14 +46,14 @@ class GrupoPapController extends Controller //implements HasMiddleware
         ])
             ->when(
                 $instituicaoId,
-                fn($q) => $q->whereHas(
+                fn ($q) => $q->whereHas(
                     'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn($q) => $q->where('instituicao_id', $instituicaoId)
+                    fn ($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
             ->latest()->get();
 
-        return response()->json($grupos->map(fn($grupo) => [
+        return response()->json($grupos->map(fn ($grupo) => [
             'id' => $grupo->id,
             'nome_grupo' => $grupo->nome_grupo,
             'tema_grupo' => $grupo->tema_grupo,
@@ -66,10 +66,10 @@ class GrupoPapController extends Controller //implements HasMiddleware
             'curso' => $grupo->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
             'instituicao' => $grupo->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
             'num_elementos' => $grupo->elementos->count(),
-            'elementos' => $grupo->elementos->map(fn($el) => [
+            'elementos' => $grupo->elementos->map(fn ($el) => [
                 'id' => $el->aluno->id,
                 'nome' => $el->aluno?->inscricao?->candidato?->nome,
-            ])->filter(fn($el) => $el['nome'])->values(),
+            ])->filter(fn ($el) => $el['nome'])->values(),
         ]));
     }
 
@@ -98,7 +98,10 @@ class GrupoPapController extends Controller //implements HasMiddleware
             'alunos' => Aluno::whereHas('turmas', function ($q) use ($turma) {
                 $q->where('turmas.id', $turma->id)
                     ->where('turma_aluno.activo', true); // aluno activo nesta turma
-            })->with('inscricao.candidato:id,nome')->get(),
+            })->with('inscricao.candidato:id,nome')->get()->map(fn ($aluno) => [
+                'id' => $aluno->id,
+                'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
+            ])->values(),
         ]);
     }
 
@@ -123,7 +126,7 @@ class GrupoPapController extends Controller //implements HasMiddleware
             ->where('tipo', 'principal')
             ->exists();
 
-        if (!$eTitular) {
+        if (! $eTitular) {
             return response()->json([
                 'message' => 'O professor tutor deve ser titular do curso.',
             ], 422);
@@ -150,14 +153,14 @@ class GrupoPapController extends Controller //implements HasMiddleware
         $classe = $turma->cursoClasseTurno?->cursoClasse?->classe?->nome;
         if ($classe !== '13ª') {
             return response()->json([
-                'message' => 'Os grupos PAP só podem ser criados para turmas da 13ª classe.'
+                'message' => 'Os grupos PAP só podem ser criados para turmas da 13ª classe.',
             ], 422);
         }
 
         return response()->json($grupo->load('professor.user:id,nome', 'turma:id,nome', 'elementos'), 201);
     }
 
-    public function show($id)
+    public function show(GrupoPap $grupoPap)
     {
         $grupoPap = GrupoPap::with([
             'professor.user:id,nome,email',
@@ -165,7 +168,7 @@ class GrupoPapController extends Controller //implements HasMiddleware
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
             'elementos.aluno.inscricao.candidato:id,nome,email,telefone',
             'jurados.professor.user:id,nome,email',
-        ])->findOrFail($id);
+        ])->findOrFail($grupoPap->id);
 
         return response()->json([
             'id' => $grupoPap->id,
@@ -184,7 +187,7 @@ class GrupoPapController extends Controller //implements HasMiddleware
             'classe' => $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->classe?->nome,
             'curso' => $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
             'instituicao' => $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
-            'elementos' => $grupoPap->elementos->map(fn($el) => [
+            'elementos' => $grupoPap->elementos->map(fn ($el) => [
                 'id' => $el->id,
                 'aluno_id' => $el->aluno->id,
                 'nome' => $el->aluno?->inscricao?->candidato?->nome,
@@ -192,7 +195,7 @@ class GrupoPapController extends Controller //implements HasMiddleware
                 'matricula' => $el->aluno?->matricula,
                 'nota_individual' => $el->nota_individual,
             ]),
-            'banca' => $grupoPap->jurados->map(fn($j) => [
+            'banca' => $grupoPap->jurados->map(fn ($j) => [
                 'id' => $j->id,
                 'professor_id' => $j->professor->id,
                 'nome' => $j->professor?->user->nome,
@@ -301,7 +304,7 @@ class GrupoPapController extends Controller //implements HasMiddleware
             ->where('tipo', 'principal')
             ->exists();
 
-        if (!$eTitular) {
+        if (! $eTitular) {
             return response()->json([
                 'message' => 'O jurado deve ser professor titular do curso.',
             ], 422);
@@ -350,7 +353,7 @@ class GrupoPapController extends Controller //implements HasMiddleware
             })
             ->get();
 
-        return response()->json($alunos->map(fn($aluno) => [
+        return response()->json($alunos->map(fn ($aluno) => [
             'id' => $aluno->id,
             'nome' => $aluno->inscricao?->candidato?->nome,
             'matricula' => $aluno->matricula,

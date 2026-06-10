@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Turno;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class TurnoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Carrega turnos (pode ser filtrado por instituição se tiver relação)
-        $turnos = Turno::all();
+        $turnos = Turno::select(['id', 'nome', 'created_at'])
+            ->orderBy('nome', 'asc')
+            ->paginate(10);
 
         return Inertia('turnos/index', [
             'turnos' => $turnos,

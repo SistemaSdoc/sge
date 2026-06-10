@@ -71,7 +71,7 @@ export function TabContentCursos({ data, instituicaoId }) {
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/72">
-                <TableHead>Nome</TableHead>
+                <TableHead className='px-4'>Nome</TableHead>
                 <TableHead>Tutelado por</TableHead>
                 <TableHead className="px-4 text-right">Acções</TableHead>
               </TableRow>

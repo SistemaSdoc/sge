@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { CursoForm } from './components';
+import { CursoForm } from './components/forms/edit.form';
 
 export default function Edit({
   instituicao,

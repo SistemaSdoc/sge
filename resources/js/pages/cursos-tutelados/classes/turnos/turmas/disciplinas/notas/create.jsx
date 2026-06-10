@@ -1,33 +1,47 @@
-import { router, usePage } from '@inertiajs/react'
-import LancamentosTable from '../../../../../components/classes/turnos/turmas/disciplinas/notas/lancamentos-table'
+import { Form, usePage } from '@inertiajs/react';
+import { Loader2 } from 'lucide-react';
+import LancamentosTable from './components/lancamentos-table';
 
-export default function Create() {
-  const {
-    instituicaoId, cursoId, classeId, turnoId, turmaId,
-    tdpId, disciplina, alunos,
-  } = usePage().props
+export default function Create({
+  instituicaoId,
+  cursoId,
+  classeId,
+  turnoId,
+  turmaId,
+  disciplinaId,
+}) {
+  const { data } = usePage().props;
 
-  const [isPending, setIsPending] = useState(false)
-
-  function handleSubmit(payload) {
-    router.post(
-      `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplina.id}/notas`,
-      payload,
-      {
-        preserveScroll: true,
-        onStart: () => setIsPending(true),
-        onFinish: () => setIsPending(false),
-      }
-    )
+  if (!data?.alunos || data.alunos.length === 0) {
+    return (
+      <div className="flex justify-center py-20">
+        <span className="text-sm text-muted-foreground">
+          Sem dados disponíveis.
+        </span>
+      </div>
+    );
   }
 
   return (
-    <LancamentosTable
-      tdpId={tdpId}
-      disciplina={disciplina}
-      alunos={alunos ?? []}
-      isPending={isPending}
-      onSubmit={handleSubmit}
-    />
-  )
+    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+      <Form
+        action={`/instituicoes/${instituicaoId}/cursos-tutelados/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplinaId}/notas`}
+        method="post"
+        options={{ preserveScroll: true }}
+      >
+        {({ processing }) => (
+          <LancamentosTable
+            data={data}
+            isPending={processing}
+            instituicaoId={instituicaoId}
+            cursoId={cursoId}
+            classeId={classeId}
+            turnoId={turnoId}
+            turmaId={turmaId}
+            disciplinaId={disciplinaId}
+          />
+        )}
+      </Form>
+    </div>
+  );
 }
