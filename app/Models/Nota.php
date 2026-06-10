@@ -59,7 +59,7 @@ class Nota extends Model
     {
         return Attribute::make(
             get: fn ($v) => $v !== null ? (float) $v : null,
-            set: fn ($v) => $this->sanitizarNota($v),
+            set: fn ($v) => $this->sanitizeNota($v),
         );
     }
 
@@ -67,7 +67,7 @@ class Nota extends Model
     {
         return Attribute::make(
             get: fn ($v) => $v !== null ? (float) $v : null,
-            set: fn ($v) => $this->sanitizarNota($v),
+            set: fn ($v) => $this->sanitizeNota($v),
         );
     }
 
@@ -75,7 +75,7 @@ class Nota extends Model
     {
         return Attribute::make(
             get: fn ($v) => $v !== null ? (float) $v : null,
-            set: fn ($v) => $this->sanitizarNota($v),
+            set: fn ($v) => $this->sanitizeNota($v),
         );
     }
 
@@ -83,7 +83,7 @@ class Nota extends Model
     {
         return Attribute::make(
             get: fn ($v) => $v !== null ? (float) $v : null,
-            set: fn ($v) => $this->sanitizarMedia($v),
+            set: fn ($v) => $this->sanitizeMedia($v),
         );
     }
 
@@ -91,8 +91,26 @@ class Nota extends Model
     {
         return Attribute::make(
             get: fn ($v) => $v !== null ? (float) $v : null,
-            set: fn ($v) => $this->sanitizarMedia($v),
+            set: fn ($v) => $this->sanitizeMedia($v),
         );
+    }
+
+    private function sanitizeNota(mixed $value): ?float
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return round((float) $value, 1);
+    }
+
+    private function sanitizeMedia(mixed $value): ?float
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return round((float) $value, 1);
     }
 
     protected function faltas(): Attribute

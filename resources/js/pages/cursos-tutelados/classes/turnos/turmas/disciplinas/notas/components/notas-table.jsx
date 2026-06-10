@@ -53,6 +53,7 @@ export default function NotasTable({
   classeId,
   turnoId,
   turmaId,
+  exportarFn,
 }) {
   const [periodo, setPeriodo] = useState('1');
   const [notas, setNotas] = useState({});
@@ -64,6 +65,14 @@ export default function NotasTable({
   }, [alunos, periodo]);
 
   const lancamentosUrl = `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplina?.id}/notas/create`;
+  const exportarUrl = exportarFn?.url?.({
+    instituicao: instituicaoId,
+    cursoTutelado: cursoId,
+    cursoClasse: classeId,
+    cursoClasseTurno: turnoId,
+    turma: turmaId,
+    classeTurnoDisciplina: disciplina?.id,
+  });
 
   return (
     <Card className="gap-0">
@@ -85,6 +94,16 @@ export default function NotasTable({
 
           <Button asChild>
             <Link href={lancamentosUrl}>Lançar Notas</Link>
+          </Button>
+
+          <Button asChild variant="outline">
+            <a
+              href={exportarUrl || '#'}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Exportar
+            </a>
           </Button>
         </CardAction>
       </CardHeader>

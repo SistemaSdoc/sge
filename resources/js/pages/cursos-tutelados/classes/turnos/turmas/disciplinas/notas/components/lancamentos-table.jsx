@@ -95,7 +95,7 @@ export default function LancamentosTable({
             }}
           />
         ) : (
-          <Table>
+          <Table key={periodo}>
             <TableHeader>
               <TableRow className="bg-muted/72">
                 <TableHead className="w-1! px-4">#</TableHead>

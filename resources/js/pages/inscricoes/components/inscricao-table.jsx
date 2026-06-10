@@ -7,143 +7,194 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/empty-state';
 import { formatStatusInscricao } from '@/utils/format-status';
 import { MoreHorizontalIcon, UserCheckIcon } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { create, show } from '@/routes/inscricoes';
 
 export function InscricaoTable({ inscricoes, updateFn }) {
-    const [nota, setNota] = useState('');
-    const [inscricaoSelecionada, setInscricaoSelecionada] = useState(null);
-    const isEmpty = !inscricoes || inscricoes.length === 0;
+  const [nota, setNota] = useState('');
+  const [inscricaoSelecionada, setInscricaoSelecionada] = useState(null);
+  const isEmpty = !inscricoes || inscricoes.length === 0;
 
-    return (
-        <>
-            <Dialog open={!!inscricaoSelecionada} onOpenChange={() => {
+  return (
+    <>
+      <Dialog
+        open={!!inscricaoSelecionada}
+        onOpenChange={() => {
+          setInscricaoSelecionada(null);
+          setNota('');
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Definir nota da prova</DialogTitle>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="nota">Nota (0 - 20)</Label>
+            <Input
+              id="nota"
+              type="number"
+              min={0}
+              max={20}
+              value={nota}
+              onChange={(e) => setNota(e.target.value)}
+              placeholder="Ex: 14"
+            />
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                updateFn(inscricaoSelecionada, Number(nota));
                 setInscricaoSelecionada(null);
                 setNota('');
-            }}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Definir nota da prova</DialogTitle>
-                    </DialogHeader>
+              }}
+            >
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor="nota">Nota (0 - 20)</Label>
-                        <Input
-                            id="nota"
-                            type="number"
-                            min={0}
-                            max={20}
-                            value={nota}
-                            onChange={(e) => setNota(e.target.value)}
-                            placeholder="Ex: 14"
-                        />
-                    </div>
+      <Card className="mx-auto w-full max-w-7xl gap-0">
+        <CardHeader className="border-b">
+          <CardTitle>Candidatos</CardTitle>
+          <CardDescription>Lista de candidatos</CardDescription>
+          <CardAction>
+            <Button asChild>
+              <Link href={create.url()}>Adicionar</Link>
+            </Button>
+          </CardAction>
+        </CardHeader>
 
-                    <DialogFooter>
-                        <Button onClick={() => {
-                            updateFn(inscricaoSelecionada, Number(nota));
-                            setInscricaoSelecionada(null);
-                            setNota('');
-                        }}>
-                            Guardar
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+        <CardContent className="p-0!">
+          {isEmpty ? (
+            <EmptyState
+              variant="table"
+              icon={UserCheckIcon}
+              title="Nenhuma inscrição cadastrada"
+              description="Comece adicionando a primeira inscrição à tabela"
+              action={{
+                label: 'Adicionar Inscrição',
+                href: create.url(),
+                variant: 'outline',
+              }}
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/72">
+                  <TableHead className="px-4">Nome</TableHead>
+                  <TableHead className="px-4">Curso</TableHead>
+                  <TableHead className="px-4">Turno</TableHead>
+                  <TableHead className="px-4">Status</TableHead>
+                  <TableHead className="px-4 text-right">Acções</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {inscricoes.map((inscricao) => (
+                  <TableRow
+                    key={inscricao.id}
+                    className="hover:cursor-pointer"
+                    onClick={() => router.visit(show.url(inscricao.id))}
+                  >
+                    <TableCell className="px-4 font-medium">
+                      {inscricao.candidato}
+                    </TableCell>
+                    <TableCell className="px-4 font-medium">
+                      {inscricao.curso}
+                    </TableCell>
+                    <TableCell className="px-4 font-medium">
+                      {inscricao.turno}
+                    </TableCell>
+                    <TableCell className="px-4 font-medium">
+                      {formatStatusInscricao(inscricao.status)}
+                    </TableCell>
+                    <TableCell className="px-4 text-right">
+                      {inscricao.status === 'pendente' && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8"
+                            >
+                              <MoreHorizontalIcon />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-auto!">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setInscricaoSelecionada(inscricao.id);
+                              }}
+                            >
+                              Definir nota da prova
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
 
-            <Card className="gap-0 w-full max-w-7xl mx-auto">
-                <CardHeader className="border-b">
-                    <CardTitle>Candidatos</CardTitle>
-                    <CardDescription>Lista de candidatos</CardDescription>
-                    <CardAction>
-                        <Button asChild>
-                            <Link href={create.url()}>Adicionar</Link>
-                        </Button>
-                    </CardAction>
-                </CardHeader>
-
-                <CardContent className="p-0!">
-                    {isEmpty ? (
-                        <EmptyState
-                            variant="table"
-                            icon={UserCheckIcon}
-                            title="Nenhuma inscrição cadastrada"
-                            description="Comece adicionando a primeira inscrição à tabela"
-                            action={{
-                                label: "Adicionar Inscrição",
-                                href: create.url(),
-                                variant: "outline",
-                            }}
-                        />
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-muted/72">
-                                    <TableHead className="px-4">Nome</TableHead>
-                                    <TableHead className="px-4">Curso</TableHead>
-                                    <TableHead className="px-4">Turno</TableHead>
-                                    <TableHead className="px-4">Status</TableHead>
-                                    <TableHead className="px-4 text-right">Acções</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {inscricoes.map((inscricao) => (
-                                    <TableRow
-                                        key={inscricao.id}
-                                        className="hover:cursor-pointer"
-                                        onClick={() => router.visit(show.url(inscricao.id))}
-                                    >
-                                        <TableCell className="px-4 font-medium">{inscricao.candidato}</TableCell>
-                                        <TableCell className="px-4 font-medium">{inscricao.curso}</TableCell>
-                                        <TableCell className="px-4 font-medium">{inscricao.turno}</TableCell>
-                                        <TableCell className="px-4 font-medium">{formatStatusInscricao(inscricao.status)}</TableCell>
-                                        <TableCell className="px-4 text-right">
-                                            {inscricao.status === 'pendente' && (
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="size-8">
-                                                            <MoreHorizontalIcon />
-                                                            <span className="sr-only">Open menu</span>
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="w-auto!">
-                                                        <DropdownMenuItem onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setInscricaoSelecionada(inscricao.id);
-                                                        }}>
-                                                            Definir nota da prova
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-                </CardContent>
-
-                {!isEmpty && (
-                    <CardFooter className="justify-between">
-                        <span className="text-muted-foreground">Página 1 de 4</span>
-                        <Pagination>
-                            <PaginationContent>
-                                <PaginationItem>
-                                    <PaginationPrevious href="#" />
-                                </PaginationItem>
-                                <PaginationItem>
-                                    <PaginationNext href="#" />
-                                </PaginationItem>
-                            </PaginationContent>
-                        </Pagination>
-                    </CardFooter>
-                )}
-            </Card>
-        </>
-    );
+        {!isEmpty && (
+          <CardFooter className="justify-between">
+            <span className="text-muted-foreground">Página 1 de 4</span>
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious href="#" />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext href="#" />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </CardFooter>
+        )}
+      </Card>
+    </>
+  );
 }
