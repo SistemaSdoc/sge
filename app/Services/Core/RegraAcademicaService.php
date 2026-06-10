@@ -27,6 +27,23 @@ class RegraAcademicaService
             ->whereNotNull('media_final');
 
         // ─────────────────────────────────────────
+        // VERIFICAR SE HÁ DISCIPLINAS INCOMPLETAS
+        // ─────────────────────────────────────────
+
+        $todasAsNotas = $turmaAluno->notas->where('periodo', 3);
+        $disciplinasIncompletas = $todasAsNotas
+            ->whereNull('media_final')
+            ->count();
+
+        if ($disciplinasIncompletas > 0) {
+            return $this->resultado(
+                'incompleto',
+                "Aluno tem {$disciplinasIncompletas} disciplina(s) com notas pendentes.",
+                []
+            );
+        }
+
+        // ─────────────────────────────────────────
         // 1. Verificar EEF
         // ─────────────────────────────────────────
 

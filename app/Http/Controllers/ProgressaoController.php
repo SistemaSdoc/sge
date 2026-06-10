@@ -12,13 +12,14 @@ use App\Services\AprovacaoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ProgressaoController extends Controller
 {
     public function __construct(
         private readonly AprovacaoService $aprovacaoService,
-    ) {
-    }
+    ) {}
 
     // ─────────────────────────────────────────────────────────────
     // PREVIEW
@@ -27,8 +28,10 @@ class ProgressaoController extends Controller
     public function preview(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
-    ): JsonResponse {
+    ): Response {
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
             'notas',
@@ -54,7 +57,7 @@ class ProgressaoController extends Controller
             ];
         });
 
-        return response()->json([
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/progressao', [
             'turma' => $turma->nome,
 
             'total' => $resultado->count(),
@@ -122,14 +125,14 @@ class ProgressaoController extends Controller
             'incompletos' => [],
         ];
 
-        DB::transaction(function () use ($turmaAlunos, $turmaDestino, $anoNovo, &$resultados, ) {
+        DB::transaction(function () use ($turmaAlunos, $turmaDestino, $anoNovo, &$resultados) {
 
             foreach ($turmaAlunos as $ta) {
 
                 $nome = $ta->aluno
                     ->inscricao
                     ?->candidato
-                        ?->nome ?? 'Desconhecido';
+                    ?->nome ?? 'Desconhecido';
 
                 $resultadoFinal = $this->aprovacaoService
                     ->calcularAprovacao($ta->id);
@@ -141,66 +144,66 @@ class ProgressaoController extends Controller
                     // ─────────────────────────────────────
                     // TRANSITAR
                     // ─────────────────────────────────────
-                    'TRANSITAR' => (function () use ($ta, $turmaDestino, $anoNovo, $nome, $resultadoFinal, &$resultados, ) {
+                    'TRANSITAR' => (function () use ($ta, $turmaDestino, $anoNovo, $nome, $resultadoFinal, &$resultados) {
 
-                            $this->moverParaProximaClasse(
+                        $this->moverParaProximaClasse(
                             $ta,
                             $turmaDestino->id,
                             $anoNovo
-                            );
+                        );
 
-                            $resultados['transitados'][] = [
+                        $resultados['transitados'][] = [
                             'nome' => $nome,
                             'situacao' => $resultadoFinal['situacao'],
                             'detalhes' => $resultadoFinal['detalhes'],
-                            ];
-                        })(),
+                        ];
+                    })(),
 
                     // ─────────────────────────────────────
                     // AGUARDAR RECURSO
                     // ─────────────────────────────────────
-                    'AGUARDAR_RECURSO' => (function () use ($ta, $nome, $resultadoFinal, &$resultados) {
-                            // Aluno continua activo = true, situacao = activo
-                            // Apenas regista no array de resultado para controlo
-                            $resultados['recurso'][] = [
+                    'AGUARDAR_RECURSO' => (function () use ($nome, $resultadoFinal, &$resultados) {
+                        // Aluno continua activo = true, situacao = activo
+                        // Apenas regista no array de resultado para controlo
+                        $resultados['recurso'][] = [
                             'nome' => $nome,
                             'detalhes' => $resultadoFinal['detalhes'],
-                            ];
-                        })(),
+                        ];
+                    })(),
 
                     // ─────────────────────────────────────
                     // RETER
                     // ─────────────────────────────────────
-                    'RETER' => (function () use ($ta, $anoNovo, $nome, $resultadoFinal, &$resultados, ) {
+                    'RETER' => (function () use ($ta, $anoNovo, $nome, $resultadoFinal, &$resultados) {
 
-                            TurmaAluno::firstOrCreate([
+                        TurmaAluno::firstOrCreate([
                             'turma_id' => $ta->turma_id,
                             'aluno_id' => $ta->aluno_id,
                             'ano_lectivo' => $anoNovo,
-                            ], [
+                        ], [
                             'activo' => true,
                             'situacao' => 'activo',
-                            ]);
+                        ]);
 
-                            $ta->update([
+                        $ta->update([
                             'activo' => false,
                             'situacao' => 'retido',
-                            ]);
+                        ]);
 
-                            $resultados['retidos'][] = [
+                        $resultados['retidos'][] = [
                             'nome' => $nome,
                             'situacao' => $resultadoFinal['situacao'],
                             'detalhes' => $resultadoFinal['detalhes'],
-                            ];
-                        })(),
+                        ];
+                    })(),
 
                     // ─────────────────────────────────────
                     // INCOMPLETO
                     // ─────────────────────────────────────
-                    default => (function () use ($nome, &$resultados, ) {
+                    default => (function () use ($nome, &$resultados) {
 
-                            $resultados['incompletos'][] = $nome;
-                        })(),
+                        $resultados['incompletos'][] = $nome;
+                    })(),
                 };
             }
         });
@@ -218,7 +221,6 @@ class ProgressaoController extends Controller
             ],
         ]);
     }
-
 
     // ─────────────────────────────────────────────────────────────
     // HELPER
@@ -273,6 +275,7 @@ class ProgressaoController extends Controller
             ->get()
             ->filter(function ($ta) {
                 $resultado = $this->aprovacaoService->calcularAprovacao($ta->id);
+
                 return $resultado['acao'] === 'AGUARDAR_RECURSO';
             });
 
@@ -290,26 +293,26 @@ class ProgressaoController extends Controller
                 match ($resultado['situacao']) {
 
                     'aprovado_recurso' => (function () use ($ta, $turmaDestino, $anoNovo, $nome, &$resultados) {
-                            $this->moverParaProximaClasse($ta, $turmaDestino->id, $anoNovo);
-                            $resultados['transitados'][] = $nome;
-                        })(),
+                        $this->moverParaProximaClasse($ta, $turmaDestino->id, $anoNovo);
+                        $resultados['transitados'][] = $nome;
+                    })(),
 
                     'reprovado_recurso' => (function () use ($ta, $anoNovo, $nome, &$resultados) {
-                            // Fica retido na mesma turma no novo ano
-                            TurmaAluno::firstOrCreate([
+                        // Fica retido na mesma turma no novo ano
+                        TurmaAluno::firstOrCreate([
                             'turma_id' => $ta->turma_id,
                             'aluno_id' => $ta->aluno_id,
                             'ano_lectivo' => $anoNovo,
-                            ], ['activo' => true, 'situacao' => 'activo']);
+                        ], ['activo' => true, 'situacao' => 'activo']);
 
-                            $ta->update(['activo' => false, 'situacao' => 'retido']);
-                            $resultados['retidos'][] = $nome;
-                        })(),
+                        $ta->update(['activo' => false, 'situacao' => 'retido']);
+                        $resultados['retidos'][] = $nome;
+                    })(),
 
                     // Notas ainda não lançadas
                     default => (function () use ($nome, &$resultados) {
-                            $resultados['pendentes'][] = $nome;
-                        })(),
+                        $resultados['pendentes'][] = $nome;
+                    })(),
                 };
             }
         });
