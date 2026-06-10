@@ -10,18 +10,19 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class AlunoController extends Controller //implements HasMiddleware
 {
-   /* public static function middleware(): array
-    {
-        return [
-            new Middleware('permission:alunos.index', only: ['index']),
-            new Middleware('permission:alunos.show', only: ['show', 'turmasDisponiveis']),
-            new Middleware('permission:alunos.edit', only: ['update']),
-            new Middleware('permission:alunos.delete', only: ['destroy']),
-        ];
-    }*/
+    /* public static function middleware(): array
+     {
+         return [
+             new Middleware('permission:alunos.index', only: ['index']),
+             new Middleware('permission:alunos.show', only: ['show', 'turmasDisponiveis']),
+             new Middleware('permission:alunos.edit', only: ['update']),
+             new Middleware('permission:alunos.delete', only: ['destroy']),
+         ];
+     }*/
 
     public function index()
     {
@@ -35,31 +36,33 @@ class AlunoController extends Controller //implements HasMiddleware
                 'inscricao.cursoClasseTurno.turno:id,nome',
                 'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
                 'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-                'turmas' => fn ($q) => $q->wherePivot('activo', true)
+                'turmas' => fn($q) => $q->wherePivot('activo', true)
                     ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
             ])
             ->when(
                 $instituicaoId,
-                fn ($q) => $q->whereHas(
+                fn($q) => $q->whereHas(
                     'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn ($q) => $q->where('instituicao_id', $instituicaoId)
+                    fn($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
             ->latest()->get();
 
-        return response()->json($alunos->map(fn ($aluno) => [
-            'id' => $aluno->id,
-            'matricula' => $aluno->matricula,
-            'nome' => $aluno->inscricao?->candidato?->nome,
-            'bi' => $aluno->inscricao?->candidato?->bi,
-            'email' => $aluno->inscricao?->candidato?->email,
-            'telefone' => $aluno->inscricao?->candidato?->telefone,
-            'curso' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
-            'instituicao' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
-            'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,
-            'turma' => $aluno->turmas->first()?->nome,
-            'classe' => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome,
-        ]));
+        return Inertia::render('alunos/index', [
+            'alunos' => $alunos->map(fn($aluno) => [
+                'id' => $aluno->id,
+                'matricula' => $aluno->matricula,
+                'nome' => $aluno->inscricao?->candidato?->nome,
+                'bi' => $aluno->inscricao?->candidato?->bi,
+                'email' => $aluno->inscricao?->candidato?->email,
+                'telefone' => $aluno->inscricao?->candidato?->telefone,
+                'curso' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
+                'instituicao' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
+                'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,
+                'turma' => $aluno->turmas->first()?->nome,
+                'classe' => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome,
+            ]),
+        ]);
     }
 
     public function show(Aluno $aluno)
@@ -69,25 +72,60 @@ class AlunoController extends Controller //implements HasMiddleware
             'inscricao.cursoClasseTurno.turno:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-            'turmas' => fn ($q) => $q->wherePivot('activo', true)
+            'turmas' => fn($q) => $q->wherePivot('activo', true)
                 ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
         ]);
 
-        return response()->json([
-            'id' => $aluno->id,
-            'matricula' => $aluno->matricula,
-            'nome' => $aluno->inscricao?->candidato?->nome,
-            'bi' => $aluno->inscricao?->candidato?->bi,
-            'email' => $aluno->inscricao?->candidato?->email,
-            'telefone' => $aluno->inscricao?->candidato?->telefone,
-            'curso' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
-            'instituicao' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
-            'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,
-            'turma' => [
-                'id' => $aluno->turmas->first()?->id,
-                'nome' => $aluno->turmas->first()?->nome,
-                'classe' => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome,
+        return Inertia::render('alunos/show', [
+            'aluno' => [
+                'id' => $aluno->id,
+                'matricula' => $aluno->matricula,
+                'nome' => $aluno->inscricao?->candidato?->nome,
+                'bi' => $aluno->inscricao?->candidato?->bi,
+                'email' => $aluno->inscricao?->candidato?->email,
+                'telefone' => $aluno->inscricao?->candidato?->telefone,
+                'curso' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
+                'instituicao' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
+                'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,
+                'turma' => [
+                    'id' => $aluno->turmas->first()?->id,
+                    'nome' => $aluno->turmas->first()?->nome,
+                    'classe' => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome,
+                ],
             ],
+        ]);
+    }
+
+    public function edit(Aluno $aluno)
+    {
+        $aluno->load([
+            'inscricao.candidato:id,nome,bi,email,telefone',
+            'inscricao.cursoClasseTurno.turno:id,nome',
+            'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
+            'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
+            'turmas' => fn($q) => $q->wherePivot('activo', true)
+                ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
+        ]);
+
+        $turmas = Turma::where(
+            'curso_classe_turno_id',
+            $aluno->inscricao->curso_classe_turno_id
+        )
+            ->with('cursoClasseTurno.cursoClasse.classe:id,nome')
+            ->get();
+
+        return Inertia::render('alunos/edit', [
+            'aluno' => [
+                'id' => $aluno->id,
+                'matricula' => $aluno->matricula,
+                'nome' => $aluno->inscricao?->candidato?->nome,
+                'bi' => $aluno->inscricao?->candidato?->bi,
+            ],
+            'turmas' => $turmas->map(fn($turma) => [
+                'id' => $turma->id,
+                'nome' => $turma->nome,
+                'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
+            ]),
         ]);
     }
 
@@ -101,7 +139,7 @@ class AlunoController extends Controller //implements HasMiddleware
             ->with('cursoClasseTurno.cursoClasse.classe:id,nome') // Relação correta
             ->get();
 
-        return response()->json($turmas->map(fn ($t) => [
+        return response()->json($turmas->map(fn($t) => [
             'id' => $t->id,
             'nome' => $t->nome,
             'classe' => $t->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -113,7 +151,7 @@ class AlunoController extends Controller //implements HasMiddleware
         $request->validate([
             'nome' => 'required|string|max:255',
             'bi' => 'required|string|max:20',
-            'matricula' => 'nullable|string|max:255|unique:alunos,matricula,'.$aluno->id,
+            'matricula' => 'nullable|string|max:255|unique:alunos,matricula,' . $aluno->id,
             'turma_id' => 'nullable|exists:turmas,id',
         ]);
 
@@ -131,21 +169,21 @@ class AlunoController extends Controller //implements HasMiddleware
             ]);
         }
 
-        return response()->json(status: 200);
+        return redirect()->route('alunos.index');
     }
 
     public function destroy(Aluno $aluno)
     {
         $aluno->delete();
 
-        return response()->json(status: 200);
+        return redirect()->route('alunos.index');
     }
 
     public function grelhaCurricular()
     {
         $aluno = Auth::user()->aluno;
 
-        if (! $aluno) {
+        if (!$aluno) {
             return response()->json([
                 'message' => 'Aluno não encontrado',
             ], 404);
@@ -156,7 +194,7 @@ class AlunoController extends Controller //implements HasMiddleware
             ->wherePivot('activo', true)
             ->first();
 
-        if (! $turmaAtual) {
+        if (!$turmaAtual) {
             return response()->json([
                 'message' => 'Aluno não tem turma atribuída no ano letivo atual',
             ], 404);
@@ -166,7 +204,7 @@ class AlunoController extends Controller //implements HasMiddleware
             ->classeTurnoDisciplinas()
             ->with([
                 'disciplina:id,nome,sigla',
-                'turmaDisciplinaProfessores' => fn ($q) => $q
+                'turmaDisciplinaProfessores' => fn($q) => $q
                     ->where('turma_id', $turmaAtual->id)
                     ->with('professor.user:id,nome'),
             ])
@@ -190,7 +228,7 @@ class AlunoController extends Controller //implements HasMiddleware
     {
         $aluno = Auth::user()->aluno;
 
-        if (! $aluno) {
+        if (!$aluno) {
             return response()->json([
                 'message' => 'Aluno não encontrado',
             ], 404);
@@ -201,7 +239,7 @@ class AlunoController extends Controller //implements HasMiddleware
             ->wherePivot('activo', true)
             ->first();
 
-        if (! $turmaAtual) {
+        if (!$turmaAtual) {
             return response()->json([
                 'message' => 'Aluno não tem turma atribuída no ano letivo atual',
             ], 404);
@@ -212,7 +250,7 @@ class AlunoController extends Controller //implements HasMiddleware
             ->where('activo', true)
             ->first();
 
-        if (! $turmaAluno) {
+        if (!$turmaAluno) {
             return response()->json([
                 'message' => 'Registro de aluno na turma não encontrado',
             ], 404);
@@ -221,13 +259,13 @@ class AlunoController extends Controller //implements HasMiddleware
         $disciplinasDaTurma = $turmaAtual->turmaDisciplinaProfessor()
             ->with(['classeTurnoDisciplina.disciplina:id,nome,sigla'])
             ->get()
-            ->groupBy(fn ($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
-            ->map(fn ($tdps) => $tdps->first());
+            ->groupBy(fn($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
+            ->map(fn($tdps) => $tdps->first());
 
         $notas = $turmaAluno->notas()
             ->with(['turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome,sigla'])
             ->get()
-            ->groupBy(fn ($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id);
+            ->groupBy(fn($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id);
 
         $disciplinas = $disciplinasDaTurma->map(function ($tdp) use ($notas) {
             $disciplina = $tdp->classeTurnoDisciplina->disciplina;

@@ -12,7 +12,7 @@ class UpdateInscricaoRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('inscricoes.edit');
+        return true;
     }
 
     /**
