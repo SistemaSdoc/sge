@@ -1,66 +1,33 @@
-"use client"
-import { Loader2 } from "lucide-react"
-import { useNotasLancamento } from "@/features/curso-tutelado/hooks/classes/turnos/turmas/disciplinas/notas/useNotasLancamento"
-import { useCreateLancamentos } from "@/features/curso-tutelado/hooks/classes/turnos/turmas/disciplinas/notas/useCreateLancamento"
-import LancamentosTable from "@/features/curso-tutelado/components/classes/turnos/turmas/disciplinas/notas/lancamentos-table"
+import { router, usePage } from '@inertiajs/react'
+import LancamentosTable from '../../../../../components/classes/turnos/turmas/disciplinas/notas/lancamentos-table'
 
-export function DisciplinaLancamentos({
-  instituicaoId,
-  cursoId,
-  classeId,
-  turnoId,
-  turmaId,
-  disciplinaId
-}) {
-  const { data, isLoading } = useNotasLancamento(
-    instituicaoId,
-    cursoId,
-    classeId,
-    turnoId,
-    turmaId,
-    disciplinaId
-  )
+export default function Create() {
+  const {
+    instituicaoId, cursoId, classeId, turnoId, turmaId,
+    tdpId, disciplina, alunos,
+  } = usePage().props
 
-  const { mutate, isPending } = useCreateLancamentos(
-    instituicaoId,
-    cursoId,
-    classeId,
-    turnoId,
-    turmaId,
-    disciplinaId
-  )
+  const [isPending, setIsPending] = useState(false)
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="animate-spin size-8" />
-      </div>
+  function handleSubmit(payload) {
+    router.post(
+      `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplina.id}/notas`,
+      payload,
+      {
+        preserveScroll: true,
+        onStart: () => setIsPending(true),
+        onFinish: () => setIsPending(false),
+      }
     )
-
-  if (!data)
-    return (
-      <div className="flex justify-center py-20">
-        <span className="text-muted-foreground text-sm">Sem dados disponíveis.</span>
-      </div>
-    )
+  }
 
   return (
     <LancamentosTable
-      data={data}
-      instituicaoId={instituicaoId}
-      cursoId={cursoId}
-      classeId={classeId}
-      turnoId={turnoId}
-      turmaId={turmaId}
-      disciplinaId={disciplinaId}
+      tdpId={tdpId}
+      disciplina={disciplina}
+      alunos={alunos ?? []}
       isPending={isPending}
-      defaulValues={{
-        mac: "",
-        npp: "",
-        npt: "",
-        fi: ""
-      }}
-      onSubmit={(payload) => mutate(payload)}
+      onSubmit={handleSubmit}
     />
   )
 }

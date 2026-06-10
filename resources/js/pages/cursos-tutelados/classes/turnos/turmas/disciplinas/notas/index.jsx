@@ -1,42 +1,22 @@
-"use client"
-import { Loader2 } from "lucide-react"
-import { useNotasLancamento } from "@/features/curso-tutelado/hooks/classes/turnos/turmas/disciplinas/notas/useNotasLancamento"
-import { useCreateLancamentos } from "@/features/curso-tutelado/hooks/classes/turnos/turmas/disciplinas/notas/useCreateLancamento"
-import NotasTable from "../../../../../../components/classes/turnos/turmas/disciplinas/notas/notas-table"
+import { usePage } from '@inertiajs/react'
+import NotasTable from '../../../../../components/classes/turnos/turmas/disciplinas/notas/notas-table'
 
-export function DisciplinaNotas({
-  instituicaoId,
-  cursoId,
-  classeId,
-  turnoId,
-  turmaId,
-  disciplinaId
-}) {
-  const { data, isLoading } = useNotasLancamento(
-    instituicaoId,
-    cursoId,
-    classeId,
-    turnoId,
-    turmaId,
-    disciplinaId
-  )
-
-  if (isLoading)
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="animate-spin size-8" />
-      </div>
-    )
+export default function Index() {
+  const {
+    instituicaoId, cursoId, classeId, turnoId, turmaId,
+    tdpId, disciplina, alunos,
+  } = usePage().props
 
   return (
     <NotasTable
-      data={data}
+      alunos={alunos}
+      disciplina={disciplina}
+      tdpId={tdpId}
       instituicaoId={instituicaoId}
       cursoId={cursoId}
       classeId={classeId}
       turnoId={turnoId}
       turmaId={turmaId}
-      disciplinaId={disciplinaId}
     />
   )
 }

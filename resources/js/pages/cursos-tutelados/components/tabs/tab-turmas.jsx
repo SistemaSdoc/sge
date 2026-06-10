@@ -62,7 +62,7 @@ export function TabTurmas({ turmas, instituicaoId, cursoTuteladoId }) {
                   className="hover:cursor-pointer"
                   onClick={() =>
                     router.visit(
-                      `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/turmas/${turma.id}`,
+                      `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${turma.classe.id}/turnos/${turma.curso_classe_turno_id}/turmas/${turma.id}`,
                     )
                   }
                 >
@@ -97,7 +97,7 @@ export function TabTurmas({ turmas, instituicaoId, cursoTuteladoId }) {
                           onClick={(event) => {
                             event.stopPropagation();
                             router.visit(
-                              `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/turmas/${turma.id}`,
+                              `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${turma.classe.id}/turnos/${turma.curso_classe_turno_id}/turmas/${turma.id}`,
                             );
                           }}
                         >

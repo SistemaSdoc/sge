@@ -1,18 +1,14 @@
-"use client"
 import { useState, useEffect } from "react"
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
+import { Link } from "@inertiajs/react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardAction, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, FileTextIcon } from "lucide-react"
+import { FileTextIcon } from "lucide-react"
 import { EmptyState } from "@/components/empty-state"
 import { mediaTrimestral } from "@/utils/media-trimestral"
 import { verificarSituacao } from "@/utils/verificar-situacao"
-import Link from "next/link"
-import { useExportar, useExportarMiniPauta } from "@/features/curso-tutelado/hooks/classes/turnos/turmas/disciplinas/notas/useExportar"
 
 function buildInitialNotas(alunos, periodo) {
   const state = {}
@@ -29,33 +25,32 @@ function buildInitialNotas(alunos, periodo) {
 }
 
 export default function NotasTable({
-  data,
+  alunos = [],
+  disciplina,
+  tdpId,
   instituicaoId,
+  cursoId,
   classeId,
   turnoId,
-  cursoId,
   turmaId,
-  disciplinaId
 }) {
   const [periodo, setPeriodo] = useState("1")
   const [notas, setNotas] = useState({})
-  const { mutate: exportar, isPending: isExporting } = useExportarMiniPauta()
-  const isEmpty = !data?.alunos || data.alunos.length === 0;
+
+  const isEmpty = alunos.length === 0
 
   useEffect(() => {
-    if (data?.alunos) {
-      setNotas(buildInitialNotas(data.alunos, periodo))
-    }
-  }, [data, periodo])
+    setNotas(buildInitialNotas(alunos, periodo))
+  }, [alunos, periodo])
 
-  const alunos = data?.alunos ?? []
+  const lancamentosUrl = `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplina?.id}/notas/create`
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6">
       <Card className="gap-0">
         <CardHeader className="border-b">
           <div>
-            <CardTitle>{data?.disciplina?.nome ?? "Disciplina"}</CardTitle>
+            <CardTitle>{disciplina?.sigla ?? "Disciplina"}</CardTitle>
           </div>
           <CardAction className="flex items-center gap-3">
             <Select value={periodo} onValueChange={setPeriodo}>
@@ -70,23 +65,7 @@ export default function NotasTable({
             </Select>
 
             <Button asChild>
-              <Link href={`/dashboard/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplinaId}/notas/create`}>
-                Lançar Notas
-              </Link>
-            </Button>
-
-            <Button
-              onClick={() => exportar({
-                instituicaoId,
-                cursoId,
-                classeId,
-                turnoId,
-                turmaId,
-                disciplinaId
-              })}
-              variant="outline"
-            >
-              Exportar
+              <Link href={lancamentosUrl}>Lançar Notas</Link>
             </Button>
           </CardAction>
         </CardHeader>
@@ -96,12 +75,12 @@ export default function NotasTable({
             <EmptyState
               variant="table"
               icon={FileTextIcon}
-              title={`Nenhum lançamento realizado`}
+              title="Nenhum lançamento realizado"
               description={`Nenhuma nota lançada para o ${periodo}º trimestre`}
               action={{
                 label: "Lançar Notas",
-                href: `/dashboard/instituicoes/${instituicaoId}/cursos/${cursoId}/turmas/${turmaId}/disciplinas/${disciplinaId}/notas/create`,
-                variant: "outline"
+                href: lancamentosUrl,
+                variant: "outline",
               }}
             />
           ) : (
@@ -131,25 +110,15 @@ export default function NotasTable({
                     <TableRow key={aluno.turma_aluno_id}>
                       <TableCell className="px-4">{index + 1}</TableCell>
                       <TableCell className="px-4">{aluno.nome}</TableCell>
-
                       <TableCell className="text-center">{n.mac ?? ""}</TableCell>
                       <TableCell className="text-center">{n.npp ?? ""}</TableCell>
                       <TableCell className="text-center">{n.npt ?? ""}</TableCell>
-                      <TableCell className="text-center font-medium">
-                        {mt ?? "-"}
-                      </TableCell>
+                      <TableCell className="text-center font-medium">{mt ?? "-"}</TableCell>
                       <TableCell className="text-center">{n.faltas ?? ""}</TableCell>
-
                       <TableCell className="text-end px-4">
-                        {situacao === "APTO" && (
-                          <Badge className="bg-green-50 text-green-500">APTO</Badge>
-                        )}
-                        {situacao === "N/APTO" && (
-                          <Badge className="bg-red-50 text-red-500">NÃO APTO</Badge>
-                        )}
-                        {situacao === null && (
-                          <span className="text-muted-foreground text-sm">-</span>
-                        )}
+                        {situacao === "APTO" && <Badge className="bg-green-50 text-green-500">APTO</Badge>}
+                        {situacao === "N/APTO" && <Badge className="bg-red-50 text-red-500">NÃO APTO</Badge>}
+                        {situacao === null && <span className="text-muted-foreground text-sm">-</span>}
                       </TableCell>
                     </TableRow>
                   )
@@ -168,6 +137,5 @@ export default function NotasTable({
         </CardContent>
       </Card>
     </div>
-
   )
 }

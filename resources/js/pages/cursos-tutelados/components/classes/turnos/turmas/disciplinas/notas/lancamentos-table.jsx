@@ -26,42 +26,26 @@ function buildInitialNotas(alunos, periodo) {
   return state
 }
 
+
 export default function LancamentosTable({
-  data,
+  alunos = [],
+  disciplina,
+  tdpId,
   onSubmit,
   isPending,
-  defaulValues,
-  instituicaoId,
-  cursoId,
-  classeId,
-  turnoId,
-  turmaId,
-  disciplinaId
 }) {
   const [periodo, setPeriodo] = useState("1")
   const [notas, setNotas] = useState({})
-  const isEmpty = !data?.alunos || data?.alunos?.length === 0;
 
+  const isEmpty = alunos.length === 0
 
   useEffect(() => {
-    if (data?.alunos) {
-      setNotas(buildInitialNotas(data.alunos, periodo))
-    }
-  }, [data, periodo])
-
-  function handleChange(turmaAlunoId, campo, valor) {
-    setNotas(prev => ({
-      ...prev,
-      [turmaAlunoId]: {
-        ...prev[turmaAlunoId],
-        [campo]: valor,
-      }
-    }))
-  }
+    setNotas(buildInitialNotas(alunos, periodo))
+  }, [alunos, periodo])
 
   function handleSubmit() {
     const payload = {
-      tdp_id: data.tdp_id,
+      tdp_id: tdpId,
       periodo: parseInt(periodo),
       notas: {},
     }
@@ -111,7 +95,7 @@ export default function LancamentosTable({
             description="Nenhuma nota para registar"
             action={{
               label: "Lançar Notas",
-              href: `/dashboard/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplinaId}/notas/create`,
+              href: `/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplinaId}/notas/create`,
               variant: "outline"
             }}
           />

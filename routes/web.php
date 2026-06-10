@@ -123,6 +123,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::resource('turmas', ClasseTurnoTurmaController::class);
 
                 Route::prefix('turmas/{turma}')->group(function () {
+                    Route::get('pap', [GrupoPapController::class, 'index']);
+                    Route::get('pap/create', [GrupoPapController::class, 'create']);
                     Route::post('pap/grupos', [GrupoPapController::class, 'store']);
                     Route::get('pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);
                     Route::post('pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
@@ -133,7 +135,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                     Route::prefix('disciplinas/{classeTurnoDisciplina}')->group(function () {
                         Route::post('horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store']);
 
-                        Route::apiResource('notas', NotaController::class);
+                        Route::resource('notas', NotaController::class);
                         Route::get('mini-pauta/excel', [ExportarMiniPautaController::class, 'exportarDisciplina']);
                         Route::get('professores/create', [TurmaDisciplinaProfessorController::class, 'create'])
                             ->name('cursos-tutelados.classes.turnos.turmas.disciplinas.professores.create');

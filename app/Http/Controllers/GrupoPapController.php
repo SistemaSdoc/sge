@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class GrupoPapController extends Controller //implements HasMiddleware
 {
@@ -70,6 +71,35 @@ class GrupoPapController extends Controller //implements HasMiddleware
                 'nome' => $el->aluno?->inscricao?->candidato?->nome,
             ])->filter(fn($el) => $el['nome'])->values(),
         ]));
+    }
+
+    public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
+    {
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/create', [
+            'instituicao' => [
+                'id' => $instituicao->id,
+            ],
+            'cursoTutelado' => [
+                'id' => $cursoTutelado->id,
+            ],
+            'cursoClasse' => [
+                'id' => $cursoClasse->id,
+            ],
+            'cursoClasseTurno' => [
+                'id' => $cursoClasseTurno->id,
+            ],
+            'turma' => [
+                'id' => $turma->id,
+            ],
+            'professores' => Professor::whereHas('cursosTutelados', function ($q) use ($cursoTutelado) {
+                $q->where('curso_tutelado_id', $cursoTutelado->id)
+                    ->where('tipo', 'principal');
+            })->with('user:id,nome')->get(),
+            'alunos' => Aluno::whereHas('turmas', function ($q) use ($turma) {
+                $q->where('turmas.id', $turma->id)
+                    ->where('turma_aluno.activo', true); // aluno activo nesta turma
+            })->with('inscricao.candidato:id,nome')->get(),
+        ]);
     }
 
     public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)

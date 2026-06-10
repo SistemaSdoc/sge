@@ -41,7 +41,7 @@ export function TabGruposPAP({
         <CardDescription>Grupos de aptidão profissional desta turma</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href={`${baseUrl}/pap/grupos/create`}>Criar grupo</Link>
+            <Link href={`${baseUrl}/pap/create`}>Criar grupo</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -55,7 +55,7 @@ export function TabGruposPAP({
             description="Comece adicionando grupos"
             action={{
               label: "Criar Grupo",
-              href: `${baseUrl}/pap/grupos/create`,
+              href: `${baseUrl}/pap/create`,
               variant: "outline",
             }}
           />
@@ -74,7 +74,7 @@ export function TabGruposPAP({
                 <TableRow
                   key={grupo.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/pap/grupos/${grupo.id}`)}
+                  onClick={() => router.visit(`/instituicoes/${instituicaoId}/pap/${grupo.id}`)}
                 >
                   <TableCell className="px-4 font-medium">{grupo.nome_grupo}</TableCell>
                   <TableCell>{grupo.tema_grupo}</TableCell>

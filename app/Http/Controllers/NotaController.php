@@ -10,17 +10,20 @@ use App\Models\CursoClasseTurno;
 use App\Models\CursoClasse;
 use App\Models\TurmaAluno;
 use App\Models\TurmaDisciplinaProfessor;
+use App\Models\ClasseTurnoDisciplina;
 use App\Services\NotaService;
 use App\Services\PautaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class NotaController extends Controller
 {
     public function __construct(
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {}
+    ) {
+    }
 
     // ──────────────────────────────────────────────
     // LISTAR NOTAS DA DISCIPLINA
@@ -33,8 +36,7 @@ class NotaController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
         string $classeTurnoDisciplinaId
-    ): JsonResponse {
-
+    ) {
         $tdp = TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
             ->where('turma_id', $turma->id)
             ->where('classe_turno_disciplina_id', $classeTurnoDisciplinaId)
@@ -42,7 +44,7 @@ class NotaController extends Controller
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
         ])
             ->where('turma_id', $turma->id)
             ->where('situacao', 'activo')
@@ -50,24 +52,72 @@ class NotaController extends Controller
             ->orderBy('id')
             ->get();
 
-        return response()->json([
-            'tdp_id' => $tdp->id,
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index', [
+            'instituicaoId' => $instituicao->id,
+            'cursoId' => $cursoTutelado->id,
+            'classeId' => $cursoClasse->id,
+            'turnoId' => $cursoClasseTurno->id,
+            'turmaId' => $turma->id,
+            'tdpId' => $tdp->id,
             'disciplina' => [
                 'id' => $classeTurnoDisciplinaId,
                 'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
             ],
-            'alunos' => $turmaAlunos->map(fn ($ta) => [
+            'alunos' => $turmaAlunos->map(fn($ta) => [
                 'turma_aluno_id' => $ta->id,
                 'aluno_id' => $ta->aluno->id,
                 'nome' => $ta->aluno->inscricao?->candidato?->nome,
                 'notas' => $ta->notas
-                    ->map(fn ($n) => $this->formatarNota($n))
+                    ->map(fn($n) => $this->formatarNota($n))
                     ->keyBy('periodo'),
             ]),
         ]);
     }
 
+    public function create(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        ClasseTurnoDisciplina $classeTurnoDisciplina
+    ) {
+        $tdp = TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
+            ->where('turma_id', $turma->id)
+            ->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
+            ->firstOrFail();
 
+        $turmaAlunos = TurmaAluno::with([
+            'aluno.inscricao.candidato:id,nome',
+            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+        ])
+            ->where('turma_id', $turma->id)
+            ->where('situacao', 'activo')
+            ->where('activo', true)
+            ->orderBy('id')
+            ->get();
+
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
+            'instituicaoId' => $instituicao->id,
+            'cursoId' => $cursoTutelado->id,
+            'classeId' => $cursoClasse->id,
+            'turnoId' => $cursoClasseTurno->id,
+            'turmaId' => $turma->id,
+            'tdpId' => $tdp->id,
+            'disciplina' => [
+                'id' => $classeTurnoDisciplina->id,
+                'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
+            ],
+            'alunos' => $turmaAlunos->map(fn($ta) => [
+                'turma_aluno_id' => $ta->id,
+                'aluno_id' => $ta->aluno->id,
+                'nome' => $ta->aluno->inscricao?->candidato?->nome,
+                'notas' => $ta->notas
+                    ->map(fn($n) => $this->formatarNota($n))
+                    ->keyBy('periodo'),
+            ]),
+        ]);
+    }
 
 
     // No NotaService@lancarNotas, adicionar validação para periodo 4
@@ -135,20 +185,15 @@ class NotaController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
         string $classeTurnoDisciplinaId
-    ): JsonResponse {
-
+    ) {
         $validated = $request->validate([
             'tdp_id' => 'required|exists:turma_disciplina_professor,id',
             'periodo' => 'required|integer|in:1,2,3,4',
             'notas' => 'required|array',
-
-            // Períodos 1, 2, 3
             'notas.*.mac' => 'nullable|numeric|min:0|max:20',
             'notas.*.npp' => 'nullable|numeric|min:0|max:20',
             'notas.*.npt' => 'nullable|numeric|min:0|max:20',
             'notas.*.faltas' => 'nullable|integer|min:0',
-
-            // Período 4
             'notas.*.nota_recurso' => 'nullable|numeric|min:0|max:20',
         ]);
 
@@ -158,8 +203,13 @@ class NotaController extends Controller
             (int) $validated['periodo'],
         );
 
-        return response()->json([
-            'message' => 'Notas lançadas com sucesso.'
+        return redirect()->route('notas.index', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+            'cursoClasseTurno' => $cursoClasseTurno->id,
+            'turma' => $turma->id,
+            'classeTurnoDisciplina' => $classeTurnoDisciplinaId,
         ]);
     }
 

@@ -32,35 +32,36 @@ class CursoTuteladoResourceShow extends JsonResource
 
             'contadores' => [
                 'turmas' => $this->cursoClasses
-                    ->flatMap(fn ($cc) => $cc->turnos)
-                    ->flatMap(fn ($cct) => $cct->turmas)
+                    ->flatMap(fn($cc) => $cc->turnos)
+                    ->flatMap(fn($cct) => $cct->turmas)
                     ->count(),
                 'professores' => $this->professores->count(),
                 'disciplinas' => $this->cursoClasses
-                    ->flatMap(fn ($cc) => $cc->turnos)
-                    ->flatMap(fn ($cct) => $cct->classeTurnoDisciplinas)
+                    ->flatMap(fn($cc) => $cc->turnos)
+                    ->flatMap(fn($cct) => $cct->classeTurnoDisciplinas)
                     ->count(),
             ],
-            
-            'classes' => $this->cursoClasses->map(fn ($cc) => [
+
+            'classes' => $this->cursoClasses->map(fn($cc) => [
                 'id' => $cc->id,
                 'nome' => $cc->classe->nome,
-                'turnos' => $cc->turnos->map(fn ($cct) => $cct->turno->nome),
+                'turnos' => $cc->turnos->map(fn($cct) => $cct->turno->nome),
             ]),
-            'professores' => $this->professores->map(fn ($prof) => [
+            'professores' => $this->professores->map(fn($prof) => [
                 'id' => $prof->id,
                 'nome' => $prof->user?->nome,
                 'tipo' => $prof->pivot->tipo,
             ]),
             'turmas' => $this->cursoClasses
-                ->flatMap(fn ($cc) => $cc->turnos)
-                ->flatMap(fn ($cct) => $cct->turmas)
-                ->map(fn ($turma) => [
+                ->flatMap(fn($cc) => $cc->turnos)
+                ->flatMap(fn($cct) => $cct->turmas)
+                ->map(fn($turma) => [
                     'id' => $turma->id,
                     'nome' => $turma->nome,
                     'max_alunos' => $turma->max_alunos,
+                    'curso_classe_turno_id' => $turma->cursoClasseTurno->id, // ✅ adiciona isto
                     'classe' => [
-                        'id' => $turma->cursoClasseTurno->cursoClasse->classe->id,
+                        'id' => $turma->cursoClasseTurno->cursoClasse->id,
                         'nome' => $turma->cursoClasseTurno->cursoClasse->classe->nome,
                     ],
                     'turno' => [
