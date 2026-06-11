@@ -50,7 +50,7 @@ class InstituicaoCursoController extends Controller //implements HasMiddleware
         }
 
         $instituicaoCurso = InstituicaoCurso::create([
-            'curso_id'       => $curso->id,
+            'curso_id' => $curso->id,
             'instituicao_id' => $instituicao->id,
         ]);
 
@@ -66,7 +66,7 @@ class InstituicaoCursoController extends Controller //implements HasMiddleware
         abort_if($instituicaoCurso->instituicao_id !== $instituicao->id, 404);
 
         $request->validate([
-            'nome'         => 'required|string|max:255',
+            'nome' => 'required|string|max:255',
             'duracao_anos' => 'nullable|integer|min:1',
         ]);
 
@@ -92,7 +92,7 @@ class InstituicaoCursoController extends Controller //implements HasMiddleware
         DB::transaction(function () use ($request, $instituicaoCurso) {
             // 1. Actualizar o curso global
             $instituicaoCurso->curso->update([
-                'nome'         => $request->nome,
+                'nome' => $request->nome,
                 'duracao_anos' => $request->duracao_anos,
             ]);
 
@@ -106,8 +106,16 @@ class InstituicaoCursoController extends Controller //implements HasMiddleware
         return response()->json(['message' => 'Curso actualizado com sucesso.']);
     }
 
-    public function destroy(InstituicaoCurso $instituicaoCurso)
+    public function destroy(Instituicao $instituicao, InstituicaoCurso $instituicaoCurso)
     {
-        //
+        abort_if($instituicaoCurso->instituicao_id !== $instituicao->id, 404);
+
+        $instituicaoCurso->cursoTutelado()->delete();
+        $instituicaoCurso->delete();
+
+        return to_route('instituicoes.show', $instituicao)->with('toast', [
+            'type' => 'success',
+            'message' => 'Curso removido com sucesso.',
+        ]);
     }
 }

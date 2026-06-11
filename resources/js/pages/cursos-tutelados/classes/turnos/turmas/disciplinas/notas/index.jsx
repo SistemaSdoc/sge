@@ -1,6 +1,5 @@
 import { usePage } from '@inertiajs/react';
 import NotasTable from './components/notas-table';
-import { exportarDisciplina } from '@/actions/App/Http/Controllers/ExportarMiniPautaController';
 
 export default function Index() {
   const {
@@ -25,7 +24,6 @@ export default function Index() {
         classeId={classeId}
         turnoId={turnoId}
         turmaId={turmaId}
-        exportarFn={exportarDisciplina}
       />
     </div>
   );

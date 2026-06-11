@@ -28,15 +28,15 @@ class TurmaController extends Controller //implements HasMiddleware
 
         $query = Turma::whereHas(
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-            fn ($q) => $q->where('instituicao_id', $instituicao->id)
+            fn($q) => $q->where('instituicao_id', $instituicao->id)
         );
 
-        if (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
-            if (! $professor) {
+        if (!$user?->isSuperAdmin() && !$user?->isDirector()) {
+            if (!$professor) {
                 return TurmaResourceIndex::collection(collect());
             }
 
-            $query->whereHas('turmaDisciplinaProfessor', fn ($q) => $q->where('professor_id', $professor->id));
+            $query->whereHas('turmaDisciplinaProfessor', fn($q) => $q->where('professor_id', $professor->id));
         }
 
         $turmas = $query->with([
@@ -45,7 +45,7 @@ class TurmaController extends Controller //implements HasMiddleware
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.classeTurnoDisciplinas.disciplina:id,nome',
         ])
-            ->get();
+            ->paginate(5);
 
         return TurmaResourceIndex::collection($turmas);
     }

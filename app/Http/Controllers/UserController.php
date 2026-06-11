@@ -15,16 +15,13 @@ class UserController extends Controller
     public function index()
     {
         // Carrega usuários com instituição e roles (para mostrar na listagem)
-        $users = User::all('id', 'nome');
+        $users = User::paginate(10);
 
         $reponses = (new Teste)->prompt('Analisa estes dados e de a tua opinião sobre eles. Stelvio é full stack developer e usa laravel + nextjs para desenvolvimento web.');
 
         $resumo = (new ResumoDirector)->prompt('dsfdsfsfsf');
 
-        return response()->json([
-            'resposta: ' => (string) $reponses,
-            'resumo: ' => (string) $resumo,
-        ]);
+        return response()->json($users);
     }
 
     public function create()
@@ -32,8 +29,11 @@ class UserController extends Controller
         $instituicoes = Instituicao::all();
         $roles = Role::all();
 
-        return response()->json(['instituicoes' => $instituicoes,
-            'roles' => $roles],
+        return response()->json(
+            [
+                'instituicoes' => $instituicoes,
+                'roles' => $roles
+            ],
             status: 202
         );
 
@@ -63,9 +63,12 @@ class UserController extends Controller
         $instituicoes = Instituicao::all();
         $roles = Role::all();
 
-        return response()->json(['user' => $user,
-            'instituicoes' => $instituicoes,
-            'roles' => $roles],
+        return response()->json(
+            [
+                'user' => $user,
+                'instituicoes' => $instituicoes,
+                'roles' => $roles
+            ],
             status: 200
         );
     }
@@ -95,7 +98,8 @@ class UserController extends Controller
         $user->roles()->detach();
         $user->delete();
 
-        return response()->json(['message' => 'Usuário removido com sucesso!'],
+        return response()->json(
+            ['message' => 'Usuário removido com sucesso!'],
             status: 200
         );
     }

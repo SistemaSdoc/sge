@@ -53,10 +53,10 @@ class InscricaoController extends Controller // implements HasMiddleware
                     fn($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
-            ->latest()->get();
+            ->latest()->paginate(10);
 
         return Inertia::render('inscricoes/index', [
-            'inscricoes' => $inscricoes->map(fn($insc) => [
+            'inscricoes' => $inscricoes->through(fn($insc) => [
                 'id' => $insc->id,
                 'status' => $insc->status,
                 'candidato' => $insc->candidato->nome,

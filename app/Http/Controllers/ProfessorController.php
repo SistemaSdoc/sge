@@ -29,21 +29,25 @@ class ProfessorController extends Controller //implements HasMiddleware
 
     public function index()
     {
+            
         $user = Auth::user();
         $instituicaoId = $user?->instituicaoFiltro();
 
-        $professores = Professor::when(
-            $instituicaoId,
-            fn ($q) => $q->whereHas(
-                'user',
-                fn ($q) => $q->where('instituicao_id', $instituicaoId)
-            )
-        )->with(['user:id,nome,telefone'])
-            ->get();
+       $professores = Professor::select(['id', 'user_id', 'especialidade', 'created_at'])
+    ->with(['user:id,nome,telefone'])
+    ->when(
+        $instituicaoId,
+        fn ($q) => $q->whereHas(
+            'user',
+            fn ($q) => $q->where('instituicao_id', $instituicaoId)
+        )
+    )
+    ->orderBy('created_at', 'asc')
+    ->paginate(10);
 
-        return Inertia::render('professores/index', [
-            'professores' => $professores,
-        ]);
+return Inertia::render('professores/index', [
+    'professores' => $professores,
+]);
     }
 
     public function create()

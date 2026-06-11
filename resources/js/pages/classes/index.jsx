@@ -8,9 +8,24 @@ export default function Index({ classes }) {
     }
   };
 
+  const handlePageChange = (page) => {
+    router.visit('/classes', {
+      data: { page },
+      preserveScroll: true,
+    });
+  };
+
   return (
     <div className="mx-auto w-full max-w-7xl p-6">
-      <ClasseTable classes={classes} deleteFn={excluir} />
+      <ClasseTable
+  classes={classes}
+  deleteFn={excluir}
+  pagination={{
+    current_page: classes.current_page,
+    last_page: classes.last_page,
+  }}
+  onPageChange={handlePageChange}
+/>
     </div>
   );
 }

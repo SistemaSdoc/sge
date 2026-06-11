@@ -29,10 +29,10 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
      */
     public function index(CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
     {
-        $turmas = Turma::where('curso_classe_turno_id', $cursoClasseTurno->id)->get();
+        $turmas = Turma::where('curso_classe_turno_id', $cursoClasseTurno->id)->paginate(5);
 
         return response()->json(
-            $turmas->map(fn($turma) => [
+            $turmas->through(fn($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'max_alunos' => $turma->max_alunos,
@@ -103,7 +103,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             'cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasseTurno.turno:id,nome',
             'cursoClasseTurno.classeTurnoDisciplinas.disciplina:id,nome,sigla',
-            'alunos' => fn ($q) => $q->wherePivot('activo', true)
+            'alunos' => fn($q) => $q->wherePivot('activo', true)
                 ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone']),
             'turmaDisciplinaProfessor.professor.user:id,nome,email',
             'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome',

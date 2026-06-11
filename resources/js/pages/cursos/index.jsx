@@ -24,10 +24,25 @@ export default function Index({ cursos }) {
     });
   };
 
+  const handlePageChange = (page) => {
+    router.visit('/cursos', {
+      data: { page },
+      preserveScroll: true,
+    });
+  };
+
   return (
     <>
       <div className="mx-auto w-full max-w-7xl p-6">
-        <CursoTable cursos={cursos} deleteFn={setCursoParaExcluir} />
+        <CursoTable 
+        cursos={cursos.data}
+         deleteFn={setCursoParaExcluir}
+         pagination={{
+          current_page: cursos.current_page,
+          last_page: cursos.last_page,
+        }}
+        onPageChange={handlePageChange}
+        />
       </div>
 
       <Dialog

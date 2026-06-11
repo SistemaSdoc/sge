@@ -35,7 +35,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export function InstituicaoTable({ instituicoes, deleteFn }) {
+export function InstituicaoTable({ instituicoes, deleteFn, pagination = {}, onPageChange }) {
   const isEmpty = !instituicoes || instituicoes.length === 0;
 
   return (
@@ -79,9 +79,7 @@ export function InstituicaoTable({ instituicoes, deleteFn }) {
                 <TableRow
                   key={instituicao.id}
                   className="hover:cursor-pointer"
-                  onClick={() =>
-                    router.visit(`/instituicoes/${instituicao.id}`)
-                  }
+                  onClick={() => router.visit(`/instituicoes/${instituicao.id}`)}
                 >
                   <TableCell className="px-4 font-medium">
                     {instituicao.sigla}
@@ -101,9 +99,7 @@ export function InstituicaoTable({ instituicoes, deleteFn }) {
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.visit(
-                              `/instituicoes/${instituicao.id}/edit`,
-                            );
+                            router.visit(`/instituicoes/${instituicao.id}/edit`);
                           }}
                         >
                           Editar
@@ -130,18 +126,29 @@ export function InstituicaoTable({ instituicoes, deleteFn }) {
         )}
       </CardContent>
 
-      {!isEmpty && (
+      {/* [ALTERADO] paginação dinâmica em vez de estática */}
+      {pagination?.current_page && (
         <CardFooter className="justify-between">
-          <span className="text-muted-foreground">Página 1 de 4</span>
+          <span className="text-muted-foreground">
+            Página {pagination.current_page} de {pagination.last_page}
+          </span>
 
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious href="#" />
+                <PaginationPrevious
+                  onClick={() => onPageChange(pagination.current_page - 1)}
+                  disabled={pagination.current_page === 1}
+                  className={pagination.current_page === 1 ? 'pointer-events-none opacity-50' : ''}
+                />
               </PaginationItem>
 
               <PaginationItem>
-                <PaginationNext href="#" />
+                <PaginationNext
+                  onClick={() => onPageChange(pagination.current_page + 1)}
+                  disabled={pagination.current_page === pagination.last_page}
+                  className={pagination.current_page === pagination.last_page ? 'pointer-events-none opacity-50' : ''}
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

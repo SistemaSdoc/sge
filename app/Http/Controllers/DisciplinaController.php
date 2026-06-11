@@ -10,7 +10,7 @@ class DisciplinaController extends Controller
 {
     public function index()
     {
-        $disciplinas = Disciplina::all();
+        $disciplinas = Disciplina::paginate(10);
 
         return response()->json($disciplinas);
     }

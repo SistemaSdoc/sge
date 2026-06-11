@@ -102,7 +102,6 @@ class NotaController extends Controller
             'classeId' => $cursoClasse->id,
             'turnoId' => $cursoClasseTurno->id,
             'turmaId' => $turma->id,
-            'disciplinaId' => $classeTurnoDisciplina->id,
             'data' => [
                 'tdp_id' => $tdp->id,
                 'disciplina' => [
@@ -122,6 +121,58 @@ class NotaController extends Controller
         ]);
     }
 
+    // No NotaService@lancarNotas, adicionar validação para periodo 4
+    public function lancarNotas(array $notas, string $tdpId, int $periodo): void
+    {
+        foreach ($notas as $turmaAlunoId => $dados) {
+
+            // Validação extra para período 4
+            if ($periodo === 4) {
+                $this->validarAutorizacaoRecurso($turmaAlunoId, $tdpId);
+            }
+
+            $this->gravarNotaPeriodo($turmaAlunoId, $tdpId, $periodo, $dados);
+            $this->recalcularFinal($turmaAlunoId, $tdpId);
+        }
+    }
+
+    private function validarAutorizacaoRecurso(
+        string $turmaAlunoId,
+        string $tdpId
+    ): void {
+        $turmaAluno = TurmaAluno::with([
+            'notas',
+            'turma.cursoClasseTurno.cursoClasse.classe',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
+        ])->findOrFail($turmaAlunoId);
+
+        $resultado = $this->regraAcademicaService
+            ->calcularResultadoFinalAluno($turmaAluno);
+
+        // Aluno não está em recurso
+        abort_if(
+            $resultado['situacao'] !== 'recurso',
+            403,
+            'Aluno não está em situação de recurso.'
+        );
+
+        // Verificar se esta disciplina específica está em recurso
+        $tdp = TurmaDisciplinaProfessor::with('classeTurnoDisciplina')
+            ->findOrFail($tdpId);
+
+        $disciplinaId = $tdp->classeTurnoDisciplina->disciplina_id;
+
+        $disciplinaEmRecurso = collect($resultado['detalhes'])
+            ->where('situacao', 'recurso')
+            ->pluck('disciplina_id')
+            ->contains($disciplinaId);
+
+        abort_if(
+            ! $disciplinaEmRecurso,
+            403,
+            'Esta disciplina não está em recurso.'
+        );
+    }
     // ──────────────────────────────────────────────
     // LANÇAR NOTAS
     // ──────────────────────────────────────────────
@@ -152,7 +203,14 @@ class NotaController extends Controller
             (int) $validated['periodo'],
         );
 
-        return back();
+        return redirect()->route('notas.index', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+            'cursoClasseTurno' => $cursoClasseTurno->id,
+            'turma' => $turma->id,
+            'classeTurnoDisciplina' => $classeTurnoDisciplinaId,
+        ]);
     }
 
     // ──────────────────────────────────────────────

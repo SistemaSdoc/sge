@@ -29,10 +29,11 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
     {
         /** @var User|null $user */
         $user = Auth::user();
-
         $instituicaoId = $user?->instituicao_id;
 
-        $instituicoes = Instituicao::all();
+        $instituicoes = Instituicao::select(['id', 'nome', 'sigla', 'tipo', 'email', 'telefone', 'endereco', 'logo', 'created_at'])
+            ->orderBy('nome', 'asc')
+            ->paginate(10);
 
         return Inertia::render('instituicoes/index', [
             'instituicoes' => $instituicoes,
@@ -91,11 +92,17 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
             'instituicaoCursos.cursoTutelado.instituicaoTutora:id,nome',
         ]);
 
-        $cursos = $instituicao->instituicaoCursos->map(fn ($instituicaoCurso) => [
+        // Paginate primeiro, depois transforme os dados
+        $cursosPaginated = $instituicao->instituicaoCursos()
+            ->with(['curso:id,nome', 'cursoTutelado.instituicaoTutora:id,nome'])
+            ->paginate(5);
+
+        // Agora transforme os itens paginados
+        $cursos = $cursosPaginated->through(fn($instituicaoCurso) => [
             'id' => $instituicaoCurso->cursoTutelado->id,
             'nome' => $instituicaoCurso->curso->nome,
             'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,
-        ])->all();
+        ]);
 
         return Inertia::render('instituicoes/show', [
             'instituicao' => [

@@ -31,13 +31,15 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
 
     public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
     {
-        $cursoClasseTurno->load([
-            'classeTurnoDisciplinas.disciplina:id,nome,sigla,componente',
-            'classeTurnoDisciplinas.turmaDisciplinaProfessores.professor.user:id,nome',
-        ]);
+        $disciplinas = $cursoClasseTurno->classeTurnoDisciplinas()
+            ->with([
+                'disciplina:id,nome,sigla,componente',
+                'turmaDisciplinaProfessores.professor.user:id,nome',
+            ])
+            ->paginate(5);
 
         return response()->json(
-            $cursoClasseTurno->classeTurnoDisciplinas->map(fn ($ctd) => [
+            $disciplinas->through(fn($ctd) => [
                 'id' => $ctd->id,
                 'disciplina' => [
                     'id' => $ctd->disciplina->id,
@@ -79,7 +81,7 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
             ->get();
 
         return response()->json(
-            $disciplinas->map(fn ($ctd) => [
+            $disciplinas->map(fn($ctd) => [
                 'id' => $ctd->id,
                 'disciplina' => [
                     'id' => $ctd->disciplina->id,

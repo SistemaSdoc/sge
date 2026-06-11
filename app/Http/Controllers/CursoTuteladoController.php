@@ -32,12 +32,12 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
     public function index(Instituicao $instituicao)
     {
         $cursosTutelados = CursoTutelado::query()
-            ->whereHas('instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicao->id))
+            ->whereHas('instituicaoCurso', fn($q) => $q->where('instituicao_id', $instituicao->id))
             ->with([
                 'instituicaoCurso.curso:id,nome',
                 'instituicaoTutora:id,nome',
             ])
-            ->get();
+            ->paginate(5);
 
         return CursoTuteladoResourceIndex::collection($cursosTutelados);
     }
@@ -106,7 +106,7 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
                 $cursoTutelado->classes()->sync($validated['classes']);
             });
         } catch (\Exception $e) {
-            abort(500, 'Erro ao criar curso tutelado: '.$e->getMessage());
+            abort(500, 'Erro ao criar curso tutelado: ' . $e->getMessage());
         }
 
         return to_route('instituicoes.show', $instituicao)->with('toast', [
@@ -195,7 +195,7 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
     public function destroy(Instituicao $instituicao, CursoTutelado $cursoTutelado): Response
     {
         $temTurmas = $cursoTutelado->cursoClasses
-            ->flatMap(fn ($cc) => $cc->turnos)
+            ->flatMap(fn($cc) => $cc->turnos)
             ->isNotEmpty();
 
         if ($temTurmas) {
@@ -211,28 +211,28 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
     {
         $colegios = Instituicao::whereHas(
             'instituicaoCursos.cursoTutelado',
-            fn ($q) => $q->where('instituicao_tutora_id', $instituicao->id)
+            fn($q) => $q->where('instituicao_tutora_id', $instituicao->id)
         )
             ->where('tipo', 'colegio') // ✅ apenas colégios
             ->with([
-                'instituicaoCursos' => fn ($q) => $q->whereHas(
+                'instituicaoCursos' => fn($q) => $q->whereHas(
                     'cursoTutelado',
-                    fn ($q) => $q->where('instituicao_tutora_id', $instituicao->id)
+                    fn($q) => $q->where('instituicao_tutora_id', $instituicao->id)
                 )->with('curso:id,nome', 'cursoTutelado'),
-            ])->get();
+            ])->paginate(5);
 
-        return response()->json([
-            'data' => $colegios->map(fn ($colegio) => [
+        return response()->json(
+            $colegios->through(fn($colegio) => [
                 'id' => $colegio->id,
                 'nome' => $colegio->nome,
                 'tipo' => $colegio->tipo,
-                'cursos' => $colegio->instituicaoCursos->map(fn ($ic) => [
+                'cursos' => $colegio->instituicaoCursos->map(fn($ic) => [
                     'id' => $ic->cursoTutelado->id,
                     'nome' => $ic->curso->nome,
                     'curso_tutelado_id' => $ic->cursoTutelado->id,
                 ]),
-            ]),
-        ]);
+            ])
+        );
     }
 
     public function alunos(Instituicao $instituicao, CursoTutelado $cursoTutelado)
@@ -262,23 +262,23 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
                 'id' => $cursoTutelado->instituicaoCurso->instituicao->id,
                 'nome' => $cursoTutelado->instituicaoCurso->instituicao->nome,
             ],
-            'classes' => $cursoTutelado->cursoClasses->map(fn ($cc) => [
+            'classes' => $cursoTutelado->cursoClasses->map(fn($cc) => [
                 'id' => $cc->id,
                 'nome' => $cc->classe->nome,
-                'turnos' => $cc->turnos->map(fn ($cct) => [
+                'turnos' => $cc->turnos->map(fn($cct) => [
                     'id' => $cct->id,
                     'nome' => $cct->turno->nome,
-                    'turmas' => $cct->turmas->map(fn ($turma) => [
+                    'turmas' => $cct->turmas->map(fn($turma) => [
                         'id' => $turma->id,
                         'nome' => $turma->nome,
                         'disciplinas' => $turma->turmaDisciplinaProfessor
                             ->groupBy('classe_turno_disciplina_id')
-                            ->map(fn ($tdps) => [
+                            ->map(fn($tdps) => [
                                 'id' => $tdps->first()->classeTurnoDisciplina->disciplina->id,
                                 'nome' => $tdps->first()->classeTurnoDisciplina->disciplina->nome,
                                 'professor' => $tdps->first()->professor->user->nome,
                             ])->values(),
-                        'grupos_pap' => $turma->gruposPap->map(fn ($grupo) => [
+                        'grupos_pap' => $turma->gruposPap->map(fn($grupo) => [
                             'id' => $grupo->id,
                             'nome_grupo' => $grupo->nome_grupo,
                             'tema_grupo' => $grupo->tema_grupo,
@@ -286,12 +286,12 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
                             'nota_final' => $grupo->nota_final,
                             'data_defesa' => $grupo->data_defesa,
                             'professor' => $grupo->professor?->user?->nome,
-                            'elementos' => $grupo->elementos->map(fn ($el) => [
+                            'elementos' => $grupo->elementos->map(fn($el) => [
                                 'id' => $el->aluno_id,
                                 'nome' => $el->aluno?->inscricao?->candidato?->nome,
                             ]),
                         ]),
-                        'alunos' => $turma->alunosActivos->map(fn ($aluno) => [
+                        'alunos' => $turma->alunosActivos->map(fn($aluno) => [
                             'id' => $aluno->id,
                             'nome' => $aluno->inscricao?->candidato?->nome,
                             'matricula' => $aluno->matricula,

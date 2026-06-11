@@ -14,8 +14,12 @@ class ClasseController
      */
     public function index()
     {
-        return Inertia::render('classes/index', [
-            'classes' => Inertia::scroll(fn () => Classe::paginate(10)),
+        $classes = Classe::select(['id', 'nome', 'created_at'])
+            ->orderBy('nome', 'asc')
+            ->paginate(10);
+
+        return Inertia('classes/index', [
+            'classes' => $classes,
         ]);
     }
 

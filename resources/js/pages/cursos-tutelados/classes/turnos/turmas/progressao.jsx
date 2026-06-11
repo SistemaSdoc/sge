@@ -1,7 +1,10 @@
-
-import { Loader2, CheckCircle2, XCircle, AlertTriangle, ChevronRight, Clock, AlertCircle } from "lucide-react"
+"use client"
 import { useState } from "react"
-import { router } from "@inertiajs/react"
+import { useRouter } from "next/navigation"
+import { Loader2, CheckCircle2, XCircle, AlertTriangle, ChevronRight, Clock, AlertCircle } from "lucide-react"
+import { useProgressaoPreview } from "@/features/curso-tutelado/hooks/classes/turnos/turmas/useProgressaoPreview"
+import { useStoreProgressao } from "@/features/curso-tutelado/hooks/classes/turnos/turmas/useStoreProgressao"
+import { useTurmas } from "@/features/curso-tutelado/hooks/classes/turnos/turmas/useTurmas"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -51,49 +54,48 @@ function SituacaoBadge({ situacao }) {
   )
 }
 
-function ProgressaoScreen({ turma, total, resumo, alunos, turmas = [] }) {
+export function ProgressaoScreen({ instituicaoId, cursoTuteladoId, turmaId }) {
+  const router = useRouter()
   const [turmaDestinoId, setTurmaDestinoId] = useState("")
   const [anoLectivo, setAnoLectivo] = useState(String(new Date().getFullYear() + 1))
   const [dialogOpen, setDialogOpen] = useState(false)
   const [resultado, setResultado] = useState(null)
-  const [isPending, setIsPending] = useState(false)
-  console.log({ turmas, turma })
 
-  const handleExecutar = async () => {
-    setIsPending(true)
-    try {
-      const response = await fetch(window.location.pathname, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-        },
-        body: JSON.stringify({
-          turma_destino_id: turmaDestinoId,
-          ano_lectivo: Number(anoLectivo),
-        }),
-      })
+  const { data: preview, isLoading } = useProgressaoPreview({ instituicaoId, cursoTuteladoId, turmaId })
+  const mutation = useStoreProgressao({ instituicaoId, cursoTuteladoId, turmaId })
+  const { data: turmasData } = useTurmas(instituicaoId, cursoTuteladoId)
+  const turmas = turmasData?.data ?? []
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        alert(data.message ?? "Erro ao executar progressão")
-        setDialogOpen(false)
-        setIsPending(false)
-        return
-      }
-
-      setResultado(data.resultados)
-      setDialogOpen(false)
-      setIsPending(false)
-    } catch (error) {
-      console.error('Erro ao executar progressão:', error)
-      alert("Erro ao executar progressão")
-      setDialogOpen(false)
-      setIsPending(false)
-    }
+  // ── Resumo — chaves que o back manda ─────────────────────────────────
+  const resumo = {
+    transitar: preview?.resumo?.transitar ?? 0,
+    reter: preview?.resumo?.reter ?? 0,
+    aguardar_recurso: preview?.resumo?.aguardar_recurso ?? 0,
+    incompleto: preview?.resumo?.incompleto ?? 0,
   }
+
+  const handleExecutar = () => {
+    mutation.mutate(
+      { turmaDestinoId, anoLectivo: Number(anoLectivo) },
+      {
+        onSuccess: (data) => {
+          setResultado(data.resultados)
+          setDialogOpen(false)
+        },
+        onError: (error) => {
+          alert(error?.response?.data?.message ?? "Erro ao executar progressão")
+          setDialogOpen(false)
+        },
+      }
+    )
+  }
+
+  if (isLoading)
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="animate-spin size-8" />
+      </div>
+    )
 
   if (resultado)
     return (
@@ -142,7 +144,7 @@ function ProgressaoScreen({ turma, total, resumo, alunos, turmas = [] }) {
       <div>
         <h1 className="text-2xl font-bold">Progressão de Alunos</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Turma: <span className="font-medium text-foreground">{turma}</span>
+          Turma: <span className="font-medium text-foreground">{preview?.turma}</span>
         </p>
       </div>
 
@@ -181,7 +183,7 @@ function ProgressaoScreen({ turma, total, resumo, alunos, turmas = [] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {alunos?.map((aluno, i) => (
+              {preview?.alunos?.map((aluno, i) => (
                 <TableRow key={aluno.aluno_id}>
                   <TableCell>{i + 1}</TableCell>
                   <TableCell className="font-medium">{aluno.nome}</TableCell>
@@ -216,9 +218,9 @@ function ProgressaoScreen({ turma, total, resumo, alunos, turmas = [] }) {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Turmas disponíveis</SelectLabel>
-                  {turmas.map((turmaOption) => (
-                    <SelectItem key={turmaOption.id} value={turmaOption.id}>
-                      {turmaOption.nome} — {turmaOption.curso_classe_turno?.curso_classe?.classe?.nome} ({turmaOption.curso_classe_turno?.turno?.nome})
+                  {turmas.map((turma) => (
+                    <SelectItem key={turma.id} value={turma.id}>
+                      {turma.nome} — {turma.classe?.nome} ({turma.turno?.nome})
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -247,7 +249,7 @@ function ProgressaoScreen({ turma, total, resumo, alunos, turmas = [] }) {
                 <DialogTitle>Confirmar Progressão</DialogTitle>
                 <DialogDescription asChild>
                   <div className="space-y-2 text-sm text-muted-foreground">
-                    <p>Esta operação vai processar <strong>{total} alunos</strong>:</p>
+                    <p>Esta operação vai processar <strong>{preview?.total} alunos</strong>:</p>
                     <ul className="space-y-1 pl-4 list-disc">
                       <li><strong>{resumo.transitar}</strong> transitam para a turma destino</li>
                       <li><strong>{resumo.aguardar_recurso}</strong> vão a recurso — ficam na turma actual</li>
@@ -262,8 +264,8 @@ function ProgressaoScreen({ turma, total, resumo, alunos, turmas = [] }) {
                 <Button variant="outline" onClick={() => setDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleExecutar} disabled={isPending}>
-                  {isPending ? (
+                <Button onClick={handleExecutar} disabled={mutation.isPending}>
+                  {mutation.isPending ? (
                     <><Loader2 className="animate-spin size-4 mr-2" /> A executar...</>
                   ) : "Confirmar"}
                 </Button>
@@ -275,5 +277,3 @@ function ProgressaoScreen({ turma, total, resumo, alunos, turmas = [] }) {
     </div>
   )
 }
-
-export default ProgressaoScreen

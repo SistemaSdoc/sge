@@ -217,7 +217,7 @@ class CertificadoController extends Controller
 
         // QR Code
         // ✅ Depois
-        $url = env('FRONTEND_URL', 'http://192.168.1.175:3000') . '/certificados/' . $aluno->id . '/verificar';
+        $url = env('FRONTEND_URL', 'http://192.168.1.168:3000') . '/certificados/' . $aluno->id . '/verificar';
         $qrcode = base64_encode(QrCode::format('png')->size(120)->generate($url));
 
         $dados = array_merge($calc, [
@@ -273,7 +273,7 @@ class CertificadoController extends Controller
 
         $calc = $this->calcularDadosCertificado($aluno, $turma);
 
-        $url = env('FRONTEND_URL', 'http://192.168.1.175:3000') . '/certificados/' . $aluno->id . '/verificar';
+        $url = env('FRONTEND_URL', 'http://192.168.1.168:3000') . '/certificados/' . $aluno->id . '/verificar';
         $qrcode = base64_encode(QrCode::format('png')->size(120)->generate($url));
 
         $dados = array_merge($calc, [

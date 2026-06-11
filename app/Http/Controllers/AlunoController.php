@@ -46,10 +46,10 @@ class AlunoController extends Controller //implements HasMiddleware
                     fn($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
-            ->latest()->get();
+            ->latest()->paginate(10);
 
         return Inertia::render('alunos/index', [
-            'alunos' => $alunos->map(fn($aluno) => [
+            'alunos' => $alunos->through(fn($aluno) => [
                 'id' => $aluno->id,
                 'matricula' => $aluno->matricula,
                 'nome' => $aluno->inscricao?->candidato?->nome,

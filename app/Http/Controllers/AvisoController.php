@@ -32,22 +32,23 @@ class AvisoController extends Controller // implements HasMiddleware
 
         $avisos = Aviso::when(
             $instituicaoId,
-            fn ($q) => $q->where('instituicao_id', $instituicaoId)
+            fn($q) => $q->where('instituicao_id', $instituicaoId)
         )
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(fn ($a) => [
-                'id' => $a->id,
-                'type' => $a->tipo,
-                'titulo' => $a->titulo,
-                'descricao' => $a->descricao,
-                'data' => $a->data?->toISOString(),
-                'ativo' => $a->ativo,
-                'destinatario' => $a->destinatario, // ← ADICIONAR
-                'created_at' => $a->created_at->toISOString(),
-            ]);
+            ->paginate(10);
 
-        return response()->json(['data' => $avisos]);
+        $avisos->through(fn($a) => [
+            'id' => $a->id,
+            'type' => $a->tipo,
+            'titulo' => $a->titulo,
+            'descricao' => $a->descricao,
+            'data' => $a->data?->toISOString(),
+            'ativo' => $a->ativo,
+            'destinatario' => $a->destinatario,
+            'created_at' => $a->created_at->toISOString(),
+        ]);
+
+        return response()->json($avisos);
     }
 
     // POST /api/avisos
@@ -122,12 +123,12 @@ class AvisoController extends Controller // implements HasMiddleware
             ->whereIn('destinatario', ['todos', 'alunos'])
             ->when(
                 $instituicaoId,
-                fn ($q) => $q->where('instituicao_id', $instituicaoId)
+                fn($q) => $q->where('instituicao_id', $instituicaoId)
             )
             ->orderByRaw("FIELD(tipo, 'urgente', 'evento', 'aviso')")
             ->orderBy('data', 'asc')
             ->get()
-            ->map(fn (Aviso $a) => [
+            ->map(fn(Aviso $a) => [
                 'id' => $a->id,
                 'type' => $a->tipo,
                 'titulo' => $a->titulo,
@@ -145,7 +146,7 @@ class AvisoController extends Controller // implements HasMiddleware
             ->whereDate('data_defesa', '>=', $today)
             ->orderBy('data_defesa')
             ->get()
-            ->map(fn (GrupoPap $grupo) => [
+            ->map(fn(GrupoPap $grupo) => [
                 'id' => "pap-{$grupo->id}",
                 'type' => 'evento',
                 'titulo' => "Banca de Defesa - {$grupo->nome_grupo}",
@@ -175,12 +176,12 @@ class AvisoController extends Controller // implements HasMiddleware
             ->whereIn('destinatario', ['todos', 'professores'])
             ->when(
                 $instituicaoId,
-                fn ($q) => $q->where('instituicao_id', $instituicaoId)
+                fn($q) => $q->where('instituicao_id', $instituicaoId)
             )
             ->orderByRaw("FIELD(tipo, 'urgente', 'evento', 'aviso')")
             ->orderBy('data', 'asc')
             ->get()
-            ->map(fn (Aviso $a) => [
+            ->map(fn(Aviso $a) => [
                 'id' => $a->id,
                 'type' => $a->tipo,
                 'titulo' => $a->titulo,

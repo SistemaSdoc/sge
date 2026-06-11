@@ -35,7 +35,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { EmptyState } from '@/components/empty-state';
 
-export function TabContentCursos({ data, instituicaoId }) {
+export function TabContentCursos({
+  data,
+  instituicaoId,
+  deleteFn,
+  pagination = {},
+  onPageChange,
+}) {
   const isEmpty = !data || data.length === 0;
 
   return (
@@ -47,7 +53,9 @@ export function TabContentCursos({ data, instituicaoId }) {
         </CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href={`/instituicoes/${instituicaoId}/cursos-tutelados/create`}>
+            <Link
+              href={`/instituicoes/${instituicaoId}/cursos-tutelados/create`}
+            >
               Adicionar
             </Link>
           </Button>
@@ -71,7 +79,7 @@ export function TabContentCursos({ data, instituicaoId }) {
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/72">
-                <TableHead className='px-4'>Nome</TableHead>
+                <TableHead className="px-4">Nome</TableHead>
                 <TableHead>Tutelado por</TableHead>
                 <TableHead className="px-4 text-right">Acções</TableHead>
               </TableRow>
@@ -81,7 +89,11 @@ export function TabContentCursos({ data, instituicaoId }) {
                 <TableRow
                   key={curso.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/instituicoes/${instituicaoId}/cursos-tutelados/${curso.id}`)}
+                  onClick={() =>
+                    router.visit(
+                      `/instituicoes/${instituicaoId}/cursos-tutelados/${curso.id}`,
+                    )
+                  }
                 >
                   <TableCell className="px-4 font-medium">
                     {curso.nome}
@@ -116,13 +128,12 @@ export function TabContentCursos({ data, instituicaoId }) {
 
                         <DropdownMenuSeparator />
 
+                        {/* [CORRIGIDO] usa deleteFn em vez de router.visit */}
                         <DropdownMenuItem
                           variant="destructive"
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.visit(
-                              `/instituicoes/${instituicaoId}/cursos-tutelados/${curso.id}`,
-                            );
+                            deleteFn(curso.id);
                           }}
                         >
                           Remover Curso
@@ -137,18 +148,37 @@ export function TabContentCursos({ data, instituicaoId }) {
         )}
       </CardContent>
 
-      {!isEmpty && (
+      {/* [ALTERADO] paginação dinâmica em vez de estática */}
+      {pagination?.current_page && (
         <CardFooter className="justify-between">
-          <span className="text-muted-foreground">Página 1 de 4</span>
+          <span className="text-muted-foreground">
+            Página {pagination.current_page} de {pagination.last_page}
+          </span>
 
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious href="#" />
+                <PaginationPrevious
+                  onClick={() => onPageChange(pagination.current_page - 1)}
+                  disabled={pagination.current_page === 1}
+                  className={
+                    pagination.current_page === 1
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
               </PaginationItem>
 
               <PaginationItem>
-                <PaginationNext href="#" />
+                <PaginationNext
+                  onClick={() => onPageChange(pagination.current_page + 1)}
+                  disabled={pagination.current_page === pagination.last_page}
+                  className={
+                    pagination.current_page === pagination.last_page
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

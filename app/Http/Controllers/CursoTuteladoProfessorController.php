@@ -17,17 +17,19 @@ class CursoTuteladoProfessorController extends Controller
      */
     public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
-        $cursoTutelado->load(['professores.user']);
+        $professores = $cursoTutelado->professores()
+            ->with(['user'])
+            ->paginate(5);
 
-        $professores = $cursoTutelado->professores->map(fn($prof) => [
-            'id' => $prof->id,
-            'nome' => $prof->user?->nome,
-            'email' => $prof->user?->email,
-            'tipo' => $prof->pivot->tipo,
-            'coordenador' => $prof->pivot->coordenador,
-        ]);
-
-        return response()->json($professores);
+        return response()->json(
+            $professores->through(fn($prof) => [
+                'id' => $prof->id,
+                'nome' => $prof->user?->nome,
+                'email' => $prof->user?->email,
+                'tipo' => $prof->pivot->tipo,
+                'coordenador' => $prof->pivot->coordenador,
+            ])
+        );
     }
 
     public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado)
