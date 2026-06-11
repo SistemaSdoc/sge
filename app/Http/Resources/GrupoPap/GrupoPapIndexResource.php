@@ -5,7 +5,7 @@ namespace App\Http\Resources\GrupoPap;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GrupoPapResourceIndex extends JsonResource
+class GrupoPapIndexResource extends JsonResource
 {
     /**
      * Transform the resource into an array.

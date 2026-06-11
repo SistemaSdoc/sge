@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AlunoController;
 use App\Http\Controllers\AvisoController;
+use App\Http\Controllers\BancaJuriPapController;
 use App\Http\Controllers\CertificadoController;
 use App\Http\Controllers\ClasseController as ClasseControllerGeral;
 use App\Http\Controllers\ClasseTurnoDisciplinaController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Dashboards\DashboardAlunoController;
 use App\Http\Controllers\Dashboards\DashboardDirectorController;
 use App\Http\Controllers\Dashboards\DashboardProfessorController;
 use App\Http\Controllers\DisciplinaController as DisciplinaControllerGeral;
+use App\Http\Controllers\ElementoGrupoPapController;
 use App\Http\Controllers\ExportarMiniPautaController;
 use App\Http\Controllers\ExportarPautaController;
 use App\Http\Controllers\FinalistaController;
@@ -123,10 +125,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::resource('turmas', ClasseTurnoTurmaController::class);
 
                 Route::prefix('turmas/{turma}')->group(function () {
-                    Route::get('pap', [GrupoPapController::class, 'index']);
-                    Route::get('pap/create', [GrupoPapController::class, 'create']);
-                    Route::post('pap/grupos', [GrupoPapController::class, 'store']);
                     Route::get('pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);
+
+                    Route::resource('pap', GrupoPapController::class)->parameters(['pap' => 'grupoPap']);
+
+                    Route::put('pap/{grupoPap}/data-defesa', [GrupoPapController::class, 'definirData']);
+
+                    Route::resource('pap/{grupoPap}/elementos', ElementoGrupoPapController::class)
+                        ->parameters(['elementos' => 'elementoGrupoPap'])
+                        ->only(['create', 'store', 'destroy']);
+
+                    Route::put('pap/{grupoPap}/elementos/{elementoGrupoPap}/nota', [ElementoGrupoPapController::class, 'actualizarNota']);
+
+                    Route::get('pap/{grupoPap}/alunos-disponiveis', [ElementoGrupoPapController::class, 'alunosDisponiveis']);
+
+                    Route::resource('pap/{grupoPap}/banca', BancaJuriPapController::class)
+                        ->parameters(['banca' => 'bancaJuriPap'])
+                        ->only(['create', 'store', 'destroy']);
+
+                    Route::get('pap/{grupoPap}/folha-aprovacao', [FolhaAprovacaoController::class, 'folhaAprovacao']);
+
                     Route::post('pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
 
                     Route::apiResource('disciplinas', ClasseTurnoDisciplinaController::class)->only(['index', 'update', 'destroy'])
@@ -152,20 +170,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 });
             });
         });
-    });
-
-    Route::prefix('pap')->group(function () {
-        Route::get('grupos', [GrupoPapController::class, 'index']);
-        Route::put('grupos/{grupoPap}', [GrupoPapController::class, 'update']);
-        Route::delete('grupos/{grupoPap}', [GrupoPapController::class, 'destroy']);
-        Route::post('grupos/{grupoPap}/elementos', [GrupoPapController::class, 'adicionarElemento']);
-        Route::get('grupos/{grupoPap}', [GrupoPapController::class, 'show']);
-        Route::put('grupos/{grupoPap}/data-defesa', [GrupoPapController::class, 'definirData']);
-        Route::post('grupos/{grupoPap}/banca', [GrupoPapController::class, 'adicionarJurado']);
-        Route::delete('grupos/{grupoPap}/banca/{juradoId}', [GrupoPapController::class, 'removerJurado']);
-        Route::put('grupos/{grupoPap}/elementos/{elementoGrupoPap}/nota', [GrupoPapController::class, 'actualizarNota']);
-        Route::get('grupos/{grupoPap}/folha-aprovacao', [FolhaAprovacaoController::class, 'folhaAprovacao']);
-        Route::get('alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);
     });
 
     Route::get('turmas/{turma}/pauta/recurso', [NotaController::class, 'pautaRecurso']);

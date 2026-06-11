@@ -79,6 +79,7 @@ class ProgressaoController extends Controller
 
             'alunos' => $resultado,
         ]);
+           
     }
 
     // ─────────────────────────────────────────────────────────────
