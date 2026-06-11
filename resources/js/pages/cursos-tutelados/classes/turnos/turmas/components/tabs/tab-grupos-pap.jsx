@@ -1,5 +1,5 @@
-import { router } from "@inertiajs/react";
-import { Button } from "@/components/ui/button";
+import { router } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -8,7 +8,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -16,10 +16,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Minus, Users2Icon } from "lucide-react";
-import { EmptyState } from "@/components/empty-state";
-import { Link } from "@inertiajs/react";
+} from '@/components/ui/table';
+import { Minus, Users2Icon } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
+import { Link } from '@inertiajs/react';
+//import {create} from '@/routes/cursos-tutelados/classes/turnos/turmas/disciplinas/professores'
+//import {create} from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController'
 
 export function TabGruposPAP({
   turma,
@@ -38,7 +40,9 @@ export function TabGruposPAP({
     <Card className="gap-0 pb-0">
       <CardHeader className="border-b">
         <CardTitle>Grupos para PAP</CardTitle>
-        <CardDescription>Grupos de aptidão profissional desta turma</CardDescription>
+        <CardDescription>
+          Grupos de aptidão profissional desta turma
+        </CardDescription>
         <CardAction>
           <Button asChild>
             <Link href={`${baseUrl}/pap/create`}>Criar grupo</Link>
@@ -54,9 +58,9 @@ export function TabGruposPAP({
             title="Nenhum grupo para PAP"
             description="Comece adicionando grupos"
             action={{
-              label: "Criar Grupo",
+              label: 'Criar Grupo',
               href: `${baseUrl}/pap/create`,
-              variant: "outline",
+              variant: 'outline',
             }}
           />
         ) : (
@@ -74,9 +78,11 @@ export function TabGruposPAP({
                 <TableRow
                   key={grupo.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/instituicoes/${instituicaoId}/pap/${grupo.id}`)}
+                  onClick={() => router.visit(`${baseUrl}/pap/${grupo.id}`)}
                 >
-                  <TableCell className="px-4 font-medium">{grupo.nome_grupo}</TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {grupo.nome_grupo}
+                  </TableCell>
                   <TableCell>{grupo.tema_grupo}</TableCell>
                   <TableCell>{grupo.status}</TableCell>
                   <TableCell>

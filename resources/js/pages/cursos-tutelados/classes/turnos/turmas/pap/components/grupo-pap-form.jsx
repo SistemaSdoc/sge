@@ -30,6 +30,7 @@ export default function GrupoPapForm({
   setProfessorTutorId,
   alunoIds,
   setAlunoIds,
+  grupoPap,
 }) {
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
@@ -48,6 +49,7 @@ export default function GrupoPapForm({
                     name="nome_grupo"
                     disabled={processing}
                     placeholder="Ex.: Grupo Alpha"
+                    defaultValue={grupoPap?.nome_grupo ?? ''}
                   />
                   {errors.nome_grupo && (
                     <FieldError>{errors.nome_grupo}</FieldError>
@@ -60,6 +62,7 @@ export default function GrupoPapForm({
                     name="tema_grupo"
                     disabled={processing}
                     placeholder="Ex.: Sistema de Gestão Escolar"
+                    defaultValue={grupoPap?.tema_grupo ?? ''}
                   />
                   {errors.tema_grupo && (
                     <FieldError>{errors.tema_grupo}</FieldError>
@@ -116,6 +119,7 @@ export default function GrupoPapForm({
                   name="estudo_caso"
                   disabled={processing}
                   placeholder="Descreve o estudo de caso..."
+                  defaultValue={grupoPap?.estudo_caso ?? ''}
                 />
                 {errors.estudo_caso && (
                   <FieldError>{errors.estudo_caso}</FieldError>
@@ -125,7 +129,9 @@ export default function GrupoPapForm({
               <Field>
                 <Button type="submit" disabled={processing}>
                   {processing ? (
-                    <><Loader2 className="animate-spin" /> A guardar...</>
+                    <>
+                      <Loader2 className="animate-spin" /> A guardar...
+                    </>
                   ) : (
                     <>Guardar</>
                   )}
