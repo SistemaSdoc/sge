@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\GrupoPap\DefinirDataDefesaRequest;
 use App\Http\Requests\GrupoPap\StoreRequest;
 use App\Http\Requests\GrupoPap\UpdateRequest;
 use App\Http\Resources\GrupoPap\GrupoPapShowResource;
@@ -14,7 +15,6 @@ use App\Models\GrupoPap;
 use App\Models\Instituicao;
 use App\Models\Professor;
 use App\Models\Turma;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
@@ -47,14 +47,14 @@ class GrupoPapController extends Controller // implements HasMiddleware
         ])
             ->when(
                 $instituicaoId,
-                fn($q) => $q->whereHas(
+                fn ($q) => $q->whereHas(
                     'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn($q) => $q->where('instituicao_id', $instituicaoId)
+                    fn ($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
             ->latest()->paginate(10);
 
-        $grupos->through(fn($grupo) => [
+        $grupos->through(fn ($grupo) => [
             'id' => $grupo->id,
             'nome_grupo' => $grupo->nome_grupo,
             'tema_grupo' => $grupo->tema_grupo,
@@ -67,10 +67,10 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'curso' => $grupo->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
             'instituicao' => $grupo->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
             'num_elementos' => $grupo->elementos->count(),
-            'elementos' => $grupo->elementos->map(fn($el) => [
+            'elementos' => $grupo->elementos->map(fn ($el) => [
                 'id' => $el->aluno->id,
                 'nome' => $el->aluno?->inscricao?->candidato?->nome,
-            ])->filter(fn($el) => $el['nome'])->values(),
+            ])->filter(fn ($el) => $el['nome'])->values(),
         ]);
 
         return response()->json($grupos);
@@ -96,10 +96,10 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'alunos' => Aluno::whereHas('turmas', function ($q) use ($turma) {
                 $q->where('turmas.id', $turma->id)
                     ->where('turma_aluno.activo', true); // aluno activo nesta turma
-            })->with('inscricao.candidato:id,nome')->get()->map(fn($aluno) => [
-                    'id' => $aluno->id,
-                    'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
-                ])->values(),
+            })->with('inscricao.candidato:id,nome')->get()->map(fn ($aluno) => [
+                'id' => $aluno->id,
+                'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
+            ])->values(),
         ]);
     }
 
@@ -254,16 +254,28 @@ class GrupoPapController extends Controller // implements HasMiddleware
         return response()->json(['message' => 'Grupo PAP removido com sucesso.']);
     }
 
-    public function definirData(Request $request, GrupoPap $grupoPap)
-    {
-        $request->validate([
-            'data_defesa' => 'required|date',
-            'local_defesa' => 'required|string|max:255',
-        ]);
-
+    public function definirData(
+        DefinirDataDefesaRequest $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ) {
         $grupoPap->update($request->only(['data_defesa', 'local_defesa']));
 
-        return response()->json(['message' => 'Grupo PAP actualizado com sucesso.']);
+        return to_route('pap.show', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+            'cursoClasseTurno' => $cursoClasseTurno->id,
+            'turma' => $turma->id,
+            'grupoPap' => $grupoPap->id,
+        ])->with('toast', [
+            'type' => 'success',
+            'message' => 'Data e local da defesa definidos com sucesso!',
+        ]);
     }
 
     public function alunosDisponiveis(
@@ -283,7 +295,7 @@ class GrupoPapController extends Controller // implements HasMiddleware
             })
             ->get();
 
-        return response()->json($alunos->map(fn($aluno) => [
+        return response()->json($alunos->map(fn ($aluno) => [
             'id' => $aluno->id,
             'nome' => $aluno->inscricao?->candidato?->nome,
             'matricula' => $aluno->matricula,

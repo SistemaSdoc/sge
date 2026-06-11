@@ -44,6 +44,7 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
     {
         return Inertia::render('instituicoes/create');
     }
+
     public function store(InstituicoesRequest $request)
     {
         $dados = $request->validated();
@@ -98,7 +99,7 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
             ->paginate(5);
 
         // Agora transforme os itens paginados
-        $cursos = $cursosPaginated->through(fn($instituicaoCurso) => [
+        $cursos = $cursosPaginated->through(fn ($instituicaoCurso) => [
             'id' => $instituicaoCurso->cursoTutelado->id,
             'nome' => $instituicaoCurso->curso->nome,
             'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,

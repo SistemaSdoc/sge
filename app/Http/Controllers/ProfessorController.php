@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
-class ProfessorController extends Controller //implements HasMiddleware
+class ProfessorController extends Controller // implements HasMiddleware
 {
     /*public static function middleware(): array
     {
@@ -29,25 +29,25 @@ class ProfessorController extends Controller //implements HasMiddleware
 
     public function index()
     {
-            
+
         $user = Auth::user();
         $instituicaoId = $user?->instituicaoFiltro();
 
-       $professores = Professor::select(['id', 'user_id', 'especialidade', 'created_at'])
-    ->with(['user:id,nome,telefone'])
-    ->when(
-        $instituicaoId,
-        fn ($q) => $q->whereHas(
-            'user',
-            fn ($q) => $q->where('instituicao_id', $instituicaoId)
-        )
-    )
-    ->orderBy('created_at', 'asc')
-    ->paginate(10);
+        $professores = Professor::select(['id', 'user_id', 'especialidade', 'created_at'])
+            ->with(['user:id,nome,telefone'])
+            ->when(
+                $instituicaoId,
+                fn ($q) => $q->whereHas(
+                    'user',
+                    fn ($q) => $q->where('instituicao_id', $instituicaoId)
+                )
+            )
+            ->orderBy('created_at', 'asc')
+            ->paginate(10);
 
-return Inertia::render('professores/index', [
-    'professores' => $professores,
-]);
+        return Inertia::render('professores/index', [
+            'professores' => $professores,
+        ]);
     }
 
     public function create()

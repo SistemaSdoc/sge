@@ -21,7 +21,7 @@ export function CreateForm({
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
       <Card className="overflow-visible">
         <CardHeader className="border-b">
-          <CardTitle>Adicionar Elemento ao Grupo PAP</CardTitle>
+          <CardTitle>Adicionar elementos ao grupo PAP</CardTitle>
         </CardHeader>
 
         <CardContent>
@@ -42,7 +42,7 @@ export function CreateForm({
                     label: alunos.find((a) => a.id === id)?.nome ?? id,
                   }))}
                 />
-                
+
                 {Object.keys(errors)
                   .filter((key) => key.startsWith('alunos'))
                   .map((key) => (

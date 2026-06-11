@@ -7,7 +7,7 @@ export default function Show() {
   const { inscricao } = usePage().props;
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       <Card className="overflow-hidden pt-0!">
         <div className="relative flex items-end w-full h-56 bg-muted">
           <div className="absolute inset-0 bg-black/50" />

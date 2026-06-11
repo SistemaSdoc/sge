@@ -22,6 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import MultipleSelect from '@/components/multiple-select';
 
 export default function GrupoPapForm({
+  title,
   errors,
   processing,
   professores = [],
@@ -36,7 +37,7 @@ export default function GrupoPapForm({
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
       <Card className="overflow-visible">
         <CardHeader className="border-b">
-          <CardTitle>Criar grupo PAP</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </CardHeader>
 
         <CardContent>

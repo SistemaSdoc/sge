@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { TabBanca } from './components/tabs/tab-banca';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,10 +12,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/BancaJuriPapController';
 import { destroy as destroyIntegrante } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
 import { edit } from '@/actions/App/Http/Controllers/GrupoPapController';
+import { definirData } from '@/actions/App/Http/Controllers/GrupoPapController';
 import { actualizarNota } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
+import { FieldError } from '@/components/ui/field';
 
 export default function Show({
   instituicao,
@@ -26,6 +37,7 @@ export default function Show({
   grupoPap,
 }) {
   const [notas, setNotas] = useState({});
+  const [dialogDataAberto, setDialogDataAberto] = useState(false);
 
   const params = {
     instituicao: instituicao.id,
@@ -35,6 +47,13 @@ export default function Show({
     turma: turma.id,
     grupoPap: grupoPap.id,
   };
+
+  const { data, setData, put, processing, errors, reset, setError } = useForm({
+    data_defesa: grupoPap?.data_defesa
+      ? grupoPap.data_defesa.split('T')[0]
+      : '',
+    local_defesa: grupoPap?.local_defesa ?? '',
+  });
 
   const removerIntegranteFn = (elementoGrupoPap) => {
     router.delete(destroyIntegrante.url({ ...params, elementoGrupoPap }), {
@@ -62,8 +81,22 @@ export default function Show({
     );
   };
 
+  const submeterDataDefesa = () => {
+    if (!data.data_defesa) {
+      setError('data_defesa', 'A data da defesa é obrigatória.');
+      return;
+    }
+
+    put(definirData.url(params), {
+      onSuccess: () => {
+        setDialogDataAberto(false);
+        router.reload();
+      },
+    });
+  };
+
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       <Card className="overflow-hidden pt-0!">
         <div className="relative flex h-56 w-full items-end bg-muted">
           <div className="absolute inset-0 bg-black/50" />
@@ -86,21 +119,16 @@ export default function Show({
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="end" className="w-full max-w-4">
+              <DropdownMenuContent align="end" className="w-full max-w-2xl">
                 <DropdownMenuItem
                   onClick={() => router.visit(edit.url(params))}
                 >
                   Editar
                 </DropdownMenuItem>
 
-                {/*
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={removerJuradoFn}
-                  >
-                    Remover grupo
-                  </DropdownMenuItem>
-                */}
+                <DropdownMenuItem onClick={() => setDialogDataAberto(true)}>
+                  Definir data da defesa
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -144,11 +172,77 @@ export default function Show({
           <div>
             <p className="text-sm text-muted-foreground">Data de defesa</p>
             <p className="font-medium">
-              {grupoPap?.data_defesa ?? 'Por definir...'}
+              {grupoPap?.data_defesa
+                ? new Date(grupoPap.data_defesa).toLocaleDateString('pt-PT', {
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                  })
+                : 'Por definir...'}
             </p>
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog — Definir data da defesa */}
+      <Dialog
+        open={dialogDataAberto}
+        onOpenChange={(aberto) => {
+          setDialogDataAberto(aberto);
+          if (!aberto) reset();
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Definir data da defesa</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="data_defesa">Data da defesa</Label>
+              <Input
+                id="data_defesa"
+                type="date"
+                value={data.data_defesa}
+                onChange={(e) => setData('data_defesa', e.target.value)}
+              />
+              {errors.data_defesa && (
+                <FieldError>{errors.data_defesa}</FieldError>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="local_defesa">Local da defesa</Label>
+              <Input
+                id="local_defesa"
+                type="text"
+                placeholder="Ex: Sala 12, Bloco A"
+                value={data.local_defesa}
+                onChange={(e) => setData('local_defesa', e.target.value)}
+              />
+              {errors.local_defesa && (
+                <FieldError>{errors.local_defesa}</FieldError>
+              )}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDialogDataAberto(false);
+                reset();
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={submeterDataDefesa} disabled={processing}>
+              {processing ? 'A definir...' : 'Definir data'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Tabs defaultValue="integrantes-grupo" className="w-full">
         <TabsList>

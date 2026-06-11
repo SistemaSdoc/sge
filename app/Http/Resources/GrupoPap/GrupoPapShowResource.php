@@ -24,6 +24,7 @@ class GrupoPapShowResource extends JsonResource
             'status' => $this->status,
             'nota_final' => $this->nota_final,
             'data_defesa' => $this->data_defesa,
+            'local_defesa' => $this->local_defesa,
             'professor' => $this->professor ? [
                 'id' => $this->professor->id,
                 'nome' => $this->professor->user->nome,
