@@ -11,9 +11,17 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Inertia\Inertia;
+use App\Services\PautaService;
+
+
 
 class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware */
 {
+
+    public function __construct(
+        private readonly PautaService $pautaService,
+    ) {
+    }
     /* public static function middleware(): array
     {
         return [
@@ -27,6 +35,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
     /**
      * Display a listing of the resource.
      */
+
     public function index(CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
     {
         $turmas = Turma::where('curso_classe_turno_id', $cursoClasseTurno->id)->paginate(5);
@@ -110,11 +119,14 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
         ]);
 
+        $pautaRecurso = $this->pautaService->gerarPautaRecurso($turma);
+
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
             'cursoTutelado' => $cursoTutelado,
             'cursoClasse' => $cursoClasse,
             'cursoClasseTurno' => $cursoClasseTurno,
             'turma' => $turma,
+            'pautaRecurso' => $pautaRecurso,
         ]);
     }
 

@@ -56,6 +56,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/alunos/{aluno}/turmas-disponiveis', [AlunoController::class, 'turmasDisponiveis']);
     Route::get('/cursos/{curso}/instituicoes-tutoras', [CursosController::class, 'instituicoesTutoras']);
+    Route::get('/pautas', [NotaController::class, 'indexPautas'])->name('pautas.index');
+    
     Route::get('/turmas/{turma}/pauta', [NotaController::class, 'pauta']);
     Route::get('turmas/{turma}/pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
 
@@ -97,12 +99,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->names(['show' => 'cursos-tutelados.classes.show']);
 
             Route::resource('turmas', ClasseTurnoTurmaController::class);
+            
+            // Pautas
+            Route::get('pautas', [NotaController::class, 'indexPautasCursoTutelado'])->name('cursos-tutelados.pautas.index');
 
             Route::get('/alunos', [CursoTuteladoController::class, 'alunos']);
 
             Route::prefix('turmas/{turma}')->group(function () {
                 Route::get('progressao/preview', [ProgressaoController::class, 'preview']);
                 Route::post('progressao', [ProgressaoController::class, 'store']);
+                Route::post('progressao/preview', [ProgressaoController::class, 'store']);
                 Route::post('progressao/recurso', [ProgressaoController::class, 'storeRecurso']);
                 Route::get('finalistas', [FinalistaController::class, 'index']);
                 Route::post('alunos/{aluno}/pap-concluido', [FinalistaController::class, 'papConcluido']);
@@ -111,6 +117,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('alunos/{aluno}/desistente', [FinalistaController::class, 'marcarDesistente']);
                 // ver a pauta dos colegios tutelados
                 Route::get('/pauta', [NotaController::class, 'pauta']);
+                Route::get('notas/recurso', [NotaController::class, 'createRecurso']);
+                Route::post('notas/recurso', [NotaController::class, 'storeRecurso']);
                 // gerar certificado de conclusão do curso dos colegios tutelados
                 Route::get('/alunos/{aluno}/certificado', [CertificadoController::class, 'gerarTutora']);
             });
@@ -162,6 +170,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
                     Route::get('progressao/preview', [ProgressaoController::class, 'preview']);
                     Route::post('progressao', [ProgressaoController::class, 'store']);
+                    Route::post('progressao/preview', [ProgressaoController::class, 'store']);
 
                     Route::prefix('alunos/{aluno}')->group(function () {
                         Route::get('certificado', [CertificadoController::class, 'gerar'])->withoutScopedBindings();
@@ -188,6 +197,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('professor/avisos', [AvisoController::class, 'indexProfessor']);
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';

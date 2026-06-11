@@ -17,6 +17,10 @@ class PautaService
 
     public function gerarPauta($turma, $periodo): array
     {
+        if ($periodo === 'recurso' || $periodo === 4 || $periodo === '4') {
+            return $this->gerarPautaRecurso($turma);
+        }
+
         $periodo = (is_numeric($periodo) && (int) $periodo > 0)
             ? (int) $periodo
             : null;

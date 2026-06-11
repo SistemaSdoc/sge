@@ -61,17 +61,28 @@ export function ProgressaoScreen({ instituicaoId, cursoTuteladoId, turmaId }) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [resultado, setResultado] = useState(null)
 
-  const { data: preview, isLoading } = useProgressaoPreview({ instituicaoId, cursoTuteladoId, turmaId })
-  const mutation = useStoreProgressao({ instituicaoId, cursoTuteladoId, turmaId })
-  const { data: turmasData } = useTurmas(instituicaoId, cursoTuteladoId)
-  const turmas = turmasData?.data ?? []
-
-  // ── Resumo — chaves que o back manda ─────────────────────────────────
-  const resumo = {
-    transitar: preview?.resumo?.transitar ?? 0,
-    reter: preview?.resumo?.reter ?? 0,
-    aguardar_recurso: preview?.resumo?.aguardar_recurso ?? 0,
-    incompleto: preview?.resumo?.incompleto ?? 0,
+  const handleExecutar = async () => {
+    setIsPending(true)
+    router.post(
+      window.location.pathname,
+      {
+        turma_destino_id: turmaDestinoId,
+        ano_lectivo: Number(anoLectivo),
+      },
+      {
+        preserveScroll: true,
+        onSuccess: (page) => {
+          setResultado(page.props.resultado?.resultados)
+          setDialogOpen(false)
+        },
+        onError: (errors) => {
+          alert("Erro ao executar progressão: " + Object.values(errors).flat().join(', '))
+          setIsPending(false)
+          setDialogOpen(false)
+        },
+        onFinish: () => setIsPending(false),
+      }
+    )
   }
 
   const handleExecutar = () => {
@@ -130,7 +141,7 @@ export function ProgressaoScreen({ instituicaoId, cursoTuteladoId, turmaId }) {
                 </div>
               )
             )}
-            <Button onClick={() => router.back()} className="w-full mt-4">
+            <Button onClick={() => window.history.back()} className="w-full mt-4">
               Voltar
             </Button>
           </CardContent>

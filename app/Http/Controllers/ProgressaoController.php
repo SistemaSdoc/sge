@@ -12,6 +12,7 @@ use App\Services\AprovacaoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class ProgressaoController extends Controller
 {
@@ -28,7 +29,7 @@ class ProgressaoController extends Controller
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         Turma $turma,
-    ): JsonResponse {
+    ) {
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
             'notas',
@@ -78,6 +79,21 @@ class ProgressaoController extends Controller
             ],
 
             'alunos' => $resultado,
+
+            // ← adicionar isto
+            'turmas' => Turma::with([
+                'cursoClasseTurno.turno',
+                'cursoClasseTurno.cursoClasse.classe',
+            ])
+                ->whereHas('cursoClasseTurno', function ($q) use ($cursoTutelado, $cursoClasse) {
+                    $q->whereHas('cursoClasse', function ($q2) use ($cursoTutelado, $cursoClasse) {
+                        $q2->where('curso_tutelado_id', $cursoTutelado->id)
+                            ->whereHas('classe', function ($q3) use ($cursoClasse) {
+                                $q3->where('ordem', $cursoClasse->classe->ordem + 1);
+                            });
+                    });
+                })
+                ->get(),
         ]);
            
     }
@@ -93,7 +109,7 @@ class ProgressaoController extends Controller
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
-    ): JsonResponse {
+    ) {
         $validated = $request->validate([
             'turma_destino_id' => 'required|exists:turmas,id',
             'ano_lectivo' => 'required|integer|min:2000',
@@ -206,16 +222,17 @@ class ProgressaoController extends Controller
             }
         });
 
-        return response()->json([
-            'message' => 'Progressão executada com sucesso.',
-
-            'resultados' => $resultados,
-
-            'totais' => [
-                'transitados' => count($resultados['transitados']),
-                'retidos' => count($resultados['retidos']),
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/progressao', [
+            'resultado' => [
+                'resultados' => $resultados,
+            ],
+            'turma' => $turma->nome,
+            'total' => count($turmaAlunos),
+            'resumo' => [
+                'transitam' => count($resultados['transitados']),
                 'recurso' => count($resultados['recurso']),
-                'incompletos' => count($resultados['incompletos']),
+                'reprovados' => count($resultados['retidos']),
+                'incompleto' => count($resultados['incompletos']),
             ],
         ]);
     }
