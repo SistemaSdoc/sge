@@ -77,10 +77,16 @@ const mainNavItems: NavItem[] = [
     href: `/inscricoes`,
     icon: LayersIcon,
   },
-
+  
   {
     title: 'Alunos',
     href: `/alunos`,
+    icon: Users,
+  },
+
+  {
+    title: 'Avisos',
+    href: `/avisos`,
     icon: Users,
   },
 ];

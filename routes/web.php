@@ -184,12 +184,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('turmas/{turma}/pauta/recurso', [NotaController::class, 'pautaRecurso']);
     Route::post('turmas/{turma}/notas/recurso', [NotaController::class, 'storeRecurso']);
 
-    Route::get('avisos', [AvisoController::class, 'index']);
-    Route::get('avisos/{aviso}', [AvisoController::class, 'show']);
-    Route::post('avisos', [AvisoController::class, 'store']);
-    Route::put('avisos/{aviso}', [AvisoController::class, 'update']);
-    Route::delete('avisos/{aviso}', [AvisoController::class, 'destroy']);
+    // Route::get('avisos', [AvisoController::class, 'index']);
+    // Route::get('avisos/{aviso}', [AvisoController::class, 'show']);
+    // Route::post('avisos', [AvisoController::class, 'store']);
+    // Route::put('avisos/{aviso}', [AvisoController::class, 'update']);
+    // Route::delete('avisos/{aviso}', [AvisoController::class, 'destroy']);
 
+    Route::resource('avisos', AvisoController::class);
+    
     // Card do aluno
     Route::get('aluno/avisos', [AvisoController::class, 'indexAluno']);
 
