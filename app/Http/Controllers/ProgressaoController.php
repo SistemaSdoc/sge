@@ -28,6 +28,8 @@ class ProgressaoController extends Controller
     public function preview(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
     ) {
         $turmaAlunos = TurmaAluno::with([
@@ -55,7 +57,7 @@ class ProgressaoController extends Controller
             ];
         });
 
-        return response()->json([
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/progressao', [
             'turma' => $turma->nome,
 
             'total' => $resultado->count(),
@@ -93,9 +95,15 @@ class ProgressaoController extends Controller
                             });
                     });
                 })
-                ->get(),
+                ->get()
+                ->map(fn($t) => [
+                    'id' => $t->id,
+                    'nome' => $t->nome,
+                    'classe' => $t->cursoClasseTurno?->cursoClasse?->classe?->nome,
+                    'turno' => $t->cursoClasseTurno?->turno?->nome,
+                ]),
         ]);
-           
+
     }
 
     // ─────────────────────────────────────────────────────────────

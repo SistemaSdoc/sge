@@ -8,7 +8,6 @@ export default function Create({
   classeId,
   turnoId,
   turmaId,
-  disciplinaId,
 }) {
   const { data } = usePage().props;
 
@@ -25,7 +24,7 @@ export default function Create({
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       <Form
-        action={`/instituicoes/${instituicaoId}/cursos-tutelados/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplinaId}/notas`}
+        action={`/instituicoes/${instituicaoId}/cursos-tutelados/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${data.disciplina.id}/notas`}
         method="post"
         options={{ preserveScroll: true }}
       >
@@ -38,7 +37,7 @@ export default function Create({
             classeId={classeId}
             turnoId={turnoId}
             turmaId={turmaId}
-            disciplinaId={disciplinaId}
+            disciplinaId={data.disciplina.id}
           />
         )}
       </Form>

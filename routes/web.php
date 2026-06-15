@@ -57,7 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/alunos/{aluno}/turmas-disponiveis', [AlunoController::class, 'turmasDisponiveis']);
     Route::get('/cursos/{curso}/instituicoes-tutoras', [CursosController::class, 'instituicoesTutoras']);
     Route::get('/pautas', [NotaController::class, 'indexPautas'])->name('pautas.index');
-    
+
     Route::get('/turmas/{turma}/pauta', [NotaController::class, 'pauta']);
     Route::get('turmas/{turma}/pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
 
@@ -99,11 +99,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->names(['show' => 'cursos-tutelados.classes.show']);
 
             Route::resource('turmas', ClasseTurnoTurmaController::class);
-            
+
             // Pautas
             Route::get('pautas', [NotaController::class, 'indexPautasCursoTutelado'])->name('cursos-tutelados.pautas.index');
 
-            Route::get('/alunos', [CursoTuteladoController::class, 'alunos']);
+            Route::get('/alunos', [CursoTuteladoController::class, 'alunos'])->name('cursos-tutelados.alunos');
 
             Route::prefix('turmas/{turma}')->group(function () {
                 Route::get('progressao/preview', [ProgressaoController::class, 'preview']);
@@ -120,7 +120,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::get('notas/recurso', [NotaController::class, 'createRecurso']);
                 Route::post('notas/recurso', [NotaController::class, 'storeRecurso']);
                 // gerar certificado de conclusão do curso dos colegios tutelados
-                Route::get('/alunos/{aluno}/certificado', [CertificadoController::class, 'gerarTutora']);
+                Route::get('/alunos/{aluno}/certificado', [CertificadoController::class, 'gerarTutora'])->name('cursos-tutelados.turmas.alunos.certificado');
             });
 
             Route::get('classes-turnos', [CursoClasseTurnoController::class, 'index']);
@@ -198,6 +198,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Card do professor
     Route::get('professor/avisos', [AvisoController::class, 'indexProfessor']);
 });
+
+Route::get('/instituicoes/{instituicao}/colegios/{colegio}', [CursoTuteladoController::class, 'showColegio'])
+    ->name('instituicoes.colegios.show');
 
 require __DIR__ . '/auth.php';
 
