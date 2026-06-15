@@ -43,7 +43,7 @@ class ProfessorController extends Controller // implements HasMiddleware
                 )
             )
             ->orderBy('created_at', 'asc')
-            ->paginate(10);
+            ->paginate(1);
 
         return Inertia::render('professores/index', [
             'professores' => $professores,

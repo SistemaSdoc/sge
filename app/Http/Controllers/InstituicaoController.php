@@ -31,7 +31,7 @@ class InstituicaoController extends Controller /* implements HasMiddleware */
         $user = Auth::user();
         $instituicaoId = $user?->instituicao_id;
 
-        $instituicoes = Instituicao::select(['id', 'nome', 'sigla', 'tipo', 'email', 'telefone', 'endereco', 'logo', 'created_at'])
+        $instituicoes = Instituicao::select(['id', 'nome', 'sigla', 'tipo'])
             ->orderBy('nome', 'asc')
             ->paginate(10);
 

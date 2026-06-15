@@ -19,9 +19,9 @@ class GoogleAuthController extends Controller
     public function callback(): RedirectResponse
     {
         try {
-            $this->googleAuthService->handleCallback();
+            $user = $this->googleAuthService->handleCallback();
 
-            return redirect()->intended('/dashboard');
+            return redirect()->intended($user->roleRedirectPath());
         } catch (InvalidStateException) {
             return redirect()
                 ->route('login')

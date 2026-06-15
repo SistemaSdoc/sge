@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { ClasseForm } from './components/classe-form';
+import { edit } from '@/actions/App/Http/Controllers/ClasseController';
 
 export default function Edit({ classe }) {
   console.log('Classe:', classe);
@@ -17,7 +18,7 @@ export default function Edit({ classe }) {
       processing={processing}
       submitFn={(e) => {
         e.preventDefault();
-        put(`/classes/${classe.id}`);
+        put(edit(classe.id).url);
       }}
     />
   );

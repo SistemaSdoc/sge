@@ -29,6 +29,7 @@ import { FileTextIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { mediaTrimestral } from '@/utils/media-trimestral';
 import { verificarSituacao } from '@/utils/verificar-situacao';
+import { create } from '@/actions/App/Http/Controllers/NotaController';
 
 function buildInitialNotas(alunos, periodo) {
   const state = {};
@@ -48,11 +49,11 @@ export default function NotasTable({
   alunos = [],
   disciplina,
   tdpId,
-  instituicaoId,
-  cursoId,
-  classeId,
-  turnoId,
-  turmaId,
+  instituicao,
+  cursoTutelado,
+  cursoClasse,
+  cursoClasseTurno,
+  turma,
 }) {
   const [periodo, setPeriodo] = useState('1');
   const [notas, setNotas] = useState({});
@@ -62,8 +63,6 @@ export default function NotasTable({
   useEffect(() => {
     setNotas(buildInitialNotas(alunos, periodo));
   }, [alunos, periodo]);
-
-  const lancamentosUrl = `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplina?.id}/notas/create`;
 
   return (
     <Card className="gap-0">
@@ -84,7 +83,20 @@ export default function NotasTable({
           </Select>
 
           <Button asChild>
-            <Link href={lancamentosUrl}>Lançar Notas</Link>
+            <Link
+              href={
+                create({
+                  instituicao: instituicao,
+                  cursoTutelado: cursoTutelado,
+                  cursoClasse: cursoClasse,
+                  cursoClasseTurno: cursoClasseTurno,
+                  turma: turma,
+                  classeTurnoDisciplina: disciplina?.id,
+                }).url
+              }
+            >
+              Lançar Notas
+            </Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -98,7 +110,14 @@ export default function NotasTable({
             description={`Nenhuma nota lançada para o ${periodo}º trimestre`}
             action={{
               label: 'Lançar Notas',
-              href: lancamentosUrl,
+              href: create({
+                instituicao: instituicao,
+                cursoTutelado: cursoTutelado,
+                cursoClasse: cursoClasse,
+                cursoClasseTurno: cursoClasseTurno,
+                turma: turma,
+                classeTurnoDisciplina: disciplina?.id,
+              }).url,
               variant: 'outline',
             }}
           />

@@ -1,17 +1,32 @@
-import { router, Link } from "@inertiajs/react";
-import { Button } from "@/components/ui/button";
+import { router, Link } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
 import {
-  Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle,
-} from "@/components/ui/card";
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Minus, MoreHorizontalIcon, UsersIcon } from "lucide-react";
-import { EmptyState } from "@/components/empty-state";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Minus, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
+import { show } from '@/actions/App/Http/Controllers/AlunoController';
+import { gerarTutora } from '@/actions/App/Http/Controllers/CertificadoController';
 
 export function TabAlunos({
   turma,
@@ -29,18 +44,25 @@ export function TabAlunos({
   const gerarCertificado = async (e, alunoId) => {
     e.stopPropagation();
     try {
-      const response = await fetch(`${baseUrl}/alunos/${alunoId}/certificado`);
+      const response = await fetch(
+        gerarTutora({
+          instituicao: instituicaoId,
+          cursoTutelado: cursoTuteladoId,
+          turma: turmaId,
+          aluno: alunoId,
+        }).url,
+      );
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.setAttribute("download", "certificado.pdf");
+      link.setAttribute('download', 'certificado.pdf');
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Erro ao gerar certificado:", error);
+      console.error('Erro ao gerar certificado:', error);
     }
   };
 
@@ -51,7 +73,7 @@ export function TabAlunos({
         <CardDescription>Alunos inscritos nesta turma</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href={`${baseUrl}/alunos/create`}>Adicionar</Link>
+            <Link href={`#`}>Adicionar</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -63,7 +85,11 @@ export function TabAlunos({
             icon={UsersIcon}
             title="Nenhum aluno inscrito"
             description="Comece adicionando alunos à turma"
-            action={{ label: "Adicionar Aluno", href: `${baseUrl}/alunos/create`, variant: "outline" }}
+            action={{
+              label: 'Adicionar Aluno',
+              href: `#`,
+              variant: 'outline',
+            }}
           />
         ) : (
           <Table>
@@ -86,22 +112,40 @@ export function TabAlunos({
                   <TableRow
                     key={aluno.id}
                     className="hover:cursor-pointer"
-                    onClick={() => router.visit(`/alunos/${aluno.id}`)}
+                    onClick={() => router.visit(show(aluno.id).url)}
                   >
                     <TableCell className="px-4 font-medium">{nome}</TableCell>
-                    <TableCell>{aluno.matricula ?? <Minus size={15} className="text-muted-foreground" />}</TableCell>
-                    <TableCell>{email ?? <Minus size={15} className="text-muted-foreground" />}</TableCell>
-                    <TableCell>{telefone ?? <Minus size={15} className="text-muted-foreground" />}</TableCell>
+                    <TableCell>
+                      {aluno.matricula ?? (
+                        <Minus size={15} className="text-muted-foreground" />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {email ?? (
+                        <Minus size={15} className="text-muted-foreground" />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {telefone ?? (
+                        <Minus size={15} className="text-muted-foreground" />
+                      )}
+                    </TableCell>
                     <TableCell className="px-4 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="size-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                          >
                             <MoreHorizontalIcon />
                             <span className="sr-only">Abrir menu</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={(e) => gerarCertificado(e, aluno.id)}>
+                          <DropdownMenuItem
+                            onClick={(e) => gerarCertificado(e, aluno.id)}
+                          >
                             Gerar Certificado
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />

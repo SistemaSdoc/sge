@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Link } from '@inertiajs/react';
+import { edit } from '@/actions/App/Http/Controllers/CursosController';
 
 export default function Show({ curso }) {
   return (
@@ -19,7 +20,7 @@ export default function Show({ curso }) {
           <CardDescription>Duração: {curso.duracao_anos} anos</CardDescription>
           <CardAction>
             <Button asChild variant="outline">
-              <Link href={`/cursos/${curso.id}/edit`}>Editar</Link>
+              <Link href={edit(curso.id).url}>Editar</Link>
             </Button>
           </CardAction>
         </CardHeader>

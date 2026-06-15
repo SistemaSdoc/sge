@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { CursoForm } from './components/curso-form';
+import { update } from '@/actions/App/Http/Controllers/CursosController';
 
 export default function Edit({ curso }) {
   const { put, data, setData, processing, errors } = useForm({
@@ -17,7 +18,7 @@ export default function Edit({ curso }) {
       processing={processing}
       submitFn={(e) => {
         e.preventDefault();
-        put(`/cursos/${curso.id}`);
+        put(update(curso.id).url);
       }}
     />
   );

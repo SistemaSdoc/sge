@@ -1,53 +1,47 @@
-import { Form, router, usePage, useForm } from "@inertiajs/react"
-import { store } from "@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController"
-import { show } from "@/actions/App/Http/Controllers/ClasseTurnoTurmaController"
-import ProfessorForm from "./components/professor-form"
+import { usePage, useForm } from '@inertiajs/react';
+import { store } from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController';
+import ProfessorForm from './components/professor-form';
 
 export default function Create() {
   const {
-    instituicaoId, cursoId, classeId, turnoId, turmaId,
-    disciplinaId: classeTurnoDisciplinaId,
-    professores, disciplinas
-  } = usePage().props
+    instituicao,
+    cursoTutelado,
+    cursoClasse,
+    cursoClasseTurno,
+    turma,
+    classeTurnoDisciplina,
+    professores,
+    disciplinas,
+  } = usePage().props;
 
-  const { data, setData, errors, processing } = useForm({
-    disciplina_id: classeTurnoDisciplinaId,
+  const { data, setData, post, errors, processing } = useForm({
     professor_id: '',
-  })
+    disciplina_id: classeTurnoDisciplina,
+  });
+
+  const submit = (e) => {
+    e.preventDefault();
+    post(
+      store({
+        instituicao,
+        cursoTutelado,
+        cursoClasse,
+        cursoClasseTurno,
+        turma,
+        classeTurnoDisciplina,
+      }).url,
+    );
+  };
 
   return (
-    <Form
-      {...store.form({
-        instituicao: instituicaoId,
-        cursoTutelado: cursoId,
-        cursoClasse: classeId,
-        cursoClasseTurno: turnoId,
-        turma: turmaId,
-        classeTurnoDisciplina: classeTurnoDisciplinaId,
-      })}
+    <ProfessorForm
+      disciplinas={disciplinas ?? []}
+      professores={professores ?? []}
       data={data}
-      onSuccess={() =>
-        router.visit(
-          show({
-            instituicao: instituicaoId,
-            cursoTutelado: cursoId,
-            cursoClasse: classeId,
-            cursoClasseTurno: turnoId,
-            turma: turmaId,
-          }),
-        )
-      }
-    >
-      {({ errors: formErrors, processing: formProcessing }) => (
-        <ProfessorForm
-          disciplinas={disciplinas ?? []}
-          professores={professores ?? []}
-          data={data}
-          setData={setData}
-          errors={{ ...formErrors, ...errors }}
-          processing={formProcessing || processing}
-        />
-      )}
-    </Form>
-  )
+      setData={setData}
+      errors={errors}
+      processing={processing}
+      submitFn={submit}
+    />
+  );
 }

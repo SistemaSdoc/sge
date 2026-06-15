@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\GrupoPap\DefinirDataDefesaRequest;
 use App\Http\Requests\GrupoPap\StoreRequest;
 use App\Http\Requests\GrupoPap\UpdateRequest;
-use App\Http\Resources\GrupoPap\GrupoPapShowResource;
+use App\Http\Resources\GrupoPap\CreateResource;
+use App\Http\Resources\GrupoPap\EditResource;
+use App\Http\Resources\GrupoPap\IndexResource;
+use App\Http\Resources\GrupoPap\ShowResource;
 use App\Models\Aluno;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
@@ -44,36 +47,17 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
             'elementos.aluno.inscricao.candidato:id,nome',
-        ])
-            ->when(
-                $instituicaoId,
-                fn ($q) => $q->whereHas(
-                    'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn ($q) => $q->where('instituicao_id', $instituicaoId)
-                )
+        ])->when(
+            $instituicaoId,
+            fn ($q) => $q->whereHas(
+                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                fn ($q) => $q->where('instituicao_id', $instituicaoId)
             )
-            ->latest()->paginate(10);
+        )->latest()->paginate(10);
 
-        $grupos->through(fn ($grupo) => [
-            'id' => $grupo->id,
-            'nome_grupo' => $grupo->nome_grupo,
-            'tema_grupo' => $grupo->tema_grupo,
-            'status' => $grupo->status,
-            'nota_final' => $grupo->nota_final,
-            'data_defesa' => $grupo->data_defesa,
-            'professor' => $grupo->professor->user?->nome,
-            'turma' => $grupo->turma?->nome,
-            'classe' => $grupo->turma?->cursoClasseTurno?->cursoClasse?->classe?->nome,
-            'curso' => $grupo->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
-            'instituicao' => $grupo->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
-            'num_elementos' => $grupo->elementos->count(),
-            'elementos' => $grupo->elementos->map(fn ($el) => [
-                'id' => $el->aluno->id,
-                'nome' => $el->aluno?->inscricao?->candidato?->nome,
-            ])->filter(fn ($el) => $el['nome'])->values(),
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/index', [
+            'gruposPap' => IndexResource::collection($grupos),
         ]);
-
-        return response()->json($grupos);
     }
 
     public function create(
@@ -83,23 +67,29 @@ class GrupoPapController extends Controller // implements HasMiddleware
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
+        $professores = Professor::whereHas('cursosTutelados', function ($q) use ($cursoTutelado) {
+            $q->where('curso_tutelado_id', $cursoTutelado->id)
+                ->where('tipo', 'principal');
+        })->with('user:id,nome')->get();
+
+        $alunos = Aluno::whereHas('turmas', function ($q) use ($turma) {
+            $q->where('turmas.id', $turma->id)
+                ->where('turma_aluno.activo', true); // aluno activo nesta turma
+        })->with('inscricao.candidato:id,nome')->get()->map(fn ($aluno) => [
+            'id' => $aluno->id,
+            'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
+        ])->values();
+
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/create', [
-            'instituicao' => $instituicao->only('id', 'nome'),
+            'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => $cursoTutelado->only('id'),
             'cursoClasse' => $cursoClasse->only('id'),
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
-            'turma' => $turma->only('id', 'nome'),
-            'professores' => Professor::whereHas('cursosTutelados', function ($q) use ($cursoTutelado) {
-                $q->where('curso_tutelado_id', $cursoTutelado->id)
-                    ->where('tipo', 'principal');
-            })->with('user:id,nome')->get(),
-            'alunos' => Aluno::whereHas('turmas', function ($q) use ($turma) {
-                $q->where('turmas.id', $turma->id)
-                    ->where('turma_aluno.activo', true); // aluno activo nesta turma
-            })->with('inscricao.candidato:id,nome')->get()->map(fn ($aluno) => [
-                'id' => $aluno->id,
-                'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
-            ])->values(),
+            'turma' => $turma->only('id'),
+            'form' => new CreateResource((object) [
+                'professores' => $professores,
+                'alunos' => $alunos,
+            ]),
         ]);
     }
 
@@ -154,7 +144,7 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'cursoClasse' => $cursoClasse->only('id'),
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => $turma->only('id', 'nome'),
-            'grupoPap' => new GrupoPapShowResource($grupoPap),
+            'grupoPap' => new ShowResource($grupoPap),
         ]);
     }
 
@@ -169,33 +159,29 @@ class GrupoPapController extends Controller // implements HasMiddleware
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
+        $professores = Professor::whereHas('cursosTutelados', function ($q) use ($cursoTutelado) {
+            $q->where('curso_tutelado_id', $cursoTutelado->id)
+                ->where('tipo', 'principal');
+        })->with('user:id,nome')->get();
+
+        $alunos = $turma->alunos->map(function ($aluno) {
+            return [
+                'id' => $aluno->id,
+                'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
+            ];
+        })->values();
+
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/edit', [
             'instituicao' => $instituicao->only('id', 'nome'),
             'cursoTutelado' => $cursoTutelado->only('id'),
             'cursoClasse' => $cursoClasse->only('id'),
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => $turma->only('id', 'nome'),
-            'professores' => Professor::whereHas('cursosTutelados', function ($q) use ($cursoTutelado) {
-                $q->where('curso_tutelado_id', $cursoTutelado->id)
-                    ->where('tipo', 'principal');
-            })->with('user:id,nome')->get(),
-            'alunos' => $turma->alunos->map(function ($aluno) {
-                return [
-                    'id' => $aluno->id,
-                    'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
-                ];
-            })->values(),
-            'grupoPap' => [
-                'id' => $grupoPap->id,
-                'nome_grupo' => $grupoPap->nome_grupo,
-                'tema_grupo' => $grupoPap->tema_grupo,
-                'estudo_caso' => $grupoPap->estudo_caso,
-                'status' => $grupoPap->status,
-                'nota_final' => $grupoPap->nota_final,
-                'data_defesa' => $grupoPap->data_defesa,
-                'professor_tutor_id' => $grupoPap->professor_tutor_id,
-                'alunos' => $grupoPap->alunos->pluck('id'),
-            ],
+            'form' => new EditResource((object) [
+                'professores' => $professores,
+                'alunos' => $alunos,
+                'grupoPap' => $grupoPap,
+            ]),
         ]);
     }
 

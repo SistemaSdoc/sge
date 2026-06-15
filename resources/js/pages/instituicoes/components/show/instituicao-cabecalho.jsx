@@ -8,6 +8,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  show,
+  edit,
+} from '@/actions/App/Http/Controllers/InstituicaoController';
 
 export function InstituicaoCabecalho({ data, storageUrl }) {
   return (
@@ -51,7 +55,7 @@ export function InstituicaoCabecalho({ data, storageUrl }) {
 
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() => router.visit(`/instituicoes/${data.id}/edit`)}
+                onClick={() => router.visit(edit({ instituicao: data.id }).url)}
               >
                 Editar
               </DropdownMenuItem>

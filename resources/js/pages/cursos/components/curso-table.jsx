@@ -37,10 +37,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  create,
+  show,
+  edit,
+} from '@/actions/App/Http/Controllers/CursosController';
 
-export default function CursoTable({ 
-  cursos, 
-  deleteFn, 
+export default function CursoTable({
+  cursos,
+  deleteFn,
   pagination = {},
   onPageChange,
 }) {
@@ -53,7 +58,7 @@ export default function CursoTable({
         <CardDescription>Lista de cursos cadastrados</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href="/cursos/create">Adicionar</Link>
+            <Link href={create().url}>Adicionar</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -67,7 +72,7 @@ export default function CursoTable({
             description="Comece adicionando a primeiro curso à tabela"
             action={{
               label: 'Adicionar Curso',
-              href: '/cursos/create',
+              href: create().url,
               variant: 'outline',
             }}
           />
@@ -84,7 +89,7 @@ export default function CursoTable({
                 <TableRow
                   key={curso.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/cursos/${curso.id}`)}
+                  onClick={() => router.visit(show(curso.id).url)}
                 >
                   <TableCell className="px-4 font-medium">
                     {curso.nome}
@@ -102,7 +107,7 @@ export default function CursoTable({
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.visit(`/cursos/${curso.id}/edit`);
+                            router.visit(edit(curso.id).url);
                           }}
                         >
                           Editar

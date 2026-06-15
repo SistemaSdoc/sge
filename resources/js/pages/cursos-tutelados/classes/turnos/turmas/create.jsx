@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { TurmaForm } from './components/turma-form';
+import { store } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 
 export default function Create({ instituicao, cursoTutelado, cursoClasse, cursoClasseTurno }) {
   const { data, setData, post, processing, errors } = useForm({
@@ -10,7 +11,12 @@ export default function Create({ instituicao, cursoTutelado, cursoClasse, cursoC
   const handleSubmit = (e) => {
     e.preventDefault();
     post(
-      `/instituicoes/${instituicao.id}/cursos-tutelados/${cursoTutelado.id}/classes/${cursoClasse.id}/turnos/${cursoClasseTurno.id}/turmas`,
+      store({
+        instituicao: instituicao.id,
+        cursoTutelado: cursoTutelado.id,
+        cursoClasse: cursoClasse.id,
+        cursoClasseTurno: cursoClasseTurno.id,
+      }).url,
       { preserveScroll: true },
     );
   };

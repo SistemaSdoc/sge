@@ -33,6 +33,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import {
+  create,
+  show,
+  edit,
+} from '@/actions/App/Http/Controllers/TurnoController';
 
 export function TurnoTable({
   turnos,
@@ -49,7 +54,7 @@ export function TurnoTable({
         <CardDescription>Lista de turnos cadastrados</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href="/turnos/create">Adicionar</Link>
+            <Link href={create().url}>Adicionar</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -63,7 +68,7 @@ export function TurnoTable({
             description="Comece adicionando o primeiro turno à tabela"
             action={{
               label: 'Adicionar Turno',
-              href: '/turnos/create',
+              href: create().url,
               variant: 'outline',
             }}
           />
@@ -80,7 +85,7 @@ export function TurnoTable({
                 <TableRow
                   key={turno.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/turnos/${turno.id}`)}
+                  onClick={() => router.visit(show(turno.id).url)}
                 >
                   <TableCell className="px-4 font-medium">
                     {turno.nome}
@@ -98,7 +103,7 @@ export function TurnoTable({
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.visit(`/turnos/${turno.id}/edit`);
+                            router.visit(edit(turno.id).url);
                           }}
                         >
                           Editar

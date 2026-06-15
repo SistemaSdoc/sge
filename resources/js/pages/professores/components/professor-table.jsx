@@ -38,12 +38,18 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export function ProfessorTable({ 
-  professores, 
+import {
+  create,
+  show,
+  edit,
+} from '@/actions/App/Http/Controllers/ProfessorController';
+
+export function ProfessorTable({
+  professores,
   deleteFn,
-   pagination = {},
+  pagination = {},
   onPageChange,
- }) {
+}) {
   const isEmpty = !professores || professores.length === 0;
 
   return (
@@ -53,7 +59,7 @@ export function ProfessorTable({
         <CardDescription>Lista de professores cadastrados</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href="/professores/create">Adicionar</Link>
+            <Link href={create().url}>Adicionar</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -67,7 +73,7 @@ export function ProfessorTable({
             description="Comece adicionando a primeiro professor à tabela"
             action={{
               label: 'Adicionar Professor',
-              href: '/professores/create',
+              href: create().url,
               variant: 'outline',
             }}
           />
@@ -86,7 +92,7 @@ export function ProfessorTable({
                 <TableRow
                   key={professor.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/professores/${professor.id}`)}
+                  onClick={() => router.visit(show(professor.id).url)}
                 >
                   <TableCell className="px-4 font-medium">
                     {professor.user.nome}
@@ -109,7 +115,7 @@ export function ProfessorTable({
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.visit(`/professores/${professor.id}/edit`);
+                            router.visit(edit(professor.id).url);
                           }}
                         >
                           Editar
@@ -136,7 +142,7 @@ export function ProfessorTable({
         )}
       </CardContent>
 
-     {pagination?.current_page && (
+      {pagination?.current_page && (
         <CardFooter className="justify-between">
           <span className="text-muted-foreground">
             Página {pagination.current_page} de {pagination.last_page}

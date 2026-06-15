@@ -4,27 +4,23 @@ namespace App\Http\Controllers\InstituicaoCurso;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\InstituicaoCurso\StoreProfessorRequest;
-use App\Http\Requests\InstituicaoCurso\UpdateProfessorTurnosRequest;
 use App\Http\Resources\ProfessorResource;
-use App\Models\InstituicaoCurso;
-use App\Models\Instituicao;
-use App\Models\Professor;
-use App\Models\TurnoDisciplinaProfessor;
-use App\Models\CursoTutelado;
-use App\Models\CursoClasseTurno;
 use App\Models\ClasseTurnoDisciplina;
-use App\Models\Curso;
 use App\Models\CursoClasse;
+use App\Models\CursoClasseTurno;
+use App\Models\CursoTutelado;
+use App\Models\Instituicao;
+use App\Models\InstituicaoCurso;
+use App\Models\Professor;
 use App\Models\Turma;
 use App\Models\TurmaDisciplinaProfessor;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 
-class TurmaDisciplinaProfessorController extends Controller //implements HasMiddleware
+class TurmaDisciplinaProfessorController extends Controller // implements HasMiddleware
 {
     /*public static function middleware(): array
     {
@@ -37,29 +33,6 @@ class TurmaDisciplinaProfessorController extends Controller //implements HasMidd
         ];
     }*/
 
-    /**
-     * Lista professores associados a um curso específico na instituição
-     */
-
-    /* public function index(Instituicao $instituicao, InstituicaoCurso $instituicaoCurso)
-    {
-        // CORRIGIDO: Buscar via curso_tutelado -> curso_classe -> curso_classe_turno -> ...
-        $professores = Professor::whereHas(
-            'turmaDisciplinaProfessor.classeTurnoDisciplina.cursoClasseTurno.cursoClasse.cursoTutelado',
-            fn($q) => $q->where('instituicao_curso_id', $instituicaoCurso->id)
-        )->with([
-            'user:id,nome,email',
-            'turmaDisciplinaProfessor' => fn($q) => $q->whereHas(
-                'classeTurnoDisciplina.cursoClasseTurno.cursoTutelado',
-                fn($q) => $q->where('instituicao_curso_id', $instituicaoCurso->id)
-            )->with([
-                'classeTurnoDisciplina.cursoClasseTurno.turno:id,nome',
-                'classeTurnoDisciplina.disciplina:id,nome',
-            ]),
-        ])->get();
-
-        return ProfessorResource::collection($professores);
-    } */
     public function index(Instituicao $instituicao, InstituicaoCurso $instituicaoCurso)
     {
         $user = Auth::user();
@@ -67,9 +40,9 @@ class TurmaDisciplinaProfessorController extends Controller //implements HasMidd
 
         $professores = Professor::when(
             $instituicaoId,
-            fn($q) => $q->whereHas(
+            fn ($q) => $q->whereHas(
                 'user',
-                fn($q) => $q->where('instituicao_id', $instituicaoId)
+                fn ($q) => $q->where('instituicao_id', $instituicaoId)
             )
         )->with(['user:id,nome,telefone'])
             ->get();
@@ -96,6 +69,12 @@ class TurmaDisciplinaProfessorController extends Controller //implements HasMidd
             ]);
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+            'cursoClasseTurno' => $cursoClasseTurno->id,
+            'turma' => $turma->id,
+            'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
             'professores' => $professores,
             'disciplinas' => [
                 [
@@ -106,17 +85,9 @@ class TurmaDisciplinaProfessorController extends Controller //implements HasMidd
                     ],
                 ],
             ],
-            'instituicaoId' => $instituicao->id,
-            'cursoId' => $cursoTutelado->id,
-            'classeId' => $cursoClasse->id,
-            'turnoId' => $cursoClasseTurno->id,
-            'turmaId' => $turma->id,
-            'disciplinaId' => $classeTurnoDisciplina->id,
         ]);
     }
-    /**
-     * Associa professor a turnos/disciplinas do curso
-     */
+
     public function store(
         StoreProfessorRequest $request,
         Instituicao $instituicao,
@@ -140,129 +111,13 @@ class TurmaDisciplinaProfessorController extends Controller //implements HasMidd
             $classeTurnoDisciplina->update(['tem_professor' => true]);
         });
 
-        // return response()->json(['message' => 'Professor associado com sucesso.'], 201);
-           return redirect()->to("/instituicoes/{$instituicao->id}/cursos-tutelados/{$cursoTutelado->id}/classes/{$cursoClasse->id}/turnos/{$cursoClasseTurno->id}/turmas/{$turma->id}")
-            ->with('toast', [
-                'type' => 'success',
-                'message' => 'Professor associado com sucesso!',
-            ]);
-    }
-
-    /**
-     * Mostra detalhes do professor no curso
-     */
-    public function show(Instituicao $instituicao, InstituicaoCurso $instituicaoCurso, Professor $professore)
-    {
-        $professore->load([
-            'user:id,nome,email,bi,telefone',
-            'turnoDisciplinaProfessor' => fn($q) => $q->whereHas(
-                'classeTurnoDisciplina.cursoClasseTurno.cursoTutelado',
-                fn($q) => $q->where('curso_instituicao_id', $instituicaoCurso->id)
-            )->with([
-                        'classeTurnoDisciplina.cursoClasseTurno.turno:id,nome',
-                        'classeTurnoDisciplina.disciplina:id,nome,sigla',
-                    ]),
-            // CORRIGIDO: Turmas via turma_professor
-            'turmas' => fn($q) => $q->whereHas(
-                'classeTurnoDisciplina.cursoClasseTurno.cursoTutelado',
-                fn($q) => $q->where('curso_instituicao_id', $instituicaoCurso->id)
-            ),
-        ]);
-
-        return new ProfessorResource($professore);
-    }
-
-    /**
-     * Atualiza turnos do professor no curso
-     */
-    public function update(UpdateProfessorTurnosRequest $request, Instituicao $instituicao, InstituicaoCurso $instituicaoCurso, Professor $professore)
-    {
-        $cursoTutelado = CursoTutelado::where('curso_instituicao_id', $instituicaoCurso->id)->first();
-
-        if (!$cursoTutelado) {
-            return response()->json(['message' => 'Curso não encontrado nesta instituição.'], 404);
-        }
-
-        $turnosValidos = CursoClasseTurno::whereHas('cursoClasse', fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id))
-            ->whereIn('turno_id', $request->turnos)
-            ->pluck('turno_id');
-
-        if ($turnosValidos->count() !== count($request->turnos)) {
-            return response()->json(['message' => 'Um ou mais turnos são inválidos para este curso.'], 422);
-        }
-
-        $classeTurnoIdsDoCurso = ClasseTurnoDisciplina::whereHas(
-            'cursoClasseTurno.cursoClasse',
-            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
-        )->pluck('id');
-
-        DB::transaction(function () use ($request, $professore, $cursoTutelado, $classeTurnoIdsDoCurso) {
-            // Remover associações antigas
-            TurnoDisciplinaProfessor::where('professor_id', $professore->id)
-                ->whereIn('classe_turno_disciplina_id', $classeTurnoIdsDoCurso)
-                ->delete();
-
-            // Resetar flags das disciplinas afetadas ← corrigido
-            ClasseTurnoDisciplina::whereIn('id', $classeTurnoIdsDoCurso)
-                ->update(['tem_professor' => false]);
-
-            // Criar novas associações
-            foreach ($request->turnos as $turnoId) {
-                $classeTurnoDisciplinas = ClasseTurnoDisciplina::whereHas(
-                    'cursoClasseTurno',
-                    fn($q) => $q->where('turno_id', $turnoId)
-                        ->whereHas('cursoClasse', fn($q2) => $q2->where('curso_tutelado_id', $cursoTutelado->id))
-                )->get();
-
-                foreach ($classeTurnoDisciplinas as $ctd) {
-                    TurnoDisciplinaProfessor::create([
-                        'professor_id' => $professore->id,
-                        'classe_turno_disciplina_id' => $ctd->id,
-                    ]);
-
-                    $ctd->update(['tem_professor' => true]); // ← corrigido
-                }
-            }
-        });
-
-        $professore->load([
-            'user:id,nome,email',
-            'turnoDisciplinaProfessor' => fn($q) => $q->whereHas(
-                'classeTurnoDisciplina.cursoClasseTurno.cursoTutelado',
-                fn($q) => $q->where('curso_instituicao_id', $instituicaoCurso->id)
-            )->with('classeTurnoDisciplina.cursoClasseTurno.turno:id,nome'),
-        ]);
-
-        return new ProfessorResource($professore);
-    }
-
-    /**
-     * Remove professor do curso
-     */
-    public function destroy(Instituicao $instituicao, InstituicaoCurso $instituicaoCurso, Professor $professore)
-    {
-        $cursoTutelado = CursoTutelado::where('curso_instituicao_id', $instituicaoCurso->id)->first();
-
-        if (!$cursoTutelado) {
-            return response()->json(['message' => 'Curso não encontrado.'], 404);
-        }
-
-        $classeTurnoIdsDoCurso = ClasseTurnoDisciplina::whereHas(
-            'cursoClasseTurno.cursoClasse',
-            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
-        )->pluck('id');
-
-        DB::transaction(function () use ($professore, $classeTurnoIdsDoCurso) {
-            TurnoDisciplinaProfessor::where('professor_id', $professore->id)
-                ->whereIn('classe_turno_disciplina_id', $classeTurnoIdsDoCurso)
-                ->delete();
-
-            // Resetar flags ← corrigido
-            ClasseTurnoDisciplina::whereIn('id', $classeTurnoIdsDoCurso)
-                ->where('tem_professor', true)
-                ->update(['tem_professor' => false]);
-        });
-
-        return response()->json(['message' => 'Professor removido do curso com sucesso.']);
+        return to_route('turmas.show', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+            'cursoClasseTurno' => $cursoClasseTurno->id,
+            'turma' => $turma->id,
+            'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
+        ])->with('success', 'Professor associado com sucesso.');
     }
 }

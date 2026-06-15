@@ -34,8 +34,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  edit,
+  show,
+  create,
+} from '@/actions/App/Http/Controllers/InstituicaoController';
 
-export function InstituicaoTable({ instituicoes, deleteFn, pagination = {}, onPageChange }) {
+export function InstituicaoTable({
+  instituicoes,
+  deleteFn,
+  pagination = {},
+  onPageChange,
+}) {
   const isEmpty = !instituicoes || instituicoes.length === 0;
 
   return (
@@ -45,7 +55,7 @@ export function InstituicaoTable({ instituicoes, deleteFn, pagination = {}, onPa
         <CardDescription>Lista de intituições cadastradas</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href="/instituicoes/create">Adicionar</Link>
+            <Link href={create().url}>Adicionar</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -59,7 +69,7 @@ export function InstituicaoTable({ instituicoes, deleteFn, pagination = {}, onPa
             description="Comece adicionando a primeira instituição à tabela"
             action={{
               label: 'Adicionar Instituição',
-              href: '/instituicoes/create',
+              href: create().url,
               variant: 'outline',
             }}
           />
@@ -79,7 +89,7 @@ export function InstituicaoTable({ instituicoes, deleteFn, pagination = {}, onPa
                 <TableRow
                   key={instituicao.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/instituicoes/${instituicao.id}`)}
+                  onClick={() => router.visit(show(instituicao.id).url)}
                 >
                   <TableCell className="px-4 font-medium">
                     {instituicao.sigla}
@@ -99,7 +109,7 @@ export function InstituicaoTable({ instituicoes, deleteFn, pagination = {}, onPa
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.visit(`/instituicoes/${instituicao.id}/edit`);
+                            router.visit(edit(instituicao.id).url);
                           }}
                         >
                           Editar
@@ -139,7 +149,11 @@ export function InstituicaoTable({ instituicoes, deleteFn, pagination = {}, onPa
                 <PaginationPrevious
                   onClick={() => onPageChange(pagination.current_page - 1)}
                   disabled={pagination.current_page === 1}
-                  className={pagination.current_page === 1 ? 'pointer-events-none opacity-50' : ''}
+                  className={
+                    pagination.current_page === 1
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
                 />
               </PaginationItem>
 
@@ -147,7 +161,11 @@ export function InstituicaoTable({ instituicoes, deleteFn, pagination = {}, onPa
                 <PaginationNext
                   onClick={() => onPageChange(pagination.current_page + 1)}
                   disabled={pagination.current_page === pagination.last_page}
-                  className={pagination.current_page === pagination.last_page ? 'pointer-events-none opacity-50' : ''}
+                  className={
+                    pagination.current_page === pagination.last_page
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
                 />
               </PaginationItem>
             </PaginationContent>

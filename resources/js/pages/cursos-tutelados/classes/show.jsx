@@ -43,6 +43,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Link, router } from '@inertiajs/react';
+import { show as showCurso } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
+import {
+  show as showTurma,
+  create as createTurma,
+} from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 
 export default function Show({ 
   instituicao,
@@ -55,10 +61,19 @@ export default function Show({
   grupos_paginated
 }) {
   const instituicaoId = instituicao.id;
-  const cursoTuteladoId = cursoTutelado.id;
-  const cursoClasseId = cursoClasse.id;
-  const cursoClasseTurnoId = cursoClasseTurno.id;
-  const turmaId = turma.id;
+  const cursoId = cursoTutelado.id;
+  const classeId = cursoClasse.id;
+  const classe = cursoClasse.classe;
+  const curso = cursoTutelado.curso;
+  const turnos = cursoClasse.turnos || [];
+  const [selectedTurnoId, setSelectedTurnoId] = useState(null);
+
+  // Auto-select first turno
+  useEffect(() => {
+    if (turnos.length > 0 && !selectedTurnoId) {
+      setSelectedTurnoId(turnos[0].id);
+    }
+  }, [turnos, selectedTurnoId]);
 
   // Estados de paginação separados
   const [alunosPage, setAlunosPage] = useState(alunos_paginated?.current_page || 1);
@@ -146,7 +161,10 @@ export default function Show({
                 <DropdownMenuItem
                   onClick={() =>
                     router.visit(
-                      `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}`,
+                      showCurso({
+                        instituicao: instituicaoId,
+                        cursoTutelado: cursoTutelado.id,
+                      }).url,
                     )
                   }
                 >
@@ -169,46 +187,315 @@ export default function Show({
         </CardHeader>
       </Card>
 
-      {/* Contadores */}
-      <div className="grid grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <UsersIcon className="size-4 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">Alunos</p>
-            </div>
-            <h2 className="text-xl font-semibold">
-              {alunosData.total}
-            </h2>
-          </CardContent>
-        </Card>
+      {/* Turnos Navigation */}
+      {turnos?.length > 0 && (
+        <div>
+          <Tabs value={selectedTurnoId} onValueChange={setSelectedTurnoId}>
+            <TabsList className="">
+              {turnos.map((turno) => (
+                <TabsTrigger key={turno.id} value={turno.id}>
+                  <span className="font-medium">{turno.nome}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <GraduationCapIcon className="size-4 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">Professores</p>
-            </div>
-            <h2 className="text-xl font-semibold">
-              {professoresData.total}
-            </h2>
-          </CardContent>
-        </Card>
+            <TabsContent value={selectedTurnoId} className="mt-2 space-y-6">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <Card className="flex flex-col gap-0">
+                  <CardHeader className="border-b">
+                    <CardTitle className="flex! gap-2">
+                      <BookOpenIcon className="size-5 text-primary" />
+                      Disciplinas ({totalDisciplinas})
+                    </CardTitle>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <UsersRoundIcon className="size-4 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">Grupos PAP</p>
-            </div>
-            <h2 className="text-xl font-semibold">
-              {gruposData.total}
-            </h2>
-          </CardContent>
-        </Card>
-      </div>
+                    <CardDescription>
+                      Disciplinas do turno da {selectedTurno?.nome}
+                    </CardDescription>
 
-      {/* Tabs */}
+                    <CardAction>
+                      <Button asChild size="sm" disabled={!selectedTurnoId}>
+                        <Link
+                          href={
+                            selectedTurnoId
+                              ? createDisciplina({
+                                  instituicao: instituicaoId,
+                                  cursoTutelado: cursoId,
+                                  cursoClasse: classeId,
+                                  cursoClasseTurno: selectedTurnoId,
+                                }).url
+                              : '#'
+                          }
+                        >
+                          Adicionar
+                        </Link>
+                      </Button>
+                    </CardAction>
+                  </CardHeader>
+
+                  {totalDisciplinas === 0 ? (
+                    <CardContent className="flex flex-1 items-center justify-center">
+                      <EmptyState
+                        variant="table"
+                        icon={BookOpenIcon}
+                        title="Nenhuma disciplina"
+                        description="Este turno ainda não tem disciplinas associadas"
+                        action={{
+                          label: 'Associar disciplinas',
+                          href: selectedTurnoId
+                            ? createDisciplina({
+                                instituicao: instituicaoId,
+                                cursoTutelado: cursoId,
+                                cursoClasse: classeId,
+                                cursoClasseTurno: selectedTurnoId,
+                              }).url
+                            : '#',
+                          variant: 'outline',
+                        }}
+                      />
+                    </CardContent>
+                  ) : (
+                    <>
+                      <CardContent className="p-0!">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/72">
+                              <TableHead className="px-4">Sigla</TableHead>
+                              <TableHead>Nome</TableHead>
+                              <TableHead className="px-4 text-right">
+                                Acções
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+
+                          <TableBody>
+                            {selectedTurno?.disciplinas?.map((disc) => (
+                              <TableRow
+                                key={disc.id}
+                                className="hover:cursor-pointer"
+                              >
+                                <TableCell className="px-4 font-medium">
+                                  {disc.sigla}
+                                </TableCell>
+                                <TableCell>{disc.nome}</TableCell>
+                                <TableCell className="px-4 text-right">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="size-8"
+                                      >
+                                        <MoreHorizontalIcon />
+                                        <span className="sr-only">
+                                          Open menu
+                                        </span>
+                                      </Button>
+                                    </DropdownMenuTrigger>
+
+                                    {/* <DropdownMenuContent align="end">
+                                      <DropdownMenuItem onClick={(e) => {
+                                        e.stopPropagation()
+                                        router.push(`/dashboard/instituicoes/${instituicao.id}/edit`)
+                                      }}>
+                                        Editar
+                                      </DropdownMenuItem>
+
+                                      <DropdownMenuSeparator />
+
+                                      <DropdownMenuItem variant="destructive" onClick={(e) => {
+                                        e.stopPropagation()
+                                        deleteFn(instituicao.id)
+                                      }}>
+                                        Remover
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent> */}
+                                  </DropdownMenu>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+
+                      <CardFooter className="justify-between border-t">
+                        <span className="text-muted-foreground">
+                          Página 1 de 4
+                        </span>
+
+                        <Pagination>
+                          <PaginationContent>
+                            <PaginationItem>
+                              <PaginationPrevious href="#" />
+                            </PaginationItem>
+                            <PaginationItem>
+                              <PaginationNext href="#" />
+                            </PaginationItem>
+                          </PaginationContent>
+                        </Pagination>
+                      </CardFooter>
+                    </>
+                  )}
+                </Card>
+
+                {/* Turmas Section */}
+                <Card className="flex flex-col gap-0">
+                  <CardHeader className="border-b">
+                    <CardTitle className="flex! gap-2">
+                      <UsersIcon className="size-5 text-primary" />
+                      Turmas ({selectedTurno?.turmas?.length || 0})
+                    </CardTitle>
+
+                    <CardDescription>
+                      Turmas do turno da {selectedTurno?.nome}
+                    </CardDescription>
+
+                    <CardAction>
+                      <Button asChild size="sm">
+                        <Link
+                          href={
+                            selectedTurnoId
+                              ? createTurma({
+                                  instituicao: instituicaoId,
+                                  cursoTutelado: cursoId,
+                                  cursoClasse: classeId,
+                                  cursoClasseTurno: selectedTurnoId,
+                                }).url
+                              : '#'
+                          }
+                        >
+                          Adicionar
+                        </Link>
+                      </Button>
+                    </CardAction>
+                  </CardHeader>
+
+                  {!selectedTurno?.turmas ||
+                  selectedTurno.turmas.length === 0 ? (
+                    <CardContent className="flex flex-1 items-center justify-center">
+                      <EmptyState
+                        variant="table"
+                        icon={UsersIcon}
+                        title="Nenhuma turma"
+                        description="Este turno ainda não tem turmas criadas"
+                        action={{
+                          label: 'Adicionar Turma',
+                          href: selectedTurnoId
+                            ? createTurma({
+                                instituicao: instituicaoId,
+                                cursoTutelado: cursoId,
+                                cursoClasse: classeId,
+                                cursoClasseTurno: selectedTurnoId,
+                              }).url
+                            : '#',
+                          variant: 'outline',
+                        }}
+                      />
+                    </CardContent>
+                  ) : (
+                    <>
+                      <CardContent className="p-0!">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/72">
+                              <TableHead className="px-4">Nome</TableHead>
+                              <TableHead>Alunos</TableHead>
+                              <TableHead className="px-4 text-right">
+                                Acções
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+
+                          <TableBody>
+                            {selectedTurno.turmas.map((turma) => (
+                              <TableRow
+                                key={turma.id}
+                                className="hover:cursor-pointer"
+                                onClick={() =>
+                                  router.visit(
+                                    showTurma({
+                                      instituicao: instituicaoId,
+                                      cursoTutelado: cursoId,
+                                      cursoClasse: classeId,
+                                      cursoClasseTurno: selectedTurnoId,
+                                      turma: turma.id,
+                                    }).url,
+                                  )
+                                }
+                              >
+                                <TableCell className="px-4 font-medium">
+                                  {turma.nome}
+                                </TableCell>
+                                <TableCell>{turma.alunos_count}</TableCell>
+                                <TableCell className="px-4 text-right">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="size-8"
+                                      >
+                                        <MoreHorizontalIcon />
+                                        <span className="sr-only">
+                                          Open menu
+                                        </span>
+                                      </Button>
+                                    </DropdownMenuTrigger>
+
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          router.visit(`#`);
+                                        }}
+                                      >
+                                        Editar
+                                      </DropdownMenuItem>
+
+                                      <DropdownMenuSeparator />
+
+                                      <DropdownMenuItem
+                                        variant="destructive"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                        }}
+                                      >
+                                        Remover
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+
+                      <CardFooter className="justify-between border-t">
+                        <span className="text-muted-foreground">
+                          {selectedTurno?.turmas.length} turma
+                          {selectedTurno?.turmas.length !== 1 ? 's' : ''}
+                        </span>
+
+                        <Pagination>
+                          <PaginationContent>
+                            <PaginationItem>
+                              <PaginationPrevious href="#" />
+                            </PaginationItem>
+                            <PaginationItem>
+                              <PaginationNext href="#" />
+                            </PaginationItem>
+                          </PaginationContent>
+                        </Pagination>
+                      </CardFooter>
+                    </>
+                  )}
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      )}
+
       <Tabs defaultValue="alunos" className="w-full">
         <TabsList>
           <TabsTrigger value="alunos">Alunos</TabsTrigger>

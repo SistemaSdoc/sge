@@ -1,9 +1,10 @@
 import { router } from '@inertiajs/react';
 import { TurnoTable } from './components/turno-table';
+import { index } from '@/actions/App/Http/Controllers/TurnoController';
 
 export default function Index({ turnos, deleteFn }) {
   const handlePageChange = (page) => {
-    router.visit('/turnos', {
+    router.visit(index().url, {
       data: { page },
       preserveScroll: true,
     });

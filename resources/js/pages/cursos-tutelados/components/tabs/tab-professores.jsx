@@ -1,3 +1,39 @@
+import { Link } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { MoreHorizontalIcon, Minus, BookOpenIcon } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
+import { create } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
 
 import { Link } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
@@ -26,7 +62,14 @@ export function TabProfessores({
         <CardDescription>Professores associados a este curso</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href={`/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/professores/create`}>
+            <Link
+              href={
+                create({
+                  instituicao: instituicaoId,
+                  cursoTutelado: cursoTuteladoId,
+                }).url
+              }
+            >
               Adicionar
             </Link>
           </Button>
@@ -41,9 +84,12 @@ export function TabProfessores({
             title="Nenhum professor associado"
             description="Comece adicionando professores ao curso"
             action={{
-              label: "Adicionar Professor",
-              href: `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/professores/create`,
-              variant: "outline"
+              label: 'Adicionar Professor',
+              href: create({
+                instituicao: instituicaoId,
+                cursoTutelado: cursoTuteladoId,
+              }).url,
+              variant: 'outline',
             }}
           />
         ) : (
@@ -58,8 +104,14 @@ export function TabProfessores({
             <TableBody>
               {professores.data.map(professor => (
                 <TableRow key={professor.id}>
-                  <TableCell className="px-4 font-medium">{professor.nome}</TableCell>
-                  <TableCell>{professor.tipo ?? <Minus size={15} className="text-muted-foreground" />}</TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {professor.nome}
+                  </TableCell>
+                  <TableCell>
+                    {professor.tipo ?? (
+                      <Minus size={15} className="text-muted-foreground" />
+                    )}
+                  </TableCell>
                   <TableCell className="px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -70,7 +122,10 @@ export function TabProfessores({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem variant="destructive" onClick={() => deleteProfessor(professor.id)}>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => deleteProfessor(professor.id)}
+                        >
                           Remover do curso
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -119,5 +174,5 @@ export function TabProfessores({
         </CardFooter>
       )}
     </Card>
-  )
+  );
 }

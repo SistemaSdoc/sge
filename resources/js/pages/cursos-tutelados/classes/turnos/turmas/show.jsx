@@ -16,7 +16,7 @@ import { TabRecurso } from './components/tabs/tab-recurso';
 import { TabGruposPAP } from './components/tabs/tab-grupos-pap';
 import { TabDisciplinas } from './components/tabs/tab-disciplinas';
 import { Badge } from '@/components/ui/badge';
-import { store } from '@/actions/App/Http/Controllers/InscricaoController';
+import { preview } from '@/actions/App/Http/Controllers/ProgressaoController';
 export default function Show({
   cursoTutelado,
   cursoClasse,
@@ -75,13 +75,21 @@ export default function Show({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
-                  onClick={() => router.visit(`${baseUrl}/edit`)}
+                  onClick={() => router.visit(`#`)}
                 >
                   Editar
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => router.visit(`${baseUrl}/progressao/preview`)}
+                  onClick={() =>
+                    router.visit(
+                      preview({
+                        instituicao: instituicaoId,
+                        cursoTutelado: cursoTuteladoId,
+                        turma: turmaId,
+                      }).url,
+                    )
+                  }
                 >
                   Progressão de Alunos
                 </DropdownMenuItem>

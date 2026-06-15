@@ -1,7 +1,6 @@
-
-import { router } from "@inertiajs/react";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -10,7 +9,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -18,25 +17,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Minus, MoreHorizontalIcon, BookIcon, Clock } from "lucide-react";
-import { EmptyState } from "@/components/empty-state";
-import { HorariosDialog } from "../horarios/horarios-dialog";
-
+} from '@/components/ui/pagination';
+import { Minus, MoreHorizontalIcon, BookIcon, Clock } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
+import { HorariosDialog } from '../horarios/horarios-dialog';
+import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
+import { index } from '@/actions/App/Http/Controllers/NotaController';
+import { create as createProfessor } from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController';
 
 export function TabDisciplinas({
   turma,
@@ -46,13 +47,14 @@ export function TabDisciplinas({
   cursoClasseTurnoId,
 }) {
   const turmaId = turma.id;
-  
+
   // The backend returns snake_case properties: classe_turno_disciplinas
   const disciplinas = turma.curso_classe_turno?.classe_turno_disciplinas ?? [];
   const isEmpty = disciplinas.length === 0;
 
   const [horariosDialogOpen, setHorariosDialogOpen] = useState(false);
-  const [disciplinaSelectedParaHorario, setDisciplinaSelectedParaHorario] = useState(null);
+  const [disciplinaSelectedParaHorario, setDisciplinaSelectedParaHorario] =
+    useState(null);
 
   const abrirHorariosDialog = (disciplina, e) => {
     e.stopPropagation();
@@ -80,9 +82,14 @@ export function TabDisciplinas({
               title="Nenhuma disciplina nesta turma"
               description="Comece adicionando disciplinas"
               action={{
-                label: "Adicionar Disciplina",
-                href: `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/disciplinas/create`,
-                variant: "outline",
+                label: 'Adicionar Disciplina',
+                href: createDisciplina({
+                  instituicao: instituicaoId,
+                  cursoTutelado: cursoTuteladoId,
+                  cursoClasse: cursoClasseId,
+                  cursoClasseTurno: cursoClasseTurnoId,
+                }).url,
+                variant: 'outline',
               }}
             />
           ) : (
@@ -108,7 +115,14 @@ export function TabDisciplinas({
                       className="hover:cursor-pointer"
                       onClick={() =>
                         router.visit(
-                          `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}/disciplinas/${disciplina.id}/notas`,
+                          index({
+                            instituicao: instituicaoId,
+                            cursoTutelado: cursoTuteladoId,
+                            cursoClasse: cursoClasseId,
+                            cursoClasseTurno: cursoClasseTurnoId,
+                            turma: turmaId,
+                            classeTurnoDisciplina: disciplina.id,
+                          }).url, // ← estava a faltar isto
                         )
                       }
                     >
@@ -138,7 +152,14 @@ export function TabDisciplinas({
                               onClick={(e) => {
                                 e.stopPropagation();
                                 router.visit(
-                                  `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}/disciplinas/${disciplina.id}/professores/create`,
+                                  createProfessor({
+                                    instituicao: instituicaoId,
+                                    cursoTutelado: cursoTuteladoId,
+                                    cursoClasse: cursoClasseId,
+                                    cursoClasseTurno: cursoClasseTurnoId,
+                                    turma: turmaId,
+                                    classeTurnoDisciplina: disciplina.id,
+                                  }).url,
                                 );
                               }}
                             >
@@ -146,7 +167,9 @@ export function TabDisciplinas({
                             </DropdownMenuItem>
 
                             <DropdownMenuItem
-                              onClick={(e) => abrirHorariosDialog(disciplina, e)}
+                              onClick={(e) =>
+                                abrirHorariosDialog(disciplina, e)
+                              }
                             >
                               <Clock className="mr-2 size-4" />
                               Definir horários
@@ -187,13 +210,13 @@ export function TabDisciplinas({
           onClose={fecharHorariosDialog}
           disciplina={disciplinaSelectedParaHorario}
           instituicaoId={instituicaoId}
-          cursoId={cursoId}
+          cursoTuteladoId={cursoTuteladoId}
           classeId={classeId}
           turnoId={turnoId}
           turmaId={turmaId}
           onSuccess={() => {
             // Refetch dos dados se necessário
-            console.log("Horários salvos com sucesso!");
+            console.log('Horários salvos com sucesso!');
           }}
         />
       )}

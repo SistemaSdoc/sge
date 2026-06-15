@@ -2,9 +2,11 @@
 
 namespace App\Services\Auth;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\InvalidStateException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -51,6 +53,17 @@ class GoogleAuthService
                 'avatar' => $avatar,
             ]
         );
+
+        // Se é novo utilizador, atribuir role padrão 'candidato'
+        if ($user->wasRecentlyCreated) {
+            $candidatoRole = Role::where('nome', 'Candidato')->first();
+
+            if ($candidatoRole && $user->roles()->doesntExist()) {
+                $user->roles()->attach($candidatoRole->id, [
+                    'id' => (string) Str::uuid7(),
+                ]);
+            }
+        }
 
         Log::info('Google OAuth user authenticated', [
             'user_id' => $user->id,

@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { ProfessorForm } from './components/professor-form';
+import { store } from '@/actions/App/Http/Controllers/ProfessorController';
 
 export default function Create() {
   const { post, data, setData, processing, errors } = useForm({
@@ -18,7 +19,7 @@ export default function Create() {
       processing={processing}
       submitFn={(e) => {
         e.preventDefault();
-        post('/professores');
+        post(store().url);
       }}
     />
   );

@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+use App\Listeners\RegisteredListener;
 use App\Models\Permission;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -25,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Registar listener para atribuir role padrão a novos utilizadores
+        Event::listen(Registered::class, RegisteredListener::class);
+
         // Gate::policy(Classe::class, ClassePolicy::class);
 
         // $this->configureDefaults();

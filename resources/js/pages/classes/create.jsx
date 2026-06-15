@@ -1,10 +1,11 @@
 import { useForm } from '@inertiajs/react';
 import { ClasseForm } from './components/classe-form';
+import { store } from '@/actions/App/Http/Controllers/ClasseController';
 
 export default function Create() {
   const { post, data, setData, processing, errors } = useForm({
     nome: '',
-    ordem: ''
+    ordem: '',
   });
 
   return (
@@ -16,7 +17,7 @@ export default function Create() {
       processing={processing}
       submitFn={(e) => {
         e.preventDefault();
-        post('/classes');
+        post(store().url);
       }}
     />
   );

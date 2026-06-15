@@ -10,6 +10,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import CursoTable from './components/curso-table';
+import {
+  index,
+  destroy,
+} from '@/actions/App/Http/Controllers/CursosController';
 
 export default function Index({ cursos }) {
   const [cursoParaExcluir, setCursoParaExcluir] = useState(null);
@@ -19,13 +23,13 @@ export default function Index({ cursos }) {
       return;
     }
 
-    router.delete(`/cursos/${cursoParaExcluir}`, {
+    router.delete(destroy(cursoParaExcluir).url, {
       onFinish: () => setCursoParaExcluir(null),
     });
   };
 
   const handlePageChange = (page) => {
-    router.visit('/cursos', {
+    router.visit(index().url, {
       data: { page },
       preserveScroll: true,
     });

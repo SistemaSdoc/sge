@@ -123,12 +123,12 @@ class NotaController extends Controller
             ->get();
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index', [
-            'instituicaoId' => $instituicao->id,
-            'cursoId' => $cursoTutelado->id,
-            'classeId' => $cursoClasse->id,
-            'turnoId' => $cursoClasseTurno->id,
-            'turmaId' => $turma->id,
-            'tdpId' => $tdp->id,
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+            'cursoClasseTurno' => $cursoClasseTurno->id,
+            'turma' => $turma->id,
+            'tdp' => $tdp->id,
             'disciplina' => [
                 'id' => $classeTurnoDisciplina->id,
                 'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
@@ -168,11 +168,11 @@ class NotaController extends Controller
             ->get();
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
-            'instituicaoId' => $instituicao->id,
-            'cursoId' => $cursoTutelado->id,
-            'classeId' => $cursoClasse->id,
-            'turnoId' => $cursoClasseTurno->id,
-            'turmaId' => $turma->id,
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+            'cursoClasseTurno' => $cursoClasseTurno->id,
+            'turma' => $turma->id,
             'data' => [
                 'tdp_id' => $tdp->id,
                 'disciplina' => [

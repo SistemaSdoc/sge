@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { CursoForm } from './components/forms/edit.form';
+import { update } from '@/actions/App/Http/Controllers/CursoTuteladoController';
 
 export default function Edit({
   instituicao,
@@ -15,18 +16,18 @@ export default function Edit({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     put(
-      `/instituicoes/${instituicao.id}/cursos-tutelados/${cursoTutelado.id}`,
-      {
-        preserveScroll: true,
-      },
+      update({
+        instituicao: instituicao.id,
+        cursoTutelado: cursoTutelado.id,
+      }).url,
+      { preserveScroll: true },
     );
   };
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6">
-      <h1 className="mb-4 text-2xl font-semibold">Editar Curso Tutelado</h1>
-
       <CursoForm
         title="Editar curso tutelado"
         classes={classes}

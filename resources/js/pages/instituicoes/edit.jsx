@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { InstituicaoForm } from './components/instituicao-form';
+import { update } from '@/actions/App/Http/Controllers/InstituicaoController';
 
 export default function Edit({ instituicao }) {
   const { put, data, setData, processing, errors } = useForm({
@@ -23,7 +24,7 @@ export default function Edit({ instituicao }) {
       logoUrl={instituicao.logo ? `/storage/${instituicao.logo}` : null}
       submitFn={(e) => {
         e.preventDefault();
-        put(`/instituicoes/${instituicao.id}`, {
+        put(update(instituicao.id).url, {
           forceFormData: true,
         });
       }}

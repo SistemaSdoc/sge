@@ -71,6 +71,36 @@ class User extends Authenticatable implements PasskeyUser
         return $this->roles->contains('nome', 'Director');
     }
 
+    /**
+     * Verifica se o utilizador tem um role específico
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->roles->contains('nome', $roleName);
+    }
+
+    /**
+     * Verifica se o utilizador tem qualquer um dos roles fornecidos
+     */
+    public function hasAnyRole(array $roleNames): bool
+    {
+        return $this->roles->whereIn('nome', $roleNames)->isNotEmpty();
+    }
+
+    /**
+     * Retorna a rota de redirecionamento baseada no role do utilizador
+     */
+    public function roleRedirectPath(): string
+    {
+        // Se é candidato ou aluno, redireciona para portal
+        if ($this->hasRole('Candidato') || $this->hasRole('Aluno')) {
+            return '/portal';
+        }
+
+        // Qualquer outro role (admin, director, etc.) vai para dashboard
+        return '/dashboard';
+    }
+
     public function instituicaoFiltro(): ?string
     {
         if ($this->isSuperAdmin()) {
@@ -91,6 +121,4 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->belongsTo(Instituicao::class, 'instituicao_id');
     }
-
-   
 }

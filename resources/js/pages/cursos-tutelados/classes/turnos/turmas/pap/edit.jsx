@@ -12,17 +12,16 @@ export default function Edit() {
     cursoClasse,
     cursoClasseTurno,
     turma,
-    professores,
-    alunos,
+    form,
     grupoPap,
   } = usePage().props;
 
   const [professorTutorId, setProfessorTutorId] = useState(
-    grupoPap.professor_tutor_id,
+    form.grupoPap.professor_tutor_id,
   );
 
   const [alunoIds, setAlunoIds] = useState(
-    grupoPap.alunos?.map((id) => String(id)) ?? [],
+    form.grupoPap.alunos?.map((id) => String(id)) ?? [],
   );
 
   return (
@@ -33,7 +32,7 @@ export default function Edit() {
         cursoClasse: cursoClasse.id,
         cursoClasseTurno: cursoClasseTurno.id,
         turma: turma.id,
-        grupoPap: grupoPap.id,
+        grupoPap: form.grupoPap.id,
       })}
       transform={(data) => ({
         ...data,
@@ -57,13 +56,13 @@ export default function Edit() {
           title="Editar grupo PAP"
           errors={errors}
           processing={processing}
-          professores={professores}
-          alunos={alunos}
+          professores={form.professores}
+          alunos={form.alunos}
           professorTutorId={professorTutorId}
           setProfessorTutorId={setProfessorTutorId}
           alunoIds={alunoIds}
           setAlunoIds={setAlunoIds}
-          grupoPap={grupoPap}
+          grupoPap={form.grupoPap}
         />
       )}
     </Form>

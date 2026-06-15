@@ -34,6 +34,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { EmptyState } from '@/components/empty-state';
+import {
+  create,
+  show,
+  edit,
+} from '@/actions/App/Http/Controllers/CursoTuteladoController';
 
 export function TabContentCursos({
   data,
@@ -53,11 +58,7 @@ export function TabContentCursos({
         </CardDescription>
         <CardAction>
           <Button asChild>
-            <Link
-              href={`/instituicoes/${instituicaoId}/cursos-tutelados/create`}
-            >
-              Adicionar
-            </Link>
+            <Link href={create(instituicaoId).url}>Adicionar</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -91,7 +92,10 @@ export function TabContentCursos({
                   className="hover:cursor-pointer"
                   onClick={() =>
                     router.visit(
-                      `/instituicoes/${instituicaoId}/cursos-tutelados/${curso.id}`,
+                      show({
+                        instituicao: instituicaoId,
+                        cursoTutelado: curso?.id,
+                      }).url,
                     )
                   }
                 >
@@ -119,7 +123,10 @@ export function TabContentCursos({
                           onClick={(e) => {
                             e.stopPropagation();
                             router.visit(
-                              `/instituicoes/${instituicaoId}/cursos-tutelados/${curso.id}/edit`,
+                              edit({
+                                instituicao: instituicaoId,
+                                cursoTutelado: curso.id,
+                              }).url,
                             );
                           }}
                         >

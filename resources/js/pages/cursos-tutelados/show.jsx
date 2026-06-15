@@ -13,12 +13,13 @@ import { Minus, MoreHorizontalIcon } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { TabTurmas } from './components/tabs/tab-turmas';
 import { TabProfessores } from './components/tabs/tab-professores';
 import { Badge } from '@/components/ui/badge';
+import { show } from '@/actions/App/Http/Controllers/CursoClasseController';
+import { edit } from '@/actions/App/Http/Controllers/CursoTuteladoController';
 
 export default function Show({ cursoTutelado }) {
   const instituicaoId = cursoTutelado.instituicao.id;
@@ -67,7 +68,10 @@ export default function Show({ cursoTutelado }) {
                 <DropdownMenuItem
                   onClick={() =>
                     router.visit(
-                      `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/edit`,
+                      edit({
+                        instituicao: instituicaoId,
+                        cursoTutelado: cursoTuteladoId,
+                      }).url,
                     )
                   }
                 >
@@ -116,7 +120,14 @@ export default function Show({ cursoTutelado }) {
                     <Tooltip key={c.id}>
                       <TooltipTrigger asChild>
                         <Link
-                          href={`/instituicoes/${cursoTutelado.instituicao.id}/cursos-tutelados/${cursoTuteladoId}/classes/${c.id}`}
+                          href={
+                            show({
+                              instituicao: instituicaoId,
+                              cursoTutelado: cursoTuteladoId,
+                              cursoClasse: c.id,
+                            }).url
+                          }
+                          className="inline-block"
                         >
                           <Badge>{c.nome}</Badge>
                         </Link>

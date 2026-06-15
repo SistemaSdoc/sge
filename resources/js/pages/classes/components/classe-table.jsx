@@ -37,6 +37,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  show,
+  create,
+  edit
+} from '@/actions/App/Http/Controllers/ClasseController';
 
 export function ClasseTable({
   classes,
@@ -54,7 +59,7 @@ export function ClasseTable({
         <CardDescription>Lista de classes cadastradas</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href="/classes/create">Adicionar</Link>
+            <Link href={create().url}>Adicionar</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -68,7 +73,7 @@ export function ClasseTable({
             description="Comece adicionando a primeira classe à tabela"
             action={{
               label: 'Adicionar Classe',
-              href: '/classes/create',
+              href: create().url,
               variant: 'outline',
             }}
           />
@@ -86,7 +91,7 @@ export function ClasseTable({
                 <TableRow
                   key={classe.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/classes/${classe.id}`)}
+                  onClick={() => router.visit(show(classe.id).url)}
                 >
                   <TableCell className="px-4 font-medium">
                     {classe.nome}
@@ -105,7 +110,7 @@ export function ClasseTable({
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.visit(`/classes/${classe.id}/edit`);
+                            router.visit(edit(classe.id).url);
                           }}
                         >
                           Editar

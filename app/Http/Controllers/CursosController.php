@@ -15,7 +15,7 @@ class CursosController extends Controller
     {
         $cursos = Curso::select(['id', 'nome', 'created_at'])
             ->orderBy('nome', 'asc')
-            ->paginate(1);
+            ->paginate(10);
 
         return Inertia::render('cursos/index', [
             'cursos' => $cursos,

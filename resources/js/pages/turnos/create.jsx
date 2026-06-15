@@ -1,5 +1,6 @@
 import { useForm } from "@inertiajs/react";
 import { TurnoForm } from "./components/turno-form";
+import { store } from '@/actions/App/Http/Controllers/TurnoController';
 
 export default function Create() {
   const { post, data, setData, processing, errors } = useForm({
@@ -15,7 +16,7 @@ export default function Create() {
       processing={processing}
       submitFn={(e) => {
         e.preventDefault();
-        post('/turnos');
+        post(store().url);
       }}
     />
   );

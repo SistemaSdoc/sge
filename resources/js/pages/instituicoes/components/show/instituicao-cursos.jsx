@@ -1,5 +1,3 @@
-'use client';
-
 import { router } from '@inertiajs/react';
 import { TabContentCursos } from '../tabs/tab-content-cursos';
 

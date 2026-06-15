@@ -110,11 +110,12 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         ]);
 
         // return back()->with('success', 'Turma criada com sucesso!');
-        return redirect()->to("/instituicoes/{$instituicao->id}/cursos-tutelados/{$cursoTutelado->id}/classes/{$cursoClasse->id}")
-            ->with('toast', [
-                'type' => 'success',
-                'message' => 'Turma criada com sucesso!',
-            ]);
+        return to_route('cursos-tutelados.classes.show', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+            'cursoClasseTurno' => $cursoClasseTurno->id,
+        ])->with('success', 'Turma criada com sucesso!');
     }
 
     /**

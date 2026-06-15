@@ -69,28 +69,38 @@ export function TabTurmas({
                   className="hover:cursor-pointer"
                   onClick={() =>
                     router.visit(
-                      `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${turma.classe.id}/turnos/${turma.curso_classe_turno_id}/turmas/${turma.id}`,
+                      show({
+                        instituicao: instituicaoId,
+                        cursoTutelado: cursoTuteladoId,
+                        cursoClasse: turma.classe.id,
+                        cursoClasseTurno: turma.curso_classe_turno_id,
+                        turma: turma.id,
+                      }).url,
                     )
                   }
                 >
                   <TableCell className="px-4 font-medium">
                     {turma.nome}
                   </TableCell>
+
                   <TableCell>
                     {turma.classe?.nome ?? (
                       <Minus size={15} className="text-muted-foreground" />
                     )}
                   </TableCell>
+
                   <TableCell>
                     {turma.turno?.nome ?? (
                       <Minus size={15} className="text-muted-foreground" />
                     )}
                   </TableCell>
+
                   <TableCell>
                     {turma.max_alunos ?? (
                       <Minus size={15} className="text-muted-foreground" />
                     )}
                   </TableCell>
+
                   <TableCell className="px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -99,18 +109,27 @@ export function TabTurmas({
                           <span className="sr-only">Open menu</span>
                         </Button>
                       </DropdownMenuTrigger>
+
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={(event) => {
                             event.stopPropagation();
                             router.visit(
-                              `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${turma.classe.id}/turnos/${turma.curso_classe_turno_id}/turmas/${turma.id}`,
+                              show({
+                                instituicao: instituicaoId,
+                                cursoTutelado: cursoTuteladoId,
+                                cursoClasse: turma.classe.id,
+                                cursoClasseTurno: turma.curso_classe_turno_id,
+                                turma: turma.id,
+                              }).url,
                             );
                           }}
                         >
                           Ver turma
                         </DropdownMenuItem>
+
                         <DropdownMenuSeparator />
+
                         <DropdownMenuItem disabled>Remover</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

@@ -7,6 +7,12 @@ import {
   LayoutGrid,
   Users,
 } from 'lucide-react';
+import { index as indexClasses } from '@/actions/App/Http/Controllers/ClasseController';
+import { index as indexCursos } from '@/actions/App/Http/Controllers/CursosController';
+import { index as indexGrupos } from '@/actions/App/Http/Controllers/GrupoPapController';
+import { index as indexInstituicoes } from '@/actions/App/Http/Controllers/InstituicaoController';
+import { index as indexProfessores } from '@/actions/App/Http/Controllers/ProfessorController';
+import { index as indexTurnos } from '@/actions/App/Http/Controllers/TurnoController';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -32,25 +38,25 @@ const mainNavItems: NavItem[] = [
 
   {
     title: 'Instituições',
-    href: `/instituicoes`,
+    href: indexInstituicoes().url,
     icon: LayersIcon,
   },
 
   {
     title: 'Cursos',
-    href: `/cursos`,
+    href: indexCursos().url,
     icon: LayersIcon,
   },
 
   {
     title: 'Classes',
-    href: `/classes`,
+    href: indexClasses().url,
     icon: GraduationCapIcon,
   },
 
   {
     title: 'Turnos',
-    href: `/turnos`,
+    href: indexTurnos().url,
     icon: LayersIcon,
   },
 
@@ -68,7 +74,13 @@ const mainNavItems: NavItem[] = [
 
   {
     title: 'Professores',
-    href: `/professores`,
+    href: indexProfessores().url,
+    icon: Users,
+  },
+
+  {
+    title: 'Grupos PAP',
+    href: indexGrupos().url,
     icon: Users,
   },
 

@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { ProfessorForm } from './components/professor-form';
+import { update } from '@/actions/App/Http/Controllers/ProfessorController';
 
 export default function Edit({ professor }) {
   const { put, data, setData, processing, errors } = useForm({
@@ -19,10 +20,7 @@ export default function Edit({ professor }) {
       processing={processing}
       submitFn={(e) => {
         e.preventDefault();
-        console.log('professor:', professor);
-        console.log('professor.id:', professor.id);
-        console.log('data:', data);
-        put(`/professores/${professor.id}`);
+        put(update(professor.id).url);
       }}
     />
   );

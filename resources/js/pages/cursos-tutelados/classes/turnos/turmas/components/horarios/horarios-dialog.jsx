@@ -1,5 +1,5 @@
 import { Form } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaHorarioController';
+import { store } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 import { HorariosForm } from "./horarios-form";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\GrupoPap;
 
+use App\Rules\AlunoNaoPertencenteAoGrupo;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -31,7 +32,10 @@ class UpdateRequest extends FormRequest
             'data_defesa' => 'nullable|date',
             'professor_tutor_id' => 'sometimes|exists:professores,id',
             'alunos' => 'sometimes|array|min:1',
-            'alunos.*' => 'exists:alunos,id',
+            'alunos.*' => [
+                'exists:alunos,id',
+                new AlunoNaoPertencenteAoGrupo($this->route('grupoPap')),
+            ],
         ];
     }
 

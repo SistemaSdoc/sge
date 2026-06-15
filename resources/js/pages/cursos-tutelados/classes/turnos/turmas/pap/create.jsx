@@ -12,8 +12,7 @@ export default function Create() {
     cursoClasse,
     cursoClasseTurno,
     turma,
-    professores,
-    alunos,
+    form,
   } = usePage().props;
 
   const [professorTutorId, setProfessorTutorId] = useState(undefined);
@@ -50,8 +49,8 @@ export default function Create() {
           title="Criar grupo PAP"
           errors={errors}
           processing={processing}
-          professores={professores}
-          alunos={alunos}
+          professores={form.professores}
+          alunos={form.alunos}
           professorTutorId={professorTutorId}
           setProfessorTutorId={setProfessorTutorId}
           alunoIds={alunoIds}

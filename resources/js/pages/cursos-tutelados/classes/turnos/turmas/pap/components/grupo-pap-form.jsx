@@ -86,7 +86,7 @@ export default function GrupoPapForm({
                       <SelectLabel>Professores</SelectLabel>
                       {professores.map((p) => (
                         <SelectItem key={p.id} value={String(p.id)}>
-                          {p.user.nome}
+                          {p.nome}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -111,7 +111,12 @@ export default function GrupoPapForm({
                     label: alunos.find((a) => a.id === id)?.nome ?? id,
                   }))}
                 />
-                {errors.alunos && <FieldError>{errors.alunos}</FieldError>}
+
+                {Object.keys(errors)
+                  .filter((key) => key.startsWith('alunos'))
+                  .map((key) => (
+                    <FieldError key={key}>{errors[key]}</FieldError>
+                  ))}
               </Field>
 
               <Field>
