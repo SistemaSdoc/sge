@@ -78,6 +78,26 @@ export default function LancamentosTable({
             ) : null}
             Lançar
           </Button>
+
+          <Button>
+            <a
+              href={
+                exportarExcel
+                
+                ({
+                  instituicao: instituicaoId,
+                  cursoTutelado: cursoTuteladoId,
+                  cursoClasse: cursoClasseId,
+                  cursoClasseTurno: cursoClasseTurnoId,
+                  turma: turmaId,
+                }).url + `?periodo=${periodo}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Exportar
+            </a>
+          </Button>
         </CardAction>
       </CardHeader>
 

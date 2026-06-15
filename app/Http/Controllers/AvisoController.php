@@ -42,7 +42,6 @@ class AvisoController extends Controller // implements HasMiddleware
         return Inertia::render('avisos/index', [
             'avisos' => $avisos,
         ]);
-
     }
 
     public function create()

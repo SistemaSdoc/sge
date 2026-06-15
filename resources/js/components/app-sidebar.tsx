@@ -62,7 +62,7 @@ const mainNavItems: NavItem[] = [
 
   {
     title: 'Pautas',
-    href: `/pautas`,
+    href: `/pautas/cursos`,
     icon: FileTextIcon,
   },
 

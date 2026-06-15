@@ -56,10 +56,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/alunos/{aluno}/turmas-disponiveis', [AlunoController::class, 'turmasDisponiveis']);
     Route::get('/cursos/{curso}/instituicoes-tutoras', [CursosController::class, 'instituicoesTutoras']);
-    Route::get('/pautas', [NotaController::class, 'indexPautas'])->name('pautas.index');
 
-    Route::get('/turmas/{turma}/pauta', [NotaController::class, 'pauta']);
-    Route::get('turmas/{turma}/pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
+    # entao esta pode sumir e
+    Route::get('/pautas/cursos', [NotaController::class, 'indexPautas'])->name('pautas.index');
 
     Route::prefix('dashboard')->group(function () {
         Route::prefix('aluno')->group(function () {
@@ -91,6 +90,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('cursos-tutelados', CursoTuteladoController::class)->parameters(['cursos-tutelados' => 'cursoTutelado']);
 
         Route::prefix('cursos-tutelados/{cursoTutelado}')->group(function () {
+            #Criar uma aqui? para ter os parametros?
+
             Route::resource('professores', CursoTuteladoProfessorController::class);
 
             Route::apiResource('classes', CursoClasseController::class)
@@ -98,10 +99,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->parameters(['classes' => 'cursoClasse'])
                 ->names(['show' => 'cursos-tutelados.classes.show']);
 
+            # essa seria a rota 2??
             Route::resource('turmas', ClasseTurnoTurmaController::class);
 
             // Pautas
-            Route::get('pautas', [NotaController::class, 'indexPautasCursoTutelado'])->name('cursos-tutelados.pautas.index');
 
             Route::get('/alunos', [CursoTuteladoController::class, 'alunos'])->name('cursos-tutelados.alunos');
 
@@ -116,7 +117,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 Route::post('alunos/{aluno}/reprovar', [FinalistaController::class, 'reprovar']);
                 Route::post('alunos/{aluno}/desistente', [FinalistaController::class, 'marcarDesistente']);
                 // ver a pauta dos colegios tutelados
-                Route::get('/pauta', [NotaController::class, 'pauta']);
                 Route::get('notas/recurso', [NotaController::class, 'createRecurso']);
                 Route::post('notas/recurso', [NotaController::class, 'storeRecurso']);
                 // gerar certificado de conclusão do curso dos colegios tutelados
@@ -134,6 +134,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
                 Route::prefix('turmas/{turma}')->group(function () {
                     Route::get('pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);
+
+                    # e essa a 3??
+                    Route::get('/pauta', [NotaController::class, 'pauta']);
+
+                    Route::get('pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
 
                     Route::resource('pap', GrupoPapController::class)->parameters(['pap' => 'grupoPap']);
 
@@ -153,8 +158,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
                     Route::get('pap/{grupoPap}/folha-aprovacao', [FolhaAprovacaoController::class, 'folhaAprovacao']);
 
-                    Route::post('pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
-
                     Route::apiResource('disciplinas', ClasseTurnoDisciplinaController::class)->only(['index', 'update', 'destroy'])
                         ->parameters(['disciplinas' => 'classeTurnoDisciplina']);
 
@@ -163,6 +166,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
                         Route::resource('notas', NotaController::class);
                         Route::get('mini-pauta/excel', [ExportarMiniPautaController::class, 'exportarDisciplina']);
+
                         Route::get('professores/create', [TurmaDisciplinaProfessorController::class, 'create'])
                             ->name('cursos-tutelados.classes.turnos.turmas.disciplinas.professores.create');
                         Route::apiResource('professores', TurmaDisciplinaProfessorController::class);
@@ -191,7 +195,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Route::delete('avisos/{aviso}', [AvisoController::class, 'destroy']);
 
     Route::resource('avisos', AvisoController::class);
-    
+
     // Card do aluno
     Route::get('aluno/avisos', [AvisoController::class, 'indexAluno']);
 
@@ -204,4 +208,4 @@ Route::get('/instituicoes/{instituicao}/colegios/{colegio}', [CursoTuteladoContr
 
 require __DIR__ . '/auth.php';
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

@@ -23,8 +23,7 @@ class NotaController extends Controller
     public function __construct(
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
 
     // ──────────────────────────────────────────────
     // LISTAR TODOS OS CURSOS-TUTELADOS (SIDEBAR)
@@ -59,9 +58,13 @@ class NotaController extends Controller
     // LISTAR PAUTAS DE UM CURSO-TUTELADO (PÁGINA INDEX)
     // ──────────────────────────────────────────────
 
-    public function indexPautasCursoTutelado(Instituicao $instituicao, CursoTutelado $cursoTutelado)
-    {
-        $turmas = Turma::whereHas('cursoClasseTurno.cursoClasse', fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id))
+    public function indexPautasCursoTutelado(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+    ) {
+        $turmas = Turma::whereHas('cursoClasseTurno.cursoClasse', fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id))
             ->with([
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoTutora:id,nome',
@@ -70,6 +73,7 @@ class NotaController extends Controller
             ->get();
 
         return Inertia::render('pautas/index', [
+            'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => [
                 'id' => $cursoTutelado->id,
                 'curso' => [
@@ -77,7 +81,9 @@ class NotaController extends Controller
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
                 ],
             ],
-            'turmas' => $turmas->map(fn($turma) => [
+            'cursoClasse' => $cursoClasse->only('id'),
+            'cursoClasseTurno' => $cursoClasseTurno->only('id'),
+            'turmas' => $turmas->map(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'curso' => $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso,
@@ -108,7 +114,7 @@ class NotaController extends Controller
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
         ])
             ->where('turma_id', $turma->id)
             ->where('situacao', 'activo')
@@ -127,12 +133,12 @@ class NotaController extends Controller
                 'id' => $classeTurnoDisciplina->id,
                 'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
             ],
-            'alunos' => $turmaAlunos->map(fn($ta) => [
+            'alunos' => $turmaAlunos->map(fn ($ta) => [
                 'turma_aluno_id' => $ta->id,
                 'aluno_id' => $ta->aluno->id,
                 'nome' => $ta->aluno->inscricao?->candidato?->nome,
                 'notas' => $ta->notas
-                    ->map(fn($n) => $this->formatarNota($n))
+                    ->map(fn ($n) => $this->formatarNota($n))
                     ->keyBy('periodo'),
             ]),
         ]);
@@ -153,7 +159,7 @@ class NotaController extends Controller
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
         ])
             ->where('turma_id', $turma->id)
             ->where('situacao', 'activo')
@@ -174,12 +180,12 @@ class NotaController extends Controller
                     'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
                     'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
                 ],
-                'alunos' => $turmaAlunos->map(fn($ta) => [
+                'alunos' => $turmaAlunos->map(fn ($ta) => [
                     'turma_aluno_id' => $ta->id,
                     'aluno_id' => $ta->aluno->id,
                     'nome' => $ta->aluno->inscricao?->candidato?->nome,
                     'notas' => $ta->notas
-                        ->map(fn($n) => $this->formatarNota($n))
+                        ->map(fn ($n) => $this->formatarNota($n))
                         ->keyBy('periodo'),
                 ]),
             ],
@@ -300,7 +306,6 @@ class NotaController extends Controller
         ]);
     }
 
-
     public function storeRecurso(
         Request $request,
         Instituicao $instituicao,
@@ -370,6 +375,8 @@ class NotaController extends Controller
     public function pauta(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
         Request $request
     ) {
@@ -395,19 +402,24 @@ class NotaController extends Controller
         return Inertia::render('pautas/show', [
             'instituicao' => [
                 'id' => $instituicao->id,
-                'nome' => $instituicao->nome,
             ],
             'cursoTutelado' => [
                 'id' => $cursoTutelado->id,
                 'curso' => $cursoTutelado->instituicaoCurso?->curso,
+            ],
+            'cursoClasse' => [
+                'id' => $cursoClasse->id,
+            ],
+            'cursoClasseTurno' => [
+                'id' => $cursoClasseTurno->id,
             ],
             'turma' => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'curso' => $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso,
                 'instituicao' => $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoTutora,
-                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
-                 'turno' => $turma->cursoClasseTurno?->turno?->nome,
+                'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
+                'turno' => $turma->cursoClasseTurno?->turno?->nome,
             ],
             'pauta' => $pautaData,
             'periodo' => $periodo,

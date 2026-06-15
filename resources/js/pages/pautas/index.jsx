@@ -1,12 +1,32 @@
-import { Link } from '@inertiajs/react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { BookOpen, ChevronLeft } from 'lucide-react'
-import { EmptyState } from '@/components/empty-state'
-import { Button } from '@/components/ui/button'
+import { Link } from '@inertiajs/react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { BookOpen, ChevronLeft } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
+import { Button } from '@/components/ui/button';
+import { pauta } from '@/actions/App/Http/Controllers/NotaController';
 
-export default function Index({ turmas = [], cursoTutelado = null }) {
-  const isEmpty = !turmas || turmas.length === 0
+export default function Index({
+  instituicao,
+  cursoTutelado,
+  cursoClasse,
+  cursoClasseTurno,
+  turmas = [],
+}) {
+  const isEmpty = !turmas || turmas.length === 0;
+  console.log({
+    instituicao,
+    cursoTutelado,
+    cursoClasse,
+    cursoClasseTurno,
+    turmas,
+  });
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
@@ -14,7 +34,7 @@ export default function Index({ turmas = [], cursoTutelado = null }) {
         {cursoTutelado && (
           <Link href={`/instituicoes/${cursoTutelado.id}`}>
             <Button variant="ghost" size="sm" className="mb-2">
-              <ChevronLeft className="size-4 mr-1" />
+              <ChevronLeft className="mr-1 size-4" />
               Voltar
             </Button>
           </Link>
@@ -22,7 +42,7 @@ export default function Index({ turmas = [], cursoTutelado = null }) {
         <h1 className="text-2xl font-bold">
           {cursoTutelado ? `Pautas — ${cursoTutelado.curso?.nome}` : 'Pautas'}
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="mt-1 text-sm text-muted-foreground">
           Selecione uma turma para visualizar a pauta
         </p>
       </div>
@@ -38,11 +58,20 @@ export default function Index({ turmas = [], cursoTutelado = null }) {
           {turmas.map((turma) => (
             <Link
               key={turma.id}
-              href={`/instituicoes/${turma.instituicao?.id}/cursos-tutelados/${turma.cursoTuteladoId}/turmas/${turma.id}/pauta`}
+              href={
+                pauta({
+                  instituicao: instituicao.id,
+                  cursoTutelado: cursoTutelado.id,
+                  cursoClasse: turma.cursoClasse.id,
+                  cursoClasseTurno: turma.cursoClasseTurno.id,
+                  turma: turma.id,
+                }).url
+              }
             >
-              <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+              <Card className="h-full cursor-pointer transition-shadow hover:shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-lg">{turma.nome} - {turma.classe} -{turma.turno}
+                  <CardTitle className="text-lg">
+                    {turma.nome} - {turma.classe} -{turma.turno}
                   </CardTitle>
                   <CardDescription>
                     {turma.curso?.nome || 'Sem curso'}
@@ -52,7 +81,9 @@ export default function Index({ turmas = [], cursoTutelado = null }) {
                   <div className="space-y-2">
                     <div className="flex flex-wrap gap-1">
                       {turma.instituicao?.nome && (
-                        <Badge variant="secondary">{turma.instituicao.nome}</Badge>
+                        <Badge variant="secondary">
+                          {turma.instituicao.nome}
+                        </Badge>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -66,5 +97,5 @@ export default function Index({ turmas = [], cursoTutelado = null }) {
         </div>
       )}
     </div>
-  )
+  );
 }

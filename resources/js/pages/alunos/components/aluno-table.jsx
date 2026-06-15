@@ -2,18 +2,45 @@ import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Filter, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 
-export function AlunoTable({ data, deleteFn }) {
+export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
   const isEmpty = !data || data.length === 0;
 
   return (
-    <Card className="gap-0 w-full max-w-7xl mx-auto">
+    <Card className="mx-auto w-full max-w-7xl gap-0">
       <CardHeader className="border-b">
         <CardTitle>Alunos</CardTitle>
         <CardDescription>Lista de alunos cadastrados</CardDescription>
@@ -38,9 +65,9 @@ export function AlunoTable({ data, deleteFn }) {
             title="Nenhum aluno cadastrado"
             description="Comece adicionando o primeiro aluno à tabela"
             action={{
-              label: "Adicionar Aluno",
+              label: 'Adicionar Aluno',
               href: '/alunos/create',
-              variant: "outline",
+              variant: 'outline',
             }}
           />
         ) : (
@@ -62,11 +89,21 @@ export function AlunoTable({ data, deleteFn }) {
                   className="hover:cursor-pointer"
                   onClick={() => router.visit(`/alunos/${aluno.id}`)}
                 >
-                  <TableCell className="px-4 font-medium">{aluno.nome}</TableCell>
-                  <TableCell className="px-4 font-medium">{aluno.curso}</TableCell>
-                  <TableCell className="px-4 font-medium">{aluno.turno}</TableCell>
-                  <TableCell className="px-4 font-medium">{aluno.turma}</TableCell>
-                  <TableCell className="px-4 font-medium">{aluno.classe}</TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {aluno.nome}
+                  </TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {aluno.curso}
+                  </TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {aluno.turno}
+                  </TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {aluno.turma}
+                  </TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {aluno.classe}
+                  </TableCell>
                   <TableCell className="px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -110,16 +147,37 @@ export function AlunoTable({ data, deleteFn }) {
         )}
       </CardContent>
 
-      {!isEmpty && (
+      {/* [ALTERADO] paginação dinâmica em vez de estática */}
+      {pagination?.current_page && (
         <CardFooter className="justify-between">
-          <span className="text-muted-foreground">Página 1 de 4</span>
+          <span className="text-muted-foreground">
+            Página {pagination.current_page} de {pagination.last_page}
+          </span>
+
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious href="#" />
+                <PaginationPrevious
+                  onClick={() => onPageChange(pagination.current_page - 1)}
+                  disabled={pagination.current_page === 1}
+                  className={
+                    pagination.current_page === 1
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
               </PaginationItem>
+
               <PaginationItem>
-                <PaginationNext href="#" />
+                <PaginationNext
+                  onClick={() => onPageChange(pagination.current_page + 1)}
+                  disabled={pagination.current_page === pagination.last_page}
+                  className={
+                    pagination.current_page === pagination.last_page
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>

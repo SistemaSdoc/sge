@@ -25,7 +25,7 @@ export default function PautasCursos({ cursosTutelados }) {
             {cursosTutelados.map((ct) => (
               <Link
                 key={ct.id}
-                href={`/instituicoes/${ct.instituicao?.id}/cursos-tutelados/${ct.id}/pautas`}
+                href={`/instituicoes/${ct.instituicao?.id}/cursos-tutelados/${ct.id}/turmas`}
               >
                 <Card className="cursor-pointer hover:shadow-lg transition-shadow h-full">
                   <CardHeader>

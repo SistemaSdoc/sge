@@ -24,10 +24,25 @@ export default function Index({ avisos }) {
     });
   };
 
+  const handlePageChange = (page) => {
+    router.visit('/avisos', {
+      data: { page },
+      preserveScroll: true,
+    });
+  };
+
   return (
     <>
       <div className="mx-auto w-full max-w-7xl p-6">
-        <CursoTable avisos={avisos} deleteFn={setAvisoParaExcluir} />
+        <CursoTable
+          avisos={avisos.data}
+          deleteFn={setAvisoParaExcluir}
+          pagination={{
+            current_page: avisos.current_page,
+            last_page: avisos.last_page,
+          }}
+          onPageChange={handlePageChange}
+        />
       </div>
 
       <Dialog
