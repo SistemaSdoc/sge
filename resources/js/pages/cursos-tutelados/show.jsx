@@ -25,6 +25,15 @@ export default function Show({ cursoTutelado }) {
   const cursoTuteladoId = cursoTutelado.id;
   const cursoId = cursoTutelado.curso.id;
 
+  const handlePageChange = (page) => {
+    router.visit(`/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}`, {
+      data: { page },
+      preserveScroll: true,
+    });
+
+
+  };
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       {/* Header */}
@@ -180,6 +189,11 @@ export default function Show({ cursoTutelado }) {
             instituicaoId={instituicaoId}
             cursoTuteladoId={cursoTuteladoId}
             turmas={cursoTutelado.turmas}
+            pagination={{
+              current_page: cursoTutelado.turmas?.current_page,
+              last_page: cursoTutelado.turmas?.last_page,
+            }}
+            onPageChange={handlePageChange}
           />
         </TabsContent>
 
@@ -188,6 +202,11 @@ export default function Show({ cursoTutelado }) {
             instituicaoId={instituicaoId}
             cursoTuteladoId={cursoTuteladoId}
             professores={cursoTutelado.professores}
+            pagination={{
+              current_page: cursoTutelado.professores?.current_page,
+              last_page: cursoTutelado.professores?.last_page,
+            }}
+            onPageChange={handlePageChange}
           />
         </TabsContent>
       </Tabs>

@@ -9,7 +9,14 @@ import { MoreHorizontalIcon, Minus, BookOpenIcon } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 
 
-export function TabProfessores({ professores,instituicaoId, cursoTuteladoId }) {
+export function TabProfessores({
+   professores,
+  pagination = {},
+  onPageChange,
+  deleteProfessor,
+  instituicaoId, 
+  cursoTuteladoId 
+}) {
   const isEmpty = !professores || professores.length === 0;
 
   return (
@@ -49,7 +56,7 @@ export function TabProfessores({ professores,instituicaoId, cursoTuteladoId }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {professores.map(professor => (
+              {professores.data.map(professor => (
                 <TableRow key={professor.id}>
                   <TableCell className="px-4 font-medium">{professor.nome}</TableCell>
                   <TableCell>{professor.tipo ?? <Minus size={15} className="text-muted-foreground" />}</TableCell>
@@ -76,13 +83,37 @@ export function TabProfessores({ professores,instituicaoId, cursoTuteladoId }) {
         )}
       </CardContent>
 
-      {!isEmpty && (
+       {pagination?.current_page && (
         <CardFooter className="justify-between">
-          <span className="text-muted-foreground">Página 1 de 1</span>
+          <span className="text-muted-foreground">
+            Página {pagination.current_page} de {pagination.last_page}
+          </span>
+
           <Pagination>
             <PaginationContent>
-              <PaginationItem><PaginationPrevious href="#" /></PaginationItem>
-              <PaginationItem><PaginationNext href="#" /></PaginationItem>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => onPageChange(pagination.current_page - 1)}
+                  disabled={pagination.current_page === 1}
+                  className={
+                    pagination.current_page === 1
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
+              </PaginationItem>
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => onPageChange(pagination.current_page + 1)}
+                  disabled={pagination.current_page === pagination.last_page}
+                  className={
+                    pagination.current_page === pagination.last_page
+                      ? 'pointer-events-none opacity-50'
+                      : ''
+                  }
+                />
+              </PaginationItem>
             </PaginationContent>
           </Pagination>
         </CardFooter>

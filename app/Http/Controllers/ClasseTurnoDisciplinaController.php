@@ -39,7 +39,7 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
             ->paginate(5);
 
         return response()->json(
-            $disciplinas->through(fn($ctd) => [
+            $disciplinas->through(fn ($ctd) => [
                 'id' => $ctd->id,
                 'disciplina' => [
                     'id' => $ctd->disciplina->id,
@@ -81,7 +81,7 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
             ->get();
 
         return response()->json(
-            $disciplinas->map(fn($ctd) => [
+            $disciplinas->map(fn ($ctd) => [
                 'id' => $ctd->id,
                 'disciplina' => [
                     'id' => $ctd->disciplina->id,
