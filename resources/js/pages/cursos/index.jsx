@@ -34,14 +34,14 @@ export default function Index({ cursos }) {
   return (
     <>
       <div className="mx-auto w-full max-w-7xl p-6">
-        <CursoTable 
-        cursos={cursos.data}
-         deleteFn={setCursoParaExcluir}
-         pagination={{
-          current_page: cursos.current_page,
-          last_page: cursos.last_page,
-        }}
-        onPageChange={handlePageChange}
+        <CursoTable
+          cursos={cursos.data}
+          deleteFn={setCursoParaExcluir}
+          pagination={{
+            current_page: cursos.current_page,
+            last_page: cursos.last_page,
+          }}
+          onPageChange={handlePageChange}
         />
       </div>
 

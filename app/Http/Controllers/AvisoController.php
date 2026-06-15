@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AvisoRequest;
 use App\Models\Aviso;
 use App\Models\GrupoPap;
 use App\Models\User;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class AvisoController extends Controller // implements HasMiddleware
 {
@@ -37,32 +39,20 @@ class AvisoController extends Controller // implements HasMiddleware
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        $avisos->through(fn($a) => [
-            'id' => $a->id,
-            'type' => $a->tipo,
-            'titulo' => $a->titulo,
-            'descricao' => $a->descricao,
-            'data' => $a->data?->toISOString(),
-            'ativo' => $a->ativo,
-            'destinatario' => $a->destinatario,
-            'created_at' => $a->created_at->toISOString(),
+        return Inertia::render('avisos/index', [
+            'avisos' => $avisos,
         ]);
 
-        return response()->json($avisos);
+    }
+
+    public function create()
+    {
+        return Inertia::render('avisos/create');
     }
 
     // POST /api/avisos
-    public function store(Request $request)
+    public function store(AvisoRequest $request)
     {
-        $request->validate([
-            'titulo' => 'required|string|max:255',
-            'descricao' => 'nullable|string',
-            'tipo' => 'required|in:aviso,evento,urgente',
-            'data' => 'nullable|date',
-            'ativo' => 'boolean',
-            'destinatario' => 'required|in:todos,alunos,professores',
-        ]);
-
         /** @var User $user */
         $user = Auth::user();
 
@@ -72,17 +62,30 @@ class AvisoController extends Controller // implements HasMiddleware
             'tipo' => $request->tipo,
             'data' => $request->data,
             'ativo' => $request->ativo ?? true,
-            'instituicao_id' => $user?->instituicaoFiltro(),
+            'instituicao_id' => $user->instituicao_id,
             'destinatario' => $request->destinatario,
         ]);
 
-        return response()->json(['data' => $aviso], 201);
+        return to_route('avisos.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Aviso criado com sucesso!',
+        ]);
+
     }
 
     // POST /api/avisos
     public function show(Aviso $aviso)
     {
-        return response()->json(['data' => $aviso]);
+        return Inertia::render('avisos.show', [
+            'aviso' => $aviso,
+        ]);
+    }
+
+    public function edit(Aviso $aviso)
+    {
+        return Inertia::render('avisos/edit', [
+            'aviso' => $aviso,
+        ]);
     }
 
     // PUT /api/avisos/{aviso}
@@ -99,7 +102,11 @@ class AvisoController extends Controller // implements HasMiddleware
 
         $aviso->update($request->only('titulo', 'descricao', 'tipo', 'data', 'ativo', 'destinatario'));
 
-        return response()->json(status: 200);
+        return to_route('avisos.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Aviso actualizado com sucesso!',
+        ]);
+
     }
 
     // DELETE /api/avisos/{aviso}
@@ -107,7 +114,10 @@ class AvisoController extends Controller // implements HasMiddleware
     {
         $aviso->delete();
 
-        return response()->json(status: 200);
+        return to_route('avisos.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Aviso removido com sucesso!',
+        ]);
     }
 
     // GET /api/aluno/avisos — para o card do aluno
@@ -161,7 +171,11 @@ class AvisoController extends Controller // implements HasMiddleware
             })
             ->values();
 
-        return response()->json(['data' => $combined]);
+        // return response()->json(['data' => $combined]);
+
+        return Inertia::render('avisos/index', [
+            'avisos' => $combined,
+        ]);
     }
 
     // GET /api/professor/avisos — para o card do professor
@@ -189,6 +203,10 @@ class AvisoController extends Controller // implements HasMiddleware
                 'data' => $a->data?->toISOString(),
             ]);
 
-        return response()->json(['data' => $avisos]);
+        // return response()->json(['data' => $avisos]);
+
+        return Inertia::render('avisos/index', [
+            'avisos' => $avisos,
+        ]);
     }
 }

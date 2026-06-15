@@ -14,14 +14,14 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class InscricaoController extends Controller // implements HasMiddleware
 {
     public function __construct(
         private InscricaoService $inscricaoService
-    ) {
-    }
+    ) {}
 
     /*public static function middleware(): array
     {
@@ -48,15 +48,15 @@ class InscricaoController extends Controller // implements HasMiddleware
         ])
             ->when(
                 $instituicaoId,
-                fn($q) => $q->whereHas(
+                fn ($q) => $q->whereHas(
                     'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn($q) => $q->where('instituicao_id', $instituicaoId)
+                    fn ($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
             ->latest()->paginate(10);
 
         return Inertia::render('inscricoes/index', [
-            'inscricoes' => $inscricoes->through(fn($insc) => [
+            'inscricoes' => $inscricoes->through(fn ($insc) => [
                 'id' => $insc->id,
                 'status' => $insc->status,
                 'candidato' => $insc->candidato->nome,
@@ -76,20 +76,20 @@ class InscricaoController extends Controller // implements HasMiddleware
         ])->get();
 
         return Inertia::render('inscricoes/create', [
-            'instituicoes' => $instituicoes->map(fn($inst) => [
+            'instituicoes' => $instituicoes->map(fn ($inst) => [
                 'id' => $inst->id,
                 'nome' => $inst->nome,
-                'cursos' => $inst->instituicaoCursos->map(fn($ci) => [
+                'cursos' => $inst->instituicaoCursos->map(fn ($ci) => [
                     'id' => $ci->id,
                     'nome' => $ci->curso->nome,
                     'turnos' => $ci->cursoTutelado?->cursoClasses
-                        ->filter(fn($c) => $c->classe?->nome === '10ª')
-                        ->flatMap(fn($c) => $c->turnos->map(fn($t) => [
+                        ->filter(fn ($c) => $c->classe?->nome === '10ª')
+                        ->flatMap(fn ($c) => $c->turnos->map(fn ($t) => [
                             'id' => $t->id,
                             'nome' => $t->turno->nome,
                         ]))->values(),
-                ])->filter(fn($ci) => $ci['turnos']->isNotEmpty())->values(),
-            ])->filter(fn($inst) => $inst['cursos']->isNotEmpty())->values(),
+                ])->filter(fn ($ci) => $ci['turnos']->isNotEmpty())->values(),
+            ])->filter(fn ($inst) => $inst['cursos']->isNotEmpty())->values(),
         ]);
     }
 
@@ -187,7 +187,6 @@ class InscricaoController extends Controller // implements HasMiddleware
         ]);
     }*/
 
-
     public function update(UpdateInscricaoRequest $request, Inscricao $inscricao)
     {
         $inscricao->load([
@@ -202,7 +201,7 @@ class InscricaoController extends Controller // implements HasMiddleware
         } catch (\InvalidArgumentException $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         } catch (\Exception $e) {
-            \Log::error('Erro ao atualizar inscrição', [
+            Log::error('Erro ao atualizar inscrição', [
                 'inscricao_id' => $inscricao->id,
                 'error' => $e->getMessage(),
             ]);

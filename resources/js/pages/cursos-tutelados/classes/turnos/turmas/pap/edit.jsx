@@ -54,6 +54,7 @@ export default function Edit() {
     >
       {({ errors, processing }) => (
         <GrupoPapForm
+          title="Editar grupo PAP"
           errors={errors}
           processing={processing}
           professores={professores}

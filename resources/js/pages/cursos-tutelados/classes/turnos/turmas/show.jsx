@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { TabAlunos } from './components/tabs/tab-alunos';
+import { TabRecurso } from './components/tabs/tab-recurso';
 import { TabGruposPAP } from './components/tabs/tab-grupos-pap';
 import { TabDisciplinas } from './components/tabs/tab-disciplinas';
 import { Badge } from '@/components/ui/badge';
@@ -37,6 +38,11 @@ export default function Show({
 
   const classe = turma.curso_classe_turno?.curso_classe?.classe;
   const turno = turma.curso_classe_turno?.turno;
+
+  // ── Buscar pauta final para saber quantos alunos estão em recurso ──
+  const { pautaRecurso } = usePage().props
+
+  const totalRecurso = pautaRecurso?.resumo?.total ?? 0
 
   // base para as rotas nested
   const baseUrl = `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
@@ -79,6 +85,23 @@ export default function Show({
                 >
                   Progressão de Alunos
                 </DropdownMenuItem>
+
+                {/* ── NOVO ── */}
+                {totalRecurso > 0 && (
+                  <DropdownMenuItem
+                    className="text-blue-600"
+                    onClick={() =>
+                      router.visit(
+                        `/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/recurso`,
+                      )
+                    }
+                  >
+                    Lançar Recurso
+                    <Badge className="ml-auto bg-blue-50 text-blue-600 text-xs">
+                      {totalRecurso} alunos
+                    </Badge>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive">
                   Remover
@@ -119,6 +142,16 @@ export default function Show({
           {classe?.nome === '13ª' && (
             <TabsTrigger value="grupos-pap">Grupos para PAP</TabsTrigger>
           )}
+
+          {/* ── NOVO: tab de recurso só aparece se houver alunos ── */}
+          {totalRecurso > 0 && (
+            <TabsTrigger value="recurso" className="text-blue-600">
+              Recurso
+              <Badge className="ml-2 bg-blue-50 text-blue-600 text-xs">
+                {totalRecurso}
+              </Badge>
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="alunos">
@@ -149,6 +182,17 @@ export default function Show({
               cursoTuteladoId={cursoTuteladoId}
               cursoClasseId={cursoClasseId}
               cursoClasseTurnoId={cursoClasseTurnoId}
+            />
+          </TabsContent>
+        )}
+
+        {totalRecurso > 0 && (
+          <TabsContent value="recurso">
+            <TabRecurso
+              alunos={pautaRecurso?.alunos ?? []}
+              instituicaoId={instituicaoId}
+              cursoId={cursoTuteladoId}
+              turmaId={turmaId}
             />
           </TabsContent>
         )}

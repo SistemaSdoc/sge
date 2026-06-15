@@ -1,12 +1,27 @@
-import { Loader2 } from 'lucide-react';
+import LancamentosRecursoTable from '../../disciplinas/notas/components/lancamentos-recurso-table'
+import { router, usePage } from '@inertiajs/react'
+import { useState } from 'react'
 
-export function TabRecurso({ turma }) {
-  // TODO: implementar quando o backend tiver a rota de recurso
+export function TabRecurso({ alunos, instituicaoId, cursoId, turmaId }) {
+  const [isPending, setIsPending] = useState(false)
+
+  function handleSubmit(payload) {
+    router.post(
+      `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoId}/turmas/${turmaId}/notas/recurso`,
+      payload,
+      {
+        preserveScroll: true,
+        onStart: () => setIsPending(true),
+        onFinish: () => setIsPending(false),
+      }
+    )
+  }
+
   return (
-    <div className="flex justify-center py-20">
-      <p className="text-sm text-muted-foreground">
-        Funcionalidade de recurso em desenvolvimento.
-      </p>
-    </div>
-  );
+    <LancamentosRecursoTable
+      alunos={alunos ?? []}
+      isPending={isPending}
+      onSubmit={handleSubmit}
+    />
+  )
 }

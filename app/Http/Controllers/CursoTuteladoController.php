@@ -221,8 +221,9 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
                 )->with('curso:id,nome', 'cursoTutelado'),
             ])->paginate(5);
 
-        return response()->json(
-            $colegios->through(fn($colegio) => [
+        return Inertia::render('colegios/index', [
+            'instituicao' => ['id' => $instituicao->id],
+            'colegios' => $colegios->through(fn($colegio) => [
                 'id' => $colegio->id,
                 'nome' => $colegio->nome,
                 'tipo' => $colegio->tipo,
@@ -231,8 +232,8 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
                     'nome' => $ic->curso->nome,
                     'curso_tutelado_id' => $ic->cursoTutelado->id,
                 ]),
-            ])
-        );
+            ]),
+        ]);
     }
 
     public function alunos(Instituicao $instituicao, CursoTutelado $cursoTutelado)
@@ -256,50 +257,78 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
             },
         ]);
 
-        return response()->json([
-            'curso' => $cursoTutelado->instituicaoCurso->curso->nome,
-            'colegio' => [
-                'id' => $cursoTutelado->instituicaoCurso->instituicao->id,
-                'nome' => $cursoTutelado->instituicaoCurso->instituicao->nome,
-            ],
-            'classes' => $cursoTutelado->cursoClasses->map(fn($cc) => [
-                'id' => $cc->id,
-                'nome' => $cc->classe->nome,
-                'turnos' => $cc->turnos->map(fn($cct) => [
-                    'id' => $cct->id,
-                    'nome' => $cct->turno->nome,
-                    'turmas' => $cct->turmas->map(fn($turma) => [
-                        'id' => $turma->id,
-                        'nome' => $turma->nome,
-                        'disciplinas' => $turma->turmaDisciplinaProfessor
-                            ->groupBy('classe_turno_disciplina_id')
-                            ->map(fn($tdps) => [
-                                'id' => $tdps->first()->classeTurnoDisciplina->disciplina->id,
-                                'nome' => $tdps->first()->classeTurnoDisciplina->disciplina->nome,
-                                'professor' => $tdps->first()->professor->user->nome,
-                            ])->values(),
-                        'grupos_pap' => $turma->gruposPap->map(fn($grupo) => [
-                            'id' => $grupo->id,
-                            'nome_grupo' => $grupo->nome_grupo,
-                            'tema_grupo' => $grupo->tema_grupo,
-                            'status' => $grupo->status,
-                            'nota_final' => $grupo->nota_final,
-                            'data_defesa' => $grupo->data_defesa,
-                            'professor' => $grupo->professor?->user?->nome,
-                            'elementos' => $grupo->elementos->map(fn($el) => [
-                                'id' => $el->aluno_id,
-                                'nome' => $el->aluno?->inscricao?->candidato?->nome,
+        return Inertia::render('colegios/curso-show', [
+            'cursoTutelado' => [
+                'id' => $cursoTutelado->id,
+                'curso' => $cursoTutelado->instituicaoCurso->curso->nome,
+                'colegio' => [
+                    'id' => $cursoTutelado->instituicaoCurso->instituicao->id,
+                    'nome' => $cursoTutelado->instituicaoCurso->instituicao->nome,
+                ],
+                'classes' => $cursoTutelado->cursoClasses->map(fn($cc) => [
+                    'id' => $cc->id,
+                    'nome' => $cc->classe->nome,
+                    'turnos' => $cc->turnos->map(fn($cct) => [
+                        'id' => $cct->id,
+                        'nome' => $cct->turno->nome,
+                        'turmas' => $cct->turmas->map(fn($turma) => [
+                            'id' => $turma->id,
+                            'nome' => $turma->nome,
+                            'disciplinas' => $turma->turmaDisciplinaProfessor
+                                ->groupBy('classe_turno_disciplina_id')
+                                ->map(fn($tdps) => [
+                                    'id' => $tdps->first()->classeTurnoDisciplina->disciplina->id,
+                                    'nome' => $tdps->first()->classeTurnoDisciplina->disciplina->nome,
+                                    'professor' => $tdps->first()->professor->user->nome,
+                                ])->values(),
+                            'grupos_pap' => $turma->gruposPap->map(fn($grupo) => [
+                                'id' => $grupo->id,
+                                'nome_grupo' => $grupo->nome_grupo,
+                                'tema_grupo' => $grupo->tema_grupo,
+                                'status' => $grupo->status,
+                                'nota_final' => $grupo->nota_final,
+                                'data_defesa' => $grupo->data_defesa,
+                                'professor' => $grupo->professor?->user?->nome,
+                                'elementos' => $grupo->elementos->map(fn($el) => [
+                                    'id' => $el->aluno_id,
+                                    'nome' => $el->aluno?->inscricao?->candidato?->nome,
+                                ]),
                             ]),
-                        ]),
-                        'alunos' => $turma->alunosActivos->map(fn($aluno) => [
-                            'id' => $aluno->id,
-                            'nome' => $aluno->inscricao?->candidato?->nome,
-                            'matricula' => $aluno->matricula,
-                            'email' => $aluno->user?->email,
+                            'alunos' => $turma->alunosActivos->map(fn($aluno) => [
+                                'id' => $aluno->id,
+                                'nome' => $aluno->inscricao?->candidato?->nome,
+                                'matricula' => $aluno->matricula,
+                                'email' => $aluno->user?->email,
+                            ]),
                         ]),
                     ]),
                 ]),
-            ]),
+            ],
+        ]);
+    }
+
+    public function showColegio(Instituicao $instituicao, Instituicao $colegio)
+    {
+        $colegio->load([
+            'instituicaoCursos' => fn($q) => $q->whereHas(
+                'cursoTutelado',
+                fn($q) => $q->where('instituicao_tutora_id', $instituicao->id)
+            )->with('curso:id,nome', 'cursoTutelado:id,instituicao_curso_id'),
+        ]);
+
+        return Inertia::render('colegios/show', [
+            'colegio' => [
+                'id' => $colegio->id,
+                'nome' => $colegio->nome,
+                'cursos' => $colegio->instituicaoCursos
+                    ->filter(fn($ic) => $ic->cursoTutelado !== null)
+                    ->map(fn($ic) => [
+                        'id' => $ic->curso->id,
+                        'nome' => $ic->curso->nome,
+                        'curso_tutelado_id' => $ic->cursoTutelado->id,
+                    ])->values(),
+            ],
+            'instituicao' => ['id' => $instituicao->id],
         ]);
     }
 }

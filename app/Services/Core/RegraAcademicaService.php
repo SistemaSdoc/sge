@@ -2,9 +2,9 @@
 
 namespace App\Services\Core;
 
+use App\Models\CursoClasse;
 use App\Models\Nota;
 use App\Models\TurmaAluno;
-use App\Models\CursoClasse;
 use Illuminate\Support\Collection;
 
 class RegraAcademicaService
@@ -18,6 +18,7 @@ class RegraAcademicaService
         $turmaAluno->loadMissing([
             'turma.cursoClasseTurno.cursoClasse.classe',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
+            'turma.turmaDisciplinaProfessor',
             'notas.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
         ]);
 
@@ -49,7 +50,7 @@ class RegraAcademicaService
 
         $temEEF = $turmaAluno->notas
             ->whereIn('periodo', [1, 2, 3])
-            ->contains(fn($n) => $n->situacao_trimestral === 'EEF');
+            ->contains(fn ($n) => $n->situacao_trimestral === 'EEF');
 
         if ($temEEF) {
             return $this->resultado(
@@ -90,9 +91,9 @@ class RegraAcademicaService
 
             $disciplina = $nota->turmaDisciplinaProfessor
                 ?->classeTurnoDisciplina
-                    ?->disciplina;
+                ?->disciplina;
 
-            if (!$disciplina) {
+            if (! $disciplina) {
                 continue;
             }
 
@@ -167,17 +168,13 @@ class RegraAcademicaService
 
         $mensagem = match ($situacaoGlobal) {
 
-            'transita' =>
-            'Aluno aprovado em todas as disciplinas.',
+            'transita' => 'Aluno aprovado em todas as disciplinas.',
 
-            'transita_com_deficiencia' =>
-            'Aluno transita com deficiência.',
+            'transita_com_deficiencia' => 'Aluno transita com deficiência.',
 
-            'recurso' =>
-            'Aluno vai ao recurso.',
+            'recurso' => 'Aluno vai ao recurso.',
 
-            'EEF' =>
-            'Aluno reprovado por faltas.',
+            'EEF' => 'Aluno reprovado por faltas.',
         };
 
         return $this->resultado(
@@ -217,7 +214,7 @@ class RegraAcademicaService
 
                 $disciplinaId = $nota->turmaDisciplinaProfessor
                     ?->classeTurnoDisciplina
-                        ?->disciplina_id;
+                    ?->disciplina_id;
 
                 return $disciplinasRecurso->contains($disciplinaId);
             });
@@ -245,9 +242,9 @@ class RegraAcademicaService
 
             $disciplina = $nota->turmaDisciplinaProfessor
                 ?->classeTurnoDisciplina
-                    ?->disciplina;
+                ?->disciplina;
 
-            if (!$disciplina) {
+            if (! $disciplina) {
                 continue;
             }
 
@@ -290,14 +287,11 @@ class RegraAcademicaService
 
         $mensagem = match ($situacaoGlobal) {
 
-            'pendente' =>
-            'Recurso ainda não concluído.',
+            'pendente' => 'Recurso ainda não concluído.',
 
-            'reprovado_recurso' =>
-            'Aluno reprovado no recurso.',
+            'reprovado_recurso' => 'Aluno reprovado no recurso.',
 
-            default =>
-            'Aluno aprovado no recurso.',
+            default => 'Aluno aprovado no recurso.',
         };
 
         return $this->resultado(
@@ -320,7 +314,7 @@ class RegraAcademicaService
         )
             ->whereHas(
                 'classe',
-                fn($q) => $q->where(
+                fn ($q) => $q->where(
                     'ordem',
                     $ordemClasseActual + 1
                 )
@@ -331,7 +325,7 @@ class RegraAcademicaService
             )
             ->first();
 
-        if (!$proximaCursoClasse) {
+        if (! $proximaCursoClasse) {
             return null;
         }
 

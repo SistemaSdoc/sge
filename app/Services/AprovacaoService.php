@@ -9,14 +9,14 @@ class AprovacaoService
 {
     public function __construct(
         private RegraAcademicaService $regraAcademicaService
-    ) {
-    }
+    ) {}
 
     public function calcularAprovacao(string $turmaAlunoId): array
     {
         $turmaAluno = TurmaAluno::with([
             'turma.cursoClasseTurno.cursoClasse.classe',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
+            'turma.turmaDisciplinaProfessor',
             'notas.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
         ])->findOrFail($turmaAlunoId);
 
@@ -30,6 +30,7 @@ class AprovacaoService
         $turmaAluno = TurmaAluno::with([
             'notas.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
             'turma.cursoClasseTurno.cursoClasse.classe',
+            'turma.turmaDisciplinaProfessor',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
         ])->findOrFail($turmaAlunoId);
 

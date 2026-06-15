@@ -47,6 +47,7 @@ export default function Create() {
     >
       {({ errors, processing }) => (
         <GrupoPapForm
+          title="Criar grupo PAP"
           errors={errors}
           processing={processing}
           professores={professores}

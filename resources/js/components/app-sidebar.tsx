@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import {
   BoxSelectIcon,
+  FileTextIcon,
   GraduationCapIcon,
   LayersIcon,
   LayoutGrid,
@@ -54,8 +55,38 @@ const mainNavItems: NavItem[] = [
   },
 
   {
+    title: 'Turmas',
+    href: `/turmas`,
+    icon: LayersIcon,
+  },
+
+  {
+    title: 'Pautas',
+    href: `/pautas`,
+    icon: FileTextIcon,
+  },
+
+  {
     title: 'Professores',
     href: `/professores`,
+    icon: Users,
+  },
+
+  {
+    title: 'Inscrições',
+    href: `/inscricoes`,
+    icon: LayersIcon,
+  },
+  
+  {
+    title: 'Alunos',
+    href: `/alunos`,
+    icon: Users,
+  },
+
+  {
+    title: 'Avisos',
+    href: `/avisos`,
     icon: Users,
   },
 ];

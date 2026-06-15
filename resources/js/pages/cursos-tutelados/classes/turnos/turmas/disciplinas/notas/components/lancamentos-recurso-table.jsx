@@ -32,17 +32,15 @@ function SituacaoBadge({ valor }) {
         : <Badge className="bg-red-50 text-destructive border-red-200">Reprovado</Badge>
 }
 
-export default function LancamentosRecursoTable({ data, onSubmit, isPending }) {
+export default function LancamentosRecursoTable({ alunos = [], onSubmit, isPending }) {
     const [notas, setNotas] = useState({})
-
-    const alunos = data?.alunos ?? []
     const isEmpty = alunos.length === 0
 
     useEffect(() => {
         if (alunos.length > 0) {
             setNotas(buildInitialNotas(alunos))
         }
-    }, [data])
+    }, [alunos])
 
     function handleChange(alunoId, sigla, valor) {
         setNotas(prev => ({
