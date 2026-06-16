@@ -100,7 +100,6 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
         Route::get('/alunos', [CursoTuteladoController::class, 'alunos']);
 
         Route::prefix('turmas/{turma}')->group(function () {
-            Route::get('progressao/preview', [ProgressaoController::class, 'preview']);
             Route::post('progressao', [ProgressaoController::class, 'store']);
             Route::post('progressao/recurso', [ProgressaoController::class, 'storeRecurso']);
             Route::get('finalistas', [FinalistaController::class, 'index']);
@@ -128,7 +127,9 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
                 Route::get('disciplinas/{classeTurnoDisciplina}/mini-pauta/excel', [ExportarMiniPautaController::class, 'exportarDisciplina']);
                 Route::get('pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
                 Route::resource('pap', GrupoPapController::class)->parameters(['pap' => 'grupoPap'])->except('index');
-
+                Route::get('progressao/preview', [ProgressaoController::class, 'preview']);
+                Route::post('progressao', [ProgressaoController::class, 'store']);
+                Route::post('progressao/preview', [ProgressaoController::class, 'store']);
                 Route::put('pap/{grupoPap}/data-defesa', [GrupoPapController::class, 'definirData']);
 
                 Route::resource('pap/{grupoPap}/elementos', ElementoGrupoPapController::class)

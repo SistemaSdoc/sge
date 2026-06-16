@@ -45,7 +45,7 @@ export default function Show({
   const totalRecurso = pautaRecurso?.resumo?.total ?? 0
 
   // base para as rotas nested
-  const baseUrl = `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
+  const baseUrl = `/dashboard/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
@@ -86,6 +86,8 @@ export default function Show({
                       preview({
                         instituicao: instituicaoId,
                         cursoTutelado: cursoTuteladoId,
+                        cursoClasse: cursoClasseId,
+                        cursoClasseTurno: cursoClasseTurnoId,
                         turma: turmaId,
                       }).url,
                     )
