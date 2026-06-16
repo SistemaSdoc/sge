@@ -38,6 +38,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
+import { create, show, edit } from '@/actions/App/Http/Controllers/AvisoController';
 
 export default function avisoTable({
   avisos,
@@ -54,7 +55,7 @@ export default function avisoTable({
         <CardDescription>Lista de avisos cadastrados</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href="/avisos/create">Adicionar</Link>
+            <Link href={create().url}>Adicionar</Link>
           </Button>
         </CardAction>
       </CardHeader>
@@ -68,7 +69,7 @@ export default function avisoTable({
             description="Comece adicionando a primeiro aviso à tabela"
             action={{
               label: 'Adicionar aviso',
-              href: '/avisos/create',
+              href: create().url,
               variant: 'outline',
             }}
           />
@@ -89,7 +90,7 @@ export default function avisoTable({
                 <TableRow
                   key={aviso.id}
                   className="hover:avisor-pointer"
-                  onClick={() => router.visit(`/avisos/${aviso.id}`)}
+                  onClick={() => router.visit(show(aviso.id).url)}
                 >
                   <TableCell className="px-4 font-medium">
                     {aviso.titulo}
@@ -124,7 +125,7 @@ export default function avisoTable({
                         <DropdownMenuItem
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.visit(`/avisos/${aviso.id}/edit`);
+                            router.visit(edit(aviso.id).url);
                           }}
                         >
                           Editar

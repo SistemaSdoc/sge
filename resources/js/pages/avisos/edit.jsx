@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { AvisoForm } from './components/aviso-form';
+import { update } from '@/actions/App/Http/Controllers/AvisoController';
 
 export default function Edit({ aviso }) {
   const { put, data, setData, processing, errors } = useForm({
@@ -20,7 +21,7 @@ export default function Edit({ aviso }) {
       processing={processing}
       submitFn={(e) => {
         e.preventDefault();
-        put(`/avisos/${aviso.id}`);
+        put(update(aviso.id).url);
       }}
     />
   );

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlunoController;
+use App\Http\Controllers\AvisoController;
 use App\Http\Controllers\BancaJuriPapController;
 use App\Http\Controllers\CertificadoController;
 use App\Http\Controllers\ClasseController as ClasseControllerGeral;
@@ -53,8 +54,10 @@ Route::get('/certificados/{aluno}', [CertificadoController::class, 'show'])->nam
 
 Route::get('/alunos/{aluno}/turmas-disponiveis', [AlunoController::class, 'turmasDisponiveis']);
 Route::get('/cursos/{curso}/instituicoes-tutoras', [CursosController::class, 'instituicoesTutoras']);
-Route::get('/turmas/{turma}/pauta', [NotaController::class, 'pauta']);
-Route::get('turmas/{turma}/pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
+//Route::get('/turmas/{turma}/pauta', [NotaController::class, 'pauta']);
+//Route::get('turmas/{turma}/pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
+
+Route::get('/pautas/cursos', [NotaController::class, 'indexPautas'])->name('pautas.index');
 
 Route::prefix('aluno')->group(function () {
     Route::get('proximas-aulas', [DashboardAlunoController::class, 'proximasAulas']);
@@ -91,7 +94,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
             ->parameters(['classes' => 'cursoClasse'])
             ->names(['show' => 'cursos-tutelados.classes.show']);
 
-        // Route::resource('turmas', ClasseTurnoTurmaController::class);
+        //Route::resource('turmas', ClasseTurnoTurmaController::class);
 
         Route::get('/alunos', [CursoTuteladoController::class, 'alunos']);
 
@@ -120,6 +123,8 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
             Route::prefix('turmas/{turma}')->group(function () {
                 Route::get('pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);
 
+                Route::get('/pauta', [NotaController::class, 'pauta']);
+                Route::get('pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
                 Route::resource('pap', GrupoPapController::class)->parameters(['pap' => 'grupoPap'])->except('index');
 
                 Route::put('pap/{grupoPap}/data-defesa', [GrupoPapController::class, 'definirData']);
@@ -148,11 +153,19 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
             });
         });
     });
+});
 
-    Route::prefix('classes/{classe}')->group(function () {
-        Route::get('disciplinas', [ClasseControllerGeral::class, 'showDisciplinas']);
-        // Route::resource('turnos', TurnoController::class);
-    });
+Route::resource('avisos', AvisoController::class);
+
+// Card do aluno
+Route::get('aluno/avisos', [AvisoController::class, 'indexAluno']);
+
+// Card do professor
+Route::get('professor/avisos', [AvisoController::class, 'indexProfessor']);
+
+Route::prefix('classes/{classe}')->group(function () {
+    Route::get('disciplinas', [ClasseControllerGeral::class, 'showDisciplinas']);
+    // Route::resource('turnos', TurnoController::class);
 });
 
 Route::get('pap', [GrupoPapController::class, 'index']);

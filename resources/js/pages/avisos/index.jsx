@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import CursoTable from './components/aviso-table';
+import { index, destroy } from '@/actions/App/Http/Controllers/AvisoController';
 
 export default function Index({ avisos }) {
   const [avisoParaExcluir, setAvisoParaExcluir] = useState(null);
@@ -19,13 +20,13 @@ export default function Index({ avisos }) {
       return;
     }
 
-    router.delete(`/avisos/${avisoParaExcluir}`, {
+    router.delete(destroy(avisoParaExcluir).url, {
       onFinish: () => setAvisoParaExcluir(null),
     });
   };
 
   const handlePageChange = (page) => {
-    router.visit('/avisos', {
+    router.visit(index().url, {
       data: { page },
       preserveScroll: true,
     });

@@ -18,8 +18,11 @@ import {
 import { TabTurmas } from './components/tabs/tab-turmas';
 import { TabProfessores } from './components/tabs/tab-professores';
 import { Badge } from '@/components/ui/badge';
-import { show } from '@/actions/App/Http/Controllers/CursoClasseController';
-import { edit } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { show as showClasse } from '@/actions/App/Http/Controllers/CursoClasseController';
+import {
+  edit,
+  show as showCurso,
+} from '@/actions/App/Http/Controllers/CursoTuteladoController';
 
 export default function Show({ cursoTutelado }) {
   const instituicaoId = cursoTutelado.instituicao.id;
@@ -27,12 +30,14 @@ export default function Show({ cursoTutelado }) {
   const cursoId = cursoTutelado.curso.id;
 
   const handlePageChange = (page) => {
-    router.visit(`/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}`, {
-      data: { page },
-      preserveScroll: true,
-    });
-
-
+    router.visit(
+      showCurso({ instituicao: instituicaoId, cursoTutelado: cursoTuteladoId })
+        .url,
+      {
+        data: { page },
+        preserveScroll: true,
+      },
+    );
   };
 
   return (
@@ -121,7 +126,7 @@ export default function Show({ cursoTutelado }) {
                       <TooltipTrigger asChild>
                         <Link
                           href={
-                            show({
+                            showClasse({
                               instituicao: instituicaoId,
                               cursoTutelado: cursoTuteladoId,
                               cursoClasse: c.id,

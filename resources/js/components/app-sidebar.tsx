@@ -8,11 +8,13 @@ import {
   Users,
 } from 'lucide-react';
 import { index as indexAlunos } from '@/actions/App/Http/Controllers/AlunoController';
+import { index as indexAvisos } from '@/actions/App/Http/Controllers/AvisoController';
 import { index as indexClasses } from '@/actions/App/Http/Controllers/ClasseController';
 import { index as indexCursos } from '@/actions/App/Http/Controllers/CursosController';
 import { index as indexGrupos } from '@/actions/App/Http/Controllers/GrupoPapController';
 import { index as indexInscricoes } from '@/actions/App/Http/Controllers/InscricaoController';
 import { index as indexInstituicoes } from '@/actions/App/Http/Controllers/InstituicaoController';
+import { indexPautas } from '@/actions/App/Http/Controllers/NotaController';
 import { index as indexProfessores } from '@/actions/App/Http/Controllers/ProfessorController';
 import { index as indexTurnos } from '@/actions/App/Http/Controllers/TurnoController';
 import AppLogo from '@/components/app-logo';
@@ -70,7 +72,7 @@ const mainNavItems: NavItem[] = [
 
   {
     title: 'Pautas',
-    href: `/pautas/cursos`,
+    href: indexPautas().url,
     icon: FileTextIcon,
   },
 
@@ -100,7 +102,7 @@ const mainNavItems: NavItem[] = [
 
   {
     title: 'Avisos',
-    href: `/avisos`,
+    href: indexAvisos().url,
     icon: Users,
   },
 ];
