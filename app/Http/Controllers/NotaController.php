@@ -173,6 +173,7 @@ class NotaController extends Controller
             'cursoClasse' => $cursoClasse->id,
             'cursoClasseTurno' => $cursoClasseTurno->id,
             'turma' => $turma->id,
+            'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
             'data' => [
                 'tdp_id' => $tdp->id,
                 'disciplina' => [
@@ -274,14 +275,7 @@ class NotaController extends Controller
             (int) $validated['periodo'],
         );
 
-        return redirect()->route('notas.index', [
-            'instituicao' => $instituicao->id,
-            'cursoTutelado' => $cursoTutelado->id,
-            'cursoClasse' => $cursoClasse->id,
-            'cursoClasseTurno' => $cursoClasseTurno->id,
-            'turma' => $turma->id,
-            'classeTurnoDisciplina' => $classeTurnoDisciplinaId,
-        ]);
+        return back();
     }
 
     // ──────────────────────────────────────────────

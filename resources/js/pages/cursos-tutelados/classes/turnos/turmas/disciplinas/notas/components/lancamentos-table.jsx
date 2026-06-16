@@ -78,26 +78,6 @@ export default function LancamentosTable({
             ) : null}
             Lançar
           </Button>
-
-          <Button>
-            <a
-              href={
-                exportarExcel
-                
-                ({
-                  instituicao: instituicaoId,
-                  cursoTutelado: cursoTuteladoId,
-                  cursoClasse: cursoClasseId,
-                  cursoClasseTurno: cursoClasseTurnoId,
-                  turma: turmaId,
-                }).url + `?periodo=${periodo}`
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Exportar
-            </a>
-          </Button>
         </CardAction>
       </CardHeader>
 
@@ -110,7 +90,7 @@ export default function LancamentosTable({
             description="Nenhuma nota para registar"
             action={{
               label: 'Lançar Notas',
-              href: `/dashboard/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${disciplinaId}/notas/create`,
+              href: '#',
               variant: 'outline',
             }}
           />

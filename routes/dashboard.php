@@ -17,6 +17,7 @@ use App\Http\Controllers\Dashboards\DashboardDirectorController;
 use App\Http\Controllers\Dashboards\DashboardProfessorController;
 use App\Http\Controllers\DisciplinaController as DisciplinaControllerGeral;
 use App\Http\Controllers\ElementoGrupoPapController;
+use App\Http\Controllers\ExportarMiniPautaController;
 use App\Http\Controllers\ExportarPautaController;
 use App\Http\Controllers\FinalistaController;
 use App\Http\Controllers\FolhaAprovacaoController;
@@ -124,6 +125,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
                 Route::get('pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);
 
                 Route::get('/pauta', [NotaController::class, 'pauta']);
+                Route::get('disciplinas/{classeTurnoDisciplina}/mini-pauta/excel', [ExportarMiniPautaController::class, 'exportarDisciplina']);
                 Route::get('pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
                 Route::resource('pap', GrupoPapController::class)->parameters(['pap' => 'grupoPap'])->except('index');
 
@@ -143,10 +145,9 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 
                 Route::get('pap/{grupoPap}/folha-aprovacao', [FolhaAprovacaoController::class, 'folhaAprovacao']);
 
-                Route::post('pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
-
                 Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)->only(['index', 'update', 'destroy']);
                 Route::get('disciplinas/{classeTurnoDisciplina}/notas', [NotaController::class, 'index']);
+                Route::post('disciplinas/{classeTurnoDisciplina}/notas', [NotaController::class, 'store']);
                 Route::get('disciplinas/{classeTurnoDisciplina}/notas/create', [NotaController::class, 'create']);
                 Route::get('disciplinas/{classeTurnoDisciplina}/professores/create', [TurmaDisciplinaProfessorController::class, 'create']);
                 Route::post('disciplinas/{classeTurnoDisciplina}/professores', [TurmaDisciplinaProfessorController::class, 'store']);

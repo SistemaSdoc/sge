@@ -1,13 +1,15 @@
 import { Form, usePage } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 import LancamentosTable from './components/lancamentos-table';
+import { store } from '@/actions/App/Http/Controllers/NotaController';
 
 export default function Create({
-  instituicaoId,
-  cursoId,
-  classeId,
-  turnoId,
-  turmaId,
+  instituicao,
+  cursoTutelado,
+  cursoClasse,
+  cursoClasseTurno,
+  turma,
+  classeTurnoDisciplina,
 }) {
   const { data } = usePage().props;
 
@@ -24,7 +26,16 @@ export default function Create({
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       <Form
-        action={`/instituicoes/${instituicaoId}/cursos-tutelados/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/disciplinas/${data.disciplina.id}/notas`}
+        action={
+          store({
+            instituicao,
+            cursoTutelado,
+            cursoClasse,
+            cursoClasseTurno,
+            turma,
+            classeTurnoDisciplina,
+          }).url
+        }
         method="post"
         options={{ preserveScroll: true }}
       >
@@ -32,12 +43,12 @@ export default function Create({
           <LancamentosTable
             data={data}
             isPending={processing}
-            instituicaoId={instituicaoId}
-            cursoId={cursoId}
-            classeId={classeId}
-            turnoId={turnoId}
-            turmaId={turmaId}
-            disciplinaId={data.disciplina.id}
+            instituicaoId={instituicao}
+            cursoId={cursoTutelado}
+            classeId={cursoClasse}
+            turnoId={cursoClasseTurno}
+            turmaId={turma}
+            disciplinaId={classeTurnoDisciplina}
           />
         )}
       </Form>
