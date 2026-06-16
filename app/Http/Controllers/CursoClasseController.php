@@ -6,7 +6,6 @@ use App\Models\CursoClasse;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 
 class CursoClasseController extends Controller
@@ -29,13 +28,8 @@ class CursoClasseController extends Controller
     /**
      * Display the specified resource (Show page via Inertia).
      */
-    public function show(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse) // [CORRIGIDO] Adicionado $request como primeiro parâmetro
+    public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse)
     {
-        $perPage = 5;
-
-        $currentPageDisciplinas = $request->input('page_disciplinas', 1);
-        $currentPageTurmas = $request->input('page_turmas', 1);
-
         $cursoClasse->load([
             'classe:id,nome',
             'cursoTutelado.instituicaoCurso.curso:id,nome',
@@ -45,49 +39,6 @@ class CursoClasseController extends Controller
                 $query->withCount('alunos');
             },
         ]);
-
-        $disciplinasCollection = collect();
-        foreach ($cursoClasse->turnos as $turno) {
-            foreach ($turno->classeTurnoDisciplinas as $ctd) {
-                $disciplinasCollection->push([
-                    'id' => $ctd->disciplina->id,
-                    'nome' => $ctd->disciplina->nome,
-                    'sigla' => $ctd->disciplina->sigla,
-                    'componente' => $ctd->disciplina->componente,
-                    'turno_id' => $turno->id,
-                    'turno_nome' => $turno->turno->nome,
-                ]);
-            }
-        }
-
-        $turmasCollection = collect();
-        foreach ($cursoClasse->turnos as $turno) {
-            foreach ($turno->turmas as $turma) {
-                $turmasCollection->push([
-                    'id' => $turma->id,
-                    'nome' => $turma->nome,
-                    'alunos_count' => $turma->alunos_count,
-                    'turno_id' => $turno->id,
-                    'turno_nome' => $turno->turno->nome,
-                ]);
-            }
-        }
-
-        $disciplinas = new LengthAwarePaginator(
-            $disciplinasCollection->forPage($currentPageDisciplinas, $perPage)->values(),
-            $disciplinasCollection->count(),
-            $perPage,
-            $currentPageDisciplinas,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
-
-        $turmas = new LengthAwarePaginator(
-            $turmasCollection->forPage($currentPageTurmas, $perPage)->values(),
-            $turmasCollection->count(),
-            $perPage,
-            $currentPageTurmas,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
 
         return Inertia::render('cursos-tutelados/classes/show', [
             'instituicao' => [
@@ -110,9 +61,18 @@ class CursoClasseController extends Controller
                 'turnos' => $cursoClasse->turnos->map(fn ($turno) => [
                     'id' => $turno->id,
                     'nome' => $turno->turno->nome,
+                    'disciplinas' => $turno->classeTurnoDisciplinas->map(fn ($ctd) => [
+                        'id' => $ctd->disciplina->id,
+                        'nome' => $ctd->disciplina->nome,
+                        'sigla' => $ctd->disciplina->sigla,
+                        'componente' => $ctd->disciplina->componente,
+                    ])->toArray(),
+                    'turmas' => $turno->turmas->map(fn ($turma) => [
+                        'id' => $turma->id,
+                        'nome' => $turma->nome,
+                        'alunos_count' => $turma->alunos_count,
+                    ])->toArray(),
                 ])->toArray(),
-                'disciplinas_paginated' => $disciplinas->toArray(),
-                'turmas_paginated' => $turmas->toArray(),
             ],
         ]);
     }

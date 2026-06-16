@@ -25,15 +25,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontalIcon, Minus, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { Pagination, PaginationContent, PaginationItem, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import TablePagination from '@/components/table-pagination';
 
-export function TabTurmas({ 
-  turmas, 
+export function TabTurmas({
+  turmas,
   pagination = {},
   onPageChange,
-  instituicaoId, 
-  cursoTuteladoId
- }) {
+  instituicaoId,
+  cursoTuteladoId,
+}) {
   const isEmpty = !turmas || turmas.length === 0;
 
   return (
@@ -141,41 +148,7 @@ export function TabTurmas({
         )}
       </CardContent>
 
-       {pagination?.current_page && (
-        <CardFooter className="justify-between">
-          <span className="text-muted-foreground">
-            Página {pagination.current_page} de {pagination.last_page}
-          </span>
-
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => onPageChange(pagination.current_page - 1)}
-                  disabled={pagination.current_page === 1}
-                  className={
-                    pagination.current_page === 1
-                      ? 'pointer-events-none opacity-50'
-                      : ''
-                  }
-                />
-              </PaginationItem>
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => onPageChange(pagination.current_page + 1)}
-                  disabled={pagination.current_page === pagination.last_page}
-                  className={
-                    pagination.current_page === pagination.last_page
-                      ? 'pointer-events-none opacity-50'
-                      : ''
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardFooter>
-      )}
+      <TablePagination pagination={pagination} onPageChange={onPageChange} />
     </Card>
   );
 }

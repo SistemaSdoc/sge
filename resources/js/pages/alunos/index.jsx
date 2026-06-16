@@ -15,10 +15,10 @@ export default function Index() {
       data={alunos.data}
       deleteFn={(id) => router.delete(`/alunos/${id}`)}
       pagination={{
-            current_page: alunos.current_page,
-            last_page: alunos.last_page,
-          }}
-          onPageChange={handlePageChange}
+        current_page: alunos.current_page,
+        last_page: alunos.last_page,
+      }}
+      onPageChange={handlePageChange}
     />
   );
 }

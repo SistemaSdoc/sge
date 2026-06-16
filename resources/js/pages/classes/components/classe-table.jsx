@@ -40,8 +40,9 @@ import {
 import {
   show,
   create,
-  edit
+  edit,
 } from '@/actions/App/Http/Controllers/ClasseController';
+import TablePagination from '@/components/table-pagination';
 
 export function ClasseTable({
   classes,
@@ -137,52 +138,7 @@ export function ClasseTable({
         )}
       </CardContent>
 
-      {/* [CORRIGIDO] CardFooter fora do CardContent */}
-      {pagination?.current_page && (
-        <CardFooter className="justify-between">
-          <span className="text-muted-foreground">
-            Página {pagination.current_page} de {pagination.last_page}
-          </span>
-
-          <Pagination>
-            <PaginationContent>
-              {/* [ALTERADO] PaginationPrevious → PaginationLink com controlo manual */}
-              <PaginationItem>
-                <PaginationLink
-                  onClick={() =>
-                    pagination.current_page > 1 &&
-                    onPageChange(pagination.current_page - 1)
-                  }
-                  className={
-                    pagination.current_page === 1
-                      ? 'pointer-events-none opacity-50'
-                      : 'cursor-pointer'
-                  }
-                >
-                  Anterior
-                </PaginationLink>
-              </PaginationItem>
-
-              {/* [ALTERADO] PaginationNext → PaginationLink com controlo manual */}
-              <PaginationItem>
-                <PaginationLink
-                  onClick={() =>
-                    pagination.current_page < pagination.last_page &&
-                    onPageChange(pagination.current_page + 1)
-                  }
-                  className={
-                    pagination.current_page === pagination.last_page
-                      ? 'pointer-events-none opacity-50'
-                      : 'cursor-pointer'
-                  }
-                >
-                  Próximo
-                </PaginationLink>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardFooter>
-      )}
+      <TablePagination pagination={pagination} onPageChange={onPageChange} />
     </Card>
   );
 }

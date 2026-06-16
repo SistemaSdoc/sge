@@ -39,6 +39,7 @@ import {
   show,
   create,
 } from '@/actions/App/Http/Controllers/InstituicaoController';
+import TablePagination from '@/components/table-pagination';
 
 export function InstituicaoTable({
   instituicoes,
@@ -136,42 +137,7 @@ export function InstituicaoTable({
         )}
       </CardContent>
 
-      {/* [ALTERADO] paginação dinâmica em vez de estática */}
-      {pagination?.current_page && (
-        <CardFooter className="justify-between">
-          <span className="text-muted-foreground">
-            Página {pagination.current_page} de {pagination.last_page}
-          </span>
-
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => onPageChange(pagination.current_page - 1)}
-                  disabled={pagination.current_page === 1}
-                  className={
-                    pagination.current_page === 1
-                      ? 'pointer-events-none opacity-50'
-                      : ''
-                  }
-                />
-              </PaginationItem>
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => onPageChange(pagination.current_page + 1)}
-                  disabled={pagination.current_page === pagination.last_page}
-                  className={
-                    pagination.current_page === pagination.last_page
-                      ? 'pointer-events-none opacity-50'
-                      : ''
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardFooter>
-      )}
+      <TablePagination pagination={pagination} onPageChange={onPageChange} />
     </Card>
   );
 }
