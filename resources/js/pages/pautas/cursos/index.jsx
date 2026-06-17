@@ -1,13 +1,19 @@
 import { Link } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { index } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { indexTurmas } from '@/actions/App/Http/Controllers/PautaController';
 
 export default function PautasCursos({ cursosTutelados }) {
   return (
-    <div className="space-y-6 p-6">
+    <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Pautas</h1>
-        <p className="mt-2 text-muted-foreground">
+        <h1 className="text-xl font-bold tracking-tight">Pautas</h1>
+        <p className="text-muted-foreground">
           Seleccione um curso para visualizar as pautas
         </p>
       </div>
@@ -23,24 +29,12 @@ export default function PautasCursos({ cursosTutelados }) {
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {cursosTutelados.map((ct) => (
-            <Link
-              key={ct.id}
-              href={
-                index({
-                  instituicao: ct.instituicao.id,
-                  cursoTutelado: ct.curso.id,
-                }).url
-              }
-            >
+            <Link key={ct.id} href={indexTurmas({ cursoTutelado: ct.id })}>
               <Card className="h-full cursor-pointer transition-shadow hover:shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-lg">{ct.curso?.nome}</CardTitle>
+                  <CardTitle>{ct.curso?.nome}</CardTitle>
+                  <CardDescription>{ct.instituicao?.nome}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    {ct.instituicao?.nome}
-                  </p>
-                </CardContent>
               </Card>
             </Link>
           ))}

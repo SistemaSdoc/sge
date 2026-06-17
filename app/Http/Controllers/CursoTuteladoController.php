@@ -13,6 +13,7 @@ use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -29,17 +30,21 @@ class CursoTuteladoController extends Controller // implements HasMiddleware
         ];
     }*/
 
-    public function index(Instituicao $instituicao)
+    public function index()
     {
-        $cursosTutelados = CursoTutelado::query()
-            ->whereHas('instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicao->id))
+        $query = CursoTutelado::query()
             ->with([
                 'instituicaoCurso.curso:id,nome',
                 'instituicaoTutora:id,nome',
-            ])
-            ->paginate(5);
+            ]);
 
-        return CursoTuteladoResourceIndex::collection($cursosTutelados);
+        $instituicaoId = Auth::user()->instituicao_id;
+
+        if ($instituicaoId) {
+            $query->whereHas('instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicaoId));
+        }
+
+        return ;
     }
 
     public function create(Instituicao $instituicao)

@@ -14,7 +14,7 @@ import { index as indexCursos } from '@/actions/App/Http/Controllers/CursosContr
 import { index as indexGrupos } from '@/actions/App/Http/Controllers/GrupoPapController';
 import { index as indexInscricoes } from '@/actions/App/Http/Controllers/InscricaoController';
 import { index as indexInstituicoes } from '@/actions/App/Http/Controllers/InstituicaoController';
-import { indexPautas } from '@/actions/App/Http/Controllers/NotaController';
+import { indexCursos as indexPautas } from '@/actions/App/Http/Controllers/PautaController';
 import { index as indexProfessores } from '@/actions/App/Http/Controllers/ProfessorController';
 import { index as indexTurnos } from '@/actions/App/Http/Controllers/TurnoController';
 import AppLogo from '@/components/app-logo';
