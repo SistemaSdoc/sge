@@ -13,17 +13,23 @@ class CursoClasseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() {}
+    public function index()
+    {
+    }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create() {}
+    public function create()
+    {
+    }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(Request $request)
+    {
+    }
 
     /**
      * Display the specified resource (Show page via Inertia).
@@ -36,7 +42,7 @@ class CursoClasseController extends Controller
             'turnos.turno:id,nome',
             'turnos.classeTurnoDisciplinas.disciplina:id,nome,sigla,componente',
             'turnos.turmas' => function ($query) {
-                $query->withCount('alunos');
+                $query->withCount('alunosActivos');
             },
         ]);
 
@@ -58,19 +64,19 @@ class CursoClasseController extends Controller
                     'id' => $cursoClasse->classe->id,
                     'nome' => $cursoClasse->classe->nome,
                 ],
-                'turnos' => $cursoClasse->turnos->map(fn ($turno) => [
+                'turnos' => $cursoClasse->turnos->map(fn($turno) => [
                     'id' => $turno->id,
                     'nome' => $turno->turno->nome,
-                    'disciplinas' => $turno->classeTurnoDisciplinas->map(fn ($ctd) => [
+                    'disciplinas' => $turno->classeTurnoDisciplinas->map(fn($ctd) => [
                         'id' => $ctd->disciplina->id,
                         'nome' => $ctd->disciplina->nome,
                         'sigla' => $ctd->disciplina->sigla,
                         'componente' => $ctd->disciplina->componente,
                     ])->toArray(),
-                    'turmas' => $turno->turmas->map(fn ($turma) => [
+                    'turmas' => $turno->turmas->map(fn($turma) => [
                         'id' => $turma->id,
                         'nome' => $turma->nome,
-                        'alunos_count' => $turma->alunos_count,
+                        'alunos_count' => $turma->alunos_activos_count,
                     ])->toArray(),
                 ])->toArray(),
             ],
@@ -80,15 +86,21 @@ class CursoClasseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id) {}
+    public function edit(string $id)
+    {
+    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id) {}
+    public function update(Request $request, string $id)
+    {
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id) {}
+    public function destroy(string $id)
+    {
+    }
 }

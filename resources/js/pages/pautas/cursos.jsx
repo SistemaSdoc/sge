@@ -26,9 +26,7 @@ export default function PautasCursos({ cursosTutelados }) {
             <Link
               key={ct.id}
               href={
-                index[
-                  '/dashboard/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas'
-                ]({
+                index({
                   instituicao: ct.instituicao.id,
                   cursoTutelado: ct.curso.id,
                 }).url

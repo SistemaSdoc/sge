@@ -58,7 +58,6 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
   const curso = cursoTutelado.curso;
   const turnos = cursoClasse.turnos || [];
   const [selectedTurnoId, setSelectedTurnoId] = useState(null);
-  console.log(turnos);
   // Auto-select first turno
   useEffect(() => {
     if (turnos.length > 0 && !selectedTurnoId) {

@@ -33,6 +33,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import TablePagination from '@/components/table-pagination';
+import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 
 export function TabTurmas({
   turmas,

@@ -327,9 +327,7 @@ class NotaController extends Controller
             );
         }
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
-            'message' => 'Notas de recurso lançadas com sucesso.',
-        ]);
+        return back();
     }
 
     // ──────────────────────────────────────────────
