@@ -12,6 +12,7 @@ use App\Http\Controllers\CursoClasseTurnoController;
 use App\Http\Controllers\CursosController;
 use App\Http\Controllers\CursoTuteladoController;
 use App\Http\Controllers\CursoTuteladoProfessorController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Dashboards\DashboardAlunoController;
 use App\Http\Controllers\Dashboards\DashboardDirectorController;
 use App\Http\Controllers\Dashboards\DashboardProfessorController;
@@ -37,7 +38,7 @@ use Illuminate\Support\Facades\Route;
 // Todas estas rotas requerem autenticação e role de staff
 // Middleware 'auth' e 'role:admin,director,coordenador,secretaria,professor' já aplicado no grupo principal
 
-Route::inertia('/', 'dashboard')->name('dashboard');
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);

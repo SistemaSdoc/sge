@@ -17,13 +17,13 @@ Route::middleware(['auth', 'verified', 'role:Candidato,Aluno'])
     ->group(base_path('routes/portal.php'));
 
 /**
- * Dashboard routes para Staff (Admin, Director, Coordenador, Secretaria, Professor)
+ * Dashboard routes para Staff (Master, Director, Coordenador, Secretaria, Professor)
  * Todas estas rotas requerem autenticação e role de staff
- * Middleware 'auth' e 'role:admin,director,coordenador,secretaria,professor' já aplicado no grupo principal
+ * Middleware 'auth' e 'role:Master,Director,Coordenador,Secretaria,Professor' já aplicado no grupo principal
  * Prefixo 'dashboard' e nome 'dashboard.' já aplicado no grupo principal
  * As rotas específicas do dashboard estão definidas em routes
  */
-Route::middleware(['auth', 'verified', 'role:Admin,Director,Coordenador,Secretaria,Professor'])
+Route::middleware(['auth', 'verified', 'role:Master,Director,Coordenador,Secretaria,Professor'])
     ->prefix('dashboard')
     ->group(base_path('routes/dashboard.php'));
 
