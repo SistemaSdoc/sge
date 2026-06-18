@@ -63,7 +63,7 @@ class User extends Authenticatable implements PasskeyUser
 
     public function isSuperAdmin(): bool
     {
-        return $this->roles->contains('nome', 'Super Admin');
+        return $this->roles->contains('nome', 'Master');
     }
 
     public function isDirector(): bool

@@ -29,7 +29,8 @@ export default function Index({ cursoTutelado, turmas = [] }) {
         <h1 className="text-xl font-bold">
           {cursoTutelado ? `Pautas — ${cursoTutelado.curso?.nome}` : 'Pautas'}
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+
+        <p className="text-muted-foreground">
           Selecione uma turma para visualizar a pauta
         </p>
       </div>
@@ -52,7 +53,7 @@ export default function Index({ cursoTutelado, turmas = [] }) {
                 }).url
               }
             >
-              <Card className="h-full cursor-pointer transition-shadow hover:shadow-lg">
+              <Card className="h-full cursor-pointer">
                 <CardHeader>
                   <CardTitle>
                     {turma.nome} - {turma.classe} - {turma.turno}

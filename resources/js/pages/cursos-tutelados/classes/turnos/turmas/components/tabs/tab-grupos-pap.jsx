@@ -34,7 +34,7 @@ export function TabGruposPAP({
   const grupos = turma.grupos_pap ?? [];
   const isEmpty = grupos.length === 0;
 
-  const baseUrl = `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
+  const baseUrl = `/dashboard/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
 
   return (
     <Card className="gap-0 pb-0">

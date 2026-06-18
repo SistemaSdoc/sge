@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
         // $this->configureDefaults();
         // Superadmin bypassa tudo
         Gate::before(function ($user, $ability) {
-            if ($user->roles->pluck('nome')->contains('superadmin')) {
+            if ($user->roles->pluck('nome')->contains('Master')) {
                 return true;
             }
         });
