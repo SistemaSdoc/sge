@@ -60,6 +60,8 @@ Route::get('/cursos/{curso}/instituicoes-tutoras', [CursosController::class, 'in
 // Route::get('/turmas/{turma}/pauta', [NotaController::class, 'pauta']);
 // Route::get('turmas/{turma}/pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
 
+Route::get('/pautas/cursos', [NotaController::class, 'indexPautas'])->name('pautas.index');
+
 Route::prefix('aluno')->group(function () {
     Route::get('proximas-aulas', [DashboardAlunoController::class, 'proximasAulas']);
     Route::get('resumo-academico', [DashboardAlunoController::class, 'resumoAcademico']);
@@ -78,10 +80,11 @@ Route::prefix('director')->group(function () {
     Route::get('avisos', [DashboardDirectorController::class, 'avisos']);
 });
 
+Route::get('turmas', [TurmaControllerGeral::class, 'index']);
+
 Route::prefix('instituicoes/{instituicao}')->group(function () {
     Route::get('alunos/{aluno}/historico', [FinalistaController::class, 'historico']);
     Route::get('colegios', [CursoTuteladoController::class, 'colegios']);
-    Route::get('turmas', [TurmaController::class, 'index']);
     Route::get('aluno/grelha-curricular', [AlunoController::class, 'grelhaCurricular']);
     Route::get('aluno/notas', [AlunoController::class, 'notas']);
 
@@ -97,6 +100,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 
         // Route::resource('turmas', TurmaController::class);
 
+        // Route::resource('turmas', ClasseTurnoTurmaController::class);
         Route::get('/alunos', [CursoTuteladoController::class, 'alunos']);
 
         Route::prefix('turmas/{turma}')->group(function () {

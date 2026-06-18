@@ -16,6 +16,7 @@ import { index as indexInscricoes } from '@/actions/App/Http/Controllers/Inscric
 import { index as indexInstituicoes } from '@/actions/App/Http/Controllers/InstituicaoController';
 import { indexCursos as indexPautas } from '@/actions/App/Http/Controllers/PautaController';
 import { index as indexProfessores } from '@/actions/App/Http/Controllers/ProfessorController';
+import { index as indexTurmas } from '@/actions/App/Http/Controllers/TurmaController';
 import { index as indexTurnos } from '@/actions/App/Http/Controllers/TurnoController';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -66,7 +67,7 @@ const mainNavItems: NavItem[] = [
 
   {
     title: 'Turmas',
-    href: `/turmas`,
+    href: indexTurmas().url,
     icon: LayersIcon,
   },
 

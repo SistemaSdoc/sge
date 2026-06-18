@@ -6,7 +6,7 @@ import DisciplinaForm from './components/disciplina-form';
 import { useState } from 'react';
 
 export default function Create() {
-  const { disciplinas, instituicaoId, cursoId, classeId, turnoId } =
+  const { disciplinas, instituicaoId, cursoId, classeId, turnoId, backUrl } =
     usePage().props;
   const [disciplinaIds, setDisciplinaIds] = useState([]);
 
@@ -19,15 +19,6 @@ export default function Create() {
         cursoClasseTurno: turnoId,
       })}
       transform={(data) => ({ ...data, disciplina_ids: disciplinaIds })}
-      onSuccess={() =>
-        router.visit(
-          show({
-            instituicao: instituicaoId,
-            cursoTutelado: cursoId,
-            cursoClasse: classeId,
-          }),
-        )
-      }
     >
       {({ errors, processing }) => (
         <DisciplinaForm

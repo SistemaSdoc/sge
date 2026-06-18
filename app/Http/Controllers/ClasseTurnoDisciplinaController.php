@@ -65,6 +65,8 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
             'cursoId' => $cursoTutelado->id,
             'classeId' => $cursoClasse->id,
             'turnoId' => $cursoClasseTurno->id,
+            'backUrl' => url()->previous(),
+
         ]);
     }
 
@@ -133,11 +135,7 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
             $disciplinasAdicionadas[] = $ctd;
         }
 
-        return to_route('cursos-tutelados.classes.show', [
-            'instituicao' => $instituicao->id,
-            'cursoTutelado' => $cursoTutelado->id,
-            'cursoClasse' => $cursoClasse->id,
-        ]);
+        return redirect()->back();
     }
 
     public function update(
