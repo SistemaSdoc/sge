@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\MiniPautaExport;
+use App\Models\ClasseTurnoDisciplina;
 use App\Models\InstituicaoCurso;
 use App\Models\Instituicao;
 use App\Models\Turma;
@@ -25,11 +26,11 @@ class ExportarMiniPautaController extends Controller
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
-        string $disciplina
+        ClasseTurnoDisciplina $classeTurnoDisciplina
     ) {
         // ALTERADO: Buscar via classe_turno_disciplina_id
         $tdp = TurmaDisciplinaProfessor::where('turma_id', $turma->id)
-            ->whereHas('classeTurnoDisciplina', fn($q) => $q->where('classe_turno_disciplina_id', $disciplina))
+            ->whereHas('classeTurnoDisciplina', fn($q) => $q->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id))
             ->firstOrFail();
 
 

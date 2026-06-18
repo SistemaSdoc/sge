@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Turma\TurmaResourceIndex;
 use App\Http\Resources\Turma\TurmaResourceShow;
-use App\Models\Instituicao;
 use App\Models\Turma;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
-class TurmaController extends Controller //implements HasMiddleware
+class TurmaController extends Controller // implements HasMiddleware
 {
-    /*public static function middleware(): array
+    /*
+    public static function middleware(): array
     {
         return [
             new Middleware('permission:turmas.index', only: ['index']),
@@ -20,23 +20,21 @@ class TurmaController extends Controller //implements HasMiddleware
             new Middleware('permission:turmas.edit', only: ['update']),
             new Middleware('permission:turmas.delete', only: ['destroy']),
         ];
-    }*/
-    public function index(Instituicao $instituicao)
+    }
+*/
+    public function index()
     {
         $user = auth()->user();
         $professor = $user?->professor;
 
-        $query = Turma::whereHas(
-            'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-            fn($q) => $q->where('instituicao_id', $instituicao->id)
-        );
+        $query = Turma::query();
 
-        if (!$user?->isSuperAdmin() && !$user?->isDirector()) {
-            if (!$professor) {
-                return TurmaResourceIndex::collection(collect());
+        if (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
+            if (! $professor) {
+                return inertia('turmas/index', ['turmas' => []]);
             }
 
-            $query->whereHas('turmaDisciplinaProfessor', fn($q) => $q->where('professor_id', $professor->id));
+            $query->whereHas('turmaDisciplinaProfessor', fn ($q) => $q->where('professor_id', $professor->id));
         }
 
         $turmas = $query->with([
@@ -44,15 +42,15 @@ class TurmaController extends Controller //implements HasMiddleware
             'cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.classeTurnoDisciplinas.disciplina:id,nome',
-        ])
-            ->paginate(5);
+        ])->paginate(15);
 
-        return TurmaResourceIndex::collection($turmas);
+        return inertia('turmas/index', [
+            'turmas' => TurmaResourceIndex::collection($turmas),
+        ]);
     }
 
     public function show(Turma $turma)
     {
-        // Carrega relações necessárias antes da Policy para evitar queries extras dentro da Policy
         $turma->load([
             'cursoClasseTurno.turno',
             'cursoClasseTurno.cursoClasse.classe',
@@ -63,8 +61,8 @@ class TurmaController extends Controller //implements HasMiddleware
             'turmaDisciplinaProfessor.professor',
         ]);
 
-        $this->authorize('view', $turma);
-
-        return new TurmaResourceShow($turma);
+        return inertia('turmas/show', [
+            'turma' => new TurmaResourceShow($turma),
+        ]);
     }
 }

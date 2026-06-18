@@ -251,21 +251,17 @@ export function PautaTable({
   disciplinas = [],
   alunos = [],
   turmaId,
-  instituicaoId,
   cursoTuteladoId,
-  cursoClasseId,
-  cursoClasseTurnoId,
 }) {
   const isEmpty = !alunos || alunos.length === 0;
-  // const { mutate: exportar, isPending: isExporting } = useExportarPauta()
 
   const periodoLabel =
     PERIODOS.find((p) => p.value === periodo)?.label ?? periodo;
 
   return (
-    <Card className="mx-auto w-full max-w-7xl gap-0">
+    <Card className="gap-0">
       <CardHeader className="border-b">
-        <CardTitle>Pauta — {data?.turma?.nome}</CardTitle>
+        <CardTitle>Pauta - {data?.turma?.nome}</CardTitle>
 
         <CardDescription>{periodoLabel}</CardDescription>
 
@@ -298,10 +294,7 @@ export function PautaTable({
             <a
               href={
                 exportarExcel({
-                  instituicao: instituicaoId,
                   cursoTutelado: cursoTuteladoId,
-                  cursoClasse: cursoClasseId,
-                  cursoClasseTurno: cursoClasseTurnoId,
                   turma: turmaId,
                 }).url + `?periodo=${periodo}`
               }
@@ -321,11 +314,6 @@ export function PautaTable({
             icon={FileTextIcon}
             title="Nenhuma pauta disponível"
             description="Ainda não existem notas lançadas para este período"
-            action={{
-              label: 'Lançar notas',
-              href: '/dashboard/notas/create',
-              variant: 'outline',
-            }}
           />
         ) : (
           <Table>

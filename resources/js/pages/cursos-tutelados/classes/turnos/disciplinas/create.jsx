@@ -25,15 +25,6 @@ export default function Create() {
         cursoClasseTurno: turnoId,
       })}
       transform={(data) => ({ ...data, disciplina_ids: disciplinaIds })}
-      onSuccess={() =>
-        router.visit(
-          show({
-            instituicao: instituicaoId,
-            cursoTutelado: cursoId,
-            cursoClasse: classeId,
-          }),
-        )
-      }
     >
       {({ errors, processing }) => (
         <DisciplinaForm

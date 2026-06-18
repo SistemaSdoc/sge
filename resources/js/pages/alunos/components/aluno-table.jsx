@@ -36,6 +36,7 @@ import {
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import TablePagination from '@/components/table-pagination';
+import {edit} from '@/actions/App/Http/Controllers/AlunoController';
 
 export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
   const isEmpty = !data || data.length === 0;
@@ -124,7 +125,7 @@ export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.stopPropagation();
-                              router.visit(`/alunos/${aluno.id}/edit`);
+                              router.visit(edit({id: aluno.id}));
                             }}
                           >
                             Editar
