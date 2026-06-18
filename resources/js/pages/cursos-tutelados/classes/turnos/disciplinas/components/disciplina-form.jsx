@@ -9,6 +9,7 @@ import {
   FieldSet,
 } from '@/components/ui/field';
 import MultipleSelect from '@/components/multiple-select';
+import { TablePagination } from '@/components/table-pagination';
 
 export default function DisciplinaForm({
   disciplinas,
@@ -62,6 +63,7 @@ export default function DisciplinaForm({
             </FieldSet>
           </FieldGroup>
         </CardContent>
+         <TablePagination pagination={pagination} onPageChange={onPageChange} />
       </Card>
     </div>
   );

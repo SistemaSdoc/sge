@@ -4,7 +4,7 @@ namespace App\Http\Resources\CursoTutelado;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Pagination\LengthAwarePaginator; // [ADICIONADO] import do paginador
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CursoTuteladoResourceShow extends JsonResource
 {

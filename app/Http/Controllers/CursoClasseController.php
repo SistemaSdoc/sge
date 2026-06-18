@@ -28,54 +28,44 @@ class CursoClasseController extends Controller
     /**
      * Display the specified resource (Show page via Inertia).
      */
-    public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse)
-    {
-        $cursoClasse->load([
-            'classe:id,nome',
-            'cursoTutelado.instituicaoCurso.curso:id,nome',
-            'turnos.turno:id,nome',
-            'turnos.classeTurnoDisciplinas.disciplina:id,nome,sigla,componente',
-            'turnos.turmas' => function ($query) {
-                $query->withCount('alunos');
-            },
-        ]);
+public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse)
+{
+    $cursoClasse->load(['classe:id,nome', 'turnos.turno:id,nome']);
 
-        return Inertia::render('cursos-tutelados/classes/show', [
-            'instituicao' => [
-                'id' => $instituicao->id,
-                'nome' => $instituicao->nome,
+    // Turno selecionado (primeiro por defeito)
+    $turnoId = request('turno', $cursoClasse->turnos->first()?->id);
+
+    $turnoActual = $cursoClasse->turnos->firstWhere('id', $turnoId);
+
+    $turmas = $turnoActual
+        ? $turnoActual->turmas()->withCount('alunos')->orderBy('nome')
+            ->paginate(5, ['*'], 'page_turmas')
+        : collect();
+
+    $disciplinas = $turnoActual
+        ? $turnoActual->classeTurnoDisciplinas()->with('disciplina:id,nome,sigla,componente')
+            ->paginate(5, ['*'], 'page_disciplinas')
+        : collect();
+
+    return Inertia::render('cursos-tutelados/classes/show', [
+        'instituicao' => ['id' => $instituicao->id, 'nome' => $instituicao->nome],
+        'cursoTutelado' => [
+            'id' => $cursoTutelado->id,
+            'curso' => [
+                'id' => $cursoTutelado->instituicaoCurso->curso->id,
+                'nome' => $cursoTutelado->instituicaoCurso->curso->nome,
             ],
-            'cursoTutelado' => [
-                'id' => $cursoTutelado->id,
-                'curso' => [
-                    'id' => $cursoTutelado->instituicaoCurso->curso->id,
-                    'nome' => $cursoTutelado->instituicaoCurso->curso->nome,
-                ],
-            ],
-            'cursoClasse' => [
-                'id' => $cursoClasse->id,
-                'classe' => [
-                    'id' => $cursoClasse->classe->id,
-                    'nome' => $cursoClasse->classe->nome,
-                ],
-                'turnos' => $cursoClasse->turnos->map(fn ($turno) => [
-                    'id' => $turno->id,
-                    'nome' => $turno->turno->nome,
-                    'disciplinas' => $turno->classeTurnoDisciplinas->map(fn ($ctd) => [
-                        'id' => $ctd->disciplina->id,
-                        'nome' => $ctd->disciplina->nome,
-                        'sigla' => $ctd->disciplina->sigla,
-                        'componente' => $ctd->disciplina->componente,
-                    ])->toArray(),
-                    'turmas' => $turno->turmas->map(fn ($turma) => [
-                        'id' => $turma->id,
-                        'nome' => $turma->nome,
-                        'alunos_count' => $turma->alunos_count,
-                    ])->toArray(),
-                ])->toArray(),
-            ],
-        ]);
-    }
+        ],
+        'cursoClasse' => [
+            'id' => $cursoClasse->id,
+            'classe' => ['id' => $cursoClasse->classe->id, 'nome' => $cursoClasse->classe->nome],
+            'turnos' => $cursoClasse->turnos->map(fn ($t) => ['id' => $t->id, 'nome' => $t->turno->nome])->toArray(),
+            'turnoId' => $turnoId,
+            'turmas' => $turmas,
+            'disciplinas' => $disciplinas,
+        ],
+    ]);
+}
 
     /**
      * Show the form for editing the specified resource.

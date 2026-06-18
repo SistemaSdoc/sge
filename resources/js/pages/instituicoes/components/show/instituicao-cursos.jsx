@@ -2,7 +2,11 @@ import { router } from '@inertiajs/react';
 import { TabContentCursos } from '../tabs/tab-content-cursos';
 import { show } from '@/actions/App/Http/Controllers/InstituicaoController';
 
-export function InstituicaoCursos({ cursos, instituicaoId, deleteFn }) {
+export function InstituicaoCursos({ 
+  cursos, 
+  instituicaoId, 
+  deleteFn 
+}) {
   const handlePageChange = (page) => {
     router.visit(show({ id: instituicaoId }).url, {
       data: { page },

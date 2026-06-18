@@ -9,6 +9,7 @@ export default function Index() {
     router.visit('/inscricoes', {
       data: { page },
       preserveScroll: true,
+    
     });
   };
 

@@ -91,7 +91,7 @@ class DashboardController extends Controller
                 'count' => $pendentes,
                 'severity' => 'critical',
                 'icon' => 'user-check',
-                'href' => '/inscricoes?status=pendente',
+                'href' => '/dashboard/inscricoes?status=pendente',
             ],
             [
                 'id' => 'turmas-sem-professor',
@@ -101,7 +101,7 @@ class DashboardController extends Controller
                 'count' => $turmasSemProfessor,
                 'severity' => 'warning',
                 'icon' => 'users',
-                'href' => '/turmas?sem_professor=true',
+                'href' => '/dashboard/turmas?sem_professor=true',
             ],
             [
                 'id' => 'pap-sem-banca',
@@ -111,7 +111,7 @@ class DashboardController extends Controller
                 'count' => $gruposSemBanca,
                 'severity' => 'attention',
                 'icon' => 'briefcase',
-                'href' => '/pap?sem_banca=true',
+                'href' => '/dashboard/pap?sem_banca=true',
             ],
         ]);
     }

@@ -6,7 +6,13 @@ import DisciplinaForm from './components/disciplina-form';
 import { useState } from 'react';
 
 export default function Create() {
-  const { disciplinas, instituicaoId, cursoId, classeId, turnoId } =
+  const { 
+    disciplinas, 
+    instituicaoId, 
+    cursoId, 
+    classeId, 
+    turnoId
+  } =
     usePage().props;
   const [disciplinaIds, setDisciplinaIds] = useState([]);
 

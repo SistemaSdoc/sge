@@ -44,7 +44,7 @@ export function TabProfessores({
   instituicaoId,
   cursoTuteladoId,
 }) {
-  const isEmpty = !professores || professores.length === 0;
+  const isEmpty = !professores.data || professores.data.length === 0;
 
   return (
     <Card className="gap-0">

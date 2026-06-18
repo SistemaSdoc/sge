@@ -24,21 +24,29 @@ import {
   show as showCurso,
 } from '@/actions/App/Http/Controllers/CursoTuteladoController';
 
-export default function Show({ cursoTutelado }) {
+export default function Show({ 
+  cursoTutelado
+ }) {
   const instituicaoId = cursoTutelado.instituicao.id;
   const cursoTuteladoId = cursoTutelado.id;
   const cursoId = cursoTutelado.curso.id;
 
-  const handlePageChange = (page) => {
-    router.visit(
-      showCurso({ instituicao: instituicaoId, cursoTutelado: cursoTuteladoId })
-        .url,
-      {
-        data: { page },
-        preserveScroll: true,
+  const handlePageChange = (param) => (page) => {
+  router.visit(
+    showCurso({ instituicao: instituicaoId, 
+      cursoTutelado: cursoTuteladoId })
+      .url,
+    {
+      data: {
+        page_turmas: cursoTutelado.turmas?.current_page ?? 1,
+        page_professores: cursoTutelado.professores?.current_page ?? 1,
+        [param]: page,
       },
-    );
-  };
+      preserveScroll: true,
+      preserveState: true,
+    },
+  );
+};
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
@@ -209,7 +217,7 @@ export default function Show({ cursoTutelado }) {
               current_page: cursoTutelado.turmas?.current_page,
               last_page: cursoTutelado.turmas?.last_page,
             }}
-            onPageChange={handlePageChange}
+            onPageChange={handlePageChange('page_turmas')}
           />
         </TabsContent>
 
@@ -222,7 +230,7 @@ export default function Show({ cursoTutelado }) {
               current_page: cursoTutelado.professores?.current_page,
               last_page: cursoTutelado.professores?.last_page,
             }}
-            onPageChange={handlePageChange}
+            onPageChange={handlePageChange('page_professores')}
           />
         </TabsContent>
       </Tabs>

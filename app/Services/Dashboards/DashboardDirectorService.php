@@ -93,7 +93,7 @@ class DashboardDirectorService
                 'count' => $pendentes,
                 'severity' => 'critical',
                 'icon' => 'user-check',
-                'href' => '/inscricoes?status=pendente',
+                'href' => '/dashboard/inscricoes?status=pendente',
             ],
             [
                 'id' => 'turmas-sem-professor',
@@ -103,7 +103,7 @@ class DashboardDirectorService
                 'count' => $turmasSemProfessor,
                 'severity' => 'warning',
                 'icon' => 'users',
-                'href' => '/turmas?sem_professor=true',
+                'href' => '/dashboard/turmas?sem_professor=true',
             ],
             [
                 'id' => 'pap-sem-banca',
@@ -113,7 +113,7 @@ class DashboardDirectorService
                 'count' => $gruposSemBanca,
                 'severity' => 'attention',
                 'icon' => 'briefcase',
-                'href' => '/pap?sem_banca=true',
+                'href' => '/dashboard/pap?sem_banca=true',
             ],
         ];
     }
@@ -149,8 +149,7 @@ class DashboardDirectorService
      */
     public function obterAvisos(Aluno $aluno, ?int $limite = 10): Collection
     {
-        // TODO: Implementar quando tabela de avisos for criada
-        // Por enquanto, retorna coleção vazia
+
         return collect();
     }
 }

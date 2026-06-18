@@ -17,7 +17,8 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
 {
     public function __construct(
         private readonly PautaService $pautaService,
-    ) {}
+    ) {
+    }
     /* public static function middleware(): array
     {
         return [
@@ -33,16 +34,17 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
      */
     public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
-        $turmas = Turma::whereHas('cursoClasseTurno.cursoClasse',
-            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id))
+        $turmas = Turma::whereHas(
+            'cursoClasseTurno.cursoClasse',
+            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+        )
             ->with([
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoTutora:id,nome',
                 'cursoClasseTurno.turno:id,nome',
                 'cursoClasseTurno.cursoClasse.classe:id,nome',
             ])
-            ->orderBy('nome')
-            ->get();
+            ->paginate(5);
 
         return Inertia::render('pautas/index', [
             'instituicao' => $instituicao->only('id'),
@@ -53,34 +55,49 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
                 ],
             ],
-            'turmas' => $turmas->map(fn ($turma) => [
+            // Usar through() em vez de map()->toArray() para preservar a paginação
+            'turmas' => $turmas->through(fn($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
                 'turno' => $turma->cursoClasseTurno?->turno?->nome,
                 'cursoClasse' => ['id' => $turma->cursoClasseTurno?->cursoClasse?->id],
                 'cursoClasseTurno' => ['id' => $turma->cursoClasseTurno?->id],
-            ])->toArray(),
+            ]),
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
-    {
+    public function create(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno
+    ) {
+        // Carrega as relações necessárias
+        $cursoTutelado->load(['instituicaoCurso.curso', 'instituicaoTutora']);
+        $cursoClasse->load('classe');
+        $cursoClasseTurno->load('turno');
+
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/create', [
             'instituicao' => [
                 'id' => $instituicao->id,
+                'nome' => $instituicao->nome,
             ],
             'cursoTutelado' => [
                 'id' => $cursoTutelado->id,
+                // O nome do curso vem através da relação instituicaoCurso -> curso
+                'nome' => $cursoTutelado->instituicaoCurso->curso->nome ?? 'Curso não encontrado',
             ],
             'cursoClasse' => [
                 'id' => $cursoClasse->id,
+                'nome' => $cursoClasse->classe->nome ?? 'Classe não encontrada',
             ],
             'cursoClasseTurno' => [
                 'id' => $cursoClasseTurno->id,
+                'nome' => $cursoClasseTurno->turno->nome ?? 'Turno não encontrado',
             ],
         ]);
     }
@@ -127,7 +144,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             'cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasseTurno.turno:id,nome',
             'cursoClasseTurno.classeTurnoDisciplinas.disciplina:id,nome,sigla',
-            'alunos' => fn ($q) => $q->wherePivot('activo', true)
+            'alunos' => fn($q) => $q->wherePivot('activo', true)
                 ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone']),
             'turmaDisciplinaProfessor.professor.user:id,nome,email',
             'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome',

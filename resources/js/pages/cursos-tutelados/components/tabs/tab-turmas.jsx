@@ -41,7 +41,7 @@ export function TabTurmas({
   instituicaoId,
   cursoTuteladoId,
 }) {
-  const isEmpty = !turmas || turmas.length === 0;
+  const isEmpty = !turmas.data || turmas.data.length === 0;
 
   return (
     <Card className="gap-0">
@@ -58,7 +58,7 @@ export function TabTurmas({
             title="Nenhuma turma cadastrada"
             description="Comece adicionando a primeira turma clicando em uma classe acima"
           />
-        ) : (
+         ) : (
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/72">
