@@ -114,7 +114,7 @@ export function TabIntegrantes({
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     {notaJaLancada(el) ? (
                       <span className="text-sm font-medium tabular-nums">
-                        {Number(el.nota_individual).toFixed(2)}
+                        {Number(el.nota_individual)}
                       </span>
                     ) : (
                       <div className="flex items-center gap-2">

@@ -46,7 +46,7 @@ export function ColegioTable({ colegios }) {
                                 <TableRow
                                     key={colegio.id}
                                     className="hover:cursor-pointer"
-                                    onClick={() => router.visit(`/instituicoes/${instituicao.id}/colegios/${colegio.id}`)}
+                                    onClick={() => router.visit(`/dashboard/instituicoes/${instituicao.id}/colegios/${colegio.id}`)}
                                 >
                                     <TableCell className="px-4 font-medium">{colegio.nome}</TableCell>
                                     <TableCell>{colegio.cursos?.length ?? 0}</TableCell>

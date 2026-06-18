@@ -8,7 +8,7 @@ export default function Index() {
     return (
         <>
             <Head title="Colégios" />
-            <div className="w-full max-w-7xl mx-auto">
+            <div className="mx-auto w-full max-w-5xl px-4 py-6">
                 <ColegioTable colegios={colegios ?? []} />
             </div>
         </>
