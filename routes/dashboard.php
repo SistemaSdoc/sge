@@ -28,7 +28,7 @@ use App\Http\Controllers\InstituicaoCurso\TurmaDisciplinaProfessorController;
 use App\Http\Controllers\NotaController;
 use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
 use App\Http\Controllers\ProgressaoController;
-use App\Http\Controllers\TurmaController as TurmaControllerGeral;
+use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\TutelaController;
 use App\Http\Controllers\UserController;
@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+require __DIR__ . '/modules/pautas.php';
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
 Route::resource('users', UserController::class);
@@ -81,7 +82,6 @@ Route::get('turmas', [TurmaController::class, 'index']);
 Route::prefix('instituicoes/{instituicao}')->group(function () {
     Route::get('alunos/{aluno}/historico', [FinalistaController::class, 'historico']);
     Route::get('colegios', [CursoTuteladoController::class, 'colegios']);
-    Route::get('turmas', [TurmaControllerGeral::class, 'index']);
     Route::get('aluno/grelha-curricular', [AlunoController::class, 'grelhaCurricular']);
     Route::get('aluno/notas', [AlunoController::class, 'notas']);
 
@@ -124,8 +124,6 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
             Route::prefix('turmas/{turma}')->group(function () {
                 Route::get('pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);
 
-                Route::get('/pauta', [NotaController::class, 'pauta']);
-                Route::get('pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
                 Route::resource('pap', GrupoPapController::class)->parameters(['pap' => 'grupoPap'])->except('index');
 
                 Route::put('pap/{grupoPap}/data-defesa', [GrupoPapController::class, 'definirData']);
@@ -143,8 +141,6 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
                     ->only(['create', 'store', 'destroy']);
 
                 Route::get('pap/{grupoPap}/folha-aprovacao', [FolhaAprovacaoController::class, 'folhaAprovacao']);
-
-                Route::post('pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
 
                 Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)->only(['index', 'update', 'destroy']);
                 Route::get('disciplinas/{classeTurnoDisciplina}/notas', [NotaController::class, 'index']);

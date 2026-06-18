@@ -14,7 +14,6 @@ import { index as indexCursos } from '@/actions/App/Http/Controllers/CursosContr
 import { index as indexGrupos } from '@/actions/App/Http/Controllers/GrupoPapController';
 import { index as indexInscricoes } from '@/actions/App/Http/Controllers/InscricaoController';
 import { index as indexInstituicoes } from '@/actions/App/Http/Controllers/InstituicaoController';
-//import { index as indexPautas } from '@/actions/App/Http/Controllers/PautaController';
 import { index as indexProfessores } from '@/actions/App/Http/Controllers/ProfessorController';
 import { index as indexTurmas } from '@/actions/App/Http/Controllers/TurmaController';
 import { index as indexTurnos } from '@/actions/App/Http/Controllers/TurnoController';
@@ -33,6 +32,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
+import { indexCursos as indexPautas } from '@/actions/App/Http/Controllers/PautaController';
 
 const mainNavItems: NavItem[] = [
   {
@@ -67,13 +67,13 @@ const mainNavItems: NavItem[] = [
 
   {
     title: 'Turmas',
-    href: '#',//indexTurmas().url,
+    href: indexTurmas().url,
     icon: LayersIcon,
   },
 
   {
     title: 'Pautas',
-    href:  '#',//indexPautas().url,
+    href:  indexPautas().url,
     icon: FileTextIcon,
   },
 
