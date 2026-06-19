@@ -26,7 +26,7 @@ import {
 import { Minus, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { show } from '@/actions/App/Http/Controllers/AlunoController';
-import { gerarTutora } from '@/actions/App/Http/Controllers/CertificadoController';
+import { gerar } from '@/actions/App/Http/Controllers/CertificadoController';
 
 export function TabAlunos({
   turma,
@@ -45,9 +45,11 @@ export function TabAlunos({
     e.stopPropagation();
     try {
       const response = await fetch(
-        gerarTutora({
+        gerar({
           instituicao: instituicaoId,
           cursoTutelado: cursoTuteladoId,
+          cursoClasse: cursoClasseId,
+          cursoClasseTurno: cursoClasseTurnoId,
           turma: turmaId,
           aluno: alunoId,
         }).url,

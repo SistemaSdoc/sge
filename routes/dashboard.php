@@ -40,6 +40,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 require __DIR__.'/modules/pautas.php';
+require __DIR__ . '/modules/pautas.php';
+require __DIR__ . '/modules/certificado.php';
+require __DIR__ . '/modules/progressao.php';
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
 Route::resource('users', UserController::class);
@@ -98,7 +101,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 
         Route::prefix('turmas/{turma}')->group(function () {
             Route::post('progressao', [ProgressaoController::class, 'store']);
-            Route::post('progressao/recurso', [ProgressaoController::class, 'storeRecurso']);
+            Route::post('progressao/recurso', [ProgressaoController::class, 'storeRecurso']);*/
             Route::get('finalistas', [FinalistaController::class, 'index']);
             Route::post('alunos/{aluno}/pap-concluido', [FinalistaController::class, 'papConcluido']);
             Route::post('alunos/{aluno}/concluir', [FinalistaController::class, 'concluir']);
