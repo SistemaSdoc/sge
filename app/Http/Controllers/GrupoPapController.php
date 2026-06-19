@@ -43,6 +43,7 @@ class GrupoPapController extends Controller // implements HasMiddleware
 
         $grupos = GrupoPap::with([
             'professor.user:id,nome',
+            'turma.cursoClasseTurno.turno:id,nome',
             'turma.cursoClasseTurno.cursoClasse.classe:id,nome',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
@@ -55,7 +56,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
             )
         )->latest()->paginate(10);
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/index', [
+        // dd($grupos);
+        return Inertia::render('pap/index', [
             'gruposPap' => IndexResource::collection($grupos),
         ]);
     }
@@ -130,7 +132,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno,
-        Turma $turma, GrupoPap $grupoPap
+        Turma $turma,
+        GrupoPap $grupoPap
     ) {
         $grupoPap->load([
             'professor.user:id,nome,email',
