@@ -18,7 +18,6 @@ use App\Http\Controllers\Dashboards\DashboardDirectorController;
 use App\Http\Controllers\Dashboards\DashboardProfessorController;
 use App\Http\Controllers\DisciplinaController as DisciplinaControllerGeral;
 use App\Http\Controllers\ElementoGrupoPapController;
-use App\Http\Controllers\ExportarPautaController;
 use App\Http\Controllers\FinalistaController;
 use App\Http\Controllers\FolhaAprovacaoController;
 use App\Http\Controllers\GrupoPapController;
@@ -40,7 +39,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-require __DIR__ . '/modules/pautas.php';
+require __DIR__.'/modules/pautas.php';
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
 Route::resource('users', UserController::class);
@@ -56,8 +55,6 @@ Route::get('/certificados/{aluno}', [CertificadoController::class, 'show'])->nam
 
 Route::get('/alunos/{aluno}/turmas-disponiveis', [AlunoController::class, 'turmasDisponiveis']);
 Route::get('/cursos/{curso}/instituicoes-tutoras', [CursosController::class, 'instituicoesTutoras']);
-//Route::get('/turmas/{turma}/pauta', [NotaController::class, 'pauta']);
-//Route::get('turmas/{turma}/pauta/excel', [ExportarPautaController::class, 'exportarExcel']);
 
 Route::prefix('aluno')->group(function () {
     Route::get('proximas-aulas', [DashboardAlunoController::class, 'proximasAulas']);
@@ -95,12 +92,11 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
             ->parameters(['classes' => 'cursoClasse'])
             ->names(['show' => 'cursos-tutelados.classes.show']);
 
-        //Route::resource('turmas', ClasseTurnoTurmaController::class);
+        // Route::resource('turmas', ClasseTurnoTurmaController::class);
 
         Route::get('/alunos', [CursoTuteladoController::class, 'alunos']);
 
         Route::prefix('turmas/{turma}')->group(function () {
-            Route::get('progressao/preview', [ProgressaoController::class, 'preview']);
             Route::post('progressao', [ProgressaoController::class, 'store']);
             Route::post('progressao/recurso', [ProgressaoController::class, 'storeRecurso']);
             Route::get('finalistas', [FinalistaController::class, 'index']);
@@ -108,7 +104,6 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
             Route::post('alunos/{aluno}/concluir', [FinalistaController::class, 'concluir']);
             Route::post('alunos/{aluno}/reprovar', [FinalistaController::class, 'reprovar']);
             Route::post('alunos/{aluno}/desistente', [FinalistaController::class, 'marcarDesistente']);
-            Route::get('/pauta', [NotaController::class, 'pauta']);
             Route::get('/alunos/{aluno}/certificado', [CertificadoController::class, 'gerarTutora']);
         });
 
@@ -123,6 +118,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 
             Route::prefix('turmas/{turma}')->group(function () {
                 Route::get('pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);
+                Route::get('progressao/preview', [ProgressaoController::class, 'preview']);
 
                 Route::resource('pap', GrupoPapController::class)->parameters(['pap' => 'grupoPap'])->except('index');
 
@@ -145,6 +141,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
                 Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)->only(['index', 'update', 'destroy']);
                 Route::get('disciplinas/{classeTurnoDisciplina}/notas', [NotaController::class, 'index']);
                 Route::get('disciplinas/{classeTurnoDisciplina}/notas/create', [NotaController::class, 'create']);
+                Route::post('disciplinas/{classeTurnoDisciplina}/notas', [NotaController::class, 'store']);
                 Route::get('disciplinas/{classeTurnoDisciplina}/professores/create', [TurmaDisciplinaProfessorController::class, 'create']);
                 Route::post('disciplinas/{classeTurnoDisciplina}/professores', [TurmaDisciplinaProfessorController::class, 'store']);
             });
@@ -153,16 +150,5 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 });
 
 Route::resource('avisos', AvisoController::class);
-
-// Card do aluno
-Route::get('aluno/avisos', [AvisoController::class, 'indexAluno']);
-
-// Card do professor
-Route::get('professor/avisos', [AvisoController::class, 'indexProfessor']);
-
-Route::prefix('classes/{classe}')->group(function () {
-    Route::get('disciplinas', [ClasseControllerGeral::class, 'showDisciplinas']);
-    // Route::resource('turnos', TurnoController::class);
-});
 
 Route::get('pap', [GrupoPapController::class, 'index']);

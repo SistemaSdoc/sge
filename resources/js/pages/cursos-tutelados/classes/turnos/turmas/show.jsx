@@ -24,6 +24,7 @@ export default function Show({
   turma,
 }) {
   const { url } = usePage();
+  
 
   // Extract IDs from URL: /instituicoes/{id}/cursos-tutelados/{id}/classes/{id}/turnos/{id}/turmas/{id}
   const urlParts = url.split('/').filter(Boolean);
