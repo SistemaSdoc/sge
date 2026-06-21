@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Inscricao\StoreInscricaoRequest;
 use App\Http\Requests\UpdateInscricaoRequest;
+use App\Http\Resources\Inscricao\InscricaoResource;
+use App\Http\Resources\Inscricao\InscricaoShowResource;
 use App\Models\Aluno;
 use App\Models\Candidato;
 use App\Models\Inscricao;
@@ -11,34 +14,19 @@ use App\Models\Turma;
 use App\Models\User;
 use App\Services\InscricaoService;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
-class InscricaoController extends Controller // implements HasMiddleware
+class InscricaoController extends Controller 
 {
     public function __construct(
         private InscricaoService $inscricaoService
     ) {}
 
-    /*public static function middleware(): array
-    {
-        return [
-            new Middleware('permission:inscricoes.index', only: ['index']),
-            new Middleware('permission:inscricoes.show', only: ['show', '']),
-            new Middleware('permission:inscricoes.create', only: ['store']),
-            new Middleware('permission:inscricoes.edit', only: ['update']),
-            new Middleware('permission:inscricoes.delete', only: ['destroy']),
-        ];
-    }*/
-
     public function index()
     {
-        /** @var User|null $user */
-        $user = Auth::user();
-        $instituicaoId = $user ? $user->instituicaoFiltro() : null;
+        $instituicaoId = Auth::user()?->instituicaoFiltro();
 
         $inscricoes = Inscricao::with([
             'candidato:id,nome',
@@ -46,24 +34,18 @@ class InscricaoController extends Controller // implements HasMiddleware
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
         ])
-            ->when(
-                $instituicaoId,
-                fn ($q) => $q->whereHas(
-                    'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn ($q) => $q->where('instituicao_id', $instituicaoId)
-                )
+        ->when(
+            $instituicaoId,
+            fn ($q) => $q->whereHas(
+                'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                fn ($q) => $q->where('instituicao_id', $instituicaoId)
             )
-            ->latest()->paginate(10);
+        )
+        ->latest()
+        ->paginate(10);
 
         return Inertia::render('inscricoes/index', [
-            'inscricoes' => $inscricoes->through(fn ($insc) => [
-                'id' => $insc->id,
-                'status' => $insc->status,
-                'candidato' => $insc->candidato->nome,
-                'curso' => $insc->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
-                'instituicao' => $insc->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
-                'turno' => $insc->cursoClasseTurno?->turno?->nome,
-            ]),
+            'inscricoes' => InscricaoResource::collection($inscricoes),
         ]);
     }
 
@@ -93,35 +75,9 @@ class InscricaoController extends Controller // implements HasMiddleware
         ]);
     }
 
-    public function store(Request $request)
+   public function store(StoreInscricaoRequest $request)
     {
-
-        $request->validate([
-            'nome' => 'required|string|max:255',
-            'bi' => 'required|string|max:20',
-            'numero_estudante' => 'required|string|max:20',
-            'telefone' => 'nullable|max:20',
-            'email' => 'required|email|max:255|unique:candidatos,email|unique:users,email',
-            // 'morada' => 'nullable|string|max:255',
-            'curso_classe_turno_id' => 'required|exists:curso_classe_turno,id',
-        ]);
-
-        // 1️Criar o candidato
-        $candidato = Candidato::create([
-            'nome' => $request->nome,
-            'bi' => $request->bi,
-            'numero_estudante' => $request->numero_estudante,
-            'telefone' => $request->telefone,
-            'email' => $request->email,
-            // 'morada' => $request->morada,
-        ]);
-
-        // 2️ Criar a inscrição
-        Inscricao::create([
-            'candidato_id' => $candidato->id,
-            'curso_classe_turno_id' => $request->curso_classe_turno_id,
-            'status' => 'pendente', // ou 'ativo', dependendo da lógica de negócio
-        ]);
+        $this->inscricaoService->criar($request->validated());
 
         return redirect()->route('inscricoes.index');
     }
@@ -136,23 +92,7 @@ class InscricaoController extends Controller // implements HasMiddleware
         ]);
 
         return Inertia::render('inscricoes/show', [
-            'inscricao' => [
-                'id' => $inscricao->id,
-                'status' => $inscricao->status,
-                'created_at' => $inscricao->created_at?->format('d/m/Y'),
-                'candidato' => [
-                    'nome' => $inscricao->candidato?->nome,
-                    'bi' => $inscricao->candidato?->bi,
-                    'numero_estudante' => $inscricao->candidato?->numero_estudante,
-                    'email' => $inscricao->candidato?->email,
-                    'telefone' => $inscricao->candidato?->telefone,
-                    'morada' => $inscricao->candidato?->morada,
-                    'nota_teste' => $inscricao->nota_teste,
-                ],
-                'curso' => $inscricao->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
-                'instituicao' => $inscricao->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
-                'turno' => $inscricao->cursoClasseTurno?->turno?->nome,
-            ],
+            'inscricao' => new InscricaoShowResource($inscricao),
         ]);
     }
 
@@ -187,7 +127,7 @@ class InscricaoController extends Controller // implements HasMiddleware
         ]);
     }*/
 
-    public function update(UpdateInscricaoRequest $request, Inscricao $inscricao)
+   public function update(UpdateInscricaoRequest $request, Inscricao $inscricao)
     {
         $inscricao->load([
             'candidato',
@@ -195,7 +135,10 @@ class InscricaoController extends Controller // implements HasMiddleware
         ]);
 
         try {
-            $this->inscricaoService->atualizarNotaTeste($inscricao, $request->validated()['nota_teste']);
+            $this->inscricaoService->atualizarNotaTeste(
+                $inscricao,
+                $request->validated()['nota_teste']
+            );
 
             return redirect()->route('inscricoes.index');
         } catch (\InvalidArgumentException $e) {
@@ -203,12 +146,13 @@ class InscricaoController extends Controller // implements HasMiddleware
         } catch (\Exception $e) {
             Log::error('Erro ao atualizar inscrição', [
                 'inscricao_id' => $inscricao->id,
-                'error' => $e->getMessage(),
+                'error'        => $e->getMessage(),
             ]);
 
             return redirect()->back()->withErrors(['error' => 'Erro interno do servidor.']);
         }
     }
+
 
     public function destroy(Inscricao $inscricao)
     {
