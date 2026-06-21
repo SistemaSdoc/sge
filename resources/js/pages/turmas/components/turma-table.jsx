@@ -46,7 +46,7 @@ export function TurmaTable({ turmas, deleteFn }) {
   
 
   return (
-    <Card className="mx-auto w-full max-w-7xl gap-0">
+    <Card className="gap-0">
       <CardHeader className="border-b">
         <CardTitle>Turmas</CardTitle>
         <CardDescription>Lista de turmas disponíveis</CardDescription>

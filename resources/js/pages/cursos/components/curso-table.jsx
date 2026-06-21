@@ -53,89 +53,95 @@ export default function CursoTable({
   const isEmpty = !cursos || cursos.length === 0;
 
   return (
-    <Card className="mx-auto w-full max-w-7xl gap-0">
-      <CardHeader className="border-b">
-        <CardTitle>Cursos</CardTitle>
-        <CardDescription>Lista de cursos cadastrados</CardDescription>
-        <CardAction>
-          <Button asChild>
-            <Link href={create().url}>Adicionar</Link>
-          </Button>
-        </CardAction>
-      </CardHeader>
+    <div className="mx-auto w-full max-w-7xl p-6">
+      <Card className="gap-0">
+        <CardHeader className="border-b">
+          <CardTitle>Cursos</CardTitle>
+          <CardDescription>Lista de cursos cadastrados</CardDescription>
+          <CardAction>
+            <Button asChild>
+              <Link href={create().url}>Adicionar</Link>
+            </Button>
+          </CardAction>
+        </CardHeader>
 
-      <CardContent className="p-0!">
-        {isEmpty ? (
-          <EmptyState
-            variant="table"
-            icon={LayersIcon}
-            title="Nenhum curso cadastrado"
-            description="Comece adicionando a primeiro curso à tabela"
-            action={{
-              label: 'Adicionar Curso',
-              href: create().url,
-              variant: 'outline',
-            }}
-          />
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/72">
-                <TableHead className="px-4">Nome</TableHead>
-                <TableHead className="px-4 text-right">Acções</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {cursos.map((curso) => (
-                <TableRow
-                  key={curso.id}
-                  className="hover:cursor-pointer"
-                  onClick={() => router.visit(show(curso.id).url)}
-                >
-                  <TableCell className="px-4 font-medium">
-                    {curso.nome}
-                  </TableCell>
-                  <TableCell className="px-4 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <MoreHorizontalIcon />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.visit(edit(curso.id).url);
-                          }}
-                        >
-                          Editar
-                        </DropdownMenuItem>
-
-                        <DropdownMenuSeparator />
-
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteFn(curso.id);
-                          }}
-                        >
-                          Remover
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+        <CardContent className="p-0!">
+          {isEmpty ? (
+            <EmptyState
+              variant="table"
+              icon={LayersIcon}
+              title="Nenhum curso cadastrado"
+              description="Comece adicionando a primeiro curso à tabela"
+              action={{
+                label: 'Adicionar Curso',
+                href: create().url,
+                variant: 'outline',
+              }}
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/72">
+                  <TableHead className="px-4">Nome</TableHead>
+                  <TableHead className="px-4 text-right">Acções</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </CardContent>
+              </TableHeader>
+              <TableBody>
+                {cursos.map((curso) => (
+                  <TableRow
+                    key={curso.id}
+                    className="hover:cursor-pointer"
+                    onClick={() => router.visit(show(curso.id).url)}
+                  >
+                    <TableCell className="px-4 font-medium">
+                      {curso.nome}
+                    </TableCell>
+                    <TableCell className="px-4 text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                          >
+                            <MoreHorizontalIcon />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
 
-      <TablePagination pagination={pagination} onPageChange={onPageChange} />
-    </Card>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.visit(edit(curso.id).url);
+                            }}
+                          >
+                            Editar
+                          </DropdownMenuItem>
+
+                          <DropdownMenuSeparator />
+
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteFn(curso.id);
+                            }}
+                          >
+                            Remover
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+
+        <TablePagination pagination={pagination} onPageChange={onPageChange} />
+      </Card>
+    </div>
   );
 }

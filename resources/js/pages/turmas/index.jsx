@@ -1,14 +1,11 @@
 import { TurmaTable } from './components/turma-table';
 import { Head } from '@inertiajs/react';
 
-export default function TurmaIndex({ turmas }) {
-  console.log({
-    turmas,
-  });
+export default function Index({ turmas }) {
   return (
-    <>
+    <div className='mx-auto w-full max-w-7xl p-6'>
       <Head title="Turmas" />
-      <TurmaTable turmas={turmas.data ?? []} deleteFn={() => {}} />
-    </>
+      <TurmaTable turmas={turmas.data ?? []} />
+    </div>
   );
 }
