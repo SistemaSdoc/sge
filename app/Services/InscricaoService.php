@@ -3,47 +3,63 @@
 namespace App\Services;
 
 use App\Models\Aluno;
+use App\Models\Candidato;
 use App\Models\Inscricao;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class InscricaoService
 {
+    public function criar(array $dados): Inscricao
+    {
+        return DB::transaction(function () use ($dados) {
+            $candidato = Candidato::create([
+                'nome'             => $dados['nome'],
+                'bi'               => $dados['bi'],
+                'numero_estudante' => $dados['numero_estudante'],
+                'telefone'         => $dados['telefone'] ?? null,
+                'email'            => $dados['email'],
+            ]);
+
+            return Inscricao::create([
+                'candidato_id'          => $candidato->id,
+                'curso_classe_turno_id' => $dados['curso_classe_turno_id'],
+                'status'                => 'pendente',
+            ]);
+        });
+    }
+
     public function atualizarNotaTeste(Inscricao $inscricao, float $nota): void
     {
         DB::transaction(function () use ($inscricao, $nota) {
-            $statusAnterior = $inscricao->status;
+            $statusAnterior  = $inscricao->status;
             $statusCalculado = $nota >= 10 ? 'aprovado' : 'reprovado';
 
-            Log::info('INSCRICAO UPDATE', [
-                'inscricao_id' => $inscricao->id,
+            Log::info('Inscrição — atualizar nota', [
+                'inscricao_id'    => $inscricao->id,
                 'status_anterior' => $statusAnterior,
-                'nota_teste' => $nota,
-                'candidato_email' => $inscricao->candidato?->email,
-                'candidato_nome' => $inscricao->candidato?->nome,
-                'instituicao_id' => $inscricao->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao_id,
+                'status_novo'     => $statusCalculado,
+                'nota_teste'      => $nota,
             ]);
 
             $inscricao->update([
                 'nota_teste' => $nota,
-                'status' => $statusCalculado,
+                'status'     => $statusCalculado,
             ]);
 
-            Log::info('STATUS CALCULADO', [
-                'statusCalculado' => $statusCalculado,
-                'statusAnterior' => $statusAnterior,
-                'vai_criar_aluno' => $statusCalculado === 'aprovado' && $statusAnterior !== 'aprovado',
-            ]);
+            $devecriarAluno = $statusCalculado === 'aprovado'
+                && $statusAnterior !== 'aprovado';
 
-            if ($statusCalculado === 'aprovado' && $statusAnterior !== 'aprovado') {
+            if ($devecriarAluno) {
                 $this->criarAlunoSeNecessario($inscricao);
             }
         });
     }
+
+    // ─── Privados ─────────────────────────────────────────────────────────────
 
     private function criarAlunoSeNecessario(Inscricao $inscricao): void
     {
@@ -58,10 +74,10 @@ class InscricaoService
         $user = User::firstOrCreate(
             ['email' => $inscricao->candidato->email],
             [
-                'nome' => $inscricao->candidato->nome,
-                'password' => Hash::make('123456'),
-                'telefone' => $inscricao->candidato->telefone,
-                'bi' => $inscricao->candidato->bi,
+                'nome'           => $inscricao->candidato->nome,
+                'password'       => Hash::make('123456'),
+                'telefone'       => $inscricao->candidato->telefone,
+                'bi'             => $inscricao->candidato->bi,
                 'instituicao_id' => $inscricao->cursoClasseTurno
                     ->cursoClasse
                     ->cursoTutelado
@@ -75,40 +91,24 @@ class InscricaoService
             $user->roles()->syncWithoutDetaching([$roleAluno->id]);
         }
 
-        $matricula = $this->gerarMatriculaUnica();
-
-        try {
-            Aluno::create([
-                'user_id' => $user->id,
-                'inscricao_id' => $inscricao->id,
-                'matricula' => $matricula,
-            ]);
-        } catch (QueryException $e) {
-            if ($e->getCode() == 23000) {
-                // Retry with new matricula
-                $matricula = $this->gerarMatriculaUnica();
-                Aluno::create([
-                    'user_id' => $user->id,
-                    'inscricao_id' => $inscricao->id,
-                    'matricula' => $matricula,
-                ]);
-            } else {
-                throw $e;
-            }
-        }
+        Aluno::create([
+            'user_id'      => $user->id,
+            'inscricao_id' => $inscricao->id,
+            'matricula'    => $this->gerarMatriculaUnica(),
+        ]);
     }
 
     private function gerarMatriculaUnica(): string
     {
         $ano = now()->year;
 
-        // Com UUID v7 ordenável, poderíamos usar orderByDesc('id'), mas MAX é mais seguro
-        $maxNumero = Aluno::where('matricula', 'like', "MAT-$ano-%")
-            ->selectRaw('MAX(CAST(SUBSTRING(matricula, -4) AS UNSIGNED)) as max_num')
+        // lockForUpdate garante que dois requests simultâneos
+        // nunca lêem o mesmo MAX — elimina a race condition
+        $max = Aluno::where('matricula', 'like', "MAT-{$ano}-%")
+            ->lockForUpdate()
+            ->selectRaw('MAX(CAST(SUBSTRING_INDEX(matricula, "-", -1) AS UNSIGNED)) as max_num')
             ->value('max_num') ?? 0;
 
-        $novoNumero = str_pad($maxNumero + 1, 4, '0', STR_PAD_LEFT);
-
-        return "MAT-$ano-$novoNumero";
+        return sprintf('MAT-%d-%04d', $ano, $max + 1);
     }
 }

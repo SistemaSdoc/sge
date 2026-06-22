@@ -1,15 +1,22 @@
-import { router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { ClasseTable } from './components/classe-table';
 import {
   index,
   destroy,
 } from '@/actions/App/Http/Controllers/ClasseController';
+import { useDialog } from '@/hooks/use-dialog';
 
 export default function Index({ classes }) {
-  const excluir = (id) => {
-    if (confirm('Tem certeza que deseja excluir essa classe?')) {
-      router.delete(destroy(id).url);
-    }
+  const { deleteConfirm } = useDialog();
+
+  const handleDelete = (classeId) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description:
+        'Esta acção é irreversível. A classe será eliminada permanentemente.',
+      confirmLabel: 'Eliminar',
+      confirmFn: () => router.delete(destroy(classeId).url),
+    });
   };
 
   const handlePageChange = (page) => {
@@ -20,16 +27,18 @@ export default function Index({ classes }) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <>
+      <Head title="Classes" />
+      
       <ClasseTable
         classes={classes}
-        deleteFn={excluir}
+        deleteFn={handleDelete}
         pagination={{
           current_page: classes.current_page,
           last_page: classes.last_page,
         }}
         onPageChange={handlePageChange}
       />
-    </div>
+    </>
   );
 }

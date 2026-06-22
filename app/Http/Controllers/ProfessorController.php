@@ -8,32 +8,18 @@ use App\Models\Professor;
 use App\Models\Role;
 use App\Models\Turma;
 use App\Models\User;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
-class ProfessorController extends Controller // implements HasMiddleware
+class ProfessorController extends Controller
 {
-    /*public static function middleware(): array
-    {
-        return [
-            new Middleware('permission:professores.index',  only: ['index']),
-            new Middleware('permission:professores.show',   only: ['show']),
-            new Middleware('permission:professores.create', only: ['store']),
-            new Middleware('permission:professores.edit',   only: ['update']),
-            new Middleware('permission:professores.delete', only: ['destroy']),
-        ];
-    }*/
-
     public function index()
     {
-
         $user = Auth::user();
         $instituicaoId = $user?->instituicaoFiltro();
 
-        $professores = Professor::select(['id', 'user_id', 'especialidade', 'created_at'])
+        $professores = Professor::select(['id', 'user_id', 'created_at'])
             ->with(['user:id,nome,telefone'])
             ->when(
                 $instituicaoId,
@@ -43,7 +29,7 @@ class ProfessorController extends Controller // implements HasMiddleware
                 )
             )
             ->orderBy('created_at', 'asc')
-            ->paginate(1);
+            ->paginate(10);
 
         return Inertia::render('professores/index', [
             'professores' => $professores,
@@ -69,6 +55,7 @@ class ProfessorController extends Controller // implements HasMiddleware
         ]);
 
         $roleProfessor = Role::where('nome', 'Professor')->firstOrFail();
+        
         $user->roles()->syncWithoutDetaching([$roleProfessor->id]);
 
         Professor::create([

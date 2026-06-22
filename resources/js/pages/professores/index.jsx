@@ -4,12 +4,19 @@ import {
   index,
   destroy,
 } from '@/actions/App/Http/Controllers/ProfessorController';
+import { useDialog } from '@/hooks/use-dialog';
 
 export default function Index({ professores }) {
-  const excluir = (id) => {
-    if (confirm('Tem certeza que deseja excluir esse professor?')) {
-      router.delete(destroy(id).url);
-    }
+  const { deleteConfirm } = useDialog();
+
+  const handleDelete = (professorId) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description:
+        'Esta acção é irreversível. O professor será eliminado permanentemente.',
+      confirmLabel: 'Eliminar',
+      confirmFn: () => router.delete(destroy(professorId).url),
+    });
   };
 
   const handlePageChange = (page) => {
@@ -28,7 +35,7 @@ export default function Index({ professores }) {
         }}
         onPageChange={handlePageChange}
         professores={professores}
-        deleteFn={excluir}
+        deleteFn={handleDelete}
       />
     </div>
   );

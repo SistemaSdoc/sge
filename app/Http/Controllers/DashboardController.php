@@ -26,7 +26,7 @@ class DashboardController extends Controller
 
         // Exemplo.
         if ($user->hasRole('Director')) {
-            return Inertia::render('dashboards/director', [
+            return Inertia::render('dashboards/director/index', [
                 'data' => 'Director Logado',
                 'dashboardHeading' => 'Painel de Diretor — Experimento',
                 'dashboardMessage' => 'Este é um teste de renderização de página específica para o Director.',
@@ -34,7 +34,7 @@ class DashboardController extends Controller
         }
 
         if ($user->hasRole('Professor')) {
-            return Inertia::render('dashboards/professor', [
+            return Inertia::render('dashboards/professor/index', [
                 'data' => 'Professor Logado',
             ]);
         }

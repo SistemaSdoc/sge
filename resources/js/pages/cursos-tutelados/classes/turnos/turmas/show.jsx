@@ -27,6 +27,7 @@ export default function Show({
   disciplinas, // ← NOVO: recebe paginação do backend
 }) {
   const { url } = usePage();
+  
 
   // Extract IDs from URL: /instituicoes/{id}/cursos-tutelados/{id}/classes/{id}/turnos/{id}/turmas/{id}
   const urlParts = url.split('/').filter(Boolean);

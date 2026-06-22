@@ -21,7 +21,7 @@ class CursoUpdateRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    public function rules(Curso $curso): array
+    public function rules(): array
     {
         return [
             'nome' => 'required|string',

@@ -9,13 +9,13 @@ class IndexResource extends JsonResource
 {
     public static $wrap = null;
 
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
+        $cursoClasseTurno = $this->turma?->cursoClasseTurno;
+        $cursoClasse = $cursoClasseTurno?->cursoClasse;
+        $cursoTutelado = $cursoClasse?->cursoTutelado;
+        $instituicaoCurso = $cursoTutelado?->instituicaoCurso;
+
         return [
             'id' => $this->id,
             'nome_grupo' => $this->nome_grupo,
@@ -27,10 +27,26 @@ class IndexResource extends JsonResource
                 'id' => $this->professor->id,
                 'nome' => $this->professor->user?->nome,
             ] : null,
-            'turma' => $this->turma?->nome,
-            'classe' => $this->turma?->cursoClasseTurno?->cursoClasse?->classe?->nome,
-            'curso' => $this->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
-            'instituicao' => $this->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
+            'instituicao' => [
+                'id' => $instituicaoCurso?->instituicao?->id,
+                'nome' => $instituicaoCurso?->instituicao?->nome,
+            ],
+            'cursoTutelado' => [
+                'id' => $cursoTutelado?->id,
+                'nome' => $instituicaoCurso?->curso?->nome,
+            ],
+            'cursoClasse' => [
+                'id' => $cursoClasse?->id,
+                'nome' => $cursoClasse?->classe?->nome,
+            ],
+            'cursoClasseTurno' => [
+                'id' => $cursoClasseTurno?->id,
+                'nome' => $cursoClasseTurno?->turno?->nome,
+            ],
+            'turma' => [
+                'id' => $this->turma?->id,
+                'nome' => $this->turma?->nome,
+            ],
             'num_elementos' => $this->elementos->count(),
             'elementos' => $this->elementos->map(fn ($el) => [
                 'id' => $el->aluno->id,

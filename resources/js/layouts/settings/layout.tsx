@@ -55,7 +55,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                 })}
               >
                 <Link href={item.href}>
-                  {item.icon && <item.icon className="h-4 w-4" />}
+                  {item.icon && <item.icon className="h-4 w-4 text-secondary-foreground" />}
                   {item.title}
                 </Link>
               </Button>

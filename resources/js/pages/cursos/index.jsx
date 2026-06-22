@@ -1,30 +1,21 @@
-import { router } from '@inertiajs/react';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Head, router } from '@inertiajs/react';
 import CursoTable from './components/curso-table';
 import {
   index,
   destroy,
 } from '@/actions/App/Http/Controllers/CursosController';
+import { useDialog } from '@/hooks/use-dialog';
 
 export default function Index({ cursos }) {
-  const [cursoParaExcluir, setCursoParaExcluir] = useState(null);
+  const { deleteConfirm } = useDialog();
 
-  const handleDelete = () => {
-    if (cursoParaExcluir === null) {
-      return;
-    }
-
-    router.delete(destroy(cursoParaExcluir).url, {
-      onFinish: () => setCursoParaExcluir(null),
+  const handleDelete = (cursoId) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description:
+        'Esta acção é irreversível. O curso será eliminado permanentemente.',
+      confirmLabel: 'Eliminar',
+      confirmFn: () => router.delete(destroy(cursoId).url),
     });
   };
 
@@ -37,41 +28,16 @@ export default function Index({ cursos }) {
 
   return (
     <>
-      <div className="mx-auto w-full max-w-7xl p-6">
-        <CursoTable
-          cursos={cursos.data}
-          deleteFn={setCursoParaExcluir}
-          pagination={{
-            current_page: cursos.current_page,
-            last_page: cursos.last_page,
-          }}
-          onPageChange={handlePageChange}
-        />
-      </div>
-
-      <Dialog
-        open={cursoParaExcluir !== null}
-        onOpenChange={() => setCursoParaExcluir(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Tens a certeza?</DialogTitle>
-            <DialogDescription>
-              Esta acção é irreversível. O curso será eliminado permanentemente.
-            </DialogDescription>
-          </DialogHeader>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCursoParaExcluir(null)}>
-              Cancelar
-            </Button>
-
-            <Button variant="destructive" onClick={handleDelete}>
-              Eliminar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <Head title="Cursos" />
+      <CursoTable
+        cursos={cursos.data}
+        deleteFn={handleDelete}
+        pagination={{
+          current_page: cursos.current_page,
+          last_page: cursos.last_page,
+        }}
+        onPageChange={handlePageChange}
+      />
     </>
   );
 }

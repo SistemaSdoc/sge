@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, Settings2 } from 'lucide-react';
 import {
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -42,7 +42,7 @@ export function UserMenuContent({ user }: Props) {
             prefetch
             onClick={cleanup}
           >
-            <Settings className="mr-2" />
+            <Settings2 className="mr-2" />
             Configurações
           </Link>
         </DropdownMenuItem>
