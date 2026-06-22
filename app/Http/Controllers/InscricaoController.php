@@ -18,11 +18,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
-class InscricaoController extends Controller 
+class InscricaoController extends Controller
 {
     public function __construct(
         private InscricaoService $inscricaoService
-    ) {}
+    ) {
+    }
 
     public function index()
     {
@@ -34,15 +35,15 @@ class InscricaoController extends Controller
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
         ])
-        ->when(
-            $instituicaoId,
-            fn ($q) => $q->whereHas(
-                'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                fn ($q) => $q->where('instituicao_id', $instituicaoId)
+            ->when(
+                $instituicaoId,
+                fn($q) => $q->whereHas(
+                    'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                    fn($q) => $q->where('instituicao_id', $instituicaoId)
+                )
             )
-        )
-        ->latest()
-        ->paginate(10);
+            ->latest()
+            ->paginate(10);
 
         return Inertia::render('inscricoes/index', [
             'inscricoes' => InscricaoResource::collection($inscricoes),
@@ -58,24 +59,24 @@ class InscricaoController extends Controller
         ])->get();
 
         return Inertia::render('inscricoes/create', [
-            'instituicoes' => $instituicoes->map(fn ($inst) => [
+            'instituicoes' => $instituicoes->map(fn($inst) => [
                 'id' => $inst->id,
                 'nome' => $inst->nome,
-                'cursos' => $inst->instituicaoCursos->map(fn ($ci) => [
+                'cursos' => $inst->instituicaoCursos->map(fn($ci) => [
                     'id' => $ci->id,
                     'nome' => $ci->curso->nome,
                     'turnos' => $ci->cursoTutelado?->cursoClasses
-                        ->filter(fn ($c) => $c->classe?->nome === '10ª')
-                        ->flatMap(fn ($c) => $c->turnos->map(fn ($t) => [
+                        ->filter(fn($c) => $c->classe?->nome === '10ª')
+                        ->flatMap(fn($c) => $c->turnos->map(fn($t) => [
                             'id' => $t->id,
                             'nome' => $t->turno->nome,
                         ]))->values(),
-                ])->filter(fn ($ci) => $ci['turnos']->isNotEmpty())->values(),
-            ])->filter(fn ($inst) => $inst['cursos']->isNotEmpty())->values(),
+                ])->filter(fn($ci) => $ci['turnos']->isNotEmpty())->values(),
+            ])->filter(fn($inst) => $inst['cursos']->isNotEmpty())->values(),
         ]);
     }
 
-   public function store(StoreInscricaoRequest $request)
+    public function store(StoreInscricaoRequest $request)
     {
         $this->inscricaoService->criar($request->validated());
 
@@ -84,6 +85,7 @@ class InscricaoController extends Controller
 
     public function show(Inscricao $inscricao)
     {
+
         $inscricao->load([
             'candidato:id,nome,bi,numero_estudante,email,telefone,morada',
             'cursoClasseTurno.turno:id,nome',
@@ -91,9 +93,11 @@ class InscricaoController extends Controller
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
         ]);
 
+
         return Inertia::render('inscricoes/show', [
-            'inscricao' => new InscricaoShowResource($inscricao),
-        ]);
+            'inscricao' => (new InscricaoShowResource($inscricao))->resolve(),  // AAlterado, erro que estava a fazer aparecer tela preta ao acessar detalhes da inscrição
+    ]);
+
     }
 
     /*public function edit(Aluno $aluno)
@@ -127,7 +131,7 @@ class InscricaoController extends Controller
         ]);
     }*/
 
-   public function update(UpdateInscricaoRequest $request, Inscricao $inscricao)
+    public function update(UpdateInscricaoRequest $request, Inscricao $inscricao)
     {
         $inscricao->load([
             'candidato',
@@ -146,7 +150,7 @@ class InscricaoController extends Controller
         } catch (\Exception $e) {
             Log::error('Erro ao atualizar inscrição', [
                 'inscricao_id' => $inscricao->id,
-                'error'        => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
             return redirect()->back()->withErrors(['error' => 'Erro interno do servidor.']);

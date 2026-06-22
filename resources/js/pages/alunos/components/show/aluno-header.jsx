@@ -24,15 +24,15 @@ export function AlunoHeader({ aluno }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => router.visit(`/alunos/${aluno.id}/edit`)}>
+              <DropdownMenuItem onClick={() => router.visit(`/dashboard/alunos/${aluno.id}/edit`)}>
                 Editar
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant="destructive"
                 onClick={() =>
-                  router.delete(`/alunos/${aluno.id}`, {
-                    onSuccess: () => router.visit('/alunos'),
+                  router.delete(`/dashboard/alunos/${aluno.id}`, {
+                    onSuccess: () => router.visit('/dashboard/alunos'),
                   })
                 }
               >

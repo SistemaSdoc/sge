@@ -36,14 +36,14 @@ import {
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import TablePagination from '@/components/table-pagination';
-import {edit} from '@/actions/App/Http/Controllers/AlunoController';
+import { edit } from '@/actions/App/Http/Controllers/AlunoController';
 
 export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
   const isEmpty = !data || data.length === 0;
 
   return (
-    <div className='mx-auto w-full max-w-7xl p-6'>
-      <Card className=" gap-0">
+    <div className="mx-auto w-full max-w-7xl p-6">
+      <Card className="gap-0">
         <CardHeader className="border-b">
           <CardTitle>Alunos</CardTitle>
           <CardDescription>Lista de alunos cadastrados</CardDescription>
@@ -69,7 +69,7 @@ export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
               description="Comece adicionando o primeiro aluno à tabela"
               action={{
                 label: 'Adicionar Aluno',
-                href: '/alunos/create',
+                href: '/dashboard/inscricoes/create', // ← alterado de /alunos/create
                 variant: 'outline',
               }}
             />
@@ -90,7 +90,9 @@ export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
                   <TableRow
                     key={aluno.id}
                     className="hover:cursor-pointer"
-                    onClick={() => router.visit(`/alunos/${aluno.id}`)}
+                    onClick={() =>
+                      router.visit(`/dashboard/alunos/${aluno.id}`)
+                    } // alterado
                   >
                     <TableCell className="px-4 font-medium">
                       {aluno.nome}
@@ -125,7 +127,7 @@ export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.stopPropagation();
-                              router.visit(edit({id: aluno.id}));
+                              router.visit(edit({ id: aluno.id }));
                             }}
                           >
                             Editar
