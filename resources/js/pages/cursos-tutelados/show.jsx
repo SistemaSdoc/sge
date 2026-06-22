@@ -24,29 +24,26 @@ import {
   show as showCurso,
 } from '@/actions/App/Http/Controllers/CursoTuteladoController';
 
-export default function Show({ 
-  cursoTutelado
- }) {
+export default function Show({ cursoTutelado }) {
   const instituicaoId = cursoTutelado.instituicao.id;
   const cursoTuteladoId = cursoTutelado.id;
   const cursoId = cursoTutelado.curso.id;
 
   const handlePageChange = (param) => (page) => {
-  router.visit(
-    showCurso({ instituicao: instituicaoId, 
-      cursoTutelado: cursoTuteladoId })
-      .url,
-    {
-      data: {
-        page_turmas: cursoTutelado.turmas?.current_page ?? 1,
-        page_professores: cursoTutelado.professores?.current_page ?? 1,
-        [param]: page,
+    router.visit(
+      showCurso({ instituicao: instituicaoId, cursoTutelado: cursoTuteladoId })
+        .url,
+      {
+        data: {
+          page_turmas: cursoTutelado.turmas?.current_page ?? 1,
+          page_professores: cursoTutelado.professores?.current_page ?? 1,
+          [param]: page,
+        },
+        preserveScroll: true,
+        preserveState: true,
       },
-      preserveScroll: true,
-      preserveState: true,
-    },
-  );
-};
+    );
+  };
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">

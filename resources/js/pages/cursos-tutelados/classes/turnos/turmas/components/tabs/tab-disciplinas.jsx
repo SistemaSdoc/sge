@@ -45,6 +45,7 @@ export function TabDisciplinas({
   cursoTuteladoId,
   cursoClasseId,
   cursoClasseTurnoId,
+  pagination, // ← NOVO: recebe paginação
 }) {
   const turmaId = turma.id;
 
@@ -122,7 +123,7 @@ export function TabDisciplinas({
                             cursoClasseTurno: cursoClasseTurnoId,
                             turma: turmaId,
                             classeTurnoDisciplina: disciplina.id,
-                          }).url, // ← estava a faltar isto
+                          }).url,
                         )
                       }
                     >
@@ -185,18 +186,26 @@ export function TabDisciplinas({
           )}
         </CardContent>
 
-        {!isEmpty && (
+        {!isEmpty && pagination && pagination.last_page > 1 && (
           <CardFooter className="justify-between">
-            <span className="text-muted-foreground">Página 1 de 4</span>
+            <span className="text-muted-foreground">
+              Página {pagination.current_page} de {pagination.last_page}
+            </span>
 
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
-                  <PaginationPrevious href="#" />
+                  <PaginationPrevious
+                    href={pagination.prev_page_url || '#'}
+                    disabled={!pagination.prev_page_url}
+                  />
                 </PaginationItem>
 
                 <PaginationItem>
-                  <PaginationNext href="#" />
+                  <PaginationNext
+                    href={pagination.next_page_url || '#'}
+                    disabled={!pagination.next_page_url}
+                  />
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
@@ -215,7 +224,6 @@ export function TabDisciplinas({
           turnoId={turnoId}
           turmaId={turmaId}
           onSuccess={() => {
-            // Refetch dos dados se necessário
             console.log('Horários salvos com sucesso!');
           }}
         />

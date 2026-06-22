@@ -140,16 +140,26 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
      */
     public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
     {
+        // Carrega as relações que NÃO precisam de paginação
         $turma->load([
             'cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasseTurno.turno:id,nome',
-            'cursoClasseTurno.classeTurnoDisciplinas.disciplina:id,nome,sigla',
-            'alunos' => fn($q) => $q->wherePivot('activo', true)
-                ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone']),
             'turmaDisciplinaProfessor.professor.user:id,nome,email',
             'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome',
             'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
         ]);
+
+        // Paginação dos alunos
+        $alunos = $turma->alunos()
+            ->wherePivot('activo', true)
+            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
+            ->paginate(5, ['*'], 'page_alunos');
+
+        // Paginação das disciplinas
+        $disciplinas = $turma->cursoClasseTurno
+            ->classeTurnoDisciplinas()
+            ->with('disciplina:id,nome,sigla')
+            ->paginate(5, ['*'], 'page_disciplinas');
 
         $pautaRecurso = $this->pautaService->gerarPautaRecurso($turma);
 
@@ -158,6 +168,8 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             'cursoClasse' => $cursoClasse,
             'cursoClasseTurno' => $cursoClasseTurno,
             'turma' => $turma,
+            'alunos' => $alunos,
+            'disciplinas' => $disciplinas,
             'pautaRecurso' => $pautaRecurso,
         ]);
     }

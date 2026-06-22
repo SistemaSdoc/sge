@@ -5,6 +5,7 @@ import {
   CardAction,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -23,6 +24,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { Minus, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { show } from '@/actions/App/Http/Controllers/AlunoController';
@@ -34,6 +42,7 @@ export function TabAlunos({
   cursoTuteladoId,
   cursoClasseId,
   cursoClasseTurnoId,
+  pagination, // ← NOVO: recebe paginação
 }) {
   const turmaId = turma.id;
   const baseUrl = `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
@@ -159,6 +168,32 @@ export function TabAlunos({
           </Table>
         )}
       </CardContent>
+
+      {!isEmpty && pagination && pagination.last_page > 1 && (
+        <CardFooter className="justify-between">
+          <span className="text-muted-foreground">
+            Página {pagination.current_page} de {pagination.last_page}
+          </span>
+
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href={pagination.prev_page_url || '#'}
+                  disabled={!pagination.prev_page_url}
+                />
+              </PaginationItem>
+
+              <PaginationItem>
+                <PaginationNext
+                  href={pagination.next_page_url || '#'}
+                  disabled={!pagination.next_page_url}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </CardFooter>
+      )}
     </Card>
   );
 }

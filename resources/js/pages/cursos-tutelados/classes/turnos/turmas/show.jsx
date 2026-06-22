@@ -17,11 +17,14 @@ import { TabGruposPAP } from './components/tabs/tab-grupos-pap';
 import { TabDisciplinas } from './components/tabs/tab-disciplinas';
 import { Badge } from '@/components/ui/badge';
 import { preview } from '@/actions/App/Http/Controllers/ProgressaoController';
+
 export default function Show({
   cursoTutelado,
   cursoClasse,
   cursoClasseTurno,
   turma,
+  alunos, // ← NOVO: recebe paginação do backend
+  disciplinas, // ← NOVO: recebe paginação do backend
 }) {
   const { url } = usePage();
 
@@ -40,9 +43,9 @@ export default function Show({
   const turno = turma.curso_classe_turno?.turno;
 
   // ── Buscar pauta final para saber quantos alunos estão em recurso ──
-  const { pautaRecurso } = usePage().props
+  const { pautaRecurso } = usePage().props;
 
-  const totalRecurso = pautaRecurso?.resumo?.total ?? 0
+  const totalRecurso = pautaRecurso?.resumo?.total ?? 0;
 
   // base para as rotas nested
   const baseUrl = `/dashboard/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
@@ -74,9 +77,7 @@ export default function Show({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => router.visit(`#`)}
-                >
+                <DropdownMenuItem onClick={() => router.visit(`#`)}>
                   Editar
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -107,7 +108,7 @@ export default function Show({
                     }
                   >
                     Lançar Recurso
-                    <Badge className="ml-auto bg-blue-50 text-blue-600 text-xs">
+                    <Badge className="ml-auto bg-blue-50 text-xs text-blue-600">
                       {totalRecurso} alunos
                     </Badge>
                   </DropdownMenuItem>
@@ -132,14 +133,20 @@ export default function Show({
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Total de alunos</p>
-            <p className="font-medium">{turma.alunos?.length ?? 0}</p>
+            <p className="font-medium">
+              {alunos.total ?? turma.alunos?.length ?? 0}
+            </p>{' '}
+            {/* ← CORRIGIDO */}
           </div>
           <div>
             <p className="text-sm text-muted-foreground">
               Total de disciplinas
             </p>
             <p className="font-medium">
-              {turma.curso_classe_turno?.classe_turno_disciplinas?.length ?? 0}
+              {disciplinas.total ??
+                turma.curso_classe_turno?.classe_turno_disciplinas?.length ??
+                0}{' '}
+              {/* ← CORRIGIDO */}
             </p>
           </div>
         </CardContent>
@@ -157,7 +164,7 @@ export default function Show({
           {totalRecurso > 0 && (
             <TabsTrigger value="recurso" className="text-blue-600">
               Recurso
-              <Badge className="ml-2 bg-blue-50 text-blue-600 text-xs">
+              <Badge className="ml-2 bg-blue-50 text-xs text-blue-600">
                 {totalRecurso}
               </Badge>
             </TabsTrigger>
@@ -166,22 +173,32 @@ export default function Show({
 
         <TabsContent value="alunos">
           <TabAlunos
-            turma={turma}
+            turma={{ ...turma, alunos: alunos.data ?? [] }}
+            pagination={alunos}
             instituicaoId={instituicaoId}
             cursoTuteladoId={cursoTuteladoId}
             cursoClasseId={cursoClasseId}
             cursoClasseTurnoId={cursoClasseTurnoId}
           />
+          {/* REMOVIDO: onPageChange={handlePageChange('page_alunos')} */}
         </TabsContent>
 
         <TabsContent value="disciplinas">
           <TabDisciplinas
-            turma={turma}
+            turma={{
+              ...turma,
+              curso_classe_turno: {
+                ...turma.curso_classe_turno,
+                classe_turno_disciplinas: disciplinas.data ?? [],
+              },
+            }}
+            pagination={disciplinas}
             instituicaoId={instituicaoId}
             cursoTuteladoId={cursoTuteladoId}
             cursoClasseId={cursoClasseId}
             cursoClasseTurnoId={cursoClasseTurnoId}
           />
+          {/* REMOVIDO: onPageChange={handlePageChange('page_disciplinas')} */}
         </TabsContent>
 
         {classe?.nome === '13ª' && (
