@@ -196,10 +196,9 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
         $temProfessores = $classeTurnoDisciplina->turmaDisciplinaProfessores()->exists();
 
         if ($temProfessores) {
-            return back()->with(
-                'error',
-                'Não é possível remover uma disciplina que tem professores associados.'
-            );
+            return back()->withErrors([
+                'message' => 'Não é possível remover uma disciplina com professores associados.'
+            ]);
         }
 
         $classeTurnoDisciplina->delete();
