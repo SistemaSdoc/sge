@@ -17,6 +17,7 @@ import { TabGruposPAP } from './components/tabs/tab-grupos-pap';
 import { TabDisciplinas } from './components/tabs/tab-disciplinas';
 import { Badge } from '@/components/ui/badge';
 import { preview } from '@/actions/App/Http/Controllers/ProgressaoController';
+import { edit } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 
 export default function Show({
   cursoTutelado,
@@ -27,7 +28,7 @@ export default function Show({
   disciplinas, // ← NOVO: recebe paginação do backend
 }) {
   const { url } = usePage();
-  
+
 
   // Extract IDs from URL: /instituicoes/{id}/cursos-tutelados/{id}/classes/{id}/turnos/{id}/turmas/{id}
   const urlParts = url.split('/').filter(Boolean);
@@ -78,7 +79,19 @@ export default function Show({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => router.visit(`#`)}>
+                <DropdownMenuItem
+                  onClick={() =>
+                    router.visit(
+                      `${edit({
+                        instituicao: instituicaoId,
+                        cursoTutelado: cursoTuteladoId,
+                        cursoClasse: cursoClasseId,
+                        cursoClasseTurno: cursoClasseTurnoId,
+                        turma: turmaId,
+                      }).url}?origem=turma`
+                    )
+                  }
+                >
                   Editar
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -115,9 +128,9 @@ export default function Show({
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive">
+                {/*<DropdownMenuItem variant="destructive">
                   Remover
-                </DropdownMenuItem>
+                </DropdownMenuItem>*/}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

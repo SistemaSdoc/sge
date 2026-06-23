@@ -39,7 +39,7 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
             ->paginate(5);
 
         return response()->json(
-            $disciplinas->through(fn ($ctd) => [
+            $disciplinas->through(fn($ctd) => [
                 'id' => $ctd->id,
                 'disciplina' => [
                     'id' => $ctd->disciplina->id,
@@ -83,7 +83,7 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
             ->get();
 
         return response()->json(
-            $disciplinas->map(fn ($ctd) => [
+            $disciplinas->map(fn($ctd) => [
                 'id' => $ctd->id,
                 'disciplina' => [
                     'id' => $ctd->disciplina->id,
@@ -138,6 +138,25 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
         return redirect()->back();
     }
 
+    public function edit(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        ClasseTurnoDisciplina $classeTurnoDisciplina
+    ) {
+        return Inertia::render(
+            'cursos-tutelados/classes/turnos/disciplinas/edit',
+            [
+                'disciplina' => $classeTurnoDisciplina,
+                'instituicaoId' => $instituicao->id,
+                'cursoId' => $cursoTutelado->id,
+                'classeId' => $cursoClasse->id,
+                'turnoId' => $cursoClasseTurno->id,
+            ]
+        );
+    }
+
     public function update(
         Request $request,
         Instituicao $instituicao,
@@ -164,21 +183,30 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
         return response()->json(['message' => 'Actualizado com sucesso.'], 200);
     }
 
-    public function destroy(CursoClasseTurno $cursoClasseTurno, ClasseTurnoDisciplina $classeTurnoDisciplina)
-    {
+    public function destroy(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        ClasseTurnoDisciplina $classeTurnoDisciplina
+    ) {
         abort_if($classeTurnoDisciplina->curso_classe_turno_id !== $cursoClasseTurno->id, 404);
 
         // Verificar se tem professores associados
         $temProfessores = $classeTurnoDisciplina->turmaDisciplinaProfessores()->exists();
 
         if ($temProfessores) {
-            return response()->json([
-                'message' => 'Não é possível remover uma disciplina que tem professores associados.',
-            ], 422);
+            return back()->with(
+                'error',
+                'Não é possível remover uma disciplina que tem professores associados.'
+            );
         }
 
         $classeTurnoDisciplina->delete();
 
-        return response()->json(['message' => 'Disciplina removida com sucesso.'], 204);
+        return back()->with(
+            'success',
+            'Disciplina removida com sucesso.'
+        );
     }
 }

@@ -38,6 +38,7 @@ import { HorariosDialog } from '../horarios/horarios-dialog';
 import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
 import { index } from '@/actions/App/Http/Controllers/NotaController';
 import { create as createProfessor } from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController';
+import TablePagination from '@/components/table-pagination';
 
 export function TabDisciplinas({
   turma,
@@ -52,6 +53,10 @@ export function TabDisciplinas({
   // The backend returns snake_case properties: classe_turno_disciplinas
   const disciplinas = turma.curso_classe_turno?.classe_turno_disciplinas ?? [];
   const isEmpty = disciplinas.length === 0;
+
+  const handlePageChange = (page) => {
+    router.get('', { page_disciplinas: page }, { preserveState: true, preserveScroll: true });
+  };
 
   const [horariosDialogOpen, setHorariosDialogOpen] = useState(false);
   const [disciplinaSelectedParaHorario, setDisciplinaSelectedParaHorario] =
@@ -185,32 +190,10 @@ export function TabDisciplinas({
             </Table>
           )}
         </CardContent>
-
-        {!isEmpty && pagination && pagination.last_page > 1 && (
-          <CardFooter className="justify-between">
-            <span className="text-muted-foreground">
-              Página {pagination.current_page} de {pagination.last_page}
-            </span>
-
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href={pagination.prev_page_url || '#'}
-                    disabled={!pagination.prev_page_url}
-                  />
-                </PaginationItem>
-
-                <PaginationItem>
-                  <PaginationNext
-                    href={pagination.next_page_url || '#'}
-                    disabled={!pagination.next_page_url}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </CardFooter>
-        )}
+        <TablePagination
+          pagination={pagination}
+          onPageChange={handlePageChange}
+        />
       </Card>
 
       {disciplinaSelectedParaHorario && (

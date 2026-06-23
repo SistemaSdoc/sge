@@ -35,6 +35,8 @@ import { Minus, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { show } from '@/actions/App/Http/Controllers/AlunoController';
 import { gerar } from '@/actions/App/Http/Controllers/CertificadoController';
+import TablePagination from '@/components/table-pagination';
+
 
 export function TabAlunos({
   turma,
@@ -49,6 +51,11 @@ export function TabAlunos({
 
   const alunos = turma.alunos ?? [];
   const isEmpty = alunos.length === 0;
+
+  const handlePageChange = (page) => {
+    router.get('', { page_alunos: page }, { preserveState: true, preserveScroll: true });
+  };
+
 
   const gerarCertificado = async (e, alunoId) => {
     e.stopPropagation();
@@ -171,31 +178,10 @@ export function TabAlunos({
         )}
       </CardContent>
 
-      {!isEmpty && pagination && pagination.last_page > 1 && (
-        <CardFooter className="justify-between">
-          <span className="text-muted-foreground">
-            Página {pagination.current_page} de {pagination.last_page}
-          </span>
-
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href={pagination.prev_page_url || '#'}
-                  disabled={!pagination.prev_page_url}
-                />
-              </PaginationItem>
-
-              <PaginationItem>
-                <PaginationNext
-                  href={pagination.next_page_url || '#'}
-                  disabled={!pagination.next_page_url}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardFooter>
-      )}
+      <TablePagination
+        pagination={pagination}
+        onPageChange={handlePageChange}
+      />
     </Card>
   );
 }

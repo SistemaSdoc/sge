@@ -40,10 +40,12 @@ import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { index } from '@/actions/App/Http/Controllers/TurmaController';
 import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import TablePagination from '@/components/table-pagination';
 
-export function TurmaTable({ turmas, deleteFn }) {
+export function TurmaTable({ turmas, deleteFn, pagination = {},
+  onPageChange, }) {
   const isEmpty = !turmas || turmas.length === 0;
-  
+
 
   return (
     <Card className="gap-0">
@@ -135,21 +137,7 @@ export function TurmaTable({ turmas, deleteFn }) {
         )}
       </CardContent>
 
-      {!isEmpty && (
-        <CardFooter className="justify-between">
-          <span className="text-muted-foreground">Página 1 de 4</span>
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious href="#" />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </CardFooter>
-      )}
+      <TablePagination pagination={pagination} onPageChange={onPageChange} />
     </Card>
   );
 }

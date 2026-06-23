@@ -6,7 +6,7 @@ export default function Index() {
   const { inscricoes } = usePage().props;
 
   const handlePageChange = (page) => {
-    router.visit('/inscricoes', {
+    router.visit('/dashboard/inscricoes', {
       data: { page },
       preserveScroll: true,
     });

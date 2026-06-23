@@ -109,7 +109,8 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 
         Route::prefix('turmas/{turma}')->group(function () {
             Route::post('progressao', [ProgressaoController::class, 'store']);
-            Route::post('progressao/recurso', [ProgressaoController::class, 'storeRecurso']);
+           // Route::post('progressao/recurso', [ProgressaoController::class, 'storeRecurso']);
+            Route::post('notas/recurso', [NotaController::class, 'storeRecurso']);
             Route::get('finalistas', [FinalistaController::class, 'index']);
             Route::post('alunos/{aluno}/pap-concluido', [FinalistaController::class, 'papConcluido']);
             Route::post('alunos/{aluno}/concluir', [FinalistaController::class, 'concluir']);

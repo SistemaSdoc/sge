@@ -174,10 +174,30 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         ]);
     }
 
+    public function edit(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma
+    ) {
+        return Inertia::render(
+            'cursos-tutelados/classes/turnos/turmas/edit',
+            [
+                'turma' => $turma,
+                'instituicaoId' => $instituicao->id,
+                'cursoId' => $cursoTutelado->id,
+                'classeId' => $cursoClasse->id,
+                'turnoId' => $cursoClasseTurno->id,
+                'origem' => request('origem'),
+            ]
+        );
+    }
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
+    public function update(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
     {
         abort_if($turma->curso_classe_turno_id !== $cursoClasseTurno->id, 404);
 
@@ -188,7 +208,22 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
 
         $turma->update($request->only(['nome', 'max_alunos']));
 
-        return response()->json(status: 200);
+        if ($request->origem === 'turma') {
+            return to_route('turmas.show', [
+                'instituicao' => $instituicao,
+                'cursoTutelado' => $cursoTutelado,
+                'cursoClasse' => $cursoClasse,
+                'cursoClasseTurno' => $cursoClasseTurno,
+                'turma' => $turma,
+            ]);
+        }
+
+        return to_route('cursos-tutelados.classes.show', [
+            'instituicao' => $instituicao,
+            'cursoTutelado' => $cursoTutelado,
+            'cursoClasse' => $cursoClasse,
+            'turno' => $cursoClasseTurno->id,
+        ]);
     }
 
     /**

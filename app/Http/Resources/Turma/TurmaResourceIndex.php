@@ -34,7 +34,7 @@ class TurmaResourceIndex extends JsonResource
                 'id' => $this->cursoClasseTurno->id,
                 'nome' => $this->cursoClasseTurno->turno->nome,
             ],
-            'total_alunos' => $this->alunos->count(),
+            'total_alunos' => $this->alunosActivos->count(),
             'can' => [
                 'view' => $user?->can('view', $this->resource) ?? false,
                 'update' => $user?->can('update', $this->resource) ?? false,

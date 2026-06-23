@@ -13,6 +13,7 @@ use App\Models\Curso;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
+use App\Models\Turma;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Http\Request;

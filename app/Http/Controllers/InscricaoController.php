@@ -46,7 +46,11 @@ class InscricaoController extends Controller
             ->paginate(10);
 
         return Inertia::render('inscricoes/index', [
-            'inscricoes' => InscricaoResource::collection($inscricoes),
+            'inscricoes' => [
+                'data' => InscricaoResource::collection($inscricoes->items())->toArray(request()),
+                'current_page' => $inscricoes->currentPage(),
+                'last_page' => $inscricoes->lastPage(),
+            ],
         ]);
     }
 

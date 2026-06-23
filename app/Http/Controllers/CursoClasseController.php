@@ -44,7 +44,7 @@ public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado, Cur
     $turnoActual = $cursoClasse->turnos->firstWhere('id', $turnoId);
 
     $turmas = $turnoActual
-        ? $turnoActual->turmas()->withCount('alunos')->orderBy('nome')
+        ? $turnoActual->turmas()->withCount('alunosActivos')->orderBy('nome')
             ->paginate(5, ['*'], 'page_turmas')
         : collect();
 

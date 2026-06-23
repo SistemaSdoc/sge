@@ -29,12 +29,12 @@ class TurmaController extends Controller // implements HasMiddleware
 
         $query = Turma::query();
 
-        if (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
-            if (! $professor) {
+        if (!$user?->isSuperAdmin() && !$user?->isDirector()) {
+            if (!$professor) {
                 return inertia('turmas/index', ['turmas' => []]);
             }
 
-            $query->whereHas('turmaDisciplinaProfessor', fn ($q) => $q->where('professor_id', $professor->id));
+            $query->whereHas('turmaDisciplinaProfessor', fn($q) => $q->where('professor_id', $professor->id));
         }
 
         $turmas = $query->with([
@@ -42,10 +42,15 @@ class TurmaController extends Controller // implements HasMiddleware
             'cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.classeTurnoDisciplinas.disciplina:id,nome',
-        ])->paginate(15);
+            'alunosActivos',
+        ])->paginate(10);
 
         return inertia('turmas/index', [
-            'turmas' => TurmaResourceIndex::collection($turmas),
+            'turmas' => [
+                'data' => TurmaResourceIndex::collection($turmas->items())->toArray(request()),
+                'current_page' => $turmas->currentPage(),
+                'last_page' => $turmas->lastPage(),
+            ],
         ]);
     }
 
