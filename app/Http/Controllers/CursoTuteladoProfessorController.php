@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\CursoTuteladoProfessor;
-use App\Models\Professor;
 use App\Models\CursoTutelado;
+use App\Models\CursoTuteladoProfessor;
 use App\Models\Instituicao;
-use Illuminate\Support\Facades\DB;
+use App\Models\Professor;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class CursoTuteladoProfessorController extends Controller
@@ -22,7 +21,7 @@ class CursoTuteladoProfessorController extends Controller
             ->paginate(5);
 
         return response()->json(
-            $professores->through(fn($prof) => [
+            $professores->through(fn ($prof) => [
                 'id' => $prof->id,
                 'nome' => $prof->user?->nome,
                 'email' => $prof->user?->email,
@@ -44,7 +43,7 @@ class CursoTuteladoProfessorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    // 🔥 Atribuir ou atualizar professor no curso
+    //  Atribuir ou atualizar professor no curso
     public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
         $request->validate([
@@ -55,11 +54,11 @@ class CursoTuteladoProfessorController extends Controller
         CursoTuteladoProfessor::updateOrCreate(
             [
                 'curso_tutelado_id' => $cursoTutelado->id,
-                'professor_id' => $request->professor_id
+                'professor_id' => $request->professor_id,
             ],
             [
                 'tipo' => $request->tipo,
-                'coordenador' => false
+                'coordenador' => false,
             ]
         );
 
@@ -74,43 +73,25 @@ class CursoTuteladoProfessorController extends Controller
         //
     }
 
-    public function edit(string $id)
-    {
-        //
-    }
+    public function edit($id) {}
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, $professore)
     {
         $request->validate([
             'tipo' => 'required|in:principal,colaborador',
-            'coordenador' => 'boolean'
         ]);
 
-        $vinculo = CursoTuteladoProfessor::findOrFail($id);
+        $vinculo = CursoTuteladoProfessor::findOrFail($professore);
 
-        // Garantir único coordenador
-        if ($request->coordenador) {
-            CursoTuteladoProfessor::where('curso_tutelado_id', $vinculo->curso_tutelado_id)
-                ->update(['coordenador' => false]);
-        }
+        $vinculo->update(['tipo' => $request->tipo]);
 
-        $vinculo->update([
-            'tipo' => $request->tipo,
-            'coordenador' => $request->coordenador ?? false
-        ]);
-
-        return response()->json([
-            'message' => 'Vínculo atualizado com sucesso'
-        ]);
+        return back();
     }
 
-    public function destroy($id)
+    public function destroy(Instituicao $instituicao, CursoTutelado $cursoTutelado, $professore)
     {
-        $vinculo = CursoTuteladoProfessor::findOrFail($id);
-        $vinculo->delete();
+        CursoTuteladoProfessor::findOrFail($professore)->delete();
 
-        return response()->json([
-            'message' => 'Professor removido do curso'
-        ]);
+        return back();
     }
 }

@@ -38,6 +38,7 @@ class CursoTuteladoResourceShow extends JsonResource
         // [ADICIONADO] collection de professores extraída para variável reutilizável
         $professoresCollection = $this->professores->map(fn ($prof) => [
             'id' => $prof->id,
+            'vinculo_id' => $prof->pivot->id,
             'nome' => $prof->user?->nome,
             'tipo' => $prof->pivot->tipo,
         ]);

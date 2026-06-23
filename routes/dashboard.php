@@ -122,7 +122,11 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 
         Route::get('classes-turnos', [CursoClasseTurnoController::class, 'index']);
 
-        Route::put('classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'update']);
+        Route::get(
+            'classes/{cursoClasse}/turnos/create',
+            [CursoClasseTurnoController::class, 'create']);
+
+        Route::put('classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'store']);
 
         Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')->group(function () {
             Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)

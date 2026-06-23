@@ -7,7 +7,31 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { EmptyState } from '@/components/empty-state';
-import { BookOpenIcon, LayersIcon } from 'lucide-react';
+import { BookOpenIcon, LayersIcon, MoreHorizontalIcon } from 'lucide-react';
+import { show } from '@/actions/App/Http/Controllers/CursosController';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { router } from '@inertiajs/react';
 
 export function CursosTable({ cursos }) {
   const isEmpty = !cursos || cursos.length === 0;
@@ -38,7 +62,7 @@ export function CursosTable({ cursos }) {
               <TableRow className="bg-muted/72">
                 <TableHead className="px-4">Nome</TableHead>
                 <TableHead className="px-4">Telefone</TableHead>
-                <TableHead className="px-4 text-right">Acções</TableHead>
+                {/* <TableHead className="px-4 text-right">Acções</TableHead> */}
               </TableRow>
             </TableHeader>
 
@@ -47,7 +71,7 @@ export function CursosTable({ cursos }) {
                 <TableRow
                   key={curso.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`/cursos/${curso.id}`)}
+                  onClick={() => router.visit(show(curso.id).url)}
                 >
                   <TableCell className="px-4 font-medium">
                     {curso.nome}
@@ -57,7 +81,7 @@ export function CursosTable({ cursos }) {
                     {curso.telefone}
                   </TableCell>
 
-                  <TableCell className="px-4 text-right">
+                  {/*<TableCell className="px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="size-8">
@@ -66,7 +90,7 @@ export function CursosTable({ cursos }) {
                         </Button>
                       </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="end">
+                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           variant="destructive"
                           onClick={(e) => {
@@ -76,9 +100,9 @@ export function CursosTable({ cursos }) {
                         >
                           Remover
                         </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                      </DropdownMenuContent> 
+                    </DropdownMenu>  
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>

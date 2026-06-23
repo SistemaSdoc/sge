@@ -14,7 +14,7 @@ import { Minus } from 'lucide-react';
 import { CursosTable } from './components/tabs/cursos.tab';
 import { TurmasTab } from './components/tabs/turmas.tab';
 
-export default function Show({ professor }) {
+export default function Show({ professor, cursos, turmas }) {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
       <Card className="overflow-hidden pt-0!">
@@ -54,7 +54,7 @@ export default function Show({ professor }) {
         </CardContent>
       </Card>
 
-      <CursosTable cursos={professor.cursos} />
+      <CursosTable cursos={cursos}/>
     </div>
   );
 }

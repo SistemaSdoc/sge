@@ -53,7 +53,7 @@ class CursoTutelado extends Model
             'professor_id'
         )
             ->using(CursoTuteladoProfessor::class)
-            ->withPivot('tipo', 'coordenador')
+            ->withPivot('id', 'tipo', 'coordenador')
             ->withTimestamps();
     }
 }

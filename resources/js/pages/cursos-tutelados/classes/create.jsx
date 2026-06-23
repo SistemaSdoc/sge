@@ -2,37 +2,61 @@ import { useState } from 'react';
 import { useForm, router } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Field, FieldLabel, FieldError, FieldGroup, FieldSet } from '@/components/ui/field';
 import {
-  Select, SelectContent, SelectGroup, SelectLabel,
-  SelectItem, SelectTrigger, SelectValue,
+  Field,
+  FieldLabel,
+  FieldError,
+  FieldGroup,
+  FieldSet,
+} from '@/components/ui/field';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectLabel,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import MultipleSelect from '@/components/multiple-select';
+import { store } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
 
-export default function Create({ instituicao, cursoTutelado, classesTurnos, turnos }) {
+export default function Create({
+  instituicao,
+  cursoTutelado,
+  classesTurnos,
+  cursoClasse,
+  turnos,
+}) {
   const { data, setData, put, processing, errors } = useForm({
     turnos: [],
   });
 
-  const [cursoClasseId, setCursoClasseId] = useState('');
+  //const [cursoClasseId, setCursoClasseId] = useState('');
 
   const handleClasseChange = (value) => {
     setCursoClasseId(value);
-    const classe = classesTurnos?.find(c => String(c.id) === value);
-    setData('turnos', classe?.turnos?.map(t => t.turno.id) ?? []);
+    const classe = classesTurnos?.find((c) => String(c.id) === value);
+    setData('turnos', classe?.turnos?.map((t) => t.turno.id) ?? []);
   };
+  console.log({
+    instituicao,
+    cursoTutelado,
+    classesTurnos,
+    turnos,
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     put(
-      `/instituicoes/${instituicao.id}/cursos-tutelados/${cursoTutelado.id}/classes/${cursoClasseId}/turnos`,
+      store({
+        instituicao: instituicao.id,
+        cursoTutelado: cursoTutelado.id,
+        cursoClasse: cursoClasse.id,
+      }).url,
       {
         preserveScroll: true,
-        onSuccess: () =>
-          router.visit(
-            `/instituicoes/${instituicao.id}/cursos-tutelados/${cursoTutelado.id}`,
-          ),
-      }
+      },
     );
   };
 
@@ -49,23 +73,25 @@ export default function Create({ instituicao, cursoTutelado, classesTurnos, turn
               <FieldSet>
                 <Field>
                   <FieldLabel>Classe</FieldLabel>
+
                   <Select
-                    value={cursoClasseId || undefined}
                     onValueChange={handleClasseChange}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione a classe" />
                     </SelectTrigger>
-                    <SelectContent>
+
+                    {/* <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Classes</SelectLabel>
-                        {classesTurnos?.map(cc => (
+
+                        {classesTurnos?.map((cc) => (
                           <SelectItem key={cc.id} value={String(cc.id)}>
                             {cc.classe.nome}
                           </SelectItem>
                         ))}
                       </SelectGroup>
-                    </SelectContent>
+                    </SelectContent> */}
                   </Select>
                 </Field>
 
@@ -73,19 +99,24 @@ export default function Create({ instituicao, cursoTutelado, classesTurnos, turn
                   <FieldLabel>Turnos</FieldLabel>
                   <MultipleSelect
                     placeholder="Selecione os turnos"
-                    items={turnos?.map(t => ({ value: t.id, label: t.nome }))}
-                    onChange={(opts) => setData('turnos', opts.map(o => o.value))}
-                    value={data.turnos.map(id => ({
+                    items={turnos?.map((t) => ({ value: t.id, label: t.nome }))}
+                    onChange={(opts) =>
+                      setData(
+                        'turnos',
+                        opts.map((o) => o.value),
+                      )
+                    }
+                    value={data.turnos.map((id) => ({
                       value: id,
-                      label: turnos?.find(t => t.id === id)?.nome ?? id,
+                      label: turnos?.find((t) => t.id === id)?.nome ?? id,
                     }))}
-                    disabled={!cursoClasseId}
+                    disabled={processing}
                   />
                   {errors.turnos && <FieldError>{errors.turnos}</FieldError>}
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={!cursoClasseId || processing}>
+                  <Button type="submit" disabled={processing}>
                     Guardar
                   </Button>
                 </Field>

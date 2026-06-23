@@ -23,11 +23,32 @@ import {
   edit,
   show as showCurso,
 } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { destroy } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
+import { useDialog } from '@/hooks/use-dialog';
 
 export default function Show({ cursoTutelado }) {
   const instituicaoId = cursoTutelado.instituicao.id;
   const cursoTuteladoId = cursoTutelado.id;
   const cursoId = cursoTutelado.curso.id;
+  const { deleteConfirm } = useDialog();
+
+
+  const handleDelete = (vinculoId) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description:
+        'Esta acção é irreversível. O professor será removido do curso.',
+      confirmLabel: 'Remover',
+      confirmFn: () =>
+        router.delete(
+          destroy({
+            instituicao: instituicaoId,
+            cursoTutelado: cursoTuteladoId,
+            professore: vinculoId,
+          }).url,
+        ),
+    });
+  };
 
   const handlePageChange = (param) => (page) => {
     router.visit(
@@ -86,16 +107,6 @@ export default function Show({ cursoTutelado }) {
                   }
                 >
                   Editar
-                </DropdownMenuItem>
-
-                <DropdownMenuItem
-                  onClick={() =>
-                    router.visit(
-                      `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes-turnos`,
-                    )
-                  }
-                >
-                  Definir Turnos
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
@@ -223,6 +234,7 @@ export default function Show({ cursoTutelado }) {
             instituicaoId={instituicaoId}
             cursoTuteladoId={cursoTuteladoId}
             professores={cursoTutelado.professores}
+            deleteFn={handleDelete}
             pagination={{
               current_page: cursoTutelado.professores?.current_page,
               last_page: cursoTutelado.professores?.last_page,
