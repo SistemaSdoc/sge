@@ -5,7 +5,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -21,78 +20,28 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
 import { Minus, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { show } from '@/actions/App/Http/Controllers/AlunoController';
-import { gerar } from '@/actions/App/Http/Controllers/CertificadoController';
+import { useCertificado } from '../../hooks/use-certificado';
 import TablePagination from '@/components/table-pagination';
 
+export function TabAlunos({ alunos, params, pagination, onPageChange }) {
+  const { gerarCertificado } = useCertificado(params);
 
-export function TabAlunos({
-  turma,
-  instituicaoId,
-  cursoTuteladoId,
-  cursoClasseId,
-  cursoClasseTurnoId,
-  pagination, // ← NOVO: recebe paginação
-}) {
-  const turmaId = turma.id;
-  const baseUrl = `/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
-
-  const alunos = turma.alunos ?? [];
   const isEmpty = alunos.length === 0;
-
-  const handlePageChange = (page) => {
-    router.get('', { page_alunos: page }, { preserveState: true, preserveScroll: true });
-  };
-
-
-  const gerarCertificado = async (e, alunoId) => {
-    e.stopPropagation();
-    try {
-      const response = await fetch(
-        gerar({
-          instituicao: instituicaoId,
-          cursoTutelado: cursoTuteladoId,
-          cursoClasse: cursoClasseId,
-          cursoClasseTurno: cursoClasseTurnoId,
-          turma: turmaId,
-          aluno: alunoId,
-        }).url,
-      );
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'certificado.pdf');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Erro ao gerar certificado:', error);
-    }
-  };
 
   return (
     <Card className="gap-0">
       <CardHeader className="border-b">
         <CardTitle>Alunos</CardTitle>
+
         <CardDescription>Alunos inscritos nesta turma</CardDescription>
+
         <CardAction>
-          <Button asChild>
-            <Link href={`#`}>Adicionar</Link>
-          </Button>
+          <Button asChild>Adicionar</Button>
         </CardAction>
       </CardHeader>
 
@@ -103,11 +52,11 @@ export function TabAlunos({
             icon={UsersIcon}
             title="Nenhum aluno inscrito"
             description="Comece adicionando alunos à turma"
-            action={{
-              label: 'Adicionar Aluno',
-              href: `#`,
-              variant: 'outline',
-            }}
+            //action={{
+            //  label: 'Adicionar Aluno',
+            //  href: `#`,
+            //  variant: 'outline',
+            //}}
           />
         ) : (
           <Table>
@@ -120,53 +69,52 @@ export function TabAlunos({
                 <TableHead className="px-4 text-right">Acções</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {alunos.map((aluno) => {
-                const nome = aluno.inscricao?.candidato?.nome;
-                const email = aluno.user?.email;
-                const telefone = aluno.user?.telefone;
-
                 return (
                   <TableRow
                     key={aluno.id}
                     className="hover:cursor-pointer"
                     onClick={() => router.visit(show(aluno.id).url)}
                   >
-                    <TableCell className="px-4 font-medium">{nome}</TableCell>
+                    <TableCell className="px-4 font-medium">
+                      {aluno?.nome}
+                    </TableCell>
+
                     <TableCell>
                       {aluno.matricula ?? (
                         <Minus size={15} className="text-muted-foreground" />
                       )}
                     </TableCell>
+
                     <TableCell>
-                      {email ?? (
+                      {aluno?.email ?? (
                         <Minus size={15} className="text-muted-foreground" />
                       )}
                     </TableCell>
+
                     <TableCell>
-                      {telefone ?? (
+                      {aluno?.telefone ?? (
                         <Minus size={15} className="text-muted-foreground" />
                       )}
                     </TableCell>
+
                     <TableCell className="px-4 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                          >
+                          <Button variant="ghost" size="icon">
                             <MoreHorizontalIcon />
                             <span className="sr-only">Abrir menu</span>
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+
+                        <DropdownMenuContent align="end" className="w-auto">
                           <DropdownMenuItem
                             onClick={(e) => gerarCertificado(e, aluno.id)}
                           >
                             Gerar Certificado
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -178,10 +126,7 @@ export function TabAlunos({
         )}
       </CardContent>
 
-      <TablePagination
-        pagination={pagination}
-        onPageChange={handlePageChange}
-      />
+      <TablePagination pagination={pagination} onPageChange={onPageChange} />
     </Card>
   );
 }

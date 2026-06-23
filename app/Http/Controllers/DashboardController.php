@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Professor;
+use App\Services\Dashboards\DashboardAlunoService;
+use App\Services\Dashboards\DashboardDirectorService;
+use App\Services\Dashboards\DashboardProfessorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -10,6 +12,12 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private DashboardDirectorService $dashboardDirectorService,
+        private DashboardProfessorService $dashboardProfessorService,
+        private DashboardAlunoService $dashboardAlunoService,
+    ) {}
+
     /**
      * Renderiza o dashboard do usuário autenticado.
      *
@@ -20,49 +28,24 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (! $user) {
-            return redirect()->route('login');
-        }
-
-        // Exemplo.
         if ($user->hasRole('Director')) {
             return Inertia::render('dashboards/director/index', [
-                'data' => 'Director Logado',
-                'dashboardHeading' => 'Painel de Diretor — Experimento',
-                'dashboardMessage' => 'Este é um teste de renderização de página específica para o Director.',
+                'metricas' => $this->dashboardDirectorService->obterMetricas($user->instituicao_id),
+                'accoes' => $this->dashboardDirectorService->obterAccoesPendentes($user->instituicao_id),
+                'eventos' => $this->dashboardDirectorService->obterAvisos($user->instituicao_id),
             ]);
         }
 
         if ($user->hasRole('Professor')) {
+            $professor = $user?->professor;
+
             return Inertia::render('dashboards/professor/index', [
-                'data' => 'Professor Logado',
+                'proximasAulas' => $this->dashboardProfessorService->obterProximasAulas($professor, 2, 6),
+                'avisos' => $this->dashboardProfessorService->obterAvisos($professor, 6),
             ]);
         }
 
-        // TODO: add other roles as needed.
-        // if ($user->hasRole('Professor')) {
-        //     return Inertia::render('dashboard/professor', [
-        //         'dashboardType' => 'professor',
-        //         'dashboardHeading' => 'Painel de Professor',
-        //     ]);
-        // }
-        // if ($user->hasRole('Secretaria')) {
-        //     return Inertia::render('dashboard/secretaria', [
-        //         'dashboardType' => 'secretaria',
-        //         'dashboardHeading' => 'Painel de Secretaria',
-        //     ]);
-        // }
-        // if ($user->hasRole('Master')) {
-        //     return Inertia::render('dashboard/master', [
-        //         'dashboardType' => 'master',
-        //     ]);
-        // }
-
         // Fallback for any other staff role that belongs here.
-        return Inertia::render('dashboard', [
-            'dashboardType' => 'staff',
-            'dashboardHeading' => 'Painel de Staff',
-            'dashboardMessage' => 'Você está no dashboard da equipa, mas o role ainda não tem um dashboard personalizado.',
-        ]);
+        return Inertia::render('dashboard');
     }
 }

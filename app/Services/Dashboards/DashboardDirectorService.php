@@ -3,6 +3,7 @@
 namespace App\Services\Dashboards;
 
 use App\Models\Aluno;
+use App\Models\Aviso;
 use App\Models\GrupoPap;
 use App\Models\Inscricao;
 use App\Models\Professor;
@@ -65,24 +66,19 @@ class DashboardDirectorService
                 if ($instituicaoId) {
                     $query->where('instituicao_id', $instituicaoId);
                 }
-            })
-            ->count();
+            })->count();
 
         $turmasSemProfessor = Turma::whereHas('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($query) use ($instituicaoId) {
             if ($instituicaoId) {
                 $query->where('instituicao_id', $instituicaoId);
             }
-        })
-            ->whereDoesntHave('turmaDisciplinaProfessor')
-            ->count();
+        })->whereDoesntHave('turmaDisciplinaProfessor')->count();
 
         $gruposSemBanca = GrupoPap::whereHas('turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($query) use ($instituicaoId) {
             if ($instituicaoId) {
                 $query->where('instituicao_id', $instituicaoId);
             }
-        })
-            ->whereDoesntHave('jurados')
-            ->count();
+        })->whereDoesntHave('jurados')->count();
 
         return [
             [
@@ -147,9 +143,20 @@ class DashboardDirectorService
     /**
      * Obter avisos/notificações (será implementado quando tabela existir)
      */
-    public function obterAvisos(Aluno $aluno, ?int $limite = 10): Collection
+    public function obterAvisos(?string $instituicaoId = null, ?int $limite = 10): Collection
     {
-
-        return collect();
+        return Aviso::where('ativo', true)
+            ->where(function ($query) use ($instituicaoId) {
+                if ($instituicaoId) {
+                    $query->where('instituicao_id', $instituicaoId);
+                }
+            })
+            ->where(function ($query) {
+                $query->whereNull('data')
+                    ->orWhereDate('data', '>=', now());
+            })
+            ->orderBy('data')
+            ->take($limite)
+            ->get();
     }
 }

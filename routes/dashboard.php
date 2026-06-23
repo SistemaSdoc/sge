@@ -6,6 +6,7 @@ use App\Http\Controllers\BancaJuriPapController;
 use App\Http\Controllers\CertificadoController;
 use App\Http\Controllers\ClasseController as ClasseControllerGeral;
 use App\Http\Controllers\ClasseTurnoDisciplinaController;
+use App\Http\Controllers\ClasseTurnoDisciplinaHorarioController;
 use App\Http\Controllers\ClasseTurnoTurmaController;
 use App\Http\Controllers\CursoClasseController;
 use App\Http\Controllers\CursoClasseTurnoController;
@@ -39,9 +40,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-require __DIR__ . '/modules/pautas.php';
-require __DIR__ . '/modules/certificado.php';
-require __DIR__ . '/modules/progressao.php';
+require __DIR__.'/modules/pautas.php';
+require __DIR__.'/modules/certificado.php';
+require __DIR__.'/modules/progressao.php';
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
 Route::resource('users', UserController::class);
@@ -89,12 +90,12 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
     Route::prefix('cursos-tutelados/{cursoTutelado}')->group(function () {
         Route::resource('professores', CursoTuteladoProfessorController::class)
             ->names([
-                'index'   => 'curso-tutelado.professores.index',
-                'create'  => 'curso-tutelado.professores.create',
-                'store'   => 'curso-tutelado.professores.store',
-                'show'    => 'curso-tutelado.professores.show',
-                'edit'    => 'curso-tutelado.professores.edit',
-                'update'  => 'curso-tutelado.professores.update',
+                'index' => 'curso-tutelado.professores.index',
+                'create' => 'curso-tutelado.professores.create',
+                'store' => 'curso-tutelado.professores.store',
+                'show' => 'curso-tutelado.professores.show',
+                'edit' => 'curso-tutelado.professores.edit',
+                'update' => 'curso-tutelado.professores.update',
                 'destroy' => 'curso-tutelado.professores.destroy',
             ]);
 
@@ -124,15 +125,15 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
         Route::put('classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'update']);
 
         Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')->group(function () {
-           Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)
+            Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)
                 ->parameters(['disciplinas' => 'classeTurnoDisciplina'])
                 ->names([
-                    'index'   => 'classe-turno.disciplinas.index',
-                    'create'  => 'classe-turno.disciplinas.create',
-                    'store'   => 'classe-turno.disciplinas.store',
-                    'show'    => 'classe-turno.disciplinas.show',
-                    'edit'    => 'classe-turno.disciplinas.edit',
-                    'update'  => 'classe-turno.disciplinas.update',
+                    'index' => 'classe-turno.disciplinas.index',
+                    'create' => 'classe-turno.disciplinas.create',
+                    'store' => 'classe-turno.disciplinas.store',
+                    'show' => 'classe-turno.disciplinas.show',
+                    'edit' => 'classe-turno.disciplinas.edit',
+                    'update' => 'classe-turno.disciplinas.update',
                     'destroy' => 'classe-turno.disciplinas.destroy',
                 ]);
             Route::resource('turmas', ClasseTurnoTurmaController::class);
@@ -159,12 +160,12 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 
                 Route::get('pap/{grupoPap}/folha-aprovacao', [FolhaAprovacaoController::class, 'folhaAprovacao']);
 
-               Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)
+                Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)
                     ->only(['index', 'update', 'destroy'])
                     ->parameters(['disciplinas' => 'classeTurnoDisciplina'])
                     ->names([
-                        'index'   => 'turma.disciplinas.index',
-                        'update'  => 'turma.disciplinas.update',
+                        'index' => 'turma.disciplinas.index',
+                        'update' => 'turma.disciplinas.update',
                         'destroy' => 'turma.disciplinas.destroy',
                     ]);
                 Route::get('disciplinas/{classeTurnoDisciplina}/notas', [NotaController::class, 'index']);
@@ -172,6 +173,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
                 Route::post('disciplinas/{classeTurnoDisciplina}/notas', [NotaController::class, 'store']);
                 Route::get('disciplinas/{classeTurnoDisciplina}/professores/create', [TurmaDisciplinaProfessorController::class, 'create']);
                 Route::post('disciplinas/{classeTurnoDisciplina}/professores', [TurmaDisciplinaProfessorController::class, 'store']);
+                Route::post('disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store']);
             });
         });
     });

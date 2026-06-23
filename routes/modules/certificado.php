@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\CertificadoController;
-
 use Illuminate\Support\Facades\Route;
 
 // Routa para gerar os certficados das instituições
@@ -15,5 +14,3 @@ Route::get(
     '/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/alunos/{aluno}/certificado',
     [CertificadoController::class, 'gerarTutora']
 )->name('certificado.gerarTutora')->withoutScopedBindings();
-
-

@@ -10,91 +10,109 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
 
 class InscricaoService
 {
+    /**
+     * Cria um registro em inscrições para o candidato
+     */
     public function criar(array $dados): Inscricao
     {
         return DB::transaction(function () use ($dados) {
             $candidato = Candidato::create([
-                'nome'             => $dados['nome'],
-                'bi'               => $dados['bi'],
+                'nome' => $dados['nome'],
+                'bi' => $dados['bi'],
                 'numero_estudante' => $dados['numero_estudante'],
-                'telefone'         => $dados['telefone'] ?? null,
-                'email'            => $dados['email'],
+                'telefone' => $dados['telefone'] ?? null,
+                'email' => $dados['email'],
             ]);
 
             return Inscricao::create([
-                'candidato_id'          => $candidato->id,
+                'candidato_id' => $candidato->id,
                 'curso_classe_turno_id' => $dados['curso_classe_turno_id'],
-                'status'                => 'pendente',
+                'status' => 'pendente',
             ]);
         });
     }
 
+    /**
+     * Método para actualizar a nota do teste de um candidato a uma inscrição.
+     */
     public function atualizarNotaTeste(Inscricao $inscricao, float $nota): void
     {
+        $inscricao->load([
+            'candidato',
+            'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+        ]);
+
         DB::transaction(function () use ($inscricao, $nota) {
-            $statusAnterior  = $inscricao->status;
+            $statusAnterior = $inscricao->status;
             $statusCalculado = $nota >= 10 ? 'aprovado' : 'reprovado';
 
             Log::info('Inscrição — atualizar nota', [
-                'inscricao_id'    => $inscricao->id,
+                'inscricao_id' => $inscricao->id,
                 'status_anterior' => $statusAnterior,
-                'status_novo'     => $statusCalculado,
-                'nota_teste'      => $nota,
+                'status_novo' => $statusCalculado,
+                'nota_teste' => $nota,
             ]);
 
             $inscricao->update([
                 'nota_teste' => $nota,
-                'status'     => $statusCalculado,
+                'status' => $statusCalculado,
             ]);
 
-            $devecriarAluno = $statusCalculado === 'aprovado'
+            $deveCriarAluno = $statusCalculado === 'aprovado'
                 && $statusAnterior !== 'aprovado';
 
-            if ($devecriarAluno) {
+            if ($deveCriarAluno) {
                 $this->criarAlunoSeNecessario($inscricao);
             }
         });
     }
 
-    // ─── Privados ─────────────────────────────────────────────────────────────
-
+    /**
+     * Cria um aluno associado a uma inscrição, caso ainda não exista.
+     */
     private function criarAlunoSeNecessario(Inscricao $inscricao): void
     {
-        if (! $inscricao->candidato?->email) {
-            throw new \InvalidArgumentException('O candidato não tem email registado.');
+        if (! $inscricao->candidato?->bi) {
+            throw new InvalidArgumentException('O candidato não tem BI registado.');
         }
 
         if (Aluno::where('inscricao_id', $inscricao->id)->exists()) {
             return;
         }
 
+        $instituicaoId = $inscricao->cursoClasseTurno
+            ?->cursoClasse
+            ?->cursoTutelado
+            ?->instituicaoCurso
+            ?->instituicao_id;
+
+        if (! $instituicaoId) {
+            throw new InvalidArgumentException('Não foi possível determinar a instituição da inscrição.');
+        }
+
         $user = User::firstOrCreate(
-            ['email' => $inscricao->candidato->email],
+            ['bi' => $inscricao->candidato->bi],
             [
-                'nome'           => $inscricao->candidato->nome,
-                'password'       => Hash::make('123456'),
-                'telefone'       => $inscricao->candidato->telefone,
-                'bi'             => $inscricao->candidato->bi,
-                'instituicao_id' => $inscricao->cursoClasseTurno
-                    ->cursoClasse
-                    ->cursoTutelado
-                    ->instituicaoCurso
-                    ->instituicao_id,
+                'nome' => $inscricao->candidato->nome,
+                'email' => $inscricao->candidato->email,
+                'telefone' => $inscricao->candidato->telefone,
+                'instituicao_id' => $instituicaoId,
+                'password' => Hash::make('12345678'),
             ]
         );
 
-        $roleAluno = Role::where('nome', 'Aluno')->first();
-        if ($roleAluno) {
-            $user->roles()->syncWithoutDetaching([$roleAluno->id]);
-        }
+        $roleAluno = Role::where('nome', 'Aluno')->firstOrFail();
+
+        $user->roles()->syncWithoutDetaching([$roleAluno->id]);
 
         Aluno::create([
-            'user_id'      => $user->id,
+            'user_id' => $user->id,
             'inscricao_id' => $inscricao->id,
-            'matricula'    => $this->gerarMatriculaUnica(),
+            'matricula' => $this->gerarMatriculaUnica(),
         ]);
     }
 

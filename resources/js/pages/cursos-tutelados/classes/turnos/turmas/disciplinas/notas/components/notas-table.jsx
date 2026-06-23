@@ -69,7 +69,7 @@ export default function NotasTable({
     <Card className="gap-0">
       <CardHeader className="border-b">
         <div>
-          <CardTitle>{disciplina?.sigla ?? 'Disciplina'}</CardTitle>
+          <CardTitle>{disciplina?.nome ?? 'Disciplina'}</CardTitle>
         </div>
         <CardAction className="flex items-center gap-3">
           <Select value={periodo} onValueChange={setPeriodo}>

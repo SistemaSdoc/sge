@@ -50,5 +50,15 @@ export function useDialog() {
       ...options,
     });
 
-  return { confirm, deleteConfirm, alert, closeDialog };
+  /**
+   * Dialog com formulário — sem botões fixos.
+   * O formulário é responsável pelo seu próprio submit e por chamar closeDialog no sucesso.
+   */
+  const openForm = (options) =>
+    openDialog({
+      type: 'form',
+      ...options,
+    });
+
+  return { confirm, deleteConfirm, alert, openForm, closeDialog };
 }

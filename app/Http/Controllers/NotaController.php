@@ -69,6 +69,7 @@ class NotaController extends Controller
             'disciplina' => [
                 'id' => $classeTurnoDisciplina->id,
                 'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
+                'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
             ],
             'alunos' => $turmaAlunos->map(fn ($ta) => [
                 'turma_aluno_id' => $ta->id,

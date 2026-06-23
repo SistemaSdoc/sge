@@ -10,13 +10,12 @@ use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\Turma;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 
 class ClasseTurnoDisciplinaHorarioController extends Controller
 {
     /**
-     * Salvar horários de uma disciplina
+     * Salvar horários de uma disciplina dentro de uma turma
      */
     public function store(
         StoreClasseTurnoDisciplinaHorarioRequest $request,
@@ -26,7 +25,7 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
         ClasseTurnoDisciplina $classeTurnoDisciplina
-    ): JsonResponse {
+    ) {
         // Remover horários antigos
         $classeTurnoDisciplina->horarios()->delete();
 
@@ -42,9 +41,6 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
 
         ClasseTurnoDisciplinaHorario::insert($horarios);
 
-        return response()->json([
-            'message' => 'Horários salvos com sucesso',
-            'data' => $classeTurnoDisciplina->horarios()->get(),
-        ], 201);
+        return back();
     }
 }

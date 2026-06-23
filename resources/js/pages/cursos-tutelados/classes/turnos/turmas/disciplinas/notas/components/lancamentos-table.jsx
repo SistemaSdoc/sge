@@ -30,6 +30,7 @@ import { Loader2, ClipboardListIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { mediaTrimestral } from '@/utils/media-trimestral';
 import { verificarSituacao } from '@/utils/verificar-situacao';
+import { useNotasLocais } from '@/hooks/use-notas-locais';
 
 export default function LancamentosTable({
   data,
@@ -42,6 +43,7 @@ export default function LancamentosTable({
   disciplinaId,
 }) {
   const [periodo, setPeriodo] = useState('1');
+  const { getValor, setValor } = useNotasLocais(data?.tdp_id);
   const isEmpty = !data?.alunos || data?.alunos?.length === 0;
   const alunos = data?.alunos ?? [];
 
@@ -49,18 +51,19 @@ export default function LancamentosTable({
     <Card className="gap-0">
       <CardHeader className="border-b">
         <div>
-          <CardTitle>
-            {data?.disciplina?.nome || data?.disciplina?.sigla}
-          </CardTitle>
+          <CardTitle>{data?.disciplina?.nome}</CardTitle>
+
           <CardDescription>
             Preencha as notas dos alunos para o trimestre seleccionado
           </CardDescription>
         </div>
+
         <CardAction className="flex items-center gap-3">
           <Select value={periodo} onValueChange={setPeriodo}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Trimestre" />
             </SelectTrigger>
+
             <SelectContent>
               <SelectItem value="1">1º Trimestre</SelectItem>
               <SelectItem value="2">2º Trimestre</SelectItem>
@@ -111,65 +114,108 @@ export default function LancamentosTable({
             <TableBody>
               {alunos.map((aluno, index) => {
                 const nota = aluno.notas?.[periodo] ?? {};
-                const mac = nota.mac ?? '';
-                const npp = nota.nota_prova_professor ?? '';
-                const npt = nota.nota_prova_trimestral ?? '';
-                const faltas = nota.faltas ?? '';
+
+                // local tem prioridade sobre servidor
+                const mac =
+                  getValor(aluno.turma_aluno_id, periodo, 'mac') ??
+                  nota.mac ??
+                  '';
+                const npp =
+                  getValor(aluno.turma_aluno_id, periodo, 'npp') ??
+                  nota.nota_prova_professor ??
+                  '';
+                const npt =
+                  getValor(aluno.turma_aluno_id, periodo, 'npt') ??
+                  nota.nota_prova_trimestral ??
+                  '';
+                const faltas =
+                  getValor(aluno.turma_aluno_id, periodo, 'faltas') ??
+                  nota.faltas ??
+                  '';
+
                 const mt = mediaTrimestral(mac, npp, npt);
                 const situacao = verificarSituacao(mt, Number(faltas));
 
                 return (
                   <TableRow key={aluno.turma_aluno_id}>
+                    {' '}
+                    {/* ← key sem período */}
                     <TableCell className="px-4">{index + 1}</TableCell>
                     <TableCell className="px-4">{aluno.nome}</TableCell>
-
                     <TableCell>
                       <Input
                         type="number"
                         min={0}
                         max={20}
                         name={`notas[${aluno.turma_aluno_id}][mac]`}
-                        defaultValue={mac}
+                        value={mac}
+                        onChange={(e) =>
+                          setValor(
+                            aluno.turma_aluno_id,
+                            periodo,
+                            'mac',
+                            e.target.value,
+                          )
+                        }
                         className="text-center"
                       />
                     </TableCell>
-
                     <TableCell>
                       <Input
                         type="number"
                         min={0}
                         max={20}
                         name={`notas[${aluno.turma_aluno_id}][npp]`}
-                        defaultValue={npp}
+                        value={npp}
+                        onChange={(e) =>
+                          setValor(
+                            aluno.turma_aluno_id,
+                            periodo,
+                            'npp',
+                            e.target.value,
+                          )
+                        }
                         className="text-center"
                       />
                     </TableCell>
-
                     <TableCell>
                       <Input
                         type="number"
                         min={0}
                         max={20}
                         name={`notas[${aluno.turma_aluno_id}][npt]`}
-                        defaultValue={npt}
+                        value={npt}
+                        onChange={(e) =>
+                          setValor(
+                            aluno.turma_aluno_id,
+                            periodo,
+                            'npt',
+                            e.target.value,
+                          )
+                        }
                         className="text-center"
                       />
                     </TableCell>
-
                     <TableCell className="text-center font-medium">
                       {mt ?? '-'}
                     </TableCell>
-
                     <TableCell>
                       <Input
                         type="number"
                         min={0}
                         name={`notas[${aluno.turma_aluno_id}][faltas]`}
-                        defaultValue={faltas}
+                        value={faltas}
+                        onChange={(e) =>
+                          setValor(
+                            aluno.turma_aluno_id,
+                            periodo,
+                            'faltas',
+                            e.target.value,
+                          )
+                        }
                         className="text-center"
                       />
                     </TableCell>
-
                     <TableCell className="px-4 text-end">
                       {situacao === 'APTO' && (
                         <Badge className="bg-green-50 text-green-500">

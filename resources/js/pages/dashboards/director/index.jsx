@@ -10,7 +10,7 @@ import { DashboardPanel } from '@/components/dashboard-panel';
 export default function DirectorDashboard({
   metricas = [],
   accoes = [],
-  avisos = [],
+  eventos = [],
 }) {
   const greeting = getGreeting();
   const todayFormatted = getTodayFormatted();
@@ -34,7 +34,7 @@ export default function DirectorDashboard({
         </DashboardPanel>
 
         <DashboardPanel title="Próximos Eventos" colSpan="lg:col-span-1">
-          <ProximosEventos events={avisos} />
+          <ProximosEventos events={eventos} />
         </DashboardPanel>
       </div>
     </div>

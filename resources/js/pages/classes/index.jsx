@@ -29,7 +29,7 @@ export default function Index({ classes }) {
   return (
     <>
       <Head title="Classes" />
-      
+
       <ClasseTable
         classes={classes}
         deleteFn={handleDelete}

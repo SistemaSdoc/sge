@@ -15,6 +15,7 @@ export const useDialogStore = create((set) => ({
   cancelLabel: 'Cancelar',
   loading: false,
   confirmFn: null,
+  content: null,
 
   // Acções
 
@@ -27,7 +28,7 @@ export const useDialogStore = create((set) => ({
   /**
    * Fecha o dialog e repõe loading
    */
-  closeDialog: () => set({ open: false, loading: false }),
+  closeDialog: () => set({ open: false, loading: false, content: null }),
 
   /**
    * Activa o estado de loading enquanto a confirmFn está a executar.

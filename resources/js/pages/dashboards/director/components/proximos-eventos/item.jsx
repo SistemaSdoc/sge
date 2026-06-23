@@ -11,14 +11,16 @@ import { pt } from 'date-fns/locale';
 import { getEventType } from '@/utils/urgency';
 
 export function ProximoEventoItem({ event }) {
-  const { label, badge } = getEventType(event.type);
+  const { label, badge } = getEventType(event.tipo);
 
   return (
     <Item variant="outline">
       <ItemContent className="flex-1">
-        <ItemTitle>{format(event.date, 'd MMM', { locale: pt })}</ItemTitle>
+        <ItemTitle>
+          {event.titulo} - {format(event.data, 'dd MMMM Y', { locale: pt })}
+        </ItemTitle>
 
-        <ItemDescription>{event.title}</ItemDescription>
+        <ItemDescription>{event.descricao}</ItemDescription>
       </ItemContent>
 
       <ItemActions>

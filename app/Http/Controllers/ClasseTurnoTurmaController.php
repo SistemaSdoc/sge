@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AlunoTurmaResource;
+use App\Http\Resources\ClasseTurnoDisciplinaResource;
+use App\Http\Resources\Turma\TurmaShowResource;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
@@ -17,8 +20,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
 {
     public function __construct(
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
     /* public static function middleware(): array
     {
         return [
@@ -36,7 +38,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
     {
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
-            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
             ->with([
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
@@ -56,7 +58,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
                 ],
             ],
             // Usar through() em vez de map()->toArray() para preservar a paginação
-            'turmas' => $turmas->through(fn($turma) => [
+            'turmas' => $turmas->through(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -138,40 +140,53 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
     /**
      * Display the specified resource.
      */
-    public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
-    {
-        // Carrega as relações que NÃO precisam de paginação
+    public function show(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma
+    ) {
         $turma->load([
             'cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasseTurno.turno:id,nome',
-            'turmaDisciplinaProfessor.professor.user:id,nome,email',
-            'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome',
             'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
         ]);
 
-        // Paginação dos alunos
         $alunos = $turma->alunos()
             ->wherePivot('activo', true)
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
             ->paginate(5, ['*'], 'page_alunos');
 
-        // Paginação das disciplinas
         $disciplinas = $turma->cursoClasseTurno
             ->classeTurnoDisciplinas()
-            ->with('disciplina:id,nome,sigla')
+            ->with([
+                'disciplina:id,nome,sigla',
+                'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
+                'turmaDisciplinaProfessores.professor.user:id,nome',
+                'horarios',
+            ])
             ->paginate(5, ['*'], 'page_disciplinas');
 
         $pautaRecurso = $this->pautaService->gerarPautaRecurso($turma);
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
-            'cursoTutelado' => $cursoTutelado,
-            'cursoClasse' => $cursoClasse,
-            'cursoClasseTurno' => $cursoClasseTurno,
-            'turma' => $turma,
-            'alunos' => $alunos,
-            'disciplinas' => $disciplinas,
+            'instituicao' => $instituicao->only('id'),
+            'cursoTutelado' => $cursoTutelado->only('id'),
+            'cursoClasse' => $cursoClasse->only('id'),
+            'cursoClasseTurno' => $cursoClasseTurno->only('id'),
+            'turma' => new TurmaShowResource($turma),
+            'alunos' => [
+                ...$alunos->toArray(),
+                'data' => AlunoTurmaResource::collection($alunos->items())->resolve(),
+            ],
+            'disciplinas' => [
+                ...$disciplinas->toArray(),
+                'data' => ClasseTurnoDisciplinaResource::collection($disciplinas->items())->resolve(),
+            ],
             'pautaRecurso' => $pautaRecurso,
         ]);
+
     }
 
     public function edit(

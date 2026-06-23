@@ -8,6 +8,13 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useDialogStore } from '@/stores/dialog.store';
 
 /**
@@ -28,10 +35,11 @@ export function AppDialog() {
     cancelLabel,
     loading,
     confirmFn,
+    content,
     closeDialog,
     setLoading,
   } = useDialogStore();
-  
+
   /**
    * Executada quando o usuário clica no botão de confirmação.
    *
@@ -44,6 +52,22 @@ export function AppDialog() {
     await confirmFn();
     closeDialog();
   };
+
+  if (type === 'form') {
+    return (
+      <Dialog open={open} onOpenChange={closeDialog}>
+        <DialogContent className="max-w-2xl!">
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+            {description && (
+              <DialogDescription>{description}</DialogDescription>
+            )}
+          </DialogHeader>
+          {content}
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <AlertDialog open={open} onOpenChange={closeDialog}>

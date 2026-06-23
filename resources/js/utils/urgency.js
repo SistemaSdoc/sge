@@ -25,17 +25,17 @@ export const severityConfig = {
 };
 
 export const eventTypeConfig = {
-  banca: {
-    label: 'Banca',
+  aviso: {
+    label: 'Aviso',
     badge:
-      'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100',
+      'bg-yellow-50 text-yellow-500 dark:bg-yellow-900 dark:text-yellow-100',
   },
-  prazo: {
-    label: 'Prazo',
+  urgente: {
+    label: 'Urgente',
     badge: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100',
   },
-  reuniao: {
-    label: 'Reunião',
+  evento: {
+    label: 'Evento',
     badge: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100',
   },
 };
