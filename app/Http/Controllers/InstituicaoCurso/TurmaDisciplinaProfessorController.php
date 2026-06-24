@@ -40,9 +40,9 @@ class TurmaDisciplinaProfessorController extends Controller // implements HasMid
 
         $professores = Professor::when(
             $instituicaoId,
-            fn ($q) => $q->whereHas(
+            fn($q) => $q->whereHas(
                 'user',
-                fn ($q) => $q->where('instituicao_id', $instituicaoId)
+                fn($q) => $q->where('instituicao_id', $instituicaoId)
             )
         )->with(['user:id,nome,telefone'])
             ->get();
@@ -61,9 +61,10 @@ class TurmaDisciplinaProfessorController extends Controller // implements HasMid
     ) {
         $classeTurnoDisciplina->load('disciplina');
 
-        $professores = Professor::with('user:id,nome')
+        $professores = $cursoTutelado->professores()
+            ->with('user:id,nome')
             ->get()
-            ->map(fn (Professor $professor) => [
+            ->map(fn(Professor $professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ]);
@@ -97,15 +98,24 @@ class TurmaDisciplinaProfessorController extends Controller // implements HasMid
         Turma $turma,
         ClasseTurnoDisciplina $classeTurnoDisciplina
     ) {
-        if ($classeTurnoDisciplina->tem_professor) {
-            return response()->json(['message' => 'Esta disciplina já tem professor.'], 422);
+        if ($classeTurnoDisciplina->tem_professor && !$request->boolean('force')) {
+            return back()->withErrors([
+                'message' => 'Esta disciplina já tem um professor atribuído. Deseja substituí-lo?',
+                'requires_confirmation' => true,
+            ]);
         }
 
+
         DB::transaction(function () use ($request, $classeTurnoDisciplina, $turma) {
+            // Remove o anterior se existir
+            TurmaDisciplinaProfessor::where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
+                ->where('turma_id', $turma->id)
+                ->delete();
+
             TurmaDisciplinaProfessor::create([
                 'professor_id' => $request->professor_id,
                 'turma_id' => $turma->id,
-                'classe_turno_disciplina_id' => $classeTurnoDisciplina->id, // ← modelo injetado
+                'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
             ]);
 
             $classeTurnoDisciplina->update(['tem_professor' => true]);

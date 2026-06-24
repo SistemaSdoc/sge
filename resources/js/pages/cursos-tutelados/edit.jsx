@@ -14,6 +14,9 @@ export default function Edit({
     classes: Array.isArray(cursoTutelado?.classes) ? cursoTutelado.classes : [],
   });
 
+  console.log('instituicao_tutora:', cursoTutelado?.instituicao_tutora)
+  console.log('instituicoes disponíveis:', instituicoes)
+
   const handleSubmit = (e) => {
     e.preventDefault();
 

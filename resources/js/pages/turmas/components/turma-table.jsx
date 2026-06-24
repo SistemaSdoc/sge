@@ -120,12 +120,19 @@ export function TurmaTable({ turmas, deleteFn, pagination = {},
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // navegar para a pauta desta turma quando tiveres a rota
-                          }}
+                          onClick={() =>
+                            router.visit(
+                              show({
+                                instituicao: turma.instituicao.id,
+                                cursoTutelado: turma.curso.id,
+                                cursoClasse: turma.classe.id,
+                                cursoClasseTurno: turma.turno.id,
+                                turma: turma.id,
+                              }),
+                            )
+                          }
                         >
-                          Ver detalhes
+                          Ver turma
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

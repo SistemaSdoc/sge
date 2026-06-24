@@ -7,6 +7,7 @@ use App\Models\CursoTuteladoProfessor;
 use App\Models\Instituicao;
 use App\Models\Professor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CursoTuteladoProfessorController extends Controller
@@ -16,12 +17,13 @@ class CursoTuteladoProfessorController extends Controller
      */
     public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
+        $instituicaoId = Auth::user()?->instituicaoFiltro();
         $professores = $cursoTutelado->professores()
             ->with(['user'])
             ->paginate(5);
 
         return response()->json(
-            $professores->through(fn ($prof) => [
+            $professores->through(fn($prof) => [
                 'id' => $prof->id,
                 'nome' => $prof->user?->nome,
                 'email' => $prof->user?->email,
@@ -33,8 +35,13 @@ class CursoTuteladoProfessorController extends Controller
 
     public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
+        $professores = Professor::with('user:id,nome')
+            ->whereHas('user', fn($q) => $q->where('instituicao_id', $instituicao->id))
+            ->orderBy('id')
+            ->get();
+
         return Inertia::render('cursos-tutelados/professores/create', [
-            'professores' => Professor::with('user:id,nome')->orderBy('id')->get(),
+            'professores' => $professores,
             'instituicaoId' => $instituicao->id,
             'cursoTuteladoId' => $cursoTutelado->id,
         ]);
@@ -73,7 +80,9 @@ class CursoTuteladoProfessorController extends Controller
         //
     }
 
-    public function edit($id) {}
+    public function edit($id)
+    {
+    }
 
     public function update(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, $professore)
     {

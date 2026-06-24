@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Link } from '@inertiajs/react';
+import { edit } from '@/actions/App/Http/Controllers/ClasseController';
 
 export default function Show({ classe }) {
   return (
@@ -19,7 +20,8 @@ export default function Show({ classe }) {
           <CardDescription>{classe.ordem}</CardDescription>
           <CardAction>
             <Button asChild variant="outline">
-              <Link href={`/classes/${classe.id}/edit`}>Editar</Link>
+              <Link 
+              href={edit(classe.id).url}>Editar</Link>
             </Button>
           </CardAction>
         </CardHeader>

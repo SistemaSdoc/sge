@@ -3,15 +3,15 @@ import { router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
 import { storeRecurso } from '@/actions/App/Http/Controllers/NotaController'
 
-export function TabRecurso({ alunos, instituicaoId, cursoId, turmaId }) {
+export function TabRecurso({ alunos, params }) {
   const [isPending, setIsPending] = useState(false)
 
   function handleSubmit(payload) {
     router.post(
       storeRecurso({
-        instituicao: instituicaoId,
-        cursoTutelado: cursoId,
-        turma: turmaId,
+        instituicao: params.instituicao,
+        cursoTutelado: params.cursoTutelado,
+        turma: params.turma,
       }).url,
       payload,
       {

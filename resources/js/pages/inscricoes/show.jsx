@@ -68,7 +68,7 @@ export default function Show() {
           <div>
             <p className="text-sm text-muted-foreground">Nota da prova</p>
             <p className="font-medium">
-              {inscricao.candidato.nota_teste ?? <Minus size={15} className="text-muted-foreground" />}
+              {inscricao.nota_teste ?? <Minus size={15} className="text-muted-foreground" />}
             </p>
           </div>
 
