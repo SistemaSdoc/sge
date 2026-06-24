@@ -73,7 +73,7 @@ export function TabContentCursos({
             description="Comece adicionando o primeiro curso à instituição"
             action={{
               label: 'Adicionar Curso',
-              href: `/instituicoes/${instituicaoId}/cursos-tutelados/create`,
+              href: create(instituicaoId).url,
               variant: 'outline',
             }}
           />

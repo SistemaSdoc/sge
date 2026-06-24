@@ -16,8 +16,7 @@ class InscricaoController extends Controller
 {
     public function __construct(
         private InscricaoService $inscricaoService
-    ) {
-    }
+    ) {}
 
     public function index()
     {
@@ -47,27 +46,27 @@ class InscricaoController extends Controller
 
     public function create()
     {
-        $instituicoes = Instituicao::with([
+        $user = auth()->user();
+
+        $instituicao = Instituicao::with([
             'instituicaoCursos.curso',
             'instituicaoCursos.cursoTutelado.cursoClasses.classe:id,nome',
             'instituicaoCursos.cursoTutelado.cursoClasses.turnos.turno:id,nome',
-        ])->get();
+        ])->findOrFail($user->instituicao_id);
+
+        $cursos = $instituicao->instituicaoCursos->map(fn ($ci) => [
+            'id' => $ci->id,
+            'nome' => $ci->curso->nome,
+            'turnos' => $ci->cursoTutelado?->cursoClasses
+                ->filter(fn ($c) => $c->classe?->nome === '10ª')
+                ->flatMap(fn ($c) => $c->turnos->map(fn ($t) => [
+                    'id' => $t->id,
+                    'nome' => $t->turno->nome,
+                ]))->values(),
+        ])->filter(fn ($ci) => ! empty($ci['turnos']) && $ci['turnos']->isNotEmpty())->values();
 
         return Inertia::render('inscricoes/create', [
-            'instituicoes' => $instituicoes->map(fn($inst) => [
-                'id' => $inst->id,
-                'nome' => $inst->nome,
-                'cursos' => $inst->instituicaoCursos->map(fn($ci) => [
-                    'id' => $ci->id,
-                    'nome' => $ci->curso->nome,
-                    'turnos' => $ci->cursoTutelado?->cursoClasses
-                        ->filter(fn($c) => $c->classe?->nome === '10ª')
-                        ->flatMap(fn($c) => $c->turnos->map(fn($t) => [
-                            'id' => $t->id,
-                            'nome' => $t->turno->nome,
-                        ]))->values(),
-                ])->filter(fn($ci) => $ci['turnos']->isNotEmpty())->values(),
-            ])->filter(fn($inst) => $inst['cursos']->isNotEmpty())->values(),
+            'cursos' => $cursos,
         ]);
     }
 
@@ -88,10 +87,9 @@ class InscricaoController extends Controller
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
         ]);
 
-
         return Inertia::render('inscricoes/show', [
             'inscricao' => (new InscricaoShowResource($inscricao))->resolve(),  // AAlterado, erro que estava a fazer aparecer tela preta ao acessar detalhes da inscrição
-    ]);
+        ]);
 
     }
 

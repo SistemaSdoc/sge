@@ -55,7 +55,7 @@ class ProfessorController extends Controller
         ]);
 
         $roleProfessor = Role::where('nome', 'Professor')->firstOrFail();
-        
+
         $user->roles()->syncWithoutDetaching([$roleProfessor->id]);
 
         Professor::create([
@@ -75,20 +75,16 @@ class ProfessorController extends Controller
             'user:id,nome,email,bi,telefone',
             'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome',
             'turmaDisciplinaProfessor.classeTurnoDisciplina.cursoClasseTurno.turno:id,nome',
-            'turmaDisciplinaProfessor.classeTurnoDisciplina.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
-            'turmaDisciplinaProfessor.classeTurnoDisciplina.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
+            'cursosTutelados.instituicaoCurso.curso:id,nome',
         ]);
 
-        $cursos = $professor->turmaDisciplinaProfessor->map(function ($item) {
-            $curso = $item->classeTurnoDisciplina?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso;
+        $cursos = $professor->cursosTutelados->map(function ($ct) {
+            $curso = $ct->instituicaoCurso?->curso;
             if (! $curso) {
                 return null;
             }
 
-            return [
-                'id' => $curso->id,
-                'nome' => $curso->nome,
-            ];
+            return ['id' => $curso->id, 'nome' => $curso->nome];
         })->filter()->unique('id')->values();
 
         $turmas = Turma::with('cursoClasseTurno.cursoClasse.classe:id,nome')

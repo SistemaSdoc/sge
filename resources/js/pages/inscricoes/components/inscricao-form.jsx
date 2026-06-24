@@ -1,25 +1,35 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from '@/components/ui/field';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function InscricaoForm({
   errors,
   processing,
-  instituicoes = [],
-  instituicaoId,
-  setInstituicaoId,
+  cursos = [],
   cursoId,
   setCursoId,
   cursoSelecionado,
-  instituicaoSelecionada,
   cursoClasseTurnoId,
   setCursoClasseTurnoId,
 }) {
-  const temCursos = instituicaoSelecionada?.cursos?.length > 0;
   const temTurnos = cursoSelecionado?.turnos?.length > 0;
-
+  
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
       <Card>
@@ -32,21 +42,35 @@ export default function InscricaoForm({
             <FieldSet>
               <Field>
                 <FieldLabel>Nome do estudante</FieldLabel>
-                <Input name="nome" disabled={processing} placeholder="Ex.: João Silva" />
+                <Input
+                  name="nome"
+                  disabled={processing}
+                  placeholder="Ex.: João Silva"
+                />
                 {errors.nome && <FieldError>{errors.nome}</FieldError>}
               </Field>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field>
                   <FieldLabel>Nº Bilhete</FieldLabel>
-                  <Input name="bi" disabled={processing} placeholder="Ex.: 020419607LA096" />
+                  <Input
+                    name="bi"
+                    disabled={processing}
+                    placeholder="Ex.: 020419607LA096"
+                  />
                   {errors.bi && <FieldError>{errors.bi}</FieldError>}
                 </Field>
 
                 <Field>
                   <FieldLabel>Nº Estudante</FieldLabel>
-                  <Input name="numero_estudante" disabled={processing} placeholder="Ex.: ES2026/034" />
-                  {errors.numero_estudante && <FieldError>{errors.numero_estudante}</FieldError>}
+                  <Input
+                    name="numero_estudante"
+                    disabled={processing}
+                    placeholder="Ex.: ES2026/034"
+                  />
+                  {errors.numero_estudante && (
+                    <FieldError>{errors.numero_estudante}</FieldError>
+                  )}
                 </Field>
               </div>
 
@@ -54,28 +78,44 @@ export default function InscricaoForm({
                 <Field>
                   <FieldLabel>Telefone</FieldLabel>
                   <div className="flex">
-                    <span className="flex items-center justify-center px-3 py-1 text-xs border border-r-0 text-muted-foreground">
+                    <span className="flex items-center justify-center border border-r-0 px-3 py-1 text-xs text-muted-foreground">
                       +244
                     </span>
-                    <Input name="telefone" type="tel" disabled={processing} placeholder="Ex.: 950000000" />
+                    <Input
+                      name="telefone"
+                      type="tel"
+                      disabled={processing}
+                      placeholder="Ex.: 950000000"
+                    />
                   </div>
-                  {errors.telefone && <FieldError>{errors.telefone}</FieldError>}
+                  {errors.telefone && (
+                    <FieldError>{errors.telefone}</FieldError>
+                  )}
                 </Field>
 
                 <Field>
                   <FieldLabel>E-mail</FieldLabel>
-                  <Input name="email" type="email" disabled={processing} placeholder="Ex.: email@exemplo.com" />
+                  <Input
+                    name="email"
+                    type="email"
+                    disabled={processing}
+                    placeholder="Ex.: email@exemplo.com"
+                  />
                   {errors.email && <FieldError>{errors.email}</FieldError>}
                 </Field>
               </div>
 
               <Field>
                 <FieldLabel>Morada</FieldLabel>
-                <Input name="morada" disabled={processing} placeholder="Ex.: Luanda Sul" />
+                <Input
+                  name="morada"
+                  disabled={processing}
+                  placeholder="Ex.: Luanda Sul"
+                />
                 {errors.morada && <FieldError>{errors.morada}</FieldError>}
               </Field>
 
-              <Field>
+              {/* <Field>
                 <FieldLabel>Instituição</FieldLabel>
                 <Select
                   value={instituicaoId}
@@ -89,13 +129,17 @@ export default function InscricaoForm({
                     <SelectGroup>
                       <SelectLabel>Instituições</SelectLabel>
                       {instituicoes.map((i) => (
-                        <SelectItem key={i.id} value={String(i.id)}>{i.nome}</SelectItem>
+                        <SelectItem key={i.id} value={String(i.id)}>
+                          {i.nome}
+                        </SelectItem>
                       ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                {errors.instituicao_id && <FieldError>{errors.instituicao_id}</FieldError>}
-              </Field>
+                {errors.instituicao_id && (
+                  <FieldError>{errors.instituicao_id}</FieldError>
+                )}
+              </Field> */}
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field>
@@ -103,25 +147,21 @@ export default function InscricaoForm({
                   <Select
                     value={cursoId}
                     onValueChange={setCursoId}
-                    disabled={processing || !instituicaoId}
+                    disabled={processing}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder={
-                        !instituicaoId ? "Selecione uma instituição primeiro" :
-                        !temCursos ? "Nenhum curso disponível" :
-                        "Selecione um curso"
-                      } />
+                      <SelectValue placeholder="Selecione um curso" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectLabel>Cursos</SelectLabel>
-                        {instituicaoSelecionada?.cursos?.map((c) => (
-                          <SelectItem key={c.id} value={String(c.id)}>{c.nome}</SelectItem>
+                        {cursos.map((c) => (
+                          <SelectItem key={c.id} value={String(c.id)}>
+                            {c.nome}
+                          </SelectItem>
                         ))}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  {errors.curso_id && <FieldError>{errors.curso_id}</FieldError>}
                 </Field>
 
                 <Field>
@@ -132,27 +172,37 @@ export default function InscricaoForm({
                     disabled={processing || !cursoId}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder={
-                        !cursoId ? "Selecione um curso primeiro" :
-                        !temTurnos ? "Nenhum turno disponível" :
-                        "Selecione um turno"
-                      } />
+                      <SelectValue
+                        placeholder={
+                          !cursoId
+                            ? 'Selecione um curso primeiro'
+                            : !temTurnos
+                              ? 'Nenhum turno disponível'
+                              : 'Selecione um turno'
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Turnos</SelectLabel>
                         {cursoSelecionado?.turnos?.map((t) => (
-                          <SelectItem key={t.id} value={String(t.id)}>{t.nome}</SelectItem>
+                          <SelectItem key={t.id} value={String(t.id)}>
+                            {t.nome}
+                          </SelectItem>
                         ))}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  {errors.curso_classe_turno_id && <FieldError>{errors.curso_classe_turno_id}</FieldError>}
+                  {errors.curso_classe_turno_id && (
+                    <FieldError>{errors.curso_classe_turno_id}</FieldError>
+                  )}
                 </Field>
               </div>
 
               <Field>
-                <Button type="submit" disabled={processing}>Inscrever</Button>
+                <Button type="submit" disabled={processing}>
+                  Inscrever
+                </Button>
               </Field>
             </FieldSet>
           </FieldGroup>

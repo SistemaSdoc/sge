@@ -1,7 +1,8 @@
-import { router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -75,6 +76,18 @@ export function TabDisciplinas({
       <CardHeader className="border-b">
         <CardTitle>Disciplinas</CardTitle>
         <CardDescription>Disciplinas lecionadas nesta turma</CardDescription>
+        <CardAction>
+          <Button asChild size="sm">
+            <Link
+              data={{ redirect_to: window.location.href }}
+              href={
+                createDisciplina(params).url
+              }
+            >
+              Adicionar
+            </Link>
+          </Button>
+        </CardAction>
       </CardHeader>
 
       <CardContent className="p-0!">
