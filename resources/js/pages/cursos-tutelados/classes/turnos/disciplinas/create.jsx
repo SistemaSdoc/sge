@@ -6,15 +6,15 @@ import DisciplinaForm from './components/disciplina-form';
 import { useState } from 'react';
 
 export default function Create() {
-  const { 
-    disciplinas, 
-    instituicaoId, 
-    cursoId, 
-    classeId, 
-    turnoId
-  } =
+  const { disciplinas, instituicaoId, cursoId, classeId, turnoId } =
     usePage().props;
   const [disciplinaIds, setDisciplinaIds] = useState([]);
+
+  const redirectTo =
+    new URLSearchParams(window.location.search).get('redirect_to') ?? '';
+
+  console.log('URL actual:', window.location.href);
+  console.log('redirect_to extraído:', redirectTo);
 
   return (
     <Form
@@ -24,7 +24,11 @@ export default function Create() {
         cursoClasse: classeId,
         cursoClasseTurno: turnoId,
       })}
-      transform={(data) => ({ ...data, disciplina_ids: disciplinaIds })}
+      transform={(data) => ({
+        ...data,
+        disciplina_ids: disciplinaIds,
+        redirect_to: redirectTo,
+      })}
     >
       {({ errors, processing }) => (
         <DisciplinaForm

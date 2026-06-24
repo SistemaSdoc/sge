@@ -39,7 +39,7 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
             ->paginate(5);
 
         return response()->json(
-            $disciplinas->through(fn($ctd) => [
+            $disciplinas->through(fn ($ctd) => [
                 'id' => $ctd->id,
                 'disciplina' => [
                     'id' => $ctd->disciplina->id,
@@ -83,7 +83,7 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
             ->get();
 
         return response()->json(
-            $disciplinas->map(fn($ctd) => [
+            $disciplinas->map(fn ($ctd) => [
                 'id' => $ctd->id,
                 'disciplina' => [
                     'id' => $ctd->disciplina->id,
@@ -135,7 +135,16 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
             $disciplinasAdicionadas[] = $ctd;
         }
 
-        return redirect()->back();
+        $redirectTo = $request->input('redirect_to');
+
+        return ($redirectTo)
+            ? redirect($redirectTo) 
+            : to_route('cursos-tutelados.classes.show', [
+                'instituicao' => $instituicao->id,
+                'cursoTutelado' => $cursoTutelado->id,
+                'cursoClasse' => $cursoClasse->id,
+                'cursoClasseTurno' => $cursoClasseTurno->id,
+            ]);
     }
 
     public function edit(
@@ -197,7 +206,7 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
 
         if ($temProfessores) {
             return back()->withErrors([
-                'message' => 'Não é possível remover uma disciplina com professores associados.'
+                'message' => 'Não é possível remover uma disciplina com professores associados.',
             ]);
         }
 

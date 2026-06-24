@@ -38,7 +38,7 @@ import {
 import { Link, router } from '@inertiajs/react';
 import { show as showCurso } from '@/actions/App/Http/Controllers/CursoTuteladoController';
 import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
-import {  destroy} from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
+import { destroy } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
 import {
   show as showTurma,
   create as createTurma,
@@ -206,6 +206,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                   <CardAction>
                     <Button asChild size="sm">
                       <Link
+                        data={{ redirect_to: window.location.href }}
                         href={
                           createDisciplina({
                             instituicao: instituicaoId,

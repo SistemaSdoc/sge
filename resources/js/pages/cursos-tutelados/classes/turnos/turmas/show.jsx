@@ -32,6 +32,9 @@ export default function Show({
   const classe = turma.curso_classe_turno?.curso_classe?.classe;
   const totalRecurso = pautaRecurso?.resumo?.total ?? 0;
 
+  const redirectTo =
+    new URLSearchParams(window.location.search).get('redirect_to') ?? '';
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       <Header
@@ -62,6 +65,7 @@ export default function Show({
             pagination={disciplinas}
             onPageChange={disciplinasPagination.handlePageChange}
             params={params}
+            redirectTo={window.location.href}
           />
         </TabsContent>
 

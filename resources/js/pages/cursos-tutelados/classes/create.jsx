@@ -71,6 +71,7 @@ export default function Create({
           <CardContent>
             <FieldGroup>
               <FieldSet>
+              {/*
                 <Field>
                   <FieldLabel>Classe</FieldLabel>
 
@@ -81,7 +82,7 @@ export default function Create({
                       <SelectValue placeholder="Selecione a classe" />
                     </SelectTrigger>
 
-                    {/* <SelectContent>
+                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Classes</SelectLabel>
 
@@ -91,10 +92,10 @@ export default function Create({
                           </SelectItem>
                         ))}
                       </SelectGroup>
-                    </SelectContent> */}
+                    </SelectContent> 
                   </Select>
                 </Field>
-
+              */}
                 <Field>
                   <FieldLabel>Turnos</FieldLabel>
                   <MultipleSelect

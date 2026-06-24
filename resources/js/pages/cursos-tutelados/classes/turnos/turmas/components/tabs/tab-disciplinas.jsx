@@ -30,12 +30,14 @@ import { create as createDisciplina } from '@/actions/App/Http/Controllers/Class
 import { index } from '@/actions/App/Http/Controllers/NotaController';
 import { create as createProfessor } from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController';
 import TablePagination from '@/components/table-pagination';
+import { toast } from 'sonner';
 
 export function TabDisciplinas({
   disciplinas,
   params,
   pagination,
   onPageChange,
+  redirectTo, // <-- adiciona
 }) {
   const isEmpty = disciplinas.length === 0;
   const { openForm, closeDialog } = useDialog();
@@ -77,6 +79,7 @@ export function TabDisciplinas({
 
       <CardContent className="p-0!">
         {isEmpty ? (
+          // onde tens o EmptyState
           <EmptyState
             variant="table"
             icon={BookIcon}
@@ -84,7 +87,10 @@ export function TabDisciplinas({
             description="Comece adicionando disciplinas"
             action={{
               label: 'Adicionar Disciplina',
-              href: createDisciplina(params).url,
+              onClick: () =>
+                router.visit(createDisciplina(params).url, {
+                  data: { redirect_to: redirectTo },
+                }),
               variant: 'outline',
             }}
           />
@@ -105,7 +111,12 @@ export function TabDisciplinas({
                     key={disciplina.id}
                     className="hover:cursor-pointer"
                     onClick={() => {
-                      console.log('inspect: ', params, disciplina.id);
+                      if (!disciplina.professor) {
+                        toast.warning(
+                          'Esta disciplina ainda não tem professor atribuído.',
+                        );
+                        return;
+                      }
                       router.visit(
                         index({
                           ...params,
