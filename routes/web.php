@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CertificadoController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -42,3 +43,9 @@ require __DIR__.'/auth.php';
  * As rotas específicas de configurações estão definidas em routes/settings.php
  */
 require __DIR__.'/settings.php';
+
+
+Route::get(
+    '/certificados/{aluno}/verificar',
+    [CertificadoController::class, 'show']
+)->name('certificados.verificar');

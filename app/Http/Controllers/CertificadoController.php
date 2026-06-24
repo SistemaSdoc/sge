@@ -17,6 +17,7 @@ use Spatie\Browsershot\Browsershot;
 use App\Services\QrCodeService;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
+use Inertia\Inertia;
 
 class CertificadoController extends Controller
 {
@@ -146,7 +147,7 @@ class CertificadoController extends Controller
     // =========================================================================
     //  SHOW — página de verificação via QR Code
     // =========================================================================
-    public function show(Aluno $aluno): Response
+    public function show(Aluno $aluno)
     {
         // ✅ CORRIGIDO: Acesso via turmas (relação atual)
         $turmaAluno = $aluno->turmas()
@@ -174,22 +175,24 @@ class CertificadoController extends Controller
         // ── Usa o mesmo cálculo do gerar() ───────────────────────────────
         $calc = $this->calcularDadosCertificado($aluno, $turmaAluno);
 
-        return response([
-            'id' => $aluno->id,
-            'nome' => $candidato->nome,           //  CORRIGIDO: nome_completo → nome
-            'matricula' => $aluno->matricula,
-            'bi' => $aluno->user->bi,
-            'instituicao' => $instituicaoCurso?->instituicao?->nome,
-            'curso' => $instituicaoCurso?->curso?->nome,  // ✅ CORRIGIDO: name → nome
-            'classe' => $turmaAluno->cursoClasseTurno?->cursoClasse?->classe?->nome,  //  CORRIGIDO
-            'ano_lectivo' => date('Y') . '/' . (date('Y') + 1),  // ✅ CORRIGIDO: removido ano_letivo
-            'ano_defesa' => date('Y'),
-            'resultado_final' => $this->determinarResultadoFinal($calc['classificacao_final']),
-            'media_pc' => $calc['media_pc'],
-            'nota_pap' => $calc['nota_pap'],
-            'nota_ecs' => $calc['nota_ecs'],
-            'classificacao_final' => $calc['classificacao_final'],
-            'notas' => $calc['notas'],
+        return Inertia::render('certificado/show', [
+            'certificado' => [
+                'id' => $aluno->id,
+                'nome' => $candidato->nome,           //  CORRIGIDO: nome_completo → nome
+                'matricula' => $aluno->matricula,
+                'bi' => $aluno->user->bi,
+                'instituicao' => $instituicaoCurso?->instituicao?->nome,
+                'curso' => $instituicaoCurso?->curso?->nome,  // ✅ CORRIGIDO: name → nome
+                'classe' => $turmaAluno->cursoClasseTurno?->cursoClasse?->classe?->nome,  //  CORRIGIDO
+                'ano_lectivo' => date('Y') . '/' . (date('Y') + 1),  // ✅ CORRIGIDO: removido ano_letivo
+                'ano_defesa' => date('Y'),
+                'resultado_final' => $this->determinarResultadoFinal($calc['classificacao_final']),
+                'media_pc' => $calc['media_pc'],
+                'nota_pap' => $calc['nota_pap'],
+                'nota_ecs' => $calc['nota_ecs'],
+                'classificacao_final' => $calc['classificacao_final'],
+                'notas' => $calc['notas'],
+            ],
         ]);
     }
 
@@ -221,7 +224,7 @@ class CertificadoController extends Controller
         $calc = $this->calcularDadosCertificado($aluno, $turma);
 
         // QR Code
-        $url = env('FRONTEND_URL', 'http://192.168.1.168:3000') . '/certificados/' . $aluno->id . '/verificar';
+      $url = 'http://192.168.1.175:8000/certificados/' . $aluno->id . '/verificar';
         $result = (new Builder(
             writer: new PngWriter(),
             data: $url,
