@@ -138,7 +138,7 @@ export default function LancamentosRecursoTable({ alunos = [], onSubmit, isPendi
 
                                             <TableCell className="px-4 text-center">
                                                 <span className="text-destructive font-medium">
-                                                    {nota.mf !== null ? Number(nota.mf).toFixed(1) : "—"}
+                                                    {nota.mf !== null ? Number(nota.mf) : "—"}
                                                 </span>
                                             </TableCell>
 

@@ -45,6 +45,7 @@ import {
 } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 import { create } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
 import TablePagination from '@/components/table-pagination';
+import { useRef } from 'react';
 
 function Paginacao({ paginacao, onAnterior, onSeguinte }) {
   if (!paginacao || paginacao.last_page <= 1) return null;
@@ -82,13 +83,31 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
 
   const { deleteConfirm } = useDialog();
 
-  const handleTurnoChange = (turnoId) => {
-    router.get(
-      '',
-      { turno: turnoId, page_turmas: 1, page_disciplinas: 1 },
-      { preserveState: true, preserveScroll: true },
-    );
-  };
+const lastTurnoRef = useRef(null);
+
+const handleTurnoChange = (turnoId) => {
+  if (lastTurnoRef.current === turnoId) {
+    return;
+  }
+
+  lastTurnoRef.current = turnoId;
+
+  router.get(
+    window.location.pathname,
+    {
+      turno: turnoId,
+      page_turmas: 1,
+      page_disciplinas: 1,
+    },
+    {
+      preserveState: true,
+      preserveScroll: true,
+      onFinish: () => {
+        lastTurnoRef.current = null;
+      },
+    }
+  );
+};
 
   const handlePageChange = (param) => (page) => {
     router.get(

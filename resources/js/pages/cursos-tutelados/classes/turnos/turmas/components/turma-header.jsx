@@ -8,6 +8,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Minus, MoreHorizontalIcon } from 'lucide-react';
+import { router } from '@inertiajs/react';
 
 export function Header({ turma, disciplinas, alunos, preview, routeParams }) {
   return (
@@ -42,7 +43,7 @@ export function Header({ turma, disciplinas, alunos, preview, routeParams }) {
               <DropdownMenuSeparator />
 
               <DropdownMenuItem
-                onClick={() => router.visit(preview({ routeParams }).url)}
+                onClick={() => router.visit(preview({ ...routeParams }).url)}
               >
                 Progressão de Alunos
               </DropdownMenuItem>
