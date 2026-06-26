@@ -1,7 +1,7 @@
 import { Form, usePage } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 import LancamentosTable from './components/lancamentos-table';
-import { store } from '@/actions/App/Http/Controllers/NotaController';
+import { store } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
 
 export default function Create({
   instituicao,

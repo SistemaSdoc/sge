@@ -12,7 +12,7 @@ Route::inertia('/', 'welcome')->name('home');
  * Prefixo 'portal' e nome 'portal.' já aplicado no grupo principal
  * As rotas específicas do portal estão definidas em routes/portal.php
  */
-Route::middleware(['auth', 'verified', 'role:Candidato,Aluno'])
+Route::middleware(['auth', 'verified', 'role:Candidato'])
     ->prefix('portal')
     ->name('portal.')
     ->group(base_path('routes/portal.php'));
@@ -24,7 +24,7 @@ Route::middleware(['auth', 'verified', 'role:Candidato,Aluno'])
  * Prefixo 'dashboard' e nome 'dashboard.' já aplicado no grupo principal
  * As rotas específicas do dashboard estão definidas em routes
  */
-Route::middleware(['auth', 'verified', 'role:Master,Director,Coordenador,Secretaria,Professor'])
+Route::middleware(['auth', 'verified', 'role:Master,Director,Coordenador,Secretaria,Professor,Aluno'])
     ->prefix('dashboard')
     ->group(base_path('routes/dashboard.php'));
 

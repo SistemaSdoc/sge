@@ -1,17 +1,17 @@
 import LancamentosRecursoTable from '../../disciplinas/notas/components/lancamentos-recurso-table'
 import { router, usePage } from '@inertiajs/react'
 import { useState } from 'react'
-import { storeRecurso } from '@/actions/App/Http/Controllers/NotaController'
+import { store } from '@/actions/App/Http/Controllers/NotaDisciplinaRecursoController'
 
 export function TabRecurso({ alunos, params }) {
   const [isPending, setIsPending] = useState(false)
 
   function handleSubmit(payload) {
     router.post(
-      storeRecurso({
-        instituicao: params.instituicao,
-        cursoTutelado: params.cursoTutelado,
-        turma: params.turma,
+      store({
+        instituicao: instituicaoId,
+        cursoTutelado: cursoId,
+        turma: turmaId,
       }).url,
       payload,
       {
@@ -24,7 +24,7 @@ export function TabRecurso({ alunos, params }) {
 
   return (
     <LancamentosRecursoTable
-      alunos={alunos ?? []}
+      alunos={alunos.data ?? []}
       isPending={isPending}
       onSubmit={handleSubmit}
     />

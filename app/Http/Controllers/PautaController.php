@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CursoTutelado;
 use App\Models\Turma;
-use App\Services\PautaService;
+use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -12,7 +12,7 @@ use Inertia\Inertia;
 class PautaController extends Controller
 {
     public function __construct(
-        private readonly PautaService $pautaService,
+        private readonly PautaService $pautaService
     ) {}
 
     /**
@@ -77,17 +77,17 @@ class PautaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function pauta(
-        CursoTutelado $cursoTutelado,
-        Turma $turma, Request $request
-    ) {
-        // Validar que a turma pertence ao cursoTutelado
+    public function pauta(CursoTutelado $cursoTutelado, Turma $turma, Request $request)
+    {
+        $filtro = $request->query('filtro');
+
         abort_if(
             ! $turma->cursoClasseTurno?->cursoClasse?->where('curso_tutelado_id', $cursoTutelado->id)->exists(),
             404
         );
 
         $periodo = $request->query('periodo', '1');
+        $perPage = min((int) $request->query('per_page', 10), 100);
 
         $turma->load([
             'cursoClasseTurno.cursoClasse.classe:id,nome',
@@ -95,58 +95,11 @@ class PautaController extends Controller
             'cursoClasseTurno.turno:id,nome',
         ]);
 
-        $pautaData = $this->pautaService->gerarPauta($turma, $periodo);
-
         return Inertia::render('pautas/index', [
-            'cursoTutelado' => [
-                'id' => $cursoTutelado->id,
-                'curso' => [
-                    'id' => $cursoTutelado->instituicaoCurso?->curso?->id,
-                    'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
-                ],
-            ],
-            'turma' => [
-                'id' => $turma->id,
-                'nome' => $turma->nome,
-                'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
-                'turno' => $turma->cursoClasseTurno?->turno?->nome,
-                'curso' => $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso,
-                'instituicao' => $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoTutora,
-            ],
-            'pauta' => $pautaData,
+            'cursoTutelado' => $cursoTutelado->only('id'),
+            'pauta' => $this->pautaService->gerarPauta($turma, $periodo, $perPage, $filtro),
             'periodo' => $periodo,
+            'filtro' => $filtro,
         ]);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

@@ -2,326 +2,188 @@
 
 namespace App\Services;
 
-use App\Models\Nota;
 use App\Models\Turma;
 use App\Models\TurmaAluno;
 use App\Models\TurmaDisciplinaProfessor;
 use App\Services\Core\RegraAcademicaService;
+use Illuminate\Support\Collection;
 
 class PautaService
 {
     public function __construct(
-        private readonly RegraAcademicaService $regraAcademicaService,
-    ) {
-    }
+        private readonly RegraAcademicaService $regraAcademicaService
+    ) {}
 
-    public function gerarPauta($turma, $periodo): array
+    // ── Ponto de entrada ──────────────────────────────────────────────────
+
+    public function gerarPauta(Turma $turma, string|int $periodo, int $perPage = 20): array
     {
         if ($periodo === 'recurso' || $periodo === 4 || $periodo === '4') {
-            return $this->gerarPautaRecurso($turma);
+            return $this->gerarPautaRecurso($turma, $perPage);
         }
 
-        $periodo = (is_numeric($periodo) && (int) $periodo > 0)
+        $periodoInt = (is_numeric($periodo) && (int) $periodo > 0)
             ? (int) $periodo
             : null;
 
-        // ── Disciplinas ────────────────────────────────────────────────────
-        $tdps = TurmaDisciplinaProfessor::with(
-            'classeTurnoDisciplina.disciplina'
-        )
-            ->where('turma_id', $turma->id)
-            ->get()
-            ->unique('classe_turno_disciplina_id');
+        $disciplinas = $this->carregarDisciplinas($turma);
 
-        $disciplinas = $tdps->map(function ($tdp) {
-
-            $disciplina = $tdp->classeTurnoDisciplina?->disciplina;
-
-            return [
-                'id' => $disciplina?->id,
-                'sigla' => $disciplina?->sigla,
-                'nome' => $disciplina?->nome,
-                'tdp_id' => $tdp->id,
-            ];
-        })->filter(fn($d) => $d['id'] !== null);
-
-        // ── Alunos ─────────────────────────────────────────────────────────
-        $turmaAlunos = TurmaAluno::with([
+        $paginator = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-
-            'notas' => fn($q) => $periodo
-                ? $q->where('periodo', $periodo)   // periodo=0, nunca executa correctamente
+            'notas' => fn ($q) => $periodoInt
+                ? $q->where('periodo', $periodoInt)
                 : $q->whereIn('periodo', [1, 2, 3, 4]),
-
             'turma.cursoClasseTurno.cursoClasse.classe',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-
         ])
             ->where('turma_id', $turma->id)
             ->where('activo', true)
+            ->paginate($perPage);
 
-            // IMPORTANTE:
-            // pauta trimestral → só activos
-            // pauta final → mostrar histórico também
+        $offset = ($paginator->currentPage() - 1) * $paginator->perPage();
 
-            ->get();
+        $alunos = $paginator->through(
+            function ($ta) use ($disciplinas, $periodoInt, &$offset) {
+                $offset++;
+                $notasPorTdp = $ta->notas->groupBy('turma_disciplina_professor_id');
 
-        // ── Montar pauta ──────────────────────────────────────────────────
-        $alunos = $turmaAlunos->map(function ($ta, $index) use ($disciplinas, $periodo) {
-
-            $notasPorTdp = $ta->notas
-                ->groupBy('turma_disciplina_professor_id');
-
-            // ==============================================================
-            // PAUTA TRIMESTRAL
-            // ==============================================================
-
-            if ($periodo) {
-
-                $notas = $disciplinas->mapWithKeys(function ($disc) use ($notasPorTdp, $periodo) {
-
-                    $nota = $notasPorTdp
-                        ->get($disc['tdp_id'], collect())
-                        ->firstWhere('periodo', $periodo);
-
+                if ($periodoInt) {
                     return [
-                        $disc['sigla'] => [
-                            'media' => $nota?->media_trimestral,
-                            'situacao' => $nota?->situacao_trimestral,
-                        ]
+                        'numero' => $offset,
+                        'aluno_id' => $ta->aluno->id,
+                        'nome' => $ta->aluno->inscricao?->candidato?->nome,
+                        'situacao' => $ta->situacao,
+                        'notas' => $this->montarNotasTrimestral($notasPorTdp, $disciplinas, $periodoInt),
+                        'resultado' => null,
                     ];
-                });
+                }
+
+                $resultadoAcademico = $this->regraAcademicaService
+                    ->calcularResultadoFinalAluno($ta);
 
                 return [
-                    'numero' => $index + 1,
+                    'numero' => $offset,
                     'aluno_id' => $ta->aluno->id,
                     'nome' => $ta->aluno->inscricao?->candidato?->nome,
                     'situacao' => $ta->situacao,
-                    'notas' => $notas,
-                    'resultado' => 'TRIMESTRAL',
+                    'notas' => $this->montarNotasFinal($notasPorTdp, $disciplinas, $resultadoAcademico),
+                    'resultado' => $resultadoAcademico['situacao'],
                 ];
             }
-
-            // ==============================================================
-            // PAUTA FINAL
-            // ==============================================================
-
-            $resultadoAcademico =
-                $this->regraAcademicaService
-                    ->calcularResultadoFinalAluno($ta);
-
-            $notas = $disciplinas->mapWithKeys(function ($disc) use ($notasPorTdp, $resultadoAcademico) {
-
-                $notasDisciplina = $notasPorTdp
-                    ->get($disc['tdp_id'], collect());
-
-                $nota1 = $notasDisciplina->firstWhere('periodo', 1);
-                $nota2 = $notasDisciplina->firstWhere('periodo', 2);
-                $nota3 = $notasDisciplina->firstWhere('periodo', 3);
-                $nota4 = $notasDisciplina->firstWhere('periodo', 4);
-
-                $detalhe = collect($resultadoAcademico['detalhes'])
-                    ->firstWhere('disciplina_id', $disc['id']);
-
-                return [
-
-                    $disc['sigla'] => [
-
-                        't1' => $nota1?->media_trimestral,
-                        't2' => $nota2?->media_trimestral,
-                        't3' => $nota3?->media_trimestral,
-
-                        'mf' => $nota3?->media_final,
-
-                        'recurso' => $nota4?->media_trimestral,
-
-                        'situacao' => $detalhe['situacao'] ?? null,
-                    ]
-                ];
-            });
-
-            return [
-
-                'numero' => $index + 1,
-
-                'aluno_id' => $ta->aluno->id,
-
-                'nome' => $ta->aluno->inscricao?->candidato?->nome,
-
-                // activo | concluido | recurso etc
-                'situacao' => $ta->situacao,
-
-                'notas' => $notas,
-
-                // RESULTADO OFICIAL
-                'resultado' => $resultadoAcademico['situacao'],
-                'mensagem' => $resultadoAcademico['mensagem'],
-            ];
-        });
+        );
 
         return [
-
-            'turma' => [
-                'id' => $turma->id,
-                'nome' => $turma->nome,
-            ],
-
-            'periodo' => is_null($periodo)
-                ? 'final'
-                : $periodo,
-
-            'disciplinas' => $disciplinas->pluck('sigla'),
-
-            'resumo' => $periodo
-                ? null
-                : [
-
-                    'total' => $alunos->count(),
-
-                    'transita' => $alunos
-                        ->where('resultado', 'transita')
-                        ->count(),
-
-                    'transita_com_deficiencia' => $alunos
-                        ->where('resultado', 'transita_com_deficiencia')
-                        ->count(),
-
-                    'recurso' => $alunos
-                        ->where('resultado', 'recurso')
-                        ->count(),
-
-                    'reprovados' => $alunos
-                        ->where('resultado', 'reprovado')
-                        ->count(),
-
-                    'EEF' => $alunos
-                        ->where('resultado', 'EEF')
-                        ->count(),
-                ],
-
-            'alunos' => $alunos,
+            'turma' => ['id' => $turma->id, 'nome' => $turma->nome],
+            'periodo' => $periodoInt ?? 'final',
+            'disciplinas' => $disciplinas->map(fn ($d) => [
+                'id' => $d['id'],
+                'sigla' => $d['sigla'],
+                'nome' => $d['nome'],
+            ])->values(),
+            'resumo' => $periodoInt ? null : $this->calcularResumo($turma),
+            'alunos' => $alunos, // LengthAwarePaginator → Inertia serializa {data, links, meta}
         ];
     }
 
-    // ─────────────────────────────────────────────────────────────────────
-    // PAUTA DE RECURSO
-    // ─────────────────────────────────────────────────────────────────────
+    // ── Actualizar resultado no turma_aluno (chamar após lançar nota) ─────
 
-    public function gerarPautaRecurso(Turma $turma): array
+    public function actualizarResultadoAluno(TurmaAluno $ta): void
     {
-        // ── Disciplinas da turma ──────────────────────────────────────────────
-        $tdps = TurmaDisciplinaProfessor::with(
-            'classeTurnoDisciplina.disciplina'
-        )
+        $resultado = $this->regraAcademicaService
+            ->calcularResultadoFinalAluno($ta);
+
+        $ta->update(['resultado' => $resultado['situacao']]);
+    }
+
+    // ── Helpers privados ──────────────────────────────────────────────────
+
+    private function carregarDisciplinas(Turma $turma): Collection
+    {
+        return TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
             ->where('turma_id', $turma->id)
             ->get()
-            ->unique('classe_turno_disciplina_id');
-
-        $disciplinasPorId = $tdps->mapWithKeys(function ($tdp) {
-            $disciplina = $tdp->classeTurnoDisciplina?->disciplina;
-            return [
-                $disciplina?->id => [
-                    'sigla' => $disciplina?->sigla,
-                    'tdp_id' => $tdp->id,
-                ]
-            ];
-        })->filter(fn($d) => isset($d['sigla']));
-
-        // ── Buscar todos os activos e filtrar pelos que têm resultado = recurso ──
-        $turmaAlunos = TurmaAluno::with([
-            'aluno.inscricao.candidato:id,nome',
-            'notas',
-            'turma.cursoClasseTurno.cursoClasse.classe',
-            'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-        ])
-            ->where('turma_id', $turma->id)
-            ->where('activo', true)
-            ->get()
-            ->filter(function ($ta) {
-                $resultado = $this->regraAcademicaService
-                    ->calcularResultadoFinalAluno($ta);
-                return $resultado['situacao'] === 'recurso';
-            });
-
-        // ── Montar alunos ─────────────────────────────────────────────────────
-        $alunos = $turmaAlunos->map(function ($ta, $index) use ($disciplinasPorId) {
-
-            // Avaliação FINAL (período 3) — disciplinas negativas
-            $resultadoFinal = $this->regraAcademicaService
-                ->avaliarAluno($ta);
-
-            // Avaliação RECURSO (período 4) — nota e situação
-            $resultadoRecurso = $this->regraAcademicaService
-                ->avaliarRecurso($ta);
-
-            // Disciplinas que ficaram em recurso
-            $disciplinasNegativas = collect($resultadoFinal['detalhes'])
-                ->where('situacao', 'recurso')
-                ->keyBy('disciplina_id');
-
-            // Notas do período 4 agrupadas por tdp_id
-            // A nota do recurso é UMA única nota directa (sem mac/npp/npt)
-            // guardada em media_trimestral do período 4
-            $notasPeriodo4 = $ta->notas
-                ->where('periodo', 4)
-                ->keyBy('turma_disciplina_professor_id');
-
-            // Montar apenas disciplinas em recurso
-            $notas = $disciplinasPorId
-                ->filter(fn($d, $discId) => $disciplinasNegativas->has($discId))
-                ->mapWithKeys(function ($d, $discId) use ($notasPeriodo4, $disciplinasNegativas, $resultadoRecurso) {
-
-                    $nota4 = $notasPeriodo4->get($d['tdp_id']);
-                    $detFinal = $disciplinasNegativas->get($discId);
-                    $detRec = collect($resultadoRecurso['detalhes'])
-                        ->firstWhere('disciplina_id', $discId);
-
-                    return [
-                        $d['sigla'] => [
-                            'tdp_id' => $d['tdp_id'],
-                            'mf' => $detFinal['media_final'] ?? null,   // média final do período 3
-                            'recurso' => $nota4?->media_trimestral,           // única nota do recurso
-                            'situacao' => $detRec['situacao'] ?? 'pendente',
-                        ]
-                    ];
-                });
-
-            return [
-                'numero' => $index + 1,
-                'aluno_id' => $ta->aluno->id,
-                'turma_aluno_id' => $ta->id,
-                'nome' => $ta->aluno->inscricao?->candidato?->nome,
-                'notas' => $notas,
-                'resultado' => $resultadoRecurso['situacao'] ?? 'pendente',
-                'mensagem' => $resultadoRecurso['mensagem'] ?? null,
-            ];
-        })->values(); // ← values() para reindexar após o filter()
-
-        // ── Disciplinas únicas em recurso (cabeçalho da pauta) ───────────────
-        $disciplinasRecurso = $alunos
-            ->flatMap(fn($a) => array_keys($a['notas']->toArray()))
-            ->unique()
+            ->unique('classe_turno_disciplina_id')
+            ->map(fn ($tdp) => [
+                'id' => $tdp->classeTurnoDisciplina?->disciplina?->id,
+                'sigla' => $tdp->classeTurnoDisciplina?->disciplina?->sigla,
+                'nome' => $tdp->classeTurnoDisciplina?->disciplina?->nome,
+                'tdp_id' => $tdp->id,
+            ])
+            ->filter(fn ($d) => $d['id'] !== null)
             ->values();
+    }
+
+    private function montarNotasFinal(
+        Collection $notasPorTdp,
+        Collection $disciplinas,
+        array $resultadoAcademico
+    ): Collection {
+        return $disciplinas->mapWithKeys(function ($disc) use ($notasPorTdp, $resultadoAcademico) {
+            $notas = $notasPorTdp->get($disc['tdp_id'], collect());
+            $nota1 = $notas->firstWhere('periodo', 1);
+            $nota2 = $notas->firstWhere('periodo', 2);
+            $nota3 = $notas->firstWhere('periodo', 3);
+            $nota4 = $notas->firstWhere('periodo', 4);
+            $detalhe = collect($resultadoAcademico['detalhes'])->firstWhere('disciplina_id', $disc['id']);
+
+            return [
+                $disc['id'] => [
+                    't1' => $nota1?->media_trimestral,
+                    't2' => $nota2?->media_trimestral,
+                    't3' => $nota3?->media_trimestral,
+                    'mf' => $nota3?->media_final,
+                    'nota_recurso' => $nota4?->media_trimestral,
+                    'situacao' => $this->resolverSituacaoNota($nota3?->media_final, $detalhe['situacao'] ?? null),
+                ],
+            ];
+        });
+    }
+
+    private function montarNotasTrimestral(
+        Collection $notasPorTdp,
+        Collection $disciplinas,
+        int $periodo
+    ): Collection {
+        return $disciplinas->mapWithKeys(function ($disc) use ($notasPorTdp, $periodo) {
+            $nota = $notasPorTdp
+                ->get($disc['tdp_id'], collect())
+                ->firstWhere('periodo', $periodo);
+
+            return [
+                $disc['id'] => [
+                    'media' => $nota?->media_trimestral,
+                    'situacao' => $this->resolverSituacaoNota($nota?->media_trimestral, $nota?->situacao_trimestral),
+                ],
+            ];
+        });
+    }
+
+    private function resolverSituacaoNota(?float $media, ?string $situacao): string
+    {
+        if ($media === null) {
+            return 'sem_notas';
+        }
+
+        return $situacao ?? 'incompleto';
+    }
+
+    private function calcularResumo(Turma $turma): array
+    {
+        // Query agregada — eficiente, não carrega alunos em memória
+        $counts = TurmaAluno::where('turma_id', $turma->id)
+            ->where('activo', true)
+            ->selectRaw('resultado, COUNT(*) as total')
+            ->groupBy('resultado')
+            ->pluck('total', 'resultado');
 
         return [
-            'turma' => [
-                'id' => $turma->id,
-                'nome' => $turma->nome,
-            ],
-
-            'periodo' => 4,
-            'tipo' => 'recurso',
-
-            'disciplinas' => $disciplinasRecurso,
-
-            'resumo' => [
-                'total' => $alunos->count(),
-                'aprovados' => $alunos->where('resultado', 'aprovado_recurso')->count(),
-                'reprovados' => $alunos->where('resultado', 'reprovado_recurso')->count(),
-                'pendentes' => $alunos->where('resultado', 'pendente')->count(),
-            ],
-
-            'alunos' => $alunos,
+            'total' => $counts->sum(),
+            'transita' => $counts->get('transita', 0),
+            'transita_com_deficiencia' => $counts->get('transita_com_deficiencia', 0),
+            'recurso' => $counts->get('recurso', 0),
+            'reprovados' => $counts->get('reprovado', 0),
+            'EEF' => $counts->get('EEF', 0),
+            'incompletos' => $counts->get('incompleto', 0),
         ];
     }
 }

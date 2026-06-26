@@ -28,7 +28,7 @@ import { HorariosForm } from '../horarios/horarios-form';
 import { useDialog } from '@/hooks/use-dialog';
 import { store as storeHorario } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaHorarioController';
 import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
-import { index } from '@/actions/App/Http/Controllers/NotaController';
+import { index } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
 import { create as createProfessor } from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController';
 import TablePagination from '@/components/table-pagination';
 import { toast } from 'sonner';

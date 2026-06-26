@@ -10,7 +10,7 @@ export default function ProfessorDashboard({
   proximasAulas = [],
   avisos = [],
 }) {
-  const { user } = usePage().props;
+  const { auth } = usePage().props;
   const greeting = getGreeting();
   const todayFormatted = getTodayFormatted();
 
@@ -18,7 +18,7 @@ export default function ProfessorDashboard({
     <div className="space-y-6 p-6">
       <GreetingHeader
         greeting={greeting}
-        userName={user?.nome}
+        userName={auth?.user?.nome}
         todayFormatted={todayFormatted}
       />
 

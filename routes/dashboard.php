@@ -26,6 +26,8 @@ use App\Http\Controllers\InscricaoController;
 use App\Http\Controllers\InstituicaoController;
 use App\Http\Controllers\InstituicaoCurso\TurmaDisciplinaProfessorController;
 use App\Http\Controllers\NotaController;
+use App\Http\Controllers\NotaDisciplinaController;
+use App\Http\Controllers\NotaDisciplinaRecursoController;
 use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
 use App\Http\Controllers\ProgressaoController;
 use App\Http\Controllers\TurmaController;
@@ -43,6 +45,7 @@ Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 require __DIR__.'/modules/pautas.php';
 require __DIR__.'/modules/certificado.php';
 require __DIR__.'/modules/progressao.php';
+require __DIR__.'/modules/notas.php';
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
 Route::resource('users', UserController::class);
@@ -111,7 +114,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
         Route::prefix('turmas/{turma}')->group(function () {
             Route::post('progressao', [ProgressaoController::class, 'store']);
             // Route::post('progressao/recurso', [ProgressaoController::class, 'storeRecurso']);
-            Route::post('notas/recurso', [NotaController::class, 'storeRecurso']);
+            Route::post('notas/recurso', [NotaDisciplinaRecursoController::class, 'store']);
             Route::get('finalistas', [FinalistaController::class, 'index']);
             Route::post('alunos/{aluno}/pap-concluido', [FinalistaController::class, 'papConcluido']);
             Route::post('alunos/{aluno}/concluir', [FinalistaController::class, 'concluir']);
@@ -172,9 +175,9 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
                         'update' => 'turma.disciplinas.update',
                         'destroy' => 'turma.disciplinas.destroy',
                     ]);
-                Route::get('disciplinas/{classeTurnoDisciplina}/notas', [NotaController::class, 'index']);
-                Route::get('disciplinas/{classeTurnoDisciplina}/notas/create', [NotaController::class, 'create']);
-                Route::post('disciplinas/{classeTurnoDisciplina}/notas', [NotaController::class, 'store']);
+                Route::get('disciplinas/{classeTurnoDisciplina}/notas', [NotaDisciplinaController::class, 'index']);
+                Route::get('disciplinas/{classeTurnoDisciplina}/notas/create', [NotaDisciplinaController::class, 'create']);
+                Route::post('disciplinas/{classeTurnoDisciplina}/notas', [NotaDisciplinaController::class, 'store']);
                 Route::get('disciplinas/{classeTurnoDisciplina}/professores/create', [TurmaDisciplinaProfessorController::class, 'create']);
                 Route::post('disciplinas/{classeTurnoDisciplina}/professores', [TurmaDisciplinaProfessorController::class, 'store']);
                 Route::post('disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store']);

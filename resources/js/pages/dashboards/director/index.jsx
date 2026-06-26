@@ -14,13 +14,13 @@ export default function DirectorDashboard({
 }) {
   const greeting = getGreeting();
   const todayFormatted = getTodayFormatted();
-  const { user } = usePage().props;
+  const { auth } = usePage().props;
 
   return (
     <div className="space-y-6 p-6">
       <GreetingHeader
         greeting={greeting}
-        userName={user?.nome}
+        userName={auth.user?.nome}
         todayFormatted={todayFormatted}
       />
 

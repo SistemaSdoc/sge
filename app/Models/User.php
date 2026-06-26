@@ -93,7 +93,7 @@ class User extends Authenticatable implements PasskeyUser
     public function roleRedirectPath(): string
     {
         // Se é candidato ou aluno, redireciona para portal
-        if ($this->hasRole('Candidato') || $this->hasRole('Aluno')) {
+        if ($this->hasRole('Candidato')) {
             return '/portal';
         }
 

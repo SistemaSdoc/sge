@@ -29,7 +29,7 @@ import { FileTextIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { mediaTrimestral } from '@/utils/media-trimestral';
 import { verificarSituacao } from '@/utils/verificar-situacao';
-import { create } from '@/actions/App/Http/Controllers/NotaController';
+import { create } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
 import { exportarDisciplina } from '@/actions/App/Http/Controllers/ExportarMiniPautaController';
 
 function buildInitialNotas(alunos, periodo) {
@@ -68,57 +68,58 @@ export default function NotasTable({
   return (
     <Card className="gap-0">
       <CardHeader className="border-b">
-        <div>
-          <CardTitle>{disciplina?.nome ?? 'Disciplina'}</CardTitle>
-        </div>
-        <CardAction className="flex items-center gap-3">
-          <Select value={periodo} onValueChange={setPeriodo}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Trimestre" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">1º Trimestre</SelectItem>
-              <SelectItem value="2">2º Trimestre</SelectItem>
-              <SelectItem value="3">3º Trimestre</SelectItem>
-            </SelectContent>
-          </Select>
+        <CardTitle>{disciplina?.nome ?? 'Disciplina'}</CardTitle>
 
-          <Button asChild>
-            <Link
-              href={
-                create({
-                  instituicao: instituicao,
-                  cursoTutelado: cursoTutelado,
-                  cursoClasse: cursoClasse,
-                  cursoClasseTurno: cursoClasseTurno,
-                  turma: turma,
-                  classeTurnoDisciplina: disciplina?.id,
-                }).url
-              }
-            >
-              Lançar Notas
-            </Link>
-          </Button>
+        {alunos.length > 0 && (
+          <CardAction className="flex items-center gap-3">
+            <Select value={periodo} onValueChange={setPeriodo}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Trimestre" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1º Trimestre</SelectItem>
+                <SelectItem value="2">2º Trimestre</SelectItem>
+                <SelectItem value="3">3º Trimestre</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <Button>
-            <a
-              href={
-                exportarDisciplina({
-                  instituicao,
-                  cursoTutelado,
-                  cursoClasse,
-                  cursoClasseTurno,
-                  turma,
-                  classeTurnoDisciplina: disciplina?.id,
-                }).url + `?periodo=${periodo}`
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Exportar
-            </a>
-          </Button>
-        </CardAction>
+            <Button asChild>
+              <Link
+                href={
+                  create({
+                    instituicao: instituicao,
+                    cursoTutelado: cursoTutelado,
+                    cursoClasse: cursoClasse,
+                    cursoClasseTurno: cursoClasseTurno,
+                    turma: turma,
+                    classeTurnoDisciplina: disciplina?.id,
+                  }).url
+                }
+              >
+                Lançar Notas
+              </Link>
+            </Button>
+
+            <Button>
+              <a
+                href={
+                  exportarDisciplina({
+                    instituicao,
+                    cursoTutelado,
+                    cursoClasse,
+                    cursoClasseTurno,
+                    turma,
+                    classeTurnoDisciplina: disciplina?.id,
+                  }).url + `?periodo=${periodo}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Exportar
+              </a>
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -126,20 +127,8 @@ export default function NotasTable({
           <EmptyState
             variant="table"
             icon={FileTextIcon}
-            title="Nenhum lançamento realizado"
-            description={`Nenhuma nota lançada para o ${periodo}º trimestre`}
-            action={{
-              label: 'Lançar Notas',
-              href: create({
-                instituicao: instituicao,
-                cursoTutelado: cursoTutelado,
-                cursoClasse: cursoClasse,
-                cursoClasseTurno: cursoClasseTurno,
-                turma: turma,
-                classeTurnoDisciplina: disciplina?.id,
-              }).url,
-              variant: 'outline',
-            }}
+            title="Sem alunos associados"
+            description={`Esta turma ainda não tem alunos`}
           />
         ) : (
           <Table>

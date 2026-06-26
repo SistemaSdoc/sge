@@ -13,8 +13,8 @@
  */
 export function getDayCategory(dia) {
   if (!dia) {
-return "future";
-}
+    return 'future';
+  }
 
   const today = new Date();
   const aluaDate = new Date(dia);
@@ -27,18 +27,18 @@ return "future";
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) {
-return "today";
-}
+    return 'today';
+  }
 
   if (diffDays === 1) {
-return "tomorrow";
-}
+    return 'tomorrow';
+  }
 
   if (diffDays === 2) {
-return "day-after-tomorrow";
-}
+    return 'day-after-tomorrow';
+  }
 
-  return "future";
+  return 'future';
 }
 
 /**
@@ -57,16 +57,16 @@ return "day-after-tomorrow";
 export function getBadgeVariantForDay(category) {
   const variants = {
     today:
-      "border-emerald-200 dark:border-emerald-900/30 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-500 dark:text-emerald-400 p-3", // Verde
+      'border-emerald-200 dark:border-emerald-900/30 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-500 dark:text-emerald-400 p-3', // Verde
     tomorrow:
-      "border-yellow-200 dark:border-yellow-900/30 bg-yellow-50 dark:bg-yellow-950/20 text-yellow-500 dark:text-yellow-400 p-3", // Amarelo
-    "day-after-tomorrow":
-      "border-orange-200 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-500 dark:text-orange-400 p-3", // Laranja/Cinza
+      'border-yellow-200 dark:border-yellow-900/30 bg-yellow-50 dark:bg-yellow-950/20 text-yellow-500 dark:text-yellow-400 p-3', // Amarelo
+    'day-after-tomorrow':
+      'border-orange-200 dark:border-orange-900/30 bg-orange-50 dark:bg-orange-950/20 text-orange-500 dark:text-orange-400 p-3', // Laranja/Cinza
     future:
-      "border-gray-200 dark:border-gray-900/30 bg-gray-50 dark:bg-gray-950/20 text-gray-500 dark:text-gray-400 p-3", // Cinza claro
+      'border-gray-200 dark:border-gray-900/30 bg-gray-50 dark:bg-gray-950/20 text-gray-500 dark:text-gray-400 p-3', // Cinza claro
   };
 
-  return variants[category] || "ghost";
+  return variants[category] || 'ghost';
 }
 
 /**
@@ -78,18 +78,18 @@ export function getBadgeVariantForDay(category) {
  */
 export function isAulaHappening(dia, horario) {
   if (!dia || !horario) {
-return false;
-}
+    return false;
+  }
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split('T')[0];
 
   if (dia !== today) {
-return false;
-}
+    return false;
+  }
 
   const now = new Date();
-  const [horaInicio, minutoInicio] = horario.hora_inicio.split(":").map(Number);
-  const [horaFim, minutoFim] = horario.hora_fim.split(":").map(Number);
+  const [horaInicio, minutoInicio] = horario.hora_inicio.split(':').map(Number);
+  const [horaFim, minutoFim] = horario.hora_fim.split(':').map(Number);
 
   const aulaInicio = new Date();
   aulaInicio.setHours(horaInicio, minutoInicio, 0);

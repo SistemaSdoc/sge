@@ -10,7 +10,7 @@ use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\Turma;
-use App\Services\PautaService;
+use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -168,7 +168,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             ])
             ->paginate(5, ['*'], 'page_disciplinas');
 
-        $pautaRecurso = $this->pautaService->gerarPautaRecurso($turma);
+        $pautaRecurso = $this->pautaService->gerarPauta($turma, 4, 5);
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
             'instituicao' => $instituicao->only('id'),

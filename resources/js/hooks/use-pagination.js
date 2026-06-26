@@ -48,11 +48,12 @@ export function usePagination(key = 'page') {
    *
    * @param params
    */
-  const navigate = (params) => {
+  const navigate = (params, options = {}) => {
     router.visit(url, {
       data: params,
       preserveScroll: true,
       preserveState: true,
+      ...options,
     });
   };
 
@@ -78,8 +79,8 @@ export function usePagination(key = 'page') {
    * Aplica filtros arbitrários e reset a página para 1.
    * @param filters
    */
-  const handleFilter = (filters) => {
-    navigate({ ...filters, [key]: 1 });
+  const handleFilter = (filters, options = {}) => {
+    navigate({ ...filters, [key]: 1 }, options);
   };
 
   return { handlePageChange, handleSearch, handleFilter };
