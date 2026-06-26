@@ -27,6 +27,8 @@ import { edit } from '@/actions/App/Http/Controllers/GrupoPapController';
 import { definirData } from '@/actions/App/Http/Controllers/GrupoPapController';
 import { actualizarNota } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
 import { FieldError } from '@/components/ui/field';
+import { usePagination } from '@/hooks/use-pagination';
+
 
 export default function Show({
   instituicao,
@@ -35,9 +37,13 @@ export default function Show({
   cursoClasseTurno,
   turma,
   grupoPap,
+  banca,
+  elementos,
 }) {
   const [notas, setNotas] = useState({});
   const [dialogDataAberto, setDialogDataAberto] = useState(false);
+  const bancaPagination = usePagination('banca');
+  const elementosPagination = usePagination('elementos');
 
   const params = {
     instituicao: instituicao.id,
@@ -140,7 +146,7 @@ export default function Show({
             <p className="font-medium">
               {grupoPap?.professor ? (
                 <Link
-                  href={`/professores/${grupoPap.professor.id}`}
+                  href={`/dashboard/professores/${grupoPap.professor.id}`}
                   className="hover:underline"
                 >
                   {grupoPap.professor.nome}
@@ -170,15 +176,15 @@ export default function Show({
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">Data de defesa</p>
+            <p className="text-sm text-muted-foreground">Local & Data de defesa</p>
             <p className="font-medium">
-              {grupoPap?.data_defesa
+              {grupoPap?.local_defesa}/{grupoPap?.data_defesa
                 ? new Date(grupoPap.data_defesa).toLocaleDateString('pt-PT', {
-                    weekday: 'short',
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                  })
+                  weekday: 'short',
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                })
                 : 'Por definir...'}
             </p>
           </div>
@@ -261,6 +267,8 @@ export default function Show({
             params={params}
             setNotas={setNotas}
             notas={notas}
+            pagination={elementos}
+            onPageChange={elementosPagination.handlePageChange}
             actualizarNotaFn={actualizarNotaFn}
             removerIntegranteFn={removerIntegranteFn}
           />
@@ -271,6 +279,8 @@ export default function Show({
             params={params}
             grupoPap={grupoPap}
             removerJuradoFn={removerJuradoFn}
+            pagination={banca}
+            onPageChange={bancaPagination.handlePageChange}
           />
         </TabsContent>
       </Tabs>

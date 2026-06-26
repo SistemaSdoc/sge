@@ -11,7 +11,9 @@ use App\Models\GrupoPap;
 use App\Models\Instituicao;
 use App\Models\Professor;
 use App\Models\Turma;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Http\Requests\BancaJuriPap\UpdateRequest;
 
 class BancaJuriPapController extends Controller
 {
@@ -30,11 +32,13 @@ class BancaJuriPapController extends Controller
 
         $professores = Professor::with('user:id,nome')
             ->whereNotIn('id', $juradosNaBanca)
-            ->whereHas('cursosTutelados', fn ($q) => $q
-                ->where('curso_tutelado_id', $cursoTutelado->id)
-                ->where('tipo', 'principal')
+            ->whereHas(
+                'cursosTutelados',
+                fn($q) => $q
+                    ->where('curso_tutelado_id', $cursoTutelado->id)
+                    ->where('tipo', 'principal')
             )->get()
-            ->map(fn ($professor) => [
+            ->map(fn($professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ])->values();
@@ -77,6 +81,76 @@ class BancaJuriPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ]);
+    }
+
+    /**
+     * Mostra o formulário para editar um integrante da banca de júri.
+     */
+    public function edit(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+        BancaJuriPap $bancaJuriPap
+    ) {
+        $juradosNaBanca = $grupoPap->jurados()
+            ->where('id', '!=', $bancaJuriPap->id)
+            ->pluck('professor_id');
+
+        $professores = Professor::with('user:id,nome')
+            ->whereNotIn('id', $juradosNaBanca)
+            ->whereHas(
+                'cursosTutelados',
+                fn($q) => $q
+                    ->where('curso_tutelado_id', $cursoTutelado->id)
+                    ->where('tipo', 'principal')
+            )->get()
+            ->map(fn($professor) => [
+                'id' => $professor->id,
+                'nome' => $professor->user?->nome ?? 'Sem nome',
+            ])->values();
+
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/banca/edit', [
+            'instituicao' => $instituicao->only('id'),
+            'cursoTutelado' => $cursoTutelado->only('id'),
+            'cursoClasse' => $cursoClasse->only('id'),
+            'cursoClasseTurno' => $cursoClasseTurno->only('id'),
+            'turma' => $turma->only('id'),
+            'grupoPap' => $grupoPap->only('id', 'nome_grupo'),
+            'bancaJuriPap' => $bancaJuriPap->only('id', 'professor_id', 'funcao'),
+            'professores' => $professores,
+            'funcoes' => ['Presidente', 'Vogal 1', 'Vogal 2'],
+        ]);
+    }
+
+    /**
+     * Actualiza um integrante da banca de júri.
+     */
+    public function update(
+        UpdateRequest $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+        BancaJuriPap $bancaJuriPap
+    ) {
+        $bancaJuriPap->update($request->only(['professor_id', 'funcao']));
+
+        return to_route('pap.show', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+            'cursoClasseTurno' => $cursoClasseTurno->id,
+            'turma' => $turma->id,
+            'grupoPap' => $grupoPap->id,
+        ])->with('toast', [
+                    'type' => 'success',
+                    'message' => 'Membro da banca actualizado com sucesso!',
+                ]);
     }
 
     /**

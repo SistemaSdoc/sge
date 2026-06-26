@@ -25,11 +25,19 @@ import { MoreHorizontalIcon, Minus, Users2Icon } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
 import { EmptyState } from '@/components/empty-state';
 import { show as showProfessor } from '@/actions/App/Http/Controllers/ProfessorController';
-import { create as adicionarJurado } from '@/actions/App/Http/Controllers/BancaJuriPapController';
+import { create as adicionarJurado, edit } from '@/actions/App/Http/Controllers/BancaJuriPapController';
+import TablePagination from '@/components/table-pagination';
 
-export function TabBanca({ params, grupoPap, removerJuradoFn }) {
-  const isEmpty = !grupoPap?.banca || grupoPap.banca.length === 0;
-
+export function TabBanca({
+  params,
+  grupoPap,
+  pagination,
+  onPageChange,
+  removerJuradoFn,
+}) {
+  const jurados = pagination?.data ?? [];
+  const isEmpty = jurados.length === 0;
+  //console.log('pagination:', pagination); 
   return (
     <Card className="gap-0 pb-0">
       <CardHeader className="border-b">
@@ -66,12 +74,12 @@ export function TabBanca({ params, grupoPap, removerJuradoFn }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {grupoPap.banca.map((j) => (
+              {jurados.map((j) => (
                 <TableRow
                   key={j.id}
                   className="hover:cursor-pointer"
                   onClick={() =>
-                    router.visit(showProfessor.url({ professor: j.id }))
+                    router.visit(showProfessor.url({ professor: j.professor_id }))
                   }
                 >
                   <TableCell className="px-4 font-medium">{j.nome}</TableCell>
@@ -97,6 +105,15 @@ export function TabBanca({ params, grupoPap, removerJuradoFn }) {
 
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
+                          onClick={() => router.visit(edit.url({
+                            ...params,
+                            bancaJuriPap: j.id, // id do jurado da linha
+                          }))}
+                        >
+                          Editar
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem
                           variant="destructive"
                           onClick={() => removerJuradoFn(j.id)}
                         >
@@ -111,6 +128,7 @@ export function TabBanca({ params, grupoPap, removerJuradoFn }) {
           </Table>
         )}
       </CardContent>
+      <TablePagination pagination={pagination.meta} onPageChange={onPageChange} />
     </Card>
   );
 }

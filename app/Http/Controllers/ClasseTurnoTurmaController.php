@@ -20,7 +20,8 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
 {
     public function __construct(
         private readonly PautaService $pautaService,
-    ) {}
+    ) {
+    }
     /* public static function middleware(): array
     {
         return [
@@ -38,7 +39,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
     {
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
-            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
             ->with([
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
@@ -58,7 +59,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
                 ],
             ],
             // Usar through() em vez de map()->toArray() para preservar a paginação
-            'turmas' => $turmas->through(fn ($turma) => [
+            'turmas' => $turmas->through(fn($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -162,7 +163,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             ->classeTurnoDisciplinas()
             ->with([
                 'disciplina:id,nome,sigla',
-                'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
+                'turmaDisciplinaProfessores' => fn($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
                 'horarios',
             ])
@@ -185,6 +186,10 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
                 'data' => ClasseTurnoDisciplinaResource::collection($disciplinas->items())->resolve(),
             ],
             'pautaRecurso' => $pautaRecurso,
+            'grupos' => [
+                ...$grupos->toArray(),
+                'data' => $grupos->items(),
+            ],
         ]);
 
     }

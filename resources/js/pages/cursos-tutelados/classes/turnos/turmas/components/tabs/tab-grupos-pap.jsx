@@ -20,6 +20,8 @@ import {
 import { Minus, Users2Icon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Link } from '@inertiajs/react';
+import { usePagination } from '@/hooks/use-pagination';
+import TablePagination from '@/components/table-pagination';
 //import {create} from '@/routes/cursos-tutelados/classes/turnos/turmas/disciplinas/professores'
 //import {create} from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController'
 
@@ -29,9 +31,11 @@ export function TabGruposPAP({
   cursoTuteladoId,
   cursoClasseId,
   cursoClasseTurnoId,
+  pagination,     
+  onPageChange,    
 }) {
   const turmaId = turma.id;
-  const grupos = turma.grupos_pap ?? [];
+  const grupos = pagination?.data ?? turma.grupos_pap ?? [];
   const isEmpty = grupos.length === 0;
 
   const baseUrl = `/dashboard/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
@@ -96,6 +100,7 @@ export function TabGruposPAP({
           </Table>
         )}
       </CardContent>
+      <TablePagination pagination={pagination} onPageChange={onPageChange} />
     </Card>
   );
 }

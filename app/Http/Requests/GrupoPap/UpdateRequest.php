@@ -34,7 +34,7 @@ class UpdateRequest extends FormRequest
             'alunos' => 'sometimes|array|min:1',
             'alunos.*' => [
                 'exists:alunos,id',
-                new AlunoNaoPertencenteAoGrupo($this->route('grupoPap')),
+                new AlunoNaoPertencenteAoGrupo($this->route('grupoPap'), isUpdate: true),
             ],
         ];
     }

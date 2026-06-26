@@ -28,6 +28,7 @@ import {
 import { EmptyState } from '@/components/empty-state';
 import { show as showAluno } from '@/actions/App/Http/Controllers/AlunoController';
 import { create as adicionarElemento } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
+import TablePagination from '@/components/table-pagination';
 
 export function TabIntegrantes({
   params,
@@ -36,9 +37,12 @@ export function TabIntegrantes({
   setNotas,
   actualizarNotaFn,
   removerIntegranteFn,
+  pagination,
+  onPageChange,
 }) {
-  const isEmpty = !grupoPap?.elementos || grupoPap.elementos.length === 0;
   const [editando, setEditando] = useState({});
+  const elementos = pagination?.data ?? [];
+  const isEmpty = elementos.length === 0; // ← corrige isto
 
   function handleSalvar(el) {
     actualizarNotaFn(
@@ -96,7 +100,7 @@ export function TabIntegrantes({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {grupoPap?.elementos.map((el) => (
+              {elementos.map((el) => (
                 <TableRow
                   key={el.id}
                   className="hover:cursor-pointer"
@@ -178,6 +182,7 @@ export function TabIntegrantes({
           </Table>
         )}
       </CardContent>
+      <TablePagination pagination={pagination?.meta} onPageChange={onPageChange} />
     </Card>
   );
 }

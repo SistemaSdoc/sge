@@ -21,6 +21,8 @@ use App\Models\Turma;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\GrupoPap\BancaResource;
+use App\Http\Resources\GrupoPap\ElementoResource;
 use Inertia\Inertia;
 
 class GrupoPapController extends Controller // implements HasMiddleware
@@ -49,12 +51,12 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
             'elementos.aluno.inscricao.candidato:id,nome',
         ])->when(
-            $instituicaoId,
-            fn ($q) => $q->whereHas(
-                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                fn ($q) => $q->where('instituicao_id', $instituicaoId)
-            )
-        )->latest()->paginate(10);
+                $instituicaoId,
+                fn($q) => $q->whereHas(
+                    'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                    fn($q) => $q->where('instituicao_id', $instituicaoId)
+                )
+            )->latest()->paginate(10);
 
         // dd($grupos);
         return Inertia::render('pap/index', [
@@ -77,10 +79,10 @@ class GrupoPapController extends Controller // implements HasMiddleware
         $alunos = Aluno::whereHas('turmas', function ($q) use ($turma) {
             $q->where('turmas.id', $turma->id)
                 ->where('turma_aluno.activo', true); // aluno activo nesta turma
-        })->with('inscricao.candidato:id,nome')->get()->map(fn ($aluno) => [
-            'id' => $aluno->id,
-            'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
-        ])->values();
+        })->with('inscricao.candidato:id,nome')->get()->map(fn($aluno) => [
+                'id' => $aluno->id,
+                'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
+            ])->values();
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/create', [
             'instituicao' => $instituicao->only('id'),
@@ -114,7 +116,7 @@ class GrupoPapController extends Controller // implements HasMiddleware
         ]);
 
         $grupo->elementos()->createMany(
-            collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
+            collect($request->alunos)->map(fn($id) => ['aluno_id' => $id])->toArray()
         );
 
         return to_route('pap.show', [
@@ -137,9 +139,16 @@ class GrupoPapController extends Controller // implements HasMiddleware
     ) {
         $grupoPap->load([
             'professor.user:id,nome,email',
-            'elementos.aluno.inscricao.candidato:id,nome,email',
-            'jurados.professor.user:id,nome,email',
         ]);
+
+        $banca = $grupoPap->jurados()
+            ->with('professor.user:id,nome,email')
+            ->paginate(10, ['*'], 'page_banca');
+
+        $elementos = $grupoPap->elementos()
+            ->with('aluno.inscricao.candidato:id,nome,email', 'aluno:id,matricula,inscricao_id')
+            ->paginate(10, ['*'], 'page_elementos');
+
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/show', [
             'instituicao' => $instituicao->only('id', 'nome'),
@@ -148,6 +157,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => $turma->only('id', 'nome'),
             'grupoPap' => new ShowResource($grupoPap),
+            'banca' => BancaResource::collection($banca),
+            'elementos' => ElementoResource::collection($elementos),
         ]);
     }
 
@@ -208,17 +219,7 @@ class GrupoPapController extends Controller // implements HasMiddleware
         ]));
 
         if ($request->has('alunos')) {
-            $alunosNovos = collect($request->alunos);
-            $alunosAtuais = $grupoPap->elementos()->pluck('aluno_id');
-
-            $grupoPap->elementos()
-                ->whereNotIn('aluno_id', $alunosNovos)
-                ->delete();
-
-            $alunosParaAdicionar = $alunosNovos->diff($alunosAtuais);
-            $grupoPap->elementos()->createMany(
-                $alunosParaAdicionar->map(fn ($id) => ['aluno_id' => $id])->toArray()
-            );
+            $grupoPap->alunos()->sync($request->alunos);
         }
 
         return to_route('pap.show', [
@@ -229,9 +230,9 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Grupo PAP actualizado com sucesso!',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Grupo PAP actualizado com sucesso!',
+                ]);
     }
 
     public function destroy(GrupoPap $grupoPap)
@@ -262,9 +263,9 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Data e local da defesa definidos com sucesso!',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Data e local da defesa definidos com sucesso!',
+                ]);
     }
 
     public function alunosDisponiveis(
@@ -284,7 +285,7 @@ class GrupoPapController extends Controller // implements HasMiddleware
             })
             ->get();
 
-        return response()->json($alunos->map(fn ($aluno) => [
+        return response()->json($alunos->map(fn($aluno) => [
             'id' => $aluno->id,
             'nome' => $aluno->inscricao?->candidato?->nome,
             'matricula' => $aluno->matricula,

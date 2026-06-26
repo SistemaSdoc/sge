@@ -163,7 +163,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 
                 Route::resource('pap/{grupoPap}/banca', BancaJuriPapController::class)
                     ->parameters(['banca' => 'bancaJuriPap'])
-                    ->only(['create', 'store', 'destroy']);
+                    ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
                 Route::get('pap/{grupoPap}/folha-aprovacao', [FolhaAprovacaoController::class, 'folhaAprovacao']);
 

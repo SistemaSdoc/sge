@@ -138,9 +138,9 @@ export function TabTurmas({
 
                         <DropdownMenuSeparator />
 
-                        <DropdownMenuItem variant="destructive" disabled>
+                        {/*<DropdownMenuItem variant="destructive" disabled>
                           Remover
-                        </DropdownMenuItem>
+                        </DropdownMenuItem>*/}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

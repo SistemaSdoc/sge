@@ -11,20 +11,26 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 
 class ProfessorNaoNaBanca implements ValidationRule
 {
-    public function __construct(protected GrupoPap $grupoPap) {}
+    public function __construct(
+        protected GrupoPap $grupoPap,
+        protected ?BancaJuriPap $bancaJuriPap = null,
+    ) {
+    }
 
     /**
-     * Run the validation rule.
-     *
-     * @param  Closure(string, ?string=): PotentiallyTranslatedString  $fail
+     * @param Closure(string, ?string=): PotentiallyTranslatedString $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $jaExiste = BancaJuriPap::where('grupo_pap_id', $this->grupoPap->id)
-            ->where('professor_id', $value)
-            ->exists();
+        $query = BancaJuriPap::where('grupo_pap_id', $this->grupoPap->id)
+            ->where('professor_id', $value);
 
-        if ($jaExiste) {
+        // No update, excluir o próprio registo da verificação
+        if ($this->bancaJuriPap) {
+            $query->where('id', '!=', $this->bancaJuriPap->id);
+        }
+
+        if ($query->exists()) {
             $nome = Professor::with('user:id,nome')
                 ->find($value)?->user?->nome ?? 'Professor';
             $fail("$nome já pertence à banca deste grupo.");

@@ -111,9 +111,9 @@ export default function Show({ cursoTutelado }) {
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem variant="destructive">
+                {/*<DropdownMenuItem variant="destructive">
                   Remover curso
-                </DropdownMenuItem>
+                </DropdownMenuItem>*/}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

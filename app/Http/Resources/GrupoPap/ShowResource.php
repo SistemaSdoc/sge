@@ -30,21 +30,6 @@ class ShowResource extends JsonResource
                 'nome' => $this->professor->user->nome,
                 'email' => $this->professor->user->email,
             ] : null,
-            'elementos' => $this->elementos->map(fn ($el) => [
-                'id' => $el->id,
-                'aluno_id' => $el->aluno->id,
-                'nome' => $el->aluno?->inscricao?->candidato?->nome,
-                'email' => $el->aluno?->inscricao?->candidato?->email,
-                'matricula' => $el->aluno?->matricula,
-                'nota_individual' => $el->nota_individual,
-            ]),
-            'banca' => $this->jurados->map(fn ($j) => [
-                'id' => $j->id,
-                'professor_id' => $j->professor->id,
-                'nome' => $j->professor?->user->nome,
-                'email' => $j->professor?->user->email,
-                'funcao' => $j->funcao,
-            ]),
         ];
     }
 }

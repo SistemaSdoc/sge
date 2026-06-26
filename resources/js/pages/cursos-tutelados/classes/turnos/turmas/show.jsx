@@ -17,9 +17,11 @@ export default function Show({
   alunos,
   disciplinas,
   pautaRecurso,
+  grupos,
 }) {
   const alunosPagination = usePagination('alunos');
   const disciplinasPagination = usePagination('disciplinas');
+  const gruposPagination = usePagination('page_grupos');
 
   const params = {
     instituicao: instituicao.id,
@@ -29,7 +31,7 @@ export default function Show({
     turma: turma.data.id,
   };
 
-  const classe = turma.curso_classe_turno?.curso_classe?.classe;
+  const classe = turma.data.classe;
   const totalRecurso = pautaRecurso?.resumo?.total ?? 0;
 
   const redirectTo =
@@ -71,7 +73,16 @@ export default function Show({
 
         {classe?.nome === '13ª' && (
           <TabsContent value="grupos-pap">
-            <TabGruposPAP turma={turma} params={params} />
+            <TabGruposPAP
+              turma={turma.data}
+              instituicaoId={params.instituicao}
+              cursoTuteladoId={params.cursoTutelado}
+              cursoClasseId={params.cursoClasse}
+              cursoClasseTurnoId={params.cursoClasseTurno}
+              pagination={grupos}
+              onPageChange={gruposPagination.handlePageChange}
+              params={params}
+            />
           </TabsContent>
         )}
 
