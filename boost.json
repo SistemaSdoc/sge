@@ -14,9 +14,6 @@
         "wayfinder-development",
         "pest-testing",
         "inertia-react-development",
-        "tailwindcss-development",
-        "laravel-patterns",
-        "laravel-security",
-        "laravel-specialist"
+        "tailwindcss-development"
     ]
 }

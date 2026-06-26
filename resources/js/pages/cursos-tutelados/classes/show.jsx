@@ -42,6 +42,7 @@ import { destroy } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaCon
 import {
   show as showTurma,
   create as createTurma,
+  edit as editTurma,
 } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 import { create } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
 import TablePagination from '@/components/table-pagination';
@@ -83,31 +84,31 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
 
   const { deleteConfirm } = useDialog();
 
-const lastTurnoRef = useRef(null);
+  const lastTurnoRef = useRef(null);
 
-const handleTurnoChange = (turnoId) => {
-  if (lastTurnoRef.current === turnoId) {
-    return;
-  }
-
-  lastTurnoRef.current = turnoId;
-
-  router.get(
-    window.location.pathname,
-    {
-      turno: turnoId,
-      page_turmas: 1,
-      page_disciplinas: 1,
-    },
-    {
-      preserveState: true,
-      preserveScroll: true,
-      onFinish: () => {
-        lastTurnoRef.current = null;
-      },
+  const handleTurnoChange = (turnoId) => {
+    if (lastTurnoRef.current === turnoId) {
+      return;
     }
-  );
-};
+
+    lastTurnoRef.current = turnoId;
+
+    router.get(
+      window.location.pathname,
+      {
+        turno: turnoId,
+        page_turmas: 1,
+        page_disciplinas: 1,
+      },
+      {
+        preserveState: true,
+        preserveScroll: true,
+        onFinish: () => {
+          lastTurnoRef.current = null;
+        },
+      },
+    );
+  };
 
   const handlePageChange = (param) => (page) => {
     router.get(
@@ -434,7 +435,13 @@ const handleTurnoChange = (turnoId) => {
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         router.visit(
-                                          `/dashboard/instituicoes/${instituicaoId}/cursos-tutelados/${cursoId}/classes/${classeId}/turnos/${selectedTurnoId}/turmas/${turma.id}/edit?origem=classe`,
+                                          editTurma({
+                                            instituicao: instituicaoId,
+                                            cursoTutelado: cursoId,
+                                            cursoClasse: classeId,
+                                            cursoClasseTurno: selectedTurnoId,
+                                            turma: turma.id,
+                                          }).url + '?origem=classe',
                                         );
                                       }}
                                     >

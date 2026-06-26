@@ -9,8 +9,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Minus, MoreHorizontalIcon } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import { edit } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 
-export function Header({ turma, disciplinas, alunos, preview, routeParams }) {
+export function Header({
+  turma,
+  disciplinas,
+  alunos,
+  preview,
+  routeParams,
+  params,
+  deleteFn,
+}) {
   return (
     <Card className="overflow-hidden pt-0! pb-0">
       <div className="relative flex h-56 w-full items-end bg-muted">
@@ -36,7 +45,12 @@ export function Header({ turma, disciplinas, alunos, preview, routeParams }) {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => router.visit(`#`)}>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.visit(edit(params).url + '?origem=classe');
+                }}
+              >
                 Editar
               </DropdownMenuItem>
 
@@ -67,7 +81,15 @@ export function Header({ turma, disciplinas, alunos, preview, routeParams }) {
 
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem variant="destructive">Remover</DropdownMenuItem>
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteFn(params);
+                }}
+              >
+                Remover
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

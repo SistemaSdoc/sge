@@ -249,7 +249,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
+    public function destroy(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
     {
         abort_if($turma->curso_classe_turno_id !== $cursoClasseTurno->id, 404);
 
@@ -264,5 +264,5 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         $turma->delete();
 
         return response()->json(status: 200);
-    }
+    } 
 }

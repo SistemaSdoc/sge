@@ -42,7 +42,7 @@ export function TurmaForm({ data, setData, errors, processing, onSubmit }) {
 
                 <Field>
                   <Button type="submit" disabled={processing}>
-                    Criar
+                    Salvar
                   </Button>
                 </Field>
               </FieldSet>

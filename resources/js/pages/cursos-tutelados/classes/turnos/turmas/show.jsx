@@ -4,9 +4,13 @@ import { TabRecurso } from './components/tabs/tab-recurso';
 import { TabGruposPAP } from './components/tabs/tab-grupos-pap';
 import { TabDisciplinas } from './components/tabs/tab-disciplinas';
 import { preview } from '@/actions/App/Http/Controllers/ProgressaoController';
+import { destroy } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 import { Header } from './components/turma-header';
 import { TurmaTabsList } from './components/tabs/tab-list';
 import { usePagination } from '@/hooks/use-pagination';
+import { useDialog } from '@/hooks/use-dialog';
+import { router } from '@inertiajs/react';
+
 
 export default function Show({
   instituicao,
@@ -19,6 +23,8 @@ export default function Show({
   pautaRecurso,
   grupos,
 }) {
+  const { deleteConfirm } = useDialog();
+
   const alunosPagination = usePagination('alunos');
   const disciplinasPagination = usePagination('disciplinas');
   const gruposPagination = usePagination('page_grupos');
@@ -37,6 +43,15 @@ export default function Show({
   const redirectTo =
     new URLSearchParams(window.location.search).get('redirect_to') ?? '';
 
+  const handleDelete = (turmaId) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description: 'Esta acção é irreversível. A turma será removida.',
+      confirmLabel: 'Remover',
+      confirmFn: () => router.delete(destroy(turmaId).url),
+    });
+  };
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       <Header
@@ -46,6 +61,8 @@ export default function Show({
         totalRecurso={totalRecurso}
         preview={preview}
         routeParams={params}
+        params={params}
+        deleteFn={handleDelete}
       />
 
       <Tabs defaultValue="alunos" className="w-full">

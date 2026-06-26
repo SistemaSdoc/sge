@@ -216,7 +216,7 @@ class CertificadoController extends Controller
         Turma $turma,                       // 5º - {turma}
         Aluno $aluno
     ) {
-        // ✅ ADICIONAR ESTA LINHA AQUI (início do método)
+        // ADICIONAR ESTA LINHA AQUI (início do método)
         $instituicaoCurso = $cursoTutelado->instituicaoCurso;
         $candidato = $aluno->inscricao->candidato;
 
@@ -224,7 +224,7 @@ class CertificadoController extends Controller
         $calc = $this->calcularDadosCertificado($aluno, $turma);
 
         // QR Code
-      $url = 'http://192.168.1.175:8000/certificados/' . $aluno->id . '/verificar';
+      $url = 'http://192.168.1.211:8000/certificados/' . $aluno->id . '/verificar';
         $result = (new Builder(
             writer: new PngWriter(),
             data: $url,
