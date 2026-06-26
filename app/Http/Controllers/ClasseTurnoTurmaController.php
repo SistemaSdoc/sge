@@ -170,6 +170,11 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             ->paginate(5, ['*'], 'page_disciplinas');
 
         $pautaRecurso = $this->pautaService->gerarPauta($turma, 4, 5);
+        
+        $grupos = $turma->gruposPap()
+            ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final')
+            ->paginate(5, ['*'], 'page_grupos');
+
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
             'instituicao' => $instituicao->only('id'),
