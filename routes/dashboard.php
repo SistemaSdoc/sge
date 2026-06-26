@@ -80,7 +80,7 @@ Route::prefix('director')->group(function () {
     Route::get('avisos', [DashboardDirectorController::class, 'avisos']);
 });
 
-Route::get('turmas', [TurmaController::class, 'index']);
+Route::get('turmas', [TurmaController::class, 'index'])->name('turmaGeral');
 
 Route::prefix('instituicoes/{instituicao}')->group(function () {
     Route::get('alunos/{aluno}/historico', [FinalistaController::class, 'historico']);
@@ -131,7 +131,9 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 
         Route::put('classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'store']);
 
-        Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')->group(function () {
+        Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')
+        ->scopeBindings()
+        ->group(function () {
             Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)
                 ->parameters(['disciplinas' => 'classeTurnoDisciplina'])
                 ->names([
@@ -143,7 +145,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
                     'update' => 'classe-turno.disciplinas.update',
                     'destroy' => 'classe-turno.disciplinas.destroy',
                 ]);
-            Route::resource('turmas', ClasseTurnoTurmaController::class);
+             Route::resource('turmas', ClasseTurnoTurmaController::class);
 
             Route::prefix('turmas/{turma}')->group(function () {
                 Route::get('pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);

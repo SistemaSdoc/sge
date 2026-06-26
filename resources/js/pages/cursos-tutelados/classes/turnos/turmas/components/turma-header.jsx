@@ -85,7 +85,7 @@ export function Header({
                 variant="destructive"
                 onClick={(e) => {
                   e.stopPropagation();
-                  deleteFn(params);
+                  deleteFn(params.turma);
                 }}
               >
                 Remover

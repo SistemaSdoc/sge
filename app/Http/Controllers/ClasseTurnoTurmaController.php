@@ -20,8 +20,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
 {
     public function __construct(
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
     /* public static function middleware(): array
     {
         return [
@@ -39,7 +38,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
     {
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
-            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
             ->with([
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
@@ -59,7 +58,7 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
                 ],
             ],
             // Usar through() em vez de map()->toArray() para preservar a paginação
-            'turmas' => $turmas->through(fn($turma) => [
+            'turmas' => $turmas->through(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -163,18 +162,17 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             ->classeTurnoDisciplinas()
             ->with([
                 'disciplina:id,nome,sigla',
-                'turmaDisciplinaProfessores' => fn($q) => $q->where('turma_id', $turma->id),
+                'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
                 'horarios',
             ])
             ->paginate(5, ['*'], 'page_disciplinas');
 
         $pautaRecurso = $this->pautaService->gerarPauta($turma, 4, 5);
-        
+
         $grupos = $turma->gruposPap()
             ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final')
             ->paginate(5, ['*'], 'page_grupos');
-
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
             'instituicao' => $instituicao->only('id'),
@@ -256,18 +254,14 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
      */
     public function destroy(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
     {
-        abort_if($turma->curso_classe_turno_id !== $cursoClasseTurno->id, 404);
-
-        $temAlunos = $turma->alunos()->exists();
-
-        if ($temAlunos) {
-            return response()->json([
-                'message' => 'Não é possível remover uma turma que tem alunos associados.',
-            ], 422);
+        if ($turma->alunos()->exists()) {
+            return back()->withErrors([
+                'turma' => 'Não é possível remover uma turma que tem alunos associados.',
+            ]);
         }
 
         $turma->delete();
 
-        return response()->json(status: 200);
-    } 
+        return to_route('turmaGeral');
+    }
 }

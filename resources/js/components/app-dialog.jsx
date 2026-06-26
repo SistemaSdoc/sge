@@ -81,12 +81,17 @@ export function AppDialog() {
 
         <AlertDialogFooter>
           {type !== 'alert' && (
-            <AlertDialogCancel onClick={closeDialog} disabled={loading}>
+            <AlertDialogCancel
+              type="button"
+              onClick={closeDialog}
+              disabled={loading}
+            >
               {cancelLabel}
             </AlertDialogCancel>
           )}
 
           <AlertDialogAction
+            type="button"
             onClick={handleConfirm}
             disabled={loading}
             variant={type === 'delete' ? 'destructive' : 'default'}

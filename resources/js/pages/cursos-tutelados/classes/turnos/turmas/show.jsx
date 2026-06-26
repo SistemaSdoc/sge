@@ -11,7 +11,6 @@ import { usePagination } from '@/hooks/use-pagination';
 import { useDialog } from '@/hooks/use-dialog';
 import { router } from '@inertiajs/react';
 
-
 export default function Show({
   instituicao,
   cursoTutelado,
@@ -44,11 +43,19 @@ export default function Show({
     new URLSearchParams(window.location.search).get('redirect_to') ?? '';
 
   const handleDelete = (turmaId) => {
+    console.log('params:', params);
+    console.log('turmaId:', turmaId);
     deleteConfirm({
       title: 'Tens a certeza?',
       description: 'Esta acção é irreversível. A turma será removida.',
       confirmLabel: 'Remover',
-      confirmFn: () => router.delete(destroy(turmaId).url),
+      confirmFn: () =>
+        router.delete(
+          destroy({
+            ...params,
+            turma: turmaId,
+          }).url,
+        ),
     });
   };
 
