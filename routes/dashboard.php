@@ -25,7 +25,6 @@ use App\Http\Controllers\GrupoPapController;
 use App\Http\Controllers\InscricaoController;
 use App\Http\Controllers\InstituicaoController;
 use App\Http\Controllers\InstituicaoCurso\TurmaDisciplinaProfessorController;
-use App\Http\Controllers\NotaController;
 use App\Http\Controllers\NotaDisciplinaController;
 use App\Http\Controllers\NotaDisciplinaRecursoController;
 use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
@@ -46,6 +45,7 @@ require __DIR__.'/modules/pautas.php';
 require __DIR__.'/modules/certificado.php';
 require __DIR__.'/modules/progressao.php';
 require __DIR__.'/modules/notas.php';
+require __DIR__.'/modules/acess-management.php';
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
 Route::resource('users', UserController::class);
@@ -132,63 +132,61 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
         Route::put('classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'store']);
 
         Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')
-        ->scopeBindings()
-        ->group(function () {
-            Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)
-                ->parameters(['disciplinas' => 'classeTurnoDisciplina'])
-                ->names([
-                    'index' => 'classe-turno.disciplinas.index',
-                    'create' => 'classe-turno.disciplinas.create',
-                    'store' => 'classe-turno.disciplinas.store',
-                    'show' => 'classe-turno.disciplinas.show',
-                    'edit' => 'classe-turno.disciplinas.edit',
-                    'update' => 'classe-turno.disciplinas.update',
-                    'destroy' => 'classe-turno.disciplinas.destroy',
-                ]);
-             Route::resource('turmas', ClasseTurnoTurmaController::class);
-
-            Route::prefix('turmas/{turma}')->group(function () {
-                Route::get('pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);
-                Route::get('progressao/preview', [ProgressaoController::class, 'preview']);
-
-                Route::resource('pap', GrupoPapController::class)->parameters(['pap' => 'grupoPap'])->except('index');
-
-                Route::put('pap/{grupoPap}/data-defesa', [GrupoPapController::class, 'definirData']);
-
-                Route::resource('pap/{grupoPap}/elementos', ElementoGrupoPapController::class)
-                    ->parameters(['elementos' => 'elementoGrupoPap'])
-                    ->only(['create', 'store', 'destroy']);
-
-                Route::put('pap/{grupoPap}/elementos/{elementoGrupoPap}/nota', [ElementoGrupoPapController::class, 'actualizarNota']);
-
-                Route::get('pap/{grupoPap}/alunos-disponiveis', [ElementoGrupoPapController::class, 'alunosDisponiveis']);
-
-                Route::resource('pap/{grupoPap}/banca', BancaJuriPapController::class)
-                    ->parameters(['banca' => 'bancaJuriPap'])
-                    ->only(['create', 'store', 'edit', 'update', 'destroy']);
-
-                Route::get('pap/{grupoPap}/folha-aprovacao', [FolhaAprovacaoController::class, 'folhaAprovacao']);
-
+            ->scopeBindings()
+            ->group(function () {
                 Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)
-                    ->only(['index', 'update', 'destroy'])
                     ->parameters(['disciplinas' => 'classeTurnoDisciplina'])
                     ->names([
-                        'index' => 'turma.disciplinas.index',
-                        'update' => 'turma.disciplinas.update',
-                        'destroy' => 'turma.disciplinas.destroy',
+                        'index' => 'classe-turno.disciplinas.index',
+                        'create' => 'classe-turno.disciplinas.create',
+                        'store' => 'classe-turno.disciplinas.store',
+                        'show' => 'classe-turno.disciplinas.show',
+                        'edit' => 'classe-turno.disciplinas.edit',
+                        'update' => 'classe-turno.disciplinas.update',
+                        'destroy' => 'classe-turno.disciplinas.destroy',
                     ]);
-                Route::get('disciplinas/{classeTurnoDisciplina}/notas', [NotaDisciplinaController::class, 'index']);
-                Route::get('disciplinas/{classeTurnoDisciplina}/notas/create', [NotaDisciplinaController::class, 'create']);
-                Route::post('disciplinas/{classeTurnoDisciplina}/notas', [NotaDisciplinaController::class, 'store']);
-                Route::get('disciplinas/{classeTurnoDisciplina}/professores/create', [TurmaDisciplinaProfessorController::class, 'create']);
-                Route::post('disciplinas/{classeTurnoDisciplina}/professores', [TurmaDisciplinaProfessorController::class, 'store']);
-                Route::post('disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store']);
+                Route::resource('turmas', ClasseTurnoTurmaController::class);
+
+                Route::prefix('turmas/{turma}')->group(function () {
+                    Route::get('pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis']);
+                    Route::get('progressao/preview', [ProgressaoController::class, 'preview']);
+
+                    Route::resource('pap', GrupoPapController::class)->parameters(['pap' => 'grupoPap'])->except('index');
+
+                    Route::put('pap/{grupoPap}/data-defesa', [GrupoPapController::class, 'definirData']);
+
+                    Route::resource('pap/{grupoPap}/elementos', ElementoGrupoPapController::class)
+                        ->parameters(['elementos' => 'elementoGrupoPap'])
+                        ->only(['create', 'store', 'destroy']);
+
+                    Route::put('pap/{grupoPap}/elementos/{elementoGrupoPap}/nota', [ElementoGrupoPapController::class, 'actualizarNota']);
+
+                    Route::get('pap/{grupoPap}/alunos-disponiveis', [ElementoGrupoPapController::class, 'alunosDisponiveis']);
+
+                    Route::resource('pap/{grupoPap}/banca', BancaJuriPapController::class)
+                        ->parameters(['banca' => 'bancaJuriPap'])
+                        ->only(['create', 'store', 'edit', 'update', 'destroy']);
+
+                    Route::get('pap/{grupoPap}/folha-aprovacao', [FolhaAprovacaoController::class, 'folhaAprovacao']);
+
+                    Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)
+                        ->only(['index', 'update', 'destroy'])
+                        ->parameters(['disciplinas' => 'classeTurnoDisciplina'])
+                        ->names([
+                            'index' => 'turma.disciplinas.index',
+                            'update' => 'turma.disciplinas.update',
+                            'destroy' => 'turma.disciplinas.destroy',
+                        ]);
+                    Route::get('disciplinas/{classeTurnoDisciplina}/notas', [NotaDisciplinaController::class, 'index']);
+                    Route::get('disciplinas/{classeTurnoDisciplina}/notas/create', [NotaDisciplinaController::class, 'create']);
+                    Route::post('disciplinas/{classeTurnoDisciplina}/notas', [NotaDisciplinaController::class, 'store']);
+                    Route::get('disciplinas/{classeTurnoDisciplina}/professores/create', [TurmaDisciplinaProfessorController::class, 'create']);
+                    Route::post('disciplinas/{classeTurnoDisciplina}/professores', [TurmaDisciplinaProfessorController::class, 'store']);
+                    Route::post('disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store']);
+                });
             });
-        });
     });
 });
-
-
 
 Route::resource('avisos', AvisoController::class);
 

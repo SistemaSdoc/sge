@@ -24,7 +24,7 @@ Route::middleware(['auth', 'verified', 'role:Candidato'])
  * Prefixo 'dashboard' e nome 'dashboard.' já aplicado no grupo principal
  * As rotas específicas do dashboard estão definidas em routes
  */
-Route::middleware(['auth', 'verified', 'role:Master,Director,Coordenador,Secretaria,Professor,Aluno'])
+Route::middleware(['auth', 'verified', 'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno'])
     ->prefix('dashboard')
     ->group(base_path('routes/dashboard.php'));
 

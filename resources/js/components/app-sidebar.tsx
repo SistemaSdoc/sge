@@ -5,8 +5,10 @@ import {
   GraduationCapIcon,
   LayersIcon,
   LayoutGrid,
+  ShieldCheckIcon,
   Users,
 } from 'lucide-react';
+import { index as indexAcessos } from '@/actions/App/Http/Controllers/AccessManagementController';
 import { index as indexAlunos } from '@/actions/App/Http/Controllers/AlunoController';
 import { index as indexAvisos } from '@/actions/App/Http/Controllers/AvisoController';
 import { index as indexClasses } from '@/actions/App/Http/Controllers/ClasseController';
@@ -57,6 +59,7 @@ const navGroups = [
     items: [
       { title: 'Professores', href: indexProfessores().url, icon: Users },
       { title: 'Alunos', href: indexAlunos().url, icon: Users },
+      { title: 'Gerir Acessos', href: indexAcessos().url, icon: ShieldCheckIcon },
     ],
   },
   {
@@ -84,7 +87,7 @@ const footerNavItems: NavItem[] = [
 
 export function AppSidebar() {
   return (
-    <Sidebar collapsible="icon" variant="floating">
+    <Sidebar collapsible="icon" variant="sidebar">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

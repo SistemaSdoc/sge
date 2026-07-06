@@ -2,10 +2,9 @@
 
 namespace App\Listeners;
 
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class RegisteredListener
 {
@@ -14,14 +13,8 @@ class RegisteredListener
         /** @var User $user */
         $user = $event->user;
 
-        $candidatoRole = Role::where('nome', 'Candidato')->first();
-
-        if ($candidatoRole) {
-            if (! $user->roles()->where('role_id', $candidatoRole->id)->exists()) {
-                $user->roles()->attach($candidatoRole->id, [
-                    'id' => (string) Str::uuid(),
-                ]);
-            }
+        if (! $user->hasRole('Candidato')) {
+            $user->assignRole('Candidato');
         }
     }
 }

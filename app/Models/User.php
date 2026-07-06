@@ -12,6 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable([
     'instituicao_id',
@@ -35,7 +36,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory, HasRoles, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     protected function casts(): array
     {
@@ -63,28 +64,12 @@ class User extends Authenticatable implements PasskeyUser
 
     public function isSuperAdmin(): bool
     {
-        return $this->roles->contains('nome', 'Master');
+        return $this->hasRole('SuperAdmin'); // usa o método do Spatie
     }
 
     public function isDirector(): bool
     {
-        return $this->roles->contains('nome', 'Director');
-    }
-
-    /**
-     * Verifica se o utilizador tem um role específico
-     */
-    public function hasRole(string $roleName): bool
-    {
-        return $this->roles->contains('nome', $roleName);
-    }
-
-    /**
-     * Verifica se o utilizador tem qualquer um dos roles fornecidos
-     */
-    public function hasAnyRole(array $roleNames): bool
-    {
-        return $this->roles->whereIn('nome', $roleNames)->isNotEmpty();
+        return $this->hasRole('Director'); // usa o método do Spatie
     }
 
     /**
@@ -108,13 +93,6 @@ class User extends Authenticatable implements PasskeyUser
         }
 
         return $this->instituicao_id;
-    }
-
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'role_user', 'user_id', 'role_id')
-            ->using(RoleUser::class)
-            ->withTimestamps();
     }
 
     public function instituicao()
