@@ -1,9 +1,13 @@
 import { Link } from '@inertiajs/react';
 import {
+  Bell,
+  BookOpen,
   BoxSelectIcon,
+  Building2,
+  ClipboardList,
+  Clock4Icon,
   FileTextIcon,
   GraduationCapIcon,
-  LayersIcon,
   LayoutGrid,
   ShieldCheckIcon,
   Users,
@@ -44,14 +48,14 @@ const navGroups = [
       {
         title: 'Instituições',
         href: indexInstituicoes().url,
-        icon: LayersIcon,
+        icon: Building2,
       },
-      { title: 'Cursos', href: indexCursos().url, icon: LayersIcon },
+      { title: 'Cursos', href: indexCursos().url, icon: BookOpen },
       { title: 'Classes', href: indexClasses().url, icon: GraduationCapIcon },
-      { title: 'Turnos', href: indexTurnos().url, icon: LayersIcon },
-      { title: 'Turmas', href: indexTurmas().url, icon: LayersIcon },
+      { title: 'Turnos', href: indexTurnos().url, icon: Clock4Icon },
+      { title: 'Turmas', href: indexTurmas().url, icon: Users },
       { title: 'Pautas', href: indexPautas().url, icon: FileTextIcon },
-      { title: 'Inscrições', href: indexInscricoes().url, icon: LayersIcon },
+      { title: 'Inscrições', href: indexInscricoes().url, icon: ClipboardList },
     ],
   },
   {
@@ -68,7 +72,7 @@ const navGroups = [
   },
   {
     label: 'Comunicação',
-    items: [{ title: 'Avisos', href: indexAvisos().url, icon: Users }],
+    items: [{ title: 'Avisos', href: indexAvisos().url, icon: Bell }],
   },
 ];
 

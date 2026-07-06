@@ -5,13 +5,35 @@ namespace App\Http\Controllers;
 use App\Ai\Agents\ResumoDirector;
 use App\Ai\Agents\Teste;
 use App\Http\Requests\UserRequest;
+use App\Imports\UsersImport;
 use App\Models\Instituicao;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
+    public function importarForm(Request $request)
+    {
+        return view('importar');
+    }
+
+    public function importar(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
+        ]);
+
+
+        $import = new UsersImport;
+
+        Excel::import($import, $request->file('file'), null, \Maatwebsite\Excel\Excel::XLSX);
+
+        return redirect()->back();
+    }
+
     public function index()
     {
         // Carrega usuários com instituição e roles (para mostrar na listagem)
@@ -32,7 +54,7 @@ class UserController extends Controller
         return response()->json(
             [
                 'instituicoes' => $instituicoes,
-                'roles' => $roles
+                'roles' => $roles,
             ],
             status: 202
         );
@@ -67,7 +89,7 @@ class UserController extends Controller
             [
                 'user' => $user,
                 'instituicoes' => $instituicoes,
-                'roles' => $roles
+                'roles' => $roles,
             ],
             status: 200
         );

@@ -7,6 +7,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { cn } from '@/lib/utils';
 import type { NavItem } from '@/types';
 
 interface NavGroup {
@@ -21,7 +22,10 @@ export function NavMain({ groups = [] }: { groups: NavGroup[] }) {
     <>
       {groups.map((group) => (
         <SidebarGroup key={group.label} className="px-2 py-0">
-          <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+          <SidebarGroupLabel className="font-medium">
+            {group.label}
+          </SidebarGroupLabel>
+
           <SidebarMenu>
             {group.items.map((item) => (
               <SidebarMenuItem key={item.title}>
@@ -30,9 +34,17 @@ export function NavMain({ groups = [] }: { groups: NavGroup[] }) {
                   isActive={isCurrentUrl(item.href)}
                   tooltip={{ children: item.title }}
                 >
-                  <Link href={item.href} prefetch>
-                    {item.icon && <item.icon />}
-                    <span>{item.title}</span>
+                  <Link
+                    href={item.href}
+                    prefetch
+                    className="[&_span]:text-sidebar-foreground hover:[&_span]:font-bold hover:[&_span]:text-sidebar-foreground hover:[&>svg]:text-ring"
+                  >
+                    {item.icon && <item.icon className="" />}
+                    <span
+                      className={cn(isCurrentUrl(item.href) && 'font-bold', 'font-bold')}
+                    >
+                      {item.title}
+                    </span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

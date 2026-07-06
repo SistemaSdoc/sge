@@ -4,7 +4,7 @@ import type { User } from '@/types';
 
 export function UserInfo({
   user,
-  showEmail = false,
+  //showEmail = false,
 }: {
   user: User;
   showEmail?: boolean;
@@ -16,7 +16,7 @@ export function UserInfo({
       <Avatar className="h-8 w-8 overflow-hidden rounded-full">
         <AvatarImage src={user.avatar} alt={user.nome} />
 
-        <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+        <AvatarFallback className="rounded-lg bg-neutral-200 text-secondary dark:bg-neutral-700 dark:text-white">
           {getInitials(user.nome)}
         </AvatarFallback>
       </Avatar>
@@ -24,11 +24,7 @@ export function UserInfo({
       <div className="grid flex-1 text-left text-sm leading-tight">
         <span className="truncate font-medium">{user.nome}</span>
 
-        {showEmail && (
-          <span className="truncate text-xs text-muted-foreground">
-            {user.email}
-          </span>
-        )}
+        <span className="text-xs text-muted-foreground">{user.email}</span>
       </div>
     </>
   );

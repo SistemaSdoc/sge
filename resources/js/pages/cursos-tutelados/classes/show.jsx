@@ -48,30 +48,6 @@ import { create } from '@/actions/App/Http/Controllers/CursoClasseTurnoControlle
 import TablePagination from '@/components/table-pagination';
 import { useRef } from 'react';
 
-function Paginacao({ paginacao, onAnterior, onSeguinte }) {
-  if (!paginacao || paginacao.last_page <= 1) return null;
-  return (
-    <div className="flex items-center gap-1">
-      <Button
-        variant="ghost"
-        size="sm"
-        disabled={paginacao.current_page === 1}
-        onClick={onAnterior}
-      >
-        <ChevronLeft className="size-4" /> Anterior
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        disabled={paginacao.current_page === paginacao.last_page}
-        onClick={onSeguinte}
-      >
-        Proxima <ChevronRight className="size-4" />
-      </Button>
-    </div>
-  );
-}
-
 export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
   const instituicaoId = instituicao.id;
   const cursoId = cursoTutelado.id;
@@ -160,10 +136,10 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <MoreHorizontalIcon className="size-5" />
+                  <MoreHorizontalIcon />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-auto!">
                 <DropdownMenuItem
                   onClick={() =>
                     router.visit(
@@ -185,7 +161,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
 
       {turnos.length > 0 ? (
         <Tabs value={selectedTurnoId} onValueChange={handleTurnoChange}>
-          <TabsList>
+          <TabsList variant={'line'}>
             {turnos.map((turno) => (
               <TabsTrigger key={turno.id} value={turno.id}>
                 {turno.nome}
@@ -217,7 +193,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
               <Card className="flex flex-col gap-0">
                 <CardHeader className="border-b">
                   <CardTitle className="flex! gap-2">
-                    <BookOpenIcon className="size-5 text-primary" />
+                    <BookOpenIcon className="size-5 text-secondary" />
                     Disciplinas ({disciplinas?.total ?? 0})
                   </CardTitle>
                   <CardDescription>

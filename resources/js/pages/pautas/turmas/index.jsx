@@ -58,13 +58,8 @@ export default function Index({ cursoTutelado, turmas = [] }) {
                   <CardTitle>
                     {turma.nome} - {turma.classe} - {turma.turno}
                   </CardTitle>
+                  <CardDescription>Clique para ver a pauta</CardDescription>
                 </CardHeader>
-
-                <CardContent>
-                  <p className="text-xs text-muted-foreground">
-                    Clique para ver a pauta
-                  </p>
-                </CardContent>
               </Card>
             </Link>
           ))}

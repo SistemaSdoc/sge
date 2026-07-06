@@ -135,7 +135,7 @@ export function EmptyState({
       <EmptyHeader>
         {Icon && (
           <EmptyMedia variant="icon">
-            <div className="text-primary/80">
+            <div className="text-secondary">
               <Icon
                 className={`${iconSizeClasses[effectiveVariant]} transition-all`}
                 strokeWidth={1.5}
@@ -147,6 +147,7 @@ export function EmptyState({
           <EmptyTitle className={titleClasses[effectiveVariant]}>
             {title}
           </EmptyTitle>
+
           <EmptyDescription className={descriptionClasses[effectiveVariant]}>
             {description}
           </EmptyDescription>

@@ -22,7 +22,12 @@ export default function TablePagination({ pagination, onPageChange }) {
   return (
     <CardFooter className="justify-between">
       <span className="text-muted-foreground">
-        Página {pagination.current_page} de {pagination.last_page}
+        Página{' '}
+        <span className="font-bold text-secondary">
+          {pagination.current_page}
+        </span>{' '}
+        de{' '}
+        <span className="font-bold text-secondary">{pagination.last_page}</span>
       </span>
 
       <Pagination>

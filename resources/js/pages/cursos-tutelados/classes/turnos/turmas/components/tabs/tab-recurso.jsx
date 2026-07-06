@@ -1,10 +1,10 @@
-import LancamentosRecursoTable from '../../disciplinas/notas/components/lancamentos-recurso-table'
-import { router, usePage } from '@inertiajs/react'
-import { useState } from 'react'
-import { store } from '@/actions/App/Http/Controllers/NotaDisciplinaRecursoController'
+import LancamentosRecursoTable from '../../disciplinas/notas/components/lancamentos-recurso-table';
+import { router, usePage } from '@inertiajs/react';
+import { useState } from 'react';
+import { store } from '@/actions/App/Http/Controllers/NotaDisciplinaRecursoController';
 
 export function TabRecurso({ alunos, params }) {
-  const [isPending, setIsPending] = useState(false)
+  const [isPending, setIsPending] = useState(false);
 
   function handleSubmit(payload) {
     router.post(
@@ -18,8 +18,8 @@ export function TabRecurso({ alunos, params }) {
         preserveScroll: true,
         onStart: () => setIsPending(true),
         onFinish: () => setIsPending(false),
-      }
-    )
+      },
+    );
   }
 
   return (
@@ -28,5 +28,5 @@ export function TabRecurso({ alunos, params }) {
       isPending={isPending}
       onSubmit={handleSubmit}
     />
-  )
+  );
 }

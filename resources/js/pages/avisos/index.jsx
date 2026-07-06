@@ -1,5 +1,5 @@
 import { useDialog } from '@/hooks/use-dialog';
-import { router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import AvisosTable from './components/aviso-table';
 import { index, destroy } from '@/actions/App/Http/Controllers/AvisoController';
 
@@ -25,6 +25,8 @@ export default function Index({ avisos }) {
 
   return (
     <div className="mx-auto w-full max-w-7xl p-6">
+      <Head title="Avisos" />
+
       <AvisosTable
         avisos={avisos.data}
         deleteFn={handleDelete}

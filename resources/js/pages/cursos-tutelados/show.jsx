@@ -32,7 +32,6 @@ export default function Show({ cursoTutelado }) {
   const cursoId = cursoTutelado.curso.id;
   const { deleteConfirm } = useDialog();
 
-
   const handleDelete = (vinculoId) => {
     deleteConfirm({
       title: 'Tens a certeza?',
@@ -74,11 +73,11 @@ export default function Show({ cursoTutelado }) {
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative z-10 flex w-full items-end justify-between p-6">
             <div className="space-y-2 text-white">
-              <h1 className="text-2xl font-semibold md:text-3xl">
+              <h1 className="text-2xl font-bold md:text-3xl">
                 {cursoTutelado.curso.nome}
               </h1>
 
-              <p className="text-sm opacity-90">
+              <p className="text-sm font-bold opacity-90">
                 {cursoTutelado.instituicao.nome}
               </p>
             </div>
@@ -123,7 +122,7 @@ export default function Show({ cursoTutelado }) {
           <div>
             <p className="text-sm text-muted-foreground">Duração</p>
 
-            <p className="font-medium">
+            <p className="text-sm font-bold">
               {cursoTutelado.curso.duracao_anos ? (
                 `${cursoTutelado.curso.duracao_anos} anos`
               ) : (
@@ -211,12 +210,12 @@ export default function Show({ cursoTutelado }) {
 
       {/* Tabs */}
       <Tabs defaultValue="turmas" className="w-full">
-        <TabsList>
+        <TabsList variant={'line'}>
           <TabsTrigger value="turmas">Turmas</TabsTrigger>
           <TabsTrigger value="professores">Professores</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="turmas">
+        <TabsContent value="turmas" className="mt-2">
           <TabTurmas
             instituicaoId={instituicaoId}
             cursoTuteladoId={cursoTuteladoId}
@@ -229,7 +228,7 @@ export default function Show({ cursoTutelado }) {
           />
         </TabsContent>
 
-        <TabsContent value="professores">
+        <TabsContent value="professores" className="mt-2">
           <TabProfessores
             instituicaoId={instituicaoId}
             cursoTuteladoId={cursoTuteladoId}

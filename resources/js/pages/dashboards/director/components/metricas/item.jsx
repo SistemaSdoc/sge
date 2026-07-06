@@ -10,7 +10,7 @@ import { router } from '@inertiajs/react';
 
 export function MetricItem({ label, value, href }) {
   return (
-    <Card className="group cursor-pointer" onClick={() => router.visit(href)}>
+    <Card className="group cursor-pointer hover:bg-muted/50 transition-all duration-200" onClick={() => router.visit(href)}>
       <CardHeader className="p-4">
         <CardDescription className="text-xs">{label}</CardDescription>
 
@@ -20,7 +20,7 @@ export function MetricItem({ label, value, href }) {
           <ArrowRight
             size={20}
             strokeWidth={2}
-            className="-rotate-45 text-primary transition-colors duration-300 group-hover:text-muted-foreground"
+            className="-rotate-45 text-secondary transition-colors duration-300 group-hover:text-muted-foreground"
           />
         </CardAction>
       </CardHeader>

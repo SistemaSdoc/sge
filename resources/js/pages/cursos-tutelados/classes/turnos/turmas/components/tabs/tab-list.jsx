@@ -3,7 +3,7 @@ import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function TurmaTabsList({ classe, totalRecurso }) {
   return (
-    <TabsList>
+    <TabsList variant={'line'}>
       <TabsTrigger value="alunos">Alunos</TabsTrigger>
       <TabsTrigger value="disciplinas">Disciplinas</TabsTrigger>
 

@@ -75,7 +75,7 @@ export default function Show({
       <Tabs defaultValue="alunos" className="w-full">
         <TurmaTabsList classe={classe} totalRecurso={totalRecurso} />
 
-        <TabsContent value="alunos">
+        <TabsContent value="alunos" className="mt-2">
           <TabAlunos
             alunos={alunos.data}
             pagination={alunos}
@@ -84,7 +84,7 @@ export default function Show({
           />
         </TabsContent>
 
-        <TabsContent value="disciplinas">
+        <TabsContent value="disciplinas" className="mt-2">
           <TabDisciplinas
             disciplinas={disciplinas.data}
             turma={turma}
