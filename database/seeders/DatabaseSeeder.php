@@ -79,7 +79,7 @@ class DatabaseSeeder extends Seeder
         $superAdmin = User::create([
             'id' => (string) Str::uuid7(),
             'nome' => 'Super Admin',
-            'email' => 'mater@sge.ao',
+            'email' => 'super@sge.ao',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'telefone' => '900000000',

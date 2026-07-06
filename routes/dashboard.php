@@ -132,7 +132,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
         Route::put('classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'store']);
 
         Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')
-            //->scopeBindings()
+            // ->scopeBindings()
             ->group(function () {
                 Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)
                     ->parameters(['disciplinas' => 'classeTurnoDisciplina'])
@@ -190,4 +190,4 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 
 Route::resource('avisos', AvisoController::class);
 
-Route::get('pap', [GrupoPapController::class, 'index']);
+Route::get('pap', [GrupoPapController::class, 'index'])->name('grupos-pap.index');

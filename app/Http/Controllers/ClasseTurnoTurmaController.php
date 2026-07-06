@@ -12,34 +12,33 @@ use App\Models\Instituicao;
 use App\Models\Turma;
 use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
-class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware */
+class ClasseTurnoTurmaController extends Controller
 {
     public function __construct(
         private readonly PautaService $pautaService,
     ) {}
-    /* public static function middleware(): array
-    {
-        return [
-            new Middleware('permission:turmas.index',  only: ['index']),
-            new Middleware('permission:turmas.create', only: ['store']),
-            new Middleware('permission:turmas.edit',   only: ['update']),
-            new Middleware('permission:turmas.delete', only: ['destroy']),
-        ];
-    } */
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado)
-    {
+    public function index(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado
+    ) {
+        Gate::authorize('viewAny', Turma::class);
+
+        $user = auth()->user();
+
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
             fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
+            ->when(
+                $user->hasRole('Professor'),
+                fn ($q) => $q->whereHas('professores', function ($q) use ($user) {
+                    $q->where('professor_id', $user->professor->id);
+                })
+            )
             ->with([
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoTutora:id,nome',
@@ -57,7 +56,6 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
                 ],
             ],
-            // Usar through() em vez de map()->toArray() para preservar a paginação
             'turmas' => $turmas->through(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
@@ -69,16 +67,14 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno
     ) {
-        // Carrega as relações necessárias
+        Gate::authorize('create', Turma::class);
+
         $cursoTutelado->load(['instituicaoCurso.curso', 'instituicaoTutora']);
         $cursoClasse->load('classe');
         $cursoClasseTurno->load('turno');
@@ -90,7 +86,6 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             ],
             'cursoTutelado' => [
                 'id' => $cursoTutelado->id,
-                // O nome do curso vem através da relação instituicaoCurso -> curso
                 'nome' => $cursoTutelado->instituicaoCurso->curso->nome ?? 'Curso não encontrado',
             ],
             'cursoClasse' => [
@@ -104,11 +99,15 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
-    {
+    public function store(
+        Request $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno
+    ) {
+        Gate::authorize('create', Turma::class);
+
         $request->validate([
             'nome' => 'required|string|max:255',
             'max_alunos' => 'nullable|integer|min:1',
@@ -128,7 +127,6 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
             'max_alunos' => $request->max_alunos,
         ]);
 
-        // return back()->with('success', 'Turma criada com sucesso!');
         return to_route('cursos-tutelados.classes.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
@@ -137,9 +135,6 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         ])->with('success', 'Turma criada com sucesso!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
@@ -147,6 +142,8 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
+        Gate::authorize('view', $turma);
+
         $turma->load([
             'cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasseTurno.turno:id,nome',
@@ -194,7 +191,6 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
                 'data' => $grupos->items(),
             ],
         ]);
-
     }
 
     public function edit(
@@ -204,25 +200,27 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
-        return Inertia::render(
-            'cursos-tutelados/classes/turnos/turmas/edit',
-            [
-                'turma' => $turma,
-                'instituicaoId' => $instituicao->id,
-                'cursoId' => $cursoTutelado->id,
-                'classeId' => $cursoClasse->id,
-                'turnoId' => $cursoClasseTurno->id,
-                'origem' => request('origem'),
-            ]
-        );
+        Gate::authorize('update', $turma);
+
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/edit', [
+            'turma' => $turma,
+            'instituicaoId' => $instituicao->id,
+            'cursoId' => $cursoTutelado->id,
+            'classeId' => $cursoClasse->id,
+            'turnoId' => $cursoClasseTurno->id,
+            'origem' => request('origem'),
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
-    {
-        abort_if($turma->curso_classe_turno_id !== $cursoClasseTurno->id, 404);
+    public function update(
+        Request $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma
+    ) {
+        Gate::authorize('update', $turma);
 
         $request->validate([
             'nome' => 'sometimes|string|max:255',
@@ -249,11 +247,15 @@ class ClasseTurnoTurmaController extends Controller /* implements HasMiddleware 
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
-    {
+    public function destroy(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma
+    ) {
+        Gate::authorize('delete', $turma);
+
         if ($turma->alunos()->exists()) {
             return back()->withErrors([
                 'turma' => 'Não é possível remover uma turma que tem alunos associados.',

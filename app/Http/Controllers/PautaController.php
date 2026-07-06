@@ -21,7 +21,7 @@ class PautaController extends Controller
      */
     public function indexCursos()
     {
-        $instituicaoId = Auth::user()->instituicaoFiltro();
+        $this->authorize('pauta.viewAny');
 
         $query = CursoTutelado::with([
             'instituicaoCurso:id,instituicao_id,curso_id',
@@ -55,6 +55,8 @@ class PautaController extends Controller
      */
     public function indexTurmas(CursoTutelado $cursoTutelado)
     {
+        $this->authorize('pauta.viewAny');
+
         $cursoTutelado->load('instituicaoCurso.curso:id,nome');
 
         $turmas = Turma::whereHas(
@@ -90,6 +92,8 @@ class PautaController extends Controller
      */
     public function pauta(CursoTutelado $cursoTutelado, Turma $turma, Request $request)
     {
+        $this->authorize('pauta.view', $turma);
+
         $filtro = $request->query('filtro');
 
         abort_if(

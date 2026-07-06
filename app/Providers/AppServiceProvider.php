@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Listeners\RegisteredListener;
+use App\Policies\PautaPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Date;
@@ -30,9 +31,11 @@ class AppServiceProvider extends ServiceProvider
         // Registar listener para atribuir role padrão a novos utilizadores
         Event::listen(Registered::class, RegisteredListener::class);
 
-        // Gate::policy(Classe::class, ClassePolicy::class);
+        Gate::define('pauta.viewAny', [PautaPolicy::class, 'viewAny']);
+        Gate::define('pauta.view', [PautaPolicy::class, 'view']);
 
         // $this->configureDefaults();
+
         // SuperAdmin tem acesso a tudo automaticamente
         Gate::before(function ($user, $ability) {
             return $user->hasRole('SuperAdmin') ? true : null;
