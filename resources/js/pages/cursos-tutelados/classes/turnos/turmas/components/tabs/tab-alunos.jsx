@@ -41,7 +41,7 @@ export function TabAlunos({ alunos, params, pagination, onPageChange }) {
         <CardDescription>Alunos inscritos nesta turma</CardDescription>
 
         <CardAction>
-          <Button asChild>Adicionar</Button>
+          <Button>Adicionar</Button>
         </CardAction>
       </CardHeader>
 

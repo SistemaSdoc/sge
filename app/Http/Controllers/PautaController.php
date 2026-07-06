@@ -13,29 +13,39 @@ class PautaController extends Controller
 {
     public function __construct(
         private readonly PautaService $pautaService
-    ) {}
+    ) {
+    }
 
     /**
      * Mostra a lista de cursos tutelados da instituição do user logado
      */
     public function indexCursos()
     {
+        $instituicaoId = Auth::user()->instituicaoFiltro();
+
         $query = CursoTutelado::with([
+            'instituicaoCurso:id,instituicao_id,curso_id',
             'instituicaoCurso.curso:id,nome',
             'instituicaoTutora:id,nome',
         ])->orderBy('id');
 
-        $instituicaoId = Auth::user()->instituicaoFiltro();
-
         if ($instituicaoId) {
-            $query->where('instituicao_tutora_id', $instituicaoId);
+            $query->where(function ($q) use ($instituicaoId) {
+                $q->where('instituicao_tutora_id', $instituicaoId)
+                    ->orWhereHas(
+                        'instituicaoCurso',
+                        fn($q2) =>
+                        $q2->where('instituicao_id', $instituicaoId)
+                    );
+            });
         }
 
         return Inertia::render('pautas/cursos/index', [
-            'cursosTutelados' => $query->get()->map(fn ($ct) => [
+            'cursosTutelados' => $query->get()->map(fn($ct) => [
                 'id' => $ct->id,
                 'curso' => $ct->instituicaoCurso?->curso,
                 'instituicao' => $ct->instituicaoTutora,
+                'podeEditar' => $ct->instituicaoCurso?->instituicao_id === $instituicaoId,
             ]),
         ]);
     }
@@ -47,8 +57,9 @@ class PautaController extends Controller
     {
         $cursoTutelado->load('instituicaoCurso.curso:id,nome');
 
-        $turmas = Turma::whereHas('cursoClasseTurno.cursoClasse',
-            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+        $turmas = Turma::whereHas(
+            'cursoClasseTurno.cursoClasse',
+            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
             ->with([
                 'cursoClasseTurno.cursoClasse.classe:id,nome',
@@ -65,7 +76,7 @@ class PautaController extends Controller
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
                 ],
             ],
-            'turmas' => $turmas->map(fn ($turma) => [
+            'turmas' => $turmas->map(fn($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -82,7 +93,7 @@ class PautaController extends Controller
         $filtro = $request->query('filtro');
 
         abort_if(
-            ! $turma->cursoClasseTurno?->cursoClasse?->where('curso_tutelado_id', $cursoTutelado->id)->exists(),
+            !$turma->cursoClasseTurno?->cursoClasse?->where('curso_tutelado_id', $cursoTutelado->id)->exists(),
             404
         );
 

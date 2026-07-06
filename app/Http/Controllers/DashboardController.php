@@ -37,11 +37,11 @@ class DashboardController extends Controller
         }
 
         if ($user->hasRole('Professor')) {
-           $aluno = $user?->aluno;
+           $professor = $user?->professor;
 
-            return Inertia::render('dashboards/aluno/index', [
-                'proximasAulas' => $this->dashboardAlunoService->obterProximasAulas($aluno, 2, 6),
-                'avisos' => $this->dashboardAlunoService->obterAvisos($aluno, 6),
+            return Inertia::render('dashboards/professor/index', [
+                'proximasAulas' => $this->dashboardProfessorService->obterProximasAulas($professor),
+                'avisos' => $this->dashboardProfessorService->obterAvisos($professor),
             ]);
         }
 

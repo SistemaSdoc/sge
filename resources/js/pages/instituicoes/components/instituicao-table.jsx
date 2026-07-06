@@ -116,7 +116,7 @@ export function InstituicaoTable({
 
                           <DropdownMenuSeparator />
 
-                          <DropdownMenuItem
+                          {/*<DropdownMenuItem
                             variant="destructive"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -124,7 +124,7 @@ export function InstituicaoTable({
                             }}
                           >
                             Remover
-                          </DropdownMenuItem>
+                          </DropdownMenuItem>*/}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
