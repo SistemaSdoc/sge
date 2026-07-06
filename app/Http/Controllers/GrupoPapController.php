@@ -40,6 +40,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
 
     public function index()
     {
+        $this->authorize('viewAny', GrupoPap::class);
+
         $user = Auth::user();
         $instituicaoId = $user ? $user->instituicaoFiltro() : null;
 
@@ -71,6 +73,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
+        $this->authorize('create', GrupoPap::class);
+
         $professores = Professor::whereHas('cursosTutelados', function ($q) use ($cursoTutelado) {
             $q->where('curso_tutelado_id', $cursoTutelado->id)
                 ->where('tipo', 'principal');
@@ -105,6 +109,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
+        $this->authorize('create', GrupoPap::class);
+
         $grupo = GrupoPap::create([
             'turma_id' => $turma->id,
             'professor_tutor_id' => $request->professor_tutor_id,
@@ -137,6 +143,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
         Turma $turma,
         GrupoPap $grupoPap
     ) {
+        $this->authorize('view', $grupoPap);
+
         $grupoPap->load([
             'professor.user:id,nome,email',
         ]);
@@ -173,6 +181,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
+        $this->authorize('update', $grupoPap);
+
         $professores = Professor::whereHas('cursosTutelados', function ($q) use ($cursoTutelado) {
             $q->where('curso_tutelado_id', $cursoTutelado->id)
                 ->where('tipo', 'principal');
@@ -208,6 +218,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
+        $this->authorize('update', $grupoPap);
+
         $grupoPap->update($request->only([
             'nome_grupo',
             'tema_grupo',
@@ -237,6 +249,7 @@ class GrupoPapController extends Controller // implements HasMiddleware
 
     public function destroy(GrupoPap $grupoPap)
     {
+        $this->authorize('delete', $grupoPap);
         $grupoPap->elementos()->delete();
         $grupoPap->jurados()->delete();
         $grupoPap->delete();
@@ -253,6 +266,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
+        $this->authorize('definirData', $grupoPap); 
+
         $grupoPap->update($request->only(['data_defesa', 'local_defesa']));
 
         return to_route('pap.show', [

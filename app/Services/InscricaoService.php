@@ -5,12 +5,12 @@ namespace App\Services;
 use App\Models\Aluno;
 use App\Models\Candidato;
 use App\Models\Inscricao;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
+use Spatie\Permission\Models\Role;
 
 class InscricaoService
 {
@@ -105,9 +105,9 @@ class InscricaoService
             ]
         );
 
-        $roleAluno = Role::where('nome', 'Aluno')->firstOrFail();
+        $role = Role::where('name', 'Aluno')->firstOrFail();
 
-        $user->roles()->syncWithoutDetaching([$roleAluno->id]);
+        $user->assignRole($role);
 
         Aluno::create([
             'user_id' => $user->id,

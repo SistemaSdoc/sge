@@ -27,13 +27,17 @@ class RolesAndPermissionsSeeder extends Seeder
             // Notas e Pautas
             'lançar notas', 'editar notas', 'ver pautas',
             // Professores
-            'ver professores', 'gerir professores',
+            'ver professores', 'criar professores', 'editar professores', 'eliminar professores',
+            // Grupo PAP
+            'ver grupopap', 'criar grupopap', 'editar grupopap', 'eliminar grupopap',
+            'definir data defesa grupopap',
             // Relatórios
             'ver relatorios',
             // Financeiro
             'ver pagamentos', 'gerir pagamentos',
             // Sistema
             'gerir utilizadores', 'gerir permissoes',
+            'ver avisos', 'criar avisos', 'editar avisos', 'eliminar avisos',
         ];
 
         foreach ($permissions as $perm) {
@@ -49,10 +53,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'ver alunos', 'criar alunos', 'editar alunos', 'eliminar alunos',
             'ver turmas', 'gerir turmas',
             'ver pautas',
-            'ver professores', 'gerir professores',
             'ver relatorios',
             'ver pagamentos', 'gerir pagamentos',
             'gerir utilizadores', 'gerir permissoes',
+            'ver avisos', 'criar avisos', 'editar avisos', 'eliminar avisos',
+              'ver professores', 'criar professores', 'editar professores', 'eliminar professores',
+              'ver grupopap', 'criar grupopap', 'editar grupopap', 'eliminar grupopap',
+                'definir data defesa grupopap'
         ]);
 
         // Subdirector — pedagógico, sem gerir utilizadores/sistema
@@ -61,8 +68,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'ver alunos', 'editar alunos',
             'ver turmas', 'gerir turmas',
             'ver pautas',
-            'ver professores',
             'ver relatorios',
+            'ver avisos', 'criar avisos', 'editar avisos',
+            'ver professores', 'criar professores', 'editar professores',
+            'ver grupopap', 'criar grupopap', 'editar grupopap', 'eliminar grupopap',
+            'definir data defesa grupopap',
         ]);
 
         // Secretaria — administrativo
@@ -71,8 +81,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'ver alunos', 'criar alunos', 'editar alunos',
             'ver turmas',
             'ver pautas',
-            'ver professores',
             'ver pagamentos', 'gerir pagamentos',
+            'ver avisos', 'criar avisos', 'editar avisos',
+            'ver professores', 'criar professores', 'editar professores',
+            'ver grupopap', 'criar grupopap', 'editar grupopap', 'eliminar grupopap'
         ]);
 
         // Professor — as suas turmas
@@ -81,11 +93,18 @@ class RolesAndPermissionsSeeder extends Seeder
             'ver alunos',
             'ver turmas',
             'lançar notas', 'editar notas', 'ver pautas',
+            'ver avisos', 'criar avisos', 'editar avisos',
+            'ver grupopap', 'criar grupopap', 'editar grupopap'
         ]);
 
         // Aluno e Candidato — sem permissions de backoffice
-        Role::create(['name' => 'Aluno']);
         Role::create(['name' => 'Candidato']);
+        
+       $aluno= Role::create(['name' => 'Aluno']);
+        $aluno->givePermissionTo([
+           'ver avisos',
+           'ver grupopap'
+        ]);
 
         // Limpar cache depois
         app()[PermissionRegistrar::class]

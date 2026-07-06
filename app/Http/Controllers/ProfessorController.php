@@ -5,17 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Professor\StoreProfessoresRequest;
 use App\Http\Requests\Professor\UpdateProfessoresRequest;
 use App\Models\Professor;
-use App\Models\Role;
 use App\Models\Turma;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class ProfessorController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', Professor::class);
+
         $user = Auth::user();
         $instituicaoId = $user?->instituicaoFiltro();
 
@@ -23,9 +25,9 @@ class ProfessorController extends Controller
             ->with(['user:id,nome,telefone'])
             ->when(
                 $instituicaoId,
-                fn ($q) => $q->whereHas(
+                fn($q) => $q->whereHas(
                     'user',
-                    fn ($q) => $q->where('instituicao_id', $instituicaoId)
+                    fn($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
             ->orderBy('created_at', 'asc')
@@ -38,11 +40,15 @@ class ProfessorController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Professor::class);
+
         return Inertia::render('professores/create');
     }
 
     public function store(StoreProfessoresRequest $request)
     {
+        $this->authorize('create', Professor::class);
+
         $request->validated();
 
         $user = User::create([
@@ -54,9 +60,9 @@ class ProfessorController extends Controller
             'instituicao_id' => Auth::user()->instituicao_id,
         ]);
 
-        $roleProfessor = Role::where('nome', 'Professor')->firstOrFail();
+        $role = Role::where('name', 'Professor')->firstOrFail();
 
-        $user->roles()->syncWithoutDetaching([$roleProfessor->id]);
+        $user->assignRole($role);
 
         Professor::create([
             'user_id' => $user->id,
@@ -71,6 +77,7 @@ class ProfessorController extends Controller
 
     public function show(Professor $professor)
     {
+        $this->authorize('view', $professor);
         $professor->load([
             'user:id,nome,email,bi,telefone',
             'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome',
@@ -80,7 +87,7 @@ class ProfessorController extends Controller
 
         $cursos = $professor->cursosTutelados->map(function ($ct) {
             $curso = $ct->instituicaoCurso?->curso;
-            if (! $curso) {
+            if (!$curso) {
                 return null;
             }
 
@@ -92,7 +99,7 @@ class ProfessorController extends Controller
                 $q->where('professor_id', $professor->id);
             })
             ->get()
-            ->map(fn ($turma) => [
+            ->map(fn($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -108,6 +115,8 @@ class ProfessorController extends Controller
 
     public function edit(Professor $professor)
     {
+        $this->authorize('update', $professor);
+
         return Inertia::render('professores/edit', [
             'professor' => $professor->load('user:id,nome,email,bi,telefone'),
         ]);
@@ -115,6 +124,8 @@ class ProfessorController extends Controller
 
     public function update(UpdateProfessoresRequest $request, Professor $professor)
     {
+        $this->authorize('update', $professor);
+
         $request->validated();
 
         // Query Builder — não sofre do bug do $incrementing = false
@@ -137,7 +148,9 @@ class ProfessorController extends Controller
 
     public function destroy(Professor $professor)
     {
-        $professor->delete();
+        $this->authorize('delete', $professor);
+
+        $professor->delete($professor->id);
 
         return to_route('professores.index')->with('toast', [
             'type' => 'success',

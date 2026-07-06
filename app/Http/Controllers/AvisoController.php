@@ -28,6 +28,8 @@ class AvisoController extends Controller // implements HasMiddleware
     // GET /api/avisos — painel admin
     public function index()
     {
+        $this->authorize('viewAny', Aviso::class);
+        
         /** @var User $user */
         $user = Auth::user();
         $instituicaoId = $user?->instituicaoFiltro();
@@ -46,12 +48,16 @@ class AvisoController extends Controller // implements HasMiddleware
 
     public function create()
     {
+        $this->authorize('create', Aviso::class);
+
         return Inertia::render('avisos/create');
     }
 
     // POST /api/avisos
     public function store(AvisoRequest $request)
     {
+        $this->authorize('create', Aviso::class);
+
         /** @var User $user */
         $user = Auth::user();
 
@@ -75,6 +81,8 @@ class AvisoController extends Controller // implements HasMiddleware
     // POST /api/avisos
     public function show(Aviso $aviso)
     {
+        $this->authorize('view', $aviso);
+
         return Inertia::render('avisos.show', [
             'aviso' => $aviso,
         ]);
@@ -82,6 +90,8 @@ class AvisoController extends Controller // implements HasMiddleware
 
     public function edit(Aviso $aviso)
     {
+        $this->authorize('update', $aviso);
+
         return Inertia::render('avisos/edit', [
             'aviso' => $aviso,
         ]);
@@ -90,6 +100,8 @@ class AvisoController extends Controller // implements HasMiddleware
     // PUT /api/avisos/{aviso}
     public function update(Request $request, Aviso $aviso)
     {
+        $this->authorize('update', $aviso);
+        
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descricao' => 'nullable|string',
@@ -111,6 +123,8 @@ class AvisoController extends Controller // implements HasMiddleware
     // DELETE /api/avisos/{aviso}
     public function destroy(Aviso $aviso)
     {
+        $this->authorize('delete', $aviso);
+
         $aviso->delete();
 
         return to_route('avisos.index')->with('toast', [

@@ -1,0 +1,83 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\Professor;
+use App\Models\User;
+use Illuminate\Auth\Access\Response;
+
+class ProfessorPolicy
+{
+    /**
+     * Admin passa sempre, sem olhar para o resto dos métodos.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    /**
+     * Determine whether the user can view any models.
+     */
+    public function viewAny(User $user): bool
+    {
+        return $user->can('ver professores');
+    }
+
+    /**
+     * Determine whether the user can view the model.
+     */
+    public function view(User $user, Professor $professor): bool
+    {
+        return $user->can('ver professores')
+            && $professor->user->instituicao_id === $user->instituicaoFiltro();
+    }
+
+    /**
+     * Determine whether the user can create models.
+     */
+    public function create(User $user): bool
+    {
+        return $user->can('criar professores');
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function update(User $user, Professor $professor): bool
+    {
+        return $user->can('editar professores')
+            && $professor->user->instituicao_id === $user->instituicaoFiltro();
+    }
+
+    /**
+     * Determine whether the user can delete the model.
+     */
+    public function delete(User $user, Professor $professor): bool
+    {
+        return $user->can('eliminar professores')
+            && $professor->user->instituicao_id === $user->instituicaoFiltro();
+    }
+
+    /**
+     * Determine whether the user can restore the model.
+     */
+    public function restore(User $user, Professor $professor): bool
+    {
+        return $user->can('editar professores')
+            && $professor->user->instituicao_id === $user->instituicaoFiltro();
+    }
+
+    /**
+     * Determine whether the user can permanently delete the model.
+     */
+    public function forceDelete(User $user, Professor $professor): bool
+    {
+        return $user->can('eliminar professores')
+            && $professor->user->instituicao_id === $user->instituicaoFiltro();
+    }
+}
