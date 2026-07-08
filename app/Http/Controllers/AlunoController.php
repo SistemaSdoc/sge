@@ -31,17 +31,17 @@ class AlunoController extends Controller
             // Director, Subdirector, Secretaria — filtro por instituição
             ->when(
                 $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),
-                fn ($q) => $q->whereHas(
+                fn($q) => $q->whereHas(
                     'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn ($q) => $q->where('instituicao_id', $user->instituicao_id)
+                    fn($q) => $q->where('instituicao_id', $user->instituicao_id)
                 )
             )
             // Professor — só alunos das suas turmas
             ->when(
                 $user->hasRole('Professor'),
-                fn ($q) => $q->whereHas(
+                fn($q) => $q->whereHas(
                     'turmas',
-                    fn ($q) => $q->whereIn(
+                    fn($q) => $q->whereIn(
                         'turmas.id',
                         $user->professor->turmas()->pluck('turmas.id')
                     )
@@ -116,6 +116,7 @@ class AlunoController extends Controller
         $turmas = Turma::where('curso_classe_turno_id', $aluno->inscricao->curso_classe_turno_id)
             ->with('cursoClasseTurno.cursoClasse.classe:id,nome')
             ->get();
+        $turmaAtual = $aluno->turmas()->wherePivot('activo', true)->first();
 
         return Inertia::render('alunos/edit', [
             'aluno' => [

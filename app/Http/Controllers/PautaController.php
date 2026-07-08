@@ -23,7 +23,7 @@ class PautaController extends Controller
     {
         $this->authorize('pauta.viewAny');
 
-        $instituicaoId = Auth::user()->instituicao_id;
+        $instituicaoId = Auth::user()?->instituicao_id;
 
         $query = CursoTutelado::with([
             'instituicaoCurso:id,instituicao_id,curso_id',
