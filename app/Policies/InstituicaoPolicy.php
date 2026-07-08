@@ -8,12 +8,10 @@ use App\Models\User;
 class InstituicaoPolicy
 {
     /**
-     * Determina se o usuário pode ver todas as instituições.
+     * Determina se o utilizador pode listar todas as instituições.
      *
-     * Ninguém a nível local pode listar todas as instituições.
-     *
-     * Apenas o SuperAdmin tem esse acesso, já garantido globalmente
-     * pelo Gate::before() no AppServiceProvider.
+     * Nenhum role local tem esta permissão.
+     * SuperAdmin é tratado globalmente pelo Gate::before().
      */
     public function viewAny(User $user): bool
     {
@@ -21,20 +19,20 @@ class InstituicaoPolicy
     }
 
     /**
-     * Determina se o usuário pode ver a instituição.
+     * Determina se o utilizador pode ver a instituição.
      *
-     * Director, Subdirector e Secretaria podem ver os dados da
-     * instituição, mas apenas da instituição à qual pertencem.
+     * Requer a permission 'instituicoes.view' e que o utilizador
+     * pertença à mesma instituição que está a tentar aceder.
      */
     public function view(User $user, Instituicao $instituicao): bool
     {
-        return $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']) && $user->instituicao_id === $instituicao->id;
+        return $user->can('instituicoes.view') && $user->instituicao_id === $instituicao->id;
     }
 
     /**
-     * Determina se o usuário pode criar instituições.
+     * Determina se o utilizador pode criar instituições.
      *
-     * Criar uma nova instituição é uma ação exclusiva do SuperAdmin
+     * Exclusivo do SuperAdmin via Gate::before().
      */
     public function create(User $user): bool
     {
@@ -42,21 +40,20 @@ class InstituicaoPolicy
     }
 
     /**
-     * Determina se o usuário pode actualizar a instituição.
+     * Determina se o utilizador pode actualizar a instituição.
      *
-     * Director e Subdirector podem atualizar os dados da própria
-     * instituição.
+     * Requer a permission 'instituicoes.update' e que o utilizador
+     * pertença à mesma instituição que está a tentar editar.
      */
     public function update(User $user, Instituicao $instituicao): bool
     {
-        return $user->hasAnyRole(['Director', 'Subdirector']) && $user->instituicao_id === $instituicao->id;
+        return $user->can('instituicoes.update') && $user->instituicao_id === $instituicao->id;
     }
 
     /**
-     * Determina se o usuário pode apagar a instituição.
+     * Determina se o utilizador pode apagar a instituição.
      *
-     * Apagar uma instituição é uma ação destrutiva e sensível,
-     * restrita exclusivamente ao SuperAdmin.
+     * Exclusivo do SuperAdmin via Gate::before().
      */
     public function delete(User $user, Instituicao $instituicao): bool
     {
@@ -64,10 +61,9 @@ class InstituicaoPolicy
     }
 
     /**
-     * Determina se o usuário pode restaurar a instituição.
+     * Determina se o utilizador pode restaurar a instituição.
      *
-     * Assim como o delete, restaurar uma instituição apagada
-     * (soft delete) é restrito ao SuperAdmin.
+     * Exclusivo do SuperAdmin via Gate::before().
      */
     public function restore(User $user, Instituicao $instituicao): bool
     {
@@ -75,10 +71,9 @@ class InstituicaoPolicy
     }
 
     /**
-     * Determina se o usuário pode apagar a instituição permanentemente.
+     * Determina se o utilizador pode apagar a instituição permanentemente.
      *
-     * Force delete remove os dados de forma irreversível,
-     * por isso fica travado exclusivamente para o SuperAdmin.
+     * Exclusivo do SuperAdmin via Gate::before().
      */
     public function forceDelete(User $user, Instituicao $instituicao): bool
     {

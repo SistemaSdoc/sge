@@ -7,6 +7,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/hooks/use-current-url';
+import { resolveIcon } from '@/lib/icon-registry';
 import { cn } from '@/lib/utils';
 import type { NavItem } from '@/types';
 
@@ -27,28 +28,35 @@ export function NavMain({ groups = [] }: { groups: NavGroup[] }) {
           </SidebarGroupLabel>
 
           <SidebarMenu>
-            {group.items.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isCurrentUrl(item.href)}
-                  tooltip={{ children: item.title }}
-                >
-                  <Link
-                    href={item.href}
-                    prefetch
-                    className="[&_span]:text-sidebar-foreground hover:[&_span]:font-bold hover:[&_span]:text-sidebar-foreground hover:[&>svg]:text-ring"
+            {group.items.map((item) => {
+              const Icon = item.icon ? resolveIcon(item.icon) : null;
+
+              return (
+                <SidebarMenuItem key={item.key}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isCurrentUrl(item.href)}
+                    tooltip={{ children: item.title }}
                   >
-                    {item.icon && <item.icon className="" />}
-                    <span
-                      className={cn(isCurrentUrl(item.href) && 'font-bold', 'font-bold')}
+                    <Link
+                      href={item.href}
+                      prefetch
+                      className="[&_span]:text-sidebar-foreground hover:[&_span]:font-bold hover:[&_span]:text-sidebar-foreground hover:[&>svg]:text-ring"
                     >
-                      {item.title}
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+                      {Icon && <Icon />}
+                      <span
+                        className={cn(
+                          isCurrentUrl(item.href) && 'font-bold',
+                          'font-bold',
+                        )}
+                      >
+                        {item.title}
+                      </span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
           </SidebarMenu>
         </SidebarGroup>
       ))}

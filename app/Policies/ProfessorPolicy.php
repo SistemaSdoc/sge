@@ -4,80 +4,73 @@ namespace App\Policies;
 
 use App\Models\Professor;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ProfessorPolicy
 {
     /**
-     * Admin passa sempre, sem olhar para o resto dos métodos.
-     */
-    public function before(User $user, string $ability): bool|null
-    {
-        if ($user->hasRole('admin')) {
-            return true;
-        }
-
-        return null;
-    }
-
-    /**
-     * Determine whether the user can view any models.
+     * Determina se o utilizador pode listar professores.
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('ver professores');
+        return $user->can('professores.viewAny');
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determina se o utilizador pode ver um professor específico.
+     *
+     * Requer permission e que o professor pertença à mesma instituição.
+     * A ligação é via Professor → User → instituicao_id.
      */
     public function view(User $user, Professor $professor): bool
     {
-        return $user->can('ver professores')
-            && $professor->user->instituicao_id === $user->instituicaoFiltro();
+        return $user->can('professores.view')
+            && $professor->user->instituicao_id === $user->instituicao_id;
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determina se o utilizador pode criar professores.
      */
     public function create(User $user): bool
     {
-        return $user->can('criar professores');
+        return $user->can('professores.create')
+            && $user->instituicao_id !== null;
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determina se o utilizador pode editar um professor.
+     *
+     * Requer permission e que o professor pertença à mesma instituição.
      */
     public function update(User $user, Professor $professor): bool
     {
-        return $user->can('editar professores')
-            && $professor->user->instituicao_id === $user->instituicaoFiltro();
+        return $user->can('professores.update')
+            && $professor->user->instituicao_id === $user->instituicao_id;
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determina se o utilizador pode apagar um professor.
+     *
+     * Requer permission e que o professor pertença à mesma instituição.
      */
     public function delete(User $user, Professor $professor): bool
     {
-        return $user->can('eliminar professores')
-            && $professor->user->instituicao_id === $user->instituicaoFiltro();
+        return $user->can('professores.delete')
+            && $professor->user->instituicao_id === $user->instituicao_id;
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Exclusivo do SuperAdmin via Gate::before().
      */
     public function restore(User $user, Professor $professor): bool
     {
-        return $user->can('editar professores')
-            && $professor->user->instituicao_id === $user->instituicaoFiltro();
+        return false;
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Exclusivo do SuperAdmin via Gate::before().
      */
     public function forceDelete(User $user, Professor $professor): bool
     {
-        return $user->can('eliminar professores')
-            && $professor->user->instituicao_id === $user->instituicaoFiltro();
+        return false;
     }
 }

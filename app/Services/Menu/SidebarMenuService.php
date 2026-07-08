@@ -1,0 +1,174 @@
+<?php
+
+namespace App\Services\Menu;
+
+use App\Http\Controllers\AccessManagementController;
+use App\Http\Controllers\AlunoController;
+use App\Http\Controllers\AvisoController;
+use App\Http\Controllers\ClasseController;
+use App\Http\Controllers\CursosController;
+use App\Http\Controllers\GrupoPapController;
+use App\Http\Controllers\InscricaoController;
+use App\Http\Controllers\InstituicaoController;
+use App\Http\Controllers\PautaController;
+use App\Http\Controllers\ProfessorController;
+use App\Http\Controllers\TurmaController;
+use App\Http\Controllers\TurnoController;
+use App\Models\Aluno;
+use App\Models\Aviso;
+use App\Models\GrupoPap;
+use App\Models\Instituicao;
+use App\Models\Professor;
+use App\Models\Turma;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+
+final class SidebarMenuService
+{
+    public function build(): array
+    {
+        $groups = [
+
+            new MenuGroup('Plataforma', [
+                new MenuItem(
+                    key: 'dashboard',
+                    title: 'Dashboard',
+                    href: route('dashboard'),
+                    icon: 'LayoutGrid',
+                    can: true,
+                ),
+
+                new MenuItem(
+                    key: 'instituicoes',
+                    title: 'Instituições',
+                    href: action([InstituicaoController::class, 'index']),
+                    icon: 'Building2',
+                    can: fn () => Gate::allows('viewAny', Instituicao::class),
+                ),
+
+                new MenuItem(
+                    key: 'minha-instituicao',
+                    title: 'Minha Instituição',
+                    href: (function () {
+                        $id = Auth::user()?->instituicao_id;
+
+                        return $id
+                            ? action([InstituicaoController::class, 'show'], ['instituicao' => $id])
+                            : '#';
+                    })(),
+                    icon: 'Building2',
+                    can: function () {
+                        $user = Auth::user();
+
+                        if (! $user?->instituicao_id) {
+                            return false;
+                        }
+
+                        $instituicao = Instituicao::find($user->instituicao_id);
+
+                        return $instituicao && Gate::allows('view', $instituicao);
+                    },
+                ),
+
+                new MenuItem(
+                    key: 'cursos',
+                    title: 'Cursos',
+                    href: action([CursosController::class, 'index']),
+                    icon: 'BookOpen',
+                    can: true, // TODO: CursoPolicy
+                ),
+
+                new MenuItem(
+                    key: 'classes',
+                    title: 'Classes',
+                    href: action([ClasseController::class, 'index']),
+                    icon: 'GraduationCap',
+                    can: true, // TODO: ClassePolicy
+                ),
+
+                new MenuItem(
+                    key: 'turnos',
+                    title: 'Turnos',
+                    href: action([TurnoController::class, 'index']),
+                    icon: 'Clock4',
+                    can: true, // TODO: TurnoPolicy
+                ),
+
+                new MenuItem(
+                    key: 'turmas',
+                    title: 'Turmas',
+                    href: action([TurmaController::class, 'index']),
+                    icon: 'Users',
+                    can: fn () => Gate::allows('viewAny', Turma::class),
+                ),
+
+                new MenuItem(
+                    key: 'pautas',
+                    title: 'Pautas',
+                    href: action([PautaController::class, 'indexCursos']),
+                    icon: 'FileText',
+                    can: fn () => Gate::allows('pauta.viewAny')
+                ),
+
+                new MenuItem(
+                    key: 'inscricoes',
+                    title: 'Inscrições',
+                    href: action([InscricaoController::class, 'index']),
+                    icon: 'ClipboardList',
+                    can: true, // TODO: InscricaoPolicy
+                ),
+            ]),
+
+            new MenuGroup('Usuários', [
+                new MenuItem(
+                    key: 'professores',
+                    title: 'Professores',
+                    href: action([ProfessorController::class, 'index']),
+                    icon: 'Users',
+                    can: fn () => Gate::allows('viewAny', Professor::class),
+                ),
+
+                new MenuItem(
+                    key: 'alunos',
+                    title: 'Alunos',
+                    href: action([AlunoController::class, 'index']),
+                    icon: 'GraduationCap',
+                    can: fn () => Gate::allows('viewAny', Aluno::class),
+                ),
+
+                new MenuItem(
+                    key: 'acessos',
+                    title: 'Gerir Acessos',
+                    href: action([AccessManagementController::class, 'index']),
+                    icon: 'ShieldCheck',
+                    can: true, // TODO: AcessoPolicy
+                ),
+            ]),
+
+            new MenuGroup('PAP', [
+                new MenuItem(
+                    key: 'grupos-pap',
+                    title: 'Grupos PAP',
+                    href: action([GrupoPapController::class, 'index']),
+                    icon: 'Users',
+                    can: fn () => Gate::allows('viewAny', GrupoPap::class),
+                ),
+            ]),
+
+            new MenuGroup('Comunicação', [
+                new MenuItem(
+                    key: 'avisos',
+                    title: 'Avisos',
+                    href: action([AvisoController::class, 'index']),
+                    icon: 'Bell',
+                    can: fn () => Gate::allows('viewAny', Aviso::class),
+                ),
+            ]),
+
+        ];
+
+        return array_values(array_filter(
+            array_map(fn (MenuGroup $group) => $group->toArray(), $groups),
+        ));
+    }
+}

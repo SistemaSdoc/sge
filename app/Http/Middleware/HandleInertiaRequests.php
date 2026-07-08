@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Permission;
+use App\Services\Menu\SidebarMenuService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -49,10 +49,8 @@ class HandleInertiaRequests extends Middleware
                     'avatar' => $user->avatar,
                     'role' => $user->roles->first()?->nome,
                 ] : null,
-                'can' => $user ? Permission::all()
-                    ->mapWithKeys(fn ($p) => [$p->slug => $user->can($p->slug)])
-                    ->toArray() : [],
             ],
+            'sidebar' => fn () => $request->user() ? app(SidebarMenuService::class)->build() : [],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

@@ -4,88 +4,87 @@ namespace App\Policies;
 
 use App\Models\GrupoPap;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class GrupoPapPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determina se o utilizador pode listar grupos PAP.
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('ver grupopap');
+        return $user->can('grupopap.viewAny');
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determina se o utilizador pode ver um grupo PAP específico.
+     *
+     * Staff com permission vê apenas grupos da sua instituição.
+     * Aluno vê apenas o seu próprio grupo.
      */
     public function view(User $user, GrupoPap $grupoPap): bool
     {
-        // Se é admin/director/etc — vê tudo
-        if ($user->can('editar grupopap') || $user->can('eliminar grupopap')) {
-            return $user->can('ver grupopap')
-                && $grupoPap->instituicao_id === $user->instituicaoFiltro();
-        }
-
-        // Se é aluno — só vê o seu grupo
+        // Aluno só vê o grupo onde está inserido
         if ($user->hasRole('Aluno')) {
-            return $grupoPap->alunos()->where('aluno_id', $user->id)->exists();
+            return $grupoPap->alunos()
+                ->where('aluno_id', $user->aluno?->id)
+                ->exists();
         }
 
-        return $user->can('ver grupopap')
-            && $grupoPap->instituicao_id === $user->instituicaoFiltro();
+        return $user->can('grupopap.view') && $grupoPap->instituicao_id === $user->instituicao_id;
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determina se o utilizador pode criar grupos PAP.
      */
     public function create(User $user): bool
     {
-        return $user->can('criar grupopap');
+        return $user->can('grupopap.create')
+            && $user->instituicao_id !== null;
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determina se o utilizador pode editar um grupo PAP.
+     *
+     * Requer permission e que o grupo pertença à sua instituição.
      */
     public function update(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('editar grupopap')
-            && $grupoPap->instituicao_id === $user->instituicaoFiltro();
+        return $user->can('grupopap.update') && $grupoPap->instituicao_id === $user->instituicao_id;
     }
 
     /**
-     * Determine whether the user can define the defense date for the model.
+     * Determina se o utilizador pode definir a data de defesa.
+     *
+     * Requer permission específica e que o grupo pertença à sua instituição.
      */
     public function definirData(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('definir data defesa grupopap')
-            && $grupoPap->instituicao_id === $user->instituicaoFiltro();
+        return $user->can('grupopap.definirData') && $grupoPap->instituicao_id === $user->instituicao_id;
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determina se o utilizador pode apagar um grupo PAP.
+     *
+     * Requer permission e que o grupo pertença à sua instituição.
      */
     public function delete(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('eliminar grupopap')
-            && $grupoPap->instituicao_id === $user->instituicaoFiltro();
+        return $user->can('grupopap.delete') && $grupoPap->instituicao_id === $user->instituicao_id;
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Exclusivo do SuperAdmin via Gate::before().
      */
     public function restore(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('editar grupopap')
-            && $grupoPap->instituicao_id === $user->instituicaoFiltro();
+        return false;
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Exclusivo do SuperAdmin via Gate::before().
      */
     public function forceDelete(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('eliminar grupopap')
-            && $grupoPap->instituicao_id === $user->instituicaoFiltro();
+        return false;
     }
 }

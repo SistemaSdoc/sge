@@ -8,29 +8,36 @@ use App\Models\User;
 class PautaPolicy
 {
     /**
-     * Acesso à listagem de cursos/turmas (pautas).
+     * Determina se o utilizador pode aceder à listagem de pautas.
+     *
+     * Requer 'pautas.viewAny' e instituição atribuída.
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Professor'])
-            && $user->instituicao_id !== null;
+        return $user->can('pautas.viewAny') && $user->instituicao_id !== null;
     }
 
     /**
-     * Acesso à pauta de uma turma específica.
+     * Determina se o utilizador pode ver a pauta de uma turma específica.
+     *
+     * Requer 'pautas.view' e pertencer à mesma instituição.
+     * Professor adicionalmente tem de lecionar nessa turma.
      */
     public function view(User $user, Turma $turma): bool
     {
-        if ($user->hasAnyRole(['Director', 'Subdirector', 'Secretaria'])) {
-            return $this->pertenceAInstituicao($user, $turma);
+        if (! $user->can('pautas.view')) {
+            return false;
+        }
+
+        if (! $this->pertenceAInstituicao($user, $turma)) {
+            return false;
         }
 
         if ($user->hasRole('Professor')) {
-            return $this->pertenceAInstituicao($user, $turma)
-                && $this->isProfessorDaTurma($user, $turma);
+            return $this->isProfessorDaTurma($user, $turma);
         }
 
-        return false;
+        return true;
     }
 
     private function instituicaoId(Turma $turma): ?string

@@ -8,63 +8,64 @@ use App\Models\User;
 class AvisoPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determina se o utilizador pode listar avisos.
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('ver avisos');
+        return $user->can('avisos.viewAny');
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determina se o utilizador pode ver um aviso específico.
+     *
+     * Requer permission e que o aviso pertença à sua instituição.
      */
     public function view(User $user, Aviso $aviso): bool
     {
-        return $user->can('ver avisos')
-            && $aviso->instituicao_id === $user->instituicaoFiltro();
+        return $user->can('avisos.view') && $aviso->instituicao_id === $user->instituicao_id;
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determina se o utilizador pode criar avisos.
      */
     public function create(User $user): bool
     {
-        return $user->can('criar avisos');
+        return $user->can('avisos.create');
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determina se o utilizador pode editar um aviso.
+     *
+     * Requer permission e que o aviso pertença à sua instituição.
      */
     public function update(User $user, Aviso $aviso): bool
     {
-        return $user->can('editar avisos')
-            && $aviso->instituicao_id === $user->instituicaoFiltro();
+        return $user->can('avisos.update') && $aviso->instituicao_id === $user->instituicao_id;
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determina se o utilizador pode apagar um aviso.
+     *
+     * Requer permission e que o aviso pertença à sua instituição.
      */
     public function delete(User $user, Aviso $aviso): bool
     {
-        return $user->can('eliminar avisos')
-            && $aviso->instituicao_id === $user->instituicaoFiltro();
+        return $user->can('avisos.delete') && $aviso->instituicao_id === $user->instituicao_id;
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Exclusivo do SuperAdmin via Gate::before().
      */
     public function restore(User $user, Aviso $aviso): bool
     {
-        return $user->can('editar avisos')
-            && $aviso->instituicao_id === $user->instituicaoFiltro();
+        return false;
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Exclusivo do SuperAdmin via Gate::before().
      */
     public function forceDelete(User $user, Aviso $aviso): bool
     {
-        return $user->can('eliminar avisos')
-            && $aviso->instituicao_id === $user->instituicaoFiltro();
+        return false;
     }
 }

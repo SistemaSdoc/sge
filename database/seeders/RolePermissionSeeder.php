@@ -2,78 +2,213 @@
 
 namespace Database\Seeders;
 
-use App\Models\Permission;
-use App\Models\Role;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // Master — todas as permissões
-        $master = Role::firstOrCreate(['nome' => 'Master']);
-        $this->syncPermissions($master, Permission::all()->pluck('id'));
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Director — tudo excepto gerir roles/permissões e logs
-        $director = Role::firstOrCreate(['nome' => 'Director']);
-        $this->syncPermissions($director,
-            Permission::whereNotIn('slug', [
-                'permissions.manage',
-                'dashboard.aluno.notas',
-                'dashboard.aluno.grelha',
-                'instituicoes.index', 'instituicoes.create', 'instituicoes.delete',
-                'roles.manage',
-                'logs.view',
-            ])->pluck('id')
-        );
+        $mapa = [
+            'Director' => [
+                // Instituições
+                'instituicoes.view',
+                'instituicoes.update',
 
-        // Secretaria — operações do dia-a-dia, sem apagar nem configurações da instituição
-        $secretaria = Role::firstOrCreate(['nome' => 'Secretaria']);
-        $this->syncPermissions($secretaria,
-            Permission::whereIn('slug', [
-                'alunos.index', 'alunos.show', 'alunos.create', 'alunos.edit',
-                'turmas.index', 'turmas.show', 'turmas.create', 'turmas.edit',
-                'cursos.index', 'cursos.show', 'cursos.create', 'cursos.edit',
-                'professores.index', 'professores.show', 'professores.create', 'professores.edit',
-                'disciplinas.index', 'disciplinas.show', 'disciplinas.create', 'disciplinas.edit',
-                'instituicoes.show',
-                'pap.index', 'pap.show', 'pap.create', 'pap.edit',
-            ])->pluck('id')
-        );
+                // Alunos
+                'alunos.viewAny',
+                'alunos.view',
+                'alunos.create',
+                'alunos.update',
 
-        // Professor — (mais tarde)
-        $professor = Role::firstOrCreate(['nome' => 'Professor']);
-        $this->syncPermissions($professor,
-            Permission::whereIn('slug', [
-                'turmas.index', 'turmas.show',
-                'disciplinas.index', 'disciplinas.show',
-            ])->pluck('id')
-        );
+                // Turmas
+                'turmas.viewAny',
+                'turmas.view',
+                'turmas.create',
+                'turmas.update',
+                'turmas.delete',
 
-        // Aluno — (mais tarde)
-        $aluno = Role::firstOrCreate(['nome' => 'Aluno']);
-        $this->syncPermissions($aluno,
-            Permission::whereIn('slug', [
-                'alunos.show',
-                'dashboard.aluno.notas',
-                'dashboard.aluno.grelha',
-                'cursos.index', 'cursos.show',
-                'disciplinas.index', 'disciplinas.show',
-                'pap.show',
-            ])->pluck('id')
-        );
+                // Pautas
+                'pautas.viewAny',
+                'pautas.view',
 
-        $candidato = Role::firstOrCreate(['nome' => 'Candidato']);
-        $this->syncPermissions($candidato, collect([])); // sem permissões por agora
-    }
+                // Notas
+                'notas.create',
+                'notas.update',
 
-    private function syncPermissions(Role $role, $permissionIds): void
-    {
-        $role->permissions()->sync(
-            $permissionIds->mapWithKeys(fn ($id) => [
-                $id => ['id' => (string) Str::uuid7()],
-            ])->all()
-        );
+                // Professores
+                'professores.viewAny',
+                'professores.view',
+                'professores.create',
+                'professores.update',
+                'professores.delete',
+
+                // Avisos
+                'avisos.viewAny',
+                'avisos.view',
+                'avisos.create',
+                'avisos.update',
+                'avisos.delete',
+
+                // Grupo PAP
+                'grupopap.viewAny',
+                'grupopap.view',
+                'grupopap.create',
+                'grupopap.update',
+                'grupopap.delete',
+                'grupopap.definirData',
+
+                // Outros
+                'utilizadores.gerir',
+                'permissoes.gerir',
+                'relatorios.view',
+                'pagamentos.view',
+                'pagamentos.gerir',
+            ],
+
+            'Subdirector' => [
+                // Instituições
+                'instituicoes.view',
+                'instituicoes.update',
+
+                // Alunos
+                'alunos.viewAny',
+                'alunos.view',
+                'alunos.update',
+
+                // Turmas
+                'turmas.viewAny',
+                'turmas.view',
+                'turmas.create',
+                'turmas.update',
+                'turmas.delete',
+
+                // Pautas
+                'pautas.viewAny',
+                'pautas.view',
+
+                // Notas
+                'notas.create',
+                'notas.update',
+
+                // Professores
+                'professores.viewAny',
+                'professores.view',
+                'professores.create',
+                'professores.update',
+
+                // Avisos
+                'avisos.viewAny',
+                'avisos.view',
+                'avisos.create',
+                'avisos.update',
+
+                // Grupo PAP
+                'grupopap.viewAny',
+                'grupopap.view',
+                'grupopap.create',
+                'grupopap.update',
+                'grupopap.delete',
+                'grupopap.definirData',
+
+                // Outros
+                'relatorios.view',
+            ],
+
+            'Secretaria' => [
+                // Instituições
+                'instituicoes.view',
+
+                // Alunos
+                'alunos.viewAny',
+                'alunos.view',
+                'alunos.create',
+                'alunos.update',
+
+                // Turmas
+                'turmas.viewAny',
+                'turmas.view',
+                'turmas.create',
+                'turmas.update',
+
+                // Pautas
+                'pautas.viewAny',
+                'pautas.view',
+
+                // Professores
+                'professores.viewAny',
+                'professores.view',
+                'professores.create',
+                'professores.update',
+
+                // Avisos
+                'avisos.viewAny',
+                'avisos.view',
+                'avisos.create',
+                'avisos.update',
+
+                // Grupo PAP
+                'grupopap.viewAny',
+                'grupopap.view',
+                'grupopap.create',
+                'grupopap.update',
+                'grupopap.delete',
+                'grupopap.definirData',
+                // Outros
+                'pagamentos.view',
+                'pagamentos.gerir',
+            ],
+
+            'Professor' => [
+                // Alunos
+                'alunos.viewAny',
+                'alunos.view',
+
+                // Turmas
+                'turmas.viewAny',
+                'turmas.view',
+
+                // Pautas
+                'pautas.viewAny',
+                'pautas.view',
+
+                // Notas
+                'notas.create',
+                'notas.update',
+
+                // Avisos
+                'avisos.viewAny',
+                'avisos.view',
+                'avisos.create',
+                'avisos.update',
+
+                // Grupo PAP
+                'grupopap.viewAny',
+                'grupopap.view',
+                'grupopap.create',
+                'grupopap.update',
+            ],
+
+            'Aluno' => [
+                // Avisos
+                'avisos.viewAny',
+                'avisos.view',
+
+                // Grupo PAP
+                'grupopap.viewAny',
+                'grupopap.view',
+            ],
+
+            'Candidato' => [],
+        ];
+
+        foreach ($mapa as $roleName => $permissions) {
+            Role::findByName($roleName)->syncPermissions($permissions);
+        }
+
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 }

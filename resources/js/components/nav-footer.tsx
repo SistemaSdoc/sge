@@ -8,14 +8,14 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { toUrl } from '@/lib/utils';
-import type { NavItem } from '@/types';
+import type { LocalNavItem } from '@/types';
 
 export function NavFooter({
   items,
   className,
   ...props
 }: ComponentPropsWithoutRef<typeof SidebarGroup> & {
-  items: NavItem[];
+  items: LocalNavItem[];
 }) {
   return (
     <SidebarGroup
@@ -33,7 +33,7 @@ export function NavFooter({
                 <Link
                   href={toUrl(item.href)}
                 >
-                  {item.icon && <item.icon className="h-5 w-5" />}
+                  {item.icon && <item.icon className="w-5 h-5" />}
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>

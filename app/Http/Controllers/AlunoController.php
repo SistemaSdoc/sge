@@ -123,7 +123,6 @@ class AlunoController extends Controller
                 'matricula' => $aluno->matricula,
                 'nome' => $aluno->inscricao?->candidato?->nome,
                 'bi' => $aluno->inscricao?->candidato?->bi,
-                'turma_id' => $turmaAtual?->id,
             ],
             'turmas' => $turmas->map(fn($turma) => [
                 'id' => $turma->id,
