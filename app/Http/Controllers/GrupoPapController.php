@@ -80,10 +80,14 @@ class GrupoPapController extends Controller // implements HasMiddleware
                 ->where('tipo', 'principal');
         })->with('user:id,nome')->get();
 
-        $alunos = Aluno::whereHas('turmas', function ($q) use ($turma) {
-            $q->where('turmas.id', $turma->id)
-                ->where('turma_aluno.activo', true); // aluno activo nesta turma
-        })->with('inscricao.candidato:id,nome')->get()->map(fn($aluno) => [
+        // ← AQUI: Busca IDs de alunos que já estão em grupos PAP
+        $alunosEmGrupo = ElementoGrupoPap::pluck('aluno_id');
+
+        $alunos = Aluno::whereNotIn('id', $alunosEmGrupo)  // ← Exclui quem já está em grupo
+            ->whereHas('turmas', function ($q) use ($turma) {
+                $q->where('turmas.id', $turma->id)
+                    ->where('turma_aluno.activo', true);
+            })->with('inscricao.candidato:id,nome')->get()->map(fn($aluno) => [
                 'id' => $aluno->id,
                 'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
             ])->values();
@@ -188,12 +192,21 @@ class GrupoPapController extends Controller // implements HasMiddleware
                 ->where('tipo', 'principal');
         })->with('user:id,nome')->get();
 
-        $alunos = $turma->alunos->map(function ($aluno) {
-            return [
-                'id' => $aluno->id,
-                'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
-            ];
-        })->values();
+        $alunos = $turma->alunos()
+            ->where(function ($query) use ($grupoPap) {
+                $query->whereDoesntHave('grupoPap')
+                    ->orWhereHas('grupoPap', function ($q) use ($grupoPap) {
+                        $q->where('grupo_pap.id', $grupoPap->id);
+                    });
+            })
+            ->get()
+            ->map(function ($aluno) {
+                return [
+                    'id' => $aluno->id,
+                    'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
+                ];
+            })
+            ->values();
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/edit', [
             'instituicao' => $instituicao->only('id', 'nome'),
@@ -266,7 +279,7 @@ class GrupoPapController extends Controller // implements HasMiddleware
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
-        $this->authorize('definirData', $grupoPap); 
+        $this->authorize('definirData', $grupoPap);
 
         $grupoPap->update($request->only(['data_defesa', 'local_defesa']));
 

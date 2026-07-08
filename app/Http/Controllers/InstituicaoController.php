@@ -103,7 +103,7 @@ class InstituicaoController extends Controller
 
         $instituicao->update($dados);
 
-        return to_route('instituicoes.index')->with('toast', [
+        return to_route('instituicoes.show', $instituicao)->with('toast', [
             'type' => 'success',
             'message' => 'Instituição atualizada com sucesso!',
         ]);

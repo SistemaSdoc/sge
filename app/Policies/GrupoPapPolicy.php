@@ -23,14 +23,14 @@ class GrupoPapPolicy
      */
     public function view(User $user, GrupoPap $grupoPap): bool
     {
-        // Aluno só vê o grupo onde está inserido
         if ($user->hasRole('Aluno')) {
             return $grupoPap->alunos()
                 ->where('aluno_id', $user->aluno?->id)
                 ->exists();
         }
 
-        return $user->can('grupopap.view') && $grupoPap->instituicao_id === $user->instituicao_id;
+        return $user->can('grupopap.view')
+            && $grupoPap->instituicao()->id === $user->instituicao_id;
     }
 
     /**
@@ -49,7 +49,8 @@ class GrupoPapPolicy
      */
     public function update(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('grupopap.update') && $grupoPap->instituicao_id === $user->instituicao_id;
+        return $user->can('grupopap.update')
+            && $grupoPap->instituicao()->id === $user->instituicao_id;
     }
 
     /**
@@ -59,7 +60,8 @@ class GrupoPapPolicy
      */
     public function definirData(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('grupopap.definirData') && $grupoPap->instituicao_id === $user->instituicao_id;
+        return $user->can('grupopap.definirData')
+            && $grupoPap->instituicao()->id === $user->instituicao_id;
     }
 
     /**
@@ -69,7 +71,8 @@ class GrupoPapPolicy
      */
     public function delete(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('grupopap.delete') && $grupoPap->instituicao_id === $user->instituicao_id;
+        return $user->can('grupopap.delete')
+            && $grupoPap->instituicao()->id === $user->instituicao_id;
     }
 
     /**

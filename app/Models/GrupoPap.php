@@ -60,4 +60,14 @@ class GrupoPap extends Model
     {
         return $this->belongsToMany(Aluno::class, 'elementos_grupo_pap', 'grupo_pap_id', 'aluno_id');
     }
+
+      public function instituicao()
+    {
+        return $this->turma
+            ->cursoClasseTurno
+            ->cursoClasse
+            ->cursoTutelado
+            ->instituicaoCurso
+            ->instituicao;
+    }
 }

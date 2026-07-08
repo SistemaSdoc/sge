@@ -61,7 +61,7 @@ export function CursosTable({ cursos }) {
             <TableHeader>
               <TableRow className="bg-muted/72">
                 <TableHead className="px-4">Nome</TableHead>
-                <TableHead className="px-4">Telefone</TableHead>
+                {/*<TableHead className="px-4">Telefone</TableHead>*/}
                 {/* <TableHead className="px-4 text-right">Acções</TableHead> */}
               </TableRow>
             </TableHeader>
@@ -77,9 +77,9 @@ export function CursosTable({ cursos }) {
                     {curso.nome}
                   </TableCell>
 
-                  <TableCell className="px-4 font-medium">
+                   {/*<TableCell className="px-4 font-medium">
                     {curso.telefone}
-                  </TableCell>
+                  </TableCell>*/}
 
                   {/*<TableCell className="px-4 text-right">
                     <DropdownMenu>
