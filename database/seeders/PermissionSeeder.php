@@ -37,6 +37,10 @@ class PermissionSeeder extends Seeder
             // Notas
             'notas.create',
             'notas.update',
+            'notas.viewAny',
+
+            // Grelhar Curricular
+            'grelha.viewAny',
 
             // Professores
             'professores.viewAny',

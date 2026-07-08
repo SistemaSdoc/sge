@@ -21,10 +21,12 @@ use App\Http\Controllers\DisciplinaController as DisciplinaControllerGeral;
 use App\Http\Controllers\ElementoGrupoPapController;
 use App\Http\Controllers\FinalistaController;
 use App\Http\Controllers\FolhaAprovacaoController;
+use App\Http\Controllers\GrelhaCurricularController;
 use App\Http\Controllers\GrupoPapController;
 use App\Http\Controllers\InscricaoController;
 use App\Http\Controllers\InstituicaoController;
 use App\Http\Controllers\InstituicaoCurso\TurmaDisciplinaProfessorController;
+use App\Http\Controllers\NotaAlunoController;
 use App\Http\Controllers\NotaDisciplinaController;
 use App\Http\Controllers\NotaDisciplinaRecursoController;
 use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
@@ -191,3 +193,6 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 Route::resource('avisos', AvisoController::class);
 
 Route::get('pap', [GrupoPapController::class, 'index'])->name('grupos-pap.index');
+
+Route::get('minhas-notas', [NotaAlunoController::class, 'index'])->name('notas.aluno.index');
+Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])->name('grelha-curricular.index');

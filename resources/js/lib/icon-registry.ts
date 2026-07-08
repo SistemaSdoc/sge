@@ -10,6 +10,8 @@ import {
   ShieldCheck,
   Users,
   CircleDashed,
+  LayoutList,
+  FileTextIcon
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -25,6 +27,8 @@ export const iconRegistry: Record<string, LucideIcon> = {
   LayoutGrid,
   ShieldCheck,
   Users,
+  LayoutList,
+  FileTextIcon
 };
 
 export function resolveIcon(name: string): LucideIcon {

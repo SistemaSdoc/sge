@@ -58,9 +58,23 @@ class Aluno extends Model
     public function turmaActual()
     {
         return $this->belongsToMany(Turma::class, 'turma_aluno', 'aluno_id', 'turma_id')
-            ->withPivot('ano_lectivo', 'activo', true)
-            ->wherePivot('ano_lectivo', 'situacao', ['activo', 'pap_concluido'], date('Y'))
-            ->with('classe:id,nome');
+            ->withPivot('ano_lectivo', 'activo', 'situacao')
+            ->wherePivot('ano_lectivo', date('Y'))
+            ->wherePivotIn('situacao', ['activo', 'pap_concluido']);
+    }
+
+    public function turmaAlunoActual(): ?TurmaAluno
+    {
+        $turma = $this->turmaActual()->first();
+
+        if (! $turma) {
+            return null;
+        }
+
+        return TurmaAluno::where('aluno_id', $this->id)
+            ->where('turma_id', $turma->id)
+            ->where('activo', true)
+            ->first();
     }
 
     public function historicoTurmas()

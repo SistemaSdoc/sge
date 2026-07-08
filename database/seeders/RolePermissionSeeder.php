@@ -200,6 +200,8 @@ class RolePermissionSeeder extends Seeder
                 // Grupo PAP
                 'grupopap.viewAny',
                 'grupopap.view',
+                'notas.viewAny',
+                'grelha.viewAny',
             ],
 
             'Candidato' => [],

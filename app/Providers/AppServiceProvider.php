@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Listeners\RegisteredListener;
+use App\Policies\GrelhaCurricularPolicy;
 use App\Policies\PautaPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Registered;
@@ -33,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('pauta.viewAny', [PautaPolicy::class, 'viewAny']);
         Gate::define('pauta.view', [PautaPolicy::class, 'view']);
+        Gate::define('grelha-curricular.viewAny', [GrelhaCurricularPolicy::class, 'viewAny']);
 
         // $this->configureDefaults();
 

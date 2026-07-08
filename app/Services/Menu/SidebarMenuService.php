@@ -7,9 +7,11 @@ use App\Http\Controllers\AlunoController;
 use App\Http\Controllers\AvisoController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\CursosController;
+use App\Http\Controllers\GrelhaCurricularController;
 use App\Http\Controllers\GrupoPapController;
 use App\Http\Controllers\InscricaoController;
 use App\Http\Controllers\InstituicaoController;
+use App\Http\Controllers\NotaAlunoController;
 use App\Http\Controllers\PautaController;
 use App\Http\Controllers\ProfessorController;
 use App\Http\Controllers\TurmaController;
@@ -18,6 +20,7 @@ use App\Models\Aluno;
 use App\Models\Aviso;
 use App\Models\GrupoPap;
 use App\Models\Instituicao;
+use App\Models\Nota;
 use App\Models\Professor;
 use App\Models\Turma;
 use Illuminate\Support\Facades\Auth;
@@ -116,6 +119,22 @@ final class SidebarMenuService
                     href: action([InscricaoController::class, 'index']),
                     icon: 'ClipboardList',
                     can: true, // TODO: InscricaoPolicy
+                ),
+
+                new MenuItem(
+                    key: 'grelha-curricular',
+                    title: 'Grelha Curricular',
+                    href: action([GrelhaCurricularController::class, 'index']),
+                    icon: 'LayoutList',
+                    can: Gate::allows('grelha-curricular.viewAny'),
+                ),
+
+                new MenuItem(
+                    key: 'minhas-notas',
+                    title: 'Minhas Notas',
+                    href: action([NotaAlunoController::class, 'index']),
+                    icon: 'FileTextIcon',
+                    can: Gate::allows('viewAny', Nota::class)
                 ),
             ]),
 
