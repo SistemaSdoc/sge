@@ -64,9 +64,31 @@ class PermissionSeeder extends Seeder
             'grupopap.delete',
             'grupopap.definirData',
 
+            // Cursos
+            'cursos.viewAny',
+            'cursos.view',
+            'cursos.create',
+            'cursos.update',
+            'cursos.delete',
+
+            // Classes
+            'classes.viewAny',
+            'classes.view',
+            'classes.create',
+            'classes.update',
+            'classes.delete',
+
+            // Cursos Tutelados
+            'curso-tutelado.viewAny',
+            'curso-tutelado.view',
+            'curso-tutelado.create',
+            'curso-tutelado.update',
+            'curso-tutelado.delete',
+
             // Sistema
             'utilizadores.gerir',
-            'permissoes.gerir',
+            'acessos.viewAny',
+            'acessos.create',
             'relatorios.view',
             'pagamentos.view',
             'pagamentos.gerir',

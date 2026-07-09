@@ -10,6 +10,7 @@ use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\Turma;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 class ClasseTurnoDisciplinaHorarioController extends Controller
@@ -26,6 +27,8 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
         Turma $turma,
         ClasseTurnoDisciplina $classeTurnoDisciplina
     ) {
+        Gate::authorize('create', new ClasseTurnoDisciplinaHorario);
+
         // Remover horários antigos
         $classeTurnoDisciplina->horarios()->delete();
 

@@ -61,9 +61,31 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.delete',
                 'grupopap.definirData',
 
+                // Classes
+                'classes.viewAny',
+                'classes.view',
+                'classes.create',
+                'classes.update',
+                'classes.delete',
+
+                // Cursos
+                'cursos.viewAny',
+                'cursos.view',
+                'cursos.create',
+                'cursos.update',
+                'cursos.delete',
+
+                // Cursos Tutelados
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
+                'curso-tutelado.create',
+                'curso-tutelado.update',
+                'curso-tutelado.delete',
+
                 // Outros
                 'utilizadores.gerir',
-                'permissoes.gerir',
+                'acessos.viewAny',
+                'acessos.create',
                 'relatorios.view',
                 'pagamentos.view',
                 'pagamentos.gerir',
@@ -114,6 +136,26 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.delete',
                 'grupopap.definirData',
 
+                // Classes
+                'classes.viewAny',
+                'classes.view',
+                'classes.create',
+                'classes.update',
+                'classes.delete',
+
+                // Cursos
+                'cursos.viewAny',
+                'cursos.view',
+                'cursos.create',
+                'cursos.update',
+                'cursos.delete',
+
+                // Cursos Tutelados
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
+                'curso-tutelado.create',
+                'curso-tutelado.update',
+
                 // Outros
                 'relatorios.view',
             ],
@@ -157,6 +199,23 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.update',
                 'grupopap.delete',
                 'grupopap.definirData',
+
+                // Cursos
+                'cursos.viewAny',
+                'cursos.view',
+                'cursos.create',
+                'cursos.update',
+
+                // Classes
+                'classes.viewAny',
+                'classes.view',
+                'classes.create',
+                'classes.update',
+
+                // Cursos Tutelados
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
+
                 // Outros
                 'pagamentos.view',
                 'pagamentos.gerir',

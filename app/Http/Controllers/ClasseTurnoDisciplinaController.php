@@ -8,57 +8,17 @@ use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\Disciplina;
 use App\Models\Instituicao;
-use App\Models\InstituicaoCurso;
-use App\Models\Turma;
-use App\Models\TurmaDisciplinaProfessor;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
-class ClasseTurnoDisciplinaController extends Controller // implements HasMiddleware
+class ClasseTurnoDisciplinaController extends Controller
 {
-    /*public static function middleware(): array
-    {
-        return [
-            new Middleware('permission:disciplinas.index', only: ['index']),
-            new Middleware('permission:disciplinas.create', only: ['store']),
-            new Middleware('permission:disciplinas.edit', only: ['update']),
-            new Middleware('permission:disciplinas.delete', only: ['destroy']),
-        ];
-    }*/
-
-    public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
-    {
-        $disciplinas = $cursoClasseTurno->classeTurnoDisciplinas()
-            ->with([
-                'disciplina:id,nome,sigla,componente',
-                'turmaDisciplinaProfessores.professor.user:id,nome',
-            ])
-            ->paginate(5);
-
-        return response()->json(
-            $disciplinas->through(fn ($ctd) => [
-                'id' => $ctd->id,
-                'disciplina' => [
-                    'id' => $ctd->disciplina->id,
-                    'nome' => $ctd->disciplina->nome,
-                    'sigla' => $ctd->disciplina->sigla,
-                    'componente' => $ctd->disciplina->componente,
-                ],
-                'carga_horaria' => $ctd->carga_horaria,
-                'tem_professor' => $ctd->tem_professor,
-                'professor' => $ctd->turmaDisciplinaProfessores->first()?->professor ? [
-                    'id' => $ctd->turmaDisciplinaProfessores->first()->professor->id,
-                    'nome' => $ctd->turmaDisciplinaProfessores->first()->professor->user->nome,
-                ] : null,
-            ])
-        );
-    }
-
-    public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
-    {
+    public function create(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno
+    ) {
         return Inertia::render('cursos-tutelados/classes/turnos/disciplinas/create', [
             'disciplinas' => Disciplina::select('id', 'nome')->orderBy('nome')->get(),
             'instituicaoId' => $instituicao->id,
@@ -70,39 +30,13 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
         ]);
     }
 
-    public function indexByTurma(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno, Turma $turma)
-    {
-        // Obter disciplinas que têm professores associados a esta turma
-        $disciplinas = ClasseTurnoDisciplina::where('curso_classe_turno_id', $cursoClasseTurno->id)
-            ->with([
-                'disciplina:id,nome,sigla,componente',
-                'turmaDisciplinaProfessores' => function ($query) use ($turma) {
-                    $query->where('turma_id', $turma->id)->with('professor.user:id,nome');
-                },
-            ])
-            ->get();
-
-        return response()->json(
-            $disciplinas->map(fn ($ctd) => [
-                'id' => $ctd->id,
-                'disciplina' => [
-                    'id' => $ctd->disciplina->id,
-                    'nome' => $ctd->disciplina->nome,
-                    'sigla' => $ctd->disciplina->sigla,
-                    'componente' => $ctd->disciplina->componente,
-                ],
-                'carga_horaria' => $ctd->carga_horaria,
-                'tem_professor' => $ctd->tem_professor,
-                'professor' => $ctd->turmaDisciplinaProfessores->first()?->professor ? [
-                    'id' => $ctd->turmaDisciplinaProfessores->first()->professor->id,
-                    'nome' => $ctd->turmaDisciplinaProfessores->first()->professor->user->nome,
-                ] : null,
-            ])
-        );
-    }
-
-    public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
-    {
+    public function store(
+        Request $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno
+    ) {
         $request->validate([
             'disciplina_ids' => 'required|array|min:1',
             'disciplina_ids.*' => 'exists:disciplinas,id',
@@ -138,58 +72,13 @@ class ClasseTurnoDisciplinaController extends Controller // implements HasMiddle
         $redirectTo = $request->input('redirect_to');
 
         return ($redirectTo)
-            ? redirect($redirectTo) 
+            ? redirect($redirectTo)
             : to_route('cursos-tutelados.classes.show', [
                 'instituicao' => $instituicao->id,
                 'cursoTutelado' => $cursoTutelado->id,
                 'cursoClasse' => $cursoClasse->id,
                 'cursoClasseTurno' => $cursoClasseTurno->id,
             ]);
-    }
-
-    public function edit(
-        Instituicao $instituicao,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        ClasseTurnoDisciplina $classeTurnoDisciplina
-    ) {
-        return Inertia::render(
-            'cursos-tutelados/classes/turnos/disciplinas/edit',
-            [
-                'disciplina' => $classeTurnoDisciplina,
-                'instituicaoId' => $instituicao->id,
-                'cursoId' => $cursoTutelado->id,
-                'classeId' => $cursoClasse->id,
-                'turnoId' => $cursoClasseTurno->id,
-            ]
-        );
-    }
-
-    public function update(
-        Request $request,
-        Instituicao $instituicao,
-        InstituicaoCurso $instituicaoCurso,
-        Turma $turma,
-        ClasseTurnoDisciplina $classeTurnoDisciplina
-    ) {
-        DB::transaction(function () use ($request, $classeTurnoDisciplina) {
-
-            $classeTurnoDisciplina->update([
-                'carga_horaria' => $request->carga_horaria,
-                'tem_professor' => $request->filled('professor_id'),
-            ]);
-
-            // Actualizar professor se veio no request
-            if ($request->filled('professor_id')) {
-                TurmaDisciplinaProfessor::updateOrCreate(
-                    ['classe_turno_disciplina_id' => $classeTurnoDisciplina->id],
-                    ['professor_id' => $request->professor_id]
-                );
-            }
-        });
-
-        return response()->json(['message' => 'Actualizado com sucesso.'], 200);
     }
 
     public function destroy(

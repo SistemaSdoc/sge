@@ -14,6 +14,7 @@ use App\Models\TurmaDisciplinaProfessor;
 use App\Services\NotaService;
 use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class NotaDisciplinaController extends Controller
@@ -38,6 +39,8 @@ class NotaDisciplinaController extends Controller
             ->where('turma_id', $turma->id)
             ->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
             ->firstOrFail();
+
+        Gate::authorize('view', $tdp);
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
@@ -87,6 +90,8 @@ class NotaDisciplinaController extends Controller
             ->where('turma_id', $turma->id)
             ->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
             ->firstOrFail();
+
+        Gate::authorize('view', $tdp);
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
@@ -147,6 +152,10 @@ class NotaDisciplinaController extends Controller
             'notas.*.nota_recurso' => 'nullable|numeric|min:0|max:20',
         ]);
 
+        $tdp = TurmaDisciplinaProfessor::findOrFail($validated['tdp_id']);
+
+        Gate::authorize('view', $tdp);
+
         $this->notaService->lancarNotas(
             $validated['notas'],
             $validated['tdp_id'],
@@ -163,7 +172,9 @@ class NotaDisciplinaController extends Controller
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
         ])
             ->whereIn('id', $turmaAlunoIds)
-            ->each(fn ($ta) => $this->pautaService->actualizarResultadoAluno($ta));
+            ->each(function (TurmaAluno $ta): void {
+                $this->pautaService->actualizarResultadoAluno($ta);
+            });
 
         return back();
     }

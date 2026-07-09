@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Classe\StoreClasseRequest;
 use App\Http\Requests\Classe\UpdateClasseRequest;
 use App\Models\Classe;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ClasseController
@@ -14,6 +15,8 @@ class ClasseController
      */
     public function index()
     {
+        Gate::authorize('viewAny', Classe::class);
+
         $classes = Classe::select(['id', 'nome', 'created_at'])
             ->orderBy('nome', 'asc')
             ->paginate(10);
@@ -28,6 +31,8 @@ class ClasseController
      */
     public function create()
     {
+        Gate::authorize('create', Classe::class);
+
         return Inertia::render('classes/create');
     }
 
@@ -36,6 +41,8 @@ class ClasseController
      */
     public function store(StoreClasseRequest $request)
     {
+        Gate::authorize('create', Classe::class);
+
         Classe::create($request->validated());
 
         return to_route('classes.index')->with('toast', [
@@ -49,6 +56,8 @@ class ClasseController
      */
     public function show(Classe $classe)
     {
+        Gate::authorize('view', $classe);
+
         return Inertia::render('classes/show', [
             'classe' => $classe,
         ]);
@@ -59,6 +68,8 @@ class ClasseController
      */
     public function edit(Classe $classe)
     {
+        Gate::authorize('update', $classe);
+
         return Inertia::render('classes/edit', [
             'classe' => $classe,
         ]);
@@ -69,6 +80,8 @@ class ClasseController
      */
     public function update(UpdateClasseRequest $request, Classe $classe)
     {
+        Gate::authorize('update', $classe);
+
         $classe->update($request->validated());
 
         return to_route('classes.index')->with('toast', [
@@ -82,6 +95,8 @@ class ClasseController
      */
     public function destroy(Classe $classe)
     {
+        Gate::authorize('delete', $classe);
+
         $classe->delete();
 
         return to_route('classes.index')->with('toast', [

@@ -47,7 +47,7 @@ class HandleInertiaRequests extends Middleware
                     'nome' => $user->nome,
                     'email' => $user->email,
                     'avatar' => $user->avatar,
-                    'role' => $user->roles->first()?->nome,
+                    //'role' => $user->roles->first()?->nome,
                 ] : null,
             ],
             'sidebar' => fn () => $request->user() ? app(SidebarMenuService::class)->build() : [],

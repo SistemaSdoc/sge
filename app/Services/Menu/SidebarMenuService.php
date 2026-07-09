@@ -18,6 +18,8 @@ use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Models\Aluno;
 use App\Models\Aviso;
+use App\Models\Classe;
+use App\Models\Curso;
 use App\Models\GrupoPap;
 use App\Models\Instituicao;
 use App\Models\Nota;
@@ -78,7 +80,7 @@ final class SidebarMenuService
                     title: 'Cursos',
                     href: action([CursosController::class, 'index']),
                     icon: 'BookOpen',
-                    can: true, // TODO: CursoPolicy
+                    can: Gate::allows('viewAny', Curso::class)
                 ),
 
                 new MenuItem(
@@ -86,7 +88,7 @@ final class SidebarMenuService
                     title: 'Classes',
                     href: action([ClasseController::class, 'index']),
                     icon: 'GraduationCap',
-                    can: true, // TODO: ClassePolicy
+                    can: Gate::allows('viewAny', Classe::class)
                 ),
 
                 new MenuItem(
@@ -126,7 +128,7 @@ final class SidebarMenuService
                     title: 'Grelha Curricular',
                     href: action([GrelhaCurricularController::class, 'index']),
                     icon: 'LayoutList',
-                    can: Gate::allows('grelha-curricular.viewAny'),
+                    can: fn () => Gate::allows('grelha-curricular.viewAny'),
                 ),
 
                 new MenuItem(
@@ -134,7 +136,7 @@ final class SidebarMenuService
                     title: 'Minhas Notas',
                     href: action([NotaAlunoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: Gate::allows('viewAny', Nota::class)
+                    can: fn () => Gate::allows('viewAny', Nota::class)
                 ),
             ]),
 
@@ -160,7 +162,7 @@ final class SidebarMenuService
                     title: 'Gerir Acessos',
                     href: action([AccessManagementController::class, 'index']),
                     icon: 'ShieldCheck',
-                    can: true, // TODO: AcessoPolicy
+                    can: fn () => Gate::allows('acessos.viewAny')
                 ),
             ]),
 

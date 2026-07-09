@@ -12,6 +12,7 @@ use App\Models\Instituicao;
 use App\Models\Turma;
 use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -27,7 +28,7 @@ class ClasseTurnoTurmaController extends Controller
     ) {
         Gate::authorize('viewAny', Turma::class);
 
-        $user = auth()->user();
+        $user = Auth::user();
 
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
@@ -142,6 +143,8 @@ class ClasseTurnoTurmaController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
+        $user = Auth::user();
+
         Gate::authorize('view', $turma);
 
         $turma->load([
@@ -155,15 +158,29 @@ class ClasseTurnoTurmaController extends Controller
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
             ->paginate(5, ['*'], 'page_alunos');
 
-        $disciplinas = $turma->cursoClasseTurno
+        $disciplinasQuery = $turma->cursoClasseTurno
             ->classeTurnoDisciplinas()
             ->with([
                 'disciplina:id,nome,sigla',
                 'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
                 'horarios',
-            ])
-            ->paginate(5, ['*'], 'page_disciplinas');
+            ]);
+
+        if ($user->hasRole('Professor')) {
+            $professorId = $user->professor?->id;
+
+            if ($professorId) {
+                $disciplinasQuery->whereHas('turmaDisciplinaProfessores', function ($q) use ($turma, $professorId): void {
+                    $q->where('turma_id', $turma->id)
+                        ->where('professor_id', $professorId);
+                });
+            } else {
+                $disciplinasQuery->whereRaw('0 = 1');
+            }
+        }
+
+        $disciplinas = $disciplinasQuery->paginate(5, ['*'], 'page_disciplinas');
 
         $pautaRecurso = $this->pautaService->gerarPauta($turma, 4, 5);
 

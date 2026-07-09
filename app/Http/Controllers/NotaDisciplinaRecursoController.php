@@ -14,6 +14,7 @@ use App\Models\TurmaDisciplinaProfessor;
 use App\Services\NotaService;
 use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class NotaDisciplinaRecursoController extends Controller
@@ -38,6 +39,8 @@ class NotaDisciplinaRecursoController extends Controller
             ->where('turma_id', $turma->id)
             ->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
             ->firstOrFail();
+
+        Gate::authorize('view', $tdp);
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',

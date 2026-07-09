@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AccessManagement\StoreRoleAndPermissionRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -16,6 +17,8 @@ class AccessManagementController extends Controller
      */
     public function index()
     {
+        Gate::authorize('acessos.viewAny');
+
         $users = User::with('roles', 'permissions')
             ->where('instituicao_id', Auth::user()->instituicaoFiltro())
             ->paginate(10)
@@ -41,8 +44,10 @@ class AccessManagementController extends Controller
      */
     public function store(StoreRoleAndPermissionRequest $request, User $user)
     {
+        Gate::authorize('acessos.create');
+
         $user->syncRoles($request->roles);
-        
+
         $user->syncPermissions($request->directPermissions);
 
         return back()->with('success', "Roles e permissões atualizados para {$user->nome}.");

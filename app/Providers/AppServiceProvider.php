@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Listeners\RegisteredListener;
+use App\Policies\AcessManagementPolicy;
+use App\Policies\ClasseTurnoDisciplinaHorarioPolicy;
 use App\Policies\GrelhaCurricularPolicy;
 use App\Policies\PautaPolicy;
 use Carbon\CarbonImmutable;
@@ -35,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('pauta.viewAny', [PautaPolicy::class, 'viewAny']);
         Gate::define('pauta.view', [PautaPolicy::class, 'view']);
         Gate::define('grelha-curricular.viewAny', [GrelhaCurricularPolicy::class, 'viewAny']);
+        Gate::define('acessos.viewAny', [AcessManagementPolicy::class, 'viewAny']);
+        Gate::define('acessos.create', [AcessManagementPolicy::class, 'create']);
 
         // $this->configureDefaults();
 

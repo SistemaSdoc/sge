@@ -7,12 +7,15 @@ use App\Http\Requests\Curso\CursoUpdateRequest;
 use App\Models\Curso;
 use App\Models\InstituicaoCurso;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class CursosController extends Controller
 {
     public function index()
     {
+        Gate::authorize('viewAny', Curso::class);
+
         $cursos = Curso::select(['id', 'nome', 'created_at'])
             ->orderBy('nome', 'asc')
             ->paginate(10);
@@ -24,11 +27,15 @@ class CursosController extends Controller
 
     public function create()
     {
+        Gate::authorize('create', Curso::class);
+
         return Inertia::render('cursos/create');
     }
 
     public function store(CursoStoreRequest $request)
     {
+        Gate::authorize('create', Curso::class);
+
         $request->validated();
 
         $curso = Curso::create([
@@ -46,6 +53,8 @@ class CursosController extends Controller
 
     public function show(Curso $curso)
     {
+        Gate::authorize('view', $curso);
+
         return Inertia::render('cursos/show', [
             'curso' => $curso,
         ]);
@@ -53,6 +62,8 @@ class CursosController extends Controller
 
     public function edit(Curso $curso)
     {
+        Gate::authorize('update', $curso);
+
         return Inertia::render('cursos/edit', [
             'curso' => $curso,
         ]);
@@ -60,6 +71,8 @@ class CursosController extends Controller
 
     public function update(CursoUpdateRequest $request, Curso $curso)
     {
+        Gate::authorize('update', $curso);
+
         $request->validated();
 
         $curso->update([
@@ -78,6 +91,8 @@ class CursosController extends Controller
 
     public function destroy(Curso $curso)
     {
+        Gate::authorize('delete', $curso);
+
         $curso->delete();
 
         return to_route('cursos.index')->with('toast', [

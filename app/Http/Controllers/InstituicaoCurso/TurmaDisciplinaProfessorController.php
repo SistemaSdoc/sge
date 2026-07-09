@@ -4,53 +4,20 @@ namespace App\Http\Controllers\InstituicaoCurso;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\InstituicaoCurso\StoreProfessorRequest;
-use App\Http\Resources\ProfessorResource;
 use App\Models\ClasseTurnoDisciplina;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
-use App\Models\InstituicaoCurso;
 use App\Models\Professor;
 use App\Models\Turma;
 use App\Models\TurmaDisciplinaProfessor;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
-class TurmaDisciplinaProfessorController extends Controller // implements HasMiddleware
+class TurmaDisciplinaProfessorController extends Controller
 {
-    /*public static function middleware(): array
-    {
-        return [
-            new Middleware('permission:professores.index', only: ['index']),
-            new Middleware('permission:professores.show', only: ['show']),
-            new Middleware('permission:professores.create', only: ['store']),
-            new Middleware('permission:professores.edit', only: ['update']),
-            new Middleware('permission:professores.delete', only: ['destroy']),
-        ];
-    }*/
-
-    public function index(Instituicao $instituicao, InstituicaoCurso $instituicaoCurso)
-    {
-        $user = Auth::user();
-        $instituicaoId = $user?->instituicaoFiltro();
-
-        $professores = Professor::when(
-            $instituicaoId,
-            fn($q) => $q->whereHas(
-                'user',
-                fn($q) => $q->where('instituicao_id', $instituicaoId)
-            )
-        )->with(['user:id,nome,telefone'])
-            ->get();
-
-        // Usa o Resource para consistência
-        return ProfessorResource::collection($professores);
-    }
-
     public function create(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
@@ -59,12 +26,14 @@ class TurmaDisciplinaProfessorController extends Controller // implements HasMid
         Turma $turma,
         ClasseTurnoDisciplina $classeTurnoDisciplina
     ) {
+        Gate::authorize('definirProfessor', new TurmaDisciplinaProfessor);
+
         $classeTurnoDisciplina->load('disciplina');
 
         $professores = $cursoTutelado->professores()
             ->with('user:id,nome')
             ->get()
-            ->map(fn(Professor $professor) => [
+            ->map(fn (Professor $professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ]);
@@ -98,13 +67,14 @@ class TurmaDisciplinaProfessorController extends Controller // implements HasMid
         Turma $turma,
         ClasseTurnoDisciplina $classeTurnoDisciplina
     ) {
-        if ($classeTurnoDisciplina->tem_professor && !$request->boolean('force')) {
+        Gate::authorize('definirProfessor', new TurmaDisciplinaProfessor);
+
+        if ($classeTurnoDisciplina->tem_professor && ! $request->boolean('force')) {
             return back()->withErrors([
                 'message' => 'Esta disciplina já tem um professor atribuído. Deseja substituí-lo?',
                 'requires_confirmation' => true,
             ]);
         }
-
 
         DB::transaction(function () use ($request, $classeTurnoDisciplina, $turma) {
             // Remove o anterior se existir

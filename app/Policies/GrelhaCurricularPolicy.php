@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-// ajusta o nome do model se for diferente
 use App\Models\User;
 
 class GrelhaCurricularPolicy
@@ -15,7 +14,6 @@ class GrelhaCurricularPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('grelha.viewAny')
-            && $user->hasRole('Aluno');
+        return $user->can('grelha.viewAny') && $user->hasRole('Aluno');
     }
 }
