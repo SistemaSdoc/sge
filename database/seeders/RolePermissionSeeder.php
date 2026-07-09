@@ -31,6 +31,40 @@ class RolePermissionSeeder extends Seeder
                 'turmas.update',
                 'turmas.delete',
 
+                // Turnos
+                'turnos.viewAny',
+                'turnos.view',
+                //'turnos.create',
+                //'turnos.update',
+                //'turnos.delete',
+
+                //Inscrições
+                'inscricoes.viewAny',
+                'inscricoes.view',
+                'inscricoes.create',
+                'inscricoes.update',
+
+                //CursoClasse
+                'cursoclasse.viewAny',
+                'cursoclasse.view',
+                'cursoclasse.create',
+                'cursoclasse.update',
+                'cursoclasse.delete',
+
+                //classeturnodisciplina
+                'classeturnodisciplina.viewAny',
+                'classeturnodisciplina.view',
+                'classeturnodisciplina.create',
+                'classeturnodisciplina.update',
+                'classeturnodisciplina.delete',
+
+                // Curso Classe Turno
+                'cursoclasseturno.viewAny',
+                'cursoclasseturno.view',
+                'cursoclasseturno.create',
+                'cursoclasseturno.update',
+                'cursoclasseturno.delete',
+
                 // Pautas
                 'pautas.viewAny',
                 'pautas.view',
@@ -108,6 +142,33 @@ class RolePermissionSeeder extends Seeder
                 'turmas.update',
                 'turmas.delete',
 
+                //Inscrições
+                'inscricoes.viewAny',
+                'inscricoes.view',
+                'inscricoes.create',
+                'inscricoes.update',
+
+                //CursoClasse
+                'cursoclasse.viewAny',
+                'cursoclasse.view',
+                'cursoclasse.create',
+                'cursoclasse.update',
+                'cursoclasse.delete',
+
+                //classeturnodisciplina
+                'classeturnodisciplina.viewAny',
+                'classeturnodisciplina.view',
+                'classeturnodisciplina.create',
+                'classeturnodisciplina.update',
+                'classeturnodisciplina.delete',
+
+                // Curso Classe Turno
+                'cursoclasseturno.viewAny',
+                'cursoclasseturno.view',
+                'cursoclasseturno.create',
+                'cursoclasseturno.update',
+                'cursoclasseturno.delete',
+
                 // Pautas
                 'pautas.viewAny',
                 'pautas.view',
@@ -155,6 +216,12 @@ class RolePermissionSeeder extends Seeder
                 'curso-tutelado.view',
                 'curso-tutelado.create',
                 'curso-tutelado.update',
+                // Turnos
+                'turnos.viewAny',
+                'turnos.view',
+                //'turnos.create',
+                //'turnos.update',
+                //'turnos.delete',
 
                 // Outros
                 'relatorios.view',
@@ -186,11 +253,35 @@ class RolePermissionSeeder extends Seeder
                 'professores.create',
                 'professores.update',
 
+                //classeturnodisciplina
+                'classeturnodisciplina.viewAny',
+                'classeturnodisciplina.view',
+
+                // Curso Classe Turno
+                'cursoclasseturno.viewAny',
+                'cursoclasseturno.view',
+
                 // Avisos
                 'avisos.viewAny',
                 'avisos.view',
                 'avisos.create',
                 'avisos.update',
+
+                // Turnos
+                'turnos.viewAny',
+                'turnos.view',
+                //'turnos.create',
+                //'turnos.update',
+
+                //Inscrições
+                'inscricoes.viewAny',
+                'inscricoes.view',
+                'inscricoes.create',
+                'inscricoes.update',
+
+                //CursoClasse
+                'cursoclasse.viewAny',
+                'cursoclasse.view',
 
                 // Grupo PAP
                 'grupopap.viewAny',

@@ -9,6 +9,8 @@ class TurnoController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Turno::class);
+
         $turnos = Turno::select(['id', 'nome', 'created_at'])
             ->orderBy('nome', 'asc')
             ->paginate(10);
@@ -20,11 +22,14 @@ class TurnoController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Turno::class);
+
         return Inertia('turnos/create');
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Turno::class);
         $request->validate([
             'nome' => 'required|string|max:50',
         ]);
@@ -39,9 +44,9 @@ class TurnoController extends Controller
         ]);
     }
 
-    public function show(string $id)
+    public function show(Turno $turno)
     {
-        $turno = Turno::findOrFail($id);
+        //$this->authorize('view', $turno);
 
         return Inertia('turnos/show', [
             'turno' => $turno,
@@ -50,6 +55,8 @@ class TurnoController extends Controller
 
     public function edit(Turno $turno)
     {
+        $this->authorize('update', $turno);
+
         return Inertia('turnos/edit', [
             'turno' => $turno,
         ]);
@@ -57,6 +64,8 @@ class TurnoController extends Controller
 
     public function update(Request $request, Turno $turno)
     {
+        $this->authorize('update', $turno);
+
         $turno->update([
             'nome' => $request->nome,
         ]);
@@ -69,6 +78,8 @@ class TurnoController extends Controller
 
     public function destroy(Turno $turno)
     {
+        $this->authorize('delete', $turno);
+        
         $turno->delete();
 
         return to_route('turnos.index')->with('toast', [

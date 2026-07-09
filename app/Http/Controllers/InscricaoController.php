@@ -20,6 +20,8 @@ class InscricaoController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Inscricao::class);
+
         $instituicaoId = Auth::user()?->instituicaoFiltro();
 
         $inscricoes = Inscricao::with([
@@ -46,6 +48,8 @@ class InscricaoController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Inscricao::class);
+
         $user = auth()->user();
 
         $instituicao = Instituicao::with([
@@ -72,6 +76,9 @@ class InscricaoController extends Controller
 
     public function store(StoreInscricaoRequest $request)
     {
+        $this->authorize('create', Inscricao::class);
+
+
         $this->inscricaoService->criar($request->validated());
 
         return redirect()->route('inscricoes.index');
@@ -79,6 +86,7 @@ class InscricaoController extends Controller
 
     public function show(Inscricao $inscricao)
     {
+        $this->authorize('view', $inscricao);
 
         $inscricao->load([
             'candidato:id,nome,bi,numero_estudante,email,telefone,morada',
@@ -95,6 +103,8 @@ class InscricaoController extends Controller
 
     public function update(UpdateInscricaoRequest $request, Inscricao $inscricao)
     {
+        $this->authorize('update', $inscricao);
+
         $this->inscricaoService->atualizarNotaTeste($inscricao, $request->validated('nota_teste'));
 
         return redirect()->route('inscricoes.index');

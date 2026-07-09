@@ -23,12 +23,40 @@ class PermissionSeeder extends Seeder
             'alunos.create',
             'alunos.update',
 
+            // Curso Classe
+            'cursoclasse.viewAny',
+            'cursoclasse.view',
+            'cursoclasse.create',
+            'cursoclasse.update',
+            'cursoclasse.delete',
+
+            // Curso Classe Turno
+            'cursoclasseturno.viewAny',
+            'cursoclasseturno.view',
+            'cursoclasseturno.create',
+            'cursoclasseturno.update',
+            'cursoclasseturno.delete',
+
+            // Turnos
+            'turnos.viewAny',
+            'turnos.view',
+            'turnos.create',
+            'turnos.update',
+            'turnos.delete',
+
             // Turmas
             'turmas.viewAny',
             'turmas.view',
             'turmas.create',
             'turmas.update',
             'turmas.delete',
+
+            //classeturnodisciplina
+            'classeturnodisciplina.viewAny',
+            'classeturnodisciplina.view',
+            'classeturnodisciplina.create',
+            'classeturnodisciplina.update',
+            'classeturnodisciplina.delete',
 
             // Pautas
             'pautas.viewAny',
@@ -55,6 +83,13 @@ class PermissionSeeder extends Seeder
             'avisos.create',
             'avisos.update',
             'avisos.delete',
+
+            // Inscrições
+            'inscricoes.viewAny',
+            'inscricoes.view',
+            'inscricoes.create',
+            'inscricoes.update',
+            'inscricoes.delete',
 
             // Grupo PAP
             'grupopap.viewAny',

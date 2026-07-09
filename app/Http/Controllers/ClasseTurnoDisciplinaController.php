@@ -11,14 +11,13 @@ use App\Models\Instituicao;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class ClasseTurnoDisciplinaController extends Controller
+class ClasseTurnoDisciplinaController extends Controller 
 {
-    public function create(
-        Instituicao $instituicao,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno
-    ) {
+
+    public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
+    {
+        $this->authorize('create', ClasseTurnoDisciplina::class);
+        
         return Inertia::render('cursos-tutelados/classes/turnos/disciplinas/create', [
             'disciplinas' => Disciplina::select('id', 'nome')->orderBy('nome')->get(),
             'instituicaoId' => $instituicao->id,
@@ -30,13 +29,10 @@ class ClasseTurnoDisciplinaController extends Controller
         ]);
     }
 
-    public function store(
-        Request $request,
-        Instituicao $instituicao,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno
-    ) {
+    public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
+    {
+        $this->authorize('create', ClasseTurnoDisciplina::class);
+        
         $request->validate([
             'disciplina_ids' => 'required|array|min:1',
             'disciplina_ids.*' => 'exists:disciplinas,id',
@@ -79,6 +75,55 @@ class ClasseTurnoDisciplinaController extends Controller
                 'cursoClasse' => $cursoClasse->id,
                 'cursoClasseTurno' => $cursoClasseTurno->id,
             ]);
+    }
+
+    public function edit(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        ClasseTurnoDisciplina $classeTurnoDisciplina
+    ) {
+        $this->authorize('update', $classeTurnoDisciplina);
+
+        return Inertia::render(
+            'cursos-tutelados/classes/turnos/disciplinas/edit',
+            [
+                'disciplina' => $classeTurnoDisciplina,
+                'instituicaoId' => $instituicao->id,
+                'cursoId' => $cursoTutelado->id,
+                'classeId' => $cursoClasse->id,
+                'turnoId' => $cursoClasseTurno->id,
+            ]
+        );
+    }
+
+    public function update(
+        Request $request,
+        Instituicao $instituicao,
+        InstituicaoCurso $instituicaoCurso,
+        Turma $turma,
+        ClasseTurnoDisciplina $classeTurnoDisciplina
+    ) {
+        $this->authorize('delete', $classeTurnoDisciplina);
+
+        DB::transaction(function () use ($request, $classeTurnoDisciplina) {
+
+            $classeTurnoDisciplina->update([
+                'carga_horaria' => $request->carga_horaria,
+                'tem_professor' => $request->filled('professor_id'),
+            ]);
+
+            // Actualizar professor se veio no request
+            if ($request->filled('professor_id')) {
+                TurmaDisciplinaProfessor::updateOrCreate(
+                    ['classe_turno_disciplina_id' => $classeTurnoDisciplina->id],
+                    ['professor_id' => $request->professor_id]
+                );
+            }
+        });
+
+        return response()->json(['message' => 'Actualizado com sucesso.'], 200);
     }
 
     public function destroy(
