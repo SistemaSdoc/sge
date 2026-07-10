@@ -8,7 +8,11 @@ use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\Disciplina;
 use App\Models\Instituicao;
+use App\Models\InstituicaoCurso;
+use App\Models\Turma;
+use App\Models\TurmaDisciplinaProfessor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ClasseTurnoDisciplinaController extends Controller 

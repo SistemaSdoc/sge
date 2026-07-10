@@ -18,7 +18,11 @@ export function ClasseForm({
   errors,
   processing,
   submitFn,
+  can = {},
 }) {
+  const canSubmit = Boolean(
+    can.create_classe ?? can.edit_classe ?? can.create ?? can.update ?? true,
+  );
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-2xl">
       <form onSubmit={submitFn}>
@@ -54,7 +58,7 @@ export function ClasseForm({
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={processing}>
+                  <Button type="submit" disabled={processing || !canSubmit}>
                     {processing ? 'A guardar...' : submitLabel}
                   </Button>
                 </Field>

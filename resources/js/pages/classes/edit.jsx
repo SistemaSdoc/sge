@@ -2,7 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { ClasseForm } from './components/classe-form';
 import { update } from '@/actions/App/Http/Controllers/ClasseController';
 
-export default function Edit({ classe }) {
+export default function Edit({ can = {}, classe }) {
   const { put, data, setData, processing, errors } = useForm({
     nome: classe.nome,
     ordem: classe.ordem,
@@ -15,6 +15,7 @@ export default function Edit({ classe }) {
       setData={setData}
       errors={errors}
       processing={processing}
+      can={can}
       submitFn={(e) => {
         e.preventDefault();
         put(update(classe.id).url);

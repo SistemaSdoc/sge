@@ -31,6 +31,12 @@ class TurmaShowResource extends JsonResource
                 'nota_final' => $g->nota_final,
             ])
             ),
+
+            'can' => [
+                'view' => $request->user()?->can('view', $this->resource) ?? false,
+                'update' => $request->user()?->can('update', $this->resource) ?? false,
+                'delete' => $request->user()?->can('delete', $this->resource) ?? false,
+            ],
         ];
     }
 }

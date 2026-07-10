@@ -13,7 +13,9 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/InstituicaoController';
 
-export function InstituicaoCabecalho({ data, storageUrl }) {
+export function InstituicaoCabecalho({ data, storageUrl, can = {} }) {
+  const canEdit = Boolean(can?.edit || can?.edit_instituicao);
+
   return (
     <Card className="overflow-hidden pt-0!">
       <div className="relative flex h-56 w-full items-end overflow-hidden bg-muted">
@@ -42,25 +44,32 @@ export function InstituicaoCabecalho({ data, storageUrl }) {
             </p>
           </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-white/20"
-              >
-                <MoreHorizontalIcon />
-              </Button>
-            </DropdownMenuTrigger>
+          {canEdit && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/20"
+                >
+                  <MoreHorizontalIcon />
+                </Button>
+              </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => router.visit(edit({ instituicao: data.id }).url)}
-              >
-                Editar
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              {canEdit && (
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() =>
+                      router.visit(edit({ instituicao: data.id }).url)
+                    }
+                    disabled={!canEdit}
+                  >
+                    Editar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              )}
+            </DropdownMenu>
+          )}
         </div>
       </div>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BancaJuriPap\StoreRequest;
+use App\Http\Requests\BancaJuriPap\UpdateRequest;
 use App\Models\BancaJuriPap;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
@@ -11,9 +12,7 @@ use App\Models\GrupoPap;
 use App\Models\Instituicao;
 use App\Models\Professor;
 use App\Models\Turma;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Http\Requests\BancaJuriPap\UpdateRequest;
 
 class BancaJuriPapController extends Controller
 {
@@ -34,11 +33,11 @@ class BancaJuriPapController extends Controller
             ->whereNotIn('id', $juradosNaBanca)
             ->whereHas(
                 'cursosTutelados',
-                fn($q) => $q
+                fn ($q) => $q
                     ->where('curso_tutelado_id', $cursoTutelado->id)
                     ->where('tipo', 'principal')
             )->get()
-            ->map(fn($professor) => [
+            ->map(fn ($professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ])->values();
@@ -103,11 +102,11 @@ class BancaJuriPapController extends Controller
             ->whereNotIn('id', $juradosNaBanca)
             ->whereHas(
                 'cursosTutelados',
-                fn($q) => $q
+                fn ($q) => $q
                     ->where('curso_tutelado_id', $cursoTutelado->id)
                     ->where('tipo', 'principal')
             )->get()
-            ->map(fn($professor) => [
+            ->map(fn ($professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ])->values();
@@ -148,9 +147,9 @@ class BancaJuriPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Membro da banca actualizado com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Membro da banca actualizado com sucesso!',
+        ]);
     }
 
     /**

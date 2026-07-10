@@ -39,8 +39,11 @@ export function TabDisciplinas({
   pagination,
   onPageChange,
   redirectTo, // <-- adiciona
+  can = {},
 }) {
   const isEmpty = disciplinas.length === 0;
+  const canCreate = Boolean(can.create);
+  const canAssignProfessor = Boolean(can.assign_professor);
   const { openForm, closeDialog } = useDialog();
 
   const abrirHorariosDialog = (disciplina, e) => {
@@ -76,23 +79,22 @@ export function TabDisciplinas({
       <CardHeader className="border-b">
         <CardTitle>Disciplinas</CardTitle>
         <CardDescription>Disciplinas lecionadas nesta turma</CardDescription>
-        <CardAction>
-          <Button asChild size="sm">
-            <Link
-              data={{ redirect_to: window.location.href }}
-              href={
-                createDisciplina(params).url
-              }
-            >
-              Adicionar
-            </Link>
-          </Button>
-        </CardAction>
+        {canCreate && (
+          <CardAction>
+            <Button asChild size="sm">
+              <Link
+                data={{ redirect_to: window.location.href }}
+                href={createDisciplina(params).url}
+              >
+                Adicionar
+              </Link>
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent className="p-0!">
         {isEmpty ? (
-          // onde tens o EmptyState
           <EmptyState
             variant="table"
             icon={BookIcon}
@@ -162,19 +164,21 @@ export function TabDisciplinas({
                         </DropdownMenuTrigger>
 
                         <DropdownMenuContent align="end" className="w-auto">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.visit(
-                                createProfessor({
-                                  ...params,
-                                  classeTurnoDisciplina: disciplina.id,
-                                }).url,
-                              );
-                            }}
-                          >
-                            Definir professor
-                          </DropdownMenuItem>
+                          {canAssignProfessor && (
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.visit(
+                                  createProfessor({
+                                    ...params,
+                                    classeTurnoDisciplina: disciplina.id,
+                                  }).url,
+                                );
+                              }}
+                            >
+                              Definir professor
+                            </DropdownMenuItem>
+                          )}
 
                           <DropdownMenuItem
                             onClick={(e) => abrirHorariosDialog(disciplina, e)}

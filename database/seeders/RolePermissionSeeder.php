@@ -34,24 +34,24 @@ class RolePermissionSeeder extends Seeder
                 // Turnos
                 'turnos.viewAny',
                 'turnos.view',
-                //'turnos.create',
-                //'turnos.update',
-                //'turnos.delete',
+                // 'turnos.create',
+                // 'turnos.update',
+                // 'turnos.delete',
 
-                //Inscrições
+                // Inscrições
                 'inscricoes.viewAny',
                 'inscricoes.view',
                 'inscricoes.create',
                 'inscricoes.update',
 
-                //CursoClasse
+                // CursoClasse
                 'cursoclasse.viewAny',
                 'cursoclasse.view',
                 'cursoclasse.create',
                 'cursoclasse.update',
                 'cursoclasse.delete',
 
-                //classeturnodisciplina
+                // classeturnodisciplina
                 'classeturnodisciplina.viewAny',
                 'classeturnodisciplina.view',
                 'classeturnodisciplina.create',
@@ -142,20 +142,20 @@ class RolePermissionSeeder extends Seeder
                 'turmas.update',
                 'turmas.delete',
 
-                //Inscrições
+                // Inscrições
                 'inscricoes.viewAny',
                 'inscricoes.view',
                 'inscricoes.create',
                 'inscricoes.update',
 
-                //CursoClasse
+                // CursoClasse
                 'cursoclasse.viewAny',
                 'cursoclasse.view',
                 'cursoclasse.create',
                 'cursoclasse.update',
                 'cursoclasse.delete',
 
-                //classeturnodisciplina
+                // classeturnodisciplina
                 'classeturnodisciplina.viewAny',
                 'classeturnodisciplina.view',
                 'classeturnodisciplina.create',
@@ -219,9 +219,9 @@ class RolePermissionSeeder extends Seeder
                 // Turnos
                 'turnos.viewAny',
                 'turnos.view',
-                //'turnos.create',
-                //'turnos.update',
-                //'turnos.delete',
+                // 'turnos.create',
+                // 'turnos.update',
+                // 'turnos.delete',
 
                 // Outros
                 'relatorios.view',
@@ -253,7 +253,7 @@ class RolePermissionSeeder extends Seeder
                 'professores.create',
                 'professores.update',
 
-                //classeturnodisciplina
+                // classeturnodisciplina
                 'classeturnodisciplina.viewAny',
                 'classeturnodisciplina.view',
 
@@ -270,16 +270,16 @@ class RolePermissionSeeder extends Seeder
                 // Turnos
                 'turnos.viewAny',
                 'turnos.view',
-                //'turnos.create',
-                //'turnos.update',
+                // 'turnos.create',
+                // 'turnos.update',
 
-                //Inscrições
+                // Inscrições
                 'inscricoes.viewAny',
                 'inscricoes.view',
                 'inscricoes.create',
                 'inscricoes.update',
 
-                //CursoClasse
+                // CursoClasse
                 'cursoclasse.viewAny',
                 'cursoclasse.view',
 

@@ -57,6 +57,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
   const disciplinas = cursoClasse.disciplinas;
 
   const selectedTurnoId = cursoClasse.turnoId;
+  const can = cursoClasse.can ?? {};
 
   const { deleteConfirm } = useDialog();
 
@@ -168,7 +169,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
               </TabsTrigger>
             ))}
 
-            {turnos.length < 3 && (
+            {can.create_turno && turnos.length < 3 && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -199,23 +200,25 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                   <CardDescription>
                     Disciplinas do turno selecionado
                   </CardDescription>
-                  <CardAction>
-                    <Button asChild size="sm">
-                      <Link
-                        data={{ redirect_to: window.location.href }}
-                        href={
-                          createDisciplina({
-                            instituicao: instituicaoId,
-                            cursoTutelado: cursoId,
-                            cursoClasse: classeId,
-                            cursoClasseTurno: selectedTurnoId,
-                          }).url
-                        }
-                      >
-                        Adicionar
-                      </Link>
-                    </Button>
-                  </CardAction>
+                  {can.create_disciplina && (
+                    <CardAction>
+                      <Button asChild size="sm">
+                        <Link
+                          data={{ redirect_to: window.location.href }}
+                          href={
+                            createDisciplina({
+                              instituicao: instituicaoId,
+                              cursoTutelado: cursoId,
+                              cursoClasse: classeId,
+                              cursoClasseTurno: selectedTurnoId,
+                            }).url
+                          }
+                        >
+                          Adicionar
+                        </Link>
+                      </Button>
+                    </CardAction>
+                  )}
                 </CardHeader>
                 {!disciplinas?.data?.length ? (
                   <CardContent className="flex flex-1 items-center justify-center">
@@ -224,16 +227,20 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                       icon={BookOpenIcon}
                       title="Nenhuma disciplina"
                       description="Este turno ainda não tem disciplinas associadas"
-                      action={{
-                        label: 'Associar disciplinas',
-                        href: createDisciplina({
-                          instituicao: instituicaoId,
-                          cursoTutelado: cursoId,
-                          cursoClasse: classeId,
-                          cursoClasseTurno: selectedTurnoId,
-                        }).url,
-                        variant: 'outline',
-                      }}
+                      action={
+                        can.create_disciplina
+                          ? {
+                              label: 'Associar disciplinas',
+                              href: createDisciplina({
+                                instituicao: instituicaoId,
+                                cursoTutelado: cursoId,
+                                cursoClasse: classeId,
+                                cursoClasseTurno: selectedTurnoId,
+                              }).url,
+                              variant: 'outline',
+                            }
+                          : undefined
+                      }
                     />
                   </CardContent>
                 ) : (
@@ -322,22 +329,24 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                     Turmas ({turmas?.total ?? 0})
                   </CardTitle>
                   <CardDescription>Turmas do turno selecionado</CardDescription>
-                  <CardAction>
-                    <Button asChild size="sm">
-                      <Link
-                        href={
-                          createTurma({
-                            instituicao: instituicaoId,
-                            cursoTutelado: cursoId,
-                            cursoClasse: classeId,
-                            cursoClasseTurno: selectedTurnoId,
-                          }).url
-                        }
-                      >
-                        Adicionar
-                      </Link>
-                    </Button>
-                  </CardAction>
+                  {can.create_turma && (
+                    <CardAction>
+                      <Button asChild size="sm">
+                        <Link
+                          href={
+                            createTurma({
+                              instituicao: instituicaoId,
+                              cursoTutelado: cursoId,
+                              cursoClasse: classeId,
+                              cursoClasseTurno: selectedTurnoId,
+                            }).url
+                          }
+                        >
+                          Adicionar
+                        </Link>
+                      </Button>
+                    </CardAction>
+                  )}
                 </CardHeader>
                 {!turmas?.data?.length ? (
                   <CardContent className="flex flex-1 items-center justify-center">
@@ -346,16 +355,20 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                       icon={UsersIcon}
                       title="Nenhuma turma"
                       description="Este turno ainda não tem turmas criadas"
-                      action={{
-                        label: 'Adicionar Turma',
-                        href: createTurma({
-                          instituicao: instituicaoId,
-                          cursoTutelado: cursoId,
-                          cursoClasse: classeId,
-                          cursoClasseTurno: selectedTurnoId,
-                        }).url,
-                        variant: 'outline',
-                      }}
+                      action={
+                        can.create_turma
+                          ? {
+                              label: 'Adicionar Turma',
+                              href: createTurma({
+                                instituicao: instituicaoId,
+                                cursoTutelado: cursoId,
+                                cursoClasse: classeId,
+                                cursoClasseTurno: selectedTurnoId,
+                              }).url,
+                              variant: 'outline',
+                            }
+                          : undefined
+                      }
                     />
                   </CardContent>
                 ) : (
@@ -455,18 +468,22 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
               icon={BookOpenIcon}
               title="Nenhum turno"
               description="Esta classe ainda não tem turnos associados"
-              action={{
-                label: '+ Adicionar Turno',
-                onClick: () =>
-                  router.visit(
-                    create({
-                      instituicao: instituicaoId,
-                      cursoTutelado: cursoId,
-                      cursoClasse: cursoClasse.id,
-                    }).url,
-                  ),
-                variant: 'outline',
-              }}
+              action={
+                can.create_turno
+                  ? {
+                      label: '+ Adicionar Turno',
+                      onClick: () =>
+                        router.visit(
+                          create({
+                            instituicao: instituicaoId,
+                            cursoTutelado: cursoId,
+                            cursoClasse: cursoClasse.id,
+                          }).url,
+                        ),
+                      variant: 'outline',
+                    }
+                  : undefined
+              }
             />
           </CardContent>
         </Card>

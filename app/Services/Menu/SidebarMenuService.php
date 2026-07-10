@@ -21,10 +21,12 @@ use App\Models\Aviso;
 use App\Models\Classe;
 use App\Models\Curso;
 use App\Models\GrupoPap;
+use App\Models\Inscricao;
 use App\Models\Instituicao;
 use App\Models\Nota;
 use App\Models\Professor;
 use App\Models\Turma;
+use App\Models\Turno;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
@@ -96,7 +98,7 @@ final class SidebarMenuService
                     title: 'Turnos',
                     href: action([TurnoController::class, 'index']),
                     icon: 'Clock4',
-                    can: true, // TODO: TurnoPolicy
+                    can: Gate::allows('viewAny', Turno::class)
                 ),
 
                 new MenuItem(
@@ -120,7 +122,7 @@ final class SidebarMenuService
                     title: 'Inscrições',
                     href: action([InscricaoController::class, 'index']),
                     icon: 'ClipboardList',
-                    can: true, // TODO: InscricaoPolicy
+                    can: fn () => Gate::allows('viewAny', Inscricao::class)
                 ),
 
                 new MenuItem(

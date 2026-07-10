@@ -6,7 +6,7 @@ import {
 } from '@/actions/App/Http/Controllers/ClasseController';
 import { useDialog } from '@/hooks/use-dialog';
 
-export default function Index({ classes }) {
+export default function Index({ classes, can }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (classeId) => {
@@ -32,6 +32,7 @@ export default function Index({ classes }) {
 
       <ClasseTable
         classes={classes}
+        can={can}
         deleteFn={handleDelete}
         pagination={{
           current_page: classes.current_page,

@@ -47,16 +47,18 @@ export function Header({
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  router.visit(edit(params).url + '?origem=classe');
-                }}
-              >
-                Editar
-              </DropdownMenuItem>
+              {turma.can?.update && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.visit(edit(params).url + '?origem=classe');
+                  }}
+                >
+                  Editar
+                </DropdownMenuItem>
+              )}
 
-              <DropdownMenuSeparator />
+              {turma.can?.update && <DropdownMenuSeparator />}
 
               <DropdownMenuItem
                 onClick={() => router.visit(preview({ ...routeParams }).url)}
@@ -81,17 +83,19 @@ export function Header({
                 </DropdownMenuItem>
               )}*/}
 
-              <DropdownMenuSeparator />
+              {turma.can?.delete && <DropdownMenuSeparator />}
 
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteFn(params.turma);
-                }}
-              >
-                Remover
-              </DropdownMenuItem>
+              {turma.can?.delete && (
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteFn(params.turma);
+                  }}
+                >
+                  Remover
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

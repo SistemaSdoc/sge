@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\Turma\TurmaResourceIndex;
 use App\Models\Turma;
+use Illuminate\Support\Facades\Auth;
 
 class TurmaController extends Controller
 {
@@ -11,25 +12,32 @@ class TurmaController extends Controller
     {
         $this->authorize('viewAny', Turma::class);
 
-        $user = auth()->user();
+        $user = Auth::user();
         $professor = $user?->professor;
-        $instituicaoId = $user->instituicao_id; // Assumindo que User tem instituicao_id
+        $instituicaoId = $user->instituicao_id;
 
         $query = Turma::query();
 
-        // Filtrar pela instituição do utilizador (sempre)
         $query->whereHas(
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
-            fn($q) => $q->where('instituicoes.id', $instituicaoId)
+            fn ($q) => $q->where('instituicoes.id', $instituicaoId)
         );
 
-        // Aplicar filtro por professor (se não for SuperAdmin ou Director)
-        if (!$user?->isSuperAdmin() && !$user?->isDirector()) {
-            if (!$professor) {
-                return inertia('turmas/index', ['turmas' => []]);
+        if (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
+            if (! $professor) {
+                return inertia('turmas/index', [
+                    'turmas' => [
+                        'data' => [],
+                        'current_page' => 1,
+                        'last_page' => 1,
+                    ],
+                    'can' => [
+                        'create_turma' => Auth::user()->can('create', Turma::class),
+                    ],
+                ]);
             }
 
-            $query->whereHas('turmaDisciplinaProfessor', fn($q) => $q->where('professor_id', $professor->id));
+            $query->whereHas('turmaDisciplinaProfessor', fn ($q) => $q->where('professor_id', $professor->id));
         }
 
         $turmas = $query->with([
@@ -45,6 +53,9 @@ class TurmaController extends Controller
                 'data' => TurmaResourceIndex::collection($turmas->items())->toArray(request()),
                 'current_page' => $turmas->currentPage(),
                 'last_page' => $turmas->lastPage(),
+            ],
+            'can' => [
+                'create_turma' => Auth::user()->can('create', Turma::class),
             ],
         ]);
     }

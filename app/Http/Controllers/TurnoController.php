@@ -4,32 +4,54 @@ namespace App\Http\Controllers;
 
 use App\Models\Turno;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class TurnoController extends Controller
 {
-    public function index(Request $request)
+    public function __construct()
     {
-        $this->authorize('viewAny', Turno::class);
+        $this->authorizeResource(Turno::class, 'turno', [
+            'except' => ['create'],
+        ]);
+    }
 
+    public function index()
+    {
         $turnos = Turno::select(['id', 'nome', 'created_at'])
             ->orderBy('nome', 'asc')
-            ->paginate(10);
+            ->paginate(10)
+            ->through(function ($turno) {
+                return [
+                    'id' => $turno->id,
+                    'nome' => $turno->nome,
+                    'can' => [
+                        'view_turno' => Auth::user()->can('view', $turno),
+                        'edit_turno' => Auth::user()->can('update', $turno),
+                        'delete_turno' => Auth::user()->can('delete', $turno),
+                    ],
+                ];
+            });
 
-        return Inertia('turnos/index', [
+        return Inertia::render('turnos/index', [
             'turnos' => $turnos,
+            'can' => [
+                'create_turno' => Auth::user()->can('create', Turno::class),
+            ],
         ]);
     }
 
     public function create()
     {
-        $this->authorize('create', Turno::class);
-
-        return Inertia('turnos/create');
+        return Inertia::render('turnos/create', [
+            'can' => [
+                'create_turno' => Auth::user()->can('create', Turno::class),
+            ],
+        ]);
     }
 
     public function store(Request $request)
     {
-        $this->authorize('create', Turno::class);
         $request->validate([
             'nome' => 'required|string|max:50',
         ]);
@@ -46,26 +68,28 @@ class TurnoController extends Controller
 
     public function show(Turno $turno)
     {
-        //$this->authorize('view', $turno);
-
-        return Inertia('turnos/show', [
+        return Inertia::render('turnos/show', [
             'turno' => $turno,
+            'can' => [
+                'view_turno' => Auth::user()->can('view', $turno),
+                'edit_turno' => Auth::user()->can('update', $turno),
+                'delete_turno' => Auth::user()->can('delete', $turno),
+            ],
         ]);
     }
 
     public function edit(Turno $turno)
     {
-        $this->authorize('update', $turno);
-
-        return Inertia('turnos/edit', [
+        return Inertia::render('turnos/edit', [
             'turno' => $turno,
+            'can' => [
+                'edit_turno' => Auth::user()->can('update', $turno),
+            ],
         ]);
     }
 
     public function update(Request $request, Turno $turno)
     {
-        $this->authorize('update', $turno);
-
         $turno->update([
             'nome' => $request->nome,
         ]);
@@ -78,8 +102,6 @@ class TurnoController extends Controller
 
     public function destroy(Turno $turno)
     {
-        $this->authorize('delete', $turno);
-        
         $turno->delete();
 
         return to_route('turnos.index')->with('toast', [

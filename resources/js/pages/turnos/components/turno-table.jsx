@@ -34,11 +34,16 @@ import TablePagination from '@/components/table-pagination';
 
 export function TurnoTable({
   turnos,
+  can = {},
   pagination = {},
   onPageChange,
   deleteFn,
 }) {
-  const isEmpty = !turnos || turnos.length === 0;
+  const lista = Array.isArray(turnos) ? turnos : turnos?.data ?? [];
+  const isEmpty = lista.length === 0;
+  const hasActionColumn = lista.some(
+    (turno) => turno.can?.edit_turno || turno.can?.delete_turno,
+  );
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-4 p-6">
@@ -47,9 +52,11 @@ export function TurnoTable({
           <CardTitle>Turnos</CardTitle>
           <CardDescription>Lista de turnos cadastrados</CardDescription>
           <CardAction>
-            <Button asChild>
-              <Link href={create().url}>Adicionar</Link>
-            </Button>
+            {can.create_turno && (
+              <Button asChild>
+                <Link href={create().url}>Adicionar</Link>
+              </Button>
+            )}
           </CardAction>
         </CardHeader>
 
@@ -60,67 +67,87 @@ export function TurnoTable({
               icon={ClockIcon}
               title="Nenhum turno cadastrado"
               description="Comece adicionando o primeiro turno à tabela"
-              action={{
-                label: 'Adicionar Turno',
-                href: create().url,
-                variant: 'outline',
-              }}
+              action={
+                can.create_turno
+                  ? {
+                      label: 'Adicionar Turno',
+                      href: create().url,
+                      variant: 'outline',
+                    }
+                  : undefined
+              }
             />
           ) : (
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/72">
                   <TableHead className="px-4">Nome</TableHead>
-                  <TableHead className="px-4 text-right">Acções</TableHead>
+                  {hasActionColumn && (
+                    <TableHead className="px-4 text-right">Acções</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {turnos.map((turno) => (
+                {lista.map((turno) => (
                   <TableRow
                     key={turno.id}
-                    className="hover:cursor-pointer"
-                    onClick={() => router.visit(show(turno.id).url)}
+                    className={turno.can?.view_turno ? 'hover:cursor-pointer' : 'opacity-70'}
+                    onClick={() => {
+                      if (turno.can?.view_turno) {
+                        router.visit(show(turno.id).url);
+                      }
+                    }}
                   >
                     <TableCell className="px-4 font-medium">
                       {turno.nome}
                     </TableCell>
-                    <TableCell className="px-4 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                          >
-                            <MoreHorizontalIcon />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
+                    {hasActionColumn && (
+                      <TableCell className="px-4 text-right">
+                        {(turno.can?.edit_turno || turno.can?.delete_turno) && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8"
+                              >
+                                <MoreHorizontalIcon />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
 
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.visit(edit(turno.id).url);
-                            }}
-                          >
-                            Editar
-                          </DropdownMenuItem>
+                            <DropdownMenuContent align="end">
+                              {turno.can?.edit_turno && (
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.visit(edit(turno.id).url);
+                                  }}
+                                >
+                                  Editar
+                                </DropdownMenuItem>
+                              )}
 
-                          <DropdownMenuSeparator />
+                              {turno.can?.edit_turno && turno.can?.delete_turno && (
+                                <DropdownMenuSeparator />
+                              )}
 
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteFn(turno.id);
-                            }}
-                          >
-                            Remover
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+                              {turno.can?.delete_turno && (
+                                <DropdownMenuItem
+                                  variant="destructive"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteFn(turno.id);
+                                  }}
+                                >
+                                  Remover
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

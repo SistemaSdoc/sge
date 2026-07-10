@@ -38,10 +38,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
-import { create, show, edit } from '@/actions/App/Http/Controllers/AvisoController';
+import {
+  create,
+  show,
+  edit,
+} from '@/actions/App/Http/Controllers/AvisoController';
 
 export default function avisoTable({
   avisos,
+  can,
   deleteFn,
   pagination = {},
   onPageChange,
@@ -55,7 +60,7 @@ export default function avisoTable({
         <CardDescription>Lista de avisos cadastrados</CardDescription>
         <CardAction>
           <Button asChild>
-            <Link href={create().url}>Adicionar</Link>
+            {can?.create_aviso && <Link href={create().url}>Adicionar</Link>}
           </Button>
         </CardAction>
       </CardHeader>
@@ -82,6 +87,7 @@ export default function avisoTable({
                 <TableHead className="px-4">Estado</TableHead>
                 <TableHead className="px-4">Destinatário</TableHead>
                 <TableHead className="px-4">Data</TableHead>
+                {}
                 <TableHead className="px-4 text-right">Acções</TableHead>
               </TableRow>
             </TableHeader>
@@ -113,37 +119,45 @@ export default function avisoTable({
                   </TableCell>
 
                   <TableCell className="px-4 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <MoreHorizontalIcon />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
+                    {(aviso.can.edit_aviso || aviso.can.delete_aviso) && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                          >
+                            <MoreHorizontalIcon />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.visit(edit(aviso.id).url);
-                          }}
-                        >
-                          Editar
-                        </DropdownMenuItem>
+                        <DropdownMenuContent align="end">
+                          {aviso.can.edit_aviso && (
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.visit(edit(aviso.id).url);
+                              }}
+                            >
+                              Editar
+                            </DropdownMenuItem>
+                          )}
 
-                        <DropdownMenuSeparator />
-
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteFn(aviso.id);
-                          }}
-                        >
-                          Remover
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          {aviso.can.delete_aviso && (
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteFn(aviso.id);
+                              }}
+                            >
+                              Remover
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

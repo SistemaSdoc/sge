@@ -47,8 +47,10 @@ export function TabContentCursos({
   deleteFn,
   pagination = {},
   onPageChange,
+  can = {},
 }) {
   const isEmpty = !data || data.length === 0;
+  const canCreate = Boolean(can.create_curso || can.create);
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
@@ -57,11 +59,13 @@ export function TabContentCursos({
         <CardDescription>
           Cursos lecionados por esta instituição
         </CardDescription>
-        <CardAction>
-          <Button asChild>
-            <Link href={create(instituicaoId).url}>Adicionar</Link>
-          </Button>
-        </CardAction>
+        {canCreate && (
+          <CardAction>
+            <Button asChild>
+              <Link href={create(instituicaoId).url}>Adicionar</Link>
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -71,11 +75,15 @@ export function TabContentCursos({
             icon={BookIcon}
             title="Nenhum curso cadastrado"
             description="Comece adicionando o primeiro curso à instituição"
-            action={{
-              label: 'Adicionar Curso',
-              href: create(instituicaoId).url,
-              variant: 'outline',
-            }}
+            action={
+              canCreate
+                ? {
+                    label: 'Adicionar Curso',
+                    href: create(instituicaoId).url,
+                    variant: 'outline',
+                  }
+                : undefined
+            }
           />
         ) : (
           <Table>
@@ -90,15 +98,20 @@ export function TabContentCursos({
               {data.map((curso) => (
                 <TableRow
                   key={curso.id}
-                  className="hover:cursor-pointer"
-                  onClick={() =>
-                    router.visit(
-                      show({
-                        instituicao: instituicaoId,
-                        cursoTutelado: curso?.id,
-                      }).url,
-                    )
+                  className={
+                    curso.can?.view ? 'hover:cursor-pointer' : 'opacity-70'
                   }
+                  aria-disabled={!curso.can?.view}
+                  onClick={() => {
+                    if (curso.can?.view) {
+                      router.visit(
+                        show({
+                          instituicao: instituicaoId,
+                          cursoTutelado: curso?.id,
+                        }).url,
+                      );
+                    }
+                  }}
                 >
                   <TableCell className="px-4 font-medium">
                     {curso.nome}
@@ -111,43 +124,54 @@ export function TabContentCursos({
                     )}
                   </TableCell>
                   <TableCell className="px-4 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <MoreHorizontalIcon />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
+                    {(curso.can?.update || curso.can?.delete) && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                          >
+                            <MoreHorizontalIcon />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.visit(
-                              edit({
-                                instituicao: instituicaoId,
-                                cursoTutelado: curso.id,
-                              }).url,
-                            );
-                          }}
-                        >
-                          Editar
-                        </DropdownMenuItem>
+                        <DropdownMenuContent align="end">
+                          {curso.can?.update && (
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.visit(
+                                  edit({
+                                    instituicao: instituicaoId,
+                                    cursoTutelado: curso.id,
+                                  }).url,
+                                );
+                              }}
+                            >
+                              Editar
+                            </DropdownMenuItem>
+                          )}
 
-                        <DropdownMenuSeparator />
+                          {curso.can?.update && curso.can?.delete && (
+                            <DropdownMenuSeparator />
+                          )}
 
-                        {/* [CORRIGIDO] usa deleteFn em vez de router.visit */}
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteFn(curso.id);
-                          }}
-                        >
-                          Remover Curso
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          {curso.can?.delete && (
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteFn(curso.id);
+                              }}
+                            >
+                              Remover Curso
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

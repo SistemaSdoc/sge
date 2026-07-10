@@ -6,7 +6,7 @@ import {
 } from '@/actions/App/Http/Controllers/CursosController';
 import { useDialog } from '@/hooks/use-dialog';
 
-export default function Index({ cursos }) {
+export default function Index({ cursos, can }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (cursoId) => {
@@ -29,8 +29,10 @@ export default function Index({ cursos }) {
   return (
     <>
       <Head title="Cursos" />
+
       <CursoTable
         cursos={cursos.data}
+        can={can}
         deleteFn={handleDelete}
         pagination={{
           current_page: cursos.current_page,

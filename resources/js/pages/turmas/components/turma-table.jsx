@@ -42,10 +42,16 @@ import { index } from '@/actions/App/Http/Controllers/TurmaController';
 import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
 
-export function TurmaTable({ turmas, deleteFn, pagination = {},
-  onPageChange, }) {
-  const isEmpty = !turmas || turmas.length === 0;
-
+export function TurmaTable({
+  turmas,
+  can = {},
+  deleteFn,
+  pagination = {},
+  onPageChange,
+}) {
+  const lista = Array.isArray(turmas) ? turmas : turmas?.data ?? [];
+  const isEmpty = lista.length === 0;
+  const hasActionColumn = lista.some((turma) => turma.can?.view);
 
   return (
     <Card className="gap-0">
@@ -75,25 +81,29 @@ export function TurmaTable({ turmas, deleteFn, pagination = {},
                 <TableHead className="px-4">Curso</TableHead>
                 <TableHead className="px-4">Classe</TableHead>
                 <TableHead className="px-4">Total de Alunos</TableHead>
-                <TableHead className="px-4 text-right">Acções</TableHead>
+                {hasActionColumn && (
+                  <TableHead className="px-4 text-right">Acções</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {turmas.map((turma) => (
+              {lista.map((turma) => (
                 <TableRow
                   key={turma.id}
-                  className="hover:cursor-pointer"
-                  onClick={() =>
-                    router.visit(
-                      show({
-                        instituicao: turma.instituicao.id,
-                        cursoTutelado: turma.curso.id,
-                        cursoClasse: turma.classe.id,
-                        cursoClasseTurno: turma.turno.id,
-                        turma: turma.id,
-                      }),
-                    )
-                  }
+                  className={turma.can?.view ? 'hover:cursor-pointer' : 'opacity-70'}
+                  onClick={() => {
+                    if (turma.can?.view) {
+                      router.visit(
+                        show({
+                          instituicao: turma.instituicao.id,
+                          cursoTutelado: turma.curso.id,
+                          cursoClasse: turma.classe.id,
+                          cursoClasseTurno: turma.turno.id,
+                          turma: turma.id,
+                        }),
+                      );
+                    }
+                  }}
                 >
                   <TableCell className="px-4 font-medium">
                     {turma.nome}
@@ -110,33 +120,37 @@ export function TurmaTable({ turmas, deleteFn, pagination = {},
                   <TableCell className="px-4 font-medium">
                     {turma?.total_alunos}
                   </TableCell>
-                  <TableCell className="px-4 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <MoreHorizontalIcon />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() =>
-                            router.visit(
-                              show({
-                                instituicao: turma.instituicao.id,
-                                cursoTutelado: turma.curso.id,
-                                cursoClasse: turma.classe.id,
-                                cursoClasseTurno: turma.turno.id,
-                                turma: turma.id,
-                              }),
-                            )
-                          }
-                        >
-                          Ver turma
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                  {hasActionColumn && (
+                    <TableCell className="px-4 text-right">
+                      {turma.can?.view && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="size-8">
+                              <MoreHorizontalIcon />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() =>
+                                router.visit(
+                                  show({
+                                    instituicao: turma.instituicao.id,
+                                    cursoTutelado: turma.curso.id,
+                                    cursoClasse: turma.classe.id,
+                                    cursoClasseTurno: turma.turno.id,
+                                    turma: turma.id,
+                                  }),
+                                )
+                              }
+                            >
+                              Ver turma
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

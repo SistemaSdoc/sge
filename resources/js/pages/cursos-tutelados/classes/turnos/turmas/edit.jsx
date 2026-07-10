@@ -7,7 +7,8 @@ export default function Edit({ turma,
     instituicaoId,
     cursoId,
     classeId,
-    turnoId, }) {
+    turnoId,
+    can = {}, }) {
 
     const { data, setData, put, processing, errors } = useForm({
         nome: turma?.nome ?? '',
@@ -36,6 +37,7 @@ export default function Edit({ turma,
             setData={setData}
             errors={errors}
             processing={processing}
+            can={can}
             onSubmit={handleSubmit}
         />
     );

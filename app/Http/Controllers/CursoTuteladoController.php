@@ -97,7 +97,7 @@ class CursoTuteladoController extends Controller
 
     public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
-        Gate::authorize('view', $cursoTutelado);
+        //  Gate::authorize('view', $cursoTutelado);
 
         $cursoTutelado->load([
             'instituicaoCurso.curso:id,nome,descricao',
@@ -195,7 +195,7 @@ class CursoTuteladoController extends Controller
             'message' => 'Curso tutelado atualizado com sucesso!',
         ]);
     }
-    
+
     public function destroy(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
         Gate::authorize('update', $cursoTutelado);

@@ -13,17 +13,19 @@ class PautaController extends Controller
 {
     public function __construct(
         private readonly PautaService $pautaService
-    ) {
-    }
+    ) {}
 
     /**
      * Mostra a lista de cursos tutelados da instituição do user logado
      */
     public function indexCursos()
     {
-        $this->authorize('pauta.viewAny');
+        $this->authorize('pauta.viewAny', CursoTutelado::class);
 
-        $instituicaoId = Auth::user()?->instituicao_id;
+        $user = Auth::user();
+        $instituicaoId = $user?->instituicao_id;
+        $isProfessor = $user->hasRole('Professor');
+        $professorId = $user->professor?->id;
 
         $query = CursoTutelado::with([
             'instituicaoCurso:id,instituicao_id,curso_id',
@@ -36,18 +38,27 @@ class PautaController extends Controller
                 $q->where('instituicao_tutora_id', $instituicaoId)
                     ->orWhereHas(
                         'instituicaoCurso',
-                        fn($q2) =>
-                        $q2->where('instituicao_id', $instituicaoId)
+                        fn ($q2) => $q2->where('instituicao_id', $instituicaoId)
                     );
             });
         }
 
+        if ($isProfessor) {
+            $query->whereHas(
+                'professores',
+                fn ($q) => $q->where('professor_id', $professorId)
+            );
+        }
+
         return Inertia::render('pautas/cursos/index', [
-            'cursosTutelados' => $query->get()->map(fn($ct) => [
+            'cursosTutelados' => $query->get()->map(fn ($ct) => [
                 'id' => $ct->id,
                 'curso' => $ct->instituicaoCurso?->curso,
                 'instituicao' => $ct->instituicaoTutora,
                 'podeEditar' => $ct->instituicaoCurso?->instituicao_id === $instituicaoId,
+                'can' => [
+                    'view_turmas' => $user->can('pauta.viewAnyCurso', $ct),
+                ],
             ]),
         ]);
     }
@@ -57,14 +68,22 @@ class PautaController extends Controller
      */
     public function indexTurmas(CursoTutelado $cursoTutelado)
     {
-        $this->authorize('pauta.viewAny');
+        $this->authorize('pauta.viewAnyCurso', $cursoTutelado);
 
         $cursoTutelado->load('instituicaoCurso.curso:id,nome');
 
+        $user = Auth::user();
+        $isProfessor = $user->hasRole('Professor');
+        $professorId = $user->professor?->id;
+
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
-            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
+            ->when($isProfessor, fn ($q) => $q->whereHas(
+                'professores',
+                fn ($q2) => $q2->where('professor_id', $professorId)
+            ))
             ->with([
                 'cursoClasseTurno.cursoClasse.classe:id,nome',
                 'cursoClasseTurno.turno:id,nome',
@@ -80,11 +99,14 @@ class PautaController extends Controller
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
                 ],
             ],
-            'turmas' => $turmas->map(fn($turma) => [
+            'turmas' => $turmas->map(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
                 'turno' => $turma->cursoClasseTurno?->turno?->nome,
+                'can' => [
+                    'view_pauta' => $user->can('pauta.view', $turma),
+                ],
             ]),
         ]);
     }
@@ -99,7 +121,7 @@ class PautaController extends Controller
         $filtro = $request->query('filtro');
 
         abort_if(
-            !$turma->cursoClasseTurno?->cursoClasse?->where('curso_tutelado_id', $cursoTutelado->id)->exists(),
+            ! $turma->cursoClasseTurno?->cursoClasse?->where('curso_tutelado_id', $cursoTutelado->id)->exists(),
             404
         );
 

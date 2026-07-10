@@ -5,24 +5,43 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Classe\StoreClasseRequest;
 use App\Http\Requests\Classe\UpdateClasseRequest;
 use App\Models\Classe;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-class ClasseController
+class ClasseController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Classe::class, 'classe', [
+            'except' => [],
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        Gate::authorize('viewAny', Classe::class);
-
         $classes = Classe::select(['id', 'nome', 'created_at'])
             ->orderBy('nome', 'asc')
-            ->paginate(10);
+            ->paginate(10)
+            ->through(function ($classe) {
+                return [
+                    'id' => $classe->id,
+                    'nome' => $classe->nome,
+                    'can' => [
+                        'view_classe' => Auth::user()->can('view', $classe),
+                        'edit_classe' => Auth::user()->can('update', $classe),
+                        'delete_classe' => Auth::user()->can('delete', $classe),
+                    ],
+                ];
+            });
 
-        return Inertia('classes/index', [
+        return Inertia::render('classes/index', [
             'classes' => $classes,
+            'can' => [
+                'create_classe' => Auth::user()->can('create', Classe::class),
+            ],
         ]);
     }
 
@@ -31,9 +50,11 @@ class ClasseController
      */
     public function create()
     {
-        Gate::authorize('create', Classe::class);
-
-        return Inertia::render('classes/create');
+        return Inertia::render('classes/create', [
+            'can' => [
+                'create_classe' => Auth::user()->can('create', Classe::class),
+            ],
+        ]);
     }
 
     /**
@@ -41,8 +62,6 @@ class ClasseController
      */
     public function store(StoreClasseRequest $request)
     {
-        Gate::authorize('create', Classe::class);
-
         Classe::create($request->validated());
 
         return to_route('classes.index')->with('toast', [
@@ -56,10 +75,13 @@ class ClasseController
      */
     public function show(Classe $classe)
     {
-        Gate::authorize('view', $classe);
-
         return Inertia::render('classes/show', [
             'classe' => $classe,
+            'can' => [
+                'view_classe' => Auth::user()->can('view', $classe),
+                'edit_classe' => Auth::user()->can('update', $classe),
+                'delete_classe' => Auth::user()->can('delete', $classe),
+            ],
         ]);
     }
 
@@ -68,10 +90,11 @@ class ClasseController
      */
     public function edit(Classe $classe)
     {
-        Gate::authorize('update', $classe);
-
         return Inertia::render('classes/edit', [
             'classe' => $classe,
+            'can' => [
+                'edit_classe' => Auth::user()->can('update', $classe),
+            ],
         ]);
     }
 
@@ -80,8 +103,6 @@ class ClasseController
      */
     public function update(UpdateClasseRequest $request, Classe $classe)
     {
-        Gate::authorize('update', $classe);
-
         $classe->update($request->validated());
 
         return to_route('classes.index')->with('toast', [
@@ -95,8 +116,6 @@ class ClasseController
      */
     public function destroy(Classe $classe)
     {
-        Gate::authorize('delete', $classe);
-
         $classe->delete();
 
         return to_route('classes.index')->with('toast', [

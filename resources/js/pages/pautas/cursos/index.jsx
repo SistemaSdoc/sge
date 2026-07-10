@@ -28,16 +28,29 @@ export default function PautasCursos({ cursosTutelados }) {
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {cursosTutelados.map((ct) => (
-            <Link key={ct.id} href={indexTurmas({ cursoTutelado: ct.id })}>
-              <Card className="h-full cursor-pointer">
+          {cursosTutelados.map((ct) => {
+            const podeVer = ct.can?.view_turmas;
+
+            const card = (
+              <Card
+                aria-disabled={!podeVer}
+                className="h-full hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+              >
                 <CardHeader>
                   <CardTitle>{ct.curso?.nome}</CardTitle>
                   <CardDescription>{ct.instituicao?.nome}</CardDescription>
                 </CardHeader>
               </Card>
-            </Link>
-          ))}
+            );
+
+            return podeVer ? (
+              <Link key={ct.id} href={indexTurmas({ cursoTutelado: ct.id })}>
+                {card}
+              </Link>
+            ) : (
+              <div key={ct.id}>{card}</div>
+            );
+          })}
         </div>
       )}
     </div>

@@ -28,21 +28,27 @@ import { show } from '@/actions/App/Http/Controllers/AlunoController';
 import { useCertificado } from '../../hooks/use-certificado';
 import TablePagination from '@/components/table-pagination';
 
-export function TabAlunos({ alunos, params, pagination, onPageChange }) {
+export function TabAlunos({
+  alunos,
+  params,
+  pagination,
+  onPageChange,
+  can = {},
+}) {
   const { gerarCertificado } = useCertificado(params);
-
+  const canCreate = Boolean(can.create);
   const isEmpty = alunos.length === 0;
 
   return (
     <Card className="gap-0">
       <CardHeader className="border-b">
         <CardTitle>Alunos</CardTitle>
-
         <CardDescription>Alunos inscritos nesta turma</CardDescription>
-
-        <CardAction>
-          <Button>Adicionar</Button>
-        </CardAction>
+        {canCreate && (
+          <CardAction>
+            <Button>Adicionar</Button>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -52,11 +58,6 @@ export function TabAlunos({ alunos, params, pagination, onPageChange }) {
             icon={UsersIcon}
             title="Nenhum aluno inscrito"
             description="Comece adicionando alunos à turma"
-            //action={{
-            //  label: 'Adicionar Aluno',
-            //  href: `#`,
-            //  variant: 'outline',
-            //}}
           />
         ) : (
           <Table>

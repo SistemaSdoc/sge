@@ -36,6 +36,7 @@ import TablePagination from '@/components/table-pagination';
 
 export function InstituicaoTable({
   instituicoes,
+  can,
   deleteFn,
   pagination = {},
   onPageChange,
@@ -49,9 +50,11 @@ export function InstituicaoTable({
           <CardTitle>Instituições</CardTitle>
           <CardDescription>Lista de intituições cadastradas</CardDescription>
           <CardAction>
-            <Button asChild>
-              <Link href={create().url}>Adicionar</Link>
-            </Button>
+            {can.create_instituicao && (
+              <Button asChild>
+                <Link href={create().url}>Adicionar</Link>
+              </Button>
+            )}
           </CardAction>
         </CardHeader>
 
@@ -83,50 +86,68 @@ export function InstituicaoTable({
                 {instituicoes.map((instituicao) => (
                   <TableRow
                     key={instituicao.id}
-                    className="hover:cursor-pointer"
-                    onClick={() => router.visit(show(instituicao.id).url)}
+                    aria-disabled={!instituicao.can?.view_instituicao}
+                    className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-70 aria-disabled:hover:bg-transparent"
+                    onClick={() => {
+                      if (instituicao.can?.view_instituicao) {
+                        router.visit(show(instituicao.id).url);
+                      }
+                    }}
                   >
                     <TableCell className="px-4 font-medium">
                       {instituicao.sigla}
                     </TableCell>
+
                     <TableCell>{instituicao.nome}</TableCell>
+
                     <TableCell>{instituicao.tipo}</TableCell>
+
                     <TableCell className="px-4 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                          >
-                            <MoreHorizontalIcon />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
+                      {(instituicao.can?.edit_instituicao ||
+                        instituicao.can?.delete_instituicao) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8"
+                            >
+                              <MoreHorizontalIcon />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
 
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.visit(edit(instituicao.id).url);
-                            }}
-                          >
-                            Editar
-                          </DropdownMenuItem>
+                          <DropdownMenuContent align="end">
+                            {instituicao.can?.edit_instituicao && (
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.visit(edit(instituicao.id).url);
+                                }}
+                              >
+                                Editar
+                              </DropdownMenuItem>
+                            )}
 
-                          <DropdownMenuSeparator />
+                            {instituicao.can?.edit_instituicao &&
+                              instituicao.can?.delete_instituicao && (
+                                <DropdownMenuSeparator />
+                              )}
 
-                          {/*<DropdownMenuItem
-                            variant="destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteFn(instituicao.id);
-                            }}
-                          >
-                            Remover
-                          </DropdownMenuItem>*/}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            {instituicao.can?.delete_instituicao && (
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteFn(instituicao.id);
+                                }}
+                              >
+                                Remover
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

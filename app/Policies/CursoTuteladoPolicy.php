@@ -20,7 +20,26 @@ class CursoTuteladoPolicy
      */
     public function view(User $user, CursoTutelado $cursoTutelado): bool
     {
-        return $user->can('curso-tutelado.view') && $user->instituicao_id === $cursoTutelado->instituicao_tutora_id;
+        if (! $user->can('curso-tutelado.view') || $user->instituicao_id === null) {
+            return false;
+        }
+
+        if (! $user->hasRole('Professor')) {
+            return $user->instituicao_id === $cursoTutelado->instituicao_tutora_id;
+        }
+
+        $cursoTutelado->loadMissing('instituicaoCurso');
+
+        $instituicaoId = $cursoTutelado->instituicao_tutora_id
+            ?? $cursoTutelado->instituicaoCurso?->instituicao_id;
+
+        if ($instituicaoId !== $user->instituicao_id) {
+            return false;
+        }
+
+        return $cursoTutelado->professores()
+            ->where('professor_id', optional($user->professor)->id)
+            ->exists();
     }
 
     /**

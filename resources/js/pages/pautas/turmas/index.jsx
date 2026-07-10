@@ -6,10 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { BookOpen, ChevronLeft } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { Button } from '@/components/ui/button';
 import { pauta } from '@/actions/App/Http/Controllers/PautaController';
 
 export default function Index({ cursoTutelado, turmas = [] }) {
@@ -18,18 +16,9 @@ export default function Index({ cursoTutelado, turmas = [] }) {
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
       <div>
-        {/*{cursoTutelado && (
-          <Link href={`/instituicoes/${cursoTutelado.id}`}>
-            <Button variant="ghost" size="sm" className="mb-2">
-              <ChevronLeft className="mr-1 size-4" />
-              Voltar
-            </Button>
-          </Link>
-        )}*/}
         <h1 className="text-xl font-bold">
           {cursoTutelado ? `Pautas — ${cursoTutelado.curso?.nome}` : 'Pautas'}
         </h1>
-
         <p className="text-muted-foreground">
           Selecione uma turma para visualizar a pauta
         </p>
@@ -43,26 +32,41 @@ export default function Index({ cursoTutelado, turmas = [] }) {
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {turmas.map((turma) => (
-            <Link
-              key={turma.id}
-              href={
-                pauta({
-                  cursoTutelado: cursoTutelado.id,
-                  turma: turma.id,
-                }).url
-              }
-            >
-              <Card className="h-full cursor-pointer">
+          {turmas.map((turma) => {
+            const podeVer = turma.can?.view_pauta;
+
+            const card = (
+              <Card
+                aria-disabled={!podeVer}
+                className="h-full hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-50"
+              >
                 <CardHeader>
                   <CardTitle>
                     {turma.nome} - {turma.classe} - {turma.turno}
                   </CardTitle>
-                  <CardDescription>Clique para ver a pauta</CardDescription>
+                  <CardDescription>
+                    {podeVer
+                      ? 'Clique para ver a pauta'
+                      : 'Sem acesso a esta turma'}
+                  </CardDescription>
                 </CardHeader>
               </Card>
-            </Link>
-          ))}
+            );
+
+            return podeVer ? (
+              <Link
+                key={turma.id}
+                href={
+                  pauta({ cursoTutelado: cursoTutelado.id, turma: turma.id })
+                    .url
+                }
+              >
+                {card}
+              </Link>
+            ) : (
+              <div key={turma.id}>{card}</div>
+            );
+          })}
         </div>
       )}
     </div>

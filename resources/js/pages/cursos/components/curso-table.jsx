@@ -46,11 +46,16 @@ import TablePagination from '@/components/table-pagination';
 
 export default function CursoTable({
   cursos,
+  can = {},
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
   const isEmpty = !cursos || cursos.length === 0;
+  const hasActionColumn = cursos?.some(
+    (curso) => curso.can?.edit_curso || curso.can?.delete_curso,
+  );
+  const canCreate = Boolean(can.create_curso || can.create);
 
   return (
     <div className="mx-auto w-full max-w-7xl p-6">
@@ -58,11 +63,13 @@ export default function CursoTable({
         <CardHeader className="border-b">
           <CardTitle>Cursos</CardTitle>
           <CardDescription>Lista de cursos cadastrados</CardDescription>
-          <CardAction>
-            <Button asChild>
-              <Link href={create().url}>Adicionar</Link>
-            </Button>
-          </CardAction>
+          {canCreate && (
+            <CardAction>
+              <Button asChild>
+                <Link href={create().url}>Adicionar</Link>
+              </Button>
+            </CardAction>
+          )}
         </CardHeader>
 
         <CardContent className="p-0!">
@@ -72,67 +79,92 @@ export default function CursoTable({
               icon={LayersIcon}
               title="Nenhum curso cadastrado"
               description="Comece adicionando a primeiro curso à tabela"
-              action={{
-                label: 'Adicionar Curso',
-                href: create().url,
-                variant: 'outline',
-              }}
+              action={
+                canCreate
+                  ? {
+                      label: 'Adicionar Curso',
+                      href: create().url,
+                      variant: 'outline',
+                    }
+                  : undefined
+              }
             />
           ) : (
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/72">
                   <TableHead className="px-4">Nome</TableHead>
-                  <TableHead className="px-4 text-right">Acções</TableHead>
+                  {hasActionColumn && (
+                    <TableHead className="px-4 text-right">Acções</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {cursos.map((curso) => (
                   <TableRow
                     key={curso.id}
-                    className="hover:cursor-pointer"
-                    onClick={() => router.visit(show(curso.id).url)}
+                    className={
+                      curso.can?.view_curso
+                        ? 'hover:cursor-pointer'
+                        : 'opacity-70'
+                    }
+                    onClick={() => {
+                      if (curso.can?.view_curso) {
+                        router.visit(show(curso.id).url);
+                      }
+                    }}
                   >
                     <TableCell className="px-4 font-medium">
                       {curso.nome}
                     </TableCell>
-                    <TableCell className="px-4 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                          >
-                            <MoreHorizontalIcon />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
+                    {hasActionColumn && (
+                      <TableCell className="px-4 text-right">
+                        {(curso.can?.edit_curso || curso.can?.delete_curso) && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8"
+                              >
+                                <MoreHorizontalIcon />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
 
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.visit(edit(curso.id).url);
-                            }}
-                          >
-                            Editar
-                          </DropdownMenuItem>
+                            <DropdownMenuContent align="end">
+                              {curso.can?.edit_curso && (
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.visit(edit(curso.id).url);
+                                  }}
+                                >
+                                  Editar
+                                </DropdownMenuItem>
+                              )}
 
-                          <DropdownMenuSeparator />
+                              {curso.can?.edit_curso &&
+                                curso.can?.delete_curso && (
+                                  <DropdownMenuSeparator />
+                                )}
 
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteFn(curso.id);
-                            }}
-                          >
-                            Remover
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+                              {curso.can?.delete_curso && (
+                                <DropdownMenuItem
+                                  variant="destructive"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteFn(curso.id);
+                                  }}
+                                >
+                                  Remover
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

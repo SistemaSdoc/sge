@@ -81,6 +81,7 @@ export default function Show({
             pagination={alunos}
             onPageChange={alunosPagination.handlePageChange}
             params={params}
+            can={alunos.can}
           />
         </TabsContent>
 
@@ -92,6 +93,7 @@ export default function Show({
             onPageChange={disciplinasPagination.handlePageChange}
             params={params}
             redirectTo={window.location.href}
+            can={disciplinas.can}
           />
         </TabsContent>
 
@@ -106,6 +108,7 @@ export default function Show({
               pagination={grupos}
               onPageChange={gruposPagination.handlePageChange}
               params={params}
+              can={grupos.can}
             />
           </TabsContent>
         )}

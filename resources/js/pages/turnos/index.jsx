@@ -3,7 +3,7 @@ import { TurnoTable } from './components/turno-table';
 import { index, destroy } from '@/actions/App/Http/Controllers/TurnoController';
 import { useDialog } from '@/hooks/use-dialog';
 
-export default function Index({ turnos }) {
+export default function Index({ turnos, can }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (turnoId) => {
@@ -28,7 +28,8 @@ export default function Index({ turnos }) {
       <Head title="Turnos" />
 
       <TurnoTable
-        turnos={turnos.data}
+        turnos={turnos}
+        can={can}
         pagination={{
           current_page: turnos.current_page,
           last_page: turnos.last_page,

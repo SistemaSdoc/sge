@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ClasseTurnoDisciplina;
 use App\Models\CursoClasse;
+use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
+use App\Models\Turma;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CursoClasseController extends Controller
@@ -13,30 +17,24 @@ class CursoClasseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-    }
+    public function index() {}
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-    }
+    public function create() {}
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-    }
+    public function store(Request $request) {}
 
     /**
      * Display the specified resource (Show page via Inertia).
      */
     public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse)
     {
-        $this->authorize('view', $cursoClasse);
+        // $this->authorize('view', $cursoClasse);
 
         $cursoClasse->load(['classe:id,nome', 'turnos.turno:id,nome']);
 
@@ -67,10 +65,15 @@ class CursoClasseController extends Controller
             'cursoClasse' => [
                 'id' => $cursoClasse->id,
                 'classe' => ['id' => $cursoClasse->classe->id, 'nome' => $cursoClasse->classe->nome],
-                'turnos' => $cursoClasse->turnos->map(fn($t) => ['id' => $t->id, 'nome' => $t->turno->nome])->toArray(),
+                'turnos' => $cursoClasse->turnos->map(fn ($t) => ['id' => $t->id, 'nome' => $t->turno->nome])->toArray(),
                 'turnoId' => $turnoId,
                 'turmas' => $turmas,
                 'disciplinas' => $disciplinas,
+                'can' => [
+                    'create_disciplina' => Auth::user()->can('create', ClasseTurnoDisciplina::class),
+                    'create_turma' => Auth::user()->can('create', Turma::class),
+                    'create_turno' => Auth::user()->can('create', CursoClasseTurno::class),
+                ],
             ],
         ]);
     }
@@ -78,21 +81,15 @@ class CursoClasseController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-    }
+    public function edit(string $id) {}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-    }
+    public function update(Request $request, string $id) {}
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-    }
+    public function destroy(string $id) {}
 }

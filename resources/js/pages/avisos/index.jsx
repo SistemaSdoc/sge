@@ -3,7 +3,7 @@ import { Head, router } from '@inertiajs/react';
 import AvisosTable from './components/aviso-table';
 import { index, destroy } from '@/actions/App/Http/Controllers/AvisoController';
 
-export default function Index({ avisos }) {
+export default function Index({ avisos, can }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (avisoId) => {
@@ -28,6 +28,7 @@ export default function Index({ avisos }) {
       <Head title="Avisos" />
 
       <AvisosTable
+        can={can}
         avisos={avisos.data}
         deleteFn={handleDelete}
         pagination={{

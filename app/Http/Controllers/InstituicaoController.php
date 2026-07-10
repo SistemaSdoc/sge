@@ -3,37 +3,59 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\InstituicoesRequest;
+use App\Models\Curso;
 use App\Models\Instituicao;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class InstituicaoController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Instituicao::class, 'instituicao', [
+            'except' => [],
+        ]);
+    }
+
     public function index()
     {
-        Gate::authorize('viewAny', Instituicao::class);
-
         $instituicoes = Instituicao::select(['id', 'nome', 'sigla', 'tipo'])
             ->orderBy('nome', 'asc')
-            ->paginate(10);
+            ->paginate(10)
+            ->through(function ($instituicao) {
+                return [
+                    'id' => $instituicao->id,
+                    'nome' => $instituicao->nome,
+                    'sigla' => $instituicao->sigla,
+                    'tipo' => $instituicao->tipo,
+                    'can' => [
+                        'view_instituicao' => Auth::user()->can('view', $instituicao),
+                        'edit_instituicao' => Auth::user()->can('update', $instituicao),
+                        'delete_instituicao' => Auth::user()->can('delete', $instituicao),
+                    ],
+                ];
+            });
 
         return Inertia::render('instituicoes/index', [
+            'can' => [
+                'create_instituicao' => Auth::user()->can('create', Instituicao::class),
+            ],
             'instituicoes' => $instituicoes,
         ]);
     }
 
     public function create()
     {
-        Gate::authorize('create', Instituicao::class);
-
-        return Inertia::render('instituicoes/create');
+        return Inertia::render('instituicoes/create', [
+            'can' => [
+                'create_instituicao' => Auth::user()->can('create', Instituicao::class),
+            ],
+        ]);
     }
 
     public function store(InstituicoesRequest $request)
     {
-        Gate::authorize('create', Instituicao::class);
-
         $dados = $request->validated();
 
         if ($request->hasFile('logo')) {
@@ -44,14 +66,12 @@ class InstituicaoController extends Controller
 
         return to_route('instituicoes.index')->with('toast', [
             'type' => 'success',
-            'message' => 'Instituição atualizada com sucesso!',
+            'message' => 'Instituição criada com sucesso!',
         ]);
     }
 
     public function show(Instituicao $instituicao)
     {
-        Gate::authorize('view', $instituicao);
-
         $cursos = $instituicao->instituicaoCursos()
             ->with(['curso:id,nome', 'cursoTutelado.instituicaoTutora:id,nome'])
             ->paginate(5)
@@ -59,9 +79,19 @@ class InstituicaoController extends Controller
                 'id' => $instituicaoCurso->cursoTutelado->id,
                 'nome' => $instituicaoCurso->curso->nome,
                 'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,
+                'can' => [
+                    'view' => Auth::user()->can('view', $instituicaoCurso->cursoTutelado),
+                    'update' => Auth::user()->can('update', $instituicaoCurso->cursoTutelado),
+                    'delete' => Auth::user()->can('delete', $instituicaoCurso->cursoTutelado),
+                ],
             ]);
 
         return Inertia::render('instituicoes/show', [
+            'can' => [
+                'edit_instituicao' => Auth::user()->can('update', $instituicao),
+                'create_curso' => Auth::user()->can('create', Curso::class),
+                'view_instituicao' => Auth::user()->can('view', $instituicao),
+            ],
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,
@@ -80,17 +110,16 @@ class InstituicaoController extends Controller
 
     public function edit(Instituicao $instituicao)
     {
-        Gate::authorize('update', $instituicao);
-
         return Inertia::render('instituicoes/edit', [
+            'can' => [
+                'update_instituicao' => Auth::user()->can('update', $instituicao),
+            ],
             'instituicao' => $instituicao,
         ]);
     }
 
     public function update(InstituicoesRequest $request, Instituicao $instituicao)
     {
-        Gate::authorize('update', $instituicao);
-
         $dados = $request->validated();
 
         if ($request->hasFile('logo')) {
@@ -111,8 +140,6 @@ class InstituicaoController extends Controller
 
     public function destroy(Instituicao $instituicao)
     {
-        Gate::authorize('delete', $instituicao);
-
         if ($instituicao->logo) {
             Storage::disk('public')->delete($instituicao->logo);
         }

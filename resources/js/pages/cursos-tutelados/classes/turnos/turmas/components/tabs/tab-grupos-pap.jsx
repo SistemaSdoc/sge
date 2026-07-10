@@ -31,12 +31,15 @@ export function TabGruposPAP({
   cursoTuteladoId,
   cursoClasseId,
   cursoClasseTurnoId,
-  pagination,     
-  onPageChange,    
+  pagination,
+  onPageChange,
+  can = {},
 }) {
   const turmaId = turma.id;
   const grupos = pagination?.data ?? turma.grupos_pap ?? [];
   const isEmpty = grupos.length === 0;
+  const canCreate = Boolean(can.create);
+  const canViewAny = Boolean(can.view_any);
 
   const baseUrl = `/dashboard/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
 
@@ -47,11 +50,13 @@ export function TabGruposPAP({
         <CardDescription>
           Grupos de aptidão profissional desta turma
         </CardDescription>
-        <CardAction>
-          <Button asChild>
-            <Link href={`${baseUrl}/pap/create`}>Criar grupo</Link>
-          </Button>
-        </CardAction>
+        {canCreate && (
+          <CardAction>
+            <Button asChild>
+              <Link href={`${baseUrl}/pap/create`}>Criar grupo</Link>
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -59,13 +64,21 @@ export function TabGruposPAP({
           <EmptyState
             variant="table"
             icon={Users2Icon}
-            title="Nenhum grupo para PAP"
-            description="Comece adicionando grupos"
-            action={{
-              label: 'Criar Grupo',
-              href: `${baseUrl}/pap/create`,
-              variant: 'outline',
-            }}
+            title={canViewAny ? 'Nenhum grupo para PAP' : 'Acesso negado'}
+            description={
+              canViewAny
+                ? 'Comece adicionando grupos'
+                : 'Não tem permissão para ver os grupos de PAP desta turma.'
+            }
+            action={
+              canCreate
+                ? {
+                    label: 'Criar Grupo',
+                    href: `${baseUrl}/pap/create`,
+                    variant: 'outline',
+                  }
+                : undefined
+            }
           />
         ) : (
           <Table>

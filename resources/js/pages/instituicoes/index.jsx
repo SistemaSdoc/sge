@@ -6,7 +6,7 @@ import {
   destroy,
 } from '@/actions/App/Http/Controllers/InstituicaoController';
 
-export default function Index({ instituicoes }) {
+export default function Index({ instituicoes, can }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (instituicaoId) => {
@@ -29,7 +29,9 @@ export default function Index({ instituicoes }) {
   return (
     <>
       <Head title="Instituições" />
+
       <InstituicaoTable
+        can={can}
         instituicoes={instituicoes.data}
         deleteFn={handleDelete}
         pagination={{

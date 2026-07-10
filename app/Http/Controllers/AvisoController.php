@@ -8,41 +8,46 @@ use App\Models\GrupoPap;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-class AvisoController extends Controller // implements HasMiddleware
+class AvisoController extends Controller
 {
-    /*public static function middleware(): array
-    {
-        return [
-            new Middleware('permission:avisos.index', only: ['index', 'indexAluno']),
-            new Middleware('permission:avisos.create', only: ['store']),
-            new Middleware('permission:avisos.edit', only: ['update']),
-            new Middleware('permission:avisos.delete', only: ['destroy']),
-        ];
-    }*/
-
-    // GET /api/avisos — painel admin
     public function index()
     {
         $this->authorize('viewAny', Aviso::class);
-        
-        /** @var User $user */
+
         $user = Auth::user();
+
         $instituicaoId = $user?->instituicaoFiltro();
 
         $avisos = Aviso::when(
             $instituicaoId,
-            fn($q) => $q->where('instituicao_id', $instituicaoId)
+            fn ($q) => $q->where('instituicao_id', $instituicaoId)
         )
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
+        $avisos->getCollection()->transform(function ($aviso) use ($user) {
+            return [
+                'id' => $aviso->id,
+                'titulo' => $aviso->titulo,
+                'conteudo' => $aviso->conteudo,
+                'instituicao_id' => $aviso->instituicao_id,
+                'created_at' => $aviso->created_at,
+                'updated_at' => $aviso->updated_at,
+                'can' => [
+                    'edit_aviso' => $user->can('update', $aviso),
+                    'delete_aviso' => $user->can('avisos.delete', $aviso),
+                ],
+            ];
+        });
+
         return Inertia::render('avisos/index', [
             'avisos' => $avisos,
+            'can' => [
+                'create_aviso' => $user->can('avisos.create', Aviso::class),
+            ],
         ]);
     }
 
@@ -101,7 +106,7 @@ class AvisoController extends Controller // implements HasMiddleware
     public function update(Request $request, Aviso $aviso)
     {
         $this->authorize('update', $aviso);
-        
+
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descricao' => 'nullable|string',
@@ -146,12 +151,12 @@ class AvisoController extends Controller // implements HasMiddleware
             ->whereIn('destinatario', ['todos', 'alunos'])
             ->when(
                 $instituicaoId,
-                fn($q) => $q->where('instituicao_id', $instituicaoId)
+                fn ($q) => $q->where('instituicao_id', $instituicaoId)
             )
             ->orderByRaw("FIELD(tipo, 'urgente', 'evento', 'aviso')")
             ->orderBy('data', 'asc')
             ->get()
-            ->map(fn(Aviso $a) => [
+            ->map(fn (Aviso $a) => [
                 'id' => $a->id,
                 'type' => $a->tipo,
                 'titulo' => $a->titulo,
@@ -169,7 +174,7 @@ class AvisoController extends Controller // implements HasMiddleware
             ->whereDate('data_defesa', '>=', $today)
             ->orderBy('data_defesa')
             ->get()
-            ->map(fn(GrupoPap $grupo) => [
+            ->map(fn (GrupoPap $grupo) => [
                 'id' => "pap-{$grupo->id}",
                 'type' => 'evento',
                 'titulo' => "Banca de Defesa - {$grupo->nome_grupo}",
@@ -203,12 +208,12 @@ class AvisoController extends Controller // implements HasMiddleware
             ->whereIn('destinatario', ['todos', 'professores'])
             ->when(
                 $instituicaoId,
-                fn($q) => $q->where('instituicao_id', $instituicaoId)
+                fn ($q) => $q->where('instituicao_id', $instituicaoId)
             )
             ->orderByRaw("FIELD(tipo, 'urgente', 'evento', 'aviso')")
             ->orderBy('data', 'asc')
             ->get()
-            ->map(fn(Aviso $a) => [
+            ->map(fn (Aviso $a) => [
                 'id' => $a->id,
                 'type' => $a->tipo,
                 'titulo' => $a->titulo,

@@ -46,12 +46,16 @@ import TablePagination from '@/components/table-pagination';
 
 export function ClasseTable({
   classes,
+  can = {},
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
   const lista = classes?.data ?? [];
   const isEmpty = lista.length === 0;
+  const hasActionColumn = lista.some(
+    (classe) => classe.can?.edit_classe || classe.can?.delete_classe,
+  );
 
   return (
     <div className="mx-auto w-full max-w-7xl p-6">
@@ -60,9 +64,11 @@ export function ClasseTable({
           <CardTitle>Classes</CardTitle>
           <CardDescription>Lista de classes cadastradas</CardDescription>
           <CardAction>
-            <Button asChild>
-              <Link href={create().url}>Adicionar</Link>
-            </Button>
+            {can.create_classe && (
+              <Button asChild>
+                <Link href={create().url}>Adicionar</Link>
+              </Button>
+            )}
           </CardAction>
         </CardHeader>
 
@@ -73,18 +79,24 @@ export function ClasseTable({
               icon={LayersIcon}
               title="Nenhuma classe cadastrada"
               description="Comece adicionando a primeira classe à tabela"
-              action={{
-                label: 'Adicionar Classe',
-                href: create().url,
-                variant: 'outline',
-              }}
+              action={
+                can.create_classe
+                  ? {
+                      label: 'Adicionar Classe',
+                      href: create().url,
+                      variant: 'outline',
+                    }
+                  : undefined
+              }
             />
           ) : (
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/72">
                   <TableHead className="px-4">Nome</TableHead>
-                  <TableHead className="px-4 text-right">Acções</TableHead>
+                  {hasActionColumn && (
+                    <TableHead className="px-4 text-right">Acções</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
 
@@ -92,50 +104,70 @@ export function ClasseTable({
                 {lista.map((classe) => (
                   <TableRow
                     key={classe.id}
-                    className="hover:cursor-pointer"
-                    onClick={() => router.visit(show(classe.id).url)}
+                    className={
+                      classe.can?.view_classe
+                        ? 'hover:cursor-pointer'
+                        : 'opacity-70'
+                    }
+                    onClick={() => {
+                      if (classe.can?.view_classe) {
+                        router.visit(show(classe.id).url);
+                      }
+                    }}
                   >
                     <TableCell className="px-4 font-medium">
                       {classe.nome}
                     </TableCell>
 
-                    <TableCell className="px-4 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                          >
-                            <MoreHorizontalIcon />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
+                    {hasActionColumn && (
+                      <TableCell className="px-4 text-right">
+                        {(classe.can?.edit_classe ||
+                          classe.can?.delete_classe) && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8"
+                              >
+                                <MoreHorizontalIcon />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
 
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.visit(edit(classe.id).url);
-                            }}
-                          >
-                            Editar
-                          </DropdownMenuItem>
+                            <DropdownMenuContent align="end">
+                              {classe.can?.edit_classe && (
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.visit(edit(classe.id).url);
+                                  }}
+                                >
+                                  Editar
+                                </DropdownMenuItem>
+                              )}
 
-                          <DropdownMenuSeparator />
+                              {classe.can?.edit_classe &&
+                                classe.can?.delete_classe && (
+                                  <DropdownMenuSeparator />
+                                )}
 
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteFn(classe.id);
-                            }}
-                          >
-                            Remover
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+                              {classe.can?.delete_classe && (
+                                <DropdownMenuItem
+                                  variant="destructive"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteFn(classe.id);
+                                  }}
+                                >
+                                  Remover
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

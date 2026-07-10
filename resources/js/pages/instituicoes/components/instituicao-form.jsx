@@ -31,7 +31,16 @@ export function InstituicaoForm({
   submitFn,
   submitLabel = 'Salvar',
   logoUrl,
+  can = {},
 }) {
+  const canSubmit = Boolean(
+    can.create_instituicao ??
+    can.update_instituicao ??
+    can.create ??
+    can.update ??
+    true,
+  );
+
   const previewUrl = useMemo(() => {
     if (!data.logo) {
       return null;
@@ -184,7 +193,7 @@ export function InstituicaoForm({
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={processing}>
+                  <Button type="submit" disabled={processing || !canSubmit}>
                     {processing ? (
                       <>
                         <Loader2 className="animate-spin" /> {submitLabel}...
