@@ -21,6 +21,7 @@ export default function Show({
   disciplinas,
   pautaRecurso,
   grupos,
+  can,
 }) {
   const { deleteConfirm } = useDialog();
 
@@ -106,6 +107,7 @@ export default function Show({
               cursoClasseId={params.cursoClasse}
               cursoClasseTurnoId={params.cursoClasseTurno}
               pagination={grupos}
+              can={can}
               onPageChange={gruposPagination.handlePageChange}
               params={params}
               can={grupos.can}

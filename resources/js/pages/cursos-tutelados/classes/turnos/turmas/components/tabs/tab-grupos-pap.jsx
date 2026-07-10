@@ -33,7 +33,7 @@ export function TabGruposPAP({
   cursoClasseTurnoId,
   pagination,
   onPageChange,
-  can = {},
+  can,
 }) {
   const turmaId = turma.id;
   const grupos = pagination?.data ?? turma.grupos_pap ?? [];
@@ -50,7 +50,7 @@ export function TabGruposPAP({
         <CardDescription>
           Grupos de aptidão profissional desta turma
         </CardDescription>
-        {canCreate && (
+        {can?.create && (
           <CardAction>
             <Button asChild>
               <Link href={`${baseUrl}/pap/create`}>Criar grupo</Link>
@@ -64,21 +64,14 @@ export function TabGruposPAP({
           <EmptyState
             variant="table"
             icon={Users2Icon}
-            title={canViewAny ? 'Nenhum grupo para PAP' : 'Acesso negado'}
-            description={
-              canViewAny
-                ? 'Comece adicionando grupos'
-                : 'Não tem permissão para ver os grupos de PAP desta turma.'
-            }
-            action={
-              canCreate
-                ? {
-                    label: 'Criar Grupo',
-                    href: `${baseUrl}/pap/create`,
-                    variant: 'outline',
-                  }
-                : undefined
-            }
+            title="Nenhum grupo para PAP"
+            description="Comece adicionando grupos"
+            action={can?.create
+              ? {
+                label: 'Criar Grupo',
+                href: `${baseUrl}/pap/create`,
+                variant: 'outline',
+              } : undefined } 
           />
         ) : (
           <Table>

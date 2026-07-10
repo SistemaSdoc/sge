@@ -39,11 +39,13 @@ export default function Show({
   grupoPap,
   banca,
   elementos,
+  can,
 }) {
   const [notas, setNotas] = useState({});
   const [dialogDataAberto, setDialogDataAberto] = useState(false);
   const bancaPagination = usePagination('banca');
   const elementosPagination = usePagination('elementos');
+  const hasAnyAction = Boolean(can?.update || can?.definirData);
 
   const params = {
     instituicao: instituicao.id,
@@ -114,29 +116,35 @@ export default function Show({
               <p className="text-sm opacity-90">{grupoPap?.tema_grupo}</p>
             </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white hover:bg-white/20"
-                >
-                  <MoreHorizontalIcon />
-                </Button>
-              </DropdownMenuTrigger>
+            {hasAnyAction && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white hover:bg-white/20"
+                  >
+                    <MoreHorizontalIcon />
+                  </Button>
+                </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="end" className="w-full max-w-2xl">
-                <DropdownMenuItem
-                  onClick={() => router.visit(edit.url(params))}
-                >
-                  Editar
-                </DropdownMenuItem>
+                <DropdownMenuContent align="end" className="w-full max-w-2xl">
+                  {can?.update && (
+                    <DropdownMenuItem
+                      onClick={() => router.visit(edit.url(params))}
+                    >
+                      Editar
+                    </DropdownMenuItem>
+                  )}
 
-                <DropdownMenuItem onClick={() => setDialogDataAberto(true)}>
-                  Definir data da defesa
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {can?.definirData && (
+                    <DropdownMenuItem onClick={() => setDialogDataAberto(true)}>
+                      Definir data da defesa
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
 
@@ -271,6 +279,7 @@ export default function Show({
             onPageChange={elementosPagination.handlePageChange}
             actualizarNotaFn={actualizarNotaFn}
             removerIntegranteFn={removerIntegranteFn}
+            can={can}
           />
         </TabsContent>
 
@@ -281,6 +290,7 @@ export default function Show({
             removerJuradoFn={removerJuradoFn}
             pagination={banca}
             onPageChange={bancaPagination.handlePageChange}
+            can={can}
           />
         </TabsContent>
       </Tabs>

@@ -39,10 +39,15 @@ export function TabIntegrantes({
   removerIntegranteFn,
   pagination,
   onPageChange,
+  can,
 }) {
   const [editando, setEditando] = useState({});
   const elementos = pagination?.data ?? [];
-  const isEmpty = elementos.length === 0; // ← corrige isto
+  const isEmpty = elementos.length === 0;
+  const canCreateIntegrante = Boolean(can?.elementos?.create);
+  const canAtualizarNota = Boolean(can?.elementos?.atualizarNota);
+  const canRemoverIntegrante = Boolean(can?.elementos?.delete);
+  const hasActionsColumn = canAtualizarNota || canRemoverIntegrante;
 
   function handleSalvar(el) {
     actualizarNotaFn(
@@ -69,11 +74,13 @@ export function TabIntegrantes({
       <CardHeader className="border-b">
         <CardTitle>Integrantes do grupo</CardTitle>
         <CardDescription>Alunos membros e notas individuais</CardDescription>
-        <CardAction>
-          <Button asChild>
-            <Link href={adicionarElemento.url(params)}>Adicionar</Link>
-          </Button>
-        </CardAction>
+        {canCreateIntegrante && (
+          <CardAction>
+            <Button asChild>
+              <Link href={adicionarElemento.url(params)}>Adicionar</Link>
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -83,11 +90,11 @@ export function TabIntegrantes({
             icon={UsersIcon}
             title="Nenhum integrante no grupo"
             description="Comece adicionando os primeiros membros do grupo PAP"
-            action={{
+            action={canCreateIntegrante ? {
               label: 'Adicionar Integrante',
               href: adicionarElemento.url(params),
               variant: 'outline',
-            }}
+            } : undefined}
           />
         ) : (
           <Table>
@@ -96,7 +103,9 @@ export function TabIntegrantes({
                 <TableHead className="px-4">Nome</TableHead>
                 <TableHead>Matrícula</TableHead>
                 <TableHead>Nota individual</TableHead>
-                <TableHead className="px-4 text-right">Acções</TableHead>
+                {hasActionsColumn && (
+                  <TableHead className="px-4 text-right">Acções</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -116,11 +125,7 @@ export function TabIntegrantes({
                   </TableCell>
 
                   <TableCell onClick={(e) => e.stopPropagation()}>
-                    {notaJaLancada(el) ? (
-                      <span className="text-sm font-medium tabular-nums">
-                        {Number(el.nota_individual)}
-                      </span>
-                    ) : (
+                    {canAtualizarNota && !notaJaLancada(el) ? (
                       <div className="flex items-center gap-2">
                         <Input
                           type="number"
@@ -144,38 +149,48 @@ export function TabIntegrantes({
                           Salvar
                         </Button>
                       </div>
+                    ) : (
+                      <span className="text-sm font-medium tabular-nums">
+                        {el.nota_individual ?? '—'}
+                      </span>
                     )}
                   </TableCell>
 
-                  <TableCell
-                    className="px-4 text-right"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <MoreHorizontalIcon />
-                        </Button>
-                      </DropdownMenuTrigger>
+                  {hasActionsColumn && (
+                    <TableCell
+                      className="px-4 text-right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="size-8">
+                            <MoreHorizontalIcon />
+                          </Button>
+                        </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() =>
-                            setEditando((prev) => ({ ...prev, [el.id]: true }))
-                          }
-                        >
-                          Editar nota
-                        </DropdownMenuItem>
+                        <DropdownMenuContent align="end">
+                          {canAtualizarNota && (
+                            <DropdownMenuItem
+                              onClick={() =>
+                                setEditando((prev) => ({ ...prev, [el.id]: true }))
+                              }
+                            >
+                              Editar nota
+                            </DropdownMenuItem>
+                          )}
 
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={() => removerIntegranteFn(el.id)}
-                        >
-                          Remover do grupo
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                          {canRemoverIntegrante && (
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() => removerIntegranteFn(el.id)}
+                            >
+                              Remover do grupo
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

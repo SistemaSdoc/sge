@@ -52,10 +52,14 @@ export function InscricaoTable({
   updateFn,
   pagination = {},
   onPageChange,
+  can,
 }) {
   const [nota, setNota] = useState('');
   const [inscricaoSelecionada, setInscricaoSelecionada] = useState(null);
   const isEmpty = !inscricoes || inscricoes.length === 0;
+  const hasActionColumn = inscricoes?.some(
+    (inscricao) => inscricao.status === 'pendente' && inscricao.can?.update,
+  );
 
   return (
     <>
@@ -102,11 +106,13 @@ export function InscricaoTable({
         <CardHeader className="border-b">
           <CardTitle>Candidatos</CardTitle>
           <CardDescription>Lista de candidatos</CardDescription>
-          <CardAction>
-            <Button asChild>
-              <Link href={create.url()}>Adicionar</Link>
-            </Button>
-          </CardAction>
+          {can.create && (
+            <CardAction>
+              <Button asChild>
+                <Link href={create.url()}>Adicionar</Link>
+              </Button>
+            </CardAction>
+          )}
         </CardHeader>
 
         <CardContent className="p-0!">
@@ -116,11 +122,15 @@ export function InscricaoTable({
               icon={UserCheckIcon}
               title="Nenhuma inscrição cadastrada"
               description="Comece adicionando a primeira inscrição à tabela"
-              action={{
-                label: 'Adicionar Inscrição',
-                href: create.url(),
-                variant: 'outline',
-              }}
+              action={
+                can.create
+                  ? {
+                    label: 'Adicionar Inscrição',
+                    href: create.url(),
+                    variant: 'outline',
+                  }
+                  : undefined
+              }
             />
           ) : (
             <Table>
@@ -130,15 +140,26 @@ export function InscricaoTable({
                   <TableHead className="px-4">Curso</TableHead>
                   <TableHead className="px-4">Turno</TableHead>
                   <TableHead className="px-4">Status</TableHead>
+                  {hasActionColumn && (
                   <TableHead className="px-4 text-right">Acções</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {inscricoes.map((inscricao) => (
                   <TableRow
                     key={inscricao.id}
-                    className="hover:cursor-pointer"
-                    onClick={() => router.visit(show.url(inscricao.id))}
+                    className={
+                      inscricao.can?.view
+                        ? 'hover:cursor-pointer'
+                        : 'opacity-70'
+                    }
+                    
+                     onClick={() => {
+                      if (inscricao.can?.view) {
+                        router.visit(show(inscricao.id).url);
+                      }
+                    }}
                   >
                     <TableCell className="px-4 font-medium">
                       {inscricao.candidato}
@@ -152,8 +173,9 @@ export function InscricaoTable({
                     <TableCell className="px-4 font-medium">
                       {formatStatusInscricao(inscricao.status)}
                     </TableCell>
+                    {hasActionColumn && (
                     <TableCell className="px-4 text-right">
-                      {inscricao.status === 'pendente' && (
+                      {inscricao.status === 'pendente' && inscricao.can?.update && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -178,6 +200,7 @@ export function InscricaoTable({
                         </DropdownMenu>
                       )}
                     </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

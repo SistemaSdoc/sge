@@ -51,7 +51,7 @@ class PermissionSeeder extends Seeder
             'turmas.update',
             'turmas.delete',
 
-            //classeturnodisciplina
+            // classeturnodisciplina
             'classeturnodisciplina.viewAny',
             'classeturnodisciplina.view',
             'classeturnodisciplina.create',
@@ -98,6 +98,21 @@ class PermissionSeeder extends Seeder
             'grupopap.update',
             'grupopap.delete',
             'grupopap.definirData',
+
+            // Banca de Júri PAP
+            'bancajuripap.viewAny',
+            'bancajuripap.view',
+            'bancajuripap.create',
+            'bancajuripap.update',
+            'bancajuripap.delete',
+
+            // Elemento Grupo PAP
+            'elementogrupopap.viewAny',
+            'elementogrupopap.view',
+            'elementogrupopap.create',
+            'elementogrupopap.update',
+            'elementogrupopap.delete',
+            'elementogrupopap.atualizarNota',
 
             // Cursos
             'cursos.viewAny',

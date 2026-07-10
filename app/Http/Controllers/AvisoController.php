@@ -13,10 +13,12 @@ use Inertia\Inertia;
 
 class AvisoController extends Controller
 {
+    // GET /api/avisos — painel admin
     public function index()
     {
         $this->authorize('viewAny', Aviso::class);
 
+        /** @var User $user */
         $user = Auth::user();
 
         $instituicaoId = $user?->instituicaoFiltro();
@@ -30,15 +32,10 @@ class AvisoController extends Controller
 
         $avisos->getCollection()->transform(function ($aviso) use ($user) {
             return [
-                'id' => $aviso->id,
-                'titulo' => $aviso->titulo,
-                'conteudo' => $aviso->conteudo,
-                'instituicao_id' => $aviso->instituicao_id,
-                'created_at' => $aviso->created_at,
-                'updated_at' => $aviso->updated_at,
+                ...$aviso->toArray(),
                 'can' => [
-                    'edit_aviso' => $user->can('update', $aviso),
-                    'delete_aviso' => $user->can('avisos.delete', $aviso),
+                    'update' => $user->can('update', $aviso),
+                    'delete' => $user->can('delete', $aviso),
                 ],
             ];
         });
@@ -46,7 +43,7 @@ class AvisoController extends Controller
         return Inertia::render('avisos/index', [
             'avisos' => $avisos,
             'can' => [
-                'create_aviso' => $user->can('avisos.create', Aviso::class),
+                'create' => $user->can('create', Aviso::class),
             ],
         ]);
     }

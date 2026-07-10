@@ -27,6 +27,8 @@ class ElementoGrupoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
+        $this->authorize('create', ElementoGrupoPap::class);
+
         $alunosEmGrupo = ElementoGrupoPap::where('grupo_pap_id', $grupoPap->id)
             ->pluck('aluno_id');
 
@@ -64,6 +66,7 @@ class ElementoGrupoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
+        $this->authorize('create', ElementoGrupoPap::class);
 
         $grupoPap->elementos()->createMany(
             collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
@@ -106,6 +109,8 @@ class ElementoGrupoPapController extends Controller
         GrupoPap $grupoPap,
         ElementoGrupoPap $elementoGrupoPap
     ) {
+        $this->authorize('delete', $elementoGrupoPap);
+
         $elementoGrupoPap->delete();
 
         return to_route('pap.show', [
@@ -131,6 +136,8 @@ class ElementoGrupoPapController extends Controller
         GrupoPap $grupoPap,
         ElementoGrupoPap $elementoGrupoPap
     ) {
+        $this->authorize('atualizarNota', $elementoGrupoPap);
+
         $elementoGrupoPap->update(['nota_individual' => $request->nota_individual]);
 
         return to_route('pap.show', [

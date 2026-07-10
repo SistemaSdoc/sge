@@ -21,7 +21,7 @@ import {
 import { MoreHorizontalIcon, ArrowUpRightIcon, Users2 } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 
-export function GrupoPapCards({ params, grupos = [], deleteGrupoFn }) {
+export function GrupoPapCards({ params, grupos = [], deleteGrupoFn, can }) {
   return (
     <div className="space-y-4">
       {grupos.length > 0 ? (
@@ -61,15 +61,17 @@ export function GrupoPapCards({ params, grupos = [], deleteGrupoFn }) {
 
                       <DropdownMenuSeparator />
 
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          deleteGrupoFn(grupo.id);
-                        }}
+                      {can.delete && (
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteGrupoFn(grupo.id);
+                          }}
                       >
                         Remover
                       </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </CardAction>
@@ -132,11 +134,11 @@ export function GrupoPapCards({ params, grupos = [], deleteGrupoFn }) {
           icon={Users2}
           title="Nenhum Grupo PAP definido"
           variant="compact"
-          action={{
+          action={can?.create ? {
             label: 'Criar Grupo PAP',
             href: index.url(params),
             variant: 'outline',
-          }}
+          } : undefined}
         />
       )}
     </div>

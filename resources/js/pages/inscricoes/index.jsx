@@ -3,7 +3,7 @@ import { update } from '@/routes/inscricoes';
 import { InscricaoTable } from './components/inscricao-table';
 
 export default function Index() {
-  const { inscricoes } = usePage().props;
+  const { inscricoes, can } = usePage().props;
 
   const handlePageChange = (page) => {
     router.visit('/dashboard/inscricoes', {
@@ -16,6 +16,7 @@ export default function Index() {
     <div className="mx-auto w-full max-w-7xl p-6">
       <InscricaoTable
         inscricoes={inscricoes.data}
+        can={can}
         pagination={{
           current_page: inscricoes.current_page,
           last_page: inscricoes.last_page,

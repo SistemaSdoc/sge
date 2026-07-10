@@ -27,6 +27,8 @@ class BancaJuriPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
+        $this->authorize('create', BancaJuriPap::class);
+
         $juradosNaBanca = $grupoPap->jurados()->pluck('professor_id');
 
         $professores = Professor::with('user:id,nome')
@@ -66,6 +68,8 @@ class BancaJuriPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
+        $this->authorize('create', BancaJuriPap::class);
+
         BancaJuriPap::create([
             'grupo_pap_id' => $grupoPap->id,
             'professor_id' => $request->professor_id,
@@ -94,6 +98,8 @@ class BancaJuriPapController extends Controller
         GrupoPap $grupoPap,
         BancaJuriPap $bancaJuriPap
     ) {
+        $this->authorize('update', $bancaJuriPap);
+
         $juradosNaBanca = $grupoPap->jurados()
             ->where('id', '!=', $bancaJuriPap->id)
             ->pluck('professor_id');
@@ -137,6 +143,8 @@ class BancaJuriPapController extends Controller
         GrupoPap $grupoPap,
         BancaJuriPap $bancaJuriPap
     ) {
+        $this->authorize('update', $bancaJuriPap);
+
         $bancaJuriPap->update($request->only(['professor_id', 'funcao']));
 
         return to_route('pap.show', [
@@ -164,6 +172,7 @@ class BancaJuriPapController extends Controller
         GrupoPap $grupoPap,
         BancaJuriPap $bancaJuriPap
     ) {
+        $this->authorize('delete', $bancaJuriPap);
         $bancaJuriPap->delete();
 
         return to_route('pap.show', [

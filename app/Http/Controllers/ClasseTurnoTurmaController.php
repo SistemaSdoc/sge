@@ -192,6 +192,8 @@ class ClasseTurnoTurmaController extends Controller
             ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final')
             ->paginate(5, ['*'], 'page_grupos');
 
+        $user = Auth::user();
+
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
             'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => $cursoTutelado->only('id'),
@@ -246,6 +248,9 @@ class ClasseTurnoTurmaController extends Controller
                     'create' => Auth::user()->can('create', GrupoPap::class),
                 ],
                 'data' => $grupos->items(),
+            ],
+            'can' => [
+                'create' => $user?->can('create', GrupoPap::class),
             ],
         ]);
     }

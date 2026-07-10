@@ -29,8 +29,29 @@ class GrupoPapPolicy
                 ->exists();
         }
 
-        return $user->can('grupopap.view')
-            && $grupoPap->instituicao()->id === $user->instituicao_id;
+        if ($user->hasRole('Professor')) {
+            $professor = $user->professor;
+
+            // ✅ Professor DA TURMA
+            $daFturma = $grupoPap->turma
+                ->professores()
+                ->where('professores.id', $professor?->id)
+                ->exists();
+
+            // ✅ Jurado do grupo
+            $ehJurado = $grupoPap->jurados()
+                ->where('professor_id', $professor?->id)
+                ->exists();
+
+            // ✅ Professor TUTOR (criou/tutela o grupo)
+            $ehTutor = $grupoPap->professor_tutor_id === $professor?->id;
+
+            return ($daFturma || $ehJurado || $ehTutor)
+                && $grupoPap->instituicao()?->id === $user->instituicao_id;
+        }
+
+        return $user->hasPermissionTo('grupopap.view')
+            && $grupoPap->instituicao()?->id === $user->instituicao_id;
     }
 
     /**
@@ -49,8 +70,23 @@ class GrupoPapPolicy
      */
     public function update(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('grupopap.update')
-            && $grupoPap->instituicao()->id === $user->instituicao_id;
+        if (! $user->hasRole('Professor')) {
+            return $user->hasPermissionTo('grupopap.update')
+                && $grupoPap->instituicao()?->id === $user->instituicao_id;
+        }
+
+        $professor = $user->professor;
+
+        // ✅ Só professor DA TURMA ou TUTOR (não jurado)
+        $daFturma = $grupoPap->turma
+            ->professores()
+            ->where('professores.id', $professor?->id)
+            ->exists();
+
+        $ehTutor = $grupoPap->professor_tutor_id === $professor?->id;
+
+        return ($daFturma || $ehTutor)
+            && $grupoPap->instituicao()?->id === $user->instituicao_id;
     }
 
     /**

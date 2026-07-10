@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\GrupoPap\DefinirDataDefesaRequest;
 use App\Http\Requests\GrupoPap\StoreRequest;
 use App\Http\Requests\GrupoPap\UpdateRequest;
+use App\Http\Resources\GrupoPap\BancaResource;
 use App\Http\Resources\GrupoPap\CreateResource;
 use App\Http\Resources\GrupoPap\EditResource;
+use App\Http\Resources\GrupoPap\ElementoResource;
 use App\Http\Resources\GrupoPap\IndexResource;
 use App\Http\Resources\GrupoPap\ShowResource;
 use App\Models\Aluno;
@@ -18,26 +20,11 @@ use App\Models\GrupoPap;
 use App\Models\Instituicao;
 use App\Models\Professor;
 use App\Models\Turma;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\GrupoPap\BancaResource;
-use App\Http\Resources\GrupoPap\ElementoResource;
 use Inertia\Inertia;
 
-class GrupoPapController extends Controller // implements HasMiddleware
+class GrupoPapController extends Controller
 {
-    /*public static function middleware(): array
-    {
-        return [
-            new Middleware('permission:pap.index', only: ['index', 'alunosDisponiveis']),
-            new Middleware('permission:pap.show', only: ['show']),
-            new Middleware('permission:pap.create', only: ['store', 'adicionarElemento', 'adicionarJurado']),
-            new Middleware('permission:pap.edit', only: ['update', 'actualizarNota']),
-            new Middleware('permission:pap.delete', only: ['destroy', 'removerJurado']),
-        ];
-    }*/
-
     public function index()
     {
         $this->authorize('viewAny', GrupoPap::class);
@@ -53,16 +40,29 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
             'elementos.aluno.inscricao.candidato:id,nome',
         ])->when(
-                $instituicaoId,
-                fn($q) => $q->whereHas(
-                    'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn($q) => $q->where('instituicao_id', $instituicaoId)
-                )
-            )->latest()->paginate(10);
+            $instituicaoId,
+            fn ($q) => $q->whereHas(
+                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                fn ($q) => $q->where('instituicao_id', $instituicaoId)
+            )
+        )->latest()->paginate(10);
 
-        // dd($grupos);
+        $grupos->getCollection()->transform(function ($grupo) use ($user) {
+            $grupo->can = [
+                'view' => $user->can('view', $grupo),
+                'update' => $user->can('update', $grupo),
+                'delete' => $user->can('delete', $grupo),
+                'definirData' => $user->can('definirData', $grupo),
+            ];
+
+            return $grupo;
+        });
+
         return Inertia::render('pap/index', [
             'gruposPap' => IndexResource::collection($grupos),
+            'can' => [
+                'create' => $user->can('create', GrupoPap::class),
+            ],
         ]);
     }
 
@@ -87,7 +87,7 @@ class GrupoPapController extends Controller // implements HasMiddleware
             ->whereHas('turmas', function ($q) use ($turma) {
                 $q->where('turmas.id', $turma->id)
                     ->where('turma_aluno.activo', true);
-            })->with('inscricao.candidato:id,nome')->get()->map(fn($aluno) => [
+            })->with('inscricao.candidato:id,nome')->get()->map(fn ($aluno) => [
                 'id' => $aluno->id,
                 'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
             ])->values();
@@ -126,7 +126,7 @@ class GrupoPapController extends Controller // implements HasMiddleware
         ]);
 
         $grupo->elementos()->createMany(
-            collect($request->alunos)->map(fn($id) => ['aluno_id' => $id])->toArray()
+            collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
         );
 
         return to_route('pap.show', [
@@ -149,6 +149,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
     ) {
         $this->authorize('view', $grupoPap);
 
+        $user = Auth::user();
+
         $grupoPap->load([
             'professor.user:id,nome,email',
         ]);
@@ -161,7 +163,6 @@ class GrupoPapController extends Controller // implements HasMiddleware
             ->with('aluno.inscricao.candidato:id,nome,email', 'aluno:id,matricula,inscricao_id')
             ->paginate(10, ['*'], 'page_elementos');
 
-
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/show', [
             'instituicao' => $instituicao->only('id', 'nome'),
             'cursoTutelado' => $cursoTutelado->only('id'),
@@ -171,6 +172,21 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'grupoPap' => new ShowResource($grupoPap),
             'banca' => BancaResource::collection($banca),
             'elementos' => ElementoResource::collection($elementos),
+            'can' => [
+                'update' => $user?->can('update', $grupoPap),
+                'definirData' => $user?->can('definirData', $grupoPap),
+                'delete' => $user?->can('delete', $grupoPap),
+                'elementos' => [
+                    'create' => $user?->can('elementogrupopap.create'),
+                    'atualizarNota' => $user?->can('elementogrupopap.atualizarNota'),
+                    'delete' => $user?->can('elementogrupopap.delete'),
+                ],
+                'banca' => [
+                    'create' => $user?->can('bancajuripap.create'),
+                    'update' => $user?->can('bancajuripap.update'),
+                    'delete' => $user?->can('bancajuripap.delete'),
+                ],
+            ],
         ]);
     }
 
@@ -255,9 +271,9 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Grupo PAP actualizado com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Grupo PAP actualizado com sucesso!',
+        ]);
     }
 
     public function destroy(GrupoPap $grupoPap)
@@ -291,32 +307,8 @@ class GrupoPapController extends Controller // implements HasMiddleware
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Data e local da defesa definidos com sucesso!',
-                ]);
-    }
-
-    public function alunosDisponiveis(
-        Instituicao $instituicao,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma
-    ) {
-        $alunosEmGrupo = ElementoGrupoPap::pluck('aluno_id');
-
-        $alunos = Aluno::with('inscricao.candidato:id,nome')
-            ->whereNotIn('id', $alunosEmGrupo)
-            ->whereHas('turmas', function ($q) use ($turma) {
-                $q->where('turmas.id', $turma->id)
-                    ->where('turma_aluno.activo', true); // aluno ativo nesta turma
-            })
-            ->get();
-
-        return response()->json($alunos->map(fn($aluno) => [
-            'id' => $aluno->id,
-            'nome' => $aluno->inscricao?->candidato?->nome,
-            'matricula' => $aluno->matricula,
-        ]));
+            'type' => 'success',
+            'message' => 'Data e local da defesa definidos com sucesso!',
+        ]);
     }
 }

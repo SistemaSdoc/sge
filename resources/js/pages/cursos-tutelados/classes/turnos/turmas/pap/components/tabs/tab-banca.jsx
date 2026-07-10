@@ -34,20 +34,26 @@ export function TabBanca({
   pagination,
   onPageChange,
   removerJuradoFn,
+  can,
 }) {
   const jurados = pagination?.data ?? [];
   const isEmpty = jurados.length === 0;
-  //console.log('pagination:', pagination); 
+  const canCreateBanca = Boolean(can?.banca?.create);
+  const canAtualizarBanca = Boolean(can?.banca?.update);
+  const canRemoverBanca = Boolean(can?.banca?.delete);
+  const hasActionsColumn = canAtualizarBanca || canRemoverBanca;
   return (
     <Card className="gap-0 pb-0">
       <CardHeader className="border-b">
         <CardTitle>Integrantes da banca</CardTitle>
         <CardDescription>Professores avaliadores e funções</CardDescription>
-        <CardAction>
-          <Button asChild>
-            <Link href={adicionarJurado.url(params)}>Adicionar</Link>
-          </Button>
-        </CardAction>
+        {canCreateBanca && (
+          <CardAction>
+            <Button asChild>
+              <Link href={adicionarJurado.url(params)}>Adicionar</Link>
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -57,11 +63,11 @@ export function TabBanca({
             icon={Users2Icon}
             title="Nenhum membro da banca"
             description="Comece adicionando os jurados para a defesa do grupo PAP"
-            action={{
+            action={canCreateBanca ? {
               label: 'Adicionar juri',
               href: adicionarJurado.url(params),
               variant: 'outline',
-            }}
+            } : undefined}
           />
         ) : (
           <Table>
@@ -70,7 +76,9 @@ export function TabBanca({
                 <TableHead className="px-4">Nome</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Função</TableHead>
-                <TableHead className="px-4 text-right">Acções</TableHead>
+                {hasActionsColumn && (
+                  <TableHead className="px-4 text-right">Acções</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -92,36 +100,42 @@ export function TabBanca({
 
                   <TableCell className="capitalize">{j.funcao}</TableCell>
 
-                  <TableCell
-                    className="px-4 text-right"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <MoreHorizontalIcon />
-                        </Button>
-                      </DropdownMenuTrigger>
+                  {hasActionsColumn && (
+                    <TableCell
+                      className="px-4 text-right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="size-8">
+                            <MoreHorizontalIcon />
+                          </Button>
+                        </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => router.visit(edit.url({
-                            ...params,
-                            bancaJuriPap: j.id, // id do jurado da linha
-                          }))}
-                        >
-                          Editar
-                        </DropdownMenuItem>
+                        <DropdownMenuContent align="end">
+                          {canAtualizarBanca && (
+                            <DropdownMenuItem
+                              onClick={() => router.visit(edit.url({
+                                ...params,
+                                bancaJuriPap: j.id,
+                              }))}
+                            >
+                              Editar
+                            </DropdownMenuItem>
+                          )}
 
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={() => removerJuradoFn(j.id)}
-                        >
-                          Remover da banca
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                          {canRemoverBanca && (
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() => removerJuradoFn(j.id)}
+                            >
+                              Remover da banca
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

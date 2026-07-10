@@ -38,9 +38,9 @@ import { Input } from '@/components/ui/input';
 import TablePagination from '@/components/table-pagination';
 import { edit } from '@/actions/App/Http/Controllers/AlunoController';
 
-export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
+export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange, can }) {
   const isEmpty = !data || data.length === 0;
-
+ const hasActionColumn = data?.some((aluno) => aluno.can?.update);
   return (
     <div className="mx-auto w-full max-w-7xl p-6">
       <Card className="gap-0">
@@ -67,11 +67,11 @@ export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
               icon={UsersIcon}
               title="Nenhum aluno cadastrado"
               description="Comece adicionando o primeiro aluno à tabela"
-              action={{
+              action={can?.create ? {
                 label: 'Adicionar Aluno',
                 href: '/dashboard/inscricoes/create', // ← alterado de /alunos/create
                 variant: 'outline',
-              }}
+              } : undefined}
             />
           ) : (
             <Table>
@@ -82,7 +82,9 @@ export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
                   <TableHead className="px-4">Turno</TableHead>
                   <TableHead className="px-4">Turma</TableHead>
                   <TableHead className="px-4">Classe</TableHead>
+                  {hasActionColumn && (
                   <TableHead className="px-4 text-right">Acções</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -109,7 +111,9 @@ export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
                     <TableCell className="px-4 font-medium">
                       {aluno.classe}
                     </TableCell>
+                    {hasActionColumn && (
                     <TableCell className="px-4 text-right">
+                      {aluno.can?.update && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -144,7 +148,9 @@ export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange }) {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+                      )}
                     </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

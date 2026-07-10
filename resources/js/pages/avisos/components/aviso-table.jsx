@@ -50,7 +50,9 @@ export default function avisoTable({
   deleteFn,
   pagination = {},
   onPageChange,
+  can,
 }) {
+  const hasAnyAction = avisos.some((aviso) => aviso.can.update || aviso.can.delete);
   const isEmpty = !avisos || avisos.length === 0;
 
   return (
@@ -58,11 +60,13 @@ export default function avisoTable({
       <CardHeader className="border-b">
         <CardTitle>Avisos</CardTitle>
         <CardDescription>Lista de avisos cadastrados</CardDescription>
-        <CardAction>
-          <Button asChild>
-            {can?.create_aviso && <Link href={create().url}>Adicionar</Link>}
-          </Button>
-        </CardAction>
+        {can?.create && (
+          <CardAction>
+            <Button asChild>
+              <Link href={create().url}>Adicionar</Link>
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -72,11 +76,15 @@ export default function avisoTable({
             icon={LayersIcon}
             title="Nenhum aviso cadastrado"
             description="Comece adicionando a primeiro aviso à tabela"
-            action={{
-              label: 'Adicionar aviso',
-              href: create().url,
-              variant: 'outline',
-            }}
+            action={
+              can?.create
+                ? {
+                  label: 'Adicionar aviso',
+                  href: create().url,
+                  variant: 'outline',
+                }
+                : undefined
+            }
           />
         ) : (
           <Table>
@@ -87,16 +95,16 @@ export default function avisoTable({
                 <TableHead className="px-4">Estado</TableHead>
                 <TableHead className="px-4">Destinatário</TableHead>
                 <TableHead className="px-4">Data</TableHead>
-                {}
-                <TableHead className="px-4 text-right">Acções</TableHead>
+                {hasAnyAction && (
+                  <TableHead className="px-4 text-right">Acções</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
               {avisos.map((aviso) => (
                 <TableRow
                   key={aviso.id}
-                  className="hover:avisor-pointer"
-                  onClick={() => router.visit(show(aviso.id).url)}
+                  
                 >
                   <TableCell className="px-4 font-medium">
                     {aviso.titulo}
@@ -118,53 +126,56 @@ export default function avisoTable({
                     {aviso.data}
                   </TableCell>
 
-                  <TableCell className="px-4 text-right">
-                    {(aviso.can.edit_aviso || aviso.can.delete_aviso) && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                          >
-                            <MoreHorizontalIcon />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
+                  {hasAnyAction && (
+                    <TableCell className="px-4 text-right">
+                      {(aviso.can.update || aviso.can.delete) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="size-8">
+                              <MoreHorizontalIcon />
+                              <span className="sr-only">Open menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
 
-                        <DropdownMenuContent align="end">
-                          {aviso.can.edit_aviso && (
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                router.visit(edit(aviso.id).url);
-                              }}
-                            >
-                              Editar
-                            </DropdownMenuItem>
-                          )}
+                          <DropdownMenuContent align="end">
+                            {aviso.can.update && (
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.visit(edit(aviso.id).url);
+                                }}
+                              >
+                                Editar
+                              </DropdownMenuItem>
+                            )}
 
-                          {aviso.can.delete_aviso && (
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteFn(aviso.id);
-                              }}
-                            >
-                              Remover
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-                  </TableCell>
+                            {aviso.can.update && aviso.can.delete && (
+                              <DropdownMenuSeparator />
+                            )}
+
+                            {aviso.can.delete && (
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteFn(aviso.id);
+                                }}
+                              >
+                                Remover
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         )}
       </CardContent>
+
 
       <TablePagination pagination={pagination} onPageChange={onPageChange} />
     </Card>

@@ -22,6 +22,7 @@ class InscricaoController extends Controller
     {
         $this->authorize('viewAny', Inscricao::class);
 
+        $user = Auth::user();
         $instituicaoId = Auth::user()?->instituicaoFiltro();
 
         $inscricoes = Inscricao::with([
@@ -37,11 +38,24 @@ class InscricaoController extends Controller
             )
         )->latest()->paginate(10);
 
+        $inscricoes->getCollection()->transform(function ($inscricao) use ($user) {
+            $inscricao->can = [
+                'view' => $user->can('view', $inscricao),
+                'update' => $user->can('update', $inscricao),
+                'delete' => $user->can('delete', $inscricao),
+            ];
+
+            return $inscricao;
+        });
+
         return Inertia::render('inscricoes/index', [
             'inscricoes' => [
                 'data' => InscricaoResource::collection($inscricoes->items())->toArray(request()),
                 'current_page' => $inscricoes->currentPage(),
                 'last_page' => $inscricoes->lastPage(),
+            ],
+            'can' => [
+                'create' => $user->can('create', Inscricao::class),
             ],
         ]);
     }
@@ -77,7 +91,6 @@ class InscricaoController extends Controller
     public function store(StoreInscricaoRequest $request)
     {
         $this->authorize('create', Inscricao::class);
-
 
         $this->inscricaoService->criar($request->validated());
 

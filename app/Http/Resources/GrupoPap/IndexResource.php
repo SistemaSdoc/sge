@@ -52,6 +52,12 @@ class IndexResource extends JsonResource
                 'id' => $el->aluno->id,
                 'nome' => $el->aluno?->inscricao?->candidato?->nome,
             ])->filter(fn ($el) => $el['nome'])->values(),
+            'can' => [
+                'view' => $this->can['view'] ?? false,
+                'update' => $this->can['update'] ?? false,
+                'delete' => $this->can['delete'] ?? false,
+                'definirData' => $this->can['definirData'] ?? false,
+            ],
         ];
     }
 }
