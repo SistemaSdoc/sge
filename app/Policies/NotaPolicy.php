@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Nota;
+use App\Models\TurmaDisciplinaProfessor;
 use App\Models\User;
 
 class NotaPolicy
@@ -23,10 +24,22 @@ class NotaPolicy
      *
      * Professor, Director e Subdirector podem lançar notas.
      */
-    public function create(User $user): bool
+    public function create(User $user, ?TurmaDisciplinaProfessor $tdp = null): bool
     {
-        return $user->can('notas.create')
-            && $user->instituicao_id !== null;
+        if (! $user->can('notas.create') || $user->instituicao_id === null) {
+            return false;
+        }
+
+        if ($user->hasAnyRole(['Director', 'Subdirector', 'Secretaria'])) {
+            return true; // já garantido pelo instituicao_id acima, se aplicável ao teu modelo
+        }
+
+        if ($user->hasRole('Professor')) {
+            return $tdp !== null
+                && $tdp->professor_id === $user->professor?->id;
+        }
+
+        return false;
     }
 
     /**
@@ -54,6 +67,30 @@ class NotaPolicy
         }
 
         return $nota->turmaDisciplinaProfessor?->professor_id === $user->professor?->id;
+    }
+
+    /**
+     * Determina se o utilizador pode exportar a mini pauta.
+     *
+     * Staff (Director, Subdirector, Secretaria) pode exportar qualquer disciplina da sua instituição.
+     * Professor só pode exportar a pauta da disciplina que ele próprio lecciona.
+     */
+    public function export(User $user, ?TurmaDisciplinaProfessor $tdp = null): bool
+    {
+        if (! $user->can('notas.export') || $user->instituicao_id === null) {
+            return false;
+        }
+
+        if ($user->hasAnyRole(['Director', 'Subdirector', 'Secretaria'])) {
+            return true;
+        }
+
+        if ($user->hasRole('Professor')) {
+            return $tdp !== null
+                && $tdp->professor_id === $user->professor?->id;
+        }
+
+        return false;
     }
 
     /**

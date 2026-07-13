@@ -46,8 +46,8 @@ export function Header({
               </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
-              {turma.can?.update && (
+            <DropdownMenuContent align="end" className="w-auto">
+              {turma.can?.edit && (
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
@@ -58,7 +58,7 @@ export function Header({
                 </DropdownMenuItem>
               )}
 
-              {turma.can?.update && <DropdownMenuSeparator />}
+              {turma.can?.edit && <DropdownMenuSeparator />}
 
               <DropdownMenuItem
                 onClick={() => router.visit(preview({ ...routeParams }).url)}

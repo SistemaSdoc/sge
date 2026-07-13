@@ -57,8 +57,7 @@ export default function NotasTable({
   cursoClasse,
   cursoClasseTurno,
   turma,
-  pagination = {},
-  onPageChange,
+  can,
 }) {
   const [periodo, setPeriodo] = useState('1');
   const [notas, setNotas] = useState({});
@@ -87,41 +86,45 @@ export default function NotasTable({
               </SelectContent>
             </Select>
 
-            <Button asChild>
-              <Link
-                href={
-                  create({
-                    instituicao: instituicao,
-                    cursoTutelado: cursoTutelado,
-                    cursoClasse: cursoClasse,
-                    cursoClasseTurno: cursoClasseTurno,
-                    turma: turma,
-                    classeTurnoDisciplina: disciplina?.id,
-                  }).url
-                }
-              >
-                Lançar Notas
-              </Link>
-            </Button>
+            {can?.create && (
+              <Button asChild>
+                <Link
+                  href={
+                    create({
+                      instituicao: instituicao,
+                      cursoTutelado: cursoTutelado,
+                      cursoClasse: cursoClasse,
+                      cursoClasseTurno: cursoClasseTurno,
+                      turma: turma,
+                      classeTurnoDisciplina: disciplina?.id,
+                    }).url
+                  }
+                >
+                  Lançar Notas
+                </Link>
+              </Button>
+            )}
 
-            <Button>
-              <a
-                href={
-                  exportarDisciplina({
-                    instituicao,
-                    cursoTutelado,
-                    cursoClasse,
-                    cursoClasseTurno,
-                    turma,
-                    classeTurnoDisciplina: disciplina?.id,
-                  }).url + `?periodo=${periodo}`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Exportar
-              </a>
-            </Button>
+            {can?.export && (
+              <Button>
+                <a
+                  href={
+                    exportarDisciplina({
+                      instituicao,
+                      cursoTutelado,
+                      cursoClasse,
+                      cursoClasseTurno,
+                      turma,
+                      classeTurnoDisciplina: disciplina?.id,
+                    }).url + `?periodo=${periodo}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Exportar
+                </a>
+              </Button>
+            )}
           </CardAction>
         )}
       </CardHeader>

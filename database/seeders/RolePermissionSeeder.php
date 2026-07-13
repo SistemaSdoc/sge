@@ -131,6 +131,9 @@ class RolePermissionSeeder extends Seeder
                 'curso-tutelado.update',
                 'curso-tutelado.delete',
 
+                // Mini-pauta
+                'notas.export',
+
                 // Outros
                 'utilizadores.gerir',
                 'acessos.viewAny',
@@ -246,12 +249,16 @@ class RolePermissionSeeder extends Seeder
                 'curso-tutelado.view',
                 'curso-tutelado.create',
                 'curso-tutelado.update',
+
                 // Turnos
                 'turnos.viewAny',
                 'turnos.view',
                 // 'turnos.create',
                 // 'turnos.update',
                 // 'turnos.delete',
+
+                // Mini-pauta
+                'notas.export',
 
                 // Outros
                 'relatorios.view',
@@ -348,6 +355,9 @@ class RolePermissionSeeder extends Seeder
                 'curso-tutelado.viewAny',
                 'curso-tutelado.view',
 
+                // Mini-pauta
+                'notas.export',
+
                 // Outros
                 'pagamentos.view',
                 'pagamentos.gerir',
@@ -395,6 +405,9 @@ class RolePermissionSeeder extends Seeder
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
                 'bancajuripap.view',
+
+                // Mini-pauta
+                'notas.export',
             ],
 
             'Aluno' => [

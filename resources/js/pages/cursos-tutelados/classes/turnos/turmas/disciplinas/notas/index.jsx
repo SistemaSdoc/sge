@@ -12,6 +12,7 @@ export default function Index() {
     disciplina,
     tdp,
     alunos,
+    can,
   } = usePage().props;
   const alunosPagination = usePagination('alunos');
 
@@ -31,6 +32,7 @@ export default function Index() {
         }}
         onPageChange={alunosPagination.handlePageChange}
         turma={turma}
+        can={can}
       />
     </div>
   );

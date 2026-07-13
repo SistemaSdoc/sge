@@ -388,18 +388,21 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                           {turmas.data.map((turma) => (
                             <TableRow
                               key={turma.id}
-                              className="hover:cursor-pointer"
-                              onClick={() =>
-                                router.visit(
-                                  showTurma({
-                                    instituicao: instituicaoId,
-                                    cursoTutelado: cursoId,
-                                    cursoClasse: classeId,
-                                    cursoClasseTurno: selectedTurnoId,
-                                    turma: turma.id,
-                                  }).url,
-                                )
-                              }
+                              aria-disabled={!turma.can?.view}
+                              className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-70 aria-disabled:hover:bg-transparent"
+                              onClick={() => {
+                                if (turma.can?.view) {
+                                  router.visit(
+                                    showTurma({
+                                      instituicao: instituicaoId,
+                                      cursoTutelado: cursoId,
+                                      cursoClasse: classeId,
+                                      cursoClasseTurno: selectedTurnoId,
+                                      turma: turma.id,
+                                    }).url,
+                                  );
+                                }
+                              }}
                             >
                               <TableCell className="px-4 font-medium">
                                 {turma.nome}
@@ -408,40 +411,42 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                                 {turma.alunos_activos_count}
                               </TableCell>
                               <TableCell className="px-4 text-right">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="size-8"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <MoreHorizontalIcon />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        router.visit(
-                                          editTurma({
-                                            instituicao: instituicaoId,
-                                            cursoTutelado: cursoId,
-                                            cursoClasse: classeId,
-                                            cursoClasseTurno: selectedTurnoId,
-                                            turma: turma.id,
-                                          }).url + '?origem=classe',
-                                        );
-                                      }}
-                                    >
-                                      Editar
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    {/*<DropdownMenuItem variant="destructive" onClick={(e) => e.stopPropagation()}>
-                                                                            Remover
-                                                                        </DropdownMenuItem>*/}
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
+                                {turma?.can?.edit && (
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="size-8"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        <MoreHorizontalIcon />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+
+                                    <DropdownMenuContent align="end">
+                                      {turma?.can?.edit && (
+                                        <DropdownMenuItem
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            router.visit(
+                                              editTurma({
+                                                instituicao: instituicaoId,
+                                                cursoTutelado: cursoId,
+                                                cursoClasse: classeId,
+                                                cursoClasseTurno:
+                                                  selectedTurnoId,
+                                                turma: turma.id,
+                                              }).url + '?origem=classe',
+                                            );
+                                          }}
+                                        >
+                                          Editar
+                                        </DropdownMenuItem>
+                                      )}
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                )}
                               </TableCell>
                             </TableRow>
                           ))}

@@ -135,6 +135,9 @@ class PermissionSeeder extends Seeder
             'curso-tutelado.update',
             'curso-tutelado.delete',
 
+            // Mini-pauta
+            'notas.export',
+
             // Sistema
             'utilizadores.gerir',
             'acessos.viewAny',

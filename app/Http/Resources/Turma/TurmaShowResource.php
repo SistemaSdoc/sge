@@ -14,28 +14,12 @@ class TurmaShowResource extends JsonResource
             'id' => $this->id,
             'nome' => $this->nome,
             'max_alunos' => $this->max_alunos,
-
             'classe' => $cct ? [
                 'nome' => $cct->cursoClasse->classe->nome,
             ] : null,
-
-            'turno' => $cct ? [
-                'nome' => $cct->turno->nome,
-            ] : null,
-
-            'grupos_pap' => $this->whenLoaded('gruposPap', fn () => $this->gruposPap->map(fn ($g) => [
-                'id' => $g->id,
-                'nome' => $g->nome_grupo,
-                'tema' => $g->tema_grupo,
-                'status' => $g->status,
-                'nota_final' => $g->nota_final,
-            ])
-            ),
-
             'can' => [
-                'view' => $request->user()?->can('view', $this->resource) ?? false,
-                'update' => $request->user()?->can('update', $this->resource) ?? false,
-                'delete' => $request->user()?->can('delete', $this->resource) ?? false,
+                'edit' => $request->user()?->can('update', $this->resource),
+                'delete' => $request->user()?->can('delete', $this->resource),
             ],
         ];
     }

@@ -11,6 +11,7 @@ export default function Create({
   cursoClasseTurno,
   turma,
   classeTurnoDisciplina,
+  can,
 }) {
   const { data } = usePage().props;
   const alunosPagination = usePagination('alunos');
@@ -51,11 +52,7 @@ export default function Create({
             turnoId={cursoClasseTurno}
             turmaId={turma}
             disciplinaId={classeTurnoDisciplina}
-            pagination={{
-              current_page: data.alunos.current_page,
-              last_page: data.alunos.last_page,
-            }}
-            onPageChange={alunosPagination.handlePageChange}
+            can={can}
           />
         )}
       </Form>

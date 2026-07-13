@@ -43,7 +43,6 @@ export function TabDisciplinas({
 }) {
   const isEmpty = disciplinas.length === 0;
   const canCreate = Boolean(can.create);
-  const canAssignProfessor = Boolean(can.assign_professor);
   const { openForm, closeDialog } = useDialog();
 
   const abrirHorariosDialog = (disciplina, e) => {
@@ -81,7 +80,7 @@ export function TabDisciplinas({
         <CardDescription>Disciplinas lecionadas nesta turma</CardDescription>
         {canCreate && (
           <CardAction>
-            <Button asChild size="sm">
+            <Button asChild>
               <Link
                 data={{ redirect_to: window.location.href }}
                 href={createDisciplina(params).url}
@@ -124,7 +123,8 @@ export function TabDisciplinas({
                 return (
                   <TableRow
                     key={disciplina.id}
-                    className="hover:cursor-pointer"
+                    aria-disabled={!disciplina?.can?.view}
+                    className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-70 aria-disabled:hover:bg-transparent"
                     onClick={() => {
                       if (!disciplina.professor) {
                         toast.warning(
@@ -132,12 +132,15 @@ export function TabDisciplinas({
                         );
                         return;
                       }
-                      router.visit(
-                        index({
-                          ...params,
-                          classeTurnoDisciplina: disciplina.id,
-                        }).url,
-                      );
+
+                      if (disciplina?.can?.view) {
+                        router.visit(
+                          index({
+                            ...params,
+                            classeTurnoDisciplina: disciplina.id,
+                          }).url,
+                        );
+                      }
                     }}
                   >
                     <TableCell className="px-4 font-medium">
@@ -164,7 +167,7 @@ export function TabDisciplinas({
                         </DropdownMenuTrigger>
 
                         <DropdownMenuContent align="end" className="w-auto">
-                          {canAssignProfessor && (
+                          {disciplina?.can?.assign_professor && (
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();

@@ -14,6 +14,7 @@ use App\Models\TurmaDisciplinaProfessor;
 use App\Services\NotaService;
 use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -41,7 +42,7 @@ class NotaDisciplinaController extends Controller
             ->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
             ->firstOrFail();
 
-        Gate::authorize('view', $tdp);
+        #Gate::authorize('view', $tdp);
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
@@ -60,6 +61,10 @@ class NotaDisciplinaController extends Controller
             'cursoClasseTurno' => $cursoClasseTurno->id,
             'turma' => $turma->id,
             'tdp' => $tdp->id,
+            'can' => [
+                'create' => Auth::user()->can('create', [Nota::class, $tdp]),
+                'export' => Auth::user()->can('export', [Nota::class, $tdp]),
+            ],
             'disciplina' => [
                 'id' => $classeTurnoDisciplina->id,
                 'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
@@ -98,6 +103,7 @@ class NotaDisciplinaController extends Controller
             ->firstOrFail();
 
         Gate::authorize('view', $tdp);
+        Gate::authorize('create', [Nota::class, $tdp]);
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
@@ -116,6 +122,9 @@ class NotaDisciplinaController extends Controller
             'cursoClasseTurno' => $cursoClasseTurno->id,
             'turma' => $turma->id,
             'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
+            'can' => [
+                'create' => Auth::user()->can('create', [Nota::class, $tdp]),
+            ],
             'data' => [
                 'tdp_id' => $tdp->id,
                 'disciplina' => [
@@ -165,6 +174,7 @@ class NotaDisciplinaController extends Controller
         $tdp = TurmaDisciplinaProfessor::findOrFail($validated['tdp_id']);
 
         Gate::authorize('view', $tdp);
+        Gate::authorize('create', [Nota::class, $tdp]);
 
         $this->notaService->lancarNotas(
             $validated['notas'],

@@ -67,7 +67,17 @@ class CursoClasseController extends Controller
                 'classe' => ['id' => $cursoClasse->classe->id, 'nome' => $cursoClasse->classe->nome],
                 'turnos' => $cursoClasse->turnos->map(fn ($t) => ['id' => $t->id, 'nome' => $t->turno->nome])->toArray(),
                 'turnoId' => $turnoId,
-                'turmas' => $turmas,
+                'turmas' => $turmas->through(function ($turma) {
+                    return [
+                        'id' => $turma->id,
+                        'nome' => $turma->nome,
+                        'alunos_activos_count' => $turma->alunosActivos()->count(),
+                        'can' => [
+                            'view' => Auth::user()->can('view', $turma),
+                            'edit' => Auth::user()->can('update', $turma),
+                        ],
+                    ];
+                }),
                 'disciplinas' => $disciplinas,
                 'can' => [
                     'create_disciplina' => Auth::user()->can('create', ClasseTurnoDisciplina::class),

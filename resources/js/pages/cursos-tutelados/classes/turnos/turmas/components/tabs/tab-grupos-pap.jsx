@@ -27,6 +27,7 @@ import TablePagination from '@/components/table-pagination';
 
 export function TabGruposPAP({
   turma,
+  grupos,
   instituicaoId,
   cursoTuteladoId,
   cursoClasseId,
@@ -36,10 +37,7 @@ export function TabGruposPAP({
   can,
 }) {
   const turmaId = turma.id;
-  const grupos = pagination?.data ?? turma.grupos_pap ?? [];
   const isEmpty = grupos.length === 0;
-  const canCreate = Boolean(can.create);
-  const canViewAny = Boolean(can.view_any);
 
   const baseUrl = `/dashboard/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
 
@@ -66,12 +64,15 @@ export function TabGruposPAP({
             icon={Users2Icon}
             title="Nenhum grupo para PAP"
             description="Comece adicionando grupos"
-            action={can?.create
-              ? {
-                label: 'Criar Grupo',
-                href: `${baseUrl}/pap/create`,
-                variant: 'outline',
-              } : undefined } 
+            action={
+              can?.create
+                ? {
+                    label: 'Criar Grupo',
+                    href: `${baseUrl}/pap/create`,
+                    variant: 'outline',
+                  }
+                : undefined
+            }
           />
         ) : (
           <Table>
@@ -91,9 +92,9 @@ export function TabGruposPAP({
                   onClick={() => router.visit(`${baseUrl}/pap/${grupo.id}`)}
                 >
                   <TableCell className="px-4 font-medium">
-                    {grupo.nome_grupo}
+                    {grupo.nome}
                   </TableCell>
-                  <TableCell>{grupo.tema_grupo}</TableCell>
+                  <TableCell>{grupo.tema}</TableCell>
                   <TableCell>{grupo.status}</TableCell>
                   <TableCell>
                     {grupo.nota_final ?? (

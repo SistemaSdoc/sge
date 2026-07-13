@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AlunoTurmaResource;
 use App\Http\Resources\ClasseTurnoDisciplinaResource;
+use App\Http\Resources\GrupoPapIndexResource;
 use App\Http\Resources\Turma\TurmaShowResource;
 use App\Models\Aluno;
 use App\Models\ClasseTurnoDisciplina;
@@ -13,7 +14,6 @@ use App\Models\CursoTutelado;
 use App\Models\GrupoPap;
 use App\Models\Instituicao;
 use App\Models\Turma;
-use App\Models\TurmaDisciplinaProfessor;
 use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -150,9 +150,9 @@ class ClasseTurnoTurmaController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
-        $user = Auth::user();
-
         Gate::authorize('view', $turma);
+
+        $user = Auth::user();
 
         $turma->load([
             'cursoClasseTurno.cursoClasse.classe:id,nome',
@@ -163,7 +163,7 @@ class ClasseTurnoTurmaController extends Controller
         $alunos = $turma->alunos()
             ->wherePivot('activo', true)
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
-            ->paginate(5, ['*'], 'page_alunos');
+            ->paginate(1, ['*'], 'page_alunos');
 
         $disciplinasQuery = $turma->cursoClasseTurno
             ->classeTurnoDisciplinas()
@@ -177,22 +177,21 @@ class ClasseTurnoTurmaController extends Controller
         if ($user->hasRole('Professor')) {
             $professorId = $user->professor?->id;
 
-            if ($professorId) {
-                
-            } else {
+            if (! $professorId) {
                 $disciplinasQuery->whereRaw('0 = 1');
             }
+
+            // TODO: quando existir $professorId, filtrar as disciplinas
+            // atribuídas a esse professor nesta turma.
         }
 
         $disciplinas = $disciplinasQuery->paginate(5, ['*'], 'page_disciplinas');
-
-        $pautaRecurso = $this->pautaService->gerarPauta($turma, 4, 5);
 
         $grupos = $turma->gruposPap()
             ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final')
             ->paginate(5, ['*'], 'page_grupos');
 
-        $user = Auth::user();
+        $pautaRecurso = $this->pautaService->gerarPauta($turma, 4, 5);
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
             'instituicao' => $instituicao->only('id'),
@@ -200,58 +199,23 @@ class ClasseTurnoTurmaController extends Controller
             'cursoClasse' => $cursoClasse->only('id'),
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => new TurmaShowResource($turma),
+
             'can' => [
                 'alunos' => [
-                    'view_any' => Auth::user()->can('viewAny', Aluno::class),
-                    'create' => Auth::user()->can('create', Aluno::class),
+                    'create' => $user->can('create', Aluno::class),
                 ],
                 'disciplinas' => [
-                    'view_any' => Auth::user()->can('viewAny', ClasseTurnoDisciplina::class),
-                    'create' => Auth::user()->can('create', ClasseTurnoDisciplina::class),
-                    'assign_professor' => Auth::user()->can('create', TurmaDisciplinaProfessor::class),
+                    'create' => $user->can('create', ClasseTurnoDisciplina::class),
                 ],
-                'grupos_pap' => [
-                    'view_any' => Auth::user()->can('viewAny', GrupoPap::class),
-                    'create' => Auth::user()->can('create', GrupoPap::class),
-                ],
-                'pauta' => [
-                    'view' => Auth::user()->can('viewPauta', $turma),
+                'grupos' => [
+                    'create' => $user->can('create', GrupoPap::class),
                 ],
             ],
-            'alunos' => [
-                ...$alunos->toArray(),
-                'can' => [
-                    'view_any' => Auth::user()->can('viewAny', Aluno::class),
-                    'create' => Auth::user()->can('create', Aluno::class),
-                ],
-                'data' => AlunoTurmaResource::collection($alunos->items())->resolve(),
-            ],
-            'disciplinas' => [
-                ...$disciplinas->toArray(),
-                'can' => [
-                    'view_any' => Auth::user()->can('viewAny', ClasseTurnoDisciplina::class),
-                    'create' => Auth::user()->can('create', ClasseTurnoDisciplina::class),
-                    'assign_professor' => Auth::user()->can('create', TurmaDisciplinaProfessor::class),
-                ],
-                'data' => ClasseTurnoDisciplinaResource::collection($disciplinas->items())->resolve(),
-            ],
-            'pautaRecurso' => [
-                ...$pautaRecurso,
-                'can' => [
-                    'view' => Auth::user()->can('viewPauta', $turma),
-                ],
-            ],
-            'grupos' => [
-                ...$grupos->toArray(),
-                'can' => [
-                    'view_any' => Auth::user()->can('viewAny', GrupoPap::class),
-                    'create' => Auth::user()->can('create', GrupoPap::class),
-                ],
-                'data' => $grupos->items(),
-            ],
-            'can' => [
-                'create' => $user?->can('create', GrupoPap::class),
-            ],
+
+            'alunos' => AlunoTurmaResource::collection($alunos),
+            'disciplinas' => ClasseTurnoDisciplinaResource::collection($disciplinas),
+            'pautaRecurso' => $pautaRecurso,
+            'grupos' => GrupoPapIndexResource::collection($grupos),
         ]);
     }
 

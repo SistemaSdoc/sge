@@ -42,8 +42,7 @@ export default function LancamentosTable({
   turnoId,
   turmaId,
   disciplinaId,
-  pagination = {},
-  onPageChange,
+  can,
 }) {
   const [periodo, setPeriodo] = useState('1');
   const { getValor, setValor } = useNotasLocais(data?.tdp_id);
@@ -77,12 +76,14 @@ export default function LancamentosTable({
           <input type="hidden" name="tdp_id" value={data?.tdp_id ?? ''} />
           <input type="hidden" name="periodo" value={parseInt(periodo)} />
 
-          <Button type="submit" disabled={isPending}>
-            {isPending ? (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            ) : null}
-            Lançar
-          </Button>
+          {can?.create && (
+            <Button type="submit" disabled={isPending}>
+              {isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : null}
+              Lançar
+            </Button>
+          )}
         </CardAction>
       </CardHeader>
 

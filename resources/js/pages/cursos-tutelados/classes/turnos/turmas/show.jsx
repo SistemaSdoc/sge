@@ -27,7 +27,7 @@ export default function Show({
 
   const alunosPagination = usePagination('alunos');
   const disciplinasPagination = usePagination('disciplinas');
-  const gruposPagination = usePagination('page_grupos');
+  const gruposPagination = usePagination('grupos');
 
   const params = {
     instituicao: instituicao.id,
@@ -39,9 +39,6 @@ export default function Show({
 
   const classe = turma.data.classe;
   const totalRecurso = pautaRecurso?.resumo?.total ?? 0;
-
-  const redirectTo =
-    new URLSearchParams(window.location.search).get('redirect_to') ?? '';
 
   const handleDelete = (turmaId) => {
     console.log('params:', params);
@@ -79,10 +76,10 @@ export default function Show({
         <TabsContent value="alunos" className="mt-2">
           <TabAlunos
             alunos={alunos.data}
-            pagination={alunos}
+            pagination={alunos.meta}
             onPageChange={alunosPagination.handlePageChange}
             params={params}
-            can={alunos.can}
+            can={can.alunos}
           />
         </TabsContent>
 
@@ -90,27 +87,27 @@ export default function Show({
           <TabDisciplinas
             disciplinas={disciplinas.data}
             turma={turma}
-            pagination={disciplinas}
+            pagination={disciplinas.meta}
             onPageChange={disciplinasPagination.handlePageChange}
             params={params}
             redirectTo={window.location.href}
-            can={disciplinas.can}
+            can={can.disciplinas}
           />
         </TabsContent>
 
         {classe?.nome === '13ª' && (
-          <TabsContent value="grupos-pap">
+          <TabsContent value="grupos-pap" className="mt-2">
             <TabGruposPAP
               turma={turma.data}
+              grupos={grupos.data}
               instituicaoId={params.instituicao}
               cursoTuteladoId={params.cursoTutelado}
               cursoClasseId={params.cursoClasse}
               cursoClasseTurnoId={params.cursoClasseTurno}
-              pagination={grupos}
-              can={can}
+              pagination={grupos.meta}
               onPageChange={gruposPagination.handlePageChange}
               params={params}
-              can={grupos.can}
+              can={can.grupos}
             />
           </TabsContent>
         )}
