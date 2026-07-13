@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->enum('metodo', ['dinheiro', 'transferencia', 'multicaixa', 'outro'])->default('dinheiro');
             $table->string('comprovativo_path')->nullable();
 
-            $table->uuid('registado_por');
+            $table->uuid('registado_por')->nullable();
             $table->foreign('registado_por')->references('id')->on('users')->nullOnDelete();
 
             $table->timestamps();
