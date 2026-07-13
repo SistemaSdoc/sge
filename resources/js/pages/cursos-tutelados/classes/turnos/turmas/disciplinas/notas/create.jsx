@@ -2,6 +2,7 @@ import { Form, usePage } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 import LancamentosTable from './components/lancamentos-table';
 import { store } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
+import { usePagination } from '@/hooks/use-pagination';
 
 export default function Create({
   instituicao,
@@ -12,8 +13,9 @@ export default function Create({
   classeTurnoDisciplina,
 }) {
   const { data } = usePage().props;
+  const alunosPagination = usePagination('alunos');
 
-  if (!data?.alunos || data.alunos.length === 0) {
+  if (!data?.alunos || data.alunos.data.length === 0) {
     return (
       <div className="flex justify-center py-20">
         <span className="text-sm text-muted-foreground">
@@ -49,6 +51,11 @@ export default function Create({
             turnoId={cursoClasseTurno}
             turmaId={turma}
             disciplinaId={classeTurnoDisciplina}
+            pagination={{
+              current_page: data.alunos.current_page,
+              last_page: data.alunos.last_page,
+            }}
+            onPageChange={alunosPagination.handlePageChange}
           />
         )}
       </Form>

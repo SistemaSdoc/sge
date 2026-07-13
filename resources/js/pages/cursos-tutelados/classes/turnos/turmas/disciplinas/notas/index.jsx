@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import NotasTable from './components/notas-table';
+import { usePagination } from '@/hooks/use-pagination';
 
 export default function Index() {
   const {
@@ -12,6 +13,7 @@ export default function Index() {
     tdp,
     alunos,
   } = usePage().props;
+  const alunosPagination = usePagination('alunos');
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
@@ -23,6 +25,11 @@ export default function Index() {
         cursoTutelado={cursoTutelado}
         cursoClasse={cursoClasse}
         cursoClasseTurno={cursoClasseTurno}
+        pagination={{
+          current_page: alunos.current_page,
+          last_page: alunos.last_page,
+        }}
+        onPageChange={alunosPagination.handlePageChange}
         turma={turma}
       />
     </div>

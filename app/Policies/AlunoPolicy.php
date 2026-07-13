@@ -34,13 +34,13 @@ class AlunoPolicy
             return true;
         }
 
-        if (! $user->can('alunos.view')) {
+        if (!$user->can('alunos.view')) {
             return false;
         }
 
         $mesmaInstituicao = $aluno->user->instituicao_id === $user->instituicao_id;
 
-        if (! $mesmaInstituicao) {
+        if (!$mesmaInstituicao) {
             return false;
         }
 
@@ -48,7 +48,7 @@ class AlunoPolicy
         if ($user->hasRole('Professor')) {
             return $user->professor
                 ->turmas()
-                ->whereHas('alunos', fn ($q) => $q->where('alunos.id', $aluno->id))
+                ->whereHas('alunos', fn($q) => $q->where('alunos.id', $aluno->id))
                 ->exists();
         }
 
@@ -73,12 +73,8 @@ class AlunoPolicy
      */
     public function update(User $user, Aluno $aluno): bool
     {
-        // O próprio aluno pode editar o seu perfil
-        if ($user->aluno?->id === $aluno->id) {
-            return true;
-        }
-
         return $user->can('alunos.update') && $aluno->user->instituicao_id === $user->instituicao_id;
+
     }
 
     /**

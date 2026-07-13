@@ -31,6 +31,7 @@ import { EmptyState } from '@/components/empty-state';
 import { mediaTrimestral } from '@/utils/media-trimestral';
 import { verificarSituacao } from '@/utils/verificar-situacao';
 import { useNotasLocais } from '@/hooks/use-notas-locais';
+import TablePagination from '@/components/table-pagination';
 
 export default function LancamentosTable({
   data,
@@ -41,12 +42,13 @@ export default function LancamentosTable({
   turnoId,
   turmaId,
   disciplinaId,
+  pagination = {},
+  onPageChange,
 }) {
   const [periodo, setPeriodo] = useState('1');
   const { getValor, setValor } = useNotasLocais(data?.tdp_id);
-  const isEmpty = !data?.alunos || data?.alunos?.length === 0;
-  const alunos = data?.alunos ?? [];
-
+  const isEmpty = !data?.alunos?.data || data.alunos.data.length === 0;
+  const alunos = data?.alunos?.data ?? [];
   return (
     <Card className="gap-0">
       <CardHeader className="border-b">
@@ -237,14 +239,8 @@ export default function LancamentosTable({
             </TableBody>
           </Table>
         )}
-        {!isEmpty && (
-          <CardFooter className="justify-between">
-            <span className="text-muted-foreground">
-              {alunos.length} aluno{alunos.length !== 1 ? 's' : ''}
-            </span>
-          </CardFooter>
-        )}
       </CardContent>
+      <TablePagination pagination={pagination} onPageChange={onPageChange} />
     </Card>
   );
 }

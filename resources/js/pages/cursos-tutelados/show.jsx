@@ -32,6 +32,8 @@ export default function Show({ cursoTutelado }) {
   const cursoId = cursoTutelado.curso.id;
   const { deleteConfirm } = useDialog();
 
+  const hasAnyAction = cursoTutelado.can?.update || cursoTutelado.can?.delete;
+
   const handleDelete = (vinculoId) => {
     deleteConfirm({
       title: 'Tens a certeza?',
@@ -83,38 +85,40 @@ export default function Show({ cursoTutelado }) {
             </div>
 
             {/* Menu três pontos */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-white hover:bg-white/20"
-                >
-                  <MoreHorizontalIcon />
-                </Button>
-              </DropdownMenuTrigger>
+            {hasAnyAction && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white hover:bg-white/20"
+                  >
+                    <MoreHorizontalIcon />
+                  </Button>
+                </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() =>
-                    router.visit(
-                      edit({
-                        instituicao: instituicaoId,
-                        cursoTutelado: cursoTuteladoId,
-                      }).url,
-                    )
-                  }
-                >
-                  Editar
-                </DropdownMenuItem>
+                <DropdownMenuContent align="end">
+                  {cursoTutelado.can?.update && (
+                    <DropdownMenuItem
+                      onClick={() =>
+                        router.visit(
+                          edit({
+                            instituicao: instituicaoId,
+                            cursoTutelado: cursoTuteladoId,
+                          }).url,
+                        )
+                      }
+                    >
+                      Editar
+                    </DropdownMenuItem>
+                  )}
 
-                <DropdownMenuSeparator />
-
-                {/*<DropdownMenuItem variant="destructive">
-                  Remover curso
-                </DropdownMenuItem>*/}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {/*<DropdownMenuItem variant="destructive">
+                    Remover curso
+                  </DropdownMenuItem>*/}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
 
@@ -180,7 +184,6 @@ export default function Show({ cursoTutelado }) {
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Turmas</p>
-
             <h2 className="text-xl font-semibold">
               {cursoTutelado.contadores?.turmas ?? 0}
             </h2>
@@ -190,7 +193,6 @@ export default function Show({ cursoTutelado }) {
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Professores</p>
-
             <h2 className="text-xl font-semibold">
               {cursoTutelado.contadores?.professores ?? 0}
             </h2>
@@ -200,7 +202,6 @@ export default function Show({ cursoTutelado }) {
         <Card>
           <CardContent className="p-4">
             <p className="text-sm text-muted-foreground">Disciplinas</p>
-
             <h2 className="text-xl font-semibold">
               {cursoTutelado.contadores?.disciplinas ?? 0}
             </h2>
@@ -220,6 +221,7 @@ export default function Show({ cursoTutelado }) {
             instituicaoId={instituicaoId}
             cursoTuteladoId={cursoTuteladoId}
             turmas={cursoTutelado.turmas}
+            can={cursoTutelado.can}
             pagination={{
               current_page: cursoTutelado.turmas?.current_page,
               last_page: cursoTutelado.turmas?.last_page,
@@ -233,6 +235,7 @@ export default function Show({ cursoTutelado }) {
             instituicaoId={instituicaoId}
             cursoTuteladoId={cursoTuteladoId}
             professores={cursoTutelado.professores}
+            can={cursoTutelado.can}
             deleteFn={handleDelete}
             pagination={{
               current_page: cursoTutelado.professores?.current_page,

@@ -358,6 +358,10 @@ class RolePermissionSeeder extends Seeder
                 'alunos.viewAny',
                 'alunos.view',
 
+                // Professores (ver o próprio perfil)
+                'professores.viewAny',
+                'professores.view',
+
                 // Turmas
                 'turmas.viewAny',
                 'turmas.view',
@@ -397,6 +401,11 @@ class RolePermissionSeeder extends Seeder
                 // Avisos
                 'avisos.viewAny',
                 'avisos.view',
+
+                // Alunos (ver o próprio perfil)
+                'alunos.viewAny',
+                'alunos.view',
+
 
                 // Grupo PAP
                 'grupopap.viewAny',

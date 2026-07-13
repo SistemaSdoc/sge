@@ -53,9 +53,11 @@ export function TabProfessores({
   instituicaoId,
   cursoTuteladoId,
   deleteFn,
+  can = {},
 }) {
   const [editVinculo, setEditVinculo] = useState(null);
   const isEmpty = !professores.data || professores.data.length === 0;
+  const hasAnyAction = can?.update || can?.delete;
 
   return (
     <>
@@ -63,20 +65,22 @@ export function TabProfessores({
         <CardHeader className="border-b">
           <CardTitle>Professores</CardTitle>
           <CardDescription>Professores associados a este curso</CardDescription>
-          <CardAction>
-            <Button asChild>
-              <Link
-                href={
-                  create({
-                    instituicao: instituicaoId,
-                    cursoTutelado: cursoTuteladoId,
-                  }).url
-                }
-              >
-                Adicionar
-              </Link>
-            </Button>
-          </CardAction>
+          {can?.attachProfessor && (
+            <CardAction>
+              <Button asChild>
+                <Link
+                  href={
+                    create({
+                      instituicao: instituicaoId,
+                      cursoTutelado: cursoTuteladoId,
+                    }).url
+                  }
+                >
+                  Adicionar
+                </Link>
+              </Button>
+            </CardAction>
+          )}
         </CardHeader>
 
         <CardContent className="p-0!">
@@ -86,14 +90,16 @@ export function TabProfessores({
               icon={BookOpenIcon}
               title="Nenhum professor associado"
               description="Comece adicionando professores ao curso"
-              action={{
-                label: 'Adicionar Professor',
-                href: create({
-                  instituicao: instituicaoId,
-                  cursoTutelado: cursoTuteladoId,
-                }).url,
-                variant: 'outline',
-              }}
+              action={
+                can?.attachProfessor && {
+                  label: 'Adicionar Professor',
+                  href: create({
+                    instituicao: instituicaoId,
+                    cursoTutelado: cursoTuteladoId,
+                  }).url,
+                  variant: 'outline',
+                }
+              }
             />
           ) : (
             <Table>
@@ -101,7 +107,9 @@ export function TabProfessores({
                 <TableRow className="bg-muted/72">
                   <TableHead className="px-4">Nome</TableHead>
                   <TableHead>Tipo</TableHead>
-                  <TableHead className="px-4 text-right">Acções</TableHead>
+                  {hasAnyAction && (
+                    <TableHead className="px-4 text-right">Acções</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -121,7 +129,9 @@ export function TabProfessores({
                         <Minus size={15} className="text-muted-foreground" />
                       )}
                     </TableCell>
+                    {hasAnyAction && (
                     <TableCell className="px-4 text-right">
+                      {(professor.can?.update || professor.can?.delete) && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -133,33 +143,42 @@ export function TabProfessores({
                             <span className="sr-only">Open menu</span>
                           </Button>
                         </DropdownMenuTrigger>
-                            
-                        <DropdownMenuContent  className="w-auto" align="end">
+
+                        <DropdownMenuContent className="w-auto" align="end">
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditVinculo({
-                                ...professor,
-                                instituicaoId,
-                                cursoTuteladoId,
-                              });
-                            }}
-                          >
-                            Editar do Curso
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteFn(professor.vinculo_id);
-                            }}
-                          >
-                            Remover do curso
-                          </DropdownMenuItem>
+                          {professor.can?.update && (
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditVinculo({
+                                  ...professor,
+                                  instituicaoId,
+                                  cursoTuteladoId,
+                                });
+                              }}
+                            >
+                              Editar do Curso
+                            </DropdownMenuItem>
+                          )}
+                          {professor.can?.update && professor.can?.delete && (
+                              <DropdownMenuSeparator />
+                            )}
+                          {professor.can?.delete && (
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteFn(professor.vinculo_id);
+                              }}
+                            >
+                              Remover do curso
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
+                      )}
                     </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>

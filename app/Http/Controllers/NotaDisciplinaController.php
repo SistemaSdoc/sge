@@ -22,7 +22,8 @@ class NotaDisciplinaController extends Controller
     public function __construct(
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {}
+    ) {
+    }
 
     /**
      * Lista as notas dos alunos de uma turma numa disciplina
@@ -44,13 +45,13 @@ class NotaDisciplinaController extends Controller
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
         ])
             ->where('turma_id', $turma->id)
             ->where('situacao', 'activo')
             ->where('activo', true)
             ->orderBy('id')
-            ->get();
+            ->paginate(20, ['*'], 'page_alunos');
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index', [
             'instituicao' => $instituicao->id,
@@ -64,15 +65,20 @@ class NotaDisciplinaController extends Controller
                 'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
                 'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
             ],
-            'alunos' => $turmaAlunos->map(fn ($ta) => [
-                'turma_aluno_id' => $ta->id,
-                'aluno_id' => $ta->aluno->id,
-                'nome' => $ta->aluno->inscricao?->candidato?->nome,
-                'notas' => $ta->notas
-                    ->map(fn ($n) => $this->formatarNota($n))
-                    ->keyBy('periodo'),
-            ]),
+            'alunos' => [
+                'data' => $turmaAlunos->getCollection()->map(fn($ta) => [
+                    'turma_aluno_id' => $ta->id,
+                    'aluno_id' => $ta->aluno->id,
+                    'nome' => $ta->aluno->inscricao?->candidato?->nome,
+                    'notas' => $ta->notas
+                        ->map(fn($n) => $this->formatarNota($n))
+                        ->keyBy('periodo'),
+                ])->values(),
+                'current_page' => $turmaAlunos->currentPage(),
+                'last_page' => $turmaAlunos->lastPage(),
+            ],
         ]);
+
     }
 
     /**
@@ -95,13 +101,13 @@ class NotaDisciplinaController extends Controller
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
         ])
             ->where('turma_id', $turma->id)
             ->where('situacao', 'activo')
             ->where('activo', true)
             ->orderBy('id')
-            ->get();
+            ->paginate(20, ['*'], 'page_alunos');
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
             'instituicao' => $instituicao->id,
@@ -117,14 +123,18 @@ class NotaDisciplinaController extends Controller
                     'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
                     'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
                 ],
-                'alunos' => $turmaAlunos->map(fn ($ta) => [
-                    'turma_aluno_id' => $ta->id,
-                    'aluno_id' => $ta->aluno->id,
-                    'nome' => $ta->aluno->inscricao?->candidato?->nome,
-                    'notas' => $ta->notas
-                        ->map(fn ($n) => $this->formatarNota($n))
-                        ->keyBy('periodo'),
-                ]),
+                'alunos' => [
+                    'data' => $turmaAlunos->getCollection()->map(fn($ta) => [
+                        'turma_aluno_id' => $ta->id,
+                        'aluno_id' => $ta->aluno->id,
+                        'nome' => $ta->aluno->inscricao?->candidato?->nome,
+                        'notas' => $ta->notas
+                            ->map(fn($n) => $this->formatarNota($n))
+                            ->keyBy('periodo'),
+                    ]),
+                    'current_page' => $turmaAlunos->currentPage(),
+                    'last_page' => $turmaAlunos->lastPage(),
+                ],
             ],
         ]);
     }

@@ -50,7 +50,6 @@ export default function avisoTable({
   deleteFn,
   pagination = {},
   onPageChange,
-  can,
 }) {
   const hasAnyAction = avisos.some((aviso) => aviso.can.update || aviso.can.delete);
   const isEmpty = !avisos || avisos.length === 0;

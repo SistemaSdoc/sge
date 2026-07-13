@@ -36,7 +36,6 @@ export default function Index({ avisos, can }) {
           last_page: avisos.last_page,
         }}
         onPageChange={handlePageChange}
-        can={can}
       />
     </div>
   );

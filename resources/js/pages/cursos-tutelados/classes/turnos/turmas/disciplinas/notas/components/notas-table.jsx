@@ -31,10 +31,12 @@ import { mediaTrimestral } from '@/utils/media-trimestral';
 import { verificarSituacao } from '@/utils/verificar-situacao';
 import { create } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
 import { exportarDisciplina } from '@/actions/App/Http/Controllers/ExportarMiniPautaController';
+import TablePagination from '@/components/table-pagination';
 
-function buildInitialNotas(alunos, periodo) {
+
+function buildInitialNotas(alunosData, periodo) {
   const state = {};
-  for (const aluno of alunos) {
+  for (const aluno of alunosData) {
     const nota = aluno.notas?.[periodo] ?? {};
     state[aluno.turma_aluno_id] = {
       mac: nota.mac ?? '',
@@ -47,7 +49,7 @@ function buildInitialNotas(alunos, periodo) {
 }
 
 export default function NotasTable({
-  alunos = [],
+  alunos = { data: [] },
   disciplina,
   tdpId,
   instituicao,
@@ -55,14 +57,16 @@ export default function NotasTable({
   cursoClasse,
   cursoClasseTurno,
   turma,
+  pagination = {},
+  onPageChange,
 }) {
   const [periodo, setPeriodo] = useState('1');
   const [notas, setNotas] = useState({});
 
-  const isEmpty = alunos.length === 0;
+  const isEmpty = alunos.data.length === 0;
 
   useEffect(() => {
-    setNotas(buildInitialNotas(alunos, periodo));
+    setNotas(buildInitialNotas(alunos.data, periodo));
   }, [alunos, periodo]);
 
   return (
@@ -70,7 +74,7 @@ export default function NotasTable({
       <CardHeader className="border-b">
         <CardTitle>{disciplina?.nome ?? 'Disciplina'}</CardTitle>
 
-        {alunos.length > 0 && (
+        {alunos.data.length > 0 && (
           <CardAction className="flex items-center gap-3">
             <Select value={periodo} onValueChange={setPeriodo}>
               <SelectTrigger className="w-40">
@@ -146,7 +150,8 @@ export default function NotasTable({
             </TableHeader>
 
             <TableBody>
-              {alunos.map((aluno, index) => {
+              {alunos.data.map((aluno, index) => {
+                
                 const n = notas[aluno.turma_aluno_id] ?? {};
                 const mt = mediaTrimestral(n.mac, n.npp, n.npt);
                 const mediaFinal = aluno.notas?.[periodo]?.media_final ?? null;
@@ -187,15 +192,8 @@ export default function NotasTable({
             </TableBody>
           </Table>
         )}
-
-        {!isEmpty && (
-          <CardFooter className="justify-between">
-            <span className="text-muted-foreground">
-              {alunos.length} aluno{alunos.length !== 1 ? 's' : ''}
-            </span>
-          </CardFooter>
-        )}
       </CardContent>
+      <TablePagination pagination={pagination} onPageChange={onPageChange} />
     </Card>
   );
 }

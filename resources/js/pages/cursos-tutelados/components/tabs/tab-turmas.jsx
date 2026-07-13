@@ -41,6 +41,7 @@ export function TabTurmas({
   onPageChange,
   instituicaoId,
   cursoTuteladoId,
+  can = {},
 }) {
   const isEmpty = !turmas.data || turmas.data.length === 0;
 

@@ -41,6 +41,10 @@ class CursoTuteladoResourceShow extends JsonResource
             'vinculo_id' => $prof->pivot->id,
             'nome' => $prof->user?->nome,
             'tipo' => $prof->pivot->tipo,
+            'can' => [
+                'update' => $request->user()?->can('update', $this->resource) ?? false,
+                'delete' => $request->user()?->can('delete', $this->resource) ?? false,
+            ],
         ]);
 
         // [ADICIONADO] paginador manual das turmas
@@ -93,6 +97,11 @@ class CursoTuteladoResourceShow extends JsonResource
             ]),
             'professores' => $professores->toArray(),
             'turmas' => $turmas->toArray(),
+            'can' => [
+                'update' => $request->user()?->can('update', $this->resource) ?? false,
+                'delete' => $request->user()?->can('delete', $this->resource) ?? false,
+                'attachProfessor' => $request->user()?->can('update', $this->resource) ?? false,
+            ],
         ];
     }
 }
