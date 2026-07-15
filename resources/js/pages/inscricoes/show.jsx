@@ -24,9 +24,9 @@ export default function Show() {
 
         <CardContent className="grid grid-cols-1 gap-6 py-6 md:grid-cols-3">
           <div>
-            <p className="text-sm text-muted-foreground">Morada</p>
+            <p className="text-sm text-muted-foreground">Ano Lectivo</p>
             <p className="font-medium">
-              {inscricao.candidato.morada || <Minus size={15} className="text-muted-foreground" />}
+              {inscricao.ano_lectivo || <Minus size={15} className="text-muted-foreground" />}
             </p>
           </div>
 

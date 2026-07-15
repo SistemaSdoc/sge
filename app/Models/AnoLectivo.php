@@ -39,4 +39,19 @@ class AnoLectivo extends Model
     {
         return static::where('activo', true)->first();
     }
+
+    public function turmas()
+    {
+        return $this->hasMany(Turma::class);
+    }
+
+    public function inscricoes()
+    {
+        return $this->hasMany(Inscricao::class);
+    }
+
+    public function classeTurnoDisciplinas()
+    {
+        return $this->hasMany(ClasseTurnoDisciplina::class, 'ano_lectivo_id');
+    }
 }

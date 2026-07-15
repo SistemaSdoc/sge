@@ -7,6 +7,7 @@ use App\Http\Resources\ClasseTurnoDisciplinaResource;
 use App\Http\Resources\GrupoPapIndexResource;
 use App\Http\Resources\Turma\TurmaShowResource;
 use App\Models\Aluno;
+use App\Models\AnoLectivo;
 use App\Models\ClasseTurnoDisciplina;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
@@ -24,7 +25,8 @@ class ClasseTurnoTurmaController extends Controller
 {
     public function __construct(
         private readonly PautaService $pautaService,
-    ) {}
+    ) {
+    }
 
     public function index(
         Instituicao $instituicao,
@@ -34,13 +36,18 @@ class ClasseTurnoTurmaController extends Controller
 
         $user = Auth::user();
 
+        // Filtro ano lectivo
+        $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::where('activo', 1)->first()?->id;
+
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
-            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
+            ->where('ano_lectivo_id', $anoLectivoId)  // ← Filtro
             ->when(
                 $user->hasRole('Professor'),
-                fn ($q) => $q->whereHas('professores', function ($q) use ($user) {
+                fn($q) => $q->whereHas('professores', function ($q) use ($user) {
                     $q->where('professor_id', $user->professor->id);
                 })
             )
@@ -49,6 +56,7 @@ class ClasseTurnoTurmaController extends Controller
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoTutora:id,nome',
                 'cursoClasseTurno.turno:id,nome',
                 'cursoClasseTurno.cursoClasse.classe:id,nome',
+                'anoLectivo:id,nome',
             ])
             ->paginate(5);
 
@@ -61,14 +69,17 @@ class ClasseTurnoTurmaController extends Controller
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
                 ],
             ],
-            'turmas' => $turmas->through(fn ($turma) => [
+            'turmas' => $turmas->through(fn($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
                 'turno' => $turma->cursoClasseTurno?->turno?->nome,
+                'ano_lectivo' => $turma->anoLectivo?->nome,
                 'cursoClasse' => ['id' => $turma->cursoClasseTurno?->cursoClasse?->id],
                 'cursoClasseTurno' => ['id' => $turma->cursoClasseTurno?->id],
             ]),
+            'anosLectivos' => AnoLectivo::all(),
+            'anoLectivoActual' => $anoLectivoId,
         ]);
     }
 
@@ -78,11 +89,13 @@ class ClasseTurnoTurmaController extends Controller
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno
     ) {
-        // Gate::authorize('create', Turma::class);
-
         $cursoTutelado->load(['instituicaoCurso.curso', 'instituicaoTutora']);
         $cursoClasse->load('classe');
         $cursoClasseTurno->load('turno');
+
+        // Filtro ano lectivo
+        $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::where('activo', 1)->first()?->id;
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/create', [
             'instituicao' => [
@@ -101,6 +114,7 @@ class ClasseTurnoTurmaController extends Controller
                 'id' => $cursoClasseTurno->id,
                 'nome' => $cursoClasseTurno->turno->nome ?? 'Turno não encontrado',
             ],
+            'anoLectivoId' => $anoLectivoId,
             'can' => [
                 'create' => Auth::user()->can('create', Turma::class),
             ],
@@ -116,12 +130,16 @@ class ClasseTurnoTurmaController extends Controller
     ) {
         Gate::authorize('create', Turma::class);
 
+        // Ano lectivo ativo
+        $anoLectivoId = AnoLectivo::where('activo', 1)->first()?->id;
+
         $request->validate([
             'nome' => 'required|string|max:255',
             'max_alunos' => 'nullable|integer|min:1',
         ]);
 
         $jaExiste = Turma::where('curso_classe_turno_id', $cursoClasseTurno->id)
+            ->where('ano_lectivo_id', $anoLectivoId)
             ->where('nome', $request->nome)
             ->exists();
 
@@ -131,6 +149,7 @@ class ClasseTurnoTurmaController extends Controller
 
         Turma::create([
             'curso_classe_turno_id' => $cursoClasseTurno->id,
+            'ano_lectivo_id' => $anoLectivoId,
             'nome' => $request->nome,
             'max_alunos' => $request->max_alunos,
         ]);
@@ -157,6 +176,7 @@ class ClasseTurnoTurmaController extends Controller
         $turma->load([
             'cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasseTurno.turno:id,nome',
+            'anoLectivo:id,nome',
             'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
         ]);
 
@@ -169,7 +189,7 @@ class ClasseTurnoTurmaController extends Controller
             ->classeTurnoDisciplinas()
             ->with([
                 'disciplina:id,nome,sigla',
-                'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
+                'turmaDisciplinaProfessores' => fn($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
                 'horarios',
             ]);
@@ -177,12 +197,9 @@ class ClasseTurnoTurmaController extends Controller
         if ($user->hasRole('Professor')) {
             $professorId = $user->professor?->id;
 
-            if (! $professorId) {
+            if (!$professorId) {
                 $disciplinasQuery->whereRaw('0 = 1');
             }
-
-            // TODO: quando existir $professorId, filtrar as disciplinas
-            // atribuídas a esse professor nesta turma.
         }
 
         $disciplinas = $disciplinasQuery->paginate(5, ['*'], 'page_disciplinas');

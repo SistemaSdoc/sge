@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
     'curso_classe_turno_id',
     'nome',
     'max_alunos',
+    'ano_lectivo_id',
 ])]
 
 class Turma extends Model
@@ -70,5 +71,10 @@ class Turma extends Model
     public function turmaAlunos()
     {
         return $this->hasMany(TurmaAluno::class, 'turma_id');
+    }
+
+    public function anoLectivo()
+    {
+        return $this->belongsTo(AnoLectivo::class);
     }
 }

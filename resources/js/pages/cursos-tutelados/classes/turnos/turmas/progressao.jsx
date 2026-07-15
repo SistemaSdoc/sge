@@ -53,9 +53,9 @@ function SituacaoBadge({ situacao }) {
   )
 }
 
-export default function ProgressaoPage({ alunos, turma, total, resumo, resultado, turmas }) {
+export default function ProgressaoPage({ alunos, turma, total, resumo, resultado, turmas, anosLectivos }) {
   const [turmaDestinoId, setTurmaDestinoId] = useState('')
-  const [anoLectivo, setAnoLectivo] = useState(String(new Date().getFullYear() + 1))
+  const [selectedAnoLectivo, setSelectedAnoLectivo] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [isPending, setIsPending] = useState(false)
 
@@ -63,7 +63,7 @@ export default function ProgressaoPage({ alunos, turma, total, resumo, resultado
     setIsPending(true)
     router.post(window.location.pathname, {
       turma_destino_id: turmaDestinoId,
-      ano_lectivo: Number(anoLectivo),
+      ano_lectivo_id: selectedAnoLectivo,
     }, {
       preserveScroll: true,
       onSuccess: () => {
@@ -211,12 +211,21 @@ export default function ProgressaoPage({ alunos, turma, total, resumo, resultado
 
           <div className="space-y-1">
             <label className="text-sm font-medium">Ano Lectivo</label>
-            <Input
-              type="number"
-              placeholder="Ex: 2026"
-              value={anoLectivo}
-              onChange={(e) => setAnoLectivo(e.target.value)}
-            />
+            <Select value={selectedAnoLectivo} onValueChange={setSelectedAnoLectivo}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione o ano lectivo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Anos lectivos disponíveis</SelectLabel>
+                  {anosLectivos?.map((ano) => (
+                    <SelectItem key={ano.id} value={ano.id}>
+                      {ano.nome}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
 
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

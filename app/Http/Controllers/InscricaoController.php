@@ -6,6 +6,8 @@ use App\Http\Requests\Inscricao\StoreInscricaoRequest;
 use App\Http\Requests\UpdateInscricaoRequest;
 use App\Http\Resources\Inscricao\InscricaoResource;
 use App\Http\Resources\Inscricao\InscricaoShowResource;
+use App\Models\AnoLectivo;
+use App\Models\CursoClasseTurno;
 use App\Models\Inscricao;
 use App\Models\Instituicao;
 use App\Services\InscricaoService;
@@ -16,7 +18,8 @@ class InscricaoController extends Controller
 {
     public function __construct(
         private InscricaoService $inscricaoService
-    ) {}
+    ) {
+    }
 
     public function index()
     {
@@ -25,18 +28,27 @@ class InscricaoController extends Controller
         $user = Auth::user();
         $instituicaoId = Auth::user()?->instituicaoFiltro();
 
+        // Ano lectivo ativo global
+        $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::where('activo', 1)->first()?->id;
+
+
         $inscricoes = Inscricao::with([
             'candidato:id,nome',
             'cursoClasseTurno.turno:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
+            'anoLectivo:id,nome',  
         ])->when(
-            $instituicaoId,
-            fn ($q) => $q->whereHas(
-                'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                fn ($q) => $q->where('instituicao_id', $instituicaoId)
-            )
-        )->latest()->paginate(10);
+                $instituicaoId,
+                fn($q) => $q->whereHas(
+                    'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                    fn($q) => $q->where('instituicao_id', $instituicaoId)
+                )
+            )->when(
+                $anoLectivoId,
+                fn($q) => $q->where('ano_lectivo_id', $anoLectivoId)
+            )->latest()->paginate(10);
 
         $inscricoes->getCollection()->transform(function ($inscricao) use ($user) {
             $inscricao->can = [
@@ -54,6 +66,8 @@ class InscricaoController extends Controller
                 'current_page' => $inscricoes->currentPage(),
                 'last_page' => $inscricoes->lastPage(),
             ],
+            'anosLectivos' => AnoLectivo::all(), // Todos os anos
+            'anoLectivoActual' => $anoLectivoId,
             'can' => [
                 'create' => $user->can('create', Inscricao::class),
             ],
@@ -65,29 +79,46 @@ class InscricaoController extends Controller
         $this->authorize('create', Inscricao::class);
 
         $user = auth()->user();
+        $instituicaoId = $user->instituicao_id;
 
-        $instituicao = Instituicao::with([
-            'instituicaoCursos.curso',
-            'instituicaoCursos.cursoTutelado.cursoClasses.classe:id,nome',
-            'instituicaoCursos.cursoTutelado.cursoClasses.turnos.turno:id,nome',
-        ])->findOrFail($user->instituicao_id);
+        $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::where('activo', 1)->first()?->id;
 
-        $cursos = $instituicao->instituicaoCursos->map(fn ($ci) => [
-            'id' => $ci->id,
-            'nome' => $ci->curso->nome,
-            'turnos' => $ci->cursoTutelado?->cursoClasses
-                ->filter(fn ($c) => $c->classe?->nome === '10ª')
-                ->flatMap(fn ($c) => $c->turnos->map(fn ($t) => [
-                    'id' => $t->id,
-                    'nome' => $t->turno->nome,
-                ]))->values(),
-        ])->filter(fn ($ci) => ! empty($ci['turnos']) && $ci['turnos']->isNotEmpty())->values();
+        // Busca curso_classe_turno apenas da instituição do utilizador, classe 10ª
+        $cursoClasseTurnos = CursoClasseTurno::with([
+            'turno:id,nome',
+            'cursoClasse.classe:id,nome',
+            'cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
+        ])->whereHas(
+                'cursoClasse.cursoTutelado.instituicaoCurso',
+                fn($q) => $q->where('instituicao_id', $instituicaoId)
+            )->get();
+
+        // Agrupa por curso e filtra por classe 10ª
+        $cursos = $cursoClasseTurnos
+            ->filter(fn($cct) => $cct->cursoClasse->classe?->nome === '10ª')
+            ->groupBy(function ($cct) {
+                return $cct->cursoClasse->cursoTutelado->instituicaoCurso->id;
+            })
+            ->map(function ($group) {
+                $primeiro = $group->first();
+
+                return [
+                    'id' => $primeiro->cursoClasse->cursoTutelado->instituicaoCurso->id,
+                    'nome' => $primeiro->cursoClasse->cursoTutelado->instituicaoCurso->curso->nome,
+                    'turnos' => $group->map(fn($cct) => [
+                        'id' => $cct->id,
+                        'nome' => $cct->turno->nome,
+                    ])->values()
+                ];
+            })
+            ->values();
 
         return Inertia::render('inscricoes/create', [
             'cursos' => $cursos,
+            'anoLectivoId' => $anoLectivoId,
         ]);
     }
-
     public function store(StoreInscricaoRequest $request)
     {
         $this->authorize('create', Inscricao::class);
@@ -106,6 +137,7 @@ class InscricaoController extends Controller
             'cursoClasseTurno.turno:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
+            'anoLectivo:id,nome', 
         ]);
 
         return Inertia::render('inscricoes/show', [

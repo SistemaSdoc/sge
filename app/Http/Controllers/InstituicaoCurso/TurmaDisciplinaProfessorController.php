@@ -4,6 +4,7 @@ namespace App\Http\Controllers\InstituicaoCurso;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\InstituicaoCurso\StoreProfessorRequest;
+use App\Models\AnoLectivo;
 use App\Models\ClasseTurnoDisciplina;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
@@ -33,7 +34,7 @@ class TurmaDisciplinaProfessorController extends Controller
         $professores = $cursoTutelado->professores()
             ->with('user:id,nome')
             ->get()
-            ->map(fn (Professor $professor) => [
+            ->map(fn(Professor $professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ]);
@@ -69,7 +70,12 @@ class TurmaDisciplinaProfessorController extends Controller
     ) {
         Gate::authorize('definirProfessor', new TurmaDisciplinaProfessor);
 
-        if ($classeTurnoDisciplina->tem_professor && ! $request->boolean('force')) {
+        // Valida que a turma pertence ao ano lectivo actual
+        $anoLectivoActual = AnoLectivo::where('activo', 1)->first()?->id;
+
+        abort_if($turma->ano_lectivo_id !== $anoLectivoActual, 403);
+
+        if ($classeTurnoDisciplina->tem_professor && !$request->boolean('force')) {
             return back()->withErrors([
                 'message' => 'Esta disciplina já tem um professor atribuído. Deseja substituí-lo?',
                 'requires_confirmation' => true,
@@ -77,7 +83,6 @@ class TurmaDisciplinaProfessorController extends Controller
         }
 
         DB::transaction(function () use ($request, $classeTurnoDisciplina, $turma) {
-            // Remove o anterior se existir
             TurmaDisciplinaProfessor::where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
                 ->where('turma_id', $turma->id)
                 ->delete();

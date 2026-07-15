@@ -30,6 +30,7 @@ class TurmaResourceIndex extends JsonResource
                 'id' => $this->cursoClasseTurno->cursoClasse->id,
                 'nome' => $this->cursoClasseTurno->cursoClasse->classe->nome,
             ],
+            'ano_lectivo' => $this->anoLectivo?->nome,
             'turno' => [
                 'id' => $this->cursoClasseTurno->id,
                 'nome' => $this->cursoClasseTurno->turno->nome,
