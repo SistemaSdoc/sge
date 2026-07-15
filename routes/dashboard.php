@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlunoController;
+use App\Http\Controllers\AnoLectivoController;
 use App\Http\Controllers\AvisoController;
 use App\Http\Controllers\BancaJuriPapController;
 use App\Http\Controllers\CertificadoController;
@@ -26,9 +27,11 @@ use App\Http\Controllers\GrupoPapController;
 use App\Http\Controllers\InscricaoController;
 use App\Http\Controllers\InstituicaoController;
 use App\Http\Controllers\InstituicaoCurso\TurmaDisciplinaProfessorController;
+use App\Http\Controllers\ItemPagavelController;
 use App\Http\Controllers\NotaAlunoController;
 use App\Http\Controllers\NotaDisciplinaController;
 use App\Http\Controllers\NotaDisciplinaRecursoController;
+use App\Http\Controllers\PagamentoController;
 use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
 use App\Http\Controllers\ProgressaoController;
 use App\Http\Controllers\TurmaController;
@@ -197,6 +200,32 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 });
 
 Route::resource('avisos', AvisoController::class);
+
+Route::resource('itens-pagaveis', ItemPagavelController::class)
+    ->names([
+        'index' => 'item-pagaveis.index',
+        'create' => 'item-pagaveis.create',
+        'store' => 'item-pagaveis.store',
+        'show' => 'item-pagaveis.show',
+        'edit' => 'item-pagaveis.edit',
+        'update' => 'item-pagaveis.update',
+        'destroy' => 'item-pagaveis.destroy',
+    ])
+    ->parameters(['itens-pagaveis' => 'itemPagavel']);
+
+Route::resource('pagamentos', PagamentoController::class)
+    ->names([
+        'index' => 'pagamentos.index',
+        'create' => 'pagamentos.create',
+        'store' => 'pagamentos.store',
+        'show' => 'pagamentos.show',
+        'edit' => 'pagamentos.edit',
+        'update' => 'pagamentos.update',
+        'destroy' => 'pagamentos.destroy',
+    ])
+    ->parameters(['pagamentos' => 'pagamento']);
+
+Route::resource('anos-lectivos', AnoLectivoController::class)->parameters(['anos-lectivos' => 'anoLectivo']);
 
 Route::get('pap', [GrupoPapController::class, 'index'])->name('grupos-pap.index');
 

@@ -143,8 +143,20 @@ class PermissionSeeder extends Seeder
             'acessos.viewAny',
             'acessos.create',
             'relatorios.view',
+
+            // Pagamentos
+            'pagamentos.viewAny',
             'pagamentos.view',
-            'pagamentos.gerir',
+            'pagamentos.create',
+            'pagamentos.update',
+            'pagamentos.delete',
+
+            // Itens Pagáveis
+            'itemspagaveis.viewAny',
+            'itemspagaveis.view',
+            'itemspagaveis.create',
+            'itemspagaveis.update',
+            'itemspagaveis.delete',
         ];
 
         foreach ($permissions as $permission) {

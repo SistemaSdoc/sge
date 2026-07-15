@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AnoLectivo extends Model
 {
@@ -17,14 +17,11 @@ class AnoLectivo extends Model
         'nome',
         'data_inicio',
         'data_fim',
-        'activo',
-        'status',
     ];
 
     protected $casts = [
         'data_inicio' => 'date',
         'data_fim' => 'date',
-        'activo' => 'boolean',
     ];
 
     public function propinas(): HasMany
@@ -32,12 +29,29 @@ class AnoLectivo extends Model
         return $this->hasMany(Propina::class);
     }
 
-    /**
-     * Retorna o ano lectivo actualmente activo.
-     */
+    protected static function booted(): void
+    {
+        static::saving(function (AnoLectivo $ano) {
+            $ano->nome = $ano->data_inicio->format('Y').'/'.$ano->data_fim->format('y');
+        });
+    }
+
+    public function getEstadoAttribute(): string
+    {
+        $hoje = now()->startOfDay();
+
+        return match (true) {
+            $hoje->lt($this->data_inicio) => 'planeado',
+            $hoje->gt($this->data_fim) => 'encerrado',
+            default => 'a_decorrer',
+        };
+    }
+
     public static function activo(): ?self
     {
-        return static::where('activo', true)->first();
+        return static::whereDate('data_inicio', '<=', now())
+            ->whereDate('data_fim', '>=', now())
+            ->first();
     }
 
     public function turmas()

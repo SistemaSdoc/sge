@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Aluno;
+use App\Models\ItemPagavel;
 use App\Models\Pagamento;
 use App\Models\Propina;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -12,9 +15,9 @@ class PagamentoController extends Controller
 {
     public function index(Request $request, Propina $propina)
     {
-        $this->authorize('view', $propina);
+        $this->authorize('viewAny', Pagamento::class);
 
-        return Inertia::render('Pagamento/Index', [
+        return Inertia::render('pagamentos/index', [
             'propina' => $propina->load('aluno:id,nome'),
             'pagamentos' => $propina->pagamentos()
                 ->with('registadoPor:id,name')
@@ -31,6 +34,43 @@ class PagamentoController extends Controller
                         'delete' => $request->user()->can('delete', $p),
                     ],
                 ]),
+        ]);
+    }
+
+        public function create()
+    {
+        $this->authorize('create', Pagamento::class);
+
+        $user = Auth::user();
+
+        $alunos = Aluno::query()
+            ->whereHas('user', fn ($query) => $query->where('instituicao_id', $user->instituicao_id))
+            ->with(['user'])
+            ->get()
+            ->map(function (Aluno $aluno) {
+                $turma = $aluno->turmaActual()->first();
+                $cursoClasseTurno = $turma?->cursoClasseTurno;
+                $cursoClasse = $cursoClasseTurno?->cursoClasse;
+                $curso = $cursoClasse?->cursoTutelado?->instituicaoCurso?->curso;
+
+                return [
+                    'id' => $aluno->id,
+                    'nome' => $aluno->user?->name ?? $aluno->user?->nome ?? 'Sem nome',
+                    'curso' => $curso?->nome ?? '—',
+                    'classe' => $cursoClasse?->classe?->nome ?? '—',
+                    'turno' => $cursoClasseTurno?->turno?->nome ?? '—',
+                    'turma' => $turma?->nome ?? '—',
+                ];
+            });
+
+        $itensPagaveis = ItemPagavel::query()
+            ->where('instituicao_id', $user->instituicao_id)
+            ->orderBy('nome')
+            ->get(['id', 'nome', 'tipo', 'valor_padrao']);
+
+        return Inertia::render('pagamentos/create', [
+            'alunos' => $alunos,
+            'itensPagaveis' => $itensPagaveis,
         ]);
     }
 

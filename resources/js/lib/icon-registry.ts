@@ -11,7 +11,9 @@ import {
   Users,
   CircleDashed,
   LayoutList,
-  FileTextIcon
+  FileTextIcon,
+  ReceiptText,
+  CreditCard,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -28,7 +30,9 @@ export const iconRegistry: Record<string, LucideIcon> = {
   ShieldCheck,
   Users,
   LayoutList,
-  FileTextIcon
+  FileTextIcon,
+  ReceiptText,
+  CreditCard,
 };
 
 export function resolveIcon(name: string): LucideIcon {

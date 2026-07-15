@@ -16,18 +16,18 @@ class ItemPagavelController extends Controller
             ->where('instituicao_id', $request->user()->instituicao_id)
             ->orderBy('nome')
             ->paginate(15)
-            ->through(fn(ItemPagavel $item) => [
+            ->through(fn (ItemPagavel $item) => [
                 'id' => $item->id,
                 'nome' => $item->nome,
                 'tipo' => $item->tipo,
                 'valor_padrao' => $item->valor_padrao,
                 'can' => [
-                    'update' => $request->user()->can('update', $item),
-                    'delete' => $request->user()->can('delete', $item),
+                    'update' => $request->user()->can('update', $item) ?? true,
+                    'delete' => $request->user()->can('delete', $item) ?? true,
                 ],
             ]);
 
-        return Inertia::render('ItemPagavel/Index', [
+        return Inertia::render('itens-pagaveis/index', [
             'itens' => $itens,
             'can' => [
                 'create' => $request->user()->can('create', ItemPagavel::class),
@@ -39,7 +39,7 @@ class ItemPagavelController extends Controller
     {
         $this->authorize('create', ItemPagavel::class);
 
-        return Inertia::render('ItemPagavel/Create');
+        return Inertia::render('itens-pagaveis/create');
     }
 
     public function store(Request $request)
@@ -63,7 +63,7 @@ class ItemPagavelController extends Controller
     {
         $this->authorize('update', $itemPagavel);
 
-        return Inertia::render('ItemPagavel/Edit', [
+        return Inertia::render('itens-pagaveis/edit', [
             'itemPagavel' => $itemPagavel,
         ]);
     }
