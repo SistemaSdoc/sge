@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 #[Fillable([
     'curso_classe_turno_id',
     'disciplina_id',
+    'ano_lectivo_id',
     'carga_horaria',
     'tem_professor',
 ])]
@@ -26,6 +27,10 @@ class ClasseTurnoDisciplina extends Pivot
     public function cursoClasseTurno()
     {
         return $this->belongsTo(CursoClasseTurno::class, 'curso_classe_turno_id');
+    }
+    public function anoLectivo()
+    {
+        return $this->belongsTo(AnoLectivo::class, 'ano_lectivo_id');
     }
 
     public function disciplina()
@@ -60,4 +65,6 @@ class ClasseTurnoDisciplina extends Pivot
     {
         return $this->hasMany(ClasseTurnoDisciplinaHorario::class, 'classe_turno_disciplina_id');
     }
+
+
 }

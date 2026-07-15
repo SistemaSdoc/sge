@@ -10,24 +10,24 @@ class AnoLectivoController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny', AnoLectivo::class);
+        // $this->authorize('viewAny', AnoLectivo::class);
 
         $anosLectivos = AnoLectivo::query()
             ->orderByDesc('data_inicio')
             ->paginate(15)
-            ->through(fn(AnoLectivo $ano) => [
+            ->through(fn (AnoLectivo $ano) => [
                 'id' => $ano->id,
-                'nome' => $ano->nome,
+                'nome' => $ano->nome,           // accessor
                 'data_inicio' => $ano->data_inicio->format('Y-m-d'),
                 'data_fim' => $ano->data_fim->format('Y-m-d'),
-                'activo' => $ano->activo,
+                'estado' => $ano->estado,       // accessor: planeado | a_decorrer | encerrado
                 'can' => [
-                    'update' => $request->user()->can('update', $ano),
-                    'delete' => $request->user()->can('delete', $ano),
+                    'update' => $request->user()->can('update', $ano) ?? true,
+                    'delete' => $request->user()->can('delete', $ano) ?? true,
                 ],
             ]);
 
-        return Inertia::render('AnoLectivo/Index', [
+        return Inertia::render('anos-lectivos/index', [
             'anosLectivos' => $anosLectivos,
             'can' => [
                 'create' => $request->user()->can('create', AnoLectivo::class),
@@ -37,36 +37,38 @@ class AnoLectivoController extends Controller
 
     public function create()
     {
-        $this->authorize('create', AnoLectivo::class);
+        // $this->authorize('create', AnoLectivo::class);
 
-        return Inertia::render('AnoLectivo/Create');
+        return Inertia::render('anos-lectivos/create');
     }
 
     public function store(Request $request)
     {
-        $this->authorize('create', AnoLectivo::class);
-
         $data = $request->validate([
-            'nome' => ['required', 'string', 'max:20', 'unique:ano_lectivos,nome'],
             'data_inicio' => ['required', 'date'],
             'data_fim' => ['required', 'date', 'after:data_inicio'],
-            'activo' => ['boolean'],
         ]);
 
-        if ($data['activo'] ?? false) {
-            AnoLectivo::where('activo', true)->update(['activo' => false]);
+        $sobrepoe = AnoLectivo::where('data_inicio', '<=', $data['data_fim'])
+            ->where('data_fim', '>=', $data['data_inicio'])
+            ->exists();
+
+        if ($sobrepoe) {
+            return back()
+                ->withErrors(['data_inicio' => 'Já existe um ano lectivo que se sobrepõe a este período.'])
+                ->withInput();
         }
 
         AnoLectivo::create($data);
 
-        return redirect()->route('ano-lectivos.index')->with('success', 'Ano lectivo criado com sucesso.');
+        return redirect()->route('anos-lectivos.index')->with('success', 'Ano lectivo criado com sucesso.');
     }
 
     public function edit(AnoLectivo $anoLectivo)
     {
         $this->authorize('update', $anoLectivo);
 
-        return Inertia::render('AnoLectivo/Edit', [
+        return Inertia::render('anos-lectivos/edit', [
             'anoLectivo' => $anoLectivo,
         ]);
     }
@@ -76,7 +78,7 @@ class AnoLectivoController extends Controller
         $this->authorize('update', $anoLectivo);
 
         $data = $request->validate([
-            'nome' => ['required', 'string', 'max:20', 'unique:ano_lectivos,nome,' . $anoLectivo->id],
+            'nome' => ['required', 'string', 'max:20', 'unique:ano_lectivos,nome,'.$anoLectivo->id],
             'data_inicio' => ['required', 'date'],
             'data_fim' => ['required', 'date', 'after:data_inicio'],
             'activo' => ['boolean'],
@@ -88,7 +90,7 @@ class AnoLectivoController extends Controller
 
         $anoLectivo->update($data);
 
-        return redirect()->route('ano-lectivos.index')->with('success', 'Ano lectivo actualizado com sucesso.');
+        return redirect()->route('anos-lectivos.index')->with('success', 'Ano lectivo actualizado com sucesso.');
     }
 
     public function destroy(AnoLectivo $anoLectivo)
@@ -101,6 +103,6 @@ class AnoLectivoController extends Controller
 
         $anoLectivo->delete();
 
-        return redirect()->route('ano-lectivos.index')->with('success', 'Ano lectivo removido com sucesso.');
+        return redirect()->route('anos-lectivos.index')->with('success', 'Ano lectivo removido com sucesso.');
     }
 }

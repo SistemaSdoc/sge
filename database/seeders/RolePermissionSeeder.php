@@ -139,8 +139,20 @@ class RolePermissionSeeder extends Seeder
                 'acessos.viewAny',
                 'acessos.create',
                 'relatorios.view',
+
+                // Pagamentos
+                'pagamentos.viewAny',
                 'pagamentos.view',
-                'pagamentos.gerir',
+                'pagamentos.create',
+                'pagamentos.update',
+                'pagamentos.delete',
+
+                // Itens Pagáveis
+                'itemspagaveis.viewAny',
+                'itemspagaveis.view',
+                'itemspagaveis.create',
+                'itemspagaveis.update',
+                'itemspagaveis.delete',
             ],
 
             'Subdirector' => [
@@ -257,6 +269,20 @@ class RolePermissionSeeder extends Seeder
                 // 'turnos.update',
                 // 'turnos.delete',
 
+                // Pagamentos
+                'pagamentos.viewAny',
+                'pagamentos.view',
+                'pagamentos.create',
+                'pagamentos.update',
+                'pagamentos.delete',
+
+                // Itens Pagáveis
+                'itemspagaveis.viewAny',
+                'itemspagaveis.view',
+                'itemspagaveis.create',
+                'itemspagaveis.update',
+                'itemspagaveis.delete',
+
                 // Mini-pauta
                 'notas.export',
 
@@ -357,10 +383,18 @@ class RolePermissionSeeder extends Seeder
 
                 // Mini-pauta
                 'notas.export',
-
-                // Outros
+                
+                // Pagamentos
+                'pagamentos.viewAny',
                 'pagamentos.view',
-                'pagamentos.gerir',
+                'pagamentos.create',
+                'pagamentos.update',
+
+                // Itens Pagáveis
+                'itemspagaveis.viewAny',
+                'itemspagaveis.view',
+                'itemspagaveis.create',
+                'itemspagaveis.update',
             ],
 
             'Professor' => [
@@ -418,7 +452,6 @@ class RolePermissionSeeder extends Seeder
                 // Alunos (ver o próprio perfil)
                 'alunos.viewAny',
                 'alunos.view',
-
 
                 // Grupo PAP
                 'grupopap.viewAny',

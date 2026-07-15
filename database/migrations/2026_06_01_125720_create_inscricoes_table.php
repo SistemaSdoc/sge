@@ -18,6 +18,8 @@ return new class extends Migration {
             $table->foreign('candidato_id')->references('id')->on('candidatos');
             $table->enum('status', ['pendente', 'apto_prova', 'aprovado', 'reprovado', 'reprovado_prova'])->default('pendente');
             $table->string('nota_teste')->nullable();
+            $table->uuid('ano_lectivo_id');
+            $table->foreign('ano_lectivo_id')->references('id')->on('ano_lectivos');
             $table->timestamps();
         });
 
@@ -38,7 +40,6 @@ return new class extends Migration {
             $table->foreign('turma_id')->references('id')->on('turmas');
             $table->uuid('aluno_id');
             $table->foreign('aluno_id')->references('id')->on('alunos');
-            $table->year('ano_lectivo')->default(date('Y'));
             $table->boolean('activo')->default(true);
             $table->enum('situacao', ['activo', 'recurso', 'pap_concluido', 'concluido'])->default('activo');
             $table->timestamps();

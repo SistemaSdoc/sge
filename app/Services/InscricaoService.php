@@ -3,14 +3,15 @@
 namespace App\Services;
 
 use App\Models\Aluno;
+use App\Models\AnoLectivo;
 use App\Models\Candidato;
 use App\Models\Inscricao;
 use App\Models\User;
+use Spatie\Permission\Models\Role; 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
-use Spatie\Permission\Models\Role;
 
 class InscricaoService
 {
@@ -28,9 +29,17 @@ class InscricaoService
                 'email' => $dados['email'],
             ]);
 
+            // Busca o ano lectivo ativo
+            $anoLectivoId = AnoLectivo::where('activo', 1)->first()?->id;
+
+            if (!$anoLectivoId) {
+                throw new InvalidArgumentException('Nenhum ano lectivo activo encontrado.');
+            }
+
             return Inscricao::create([
                 'candidato_id' => $candidato->id,
                 'curso_classe_turno_id' => $dados['curso_classe_turno_id'],
+                'ano_lectivo_id' => $anoLectivoId,
                 'status' => 'pendente',
             ]);
         });
@@ -76,7 +85,7 @@ class InscricaoService
      */
     private function criarAlunoSeNecessario(Inscricao $inscricao): void
     {
-        if (! $inscricao->candidato?->bi) {
+        if (!$inscricao->candidato?->bi) {
             throw new InvalidArgumentException('O candidato não tem BI registado.');
         }
 
@@ -88,9 +97,9 @@ class InscricaoService
             ?->cursoClasse
             ?->cursoTutelado
             ?->instituicaoCurso
-            ?->instituicao_id;
+                ?->instituicao_id;
 
-        if (! $instituicaoId) {
+        if (!$instituicaoId) {
             throw new InvalidArgumentException('Não foi possível determinar a instituição da inscrição.');
         }
 
@@ -115,6 +124,7 @@ class InscricaoService
             'matricula' => $this->gerarMatriculaUnica(),
         ]);
     }
+
 
     private function gerarMatriculaUnica(): string
     {

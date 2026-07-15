@@ -19,6 +19,7 @@ class InscricaoShowResource extends JsonResource
             'status'     => $this->status,
             'created_at' => $this->created_at?->format('d/m/Y'),
             'nota_teste' => $this->nota_teste,
+            'ano_lectivo' => $this->anoLectivo?->nome,
             'candidato'  => [
                 'nome'             => $this->candidato?->nome,
                 'bi'               => $this->candidato?->bi,

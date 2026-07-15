@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -23,6 +22,17 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->integer('status')->default(1);
             $table->text('descricao')->nullable();
+            $table->softDeletes();
+            $table->timestamps();
+        });
+
+        Schema::create('ano_lectivos', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('nome'); // ex: "2025/2026"
+            $table->date('data_inicio');
+            $table->date('data_fim');
+            $table->boolean('activo')->default(false); // só um ano lectivo activo de cada vez
+            $table->integer('status')->default(1);
             $table->softDeletes();
             $table->timestamps();
         });
@@ -80,9 +90,14 @@ return new class extends Migration
             $table->uuid('disciplina_id');
             $table->foreign('disciplina_id')->references('id')->on('disciplinas');
             $table->string('carga_horaria')->nullable();
+            $table->uuid('ano_lectivo_id');
+            $table->foreign('ano_lectivo_id')->references('id')->on('ano_lectivos');
             $table->boolean('tem_professor')->default(false)->nullable();
             $table->timestamps();
+
+            $table->unique(['curso_classe_turno_id', 'disciplina_id', 'ano_lectivo_id'], 'cct_disc_al_unique');
         });
+
     }
 
     /**
@@ -97,5 +112,6 @@ return new class extends Migration
         Schema::dropIfExists('instituicao_curso');
         Schema::dropIfExists('cursos');
         Schema::dropIfExists('instituicoes');
+        Schema::dropIfExists('ano_lectivos');
     }
 };

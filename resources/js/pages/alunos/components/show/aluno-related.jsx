@@ -17,6 +17,7 @@ export function AlunoRelated({ aluno }) {
         </CardContent>
       </Card>
       <Card>
+        {/*${aluno.turma.ano_lectivo}*/}
         <CardContent className="p-4">
           <p className="text-sm text-muted-foreground">Turma actual</p>
           <p className="font-medium">

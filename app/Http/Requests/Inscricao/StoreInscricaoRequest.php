@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Inscricao;
 
+use App\Models\AnoLectivo;
+use App\Models\CursoClasseTurno;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -51,7 +53,10 @@ class StoreInscricaoRequest extends FormRequest
                 'unique:candidatos,email',
                 'unique:users,email',
             ],
-            'curso_classe_turno_id' => 'required|exists:curso_classe_turno,id',
+            'curso_classe_turno_id' => [
+                'required',
+                'exists:curso_classe_turno,id',
+            ],
         ];
     }
 

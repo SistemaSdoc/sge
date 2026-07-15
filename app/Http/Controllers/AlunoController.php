@@ -26,7 +26,10 @@ class AlunoController extends Controller
                 'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
                 'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
                 'turmas' => fn($q) => $q->wherePivot('activo', true)
-                    ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
+                    ->with([
+                        'cursoClasseTurno.cursoClasse.classe:id,nome',
+                        'anoLectivo:id,nome',
+                    ]),
             ])
             // Director, Subdirector, Secretaria — filtro por instituição
             ->when(
@@ -73,6 +76,7 @@ class AlunoController extends Controller
                 'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,
                 'turma' => $aluno->turmas->first()?->nome,
                 'classe' => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome,
+                'ano_lectivo' => $aluno->turmas->first()?->anoLectivo?->nome,
                 'can' => $aluno->can,
             ]),
             'can' => [
@@ -94,7 +98,10 @@ class AlunoController extends Controller
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
             'turmas' => fn($q) => $q->wherePivot('activo', true)
-                ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
+                ->with([
+                    'cursoClasseTurno.cursoClasse.classe:id,nome',
+                    'anoLectivo:id,nome',  // ← Adicione
+                ]),
         ]);
 
         return Inertia::render('alunos/show', [
@@ -112,6 +119,7 @@ class AlunoController extends Controller
                     'id' => $aluno->turmas->first()?->id,
                     'nome' => $aluno->turmas->first()?->nome,
                     'classe' => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome,
+                    'ano_lectivo' => $aluno->turmas->first()?->anoLectivo?->nome,
                 ],
                 'can' => [
                     'update' => $user->can('update', $aluno),
@@ -154,21 +162,6 @@ class AlunoController extends Controller
         ]);
     }
 
-    public function turmasDisponiveis(Aluno $aluno)
-    {
-        Gate::authorize('view', $aluno);
-
-        $turmas = Turma::where('curso_classe_turno_id', $aluno->inscricao->curso_classe_turno_id)
-            ->with('cursoClasseTurno.cursoClasse.classe:id,nome')
-            ->get();
-
-        return response()->json($turmas->map(fn($t) => [
-            'id' => $t->id,
-            'nome' => $t->nome,
-            'classe' => $t->cursoClasseTurno?->cursoClasse?->classe?->nome,
-        ]));
-    }
-
     public function update(Request $request, Aluno $aluno)
     {
         Gate::authorize('update', $aluno);
@@ -188,8 +181,11 @@ class AlunoController extends Controller
         ]);
 
         if ($dados['turma_id'] ?? null) {
+            // Busca o ano_lectivo_id da turma
+            $turma = Turma::findOrFail($dados['turma_id']);
+
             $aluno->turmas()->syncWithoutDetaching([
-                $dados['turma_id'] => ['ano_lectivo' => date('Y')],
+                $dados['turma_id'] => ['ano_lectivo_id' => $turma->ano_lectivo_id],
             ]);
         }
 

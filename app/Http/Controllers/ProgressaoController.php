@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnoLectivo;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
@@ -120,23 +121,24 @@ class ProgressaoController extends Controller
     ) {
         $validated = $request->validate([
             'turma_destino_id' => 'required|exists:turmas,id',
-            'ano_lectivo' => 'required|integer|min:2000',
+            'ano_lectivo_id' => 'required|exists:anos_lectivos,id',
         ]);
 
-        $turmaDestino = Turma::findOrFail(
-            $validated['turma_destino_id']
-        );
+        $turmaDestino = Turma::findOrFail($validated['turma_destino_id']);
+        $novoAnoLectivoId = $validated['ano_lectivo_id'];
 
-        $anoNovo = (int) $validated['ano_lectivo'];
-
-        $anoAnterior = $anoNovo - 1;
+        // Busca turmas do ano anterior
+        $anoLectivoActual = $turma->anoLectivo;
+        $anoLectivoAnterior = AnoLectivo::where('nome', $anoLectivoActual->nome - 1)
+            ->orWhere('id', '!=', $novoAnoLectivoId)
+            ->first();
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
             'notas',
         ])
             ->where('turma_id', $turma->id)
-            ->where('ano_lectivo', $anoAnterior)
+            ->where('ano_lectivo_id', $anoLectivoAnterior->id)
             ->where('activo', true)
             ->get();
 
@@ -147,7 +149,7 @@ class ProgressaoController extends Controller
             'incompletos' => [],
         ];
 
-        DB::transaction(function () use ($turmaAlunos, $turmaDestino, $anoNovo, &$resultados, ) {
+        DB::transaction(function () use ($turmaAlunos, $turmaDestino, $novoAnoLectivoId, &$resultados, ) {
 
             foreach ($turmaAlunos as $ta) {
 
@@ -166,12 +168,12 @@ class ProgressaoController extends Controller
                     // ─────────────────────────────────────
                     // TRANSITAR
                     // ─────────────────────────────────────
-                    'TRANSITAR' => (function () use ($ta, $turmaDestino, $anoNovo, $nome, $resultadoFinal, &$resultados, ) {
+                    'TRANSITAR' => (function () use ($ta, $turmaDestino, $novoAnoLectivoId, $nome, $resultadoFinal, &$resultados, ) {
 
                             $this->moverParaProximaClasse(
                             $ta,
                             $turmaDestino->id,
-                            $anoNovo
+                            $novoAnoLectivoId
                             );
 
                             $resultados['transitados'][] = [
@@ -196,12 +198,12 @@ class ProgressaoController extends Controller
                     // ─────────────────────────────────────
                     // RETER
                     // ─────────────────────────────────────
-                    'RETER' => (function () use ($ta, $anoNovo, $nome, $resultadoFinal, &$resultados, ) {
+                    'RETER' => (function () use ($ta, $novoAnoLectivoId, $nome, $resultadoFinal, &$resultados, ) {
 
                             TurmaAluno::firstOrCreate([
                             'turma_id' => $ta->turma_id,
                             'aluno_id' => $ta->aluno_id,
-                            'ano_lectivo' => $anoNovo,
+                            'ano_lectivo_id' => $novoAnoLectivoId,
                             ], [
                             'activo' => true,
                             'situacao' => 'activo',
@@ -253,13 +255,13 @@ class ProgressaoController extends Controller
     private function moverParaProximaClasse(
         TurmaAluno $ta,
         string $turmaDestinoId,
-        int $anoNovo,
+        string $anoLectivoId,
     ): void {
 
         TurmaAluno::firstOrCreate([
             'turma_id' => $turmaDestinoId,
             'aluno_id' => $ta->aluno_id,
-            'ano_lectivo' => $anoNovo,
+            'ano_lectivo_id' => $anoLectivoId,
         ], [
             'activo' => true,
             'situacao' => 'activo',

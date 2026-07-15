@@ -23,7 +23,9 @@ use App\Models\Curso;
 use App\Models\GrupoPap;
 use App\Models\Inscricao;
 use App\Models\Instituicao;
+use App\Models\ItemPagavel;
 use App\Models\Nota;
+use App\Models\Pagamento;
 use App\Models\Professor;
 use App\Models\Turma;
 use App\Models\Turno;
@@ -188,6 +190,23 @@ final class SidebarMenuService
                 ),
             ]),
 
+            new MenuGroup('Pagamentos', [
+                new MenuItem(
+                    key: 'itens-pagaveis',
+                    title: 'Itens Pagáveis',
+                    href: route('item-pagaveis.index'),
+                    icon: 'ReceiptText',
+                    can: fn () => Gate::allows('viewAny', ItemPagavel::class),
+                ),
+
+                new MenuItem(
+                    key: 'pagamentos',
+                    title: 'Pagamentos',
+                    href: route('pagamentos.index'),
+                    icon: 'CreditCard',
+                    can: fn () => Gate::allows('viewAny', Pagamento::class),
+                ),
+            ]),
         ];
 
         return array_values(array_filter(

@@ -45,4 +45,17 @@ class TurmaAluno extends Pivot
     {
         return $this->hasMany(Nota::class, 'turma_aluno_id', 'id');
     }
+
+    // Helper de conveniência para acessar o ano lectivo sem duplicar dados
+    public function anoLectivo()
+    {
+        return $this->hasOneThrough(
+            AnoLectivo::class,
+            Turma::class,
+            'id',            // FK em turmas
+            'id',            // FK em ano_lectivos
+            'turma_id',       // FK local em turma_aluno
+            'ano_lectivo_id'  // FK local em turmas
+        );
+    }
 }

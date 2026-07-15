@@ -24,7 +24,11 @@ return new class extends Migration {
             $table->integer('max_alunos')->nullable();
             $table->uuid('curso_classe_turno_id');
             $table->foreign('curso_classe_turno_id')->references('id')->on('curso_classe_turno');
+            $table->uuid('ano_lectivo_id');
+            $table->foreign('ano_lectivo_id')->references('id')->on('ano_lectivos');
             $table->timestamps();
+
+            $table->unique(['curso_classe_turno_id', 'ano_lectivo_id', 'nome'], 'unique_turma_ano');
         });
 
         Schema::create('turma_disciplina_professor', function (Blueprint $table) {

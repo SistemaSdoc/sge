@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
 #[Fillable([
-    'curso_classe_turno_id', 
-    'candidato_id', 
-    'status', 
+    'curso_classe_turno_id',
+    'candidato_id',
+    'ano_lectivo_id',
+    'status',
     'nota_teste'
-    ])]
+])]
 class Inscricao extends Model
 {
     use HasUuid;
@@ -28,5 +29,10 @@ class Inscricao extends Model
     public function cursoClasseTurno()
     {
         return $this->belongsTo(CursoClasseTurno::class, 'curso_classe_turno_id');
+    }
+
+    public function anoLectivo()
+    {
+        return $this->belongsTo(AnoLectivo::class);
     }
 }
