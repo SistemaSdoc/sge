@@ -12,74 +12,109 @@ class ClasseSeeder extends Seeder
      */
     public function run(): void
     {
-        Classe::create([
-            'nome' => 'Pré-escolar',
-            'ordem' => 0,
-        ]);
+        $classes = [
+            [
+                'nome' => 'Pré-escolar',
+                'nivel_ensino' => 'Pré-escolar',
+                'emite_certificado' => true,
+                'tipo_certificado' => 'Certificado de Conclusão do Pré-escolar',
+                'ordem' => 0,
+            ],
+            [
+                'nome' => '1ª',
+                'nivel_ensino' => 'Ensino Básico',
+                'emite_certificado' => false,
+                'tipo_certificado' => null,
+                'ordem' => 1,
+            ],
+            [
+                'nome' => '2ª',
+                'nivel_ensino' => 'Ensino Básico',
+                'emite_certificado' => false,
+                'tipo_certificado' => null,
+                'ordem' => 2,
+            ],
+            [
+                'nome' => '3ª',
+                'nivel_ensino' => 'Ensino Básico',
+                'emite_certificado' => false,
+                'tipo_certificado' => null,
+                'ordem' => 3,
+            ],
+            [
+                'nome' => '4ª',
+                'nivel_ensino' => 'Ensino Básico',
+                'emite_certificado' => false,
+                'tipo_certificado' => null,
+                'ordem' => 4,
+            ],
+            [
+                'nome' => '5ª',
+                'nivel_ensino' => 'Ensino Básico',
+                'emite_certificado' => false,
+                'tipo_certificado' => null,
+                'ordem' => 5,
+            ],
+            [
+                'nome' => '6ª',
+                'nivel_ensino' => 'Ensino Básico',
+                'emite_certificado' => true,
+                'tipo_certificado' => 'Diploma do Ensino Básico',
+                'ordem' => 6,
+            ],
+            [
+                'nome' => '7ª',
+                'nivel_ensino' => 'Ensino Básico',
+                'emite_certificado' => false,
+                'tipo_certificado' => null,
+                'ordem' => 7,
+            ],
+            [
+                'nome' => '8ª',
+                'nivel_ensino' => 'Ensino Básico',
+                'emite_certificado' => false,
+                'tipo_certificado' => null,
+                'ordem' => 8,
+            ],
+            [
+                'nome' => '9ª',
+                'nivel_ensino' => 'Ensino Básico',
+                'emite_certificado' => true,
+                'tipo_certificado' => 'Diploma do Ensino Básico',
+                'ordem' => 9,
+            ],
+            [
+                'nome' => '10ª',
+                'nivel_ensino' => 'Ensino Secundário',
+                'emite_certificado' => false,
+                'tipo_certificado' => null,
+                'ordem' => 10,
+            ],
+            [
+                'nome' => '11ª',
+                'nivel_ensino' => 'Ensino Secundário',
+                'emite_certificado' => false,
+                'tipo_certificado' => null,
+                'ordem' => 11,
+            ],
+            [
+                'nome' => '12ª',
+                'nivel_ensino' => 'Ensino Secundário',
+                'emite_certificado' => false,
+                'tipo_certificado' => null,
+                'ordem' => 12,
+            ],
+            [
+                'nome' => '13ª',
+                'nivel_ensino' => 'Ensino Secundário',
+                'emite_certificado' => true,
+                'tipo_certificado' => 'Diploma do Ensino Secundário',
+                'ordem' => 13,
+            ],
+        ];
 
-        Classe::create([
-            'nome' => '1ª',
-            'ordem' => 1,
-        ]);
-
-        Classe::create([
-            'nome' => '2ª',
-            'ordem' => 2,
-        ]);
-
-        Classe::create([
-            'nome' => '3ª',
-            'ordem' => 3,
-        ]);
-
-        Classe::create([
-            'nome' => '4ª',
-            'ordem' => 4,
-        ]);
-
-        Classe::create([
-            'nome' => '5ª',
-            'ordem' => 5,
-        ]);
-
-        Classe::create([
-            'nome' => '6ª',
-            'ordem' => 6,
-        ]);
-
-        Classe::create([
-            'nome' => '7ª',
-            'ordem' => 7,
-        ]);
-
-        Classe::create([
-            'nome' => '8ª',
-            'ordem' => 8,
-        ]);
-
-        Classe::create([
-            'nome' => '9ª',
-            'ordem' => 9,
-        ]);
-
-        Classe::create([
-            'nome' => '10ª',
-            'ordem' => 10,
-        ]);
-
-        Classe::create([
-            'nome' => '11ª',
-            'ordem' => 11,
-        ]);
-
-        Classe::create([
-            'nome' => '12ª',
-            'ordem' => 12,
-        ]);
-
-        Classe::create([
-            'nome' => '13ª',
-            'ordem' => 13,
-        ]);
+        foreach ($classes as $classe) {
+            Classe::create($classe);
+        }
     }
 }

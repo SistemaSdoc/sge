@@ -14,6 +14,9 @@ return new class extends Migration {
         Schema::create('classes', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('nome');
+            $table->string('nivel_ensino');
+            $table->boolean('emite_certificado')->default(false);
+            $table->string('tipo_certificado')->nullable();
             $table->integer('ordem')->nullable();
             $table->timestamps();
         });

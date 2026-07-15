@@ -22,13 +22,14 @@ class ClasseController extends Controller
      */
     public function index()
     {
-        $classes = Classe::select(['id', 'nome', 'created_at'])
+        $classes = Classe::select(['id', 'nome', 'nivel_ensino', 'created_at'])
             ->orderBy('nome', 'asc')
             ->paginate(10)
             ->through(function ($classe) {
                 return [
                     'id' => $classe->id,
                     'nome' => $classe->nome,
+                    'nivel_ensino' => $classe->nivel_ensino,
                     'can' => [
                         'view_classe' => Auth::user()->can('view', $classe),
                         'edit_classe' => Auth::user()->can('update', $classe),
