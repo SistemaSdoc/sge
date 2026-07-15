@@ -23,7 +23,7 @@ class PagamentoController extends Controller
                 ->with('registadoPor:id,name')
                 ->orderByDesc('data_pagamento')
                 ->get()
-                ->map(fn(Pagamento $p) => [
+                ->map(fn (Pagamento $p) => [
                     'id' => $p->id,
                     'valor_pago' => $p->valor_pago,
                     'data_pagamento' => $p->data_pagamento->format('Y-m-d'),
@@ -37,7 +37,7 @@ class PagamentoController extends Controller
         ]);
     }
 
-        public function create()
+    public function create()
     {
         $this->authorize('create', Pagamento::class);
 

@@ -38,10 +38,7 @@ use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\TutelaController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\AnoLectivoController;
-use App\Http\Controllers\ItemPagavelController;
 use App\Http\Controllers\PropinaController;
-use App\Http\Controllers\PagamentoController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -232,13 +229,6 @@ Route::get('pap', [GrupoPapController::class, 'index'])->name('grupos-pap.index'
 Route::get('minhas-notas', [NotaAlunoController::class, 'index'])->name('notas.aluno.index');
 Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])->name('grelha-curricular.index');
 
-// Ano Lectivo
-Route::resource('ano-lectivos', AnoLectivoController::class)
-    ->parameters(['ano-lectivos' => 'anoLectivo']);
-
-// Item Pagável
-Route::resource('item-pagaveis', ItemPagavelController::class)
-    ->parameters(['item-pagaveis' => 'itemPagavel']);
 
 // Propina
 Route::resource('propinas', PropinaController::class);

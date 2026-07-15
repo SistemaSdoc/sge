@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnoLectivo;
 use App\Models\ClasseTurnoDisciplina;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
@@ -65,6 +66,7 @@ class ClasseTurnoDisciplinaController extends Controller
                 'disciplina_id' => $disciplinaId,
                 'carga_horaria' => $request->carga_horaria,
                 'tem_professor' => $request->tem_professor ?? false,
+                'ano_lectivo_id' => AnoLectivo::where('activo', 1)->first()?->id
             ]);
             $disciplinasAdicionadas[] = $ctd;
         }

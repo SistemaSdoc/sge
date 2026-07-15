@@ -50,7 +50,6 @@ class Aluno extends Model
     public function turmas()
     {
         return $this->belongsToMany(Turma::class, 'turma_aluno', 'aluno_id', 'turma_id')
-            ->withPivot('ano_lectivo')
             ->using(TurmaAluno::class)
             ->withTimestamps();
     }
@@ -58,8 +57,7 @@ class Aluno extends Model
     public function turmaActual()
     {
         return $this->belongsToMany(Turma::class, 'turma_aluno', 'aluno_id', 'turma_id')
-            ->withPivot('ano_lectivo', 'activo', 'situacao')
-            ->wherePivot('ano_lectivo', date('Y'))
+            ->withPivot( 'activo', 'situacao')
             ->wherePivotIn('situacao', ['activo', 'pap_concluido']);
     }
 
