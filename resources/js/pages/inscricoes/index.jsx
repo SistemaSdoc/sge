@@ -21,7 +21,7 @@ export default function Index() {
 
   return (
     <div className="mx-auto w-full max-w-7xl p-6">
-      {/* Filtro por Ano Lectivo */}
+      {/* Filtro por Ano Lectivo 
       <div className="mb-6 flex items-center gap-4">
         <label htmlFor="ano-lectivo" className="font-medium">
           Ano Lectivo:
@@ -38,7 +38,7 @@ export default function Index() {
             </option>
           ))}
         </select>
-      </div>
+      </div>*/}
 
       <InscricaoTable
         inscricoes={inscricoes.data}

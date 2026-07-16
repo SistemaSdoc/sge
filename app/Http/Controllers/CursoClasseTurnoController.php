@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\CursoClasseTurno\CursoClasseTurnoResource;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
@@ -13,7 +12,6 @@ use Inertia\Inertia;
 
 class CursoClasseTurnoController extends Controller
 {
-
     public function create(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
@@ -39,7 +37,7 @@ class CursoClasseTurnoController extends Controller
         CursoClasse $cursoClasse
     ) {
         $this->authorize('create', CursoClasseTurno::class);
-        
+
         abort_if($cursoClasse->curso_tutelado_id !== $cursoTutelado->id, 404);
 
         $validated = $request->validate([
@@ -52,20 +50,20 @@ class CursoClasseTurnoController extends Controller
                 ->where('turno_id', $turnoId)
                 ->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 $cursoClasse->turnos()->create([
                     'turno_id' => $turnoId,
                 ]);
             }
         }
 
-        return to_route('cursos-tutelados.show', [
+        return to_route('cursos-tutelados.classes.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Turnos adicionados com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Turnos adicionados com sucesso!',
+        ]);
     }
-
 }

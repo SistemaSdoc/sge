@@ -383,7 +383,7 @@ class RolePermissionSeeder extends Seeder
 
                 // Mini-pauta
                 'notas.export',
-                
+
                 // Pagamentos
                 'pagamentos.viewAny',
                 'pagamentos.view',
@@ -450,7 +450,6 @@ class RolePermissionSeeder extends Seeder
                 'avisos.view',
 
                 // Alunos (ver o próprio perfil)
-                'alunos.viewAny',
                 'alunos.view',
 
                 // Grupo PAP

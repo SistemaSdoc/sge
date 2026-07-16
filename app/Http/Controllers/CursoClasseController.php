@@ -10,6 +10,7 @@ use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\Turma;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -18,51 +19,48 @@ class CursoClasseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-    }
+    public function index() {}
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-    }
+    public function create() {}
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-    }
+    public function store(Request $request) {}
 
     /**
      * Display the specified resource (Show page via Inertia).
      */
     public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse)
     {
-        // $this->authorize('view', $cursoClasse);
-
         $cursoClasse->load(['classe:id,nome', 'turnos.turno:id,nome']);
 
-        // Filtro ano lectivo
         $anoLectivoId = request('ano_lectivo_id')
             ?? AnoLectivo::where('activo', 1)->first()?->id;
 
-        // Turno selecionado (primeiro por defeito)
-        $turnoId = request('turno', $cursoClasse->turnos->first()?->id);
+        // Se o turno pedido não pertence a este cursoClasse, cai para o primeiro
+        $turnoId = $cursoClasse->turnos->firstWhere('id', request('turno'))?->id
+            ?? $cursoClasse->turnos->first()?->id;
 
         $turnoActual = $cursoClasse->turnos->firstWhere('id', $turnoId);
 
         $turmas = $turnoActual
-            ? $turnoActual->turmas()->where('ano_lectivo_id', $anoLectivoId)->withCount('alunosActivos')->orderBy('nome')
+            ? $turnoActual->turmas()
+                ->where('ano_lectivo_id', $anoLectivoId)
+                ->withCount('alunosActivos')
+                ->orderBy('nome')
                 ->paginate(5, ['*'], 'page_turmas')
-            : collect();
+            : $this->emptyPaginator('page_turmas');
 
         $disciplinas = $turnoActual
-            ? $turnoActual->classeTurnoDisciplinas()->where('ano_lectivo_id', $anoLectivoId)->with('disciplina:id,nome,sigla,componente')
+            ? $turnoActual->classeTurnoDisciplinas()
+                ->where('ano_lectivo_id', $anoLectivoId)
+                ->with('disciplina:id,nome,sigla,componente')
                 ->paginate(5, ['*'], 'page_disciplinas')
-            : collect();
+            : $this->emptyPaginator('page_disciplinas');
 
         return Inertia::render('cursos-tutelados/classes/show', [
             'instituicao' => ['id' => $instituicao->id, 'nome' => $instituicao->nome],
@@ -76,9 +74,9 @@ class CursoClasseController extends Controller
             'cursoClasse' => [
                 'id' => $cursoClasse->id,
                 'classe' => ['id' => $cursoClasse->classe->id, 'nome' => $cursoClasse->classe->nome],
-                'turnos' => $cursoClasse->turnos->map(fn($t) => ['id' => $t->id, 'nome' => $t->turno->nome])->toArray(),
+                'turnos' => $cursoClasse->turnos->map(fn ($t) => ['id' => $t->id, 'nome' => $t->turno->nome])->toArray(),
                 'turnoId' => $turnoId,
-                'turmas' => $turmas->through(function ($turma) {
+                'turmas' => $turmas->through(function (Turma $turma) {
                     return [
                         'id' => $turma->id,
                         'nome' => $turma->nome,
@@ -101,24 +99,26 @@ class CursoClasseController extends Controller
         ]);
     }
 
+    private function emptyPaginator(string $pageName): LengthAwarePaginator
+    {
+        return new LengthAwarePaginator([], 0, 5, 1, [
+            'path' => request()->url(),
+            'pageName' => $pageName,
+        ]);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
-    {
-    }
+    public function edit(string $id) {}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-    }
+    public function update(Request $request, string $id) {}
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-    }
+    public function destroy(string $id) {}
 }
