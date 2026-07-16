@@ -58,6 +58,8 @@ export default function NotasTable({
   cursoClasseTurno,
   turma,
   can,
+  pagination = {},
+  onPageChange,
 }) {
   const [periodo, setPeriodo] = useState('1');
   const [notas, setNotas] = useState({});
@@ -154,7 +156,7 @@ export default function NotasTable({
 
             <TableBody>
               {alunos.data.map((aluno, index) => {
-                
+
                 const n = notas[aluno.turma_aluno_id] ?? {};
                 const mt = mediaTrimestral(n.mac, n.npp, n.npt);
                 const mediaFinal = aluno.notas?.[periodo]?.media_final ?? null;

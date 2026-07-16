@@ -53,6 +53,10 @@ export default function Create({
             turmaId={turma}
             disciplinaId={classeTurnoDisciplina}
             can={can}
+            pagination={{
+              current_page: data.alunos.current_page,
+              last_page: data.alunos.last_page,
+            }}
           />
         )}
       </Form>

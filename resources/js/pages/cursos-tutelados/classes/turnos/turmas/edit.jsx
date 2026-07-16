@@ -8,12 +8,14 @@ export default function Edit({ turma,
     cursoId,
     classeId,
     turnoId,
+    anoLectivoId,
     can = {}, }) {
 
     const { data, setData, put, processing, errors } = useForm({
         nome: turma?.nome ?? '',
         max_alunos: turma?.max_alunos ?? '',
         origem: origem,
+        ano_lectivo_id: anoLectivoId,
     });
 
     const handleSubmit = (e) => {

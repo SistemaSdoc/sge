@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnoLectivo;
 use App\Models\ClasseTurnoDisciplina;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
@@ -17,17 +18,23 @@ class CursoClasseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() {}
+    public function index()
+    {
+    }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create() {}
+    public function create()
+    {
+    }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) {}
+    public function store(Request $request)
+    {
+    }
 
     /**
      * Display the specified resource (Show page via Inertia).
@@ -38,18 +45,22 @@ class CursoClasseController extends Controller
 
         $cursoClasse->load(['classe:id,nome', 'turnos.turno:id,nome']);
 
+        // Filtro ano lectivo
+        $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::where('activo', 1)->first()?->id;
+
         // Turno selecionado (primeiro por defeito)
         $turnoId = request('turno', $cursoClasse->turnos->first()?->id);
 
         $turnoActual = $cursoClasse->turnos->firstWhere('id', $turnoId);
 
         $turmas = $turnoActual
-            ? $turnoActual->turmas()->withCount('alunosActivos')->orderBy('nome')
+            ? $turnoActual->turmas()->where('ano_lectivo_id', $anoLectivoId)->withCount('alunosActivos')->orderBy('nome')
                 ->paginate(5, ['*'], 'page_turmas')
             : collect();
 
         $disciplinas = $turnoActual
-            ? $turnoActual->classeTurnoDisciplinas()->with('disciplina:id,nome,sigla,componente')
+            ? $turnoActual->classeTurnoDisciplinas()->where('ano_lectivo_id', $anoLectivoId)->with('disciplina:id,nome,sigla,componente')
                 ->paginate(5, ['*'], 'page_disciplinas')
             : collect();
 
@@ -65,7 +76,7 @@ class CursoClasseController extends Controller
             'cursoClasse' => [
                 'id' => $cursoClasse->id,
                 'classe' => ['id' => $cursoClasse->classe->id, 'nome' => $cursoClasse->classe->nome],
-                'turnos' => $cursoClasse->turnos->map(fn ($t) => ['id' => $t->id, 'nome' => $t->turno->nome])->toArray(),
+                'turnos' => $cursoClasse->turnos->map(fn($t) => ['id' => $t->id, 'nome' => $t->turno->nome])->toArray(),
                 'turnoId' => $turnoId,
                 'turmas' => $turmas->through(function ($turma) {
                     return [
@@ -85,21 +96,29 @@ class CursoClasseController extends Controller
                     'create_turno' => Auth::user()->can('create', CursoClasseTurno::class),
                 ],
             ],
+            'anosLectivos' => AnoLectivo::all(),  // ← adicionado
+            'anoLectivoActual' => $anoLectivoId,  // ← adicionado
         ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id) {}
+    public function edit(string $id)
+    {
+    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id) {}
+    public function update(Request $request, string $id)
+    {
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id) {}
+    public function destroy(string $id)
+    {
+    }
 }

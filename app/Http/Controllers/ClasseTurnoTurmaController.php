@@ -108,13 +108,14 @@ class ClasseTurnoTurmaController extends Controller
             ],
             'cursoClasse' => [
                 'id' => $cursoClasse->id,
-                'nome' => $cursoClasse->classe->nome ?? 'Classe não encontrada',
+                'nome' => $cursoClasse->classe->nome ?? 'Classe não encontrado',
             ],
             'cursoClasseTurno' => [
                 'id' => $cursoClasseTurno->id,
                 'nome' => $cursoClasseTurno->turno->nome ?? 'Turno não encontrado',
             ],
-            'anoLectivoId' => $anoLectivoId,
+            'anoLectivoId' => $anoLectivoId,        // ← JÁ TEM
+            'anosLectivos' => AnoLectivo::all(),    // ← NOVO
             'can' => [
                 'create' => Auth::user()->can('create', Turma::class),
             ],
@@ -173,6 +174,9 @@ class ClasseTurnoTurmaController extends Controller
 
         $user = Auth::user();
 
+        $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::where('activo', 1)->first()?->id;
+
         $turma->load([
             'cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasseTurno.turno:id,nome',
@@ -216,6 +220,8 @@ class ClasseTurnoTurmaController extends Controller
             'cursoClasse' => $cursoClasse->only('id'),
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => new TurmaShowResource($turma),
+            'anoLectivoId' => $anoLectivoId,         // ← JÁ TEM
+            'anosLectivos' => AnoLectivo::all(),     // ← NOVO
 
             'can' => [
                 'alunos' => [
@@ -236,6 +242,7 @@ class ClasseTurnoTurmaController extends Controller
         ]);
     }
 
+
     public function edit(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
@@ -243,7 +250,8 @@ class ClasseTurnoTurmaController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
-        // Gate::authorize('update', $turma);
+        $anoLectivoId = request('ano_lectivo_id')  // ← NOVO
+            ?? $turma->ano_lectivo_id;
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/edit', [
             'turma' => $turma,
@@ -251,6 +259,8 @@ class ClasseTurnoTurmaController extends Controller
             'cursoId' => $cursoTutelado->id,
             'classeId' => $cursoClasse->id,
             'turnoId' => $cursoClasseTurno->id,
+            'anoLectivoId' => $anoLectivoId,        // ← NOVO
+            'anosLectivos' => AnoLectivo::all(),    // ← NOVO
             'origem' => request('origem'),
             'can' => [
                 'update' => Auth::user()->can('update', $turma),
@@ -275,6 +285,9 @@ class ClasseTurnoTurmaController extends Controller
 
         $turma->update($request->only(['nome', 'max_alunos']));
 
+        // Preserva o filtro de ano lectivo na navegação de volta
+        $anoLectivoId = $request->input('ano_lectivo_id');
+
         if ($request->origem === 'turma') {
             return to_route('turmas.show', [
                 'instituicao' => $instituicao,
@@ -282,7 +295,7 @@ class ClasseTurnoTurmaController extends Controller
                 'cursoClasse' => $cursoClasse,
                 'cursoClasseTurno' => $cursoClasseTurno,
                 'turma' => $turma,
-            ]);
+            ] + ($anoLectivoId ? ['ano_lectivo_id' => $anoLectivoId] : []));
         }
 
         return to_route('cursos-tutelados.classes.show', [
@@ -290,9 +303,8 @@ class ClasseTurnoTurmaController extends Controller
             'cursoTutelado' => $cursoTutelado,
             'cursoClasse' => $cursoClasse,
             'turno' => $cursoClasseTurno->id,
-        ]);
+        ] + ($anoLectivoId ? ['ano_lectivo_id' => $anoLectivoId] : []));
     }
-
     public function destroy(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
@@ -310,6 +322,9 @@ class ClasseTurnoTurmaController extends Controller
 
         $turma->delete();
 
-        return to_route('turmaGeral');
+        // Preservar filtro no redirect
+        $anoLectivoParam = request('ano_lectivo_id') ? ['ano_lectivo_id' => request('ano_lectivo_id')] : [];
+
+        return to_route('turmaGeral') + $anoLectivoParam;  // ← CORRIGIDO
     }
 }

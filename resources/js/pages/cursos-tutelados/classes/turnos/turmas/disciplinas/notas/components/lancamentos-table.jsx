@@ -43,6 +43,8 @@ export default function LancamentosTable({
   turmaId,
   disciplinaId,
   can,
+  pagination = {},
+  onPageChange,
 }) {
   const [periodo, setPeriodo] = useState('1');
   const { getValor, setValor } = useNotasLocais(data?.tdp_id);

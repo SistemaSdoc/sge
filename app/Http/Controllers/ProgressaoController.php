@@ -33,6 +33,7 @@ class ProgressaoController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
     ) {
+        // Alunos ACTUAIS da turma (no ano da turma)
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
             'notas',
@@ -82,8 +83,8 @@ class ProgressaoController extends Controller
             ],
 
             'alunos' => $resultado,
+            'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
 
-            // ← adicionar isto
             'turmas' => Turma::with([
                 'cursoClasseTurno.turno',
                 'cursoClasseTurno.cursoClasse.classe',
@@ -121,26 +122,25 @@ class ProgressaoController extends Controller
     ) {
         $validated = $request->validate([
             'turma_destino_id' => 'required|exists:turmas,id',
-            'ano_lectivo_id' => 'required|exists:anos_lectivos,id',
+            'ano_lectivo_id' => 'required|exists:ano_lectivos,id',
         ]);
 
         $turmaDestino = Turma::findOrFail($validated['turma_destino_id']);
         $novoAnoLectivoId = $validated['ano_lectivo_id'];
 
-        // Busca turmas do ano anterior
-        $anoLectivoActual = $turma->anoLectivo;
-        $anoLectivoAnterior = AnoLectivo::where('nome', $anoLectivoActual->nome - 1)
-            ->orWhere('id', '!=', $novoAnoLectivoId)
-            ->first();
-
+        // ✅ Alunos ACTUAIS da turma (no ano da turma)
+        // Não precisa buscar "ano anterior" — já temos os da turma actual
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
             'notas',
         ])
             ->where('turma_id', $turma->id)
-            ->where('ano_lectivo_id', $anoLectivoAnterior->id)
             ->where('activo', true)
             ->get();
+
+        if ($turmaAlunos->isEmpty()) {
+            return back()->withErrors(['turma' => 'Nenhum aluno activo nesta turma.']);
+        }
 
         $resultados = [
             'transitados' => [],
@@ -149,7 +149,7 @@ class ProgressaoController extends Controller
             'incompletos' => [],
         ];
 
-        DB::transaction(function () use ($turmaAlunos, $turmaDestino, $novoAnoLectivoId, &$resultados, ) {
+        DB::transaction(function () use ($turmaAlunos, $turmaDestino, $novoAnoLectivoId, $turma, &$resultados) {
 
             foreach ($turmaAlunos as $ta) {
 
@@ -168,7 +168,7 @@ class ProgressaoController extends Controller
                     // ─────────────────────────────────────
                     // TRANSITAR
                     // ─────────────────────────────────────
-                    'TRANSITAR' => (function () use ($ta, $turmaDestino, $novoAnoLectivoId, $nome, $resultadoFinal, &$resultados, ) {
+                    'TRANSITAR' => (function () use ($ta, $turmaDestino, $novoAnoLectivoId, $nome, $resultadoFinal, &$resultados) {
 
                             $this->moverParaProximaClasse(
                             $ta,
@@ -187,8 +187,11 @@ class ProgressaoController extends Controller
                     // AGUARDAR RECURSO
                     // ─────────────────────────────────────
                     'AGUARDAR_RECURSO' => (function () use ($ta, $nome, $resultadoFinal, &$resultados) {
-                            // Aluno continua activo = true, situacao = activo
-                            // Apenas regista no array de resultado para controlo
+                            // Aluno continua activo, marca como aguardando_recurso
+                            $ta->update([
+                            'situacao' => 'aguardando_recurso',
+                            ]);
+
                             $resultados['recurso'][] = [
                             'nome' => $nome,
                             'detalhes' => $resultadoFinal['detalhes'],
@@ -198,17 +201,18 @@ class ProgressaoController extends Controller
                     // ─────────────────────────────────────
                     // RETER
                     // ─────────────────────────────────────
-                    'RETER' => (function () use ($ta, $novoAnoLectivoId, $nome, $resultadoFinal, &$resultados, ) {
+                    'RETER' => (function () use ($ta, $turma, $nome, $resultadoFinal, &$resultados) {
 
-                            TurmaAluno::firstOrCreate([
-                            'turma_id' => $ta->turma_id,
+                            // ✅ Cria novo TurmaAluno na mesma turma (repetirá de ano)
+                            // Sem tentar adicionar ano_lectivo_id (não existe em turma_aluno)
+                            TurmaAluno::create([
+                            'turma_id' => $turma->id,
                             'aluno_id' => $ta->aluno_id,
-                            'ano_lectivo_id' => $novoAnoLectivoId,
-                            ], [
                             'activo' => true,
-                            'situacao' => 'activo',
+                            'situacao' => 'retido',
                             ]);
 
+                            // Encerra anterior
                             $ta->update([
                             'activo' => false,
                             'situacao' => 'retido',
@@ -224,7 +228,7 @@ class ProgressaoController extends Controller
                     // ─────────────────────────────────────
                     // INCOMPLETO
                     // ─────────────────────────────────────
-                    default => (function () use ($nome, &$resultados, ) {
+                    default => (function () use ($nome, &$resultados) {
 
                             $resultados['incompletos'][] = $nome;
                         })(),
@@ -232,11 +236,12 @@ class ProgressaoController extends Controller
             }
         });
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/progressao', [
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/progressao-resultado', [
             'resultado' => [
                 'resultados' => $resultados,
             ],
             'turma' => $turma->nome,
+            'ano_lectivo' => AnoLectivo::find($novoAnoLectivoId)?->nome,
             'total' => count($turmaAlunos),
             'resumo' => [
                 'transitam' => count($resultados['transitados']),
@@ -247,32 +252,9 @@ class ProgressaoController extends Controller
         ]);
     }
 
-
     // ─────────────────────────────────────────────────────────────
-    // HELPER
+    // PROCESSAR RECURSO
     // ─────────────────────────────────────────────────────────────
-
-    private function moverParaProximaClasse(
-        TurmaAluno $ta,
-        string $turmaDestinoId,
-        string $anoLectivoId,
-    ): void {
-
-        TurmaAluno::firstOrCreate([
-            'turma_id' => $turmaDestinoId,
-            'aluno_id' => $ta->aluno_id,
-            'ano_lectivo_id' => $anoLectivoId,
-        ], [
-            'activo' => true,
-            'situacao' => 'activo',
-        ]);
-
-        // encerra histórico anterior
-        $ta->update([
-            'activo' => false,
-            'situacao' => 'concluido',
-        ]);
-    }
 
     public function storeRecurso(
         Request $request,
@@ -283,11 +265,11 @@ class ProgressaoController extends Controller
 
         $validated = $request->validate([
             'turma_destino_id' => 'required|exists:turmas,id',
-            'ano_lectivo' => 'required|integer|min:2000',
+            'ano_lectivo_id' => 'required|exists:ano_lectivos,id',  // ✅ UUID
         ]);
 
         $turmaDestino = Turma::findOrFail($validated['turma_destino_id']);
-        $anoNovo = (int) $validated['ano_lectivo'];
+        $novoAnoLectivoId = $validated['ano_lectivo_id'];  // ✅ UUID
 
         // Apenas alunos em recurso
         $turmaAlunos = TurmaAluno::with([
@@ -298,44 +280,69 @@ class ProgressaoController extends Controller
         ])
             ->where('turma_id', $turma->id)
             ->where('activo', true)
-            ->get()
-            ->filter(function ($ta) {
-                $resultado = $this->aprovacaoService->calcularAprovacao($ta->id);
-                return $resultado['acao'] === 'AGUARDAR_RECURSO';
-            });
+            ->where('situacao', 'aguardando_recurso')  // ✅ Filtra por situação
+            ->get();
 
-        $resultados = ['transitados' => [], 'retidos' => [], 'pendentes' => []];
+        $resultados = [
+            'transitados' => [],
+            'retidos' => [],
+            'pendentes' => [],
+        ];
 
-        DB::transaction(function () use ($turmaAlunos, $turmaDestino, $anoNovo, &$resultados) {
+        DB::transaction(function () use ($turmaAlunos, $turmaDestino, $novoAnoLectivoId, $turma, &$resultados) {
 
             foreach ($turmaAlunos as $ta) {
 
                 $nome = $ta->aluno->inscricao?->candidato?->nome ?? 'Desconhecido';
 
-                // Avalia com base no período 4
+                // Avalia com base no período 4 (recurso)
                 $resultado = $this->aprovacaoService->calcularAprovacaoRecurso($ta->id);
 
-                match ($resultado['situacao']) {
+                $acao = $resultado['acao'] ?? 'INCOMPLETO';
 
-                    'aprovado_recurso' => (function () use ($ta, $turmaDestino, $anoNovo, $nome, &$resultados) {
-                            $this->moverParaProximaClasse($ta, $turmaDestino->id, $anoNovo);
+                match ($acao) {
+
+                    // ─────────────────────────────────────
+                    // APROVADO NO RECURSO
+                    // ─────────────────────────────────────
+                    'TRANSITAR' => (function () use ($ta, $turmaDestino, $novoAnoLectivoId, $nome, &$resultados) {
+
+                            $this->moverParaProximaClasse(
+                            $ta,
+                            $turmaDestino->id,
+                            $novoAnoLectivoId
+                            );
+
                             $resultados['transitados'][] = $nome;
                         })(),
 
-                    'reprovado_recurso' => (function () use ($ta, $anoNovo, $nome, &$resultados) {
-                            // Fica retido na mesma turma no novo ano
-                            TurmaAluno::firstOrCreate([
-                            'turma_id' => $ta->turma_id,
-                            'aluno_id' => $ta->aluno_id,
-                            'ano_lectivo' => $anoNovo,
-                            ], ['activo' => true, 'situacao' => 'activo']);
+                    // ─────────────────────────────────────
+                    // REPROVADO NO RECURSO
+                    // ─────────────────────────────────────
+                    'RETER' => (function () use ($ta, $turma, $nome, &$resultados) {
 
-                            $ta->update(['activo' => false, 'situacao' => 'retido']);
+                            // ✅ Cria novo TurmaAluno na mesma turma
+                            TurmaAluno::create([
+                            'turma_id' => $turma->id,
+                            'aluno_id' => $ta->aluno_id,
+                            'activo' => true,
+                            'situacao' => 'retido',
+                            ]);
+
+                            // Encerra anterior
+                            $ta->update([
+                            'activo' => false,
+                            'situacao' => 'reprovado_recurso',
+                            ]);
+
                             $resultados['retidos'][] = $nome;
                         })(),
 
-                    // Notas ainda não lançadas
+                    // ─────────────────────────────────────
+                    // NOTAS AINDA NÃO LANÇADAS
+                    // ─────────────────────────────────────
                     default => (function () use ($nome, &$resultados) {
+
                             $resultados['pendentes'][] = $nome;
                         })(),
                 };
@@ -353,18 +360,34 @@ class ProgressaoController extends Controller
         ]);
     }
 
-    public function finalizarRecurso(TurmaAluno $ta)
-    {
-        $resultado = $this->aprovacaoService->calcularAprovacao($ta->id);
+    // ─────────────────────────────────────────────────────────────
+    // HELPER: Mover para próxima classe
+    // ─────────────────────────────────────────────────────────────
 
-        if ($resultado['acao'] === 'TRANSITAR') {
-            $this->moverParaProximaClasse(...);
-        }
+    private function moverParaProximaClasse(
+        TurmaAluno $ta,
+        string $turmaDestinoId,
+        string $anoLectivoId,
+    ): void {
 
-        if ($resultado['acao'] === 'RETER') {
-            $ta->update([
-                'situacao' => 'retido',
-            ]);
-        }
+        // ✅ Cria novo TurmaAluno na turma destino
+        TurmaAluno::create([
+            'turma_id' => $turmaDestinoId,
+            'aluno_id' => $ta->aluno_id,
+            'activo' => true,
+            'situacao' => 'activo',
+        ]);
+
+        // Encerra histórico anterior
+        $ta->update([
+            'activo' => false,
+            'situacao' => 'transitado',
+        ]);
+
+        // ✅ Atualiza o aluno com o novo ano lectivo
+        $ta->update([
+            'activo' => false,
+            'situacao' => 'transitado',
+        ]);
     }
 }

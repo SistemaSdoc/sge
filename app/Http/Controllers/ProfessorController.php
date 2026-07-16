@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Professor\StoreProfessoresRequest;
 use App\Http\Requests\Professor\UpdateProfessoresRequest;
+use App\Models\AnoLectivo;
 use App\Models\Professor;
 use App\Models\Turma;
 use App\Models\User;
@@ -78,6 +79,10 @@ class ProfessorController extends Controller
     public function show(Professor $professor)
     {
         $this->authorize('view', $professor);
+
+        $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::where('activo', 1)->first()?->id;
+
         $professor->load([
             'user:id,nome,email,bi,telefone',
             'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome',
@@ -95,9 +100,8 @@ class ProfessorController extends Controller
         })->filter()->unique('id')->values();
 
         $turmas = Turma::with('cursoClasseTurno.cursoClasse.classe:id,nome')
-            ->whereHas('turmaDisciplinaProfessor', function ($q) use ($professor) {
-                $q->where('professor_id', $professor->id);
-            })
+            ->whereHas('turmaDisciplinaProfessor', fn($q) => $q->where('professor_id', $professor->id))
+            ->where('ano_lectivo_id', $anoLectivoId)   // ← direto na turma
             ->get()
             ->map(fn($turma) => [
                 'id' => $turma->id,
@@ -110,6 +114,8 @@ class ProfessorController extends Controller
             'professor' => $professor,
             'cursos' => $cursos,
             'turmas' => $turmas,
+            'anoLectivoId' => $anoLectivoId,       // ← adicionado
+            'anosLectivos' => AnoLectivo::all(),
         ]);
     }
 

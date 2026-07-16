@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnoLectivo;
 use App\Services\GrelhaCurricularService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -18,8 +19,13 @@ class GrelhaCurricularController extends Controller
 
         $aluno = Auth::user()->aluno;
 
+        $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::where('activo', 1)->first()?->id;
+
         return Inertia::render('aluno/grelha-curricular/index', [
-            'grelhaCurricular' => (new GrelhaCurricularService)->gerarGrelhaCurricular($aluno),
+            'grelhaCurricular' => (new GrelhaCurricularService)->gerarGrelhaCurricular($aluno, $anoLectivoId),
+            'anoLectivoId' => $anoLectivoId,
+            'anosLectivos' => AnoLectivo::all(),
         ]);
     }
 }

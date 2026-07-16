@@ -17,12 +17,12 @@ export function AlunoRelated({ aluno }) {
         </CardContent>
       </Card>
       <Card>
-        {/*${aluno.turma.ano_lectivo}*/}
+        
         <CardContent className="p-4">
           <p className="text-sm text-muted-foreground">Turma actual</p>
           <p className="font-medium">
             {aluno.turma?.nome ? (
-              `${aluno.turma.nome} — ${aluno.turma.classe}`
+              `${aluno.turma.nome} — ${aluno.turma.classe}- {/*${aluno.turma.ano_lectivo}*/}`
             ) : (
               <Minus size={15} className="text-muted-foreground" />
             )}

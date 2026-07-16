@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BancaJuriPap\StoreRequest;
 use App\Http\Requests\BancaJuriPap\UpdateRequest;
+use App\Models\AnoLectivo;
 use App\Models\BancaJuriPap;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
@@ -29,17 +30,19 @@ class BancaJuriPapController extends Controller
     ) {
         $this->authorize('create', BancaJuriPap::class);
 
+        $anoLectivoId = $turma->ano_lectivo_id; // ← NOVO
+
         $juradosNaBanca = $grupoPap->jurados()->pluck('professor_id');
 
         $professores = Professor::with('user:id,nome')
             ->whereNotIn('id', $juradosNaBanca)
             ->whereHas(
                 'cursosTutelados',
-                fn ($q) => $q
+                fn($q) => $q
                     ->where('curso_tutelado_id', $cursoTutelado->id)
                     ->where('tipo', 'principal')
             )->get()
-            ->map(fn ($professor) => [
+            ->map(fn($professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ])->values();
@@ -50,6 +53,8 @@ class BancaJuriPapController extends Controller
             'cursoClasse' => $cursoClasse->only('id'),
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => $turma->only('id'),
+            'anoLectivoId' => $anoLectivoId,          // ← NOVO
+            'anosLectivos' => AnoLectivo::all(),      // ← NOVO
             'grupoPap' => $grupoPap->only('id', 'nome_grupo'),
             'professores' => $professores,
             'funcoes' => ['Presidente', 'Vogal 1', 'Vogal 2'],
@@ -100,6 +105,8 @@ class BancaJuriPapController extends Controller
     ) {
         $this->authorize('update', $bancaJuriPap);
 
+        $anoLectivoId = $turma->ano_lectivo_id; // ← NOVO
+
         $juradosNaBanca = $grupoPap->jurados()
             ->where('id', '!=', $bancaJuriPap->id)
             ->pluck('professor_id');
@@ -108,11 +115,11 @@ class BancaJuriPapController extends Controller
             ->whereNotIn('id', $juradosNaBanca)
             ->whereHas(
                 'cursosTutelados',
-                fn ($q) => $q
+                fn($q) => $q
                     ->where('curso_tutelado_id', $cursoTutelado->id)
                     ->where('tipo', 'principal')
             )->get()
-            ->map(fn ($professor) => [
+            ->map(fn($professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ])->values();
@@ -123,6 +130,8 @@ class BancaJuriPapController extends Controller
             'cursoClasse' => $cursoClasse->only('id'),
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => $turma->only('id'),
+            'anoLectivoId' => $anoLectivoId,          // ← NOVO
+            'anosLectivos' => AnoLectivo::all(),      // ← NOVO
             'grupoPap' => $grupoPap->only('id', 'nome_grupo'),
             'bancaJuriPap' => $bancaJuriPap->only('id', 'professor_id', 'funcao'),
             'professores' => $professores,
@@ -155,9 +164,9 @@ class BancaJuriPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Membro da banca actualizado com sucesso!',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Membro da banca actualizado com sucesso!',
+                ]);
     }
 
     /**

@@ -230,7 +230,7 @@ export default function ProgressaoPage({ alunos, turma, total, resumo, resultado
 
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="w-full" disabled={!turmaDestinoId || !anoLectivo}>
+              <Button className="w-full" disabled={!turmaDestinoId || !selectedAnoLectivo}>
                 Executar Progressão <ChevronRight className="size-4 ml-1" />
               </Button>
             </DialogTrigger>

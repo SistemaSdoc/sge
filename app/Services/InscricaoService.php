@@ -7,7 +7,7 @@ use App\Models\AnoLectivo;
 use App\Models\Candidato;
 use App\Models\Inscricao;
 use App\Models\User;
-use Spatie\Permission\Models\Role; 
+use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -115,12 +115,13 @@ class InscricaoService
         );
 
         $role = Role::where('name', 'Aluno')->firstOrFail();
-
         $user->assignRole($role);
 
+        // ✅ AGORA INCLUI ano_lectivo_id
         Aluno::create([
             'user_id' => $user->id,
             'inscricao_id' => $inscricao->id,
+            'ano_lectivo_id' => $inscricao->ano_lectivo_id,  // ← ADICIONA ISTO
             'matricula' => $this->gerarMatriculaUnica(),
         ]);
     }

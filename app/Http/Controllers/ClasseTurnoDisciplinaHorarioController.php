@@ -34,7 +34,7 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
 
         // Criar novos horários
         $horarios = collect($request->validated()['horarios'])
-            ->map(fn ($horario) => array_merge($horario, [
+            ->map(fn($horario) => array_merge($horario, [
                 'id' => (string) Str::uuid7(),
                 'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
                 'created_at' => now(),
@@ -44,6 +44,14 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
 
         ClasseTurnoDisciplinaHorario::insert($horarios);
 
-        return back();
+        // Preservar filtro de ano_lectivo
+        $url = url()->previous() ?? route('dashboard');
+
+        if ($anoLectivoId = request('ano_lectivo_id')) {
+            $separator = str_contains($url, '?') ? '&' : '?';
+            $url .= $separator . 'ano_lectivo_id=' . $anoLectivoId;
+        }
+
+        return redirect($url);
     }
 }

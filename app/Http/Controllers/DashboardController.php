@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AnoLectivo;
 use App\Services\Dashboards\DashboardAlunoService;
 use App\Services\Dashboards\DashboardDirectorService;
 use App\Services\Dashboards\DashboardProfessorService;
@@ -16,7 +17,8 @@ class DashboardController extends Controller
         private DashboardDirectorService $dashboardDirectorService,
         private DashboardProfessorService $dashboardProfessorService,
         private DashboardAlunoService $dashboardAlunoService,
-    ) {}
+    ) {
+    }
 
     /**
      * Renderiza o dashboard do usuário autenticado.
@@ -27,6 +29,8 @@ class DashboardController extends Controller
     public function index(): Response|RedirectResponse
     {
         $user = Auth::user();
+
+        $anoLectivoId = AnoLectivo::where('activo', 1)->first()?->id;
 
         if ($user->hasRole('Director')) {
             return Inertia::render('dashboards/director/index', [
@@ -42,6 +46,8 @@ class DashboardController extends Controller
             return Inertia::render('dashboards/aluno/index', [
                 'proximasAulas' => $this->dashboardProfessorService->obterProximasAulas($professor, 2, 6),
                 'avisos' => $this->dashboardProfessorService->obterAvisos($professor, 6),
+                'anoLectivoId' => $anoLectivoId,          // ← NOVO
+                'anosLectivos' => AnoLectivo::all(),      // ← NOVO
             ]);
         }
 
@@ -51,6 +57,9 @@ class DashboardController extends Controller
             return Inertia::render('dashboards/aluno/index', [
                 'proximasAulas' => $this->dashboardAlunoService->obterProximasAulas($aluno, 2, 6),
                 'avisos' => $this->dashboardAlunoService->obterAvisos($aluno, 6),
+                'anoLectivoId' => $anoLectivoId,          // ← NOVO
+                'anosLectivos' => AnoLectivo::all(),      // ← NOVO
+
             ]);
         }
 

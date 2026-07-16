@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aluno;
+use App\Models\AnoLectivo;
 use App\Models\Turma;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,10 +17,14 @@ class AlunoController extends Controller
     {
         Gate::authorize('viewAny', Aluno::class);
 
+        $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::where('activo', 1)->first()?->id;
+
         /** @var User $user */
         $user = Auth::user();
 
         $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
+            ->doAnoLectivo($anoLectivoId)
             ->with([
                 'inscricao.candidato:id,nome,bi,email,telefone',
                 'inscricao.cursoClasseTurno.turno:id,nome',
@@ -74,11 +79,13 @@ class AlunoController extends Controller
                 'curso' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
                 'instituicao' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
                 'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,
-                'turma' => $aluno->turmas->first()?->nome,
+                'turma' => $aluno->turmas->first()?->nome ?? 'Sem turma',
                 'classe' => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome,
                 'ano_lectivo' => $aluno->turmas->first()?->anoLectivo?->nome,
                 'can' => $aluno->can,
             ]),
+            'anoLectivoId' => $anoLectivoId,
+            'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
             'can' => [
                 'create' => $user->can('create', Aluno::class),
             ],
@@ -100,7 +107,7 @@ class AlunoController extends Controller
             'turmas' => fn($q) => $q->wherePivot('activo', true)
                 ->with([
                     'cursoClasseTurno.cursoClasse.classe:id,nome',
-                    'anoLectivo:id,nome',  // ← Adicione
+                    'anoLectivo:id,nome',
                 ]),
         ]);
 
@@ -133,6 +140,9 @@ class AlunoController extends Controller
     {
         Gate::authorize('update', $aluno);
 
+        // Ano lectivo ativo
+        $anoLectivoId = AnoLectivo::where('activo', 1)->first()?->id;
+
         $aluno->load([
             'inscricao.candidato:id,nome,bi,email,telefone',
             'inscricao.cursoClasseTurno.turno:id,nome',
@@ -142,9 +152,12 @@ class AlunoController extends Controller
                 ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
         ]);
 
+        // ← NOVO: Filtrar turmas pelo ano lectivo ativo
         $turmas = Turma::where('curso_classe_turno_id', $aluno->inscricao->curso_classe_turno_id)
+            ->where('ano_lectivo_id', $anoLectivoId)
             ->with('cursoClasseTurno.cursoClasse.classe:id,nome')
             ->get();
+
         $turmaAtual = $aluno->turmas()->wherePivot('activo', true)->first();
 
         return Inertia::render('alunos/edit', [
@@ -181,12 +194,26 @@ class AlunoController extends Controller
         ]);
 
         if ($dados['turma_id'] ?? null) {
-            // Busca o ano_lectivo_id da turma
-            $turma = Turma::findOrFail($dados['turma_id']);
+            $turmaAtual = $aluno->turmas()->wherePivot('activo', true)->first();
 
-            $aluno->turmas()->syncWithoutDetaching([
-                $dados['turma_id'] => ['ano_lectivo_id' => $turma->ano_lectivo_id],
-            ]);
+            // Só actualiza se for uma turma diferente da actual
+            if (!$turmaAtual || $turmaAtual->id !== (int) $dados['turma_id']) {
+                $turma = Turma::findOrFail($dados['turma_id']);
+
+                // Desactiva a turma anterior (se existir)
+                if ($turmaAtual) {
+                    $aluno->turmas()->updateExistingPivot($turmaAtual->id, [
+                        'activo' => false,
+                    ]);
+                }
+
+                // Activa/associa a nova turma
+                $aluno->turmas()->syncWithoutDetaching([
+                    $dados['turma_id'] => [
+                        'activo' => true,  // ✅ Só isto
+                    ],
+                ]);
+            }
         }
 
         return to_route('alunos.index')->with('toast', [
