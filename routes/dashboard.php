@@ -38,8 +38,6 @@ use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\TutelaController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\PropinaController;
-
 use Illuminate\Support\Facades\Route;
 
 // Dashboard routes para Staff (Admin, Director, Coordenador, Secretaria, Professor)
@@ -48,11 +46,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-require __DIR__ . '/modules/pautas.php';
-require __DIR__ . '/modules/certificado.php';
-require __DIR__ . '/modules/progressao.php';
-require __DIR__ . '/modules/notas.php';
-require __DIR__ . '/modules/acess-management.php';
+require __DIR__.'/modules/pautas.php';
+require __DIR__.'/modules/certificado.php';
+require __DIR__.'/modules/progressao.php';
+require __DIR__.'/modules/notas.php';
+require __DIR__.'/modules/acess-management.php';
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
 Route::resource('users', UserController::class);
@@ -200,13 +198,13 @@ Route::resource('avisos', AvisoController::class);
 
 Route::resource('itens-pagaveis', ItemPagavelController::class)
     ->names([
-        'index' => 'item-pagaveis.index',
-        'create' => 'item-pagaveis.create',
-        'store' => 'item-pagaveis.store',
-        'show' => 'item-pagaveis.show',
-        'edit' => 'item-pagaveis.edit',
-        'update' => 'item-pagaveis.update',
-        'destroy' => 'item-pagaveis.destroy',
+        'index' => 'itens-pagaveis.index',
+        'create' => 'itens-pagaveis.create',
+        'store' => 'itens-pagaveis.store',
+        'show' => 'itens-pagaveis.show',
+        'edit' => 'itens-pagaveis.edit',
+        'update' => 'itens-pagaveis.update',
+        'destroy' => 'itens-pagaveis.destroy',
     ])
     ->parameters(['itens-pagaveis' => 'itemPagavel']);
 
@@ -223,25 +221,6 @@ Route::resource('pagamentos', PagamentoController::class)
     ->parameters(['pagamentos' => 'pagamento']);
 
 Route::resource('anos-lectivos', AnoLectivoController::class)->parameters(['anos-lectivos' => 'anoLectivo']);
-
 Route::get('pap', [GrupoPapController::class, 'index'])->name('grupos-pap.index');
-
 Route::get('minhas-notas', [NotaAlunoController::class, 'index'])->name('notas.aluno.index');
 Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])->name('grelha-curricular.index');
-
-
-// Propina
-Route::resource('propinas', PropinaController::class);
-
-Route::post('propinas/gerar-mensalidades', [PropinaController::class, 'gerarMensalidades'])
-    ->name('propinas.gerar-mensalidades');
-
-// Pagamento (aninhado em propina: /propinas/{propina}/pagamentos)
-Route::get('propinas/{propina}/pagamentos', [PagamentoController::class, 'index'])
-    ->name('propinas.pagamentos.index');
-
-Route::post('propinas/{propina}/pagamentos', [PagamentoController::class, 'store'])
-    ->name('propinas.pagamentos.store');
-
-Route::delete('pagamentos/{pagamento}', [PagamentoController::class, 'destroy'])
-    ->name('pagamentos.destroy');

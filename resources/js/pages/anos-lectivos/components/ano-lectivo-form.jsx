@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -9,21 +8,6 @@ import {
   FieldSet,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-
-const tipos = [
-  { label: 'Aviso', value: 'aviso' },
-  { label: 'Evento', value: 'evento' },
-  { label: 'Urgente', value: 'urgente' },
-];
-
-const destinatarios = [
-  { label: 'Todos', value: 'todos' },
-  { label: 'Alunos', value: 'alunos' },
-  { label: 'Professores', value: 'professores' },
-];
 
 export function AnoLectivoForm({
   title,

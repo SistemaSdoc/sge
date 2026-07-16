@@ -1,390 +1,253 @@
-import { useEffect, useMemo, useState } from 'react';
-
-import { Button } from '@/components/ui/button';
+import { useForm, router } from '@inertiajs/react';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { CartSummary } from './cart-summary';
+import { CartItem } from './cart-items';
+import { store } from '@/actions/App/Http/Controllers/PagamentoController';
 
-const monthNames = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro',
+const metodos = [
+  { value: 'dinheiro', label: 'Dinheiro' },
+  { value: 'transferencia', label: 'Transferência' },
+  { value: 'multicaixa', label: 'Multicaixa' },
+  { value: 'outro', label: 'Outro' },
 ];
 
-const formatCurrency = (value) =>
-  Number(value ?? 0).toLocaleString('pt-PT', {
-    style: 'currency',
-    currency: 'EUR',
+export function PagamentosForm({ alunos, itensPagaveis, paidRecord }) {
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+
+  const { data, setData, post, processing, errors } = useForm({
+    aluno_id: null,
+    data_pagamento: new Date().toISOString().slice(0, 10),
+    metodo: 'dinheiro',
+    referencia: '',
+    observacoes: '',
+    itens: [],
   });
 
-export function PagamentosForm({
-  title,
-  submitLabel = 'Guardar pagamento',
-  data,
-  setData,
-  errors,
-  processing,
-  submitFn,
-  alunos = [],
-  itensPagaveis = [],
-}) {
-  const [cartItems, setCartItems] = useState(() => data.itens ?? []);
-  const [selectedItemId, setSelectedItemId] = useState('');
+  const aluno = alunos.find((a) => a.id === data.aluno_id) ?? null;
+  const studentPaid = paidRecord ?? {};
 
-  const selectedAluno = useMemo(() => {
-    if (!data.aluno_id) {
-      return null;
+  function paidMonthsFor(itemPagavelId) {
+    return studentPaid[itemPagavelId] ?? [];
+  }
+
+  function handleAlunoChange(a) {
+    setData((prev) => ({ ...prev, aluno_id: a?.id ?? null, itens: [] }));
+    if (a?.id) {
+      router.reload({
+        only: ['paidRecord'],
+        data: { aluno_id: a.id },
+        preserveState: true,
+        preserveScroll: true,
+      });
     }
+  }
 
-    return alunos.find((aluno) => aluno.id === data.aluno_id) ?? null;
-  }, [alunos, data.aluno_id]);
+  function handleToggleItem(item, checked) {
+    setData((prev) => {
+      if (!checked) {
+        return {
+          ...prev,
+          itens: prev.itens.filter((e) => e.item_pagavel_id !== item.id),
+        };
+      }
 
-  useEffect(() => {
-    setData('aluno_id', data.aluno_id ?? '');
-  }, [data.aluno_id, setData]);
+      const meses =
+        item.frequencia === 'mensal'
+          ? paidMonthsFor(item.id).includes(currentMonth)
+            ? []
+            : [currentMonth]
+          : [];
 
-  useEffect(() => {
-    setData('itens', cartItems);
-    setData('valor_total', calculateTotal(cartItems));
-  }, [cartItems, setData]);
+      return {
+        ...prev,
+        itens: [
+          ...prev.itens,
+          {
+            item_pagavel_id: item.id,
+            ano: currentYear,
+            meses,
+            valor: item.valor,
+          },
+        ],
+      };
+    });
+  }
 
-  const addItemToCart = (item) => {
-    if (cartItems.some((entry) => entry.id === item.id)) {
-      return;
-    }
-
-    setCartItems((current) => [
-      ...current,
-      {
-        id: item.id,
-        nome: item.nome,
-        tipo: item.tipo,
-        valor: Number(item.valor_padrao ?? 0),
-        meses: item.tipo === 'mensalidade' ? ['Janeiro'] : [],
-        periodo: item.tipo === 'mensalidade' ? 'Mensal' : 'Único',
-      },
-    ]);
-    setSelectedItemId('');
-  };
-
-  const updateItemMonths = (itemId, months) => {
-    setCartItems((current) =>
-      current.map((entry) =>
-        entry.id === itemId ? { ...entry, meses: months } : entry,
+  function handleMonthsChange(itemPagavelId, meses) {
+    setData((prev) => ({
+      ...prev,
+      itens: prev.itens.map((e) =>
+        e.item_pagavel_id === itemPagavelId ? { ...e, meses } : e,
       ),
-    );
-  };
+    }));
+  }
 
-  const removeItem = (itemId) => {
-    setCartItems((current) => current.filter((entry) => entry.id !== itemId));
-  };
+  function handleRemove(itemPagavelId) {
+    setData((prev) => ({
+      ...prev,
+      itens: prev.itens.filter((e) => e.item_pagavel_id !== itemPagavelId),
+    }));
+  }
 
-  const totalValue = useMemo(() => calculateTotal(cartItems), [cartItems]);
+  function handleSubmit() {
+    post(store().url, { onSuccess: () => setData('itens', []) });
+  }
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    setData('itens', cartItems);
-    setData('valor_total', totalValue);
-    setData('valor', totalValue);
-
-    submitFn(event);
-  };
+  const hasErrors = Object.keys(errors).length > 0;
 
   return (
-    <div className="mx-auto w-full max-w-6xl p-3 sm:p-5">
-      <form onSubmit={handleSubmit}>
-        <div className="mb-6">
-          <h1 className="text-lg font-semibold">{title}</h1>
-          <p className="text-sm text-muted-foreground">
-            Selecione o estudante e adicione os itens ao carrinho.
-          </p>
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-6">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-xl font-bold tracking-tight">
+          Pagamento de Emolumentos
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Selecione o aluno, escolha os itens a pagar e confirme o pagamento.
+        </p>
+      </header>
+
+      {hasErrors && (
+        <div
+          role="alert"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+        >
+          <p className="font-medium">Não foi possível registar o pagamento.</p>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            {Object.entries(errors).map(([key, message]) => (
+              <li key={key}>{message}</li>
+            ))}
+          </ul>
         </div>
+      )}
 
-        <div className="grid gap-4 xl:grid-cols-[1.45fr_0.75fr]">
-          <div className="space-y-4">
-            <Card>
-              <CardHeader>
-                <div>
-                  <CardTitle>Dados do pagamento</CardTitle>
-                  <CardDescription>
-                    Escolha o estudante e adicione itens ao carrinho.
-                  </CardDescription>
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-6">
-                <Field>
-                  <FieldLabel htmlFor="aluno_id">Estudante</FieldLabel>
-                  <Select
-                    value={data.aluno_id ?? ''}
-                    onValueChange={(value) => setData('aluno_id', value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione o estudante" />
-                    </SelectTrigger>
-                    <SelectContent className=''>
-                      {alunos.length === 0 && (
-                        <SelectItem value="" disabled>
-                          Nenhum estudante disponível.
-                        </SelectItem>
-                      )}
-                      {alunos.map((aluno) => (
-                        <SelectItem key={aluno.id} value={aluno.id}>
-                          {aluno.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors?.aluno_id && (
-                    <FieldError>{errors.aluno_id}</FieldError>
-                  )}
-                </Field>
-
-                {selectedAluno && (
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                    <span className="font-medium text-foreground">
-                      {selectedAluno.nome}
-                    </span>
-                    <span>•</span>
-                    <span>{selectedAluno.curso}</span>
-                    <span>•</span>
-                    <span>{selectedAluno.classe}</span>
-                    <span>•</span>
-                    <span>{selectedAluno.turma}</span>
-                  </div>
+      <FieldGroup className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <Field data-invalid={Boolean(errors.aluno_id)}>
+          <FieldLabel>Aluno</FieldLabel>
+          <Combobox
+            items={alunos}
+            itemToStringValue={(a) => a.nome}
+            value={aluno?.nome ?? ''}
+            onValueChange={(a) => handleAlunoChange(a ?? null)}
+            showClear
+          >
+            <ComboboxInput
+              placeholder="Pesquisar aluno..."
+              aria-invalid={Boolean(errors.aluno_id)}
+            />
+            <ComboboxContent>
+              <ComboboxEmpty>Nenhum aluno encontrado.</ComboboxEmpty>
+              <ComboboxList>
+                {(a) => (
+                  <ComboboxItem key={a.id} value={a}>
+                    {a.nome}
+                  </ComboboxItem>
                 )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+          {errors.aluno_id && <FieldError>{errors.aluno_id}</FieldError>}
+        </Field>
 
-                <Card>
-                  <CardHeader>
-                    <div>
-                      <CardTitle>Itens pagáveis</CardTitle>
-                      <CardDescription>
-                        Selecione itens do catálogo para o carrinho.
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
+        <Field data-invalid={Boolean(errors.data_pagamento)}>
+          <FieldLabel htmlFor="data_pagamento">Data</FieldLabel>
+          <Input
+            id="data_pagamento"
+            type="date"
+            value={data.data_pagamento}
+            onChange={(e) => setData('data_pagamento', e.target.value)}
+            aria-invalid={Boolean(errors.data_pagamento)}
+          />
+          {errors.data_pagamento && (
+            <FieldError>{errors.data_pagamento}</FieldError>
+          )}
+        </Field>
 
-                  <CardContent className="">
-                    <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-                      <Select
-                        value={selectedItemId}
-                        onValueChange={setSelectedItemId}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Selecione um item" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {itensPagaveis.map((item) => (
-                            <SelectItem key={item.id} value={item.id}>
-                              {item.nome}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+        <Field data-invalid={Boolean(errors.metodo)}>
+          <FieldLabel htmlFor="metodo">Método</FieldLabel>
+          <Select
+            value={data.metodo}
+            onValueChange={(val) => setData('metodo', val)}
+          >
+            <SelectTrigger
+              id="metodo"
+              className="w-full"
+              aria-invalid={Boolean(errors.metodo)}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {metodos.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          {errors.metodo && <FieldError>{errors.metodo}</FieldError>}
+        </Field>
+      </FieldGroup>
 
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="secondary"
-                        className="w-full rounded-none sm:w-auto"
-                        disabled={!selectedItemId}
-                        onClick={() => {
-                          const item = itensPagaveis.find(
-                            (entry) => entry.id === selectedItemId,
-                          );
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <section className="flex flex-col gap-3" aria-label="Itens a pagar">
+          <h2 className="text-sm font-medium">Itens a pagar</h2>
+          {!aluno && (
+            <p className="text-sm text-muted-foreground">
+              Selecione primeiro um aluno para ativar os itens.
+            </p>
+          )}
+          {itensPagaveis.map((item) => {
+            const entry = data.itens.find((e) => e.item_pagavel_id === item.id);
+            return (
+              <CartItem
+                key={item.id}
+                item={item}
+                selected={entry !== undefined}
+                selectedMonths={entry?.meses ?? []}
+                paidMonths={aluno ? paidMonthsFor(item.id) : []}
+                disabled={!aluno}
+                onToggle={(checked) => handleToggleItem(item, checked)}
+                onMonthsChange={(meses) => handleMonthsChange(item.id, meses)}
+              />
+            );
+          })}
+        </section>
 
-                          if (item) {
-                            addItemToCart(item);
-                          }
-                        }}
-                      >
-                        Adicionar
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <div>
-                      <CardTitle>Carrinho</CardTitle>
-                      <CardDescription>
-                        Revise os itens antes de gravar o pagamento.
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    {cartItems.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">
-                        Ainda não há itens no carrinho.
-                      </p>
-                    ) : (
-                      <div className="space-y-4">
-                        {cartItems.map((entry) => (
-                          <div
-                            key={entry.id}
-                            className="space-y-3 rounded-none p-0"
-                          >
-                            <div className="flex items-center justify-between gap-3">
-                              <div>
-                                <p className="text-sm font-medium">
-                                  {entry.nome}
-                                </p>
-                              </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="rounded-none"
-                                onClick={() => removeItem(entry.id)}
-                              >
-                                Remover
-                              </Button>
-                            </div>
-
-                            {entry.tipo === 'mensalidade' ? (
-                              <div className="space-y-2">
-                                <p className="text-[11px] tracking-wide text-muted-foreground uppercase">
-                                  Meses a pagar
-                                </p>
-                                <div className="flex flex-wrap gap-1.5">
-                                  {monthNames.map((month) => {
-                                    const selected =
-                                      entry.meses.includes(month);
-
-                                    return (
-                                      <Button
-                                        key={month}
-                                        type="button"
-                                        variant={
-                                          selected ? 'default' : 'outline'
-                                        }
-                                        size="sm"
-                                        className="h-7 rounded-none px-2.5 text-xs"
-                                        onClick={() => {
-                                          const nextMonths = selected
-                                            ? entry.meses.filter(
-                                                (current) => current !== month,
-                                              )
-                                            : [...entry.meses, month];
-
-                                          updateItemMonths(
-                                            entry.id,
-                                            nextMonths,
-                                          );
-                                        }}
-                                      >
-                                        {month}
-                                      </Button>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            ) : (
-                              <p className="text-[11px] text-muted-foreground">
-                                Este item será registado com um único período.
-                              </p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card className="xl:sticky xl:top-4 xl:self-start">
-            <CardHeader>
-              <div>
-                <CardTitle>Resumo</CardTitle>
-                <CardDescription>
-                  Confira o estudante e o total antes de gravar.
-                </CardDescription>
-              </div>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>Estudante</span>
-                <span className="max-w-[60%] truncate text-right font-medium text-foreground">
-                  {selectedAluno?.nome ?? 'Sem seleção'}
-                </span>
-              </div>
-
-              <div className="space-y-2 text-sm">
-                {cartItems.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    Nenhum item selecionado.
-                  </p>
-                ) : (
-                  cartItems.map((entry) => (
-                    <div
-                      key={entry.id}
-                      className="flex items-center justify-between gap-2"
-                    >
-                      <span className="truncate text-sm">{entry.nome}</span>
-                      <span className="font-medium text-foreground">
-                        {formatCurrency(
-                          entry.valor * (entry.meses.length || 1),
-                        )}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="flex items-center justify-between text-base font-semibold">
-                <span>Total</span>
-                <span>{formatCurrency(totalValue)}</span>
-              </div>
-            </CardContent>
-
-            <CardFooter>
-              <Button
-                type="submit"
-                className="w-full rounded-none"
-                disabled={processing}
-              >
-                {processing ? 'A guardar...' : submitLabel}
-              </Button>
-            </CardFooter>
-          </Card>
-        </div>
-      </form>
-    </div>
+        <aside className="lg:sticky lg:top-8 lg:self-start">
+          <CartSummary
+            student={aluno}
+            entries={data.itens}
+            feeItems={itensPagaveis}
+            processing={processing}
+            onRemove={handleRemove}
+            onSubmit={handleSubmit}
+          />
+        </aside>
+      </div>
+    </main>
   );
-}
-
-function calculateTotal(cartItems) {
-  return cartItems.reduce((total, entry) => {
-    const multiplier = entry.meses?.length ? entry.meses.length : 1;
-
-    return total + Number(entry.valor ?? 0) * multiplier;
-  }, 0);
 }

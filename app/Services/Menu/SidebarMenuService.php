@@ -194,7 +194,7 @@ final class SidebarMenuService
                 new MenuItem(
                     key: 'itens-pagaveis',
                     title: 'Itens Pagáveis',
-                    href: route('item-pagaveis.index'),
+                    href: route('itens-pagaveis.index'),
                     icon: 'ReceiptText',
                     can: fn () => Gate::allows('viewAny', ItemPagavel::class),
                 ),

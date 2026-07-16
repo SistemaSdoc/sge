@@ -1,0 +1,541 @@
+import { PaymentsPage } from "@/components/payments/payments-page"
+import type { FeeItem, PaidRecord, Student } from "@/lib/payments/types"
+
+/**
+ * DADOS DE EXEMPLO — no seu projecto Laravel + Inertia estes dados
+ * vêm do controller via props (usePage().props ou props do componente):
+ *
+ *   return Inertia::render('Payments/Create', [
+ *     'students'   => Student::select(...)->get(),
+ *     'feeItems'   => FeeItem::all(),
+ *     'paidRecord' => $paidRecord, // meses ja pagos por estudante/item
+ *   ]);
+ */
+const students: Student[] = [
+  { id: 1, name: "Ana Maria Silva", className: "10ª A", studentNumber: "2024001" },
+  { id: 2, name: "João Pedro Machava", className: "8ª B", studentNumber: "2024045" },
+  { id: 3, name: "Carla Fernanda Cossa", className: "12ª C", studentNumber: "2023112" },
+]
+
+const feeItems: FeeItem[] = [
+  {
+    id: 1,
+    name: "Propina",
+    description: "Mensalidade escolar",
+    amount: 1500,
+    frequency: "monthly",
+  },
+  {
+    id: 2,
+    name: "Transporte",
+    description: "Transporte escolar",
+    amount: 800,
+    frequency: "monthly",
+  },
+  {
+    id: 3,
+    name: "Cartão escolar",
+    description: "Emissão do cartão de estudante",
+    amount: 350,
+    frequency: "yearly",
+  },
+  {
+    id: 4,
+    name: "Taxa de matrícula",
+    description: "Paga uma única vez no acto da inscrição",
+    amount: 2000,
+    frequency: "once",
+  },
+]
+
+// Meses ja pagos por estudante -> item. Para itens nao mensais,
+// um array nao vazio significa "ja pago".
+const paidRecord: PaidRecord = {
+  1: { 1: [1, 2, 3, 4, 5, 6], 2: [1, 2, 3], 4: [1] },
+  2: { 1: [1, 2], 3: [1] },
+  3: {},
+}
+
+export default function Page() {
+  return (
+    <PaymentsPage
+      students={students}
+      feeItems={feeItems}
+      paidRecord={paidRecord}
+    />
+  )
+}
+
+
+--------------------------------------------------------
+
+
+"use client"
+
+import * as React from "react"
+
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { CartSummary } from "@/components/payments/cart-summary"
+import { FeeItemCard } from "@/components/payments/fee-item-card"
+import type {
+  CartEntry,
+  FeeItem,
+  PaidRecord,
+  Student,
+} from "@/lib/payments/types"
+
+/**
+ * NO SEU PROJECTO LARAVEL + INERTIA:
+ *
+ * Estes dados chegam via props do controller:
+ *
+ *   const { students, feeItems, paidRecord } = usePage<PageProps>().props
+ *
+ * E a submissao usa o useForm do Inertia:
+ *
+ *   const { data, setData, post, processing } = useForm({
+ *     student_id: null as number | null,
+ *     items: [] as { fee_item_id: number; months: number[] }[],
+ *   })
+ *
+ *   const submit = () => post(route('payments.store'))
+ *
+ * Aqui usamos props normais + estado local para demonstrar o funcionamento.
+ */
+type PaymentsPageProps = {
+  students: Student[]
+  feeItems: FeeItem[]
+  paidRecord: PaidRecord
+}
+
+export function PaymentsPage({
+  students,
+  feeItems,
+  paidRecord,
+}: PaymentsPageProps) {
+  const currentMonth = new Date().getMonth() + 1
+
+  const [studentId, setStudentId] = React.useState<number | null>(null)
+  const [entries, setEntries] = React.useState<CartEntry[]>([])
+  const [processing, setProcessing] = React.useState(false)
+
+  const student = students.find((s) => s.id === studentId) ?? null
+  const studentPaid = studentId !== null ? (paidRecord[studentId] ?? {}) : {}
+
+  function paidMonthsFor(feeItemId: number): number[] {
+    return studentPaid[feeItemId] ?? []
+  }
+
+  function handleStudentChange(value: number | null) {
+    setStudentId(value)
+    // Ao trocar de estudante o carrinho e limpo, pois os meses pagos mudam.
+    setEntries([])
+  }
+
+  function handleToggleItem(item: FeeItem, checked: boolean) {
+    setEntries((prev) => {
+      if (!checked) return prev.filter((e) => e.feeItemId !== item.id)
+
+      let defaultMonths: number[] = []
+      if (item.frequency === "monthly") {
+        const paid = paidMonthsFor(item.id)
+        // Pre-seleciona o mes actual se ainda nao estiver pago.
+        defaultMonths = paid.includes(currentMonth) ? [] : [currentMonth]
+      }
+      return [...prev, { feeItemId: item.id, months: defaultMonths }]
+    })
+  }
+
+  function handleMonthsChange(feeItemId: number, months: number[]) {
+    setEntries((prev) =>
+      prev.map((e) => (e.feeItemId === feeItemId ? { ...e, months } : e))
+    )
+  }
+
+  function handleRemove(feeItemId: number) {
+    setEntries((prev) => prev.filter((e) => e.feeItemId !== feeItemId))
+  }
+
+  function handleSubmit() {
+    // COM INERTIA: substitua por
+    //   setData({ student_id: studentId, items: entries.map(e => ({ fee_item_id: e.feeItemId, months: e.months })) })
+    //   post(route('payments.store'), { onSuccess: () => setEntries([]) })
+    setProcessing(true)
+    const payload = {
+      student_id: studentId,
+      items: entries.map((e) => ({
+        fee_item_id: e.feeItemId,
+        months: e.months,
+      })),
+    }
+    console.log("[v0] Payload que seria enviado ao Laravel:", payload)
+    setTimeout(() => {
+      setProcessing(false)
+      setEntries([])
+      alert("Pagamento registado com sucesso! (simulação)")
+    }, 1200)
+  }
+
+  return (
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4 md:p-8">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold text-balance">
+          Pagamento de Emolumentos
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Selecione o estudante, escolha os itens a pagar e confirme o
+          pagamento.
+        </p>
+      </header>
+
+      <section className="flex flex-col gap-2" aria-label="Estudante">
+        <Label htmlFor="student-select">1. Estudante</Label>
+        <Select
+          value={studentId}
+          onValueChange={(value) => handleStudentChange(value as number | null)}
+          items={students.map((s) => ({ value: s.id, label: s.name }))}
+        >
+          <SelectTrigger
+            id="student-select"
+            className="w-full md:max-w-sm"
+            aria-label="Selecionar estudante"
+          >
+            <SelectValue>
+              {student
+                ? `${student.name} — ${student.className}`
+                : "Selecione o estudante..."}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {students.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.name} — {s.className} (Nº {s.studentNumber})
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </section>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
+        <section className="flex flex-col gap-3" aria-label="Itens a pagar">
+          <h2 className="text-sm font-medium">2. Itens a pagar</h2>
+          {!student && (
+            <p className="text-sm text-muted-foreground">
+              Selecione primeiro um estudante para ativar os itens.
+            </p>
+          )}
+          {feeItems.map((item) => {
+            const entry = entries.find((e) => e.feeItemId === item.id)
+            return (
+              <FeeItemCard
+                key={item.id}
+                item={item}
+                selected={entry !== undefined}
+                selectedMonths={entry?.months ?? []}
+                paidMonths={student ? paidMonthsFor(item.id) : []}
+                disabled={!student}
+                onToggle={(checked) => handleToggleItem(item, checked)}
+                onMonthsChange={(months) => handleMonthsChange(item.id, months)}
+              />
+            )
+          })}
+        </section>
+
+        <aside className="lg:sticky lg:top-8 lg:self-start">
+          <CartSummary
+            student={student}
+            entries={entries}
+            feeItems={feeItems}
+            processing={processing}
+            onRemove={handleRemove}
+            onSubmit={handleSubmit}
+          />
+        </aside>
+      </div>
+    </main>
+  )
+}
+
+
+
+--------------------
+
+
+"use client"
+
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import {
+  MONTH_LABELS,
+  formatMoney,
+  frequencyLabel,
+  type FeeItem,
+} from "@/lib/payments/types"
+import { cn } from "@/lib/utils"
+
+type FeeItemCardProps = {
+  item: FeeItem
+  selected: boolean
+  selectedMonths: number[]
+  paidMonths: number[]
+  disabled?: boolean
+  onToggle: (checked: boolean) => void
+  onMonthsChange: (months: number[]) => void
+}
+
+export function FeeItemCard({
+  item,
+  selected,
+  selectedMonths,
+  paidMonths,
+  disabled = false,
+  onToggle,
+  onMonthsChange,
+}: FeeItemCardProps) {
+  const isMonthly = item.frequency === "monthly"
+  const alreadyPaid = !isMonthly && paidMonths.length > 0
+  const isDisabled = disabled || alreadyPaid
+
+  return (
+    <div
+      className={cn(
+        "rounded-lg border bg-card p-4 transition-colors",
+        selected && "border-primary",
+        isDisabled && "opacity-60"
+      )}
+    >
+      <div className="flex items-start gap-3">
+        <Checkbox
+          id={`fee-${item.id}`}
+          checked={selected}
+          disabled={isDisabled}
+          onCheckedChange={(checked) => onToggle(checked === true)}
+          className="mt-0.5"
+        />
+        <div className="flex flex-1 flex-col gap-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <Label
+              htmlFor={`fee-${item.id}`}
+              className="cursor-pointer text-sm font-medium"
+            >
+              {item.name}
+            </Label>
+            <span className="text-sm font-semibold tabular-nums">
+              {formatMoney(item.amount)}
+              {isMonthly && (
+                <span className="font-normal text-muted-foreground">/mês</span>
+              )}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary">{frequencyLabel(item.frequency)}</Badge>
+            {alreadyPaid && <Badge variant="outline">Já pago este ano</Badge>}
+            {item.description && (
+              <span className="text-xs text-muted-foreground">
+                {item.description}
+              </span>
+            )}
+          </div>
+
+          {isMonthly && selected && (
+            <div className="mt-2 flex flex-col gap-1.5">
+              <span className="text-xs text-muted-foreground">
+                Meses a pagar (meses já pagos estão bloqueados):
+              </span>
+              <ToggleGroup
+                multiple
+                variant="outline"
+                size="sm"
+                spacing={1}
+                value={selectedMonths.map(String)}
+                onValueChange={(value) =>
+                  onMonthsChange(value.map(Number).sort((a, b) => a - b))
+                }
+                className="flex-wrap"
+                aria-label={`Meses para ${item.name}`}
+              >
+                {MONTH_LABELS.map((label, index) => {
+                  const month = index + 1
+                  const isPaid = paidMonths.includes(month)
+                  return (
+                    <ToggleGroupItem
+                      key={month}
+                      value={String(month)}
+                      disabled={isPaid}
+                      className={cn("min-w-11", isPaid && "line-through")}
+                    >
+                      {label}
+                    </ToggleGroupItem>
+                  )
+                })}
+              </ToggleGroup>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+---------------
+
+
+"use client"
+
+import { XIcon, ShoppingCartIcon } from "lucide-react"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import { Separator } from "@/components/ui/separator"
+import { Spinner } from "@/components/ui/spinner"
+import {
+  MONTH_LABELS,
+  formatMoney,
+  type CartEntry,
+  type FeeItem,
+  type Student,
+} from "@/lib/payments/types"
+
+type CartSummaryProps = {
+  student: Student | null
+  entries: CartEntry[]
+  feeItems: FeeItem[]
+  processing: boolean
+  onRemove: (feeItemId: number) => void
+  onSubmit: () => void
+}
+
+export function CartSummary({
+  student,
+  entries,
+  feeItems,
+  processing,
+  onRemove,
+  onSubmit,
+}: CartSummaryProps) {
+  const lines = entries
+    .map((entry) => {
+      const item = feeItems.find((f) => f.id === entry.feeItemId)
+      if (!item) return null
+      const quantity = item.frequency === "monthly" ? entry.months.length : 1
+      return { entry, item, subtotal: item.amount * quantity }
+    })
+    .filter((line) => line !== null)
+
+  const total = lines.reduce((sum, line) => sum + line.subtotal, 0)
+  const canSubmit =
+    student !== null &&
+    lines.length > 0 &&
+    lines.every(
+      (line) => line.item.frequency !== "monthly" || line.entry.months.length > 0
+    )
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Resumo do pagamento</CardTitle>
+        <CardDescription>
+          {student
+            ? `Estudante: ${student.name} — ${student.className}`
+            : "Nenhum estudante selecionado"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3">
+        {lines.length === 0 ? (
+          <Empty className="border border-dashed py-8">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <ShoppingCartIcon />
+              </EmptyMedia>
+              <EmptyTitle>Carrinho vazio</EmptyTitle>
+              <EmptyDescription>
+                Selecione os itens que pretende pagar.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          lines.map(({ entry, item, subtotal }) => (
+            <div key={item.id} className="flex flex-col gap-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium">{item.name}</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm tabular-nums">
+                    {formatMoney(subtotal)}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => onRemove(item.id)}
+                    aria-label={`Remover ${item.name}`}
+                  >
+                    <XIcon />
+                  </Button>
+                </div>
+              </div>
+              {item.frequency === "monthly" && (
+                <div className="flex flex-wrap gap-1">
+                  {entry.months.length === 0 ? (
+                    <span className="text-xs text-destructive">
+                      Selecione pelo menos um mês
+                    </span>
+                  ) : (
+                    entry.months.map((month) => (
+                      <Badge key={month} variant="secondary">
+                        {MONTH_LABELS[month - 1]}
+                      </Badge>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          ))
+        )}
+
+        <Separator />
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">Total</span>
+          <span className="text-lg font-bold tabular-nums">
+            {formatMoney(total)}
+          </span>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button
+          className="w-full"
+          disabled={!canSubmit || processing}
+          onClick={onSubmit}
+        >
+          {processing && <Spinner data-icon="inline-start" />}
+          {processing ? "A processar..." : "Confirmar pagamento"}
+        </Button>
+      </CardFooter>
+    </Card>
+  )
+}

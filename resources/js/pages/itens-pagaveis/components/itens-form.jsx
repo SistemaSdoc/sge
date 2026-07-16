@@ -8,13 +8,21 @@ import {
   FieldSet,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-const tipos = [
-  { label: 'Mensalidade', value: 'mensalidade' },
-  { label: 'Matrícula', value: 'matricula' },
-  { label: 'Taxa', value: 'taxa' },
-  { label: 'Outro', value: 'outro' },
+const frequencias = [
+  { label: 'Mensal', value: 'mensal' },
+  { label: 'Anual', value: 'anual' },
+  { label: 'Único', value: 'unico' },
 ];
 
 export function ItensForm({
@@ -24,6 +32,7 @@ export function ItensForm({
   setData,
   errors,
   processing,
+  cursosClasse = [],
   submitFn,
 }) {
   return (
@@ -50,44 +59,90 @@ export function ItensForm({
                   {errors?.nome && <FieldError>{errors.nome}</FieldError>}
                 </Field>
 
-                {/*<div className="mt-4 grid gap-4 md:grid-cols-2">
-                  <Field>
-                    <FieldLabel>Tipo</FieldLabel>
+                <Field data-invalid={Boolean(errors?.descricao)}>
+                  <FieldLabel htmlFor="descricao">Descrição</FieldLabel>
+                  <Textarea
+                    id="descricao"
+                    placeholder="Opcional"
+                    value={data.descricao ?? ''}
+                    onChange={(e) => setData('descricao', e.target.value)}
+                    aria-invalid={Boolean(errors?.descricao)}
+                  />
+                  {errors?.descricao && <FieldError>{errors.descricao}</FieldError>}
+                </Field>
+
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  <Field data-invalid={Boolean(errors?.valor)}>
+                    <FieldLabel htmlFor="valor">Valor</FieldLabel>
+                    <Input
+                      id="valor"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0,00"
+                      value={data.valor ?? ''}
+                      onChange={(e) => setData('valor', e.target.value)}
+                      aria-invalid={Boolean(errors?.valor)}
+                    />
+                    {errors?.valor && <FieldError>{errors.valor}</FieldError>}
+                  </Field>
+
+                  <Field data-invalid={Boolean(errors?.frequencia)}>
+                    <FieldLabel>Frequência</FieldLabel>
                     <ToggleGroup
                       type="single"
                       variant="outline"
-                      value={data.tipo ?? 'mensalidade'}
-                      onValueChange={(val) => setData('tipo', val)}
+                      value={data.frequencia ?? 'mensal'}
+                      onValueChange={(val) => val && setData('frequencia', val)}
                       className="flex-wrap"
                     >
-                      {tipos.map((t) => (
-                        <ToggleGroupItem key={t.value} value={t.value}>
-                          {t.label}
+                      {frequencias.map((f) => (
+                        <ToggleGroupItem key={f.value} value={f.value}>
+                          {f.label}
                         </ToggleGroupItem>
                       ))}
                     </ToggleGroup>
-                    {errors?.tipo && <FieldError>{errors.tipo}</FieldError>}
+                    {errors?.frequencia && <FieldError>{errors.frequencia}</FieldError>}
                   </Field>
-                </div>*/}
+                </div>
 
-                <Field data-invalid={Boolean(errors?.valor_padrao)}>
-                  <FieldLabel htmlFor="valor_padrao">Valor padrão</FieldLabel>
-                  <Input
-                    id="valor_padrao"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0,00"
-                    value={data.valor_padrao ?? ''}
-                    onChange={(e) => setData('valor_padrao', e.target.value)}
-                    aria-invalid={Boolean(errors?.valor_padrao)}
-                  />
-                  {errors?.valor_padrao && (
-                    <FieldError>{errors.valor_padrao}</FieldError>
+                <Field data-invalid={Boolean(errors?.curso_classe_id)}>
+                  <FieldLabel htmlFor="curso_classe_id">Curso / Classe</FieldLabel>
+                  <Select
+                    value={data.curso_classe_id || 'todos'}
+                    onValueChange={(val) =>
+                      setData('curso_classe_id', val === 'todos' ? '' : val)
+                    }
+                  >
+                    <SelectTrigger id="curso_classe_id" aria-invalid={Boolean(errors?.curso_classe_id)}>
+                      <SelectValue placeholder="Aplica-se a toda a instituição" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Toda a instituição (sem curso/classe específico)</SelectItem>
+                      {cursosClasse.map((cc) => (
+                        <SelectItem key={cc.id} value={cc.id}>
+                          {cc.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors?.curso_classe_id && (
+                    <FieldError>{errors.curso_classe_id}</FieldError>
                   )}
                 </Field>
 
-                <Button type="submit" disabled={processing}>
+                <Field className="mt-4 flex flex-row items-center justify-between rounded-lg border p-3">
+                  <FieldLabel htmlFor="ativo" className="cursor-pointer">
+                    Item activo
+                  </FieldLabel>
+                  <Switch
+                    id="ativo"
+                    checked={Boolean(data.ativo)}
+                    onCheckedChange={(val) => setData('ativo', val)}
+                  />
+                </Field>
+
+                <Button type="submit" disabled={processing} className="mt-4">
                   {processing ? 'A guardar...' : submitLabel}
                 </Button>
               </FieldSet>

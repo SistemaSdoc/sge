@@ -2,6 +2,7 @@ import { Link, router } from '@inertiajs/react';
 import { MoreHorizontalIcon, LayersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 import {
   Card,
@@ -39,6 +40,12 @@ const formatCurrency = (value) => {
   return Number.isNaN(amount) ? '—' : `${amount.toLocaleString('pt')} AOA`;
 };
 
+const frequenciaLabels = {
+  mensal: 'Mensal',
+  anual: 'Anual',
+  unico: 'Único',
+};
+
 export default function ItensTable({
   itens = [],
   can,
@@ -46,8 +53,7 @@ export default function ItensTable({
   pagination = {},
   onPageChange,
 }) {
-  const hasAnyAction =
-    itens.some((i) => i.can?.update || true || i.can?.delete || true) ?? true;
+  const hasAnyAction = itens.some((i) => i.can?.update || i.can?.delete);
   const isEmpty = !itens || itens.length === 0;
 
   return (
@@ -58,9 +64,11 @@ export default function ItensTable({
           Itens utilizados para cobrar encargos escolares
         </CardDescription>
         <CardAction>
-          <Button asChild>
-            <Link href={create().url}>Novo item</Link>
-          </Button>
+          {can?.create && (
+            <Button asChild>
+              <Link href={create().url}>Novo item</Link>
+            </Button>
+          )}
         </CardAction>
       </CardHeader>
 
@@ -86,8 +94,10 @@ export default function ItensTable({
             <TableHeader>
               <TableRow className="bg-muted/72">
                 <TableHead className="px-4">Nome</TableHead>
-                <TableHead className="px-4">Tipo</TableHead>
-                <TableHead className="px-4">Valor padrão</TableHead>
+                <TableHead className="px-4">Curso / Classe</TableHead>
+                <TableHead className="px-4">Frequência</TableHead>
+                <TableHead className="px-4">Valor</TableHead>
+                <TableHead className="px-4">Estado</TableHead>
                 {hasAnyAction && (
                   <TableHead className="px-4 text-right">Acções</TableHead>
                 )}
@@ -100,47 +110,67 @@ export default function ItensTable({
                     {item.nome}
                   </TableCell>
                   <TableCell className="px-4 text-muted-foreground">
-                    {item.tipo}
+                    {item.curso_classe ?? 'Toda a instituição'}
+                  </TableCell>
+                  <TableCell className="px-4 text-muted-foreground">
+                    {frequenciaLabels[item.frequencia] ?? item.frequencia}
                   </TableCell>
                   <TableCell className="px-4 font-medium">
-                    {formatCurrency(item.valor_padrao)}
+                    {formatCurrency(item.valor)}
+                  </TableCell>
+                  <TableCell className="px-4">
+                    <Badge variant={item.ativo ? 'default' : 'secondary'}>
+                      {item.ativo ? 'Activo' : 'Inactivo'}
+                    </Badge>
                   </TableCell>
 
-                  <TableCell className="px-4 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <MoreHorizontalIcon />
-                          <span className="sr-only">Abrir menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
+                  {hasAnyAction && (
+                    <TableCell className="px-4 text-right">
+                      {(item.can?.update || item.can?.delete) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8"
+                            >
+                              <MoreHorizontalIcon />
+                              <span className="sr-only">Abrir menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.visit(edit(item.id).url);
-                          }}
-                        >
-                          Editar
-                        </DropdownMenuItem>
+                          <DropdownMenuContent align="end">
+                            {item.can?.update && (
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  router.visit(edit(item.id).url);
+                                }}
+                              >
+                                Editar
+                              </DropdownMenuItem>
+                            )}
 
-                        {item.can?.update && item.can?.delete && (
-                          <DropdownMenuSeparator />
-                        )}
+                            {item.can?.update && item.can?.delete && (
+                              <DropdownMenuSeparator />
+                            )}
 
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteFn(item.id);
-                          }}
-                        >
-                          Remover
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                            {item.can?.delete && (
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteFn(item.id);
+                                }}
+                              >
+                                Remover
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

@@ -2,40 +2,36 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pagamento extends Model
 {
-    use HasUuids;
+    use HasUuid, SoftDeletes;
 
     protected $table = 'pagamentos';
 
     protected $fillable = [
-        'propina_id',
-        'valor_pago',
-        'data_pagamento',
-        'metodo',
-        'comprovativo_path',
-        'registado_por',
+        'aluno_id', 'instituicao_id', 'registado_por',
+        'data_pagamento', 'valor_total', 'metodo', 'referencia', 'observacoes',
     ];
 
     protected $casts = [
-        'valor_pago'     => 'decimal:2',
         'data_pagamento' => 'date',
+        'valor_total' => 'decimal:2',
     ];
 
-    protected static function booted(): void
+    public function aluno(): BelongsTo
     {
-        // recalcula o estado da propina sempre que um pagamento é criado/apagado
-        static::created(fn (Pagamento $pagamento) => $pagamento->propina->atualizarEstado());
-        static::deleted(fn (Pagamento $pagamento) => $pagamento->propina->atualizarEstado());
+        return $this->belongsTo(Aluno::class);
     }
 
-    public function propina(): BelongsTo
+    public function itens(): HasMany
     {
-        return $this->belongsTo(Propina::class);
+        return $this->hasMany(PagamentoItem::class);
     }
 
     public function registadoPor(): BelongsTo
