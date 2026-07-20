@@ -13,7 +13,6 @@ export function ProximasAulas({ data = [] }) {
   return (
     <ItemGroup>
       {data.map((aula) => (
-        console.log('aula: ', aula),
         <AulaItem key={`${aula.id}-${aula.dia}`} aula={aula} />
       ))}
     </ItemGroup>

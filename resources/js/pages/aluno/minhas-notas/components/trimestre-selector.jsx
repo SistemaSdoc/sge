@@ -4,7 +4,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 /**
  * Selector para escolher o trimestre a visualizar
@@ -18,7 +18,7 @@ export function TrimestroSelector({ value, onChange }) {
   return (
     <div className="flex flex-col gap-2">
       <Select value={String(value)} onValueChange={(v) => onChange(Number(v))}>
-        <SelectTrigger className="w-full max-w-">
+        <SelectTrigger className="w-full">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

@@ -1,14 +1,12 @@
-"use client";
-
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { BookOpenIcon, Filter } from "lucide-react";
-import { EmptyState } from "@/components/empty-state";
+} from '@/components/ui/card';
+import { BookOpenIcon, Filter } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
 import {
   Table,
   TableBody,
@@ -16,7 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
 /**
  * Componente de tabela para exibição de notas do aluno.
@@ -34,7 +32,7 @@ export function GrelhaTable({ data = [] }) {
   const isEmpty = !data || data.length === 0;
 
   return (
-    <Card className="gap-0 w-full pb-0">
+    <Card className="w-full gap-0 pb-0">
       <CardHeader className="border-b">
         <CardTitle>Lista de disciplinas</CardTitle>
 
@@ -43,7 +41,7 @@ export function GrelhaTable({ data = [] }) {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="p-0! gap-0">
+      <CardContent className="gap-0 p-0!">
         {isEmpty ? (
           <EmptyState
             variant="table"
@@ -56,9 +54,9 @@ export function GrelhaTable({ data = [] }) {
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/72">
-                  <TableHead className="px-4 ">Sigla</TableHead>
-                  <TableHead className="px-4 ">Disciplina</TableHead>
-                  <TableHead className="px-4 min-w">Professor</TableHead>
+                  <TableHead className="px-4">Sigla</TableHead>
+                  <TableHead className="px-4">Disciplina</TableHead>
+                  <TableHead className="min-w px-4">Professor</TableHead>
                 </TableRow>
               </TableHeader>
 
