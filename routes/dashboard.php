@@ -9,6 +9,7 @@ use App\Http\Controllers\ClasseController as ClasseControllerGeral;
 use App\Http\Controllers\ClasseTurnoDisciplinaController;
 use App\Http\Controllers\ClasseTurnoDisciplinaHorarioController;
 use App\Http\Controllers\ClasseTurnoTurmaController;
+use App\Http\Controllers\ColegioController;
 use App\Http\Controllers\CursoClasseController;
 use App\Http\Controllers\CursoClasseTurnoController;
 use App\Http\Controllers\CursosController;
@@ -46,11 +47,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-require __DIR__.'/modules/pautas.php';
-require __DIR__.'/modules/certificado.php';
-require __DIR__.'/modules/progressao.php';
-require __DIR__.'/modules/notas.php';
-require __DIR__.'/modules/acess-management.php';
+require __DIR__ . '/modules/pautas.php';
+require __DIR__ . '/modules/certificado.php';
+require __DIR__ . '/modules/progressao.php';
+require __DIR__ . '/modules/notas.php';
+require __DIR__ . '/modules/acess-management.php';
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
 Route::resource('users', UserController::class);
@@ -88,8 +89,13 @@ Route::prefix('director')->group(function () {
 Route::get('turmas', [TurmaController::class, 'index'])->name('turmaGeral');
 
 Route::prefix('instituicoes/{instituicao}')->group(function () {
+
+    require __DIR__ . '/modules/colegios.php';
+
+
     Route::get('alunos/{aluno}/historico', [FinalistaController::class, 'historico']);
-    Route::get('colegios', [CursoTuteladoController::class, 'colegios']);
+    //Route::get('colegios', [CursoTuteladoController::class, 'colegios']);
+    //Route::get('colegios/{colegio}', [CursoTuteladoController::class, 'showColegio']);
     Route::get('aluno/grelha-curricular', [AlunoController::class, 'grelhaCurricular']);
     Route::get('aluno/notas', [AlunoController::class, 'notas']);
 
@@ -224,3 +230,8 @@ Route::resource('anos-lectivos', AnoLectivoController::class)->parameters(['anos
 Route::get('pap', [GrupoPapController::class, 'index'])->name('grupos-pap.index');
 Route::get('minhas-notas', [NotaAlunoController::class, 'index'])->name('notas.aluno.index');
 Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])->name('grelha-curricular.index');
+Route::get(
+    '/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta',
+    [CursoTuteladoController::class, 'pauta']
+)->name('pauta');
+

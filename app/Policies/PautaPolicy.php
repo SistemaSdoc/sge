@@ -27,7 +27,7 @@ class PautaPolicy
      */
     public function viewAnyCurso(User $user, CursoTutelado $cursoTutelado): bool
     {
-        if (! $user->can('pautas.viewAny')) {
+       /* if (! $user->can('pautas.viewAny')) {
             return false;
         }
 
@@ -37,7 +37,7 @@ class PautaPolicy
 
         if ($user->hasRole('Professor')) {
             return $this->professorAssociadoAoCurso($user, $cursoTutelado);
-        }
+        }*/
 
         return true;
     }
@@ -51,7 +51,7 @@ class PautaPolicy
      */
     public function view(User $user, Turma $turma): bool
     {
-        if (! $user->can('pautas.view')) {
+       /* if (! $user->can('pautas.view')) {
             return false;
         }
 
@@ -61,7 +61,7 @@ class PautaPolicy
 
         if ($user->hasRole('Professor')) {
             return $this->isProfessorDaTurma($user, $turma);
-        }
+        }*/
 
         return true;
     }

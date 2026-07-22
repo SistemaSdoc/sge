@@ -449,8 +449,6 @@ class RolePermissionSeeder extends Seeder
                 'avisos.viewAny',
                 'avisos.view',
 
-                // Alunos (ver o próprio perfil)
-                'alunos.view',
 
                 // Grupo PAP
                 'grupopap.viewAny',
