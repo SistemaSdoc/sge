@@ -1,0 +1,1 @@
+var e=[{value:`1`,label:`1º Trimestre`},{value:`2`,label:`2º Trimestre`},{value:`3`,label:`3º Trimestre`},{value:`final`,label:`Pauta Final`},{value:`recurso`,label:`Recurso`}],t=e=>e==null?``:e>=10?`text-blue-600`:`text-destructive`,n=e=>e==null?``:e>10?`text-destructive`:`text-blue-600`;export{n,t as r,e as t};

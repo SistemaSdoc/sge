@@ -1,0 +1,1 @@
+import{n as e,t}from"./jsx-runtime-DIBGU2nq.js";import{PagamentosForm as n}from"./pagamentos-form-BkpbtFFF.js";var r=e(),i=t();function a(e){let t=(0,r.c)(4),{alunos:a,itensPagaveis:o,paidRecord:s}=e,c;return t[0]!==a||t[1]!==o||t[2]!==s?(c=(0,i.jsx)(n,{alunos:a,itensPagaveis:o,paidRecord:s}),t[0]=a,t[1]=o,t[2]=s,t[3]=c):c=t[3],c}export{a as default};
