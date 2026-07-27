@@ -27,7 +27,7 @@ class GoogleAuthService
             'has_code' => request()->has('code'),
             'has_state' => request()->has('state'),
             'has_error' => request()->has('error'),
-            'error' => request()->get('error'),
+            'error' => request()->input('error'),
         ]);
 
         try {

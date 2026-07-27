@@ -13,42 +13,39 @@ class StoreCursoTuteladoRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
-            'curso_id'       => ['nullable', 'string', 'exists:cursos,id'],
-            'nome'           => ['nullable', 'string', 'min:2', 'max:255'],
-            'duracao_anos'   => ['nullable', 'integer', 'min:1', 'max:10'],
-            'classes'        => ['required', 'array', 'min:1'],
-            'classes.*'      => ['string', 'exists:classes,id'],
+        $rules = [
+            'curso_id' => ['nullable', 'uuid', 'exists:cursos,id'],
+            'nome' => ['nullable', 'string', 'min:2', 'max:255'],
+            'duracao_anos' => ['nullable', 'integer', 'min:1', 'max:10'],
+            'nivel_ensino_id' => ['required', 'uuid', 'exists:niveis_ensino,id'],
+            'classe_ids' => ['required', 'array', 'min:1'],
+            'classe_ids.*' => ['uuid', 'exists:classes,id'],
         ];
-    }
 
-    public function withValidator($validator): void
-    {
-        $validator->after(function ($validator) {
-            $data = $this->all();
+        // Se não veio curso_id, nome e duração tornam-se obrigatórios
+        if (empty($this->curso_id)) {
+            $rules['nome'] = ['required', 'string', 'min:2', 'max:255'];
+            $rules['duracao_anos'] = ['required', 'integer', 'min:1', 'max:10'];
+        }
 
-            if (empty($data['curso_id'])) {
-                if (empty($data['nome']) || strlen($data['nome']) < 2) {
-                    $validator->errors()->add('nome', 'Nome obrigatório quando curso_id não é fornecido');
-                }
-                if (empty($data['duracao_anos']) || $data['duracao_anos'] < 1) {
-                    $validator->errors()->add('duracao_anos', 'Duração obrigatória quando curso_id não é fornecido');
-                }
-            }
-        });
+        return $rules;
     }
 
     public function messages(): array
     {
         return [
-            'classes.required'   => 'Selecciona pelo menos uma classe',
-            'classes.min'        => 'Selecciona pelo menos uma classe',
-            'classes.*.string'  => 'Cada classe deve ser um ID válido',
-            'classes.*.exists'   => 'Uma ou mais classes selecionadas não existem',
-            'curso_id.exists'    => 'O curso seleccionado não existe',
-            'nome.required_without' => 'O nome do curso é obrigatório',
-            'nome.min'           => 'O nome do curso deve ter pelo menos 2 caracteres',
-            'duracao_anos.min'   => 'A duração deve ser pelo menos 1 ano',
+            'curso_id.uuid' => 'O curso seleccionado é inválido.',
+            'curso_id.exists' => 'O curso seleccionado não existe.',
+            'nome.required' => 'O nome do curso é obrigatório quando não selecciona um curso existente.',
+            'nome.min' => 'O nome do curso deve ter pelo menos 2 caracteres.',
+            'duracao_anos.required' => 'A duração é obrigatória quando não selecciona um curso existente.',
+            'duracao_anos.min' => 'A duração deve ser pelo menos 1 ano.',
+            'nivel_ensino_id.required' => 'Seleccione o nível de ensino.',
+            'nivel_ensino_id.exists' => 'O nível de ensino seleccionado não existe.',
+            'classe_ids.required' => 'Seleccione pelo menos uma classe.',
+            'classe_ids.min' => 'Seleccione pelo menos uma classe.',
+            'classe_ids.*.uuid' => 'Uma ou mais classes seleccionadas são inválidas.',
+            'classe_ids.*.exists' => 'Uma ou mais classes seleccionadas não existem.',
         ];
     }
 }

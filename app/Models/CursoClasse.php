@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 #[Fillable([
     'classe_id',
     'curso_tutelado_id',
+    'nivel_ensino_id',
 ])]
 
 class CursoClasse extends Pivot
@@ -24,6 +25,11 @@ class CursoClasse extends Pivot
     public function classe()
     {
         return $this->belongsTo(Classe::class);
+    }
+
+    public function nivelEnsino()
+    {
+        return $this->belongsTo(NivelEnsino::class);
     }
 
     public function cursoTutelado()

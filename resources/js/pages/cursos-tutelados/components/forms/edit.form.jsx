@@ -41,42 +41,6 @@ export function CursoForm({
             <FieldGroup>
               <FieldSet>
                 <Field>
-                  <FieldLabel htmlFor="duracao_anos">Duração (anos)</FieldLabel>
-                  <Input
-                    id="duracao_anos"
-                    type="number"
-                    placeholder="Ex.: 3"
-                    value={data.duracao_anos}
-                    onChange={(e) => setData('duracao_anos', e.target.value)}
-                  />
-                  {errors.duracao_anos && (
-                    <FieldError>{errors.duracao_anos}</FieldError>
-                  )}
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="classes">Classes</FieldLabel>
-                  <MultipleSelect
-                    placeholder="Selecione as classes"
-                    items={classes?.map((classe) => ({
-                      value: classe.id,
-                      label: classe.nome,
-                    }))}
-                    onChange={(opts) =>
-                      setData(
-                        'classes',
-                        opts.map((o) => o.value),
-                      )
-                    }
-                    value={data.classes.map((id) => ({
-                      value: id,
-                      label: classes?.find((c) => c.id === id)?.nome ?? id,
-                    }))}
-                  />
-                  {errors.classes && <FieldError>{errors.classes}</FieldError>}
-                </Field>
-
-                <Field>
                   <FieldLabel htmlFor="instituicao_tutora_id">
                     Instituição Tutora
                   </FieldLabel>
@@ -105,6 +69,41 @@ export function CursoForm({
                   )}
                 </Field>
 
+                <Field>
+                  <FieldLabel htmlFor="classes">Classes</FieldLabel>
+                  <MultipleSelect
+                    placeholder="Selecione as classes"
+                    items={classes?.map((classe) => ({
+                      value: classe.id,
+                      label: classe.nome,
+                    }))}
+                    onChange={(opts) =>
+                      setData(
+                        'classes',
+                        opts.map((o) => o.value),
+                      )
+                    }
+                    value={data.classes.map((id) => ({
+                      value: id,
+                      label: classes?.find((c) => c.id === id)?.nome ?? id,
+                    }))}
+                  />
+                  {errors.classes && <FieldError>{errors.classes}</FieldError>}
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="duracao_anos">Duração (anos)</FieldLabel>
+                  <Input
+                    id="duracao_anos"
+                    type="number"
+                    placeholder="Ex.: 3"
+                    value={data.duracao_anos}
+                    onChange={(e) => setData('duracao_anos', e.target.value)}
+                  />
+                  {errors.duracao_anos && (
+                    <FieldError>{errors.duracao_anos}</FieldError>
+                  )}
+                </Field>
                 <Field>
                   <Button type="submit" disabled={processing}>
                     Guardar

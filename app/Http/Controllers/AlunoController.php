@@ -18,7 +18,7 @@ class AlunoController extends Controller
         Gate::authorize('viewAny', Aluno::class);
 
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         /** @var User $user */
         $user = Auth::user();
@@ -141,7 +141,7 @@ class AlunoController extends Controller
         Gate::authorize('update', $aluno);
 
         // Ano lectivo ativo
-        $anoLectivoId = AnoLectivo::where('activo', 1)->first()?->id;
+        $anoLectivoId = AnoLectivo::activo()?->id;
 
         $aluno->load([
             'inscricao.candidato:id,nome,bi,email,telefone',

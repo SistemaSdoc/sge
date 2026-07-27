@@ -21,10 +21,9 @@ class AprovacaoService
         ])->findOrFail($turmaAlunoId);
 
         return $this->regraAcademicaService
-            ->calcularResultadoFinalAluno($turmaAluno);
+            ->resolverSituacaoAcademica($turmaAluno);
     }
 
-    // AprovacaoService.php
     public function calcularAprovacaoRecurso(string $turmaAlunoId): array
     {
         $turmaAluno = TurmaAluno::with([
@@ -34,6 +33,6 @@ class AprovacaoService
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
         ])->findOrFail($turmaAlunoId);
 
-        return $this->regraAcademicaService->avaliarRecurso($turmaAluno);
+        return $this->regraAcademicaService->resolverSituacaoRecurso($turmaAluno);
     }
 }

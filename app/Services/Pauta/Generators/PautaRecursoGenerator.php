@@ -40,7 +40,7 @@ class PautaRecursoGenerator
         // usando directamente o resultado académico de cada turma_aluno
         $idsEmRecurso = collect();
         foreach ($paginator->items() as $ta) {
-            $resultadoFinal = $this->regraAcademicaService->avaliarAluno($ta);
+            $resultadoFinal = $this->regraAcademicaService->resolverSituacaoAcademica($ta);
             $ids = collect($resultadoFinal['detalhes'])
                 ->where('situacao', 'recurso')
                 ->pluck('disciplina_id');
@@ -72,8 +72,8 @@ class PautaRecursoGenerator
 
     private function montarAluno($ta, int $numero, $disciplinas): array
     {
-        $resultadoFinal = $this->regraAcademicaService->avaliarAluno($ta);
-        $resultadoRecurso = $this->regraAcademicaService->avaliarRecurso($ta);
+        $resultadoFinal = $this->regraAcademicaService->resolverSituacaoAcademica($ta);
+        $resultadoRecurso = $this->regraAcademicaService->resolverSituacaoRecurso($ta);
 
         $disciplinasNegativas = collect($resultadoFinal['detalhes'])
             ->where('situacao', 'recurso')

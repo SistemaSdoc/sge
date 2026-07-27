@@ -8,13 +8,17 @@ use App\Http\Resources\CursoTutelado\CursoTuteladoResourceShow;
 use App\Models\AnoLectivo;
 use App\Models\Classe;
 use App\Models\Curso;
+use App\Models\CursoClasse;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
+use App\Models\NivelEnsino;
 use App\Models\Turma;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class CursoTuteladoController extends Controller
@@ -27,68 +31,71 @@ class CursoTuteladoController extends Controller
             ->orderBy('nome')
             ->get();
 
+        $niveisEnsino = NivelEnsino::select('id', 'nome')
+            ->orderBy('nome')
+            ->get();
+
         $cursos = Curso::select('id', 'nome')
             ->orderBy('nome')
             ->get();
 
         return Inertia::render('cursos-tutelados/create', [
-            'instituicao' => [
-                'id' => $instituicao->id,
-                'nome' => $instituicao->nome,
-            ],
+            'instituicao' => $instituicao->only('id'),
             'classes' => $classes,
             'cursos' => $cursos,
+            'niveisEnsino' => $niveisEnsino,
         ]);
     }
 
-    public function store(StoreCursoTuteladoRequest $request, Instituicao $instituicao)
-    {
+    public function store(
+        StoreCursoTuteladoRequest $request,
+        Instituicao $instituicao
+    ): RedirectResponse {
         Gate::authorize('create', CursoTutelado::class);
 
         $validated = $request->validated();
 
-        // Obter ou criar o curso
-        if ($validated['curso_id'] ?? null) {
-            $curso = Curso::findOrFail($validated['curso_id']);
-        } else {
-            $curso = Curso::firstOrCreate(
+        // Obter ou criar curso
+        $curso = isset($validated['curso_id'])
+            ? Curso::findOrFail($validated['curso_id'])
+            : Curso::firstOrCreate(
                 ['nome' => $validated['nome']],
                 ['duracao_anos' => $validated['duracao_anos']]
             );
-        }
 
-        // Verificar se já existe essa associação
-        $instituicaoCursoExistente = InstituicaoCurso::where('instituicao_id', $instituicao->id)
+        // Verificar duplicado antes de entrar na transação
+        if (InstituicaoCurso::where('instituicao_id', $instituicao->id)
             ->where('curso_id', $curso->id)
-            ->exists();
-
-        if ($instituicaoCursoExistente) {
-            abort(422, 'Esta instituição já tem este curso associado.');
+            ->exists()) {
+            return back()->withErrors([
+                'curso_id' => 'Esta instituição já tem este curso associado.',
+            ]);
         }
 
-        // Usar transação para garantir integridade
-        try {
-            $cursoTutelado = null;
+        DB::transaction(function () use ($instituicao, $curso, $validated) {
+            $instituicaoCurso = InstituicaoCurso::create([
+                'curso_id' => $curso->id,
+                'instituicao_id' => $instituicao->id,
+                'duracao_anos' => $validated['duracao_anos'] ?? $curso->duracao_anos,
+            ]);
 
-            DB::transaction(function () use ($instituicao, $curso, $validated, &$cursoTutelado) {
-                // Criar InstituicaoCurso
-                $instituicaoCurso = InstituicaoCurso::create([
-                    'curso_id' => $curso->id,
-                    'instituicao_id' => $instituicao->id,
-                    'duracao_anos' => $validated['duracao_anos'] ?? 4,
-                ]);
+            $cursoTutelado = $instituicaoCurso->cursoTutelado()->create([
+                'instituicao_tutora_id' => $instituicao->id,
+            ]);
 
-                // Criar CursoTutelado
-                $cursoTutelado = $instituicaoCurso->cursoTutelado()->create([
-                    'instituicao_tutora_id' => $instituicao->id,
-                ]);
-
-                // Associar classes
-                $cursoTutelado->classes()->sync($validated['classes']);
-            });
-        } catch (\Exception $e) {
-            abort(500, 'Erro ao criar curso tutelado: ' . $e->getMessage());
-        }
+            // Insert bulk — uma única query independentemente do nº de classes
+            $now = now();
+            CursoClasse::insert(
+                collect($validated['classe_ids'])->map(fn ($classeId) => [
+                    'id' => (string) Str::uuid7(),
+                    'curso_tutelado_id' => $cursoTutelado->id,
+                    'classe_id' => $classeId,
+                    'nivel_ensino_id' => $validated['nivel_ensino_id'],
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ])->all()
+            );
+        });
 
         return to_route('instituicoes.show', $instituicao)->with('toast', [
             'type' => 'success',
@@ -101,8 +108,7 @@ class CursoTuteladoController extends Controller
         Gate::authorize('view', $cursoTutelado);
 
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
-
+            ?? AnoLectivo::activo()?->id;
 
         $cursoTutelado->load([
             'instituicaoCurso.curso:id,nome,descricao',
@@ -112,7 +118,7 @@ class CursoTuteladoController extends Controller
             'cursoClasses.turnos.turno:id,nome',
             'cursoClasses.turnos' => function ($query) use ($anoLectivoId) {
                 $query->with([
-                    'turmas' => fn($q) => $q->where('ano_lectivo_id', $anoLectivoId),  // ← filtro aqui agora
+                    'turmas' => fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId),  // ← filtro aqui agora
                     'turmas.cursoClasseTurno.turno:id,nome',
                     'turmas.cursoClasseTurno.cursoClasse.classe:id,nome',
                     'classeTurnoDisciplinas.professores',
@@ -156,7 +162,7 @@ class CursoTuteladoController extends Controller
                 ->where(function ($q) use ($cursoId) {
                     // Institutos que têm o curso
                     $q->where('tipo', 'instituto')
-                        ->whereHas('instituicaoCursos', fn($q) => $q->where('curso_id', $cursoId));
+                        ->whereHas('instituicaoCursos', fn ($q) => $q->where('curso_id', $cursoId));
                 })
                 ->orWhere('id', $cursoTutelado->instituicao_tutora_id) // Garante que a tutora actual aparece sempre
                 ->orderBy('nome')
@@ -213,7 +219,7 @@ class CursoTuteladoController extends Controller
         Gate::authorize('update', $cursoTutelado);
 
         $temTurmas = $cursoTutelado->cursoClasses
-            ->flatMap(fn($cc) => $cc->turnos)
+            ->flatMap(fn ($cc) => $cc->turnos)
             ->isNotEmpty();
 
         if ($temTurmas) {
@@ -246,7 +252,7 @@ class CursoTuteladoController extends Controller
         // 4. Carregar os cursos de cada colégio (já filtrados) em query separada
         $colegiosComCursos = $colegios->getCollection()->map(function ($colegio) use ($instituicao) {
             $cursos = InstituicaoCurso::where('instituicao_id', $colegio->id)
-                ->whereHas('cursoTutelado', fn($q) => $q->where('instituicao_tutora_id', $instituicao->id))
+                ->whereHas('cursoTutelado', fn ($q) => $q->where('instituicao_tutora_id', $instituicao->id))
                 ->with(['curso:id,nome', 'cursoTutelado:id,instituicao_curso_id'])
                 ->get();
 
@@ -254,7 +260,7 @@ class CursoTuteladoController extends Controller
                 'id' => $colegio->id,
                 'nome' => $colegio->nome,
                 'tipo' => $colegio->tipo,
-                'cursos' => $cursos->map(fn($ic) => [
+                'cursos' => $cursos->map(fn ($ic) => [
                     'id' => $ic->cursoTutelado->id,
                     'nome' => $ic->curso->nome,
                     'curso_tutelado_id' => $ic->cursoTutelado->id,
@@ -285,12 +291,12 @@ class CursoTuteladoController extends Controller
         // Paginar turmas em vez de carregar todas
         $turmasPaginadas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
-            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
             ->with([
                 'cursoClasseTurno.cursoClasse.classe:id,nome',
                 'cursoClasseTurno.turno:id,nome',
-                'alunosActivos' => fn($q) => $q->wherePivot('activo', true)
+                'alunosActivos' => fn ($q) => $q->wherePivot('activo', true)
                     ->with(['inscricao.candidato:id,nome', 'user:id,email'])
                     ->take(50),
                 'gruposPap.professor.user:id,nome',
@@ -302,7 +308,7 @@ class CursoTuteladoController extends Controller
             ->paginate(5);
 
         // Mapear turmas paginadas
-        $turmasMapeadas = $turmasPaginadas->getCollection()->map(fn($turma) => [
+        $turmasMapeadas = $turmasPaginadas->getCollection()->map(fn ($turma) => [
             'id' => $turma->id,
             'nome' => $turma->nome,
             'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -311,12 +317,12 @@ class CursoTuteladoController extends Controller
             'cursoClasseTurno' => ['id' => $turma->cursoClasseTurno?->id],
             'disciplinas' => $turma->turmaDisciplinaProfessor
                 ->groupBy('classe_turno_disciplina_id')
-                ->map(fn($tdps) => [
+                ->map(fn ($tdps) => [
                     'id' => $tdps->first()->classeTurnoDisciplina->disciplina->id,
                     'nome' => $tdps->first()->classeTurnoDisciplina->disciplina->nome,
                     'professor' => $tdps->first()->professor->user->nome,
                 ])->values(),
-            'grupos_pap' => $turma->gruposPap->map(fn($grupo) => [
+            'grupos_pap' => $turma->gruposPap->map(fn ($grupo) => [
                 'id' => $grupo->id,
                 'nome_grupo' => $grupo->nome_grupo,
                 'tema_grupo' => $grupo->tema_grupo,
@@ -324,12 +330,12 @@ class CursoTuteladoController extends Controller
                 'nota_final' => $grupo->nota_final,
                 'data_defesa' => $grupo->data_defesa,
                 'professor' => $grupo->professor?->user?->nome,
-                'elementos' => $grupo->elementos->map(fn($el) => [
+                'elementos' => $grupo->elementos->map(fn ($el) => [
                     'id' => $el->aluno_id,
                     'nome' => $el->aluno?->inscricao?->candidato?->nome,
                 ]),
             ]),
-            'alunos' => $turma->alunosActivos->map(fn($aluno) => [
+            'alunos' => $turma->alunosActivos->map(fn ($aluno) => [
                 'id' => $aluno->id,
                 'nome' => $aluno->inscricao?->candidato?->nome,
                 'matricula' => $aluno->matricula,
@@ -340,17 +346,17 @@ class CursoTuteladoController extends Controller
         $turmasPaginadas->setCollection($turmasMapeadas);
 
         // Agrupar turmas por classe/turno para manter estrutura aninhada no frontend
-        $classesAgrupadas = $cursoTutelado->cursoClasses->map(fn($cc) => [
+        $classesAgrupadas = $cursoTutelado->cursoClasses->map(fn ($cc) => [
             'id' => $cc->id,
             'nome' => $cc->classe?->nome,
-            'turnos' => $cc->turnos->map(fn($cct) => [
+            'turnos' => $cc->turnos->map(fn ($cct) => [
                 'id' => $cct->id,
                 'nome' => $cct->turno?->nome,
                 'turmas' => $turmasPaginadas->getCollection()
                     ->where('cursoClasseTurno.id', $cct->id)
                     ->values(),
-            ])->filter(fn($turno) => $turno['turmas']->isNotEmpty())->values(),
-        ])->filter(fn($classe) => $classe['turnos']->isNotEmpty())->values();
+            ])->filter(fn ($turno) => $turno['turmas']->isNotEmpty())->values(),
+        ])->filter(fn ($classe) => $classe['turnos']->isNotEmpty())->values();
 
         return Inertia::render('colegios/curso-show', [
             'instituicao' => ['id' => $instituicao->id, 'nome' => $instituicao->nome],
@@ -377,9 +383,9 @@ class CursoTuteladoController extends Controller
     public function showColegio(Instituicao $instituicao, Instituicao $colegio)
     {
         $colegio->load([
-            'instituicaoCursos' => fn($q) => $q->whereHas(
+            'instituicaoCursos' => fn ($q) => $q->whereHas(
                 'cursoTutelado',
-                fn($q) => $q->where('instituicao_tutora_id', $instituicao->id)
+                fn ($q) => $q->where('instituicao_tutora_id', $instituicao->id)
             )->with('curso:id,nome', 'cursoTutelado:id,instituicao_curso_id'),
         ]);
 
@@ -388,8 +394,8 @@ class CursoTuteladoController extends Controller
                 'id' => $colegio->id,
                 'nome' => $colegio->nome,
                 'cursos' => $colegio->instituicaoCursos
-                    ->filter(fn($ic) => $ic->cursoTutelado !== null)
-                    ->map(fn($ic) => [
+                    ->filter(fn ($ic) => $ic->cursoTutelado !== null)
+                    ->map(fn ($ic) => [
                         'id' => $ic->curso->id,
                         'nome' => $ic->curso->nome,
                         'curso_tutelado_id' => $ic->cursoTutelado->id,

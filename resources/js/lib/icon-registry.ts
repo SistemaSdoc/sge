@@ -14,6 +14,7 @@ import {
   FileTextIcon,
   ReceiptText,
   CreditCard,
+  ClipboardCheck
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -33,6 +34,7 @@ export const iconRegistry: Record<string, LucideIcon> = {
   FileTextIcon,
   ReceiptText,
   CreditCard,
+  ClipboardCheck
 };
 
 export function resolveIcon(name: string): LucideIcon {

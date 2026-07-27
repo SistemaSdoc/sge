@@ -17,8 +17,7 @@ class DashboardController extends Controller
         private DashboardDirectorService $dashboardDirectorService,
         private DashboardProfessorService $dashboardProfessorService,
         private DashboardAlunoService $dashboardAlunoService,
-    ) {
-    }
+    ) {}
 
     /**
      * Renderiza o dashboard do usuário autenticado.
@@ -30,7 +29,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        $anoLectivoId = AnoLectivo::where('activo', 1)->first()?->id;
+        $anoLectivoId = AnoLectivo::activo()?->id;
 
         if ($user->hasRole('Director')) {
             return Inertia::render('dashboards/director/index', [

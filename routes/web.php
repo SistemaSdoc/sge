@@ -44,8 +44,9 @@ require __DIR__.'/auth.php';
  */
 require __DIR__.'/settings.php';
 
-
 Route::get(
     '/certificados/{aluno}/verificar',
     [CertificadoController::class, 'show']
 )->name('certificados.verificar');
+
+Route::inertia('/candidatura', 'teste');

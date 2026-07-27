@@ -20,7 +20,7 @@ class GrelhaCurricularController extends Controller
         $aluno = Auth::user()->aluno;
 
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         return Inertia::render('aluno/grelha-curricular/index', [
             'grelhaCurricular' => (new GrelhaCurricularService)->gerarGrelhaCurricular($aluno, $anoLectivoId),

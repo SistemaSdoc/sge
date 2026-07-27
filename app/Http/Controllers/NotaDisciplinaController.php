@@ -23,8 +23,7 @@ class NotaDisciplinaController extends Controller
     public function __construct(
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
 
     /**
      * Lista as notas dos alunos de uma turma numa disciplina
@@ -42,11 +41,11 @@ class NotaDisciplinaController extends Controller
             ->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
             ->firstOrFail();
 
-        #Gate::authorize('view', $tdp);
+        // Gate::authorize('view', $tdp);
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
         ])
             ->where('turma_id', $turma->id)
             ->where('situacao', 'activo')
@@ -71,12 +70,12 @@ class NotaDisciplinaController extends Controller
                 'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
             ],
             'alunos' => [
-                'data' => $turmaAlunos->getCollection()->map(fn($ta) => [
+                'data' => $turmaAlunos->getCollection()->map(fn ($ta) => [
                     'turma_aluno_id' => $ta->id,
                     'aluno_id' => $ta->aluno->id,
                     'nome' => $ta->aluno->inscricao?->candidato?->nome,
                     'notas' => $ta->notas
-                        ->map(fn($n) => $this->formatarNota($n))
+                        ->map(fn ($n) => $this->formatarNota($n))
                         ->keyBy('periodo'),
                 ])->values(),
                 'current_page' => $turmaAlunos->currentPage(),
@@ -107,7 +106,7 @@ class NotaDisciplinaController extends Controller
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
         ])
             ->where('turma_id', $turma->id)
             ->where('situacao', 'activo')
@@ -133,12 +132,12 @@ class NotaDisciplinaController extends Controller
                     'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
                 ],
                 'alunos' => [
-                    'data' => $turmaAlunos->getCollection()->map(fn($ta) => [
+                    'data' => $turmaAlunos->getCollection()->map(fn ($ta) => [
                         'turma_aluno_id' => $ta->id,
                         'aluno_id' => $ta->aluno->id,
                         'nome' => $ta->aluno->inscricao?->candidato?->nome,
                         'notas' => $ta->notas
-                            ->map(fn($n) => $this->formatarNota($n))
+                            ->map(fn ($n) => $this->formatarNota($n))
                             ->keyBy('periodo'),
                     ]),
                     'current_page' => $turmaAlunos->currentPage(),

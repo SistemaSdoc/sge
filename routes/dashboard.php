@@ -34,6 +34,7 @@ use App\Http\Controllers\NotaDisciplinaRecursoController;
 use App\Http\Controllers\PagamentoController;
 use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
 use App\Http\Controllers\ProgressaoController;
+use App\Http\Controllers\RegraAvaliacaoController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\TutelaController;
@@ -51,6 +52,7 @@ require __DIR__.'/modules/certificado.php';
 require __DIR__.'/modules/progressao.php';
 require __DIR__.'/modules/notas.php';
 require __DIR__.'/modules/acess-management.php';
+require __DIR__.'/modules/confirmar-matriculas.php';
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
 Route::resource('users', UserController::class);
@@ -195,6 +197,8 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 });
 
 Route::resource('avisos', AvisoController::class);
+Route::resource('regras-avaliacao', RegraAvaliacaoController::class)
+    ->parameters(['regras-avaliacao' => 'regraAvaliacao']);
 
 Route::resource('itens-pagaveis', ItemPagavelController::class)
     ->names([

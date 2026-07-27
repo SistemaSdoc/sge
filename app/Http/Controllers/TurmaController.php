@@ -20,7 +20,7 @@ class TurmaController extends Controller
 
         // Filtro ano lectivo
         $anoLectivoId = request('ano_lectivo_id') 
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         $query = Turma::query();
 

@@ -10,8 +10,7 @@ class NotaService
 {
     public function __construct(
         private readonly RegraAcademicaService $regraAcademicaService,
-    ) {
-    }
+    ) {}
 
     // ──────────────────────────────────────────────
     // LANÇAMENTO DE NOTAS
@@ -66,13 +65,15 @@ class NotaService
                 'periodo' => 4,
             ]);
 
-            $nota->mac = null;
-            $nota->nota_prova_professor = null;
-            $nota->nota_prova_trimestral = null;
-            $nota->faltas = 0;
-            $nota->media_trimestral = $notaRecurso; // ← única nota
-            $nota->situacao_trimestral = null;
-            $nota->situacao_anual = null;
+            $nota->fill([
+                'mac' => null,
+                'nota_prova_professor' => null,
+                'nota_prova_trimestral' => null,
+                'faltas' => 0,
+                'media_trimestral' => $notaRecurso,
+                'situacao_trimestral' => null,
+                'situacao_anual' => null,
+            ]);
 
             $nota->save();
 
@@ -103,19 +104,18 @@ class NotaService
             'periodo' => $periodo,
         ]);
 
-        $nota->mac = $mac;
-        $nota->nota_prova_professor = $npp;
-        $nota->nota_prova_trimestral = $npt;
-        $nota->faltas = $faltas;
-
-        $nota->media_trimestral = $this->calcularMediaTrimestral($mac, $npp, $npt);
-
-        $nota->situacao_trimestral = $this->situacaoTrimestral(
-            $nota->media_trimestral,
-            $faltas
-        );
-
-        $nota->situacao_anual = null;
+        $nota->fill([
+            'mac' => $mac,
+            'nota_prova_professor' => $npp,
+            'nota_prova_trimestral' => $npt,
+            'faltas' => $faltas,
+            'media_trimestral' => $this->calcularMediaTrimestral($mac, $npp, $npt),
+            'situacao_trimestral' => $this->situacaoTrimestral(
+                $this->calcularMediaTrimestral($mac, $npp, $npt),
+                $faltas,
+            ),
+            'situacao_anual' => null,
+        ]);
 
         $nota->save();
     }
@@ -137,12 +137,11 @@ class NotaService
         // Só calcula após os 3 trimestres
         $temTresTrimestres = collect([1, 2, 3])
             ->every(
-                fn($p) =>
-                isset($notas[$p]) &&
-                !is_null($notas[$p]->media_trimestral)
+                fn ($p) => isset($notas[$p]) &&
+                ! is_null($notas[$p]->media_trimestral)
             );
 
-        if (!$temTresTrimestres) {
+        if (! $temTresTrimestres) {
             return;
         }
 
@@ -161,7 +160,7 @@ class NotaService
         // ──────────────────────────────────────────────
 
         $temEEF = $notas->contains(
-            fn($n) => $n->situacao_trimestral === 'EEF'
+            fn ($n) => $n->situacao_trimestral === 'EEF'
         );
 
         $situacaoAnual = $this->situacaoAnual($mediaFinal, $temEEF);
@@ -174,7 +173,7 @@ class NotaService
 
         if (
             isset($notas[4]) &&
-            !is_null($notas[4]->media_trimestral)
+            ! is_null($notas[4]->media_trimestral)
         ) {
             $mediaRecurso = (float) $notas[4]->media_trimestral;
 
@@ -190,18 +189,20 @@ class NotaService
         // ACTUALIZAR TODOS OS REGISTOS
         // ──────────────────────────────────────────────
 
-        $notas->each(function ($nota) use ($mediaFinalEfectiva, $situacaoAnual) {
+        foreach ($notas as $nota) {
+            if (! $nota instanceof Nota) {
+                continue;
+            }
 
-            $nota->media_final = $mediaFinalEfectiva;
-
-            // situação anual apenas no período 3
-            $nota->situacao_anual =
-                $nota->periodo === 3
-                ? $situacaoAnual
-                : null;
+            $nota->fill([
+                'media_final' => $mediaFinalEfectiva,
+                'situacao_anual' => $nota->periodo === 3
+                    ? $situacaoAnual
+                    : null,
+            ]);
 
             $nota->save();
-        });
+        }
     }
 
     // ──────────────────────────────────────────────
@@ -240,14 +241,11 @@ class NotaService
 
         return match (true) {
 
-            $faltas >= Nota::FALTAS_EEF_TRIMESTRAL
-            => 'EEF',
+            $faltas >= Nota::FALTAS_EEF_TRIMESTRAL => 'EEF',
 
-            $media >= Nota::NOTA_MINIMA_APTO
-            => 'APTO',
+            $media >= Nota::NOTA_MINIMA_APTO => 'APTO',
 
-            default
-            => 'N/APTO',
+            default => 'N/APTO',
         };
     }
 
@@ -278,41 +276,40 @@ class NotaService
         array $dados
     ): void {
 
+        $dadosParaSalvar = [];
+
         if (array_key_exists('mac', $dados)) {
-            $nota->mac = $dados['mac'];
+            $dadosParaSalvar['mac'] = $dados['mac'];
         }
 
         if (array_key_exists('npp', $dados)) {
-            $nota->nota_prova_professor = $dados['npp'];
+            $dadosParaSalvar['nota_prova_professor'] = $dados['npp'];
         }
 
         if (array_key_exists('npt', $dados)) {
-            $nota->nota_prova_trimestral = $dados['npt'];
+            $dadosParaSalvar['nota_prova_trimestral'] = $dados['npt'];
         }
 
         if (array_key_exists('faltas', $dados)) {
-            $nota->faltas = $dados['faltas'];
+            $dadosParaSalvar['faltas'] = $dados['faltas'];
         }
 
-        // ── Média trimestral ──────────────────────
-        $nota->media_trimestral =
-            $this->calcularMediaTrimestral(
-                $nota->mac,
-                $nota->nota_prova_professor,
-                $nota->nota_prova_trimestral
-            );
+        $mediaTrimestral = $this->calcularMediaTrimestral(
+            $dadosParaSalvar['mac'] ?? $nota->mac,
+            $dadosParaSalvar['nota_prova_professor'] ?? $nota->nota_prova_professor,
+            $dadosParaSalvar['nota_prova_trimestral'] ?? $nota->nota_prova_trimestral,
+        );
 
-        // ── Situação trimestral ───────────────────
-        $nota->situacao_trimestral =
-            $nota->periodo === 4
+        $dadosParaSalvar['media_trimestral'] = $mediaTrimestral;
+        $dadosParaSalvar['situacao_trimestral'] = $nota->periodo === 4
             ? null
             : $this->situacaoTrimestral(
-                $nota->media_trimestral,
-                $nota->faltas
+                $mediaTrimestral,
+                $dadosParaSalvar['faltas'] ?? $nota->faltas,
             );
+        $dadosParaSalvar['situacao_anual'] = null;
 
-        $nota->situacao_anual = null;
-
+        $nota->fill($dadosParaSalvar);
         $nota->save();
 
         // Recalcular final
@@ -340,7 +337,7 @@ class NotaService
 
         $resultado =
             $this->regraAcademicaService
-                ->calcularResultadoFinalAluno($turmaAluno);
+                ->resolverSituacaoAcademica($turmaAluno);
 
         return in_array(
             $resultado['resultado'],

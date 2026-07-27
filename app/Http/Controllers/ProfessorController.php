@@ -81,7 +81,7 @@ class ProfessorController extends Controller
         $this->authorize('view', $professor);
 
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         $professor->load([
             'user:id,nome,email,bi,telefone',

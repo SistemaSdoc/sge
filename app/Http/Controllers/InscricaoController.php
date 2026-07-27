@@ -30,7 +30,7 @@ class InscricaoController extends Controller
 
         // Ano lectivo ativo global
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
 
         $inscricoes = Inscricao::with([
@@ -82,7 +82,7 @@ class InscricaoController extends Controller
         $instituicaoId = $user->instituicao_id;
 
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         // Busca curso_classe_turno apenas da instituição do utilizador, classe 10ª
         $cursoClasseTurnos = CursoClasseTurno::with([

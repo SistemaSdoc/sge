@@ -61,7 +61,7 @@ class PautaFinalGenerator
     private function montarAluno($ta, int $numero, Collection $disciplinas): array
     {
         $resultadoAcademico = $this->regraAcademicaService
-            ->calcularResultadoFinalAluno($ta);
+            ->resolverSituacaoAcademica($ta);
 
         $notasPorTdp = $ta->notas->groupBy('turma_disciplina_professor_id');
 
