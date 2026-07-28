@@ -25,8 +25,7 @@ class ClasseTurnoTurmaController extends Controller
 {
     public function __construct(
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
 
     public function index(
         Instituicao $instituicao,
@@ -42,12 +41,12 @@ class ClasseTurnoTurmaController extends Controller
 
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
-            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
             ->where('ano_lectivo_id', $anoLectivoId)  // ← Filtro
             ->when(
                 $user->hasRole('Professor'),
-                fn($q) => $q->whereHas('professores', function ($q) use ($user) {
+                fn ($q) => $q->whereHas('professores', function ($q) use ($user) {
                     $q->where('professor_id', $user->professor->id);
                 })
             )
@@ -69,7 +68,7 @@ class ClasseTurnoTurmaController extends Controller
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
                 ],
             ],
-            'turmas' => $turmas->through(fn($turma) => [
+            'turmas' => $turmas->through(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -193,7 +192,7 @@ class ClasseTurnoTurmaController extends Controller
             ->classeTurnoDisciplinas()
             ->with([
                 'disciplina:id,nome,sigla',
-                'turmaDisciplinaProfessores' => fn($q) => $q->where('turma_id', $turma->id),
+                'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
                 'horarios',
             ]);
@@ -201,7 +200,7 @@ class ClasseTurnoTurmaController extends Controller
         if ($user->hasRole('Professor')) {
             $professorId = $user->professor?->id;
 
-            if (!$professorId) {
+            if (! $professorId) {
                 $disciplinasQuery->whereRaw('0 = 1');
             }
         }
@@ -241,7 +240,6 @@ class ClasseTurnoTurmaController extends Controller
             'grupos' => GrupoPapIndexResource::collection($grupos),
         ]);
     }
-
 
     public function edit(
         Instituicao $instituicao,
@@ -305,6 +303,7 @@ class ClasseTurnoTurmaController extends Controller
             'turno' => $cursoClasseTurno->id,
         ] + ($anoLectivoId ? ['ano_lectivo_id' => $anoLectivoId] : []));
     }
+
     public function destroy(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,

@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             // TABELAS BASE
             InstituicaoSeeder::class,
             AnoLectivoSeeder::class,
-            CursoSeeder::class,
+           // CursoSeeder::class,
             ClasseSeeder::class,
             TurnoSeeder::class,
             DisciplinaSeeder::class,
@@ -25,12 +25,12 @@ class DatabaseSeeder extends Seeder
 
             // RELACIONAMENTOS ACADÉMICOS
             InstituicaoCursoSeeder::class,
-            CursoTuteladoSeeder::class,
-           // CursoClasseSeeder::class,
-           // CursoClasseTurnoSeeder::class,
+            //CursoTuteladoSeeder::class,
+            // CursoClasseSeeder::class,
+            // CursoClasseTurnoSeeder::class,
 
             // TURMAS
-            //TurmaSeeder::class,
+            // TurmaSeeder::class,
 
             // USUÁRIOS
             SuperAdminSeeder::class,

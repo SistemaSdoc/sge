@@ -6,8 +6,8 @@ use App\Http\Controllers\AccessManagementController;
 use App\Http\Controllers\AlunoController;
 use App\Http\Controllers\AvisoController;
 use App\Http\Controllers\ClasseController;
-use App\Http\Controllers\ConfirmacaoMatriculaController;
 use App\Http\Controllers\Colegios\ColegioController;
+use App\Http\Controllers\ConfirmacaoMatriculaController;
 use App\Http\Controllers\CursosController;
 use App\Http\Controllers\GrelhaCurricularController;
 use App\Http\Controllers\GrupoPapController;
@@ -55,7 +55,7 @@ final class SidebarMenuService
                     title: 'Instituições',
                     href: action([InstituicaoController::class, 'index']),
                     icon: 'Building2',
-                    can: fn() => Gate::allows('viewAny', Instituicao::class),
+                    can: fn () => Gate::allows('viewAny', Instituicao::class),
                 ),
 
                 new MenuItem(
@@ -72,7 +72,7 @@ final class SidebarMenuService
                     can: function () {
                         $user = Auth::user();
 
-                        if (!$user?->instituicao_id) {
+                        if (! $user?->instituicao_id) {
                             return false;
                         }
 
@@ -111,7 +111,7 @@ final class SidebarMenuService
                     title: 'Turmas',
                     href: action([TurmaController::class, 'index']),
                     icon: 'Users',
-                    can: fn() => Gate::allows('viewAny', Turma::class),
+                    can: fn () => Gate::allows('viewAny', Turma::class),
                 ),
 
                 new MenuItem(
@@ -119,7 +119,7 @@ final class SidebarMenuService
                     title: 'Pautas',
                     href: action([PautaController::class, 'indexCursos']),
                     icon: 'FileText',
-                    can: fn() => Gate::allows('pauta.viewAny')
+                    can: fn () => Gate::allows('pauta.viewAny')
                 ),
 
                 new MenuItem(
@@ -127,7 +127,7 @@ final class SidebarMenuService
                     title: 'Inscrições',
                     href: action([InscricaoController::class, 'index']),
                     icon: 'ClipboardList',
-                    can: fn() => Gate::allows('viewAny', Inscricao::class)
+                    can: fn () => Gate::allows('viewAny', Inscricao::class)
                 ),
 
                 new MenuItem(
@@ -135,7 +135,7 @@ final class SidebarMenuService
                     title: 'Grelha Curricular',
                     href: action([GrelhaCurricularController::class, 'index']),
                     icon: 'LayoutList',
-                    can: fn() => Gate::allows('grelha-curricular.viewAny'),
+                    can: fn () => Gate::allows('grelha-curricular.viewAny'),
                 ),
 
                 new MenuItem(
@@ -143,7 +143,7 @@ final class SidebarMenuService
                     title: 'Minhas Notas',
                     href: action([NotaAlunoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn() => Gate::allows('viewAny', Nota::class)
+                    can: fn () => Gate::allows('viewAny', Nota::class)
                 ),
                 new MenuItem(
                     key: 'regras-avaliacao',
@@ -178,7 +178,7 @@ final class SidebarMenuService
                     title: 'Professores',
                     href: action([ProfessorController::class, 'index']),
                     icon: 'Users',
-                    can: fn() => Gate::allows('viewAny', Professor::class),
+                    can: fn () => Gate::allows('viewAny', Professor::class),
                 ),
 
                 new MenuItem(
@@ -186,7 +186,7 @@ final class SidebarMenuService
                     title: 'Alunos',
                     href: action([AlunoController::class, 'index']),
                     icon: 'GraduationCap',
-                    can: fn() => Gate::allows('viewAny', Aluno::class),
+                    can: fn () => Gate::allows('viewAny', Aluno::class),
                 ),
 
                 /* new MenuItem(
@@ -204,7 +204,7 @@ final class SidebarMenuService
                     title: 'Grupos PAP',
                     href: action([GrupoPapController::class, 'index']),
                     icon: 'Users',
-                    can: fn() => Gate::allows('viewAny', GrupoPap::class),
+                    can: fn () => Gate::allows('viewAny', GrupoPap::class),
                 ),
 
                 new MenuItem(
@@ -222,39 +222,37 @@ final class SidebarMenuService
                 ),
             ]),
 
-
-
             new MenuGroup('Comunicação', [
                 new MenuItem(
                     key: 'avisos',
                     title: 'Avisos',
                     href: action([AvisoController::class, 'index']),
                     icon: 'Bell',
-                    can: fn() => Gate::allows('viewAny', Aviso::class),
+                    can: fn () => Gate::allows('viewAny', Aviso::class),
                 ),
             ]),
 
-            /*  new MenuGroup('Pagamentos', [
-                  new MenuItem(
-                      key: 'itens-pagaveis',
-                      title: 'Itens Pagáveis',
-                      href: route('itens-pagaveis.index'),
-                      icon: 'ReceiptText',
-                      can: fn () => Gate::allows('viewAny', ItemPagavel::class),
-                  ),
+            new MenuGroup('Pagamentos', [
+                new MenuItem(
+                    key: 'itens-pagaveis',
+                    title: 'Itens Pagáveis',
+                    href: route('itens-pagaveis.index'),
+                    icon: 'ReceiptText',
+                    can: fn () => Gate::allows('viewAny', ItemPagavel::class),
+                ),
 
-                  new MenuItem(
-                      key: 'pagamentos',
-                      title: 'Pagamentos',
-                      href: route('pagamentos.index'),
-                      icon: 'CreditCard',
-                      can: fn () => Gate::allows('viewAny', Pagamento::class),
-                  ),
-              ]),*/
+                new MenuItem(
+                    key: 'pagamentos',
+                    title: 'Pagamentos',
+                    href: route('pagamentos.index'),
+                    icon: 'CreditCard',
+                    can: fn () => Gate::allows('viewAny', Pagamento::class),
+                ),
+            ]),
         ];
 
         return array_values(array_filter(
-            array_map(fn(MenuGroup $group) => $group->toArray(), $groups),
+            array_map(fn (MenuGroup $group) => $group->toArray(), $groups),
         ));
     }
 }

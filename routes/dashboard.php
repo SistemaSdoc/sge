@@ -39,7 +39,6 @@ use App\Http\Controllers\ProgressaoController;
 use App\Http\Controllers\RegraAvaliacaoController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
-use App\Http\Controllers\TutelaController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -66,7 +65,6 @@ Route::resource('disciplinas', DisciplinaControllerGeral::class);
 Route::resource('alunos', AlunoController::class);
 Route::resource('inscricoes', InscricaoController::class)->parameters(['inscricoes' => 'inscricao']);
 Route::resource('professores', ProfessorControllerGeral::class)->parameters(['professores' => 'professor']);
-Route::resource('tutelas', TutelaController::class)->parameters(['tutelas' => 'cursoTutelado']);
 Route::get('/certificados/{aluno}', [CertificadoController::class, 'show'])->name('certificados.show');
 
 Route::get('/alunos/{aluno}/turmas-disponiveis', [AlunoController::class, 'turmasDisponiveis']);
