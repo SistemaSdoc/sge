@@ -305,7 +305,7 @@ export default function Show({
           />
         </TabsContent>
 
-        <TabsContent value="aprovacao">director.imcl@gestao.ao
+        <TabsContent value="aprovacao">
           <TabAprovacao
             params={params}
             grupoPap={grupoPap}

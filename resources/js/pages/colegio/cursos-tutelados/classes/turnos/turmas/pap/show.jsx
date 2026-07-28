@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { TabBanca } from './components/tabs/tab-banca';
+import { TabAprovacao } from './components/tabs/tab-aprovacao';
+import { TabHistorico } from './components/tabs/tab-historico';
 import { Card, CardContent } from '@/components/ui/card';
 import { Minus, MoreHorizontalIcon } from 'lucide-react';
 import { TabIntegrantes } from './components/tabs/tab-integrantes';
@@ -32,12 +34,12 @@ import { usePagination } from '@/hooks/use-pagination';
 
 export default function Show({
   instituicao,
-  colegio,
   cursoTutelado,
   cursoClasse,
   cursoClasseTurno,
   turma,
   grupoPap,
+  historico,
   banca,
   elementos,
   can,
@@ -50,7 +52,6 @@ export default function Show({
 
   const params = {
     instituicao: instituicao.id,
-    colegio: colegio.id,
     cursoTutelado: cursoTutelado.id,
     cursoClasse: cursoClasse.id,
     cursoClasseTurno: cursoClasseTurno.id,
@@ -65,6 +66,11 @@ export default function Show({
     local_defesa: grupoPap?.local_defesa ?? '',
   });
 
+  const removerIntegranteFn = (elementoGrupoPap) => {
+    router.delete(destroyIntegrante.url({ ...params, elementoGrupoPap }), {
+      onSuccess: () => router.reload(),
+    });
+  };
 
   const removerJuradoFn = (bancaJuriPap) => {
     router.delete(destroyJurado.url({ ...params, bancaJuriPap }), {
@@ -264,6 +270,14 @@ export default function Show({
           <TabsTrigger value="integrantes-banca">
             Integrantes da banca
           </TabsTrigger>
+
+          <TabsTrigger value="aprovacao">
+            Aprovação
+          </TabsTrigger>
+
+          <TabsTrigger value="historico">
+            Histórico
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="integrantes-grupo">
@@ -275,6 +289,7 @@ export default function Show({
             pagination={elementos}
             onPageChange={elementosPagination.handlePageChange}
             actualizarNotaFn={actualizarNotaFn}
+            removerIntegranteFn={removerIntegranteFn}
             can={can}
           />
         </TabsContent>
@@ -289,6 +304,19 @@ export default function Show({
             can={can}
           />
         </TabsContent>
+
+        <TabsContent value="aprovacao">
+          <TabAprovacao
+            params={params}
+            grupoPap={grupoPap}
+            can={can}
+          />
+        </TabsContent>
+
+        <TabsContent value="historico">
+          <TabHistorico params={params} grupoPap={grupoPap} historico={historico} />
+        </TabsContent>
+
       </Tabs>
     </div>
   );

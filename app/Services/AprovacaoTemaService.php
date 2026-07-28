@@ -16,7 +16,6 @@ class AprovacaoTemaService
      */
     public function temasPendentesParaCoordenador(string $professorId): Collection
     {
-        // Obter a instituição do professor
         $professor = \App\Models\Professor::find($professorId);
         $instituicaoId = $professor->user->instituicao_id ?? null;
 
@@ -24,16 +23,22 @@ class AprovacaoTemaService
             return collect();
         }
 
-        // Buscar cursos tutelados POR ESTA INSTITUIÇÃO
-        // (onde ela é a tutora/aprovadora)
-        $cursosTutelados = \App\Models\CursoTutelado::where(
-            'instituicao_tutora_id',
-            $instituicaoId
-        )->pluck('id');
+        // ✅ BUSCAR CURSOS TUTELADOS ONDE O PROFESSOR É COORDENADOR
+        $cursosTutelados = \App\Models\CursoTutelado::query()
+            ->where('instituicao_tutora_id', $instituicaoId)
+            ->whereHas(
+                'professores',
+                function ($query) use ($professorId) {
+                    $query->where('professor_id', $professorId)
+                        ->where('coordenador', 1);  // ← Verificar se é coordenador
+                }
+            )
+            ->pluck('id');
 
         if ($cursosTutelados->isEmpty()) {
             return collect();
         }
+
 
         // Buscar grupos PAP pendentes desses cursos
         return GrupoPap::query()
