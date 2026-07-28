@@ -14,6 +14,7 @@ class RoleSeeder extends Seeder
             'Director',
             'Subdirector',
             'Secretaria',
+            'Coordenador',
             'Professor',
             'Aluno',
             'Candidato',

@@ -59,6 +59,15 @@ class CursoTuteladoPolicy
      */
     public function update(User $user, CursoTutelado $cursoTutelado): bool
     {
+        // Coordenador pode atualizar seu curso
+        if ($user->hasPermissionTo('coordenador.update-curso')) {
+            return $cursoTutelado->professores()
+                ->where('professor_id', optional($user->professor)->id)
+                ->where('coordenador', true)
+                ->exists();
+        }
+
+        // Lógica existente para Director/Subdirector
         if (!$user->can('curso-tutelado.update')) {
             return false;
         }
@@ -67,10 +76,34 @@ class CursoTuteladoPolicy
         $instituicaoOferta = $cursoTutelado->instituicaoCurso?->instituicao_id;
         $instituicaoTutora = $cursoTutelado->instituicao_tutora_id;
 
-        // Tutora ou Oferta podem atualizar
         return $user->instituicao_id === $instituicaoOferta
             || $user->instituicao_id === $instituicaoTutora;
     }
+
+    public function manageProfessores(User $user, CursoTutelado $cursoTutelado): bool
+    {
+        if ($user->hasPermissionTo('coordenador.manage-professores')) {
+            return $cursoTutelado->professores()
+                ->where('professor_id', optional($user->professor)->id)
+                ->where('coordenador', true)
+                ->exists();
+        }
+
+        return $user->hasPermissionTo('curso-tutelado.update');
+    }
+
+    public function manageTurmas(User $user, CursoTutelado $cursoTutelado): bool
+    {
+        if ($user->hasPermissionTo('coordenador.manage-turmas')) {
+            return $cursoTutelado->professores()
+                ->where('professor_id', optional($user->professor)->id)
+                ->where('coordenador', true)
+                ->exists();
+        }
+
+        return $user->hasPermissionTo('curso-tutelado.update');
+    }
+
 
     /**
      * Determine whether the user can delete the model.

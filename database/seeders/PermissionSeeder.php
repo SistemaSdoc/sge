@@ -157,6 +157,16 @@ class PermissionSeeder extends Seeder
             'itemspagaveis.create',
             'itemspagaveis.update',
             'itemspagaveis.delete',
+
+            'coordenador.view-curso',
+            'coordenador.update-curso',
+            'coordenador.manage-professores',
+            'coordenador.manage-turmas',
+            'coordenador.view-pautas',
+            'coordenador.update-pautas',
+            'coordenador.create-notas',
+            'coordenador.update-notas',
+            'coordenador.view-relatorios',
         ];
 
         foreach ($permissions as $permission) {

@@ -11,6 +11,10 @@ use Illuminate\Database\Eloquent\Model;
     'turma_id',
     'nome_grupo',
     'tema_grupo',
+    'status_aprovacao',
+    'aprovado_por_id',
+    'data_aprovacao',
+    'comentario_aprovacao',
     'estudo_caso',
     'trabalho_grupo',
     'status',
@@ -61,7 +65,7 @@ class GrupoPap extends Model
         return $this->belongsToMany(Aluno::class, 'elementos_grupo_pap', 'grupo_pap_id', 'aluno_id');
     }
 
-      public function instituicao()
+    public function instituicao()
     {
         return $this->turma
             ->cursoClasseTurno
@@ -69,5 +73,53 @@ class GrupoPap extends Model
             ->cursoTutelado
             ->instituicaoCurso
             ->instituicao;
+    }
+
+    public function historicoAprovacao()
+    {
+        return $this->hasMany(
+            HistoricoAprovacaoPap::class,
+            'grupo_pap_id'
+        )->latest();
+    }
+
+
+
+
+
+    public function aprovadoPor()
+    {
+        return $this->belongsTo(User::class, 'aprovado_por_id');
+    }
+
+    // Scopes
+    public function scopePendentes($query)
+    {
+        return $query->where('status_aprovacao', 'pendente');
+    }
+
+    public function scopeAprovados($query)
+    {
+        return $query->where('status_aprovacao', 'aprovado');
+    }
+
+    public function scopeReprovados($query)
+    {
+        return $query->where('status_aprovacao', 'reprovado');
+    }
+
+    public function scopeMelhoriaSolicitada($query)
+    {
+        return $query->where('status_aprovacao', 'melhoria-solicitada');
+    }
+
+    public function podeSerAprovado(): bool
+    {
+        return $this->status_aprovacao === 'pendente';
+    }
+
+    public function podeSerReenviado(): bool
+    {
+        return $this->status_aprovacao === 'melhoria-solicitada';
     }
 }

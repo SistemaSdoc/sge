@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Listeners\RegisteredListener;
+use App\Models\CursoTuteladoProfessor;
+use App\Observers\CursoTuteladoProfessorObserver;
 use App\Policies\AcessManagementPolicy;
 use App\Policies\GrelhaCurricularPolicy;
 use App\Policies\ItemPagavelPolicy;
@@ -50,6 +52,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::before(function ($user, $ability) {
             return $user->hasRole('SuperAdmin') ? true : null;
         });
+
+
+        // Registrar observadores de modelos
+         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
     }
 
     /**

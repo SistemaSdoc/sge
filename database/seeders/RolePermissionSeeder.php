@@ -397,6 +397,58 @@ class RolePermissionSeeder extends Seeder
                 'itemspagaveis.update',
             ],
 
+            'Coordenador' => [
+
+                'instituicoes.view',
+                'instituicoes.update',
+                // Permissões de Professor (base)
+                'alunos.viewAny',
+                'alunos.view',
+
+                'professores.viewAny',
+                'professores.view',
+                'professores.create',      // ← adiciona (para criar/adicionar professores)
+                'professores.update',      // ← adiciona
+
+                'turmas.viewAny',
+                'turmas.view',
+                'turmas.create',           // ← já tem (herda do seeder)
+                'turmas.update',           // ← já tem (herda do seeder)
+
+                'pautas.viewAny',
+                'pautas.view',
+
+                'notas.create',
+                'notas.update',
+                'notas.viewAny',
+                'notas.export',
+
+                'avisos.viewAny',
+                'avisos.view',
+                'avisos.create',
+                'avisos.update',
+
+                'grupopap.viewAny',
+                'grupopap.view',
+                'grupopap.create',
+                'grupopap.update',
+
+                'elementogrupopap.viewAny',
+                'elementogrupopap.view',
+                'elementogrupopap.create',
+                'elementogrupopap.update',
+                'elementogrupopap.atualizarNota',
+
+                'bancajuripap.viewAny',
+                'bancajuripap.view',
+                'bancajuripap.create',
+                'bancajuripap.update',
+
+                // Curso Tutelado
+                'curso-tutelado.view',
+                'curso-tutelado.update',
+            ],
+
             'Professor' => [
                 // Alunos
                 'alunos.viewAny',

@@ -99,6 +99,7 @@ export default function Show({
               turma={turma.data}
               grupos={grupos.data}
               instituicaoId={params.instituicao}
+              colegioId={params.colegio}
               cursoTuteladoId={params.cursoTutelado}
               cursoClasseId={params.cursoClasse}
               cursoClasseTurnoId={params.cursoClasseTurno}

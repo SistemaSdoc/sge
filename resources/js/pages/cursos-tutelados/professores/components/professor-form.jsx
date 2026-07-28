@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 
 export default function ProfessorForm({
   professores,
@@ -10,6 +11,8 @@ export default function ProfessorForm({
   setProfessorId,
   tipo,
   setTipo,
+  coordenador,
+  setCoordenador,
   errors,
   processing,
 }) {
@@ -17,7 +20,19 @@ export default function ProfessorForm({
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
       <Card className="overflow-visible">
         <CardHeader className="border-b">
-          <CardTitle>Associar Professor</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Associar Professor</CardTitle>
+
+            <Field orientation="horizontal" className="w-fit">
+              <FieldLabel htmlFor="coordenador">Coordenador</FieldLabel>
+              <Switch
+                size="sm"
+                id="coordenador"
+                checked={coordenador}
+                onCheckedChange={setCoordenador}
+              />
+            </Field>
+          </div>
         </CardHeader>
 
         <CardContent>

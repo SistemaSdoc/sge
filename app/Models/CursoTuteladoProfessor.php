@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Observers\CursoTuteladoProfessorObserver;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
     'curso_tutelado_id',
     'professor_id',
     'tipo',
+    'coordenador',
 ])]
 
 class CursoTuteladoProfessor extends Pivot
