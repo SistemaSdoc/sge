@@ -18,6 +18,21 @@ return new class extends Migration {
             $table->foreign('professor_tutor_id')->references('id')->on('professores');
             $table->string('nome_grupo');
             $table->string('tema_grupo');
+
+            // ← ADICIONA AQUI
+            $table->enum('status_aprovacao', [
+                'pendente',
+                'aprovado',
+                'reprovado',
+                'melhoria-solicitada'
+            ])->default('pendente');
+
+            $table->uuid('aprovado_por_id')->nullable();
+            $table->foreign('aprovado_por_id')->references('id')->on('users')->nullOnDelete();
+
+            $table->timestamp('data_aprovacao')->nullable();
+            $table->text('comentario_aprovacao')->nullable();
+            // ← FIM DOS NOVOS CAMPOS
             $table->text('estudo_caso')->nullable();
             $table->string('trabalho_grupo')->nullable();
             $table->string('status')->default('Em andamento');
@@ -25,6 +40,8 @@ return new class extends Migration {
             $table->date('data_defesa')->nullable();
             $table->string('local_defesa')->nullable();
             $table->timestamps();
+
+             $table->index('status_aprovacao');
         });
 
         Schema::create('elementos_grupo_pap', function (Blueprint $table) {

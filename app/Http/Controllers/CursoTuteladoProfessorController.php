@@ -53,9 +53,13 @@ class CursoTuteladoProfessorController extends Controller
     //  Atribuir ou atualizar professor no curso
     public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
+
+        $this->authorize('manageProfessores', $cursoTutelado);
+        
         $request->validate([
             'professor_id' => 'required|exists:professores,id',
             'tipo' => 'required|in:principal,colaborador',
+            'coordenador' => 'boolean',
         ]);
 
         CursoTuteladoProfessor::updateOrCreate(
@@ -65,7 +69,7 @@ class CursoTuteladoProfessorController extends Controller
             ],
             [
                 'tipo' => $request->tipo,
-                'coordenador' => false,
+                'coordenador' => $request->boolean('coordenador'),
             ]
         );
 

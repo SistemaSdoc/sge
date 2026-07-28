@@ -288,8 +288,8 @@ class CursoTuteladoController extends Controller
             'cursoClasses.turnos.turno:id,nome',
         ]);
 
-        // Paginar turmas em vez de carregar todas
-        $turmasPaginadas = Turma::whereHas(
+        // ✅ Carrega tudo que precisa em UMA query
+        $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
             fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
@@ -301,11 +301,11 @@ class CursoTuteladoController extends Controller
                     ->take(50),
                 'gruposPap.professor.user:id,nome',
                 'gruposPap.elementos.aluno.inscricao.candidato:id,nome',
-                'turmaDisciplinaProfessor.professor.user:id,nome',
-                'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome',
             ])
             ->orderBy('nome')
-            ->paginate(5);
+            ->get();
+
+        // ✅ Mapeia as turmas
 
         // Mapear turmas paginadas
         $turmasMapeadas = $turmasPaginadas->getCollection()->map(fn ($turma) => [
@@ -341,6 +341,36 @@ class CursoTuteladoController extends Controller
                 'matricula' => $aluno->matricula,
                 'email' => $aluno->user?->email,
             ]),
+            // ✅ PAUTA - Estrutura correcta
+            'pauta' => [
+                'disciplinas' => $turma->turmaDisciplinaProfessor
+                    ->pluck('classeTurnoDisciplina.disciplina.nome')
+                    ->unique()
+                    ->values()
+                    ->toArray(),
+                'alunos' => $turma->turmaAlunos->map(fn($turmaAluno) => [
+                    'aluno_id' => $turmaAluno->aluno->id,
+                    'numero' => $turmaAluno->aluno->matricula ?? '—',
+                    'nome' => $turmaAluno->aluno->inscricao?->candidato?->nome,
+                    // ✅ CORRIGIDO: Estrutura correcta para o React
+                    'notas' => $turma->turmaDisciplinaProfessor
+                        ->mapWithKeys(fn($tdp) => [
+                            $tdp->classeTurnoDisciplina->disciplina->nome => [
+                                'media' => $turmaAluno->notas
+                                    ->where('turma_disciplina_professor_id', $tdp->id)
+                                    ->where('periodo', $periodo)  // ✅ Usa o período correcto
+                                    ->first()?->media_trimestral,  // ← Pega media_trimestral
+                                'mf' => $turmaAluno->notas
+                                    ->where('turma_disciplina_professor_id', $tdp->id)
+                                    ->where('periodo', $periodo)
+                                    ->first()?->media_final,  // ← Pega media_final
+                            ]
+                        ])
+                        ->toArray(),
+                    'total_faltas' => $turmaAluno->notas->sum('faltas'),
+                    'resultado' => 'Aprovado'
+                ])->toArray(),
+            ],
         ]);
 
         $turmasPaginadas->setCollection($turmasMapeadas);
@@ -352,7 +382,7 @@ class CursoTuteladoController extends Controller
             'turnos' => $cc->turnos->map(fn ($cct) => [
                 'id' => $cct->id,
                 'nome' => $cct->turno?->nome,
-                'turmas' => $turmasPaginadas->getCollection()
+                'turmas' => $turmasMapeadas
                     ->where('cursoClasseTurno.id', $cct->id)
                     ->values(),
             ])->filter(fn ($turno) => $turno['turmas']->isNotEmpty())->values(),
@@ -360,6 +390,7 @@ class CursoTuteladoController extends Controller
 
         return Inertia::render('colegios/curso-show', [
             'instituicao' => ['id' => $instituicao->id, 'nome' => $instituicao->nome],
+            'instituicaoId' => $instituicao->id,
             'cursoTutelado' => [
                 'id' => $cursoTutelado->id,
                 'curso' => $cursoTutelado->instituicaoCurso?->curso?->nome,
@@ -369,13 +400,83 @@ class CursoTuteladoController extends Controller
                 ],
                 'classes' => $classesAgrupadas,
             ],
-            'turmasPagination' => [
-                'data' => $turmasPaginadas->items(),
-                'current_page' => $turmasPaginadas->currentPage(),
-                'last_page' => $turmasPaginadas->lastPage(),
-                'per_page' => $turmasPaginadas->perPage(),
-                'total' => $turmasPaginadas->total(),
-                'links' => $turmasPaginadas->linkCollection(),
+        ]);
+    }
+
+    public function pauta(Instituicao $instituicao, CursoTutelado $cursoTutelado, Turma $turma)
+    {
+        abort_if($cursoTutelado->instituicao_tutora_id !== $instituicao->id, 403);
+
+        $turma->load([
+            'cursoClasseTurno.cursoClasse.classe:id,nome',
+            'cursoClasseTurno.turno:id,nome',
+        ]);
+
+        $alunosActivos = $turma->alunosActivos()
+            ->with([
+                'inscricao.candidato:id,nome',
+                'user:id,email',
+                'notas' => fn($q) => $q->select(
+                    'id',
+                    'turma_aluno_id',
+                    'turmaDisciplinaProfessor_id',
+                    'periodo',
+                    'mac',
+                    'nota_prova_professor',
+                    'nota_prova_trimestral',
+                    'media_trimestral',
+                    'media_final',
+                    'faltas',
+                    'situacao_trimestral',
+                    'situacao_anual'
+                )
+            ])
+            ->get();
+
+        $disciplinas = $turma->turmaDisciplinaProfessor()
+            ->with([
+                'classeTurnoDisciplina.disciplina:id,nome',
+                'professor.user:id,nome',
+            ])
+            ->get();
+
+        $periodos = [1, 2, 3, 4];
+
+        return Inertia::render('colegios/pauta-show', [
+            'instituicao' => ['id' => $instituicao->id],
+            'cursoTutelado' => ['id' => $cursoTutelado->id],
+            'turma' => ['id' => $turma->id, 'nome' => $turma->nome],
+            'pauta' => [
+                'periodos' => $periodos,
+                'disciplinas' => $disciplinas->map(fn($tdp) => [
+                    'id' => $tdp->id,
+                    'nome' => $tdp->classeTurnoDisciplina?->disciplina?->nome,
+                    'professor' => $tdp->professor?->user?->nome,
+                ])->values(),
+                'alunos' => $alunosActivos->map(fn($aluno) => [
+                    'id' => $aluno->id,
+                    'nome' => $aluno->inscricao?->candidato?->nome,
+                    'matricula' => $aluno->matricula,
+                    'notas_por_disciplina' => $disciplinas->map(fn($tdp) => [
+                        'disciplina_id' => $tdp->id,
+                        'notas_por_periodo' => collect($periodos)->map(fn($periodo) => [
+                            'periodo' => $periodo,
+                            'nota' => $aluno->notas
+                                ->where('turmaDisciplinaProfessor_id', $tdp->id)
+                                ->where('periodo', $periodo)
+                                ->first()?->only([
+                                        'mac',
+                                        'nota_prova_professor',
+                                        'nota_prova_trimestral',
+                                        'media_trimestral',
+                                        'media_final',
+                                        'faltas',
+                                        'situacao_trimestral',
+                                        'situacao_anual',
+                                    ]),
+                        ])->toArray(),
+                    ])->toArray(),
+                ])->toArray(),
             ],
         ]);
     }

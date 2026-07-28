@@ -1,0 +1,1 @@
+import{en as e,tn as t}from"./app-CURijQHJ.js";function n(n=`page`){let{url:r}=e(),i=(e,n={})=>{t.visit(r,{data:e,preserveScroll:!0,preserveState:!0,...n})};return{handlePageChange:e=>{i({[`page_${n}`]:e})},handleSearch:e=>{i({[`search_${n}`]:e,[n]:1})},handleFilter:(e,t={})=>{i({...e,[n]:1},t)}}}export{n as t};

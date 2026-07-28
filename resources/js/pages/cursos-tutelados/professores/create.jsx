@@ -9,6 +9,7 @@ export default function Create() {
   const { professores, instituicaoId, cursoTuteladoId } = usePage().props;
   const [professorId, setProfessorId] = useState('');
   const [tipo, setTipo] = useState('principal');
+  const [coordenador, setCoordenador] = useState(false);
 
   return (
     <Form
@@ -16,7 +17,7 @@ export default function Create() {
         instituicao: instituicaoId,
         cursoTutelado: cursoTuteladoId,
       })}
-      transform={(data) => ({ ...data, professor_id: professorId, tipo })}
+      transform={(data) => ({ ...data, professor_id: professorId, tipo, coordenador, })}
       onSuccess={() =>
         router.visit(
           show({
@@ -31,6 +32,8 @@ export default function Create() {
           professores={professores}
           professorId={professorId}
           setProfessorId={setProfessorId}
+          coordenador={coordenador}
+          setCoordenador={setCoordenador}
           tipo={tipo}
           setTipo={setTipo}
           errors={errors}

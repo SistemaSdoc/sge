@@ -104,8 +104,8 @@ class GrupoPapController extends Controller
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/create', [
             'instituicao' => $instituicao->only('id'),
-            'cursoTutelado' => $cursoTutelado->only('id'),
-            'cursoClasse' => $cursoClasse->only('id'),
+            'cursoTutelado' => $cursoTutelado->only('id', 'nome'),
+            'cursoClasse' => $cursoClasse->only('id', 'nome'),
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => $turma->only('id'),
             'anoLectivoId' => $anoLectivoId,          // ← NOVO
@@ -166,6 +166,7 @@ class GrupoPapController extends Controller
 
         $grupoPap->load([
             'professor.user:id,nome,email',
+            'historicoAprovacao.utilizador:id,nome',
         ]);
 
         $banca = $grupoPap->jurados()
@@ -185,6 +186,7 @@ class GrupoPapController extends Controller
             'anoLectivoId' => $anoLectivoId,          // ← NOVO
             'anosLectivos' => AnoLectivo::all(),      // ← NOVO
             'grupoPap' => new ShowResource($grupoPap),
+            'historico' => $grupoPap->historicoAprovacao->values(),
             'banca' => BancaResource::collection($banca),
             'elementos' => ElementoResource::collection($elementos),
             'can' => [

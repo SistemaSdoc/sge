@@ -224,7 +224,7 @@ class CertificadoController extends Controller
         $calc = $this->calcularDadosCertificado($aluno, $turma);
 
         // QR Code
-      $url = 'http://192.168.1.175:8000/certificados/' . $aluno->id . '/verificar';
+        $url = 'http://192.168.1.175:8000/certificados/' . $aluno->id . '/verificar';
         $result = (new Builder(
             writer: new PngWriter(),
             data: $url,
@@ -289,7 +289,7 @@ class CertificadoController extends Controller
 
         $calc = $this->calcularDadosCertificado($aluno, $turma);
 
-        $url = env('FRONTEND_URL', 'http://192.168.1.168:3000') . '/certificados/' . $aluno->id . '/verificar';
+        $url = 'http://192.168.1.175:8000/certificados/' . $aluno->id . '/verificar';
 
         $result = (new Builder(
             writer: new PngWriter(),
@@ -297,6 +297,8 @@ class CertificadoController extends Controller
             size: 120,
             margin: 10,
         ))->build();
+
+        $qrcode = base64_encode($result->getString());
 
         $qrcode = base64_encode($result->getString());
 

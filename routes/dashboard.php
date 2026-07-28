@@ -9,6 +9,7 @@ use App\Http\Controllers\ClasseController as ClasseControllerGeral;
 use App\Http\Controllers\ClasseTurnoDisciplinaController;
 use App\Http\Controllers\ClasseTurnoDisciplinaHorarioController;
 use App\Http\Controllers\ClasseTurnoTurmaController;
+use App\Http\Controllers\ColegioController;
 use App\Http\Controllers\CursoClasseController;
 use App\Http\Controllers\CursoClasseTurnoController;
 use App\Http\Controllers\CursosController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\ElementoGrupoPapController;
 use App\Http\Controllers\FinalistaController;
 use App\Http\Controllers\FolhaAprovacaoController;
 use App\Http\Controllers\GrelhaCurricularController;
+use App\Http\Controllers\GrupoPapAprovacaoController;
 use App\Http\Controllers\GrupoPapController;
 use App\Http\Controllers\InscricaoController;
 use App\Http\Controllers\InstituicaoController;
@@ -53,6 +55,7 @@ require __DIR__.'/modules/progressao.php';
 require __DIR__.'/modules/notas.php';
 require __DIR__.'/modules/acess-management.php';
 require __DIR__.'/modules/confirmar-matriculas.php';
+
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
 Route::resource('users', UserController::class);
@@ -90,8 +93,13 @@ Route::prefix('director')->group(function () {
 Route::get('turmas', [TurmaController::class, 'index'])->name('turmaGeral');
 
 Route::prefix('instituicoes/{instituicao}')->group(function () {
+
+    require __DIR__ . '/modules/colegios.php';
+
+
     Route::get('alunos/{aluno}/historico', [FinalistaController::class, 'historico']);
-    Route::get('colegios', [CursoTuteladoController::class, 'colegios']);
+    //Route::get('colegios', [CursoTuteladoController::class, 'colegios']);
+    //Route::get('colegios/{colegio}', [CursoTuteladoController::class, 'showColegio']);
     Route::get('aluno/grelha-curricular', [AlunoController::class, 'grelhaCurricular']);
     Route::get('aluno/notas', [AlunoController::class, 'notas']);
 
@@ -228,3 +236,61 @@ Route::resource('anos-lectivos', AnoLectivoController::class)->parameters(['anos
 Route::get('pap', [GrupoPapController::class, 'index'])->name('grupos-pap.index');
 Route::get('minhas-notas', [NotaAlunoController::class, 'index'])->name('notas.aluno.index');
 Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])->name('grelha-curricular.index');
+Route::get(
+    '/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta',
+    [CursoTuteladoController::class, 'pauta']
+)->name('pauta');
+
+
+Route::prefix('grupo-pap-aprovacao')
+    ->name('grupo-pap-aprovacao.')
+    ->group(function () {
+        Route::get('/pendentes', [GrupoPapAprovacaoController::class, 'pendentes'])
+            ->name('pendentes');
+
+        Route::post('/{grupoPap}/aprovar', [GrupoPapAprovacaoController::class, 'aprovar'])
+            ->name('aprovar');
+
+        Route::post('/{grupoPap}/reprovar', [GrupoPapAprovacaoController::class, 'reprovar'])
+            ->name('reprovar');
+
+        Route::post('/{grupoPap}/solicitar-melhoria', [GrupoPapAprovacaoController::class, 'solicitarMelhoria'])
+            ->name('solicitar-melhoria');
+    });
+
+
+    Route::get(
+    '/grupo-pap-aprovacao/melhorias',
+    [GrupoPapAprovacaoController::class, 'melhorias']
+)->name(
+    'grupo-pap-aprovacao.melhorias'
+);
+
+Route::get(
+    '/grupo-pap-aprovacao/{grupoPap}/editar',
+    [GrupoPapAprovacaoController::class, 'editar']
+)->name(
+    'grupo-pap-aprovacao.editar'
+);
+
+Route::put(
+    '/grupo-pap-aprovacao/{grupoPap}',
+    [GrupoPapAprovacaoController::class, 'atualizar']
+)->name(
+    'grupo-pap-aprovacao.atualizar'
+);
+
+Route::post(
+    '/grupo-pap-aprovacao/{grupoPap}/reenviar',
+    [GrupoPapAprovacaoController::class, 'reenviar']
+)->name(
+    'grupo-pap-aprovacao.reenviar'
+);
+
+Route::get(
+    '/grupo-pap-aprovacao/{grupoPap}/historico',
+    [GrupoPapAprovacaoController::class, 'historico']
+)->name(
+    'grupo-pap-aprovacao.historico'
+);
+

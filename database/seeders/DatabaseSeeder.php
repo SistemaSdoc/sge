@@ -26,11 +26,11 @@ class DatabaseSeeder extends Seeder
             // RELACIONAMENTOS ACADÉMICOS
             InstituicaoCursoSeeder::class,
             CursoTuteladoSeeder::class,
-            CursoClasseSeeder::class,
-            CursoClasseTurnoSeeder::class,
+           // CursoClasseSeeder::class,
+           // CursoClasseTurnoSeeder::class,
 
             // TURMAS
-            TurmaSeeder::class,
+            //TurmaSeeder::class,
 
             // USUÁRIOS
             SuperAdminSeeder::class,

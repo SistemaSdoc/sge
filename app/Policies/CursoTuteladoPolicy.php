@@ -20,26 +20,26 @@ class CursoTuteladoPolicy
      */
     public function view(User $user, CursoTutelado $cursoTutelado): bool
     {
-        if (! $user->can('curso-tutelado.view') || $user->instituicao_id === null) {
+        if (!$user->can('curso-tutelado.view') || $user->instituicao_id === null) {
             return false;
-        }
-
-        if (! $user->hasRole('Professor')) {
-            return $user->instituicao_id === $cursoTutelado->instituicao_tutora_id;
         }
 
         $cursoTutelado->loadMissing('instituicaoCurso');
 
-        $instituicaoId = $cursoTutelado->instituicao_tutora_id
-            ?? $cursoTutelado->instituicaoCurso?->instituicao_id;
+        // CORRETO: Verifica se é da instituição que oferece o curso
+        $instituicaoOferta = $cursoTutelado->instituicaoCurso?->instituicao_id;
+        $instituicaoTutora = $cursoTutelado->instituicao_tutora_id;
 
-        if ($instituicaoId !== $user->instituicao_id) {
-            return false;
+        // Professor: pode ver se trabalha no curso
+        if ($user->hasRole('Professor')) {
+            return $cursoTutelado->professores()
+                ->where('professor_id', optional($user->professor)->id)
+                ->exists();
         }
 
-        return $cursoTutelado->professores()
-            ->where('professor_id', optional($user->professor)->id)
-            ->exists();
+        // Director/Administrador: pode ver se é de uma das instituições
+        return $user->instituicao_id === $instituicaoOferta
+            || $user->instituicao_id === $instituicaoTutora;
     }
 
     /**
@@ -52,18 +52,74 @@ class CursoTuteladoPolicy
 
     /**
      * Determine whether the user can update the model.
+     * 
+     * LÓGICA:
+     * - Tutora: pode atualizar conteúdo, currículo, docentes
+     * - Oferta: pode atualizar aplicação local (turmas, configurações)
      */
     public function update(User $user, CursoTutelado $cursoTutelado): bool
     {
-        return $user->can('curso-tutelado.update') && $user->instituicao_id === $cursoTutelado->instituicao_tutora_id;
+        // Coordenador pode atualizar seu curso
+        if ($user->hasPermissionTo('coordenador.update-curso')) {
+            return $cursoTutelado->professores()
+                ->where('professor_id', optional($user->professor)->id)
+                ->where('coordenador', true)
+                ->exists();
+        }
+
+        // Lógica existente para Director/Subdirector
+        if (!$user->can('curso-tutelado.update')) {
+            return false;
+        }
+
+        $cursoTutelado->loadMissing('instituicaoCurso');
+        $instituicaoOferta = $cursoTutelado->instituicaoCurso?->instituicao_id;
+        $instituicaoTutora = $cursoTutelado->instituicao_tutora_id;
+
+        return $user->instituicao_id === $instituicaoOferta
+            || $user->instituicao_id === $instituicaoTutora;
     }
+
+    public function manageProfessores(User $user, CursoTutelado $cursoTutelado): bool
+    {
+        if ($user->hasPermissionTo('coordenador.manage-professores')) {
+            return $cursoTutelado->professores()
+                ->where('professor_id', optional($user->professor)->id)
+                ->where('coordenador', true)
+                ->exists();
+        }
+
+        return $user->hasPermissionTo('curso-tutelado.update');
+    }
+
+    public function manageTurmas(User $user, CursoTutelado $cursoTutelado): bool
+    {
+        if ($user->hasPermissionTo('coordenador.manage-turmas')) {
+            return $cursoTutelado->professores()
+                ->where('professor_id', optional($user->professor)->id)
+                ->where('coordenador', true)
+                ->exists();
+        }
+
+        return $user->hasPermissionTo('curso-tutelado.update');
+    }
+
 
     /**
      * Determine whether the user can delete the model.
+     * 
+     * LÓGICA:
+     * - Apenas a Tutora pode remover a tutela
+     * - A instituição de oferta não pode remover
      */
     public function delete(User $user, CursoTutelado $cursoTutelado): bool
     {
-        return $user->can('curso-tutelado.delete') && $user->instituicao_id === $cursoTutelado->instituicao_tutora_id;
+        if (!$user->can('curso-tutelado.delete')) {
+            return false;
+        }
+
+        // Apenas a tutora pode remover a tutela
+        return $user->instituicao_id === $cursoTutelado->instituicao_tutora_id;
     }
 
     /**

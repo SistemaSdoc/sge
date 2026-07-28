@@ -16,23 +16,23 @@ import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 
 export default function Login({ status, canResetPassword }) {
-  const [googleLoading, setGoogleLoading] = useState(false);
+  /*const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleGoogleConfirmation = () => {
     setGoogleLoading(true);
     window.location.href = redirect().url;
-  };
+  };*/
 
   return (
     <>
       <Head title="Login" />
 
       <div className="flex flex-col gap-2">
-        <GoogleButton
+        {/* <GoogleButton
           isLoading={googleLoading}
           onClick={handleGoogleConfirmation}
-        />
-        <PasskeyVerify separator="Ou continue com email e senha" />
+        /> */}
+        <PasskeyVerify /*separator="Ou continue com email e senha"*/ />
       </div>
 
       <Form
@@ -61,7 +61,7 @@ export default function Login({ status, canResetPassword }) {
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Senha</Label>
-                  {canResetPassword && (
+                  {/* {canResetPassword && (
                     <TextLink
                       href={request()}
                       className="ml-auto text-sm"
@@ -69,7 +69,7 @@ export default function Login({ status, canResetPassword }) {
                     >
                       Esqueceu sua senha?
                     </TextLink>
-                  )}
+                  )}*/}
                 </div>
                 <PasswordInput
                   id="password"
@@ -99,12 +99,12 @@ export default function Login({ status, canResetPassword }) {
               </Button>
             </div>
 
-            <div className="text-center text-sm text-muted-foreground">
+           {/* <div className="text-center text-sm text-muted-foreground">
               Não tem uma conta?{' '}
               <TextLink href={register()} tabIndex={5}>
                 Criar
               </TextLink>
-            </div>
+            </div>*/}
           </>
         )}
       </Form>

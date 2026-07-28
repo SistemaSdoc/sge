@@ -22,6 +22,7 @@ class ShowResource extends JsonResource
             'tema_grupo' => $this->tema_grupo,
             'estudo_caso' => $this->estudo_caso,
             'status' => $this->status,
+            'status_aprovacao' => $this->status_aprovacao,
             'nota_final' => $this->nota_final,
             'data_defesa' => $this->data_defesa,
             'local_defesa' => $this->local_defesa,
@@ -29,6 +30,10 @@ class ShowResource extends JsonResource
                 'id' => $this->professor->id,
                 'nome' => $this->professor->user->nome,
                 'email' => $this->professor->user->email,
+            ] : null,
+            'aprovado_por' => $this->aprovadoPor ? [
+                'id' => $this->aprovadoPor->id,
+                'nome' => $this->aprovadoPor->nome ?? null,
             ] : null,
         ];
     }

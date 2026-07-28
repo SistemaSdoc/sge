@@ -1,0 +1,96 @@
+import { router } from '@inertiajs/react';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Minus, Users2Icon } from 'lucide-react';
+import { usePagination } from '@/hooks/use-pagination';
+import { show } from '@/actions/App/Http/Controllers/Colegios/GrupoPapController';
+
+import TablePagination from '@/components/table-pagination';
+
+export function TabGruposPAP({
+  turma,
+  grupos,
+  instituicaoId,
+  colegioId,
+  cursoTuteladoId,
+  cursoClasseId,
+  cursoClasseTurnoId,
+  pagination,
+  onPageChange,
+}) {
+  const turmaId = turma.id;
+  const isEmpty = grupos.length === 0;
+
+  //const baseUrl = `/dashboard/instituicoes/${instituicaoId}/colegios/${colegioId}/cursos/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
+
+  return (
+    <Card className="gap-0 pb-0">
+      <CardHeader className="border-b">
+        <CardTitle>Grupos para PAP</CardTitle>
+        <CardDescription>
+          Grupos de aptidão profissional desta turma
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="p-0!">
+
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/72">
+              <TableHead className="px-4">Nome do grupo</TableHead>
+              <TableHead>Tema</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Nota final</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {grupos.map((grupo) => (
+              <TableRow
+                key={grupo.id}
+                className="hover:cursor-pointer"
+                onClick={() => router.visit(
+                  show({
+                    instituicao: instituicaoId,
+                    colegio: colegioId,
+                    cursoTutelado: cursoTuteladoId,
+                    cursoClasse: cursoClasseId,
+                    cursoClasseTurno: cursoClasseTurnoId,
+                    turma: turma.id,
+                    grupoPap: grupo.id,
+                  }).url
+                )}
+              >
+                <TableCell className="px-4 font-medium">
+                  {grupo.nome}
+                </TableCell>
+                <TableCell>{grupo.tema}</TableCell>
+                <TableCell>{grupo.status}</TableCell>
+                <TableCell>
+                  {grupo.nota_final ?? (
+                    <Minus size={15} className="text-muted-foreground" />
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+      <TablePagination pagination={pagination} onPageChange={onPageChange} />
+    </Card>
+  );
+}

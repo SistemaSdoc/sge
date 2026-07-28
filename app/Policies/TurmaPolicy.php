@@ -55,7 +55,7 @@ class TurmaPolicy
      */
     public function view(User $user, Turma $turma): bool
     {
-        if (! $user->can('turmas.view')) {
+        /*if (! $user->can('turmas.view')) {
             return false;
         }
 
@@ -66,7 +66,7 @@ class TurmaPolicy
         // Professor tem restrição extra — só vê turmas onde leciona
         if ($user->hasRole('Professor')) {
             return $this->isProfessorDaTurma($user, $turma);
-        }
+        }*/
 
         return true;
     }
