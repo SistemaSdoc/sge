@@ -18,13 +18,16 @@ use Inertia\Inertia;
 
 class ClasseTurnoDisciplinaController extends Controller
 {
-
-    public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
-    {
+    public function create(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno
+    ) {
         $this->authorize('create', ClasseTurnoDisciplina::class);
 
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         return Inertia::render('cursos-tutelados/classes/turnos/disciplinas/create', [
             'disciplinas' => Disciplina::select('id', 'nome')->orderBy('nome')->get(),
@@ -39,8 +42,13 @@ class ClasseTurnoDisciplinaController extends Controller
         ]);
     }
 
-    public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse, CursoClasseTurno $cursoClasseTurno)
-    {
+    public function store(
+        Request $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno
+    ) {
         $this->authorize('create', ClasseTurnoDisciplina::class);
 
         $request->validate([
@@ -66,7 +74,7 @@ class ClasseTurnoDisciplinaController extends Controller
 
         // Captura ano_lectivo_id para usar no store
         $anoLectivoId = $request->input('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         $disciplinasAdicionadas = [];
         foreach (array_values($novas) as $disciplinaId) {
@@ -75,7 +83,7 @@ class ClasseTurnoDisciplinaController extends Controller
                 'disciplina_id' => $disciplinaId,
                 'carga_horaria' => $request->carga_horaria,
                 'tem_professor' => $request->tem_professor ?? false,
-                'ano_lectivo_id' => $anoLectivoId  // ← usar variável
+                'ano_lectivo_id' => $anoLectivoId,  // ← usar variável
             ]);
             $disciplinasAdicionadas[] = $ctd;
         }
@@ -105,7 +113,7 @@ class ClasseTurnoDisciplinaController extends Controller
         // Filtro ano lectivo
         $anoLectivoId = request('ano_lectivo_id')
             ?? $classeTurnoDisciplina->ano_lectivo_id
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         return Inertia::render(
             'cursos-tutelados/classes/turnos/disciplinas/edit',
@@ -120,7 +128,6 @@ class ClasseTurnoDisciplinaController extends Controller
             ]
         );
     }
-
 
     public function update(
         Request $request,

@@ -6,6 +6,7 @@ use App\Http\Controllers\AccessManagementController;
 use App\Http\Controllers\AlunoController;
 use App\Http\Controllers\AvisoController;
 use App\Http\Controllers\ClasseController;
+use App\Http\Controllers\ConfirmacaoMatriculaController;
 use App\Http\Controllers\Colegios\ColegioController;
 use App\Http\Controllers\CursosController;
 use App\Http\Controllers\GrelhaCurricularController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\InstituicaoController;
 use App\Http\Controllers\NotaAlunoController;
 use App\Http\Controllers\PautaController;
 use App\Http\Controllers\ProfessorController;
+use App\Http\Controllers\RegraAvaliacaoController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Models\Aluno;
@@ -142,6 +144,31 @@ final class SidebarMenuService
                     href: action([NotaAlunoController::class, 'index']),
                     icon: 'FileTextIcon',
                     can: fn() => Gate::allows('viewAny', Nota::class)
+                ),
+                new MenuItem(
+                    key: 'regras-avaliacao',
+                    title: 'Regras de Avaliação',
+                    href: action([RegraAvaliacaoController::class, 'index']),
+                    icon: 'FileTextIcon',
+                    can: fn () => true, // Gate::allows('viewAny', RegraAvaliacao::class)
+                ),
+            ]),
+
+            new MenuGroup('Inscrições e Matrículas', [
+                new MenuItem(
+                    key: 'inscricoes',
+                    title: 'Inscrições',
+                    href: action([InscricaoController::class, 'index']),
+                    icon: 'ClipboardList',
+                    can: fn () => Gate::allows('viewAny', Inscricao::class)
+                ),
+
+                new MenuItem(
+                    key: 'confirmacoes-matriculas',
+                    title: 'Confirmações de Matrícula',
+                    href: action([ConfirmacaoMatriculaController::class, 'index']),
+                    icon: 'ClipboardCheck',
+                    can: fn () => true
                 ),
             ]),
 

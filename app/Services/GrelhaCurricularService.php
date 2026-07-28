@@ -9,7 +9,7 @@ class GrelhaCurricularService
 {
     public function gerarGrelhaCurricular(Aluno $aluno, ?string $anoLectivoId = null)
     {
-        $anoLectivoId ??= AnoLectivo::where('activo', 1)->first()?->id;
+        $anoLectivoId ??= AnoLectivo::activo()?->id;
 
         $turma = $aluno->turmas()
             ->where('turmas.ano_lectivo_id', $anoLectivoId)   // ← direto, sem passar por cursoClasseTurno

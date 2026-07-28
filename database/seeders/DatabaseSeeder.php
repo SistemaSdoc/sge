@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             ClasseSeeder::class,
             TurnoSeeder::class,
             DisciplinaSeeder::class,
+            NiveisEnsinoSeeder::class,
 
             // RELACIONAMENTOS ACADÉMICOS
             InstituicaoCursoSeeder::class,

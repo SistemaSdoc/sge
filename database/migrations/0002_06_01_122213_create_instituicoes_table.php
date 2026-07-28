@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -71,6 +72,8 @@ return new class extends Migration {
             $table->foreign('curso_tutelado_id')->references('id')->on('curso_tutelado');
             $table->uuid('classe_id');
             $table->foreign('classe_id')->references('id')->on('classes');
+            $table->uuid('nivel_ensino_id');
+            $table->foreign('nivel_ensino_id')->references('id')->on('niveis_ensino');
             $table->timestamps();
         });
 

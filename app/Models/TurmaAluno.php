@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 #[Fillable([
     'turma_id',
     'aluno_id',
-    'ano_lectivo',
     'activo',
+    'estado_matricula',
+    'resultado_academico',
 ])]
-
 class TurmaAluno extends Pivot
 {
     use HasUuid;
@@ -27,7 +27,6 @@ class TurmaAluno extends Pivot
     {
         return [
             'activo' => 'boolean',
-            'ano_lectivo' => 'integer',
         ];
     }
 
@@ -46,16 +45,15 @@ class TurmaAluno extends Pivot
         return $this->hasMany(Nota::class, 'turma_aluno_id', 'id');
     }
 
-    // Helper de conveniência para acessar o ano lectivo sem duplicar dados
     public function anoLectivo()
     {
         return $this->hasOneThrough(
             AnoLectivo::class,
             Turma::class,
-            'id',            // FK em turmas
-            'id',            // FK em ano_lectivos
-            'turma_id',       // FK local em turma_aluno
-            'ano_lectivo_id'  // FK local em turmas
+            'id',
+            'id',
+            'turma_id',
+            'ano_lectivo_id'
         );
     }
 }

@@ -17,11 +17,13 @@ class AnoLectivo extends Model
         'nome',
         'data_inicio',
         'data_fim',
+        'activo',
     ];
 
     protected $casts = [
         'data_inicio' => 'date',
         'data_fim' => 'date',
+        'activo' => 'boolean',
     ];
 
     public function propinas(): HasMany
@@ -47,10 +49,17 @@ class AnoLectivo extends Model
         };
     }
 
+    public function scopeAtivo($query)
+    {
+        return $query->whereDate('data_inicio', '<=', now())
+            ->whereDate('data_fim', '>=', now());
+    }
+
     public static function activo(): ?self
     {
-        return static::whereDate('data_inicio', '<=', now())
-            ->whereDate('data_fim', '>=', now())
+        return static::ativo()
+            ->orderByDesc('data_inicio')
+            ->orderByDesc('data_fim')
             ->first();
     }
 

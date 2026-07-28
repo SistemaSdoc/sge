@@ -42,6 +42,11 @@ export function TrimestralPautaBody({ alunos, disciplinas }) {
             <div className="flex justify-end">
               {(() => {
                 const notasValues = Object.values(aluno.notas);
+
+                if (notasValues.length === 0) {
+                  return <span className="text-sm text-muted-foreground">—</span>;
+                }
+
                 const todasLancadas = notasValues.every(
                   (n) => n?.situacao !== 'sem_notas',
                 );

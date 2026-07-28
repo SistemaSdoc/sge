@@ -35,7 +35,7 @@ class GrupoPapController extends Controller
 
         // Filtro ano lectivo
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         $grupos = GrupoPap::with([
             'professor.user:id,nome',
@@ -44,13 +44,13 @@ class GrupoPapController extends Controller
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
             'elementos.aluno.inscricao.candidato:id,nome',
-        ])->when($instituicaoId, fn($q) => $q->whereHas(
-                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                fn($q) => $q->where('instituicao_id', $instituicaoId)
-            ))
-            ->when($anoLectivoId, fn($q) => $q->whereHas(
+        ])->when($instituicaoId, fn ($q) => $q->whereHas(
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+            fn ($q) => $q->where('instituicao_id', $instituicaoId)
+        ))
+            ->when($anoLectivoId, fn ($q) => $q->whereHas(
                 'turma',
-                fn($q) => $q->where('ano_lectivo_id', $anoLectivoId)   // ← direto na turma, não via cursoClasseTurno
+                fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId)   // ← direto na turma, não via cursoClasseTurno
             ))
             ->latest()->paginate(10)->withQueryString();   // ← withQueryString para manter ano_lectivo_id na paginação
 
@@ -97,7 +97,7 @@ class GrupoPapController extends Controller
             ->whereHas('turmas', function ($q) use ($turma) {
                 $q->where('turmas.id', $turma->id)
                     ->where('turma_aluno.activo', true);
-            })->with('inscricao.candidato:id,nome')->get()->map(fn($aluno) => [
+            })->with('inscricao.candidato:id,nome')->get()->map(fn ($aluno) => [
                 'id' => $aluno->id,
                 'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
             ])->values();
@@ -138,7 +138,7 @@ class GrupoPapController extends Controller
         ]);
 
         $grupo->elementos()->createMany(
-            collect($request->alunos)->map(fn($id) => ['aluno_id' => $id])->toArray()
+            collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
         );
 
         return to_route('pap.show', [
@@ -292,9 +292,9 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Grupo PAP actualizado com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Grupo PAP actualizado com sucesso!',
+        ]);
     }
 
     public function destroy(GrupoPap $grupoPap)
@@ -328,8 +328,8 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Data e local da defesa definidos com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Data e local da defesa definidos com sucesso!',
+        ]);
     }
 }

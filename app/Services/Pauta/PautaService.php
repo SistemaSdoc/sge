@@ -22,10 +22,10 @@ class PautaService
 
     public function actualizarResultadoAluno(TurmaAluno $ta): void
     {
-        $resultadoFinal = $this->regraAcademicaService->avaliarAluno($ta);
+        $resultadoFinal = $this->regraAcademicaService->resolverSituacaoAcademica($ta);
 
         if ($resultadoFinal['situacao'] === 'recurso') {
-            $resultadoRecurso = $this->regraAcademicaService->avaliarRecurso($ta);
+            $resultadoRecurso = $this->regraAcademicaService->resolverSituacaoRecurso($ta);
 
             $novoResultado = $resultadoRecurso['situacao'] !== 'pendente'
                 ? $resultadoRecurso['situacao']

@@ -2,90 +2,110 @@
 
 namespace App\Services\Core;
 
-use App\Models\CursoClasse;
 use App\Models\Nota;
 use App\Models\TurmaAluno;
-use Illuminate\Support\Collection;
+use App\Services\Core\RegraAcademica\Contexto\Contexto;
+use App\Services\Core\RegraAcademica\Disciplina\Disciplina;
+use App\Services\Core\RegraAcademica\Recurso\Recurso;
+use App\Services\Core\RegraAcademica\RegraAplicavel\RegraAplicavel;
+use App\Services\Core\RegraAcademica\Resultado\Resultado;
 
 class RegraAcademicaService
 {
-    // ─────────────────────────────────────────────
-    // PONTO PRINCIPAL
-    // ─────────────────────────────────────────────
+    public function __construct(
+        private readonly Contexto $contexto,
+        private readonly RegraAplicavel $regraAplicavel,
+        private readonly Disciplina $disciplina,
+        private readonly Resultado $resultado,
+        private readonly Recurso $recurso,
+    ) {}
 
-    public function avaliarAluno(TurmaAluno $turmaAluno): array
+    /**
+     * Resolve a situação académica final para um aluno.
+     *
+     * @param  TurmaAluno  $turmaAluno  Aluno e relações da turma que vão ser avaliadas.
+     * @return array<string, mixed> Resultado global com situação, mensagem e detalhes das disciplinas.
+     */
+    public function resolverSituacaoAcademica(TurmaAluno $turmaAluno): array
     {
-        $turmaAluno->loadMissing([
-            'turma.cursoClasseTurno.cursoClasse.classe',
-            'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-            'turma.turmaDisciplinaProfessor',
-            'notas.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
-        ]);
+        $contexto = $this->contexto->forAluno($turmaAluno);
 
-        // Apenas notas finais (3º trimestre)
-        $notasFinais = $turmaAluno->notas
-            ->where('periodo', 3)
-            ->whereNotNull('media_final');
+        $notasPeriodo3 = $turmaAluno->notas
+            ->where('periodo', 3);
 
-        // ─────────────────────────────────────────
-        // VERIFICAR SE HÁ DISCIPLINAS INCOMPLETAS
-        // ─────────────────────────────────────────
+        $disciplinasEsperadas = $turmaAluno->turma
+            ->turmaDisciplinaProfessor
+            ->pluck('id')
+            ->unique()
+            ->values();
 
-        $todasAsNotas = $turmaAluno->notas->where('periodo', 3);
-        $disciplinasIncompletas = $todasAsNotas
-            ->whereNull('media_final')
-            ->count();
-
-        if ($disciplinasIncompletas > 0) {
-            return $this->resultado(
+        if ($disciplinasEsperadas->isEmpty()) {
+            return $this->resultado->construir(
                 'incompleto',
-                "Aluno tem {$disciplinasIncompletas} disciplina(s) com notas pendentes.",
+                'Aluno não tem disciplinas configuradas para avaliação.',
                 []
             );
         }
 
-        // ─────────────────────────────────────────
-        // 1. Verificar EEF
-        // ─────────────────────────────────────────
+        $disciplinasComNotaPeriodo3 = $notasPeriodo3
+            ->pluck('turma_disciplina_professor_id')
+            ->unique()
+            ->values();
+
+        $faltamNotasDisciplinas = $disciplinasEsperadas
+            ->diff($disciplinasComNotaPeriodo3)
+            ->count();
+
+        $faltamNotasComMediaFinal = $notasPeriodo3
+            ->whereNull('media_final')
+            ->count();
+
+        $disciplinasPendentes = $faltamNotasDisciplinas + $faltamNotasComMediaFinal;
+
+        if ($disciplinasPendentes > 0) {
+            return $this->resultado->construir(
+                'incompleto',
+                "Aluno tem {$disciplinasPendentes} disciplina(s) com notas pendentes.",
+                []
+            );
+        }
+
+        $notasFinais = $notasPeriodo3
+            ->whereNotNull('media_final');
+
+        // ── EEF ───────────────────────────────────────────────────
 
         $temEEF = $turmaAluno->notas
             ->whereIn('periodo', [1, 2, 3])
             ->contains(fn ($n) => $n->situacao_trimestral === 'EEF');
 
         if ($temEEF) {
-            return $this->resultado(
-                'EEF',
-                'Aluno reprovado por faltas.',
-                []
-            );
+            return $this->resultado->construir('EEF', 'Aluno reprovado por faltas.', []);
         }
 
-        // ─────────────────────────────────────────
-        // 2. Dados da próxima classe
-        // ─────────────────────────────────────────
+        // ── Contexto ──────────────────────────────────────────────
 
-        $classeActual = $turmaAluno->turma
-            ->cursoClasseTurno
-            ->cursoClasse
-            ->classe;
+        $classeActual = $contexto['classe_actual'];
+        $ehUltimaClasse = $contexto['eh_ultima_classe'];
+        $disciplinasProximaClasse = $contexto['disciplinas_proxima_classe'];
 
-        $cursoTutelado = $turmaAluno->turma
-            ->cursoClasseTurno
-            ->cursoClasse
-            ->cursoTutelado;
+        // ── Regra de avaliação ────────────────────────────────────
 
-        $disciplinasProximaClasse = $this->getDisciplinasProximaClasse(
-            $cursoTutelado->id,
-            $classeActual->ordem
-        );
+        $regra = $this->regraAplicavel->resolve($turmaAluno, $classeActual->id);
 
-        $ehUltimaClasse = is_null($disciplinasProximaClasse);
+        $notaMinima = $regra?->media_minima_aprovacao ?? Nota::NOTA_MINIMA_APTO;
+        $permiteRecurso = $regra?->permite_recurso ?? true;
+        $maxNegativas = $regra?->max_disciplinas_negativas; // pode ser null
 
-        // ─────────────────────────────────────────
-        // 3. Avaliar disciplinas
-        // ─────────────────────────────────────────
+        // ── Verificar frequência global (se a regra tiver) ──────────
+        // (Opcional: se quiser usar a frequencia_minima da regra)
+        // $frequenciaMinima = $regra?->frequencia_minima ?? 75;
+        // ... lógica de frequência global ...
+
+        // ── Avaliar disciplinas ───────────────────────────────────
 
         $detalhes = [];
+        $disciplinasNegativas = 0; // contador
 
         foreach ($notasFinais as $nota) {
 
@@ -99,293 +119,71 @@ class RegraAcademicaService
 
             $mediaFinal = (float) $nota->media_final;
 
-            // ─────────────────────────────────────
-            // Disciplina aprovada
-            // ─────────────────────────────────────
+            $avaliacao = $this->disciplina->avaliar(
+                disciplinaId: $disciplina->id,
+                mediaFinal: $mediaFinal,
+                notaMinima: $notaMinima,
+                ehUltimaClasse: $ehUltimaClasse,
+                permiteRecurso: $permiteRecurso,
+                disciplinasProximaClasse: $disciplinasProximaClasse,
+            );
 
-            if ($mediaFinal >= Nota::NOTA_MINIMA_APTO) {
-
-                $detalhes[] = [
-                    'disciplina_id' => $disciplina->id,
-                    'disciplina' => $disciplina->nome,
-                    'media_final' => $mediaFinal,
-                    'situacao' => 'aprovado',
-                ];
-
-                continue;
+            if ($avaliacao['negativa']) {
+                $disciplinasNegativas++;
             }
-
-            // ─────────────────────────────────────
-            // Disciplina negativa
-            // ─────────────────────────────────────
-
-            $continua = $ehUltimaClasse
-                ? false
-                : $this->disciplinaContinua(
-                    $disciplina->id,
-                    $disciplinasProximaClasse
-                );
-
-            $situacao = match (true) {
-
-                // Última classe → sempre recurso
-                $ehUltimaClasse => 'recurso',
-
-                // Disciplina contínua
-                $continua => 'transita_com_deficiencia',
-
-                // Disciplina não contínua
-                default => 'recurso',
-            };
 
             $detalhes[] = [
                 'disciplina_id' => $disciplina->id,
                 'disciplina' => $disciplina->nome,
                 'media_final' => $mediaFinal,
-                'situacao' => $situacao,
-                'continua' => $continua,
+                'situacao' => $avaliacao['situacao'],
+                'continua' => $avaliacao['continua'],
             ];
         }
 
-        // ─────────────────────────────────────────
-        // 4. Situação global
-        // ─────────────────────────────────────────
+        // ── Verificar limite de negativas ─────────────────────────
+        // Se o limite estiver definido e o número de negativas ultrapassá-lo,
+        // o aluno é reprovado automaticamente.
 
-        $temRecurso = collect($detalhes)
-            ->contains('situacao', 'recurso');
-
-        $temDeficiencia = collect($detalhes)
-            ->contains('situacao', 'transita_com_deficiencia');
-
-        $situacaoGlobal = match (true) {
-
-            $temRecurso => 'recurso',
-
-            $temDeficiencia => 'transita_com_deficiencia',
-
-            default => 'transita',
-        };
-
-        $mensagem = match ($situacaoGlobal) {
-
-            'transita' => 'Aluno aprovado em todas as disciplinas.',
-
-            'transita_com_deficiencia' => 'Aluno transita com deficiência.',
-
-            'recurso' => 'Aluno vai ao recurso.',
-
-            'EEF' => 'Aluno reprovado por faltas.',
-        };
-
-        return $this->resultado(
-            $situacaoGlobal,
-            $mensagem,
-            $detalhes
-        );
-    }
-
-    // ─────────────────────────────────────────────
-    // RECURSO
-    // ─────────────────────────────────────────────
-
-    public function avaliarRecurso(TurmaAluno $turmaAluno): array
-    {
-        $turmaAluno->loadMissing([
-            'notas.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
-        ]);
-
-        // ─────────────────────────────────────────
-        // Descobrir disciplinas em recurso
-        // ─────────────────────────────────────────
-
-        $resultadoFinal = $this->avaliarAluno($turmaAluno);
-
-        $disciplinasRecurso = collect($resultadoFinal['detalhes'])
-            ->where('situacao', 'recurso')
-            ->pluck('disciplina_id');
-
-        // ─────────────────────────────────────────
-        // Filtrar apenas notas de recurso válidas
-        // ─────────────────────────────────────────
-
-        $notasRecurso = $turmaAluno->notas
-            ->where('periodo', 4)
-            ->filter(function ($nota) use ($disciplinasRecurso) {
-
-                $disciplinaId = $nota->turmaDisciplinaProfessor
-                    ?->classeTurnoDisciplina
-                    ?->disciplina_id;
-
-                return $disciplinasRecurso->contains($disciplinaId);
-            });
-
-        // ─────────────────────────────────────────
-        // Sem notas lançadas
-        // ─────────────────────────────────────────
-
-        if ($notasRecurso->isEmpty()) {
-
-            return $this->resultado(
-                'pendente',
-                'Notas de recurso ainda não lançadas.',
-                []
+        if ($maxNegativas !== null && $disciplinasNegativas > $maxNegativas) {
+            return $this->resultado->construir(
+                'reprovado_negativas',
+                "Reprovado por excesso de disciplinas negativas ({$disciplinasNegativas} > {$maxNegativas}).",
+                $detalhes
             );
         }
 
-        // ─────────────────────────────────────────
-        // Avaliar notas
-        // ─────────────────────────────────────────
+        // ── Situação global (comportamento original) ────────────────
 
-        $detalhes = [];
+        $resolucao = $this->resultado->resolver(collect($detalhes));
 
-        foreach ($notasRecurso as $nota) {
-
-            $disciplina = $nota->turmaDisciplinaProfessor
-                ?->classeTurnoDisciplina
-                ?->disciplina;
-
-            if (! $disciplina) {
-                continue;
-            }
-
-            $media = (float) $nota->media_trimestral;
-
-            $situacao = $nota->media_trimestral === null
-                ? 'pendente'
-                : (
-                    $media >= Nota::NOTA_MINIMA_APTO
-                    ? 'aprovado_recurso'
-                    : 'reprovado_recurso'
-                );
-
-            $detalhes[] = [
-                'disciplina_id' => $disciplina->id,
-                'disciplina' => $disciplina->nome,
-                'media_recurso' => $nota->media_trimestral,
-                'situacao' => $situacao,
-            ];
-        }
-
-        // ─────────────────────────────────────────
-        // Resultado global
-        // ─────────────────────────────────────────
-
-        $temPendente = collect($detalhes)
-            ->contains('situacao', 'pendente');
-
-        $temReprovado = collect($detalhes)
-            ->contains('situacao', 'reprovado_recurso');
-
-        $situacaoGlobal = match (true) {
-
-            $temPendente => 'pendente',
-
-            $temReprovado => 'reprovado_recurso',
-
-            default => 'aprovado_recurso',
-        };
-
-        $mensagem = match ($situacaoGlobal) {
-
-            'pendente' => 'Recurso ainda não concluído.',
-
-            'reprovado_recurso' => 'Aluno reprovado no recurso.',
-
-            default => 'Aluno aprovado no recurso.',
-        };
-
-        return $this->resultado(
-            $situacaoGlobal,
-            $mensagem,
-            $detalhes
+        return $this->resultado->construir(
+            $resolucao['situacao'],
+            $resolucao['mensagem'],
+            $detalhes,
         );
     }
-    // ─────────────────────────────────────────────
-    // DISCIPLINAS DA PRÓXIMA CLASSE
-    // ─────────────────────────────────────────────
 
-    private function getDisciplinasProximaClasse(
-        string $cursoTuteladoId,
-        int $ordemClasseActual
-    ): ?Collection {
-
-        $proximaCursoClasse = CursoClasse::with(
-            'turnos.classeTurnoDisciplinas'
-        )
-            ->whereHas(
-                'classe',
-                fn ($q) => $q->where(
-                    'ordem',
-                    $ordemClasseActual + 1
-                )
-            )
-            ->where(
-                'curso_tutelado_id',
-                $cursoTuteladoId
-            )
-            ->first();
-
-        if (! $proximaCursoClasse) {
-            return null;
-        }
-
-        $disciplinas = collect();
-
-        foreach ($proximaCursoClasse->turnos as $turno) {
-
-            foreach ($turno->classeTurnoDisciplinas as $ctd) {
-
-                if ($ctd->disciplina_id) {
-                    $disciplinas->push($ctd->disciplina_id);
-                }
-            }
-        }
-
-        return $disciplinas->unique()->values();
-    }
-
-    // ─────────────────────────────────────────────
-    // VERIFICA CONTINUIDADE
-    // ─────────────────────────────────────────────
-
-    private function disciplinaContinua(
-        string $disciplinaId,
-        Collection $disciplinasProximaClasse
-    ): bool {
-        return $disciplinasProximaClasse->contains($disciplinaId);
-    }
-
-    // ─────────────────────────────────────────────
-    // RESULTADO PADRONIZADO
-    // ─────────────────────────────────────────────
-
-    private function resultado(
-        string $situacao,
-        string $mensagem,
-        array $disciplinas
-    ): array {
-        $acao = match ($situacao) {
-            'transita', 'transita_com_deficiencia' => 'TRANSITAR',
-            'recurso' => 'AGUARDAR_RECURSO',
-            'aprovado_recurso' => 'TRANSITAR',      // ← adicionar
-            'reprovado_recurso' => 'RETER',          // ← adicionar
-            'reprovado', 'EEF' => 'RETER',
-            default => 'INCOMPLETO',
-        };
-
-        return [
-            'resultado' => $situacao,
-            'situacao' => $situacao,
-            'acao' => $acao,
-            'mensagem' => $mensagem,
-            'disciplinas' => $disciplinas,
-            'detalhes' => $disciplinas,
-        ];
-    }
-
-    // Substitui calcularResultadoFinalAluno por um alias limpo se precisares:
-    public function calcularResultadoFinalAluno(TurmaAluno $turmaAluno): array
+    /**
+     * Resolve a situação de recurso depois da avaliação académica principal.
+     *
+     * @param  TurmaAluno  $turmaAluno  Aluno cuja nota de recurso vai ser processada.
+     * @return array<string, mixed> Resultado final após a análise do recurso.
+     */
+    public function resolverSituacaoRecurso(TurmaAluno $turmaAluno): array
     {
-        return $this->avaliarAluno($turmaAluno); // delega para o método correcto
+        $resultadoFinal = $this->resolverSituacaoAcademica($turmaAluno);
+
+        $avaliacaoRecurso = $this->recurso->avaliar(
+            turmaAluno: $turmaAluno,
+            resultadoFinal: $resultadoFinal,
+            regraAplicavel: $this->regraAplicavel,
+        );
+
+        return $this->resultado->construir(
+            $avaliacaoRecurso['situacao'],
+            $avaliacaoRecurso['mensagem'],
+            $avaliacaoRecurso['detalhes'],
+        );
     }
 }

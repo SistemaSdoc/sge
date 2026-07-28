@@ -2,10 +2,11 @@ import { useForm } from '@inertiajs/react';
 import { store } from '@/routes/cursos-tutelados';
 import { CursoForm } from './components/forms/create.form';
 
-export default function Create({ instituicao, classes, cursos }) {
+export default function Create({ instituicao, classes, cursos, niveisEnsino }) {
   const { post, data, setData, processing, errors } = useForm({
     curso_id: '',
-    classes: [],
+    nivel_ensino_id: '',
+    classe_ids: [],
     nome: '',
     duracao_anos: '',
   });
@@ -23,6 +24,7 @@ export default function Create({ instituicao, classes, cursos }) {
         title="Novo curso tutelado"
         classes={classes}
         cursos={cursos}
+        niveisEnsino={niveisEnsino}
         data={data}
         setData={setData}
         errors={errors}

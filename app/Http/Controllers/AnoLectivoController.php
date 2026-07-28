@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AnoLectivo;
+use App\Services\AnoLectivoConsistencyService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -61,6 +62,8 @@ class AnoLectivoController extends Controller
 
         AnoLectivo::create($data);
 
+        app(AnoLectivoConsistencyService::class)->sincronizar();
+
         return redirect()->route('anos-lectivos.index')->with('success', 'Ano lectivo criado com sucesso.');
     }
 
@@ -89,6 +92,8 @@ class AnoLectivoController extends Controller
         }
 
         $anoLectivo->update($data);
+
+        app(AnoLectivoConsistencyService::class)->sincronizar();
 
         return redirect()->route('anos-lectivos.index')->with('success', 'Ano lectivo actualizado com sucesso.');
     }

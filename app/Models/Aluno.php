@@ -59,12 +59,12 @@ class Aluno extends Model
         return $query->where(function ($q) {
             // Opção 1: Alunos com turma de um ano lectivo activo
             $q->whereHas('turmas', function ($q2) {
-                $q2->whereHas('anoLectivo', fn($q3) => $q3->where('activo', 1));
+                $q2->whereHas('anoLectivo', fn($q3) => $q3->ativo());
             })
                 // Opção 2: Alunos sem turma, cuja inscrição é de um ano lectivo activo
                 ->orWhere(function ($q2) {
                     $q2->whereDoesntHave('turmas')
-                        ->whereHas('inscricao.anoLectivo', fn($q3) => $q3->where('activo', 1));
+                        ->whereHas('inscricao.anoLectivo', fn($q3) => $q3->ativo());
                 });
         });
     }

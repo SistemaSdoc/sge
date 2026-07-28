@@ -23,7 +23,7 @@ class CursoTuteladoProfessorController extends Controller
             ->paginate(5);
 
         return response()->json(
-            $professores->through(fn($prof) => [
+            $professores->through(fn ($prof) => [
                 'id' => $prof->id,
                 'nome' => $prof->user?->nome,
                 'email' => $prof->user?->email,
@@ -36,7 +36,7 @@ class CursoTuteladoProfessorController extends Controller
     public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
         $professores = Professor::with('user:id,nome')
-            ->whereHas('user', fn($q) => $q->where('instituicao_id', $instituicao->id))
+            ->whereHas('user', fn ($q) => $q->where('instituicao_id', $instituicao->id))
             ->orderBy('id')
             ->get();
 
@@ -84,9 +84,7 @@ class CursoTuteladoProfessorController extends Controller
         //
     }
 
-    public function edit($id)
-    {
-    }
+    public function edit($id) {}
 
     public function update(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, $professore)
     {

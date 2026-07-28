@@ -71,7 +71,7 @@ class TurmaDisciplinaProfessorController extends Controller
         Gate::authorize('definirProfessor', new TurmaDisciplinaProfessor);
 
         // Valida que a turma pertence ao ano lectivo actual
-        $anoLectivoActual = AnoLectivo::where('activo', 1)->first()?->id;
+        $anoLectivoActual = AnoLectivo::activo()?->id;
 
         abort_if($turma->ano_lectivo_id !== $anoLectivoActual, 403);
 

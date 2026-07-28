@@ -9,28 +9,12 @@ use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\Turma;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CursoClasseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index() {}
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create() {}
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
     /**
      * Display the specified resource (Show page via Inertia).
      */
@@ -39,7 +23,7 @@ class CursoClasseController extends Controller
         $cursoClasse->load(['classe:id,nome', 'turnos.turno:id,nome']);
 
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         // Se o turno pedido não pertence a este cursoClasse, cai para o primeiro
         $turnoId = $cursoClasse->turnos->firstWhere('id', request('turno'))?->id
@@ -106,19 +90,4 @@ class CursoClasseController extends Controller
             'pageName' => $pageName,
         ]);
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id) {}
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id) {}
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id) {}
 }

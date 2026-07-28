@@ -1,12 +1,12 @@
 export type Aluno = {
-  id: string; // UUID
+  id: string;
   nome: string;
 };
 
 export type Frequencia = 'mensal' | 'anual' | 'unico';
 
 export type ItemPagavel = {
-  id: string; // UUID
+  id: string;
   nome: string;
   descricao?: string;
   valor: number;
@@ -38,7 +38,7 @@ export type SaldoInfo = {
 export type PaidRecord = Record<string, Record<string, SaldoInfo>>;
 
 export type CartEntry = {
-  item_pagavel_id: string; // UUID
+  item_pagavel_id: string;
   ano: number;
   meses: number[]; // 1-12. Vazio/[0] para itens anuais/únicos
   valor: number;

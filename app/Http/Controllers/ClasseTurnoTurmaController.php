@@ -38,7 +38,7 @@ class ClasseTurnoTurmaController extends Controller
 
         // Filtro ano lectivo
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
@@ -95,7 +95,7 @@ class ClasseTurnoTurmaController extends Controller
 
         // Filtro ano lectivo
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/create', [
             'instituicao' => [
@@ -132,7 +132,7 @@ class ClasseTurnoTurmaController extends Controller
         Gate::authorize('create', Turma::class);
 
         // Ano lectivo ativo
-        $anoLectivoId = AnoLectivo::where('activo', 1)->first()?->id;
+        $anoLectivoId = AnoLectivo::activo()?->id;
 
         $request->validate([
             'nome' => 'required|string|max:255',
@@ -175,7 +175,7 @@ class ClasseTurnoTurmaController extends Controller
         $user = Auth::user();
 
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         $turma->load([
             'cursoClasseTurno.cursoClasse.classe:id,nome',

@@ -14,8 +14,7 @@ class PautaController extends Controller
 {
     public function __construct(
         private readonly PautaService $pautaService
-    ) {
-    }
+    ) {}
 
     /**
      * Mostra a lista de cursos tutelados da instituição do user logado
@@ -31,7 +30,7 @@ class PautaController extends Controller
 
         // Filtro ano lectivo
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         $query = CursoTutelado::with([
             'instituicaoCurso:id,instituicao_id,curso_id',
@@ -44,7 +43,7 @@ class PautaController extends Controller
                 $q->where('instituicao_tutora_id', $instituicaoId)
                     ->orWhereHas(
                         'instituicaoCurso',
-                        fn($q2) => $q2->where('instituicao_id', $instituicaoId)
+                        fn ($q2) => $q2->where('instituicao_id', $instituicaoId)
                     );
             });
         }
@@ -52,12 +51,12 @@ class PautaController extends Controller
         if ($isProfessor) {
             $query->whereHas(
                 'professores',
-                fn($q) => $q->where('professor_id', $professorId)
+                fn ($q) => $q->where('professor_id', $professorId)
             );
         }
 
         return Inertia::render('pautas/cursos/index', [
-            'cursosTutelados' => $query->get()->map(fn($ct) => [
+            'cursosTutelados' => $query->get()->map(fn ($ct) => [
                 'id' => $ct->id,
                 'curso' => $ct->instituicaoCurso?->curso,
                 'instituicao' => $ct->instituicaoTutora,
@@ -86,16 +85,16 @@ class PautaController extends Controller
 
         // Filtro ano lectivo
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
+            ?? AnoLectivo::activo()?->id;
 
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
-            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
             ->where('ano_lectivo_id', $anoLectivoId)  // ← Filtro ano lectivo
-            ->when($isProfessor, fn($q) => $q->whereHas(
+            ->when($isProfessor, fn ($q) => $q->whereHas(
                 'professores',
-                fn($q2) => $q2->where('professor_id', $professorId)
+                fn ($q2) => $q2->where('professor_id', $professorId)
             ))
             ->with([
                 'cursoClasseTurno.cursoClasse.classe:id,nome',
@@ -113,7 +112,7 @@ class PautaController extends Controller
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
                 ],
             ],
-            'turmas' => $turmas->map(fn($turma) => [
+            'turmas' => $turmas->map(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -136,16 +135,18 @@ class PautaController extends Controller
         $this->authorize('pauta.view', $turma);
 
         $filtro = $request->query('filtro');
+
         $anoLectivoId = request('ano_lectivo_id') ?? $turma->ano_lectivo_id;
 
         abort_if(
-            !$turma->cursoClasseTurno?->cursoClasse?->where('curso_tutelado_id', $cursoTutelado->id)->exists(),
+            ! $turma->cursoClasseTurno?->cursoClasse?->where('curso_tutelado_id', $cursoTutelado->id)->exists(),
             404
         );
 
         abort_if($turma->ano_lectivo_id !== $anoLectivoId, 404);
 
         $periodo = $request->query('periodo', '1');
+
         $perPage = min((int) $request->query('per_page', 10), 100);
 
         $turma->load([

@@ -10,7 +10,7 @@ class QrCodeService
     public static function generate(string $text): string
     {
         $result = (new Builder(
-            writer: new PngWriter(),
+            writer: new PngWriter,
             data: $text,
             size: 300,
             margin: 10,
