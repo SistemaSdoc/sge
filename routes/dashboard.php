@@ -73,8 +73,9 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
     require __DIR__.'/modules/colegios.php';
 
     Route::get('alunos/{aluno}/historico', [FinalistaController::class, 'historico']);
-    // Route::get('colegios', [CursoTuteladoController::class, 'colegios']);
-    // Route::get('colegios/{colegio}', [CursoTuteladoController::class, 'showColegio']);
+    Route::get('aluno/grelha-curricular', [AlunoController::class, 'grelhaCurricular']);
+    Route::get('aluno/notas', [AlunoController::class, 'notas']);
+
     Route::resource('cursos-tutelados', CursoTuteladoController::class)->parameters(['cursos-tutelados' => 'cursoTutelado']);
 
     Route::prefix('cursos-tutelados/{cursoTutelado}')->group(function () {
@@ -93,8 +94,6 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
             ->only(['show'])
             ->parameters(['classes' => 'cursoClasse'])
             ->names(['show' => 'cursos-tutelados.classes.show']);
-
-        // Route::resource('turmas', ClasseTurnoTurmaController::class);
 
         Route::get('/alunos', [CursoTuteladoController::class, 'alunos']);
 
@@ -122,7 +121,6 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
         Route::put('classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'store']);
 
         Route::prefix('classes/{cursoClasse}/turnos/{cursoClasseTurno}')
-            // ->scopeBindings()
             ->group(function () {
                 Route::resource('disciplinas', ClasseTurnoDisciplinaController::class)
                     ->parameters(['disciplinas' => 'classeTurnoDisciplina'])
@@ -181,8 +179,13 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 Route::resource('avisos', AvisoController::class);
 Route::resource('anos-lectivos', AnoLectivoController::class)->parameters(['anos-lectivos' => 'anoLectivo']);
 Route::get('pap', [GrupoPapController::class, 'index'])->name('grupos-pap.index');
-Route::get('minhas-notas', [NotaAlunoController::class, 'index'])->name('notas.aluno.index');
-Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])->name('grelha-curricular.index');
+
+Route::middleware('propina.em.dia')->group(function () {
+    Route::get('minhas-notas', [NotaAlunoController::class, 'index'])->name('notas.aluno.index');
+    Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])->name('grelha-curricular.index');
+});
+
+
 Route::resource('regras-avaliacao', RegraAvaliacaoController::class)
     ->parameters(['regras-avaliacao' => 'regraAvaliacao']);
 

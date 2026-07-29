@@ -56,4 +56,5 @@ class TurmaAluno extends Pivot
             'ano_lectivo_id'
         );
     }
+    
 }

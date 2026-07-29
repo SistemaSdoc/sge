@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, router, useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { TabBanca } from './components/tabs/tab-banca';
-import { TabAprovacao } from './components/tabs/tab-aprovacao';
+//import { TabAprovacao } from './components/tabs/tab-aprovacao';
 import { TabHistorico } from './components/tabs/tab-historico';
 import { Card, CardContent } from '@/components/ui/card';
 import { Minus, MoreHorizontalIcon } from 'lucide-react';

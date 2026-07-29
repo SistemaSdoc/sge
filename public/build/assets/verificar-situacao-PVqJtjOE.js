@@ -1,1 +1,0 @@
-function e(e,t,n){let r=parseFloat(e),i=parseFloat(t),a=parseFloat(n);if(isNaN(r)||isNaN(i)||isNaN(a)||e===``||t===``||n===``)return null;let o=(r+i+a)/3;return Math.round(o*2)/2}function t(e,t){return e==null?null:t>=8?`N/APTO`:e>=10?`APTO`:`N/APTO`}export{e as n,t};
