@@ -24,8 +24,7 @@ class NotaDisciplinaController extends Controller
     public function __construct(
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
 
     /**
      * Lista as notas dos alunos de uma turma numa disciplina
@@ -60,34 +59,38 @@ class NotaDisciplinaController extends Controller
             ->orderBy('candidatos.nome')
             ->paginate(20, ['*'], 'page_alunos');
 
-        $sigla = $tdp->classeTurnoDisciplina->disciplina->sigla;
-
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/recurso/index', [
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
             'cursoClasseTurno' => $cursoClasseTurno->id,
             'turma' => $turma->id,
             'tdp' => $tdp->id,
+            'can' => [
+                'create' => Auth::user()->can('create', [Nota::class, $tdp]),
+                'export' => Auth::user()->can('export', [Nota::class, $tdp]),
+            ],
             'disciplina' => [
                 'id' => $classeTurnoDisciplina->id,
-                'sigla' => $sigla,
+                'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
                 'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
             ],
-            'alunos' => $turmaAlunosEmRecurso->map(fn($ta) => [
-                'turma_aluno_id' => $ta->id,
-                'aluno_id' => $ta->aluno->id,
-                'nome' => $ta->aluno->inscricao?->candidato?->nome,
-                'notas' => [
-                    $sigla => [
-                        'tdp_id' => $tdp->id,
-                        'mf' => $ta->notas->firstWhere('periodo', 3)?->media_final,
-                        'recurso' => $ta->notas->firstWhere('periodo', 4)?->media_final,
-                    ],
-                ],
-            ])->values(),
+            'alunos' => [
+                'data' => $turmaAlunos->getCollection()->map(fn ($ta) => [
+                    'turma_aluno_id' => $ta->id,
+                    'aluno_id' => $ta->aluno->id,
+                    'nome' => $ta->aluno->inscricao?->candidato?->nome,
+                    'notas' => $ta->notas
+                        ->map(fn ($n) => $this->formatarNota($n))
+                        ->keyBy('periodo'),
+                ])->values(),
+                'current_page' => $turmaAlunos->currentPage(),
+                'last_page' => $turmaAlunos->lastPage(),
+            ],
         ]);
+
     }
+
     /**
      * Mostra o formulário de lançamento de notas dos alunos de uma turma numa disciplina
      */
@@ -140,12 +143,12 @@ class NotaDisciplinaController extends Controller
                     'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
                 ],
                 'alunos' => [
-                    'data' => $turmaAlunos->getCollection()->map(fn($ta) => [
+                    'data' => $turmaAlunos->getCollection()->map(fn ($ta) => [
                         'turma_aluno_id' => $ta->id,
                         'aluno_id' => $ta->aluno->id,
                         'nome' => $ta->aluno->inscricao?->candidato?->nome,
                         'notas' => $ta->notas
-                            ->map(fn($n) => $this->formatarNota($n))
+                            ->map(fn ($n) => $this->formatarNota($n))
                             ->keyBy('periodo'),
                     ]),
                     'current_page' => $turmaAlunos->currentPage(),
