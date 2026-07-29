@@ -33,7 +33,6 @@ import { create } from '@/actions/App/Http/Controllers/NotaDisciplinaController'
 import { exportarDisciplina } from '@/actions/App/Http/Controllers/ExportarMiniPautaController';
 import TablePagination from '@/components/table-pagination';
 
-
 function buildInitialNotas(alunosData, periodo) {
   const state = {};
   for (const aluno of alunosData) {
@@ -61,23 +60,40 @@ export default function NotasTable({
   pagination = {},
   onPageChange,
 }) {
-  const [periodo, setPeriodo] = useState('1');
+  const [periodoSelecionado, setPeriodoSelecionado] = useState('1');
+  const [periodoTabela, setPeriodoTabela] = useState('1');
   const [notas, setNotas] = useState({});
+  const alunosOrdenados = [...(alunos.data ?? [])].sort((alunoA, alunoB) =>
+    (alunoA?.nome ?? '').localeCompare(alunoB?.nome ?? '', 'pt', {
+      sensitivity: 'base',
+    }),
+  );
 
-  const isEmpty = alunos.data.length === 0;
+  const isEmpty = alunosOrdenados.length === 0;
 
   useEffect(() => {
-    setNotas(buildInitialNotas(alunos.data, periodo));
-  }, [alunos, periodo]);
+    setNotas(buildInitialNotas(alunosOrdenados, periodoTabela));
+  }, [alunosOrdenados, periodoTabela]);
+
+  const handlePeriodoChange = (value) => {
+    setPeriodoSelecionado(value);
+
+    if (value !== '0') {
+      setPeriodoTabela(value);
+    }
+  };
 
   return (
     <Card className="gap-0">
       <CardHeader className="border-b">
         <CardTitle>{disciplina?.nome ?? 'Disciplina'}</CardTitle>
 
-        {alunos.data.length > 0 && (
+        {alunosOrdenados.length > 0 && (
           <CardAction className="flex items-center gap-3">
-            <Select value={periodo} onValueChange={setPeriodo}>
+            <Select
+              value={periodoSelecionado}
+              onValueChange={handlePeriodoChange}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Trimestre" />
               </SelectTrigger>
@@ -85,6 +101,7 @@ export default function NotasTable({
                 <SelectItem value="1">1º Trimestre</SelectItem>
                 <SelectItem value="2">2º Trimestre</SelectItem>
                 <SelectItem value="3">3º Trimestre</SelectItem>
+                <SelectItem value="0">Todos</SelectItem>
               </SelectContent>
             </Select>
 
@@ -118,7 +135,7 @@ export default function NotasTable({
                       cursoClasseTurno,
                       turma,
                       classeTurnoDisciplina: disciplina?.id,
-                    }).url + `?periodo=${periodo}`
+                    }).url + `?periodo=${periodoSelecionado}`
                   }
                   target="_blank"
                   rel="noopener noreferrer"
@@ -155,13 +172,11 @@ export default function NotasTable({
             </TableHeader>
 
             <TableBody>
-              {alunos.data.map((aluno, index) => {
-
+              {alunosOrdenados.map((aluno, index) => {
                 const n = notas[aluno.turma_aluno_id] ?? {};
                 const mt = mediaTrimestral(n.mac, n.npp, n.npt);
-                const mediaFinal = aluno.notas?.[periodo]?.media_final ?? null;
-                const faltasPeriodo = aluno.notas?.[periodo]?.faltas ?? 0;
-                const situacao = verificarSituacao(mediaFinal, faltasPeriodo);
+                const faltasPeriodo = aluno.notas?.[periodoTabela]?.faltas ?? 0;
+                const situacao = verificarSituacao(mt, faltasPeriodo);
 
                 return (
                   <TableRow key={aluno.turma_aluno_id}>

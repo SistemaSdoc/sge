@@ -186,7 +186,7 @@ class ClasseTurnoTurmaController extends Controller
         $alunos = $turma->alunos()
             ->wherePivot('activo', true)
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
-            ->paginate(1, ['*'], 'page_alunos');
+            ->paginate(10, ['*'], 'page_alunos');
 
         $disciplinasQuery = $turma->cursoClasseTurno
             ->classeTurnoDisciplinas()

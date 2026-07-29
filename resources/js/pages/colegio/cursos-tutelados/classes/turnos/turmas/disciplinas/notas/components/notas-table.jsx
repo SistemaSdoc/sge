@@ -61,14 +61,23 @@ export default function NotasTable({
   pagination = {},
   onPageChange,
 }) {
-  const [periodo, setPeriodo] = useState('1');
+  const [periodoSelecionado, setPeriodoSelecionado] = useState('1');
+  const [periodoTabela, setPeriodoTabela] = useState('1');
   const [notas, setNotas] = useState({});
 
   const isEmpty = alunos.data.length === 0;
 
   useEffect(() => {
-    setNotas(buildInitialNotas(alunos.data, periodo));
-  }, [alunos, periodo]);
+    setNotas(buildInitialNotas(alunos.data, periodoTabela));
+  }, [alunos, periodoTabela]);
+
+  const handlePeriodoChange = (value) => {
+    setPeriodoSelecionado(value);
+
+    if (value !== '0') {
+      setPeriodoTabela(value);
+    }
+  };
 
   return (
     <Card className="gap-0">
@@ -77,7 +86,7 @@ export default function NotasTable({
 
         {alunos.data.length > 0 && (
           <CardAction className="flex items-center gap-3">
-            <Select value={periodo} onValueChange={setPeriodo}>
+            <Select value={periodoSelecionado} onValueChange={handlePeriodoChange}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Trimestre" />
               </SelectTrigger>
@@ -85,6 +94,7 @@ export default function NotasTable({
                 <SelectItem value="1">1º Trimestre</SelectItem>
                 <SelectItem value="2">2º Trimestre</SelectItem>
                 <SelectItem value="3">3º Trimestre</SelectItem>
+                <SelectItem value="0">Todos</SelectItem>
               </SelectContent>
             </Select>
 
@@ -98,7 +108,7 @@ export default function NotasTable({
                       cursoClasseTurno,
                       turma,
                       classeTurnoDisciplina: disciplina?.id,
-                    }).url + `?periodo=${periodo}`
+                    }).url + `?periodo=${periodoSelecionado}`
                   }
                   target="_blank"
                   rel="noopener noreferrer"
@@ -138,9 +148,8 @@ export default function NotasTable({
 
                 const n = notas[aluno.turma_aluno_id] ?? {};
                 const mt = mediaTrimestral(n.mac, n.npp, n.npt);
-                const mediaFinal = aluno.notas?.[periodo]?.media_final ?? null;
-                const faltasPeriodo = aluno.notas?.[periodo]?.faltas ?? 0;
-                const situacao = verificarSituacao(mediaFinal, faltasPeriodo);
+                const faltasPeriodo = aluno.notas?.[periodoTabela]?.faltas ?? 0;
+                const situacao = verificarSituacao(mt, faltasPeriodo);
 
                 return (
                   <TableRow key={aluno.turma_aluno_id}>

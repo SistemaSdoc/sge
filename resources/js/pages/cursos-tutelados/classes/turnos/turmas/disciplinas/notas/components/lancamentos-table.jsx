@@ -48,8 +48,12 @@ export default function LancamentosTable({
 }) {
   const [periodo, setPeriodo] = useState('1');
   const { getValor, setValor } = useNotasLocais(data?.tdp_id);
-  const isEmpty = !data?.alunos?.data || data.alunos.data.length === 0;
-  const alunos = data?.alunos?.data ?? [];
+  const alunos = [...(data?.alunos?.data ?? [])].sort((alunoA, alunoB) =>
+    (alunoA?.nome ?? '').localeCompare(alunoB?.nome ?? '', 'pt', {
+      sensitivity: 'base',
+    }),
+  );
+  const isEmpty = alunos.length === 0;
   return (
     <Card className="gap-0">
       <CardHeader className="border-b">

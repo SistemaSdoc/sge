@@ -7,7 +7,7 @@ export const METRICS_CONFIG = [
   {
     id: 'inscricoesPendentes',
     label: 'Inscrições Pendentes',
-    href: '/dashboard/pap/inscricoes',
+    href: '/dashboard/inscricoes',
   },
   {
     id: 'totalProfessores',

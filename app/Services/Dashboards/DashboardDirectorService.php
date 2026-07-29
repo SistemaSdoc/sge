@@ -49,9 +49,12 @@ class DashboardDirectorService
             ->count();
 
         return [
+            'totalAlunos' => $alunosAtivos,
+            'totalTurmas' => $turmasAbertas,
+            'inscricoesPendentes' => $inscricoesPendentes,
+            'totalProfessores' => $professoresAtivos,
             'alunosAtivos' => $alunosAtivos,
             'turmasAbertas' => $turmasAbertas,
-            'inscricoesPendentes' => $inscricoesPendentes,
             'professoresAtivos' => $professoresAtivos,
         ];
     }

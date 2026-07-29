@@ -3,27 +3,38 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
+class MiniPautaSheetExport implements FromArray, WithEvents, WithTitle
 {
     protected string $disciplinaNome;
+
     protected string $sigla;
-    protected array  $alunos;
+
+    protected array $alunos;
+
     protected string $curso;
+
     protected string $turma;
+
     protected string $anoLetivo;
+
     protected string $instituicao;
+
     protected string $sala;
+
     protected string $classe;
 
     const DATA_START_ROW = 11;
-    const MAX_ALUNOS     = 40;
+
+    const MAX_ALUNOS = 40;
 
     // ── PALETA SEMÂNTICA ─────────────────────────────────────────────────────
     // Azul — institucional: nome da escola, classe, turma, sala, ano letivo
@@ -33,13 +44,15 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
     const COR_VERDE_TEXTO = '1B5E20';
 
     // Vermelho — Reprovado / nota negativa (< 10)
-    const COR_VERM_TEXTO  = 'B71C1C';
+    const COR_VERM_TEXTO = 'B71C1C';
+
+    // Fundo vermelho suave — linha completa em falta excessiva
+    const COR_FUNDO_VERMELHO = 'FDE2E2';
 
     // Âmbar — Reprovado por Faltas (atenção/risco)
-    const COR_AMBAR_TEXTO = '7B4F00';
+    const COR_AMBAR_TEXTO = 'B71C1C';
 
     // Cinza escuro — cabeçalhos da tabela de notas
-
 
     public function __construct(
         string $disciplinaNome,
@@ -53,14 +66,14 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         string $classe
     ) {
         $this->disciplinaNome = $disciplinaNome;
-        $this->sigla          = $sigla;
-        $this->alunos         = $alunos;
-        $this->curso          = $curso;
-        $this->turma          = $turma;
-        $this->anoLetivo      = $anoLetivo;
-        $this->instituicao    = $instituicao;
-        $this->sala           = $sala;
-        $this->classe         = $classe;
+        $this->sigla = $sigla;
+        $this->alunos = $alunos;
+        $this->curso = $curso;
+        $this->turma = $turma;
+        $this->anoLetivo = $anoLetivo;
+        $this->instituicao = $instituicao;
+        $this->sala = $sala;
+        $this->classe = $classe;
     }
 
     public function array(): array
@@ -82,7 +95,7 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         ];
     }
 
-    protected function buildSheet(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $ws): void
+    protected function buildSheet(Worksheet $ws): void
     {
         // 1. LARGURAS
         foreach (
@@ -117,7 +130,7 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         $ws->mergeCells('A2:U2');
         $ws->setCellValue('A2', mb_strtoupper($this->instituicao));
         $ws->getStyle('A2')->applyFromArray([
-            'font'      => ['name' => 'Arial', 'size' => 12, 'bold' => false, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
+            'font' => ['name' => 'Arial', 'size' => 12, 'bold' => false, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
         ]);
 
@@ -129,7 +142,7 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         $ws->mergeCells('A3:B3');
         $ws->setCellValue('A3', 'ESTATÍSTICA');
         $ws->getStyle('A3')->applyFromArray([
-            'font'      => ['name' => 'Arial', 'size' => 10, 'bold' => true],
+            'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
 
@@ -145,26 +158,26 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         $ws->getStyle('A4')->applyFromArray(['font' => ['name' => 'Arial', 'size' => 8], 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER]]);
 
         // Baseado na situacao_final que vem da BD via 'resultado'
-        $positivas  = count(array_filter($this->alunos, fn($a) => ($a['resultado'] ?? '') === 'APTO'));
-        $negativas  = count(array_filter($this->alunos, fn($a) => ($a['resultado'] ?? '') === 'N/APTO'));
-        $reprovFalt = count(array_filter($this->alunos, fn($a) => ($a['resultado'] ?? '') === 'N/APTO por Faltas'));
+        $positivas = count(array_filter($this->alunos, fn ($a) => ($a['resultado'] ?? '') === 'APTO'));
+        $negativas = count(array_filter($this->alunos, fn ($a) => ($a['resultado'] ?? '') === 'N/APTO'));
+        $reprovFalt = count(array_filter($this->alunos, fn ($a) => ($a['resultado'] ?? '') === 'EEF'));
 
         // Positivas → verde (aprovados)
         $ws->setCellValue('B4', "Positivas: $positivas");
         $ws->getStyle('B4')->applyFromArray([
-            'font'      => ['name' => 'Arial', 'size' => 10, 'bold' => true],
+            'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
         // Negativas → vermelho (reprovados)
         $ws->setCellValue('B5', "Negativas: $negativas");
         $ws->getStyle('B5')->applyFromArray([
-            'font'      => ['name' => 'Arial', 'size' => 10, 'bold' => true],
+            'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
         // Rep. Faltas → âmbar (atenção)
         $ws->setCellValue('B6', "Rep. Faltas: $reprovFalt");
         $ws->getStyle('B6')->applyFromArray([
-            'font'      => ['name' => 'Arial', 'size' => 10, 'bold' => true],
+            'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
 
@@ -192,7 +205,7 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         $ws->setCellValue('U6', $this->turma);
         foreach (['U3', 'U4', 'U5', 'U6'] as $c) {
             $ws->getStyle($c)->applyFromArray([
-                'font'      => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
+                'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
             ]);
         }
@@ -203,25 +216,25 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         }
 
         $ws->mergeCells('A7:C7');
-        $ws->setCellValue('A7', 'CURSO: ' . mb_strtoupper($this->curso));
+        $ws->setCellValue('A7', 'CURSO: '.mb_strtoupper($this->curso));
         $ws->getStyle('A7')->applyFromArray(['font' => ['name' => 'Arial', 'size' => 10, 'bold' => true], 'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT]]);
 
         // Ano letivo → azul institucional
         $ws->setCellValue('U7', $this->anoLetivo);
         $ws->getStyle('U7')->applyFromArray([
-            'font'      => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
+            'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
 
         $ws->mergeCells('A8:C8');
-        $ws->setCellValue('A8', 'DISCIPLINA: ' . mb_strtoupper($this->disciplinaNome));
+        $ws->setCellValue('A8', 'DISCIPLINA: '.mb_strtoupper($this->disciplinaNome));
         $ws->getStyle('A8')->applyFromArray(['font' => ['name' => 'Arial', 'size' => 10, 'bold' => true], 'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT]]);
 
         foreach (['D8:H9' => ['D8', '1º TRIMESTRE'], 'I8:M9' => ['I8', '2º TRIMESTRE'], 'N8:T9' => ['N8', '3º TRIMESTRE']] as $m => [$c, $v]) {
             $ws->mergeCells($m);
             $ws->setCellValue($c, $v);
             $ws->getStyle($c)->applyFromArray([
-                'font'      => ['name' => 'Arial', 'size' => 10],
+                'font' => ['name' => 'Arial', 'size' => 10],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
             ]);
         }
@@ -231,7 +244,7 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         $ws->setCellValue('U9', $this->sala);
         foreach (['U8', 'U9'] as $c) {
             $ws->getStyle($c)->applyFromArray([
-                'font'      => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
+                'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
             ]);
         }
@@ -244,11 +257,11 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         $ws->setCellValue('B9', 'NOME');
         foreach (['A9', 'B9'] as $c) {
             $ws->getStyle($c)->applyFromArray([
-                'font'      => ['name' => 'Arial', 'size' => 10, 'bold' => true],
+                'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
             ]);
         }
-        //$ws->setCellValue('C9','Nº'); $ws->setCellValue('C10','Proc');
+        // $ws->setCellValue('C9','Nº'); $ws->setCellValue('C10','Proc');
 
         foreach (
             [
@@ -273,7 +286,7 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         ) {
             $ws->setCellValue($cell, $val);
             $ws->getStyle($cell)->applyFromArray([
-                'font'      => ['name' => 'Arial', 'size' => 9, 'bold' => true],
+                'font' => ['name' => 'Arial', 'size' => 9, 'bold' => true],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER, 'wrapText' => true],
             ]);
         }
@@ -283,20 +296,27 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         $medium = Border::BORDER_MEDIUM;
         $this->applyBorder($ws, 'A9:A10', $medium, $medium, null, $thin);
         $this->applyBorder($ws, 'B9:B10', $thin, $thin, null, $thin);
-        foreach (['D10', 'E10', 'F10', 'G10'] as $c) $this->applyBorder($ws, $c, $thin, $thin, $medium, null);
+        foreach (['D10', 'E10', 'F10', 'G10'] as $c) {
+            $this->applyBorder($ws, $c, $thin, $thin, $medium, null);
+        }
         $this->applyBorder($ws, 'H10', $medium, $thin, $medium, null);
-        foreach (['I10', 'J10', 'K10', 'L10'] as $c) $this->applyBorder($ws, $c, $thin, $thin, $medium, null);
+        foreach (['I10', 'J10', 'K10', 'L10'] as $c) {
+            $this->applyBorder($ws, $c, $thin, $thin, $medium, null);
+        }
         $this->applyBorder($ws, 'M10', $medium, $thin, $medium, null);
-        foreach (['N10', 'O10', 'P10', 'Q10', 'R10'] as $c) $this->applyBorder($ws, $c, $thin, $thin, $medium, null);
+        foreach (['N10', 'O10', 'P10', 'Q10', 'R10'] as $c) {
+            $this->applyBorder($ws, $c, $thin, $thin, $medium, null);
+        }
         $this->applyBorder($ws, 'S10', $medium, $thin, $medium, null);
         $this->applyBorder($ws, 'U10', $thin, $thin, $thin, $thin);
 
         // 7. DADOS DOS ALUNOS
         foreach ($this->alunos as $i => $aluno) {
-            $row  = self::DATA_START_ROW + $i;
-            $mfd  = $aluno['mfd'] ?? null;
-            $res  = $aluno['resultado'] ?? '';
+            $row = self::DATA_START_ROW + $i;
+            $mfd = $aluno['mfd'] ?? null;
+            $res = $aluno['resultado'] ?? '';
             $notas = $aluno['notas'] ?? [];
+            $linhaVermelha = (bool) ($aluno['linha_vermelha'] ?? false);
 
             $ws->getRowDimension($row)->setRowHeight(14.25);
 
@@ -319,10 +339,10 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
 
             // Corrigir os valores das colunas T3
             $t3 = $notas[3] ?? [];
-            $ws->setCellValue("N$row", $t3['mac']    ?? '');
-            $ws->setCellValue("O$row", $t3['npp']    ?? '');
-            $ws->setCellValue("P$row", $t3['npt']    ?? '');
-            $ws->setCellValue("Q$row", $t3['mt']     ?? '');
+            $ws->setCellValue("N$row", $t3['mac'] ?? '');
+            $ws->setCellValue("O$row", $t3['npp'] ?? '');
+            $ws->setCellValue("P$row", $t3['npt'] ?? '');
+            $ws->setCellValue("Q$row", $t3['mt'] ?? '');
             $ws->setCellValue("S$row", $t3['faltas'] ?? '');
 
             $ws->setCellValue("R$row", $mfd);
@@ -357,7 +377,7 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
                 ] as $celula => $valor
             ) {
                 if ($valor !== null && $valor !== '') {
-                    $corNota = (float)$valor < 10 ? self::COR_VERM_TEXTO : '000000';
+                    $corNota = (float) $valor < 10 ? self::COR_VERM_TEXTO : '000000';
                     $ws->getStyle($celula)->applyFromArray([
                         'font' => ['name' => 'Arial', 'size' => 10, 'color' => ['rgb' => $corNota]],
                     ]);
@@ -369,8 +389,17 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
             if ($mfd !== null) {
                 $cMfd = $mfd >= 10 ? self::COR_VERDE_TEXTO : self::COR_VERM_TEXTO;
                 $ws->getStyle("R$row")->applyFromArray([
-                    'font'      => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => $cMfd]],
+                    'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => $cMfd]],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                ]);
+            }
+
+            if ($linhaVermelha) {
+                $ws->getStyle("A$row:U$row")->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => self::COR_FUNDO_VERMELHO],
+                    ],
                 ]);
             }
 
@@ -378,13 +407,13 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
             // RESULTADO → texto verde / vermelho / âmbar (sem fundo)
             // Corrigir o match do resultado (mais específico primeiro)
             $cRes = match (true) {
-                str_contains($res, 'N/APTO por Faltas') => self::COR_AMBAR_TEXTO,
-                str_contains($res, 'N/APTO')            => self::COR_VERM_TEXTO,
-                str_contains($res, 'APTO')              => self::COR_VERDE_TEXTO,
-                default                                 => '000000',
+                str_contains($res, 'EEF') => self::COR_AMBAR_TEXTO,
+                str_contains($res, 'N/APTO') => self::COR_VERM_TEXTO,
+                str_contains($res, 'APTO') => self::COR_VERDE_TEXTO,
+                default => '000000',
             };
             $ws->getStyle("U$row")->applyFromArray([
-                'font'      => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => $cRes]],
+                'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => $cRes]],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
             ]);
 
@@ -416,7 +445,7 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
             ]);
         }
         // Borda exterior topo — linha 2, de A a U
-        $ws->getStyle("A2:U2")->applyFromArray([
+        $ws->getStyle('A2:U2')->applyFromArray([
             'borders' => ['top' => ['borderStyle' => Border::BORDER_MEDIUM]],
         ]);
         // Borda exterior fundo — última linha, de A a U
@@ -424,27 +453,27 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
             'borders' => ['bottom' => ['borderStyle' => Border::BORDER_MEDIUM]],
         ]);
         // Borda separadora abaixo do cabeçalho institucional (linha 2)
-        $ws->getStyle("A2:U2")->applyFromArray([
+        $ws->getStyle('A2:U2')->applyFromArray([
             'borders' => ['bottom' => ['borderStyle' => Border::BORDER_THIN]],
         ]);
         // Borda separadora abaixo dos headers da tabela (linha 10)
-        $ws->getStyle("A10:U10")->applyFromArray([
+        $ws->getStyle('A10:U10')->applyFromArray([
             'borders' => ['bottom' => ['borderStyle' => Border::BORDER_MEDIUM]],
         ]);
         // Borda separadora acima do cabeçalho da tabela (linha 9)
-        $ws->getStyle("A9:U9")->applyFromArray([
+        $ws->getStyle('A9:U9')->applyFromArray([
             'borders' => ['top' => ['borderStyle' => Border::BORDER_MEDIUM]],
         ]);
 
         // 9. PÁGINA A4 LANDSCAPE
         $ws->getPageSetup()
-            ->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE)
-            ->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4)
+            ->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)
+            ->setPaperSize(PageSetup::PAPERSIZE_A4)
             ->setFitToPage(true)->setFitToWidth(1)->setFitToHeight(0);
         $ws->getPageMargins()->setTop(0.5)->setBottom(0.5)->setLeft(0.4)->setRight(0.4);
     }
 
-    protected function applyDataRowBorders(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $ws, int $row): void
+    protected function applyDataRowBorders(Worksheet $ws, int $row): void
     {
         $this->applyBorder($ws, "A$row", Border::BORDER_MEDIUM, null, Border::BORDER_THIN, Border::BORDER_THIN);
         foreach (['B', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U'] as $col) {
@@ -453,7 +482,7 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
     }
 
     protected function applyBorder(
-        \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $ws,
+        Worksheet $ws,
         string $range,
         ?string $left,
         ?string $right,
@@ -461,10 +490,20 @@ class MiniPautaSheetExport implements FromArray, WithTitle, WithEvents
         ?string $bottom
     ): void {
         $b = [];
-        if ($left)   $b['left']  = ['borderStyle' => $left];
-        if ($right)  $b['right'] = ['borderStyle' => $right];
-        if ($top)    $b['top']   = ['borderStyle' => $top];
-        if ($bottom) $b['bottom'] = ['borderStyle' => $bottom];
-        if ($b) $ws->getStyle($range)->applyFromArray(['borders' => $b]);
+        if ($left) {
+            $b['left'] = ['borderStyle' => $left];
+        }
+        if ($right) {
+            $b['right'] = ['borderStyle' => $right];
+        }
+        if ($top) {
+            $b['top'] = ['borderStyle' => $top];
+        }
+        if ($bottom) {
+            $b['bottom'] = ['borderStyle' => $bottom];
+        }
+        if ($b) {
+            $ws->getStyle($range)->applyFromArray(['borders' => $b]);
+        }
     }
 }

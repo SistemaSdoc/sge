@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ArredondamentoHelper;
 use App\Models\ClasseTurnoDisciplina;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
@@ -43,14 +44,19 @@ class NotaDisciplinaController extends Controller
 
         // Gate::authorize('view', $tdp);
 
-        $turmaAlunos = TurmaAluno::with([
-            'aluno.inscricao.candidato:id,nome',
-            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
-        ])
-            ->where('turma_id', $turma->id)
-            ->where('situacao', 'activo')
-            ->where('activo', true)
-            ->orderBy('id')
+        $turmaAlunos = TurmaAluno::query()
+            ->select('turma_aluno.*')
+            ->join('alunos', 'alunos.id', '=', 'turma_aluno.aluno_id')
+            ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
+            ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->with([
+                'aluno.inscricao.candidato:id,nome',
+                'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            ])
+            ->where('turma_aluno.turma_id', $turma->id)
+            ->where('turma_aluno.situacao', 'activo')
+            ->where('turma_aluno.activo', true)
+            ->orderBy('candidatos.nome')
             ->paginate(20, ['*'], 'page_alunos');
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index', [
@@ -104,14 +110,19 @@ class NotaDisciplinaController extends Controller
         Gate::authorize('view', $tdp);
         Gate::authorize('create', [Nota::class, $tdp]);
 
-        $turmaAlunos = TurmaAluno::with([
-            'aluno.inscricao.candidato:id,nome',
-            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
-        ])
-            ->where('turma_id', $turma->id)
-            ->where('situacao', 'activo')
-            ->where('activo', true)
-            ->orderBy('id')
+        $turmaAlunos = TurmaAluno::query()
+            ->select('turma_aluno.*')
+            ->join('alunos', 'alunos.id', '=', 'turma_aluno.aluno_id')
+            ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
+            ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->with([
+                'aluno.inscricao.candidato:id,nome',
+                'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            ])
+            ->where('turma_aluno.turma_id', $turma->id)
+            ->where('turma_aluno.situacao', 'activo')
+            ->where('turma_aluno.activo', true)
+            ->orderBy('candidatos.nome')
             ->paginate(20, ['*'], 'page_alunos');
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
@@ -209,8 +220,8 @@ class NotaDisciplinaController extends Controller
             'mac' => $n->mac,
             'nota_prova_professor' => $n->nota_prova_professor,
             'nota_prova_trimestral' => $n->nota_prova_trimestral,
-            'media_trimestral' => $n->media_trimestral,
-            'media_final' => $n->media_final,
+            'media_trimestral' => ArredondamentoHelper::roundToHalf($n->media_trimestral),
+            'media_final' => ArredondamentoHelper::roundToHalf($n->media_final),
             'faltas' => $n->faltas,
             'situacao_trimestral' => $n->situacao_trimestral,
             'situacao_anual' => $n->situacao_anual,

@@ -13,5 +13,5 @@ export function mediaTrimestral(mac, npp, npt) {
 
   const media = (m + p + t) / 3;
 
-  return Math.round(media * 2) / 2;
+  return Math.round(media);
 }

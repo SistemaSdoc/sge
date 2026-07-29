@@ -31,12 +31,8 @@ class DashboardController extends Controller
 
         $anoLectivoId = AnoLectivo::activo()?->id;
 
-        if ($user->hasRole('Director')) {
-            return Inertia::render('dashboards/director/index', [
-                'metricas' => $this->dashboardDirectorService->obterMetricas($user->instituicao_id),
-                'accoes' => $this->dashboardDirectorService->obterAccoesPendentes($user->instituicao_id),
-                'eventos' => $this->dashboardDirectorService->obterAvisos($user->instituicao_id),
-            ]);
+        if ($user->hasAnyRole(['SuperAdmin', 'Master', 'Director', 'Subdirector', 'Secretaria'])) {
+            return $this->renderDirectorDashboard($user->instituicaoFiltro());
         }
 
         if ($user->hasRole('Professor')) {
@@ -62,7 +58,18 @@ class DashboardController extends Controller
             ]);
         }
 
-        // Fallback for any other staff role that belongs here.
-        return Inertia::render('dashboard');
+        return $this->renderDirectorDashboard($user->instituicaoFiltro());
+    }
+
+    /**
+     * Renderiza a dashboard do diretor com os dados já consolidados.
+     */
+    private function renderDirectorDashboard(?string $instituicaoId): Response
+    {
+        return Inertia::render('dashboards/director/index', [
+            'metricas' => $this->dashboardDirectorService->obterMetricas($instituicaoId),
+            'accoes' => $this->dashboardDirectorService->obterAccoesPendentes($instituicaoId),
+            'eventos' => $this->dashboardDirectorService->obterAvisos($instituicaoId),
+        ]);
     }
 }
