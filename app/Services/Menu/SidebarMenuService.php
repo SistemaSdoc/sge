@@ -142,7 +142,7 @@ final class SidebarMenuService
                     title: 'Regras de Avaliação',
                     href: action([RegraAvaliacaoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn () => true, // Gate::allows('viewAny', RegraAvaliacao::class)
+                    can:  fn () => Gate::allows('viewAny', \App\Models\RegraAvaliacao::class),
                 ),
             ]),
 
@@ -160,7 +160,7 @@ final class SidebarMenuService
                     title: 'Confirmações de Matrícula',
                     href: action([ConfirmacaoMatriculaController::class, 'index']),
                     icon: 'ClipboardCheck',
-                    can: fn () => true
+                    can:    fn () => Gate::allows('viewAny', \App\Models\ConfirmacaoMatricula::class)
                 ),
             ]),
 
@@ -210,7 +210,7 @@ final class SidebarMenuService
                             : '#';
                     })(),
                     icon: 'Building2',
-                    can: true, // Gate::allows('viewAny', Colegio::class),
+                    can: fn () => Gate::allows('viewAny', \App\Models\Colegio::class),
                 ),
             ]),
 

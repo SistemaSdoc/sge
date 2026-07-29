@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
 
 #[Fillable([
@@ -40,32 +41,28 @@ class Aluno extends Model
     public function scopeDoAnoLectivo($query, $anoLectivoId)
     {
         return $query->where(function ($q) use ($anoLectivoId) {
-            // Opção 1: Alunos COM turma activa nesse ano lectivo
             $q->whereHas('turmas', function ($q2) use ($anoLectivoId) {
-                $q2->where('turmas.ano_lectivo_id', $anoLectivoId);  // ← Directo da turma
+                $q2->where('turmas.ano_lectivo_id', $anoLectivoId);
             })
-                // Opção 2: Alunos SEM turma, cuja inscrição é desse ano lectivo
-                ->orWhere(function ($q2) use ($anoLectivoId) {
-                    $q2->whereDoesntHave('turmas')
-                        ->whereHas('inscricao', function ($q3) use ($anoLectivoId) {
-                            $q3->where('ano_lectivo_id', $anoLectivoId);
-                        });
-                });
+            ->orWhere(function ($q2) use ($anoLectivoId) {
+                $q2->whereDoesntHave('turmas')
+                    ->whereHas('inscricao', function ($q3) use ($anoLectivoId) {
+                        $q3->where('ano_lectivo_id', $anoLectivoId);
+                    });
+            });
         });
     }
 
     public function scopeDoAnoLectivoActivo($query)
     {
         return $query->where(function ($q) {
-            // Opção 1: Alunos com turma de um ano lectivo activo
             $q->whereHas('turmas', function ($q2) {
                 $q2->whereHas('anoLectivo', fn($q3) => $q3->ativo());
             })
-                // Opção 2: Alunos sem turma, cuja inscrição é de um ano lectivo activo
-                ->orWhere(function ($q2) {
-                    $q2->whereDoesntHave('turmas')
-                        ->whereHas('inscricao.anoLectivo', fn($q3) => $q3->ativo());
-                });
+            ->orWhere(function ($q2) {
+                $q2->whereDoesntHave('turmas')
+                    ->whereHas('inscricao.anoLectivo', fn($q3) => $q3->ativo());
+            });
         });
     }
 
@@ -121,6 +118,40 @@ class Aluno extends Model
         return $turma ? AnoLectivo::find($turma->pivot->ano_lectivo_id) : null;
     }
 
+    // ============================================
+    // RELACIONAMENTO COM PROPINAS
+    // ============================================
+    public function propinas(): HasMany
+    {
+        return $this->hasMany(Propina::class);
+    }
+
+    // ============================================
+    // MÉTODOS DE VERIFICAÇÃO DE DÉBITOS
+    // ============================================
+
+    /**
+     * Verifica se o aluno tem débitos pendentes (propinas em atraso)
+     * 
+     * @return bool True se tiver débitos, False se estiver em dia
+     */
+    public function temDebitosPendentes(): bool
+    {
+        // Verifica se existe propina com estado 'atrasado'
+        return $this->propinas()
+            ->where('estado', 'atrasado')  // ← ATENÇÃO: usa 'estado', não 'status'
+            ->exists();
+    }
+
+    /**
+     * Verifica se o aluno está em dia com as propinas
+     * 
+     * @return bool True se estiver em dia, False se tiver débitos
+     */
+    public function estaEmDia(): bool
+    {
+        return !$this->temDebitosPendentes();
+    }
 
     public function grupoPap()
     {
@@ -133,5 +164,4 @@ class Aluno extends Model
             'grupo_pap_id'
         );
     }
-
 }

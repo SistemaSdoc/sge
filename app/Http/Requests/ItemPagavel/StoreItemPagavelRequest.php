@@ -30,7 +30,7 @@ class StoreItemPagavelRequest extends FormRequest
             'frequencia' => ['required', Rule::in(['mensal', 'anual', 'unico'])],
             'curso_classe_id' => [
                 'nullable', 'uuid',
-                Rule::exists('curso_classe', 'id')->where('instituicao_id', $this->user()->instituicao_id),
+                'exists:curso_classe,id'  // ← REMOVIDO O where('instituicao_id', ...)
             ],
             'ativo' => ['boolean'],
         ];
@@ -44,7 +44,7 @@ class StoreItemPagavelRequest extends FormRequest
             'valor.min' => 'O valor não pode ser negativo.',
             'frequencia.required' => 'Selecione a frequência de pagamento.',
             'frequencia.in' => 'Frequência inválida. Use mensal, anual ou único.',
-            'curso_classe_id.exists' => 'Curso/classe inválido para a sua instituição.',
+            'curso_classe_id.exists' => 'Curso/classe inválido.',
         ];
     }
 }

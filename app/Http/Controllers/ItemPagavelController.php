@@ -17,7 +17,7 @@ class ItemPagavelController extends Controller
 
         $itens = ItemPagavel::query()
             ->where('instituicao_id', $request->user()->instituicao_id)
-            ->with('cursoClasse:id,nome')
+           ->with('cursoClasse:id,classe_id,curso_tutelado_id,nivel_ensino_id')
             ->orderBy('nome')
             ->paginate(15)
             ->through(fn (ItemPagavel $item) => [

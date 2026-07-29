@@ -471,7 +471,8 @@ class RolePermissionSeeder extends Seeder
                 'notas.update',
 
                 // Avisos
-                'avisos.viewAny',
+            
+                //'avisos.viewAny',
                 'avisos.view',
                 'avisos.create',
                 'avisos.update',
@@ -497,24 +498,11 @@ class RolePermissionSeeder extends Seeder
             ],
 
             'Aluno' => [
-                // Avisos
-                'avisos.viewAny',
-                'avisos.view',
-
 
                 // Grupo PAP
-                'grupopap.viewAny',
-                'grupopap.view',
                 'notas.viewAny',
                 'grelha.viewAny',
 
-                // Banca de Júri PAP
-                'bancajuripap.viewAny',
-                'bancajuripap.view',
-
-                // Elemento Grupo PAP
-                'elementogrupopap.viewAny',
-                'elementogrupopap.view',
             ],
 
             'Candidato' => [],
