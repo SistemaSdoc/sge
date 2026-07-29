@@ -30,7 +30,10 @@ import { definirData } from '@/actions/App/Http/Controllers/GrupoPapController';
 import { actualizarNota } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
 import { FieldError } from '@/components/ui/field';
 import { usePagination } from '@/hooks/use-pagination';
-
+// Adicionar no topo dos imports
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+import { editar as editarTema } from '@/actions/App/Http/Controllers/GrupoPapAprovacaoController'; // ajustar o import real
 
 export default function Show({
   instituicao,
@@ -51,7 +54,8 @@ export default function Show({
   const hasAnyAction = Boolean(can?.update || can?.definirData);
 
   const params = {
-    instituicao: instituicao.id,
+    instituicao: instituicao.id, // ← para os controllers da instituição (ElementoGrupoPap, etc.)
+    colegio: instituicao.id, // ← para os controllers do colégio (BancaJuriPap, etc.)
     cursoTutelado: cursoTutelado.id,
     cursoClasse: cursoClasse.id,
     cursoClasseTurno: cursoClasseTurno.id,
@@ -187,15 +191,18 @@ export default function Show({
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">Local & Data de defesa</p>
+            <p className="text-sm text-muted-foreground">
+              Local & Data de defesa
+            </p>
             <p className="font-medium">
-              {grupoPap?.local_defesa}/{grupoPap?.data_defesa
+              {grupoPap?.local_defesa}/
+              {grupoPap?.data_defesa
                 ? new Date(grupoPap.data_defesa).toLocaleDateString('pt-PT', {
-                  weekday: 'short',
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                })
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                  })
                 : 'Por definir...'}
             </p>
           </div>
@@ -260,6 +267,47 @@ export default function Show({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Banner de ação — reprovado ou melhoria solicitada */}
+      {['reprovado', 'melhoria-solicitada'].includes(
+        grupoPap.status_aprovacao,
+      ) && (
+        <Alert
+          variant={
+            grupoPap.status_aprovacao === 'reprovado'
+              ? 'destructive'
+              : 'default'
+          }
+        >
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>
+            {grupoPap.status_aprovacao === 'reprovado'
+              ? 'Tema reprovado'
+              : 'Melhoria solicitada'}
+          </AlertTitle>
+          <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <span className="text-sm">
+              {grupoPap.comentario_aprovacao ?? 'Sem comentário adicional.'}
+            </span>
+            {can?.corrigirTema && (
+              <Button
+                size="sm"
+                variant={
+                  grupoPap.status_aprovacao === 'reprovado'
+                    ? 'destructive'
+                    : 'default'
+                }
+                onClick={() =>
+                  router.visit(editarTema.url({ grupoPap: grupoPap.id }))
+                }
+              >
+                {grupoPap.status_aprovacao === 'reprovado'
+                  ? 'Enviar Novo Tema'
+                  : 'Corrigir Tema'}
+              </Button>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Tabs defaultValue="integrantes-grupo" className="w-full">
         <TabsList>
@@ -271,13 +319,9 @@ export default function Show({
             Integrantes da banca
           </TabsTrigger>
 
-          <TabsTrigger value="aprovacao">
-            Aprovação
-          </TabsTrigger>
+          <TabsTrigger value="aprovacao">Aprovação</TabsTrigger>
 
-          <TabsTrigger value="historico">
-            Histórico
-          </TabsTrigger>
+          <TabsTrigger value="historico">Histórico</TabsTrigger>
         </TabsList>
 
         <TabsContent value="integrantes-grupo">
@@ -306,17 +350,16 @@ export default function Show({
         </TabsContent>
 
         <TabsContent value="aprovacao">
-          <TabAprovacao
-            params={params}
-            grupoPap={grupoPap}
-            can={can}
-          />
+          <TabAprovacao params={params} grupoPap={grupoPap} can={can} />
         </TabsContent>
 
         <TabsContent value="historico">
-          <TabHistorico params={params} grupoPap={grupoPap} historico={historico} />
+          <TabHistorico
+            params={params}
+            grupoPap={grupoPap}
+            historico={historico}
+          />
         </TabsContent>
-
       </Tabs>
     </div>
   );

@@ -143,6 +143,7 @@ class AprovacaoTemaService
                 'grupo_pap_id' => $grupoPap->id,
                 'utilizador_id' => $user->id,
                 'estado_anterior' => $estadoAnterior,
+                'tema' => $grupoPap->tema_grupo,
                 'estado_novo' => $novoEstado,
                 'comentario' => $comentario,
             ]);
@@ -159,7 +160,8 @@ class AprovacaoTemaService
      */
     public function reenviar(
         GrupoPap $grupoPap,
-        User $user
+        User $user,
+        array $dados
     ): bool {
 
         // Só pode reenviar se uma melhoria tiver sido solicitada
@@ -167,12 +169,14 @@ class AprovacaoTemaService
             return false;
         }
 
-        return DB::transaction(function () use ($grupoPap, $user) {
+        return DB::transaction(function () use ($grupoPap, $user, $dados) {
 
             $estadoAnterior = $grupoPap->status_aprovacao;
 
             // Voltar o tema para análise
             $grupoPap->update([
+                'nome_grupo' => $dados['nome_grupo'],
+                'tema_grupo' => $dados['tema_grupo'],
                 'status_aprovacao' => 'pendente',
                 'aprovado_por_id' => null,
                 'data_aprovacao' => null,
@@ -183,6 +187,7 @@ class AprovacaoTemaService
                 'grupo_pap_id' => $grupoPap->id,
                 'utilizador_id' => $user->id,
                 'estado_anterior' => $estadoAnterior,
+                'tema' => $grupoPap->tema_grupo,
                 'estado_novo' => 'pendente',
                 'comentario' => 'Tema corrigido e reenviado para nova análise.',
             ]);

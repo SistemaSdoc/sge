@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/table';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -24,7 +25,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { EmptyState } from '@/components/empty-state';
 import { show as showAluno } from '@/actions/App/Http/Controllers/AlunoController';
+import { create as adicionarElemento } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
 import TablePagination from '@/components/table-pagination';
 
 export function TabIntegrantes({
@@ -33,6 +36,7 @@ export function TabIntegrantes({
   notas,
   setNotas,
   actualizarNotaFn,
+  removerIntegranteFn,
   pagination,
   onPageChange,
   can,
@@ -40,8 +44,10 @@ export function TabIntegrantes({
   const [editando, setEditando] = useState({});
   const elementos = pagination?.data ?? [];
   const isEmpty = elementos.length === 0;
+  const canCreateIntegrante = Boolean(can?.elementos?.create);
   const canAtualizarNota = Boolean(can?.elementos?.atualizarNota);
-  const hasActionsColumn = canAtualizarNota;
+  const canRemoverIntegrante = Boolean(can?.elementos?.delete);
+  const hasActionsColumn = canAtualizarNota || canRemoverIntegrante;
 
   function handleSalvar(el) {
     actualizarNotaFn(
@@ -68,9 +74,29 @@ export function TabIntegrantes({
       <CardHeader className="border-b">
         <CardTitle>Integrantes do grupo</CardTitle>
         <CardDescription>Alunos membros e notas individuais</CardDescription>
+        {canCreateIntegrante && (
+          <CardAction>
+            <Button asChild>
+              <Link href={adicionarElemento.url(params)}>Adicionar</Link>
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent className="p-0!">
+        {isEmpty ? (
+          <EmptyState
+            variant="table"
+            icon={UsersIcon}
+            title="Nenhum integrante no grupo"
+            description="Comece adicionando os primeiros membros do grupo PAP"
+            action={canCreateIntegrante ? {
+              label: 'Adicionar Integrante',
+              href: adicionarElemento.url(params),
+              variant: 'outline',
+            } : undefined}
+          />
+        ) : (
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/72">
@@ -153,6 +179,14 @@ export function TabIntegrantes({
                             </DropdownMenuItem>
                           )}
 
+                          {canRemoverIntegrante && (
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() => removerIntegranteFn(el.id)}
+                            >
+                              Remover do grupo
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -161,6 +195,7 @@ export function TabIntegrantes({
               ))}
             </TableBody>
           </Table>
+        )}
       </CardContent>
       <TablePagination pagination={pagination?.meta} onPageChange={onPageChange} />
     </Card>

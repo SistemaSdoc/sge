@@ -1,160 +1,275 @@
 {
+<<<<<<< HEAD
   "_AccessManagementController-BzSjIxQY.js": {
     "file": "assets/AccessManagementController-BzSjIxQY.js",
+=======
+  "_AccessManagementController-CSd9xwfp.js": {
+    "file": "assets/AccessManagementController-CSd9xwfp.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "AccessManagementController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_AlunoController-BKlpdGGG.js": {
     "file": "assets/AlunoController-BKlpdGGG.js",
+=======
+  "_AlunoController-DaMLQRxg.js": {
+    "file": "assets/AlunoController-DaMLQRxg.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "AlunoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_AnoLectivoController-Kzi4VoDa.js": {
     "file": "assets/AnoLectivoController-Kzi4VoDa.js",
+=======
+  "_AnoLectivoController-Cmb2uL3a.js": {
+    "file": "assets/AnoLectivoController-Cmb2uL3a.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "AnoLectivoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_AvisoController-CDk4ZkQg.js": {
     "file": "assets/AvisoController-CDk4ZkQg.js",
+=======
+  "_AvisoController-D5GOoKd-.js": {
+    "file": "assets/AvisoController-D5GOoKd-.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "AvisoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_BancaJuriPapController-Co8z7bWB.js": {
     "file": "assets/BancaJuriPapController-Co8z7bWB.js",
+=======
+  "_BancaJuriPapController-CZuQOoWI.js": {
+    "file": "assets/BancaJuriPapController-CZuQOoWI.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "BancaJuriPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_BancaJuriPapController-_tqEy8c-.js": {
     "file": "assets/BancaJuriPapController-_tqEy8c-.js",
+=======
+  "_BancaJuriPapController-Cz5EyVL2.js": {
+    "file": "assets/BancaJuriPapController-Cz5EyVL2.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "BancaJuriPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CertificadoController-DEKlrVBu.js": {
     "file": "assets/CertificadoController-DEKlrVBu.js",
+=======
+  "_CertificadoController-qwi-0vh6.js": {
+    "file": "assets/CertificadoController-qwi-0vh6.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "CertificadoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ClasseController-Duxz_8bo.js": {
     "file": "assets/ClasseController-Duxz_8bo.js",
+=======
+  "_ClasseController-C1QsffBq.js": {
+    "file": "assets/ClasseController-C1QsffBq.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "ClasseController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ClasseTurnoDisciplinaController-Da_X4OHG.js": {
     "file": "assets/ClasseTurnoDisciplinaController-Da_X4OHG.js",
+=======
+  "_ClasseTurnoDisciplinaController-CwW1qJpt.js": {
+    "file": "assets/ClasseTurnoDisciplinaController-CwW1qJpt.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "ClasseTurnoDisciplinaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ClasseTurnoTurmaController-CHBsIv6b.js": {
     "file": "assets/ClasseTurnoTurmaController-CHBsIv6b.js",
+=======
+  "_ClasseTurnoTurmaController-BE9Xjm5u.js": {
+    "file": "assets/ClasseTurnoTurmaController-BE9Xjm5u.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "ClasseTurnoTurmaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursoClasseController-C8dEADEC.js": {
     "file": "assets/CursoClasseController-C8dEADEC.js",
+=======
+  "_CursoClasseController-DfvFIO0J.js": {
+    "file": "assets/CursoClasseController-DfvFIO0J.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "CursoClasseController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursoClasseTurnoController-d8MtPJ6R.js": {
     "file": "assets/CursoClasseTurnoController-d8MtPJ6R.js",
+=======
+  "_CursoClasseTurnoController-BJygDGgo.js": {
+    "file": "assets/CursoClasseTurnoController-BJygDGgo.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "CursoClasseTurnoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursoTuteladoController-DN2FzUCG.js": {
     "file": "assets/CursoTuteladoController-DN2FzUCG.js",
+=======
+  "_CursoTuteladoController-BNOlJrvZ.js": {
+    "file": "assets/CursoTuteladoController-BNOlJrvZ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "CursoTuteladoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursoTuteladoController-GJSOW6cE.js": {
     "file": "assets/CursoTuteladoController-GJSOW6cE.js",
+=======
+  "_CursoTuteladoController-DNPCssm8.js": {
+    "file": "assets/CursoTuteladoController-DNPCssm8.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "CursoTuteladoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursoTuteladoProfessorController-O5Ntwrlq.js": {
     "file": "assets/CursoTuteladoProfessorController-O5Ntwrlq.js",
+=======
+  "_CursoTuteladoProfessorController-4HvJCzXf.js": {
+    "file": "assets/CursoTuteladoProfessorController-4HvJCzXf.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "CursoTuteladoProfessorController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursosController-C3QhtKMp.js": {
     "file": "assets/CursosController-C3QhtKMp.js",
+=======
+  "_CursosController-Dmypg5uM.js": {
+    "file": "assets/CursosController-Dmypg5uM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "CursosController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ElementoGrupoPapController-CKeBmFra.js": {
     "file": "assets/ElementoGrupoPapController-CKeBmFra.js",
+=======
+  "_ElementoGrupoPapController-Dto969Mi.js": {
+    "file": "assets/ElementoGrupoPapController-Dto969Mi.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "ElementoGrupoPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ExportarMiniPautaController-CSOszjcI.js": {
     "file": "assets/ExportarMiniPautaController-CSOszjcI.js",
+=======
+  "_ExportarMiniPautaController-CxUIhlHK.js": {
+    "file": "assets/ExportarMiniPautaController-CxUIhlHK.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "ExportarMiniPautaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_GrupoPapController-BxhWK4gM.js": {
     "file": "assets/GrupoPapController-BxhWK4gM.js",
+=======
+  "_GrupoPapController-B1UDD2yq.js": {
+    "file": "assets/GrupoPapController-B1UDD2yq.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "GrupoPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_GrupoPapController-CyXtS45q.js": {
     "file": "assets/GrupoPapController-CyXtS45q.js",
+=======
+  "_GrupoPapController-Dv0ZcjOT.js": {
+    "file": "assets/GrupoPapController-Dv0ZcjOT.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "GrupoPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_InstituicaoController-D01CB_dq.js": {
     "file": "assets/InstituicaoController-D01CB_dq.js",
+=======
+  "_InstituicaoController-D6sFFya2.js": {
+    "file": "assets/InstituicaoController-D6sFFya2.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "InstituicaoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ItemPagavelController-Cxx7XWwE.js": {
     "file": "assets/ItemPagavelController-Cxx7XWwE.js",
+=======
+  "_ItemPagavelController-DqHbm02Y.js": {
+    "file": "assets/ItemPagavelController-DqHbm02Y.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "ItemPagavelController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ModalDecisaoAprovacao-D5t5j8yT.js": {
     "file": "assets/ModalDecisaoAprovacao-D5t5j8yT.js",
+=======
+  "_ModalDecisaoAprovacao-CpJ3wZeN.js": {
+    "file": "assets/ModalDecisaoAprovacao-CpJ3wZeN.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "ModalDecisaoAprovacao",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -162,53 +277,97 @@
       "_textarea-CEblRWsJ.js"
     ]
   },
+<<<<<<< HEAD
   "_NotaDisciplinaController-CLil6dOC.js": {
     "file": "assets/NotaDisciplinaController-CLil6dOC.js",
+=======
+  "_NotaDisciplinaController-BWguuIOs.js": {
+    "file": "assets/NotaDisciplinaController-BWguuIOs.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "NotaDisciplinaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_PagamentoController-6sgK69Dh.js": {
     "file": "assets/PagamentoController-6sgK69Dh.js",
+=======
+  "_PagamentoController-C0DUPmqz.js": {
+    "file": "assets/PagamentoController-C0DUPmqz.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "PagamentoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_PautaController-lgB4euYZ.js": {
     "file": "assets/PautaController-lgB4euYZ.js",
+=======
+  "_PautaController-CP8pGR2S.js": {
+    "file": "assets/PautaController-CP8pGR2S.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "PautaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ProfessorController-KU2pRm6T.js": {
     "file": "assets/ProfessorController-KU2pRm6T.js",
+=======
+  "_ProfessorController-C-DTCiwR.js": {
+    "file": "assets/ProfessorController-C-DTCiwR.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "ProfessorController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_RegraAvaliacaoController-B-8FN_tm.js": {
     "file": "assets/RegraAvaliacaoController-B-8FN_tm.js",
+=======
+  "_RegraAvaliacaoController-ClBrIP64.js": {
+    "file": "assets/RegraAvaliacaoController-ClBrIP64.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "RegraAvaliacaoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_TurmaDisciplinaProfessorController-B4byGbfr.js": {
     "file": "assets/TurmaDisciplinaProfessorController-B4byGbfr.js",
+=======
+  "_TurmaDisciplinaProfessorController-CoC-EFHU.js": {
+    "file": "assets/TurmaDisciplinaProfessorController-CoC-EFHU.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "TurmaDisciplinaProfessorController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_TurnoController-jD1fycqE.js": {
     "file": "assets/TurnoController-jD1fycqE.js",
+=======
+  "_TurnoController-9Ocl4M_I.js": {
+    "file": "assets/TurnoController-9Ocl4M_I.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "TurnoController",
     "imports": [
       "resources/js/app.tsx"
+    ]
+  },
+  "_alert-E7rLH5df.js": {
+    "file": "assets/alert-E7rLH5df.js",
+    "name": "alert",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_utils-BNhDZxi-.js",
+      "_dist-RDu3SUJ-.js"
     ]
   },
   "_arrow-left-EnYF531l.js": {
@@ -252,8 +411,13 @@
       "_utils-CxwIYYhK.js"
     ]
   },
+<<<<<<< HEAD
   "_body-Coe5xhSR.js": {
     "file": "assets/body-Coe5xhSR.js",
+=======
+  "_body-BpmlkncW.js": {
+    "file": "assets/body-BpmlkncW.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "body",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -262,8 +426,13 @@
       "_utils-CxwIYYhK.js"
     ]
   },
+<<<<<<< HEAD
   "_body-D5fLnRrp.js": {
     "file": "assets/body-D5fLnRrp.js",
+=======
+  "_body-DOZnaDw9.js": {
+    "file": "assets/body-DOZnaDw9.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "body",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -288,17 +457,27 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_card-actions-DdVJTwoG.js": {
     "file": "assets/card-actions-DdVJTwoG.js",
     "name": "card-actions",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_select-B2QgXOs5.js",
+=======
+  "_card-actions-CHVCqcpH.js": {
+    "file": "assets/card-actions-CHVCqcpH.js",
+    "name": "card-actions",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_select-3HQOolWF.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_utils-CxwIYYhK.js"
     ]
   },
+<<<<<<< HEAD
   "_cart-items-D9_5W__U.js": {
     "file": "assets/cart-items-D9_5W__U.js",
     "name": "cart-items",
@@ -314,6 +493,23 @@
   },
   "_cart-summary-Bk9MYhjC.js": {
     "file": "assets/cart-summary-Bk9MYhjC.js",
+=======
+  "_cart-items-g9blZtNn.js": {
+    "file": "assets/cart-items-g9blZtNn.js",
+    "name": "cart-items",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_checkbox-DPoSmE-I.js",
+      "_toggle-group-ABF5ZYO5.js",
+      "_utils-BNhDZxi-.js",
+      "_badge-DxvCgqB1.js",
+      "_item-CN2soBtu.js",
+      "_pagamentos-DtK05c6T.js"
+    ]
+  },
+  "_cart-summary-BS6-Rn9m.js": {
+    "file": "assets/cart-summary-BS6-Rn9m.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "cart-summary",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -322,7 +518,11 @@
       "_card-CLsug2Zw.js",
       "_empty-D6FHIzKb.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_spinner-CndK-j-c.js",
+=======
+      "_spinner-D9QOgiHq.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_pagamentos-DtK05c6T.js"
     ]
   },
@@ -333,8 +533,13 @@
       "_createLucideIcon-6hAcjkHs.js"
     ]
   },
+<<<<<<< HEAD
   "_checkbox-D7sd4I8U.js": {
     "file": "assets/checkbox-D7sd4I8U.js",
+=======
+  "_checkbox-DPoSmE-I.js": {
+    "file": "assets/checkbox-DPoSmE-I.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "checkbox",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -378,8 +583,13 @@
       "_createLucideIcon-6hAcjkHs.js"
     ]
   },
+<<<<<<< HEAD
   "_combobox-9GopEd60.js": {
     "file": "assets/combobox-9GopEd60.js",
+=======
+  "_combobox-DEdD5Vkw.js": {
+    "file": "assets/combobox-DEdD5Vkw.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "combobox",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -389,11 +599,19 @@
       "_floating-ui.react-dom-C18jycQX.js",
       "_utils-BNhDZxi-.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_input-group-IBE7BAMC.js"
     ]
   },
   "_confirm-WS4nPlGm.js": {
     "file": "assets/confirm-WS4nPlGm.js",
+=======
+      "_input-group-CFxtCuLw.js"
+    ]
+  },
+  "_confirm-DRDYJcSQ.js": {
+    "file": "assets/confirm-DRDYJcSQ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "confirm",
     "imports": [
       "resources/js/app.tsx"
@@ -526,6 +744,7 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_edit-professor-modal-Dy82OE7K.js": {
     "file": "assets/edit-professor-modal-Dy82OE7K.js",
     "name": "edit-professor-modal",
@@ -535,6 +754,17 @@
       "resources/js/app.tsx",
       "_field-BpQQFcFA.js",
       "_CursoTuteladoProfessorController-O5Ntwrlq.js"
+=======
+  "_edit-professor-modal-DeHH6-nG.js": {
+    "file": "assets/edit-professor-modal-DeHH6-nG.js",
+    "name": "edit-professor-modal",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_field-BkJOdJ0l.js",
+      "_CursoTuteladoProfessorController-4HvJCzXf.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "_ellipsis-Dus2UbHw.js": {
@@ -553,8 +783,13 @@
       "_dist-RDu3SUJ-.js"
     ]
   },
+<<<<<<< HEAD
   "_empty-state-DUKupqU0.js": {
     "file": "assets/empty-state-DUKupqU0.js",
+=======
+  "_empty-state-DkfjQuK0.js": {
+    "file": "assets/empty-state-DkfjQuK0.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "empty-state",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -572,8 +807,13 @@
       "_dist-Ctfm89E22.js"
     ]
   },
+<<<<<<< HEAD
   "_field-BpQQFcFA.js": {
     "file": "assets/field-BpQQFcFA.js",
+=======
+  "_field-BkJOdJ0l.js": {
+    "file": "assets/field-BkJOdJ0l.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "field",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -621,20 +861,42 @@
     "file": "assets/get-badge-color-Byh8ULIt.js",
     "name": "get-badge-color"
   },
+<<<<<<< HEAD
   "_google-DP7Qr8IT.js": {
     "file": "assets/google-DP7Qr8IT.js",
+=======
+  "_google-DHX_y-yP.js": {
+    "file": "assets/google-DHX_y-yP.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "google",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_google-button-DPZ7pvIr.js": {
     "file": "assets/google-button-DPZ7pvIr.js",
+=======
+  "_google-button-BDOPRojJ.js": {
+    "file": "assets/google-button-BDOPRojJ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "google-button",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_spinner-CndK-j-c.js"
+=======
+      "_spinner-D9QOgiHq.js"
+    ]
+  },
+  "_header-B5MFcVnt.js": {
+    "file": "assets/header-B5MFcVnt.js",
+    "name": "header",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "resources/js/app.tsx"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "_header-BIYuux0K.js": {
@@ -669,12 +931,21 @@
       "_table-DrQFDzr_.js"
     ]
   },
+<<<<<<< HEAD
   "_horarios-form-six4sVqC.js": {
     "file": "assets/horarios-form-six4sVqC.js",
     "name": "horarios-form",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_checkbox-D7sd4I8U.js",
+=======
+  "_horarios-form-3RBtnrdY.js": {
+    "file": "assets/horarios-form-3RBtnrdY.js",
+    "name": "horarios-form",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_checkbox-DPoSmE-I.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/app.tsx",
       "_table-DrQFDzr_.js"
     ]
@@ -687,8 +958,13 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_input-group-IBE7BAMC.js": {
     "file": "assets/input-group-IBE7BAMC.js",
+=======
+  "_input-group-CFxtCuLw.js": {
+    "file": "assets/input-group-CFxtCuLw.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "input-group",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -698,8 +974,13 @@
       "_textarea-CEblRWsJ.js"
     ]
   },
+<<<<<<< HEAD
   "_inscricoes-DdXL91VG.js": {
     "file": "assets/inscricoes-DdXL91VG.js",
+=======
+  "_inscricoes-Dd4gyL11.js": {
+    "file": "assets/inscricoes-Dd4gyL11.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "inscricoes",
     "imports": [
       "resources/js/app.tsx"
@@ -760,6 +1041,7 @@
       "_pt-jv_QGq0b.js"
     ]
   },
+<<<<<<< HEAD
   "_item-BOgPE_xL.js": {
     "file": "assets/item-BOgPE_xL.js",
     "name": "item",
@@ -807,6 +1089,43 @@
   },
   "_item-DuUJ19AO.js": {
     "file": "assets/item-DuUJ19AO.js",
+=======
+  "_item-B-G39jis.js": {
+    "file": "assets/item-B-G39jis.js",
+    "name": "item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_badge-DxvCgqB1.js",
+      "_item-CN2soBtu.js",
+      "_pt-jv_QGq0b.js",
+      "_format-B0iQlhay.js"
+    ]
+  },
+  "_item-B-G39jis2.js": {
+    "file": "assets/item-B-G39jis2.js",
+    "name": "item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_badge-DxvCgqB1.js",
+      "_item-CN2soBtu.js",
+      "_pt-jv_QGq0b.js",
+      "_format-B0iQlhay.js"
+    ]
+  },
+  "_item-BFjsfZYl.js": {
+    "file": "assets/item-BFjsfZYl.js",
+    "name": "item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_urgency-BOmF4fe2.js",
+      "resources/js/app.tsx",
+      "_badge-DxvCgqB1.js",
+      "_item-CN2soBtu.js"
+    ]
+  },
+  "_item-BQIVXb4d.js": {
+    "file": "assets/item-BQIVXb4d.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -815,12 +1134,18 @@
       "_card-CLsug2Zw.js"
     ]
   },
+<<<<<<< HEAD
   "_item-VUib-GPU.js": {
     "file": "assets/item-VUib-GPU.js",
+=======
+  "_item-BlKam5gg.js": {
+    "file": "assets/item-BlKam5gg.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_item-DqmRgpFV.js",
       "_get-badge-color-Byh8ULIt.js"
     ]
@@ -837,13 +1162,49 @@
   },
   "_item-tttEFoKo.js": {
     "file": "assets/item-tttEFoKo.js",
+=======
+      "_item-CN2soBtu.js",
+      "_get-badge-color-Byh8ULIt.js"
+    ]
+  },
+  "_item-CN2soBtu.js": {
+    "file": "assets/item-CN2soBtu.js",
+    "name": "item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_dist-BKI9--UU.js",
+      "_utils-BNhDZxi-.js",
+      "_dist-RDu3SUJ-.js",
+      "resources/js/app.tsx"
+    ]
+  },
+  "_item-DVCCzcuD.js": {
+    "file": "assets/item-DVCCzcuD.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_urgency-BOmF4fe2.js",
+<<<<<<< HEAD
       "resources/js/app.tsx",
       "_badge-DxvCgqB1.js",
       "_item-DqmRgpFV.js"
+=======
+      "_badge-DxvCgqB1.js",
+      "_item-CN2soBtu.js",
+      "_pt-jv_QGq0b.js",
+      "_format-B0iQlhay.js"
+    ]
+  },
+  "_item-WY9zVy_g.js": {
+    "file": "assets/item-WY9zVy_g.js",
+    "name": "item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_badge-DxvCgqB1.js",
+      "_item-CN2soBtu.js",
+      "_get-badge-color-Byh8ULIt.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "_jsx-runtime-DIBGU2nq.js": {
@@ -859,14 +1220,23 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_lancamentos-recurso-table-AsdfqAOm.js": {
     "file": "assets/lancamentos-recurso-table-AsdfqAOm.js",
+=======
+  "_lancamentos-recurso-table-C-SN5rbD.js": {
+    "file": "assets/lancamentos-recurso-table-C-SN5rbD.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "lancamentos-recurso-table",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js"
     ]
@@ -892,6 +1262,7 @@
       "_createLucideIcon-6hAcjkHs.js"
     ]
   },
+<<<<<<< HEAD
   "_module-card-Dx_CeJqI.js": {
     "file": "assets/module-card-Dx_CeJqI.js",
     "name": "module-card",
@@ -901,6 +1272,10 @@
   },
   "_multiple-select-CUDfKOyO.js": {
     "file": "assets/multiple-select-CUDfKOyO.js",
+=======
+  "_multiple-select-CvO6KM3Z.js": {
+    "file": "assets/multiple-select-CvO6KM3Z.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "multiple-select",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -910,15 +1285,24 @@
       "_dist-C6xzvqf8.js",
       "_utils-BNhDZxi-.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_input-group-IBE7BAMC.js"
+=======
+      "_input-group-CFxtCuLw.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "_pagamentos-DtK05c6T.js": {
     "file": "assets/pagamentos-DtK05c6T.js",
     "name": "pagamentos"
   },
+<<<<<<< HEAD
   "_pagination-B_LkUNsV.js": {
     "file": "assets/pagination-B_LkUNsV.js",
+=======
+  "_pagination-jjFMOjzM.js": {
+    "file": "assets/pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "pagination",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -927,13 +1311,19 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_passkey-verify-D35k36uW.js": {
     "file": "assets/passkey-verify-D35k36uW.js",
+=======
+  "_passkey-verify-Cqp3U0NH.js": {
+    "file": "assets/passkey-verify-Cqp3U0NH.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "passkey-verify",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_react-CYuos3AN.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_spinner-CndK-j-c.js",
       "_input-error-Cqkovvfq.js"
     ]
@@ -948,6 +1338,14 @@
   },
   "_password-input-DIqZ-0tc.js": {
     "file": "assets/password-input-DIqZ-0tc.js",
+=======
+      "_spinner-D9QOgiHq.js",
+      "_input-error-Cqkovvfq.js"
+    ]
+  },
+  "_password-input-DRxmjL6y.js": {
+    "file": "assets/password-input-DRxmjL6y.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "password-input",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -956,6 +1354,7 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_pauta-row-cGj7_S3x.js": {
     "file": "assets/pauta-row-cGj7_S3x.js",
     "name": "pauta-row",
@@ -965,11 +1364,27 @@
   },
   "_permission-section-BwyBMXDH.js": {
     "file": "assets/permission-section-BwyBMXDH.js",
+=======
+  "_password-tXFMgSJl.js": {
+    "file": "assets/password-tXFMgSJl.js",
+    "name": "password",
+    "imports": [
+      "resources/js/app.tsx",
+      "_confirm-DRDYJcSQ.js"
+    ]
+  },
+  "_permission-section-UFp8j3Z6.js": {
+    "file": "assets/permission-section-UFp8j3Z6.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "permission-section",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_lock-Dvqfcyqv.js",
+<<<<<<< HEAD
       "_multiple-select-CUDfKOyO.js"
+=======
+      "_multiple-select-CvO6KM3Z.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "_pt-jv_QGq0b.js": {
@@ -999,6 +1414,7 @@
       "_badge-DxvCgqB1.js"
     ]
   },
+<<<<<<< HEAD
   "_role-section-CN_Z38D3.js": {
     "file": "assets/role-section-CN_Z38D3.js",
     "name": "role-section",
@@ -1010,6 +1426,19 @@
   },
   "_select-B2QgXOs5.js": {
     "file": "assets/select-B2QgXOs5.js",
+=======
+  "_role-section-CkJeq_Bl.js": {
+    "file": "assets/role-section-CkJeq_Bl.js",
+    "name": "role-section",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_switch-BQ8n1ghu.js",
+      "_badge-DxvCgqB1.js"
+    ]
+  },
+  "_select-3HQOolWF.js": {
+    "file": "assets/select-3HQOolWF.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "select",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1033,8 +1462,13 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_spinner-CndK-j-c.js": {
     "file": "assets/spinner-CndK-j-c.js",
+=======
+  "_spinner-D9QOgiHq.js": {
+    "file": "assets/spinner-D9QOgiHq.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "spinner",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1042,6 +1476,7 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_state-empty-9rgkY3ct.js": {
     "file": "assets/state-empty-9rgkY3ct.js",
     "name": "state-empty",
@@ -1124,6 +1559,90 @@
   },
   "_switch-Bau8BSDe.js": {
     "file": "assets/switch-Bau8BSDe.js",
+=======
+  "_state-empty-Ck7NOaVc.js": {
+    "file": "assets/state-empty-Ck7NOaVc.js",
+    "name": "state-empty",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-CEhbKMqR.js"
+    ]
+  },
+  "_state-empty-Xv_bXdnZ.js": {
+    "file": "assets/state-empty-Xv_bXdnZ.js",
+    "name": "state-empty",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-C1--iECR.js"
+    ]
+  },
+  "_state-happening-CK1Z-Mna.js": {
+    "file": "assets/state-happening-CK1Z-Mna.js",
+    "name": "state-happening",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-C1--iECR.js"
+    ]
+  },
+  "_state-happening-CZLAYAQ3.js": {
+    "file": "assets/state-happening-CZLAYAQ3.js",
+    "name": "state-happening",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-CEhbKMqR.js"
+    ]
+  },
+  "_state-loading-BuguO6ep.js": {
+    "file": "assets/state-loading-BuguO6ep.js",
+    "name": "state-loading",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-CEhbKMqR.js"
+    ]
+  },
+  "_state-loading-C1uBU6TT.js": {
+    "file": "assets/state-loading-C1uBU6TT.js",
+    "name": "state-loading",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-C1--iECR.js"
+    ]
+  },
+  "_state-today-DoyTLLQZ.js": {
+    "file": "assets/state-today-DoyTLLQZ.js",
+    "name": "state-today",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-C1--iECR.js"
+    ]
+  },
+  "_state-today-Dq9SodJu.js": {
+    "file": "assets/state-today-Dq9SodJu.js",
+    "name": "state-today",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-CEhbKMqR.js"
+    ]
+  },
+  "_summary-item-C1--iECR.js": {
+    "file": "assets/summary-item-C1--iECR.js",
+    "name": "summary-item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_item-CN2soBtu.js"
+    ]
+  },
+  "_summary-item-CEhbKMqR.js": {
+    "file": "assets/summary-item-CEhbKMqR.js",
+    "name": "summary-item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_item-CN2soBtu.js"
+    ]
+  },
+  "_switch-BQ8n1ghu.js": {
+    "file": "assets/switch-BQ8n1ghu.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "switch",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1137,21 +1656,37 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_tab-content-cursos--f8chxyR.js": {
     "file": "assets/tab-content-cursos--f8chxyR.js",
+=======
+  "_tab-content-cursos-DSzHtR9j.js": {
+    "file": "assets/tab-content-cursos-DSzHtR9j.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-content-cursos",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_book-VbVsmrsO.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
+=======
+      "_pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
       "_CursoTuteladoController-GJSOW6cE.js"
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_CursoTuteladoController-BNOlJrvZ.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "_table-DrQFDzr_.js": {
@@ -1162,6 +1697,7 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_table-pagination-UxoslpTe.js": {
     "file": "assets/table-pagination-UxoslpTe.js",
     "name": "table-pagination",
@@ -1173,6 +1709,19 @@
   },
   "_tabs-DrFlTFRB.js": {
     "file": "assets/tabs-DrFlTFRB.js",
+=======
+  "_table-pagination-DvcyNYK6.js": {
+    "file": "assets/table-pagination-DvcyNYK6.js",
+    "name": "table-pagination",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_pagination-jjFMOjzM.js",
+      "_card-CLsug2Zw.js"
+    ]
+  },
+  "_tabs-BurzMYTZ.js": {
+    "file": "assets/tabs-BurzMYTZ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tabs",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1188,6 +1737,7 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_tenant-card-BP6VixLu.js": {
     "file": "assets/tenant-card-BP6VixLu.js",
     "name": "tenant-card",
@@ -1197,6 +1747,10 @@
   },
   "_text-link-CUcGQpNJ.js": {
     "file": "assets/text-link-CUcGQpNJ.js",
+=======
+  "_text-link-wAD-ngp7.js": {
+    "file": "assets/text-link-wAD-ngp7.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "text-link",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1212,8 +1766,13 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_toggle-group-Btvbuw6a.js": {
     "file": "assets/toggle-group-Btvbuw6a.js",
+=======
+  "_toggle-group-ABF5ZYO5.js": {
+    "file": "assets/toggle-group-ABF5ZYO5.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "toggle-group",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1227,12 +1786,21 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_trimestre-selector-baptcWLp.js": {
     "file": "assets/trimestre-selector-baptcWLp.js",
     "name": "trimestre-selector",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_select-B2QgXOs5.js"
+=======
+  "_trimestre-selector-Wpkohln1.js": {
+    "file": "assets/trimestre-selector-Wpkohln1.js",
+    "name": "trimestre-selector",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_select-3HQOolWF.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "_urgency-BOmF4fe2.js": {
@@ -1243,23 +1811,38 @@
       "_circle-alert-CmOZxo2j.js"
     ]
   },
+<<<<<<< HEAD
   "_use-dialog-BonXW3Z0.js": {
     "file": "assets/use-dialog-BonXW3Z0.js",
+=======
+  "_use-dialog-1MKDfBuz.js": {
+    "file": "assets/use-dialog-1MKDfBuz.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "use-dialog",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_use-pagination-CuTOzi8i.js": {
     "file": "assets/use-pagination-CuTOzi8i.js",
+=======
+  "_use-pagination-B0adk8OL.js": {
+    "file": "assets/use-pagination-B0adk8OL.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "use-pagination",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_use-two-factor-auth-C7mDvPSj.js": {
     "file": "assets/use-two-factor-auth-C7mDvPSj.js",
+=======
+  "_use-two-factor-auth-hvKGbyzK.js": {
+    "file": "assets/use-two-factor-auth-hvKGbyzK.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "use-two-factor-auth",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1286,8 +1869,13 @@
     "file": "assets/verificar-situacao-PVqJtjOE.js",
     "name": "verificar-situacao"
   },
+<<<<<<< HEAD
   "_verification-B5Pxdwek.js": {
     "file": "assets/verification-B5Pxdwek.js",
+=======
+  "_verification-DzkA4QZ9.js": {
+    "file": "assets/verification-DzkA4QZ9.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "verification",
     "imports": [
       "resources/js/app.tsx"
@@ -1330,7 +1918,11 @@
     "src": "node_modules/@fontsource-variable/roboto/files/roboto-vietnamese-wght-normal.woff2"
   },
   "resources/css/app.css": {
+<<<<<<< HEAD
     "file": "assets/app-CXMKXxng.css",
+=======
+    "file": "assets/app-KdpwQsFt.css",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "app",
     "names": [
       "app.css"
@@ -1350,7 +1942,11 @@
     ]
   },
   "resources/js/app.tsx": {
+<<<<<<< HEAD
     "file": "assets/app-BlNTH1Cr.js",
+=======
+    "file": "assets/app-DdGn131X.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -1380,7 +1976,11 @@
       "resources/js/pages/aluno/grelha-curricular/index.jsx",
       "resources/js/pages/aluno/minhas-notas/components/notas-resumo.jsx",
       "resources/js/pages/aluno/minhas-notas/components/notas-table.jsx",
+<<<<<<< HEAD
       "_trimestre-selector-baptcWLp.js",
+=======
+      "_trimestre-selector-Wpkohln1.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/aluno/minhas-notas/index.jsx",
       "resources/js/pages/alunos/components/aluno-form.jsx",
       "resources/js/pages/alunos/components/aluno-table.jsx",
@@ -1454,7 +2054,11 @@
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/aprovacoes/editarMelhoria.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/aprovacoes/melhoria.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/aprovacoes/pendentes.jsx",
+<<<<<<< HEAD
       "_horarios-form-six4sVqC.js",
+=======
+      "_horarios-form-3RBtnrdY.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
@@ -1463,7 +2067,11 @@
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/create.jsx",
+<<<<<<< HEAD
       "_lancamentos-recurso-table-AsdfqAOm.js",
+=======
+      "_lancamentos-recurso-table-C-SN5rbD.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create.jsx",
@@ -1494,7 +2102,11 @@
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/show.jsx",
       "resources/js/pages/cursos-tutelados/components/forms/create.form.jsx",
       "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx",
+<<<<<<< HEAD
       "_edit-professor-modal-Dy82OE7K.js",
+=======
+      "_edit-professor-modal-DeHH6-nG.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx",
       "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx",
       "resources/js/pages/cursos-tutelados/create.jsx",
@@ -1505,6 +2117,7 @@
       "resources/js/pages/cursos-tutelados/show.jsx",
       "resources/js/pages/dashboard.jsx",
       "resources/js/pages/dashboards/aluno/components/avisos-eventos/index.jsx",
+<<<<<<< HEAD
       "_item-BOgPE_xL.js",
       "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx",
       "_state-empty-CM-9Bfre.js",
@@ -1541,6 +2154,44 @@
       "resources/js/pages/gestao-acessos/components/drawer/index.jsx",
       "_permission-section-BwyBMXDH.js",
       "_role-section-CN_Z38D3.js",
+=======
+      "_item-B-G39jis.js",
+      "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx",
+      "_state-empty-Xv_bXdnZ.js",
+      "_state-happening-CK1Z-Mna.js",
+      "_state-loading-C1uBU6TT.js",
+      "_state-today-DoyTLLQZ.js",
+      "_summary-item-C1--iECR.js",
+      "resources/js/pages/dashboards/aluno/components/greeting-header.jsx",
+      "resources/js/pages/dashboards/aluno/components/proximas-aulas/index.jsx",
+      "_item-WY9zVy_g.js",
+      "resources/js/pages/dashboards/aluno/index.jsx",
+      "resources/js/pages/dashboards/director/components/dashboard-summary/index.jsx",
+      "resources/js/pages/dashboards/director/components/feed-accoes/index.jsx",
+      "_item-BFjsfZYl.js",
+      "resources/js/pages/dashboards/director/components/greeting-header.jsx",
+      "resources/js/pages/dashboards/director/components/metricas/index.jsx",
+      "_item-BQIVXb4d.js",
+      "resources/js/pages/dashboards/director/components/proximos-eventos/index.jsx",
+      "_item-DVCCzcuD.js",
+      "resources/js/pages/dashboards/director/index.jsx",
+      "resources/js/pages/dashboards/professor/components/avisos-eventos/index.jsx",
+      "_item-B-G39jis2.js",
+      "resources/js/pages/dashboards/professor/components/dashboard-summary/index.jsx",
+      "_state-empty-Ck7NOaVc.js",
+      "_state-happening-CZLAYAQ3.js",
+      "_state-loading-BuguO6ep.js",
+      "_state-today-Dq9SodJu.js",
+      "_summary-item-CEhbKMqR.js",
+      "resources/js/pages/dashboards/professor/components/greeting-header.jsx",
+      "resources/js/pages/dashboards/professor/components/proximas-aulas/index.jsx",
+      "_item-BlKam5gg.js",
+      "resources/js/pages/dashboards/professor/index.jsx",
+      "_header-B5MFcVnt.js",
+      "resources/js/pages/gestao-acessos/components/drawer/index.jsx",
+      "_permission-section-UFp8j3Z6.js",
+      "_role-section-CkJeq_Bl.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/gestao-acessos/components/editar-acesso-drawer.jsx",
       "resources/js/pages/gestao-acessos/components/usuarios-table.jsx",
       "resources/js/pages/gestao-acessos/index.jsx",
@@ -1555,7 +2206,11 @@
       "resources/js/pages/instituicoes/components/show/instituicao-cursos.jsx",
       "resources/js/pages/instituicoes/components/skeletons/index.skeleton.jsx",
       "resources/js/pages/instituicoes/components/skeletons/show.skeleton.jsx",
+<<<<<<< HEAD
       "_tab-content-cursos--f8chxyR.js",
+=======
+      "_tab-content-cursos-DSzHtR9j.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/instituicoes/create.jsx",
       "resources/js/pages/instituicoes/edit.jsx",
       "resources/js/pages/instituicoes/index.jsx",
@@ -1566,8 +2221,13 @@
       "resources/js/pages/itens-pagaveis/edit.jsx",
       "resources/js/pages/itens-pagaveis/index.jsx",
       "resources/js/pages/itens-pagaveis/show.jsx",
+<<<<<<< HEAD
       "_cart-items-D9_5W__U.js",
       "_cart-summary-Bk9MYhjC.js",
+=======
+      "_cart-items-g9blZtNn.js",
+      "_cart-summary-BS6-Rn9m.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/pagamentos/components/pagamentos-form.jsx",
       "resources/js/pages/pagamentos/components/pagamentos-table.jsx",
       "resources/js/pages/pagamentos/create.jsx",
@@ -1579,6 +2239,7 @@
       "resources/js/pages/pap/PendentesAprovacao.jsx",
       "resources/js/pages/pap/TemasMelhoria.jsx",
       "resources/js/pages/pap/components/InfoGrupoBox.jsx",
+<<<<<<< HEAD
       "_ModalDecisaoAprovacao-D5t5j8yT.js",
       "resources/js/pages/pap/components/RecomendacaoBox.jsx",
       "resources/js/pages/pap/components/grupo-pap-cards.jsx",
@@ -1592,6 +2253,21 @@
       "_body-B6_lB0i_.js",
       "_header-J9KAxMh0.js",
       "_body-Coe5xhSR.js",
+=======
+      "_ModalDecisaoAprovacao-CpJ3wZeN.js",
+      "resources/js/pages/pap/components/RecomendacaoBox.jsx",
+      "resources/js/pages/pap/components/grupo-pap-cards.jsx",
+      "resources/js/pages/pap/index.jsx",
+      "_card-actions-CHVCqcpH.js",
+      "resources/js/pages/pautas/components/pauta-table/index.jsx",
+      "_resultado-badge-CxfsIBU-.js",
+      "resources/js/pages/pautas/components/pauta-table/resumo-final.jsx",
+      "_body-DOZnaDw9.js",
+      "_header-BIYuux0K.js",
+      "_body-B6_lB0i_.js",
+      "_header-J9KAxMh0.js",
+      "_body-BpmlkncW.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_header-Ca_qGSOP.js",
       "resources/js/pages/pautas/components/resumo-cards/index.jsx",
       "resources/js/pages/pautas/components/resumo-cards/item.jsx",
@@ -1641,7 +2317,11 @@
     ]
   },
   "resources/js/pages/aluno/grelha-curricular/components/grelha-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/grelha-table-BKeH9QQo.js",
+=======
+    "file": "assets/grelha-table-CLZdCi7R.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "grelha-table",
     "src": "resources/js/pages/aluno/grelha-curricular/components/grelha-table.jsx",
     "isDynamicEntry": true,
@@ -1649,12 +2329,20 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/aluno/grelha-curricular/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/grelha-curricular-BqF90QbW.js",
+=======
+    "file": "assets/grelha-curricular-CF-NlnLF.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "grelha-curricular",
     "src": "resources/js/pages/aluno/grelha-curricular/index.jsx",
     "isDynamicEntry": true,
@@ -1673,7 +2361,11 @@
     ]
   },
   "resources/js/pages/aluno/minhas-notas/components/notas-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/notas-table-BYzfDc_1.js",
+=======
+    "file": "assets/notas-table-CypLaSYF.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "notas-table",
     "src": "resources/js/pages/aluno/minhas-notas/components/notas-table.jsx",
     "isDynamicEntry": true,
@@ -1681,6 +2373,7 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
@@ -1689,6 +2382,16 @@
   },
   "resources/js/pages/aluno/minhas-notas/index.jsx": {
     "file": "assets/minhas-notas-BTx3XXf2.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_trimestre-selector-Wpkohln1.js"
+    ]
+  },
+  "resources/js/pages/aluno/minhas-notas/index.jsx": {
+    "file": "assets/minhas-notas-DAXFFD-m.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "minhas-notas",
     "src": "resources/js/pages/aluno/minhas-notas/index.jsx",
     "isDynamicEntry": true,
@@ -1699,12 +2402,17 @@
     ]
   },
   "resources/js/pages/alunos/components/aluno-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/aluno-form-DSbRtpE1.js",
+=======
+    "file": "assets/aluno-form-3sYlt0BR.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "aluno-form",
     "src": "resources/js/pages/alunos/components/aluno-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -1713,21 +2421,43 @@
   },
   "resources/js/pages/alunos/components/aluno-table.jsx": {
     "file": "assets/aluno-table-Dn2gKM1J.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js"
+    ]
+  },
+  "resources/js/pages/alunos/components/aluno-table.jsx": {
+    "file": "assets/aluno-table-CfK20z4W.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "aluno-table",
     "src": "resources/js/pages/alunos/components/aluno-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
+=======
+      "_pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_ellipsis-Dus2UbHw.js",
       "_filter-oRknpvMA.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_field-BpQQFcFA.js",
       "_table-pagination-UxoslpTe.js",
       "_AlunoController-BKlpdGGG.js"
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_field-BkJOdJ0l.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_AlunoController-DaMLQRxg.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "resources/js/pages/alunos/components/show/aluno-detalhes.jsx": {
@@ -1742,7 +2472,11 @@
     ]
   },
   "resources/js/pages/alunos/components/show/aluno-header.jsx": {
+<<<<<<< HEAD
     "file": "assets/aluno-header-DFSIH_kw.js",
+=======
+    "file": "assets/aluno-header-BNXEb3_K.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "aluno-header",
     "src": "resources/js/pages/alunos/components/show/aluno-header.jsx",
     "isDynamicEntry": true,
@@ -1766,7 +2500,11 @@
     ]
   },
   "resources/js/pages/alunos/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-C9tNdq2Q.js",
+=======
+    "file": "assets/edit-DVB9XPBS.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/alunos/edit.jsx",
     "isDynamicEntry": true,
@@ -1774,23 +2512,39 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/alunos/components/aluno-form.jsx",
+<<<<<<< HEAD
       "_AlunoController-BKlpdGGG.js"
     ]
   },
   "resources/js/pages/alunos/index.jsx": {
     "file": "assets/alunos-HR97QFEm.js",
+=======
+      "_AlunoController-DaMLQRxg.js"
+    ]
+  },
+  "resources/js/pages/alunos/index.jsx": {
+    "file": "assets/alunos-0kvn9xBc.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "alunos",
     "src": "resources/js/pages/alunos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AlunoController-BKlpdGGG.js",
+=======
+      "_AlunoController-DaMLQRxg.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/alunos/components/aluno-table.jsx"
     ]
   },
   "resources/js/pages/alunos/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-DoAwTw62.js",
+=======
+    "file": "assets/show-BHG3F3GK.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/alunos/show.jsx",
     "isDynamicEntry": true,
@@ -1803,7 +2557,11 @@
     ]
   },
   "resources/js/pages/anos-lectivos/components/ano-lectivo-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/ano-lectivo-form-BcW5LRoP.js",
+=======
+    "file": "assets/ano-lectivo-form-snmb5PN7.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "ano-lectivo-form",
     "src": "resources/js/pages/anos-lectivos/components/ano-lectivo-form.jsx",
     "isDynamicEntry": true,
@@ -1811,11 +2569,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-BpQQFcFA.js"
     ]
   },
   "resources/js/pages/anos-lectivos/components/ano-lectivo-table.jsx": {
     "file": "assets/ano-lectivo-table-BgySC3MF.js",
+=======
+      "_field-BkJOdJ0l.js"
+    ]
+  },
+  "resources/js/pages/anos-lectivos/components/ano-lectivo-table.jsx": {
+    "file": "assets/ano-lectivo-table-9cwCSenq.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "ano-lectivo-table",
     "src": "resources/js/pages/anos-lectivos/components/ano-lectivo-table.jsx",
     "isDynamicEntry": true,
@@ -1825,6 +2591,7 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -1833,6 +2600,16 @@
   },
   "resources/js/pages/anos-lectivos/create.jsx": {
     "file": "assets/create-DwFze2I7.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_AnoLectivoController-Cmb2uL3a.js"
+    ]
+  },
+  "resources/js/pages/anos-lectivos/create.jsx": {
+    "file": "assets/create-cw-GMDwm.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/anos-lectivos/create.jsx",
     "isDynamicEntry": true,
@@ -1840,11 +2617,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/anos-lectivos/components/ano-lectivo-form.jsx",
+<<<<<<< HEAD
       "_AnoLectivoController-Kzi4VoDa.js"
     ]
   },
   "resources/js/pages/anos-lectivos/index.jsx": {
     "file": "assets/anos-lectivos-BLzW_vUH.js",
+=======
+      "_AnoLectivoController-Cmb2uL3a.js"
+    ]
+  },
+  "resources/js/pages/anos-lectivos/index.jsx": {
+    "file": "assets/anos-lectivos-Dp1E_b59.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "anos-lectivos",
     "src": "resources/js/pages/anos-lectivos/index.jsx",
     "isDynamicEntry": true,
@@ -1852,17 +2637,27 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/anos-lectivos/components/ano-lectivo-table.jsx",
+<<<<<<< HEAD
       "_use-dialog-BonXW3Z0.js",
       "_AvisoController-CDk4ZkQg.js"
     ]
   },
   "resources/js/pages/auth/confirm-password.jsx": {
     "file": "assets/confirm-password-BI4Efvmx.js",
+=======
+      "_use-dialog-1MKDfBuz.js",
+      "_AvisoController-D5GOoKd-.js"
+    ]
+  },
+  "resources/js/pages/auth/confirm-password.jsx": {
+    "file": "assets/confirm-password-BPX-hPOe.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "confirm-password",
     "src": "resources/js/pages/auth/confirm-password.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_password-input-DIqZ-0tc.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
@@ -1875,6 +2670,20 @@
   },
   "resources/js/pages/auth/forgot-password.jsx": {
     "file": "assets/forgot-password-Coe5FdwO.js",
+=======
+      "_password-input-DRxmjL6y.js",
+      "_label-Bsu1BWfE.js",
+      "resources/js/app.tsx",
+      "_spinner-D9QOgiHq.js",
+      "_google-button-BDOPRojJ.js",
+      "_input-error-Cqkovvfq.js",
+      "_passkey-verify-Cqp3U0NH.js",
+      "_confirm-DRDYJcSQ.js"
+    ]
+  },
+  "resources/js/pages/auth/forgot-password.jsx": {
+    "file": "assets/forgot-password-lta_78A2.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "forgot-password",
     "src": "resources/js/pages/auth/forgot-password.jsx",
     "isDynamicEntry": true,
@@ -1883,17 +2692,27 @@
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
       "_input-error-Cqkovvfq.js",
+<<<<<<< HEAD
       "_text-link-CUcGQpNJ.js",
       "_password-DiJ6Hpbq.js"
     ]
   },
   "resources/js/pages/auth/login.jsx": {
     "file": "assets/login-DFBRM46S.js",
+=======
+      "_text-link-wAD-ngp7.js",
+      "_password-tXFMgSJl.js"
+    ]
+  },
+  "resources/js/pages/auth/login.jsx": {
+    "file": "assets/login-DiL3FYH6.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "login",
     "src": "resources/js/pages/auth/login.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_password-input-DIqZ-0tc.js",
       "_checkbox-D7sd4I8U.js",
       "_label-Bsu1BWfE.js",
@@ -1909,11 +2728,29 @@
   },
   "resources/js/pages/auth/register.jsx": {
     "file": "assets/register-CZhdO7Ge.js",
+=======
+      "_password-input-DRxmjL6y.js",
+      "_checkbox-DPoSmE-I.js",
+      "_label-Bsu1BWfE.js",
+      "resources/js/app.tsx",
+      "_spinner-D9QOgiHq.js",
+      "_google-button-BDOPRojJ.js",
+      "_input-error-Cqkovvfq.js",
+      "_passkey-verify-Cqp3U0NH.js",
+      "_text-link-wAD-ngp7.js",
+      "_password-tXFMgSJl.js",
+      "_google-DHX_y-yP.js"
+    ]
+  },
+  "resources/js/pages/auth/register.jsx": {
+    "file": "assets/register-GfbqqD3X.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "register",
     "src": "resources/js/pages/auth/register.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_password-input-DIqZ-0tc.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
@@ -1926,11 +2763,26 @@
   },
   "resources/js/pages/auth/reset-password.jsx": {
     "file": "assets/reset-password-DvHtrXFO.js",
+=======
+      "_password-input-DRxmjL6y.js",
+      "_label-Bsu1BWfE.js",
+      "resources/js/app.tsx",
+      "_spinner-D9QOgiHq.js",
+      "_google-button-BDOPRojJ.js",
+      "_input-error-Cqkovvfq.js",
+      "_text-link-wAD-ngp7.js",
+      "_google-DHX_y-yP.js"
+    ]
+  },
+  "resources/js/pages/auth/reset-password.jsx": {
+    "file": "assets/reset-password-ouyXtQ3v.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "reset-password",
     "src": "resources/js/pages/auth/reset-password.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_password-input-DIqZ-0tc.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
@@ -1941,6 +2793,18 @@
   },
   "resources/js/pages/auth/two-factor-challenge.jsx": {
     "file": "assets/two-factor-challenge-C8DNLGBb.js",
+=======
+      "_password-input-DRxmjL6y.js",
+      "_label-Bsu1BWfE.js",
+      "resources/js/app.tsx",
+      "_spinner-D9QOgiHq.js",
+      "_input-error-Cqkovvfq.js",
+      "_password-tXFMgSJl.js"
+    ]
+  },
+  "resources/js/pages/auth/two-factor-challenge.jsx": {
+    "file": "assets/two-factor-challenge-BsA_OSjU.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "two-factor-challenge",
     "src": "resources/js/pages/auth/two-factor-challenge.jsx",
     "isDynamicEntry": true,
@@ -1948,17 +2812,26 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_input-error-Cqkovvfq.js",
+<<<<<<< HEAD
       "_use-two-factor-auth-C7mDvPSj.js"
     ]
   },
   "resources/js/pages/auth/verify-email.jsx": {
     "file": "assets/verify-email-CK_sM_9X.js",
+=======
+      "_use-two-factor-auth-hvKGbyzK.js"
+    ]
+  },
+  "resources/js/pages/auth/verify-email.jsx": {
+    "file": "assets/verify-email-BzMdqCww.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "verify-email",
     "src": "resources/js/pages/auth/verify-email.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_spinner-CndK-j-c.js",
       "_text-link-CUcGQpNJ.js",
       "_verification-B5Pxdwek.js"
@@ -1966,31 +2839,57 @@
   },
   "resources/js/pages/avisos/components/aviso-form.jsx": {
     "file": "assets/aviso-form-D8PgenBK.js",
+=======
+      "_spinner-D9QOgiHq.js",
+      "_text-link-wAD-ngp7.js",
+      "_verification-DzkA4QZ9.js"
+    ]
+  },
+  "resources/js/pages/avisos/components/aviso-form.jsx": {
+    "file": "assets/aviso-form-CJfU5qIT.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "aviso-form",
     "src": "resources/js/pages/avisos/components/aviso-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_switch-Bau8BSDe.js",
       "_toggle-group-Btvbuw6a.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_field-BpQQFcFA.js",
+=======
+      "_switch-BQ8n1ghu.js",
+      "_toggle-group-ABF5ZYO5.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/avisos/components/aviso-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/aviso-table-S98xqnXy.js",
+=======
+    "file": "assets/aviso-table-CZzjHvqC.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "aviso-table",
     "src": "resources/js/pages/avisos/components/aviso-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
+=======
+      "_pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -1999,38 +2898,69 @@
   },
   "resources/js/pages/avisos/create.jsx": {
     "file": "assets/create-qlOpiYo-.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_AvisoController-D5GOoKd-.js"
+    ]
+  },
+  "resources/js/pages/avisos/create.jsx": {
+    "file": "assets/create-BxuBlHXS.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/avisos/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AvisoController-CDk4ZkQg.js",
+=======
+      "_AvisoController-D5GOoKd-.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/avisos/components/aviso-form.jsx"
     ]
   },
   "resources/js/pages/avisos/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-JlqimzhV.js",
+=======
+    "file": "assets/edit-BkRzUjVM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/avisos/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AvisoController-CDk4ZkQg.js",
+=======
+      "_AvisoController-D5GOoKd-.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/avisos/components/aviso-form.jsx"
     ]
   },
   "resources/js/pages/avisos/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/avisos-sbqD9vF4.js",
+=======
+    "file": "assets/avisos-Cnucy--W.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "avisos",
     "src": "resources/js/pages/avisos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BonXW3Z0.js",
       "_AvisoController-CDk4ZkQg.js",
+=======
+      "_use-dialog-1MKDfBuz.js",
+      "_AvisoController-D5GOoKd-.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/avisos/components/aviso-table.jsx"
     ]
   },
@@ -2047,7 +2977,11 @@
     ]
   },
   "resources/js/pages/certificado/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-CSmOimVF.js",
+=======
+    "file": "assets/show-DZy00pDe.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/certificado/show.jsx",
     "isDynamicEntry": true,
@@ -2058,7 +2992,11 @@
     ]
   },
   "resources/js/pages/classes/components/classe-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/classe-form-DIAMyU6i.js",
+=======
+    "file": "assets/classe-form-CzrjmDob.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "classe-form",
     "src": "resources/js/pages/classes/components/classe-form.jsx",
     "isDynamicEntry": true,
@@ -2066,22 +3004,35 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-BpQQFcFA.js",
+=======
+      "_field-BkJOdJ0l.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/classes/components/classe-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/classe-table-0hhrtCOk.js",
+=======
+    "file": "assets/classe-table-BVvAag5l.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "classe-table",
     "src": "resources/js/pages/classes/components/classe-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
+=======
+      "_pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -2090,6 +3041,16 @@
   },
   "resources/js/pages/classes/create.jsx": {
     "file": "assets/create-CkQ-aHAt.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_ClasseController-C1QsffBq.js"
+    ]
+  },
+  "resources/js/pages/classes/create.jsx": {
+    "file": "assets/create-sSLxlaKb.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/classes/create.jsx",
     "isDynamicEntry": true,
@@ -2097,11 +3058,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/classes/components/classe-form.jsx",
+<<<<<<< HEAD
       "_ClasseController-Duxz_8bo.js"
     ]
   },
   "resources/js/pages/classes/edit.jsx": {
     "file": "assets/edit-D4YFKE9D.js",
+=======
+      "_ClasseController-C1QsffBq.js"
+    ]
+  },
+  "resources/js/pages/classes/edit.jsx": {
+    "file": "assets/edit-ChjJ-8Z1.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/classes/edit.jsx",
     "isDynamicEntry": true,
@@ -2109,24 +3078,41 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/classes/components/classe-form.jsx",
+<<<<<<< HEAD
       "_ClasseController-Duxz_8bo.js"
     ]
   },
   "resources/js/pages/classes/index.jsx": {
     "file": "assets/classes-BiLZNsXh.js",
+=======
+      "_ClasseController-C1QsffBq.js"
+    ]
+  },
+  "resources/js/pages/classes/index.jsx": {
+    "file": "assets/classes-Bhm5IdYc.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "classes",
     "src": "resources/js/pages/classes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BonXW3Z0.js",
       "_ClasseController-Duxz_8bo.js",
+=======
+      "_use-dialog-1MKDfBuz.js",
+      "_ClasseController-C1QsffBq.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/classes/components/classe-table.jsx"
     ]
   },
   "resources/js/pages/classes/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-BW9kv3ix.js",
+=======
+    "file": "assets/show-z1EkmNA6.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/classes/show.jsx",
     "isDynamicEntry": true,
@@ -2134,11 +3120,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_ClasseController-Duxz_8bo.js"
     ]
   },
   "resources/js/pages/colegio/components/colegio-table.jsx": {
     "file": "assets/colegio-table-BpnBPobL.js",
+=======
+      "_ClasseController-C1QsffBq.js"
+    ]
+  },
+  "resources/js/pages/colegio/components/colegio-table.jsx": {
+    "file": "assets/colegio-table-DOIawp3O.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "colegio-table",
     "src": "resources/js/pages/colegio/components/colegio-table.jsx",
     "isDynamicEntry": true,
@@ -2147,11 +3141,19 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
+<<<<<<< HEAD
       "_table-pagination-UxoslpTe.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/show.jsx": {
     "file": "assets/show-8Rrf4FwJ.js",
+=======
+      "_table-pagination-DvcyNYK6.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/show.jsx": {
+    "file": "assets/show-BjLPl0Cy.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/show.jsx",
     "isDynamicEntry": true,
@@ -2159,6 +3161,7 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_arrow-left-EnYF531l.js",
       "_ellipsis-Dus2UbHw.js",
+<<<<<<< HEAD
       "_tabs-DrFlTFRB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2170,6 +3173,19 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx": {
     "file": "assets/tab-alunos-BBi5O2Zp.js",
+=======
+      "_tabs-BurzMYTZ.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_CursoTuteladoController-DNPCssm8.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx": {
+    "file": "assets/tab-alunos-C_bLG2zT.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-alunos",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
     "isDynamicEntry": true,
@@ -2179,6 +3195,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -2188,6 +3205,17 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx": {
     "file": "assets/tab-disciplinas-ClNRKsbA.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_AlunoController-DaMLQRxg.js",
+      "_CertificadoController-qwi-0vh6.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx": {
+    "file": "assets/tab-disciplinas-y4PZbbie.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-disciplinas",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
     "isDynamicEntry": true,
@@ -2197,6 +3225,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -2206,6 +3235,17 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx": {
     "file": "assets/tab-grupos-pap-BLSuQa-1.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_use-dialog-1MKDfBuz.js",
+      "_ClasseTurnoDisciplinaController-CwW1qJpt.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx": {
+    "file": "assets/tab-grupos-pap-7EOHaces.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-grupos-pap",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
     "isDynamicEntry": true,
@@ -2215,6 +3255,7 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
+<<<<<<< HEAD
       "_table-pagination-UxoslpTe.js",
       "_use-pagination-CuTOzi8i.js",
       "_GrupoPapController-BxhWK4gM.js"
@@ -2222,17 +3263,34 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx": {
     "file": "assets/tab-list-eM8KfwBj.js",
+=======
+      "_table-pagination-DvcyNYK6.js",
+      "_use-pagination-B0adk8OL.js",
+      "_GrupoPapController-B1UDD2yq.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx": {
+    "file": "assets/tab-list-EEXsS4PM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-list",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_tabs-DrFlTFRB.js",
+=======
+      "_tabs-BurzMYTZ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx": {
+<<<<<<< HEAD
     "file": "assets/turma-header-DWax9M6i.js",
+=======
+    "file": "assets/turma-header-CHRHgS3n.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "turma-header",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx",
     "isDynamicEntry": true,
@@ -2241,16 +3299,25 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-CHBsIv6b.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx": {
     "file": "assets/notas-table-ne6Yrg9-.js",
+=======
+      "_ClasseTurnoTurmaController-BE9Xjm5u.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx": {
+    "file": "assets/notas-table-DDGQ_fsF.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "notas-table",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2265,23 +3332,48 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx": {
     "file": "assets/notas-CQS63KPA.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_verificar-situacao-PVqJtjOE.js",
+      "_NotaDisciplinaController-BWguuIOs.js",
+      "_ExportarMiniPautaController-CxUIhlHK.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx": {
+    "file": "assets/notas-5eDuWHQH.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "notas",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-pagination-CuTOzi8i.js",
+=======
+      "_use-pagination-B0adk8OL.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx": {
+<<<<<<< HEAD
     "file": "assets/create.form-DRGYMAXB.js",
+=======
+    "file": "assets/create.form--VHSEFEg.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create.form",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2290,12 +3382,23 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx": {
     "file": "assets/create-P0yqkZug.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx": {
+    "file": "assets/create-rAvkyDHB.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_GrupoPapController-BxhWK4gM.js",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
       "_BancaJuriPapController-_tqEy8c-.js"
@@ -2303,6 +3406,15 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx": {
     "file": "assets/edit-DMnqleW3.js",
+=======
+      "_GrupoPapController-B1UDD2yq.js",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
+      "_BancaJuriPapController-Cz5EyVL2.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx": {
+    "file": "assets/edit-DINz8Nvn.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx",
     "isDynamicEntry": true,
@@ -2310,12 +3422,21 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
+<<<<<<< HEAD
       "_BancaJuriPapController-Co8z7bWB.js",
       "_GrupoPapController-CyXtS45q.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx": {
     "file": "assets/grupo-pap-cards-BlBbH1QA.js",
+=======
+      "_BancaJuriPapController-CZuQOoWI.js",
+      "_GrupoPapController-Dv0ZcjOT.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx": {
+    "file": "assets/grupo-pap-cards-Br-RyZxs.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "grupo-pap-cards",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx",
     "isDynamicEntry": true,
@@ -2325,11 +3446,20 @@
       "_ellipsis-Dus2UbHw.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx": {
     "file": "assets/tab-banca-DD6IFj0N.js",
+=======
+      "_badge-DxvCgqB1.js",
+      "_GrupoPapController-B1UDD2yq.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx": {
+    "file": "assets/tab-banca-yjuoeJ9N.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-banca",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
     "isDynamicEntry": true,
@@ -2340,6 +3470,7 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -2349,6 +3480,17 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx": {
     "file": "assets/tab-integrantes-CI19jckD.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_BancaJuriPapController-Cz5EyVL2.js",
+      "_ProfessorController-C-DTCiwR.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx": {
+    "file": "assets/tab-integrantes-CMffoUFg.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-integrantes",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx",
     "isDynamicEntry": true,
@@ -2359,12 +3501,21 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
+<<<<<<< HEAD
       "_table-pagination-UxoslpTe.js",
       "_AlunoController-BKlpdGGG.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx": {
     "file": "assets/create.form-BpxusHsz.js",
+=======
+      "_table-pagination-DvcyNYK6.js",
+      "_AlunoController-DaMLQRxg.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx": {
+    "file": "assets/create.form-Da5UDjLM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create.form",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx",
     "isDynamicEntry": true,
@@ -2372,21 +3523,36 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-BpQQFcFA.js",
       "_multiple-select-CUDfKOyO.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx": {
     "file": "assets/create-CVCR4MLK.js",
+=======
+      "_field-BkJOdJ0l.js",
+      "_multiple-select-CvO6KM3Z.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx": {
+    "file": "assets/create-CelMTBW7.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_GrupoPapController-CyXtS45q.js",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx",
       "_ElementoGrupoPapController-CKeBmFra.js"
+=======
+      "_GrupoPapController-Dv0ZcjOT.js",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx",
+      "_ElementoGrupoPapController-Dto969Mi.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/edit.jsx": {
@@ -2396,7 +3562,11 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/pap-BoXTK5HI.js",
+=======
+    "file": "assets/pap-BzunHaH8.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "pap",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/index.jsx",
     "isDynamicEntry": true,
@@ -2406,7 +3576,11 @@
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-BwwUazUB.js",
+=======
+    "file": "assets/show-BZXMjxpg.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/show.jsx",
     "isDynamicEntry": true,
@@ -2415,6 +3589,7 @@
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "_label-Bsu1BWfE.js",
+<<<<<<< HEAD
       "_tabs-DrFlTFRB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2429,38 +3604,75 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/show.jsx": {
     "file": "assets/show-Dv8rThVU.js",
+=======
+      "_tabs-BurzMYTZ.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js",
+      "_use-pagination-B0adk8OL.js",
+      "_BancaJuriPapController-CZuQOoWI.js",
+      "_GrupoPapController-Dv0ZcjOT.js",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx",
+      "_ElementoGrupoPapController-Dto969Mi.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/show.jsx": {
+    "file": "assets/show-Bp5CBhn3.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_tabs-DrFlTFRB.js",
       "resources/js/app.tsx",
       "_use-dialog-BonXW3Z0.js",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
       "_use-pagination-CuTOzi8i.js",
+=======
+      "_tabs-BurzMYTZ.js",
+      "resources/js/app.tsx",
+      "_use-dialog-1MKDfBuz.js",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
+      "_use-pagination-B0adk8OL.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-CqWqRmcy.js",
+=======
+    "file": "assets/show-Cgeisz-k.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_minus-CsrEuYwF.js",
+<<<<<<< HEAD
       "_tabs-DrFlTFRB.js",
+=======
+      "_tabs-BurzMYTZ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/colegio/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/colegio-CRkaqftZ.js",
+=======
+    "file": "assets/colegio-DMo5WcWG.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "colegio",
     "src": "resources/js/pages/colegio/index.jsx",
     "isDynamicEntry": true,
@@ -2471,7 +3683,11 @@
     ]
   },
   "resources/js/pages/colegio/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-CcbCcbTF.js",
+=======
+    "file": "assets/show-CxWbXKWj.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/colegio/show.jsx",
     "isDynamicEntry": true,
@@ -2480,12 +3696,21 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
+<<<<<<< HEAD
       "_table-pagination-UxoslpTe.js",
       "_CursoTuteladoController-DN2FzUCG.js"
     ]
   },
   "resources/js/pages/confirmacoes-matriculas/components/confirmacao-table.jsx": {
     "file": "assets/confirmacao-table-BR-jo2ga.js",
+=======
+      "_table-pagination-DvcyNYK6.js",
+      "_CursoTuteladoController-DNPCssm8.js"
+    ]
+  },
+  "resources/js/pages/confirmacoes-matriculas/components/confirmacao-table.jsx": {
+    "file": "assets/confirmacao-table-BJIDG-l0.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "confirmacao-table",
     "src": "resources/js/pages/confirmacoes-matriculas/components/confirmacao-table.jsx",
     "isDynamicEntry": true,
@@ -2494,15 +3719,26 @@
       "_createLucideIcon-6hAcjkHs.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_field-BpQQFcFA.js",
       "_table-pagination-UxoslpTe.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_field-BkJOdJ0l.js",
+      "_table-pagination-DvcyNYK6.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_resultado-badge-CxfsIBU-.js"
     ]
   },
   "resources/js/pages/confirmacoes-matriculas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/confirmacoes-matriculas-CSykIv7I.js",
+=======
+    "file": "assets/confirmacoes-matriculas-Csdxa_v9.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "confirmacoes-matriculas",
     "src": "resources/js/pages/confirmacoes-matriculas/index.jsx",
     "isDynamicEntry": true,
@@ -2513,12 +3749,17 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/create.jsx": {
+<<<<<<< HEAD
     "file": "assets/create-z_03X1me.js",
+=======
+    "file": "assets/create-CVHsBgHT.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2529,6 +3770,18 @@
   },
   "resources/js/pages/cursos-tutelados/classes/show.jsx": {
     "file": "assets/show-CrZOJ4xp.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js",
+      "_multiple-select-CvO6KM3Z.js",
+      "_CursoClasseTurnoController-BJygDGgo.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/show.jsx": {
+    "file": "assets/show-BK3mKB9H.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/classes/show.jsx",
     "isDynamicEntry": true,
@@ -2536,6 +3789,7 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_arrow-left-EnYF531l.js",
       "_ellipsis-Dus2UbHw.js",
+<<<<<<< HEAD
       "_tabs-DrFlTFRB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2551,6 +3805,23 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx": {
     "file": "assets/disciplina-form-BMw55glu.js",
+=======
+      "_tabs-BurzMYTZ.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_use-dialog-1MKDfBuz.js",
+      "_ClasseTurnoDisciplinaController-CwW1qJpt.js",
+      "_ClasseTurnoTurmaController-BE9Xjm5u.js",
+      "_CursoClasseTurnoController-BJygDGgo.js",
+      "_CursoTuteladoController-BNOlJrvZ.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx": {
+    "file": "assets/disciplina-form-CNkvt_j1.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "disciplina-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx",
     "isDynamicEntry": true,
@@ -2558,18 +3829,28 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-BpQQFcFA.js",
       "_multiple-select-CUDfKOyO.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/create.jsx": {
     "file": "assets/create-DXJXS4FC.js",
+=======
+      "_field-BkJOdJ0l.js",
+      "_multiple-select-CvO6KM3Z.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/create.jsx": {
+    "file": "assets/create-BCjrTZ2M.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoDisciplinaController-Da_X4OHG.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx",
       "_CursoClasseController-C8dEADEC.js"
@@ -2577,13 +3858,26 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/edit.jsx": {
     "file": "assets/edit-BLqkbqX6.js",
+=======
+      "_ClasseTurnoDisciplinaController-CwW1qJpt.js",
+      "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx",
+      "_CursoClasseController-DfvFIO0J.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/edit.jsx": {
+    "file": "assets/edit-DU6chuD3.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoDisciplinaController-Da_X4OHG.js",
+=======
+      "_ClasseTurnoDisciplinaController-CwW1qJpt.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx"
     ]
   },
@@ -2606,7 +3900,11 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx": {
+<<<<<<< HEAD
     "file": "assets/tab-alunos-BJbGoM6e.js",
+=======
+    "file": "assets/tab-alunos-DlNrA1Cj.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-alunos",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
     "isDynamicEntry": true,
@@ -2616,6 +3914,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -2625,6 +3924,17 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx": {
     "file": "assets/tab-disciplinas-7EDaGgED.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_AlunoController-DaMLQRxg.js",
+      "_CertificadoController-qwi-0vh6.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx": {
+    "file": "assets/tab-disciplinas-CiP8sViL.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-disciplinas",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
     "isDynamicEntry": true,
@@ -2635,6 +3945,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -2647,6 +3958,20 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx": {
     "file": "assets/tab-grupos-pap-BTJ8d93q.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_use-dialog-1MKDfBuz.js",
+      "_ClasseTurnoDisciplinaController-CwW1qJpt.js",
+      "_NotaDisciplinaController-BWguuIOs.js",
+      "_horarios-form-3RBtnrdY.js",
+      "_TurmaDisciplinaProfessorController-CoC-EFHU.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx": {
+    "file": "assets/tab-grupos-pap-DDjMZX2n.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-grupos-pap",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
     "isDynamicEntry": true,
@@ -2656,6 +3981,7 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -2664,28 +3990,54 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx": {
     "file": "assets/tab-list-B9ys8X_n.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_use-pagination-B0adk8OL.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx": {
+    "file": "assets/tab-list-DEJWfXXC.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-list",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_tabs-DrFlTFRB.js",
+=======
+      "_tabs-BurzMYTZ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-recurso.jsx": {
+<<<<<<< HEAD
     "file": "assets/tab-recurso-BEdX37tV.js",
+=======
+    "file": "assets/tab-recurso-r7T6NnAV.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-recurso",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-recurso.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_lancamentos-recurso-table-AsdfqAOm.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx": {
     "file": "assets/turma-form-DN0Xy1Vb.js",
+=======
+      "_lancamentos-recurso-table-C-SN5rbD.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx": {
+    "file": "assets/turma-form-B94MY-ei.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "turma-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx",
     "isDynamicEntry": true,
@@ -2693,11 +4045,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-BpQQFcFA.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx": {
     "file": "assets/turma-header-B1SF2hh5.js",
+=======
+      "_field-BkJOdJ0l.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx": {
+    "file": "assets/turma-header-D4dBm_IW.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "turma-header",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx",
     "isDynamicEntry": true,
@@ -2707,28 +4067,45 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-CHBsIv6b.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/create.jsx": {
     "file": "assets/create-CAdKiubl.js",
+=======
+      "_ClasseTurnoTurmaController-BE9Xjm5u.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/create.jsx": {
+    "file": "assets/create-0JXbw4_4.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-CHBsIv6b.js",
+=======
+      "_ClasseTurnoTurmaController-BE9Xjm5u.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/lancamentos-table-CNksA8T-.js",
+=======
+    "file": "assets/lancamentos-table-CDkFDZ-t.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "lancamentos-table",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2736,16 +4113,30 @@
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
       "_table-pagination-UxoslpTe.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_table-pagination-DvcyNYK6.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_verificar-situacao-PVqJtjOE.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/notas-table-BWsfk1Ts.js",
+=======
+    "file": "assets/notas-table-WI37IY1_.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "notas-table",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2760,36 +4151,70 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create.jsx": {
     "file": "assets/create-DiEoTZgl.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_verificar-situacao-PVqJtjOE.js",
+      "_NotaDisciplinaController-BWguuIOs.js",
+      "_ExportarMiniPautaController-CxUIhlHK.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create.jsx": {
+    "file": "assets/create-wnySSTBC.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-pagination-CuTOzi8i.js",
       "_NotaDisciplinaController-CLil6dOC.js",
+=======
+      "_use-pagination-B0adk8OL.js",
+      "_NotaDisciplinaController-BWguuIOs.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/notas-CG9jWo9t.js",
+=======
+    "file": "assets/notas-DiPwnCoI.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "notas",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-pagination-CuTOzi8i.js",
+=======
+      "_use-pagination-B0adk8OL.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/components/professor-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/professor-form-BdrboJS1.js",
+=======
+    "file": "assets/professor-form-BJ8bIwHS.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "professor-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/components/professor-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2798,36 +4223,64 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create.jsx": {
     "file": "assets/create-C4HQLK0f2.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create.jsx": {
+    "file": "assets/create-pVhgLlOS2.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BonXW3Z0.js",
       "_TurmaDisciplinaProfessorController-B4byGbfr.js",
+=======
+      "_use-dialog-1MKDfBuz.js",
+      "_TurmaDisciplinaProfessorController-CoC-EFHU.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-DVKDMdy0.js",
+=======
+    "file": "assets/edit-CEGb8zDQ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-CHBsIv6b.js",
+=======
+      "_ClasseTurnoTurmaController-BE9Xjm5u.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx": {
+<<<<<<< HEAD
     "file": "assets/create.form-BAhNEsBp.js",
+=======
+    "file": "assets/create.form-3ovo8YKH.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create.form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2836,32 +4289,60 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx": {
     "file": "assets/create-DAbso4I3.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx": {
+    "file": "assets/create-BFs86AXP.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_BancaJuriPapController-Co8z7bWB.js",
       "_GrupoPapController-CyXtS45q.js",
+=======
+      "_BancaJuriPapController-CZuQOoWI.js",
+      "_GrupoPapController-Dv0ZcjOT.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-BbaZp3T2.js",
+=======
+    "file": "assets/edit-DeabEshU.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_BancaJuriPapController-Co8z7bWB.js",
       "_GrupoPapController-CyXtS45q.js",
+=======
+      "_BancaJuriPapController-CZuQOoWI.js",
+      "_GrupoPapController-Dv0ZcjOT.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx": {
+<<<<<<< HEAD
     "file": "assets/grupo-pap-cards-DQg3YB76.js",
+=======
+    "file": "assets/grupo-pap-cards-DcgYapdR.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "grupo-pap-cards",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx",
     "isDynamicEntry": true,
@@ -2872,6 +4353,7 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_badge-DxvCgqB1.js",
       "_GrupoPapController-CyXtS45q.js"
@@ -2879,17 +4361,35 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx": {
     "file": "assets/grupo-pap-form-DUVEFd1Q.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_badge-DxvCgqB1.js",
+      "_GrupoPapController-Dv0ZcjOT.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx": {
+    "file": "assets/grupo-pap-form-DCljDL4j.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "grupo-pap-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_field-BpQQFcFA.js",
       "_textarea-CEblRWsJ.js",
       "_multiple-select-CUDfKOyO.js"
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js",
+      "_textarea-CEblRWsJ.js",
+      "_multiple-select-CvO6KM3Z.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/shared/info-grupo-box.jsx": {
@@ -2911,7 +4411,11 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx": {
+<<<<<<< HEAD
     "file": "assets/tab-aprovacao-DrMwY0w0.js",
+=======
+    "file": "assets/tab-aprovacao-BoR8mfdR.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-aprovacao",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx",
     "isDynamicEntry": true,
@@ -2923,11 +4427,19 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_ModalDecisaoAprovacao-D5t5j8yT.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx": {
     "file": "assets/tab-banca-mpycGhx4.js",
+=======
+      "_ModalDecisaoAprovacao-CpJ3wZeN.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx": {
+    "file": "assets/tab-banca-BHC-VUGZ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-banca",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
     "isDynamicEntry": true,
@@ -2938,11 +4450,19 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
       "_BancaJuriPapController-Co8z7bWB.js",
       "_ProfessorController-KU2pRm6T.js"
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_BancaJuriPapController-CZuQOoWI.js",
+      "_ProfessorController-C-DTCiwR.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx": {
@@ -2961,7 +4481,11 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx": {
+<<<<<<< HEAD
     "file": "assets/tab-integrantes-BOBxCHmx.js",
+=======
+    "file": "assets/tab-integrantes-DurghJfG.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-integrantes",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx",
     "isDynamicEntry": true,
@@ -2971,6 +4495,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -2980,32 +4505,61 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/create.jsx": {
     "file": "assets/create-14aBD-zp.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_AlunoController-DaMLQRxg.js",
+      "_ElementoGrupoPapController-Dto969Mi.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/create.jsx": {
+    "file": "assets/create-CZ-xUsm6.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-CHBsIv6b.js",
       "_GrupoPapController-CyXtS45q.js",
+=======
+      "_ClasseTurnoTurmaController-BE9Xjm5u.js",
+      "_GrupoPapController-Dv0ZcjOT.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-lhh5QdVn.js",
+=======
+    "file": "assets/edit-DQK6lJmH.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-CHBsIv6b.js",
       "_GrupoPapController-CyXtS45q.js",
+=======
+      "_ClasseTurnoTurmaController-BE9Xjm5u.js",
+      "_GrupoPapController-Dv0ZcjOT.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx": {
+<<<<<<< HEAD
     "file": "assets/create.form-DFb1O0fH.js",
+=======
+    "file": "assets/create.form-DIjET167.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create.form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx",
     "isDynamicEntry": true,
@@ -3013,20 +4567,34 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-BpQQFcFA.js",
       "_multiple-select-CUDfKOyO.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx": {
     "file": "assets/create-BKwJbUja.js",
+=======
+      "_field-BkJOdJ0l.js",
+      "_multiple-select-CvO6KM3Z.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx": {
+    "file": "assets/create-C0HDCnNN.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_GrupoPapController-CyXtS45q.js",
       "_ElementoGrupoPapController-CKeBmFra.js",
+=======
+      "_GrupoPapController-Dv0ZcjOT.js",
+      "_ElementoGrupoPapController-Dto969Mi.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx"
     ]
   },
@@ -3037,26 +4605,40 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/pap-RoQJNJmB.js",
+=======
+    "file": "assets/pap-DhDjqn8X.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "pap",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_GrupoPapController-CyXtS45q.js",
+=======
+      "_GrupoPapController-Dv0ZcjOT.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-Dug3BNvG.js",
+=======
+    "file": "assets/show-C8C4uiuz.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+      "_circle-alert-CmOZxo2j.js",
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "_label-Bsu1BWfE.js",
+<<<<<<< HEAD
       "_tabs-DrFlTFRB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3073,12 +4655,35 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/progressao.jsx": {
     "file": "assets/progressao-CB8EeR5e.js",
+=======
+      "_tabs-BurzMYTZ.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js",
+      "_use-pagination-B0adk8OL.js",
+      "_BancaJuriPapController-CZuQOoWI.js",
+      "_GrupoPapController-Dv0ZcjOT.js",
+      "_ElementoGrupoPapController-Dto969Mi.js",
+      "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx",
+      "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
+      "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx",
+      "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx",
+      "_alert-E7rLH5df.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/progressao.jsx": {
+    "file": "assets/progressao-sI-3ZuzR.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "progressao",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/progressao.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
+=======
+      "_select-3HQOolWF.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_circle-alert-CmOZxo2j.js",
       "_circle-x-CCFZToYR.js",
       "_clock-B0WLxxUW.js",
@@ -3088,17 +4693,29 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-Dhmogq4_.js",
+=======
+    "file": "assets/show-CdZzRW25.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_tabs-DrFlTFRB.js",
       "resources/js/app.tsx",
       "_use-dialog-BonXW3Z0.js",
       "_use-pagination-CuTOzi8i.js",
       "_ClasseTurnoTurmaController-CHBsIv6b.js",
+=======
+      "_tabs-BurzMYTZ.js",
+      "resources/js/app.tsx",
+      "_use-dialog-1MKDfBuz.js",
+      "_use-pagination-B0adk8OL.js",
+      "_ClasseTurnoTurmaController-BE9Xjm5u.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
@@ -3108,13 +4725,18 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/components/forms/create.form.jsx": {
+<<<<<<< HEAD
     "file": "assets/create.form-FR1hyjBq.js",
+=======
+    "file": "assets/create.form-0Qb1LSGx.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create.form",
     "src": "resources/js/pages/cursos-tutelados/components/forms/create.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_createLucideIcon-6hAcjkHs.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3124,11 +4746,23 @@
   },
   "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx": {
     "file": "assets/edit.form-BvSjRkFS.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js",
+      "_multiple-select-CvO6KM3Z.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx": {
+    "file": "assets/edit.form-Dqvv6o9R.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit.form",
     "src": "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3138,16 +4772,32 @@
   },
   "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx": {
     "file": "assets/tab-professores-Cj4GF_7k.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js",
+      "_multiple-select-CvO6KM3Z.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx": {
+    "file": "assets/tab-professores-lx14JRMH.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-professores",
     "src": "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
+=======
+      "_pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -3158,16 +4808,33 @@
   },
   "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx": {
     "file": "assets/tab-turmas-BVAHmwk2.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_ProfessorController-C-DTCiwR.js",
+      "_CursoTuteladoProfessorController-4HvJCzXf.js",
+      "_edit-professor-modal-DeHH6-nG.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx": {
+    "file": "assets/tab-turmas-CF3ZBQuS.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "tab-turmas",
     "src": "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
+=======
+      "_pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -3176,6 +4843,16 @@
   },
   "resources/js/pages/cursos-tutelados/create.jsx": {
     "file": "assets/create-B0PXCDiG.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_ClasseTurnoTurmaController-BE9Xjm5u.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/create.jsx": {
+    "file": "assets/create-Em-9zGOT.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/create.jsx",
     "isDynamicEntry": true,
@@ -3186,24 +4863,37 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-PiYjGPyX.js",
+=======
+    "file": "assets/edit-By_uC7bW.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_CursoTuteladoController-GJSOW6cE.js",
+=======
+      "_CursoTuteladoController-BNOlJrvZ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/professor-form-gOaDZ7O3.js",
+=======
+    "file": "assets/professor-form-BzPiTgjx.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "professor-form",
     "src": "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "_switch-Bau8BSDe.js",
       "resources/js/app.tsx",
@@ -3213,32 +4903,61 @@
   },
   "resources/js/pages/cursos-tutelados/professores/create.jsx": {
     "file": "assets/create-BW14bfx5.js",
+=======
+      "_select-3HQOolWF.js",
+      "_switch-BQ8n1ghu.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/professores/create.jsx": {
+    "file": "assets/create-frAccQrS.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/professores/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_CursoTuteladoController-GJSOW6cE.js",
       "_CursoTuteladoProfessorController-O5Ntwrlq.js",
+=======
+      "_CursoTuteladoController-BNOlJrvZ.js",
+      "_CursoTuteladoProfessorController-4HvJCzXf.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/professores/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-DS5jKD9O.js",
+=======
+    "file": "assets/edit-BnP7IBGL.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/professores/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_CursoTuteladoController-GJSOW6cE.js",
       "_CursoTuteladoProfessorController-O5Ntwrlq.js",
+=======
+      "_CursoTuteladoController-BNOlJrvZ.js",
+      "_CursoTuteladoProfessorController-4HvJCzXf.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-CKDAm2TN.js",
+=======
+    "file": "assets/show-BI2YFDcL.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/show.jsx",
     "isDynamicEntry": true,
@@ -3246,6 +4965,7 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
+<<<<<<< HEAD
       "_tabs-DrFlTFRB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3254,12 +4974,26 @@
       "_CursoTuteladoController-GJSOW6cE.js",
       "_CursoClasseController-C8dEADEC.js",
       "_CursoTuteladoProfessorController-O5Ntwrlq.js",
+=======
+      "_tabs-BurzMYTZ.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_badge-DxvCgqB1.js",
+      "_use-dialog-1MKDfBuz.js",
+      "_CursoTuteladoController-BNOlJrvZ.js",
+      "_CursoClasseController-DfvFIO0J.js",
+      "_CursoTuteladoProfessorController-4HvJCzXf.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx",
       "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx"
     ]
   },
   "resources/js/pages/cursos/components/curso-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/curso-form-D8r-V01I.js",
+=======
+    "file": "assets/curso-form-ac9XVFG2.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "curso-form",
     "src": "resources/js/pages/cursos/components/curso-form.jsx",
     "isDynamicEntry": true,
@@ -3267,22 +5001,35 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-BpQQFcFA.js",
+=======
+      "_field-BkJOdJ0l.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/cursos/components/curso-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/curso-table-BEuURAq5.js",
+=======
+    "file": "assets/curso-table-DgAwT4lp.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "curso-table",
     "src": "resources/js/pages/cursos/components/curso-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
+=======
+      "_pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -3291,6 +5038,16 @@
   },
   "resources/js/pages/cursos/create.jsx": {
     "file": "assets/create-DAC4nC17.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_CursosController-Dmypg5uM.js"
+    ]
+  },
+  "resources/js/pages/cursos/create.jsx": {
+    "file": "assets/create-DfoPtpTG.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/cursos/create.jsx",
     "isDynamicEntry": true,
@@ -3298,11 +5055,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/cursos/components/curso-form.jsx",
+<<<<<<< HEAD
       "_CursosController-C3QhtKMp.js"
     ]
   },
   "resources/js/pages/cursos/edit.jsx": {
     "file": "assets/edit-Bexb1DIR.js",
+=======
+      "_CursosController-Dmypg5uM.js"
+    ]
+  },
+  "resources/js/pages/cursos/edit.jsx": {
+    "file": "assets/edit-DhvL-dsV.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/cursos/edit.jsx",
     "isDynamicEntry": true,
@@ -3310,24 +5075,41 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/cursos/components/curso-form.jsx",
+<<<<<<< HEAD
       "_CursosController-C3QhtKMp.js"
     ]
   },
   "resources/js/pages/cursos/index.jsx": {
     "file": "assets/cursos-CJ4AHjtY.js",
+=======
+      "_CursosController-Dmypg5uM.js"
+    ]
+  },
+  "resources/js/pages/cursos/index.jsx": {
+    "file": "assets/cursos-CP4Uu2kj.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "cursos",
     "src": "resources/js/pages/cursos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BonXW3Z0.js",
       "_CursosController-C3QhtKMp.js",
+=======
+      "_use-dialog-1MKDfBuz.js",
+      "_CursosController-Dmypg5uM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/cursos/components/curso-table.jsx"
     ]
   },
   "resources/js/pages/cursos/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-C-8RvpDq.js",
+=======
+    "file": "assets/show-DV1Hp5fj.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/cursos/show.jsx",
     "isDynamicEntry": true,
@@ -3335,11 +5117,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_CursosController-C3QhtKMp.js"
     ]
   },
   "resources/js/pages/dashboard.jsx": {
     "file": "assets/dashboard-BGB2ozWl.js",
+=======
+      "_CursosController-Dmypg5uM.js"
+    ]
+  },
+  "resources/js/pages/dashboard.jsx": {
+    "file": "assets/dashboard-Ct-6H7pw.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "dashboard",
     "src": "resources/js/pages/dashboard.jsx",
     "isDynamicEntry": true,
@@ -3349,18 +5139,31 @@
     ]
   },
   "resources/js/pages/dashboards/aluno/components/avisos-eventos/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/avisos-eventos-CTrqvh2f.js",
+=======
+    "file": "assets/avisos-eventos-Dhql7KMd.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "avisos-eventos",
     "src": "resources/js/pages/dashboards/aluno/components/avisos-eventos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_item-DqmRgpFV.js",
       "_item-BOgPE_xL.js"
     ]
   },
   "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx": {
     "file": "assets/dashboard-summary-C06FWzjs.js",
+=======
+      "_item-CN2soBtu.js",
+      "_item-B-G39jis.js"
+    ]
+  },
+  "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx": {
+    "file": "assets/dashboard-summary-D9RUZM9F.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "dashboard-summary",
     "src": "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx",
     "isDynamicEntry": true,
@@ -3368,10 +5171,17 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_pt-jv_QGq0b.js",
       "_isWithinInterval-Ct8Vu7nv.js",
+<<<<<<< HEAD
       "_state-empty-CM-9Bfre.js",
       "_state-loading-BYB48OI1.js",
       "_state-happening-CYJ62aBj.js",
       "_state-today-BYOBz1Y9.js"
+=======
+      "_state-empty-Xv_bXdnZ.js",
+      "_state-loading-C1uBU6TT.js",
+      "_state-happening-CK1Z-Mna.js",
+      "_state-today-DoyTLLQZ.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "resources/js/pages/dashboards/aluno/components/greeting-header.jsx": {
@@ -3384,18 +5194,31 @@
     ]
   },
   "resources/js/pages/dashboards/aluno/components/proximas-aulas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/proximas-aulas-Cv0r45UC.js",
+=======
+    "file": "assets/proximas-aulas-C0XsTcE-.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "proximas-aulas",
     "src": "resources/js/pages/dashboards/aluno/components/proximas-aulas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_item-DqmRgpFV.js",
       "_item-VUib-GPU.js"
     ]
   },
   "resources/js/pages/dashboards/aluno/index.jsx": {
     "file": "assets/aluno-BX7550gr.js",
+=======
+      "_item-CN2soBtu.js",
+      "_item-WY9zVy_g.js"
+    ]
+  },
+  "resources/js/pages/dashboards/aluno/index.jsx": {
+    "file": "assets/aluno-Bbn72UVr.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "aluno",
     "src": "resources/js/pages/dashboards/aluno/index.jsx",
     "isDynamicEntry": true,
@@ -3410,7 +5233,11 @@
     ]
   },
   "resources/js/pages/dashboards/director/components/dashboard-summary/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/dashboard-summary-D-NpaSld.js",
+=======
+    "file": "assets/dashboard-summary-qaLf7gz3.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "dashboard-summary",
     "src": "resources/js/pages/dashboards/director/components/dashboard-summary/index.jsx",
     "isDynamicEntry": true,
@@ -3418,19 +5245,32 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_urgency-BOmF4fe2.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_item-DqmRgpFV.js"
     ]
   },
   "resources/js/pages/dashboards/director/components/feed-accoes/index.jsx": {
     "file": "assets/feed-accoes-BL6utSZ2.js",
+=======
+      "_item-CN2soBtu.js"
+    ]
+  },
+  "resources/js/pages/dashboards/director/components/feed-accoes/index.jsx": {
+    "file": "assets/feed-accoes-DLMfO05Y.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "feed-accoes",
     "src": "resources/js/pages/dashboards/director/components/feed-accoes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_badge-check-BG_q7vMo.js",
+<<<<<<< HEAD
       "_item-DqmRgpFV.js",
       "_item-tttEFoKo.js"
+=======
+      "_item-CN2soBtu.js",
+      "_item-BFjsfZYl.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "resources/js/pages/dashboards/director/components/greeting-header.jsx": {
@@ -3443,29 +5283,50 @@
     ]
   },
   "resources/js/pages/dashboards/director/components/metricas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/metricas-BCgdubHf.js",
+=======
+    "file": "assets/metricas-BUrHLI1h.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "metricas",
     "src": "resources/js/pages/dashboards/director/components/metricas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_item-DuUJ19AO.js"
     ]
   },
   "resources/js/pages/dashboards/director/components/proximos-eventos/index.jsx": {
     "file": "assets/proximos-eventos-BaKlNvqY.js",
+=======
+      "_item-BQIVXb4d.js"
+    ]
+  },
+  "resources/js/pages/dashboards/director/components/proximos-eventos/index.jsx": {
+    "file": "assets/proximos-eventos-B6KJY8Uc.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "proximos-eventos",
     "src": "resources/js/pages/dashboards/director/components/proximos-eventos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_createLucideIcon-6hAcjkHs.js",
+<<<<<<< HEAD
       "_item-DqmRgpFV.js",
       "_item-DLupRlVB.js"
     ]
   },
   "resources/js/pages/dashboards/director/index.jsx": {
     "file": "assets/director-D_2umgB5.js",
+=======
+      "_item-CN2soBtu.js",
+      "_item-DVCCzcuD.js"
+    ]
+  },
+  "resources/js/pages/dashboards/director/index.jsx": {
+    "file": "assets/director-RMQeKSAt.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "director",
     "src": "resources/js/pages/dashboards/director/index.jsx",
     "isDynamicEntry": true,
@@ -3481,18 +5342,31 @@
     ]
   },
   "resources/js/pages/dashboards/professor/components/avisos-eventos/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/avisos-eventos-DC7NK_JD.js",
+=======
+    "file": "assets/avisos-eventos-FuTpe03p.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "avisos-eventos",
     "src": "resources/js/pages/dashboards/professor/components/avisos-eventos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_item-DqmRgpFV.js",
       "_item-BOgPE_xL2.js"
     ]
   },
   "resources/js/pages/dashboards/professor/components/dashboard-summary/index.jsx": {
     "file": "assets/dashboard-summary-C3kxSGWt.js",
+=======
+      "_item-CN2soBtu.js",
+      "_item-B-G39jis2.js"
+    ]
+  },
+  "resources/js/pages/dashboards/professor/components/dashboard-summary/index.jsx": {
+    "file": "assets/dashboard-summary-axTg9lGo.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "dashboard-summary",
     "src": "resources/js/pages/dashboards/professor/components/dashboard-summary/index.jsx",
     "isDynamicEntry": true,
@@ -3500,10 +5374,17 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_pt-jv_QGq0b.js",
       "_isWithinInterval-Ct8Vu7nv.js",
+<<<<<<< HEAD
       "_state-empty-9rgkY3ct.js",
       "_state-loading-DJxVHS9V.js",
       "_state-happening-6vp86RRp.js",
       "_state-today-VKUiTqOA.js"
+=======
+      "_state-empty-Ck7NOaVc.js",
+      "_state-loading-BuguO6ep.js",
+      "_state-happening-CZLAYAQ3.js",
+      "_state-today-Dq9SodJu.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "resources/js/pages/dashboards/professor/components/greeting-header.jsx": {
@@ -3516,18 +5397,31 @@
     ]
   },
   "resources/js/pages/dashboards/professor/components/proximas-aulas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/proximas-aulas-TkAeLj_X.js",
+=======
+    "file": "assets/proximas-aulas-CUsiCCQT.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "proximas-aulas",
     "src": "resources/js/pages/dashboards/professor/components/proximas-aulas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_item-DqmRgpFV.js",
       "_item-gDHdH9Ry.js"
     ]
   },
   "resources/js/pages/dashboards/professor/index.jsx": {
     "file": "assets/professor-DV2pF7k3.js",
+=======
+      "_item-CN2soBtu.js",
+      "_item-BlKam5gg.js"
+    ]
+  },
+  "resources/js/pages/dashboards/professor/index.jsx": {
+    "file": "assets/professor-CimmE6bL.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "professor",
     "src": "resources/js/pages/dashboards/professor/index.jsx",
     "isDynamicEntry": true,
@@ -3542,13 +5436,18 @@
     ]
   },
   "resources/js/pages/gestao-acessos/components/drawer/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/drawer-B8yF93bh.js",
+=======
+    "file": "assets/drawer-DOQFVSKq.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "drawer",
     "src": "resources/js/pages/gestao-acessos/components/drawer/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_header-C-oPLumo.js",
       "_role-section-CN_Z38D3.js",
       "_permission-section-BwyBMXDH.js",
@@ -3557,12 +5456,23 @@
   },
   "resources/js/pages/gestao-acessos/components/editar-acesso-drawer.jsx": {
     "file": "assets/editar-acesso-drawer-B7LXo-z3.js",
+=======
+      "_header-B5MFcVnt.js",
+      "_role-section-CkJeq_Bl.js",
+      "_permission-section-UFp8j3Z6.js",
+      "_AccessManagementController-CSd9xwfp.js"
+    ]
+  },
+  "resources/js/pages/gestao-acessos/components/editar-acesso-drawer.jsx": {
+    "file": "assets/editar-acesso-drawer-B5DLe3tc.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "editar-acesso-drawer",
     "src": "resources/js/pages/gestao-acessos/components/editar-acesso-drawer.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_lock-Dvqfcyqv.js",
+<<<<<<< HEAD
       "_switch-Bau8BSDe.js",
       "resources/js/app.tsx",
       "_badge-DxvCgqB1.js",
@@ -3572,6 +5482,17 @@
   },
   "resources/js/pages/gestao-acessos/components/usuarios-table.jsx": {
     "file": "assets/usuarios-table-DLumv9Rq.js",
+=======
+      "_switch-BQ8n1ghu.js",
+      "resources/js/app.tsx",
+      "_badge-DxvCgqB1.js",
+      "_multiple-select-CvO6KM3Z.js",
+      "_AccessManagementController-CSd9xwfp.js"
+    ]
+  },
+  "resources/js/pages/gestao-acessos/components/usuarios-table.jsx": {
+    "file": "assets/usuarios-table-Bgw6pc6j.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "usuarios-table",
     "src": "resources/js/pages/gestao-acessos/components/usuarios-table.jsx",
     "isDynamicEntry": true,
@@ -3580,6 +5501,7 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -3588,24 +5510,43 @@
   },
   "resources/js/pages/gestao-acessos/index.jsx": {
     "file": "assets/gestao-acessos-DIts22O2.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_ClasseController-C1QsffBq.js"
+    ]
+  },
+  "resources/js/pages/gestao-acessos/index.jsx": {
+    "file": "assets/gestao-acessos-vD5LmmpR.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "gestao-acessos",
     "src": "resources/js/pages/gestao-acessos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AccessManagementController-BzSjIxQY.js",
+=======
+      "_AccessManagementController-CSd9xwfp.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/gestao-acessos/components/drawer/index.jsx",
       "resources/js/pages/gestao-acessos/components/usuarios-table.jsx"
     ]
   },
   "resources/js/pages/inscricoes/components/inscricao-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/inscricao-form-kgO45oHJ.js",
+=======
+    "file": "assets/inscricao-form-drfQ7tpo.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "inscricao-form",
     "src": "resources/js/pages/inscricoes/components/inscricao-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3614,17 +5555,32 @@
   },
   "resources/js/pages/inscricoes/components/inscricao-table.jsx": {
     "file": "assets/inscricao-table-CbdbqKXe.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js"
+    ]
+  },
+  "resources/js/pages/inscricoes/components/inscricao-table.jsx": {
+    "file": "assets/inscricao-table-DdBjxdlb.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "inscricao-table",
     "src": "resources/js/pages/inscricoes/components/inscricao-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_createLucideIcon-6hAcjkHs.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
+=======
+      "_pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_ellipsis-Dus2UbHw.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -3634,6 +5590,17 @@
   },
   "resources/js/pages/inscricoes/create.jsx": {
     "file": "assets/create-BQYsACoC.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_format-status-9H8CcnX4.js",
+      "_inscricoes-Dd4gyL11.js"
+    ]
+  },
+  "resources/js/pages/inscricoes/create.jsx": {
+    "file": "assets/create-DughuYDD.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/inscricoes/create.jsx",
     "isDynamicEntry": true,
@@ -3641,23 +5608,39 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/inscricoes/components/inscricao-form.jsx",
+<<<<<<< HEAD
       "_inscricoes-DdXL91VG.js"
     ]
   },
   "resources/js/pages/inscricoes/index.jsx": {
     "file": "assets/inscricoes-Cgw4-xYq.js",
+=======
+      "_inscricoes-Dd4gyL11.js"
+    ]
+  },
+  "resources/js/pages/inscricoes/index.jsx": {
+    "file": "assets/inscricoes-DMv2-_UJ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "inscricoes",
     "src": "resources/js/pages/inscricoes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_inscricoes-DdXL91VG.js",
+=======
+      "_inscricoes-Dd4gyL11.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/inscricoes/components/inscricao-table.jsx"
     ]
   },
   "resources/js/pages/inscricoes/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-VDEzUmW8.js",
+=======
+    "file": "assets/show-_SE9D9nH.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/inscricoes/show.jsx",
     "isDynamicEntry": true,
@@ -3670,12 +5653,17 @@
     ]
   },
   "resources/js/pages/instituicoes/components/instituicao-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/instituicao-form-CFTg_23M.js",
+=======
+    "file": "assets/instituicao-form-c0WKoOVU.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "instituicao-form",
     "src": "resources/js/pages/instituicoes/components/instituicao-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3684,6 +5672,16 @@
   },
   "resources/js/pages/instituicoes/components/instituicao-table.jsx": {
     "file": "assets/instituicao-table-BG-PcMb-.js",
+=======
+      "_select-3HQOolWF.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/components/instituicao-table.jsx": {
+    "file": "assets/instituicao-table-B-7avwGj.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "instituicao-table",
     "src": "resources/js/pages/instituicoes/components/instituicao-table.jsx",
     "isDynamicEntry": true,
@@ -3693,6 +5691,7 @@
       "_ellipsis-Dus2UbHw.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -3701,6 +5700,16 @@
   },
   "resources/js/pages/instituicoes/components/show/instituicao-cabecalho.jsx": {
     "file": "assets/instituicao-cabecalho-CZKaq61t.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_InstituicaoController-D6sFFya2.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/components/show/instituicao-cabecalho.jsx": {
+    "file": "assets/instituicao-cabecalho-COwDNAKn.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "instituicao-cabecalho",
     "src": "resources/js/pages/instituicoes/components/show/instituicao-cabecalho.jsx",
     "isDynamicEntry": true,
@@ -3710,50 +5719,84 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_InstituicaoController-D01CB_dq.js"
     ]
   },
   "resources/js/pages/instituicoes/components/show/instituicao-cursos.jsx": {
     "file": "assets/instituicao-cursos-pik9pJsd.js",
+=======
+      "_InstituicaoController-D6sFFya2.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/components/show/instituicao-cursos.jsx": {
+    "file": "assets/instituicao-cursos-B72GdJFf.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "instituicao-cursos",
     "src": "resources/js/pages/instituicoes/components/show/instituicao-cursos.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_InstituicaoController-D01CB_dq.js",
       "_tab-content-cursos--f8chxyR.js"
     ]
   },
   "resources/js/pages/instituicoes/components/skeletons/index.skeleton.jsx": {
     "file": "assets/index.skeleton-zAcRq_X_.js",
+=======
+      "_InstituicaoController-D6sFFya2.js",
+      "_tab-content-cursos-DSzHtR9j.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/components/skeletons/index.skeleton.jsx": {
+    "file": "assets/index.skeleton-D2ZwYeo0.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "index.skeleton",
     "src": "resources/js/pages/instituicoes/components/skeletons/index.skeleton.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
+=======
+      "_pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/instituicoes/components/skeletons/show.skeleton.jsx": {
+<<<<<<< HEAD
     "file": "assets/show.skeleton-CqcO2t4A.js",
+=======
+    "file": "assets/show.skeleton-DeyNPNwu.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show.skeleton",
     "src": "resources/js/pages/instituicoes/components/skeletons/show.skeleton.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
       "_tabs-DrFlTFRB.js",
+=======
+      "_pagination-jjFMOjzM.js",
+      "_tabs-BurzMYTZ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/instituicoes/create.jsx": {
+<<<<<<< HEAD
     "file": "assets/create-BjI_n1MZ.js",
+=======
+    "file": "assets/create-mxFX753r.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/instituicoes/create.jsx",
     "isDynamicEntry": true,
@@ -3761,11 +5804,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/instituicoes/components/instituicao-form.jsx",
+<<<<<<< HEAD
       "_InstituicaoController-D01CB_dq.js"
     ]
   },
   "resources/js/pages/instituicoes/edit.jsx": {
     "file": "assets/edit-CHiL1_LC.js",
+=======
+      "_InstituicaoController-D6sFFya2.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/edit.jsx": {
+    "file": "assets/edit-DD18zTlC.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/instituicoes/edit.jsx",
     "isDynamicEntry": true,
@@ -3773,24 +5824,41 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/instituicoes/components/instituicao-form.jsx",
+<<<<<<< HEAD
       "_InstituicaoController-D01CB_dq.js"
     ]
   },
   "resources/js/pages/instituicoes/index.jsx": {
     "file": "assets/instituicoes-BcNxfk7K.js",
+=======
+      "_InstituicaoController-D6sFFya2.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/index.jsx": {
+    "file": "assets/instituicoes-B39zh9rt.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "instituicoes",
     "src": "resources/js/pages/instituicoes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BonXW3Z0.js",
       "_InstituicaoController-D01CB_dq.js",
+=======
+      "_use-dialog-1MKDfBuz.js",
+      "_InstituicaoController-D6sFFya2.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/instituicoes/components/instituicao-table.jsx"
     ]
   },
   "resources/js/pages/instituicoes/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-BU2Tv_tM.js",
+=======
+    "file": "assets/show-hfSEflHp.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/instituicoes/show.jsx",
     "isDynamicEntry": true,
@@ -3801,23 +5869,40 @@
     ]
   },
   "resources/js/pages/itens-pagaveis/components/itens-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/itens-form-CigbiQEx.js",
+=======
+    "file": "assets/itens-form-3b7gnlbt.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "itens-form",
     "src": "resources/js/pages/itens-pagaveis/components/itens-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "_switch-Bau8BSDe.js",
       "_toggle-group-Btvbuw6a.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_field-BpQQFcFA.js",
+=======
+      "_select-3HQOolWF.js",
+      "_switch-BQ8n1ghu.js",
+      "_toggle-group-ABF5ZYO5.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-BkJOdJ0l.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/itens-pagaveis/components/itens-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/itens-table-FadfpgFW.js",
+=======
+    "file": "assets/itens-table-CHSKvu-Q.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "itens-table",
     "src": "resources/js/pages/itens-pagaveis/components/itens-table.jsx",
     "isDynamicEntry": true,
@@ -3827,6 +5912,7 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
@@ -3836,6 +5922,17 @@
   },
   "resources/js/pages/itens-pagaveis/create.jsx": {
     "file": "assets/create-Bw5U1EeN.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_ItemPagavelController-DqHbm02Y.js"
+    ]
+  },
+  "resources/js/pages/itens-pagaveis/create.jsx": {
+    "file": "assets/create-CXvo2s9f.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/itens-pagaveis/create.jsx",
     "isDynamicEntry": true,
@@ -3843,11 +5940,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/itens-pagaveis/components/itens-form.jsx",
+<<<<<<< HEAD
       "_ItemPagavelController-Cxx7XWwE.js"
     ]
   },
   "resources/js/pages/itens-pagaveis/edit.jsx": {
     "file": "assets/edit-DTaVp17b.js",
+=======
+      "_ItemPagavelController-DqHbm02Y.js"
+    ]
+  },
+  "resources/js/pages/itens-pagaveis/edit.jsx": {
+    "file": "assets/edit-BAzOc87K.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/itens-pagaveis/edit.jsx",
     "isDynamicEntry": true,
@@ -3855,24 +5960,41 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/itens-pagaveis/components/itens-form.jsx",
+<<<<<<< HEAD
       "_ItemPagavelController-Cxx7XWwE.js"
     ]
   },
   "resources/js/pages/itens-pagaveis/index.jsx": {
     "file": "assets/itens-pagaveis-B_BpT7aa.js",
+=======
+      "_ItemPagavelController-DqHbm02Y.js"
+    ]
+  },
+  "resources/js/pages/itens-pagaveis/index.jsx": {
+    "file": "assets/itens-pagaveis-GtncTf4X.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "itens-pagaveis",
     "src": "resources/js/pages/itens-pagaveis/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BonXW3Z0.js",
       "_ItemPagavelController-Cxx7XWwE.js",
+=======
+      "_use-dialog-1MKDfBuz.js",
+      "_ItemPagavelController-DqHbm02Y.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/itens-pagaveis/components/itens-table.jsx"
     ]
   },
   "resources/js/pages/itens-pagaveis/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-QprU885_.js",
+=======
+    "file": "assets/show-Cy6Q3CSw.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/itens-pagaveis/show.jsx",
     "isDynamicEntry": true,
@@ -3881,16 +6003,25 @@
       "_arrow-left-EnYF531l.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_ItemPagavelController-Cxx7XWwE.js"
     ]
   },
   "resources/js/pages/pagamentos/components/pagamentos-form.jsx": {
     "file": "assets/pagamentos-form-DfgPk913.js",
+=======
+      "_ItemPagavelController-DqHbm02Y.js"
+    ]
+  },
+  "resources/js/pages/pagamentos/components/pagamentos-form.jsx": {
+    "file": "assets/pagamentos-form-oXsTRha9.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "pagamentos-form",
     "src": "resources/js/pages/pagamentos/components/pagamentos-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
       "_cart-summary-Bk9MYhjC.js",
       "resources/js/app.tsx",
@@ -3902,6 +6033,19 @@
   },
   "resources/js/pages/pagamentos/components/pagamentos-table.jsx": {
     "file": "assets/pagamentos-table-BnzdeUkq.js",
+=======
+      "_select-3HQOolWF.js",
+      "_cart-summary-BS6-Rn9m.js",
+      "resources/js/app.tsx",
+      "_field-BkJOdJ0l.js",
+      "_cart-items-g9blZtNn.js",
+      "_combobox-DEdD5Vkw.js",
+      "_PagamentoController-C0DUPmqz.js"
+    ]
+  },
+  "resources/js/pages/pagamentos/components/pagamentos-table.jsx": {
+    "file": "assets/pagamentos-table-D87awxg1.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "pagamentos-table",
     "src": "resources/js/pages/pagamentos/components/pagamentos-table.jsx",
     "isDynamicEntry": true,
@@ -3911,6 +6055,7 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
@@ -3920,6 +6065,17 @@
   },
   "resources/js/pages/pagamentos/create.jsx": {
     "file": "assets/create-2Ve_FmCH.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_PagamentoController-C0DUPmqz.js"
+    ]
+  },
+  "resources/js/pages/pagamentos/create.jsx": {
+    "file": "assets/create-C3fzf5K1.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/pagamentos/create.jsx",
     "isDynamicEntry": true,
@@ -3929,32 +6085,53 @@
     ]
   },
   "resources/js/pages/pagamentos/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-CJ3yCb2d.js",
+=======
+    "file": "assets/edit-6mlLI8zm.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/pagamentos/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AvisoController-CDk4ZkQg.js",
+=======
+      "_AvisoController-D5GOoKd-.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/pagamentos/components/pagamentos-form.jsx"
     ]
   },
   "resources/js/pages/pagamentos/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/pagamentos-pirSyClq.js",
+=======
+    "file": "assets/pagamentos-BOAKe9ul.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "pagamentos",
     "src": "resources/js/pages/pagamentos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BonXW3Z0.js",
       "_PagamentoController-6sgK69Dh.js",
+=======
+      "_use-dialog-1MKDfBuz.js",
+      "_PagamentoController-C0DUPmqz.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/pagamentos/components/pagamentos-table.jsx"
     ]
   },
   "resources/js/pages/pagamentos/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-DDGLHHUI.js",
+=======
+    "file": "assets/show-kKdglJJX.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/pagamentos/show.jsx",
     "isDynamicEntry": true,
@@ -3965,6 +6142,7 @@
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_table-pagination-UxoslpTe.js",
       "_pagamentos-DtK05c6T.js",
       "_PagamentoController-6sgK69Dh.js"
@@ -3972,6 +6150,15 @@
   },
   "resources/js/pages/pap/EditarTemaMelhoria.jsx": {
     "file": "assets/EditarTemaMelhoria-Bj6Oexpj.js",
+=======
+      "_table-pagination-DvcyNYK6.js",
+      "_pagamentos-DtK05c6T.js",
+      "_PagamentoController-C0DUPmqz.js"
+    ]
+  },
+  "resources/js/pages/pap/EditarTemaMelhoria.jsx": {
+    "file": "assets/EditarTemaMelhoria-D8yZnyIW.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "EditarTemaMelhoria",
     "src": "resources/js/pages/pap/EditarTemaMelhoria.jsx",
     "isDynamicEntry": true,
@@ -3985,7 +6172,11 @@
     ]
   },
   "resources/js/pages/pap/HistoricoAprovacao.jsx": {
+<<<<<<< HEAD
     "file": "assets/HistoricoAprovacao-Bs8g7E8J.js",
+=======
+    "file": "assets/HistoricoAprovacao-DUTy1krR.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "HistoricoAprovacao",
     "src": "resources/js/pages/pap/HistoricoAprovacao.jsx",
     "isDynamicEntry": true,
@@ -3997,7 +6188,11 @@
     ]
   },
   "resources/js/pages/pap/PendentesAprovacao.jsx": {
+<<<<<<< HEAD
     "file": "assets/PendentesAprovacao-CskniZgV.js",
+=======
+    "file": "assets/PendentesAprovacao-B4rVVhQV.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "PendentesAprovacao",
     "src": "resources/js/pages/pap/PendentesAprovacao.jsx",
     "isDynamicEntry": true,
@@ -4005,12 +6200,20 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_ModalDecisaoAprovacao-D5t5j8yT.js",
+=======
+      "_ModalDecisaoAprovacao-CpJ3wZeN.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/pap/components/InfoGrupoBox.jsx"
     ]
   },
   "resources/js/pages/pap/TemasMelhoria.jsx": {
+<<<<<<< HEAD
     "file": "assets/TemasMelhoria-_fyLfw3A.js",
+=======
+    "file": "assets/TemasMelhoria-DLWRKX8N.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "TemasMelhoria",
     "src": "resources/js/pages/pap/TemasMelhoria.jsx",
     "isDynamicEntry": true,
@@ -4044,7 +6247,11 @@
     ]
   },
   "resources/js/pages/pap/components/grupo-pap-cards.jsx": {
+<<<<<<< HEAD
     "file": "assets/grupo-pap-cards-BYfkf5-8.js",
+=======
+    "file": "assets/grupo-pap-cards-CHdwJvrh.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "grupo-pap-cards",
     "src": "resources/js/pages/pap/components/grupo-pap-cards.jsx",
     "isDynamicEntry": true,
@@ -4054,6 +6261,7 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_badge-DxvCgqB1.js",
       "_GrupoPapController-CyXtS45q.js"
@@ -4061,6 +6269,15 @@
   },
   "resources/js/pages/pap/index.jsx": {
     "file": "assets/pap-D1Qj4QYL.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_badge-DxvCgqB1.js",
+      "_GrupoPapController-Dv0ZcjOT.js"
+    ]
+  },
+  "resources/js/pages/pap/index.jsx": {
+    "file": "assets/pap-CBgzTDJQ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "pap",
     "src": "resources/js/pages/pap/index.jsx",
     "isDynamicEntry": true,
@@ -4071,7 +6288,11 @@
     ]
   },
   "resources/js/pages/pautas/components/pauta-table/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/pauta-table-Thyyg6fw.js",
+=======
+    "file": "assets/pauta-table-wTmFsIZD.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "pauta-table",
     "src": "resources/js/pages/pautas/components/pauta-table/index.jsx",
     "isDynamicEntry": true,
@@ -4079,6 +6300,7 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -4088,6 +6310,17 @@
       "_body-Coe5xhSR.js",
       "_header-BIYuux0K.js",
       "_body-D5fLnRrp.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_utils-CxwIYYhK.js",
+      "_card-actions-CHVCqcpH.js",
+      "_header-Ca_qGSOP.js",
+      "_body-BpmlkncW.js",
+      "_header-BIYuux0K.js",
+      "_body-DOZnaDw9.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_header-J9KAxMh0.js",
       "_body-B6_lB0i_.js"
     ]
@@ -4112,7 +6345,11 @@
     ]
   },
   "resources/js/pages/pautas/components/resumo-cards/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/resumo-cards-h4k8x2Zs.js",
+=======
+    "file": "assets/resumo-cards-ChBr146b.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "resumo-cards",
     "src": "resources/js/pages/pautas/components/resumo-cards/index.jsx",
     "isDynamicEntry": true,
@@ -4122,7 +6359,11 @@
     ]
   },
   "resources/js/pages/pautas/components/resumo-cards/item.jsx": {
+<<<<<<< HEAD
     "file": "assets/item-Bjx6sJSC.js",
+=======
+    "file": "assets/item-DGTtPuRw.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "item",
     "src": "resources/js/pages/pautas/components/resumo-cards/item.jsx",
     "isDynamicEntry": true,
@@ -4133,7 +6374,11 @@
     ]
   },
   "resources/js/pages/pautas/cursos/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/cursos-CnJaiImB.js",
+=======
+    "file": "assets/cursos-b6fMVtXb.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "cursos",
     "src": "resources/js/pages/pautas/cursos/index.jsx",
     "isDynamicEntry": true,
@@ -4141,24 +6386,40 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_PautaController-lgB4euYZ.js"
     ]
   },
   "resources/js/pages/pautas/index.jsx": {
     "file": "assets/pautas-q5U_CFX4.js",
+=======
+      "_PautaController-CP8pGR2S.js"
+    ]
+  },
+  "resources/js/pages/pautas/index.jsx": {
+    "file": "assets/pautas-BGJtjGLA.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "pautas",
     "src": "resources/js/pages/pautas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-pagination-CuTOzi8i.js",
+=======
+      "_use-pagination-B0adk8OL.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/pautas/components/pauta-table/index.jsx",
       "resources/js/pages/pautas/components/resumo-cards.jsx"
     ]
   },
   "resources/js/pages/pautas/turmas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/turmas-BgJ23TlC.js",
+=======
+    "file": "assets/turmas-Dj4jl6fk.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "turmas",
     "src": "resources/js/pages/pautas/turmas/index.jsx",
     "isDynamicEntry": true,
@@ -4166,8 +6427,13 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_PautaController-lgB4euYZ.js"
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_PautaController-CP8pGR2S.js"
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     ]
   },
   "resources/js/pages/portal/index.jsx": {
@@ -4180,7 +6446,11 @@
     ]
   },
   "resources/js/pages/professores/components/professor-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/professor-form-Cz2GdTo0.js",
+=======
+    "file": "assets/professor-form-C0cFNkLh.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "professor-form",
     "src": "resources/js/pages/professores/components/professor-form.jsx",
     "isDynamicEntry": true,
@@ -4188,22 +6458,35 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-BpQQFcFA.js",
+=======
+      "_field-BkJOdJ0l.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/professores/components/professor-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/professor-table-Cw1BdhC0.js",
+=======
+    "file": "assets/professor-table-D2L6fjxC.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "professor-table",
     "src": "resources/js/pages/professores/components/professor-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
+=======
+      "_pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -4212,11 +6495,22 @@
   },
   "resources/js/pages/professores/components/tabs/cursos.tab.jsx": {
     "file": "assets/cursos.tab-CG8DSp7B.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_ProfessorController-C-DTCiwR.js"
+    ]
+  },
+  "resources/js/pages/professores/components/tabs/cursos.tab.jsx": {
+    "file": "assets/cursos.tab-DeZJTIFp.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "cursos.tab",
     "src": "resources/js/pages/professores/components/tabs/cursos.tab.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
@@ -4228,6 +6522,19 @@
   },
   "resources/js/pages/professores/components/tabs/turmas.tab.jsx": {
     "file": "assets/turmas.tab-BAYvrKhu.js",
+=======
+      "_pagination-jjFMOjzM.js",
+      "_layers-cNsH7THB.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_CursosController-Dmypg5uM.js"
+    ]
+  },
+  "resources/js/pages/professores/components/tabs/turmas.tab.jsx": {
+    "file": "assets/turmas.tab-DhOE_x6k.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "turmas.tab",
     "src": "resources/js/pages/professores/components/tabs/turmas.tab.jsx",
     "isDynamicEntry": true,
@@ -4237,56 +6544,93 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/professores/create.jsx": {
+<<<<<<< HEAD
     "file": "assets/create-CU9vmUlU.js",
+=======
+    "file": "assets/create-BrxRpjKa.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/professores/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ProfessorController-KU2pRm6T.js",
+=======
+      "_ProfessorController-C-DTCiwR.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/professores/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-OlRNe-IB.js",
+=======
+    "file": "assets/edit-BLA6i8qn.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/professores/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ProfessorController-KU2pRm6T.js",
+=======
+      "_ProfessorController-C-DTCiwR.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/professores/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/professores-Bnj5zXqd.js",
+=======
+    "file": "assets/professores-BShdbj5y.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "professores",
     "src": "resources/js/pages/professores/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BonXW3Z0.js",
       "_ProfessorController-KU2pRm6T.js",
+=======
+      "_use-dialog-1MKDfBuz.js",
+      "_ProfessorController-C-DTCiwR.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/professores/components/professor-table.jsx"
     ]
   },
   "resources/js/pages/professores/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-B9uIOmYx.js",
+=======
+    "file": "assets/show-B3MtIbE0.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "show",
     "src": "resources/js/pages/professores/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_minus-CsrEuYwF.js",
+<<<<<<< HEAD
       "_tabs-DrFlTFRB.js",
+=======
+      "_tabs-BurzMYTZ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "resources/js/pages/professores/components/tabs/cursos.tab.jsx",
@@ -4294,14 +6638,22 @@
     ]
   },
   "resources/js/pages/regras-avaliacao/components/regras-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/regras-form-CAnx2HjB.js",
+=======
+    "file": "assets/regras-form-D1R2SpkX.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "regras-form",
     "src": "resources/js/pages/regras-avaliacao/components/regras-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_dist-DVY39n7X.js",
+<<<<<<< HEAD
       "_select-B2QgXOs5.js",
+=======
+      "_select-3HQOolWF.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_dist-BKI9--UU.js",
       "_dist-BsG0KAXG.js",
       "_dist-BU5y4aRS.js",
@@ -4309,6 +6661,7 @@
       "_dist-B6Ek9oRb.js",
       "_dist-DbFgUCqG.js",
       "_dist-C6xzvqf8.js",
+<<<<<<< HEAD
       "_switch-Bau8BSDe.js",
       "resources/js/app.tsx",
       "_field-BpQQFcFA.js"
@@ -4316,6 +6669,15 @@
   },
   "resources/js/pages/regras-avaliacao/components/regras-table.jsx": {
     "file": "assets/regras-table-DZ3Qn3bS.js",
+=======
+      "_switch-BQ8n1ghu.js",
+      "resources/js/app.tsx",
+      "_field-BkJOdJ0l.js"
+    ]
+  },
+  "resources/js/pages/regras-avaliacao/components/regras-table.jsx": {
+    "file": "assets/regras-table-CLp-1Vsi.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "regras-table",
     "src": "resources/js/pages/regras-avaliacao/components/regras-table.jsx",
     "isDynamicEntry": true,
@@ -4325,6 +6687,7 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -4333,6 +6696,16 @@
   },
   "resources/js/pages/regras-avaliacao/create.jsx": {
     "file": "assets/create-CLLmNz01.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_RegraAvaliacaoController-ClBrIP64.js"
+    ]
+  },
+  "resources/js/pages/regras-avaliacao/create.jsx": {
+    "file": "assets/create-CV3D6qvL.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/regras-avaliacao/create.jsx",
     "isDynamicEntry": true,
@@ -4340,11 +6713,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/regras-avaliacao/components/regras-form.jsx",
+<<<<<<< HEAD
       "_RegraAvaliacaoController-B-8FN_tm.js"
     ]
   },
   "resources/js/pages/regras-avaliacao/edit.jsx": {
     "file": "assets/edit-CUAUPHCU.js",
+=======
+      "_RegraAvaliacaoController-ClBrIP64.js"
+    ]
+  },
+  "resources/js/pages/regras-avaliacao/edit.jsx": {
+    "file": "assets/edit-DLk-3Wfy.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/regras-avaliacao/edit.jsx",
     "isDynamicEntry": true,
@@ -4352,19 +6733,32 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/regras-avaliacao/components/regras-form.jsx",
+<<<<<<< HEAD
       "_RegraAvaliacaoController-B-8FN_tm.js"
     ]
   },
   "resources/js/pages/regras-avaliacao/index.jsx": {
     "file": "assets/regras-avaliacao-DCAWMCbp.js",
+=======
+      "_RegraAvaliacaoController-ClBrIP64.js"
+    ]
+  },
+  "resources/js/pages/regras-avaliacao/index.jsx": {
+    "file": "assets/regras-avaliacao-BcoJzcCZ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "regras-avaliacao",
     "src": "resources/js/pages/regras-avaliacao/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BonXW3Z0.js",
       "_RegraAvaliacaoController-B-8FN_tm.js",
+=======
+      "_use-dialog-1MKDfBuz.js",
+      "_RegraAvaliacaoController-ClBrIP64.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/regras-avaliacao/components/regras-table.jsx"
     ]
   },
@@ -4375,7 +6769,11 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/settings/appearance.jsx": {
+<<<<<<< HEAD
     "file": "assets/appearance-B_Krxmsp.js",
+=======
+    "file": "assets/appearance-wVk7KvaO.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "appearance",
     "src": "resources/js/pages/settings/appearance.jsx",
     "isDynamicEntry": true,
@@ -4387,12 +6785,17 @@
     ]
   },
   "resources/js/pages/settings/profile.jsx": {
+<<<<<<< HEAD
     "file": "assets/profile-CAy1jOCq.js",
+=======
+    "file": "assets/profile-DvFiYR4G.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "profile",
     "src": "resources/js/pages/settings/profile.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_password-input-DIqZ-0tc.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
@@ -4402,6 +6805,17 @@
   },
   "resources/js/pages/settings/security.jsx": {
     "file": "assets/security-CJCgmkn5.js",
+=======
+      "_password-input-DRxmjL6y.js",
+      "_label-Bsu1BWfE.js",
+      "resources/js/app.tsx",
+      "_input-error-Cqkovvfq.js",
+      "_verification-DzkA4QZ9.js"
+    ]
+  },
+  "resources/js/pages/settings/security.jsx": {
+    "file": "assets/security-aR79UeY5.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "security",
     "src": "resources/js/pages/settings/security.jsx",
     "isDynamicEntry": true,
@@ -4410,6 +6824,7 @@
       "_createLucideIcon-6hAcjkHs.js",
       "_check-D6_H2ueh.js",
       "_circle-alert-CmOZxo2j.js",
+<<<<<<< HEAD
       "_password-input-DIqZ-0tc.js",
       "_react-CYuos3AN.js",
       "_label-Bsu1BWfE.js",
@@ -4424,6 +6839,21 @@
   },
   "resources/js/pages/teste.jsx": {
     "file": "assets/teste-BwdpDiFp.js",
+=======
+      "_password-input-DRxmjL6y.js",
+      "_react-CYuos3AN.js",
+      "_label-Bsu1BWfE.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_spinner-D9QOgiHq.js",
+      "_input-error-Cqkovvfq.js",
+      "_use-two-factor-auth-hvKGbyzK.js",
+      "_alert-E7rLH5df.js"
+    ]
+  },
+  "resources/js/pages/teste.jsx": {
+    "file": "assets/teste-q1K8JP7b.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "teste",
     "src": "resources/js/pages/teste.jsx",
     "isDynamicEntry": true,
@@ -4440,6 +6870,7 @@
       "_dist-Ctfm89E22.js",
       "_utils-BNhDZxi-.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_field-BpQQFcFA.js",
       "_textarea-CEblRWsJ.js",
       "_input-group-IBE7BAMC.js",
@@ -4448,16 +6879,31 @@
   },
   "resources/js/pages/turmas/components/turma-table.jsx": {
     "file": "assets/turma-table-CE6ZDofE.js",
+=======
+      "_field-BkJOdJ0l.js",
+      "_textarea-CEblRWsJ.js",
+      "_input-group-CFxtCuLw.js",
+      "_combobox-DEdD5Vkw.js"
+    ]
+  },
+  "resources/js/pages/turmas/components/turma-table.jsx": {
+    "file": "assets/turma-table-DyXgBj5W.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "turma-table",
     "src": "resources/js/pages/turmas/components/turma-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-B_LkUNsV.js",
+=======
+      "_pagination-jjFMOjzM.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "_ellipsis-Dus2UbHw.js",
       "_filter-oRknpvMA.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_field-BpQQFcFA.js",
@@ -4467,6 +6913,17 @@
   },
   "resources/js/pages/turmas/index.jsx": {
     "file": "assets/turmas-Ldb3lGza.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_field-BkJOdJ0l.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_ClasseTurnoTurmaController-BE9Xjm5u.js"
+    ]
+  },
+  "resources/js/pages/turmas/index.jsx": {
+    "file": "assets/turmas-sUmXVZsC.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "turmas",
     "src": "resources/js/pages/turmas/index.jsx",
     "isDynamicEntry": true,
@@ -4477,7 +6934,11 @@
     ]
   },
   "resources/js/pages/turnos/components/turno-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/turno-form-X5BwDDi6.js",
+=======
+    "file": "assets/turno-form-DWCx04_W.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "turno-form",
     "src": "resources/js/pages/turnos/components/turno-form.jsx",
     "isDynamicEntry": true,
@@ -4485,11 +6946,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-BpQQFcFA.js"
     ]
   },
   "resources/js/pages/turnos/components/turno-table.jsx": {
     "file": "assets/turno-table-nXZuZ3Pi.js",
+=======
+      "_field-BkJOdJ0l.js"
+    ]
+  },
+  "resources/js/pages/turnos/components/turno-table.jsx": {
+    "file": "assets/turno-table-7p7VTZwL.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "turno-table",
     "src": "resources/js/pages/turnos/components/turno-table.jsx",
     "isDynamicEntry": true,
@@ -4499,6 +6968,7 @@
       "_ellipsis-Dus2UbHw.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-DUKupqU0.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-UxoslpTe.js",
@@ -4507,6 +6977,16 @@
   },
   "resources/js/pages/turnos/create.jsx": {
     "file": "assets/create-B4QIXH5E.js",
+=======
+      "_empty-state-DkfjQuK0.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-DvcyNYK6.js",
+      "_TurnoController-9Ocl4M_I.js"
+    ]
+  },
+  "resources/js/pages/turnos/create.jsx": {
+    "file": "assets/create-Da5CzOge.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "create",
     "src": "resources/js/pages/turnos/create.jsx",
     "isDynamicEntry": true,
@@ -4514,11 +6994,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/turnos/components/turno-form.jsx",
+<<<<<<< HEAD
       "_TurnoController-jD1fycqE.js"
     ]
   },
   "resources/js/pages/turnos/edit.jsx": {
     "file": "assets/edit-CXr6QjrK.js",
+=======
+      "_TurnoController-9Ocl4M_I.js"
+    ]
+  },
+  "resources/js/pages/turnos/edit.jsx": {
+    "file": "assets/edit-CqoP3dW2.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "edit",
     "src": "resources/js/pages/turnos/edit.jsx",
     "isDynamicEntry": true,
@@ -4526,24 +7014,41 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/turnos/components/turno-form.jsx",
+<<<<<<< HEAD
       "_TurnoController-jD1fycqE.js"
     ]
   },
   "resources/js/pages/turnos/index.jsx": {
     "file": "assets/turnos-DPXvqhUU.js",
+=======
+      "_TurnoController-9Ocl4M_I.js"
+    ]
+  },
+  "resources/js/pages/turnos/index.jsx": {
+    "file": "assets/turnos-C_qRLWKQ.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "turnos",
     "src": "resources/js/pages/turnos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BonXW3Z0.js",
       "_TurnoController-jD1fycqE.js",
+=======
+      "_use-dialog-1MKDfBuz.js",
+      "_TurnoController-9Ocl4M_I.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
       "resources/js/pages/turnos/components/turno-table.jsx"
     ]
   },
   "resources/js/pages/welcome.jsx": {
+<<<<<<< HEAD
     "file": "assets/welcome-DndHwQSY.js",
+=======
+    "file": "assets/welcome-BfPFRGTP.js",
+>>>>>>> 6c0d111 (Organizar o fluxo de aprovação de temas da PAP.)
     "name": "welcome",
     "src": "resources/js/pages/welcome.jsx",
     "isDynamicEntry": true,

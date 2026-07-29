@@ -21,6 +21,8 @@ return new class extends Migration {
                 ->constrained('users')
                 ->restrictOnDelete();
 
+            $table->string('tema');
+
             $table->string('estado_anterior')->nullable();
 
             $table->string('estado_novo');

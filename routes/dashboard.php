@@ -253,7 +253,7 @@ Route::put(
         'grupo-pap-aprovacao.atualizar'
     );
 
-Route::post(
+Route::put(
     '/grupo-pap-aprovacao/{grupoPap}/reenviar',
     [GrupoPapAprovacaoController::class, 'reenviar']
 )->name(

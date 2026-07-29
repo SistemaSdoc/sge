@@ -140,27 +140,17 @@ class GrupoPapAprovacaoController extends Controller
     /**
      * Atualizar tema PAP após correção
      */
-    public function atualizar(
-        Request $request,
-        GrupoPap $grupoPap
-    ) {
-        // Verificar autorização se necessário
-        // $this->authorize('editarTema', $grupoPap);
-
-        // Validar dados (ajusta conforme necessário)
+    public function atualizar(Request $request, GrupoPap $grupoPap)
+    {
         $validated = $request->validate([
-            'tema' => 'required|string|max:500',
-            'descricao' => 'nullable|string|max:2000',
-            // ... outros campos ...
+            'nome_grupo' => 'required|string|max:500',
+            'tema_grupo' => 'required|string|max:500',
+            'estudo_caso' => 'nullable|string|max:2000',
         ]);
 
-        // Atualizar o grupo PAP
         $grupoPap->update($validated);
 
-        return back()->with(
-            'success',
-            'Tema atualizado com sucesso.'
-        );
+        return back()->with('success', 'Tema atualizado com sucesso.');
     }
 
     /**
@@ -211,33 +201,40 @@ class GrupoPapAprovacaoController extends Controller
      *
      * Esta ação é realizada pelo colégio.
      */
-    public function reenviar(
-        Request $request,
-        GrupoPap $grupoPap
-    ) {
-        // Verificar se o utilizador pode reenviar este grupo PAP
-        /* $this->authorize(
-             'reenviarTema',
-             $grupoPap
-         );*/
-
-        // Executar reenvio
-        $resultado = $this->service->reenviar(
-            $grupoPap,
-            Auth::user()
-        );
-
-        // Verificar se o estado atual permite o reenvio
-        if (!$resultado) {
-            return back()->withErrors([
-                'grupo' => 'Este tema não pode ser reenviado neste momento.',
-            ]);
+    public function reenviar(Request $request, GrupoPap $grupoPap)
+    {
+        if (!$grupoPap->podeSerReenviado()) {
+            return back()->withErrors(['grupo' => 'Este tema não pode ser reenviado neste momento.']);
         }
 
-        return back()->with(
-            'success',
-            'Tema corrigido e reenviado para nova análise com sucesso.'
-        );
+        $validated = $request->validate([
+            'nome_grupo' => 'required|string|max:500',
+            'tema_grupo' => 'required|string|max:500',
+        ]);
+
+        $resultado = $this->service->reenviar($grupoPap, Auth::user(), $validated);
+
+        if (!$resultado) {
+            return back()->withErrors(['grupo' => 'Erro ao reenviar o tema.']);
+        }
+
+        $grupoPap->load('turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso');
+
+        $turma = $grupoPap->turma;
+        $cursoClasseTurno = $turma->cursoClasseTurno;
+        $cursoClasse = $cursoClasseTurno->cursoClasse;
+        $cursoTutelado = $cursoClasse->cursoTutelado;
+
+        return redirect()
+            ->route('pap.show', [
+                'instituicao' => $cursoTutelado->instituicaoCurso->instituicao_id,
+                'cursoTutelado' => $cursoTutelado->id,
+                'cursoClasse' => $cursoClasse->id,
+                'cursoClasseTurno' => $cursoClasseTurno->id,
+                'turma' => $turma->id,
+                'grupoPap' => $grupoPap->id,
+            ])
+            ->with('success', 'Tema reenviado com sucesso.');
     }
 
     /**

@@ -125,6 +125,14 @@ class GrupoPap extends Model
 
     public function podeSerReenviado(): bool
     {
-        return $this->status_aprovacao === 'melhoria-solicitada';
+        return in_array($this->status_aprovacao, ['reprovado', 'melhoria-solicitada']);
+        //return $this->status_aprovacao === 'melhoria-solicitada';
     }
+
+    public function podeSerEditado(): bool
+    {
+        return in_array($this->status_aprovacao, ['reprovado', 'melhoria-solicitada']);
+    }
+
+
 }

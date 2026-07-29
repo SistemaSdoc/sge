@@ -194,6 +194,7 @@ class GrupoPapController extends Controller
                 'update' => $user?->can('update', $grupoPap),
                 'definirData' => $user?->can('definirData', $grupoPap),
                 'delete' => $user?->can('delete', $grupoPap),
+                'corrigirTema' => $grupoPap->podeSerEditado(),
                 'elementos' => [
                     'create' => $user?->can('elementogrupopap.create'),
                     'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')

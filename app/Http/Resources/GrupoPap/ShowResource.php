@@ -23,6 +23,7 @@ class ShowResource extends JsonResource
             'estudo_caso' => $this->estudo_caso,
             'status' => $this->status,
             'status_aprovacao' => $this->status_aprovacao,
+            'comentario_aprovacao' => $this->comentario_aprovacao,
             'nota_final' => $this->nota_final,
             'data_defesa' => $this->data_defesa?->toIso8601String(),
             'local_defesa' => $this->local_defesa,
@@ -30,6 +31,10 @@ class ShowResource extends JsonResource
                 'id' => $this->professor->id,
                 'nome' => $this->professor->user->nome,
                 'email' => $this->professor->user->email,
+            ] : null,
+            'turma' => $this->turma ? [
+                'nome' => $this->turma->nome,
+
             ] : null,
             'aprovado_por' => $this->aprovadoPor ? [
                 'id' => $this->aprovadoPor->id,
