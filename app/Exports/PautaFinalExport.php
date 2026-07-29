@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Exports;
+
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+
+class PautaFinalExport implements WithMultipleSheets
+{
+    public function __construct(
+        protected array $disciplinas,
+        protected array $alunos,
+        protected string $curso,
+        protected string $turma,
+        protected string $anoLetivo,
+        protected string $instituicao,
+        protected string $sala,
+        protected string $classe,
+    ) {}
+
+    public function sheets(): array
+    {
+        return [
+            new PautaFinalSheetExport(
+                disciplinas: $this->disciplinas,
+                alunos: $this->alunos,
+                curso: $this->curso,
+                turma: $this->turma,
+                anoLetivo: $this->anoLetivo,
+                instituicao: $this->instituicao,
+                sala: $this->sala,
+                classe: $this->classe,
+            ),
+        ];
+    }
+}

@@ -153,7 +153,7 @@ class NotaService
             $notas[1]->media_trimestral +
             $notas[2]->media_trimestral +
             $notas[3]->media_trimestral
-        ) / 3, 1);
+        ) / 3, 1, PHP_ROUND_HALF_UP);
 
         // ──────────────────────────────────────────────
         // SITUAÇÃO ANUAL DA DISCIPLINA
@@ -223,7 +223,9 @@ class NotaService
             return null;
         }
 
-        return ($mac + $npp + $npt) / 3;
+        $media = ($mac + $npp + $npt) / 3;
+
+        return round($media, 1, PHP_ROUND_HALF_UP);
     }
 
     // ──────────────────────────────────────────────

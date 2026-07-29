@@ -25,12 +25,15 @@ export function TrimestralPautaBody({ alunos, disciplinas }) {
             return (
               <Fragment key={disciplina.id}>
                 <TableCell className="border-r px-4 text-center">
-                  <span className={corNota(nota?.media)}>{nota?.media ?? '—'}</span>
+                  <span className={corNota(nota?.media)}>
+                    {nota?.media ?? '—'}
+                  </span>
                 </TableCell>
 
                 <TableCell className="border-r px-4 text-center">
-                   <span className={corFaltas(nota?.faltas)}>{nota?.faltas ?? '—'}</span>
-                  
+                  <span className={corFaltas(nota?.faltas)}>
+                    {nota?.faltas ?? '—'}
+                  </span>
                 </TableCell>
               </Fragment>
             );
@@ -40,28 +43,11 @@ export function TrimestralPautaBody({ alunos, disciplinas }) {
           <TableCell className="sticky right-0 z-10 bg-background px-4 transition-colors group-hover:bg-muted">
             <span className="absolute top-0 left-0 h-full w-[0.5px] border-l" />
             <div className="flex justify-end">
-              {(() => {
-                const notasValues = Object.values(aluno.notas);
-
-                if (notasValues.length === 0) {
-                  return <span className="text-sm text-muted-foreground">—</span>;
-                }
-
-                const todasLancadas = notasValues.every(
-                  (n) => n?.situacao !== 'sem_notas',
-                );
-
-                if (!todasLancadas) {
-                  return <ResultadoBadge resultado="incompleto" />;
-                }
-
-                const temNaoApto = notasValues.some(
-                  (n) => n?.situacao === 'N/APTO',
-                );
-                return (
-                  <ResultadoBadge resultado={temNaoApto ? 'N/APTO' : 'APTO'} />
-                );
-              })()}
+              {aluno.resultado ? (
+                <ResultadoBadge resultado={aluno.resultado} />
+              ) : (
+                <span className="text-sm text-muted-foreground">—</span>
+              )}
             </div>
           </TableCell>
         </TableRow>

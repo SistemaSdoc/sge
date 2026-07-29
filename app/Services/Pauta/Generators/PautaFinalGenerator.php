@@ -75,12 +75,12 @@ class PautaFinalGenerator
 
                 return [
                     $disc['id'] => [
-                        't1' => $notasDisciplina->firstWhere('periodo', 1)?->media_trimestral,
-                        't2' => $notasDisciplina->firstWhere('periodo', 2)?->media_trimestral,
-                        't3' => $nota3?->media_trimestral,
-                        'mf' => $nota3?->media_final,
+                        't1' => $this->arredondarNota($notasDisciplina->firstWhere('periodo', 1)?->media_trimestral),
+                        't2' => $this->arredondarNota($notasDisciplina->firstWhere('periodo', 2)?->media_trimestral),
+                        't3' => $this->arredondarNota($nota3?->media_trimestral),
+                        'mf' => $this->arredondarNota($nota3?->media_final),
                         'total_faltas' => $notasDisciplina->whereIn('periodo', [1, 2, 3])->sum('faltas'),
-                        'nota_recurso' => $notasDisciplina->firstWhere('periodo', 4)?->media_trimestral,
+                        'nota_recurso' => $this->arredondarNota($notasDisciplina->firstWhere('periodo', 4)?->media_trimestral),
                         'situacao' => $this->resolverSituacao($nota3?->media_final, $detalhe['situacao'] ?? null),
                     ],
                 ];

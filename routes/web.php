@@ -3,19 +3,7 @@
 use App\Http\Controllers\CertificadoController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
-
-/**
- * Portal routes para Candidato e Aluno
- * Todas estas rotas requerem autenticação e role 'candidato' ou 'aluno'
- * Middleware 'auth' e 'role:candidato,aluno' já aplicado no grupo principal
- * Prefixo 'portal' e nome 'portal.' já aplicado no grupo principal
- * As rotas específicas do portal estão definidas em routes/portal.php
- */
-Route::middleware(['auth', 'verified', 'role:Candidato'])
-    ->prefix('portal')
-    ->name('portal.')
-    ->group(base_path('routes/portal.php'));
+Route::inertia('/', 'welcome/index')->name('home');
 
 /**
  * Dashboard routes para Staff (Master, Director, Coordenador, Secretaria, Professor)

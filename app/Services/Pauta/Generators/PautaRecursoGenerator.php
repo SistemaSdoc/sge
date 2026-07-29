@@ -94,11 +94,11 @@ class PautaRecursoGenerator
 
                 return [
                     $d['id'] => [
-                        't1' => $notasDisciplina->firstWhere('periodo', 1)?->media_trimestral,
-                        't2' => $notasDisciplina->firstWhere('periodo', 2)?->media_trimestral,
-                        't3' => $notasDisciplina->firstWhere('periodo', 3)?->media_trimestral,
-                        'mf' => $detFinal['media_final'] ?? null,
-                        'nota_recurso' => $nota4?->media_trimestral,
+                        't1' => $this->arredondarNota($notasDisciplina->firstWhere('periodo', 1)?->media_trimestral),
+                        't2' => $this->arredondarNota($notasDisciplina->firstWhere('periodo', 2)?->media_trimestral),
+                        't3' => $this->arredondarNota($notasDisciplina->firstWhere('periodo', 3)?->media_trimestral),
+                        'mf' => $this->arredondarNota($detFinal['media_final'] ?? null),
+                        'nota_recurso' => $this->arredondarNota($nota4?->media_trimestral),
                         'situacao' => $this->resolverSituacao($nota4?->media_trimestral, $detRecurso['situacao'] ?? null),
                     ],
                 ];

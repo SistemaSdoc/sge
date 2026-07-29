@@ -1,6 +1,5 @@
 import { router, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { index, show } from '@/actions/App/Http/Controllers/Colegios/GrupoPapController';
 import {
   Card,
   CardAction,

@@ -12,4 +12,13 @@ trait ResolveSituacaoNota
 
         return $situacao ?? 'incompleto';
     }
+
+    private function arredondarNota(?float $valor): ?float
+    {
+        if ($valor === null) {
+            return null;
+        }
+
+        return round((float) $valor, 0, PHP_ROUND_HALF_UP);
+    }
 }

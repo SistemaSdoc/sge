@@ -123,14 +123,6 @@ final class SidebarMenuService
                 ),
 
                 new MenuItem(
-                    key: 'inscricoes',
-                    title: 'Inscrições',
-                    href: action([InscricaoController::class, 'index']),
-                    icon: 'ClipboardList',
-                    can: fn () => Gate::allows('viewAny', Inscricao::class)
-                ),
-
-                new MenuItem(
                     key: 'grelha-curricular',
                     title: 'Grelha Curricular',
                     href: action([GrelhaCurricularController::class, 'index']),

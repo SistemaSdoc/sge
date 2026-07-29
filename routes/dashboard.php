@@ -9,16 +9,12 @@ use App\Http\Controllers\ClasseController as ClasseControllerGeral;
 use App\Http\Controllers\ClasseTurnoDisciplinaController;
 use App\Http\Controllers\ClasseTurnoDisciplinaHorarioController;
 use App\Http\Controllers\ClasseTurnoTurmaController;
-use App\Http\Controllers\ColegioController;
 use App\Http\Controllers\CursoClasseController;
 use App\Http\Controllers\CursoClasseTurnoController;
 use App\Http\Controllers\CursosController;
 use App\Http\Controllers\CursoTuteladoController;
 use App\Http\Controllers\CursoTuteladoProfessorController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Dashboards\DashboardAlunoController;
-use App\Http\Controllers\Dashboards\DashboardDirectorController;
-use App\Http\Controllers\Dashboards\DashboardProfessorController;
 use App\Http\Controllers\DisciplinaController as DisciplinaControllerGeral;
 use App\Http\Controllers\ElementoGrupoPapController;
 use App\Http\Controllers\FinalistaController;
@@ -42,7 +38,7 @@ use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-// Dashboard routes para Staff (Admin, Director, Coordenador, Secretaria, Professor)
+// Dashboard routes (Admin, Director, Coordenador, Secretaria, Professor)
 // Todas estas rotas requerem autenticação e role de staff
 // Middleware 'auth' e 'role:admin,director,coordenador,secretaria,professor' já aplicado no grupo principal
 
@@ -70,37 +66,15 @@ Route::get('/certificados/{aluno}', [CertificadoController::class, 'show'])->nam
 Route::get('/alunos/{aluno}/turmas-disponiveis', [AlunoController::class, 'turmasDisponiveis']);
 Route::get('/cursos/{curso}/instituicoes-tutoras', [CursosController::class, 'instituicoesTutoras']);
 
-Route::prefix('aluno')->group(function () {
-    Route::get('proximas-aulas', [DashboardAlunoController::class, 'proximasAulas']);
-    Route::get('resumo-academico', [DashboardAlunoController::class, 'resumoAcademico']);
-    Route::get('avisos', [DashboardAlunoController::class, 'avisos']);
-});
-
-Route::prefix('professor')->group(function () {
-    Route::get('proximas-aulas', [DashboardProfessorController::class, 'proximasAulas']);
-    Route::get('resumo-academico', [DashboardProfessorController::class, 'resumoAcademico']);
-    Route::get('avisos', [DashboardProfessorController::class, 'avisos']);
-});
-
-Route::prefix('director')->group(function () {
-    Route::get('metricas', [DashboardDirectorController::class, 'metricas']);
-    Route::get('accoes-pendentes', [DashboardDirectorController::class, 'accoesPendentes']);
-    Route::get('avisos', [DashboardDirectorController::class, 'avisos']);
-});
-
 Route::get('turmas', [TurmaController::class, 'index'])->name('turmaGeral');
 
 Route::prefix('instituicoes/{instituicao}')->group(function () {
 
-    require __DIR__ . '/modules/colegios.php';
-
+    require __DIR__.'/modules/colegios.php';
 
     Route::get('alunos/{aluno}/historico', [FinalistaController::class, 'historico']);
-    //Route::get('colegios', [CursoTuteladoController::class, 'colegios']);
-    //Route::get('colegios/{colegio}', [CursoTuteladoController::class, 'showColegio']);
-    Route::get('aluno/grelha-curricular', [AlunoController::class, 'grelhaCurricular']);
-    Route::get('aluno/notas', [AlunoController::class, 'notas']);
-
+    // Route::get('colegios', [CursoTuteladoController::class, 'colegios']);
+    // Route::get('colegios/{colegio}', [CursoTuteladoController::class, 'showColegio']);
     Route::resource('cursos-tutelados', CursoTuteladoController::class)->parameters(['cursos-tutelados' => 'cursoTutelado']);
 
     Route::prefix('cursos-tutelados/{cursoTutelado}')->group(function () {
@@ -203,6 +177,10 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
 });
 
 Route::resource('avisos', AvisoController::class);
+Route::resource('anos-lectivos', AnoLectivoController::class)->parameters(['anos-lectivos' => 'anoLectivo']);
+Route::get('pap', [GrupoPapController::class, 'index'])->name('grupos-pap.index');
+Route::get('minhas-notas', [NotaAlunoController::class, 'index'])->name('notas.aluno.index');
+Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])->name('grelha-curricular.index');
 Route::resource('regras-avaliacao', RegraAvaliacaoController::class)
     ->parameters(['regras-avaliacao' => 'regraAvaliacao']);
 
@@ -230,15 +208,8 @@ Route::resource('pagamentos', PagamentoController::class)
     ])
     ->parameters(['pagamentos' => 'pagamento']);
 
-Route::resource('anos-lectivos', AnoLectivoController::class)->parameters(['anos-lectivos' => 'anoLectivo']);
-Route::get('pap', [GrupoPapController::class, 'index'])->name('grupos-pap.index');
-Route::get('minhas-notas', [NotaAlunoController::class, 'index'])->name('notas.aluno.index');
-Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])->name('grelha-curricular.index');
-Route::get(
-    '/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta',
-    [CursoTuteladoController::class, 'pauta']
-)->name('pauta');
-
+Route::get('/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta', [CursoTuteladoController::class, 'pauta'])
+    ->name('pauta');
 
 Route::prefix('grupo-pap-aprovacao')
     ->name('grupo-pap-aprovacao.')
@@ -256,39 +227,17 @@ Route::prefix('grupo-pap-aprovacao')
             ->name('solicitar-melhoria');
     });
 
+Route::get('/grupo-pap-aprovacao/melhorias', [GrupoPapAprovacaoController::class, 'melhorias'])
+    ->name('grupo-pap-aprovacao.melhorias');
 
-    Route::get(
-    '/grupo-pap-aprovacao/melhorias',
-    [GrupoPapAprovacaoController::class, 'melhorias']
-)->name(
-    'grupo-pap-aprovacao.melhorias'
-);
+Route::get('/grupo-pap-aprovacao/{grupoPap}/editar', [GrupoPapAprovacaoController::class, 'editar'])
+    ->name('grupo-pap-aprovacao.editar');
 
-Route::get(
-    '/grupo-pap-aprovacao/{grupoPap}/editar',
-    [GrupoPapAprovacaoController::class, 'editar']
-)->name(
-    'grupo-pap-aprovacao.editar'
-);
+Route::put('/grupo-pap-aprovacao/{grupoPap}', [GrupoPapAprovacaoController::class, 'atualizar'])
+    ->name('grupo-pap-aprovacao.atualizar');
 
-Route::put(
-    '/grupo-pap-aprovacao/{grupoPap}',
-    [GrupoPapAprovacaoController::class, 'atualizar']
-)->name(
-    'grupo-pap-aprovacao.atualizar'
-);
+Route::post('/grupo-pap-aprovacao/{grupoPap}/reenviar', [GrupoPapAprovacaoController::class, 'reenviar'])
+    ->name('grupo-pap-aprovacao.reenviar');
 
-Route::post(
-    '/grupo-pap-aprovacao/{grupoPap}/reenviar',
-    [GrupoPapAprovacaoController::class, 'reenviar']
-)->name(
-    'grupo-pap-aprovacao.reenviar'
-);
-
-Route::get(
-    '/grupo-pap-aprovacao/{grupoPap}/historico',
-    [GrupoPapAprovacaoController::class, 'historico']
-)->name(
-    'grupo-pap-aprovacao.historico'
-);
-
+Route::get('/grupo-pap-aprovacao/{grupoPap}/historico', [GrupoPapAprovacaoController::class, 'historico'])
+    ->name('grupo-pap-aprovacao.historico');

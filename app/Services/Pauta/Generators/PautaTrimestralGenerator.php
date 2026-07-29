@@ -101,6 +101,7 @@ class PautaTrimestralGenerator
     private function montarAluno($ta, int $numero, Collection $disciplinas): array
     {
         $notasPorTdp = $ta->notas->groupBy('turma_disciplina_professor_id');
+        $totalDisciplinas = $disciplinas->count();
 
         $notas = $disciplinas->mapWithKeys(function ($disc) use ($notasPorTdp) {
             $nota = $notasPorTdp
@@ -109,12 +110,14 @@ class PautaTrimestralGenerator
 
             return [
                 $disc['id'] => [
-                    'media' => $nota?->media_trimestral,
+                    'media' => $this->arredondarNota($nota?->media_trimestral),
                     'faltas' => $nota?->faltas,
                     'situacao' => $this->resolverSituacao($nota?->media_trimestral, $nota?->situacao_trimestral),
                 ],
             ];
         });
+
+        $resultado = $this->resolverResultadoTrimestral($notas, $totalDisciplinas);
 
         return [
             'numero' => $numero,
@@ -122,7 +125,7 @@ class PautaTrimestralGenerator
             'nome' => $ta->aluno->inscricao?->candidato?->nome,
             'situacao' => $ta->situacao,
             'notas' => $notas,
-            'resultado' => null,
+            'resultado' => $resultado,
         ];
     }
 
@@ -132,33 +135,64 @@ class PautaTrimestralGenerator
             ->where('activo', true)
             ->count();
 
-        // Alunos com todas as notas APTO e nenhuma sem nota
-        $aptos = TurmaAluno::where('turma_id', $turma->id)
+        $disciplinas = $this->carregarDisciplinas($turma);
+        $totalDisciplinas = $disciplinas->count();
+
+        $turmaAlunos = TurmaAluno::with([
+            'notas' => fn ($q) => $q->where('periodo', $this->periodo),
+        ])
+            ->where('turma_id', $turma->id)
             ->where('activo', true)
-            ->whereHas('notas', fn ($q) => $q->where('periodo', $this->periodo)->where('situacao_trimestral', 'APTO'))
-            ->whereDoesntHave('notas', fn ($q) => $q->where('periodo', $this->periodo)->where(fn ($q) => $q->where('situacao_trimestral', '!=', 'APTO')->orWhereNull('situacao_trimestral')))
-            ->count();
+            ->get();
 
-        // Alunos com pelo menos uma N/APTO e nenhuma sem nota
-        $naoAptos = TurmaAluno::where('turma_id', $turma->id)
-            ->where('activo', true)
-            ->whereHas('notas', fn ($q) => $q->where('periodo', $this->periodo)->where('situacao_trimestral', 'N/APTO'))
-            ->whereDoesntHave('notas', fn ($q) => $q->where('periodo', $this->periodo)->whereNull('situacao_trimestral'))
-            ->count();
+        $resumo = ['apto' => 0, 'nao_apto' => 0, 'EEF' => 0, 'incompletos' => 0];
 
-        $eef = TurmaAluno::where('turma_id', $turma->id)
-            ->where('activo', true)
-            ->whereHas('notas', fn ($q) => $q->where('periodo', $this->periodo)->where('situacao_trimestral', 'EEF'))
-            ->count();
+        foreach ($turmaAlunos as $ta) {
+            $notas = $disciplinas->mapWithKeys(function ($disc) use ($ta) {
+                $nota = $ta->notas
+                    ->where('turma_disciplina_professor_id', $disc['tdp_id'])
+                    ->first();
 
-        // Incompletos = todos os restantes
-        $incompletos = $totalAlunos - $aptos - $naoAptos - $eef;
+                return [
+                    $disc['id'] => [
+                        'media' => $nota?->media_trimestral,
+                        'situacao' => $nota?->situacao_trimestral,
+                    ],
+                ];
+            });
 
-        return [
-            'apto' => $aptos,
-            'nao_apto' => $naoAptos,
-            'EEF' => $eef,
-            'incompletos' => max(0, $incompletos),
-        ];
+            $resultado = $this->resolverResultadoTrimestral($notas, $totalDisciplinas);
+
+            match ($resultado) {
+                'APTO' => $resumo['apto']++,
+                'N/APTO' => $resumo['nao_apto']++,
+                'EEF' => $resumo['EEF']++,
+                default => $resumo['incompletos']++,
+            };
+        }
+
+        return $resumo;
+    }
+
+    private function resolverResultadoTrimestral(Collection $notas, int $totalDisciplinas): string
+    {
+        $lancadas = $notas->filter(fn ($n) => $n['media'] !== null);
+
+        if ($lancadas->isEmpty()) {
+            return '';
+        }
+
+        if ($lancadas->count() < $totalDisciplinas) {
+            return 'INCOMPLETO';
+        }
+
+        // EEF tem prioridade
+        if ($notas->contains(fn ($n) => $n['situacao'] === 'EEF')) {
+            return 'EEF';
+        }
+
+        $mediaGeral = round($lancadas->avg('media'), 1, PHP_ROUND_HALF_UP);
+
+        return $mediaGeral >= 10 ? 'APTO' : 'N/APTO';
     }
 }
