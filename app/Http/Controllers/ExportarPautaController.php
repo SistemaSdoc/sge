@@ -107,6 +107,9 @@ class ExportarPautaController extends Controller
                 instituicao: $nomeInstituicao,
                 sala: '',
                 classe: $nomeClasse,
+                areaFormacao: 'INFORMÁTICA',
+                director: 'Novais José, PhD',
+                logoPath: public_path('images/insignia_angola.png'),
             );
         }
 

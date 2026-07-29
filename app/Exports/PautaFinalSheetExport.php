@@ -8,12 +8,17 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
 {
-    const DATA_START_ROW = 8;
+    const DATA_START_ROW = 14;
+
+    const HEADER_ROW_SIGLAS = 12;
+
+    const HEADER_ROW_SUBCOLS = 13;
 
     const MAX_ALUNOS = 40;
 
@@ -34,6 +39,9 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
         protected string $instituicao,
         protected string $sala,
         protected string $classe,
+        protected ?string $areaFormacao = null,
+        protected ?string $director = null,
+        protected ?string $logoPath = null,
     ) {}
 
     public function array(): array
@@ -99,7 +107,6 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
         $numDisc = count($this->disciplinas);
         $lastColLet = $this->lastCol();
         $resColLet = $this->resultadoCol();
-        $thin = Border::BORDER_MEDIUM;
         $thin = Border::BORDER_THIN;
 
         // 1. LARGURAS
@@ -115,71 +122,135 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
         }
         $ws->getColumnDimension($resColLet)->setWidth(12.0);
 
-        // 2. LINHA 2 — Instituição
-        $ws->getRowDimension(2)->setRowHeight(18);
-        $ws->mergeCells("A2:{$lastColLet}2");
-        $ws->setCellValue('A2', mb_strtoupper($this->instituicao));
-        $ws->getStyle('A2')->applyFromArray([
-            'font' => ['name' => 'Arial', 'size' => 12, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-        ]);
-
-        // 3. LINHAS 3-5 — Curso, Pauta Final (esquerda) + Classe/Turma/Ano (direita, LINHA 4 SÓ)
-        foreach ([3 => 13.5, 4 => 13.5, 5 => 13.5] as $r => $h) {
+        // 2. INSÍGNIA + CABEÇALHO INSTITUCIONAL (linhas 1-6)
+        foreach ([1 => 15, 2 => 15, 3 => 15, 4 => 16, 5 => 16, 6 => 16] as $r => $h) {
             $ws->getRowDimension($r)->setRowHeight($h);
         }
 
-        $ws->setCellValue('B3', 'CURSO: '.mb_strtoupper($this->curso));
-        $ws->getStyle('B3')->applyFromArray([
-            'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
+        if ($this->logoPath && file_exists($this->logoPath)) {
+            $drawing = new Drawing;
+            $drawing->setName('Insígnia');
+            $drawing->setDescription('Insígnia');
+            $drawing->setPath($this->logoPath);
+            $drawing->setHeight(60); // cobre aprox. linhas 1-6, ajusta se ficar desproporcional
+            $drawing->setWorksheet($ws);
+            $centerColIdx = intdiv(2 + $numDisc * 5, 2);
+            $drawing->setCoordinates($this->colLetter($centerColIdx).'1');
+            $drawing->setOffsetX(-100);
+            $drawing->setOffsetY(2);
+        }
+
+        $ws->mergeCells("A4:{$lastColLet}4");
+        $ws->setCellValue('A4', 'REPÚBLICA DE ANGOLA');
+        $ws->mergeCells("A5:{$lastColLet}5");
+        $ws->setCellValue('A5', 'MINISTÉRIO DA EDUCAÇÃO');
+        $ws->mergeCells("A6:{$lastColLet}6");
+        $ws->setCellValue('A6', mb_strtoupper($this->instituicao));
+
+        foreach (['A4', 'A5', 'A6'] as $c) {
+            $ws->getStyle($c)->applyFromArray([
+                'font' => ['name' => 'Arial', 'size' => 12, 'bold' => $c === 'A6', 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
+                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+            ]);
+        }
+
+        // 3. ASSINATURA DO DIRECTOR (linhas 7-8)
+        $ws->getRowDimension(7)->setRowHeight(14);
+        $ws->getRowDimension(8)->setRowHeight(14);
+
+        $ws->mergeCells('B7:G7');
+        $ws->setCellValue('B7', 'O Director');
+        $ws->getStyle('B7')->applyFromArray([
+            'font' => ['name' => 'Arial', 'size' => 10, 'italic' => true],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
 
-        $ws->setCellValue('B4', 'PAUTA FINAL');
-        $ws->getStyle('B4')->applyFromArray([
+        $ws->mergeCells('B8:G8');
+        $ws->setCellValue('B8', $this->director ?? '');
+        $ws->getStyle('B8')->applyFromArray([
             'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
 
-        // Classe / Turma / Ano — LINHA 4 (coluna R, logo após NOME)
+        // 4. LINHA CLASSE / ANO (linha 10)
+        $ws->getRowDimension(9)->setRowHeight(6);
+        $ws->getRowDimension(10)->setRowHeight(15);
+
         $classeNome = is_array($this->classe) ? ($this->classe['nome'] ?? '') : $this->classe;
-        $ws->setCellValue('R4', "CLASSE: {$classeNome}   TURMA: {$this->turma}   {$this->anoLetivo}");
-        $ws->getStyle('R4')->applyFromArray([
-            'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
-            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'vertical' => Alignment::VERTICAL_CENTER],
+        $ws->setCellValue('B10', "{$classeNome}ª Classe");
+        $ws->getStyle('B10')->applyFromArray([
+            'font' => ['name' => 'Arial', 'size' => 11, 'bold' => true, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
         ]);
 
-        // 4. CABEÇALHO DA TABELA — Linhas 6-7 (Nº/Nome merge 6-7 + Siglas linha 6 + Sub-colunas linha 7)
-        $ws->getRowDimension(6)->setRowHeight(16.0);
-        $ws->getRowDimension(7)->setRowHeight(14.0);
+        $direitaColStart = $this->colLetter(max(2, (2 + $numDisc * 5) - 4));
+        $ws->mergeCells("{$direitaColStart}10:{$resColLet}10");
+        $ws->setCellValue("{$direitaColStart}10", "Ano :  {$this->anoLetivo}");
+        $ws->getStyle("{$direitaColStart}10")->applyFromArray([
+            'font' => ['name' => 'Arial', 'size' => 11, 'bold' => true],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
 
-        // Nº e Nome (merge vertical 6-7)
-        $ws->mergeCells('A6:A7');
-        $ws->setCellValue('A6', 'Nº');
-        $ws->mergeCells('B6:B7');
-        $ws->setCellValue('B6', 'NOME');
-        foreach (['A6', 'B6'] as $c) {
+        // 5. LINHA ÁREA DE FORMAÇÃO / CURSO / SALA (linha 11)
+        $ws->getRowDimension(11)->setRowHeight(15);
+
+        $ws->setCellValue('B11', 'ÁREA DE FORMAÇÃO: '.mb_strtoupper($this->areaFormacao ?? ''));
+        $ws->getStyle('B11')->applyFromArray([
+            'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
+        ]);
+
+        // "CURSO" centrado aproximadamente no terço do meio da tabela de disciplinas
+        $cursoIdxIni = max(0, intdiv($numDisc, 3));
+        $cursoIdxFim = min($numDisc - 1, $cursoIdxIni * 2 + 1);
+        $cursoColStart = $this->colLetter($this->discBaseIdx($cursoIdxIni));
+        $cursoColEnd = $this->colLetter($this->discBaseIdx($cursoIdxFim) + 4);
+        $ws->mergeCells("{$cursoColStart}11:{$cursoColEnd}11");
+        $ws->setCellValue("{$cursoColStart}11", 'CURSO: '.mb_strtoupper($this->curso));
+        $ws->getStyle("{$cursoColStart}11")->applyFromArray([
+            'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+
+        $ws->mergeCells("{$direitaColStart}11:{$resColLet}11");
+        $ws->setCellValue("{$direitaColStart}11", "Sala :  {$this->sala}");
+        $ws->getStyle("{$direitaColStart}11")->applyFromArray([
+            'font' => ['name' => 'Arial', 'size' => 11, 'bold' => true],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+
+        // 6. CABEÇALHO DA TABELA — Linhas 12-13
+        $ws->getRowDimension(self::HEADER_ROW_SIGLAS)->setRowHeight(16.0);
+        $ws->getRowDimension(self::HEADER_ROW_SUBCOLS)->setRowHeight(14.0);
+
+        $r1 = self::HEADER_ROW_SIGLAS;
+        $r2 = self::HEADER_ROW_SUBCOLS;
+
+        // Nº e Nome (merge vertical r1-r2)
+        $ws->mergeCells("A{$r1}:A{$r2}");
+        $ws->setCellValue("A{$r1}", 'Nº');
+        $ws->mergeCells("B{$r1}:B{$r2}");
+        $ws->setCellValue("B{$r1}", 'NOME');
+        foreach (["A{$r1}", "B{$r1}"] as $c) {
             $ws->getStyle($c)->applyFromArray([
                 'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
             ]);
         }
 
-        // Disciplinas (siglas na linha 6, sub-colunas na linha 7)
+        // Disciplinas (siglas na linha r1, sub-colunas na linha r2)
         for ($d = 0; $d < $numDisc; $d++) {
             [$c1T, $c2T, $c3T, $cF, $cMF] = $this->discCols($d);
             $sigla = mb_strtoupper($this->disciplinas[$d]['sigla'] ?? $this->disciplinas[$d]['nome']);
 
-            // Sigla (merge horizontal das 5 sub-colunas)
-            $ws->mergeCells("{$c1T}6:{$cMF}6");
-            $ws->setCellValue("{$c1T}6", $sigla);
-            $ws->getStyle("{$c1T}6")->applyFromArray([
+            $ws->mergeCells("{$c1T}{$r1}:{$cMF}{$r1}");
+            $ws->setCellValue("{$c1T}{$r1}", $sigla);
+            $ws->getStyle("{$c1T}{$r1}")->applyFromArray([
                 'font' => ['name' => 'Arial', 'size' => 9, 'bold' => true],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 'borders' => ['bottom' => ['borderStyle' => $thin]],
             ]);
 
-            // Sub-colunas (1T, 2T, 3T, F, MF)
             foreach ([
                 $c1T => '1T',
                 $c2T => '2T',
@@ -187,30 +258,30 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
                 $cF => 'F',
                 $cMF => 'MF',
             ] as $col => $label) {
-                $ws->setCellValue("{$col}7", $label);
-                $ws->getStyle("{$col}7")->applyFromArray([
+                $ws->setCellValue("{$col}{$r2}", $label);
+                $ws->getStyle("{$col}{$r2}")->applyFromArray([
                     'font' => ['name' => 'Arial', 'size' => 8, 'bold' => true],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
             }
         }
 
-        // Resultado (merge vertical 6-7)
-        $ws->mergeCells("{$resColLet}6:{$resColLet}7");
-        $ws->setCellValue("{$resColLet}6", 'RESULTADO');
-        $ws->getStyle("{$resColLet}6")->applyFromArray([
+        // Resultado (merge vertical r1-r2)
+        $ws->mergeCells("{$resColLet}{$r1}:{$resColLet}{$r2}");
+        $ws->setCellValue("{$resColLet}{$r1}", 'RESULTADO');
+        $ws->getStyle("{$resColLet}{$r1}")->applyFromArray([
             'font' => ['name' => 'Arial', 'size' => 9, 'bold' => true],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER, 'wrapText' => true],
         ]);
 
-        // 5. BORDAS CABEÇALHO
-        $ws->getStyle('A6:A7')->applyFromArray(['borders' => [
+        // 7. BORDAS CABEÇALHO DA TABELA
+        $ws->getStyle("A{$r1}:A{$r2}")->applyFromArray(['borders' => [
             'left' => ['borderStyle' => $thin],
             'right' => ['borderStyle' => $thin],
             'top' => ['borderStyle' => $thin],
             'bottom' => ['borderStyle' => $thin],
         ]]);
-        $ws->getStyle('B6:B7')->applyFromArray(['borders' => [
+        $ws->getStyle("B{$r1}:B{$r2}")->applyFromArray(['borders' => [
             'top' => ['borderStyle' => $thin],
             'bottom' => ['borderStyle' => $thin],
             'left' => ['borderStyle' => $thin],
@@ -220,15 +291,13 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
         for ($d = 0; $d < $numDisc; $d++) {
             [$c1T, $c2T, $c3T, $cF, $cMF] = $this->discCols($d);
 
-            // Sigla (linha 6) — top medium, bottom medium
-            $ws->getStyle("{$c1T}6:{$cMF}6")->applyFromArray(['borders' => [
+            $ws->getStyle("{$c1T}{$r1}:{$cMF}{$r1}")->applyFromArray(['borders' => [
                 'top' => ['borderStyle' => $thin],
                 'bottom' => ['borderStyle' => $thin],
             ]]);
 
-            // Sub-colunas (linha 7) — thin em volta, bottom medium
             foreach ([$c1T, $c2T, $c3T, $cF, $cMF] as $col) {
-                $ws->getStyle("{$col}7")->applyFromArray(['borders' => [
+                $ws->getStyle("{$col}{$r2}")->applyFromArray(['borders' => [
                     'top' => ['borderStyle' => $thin],
                     'bottom' => ['borderStyle' => $thin],
                     'left' => ['borderStyle' => $thin],
@@ -236,17 +305,15 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
                 ]]);
             }
 
-            // Primeira sub-coluna (left medium), última (right medium)
-            $ws->getStyle("{$c1T}7")->applyFromArray(['borders' => ['left' => ['borderStyle' => $thin]]]);
-            $ws->getStyle("{$cMF}7")->applyFromArray(['borders' => ['right' => ['borderStyle' => $thin]]]);
+            $ws->getStyle("{$c1T}{$r2}")->applyFromArray(['borders' => ['left' => ['borderStyle' => $thin]]]);
+            $ws->getStyle("{$cMF}{$r2}")->applyFromArray(['borders' => ['right' => ['borderStyle' => $thin]]]);
         }
 
-        // Resultado
-        $ws->getStyle("{$resColLet}6:{$resColLet}7")->applyFromArray(['borders' => [
+        $ws->getStyle("{$resColLet}{$r1}:{$resColLet}{$r2}")->applyFromArray(['borders' => [
             'outline' => ['borderStyle' => $thin],
         ]]);
 
-        // 6. DADOS DOS ALUNOS
+        // 8. DADOS DOS ALUNOS
         for ($i = 0; $i < count($this->alunos); $i++) {
             $row = self::DATA_START_ROW + $i;
             $aluno = $this->alunos[$i];
@@ -292,7 +359,6 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
                     $ws->setCellValue("{$cMF}{$row}", $this->arredondarNota($mf));
                 }
 
-                // Estilos base
                 foreach ([$c1T, $c2T, $c3T, $cF, $cMF] as $col) {
                     $ws->getStyle("{$col}{$row}")->applyFromArray([
                         'font' => ['name' => 'Arial', 'size' => 9],
@@ -300,7 +366,6 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
                     ]);
                 }
 
-                // Cores: notas < 10 → vermelho
                 foreach (["{$c1T}{$row}" => $mt1, "{$c2T}{$row}" => $mt2, "{$c3T}{$row}" => $mt3] as $cell => $val) {
                     if ($val !== null) {
                         $ws->getStyle($cell)->applyFromArray([
@@ -309,7 +374,6 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
                     }
                 }
 
-                // MF: verde se ≥ 10, vermelho se < 10
                 if ($mf !== null) {
                     $ws->getStyle("{$cMF}{$row}")->applyFromArray([
                         'font' => [
@@ -321,7 +385,6 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
                     ]);
                 }
 
-                // Bordas
                 $ws->getStyle("{$c1T}{$row}")->applyFromArray(['borders' => ['left' => ['borderStyle' => $thin]]]);
                 foreach ([$c1T, $c2T, $c3T, $cF, $cMF] as $col) {
                     $ws->getStyle("{$col}{$row}")->applyFromArray(['borders' => [
@@ -334,7 +397,6 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
                 $ws->getStyle("{$cMF}{$row}")->applyFromArray(['borders' => ['right' => ['borderStyle' => $thin]]]);
             }
 
-            // Resultado
             $ws->setCellValue("{$resColLet}{$row}", $res);
             $cRes = match (true) {
                 str_contains($res, 'N/TRANSITA') => self::COR_VERM_TEXTO,
@@ -347,7 +409,6 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
                 'borders' => ['outline' => ['borderStyle' => $thin]],
             ]);
 
-            // Bordas Nº e Nome
             $ws->getStyle("A{$row}")->applyFromArray(['borders' => [
                 'left' => ['borderStyle' => $thin],
                 'right' => ['borderStyle' => $thin],
@@ -359,7 +420,7 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
             ]]);
         }
 
-        // 7. LINHAS VAZIAS
+        // 9. LINHAS VAZIAS
         for ($i = count($this->alunos); $i < self::MAX_ALUNOS; $i++) {
             $row = self::DATA_START_ROW + $i;
             $ws->getRowDimension($row)->setRowHeight(14.25);
@@ -386,18 +447,17 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
             $ws->getStyle("{$resColLet}{$row}")->applyFromArray(['borders' => ['outline' => ['borderStyle' => $thin]]]);
         }
 
-        // 8. BORDAS EXTERNAS
+        // 10. BORDAS EXTERNAS (apenas em torno da tabela de notas, do cabeçalho r1 até ao fim)
         $ultimaLinha = self::DATA_START_ROW + self::MAX_ALUNOS - 1;
 
-        for ($r = 2; $r <= $ultimaLinha; $r++) {
+        for ($r = $r1; $r <= $ultimaLinha; $r++) {
             $ws->getStyle("A{$r}")->applyFromArray(['borders' => ['left' => ['borderStyle' => $thin]]]);
             $ws->getStyle("{$resColLet}{$r}")->applyFromArray(['borders' => ['right' => ['borderStyle' => $thin]]]);
         }
-        $ws->getStyle("A2:{$lastColLet}2")->applyFromArray(['borders' => ['top' => ['borderStyle' => $thin]]]);
+        $ws->getStyle("A{$r1}:{$lastColLet}{$r1}")->applyFromArray(['borders' => ['top' => ['borderStyle' => $thin]]]);
         $ws->getStyle("A{$ultimaLinha}:{$lastColLet}{$ultimaLinha}")->applyFromArray(['borders' => ['bottom' => ['borderStyle' => $thin]]]);
-        $ws->getStyle("A6:{$lastColLet}6")->applyFromArray(['borders' => ['top' => ['borderStyle' => $thin]]]);
 
-        // 9. PÁGINA A4 LANDSCAPE
+        // 11. PÁGINA A4 LANDSCAPE
         $ws->getPageSetup()
             ->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)
             ->setPaperSize(PageSetup::PAPERSIZE_A4)

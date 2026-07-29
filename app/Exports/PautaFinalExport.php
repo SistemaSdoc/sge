@@ -15,6 +15,9 @@ class PautaFinalExport implements WithMultipleSheets
         protected string $instituicao,
         protected string $sala,
         protected string $classe,
+        protected ?string $areaFormacao = null,
+        protected ?string $director = null,
+        protected ?string $logoPath = null,
     ) {}
 
     public function sheets(): array
@@ -29,6 +32,9 @@ class PautaFinalExport implements WithMultipleSheets
                 instituicao: $this->instituicao,
                 sala: $this->sala,
                 classe: $this->classe,
+                areaFormacao: $this->areaFormacao,
+                director: $this->director,
+                logoPath: $this->logoPath,
             ),
         ];
     }
