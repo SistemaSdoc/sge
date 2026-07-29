@@ -44,12 +44,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-require __DIR__.'/modules/pautas.php';
-require __DIR__.'/modules/certificado.php';
-require __DIR__.'/modules/progressao.php';
-require __DIR__.'/modules/notas.php';
-require __DIR__.'/modules/acess-management.php';
-require __DIR__.'/modules/confirmar-matriculas.php';
+require __DIR__ . '/modules/pautas.php';
+require __DIR__ . '/modules/certificado.php';
+require __DIR__ . '/modules/progressao.php';
+require __DIR__ . '/modules/notas.php';
+require __DIR__ . '/modules/acess-management.php';
+require __DIR__ . '/modules/confirmar-matriculas.php';
 
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
@@ -101,7 +101,9 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
         Route::prefix('turmas/{turma}')->group(function () {
             Route::post('progressao', [ProgressaoController::class, 'store']);
             // Route::post('progressao/recurso', [ProgressaoController::class, 'storeRecurso']);
-            Route::post('notas/recurso', [NotaDisciplinaRecursoController::class, 'store']);
+            Route::get('disciplinas/{classeTurnoDisciplina}/notas/recurso', [NotaDisciplinaRecursoController::class, 'index']);
+            Route::post('disciplinas/{classeTurnoDisciplina}/notas/recurso', [NotaDisciplinaRecursoController::class, 'store']);
+
             Route::get('finalistas', [FinalistaController::class, 'index']);
             Route::post('alunos/{aluno}/pap-concluido', [FinalistaController::class, 'papConcluido']);
             Route::post('alunos/{aluno}/concluir', [FinalistaController::class, 'concluir']);
@@ -230,14 +232,40 @@ Route::prefix('grupo-pap-aprovacao')
 Route::get('/grupo-pap-aprovacao/melhorias', [GrupoPapAprovacaoController::class, 'melhorias'])
     ->name('grupo-pap-aprovacao.melhorias');
 
-Route::get('/grupo-pap-aprovacao/{grupoPap}/editar', [GrupoPapAprovacaoController::class, 'editar'])
-    ->name('grupo-pap-aprovacao.editar');
+Route::get(
+    '/grupo-pap-aprovacao/melhorias',
+    [GrupoPapAprovacaoController::class, 'melhorias']
+)->name(
+        'grupo-pap-aprovacao.melhorias'
+    );
 
-Route::put('/grupo-pap-aprovacao/{grupoPap}', [GrupoPapAprovacaoController::class, 'atualizar'])
-    ->name('grupo-pap-aprovacao.atualizar');
+Route::get(
+    '/grupo-pap-aprovacao/{grupoPap}/editar',
+    [GrupoPapAprovacaoController::class, 'editar']
+)->name(
+        'grupo-pap-aprovacao.editar'
+    );
 
-Route::post('/grupo-pap-aprovacao/{grupoPap}/reenviar', [GrupoPapAprovacaoController::class, 'reenviar'])
-    ->name('grupo-pap-aprovacao.reenviar');
+Route::put(
+    '/grupo-pap-aprovacao/{grupoPap}',
+    [GrupoPapAprovacaoController::class, 'atualizar']
+)->name(
+        'grupo-pap-aprovacao.atualizar'
+    );
+
+Route::post(
+    '/grupo-pap-aprovacao/{grupoPap}/reenviar',
+    [GrupoPapAprovacaoController::class, 'reenviar']
+)->name(
+        'grupo-pap-aprovacao.reenviar'
+    );
+
+Route::get(
+    '/grupo-pap-aprovacao/{grupoPap}/historico',
+    [GrupoPapAprovacaoController::class, 'historico']
+)->name(
+        'grupo-pap-aprovacao.historico'
+    );
 
 Route::get('/grupo-pap-aprovacao/{grupoPap}/historico', [GrupoPapAprovacaoController::class, 'historico'])
     ->name('grupo-pap-aprovacao.historico');

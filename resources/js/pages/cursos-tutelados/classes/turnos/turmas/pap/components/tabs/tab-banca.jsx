@@ -47,7 +47,7 @@ export function TabBanca({
       <CardHeader className="border-b">
         <CardTitle>Integrantes da banca</CardTitle>
         <CardDescription>Professores avaliadores e funções</CardDescription>
-        {canCreateBanca && (
+        {can?.banca?.create && (
           <CardAction>
             <Button asChild>
               <Link href={adicionarJurado.url(params)}>Adicionar</Link>
@@ -63,7 +63,7 @@ export function TabBanca({
             icon={Users2Icon}
             title="Nenhum membro da banca"
             description="Comece adicionando os jurados para a defesa do grupo PAP"
-            action={canCreateBanca ? {
+            action={can?.banca?.create ? {
               label: 'Adicionar juri',
               href: adicionarJurado.url(params),
               variant: 'outline',

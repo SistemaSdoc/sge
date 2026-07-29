@@ -86,6 +86,7 @@ export default function ProfessorForm({
                   )}
                 </Button>
               </Field>
+              {errors?.coordenador && <FieldError>{errors.coordenador}</FieldError>}
             </FieldSet>
           </FieldGroup>
         </CardContent>

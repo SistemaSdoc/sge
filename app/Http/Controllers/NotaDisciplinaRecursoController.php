@@ -22,7 +22,8 @@ class NotaDisciplinaRecursoController extends Controller
     public function __construct(
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {}
+    ) {
+    }
 
     /**
      * Lista as notas das provas do recurso dos alunos de uma turma ...
@@ -44,33 +45,36 @@ class NotaDisciplinaRecursoController extends Controller
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id)
+                ->whereIn('periodo', [3, 4]),
         ])
             ->where('turma_id', $turma->id)
             ->where('situacao', 'activo')
             ->where('activo', true)
             ->orderBy('id')
-            ->get();
+            ->get()
+            ->filter(function ($ta) use ($tdp) {
+                $notaP3 = $ta->notas->firstWhere('periodo', 3);
+                return $notaP3
+                    && $notaP3->media_final !== null
+                    && $notaP3->media_final >= 7
+                    && $notaP3->media_final < 10;
+            });
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index', [
-            'instituicao' => $instituicao->id,
-            'cursoTutelado' => $cursoTutelado->id,
-            'cursoClasse' => $cursoClasse->id,
-            'cursoClasseTurno' => $cursoClasseTurno->id,
-            'turma' => $turma->id,
-            'tdp' => $tdp->id,
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas', [
+            'tdp_id' => $tdp->id,
             'disciplina' => [
                 'id' => $classeTurnoDisciplina->id,
                 'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
                 'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
             ],
-            'alunos' => $turmaAlunos->map(fn ($ta) => [
+            'alunos' => $turmaAlunos->values()->map(fn($ta) => [
                 'turma_aluno_id' => $ta->id,
                 'aluno_id' => $ta->aluno->id,
                 'nome' => $ta->aluno->inscricao?->candidato?->nome,
-                'notas' => $ta->notas
-                    ->map(fn ($n) => $this->formatarNota($n))
-                    ->keyBy('periodo'),
+                'tdp_id' => $tdp->id,
+                'media_final_p3' => $ta->notas->firstWhere('periodo', 3)?->media_final,
+                'nota_recurso' => $ta->notas->firstWhere('periodo', 4)?->media_final,
             ]),
         ]);
     }
@@ -103,10 +107,12 @@ class NotaDisciplinaRecursoController extends Controller
         Request $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
+        ClasseTurnoDisciplina $classeTurnoDisciplina
     ) {
         $validated = $request->validate([
-            'periodo' => 'required|integer|in:4',
             'lancamentos' => 'required|array',
             'lancamentos.*.turma_aluno_id' => 'required|exists:turma_aluno,id',
             'lancamentos.*.tdp_id' => 'required|exists:turma_disciplina_professor,id',
@@ -114,14 +120,19 @@ class NotaDisciplinaRecursoController extends Controller
         ]);
 
         foreach ($validated['lancamentos'] as $lancamento) {
-            $this->notaService->lancarNotas(
-                [$lancamento['turma_aluno_id'] => ['nota_recurso' => $lancamento['nota_recurso']]],
-                $lancamento['tdp_id'],
-                4
+            Nota::updateOrCreate(
+                [
+                    'turma_aluno_id' => $lancamento['turma_aluno_id'],
+                    'turma_disciplina_professor_id' => $lancamento['tdp_id'],
+                    'periodo' => 4,
+                ],
+                [
+                    'media_final' => $lancamento['nota_recurso'],
+                ]
             );
         }
 
-        // Recalcular resultado dos alunos afectados pelo recurso
+        // Recalcular resultado dos alunos afectados
         $turmaAlunoIds = collect($validated['lancamentos'])->pluck('turma_aluno_id')->unique();
 
         TurmaAluno::with([
@@ -131,7 +142,7 @@ class NotaDisciplinaRecursoController extends Controller
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
         ])
             ->whereIn('id', $turmaAlunoIds)
-            ->each(fn ($ta) => $this->pautaService->actualizarResultadoAluno($ta));
+            ->each(fn($ta) => $this->pautaService->actualizarResultadoAluno($ta));
 
         return back();
     }

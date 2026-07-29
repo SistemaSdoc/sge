@@ -28,7 +28,7 @@ class BancaJuriPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('create', BancaJuriPap::class);
+        $this->authorize('create', [BancaJuriPap::class, $grupoPap]);
 
         $anoLectivoId = $turma->ano_lectivo_id; // ← NOVO
 
@@ -73,7 +73,7 @@ class BancaJuriPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('create', BancaJuriPap::class);
+        $this->authorize('create', [BancaJuriPap::class, $grupoPap]);
 
         BancaJuriPap::create([
             'grupo_pap_id' => $grupoPap->id,

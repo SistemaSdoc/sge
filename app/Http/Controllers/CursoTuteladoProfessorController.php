@@ -23,7 +23,7 @@ class CursoTuteladoProfessorController extends Controller
             ->paginate(5);
 
         return response()->json(
-            $professores->through(fn ($prof) => [
+            $professores->through(fn($prof) => [
                 'id' => $prof->id,
                 'nome' => $prof->user?->nome,
                 'email' => $prof->user?->email,
@@ -36,7 +36,7 @@ class CursoTuteladoProfessorController extends Controller
     public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
         $professores = Professor::with('user:id,nome')
-            ->whereHas('user', fn ($q) => $q->where('instituicao_id', $instituicao->id))
+            ->whereHas('user', fn($q) => $q->where('instituicao_id', $instituicao->id))
             ->orderBy('id')
             ->get();
 
@@ -55,12 +55,26 @@ class CursoTuteladoProfessorController extends Controller
     {
 
         $this->authorize('manageProfessores', $cursoTutelado);
-        
+
         $request->validate([
             'professor_id' => 'required|exists:professores,id',
             'tipo' => 'required|in:principal,colaborador',
             'coordenador' => 'boolean',
         ]);
+
+        // Se está a marcar como coordenador, verifica se já existe outro
+        if ($request->boolean('coordenador')) {
+            $jaTemCoordenador = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
+                ->where('professor_id', '!=', $request->professor_id)
+                ->where('coordenador', true)
+                ->exists();
+
+            if ($jaTemCoordenador) {
+                return back()->withErrors([
+                    'coordenador' => 'Este curso tutelado já tem um coordenador definido.',
+                ]);
+            }
+        }
 
         CursoTuteladoProfessor::updateOrCreate(
             [
@@ -84,7 +98,9 @@ class CursoTuteladoProfessorController extends Controller
         //
     }
 
-    public function edit($id) {}
+    public function edit($id)
+    {
+    }
 
     public function update(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, $professore)
     {

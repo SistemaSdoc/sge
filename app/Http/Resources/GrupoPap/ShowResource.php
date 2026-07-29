@@ -24,7 +24,7 @@ class ShowResource extends JsonResource
             'status' => $this->status,
             'status_aprovacao' => $this->status_aprovacao,
             'nota_final' => $this->nota_final,
-            'data_defesa' => $this->data_defesa,
+            'data_defesa' => $this->data_defesa?->toIso8601String(),
             'local_defesa' => $this->local_defesa,
             'professor' => $this->professor ? [
                 'id' => $this->professor->id,

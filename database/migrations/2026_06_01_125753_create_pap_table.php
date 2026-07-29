@@ -35,13 +35,13 @@ return new class extends Migration {
             // ← FIM DOS NOVOS CAMPOS
             $table->text('estudo_caso')->nullable();
             $table->string('trabalho_grupo')->nullable();
-            $table->string('status')->default('Em andamento');
+            $table->enum('status', ['pendente', 'em-andamento', 'concluido'])->default('pendente');
             $table->decimal('nota_final', 5, 2)->nullable();
-            $table->date('data_defesa')->nullable();
+            $table->dateTime('data_defesa')->nullable();
             $table->string('local_defesa')->nullable();
             $table->timestamps();
 
-             $table->index('status_aprovacao');
+            $table->index('status_aprovacao');
         });
 
         Schema::create('elementos_grupo_pap', function (Blueprint $table) {

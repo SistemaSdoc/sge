@@ -31,10 +31,14 @@ class GrupoPap extends Model
 
     protected $primaryKey = 'id';
 
+
+    const STATUS_PENDENTE = 'pendente';
+    const STATUS_EM_ANDAMENTO = 'em-andamento';
+    const STATUS_CONCLUIDO = 'concluido';
     protected function casts(): array
     {
         return [
-            'data_defesa' => 'date:Y-m-d',
+            'data_defesa' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];
@@ -115,7 +119,8 @@ class GrupoPap extends Model
 
     public function podeSerAprovado(): bool
     {
-        return $this->status_aprovacao === 'pendente';
+        // Pode aprovar se ainda não foi finalizado (aprovado ou reprovado)
+        return in_array($this->status_aprovacao, ['pendente', 'melhoria-solicitada']);
     }
 
     public function podeSerReenviado(): bool

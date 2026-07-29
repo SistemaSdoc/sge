@@ -63,6 +63,9 @@ export default function Show({
     data_defesa: grupoPap?.data_defesa
       ? grupoPap.data_defesa.split('T')[0]
       : '',
+    hora_defesa: grupoPap?.data_defesa
+      ? grupoPap.data_defesa.split('T')[1]?.slice(0, 5)
+      : '',
     local_defesa: grupoPap?.local_defesa ?? '',
   });
 
@@ -97,6 +100,10 @@ export default function Show({
       setError('data_defesa', 'A data da defesa é obrigatória.');
       return;
     }
+    if (!data.hora_defesa) {
+      setError('hora_defesa', 'A hora da defesa é obrigatória.');
+      return;
+    }
 
     put(definirData.url(params), {
       onSuccess: () => {
@@ -114,9 +121,8 @@ export default function Show({
           <div className="relative z-10 flex w-full items-end justify-between p-6">
             <div className="space-y-2 text-white">
               <h1 className="text-2xl font-semibold md:text-3xl">
-                {grupoPap?.nome_grupo}
+                {grupoPap?.nome_grupo} - {grupoPap?.tema_grupo}
               </h1>
-              <p className="text-sm opacity-90">{grupoPap?.tema_grupo}</p>
             </div>
 
             {hasAnyAction && (
@@ -189,12 +195,17 @@ export default function Show({
           <div>
             <p className="text-sm text-muted-foreground">Local & Data de defesa</p>
             <p className="font-medium">
-              {grupoPap?.local_defesa}/{grupoPap?.data_defesa
-                ? new Date(grupoPap.data_defesa).toLocaleDateString('pt-PT', {
+              {grupoPap?.local_defesa
+                ? `${grupoPap.local_defesa} / `
+                : ''}
+              {grupoPap?.data_defesa
+                ? new Date(grupoPap.data_defesa).toLocaleString('pt-PT', {
                   weekday: 'short',
                   day: '2-digit',
                   month: 'short',
                   year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
                 })
                 : 'Por definir...'}
             </p>
@@ -227,6 +238,17 @@ export default function Show({
               {errors.data_defesa && (
                 <FieldError>{errors.data_defesa}</FieldError>
               )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="hora_defesa">Hora da defesa</Label>
+              <Input
+                id="hora_defesa"
+                type="time"
+                value={data.hora_defesa}
+                onChange={(e) => setData('hora_defesa', e.target.value)}
+              />
+              {errors.hora_defesa && <FieldError>{errors.hora_defesa}</FieldError>}
             </div>
 
             <div className="space-y-1.5">
@@ -267,12 +289,12 @@ export default function Show({
             Integrantes do grupo
           </TabsTrigger>
 
-          <TabsTrigger value="integrantes-banca">
-            Integrantes da banca
-          </TabsTrigger>
-
           <TabsTrigger value="aprovacao">
             Aprovação
+          </TabsTrigger>
+
+          <TabsTrigger value="integrantes-banca">
+            Integrantes da banca
           </TabsTrigger>
 
           <TabsTrigger value="historico">
@@ -294,6 +316,14 @@ export default function Show({
           />
         </TabsContent>
 
+        <TabsContent value="aprovacao">
+          <TabAprovacao
+            params={params}
+            grupoPap={grupoPap}
+            can={can}
+          />
+        </TabsContent>
+
         <TabsContent value="integrantes-banca">
           <TabBanca
             params={params}
@@ -301,14 +331,6 @@ export default function Show({
             removerJuradoFn={removerJuradoFn}
             pagination={banca}
             onPageChange={bancaPagination.handlePageChange}
-            can={can}
-          />
-        </TabsContent>
-
-        <TabsContent value="aprovacao">
-          <TabAprovacao
-            params={params}
-            grupoPap={grupoPap}
             can={can}
           />
         </TabsContent>

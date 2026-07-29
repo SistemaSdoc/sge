@@ -43,6 +43,18 @@ class ElementoGrupoPapPolicy
 
     public function atualizarNota(User $user, ElementoGrupoPap $elementoGrupoPap): bool
     {
+        $grupoPap = $elementoGrupoPap->grupoPap;
+
+        // Data de defesa tem de estar definida e já ter chegado
+        if (is_null($grupoPap->data_defesa) || $grupoPap->data_defesa->isFuture()) {
+            return false;
+        }
+
+        // Tem de existir pelo menos um jurado na banca
+        if ($grupoPap->jurados()->doesntExist()) {
+            return false;
+        }
+
         return $user->can('elementogrupopap.atualizarNota')
             && $elementoGrupoPap->grupoPap->instituicao()->id === $user->instituicao_id;
     }

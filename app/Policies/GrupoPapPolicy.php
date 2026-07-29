@@ -98,6 +98,10 @@ class GrupoPapPolicy
      */
     public function definirData(User $user, GrupoPap $grupoPap): bool
     {
+
+       if ($grupoPap->status_aprovacao !== 'aprovado') {
+        return false;
+    }
         return $user->can('grupopap.definirData')
             && $grupoPap->instituicao()->id === $user->instituicao_id;
     }

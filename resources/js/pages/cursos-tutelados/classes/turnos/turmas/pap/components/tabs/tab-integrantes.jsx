@@ -133,7 +133,7 @@ export function TabIntegrantes({
                           max="20"
                           step="0.5"
                           className="w-20"
-                          defaultValue={el.nota_individual ?? ''}
+                          defaultValue={el.nota_individual != null ? Number(el.nota_individual) : ''}
                           onChange={(e) =>
                             setNotas((prev) => ({
                               ...prev,
@@ -151,7 +151,11 @@ export function TabIntegrantes({
                       </div>
                     ) : (
                       <span className="text-sm font-medium tabular-nums">
-                        {el.nota_individual ?? '—'}
+                        {el.nota_individual != null
+                          ? Number(el.nota_individual) % 1 === 0
+                            ? Number(el.nota_individual).toFixed(0)
+                            : Number(el.nota_individual)
+                          : '—'}
                       </span>
                     )}
                   </TableCell>

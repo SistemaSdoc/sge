@@ -28,6 +28,8 @@ export default function Show({
   const alunosPagination = usePagination('alunos');
   const disciplinasPagination = usePagination('disciplinas');
   const gruposPagination = usePagination('grupos');
+  const recursosPagination = usePagination('disciplinas');
+
 
   const params = {
     instituicao: instituicao.id,
@@ -114,7 +116,12 @@ export default function Show({
 
         {totalRecurso > 0 && (
           <TabsContent value="recurso">
-            <TabRecurso alunos={pautaRecurso?.alunos ?? []} params={params} />
+            <TabRecurso
+              disciplinas={disciplinas.data}
+              params={params}
+              pagination={disciplinas.meta}
+              onPageChange={disciplinasPagination.handlePageChange}
+            />
           </TabsContent>
         )}
       </Tabs>

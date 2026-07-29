@@ -135,6 +135,7 @@ class AprovacaoTemaService
                 'aprovado_por_id' => $user->id,
                 'data_aprovacao' => now(),
                 'comentario_aprovacao' => $comentario,
+                ...($novoEstado === 'aprovado' ? ['status' => 'em-andamento'] : []),
             ]);
 
             // Registar histórico da decisão

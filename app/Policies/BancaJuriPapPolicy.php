@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\BancaJuriPap;
+use App\Models\GrupoPap;
 use App\Models\User;
 
 class BancaJuriPapPolicy
@@ -27,8 +28,11 @@ class BancaJuriPapPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user): bool
+    public function create(User $user, GrupoPap $grupoPap): bool
     {
+         if (is_null($grupoPap->data_defesa)) {
+        return false;
+    }
         return $user->can('bancajuripap.create');
     }
 
