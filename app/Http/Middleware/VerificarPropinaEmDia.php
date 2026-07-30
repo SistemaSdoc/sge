@@ -6,7 +6,6 @@ use App\Services\VerificadorPropinaService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 class VerificarPropinaEmDia
@@ -32,16 +31,13 @@ class VerificarPropinaEmDia
             return $next($request);
         }
 
-        $resultado = $this->verificador->pendenciasDoAluno($aluno);
-        $pendencias = $resultado['pendencias'] ?? [];
-        $pagos = $resultado['pagos'] ?? [];
+        // O service devolve directamente a lista de pendências (array simples).
+        $pendencias = $this->verificador->pendenciasDoAluno($aluno);
 
         Log::debug('[VerificarPropinaEmDia] resultado da verificação', [
             'aluno_id' => $aluno->id,
             'total_pendencias' => count($pendencias),
             'pendencias' => $pendencias,
-            'total_pagos' => count($pagos),
-            'pagos' => $pagos,
         ]);
 
         if (empty($pendencias)) {
@@ -55,17 +51,17 @@ class VerificarPropinaEmDia
             'total_pendencias' => count($pendencias),
         ]);
 
-        $previousUrl = url()->previous();
-        
+        $meses = [
+            1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+            5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+            9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro',
+        ];
+
         return response()->view('errors.propina-pendente', [
-    'pendencias' => $pendencias,
-    'total' => count($pendencias),
-    'previousUrl' => $previousUrl,
-    'meses' => [
-        1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
-        5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
-        9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
-    ],
-], 403);
+            'pendencias' => $pendencias,
+            'total' => count($pendencias),
+            'previousUrl' => url()->previous(),
+            'meses' => $meses,
+        ], 403);
     }
 }
