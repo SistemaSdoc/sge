@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\User;
+
+class HorarioPolicy
+{
+    /**
+     * Beta: apenas Aluno e Professor podem ver o menu/página de Horários.
+     * Sem model dedicado ainda — verificação genérica por role.
+     */
+    public function viewAny(User $user): bool
+    {
+        return $user->hasAnyRole(['Aluno', 'Professor']);
+    }
+}

@@ -6,6 +6,7 @@ use App\Services\VerificadorPropinaService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 class VerificarPropinaEmDia
@@ -28,6 +29,7 @@ class VerificarPropinaEmDia
 
         if (! $aluno) {
             Log::debug('[VerificarPropinaEmDia] sem aluno associado — deixa passar');
+
             return $next($request);
         }
 
@@ -42,6 +44,7 @@ class VerificarPropinaEmDia
 
         if (empty($pendencias)) {
             Log::debug('[VerificarPropinaEmDia] aluno em dia — deixa passar', ['aluno_id' => $aluno->id]);
+
             return $next($request);
         }
 
@@ -51,17 +54,17 @@ class VerificarPropinaEmDia
             'total_pendencias' => count($pendencias),
         ]);
 
-        $meses = [
-            1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
-            5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
-            9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro',
-        ];
+        $previousUrl = url()->previous();
 
-        return response()->view('errors.propina-pendente', [
+        return Inertia::render('propinas/bloqueio', [
             'pendencias' => $pendencias,
             'total' => count($pendencias),
-            'previousUrl' => url()->previous(),
-            'meses' => $meses,
-        ], 403);
+            'previousUrl' => $previousUrl,
+            'meses' => [
+                1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+                5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+                9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro',
+            ],
+        ])->toResponse(request())->setStatusCode(403);
     }
 }

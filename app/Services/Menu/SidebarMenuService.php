@@ -22,6 +22,7 @@ use App\Http\Controllers\TurnoController;
 use App\Models\Aluno;
 use App\Models\Aviso;
 use App\Models\Classe;
+use App\Models\ConfirmacaoMatricula;
 use App\Models\Curso;
 use App\Models\GrupoPap;
 use App\Models\Inscricao;
@@ -30,6 +31,7 @@ use App\Models\ItemPagavel;
 use App\Models\Nota;
 use App\Models\Pagamento;
 use App\Models\Professor;
+use App\Models\RegraAvaliacao;
 use App\Models\Turma;
 use App\Models\Turno;
 use Illuminate\Support\Facades\Auth;
@@ -137,12 +139,20 @@ final class SidebarMenuService
                     icon: 'FileTextIcon',
                     can: fn () => Gate::allows('viewAny', Nota::class)
                 ),
+
+                new MenuItem(
+                    key: 'horarios',
+                    title: 'Horários',
+                    href: '/dashboard/horarios',
+                    icon: 'CalendarClock',
+                    can: fn () => Gate::allows('horarios.viewAny')
+                ),
                 new MenuItem(
                     key: 'regras-avaliacao',
                     title: 'Regras de Avaliação',
                     href: action([RegraAvaliacaoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can:  fn () => Gate::allows('viewAny', \App\Models\RegraAvaliacao::class),
+                    can: fn () => Gate::allows('viewAny', RegraAvaliacao::class),
                 ),
             ]),
 
@@ -160,7 +170,7 @@ final class SidebarMenuService
                     title: 'Confirmações de Matrícula',
                     href: action([ConfirmacaoMatriculaController::class, 'index']),
                     icon: 'ClipboardCheck',
-                    can:    fn () => Gate::allows('viewAny', \App\Models\ConfirmacaoMatricula::class)
+                    can: fn () => Gate::allows('viewAny', ConfirmacaoMatricula::class)
                 ),
             ]),
 
@@ -198,7 +208,6 @@ final class SidebarMenuService
                     icon: 'Users',
                     can: fn () => Gate::allows('viewAny', GrupoPap::class),
                 ),
-
                 new MenuItem(
                     key: 'colegios',
                     title: 'Colégios',
@@ -210,7 +219,7 @@ final class SidebarMenuService
                             : '#';
                     })(),
                     icon: 'Building2',
-                    can: fn () => Gate::allows('viewAny', \App\Models\Colegio::class),
+                    can: fn () => Gate::allows('colegios.viewAny'),
                 ),
             ]),
 

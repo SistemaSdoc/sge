@@ -6,8 +6,9 @@ use App\Listeners\RegisteredListener;
 use App\Models\CursoTuteladoProfessor;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Policies\AcessManagementPolicy;
+use App\Policies\ColegioPolicy;
 use App\Policies\GrelhaCurricularPolicy;
-use App\Policies\ItemPagavelPolicy;
+use App\Policies\HorarioPolicy;
 use App\Policies\PagamentoPolicy;
 use App\Policies\PautaPolicy;
 use Carbon\CarbonImmutable;
@@ -43,8 +44,11 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('grelha-curricular.viewAny', [GrelhaCurricularPolicy::class, 'viewAny']);
         Gate::define('acessos.viewAny', [AcessManagementPolicy::class, 'viewAny']);
         Gate::define('acessos.create', [AcessManagementPolicy::class, 'create']);
-       # Gate::define('pagamentos.view', [PagamentoPolicy::class, 'viewAny']);
-       # Gate::define('pagamentos.gerir', [PagamentoPolicy::class, 'create']);
+        Gate::define('horarios.viewAny', [HorarioPolicy::class, 'viewAny']);
+
+        Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);
+        // Gate::define('pagamentos.view', [PagamentoPolicy::class, 'viewAny']);
+        // Gate::define('pagamentos.gerir', [PagamentoPolicy::class, 'create']);
 
         // $this->configureDefaults();
 
@@ -53,9 +57,8 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('SuperAdmin') ? true : null;
         });
 
-
         // Registrar observadores de modelos
-         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
+        CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
     }
 
     /**

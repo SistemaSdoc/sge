@@ -451,11 +451,10 @@ class RolePermissionSeeder extends Seeder
 
             'Professor' => [
                 // Alunos
-                'alunos.viewAny',
-                'alunos.view',
+                // 'alunos.viewAny',
+                // 'alunos.view',
 
-                // Professores (ver o próprio perfil)
-                'professores.viewAny',
+                // Professores
                 'professores.view',
 
                 // Turmas
@@ -471,11 +470,8 @@ class RolePermissionSeeder extends Seeder
                 'notas.update',
 
                 // Avisos
-            
-                //'avisos.viewAny',
+                // 'avisos.viewAny',
                 'avisos.view',
-                'avisos.create',
-                'avisos.update',
 
                 // Grupo PAP
                 'grupopap.viewAny',
@@ -498,11 +494,8 @@ class RolePermissionSeeder extends Seeder
             ],
 
             'Aluno' => [
-
-                // Grupo PAP
                 'notas.viewAny',
                 'grelha.viewAny',
-
             ],
 
             'Candidato' => [],
