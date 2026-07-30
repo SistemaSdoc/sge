@@ -54,19 +54,19 @@ export function FinalPautaHeader({ disciplinas }) {
         {disciplinas.map((disciplina) => (
           <Fragment key={`${disciplina.id}-sub`}>
             <TableHead className="border-r border-l bg-muted px-4 text-center">
-              1T
+              MT1
             </TableHead>
             <TableHead className="border-r bg-muted px-4 text-center">
-              2T
+              MT2
             </TableHead>
             <TableHead className="border-r bg-muted px-4 text-center">
-              3T
+              MT3
             </TableHead>
             <TableHead className="border-r bg-muted px-4 text-center">
-              F
+              F.I
             </TableHead>
             <TableHead className="border-r bg-muted px-4 text-center">
-              MF
+              MFD
             </TableHead>
           </Fragment>
         ))}

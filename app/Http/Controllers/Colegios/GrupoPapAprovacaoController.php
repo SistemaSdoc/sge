@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Colegios;
 
 use App\Http\Controllers\Controller;
 use App\Models\GrupoPap;
+use App\Models\Instituicao;
 use App\Services\AprovacaoTemaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,7 @@ class GrupoPapAprovacaoController extends Controller
      * Listar temas PAP pendentes de aprovação
      * para o coordenador do curso.
      */
-    public function pendentes()
+    public function pendentes(Instituicao $instituicao)
     {
         $user = Auth::user();
 
@@ -42,22 +43,20 @@ class GrupoPapAprovacaoController extends Controller
         return inertia('pap/PendentesAprovacao', [
             'temasPendentes' => $temasPendentes,
 
-            // Rotas para o frontend
-            'rotaAprovar' => route(
-                'grupo-pap-aprovacao.aprovar',
-                ':id'
-            ),
-
-            'rotaReprovar' => route(
-                'grupo-pap-aprovacao.reprovar',
-                ':id'
-            ),
-
-            'rotaMelhoria' => route(
-                'grupo-pap-aprovacao.solicitar-melhoria',
-                ':id'
-            ),
+            'rotaAprovar' => route('colegio.grupo-pap-aprovacao.aprovar', [
+                'instituicao' => $instituicao->id,
+                'grupoPap' => ':id',
+            ]),
+            'rotaReprovar' => route('colegio.grupo-pap-aprovacao.reprovar', [
+                'instituicao' => $instituicao->id,
+                'grupoPap' => ':id',
+            ]),
+            'rotaMelhoria' => route('colegio.grupo-pap-aprovacao.solicitar-melhoria', [
+                'instituicao' => $instituicao->id,
+                'grupoPap' => ':id',
+            ]),
         ]);
+
     }
 
     /**
@@ -246,7 +245,7 @@ class GrupoPapAprovacaoController extends Controller
      *
      * Página do colégio
      */
-    public function melhorias()
+    public function melhorias(Instituicao $instituicao)
     {
         $user = Auth::user();
 
@@ -270,17 +269,17 @@ class GrupoPapAprovacaoController extends Controller
         return inertia('pap/TemasMelhoria', [
             'temas' => $temas,
 
-            'rotaEditar' => route(
-                'grupo-pap-aprovacao.editar',
-                ':id'
-            ),
+            'rotaEditar' => route('colegio.grupo-pap-aprovacao.editar', [
+                'instituicao' => $instituicao->id,
+                'grupoPap' => ':id',
+            ]),
         ]);
     }
 
     /**
      * Formulário para corrigir tema
      */
-    public function editar(GrupoPap $grupoPap)
+    public function editar(GrupoPap $grupoPap, Instituicao $instituicao)
     {
         /* $this->authorize(
              'editarTema',
@@ -295,15 +294,14 @@ class GrupoPapAprovacaoController extends Controller
         return inertia('pap/EditarTemaMelhoria', [
             'grupoPap' => $grupoPap,
 
-            'rotaAtualizar' => route(
-                'grupo-pap-aprovacao.atualizar',
-                ':id'
-            ),
-
-            'rotaReenviar' => route(
-                'grupo-pap-aprovacao.reenviar',
-                ':id'
-            ),
+            'rotaAtualizar' => route('colegio.grupo-pap-aprovacao.atualizar', [
+                'instituicao' => $instituicao->id,
+                'grupoPap' => $grupoPap->id,
+            ]),
+            'rotaReenviar' => route('colegio.grupo-pap-aprovacao.reenviar', [
+                'instituicao' => $instituicao->id,
+                'grupoPap' => $grupoPap->id,
+            ]),
         ]);
     }
 

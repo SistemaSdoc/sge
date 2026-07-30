@@ -38,12 +38,12 @@ Route::prefix('colegios')->group(function () {
             ->only(['create', 'store', 'edit', 'update', 'destroy']);
     });
 
+
     Route::prefix('grupo-pap-aprovacao')
-        ->name('grupo-pap-aprovacao.')
+        ->name('colegio.grupo-pap-aprovacao.')   // era 'grupo-pap-aprovacao.'
         ->group(function () {
             Route::get('/pendentes', [GrupoPapAprovacaoController::class, 'pendentes'])
                 ->name('pendentes');
-
             Route::post('/{grupoPap}/aprovar', [GrupoPapAprovacaoController::class, 'aprovar'])
                 ->name('aprovar');
 
@@ -54,38 +54,19 @@ Route::prefix('colegios')->group(function () {
                 ->name('solicitar-melhoria');
         });
 
-
     Route::get('/grupo-pap-aprovacao/melhorias', [GrupoPapAprovacaoController::class, 'melhorias'])
-    ->name(
-            'grupo-pap-aprovacao.melhorias'
-        );
+        ->name('colegio.grupo-pap-aprovacao.melhorias');   // era 'grupo-pap-aprovacao.melhorias'
 
-    Route::get(
-        '/grupo-pap-aprovacao/{grupoPap}/editar',
-        [GrupoPapAprovacaoController::class, 'editar']
-    )->name(
-            'grupo-pap-aprovacao.editar'
-        );
+    Route::get('/grupo-pap-aprovacao/{grupoPap}/editar', [GrupoPapAprovacaoController::class, 'editar'])
+        ->name('colegio.grupo-pap-aprovacao.editar');
 
-    Route::put(
-        '/grupo-pap-aprovacao/{grupoPap}',
-        [GrupoPapAprovacaoController::class, 'atualizar']
-    )->name(
-            'grupo-pap-aprovacao.atualizar'
-        );
+    Route::put('/grupo-pap-aprovacao/{grupoPap}', [GrupoPapAprovacaoController::class, 'atualizar'])
+        ->name('colegio.grupo-pap-aprovacao.atualizar');
 
-    Route::post(
-        '/grupo-pap-aprovacao/{grupoPap}/reenviar',
-        [GrupoPapAprovacaoController::class, 'reenviar']
-    )->name(
-            'grupo-pap-aprovacao.reenviar'
-        );
+    Route::post('/grupo-pap-aprovacao/{grupoPap}/reenviar', [GrupoPapAprovacaoController::class, 'reenviar'])
+        ->name('colegio.grupo-pap-aprovacao.reenviar');
 
-    Route::get(
-        '/grupo-pap-aprovacao/{grupoPap}/historico',
-        [GrupoPapAprovacaoController::class, 'historico']
-    )->name(
-            'grupo-pap-aprovacao.historico'
-        );
+    Route::get('/grupo-pap-aprovacao/{grupoPap}/historico', [GrupoPapAprovacaoController::class, 'historico'])
+        ->name('colegio.grupo-pap-aprovacao.historico');
 
 });

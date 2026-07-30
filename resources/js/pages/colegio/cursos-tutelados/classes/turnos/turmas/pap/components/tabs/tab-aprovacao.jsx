@@ -183,7 +183,7 @@ export function TabAprovacao({ params, grupoPap, can, turma }) {
               <p className="text-sm text-muted-foreground">
                 {statusAtual === 'aprovado'
                   ? 'Tema aprovado. Pode agora definir a data e local de defesa.'
-                  : 'Melhoria solicitada. Aguarda correcção por parte do colégio.'}
+                  : 'Melhoria solicitada.'}
               </p>
             </div>
           )}
