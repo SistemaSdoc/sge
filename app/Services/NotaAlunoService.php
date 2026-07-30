@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\ArredondamentoHelper;
 use App\Models\Aluno;
 use App\Models\Turma;
 use App\Models\TurmaAluno;
@@ -13,13 +14,13 @@ class NotaAlunoService
     {
         $turmaAluno = $aluno->turmaAlunoActual();
 
-        abort_if(! $turmaAluno, 404, 'Registo do aluno na turma não encontrado.');
+        abort_if(!$turmaAluno, 404, 'Registo do aluno na turma não encontrado.');
 
         $disciplinasDaTurma = $this->disciplinasDaTurma($turmaAluno->turma);
         $notasPorDisciplina = $this->notasAgrupadasPorDisciplina($turmaAluno);
 
         return $disciplinasDaTurma->map(
-            fn ($tdp) => $this->montarLinhaDisciplina($tdp, $notasPorDisciplina)
+            fn($tdp) => $this->montarLinhaDisciplina($tdp, $notasPorDisciplina)
         )->values();
     }
 
@@ -28,8 +29,8 @@ class NotaAlunoService
         return $turma->turmaDisciplinaProfessor()
             ->with(['classeTurnoDisciplina.disciplina:id,nome,sigla'])
             ->get()
-            ->groupBy(fn ($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
-            ->map(fn ($tdps) => $tdps->first());
+            ->groupBy(fn($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
+            ->map(fn($tdps) => $tdps->first());
     }
 
     private function notasAgrupadasPorDisciplina(TurmaAluno $turmaAluno): Collection
@@ -37,7 +38,7 @@ class NotaAlunoService
         return $turmaAluno->notas()
             ->with(['turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome,sigla'])
             ->get()
-            ->groupBy(fn ($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id);
+            ->groupBy(fn($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id);
     }
 
     private function montarLinhaDisciplina($tdp, Collection $notasPorDisciplina): array
@@ -45,14 +46,16 @@ class NotaAlunoService
         $disciplina = $tdp->classeTurnoDisciplina->disciplina;
         $notas = $notasPorDisciplina->get($disciplina->id, collect());
 
+        $notaPeriodo3 = $notas->firstWhere('periodo', 3);
+
         return [
             'id' => $disciplina->id,
             'disciplina' => $disciplina->nome,
             'sigla' => $disciplina->sigla,
             'trimestres' => $this->montarTrimestres($notas),
             'total_faltas' => $notas->sum('faltas'),
-            'mediaFinal' => $notas->firstWhere('periodo', 3)?->media_final,
-            'status' => $notas->firstWhere('periodo', 3)?->situacao_anual,
+            'mediaFinal' => ArredondamentoHelper::roundToHalf($notaPeriodo3?->media_final),
+            'status' => $notaPeriodo3?->situacao_anual,
         ];
     }
 
@@ -61,14 +64,18 @@ class NotaAlunoService
         return collect([1, 2, 3])->mapWithKeys(function ($periodo) use ($notasPorDisciplina) {
             $nota = $notasPorDisciplina->firstWhere('periodo', $periodo);
 
-            return [$periodo => [
-                'provas' => $nota
-                    ? [$nota->mac, $nota->nota_prova_professor, $nota->nota_prova_trimestral]
-                    : [null, null, null],
-                'media' => $nota?->media_trimestral,
-                'faltas' => $nota?->faltas,
-                'situacao' => $nota?->situacao_trimestral,
-            ]];
+            return [
+                $periodo => [
+                    'provas' => $nota ? [
+                        ArredondamentoHelper::roundToHalf($nota->mac),
+                        ArredondamentoHelper::roundToHalf($nota->nota_prova_professor),
+                        ArredondamentoHelper::roundToHalf($nota->nota_prova_trimestral),
+                    ] : [null, null, null],
+                    'media' => ArredondamentoHelper::roundToHalf($nota?->media_trimestral),
+                    'faltas' => $nota?->faltas,
+                    'situacao' => $nota?->situacao_trimestral,
+                ]
+            ];
         })->toArray();
     }
 }
