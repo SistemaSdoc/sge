@@ -9,67 +9,80 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use App\Services\VerificadorPropinaService;
 use Inertia\Inertia;
 
 class AlunoController extends Controller
 {
-    public function index()
-    {
-        Gate::authorize('viewAny', Aluno::class);
+    public function index(VerificadorPropinaService $verificador)
+{
+    Gate::authorize('viewAny', Aluno::class);
 
-        $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::activo()?->id;
+    $anoLectivoId = request('ano_lectivo_id')
+        ?? AnoLectivo::activo()?->id;
 
-        /** @var User $user */
-        $user = Auth::user();
+    /** @var User $user */
+    $user = Auth::user();
 
-        $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
-            ->doAnoLectivo($anoLectivoId)
-            ->with([
-                'inscricao.candidato:id,nome,bi,email,telefone',
-                'inscricao.cursoClasseTurno.turno:id,nome',
-                'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
-                'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-                'turmas' => fn($q) => $q->wherePivot('activo', true)
-                    ->with([
-                        'cursoClasseTurno.cursoClasse.classe:id,nome',
-                        'anoLectivo:id,nome',
-                    ]),
-            ])
-            // Director, Subdirector, Secretaria — filtro por instituição
-            ->when(
-                $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),
-                fn($q) => $q->whereHas(
-                    'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn($q) => $q->where('instituicao_id', $user->instituicao_id)
+    $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
+        ->doAnoLectivo($anoLectivoId)
+        ->with([
+            'inscricao.candidato:id,nome,bi,email,telefone',
+            'inscricao.cursoClasseTurno.turno:id,nome',
+            'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
+            'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
+            'turmas' => fn($q) => $q->wherePivot('activo', true)
+                ->with([
+                    'cursoClasseTurno.cursoClasse.classe:id,nome',
+                    'anoLectivo:id,nome',
+                ]),
+        ])
+        ->when(
+            $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),
+            fn($q) => $q->whereHas(
+                'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                fn($q) => $q->where('instituicao_id', $user->instituicao_id)
+            )
+        )
+        ->when(
+            $user->hasRole('Professor'),
+            fn($q) => $q->whereHas(
+                'turmas',
+                fn($q) => $q->whereIn(
+                    'turmas.id',
+                    $user->professor->turmas()->pluck('turmas.id')
                 )
             )
-            // Professor — só alunos das suas turmas
-            ->when(
-                $user->hasRole('Professor'),
-                fn($q) => $q->whereHas(
-                    'turmas',
-                    fn($q) => $q->whereIn(
-                        'turmas.id',
-                        $user->professor->turmas()->pluck('turmas.id')
-                    )
-                )
-            )
-            ->latest()
-            ->paginate(10);
+        )
+        ->latest()
+        ->paginate(10);
 
-        $alunos->getCollection()->transform(function ($aluno) use ($user) {
-            $aluno->can = [
-                'view' => $user->can('view', $aluno),
-                'update' => $user->can('update', $aluno),
-                'delete' => $user->can('delete', $aluno),
-            ];
+    $alunos->getCollection()->transform(function ($aluno) use ($user) {
+        $aluno->can = [
+            'view' => $user->can('view', $aluno),
+            'update' => $user->can('update', $aluno),
+            'delete' => $user->can('delete', $aluno),
+        ];
 
-            return $aluno;
-        });
+        return $aluno;
+    });
 
-        return Inertia::render('alunos/index', [
-            'alunos' => $alunos->through(fn($aluno) => [
+    return Inertia::render('alunos/index', [
+        // ⬇️ MUDOU: de fn() para function() para poder ter o log dentro
+        'alunos' => $alunos->through(function ($aluno) use ($verificador) {
+
+            $status = $aluno->turmaActual()->first()
+                ? ($verificador->estaEmDia($aluno) ? 'pagou' : 'atrasado')
+                : 'sem_turma';
+
+            // ⬇️ LOG TEMPORÁRIO — é aqui que ele deve estar
+            \Illuminate\Support\Facades\Log::debug('[AlunoController] status calculado', [
+                'aluno_id' => $aluno->id,
+                'nome' => $aluno->inscricao?->candidato?->nome,
+                'propina_status' => $status,
+            ]);
+
+            return [
                 'id' => $aluno->id,
                 'matricula' => $aluno->matricula,
                 'nome' => $aluno->inscricao?->candidato?->nome,
@@ -82,15 +95,17 @@ class AlunoController extends Controller
                 'turma' => $aluno->turmas->first()?->nome ?? 'Sem turma',
                 'classe' => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome,
                 'ano_lectivo' => $aluno->turmas->first()?->anoLectivo?->nome,
+                'propina_status' => $status, // ⬅️ usa a variável já calculada acima
                 'can' => $aluno->can,
-            ]),
-            'anoLectivoId' => $anoLectivoId,
-            'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
-            'can' => [
-                'create' => $user->can('create', Aluno::class),
-            ],
-        ]);
-    }
+            ];
+        }),
+        'anoLectivoId' => $anoLectivoId,
+        'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
+        'can' => [
+            'create' => $user->can('create', Aluno::class),
+        ],
+    ]);
+}
 
     public function show(Aluno $aluno)
     {

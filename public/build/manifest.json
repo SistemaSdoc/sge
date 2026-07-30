@@ -1,167 +1,287 @@
 {
+<<<<<<< HEAD
   "_AccessManagementController-BahZAW8o.js": {
     "file": "assets/AccessManagementController-BahZAW8o.js",
+=======
+  "_AccessManagementController-BdcY3g8J.js": {
+    "file": "assets/AccessManagementController-BdcY3g8J.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "AccessManagementController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_AlunoController-Csm-NACM.js": {
     "file": "assets/AlunoController-Csm-NACM.js",
+=======
+  "_AlunoController-BtFlHnvO.js": {
+    "file": "assets/AlunoController-BtFlHnvO.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "AlunoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_AnoLectivoController-DvfXUbzp.js": {
     "file": "assets/AnoLectivoController-DvfXUbzp.js",
+=======
+  "_AnoLectivoController-BWGcJT-X.js": {
+    "file": "assets/AnoLectivoController-BWGcJT-X.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "AnoLectivoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_AvisoController-SjE-mT4o.js": {
     "file": "assets/AvisoController-SjE-mT4o.js",
+=======
+  "_AvisoController-C7hih3Li.js": {
+    "file": "assets/AvisoController-C7hih3Li.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "AvisoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_BancaJuriPapController-BDbzpBQz.js": {
     "file": "assets/BancaJuriPapController-BDbzpBQz.js",
+=======
+  "_BancaJuriPapController-4pX_59MS.js": {
+    "file": "assets/BancaJuriPapController-4pX_59MS.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "BancaJuriPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_BancaJuriPapController-DLyXHxcl.js": {
     "file": "assets/BancaJuriPapController-DLyXHxcl.js",
+=======
+  "_BancaJuriPapController-r0uPmiAH.js": {
+    "file": "assets/BancaJuriPapController-r0uPmiAH.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "BancaJuriPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CertificadoController-BbuqA0tL.js": {
     "file": "assets/CertificadoController-BbuqA0tL.js",
+=======
+  "_CertificadoController-CMJrZzZd.js": {
+    "file": "assets/CertificadoController-CMJrZzZd.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "CertificadoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ClasseController-CEiPX3SB.js": {
     "file": "assets/ClasseController-CEiPX3SB.js",
+=======
+  "_ClasseController-CqhHV6zr.js": {
+    "file": "assets/ClasseController-CqhHV6zr.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "ClasseController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ClasseTurnoDisciplinaController-BE8TduLy.js": {
     "file": "assets/ClasseTurnoDisciplinaController-BE8TduLy.js",
+=======
+  "_ClasseTurnoDisciplinaController-CiC9AGdn.js": {
+    "file": "assets/ClasseTurnoDisciplinaController-CiC9AGdn.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "ClasseTurnoDisciplinaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ClasseTurnoTurmaController-BC3N2ill.js": {
     "file": "assets/ClasseTurnoTurmaController-BC3N2ill.js",
+=======
+  "_ClasseTurnoTurmaController-C4EoZGWo.js": {
+    "file": "assets/ClasseTurnoTurmaController-C4EoZGWo.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "ClasseTurnoTurmaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursoClasseController-C-TWo0-F.js": {
     "file": "assets/CursoClasseController-C-TWo0-F.js",
+=======
+  "_CursoClasseController-DbpQwmzp.js": {
+    "file": "assets/CursoClasseController-DbpQwmzp.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "CursoClasseController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursoClasseTurnoController-CywCuuEE.js": {
     "file": "assets/CursoClasseTurnoController-CywCuuEE.js",
+=======
+  "_CursoClasseTurnoController-Ck7Z0HUc.js": {
+    "file": "assets/CursoClasseTurnoController-Ck7Z0HUc.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "CursoClasseTurnoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursoTuteladoController-DTmE_9G9.js": {
     "file": "assets/CursoTuteladoController-DTmE_9G9.js",
+=======
+  "_CursoTuteladoController-Cu_vQe42.js": {
+    "file": "assets/CursoTuteladoController-Cu_vQe42.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "CursoTuteladoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursoTuteladoController-jyRYsJPl.js": {
     "file": "assets/CursoTuteladoController-jyRYsJPl.js",
+=======
+  "_CursoTuteladoController-WqoJp0rA.js": {
+    "file": "assets/CursoTuteladoController-WqoJp0rA.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "CursoTuteladoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursoTuteladoProfessorController-Dvh5nHUb.js": {
     "file": "assets/CursoTuteladoProfessorController-Dvh5nHUb.js",
+=======
+  "_CursoTuteladoProfessorController-BEICTY9T.js": {
+    "file": "assets/CursoTuteladoProfessorController-BEICTY9T.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "CursoTuteladoProfessorController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_CursosController-C6iwnjVa.js": {
     "file": "assets/CursosController-C6iwnjVa.js",
+=======
+  "_CursosController-BWguroOA.js": {
+    "file": "assets/CursosController-BWguroOA.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "CursosController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ElementoGrupoPapController-ByoKkXbA.js": {
     "file": "assets/ElementoGrupoPapController-ByoKkXbA.js",
+=======
+  "_ElementoGrupoPapController-CcApU2n3.js": {
+    "file": "assets/ElementoGrupoPapController-CcApU2n3.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "ElementoGrupoPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ExportarMiniPautaController-C9GRs59Y.js": {
     "file": "assets/ExportarMiniPautaController-C9GRs59Y.js",
+=======
+  "_ExportarMiniPautaController-CzUwN7_C.js": {
+    "file": "assets/ExportarMiniPautaController-CzUwN7_C.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "ExportarMiniPautaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_GrupoPapAprovacaoController-BE18FYbo.js": {
     "file": "assets/GrupoPapAprovacaoController-BE18FYbo.js",
+=======
+  "_GrupoPapAprovacaoController-GZE_GJQ0.js": {
+    "file": "assets/GrupoPapAprovacaoController-GZE_GJQ0.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "GrupoPapAprovacaoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_GrupoPapController-CFS4CIIg.js": {
     "file": "assets/GrupoPapController-CFS4CIIg.js",
+=======
+  "_GrupoPapController-B9NQdId1.js": {
+    "file": "assets/GrupoPapController-B9NQdId1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "GrupoPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_GrupoPapController-CUvwKlLP.js": {
     "file": "assets/GrupoPapController-CUvwKlLP.js",
+=======
+  "_GrupoPapController-tjmCJz--.js": {
+    "file": "assets/GrupoPapController-tjmCJz--.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "GrupoPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_InstituicaoController-X87NgPuH.js": {
     "file": "assets/InstituicaoController-X87NgPuH.js",
+=======
+  "_InstituicaoController-Cgs_bcHq.js": {
+    "file": "assets/InstituicaoController-Cgs_bcHq.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "InstituicaoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ItemPagavelController-CgJkD43o.js": {
     "file": "assets/ItemPagavelController-CgJkD43o.js",
+=======
+  "_ItemPagavelController-BS6o5Dpz.js": {
+    "file": "assets/ItemPagavelController-BS6o5Dpz.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "ItemPagavelController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ModalDecisaoAprovacao-DNXF47Y2.js": {
     "file": "assets/ModalDecisaoAprovacao-DNXF47Y2.js",
+=======
+  "_ModalDecisaoAprovacao-D2Nhq__o.js": {
+    "file": "assets/ModalDecisaoAprovacao-D2Nhq__o.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "ModalDecisaoAprovacao",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -169,50 +289,85 @@
       "_textarea-CEblRWsJ.js"
     ]
   },
+<<<<<<< HEAD
   "_NotaDisciplinaController-DmJqehAQ.js": {
     "file": "assets/NotaDisciplinaController-DmJqehAQ.js",
+=======
+  "_NotaDisciplinaController-ChhsTD9_.js": {
+    "file": "assets/NotaDisciplinaController-ChhsTD9_.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "NotaDisciplinaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_PagamentoController-CJ522zqU.js": {
     "file": "assets/PagamentoController-CJ522zqU.js",
+=======
+  "_PagamentoController-Cl7Q23WU.js": {
+    "file": "assets/PagamentoController-Cl7Q23WU.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "PagamentoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_PautaController-twVT4RG2.js": {
     "file": "assets/PautaController-twVT4RG2.js",
+=======
+  "_PautaController-DZyHfmlJ.js": {
+    "file": "assets/PautaController-DZyHfmlJ.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "PautaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_ProfessorController-Cswdhgn1.js": {
     "file": "assets/ProfessorController-Cswdhgn1.js",
+=======
+  "_ProfessorController-Bu_EysEp.js": {
+    "file": "assets/ProfessorController-Bu_EysEp.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "ProfessorController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_RegraAvaliacaoController-BFM_Wyw3.js": {
     "file": "assets/RegraAvaliacaoController-BFM_Wyw3.js",
+=======
+  "_RegraAvaliacaoController-Cmxj-5vK.js": {
+    "file": "assets/RegraAvaliacaoController-Cmxj-5vK.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "RegraAvaliacaoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_TurmaDisciplinaProfessorController-BQ1MDhTt.js": {
     "file": "assets/TurmaDisciplinaProfessorController-BQ1MDhTt.js",
+=======
+  "_TurmaDisciplinaProfessorController-UJJ6NvIX.js": {
+    "file": "assets/TurmaDisciplinaProfessorController-UJJ6NvIX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "TurmaDisciplinaProfessorController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_TurnoController-CUzkPWVj.js": {
     "file": "assets/TurnoController-CUzkPWVj.js",
+=======
+  "_TurnoController-DKxN-nS_.js": {
+    "file": "assets/TurnoController-DKxN-nS_.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "TurnoController",
     "imports": [
       "resources/js/app.tsx"
@@ -278,8 +433,13 @@
       "_utils-CxwIYYhK.js"
     ]
   },
+<<<<<<< HEAD
   "_body-Dx7M-TCv.js": {
     "file": "assets/body-Dx7M-TCv.js",
+=======
+  "_body-Dd3r6jk4.js": {
+    "file": "assets/body-Dd3r6jk4.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "body",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -304,17 +464,27 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_card-actions-CvGpM9GA.js": {
     "file": "assets/card-actions-CvGpM9GA.js",
     "name": "card-actions",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_select-xUXtRxg9.js",
+=======
+  "_card-actions-CdaMSHFR.js": {
+    "file": "assets/card-actions-CdaMSHFR.js",
+    "name": "card-actions",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_select-C5NhaGya.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_utils-CxwIYYhK.js"
     ]
   },
+<<<<<<< HEAD
   "_cart-items-BczJmt2S.js": {
     "file": "assets/cart-items-BczJmt2S.js",
     "name": "cart-items",
@@ -330,6 +500,23 @@
   },
   "_cart-summary-D35es4NI.js": {
     "file": "assets/cart-summary-D35es4NI.js",
+=======
+  "_cart-items-CbfxY7xf.js": {
+    "file": "assets/cart-items-CbfxY7xf.js",
+    "name": "cart-items",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_checkbox-DWf1uin5.js",
+      "_toggle-group-CmtZcxIc.js",
+      "_utils-BNhDZxi-.js",
+      "_badge-DxvCgqB1.js",
+      "_item-BDz6MHZb.js",
+      "_pagamentos-DtK05c6T.js"
+    ]
+  },
+  "_cart-summary-CHvaHGYz.js": {
+    "file": "assets/cart-summary-CHvaHGYz.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "cart-summary",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -338,7 +525,11 @@
       "_card-CLsug2Zw.js",
       "_empty-D6FHIzKb.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_spinner-B74vKTsl.js",
+=======
+      "_spinner-A7jPuRhk.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_pagamentos-DtK05c6T.js"
     ]
   },
@@ -349,8 +540,13 @@
       "_createLucideIcon-6hAcjkHs.js"
     ]
   },
+<<<<<<< HEAD
   "_checkbox-Dm-iUrX3.js": {
     "file": "assets/checkbox-Dm-iUrX3.js",
+=======
+  "_checkbox-DWf1uin5.js": {
+    "file": "assets/checkbox-DWf1uin5.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "checkbox",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -394,8 +590,13 @@
       "_createLucideIcon-6hAcjkHs.js"
     ]
   },
+<<<<<<< HEAD
   "_combobox-B-NPVmDf.js": {
     "file": "assets/combobox-B-NPVmDf.js",
+=======
+  "_combobox-BVFKgd4B.js": {
+    "file": "assets/combobox-BVFKgd4B.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "combobox",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -405,11 +606,19 @@
       "_floating-ui.react-dom-C18jycQX.js",
       "_utils-BNhDZxi-.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_input-group-D3katUOH.js"
     ]
   },
   "_confirm-3RragzEI.js": {
     "file": "assets/confirm-3RragzEI.js",
+=======
+      "_input-group-BNVjxXCr.js"
+    ]
+  },
+  "_confirm-BXe1exSd.js": {
+    "file": "assets/confirm-BXe1exSd.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "confirm",
     "imports": [
       "resources/js/app.tsx"
@@ -542,6 +751,7 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_edit-professor-modal-DeLj1fj9.js": {
     "file": "assets/edit-professor-modal-DeLj1fj9.js",
     "name": "edit-professor-modal",
@@ -551,6 +761,17 @@
       "resources/js/app.tsx",
       "_field-DBwSjZJQ.js",
       "_CursoTuteladoProfessorController-Dvh5nHUb.js"
+=======
+  "_edit-professor-modal-CZwvuCnD.js": {
+    "file": "assets/edit-professor-modal-CZwvuCnD.js",
+    "name": "edit-professor-modal",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_field-voVIi7hX.js",
+      "_CursoTuteladoProfessorController-BEICTY9T.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "_ellipsis-Dus2UbHw.js": {
@@ -569,8 +790,13 @@
       "_dist-RDu3SUJ-.js"
     ]
   },
+<<<<<<< HEAD
   "_empty-state-B9lMnxoL.js": {
     "file": "assets/empty-state-B9lMnxoL.js",
+=======
+  "_empty-state-CDS8RrE1.js": {
+    "file": "assets/empty-state-CDS8RrE1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "empty-state",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -588,8 +814,13 @@
       "_dist-Ctfm89E2.js"
     ]
   },
+<<<<<<< HEAD
   "_field-DBwSjZJQ.js": {
     "file": "assets/field-DBwSjZJQ.js",
+=======
+  "_field-voVIi7hX.js": {
+    "file": "assets/field-voVIi7hX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "field",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -637,24 +868,42 @@
     "file": "assets/get-badge-color-Byh8ULIt.js",
     "name": "get-badge-color"
   },
+<<<<<<< HEAD
   "_google-BPuKUExF.js": {
     "file": "assets/google-BPuKUExF.js",
+=======
+  "_google-U0S9oOe3.js": {
+    "file": "assets/google-U0S9oOe3.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "google",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_google-button-oVE-vIRX.js": {
     "file": "assets/google-button-oVE-vIRX.js",
+=======
+  "_google-button-DTLGO-Dg.js": {
+    "file": "assets/google-button-DTLGO-Dg.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "google-button",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_spinner-B74vKTsl.js"
     ]
   },
   "_header-B7noayAv.js": {
     "file": "assets/header-B7noayAv.js",
+=======
+      "_spinner-A7jPuRhk.js"
+    ]
+  },
+  "_header-DXl21I2Z.js": {
+    "file": "assets/header-DXl21I2Z.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "header",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -685,12 +934,21 @@
       "_table-DrQFDzr_.js"
     ]
   },
+<<<<<<< HEAD
   "_horarios-form-Illkq1Ih.js": {
     "file": "assets/horarios-form-Illkq1Ih.js",
     "name": "horarios-form",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_checkbox-Dm-iUrX3.js",
+=======
+  "_horarios-form-BckvfH2P.js": {
+    "file": "assets/horarios-form-BckvfH2P.js",
+    "name": "horarios-form",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_checkbox-DWf1uin5.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/app.tsx",
       "_table-DrQFDzr_.js"
     ]
@@ -703,8 +961,13 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_input-group-D3katUOH.js": {
     "file": "assets/input-group-D3katUOH.js",
+=======
+  "_input-group-BNVjxXCr.js": {
+    "file": "assets/input-group-BNVjxXCr.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "input-group",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -714,8 +977,13 @@
       "_textarea-CEblRWsJ.js"
     ]
   },
+<<<<<<< HEAD
   "_inscricoes-D2Y2hlGg.js": {
     "file": "assets/inscricoes-D2Y2hlGg.js",
+=======
+  "_inscricoes-BA980GJN.js": {
+    "file": "assets/inscricoes-BA980GJN.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "inscricoes",
     "imports": [
       "resources/js/app.tsx"
@@ -776,8 +1044,13 @@
       "_pt-jv_QGq0b.js"
     ]
   },
+<<<<<<< HEAD
   "_item-B3FUrv9z.js": {
     "file": "assets/item-B3FUrv9z.js",
+=======
+  "_item-BDz6MHZb.js": {
+    "file": "assets/item-BDz6MHZb.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -787,6 +1060,7 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_item-CMEusWVx.js": {
     "file": "assets/item-CMEusWVx.js",
     "name": "item",
@@ -812,6 +1086,10 @@
   },
   "_item-Cif3FzoU.js": {
     "file": "assets/item-Cif3FzoU.js",
+=======
+  "_item-BE0RSjkf.js": {
+    "file": "assets/item-BE0RSjkf.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -820,46 +1098,106 @@
       "_card-CLsug2Zw.js"
     ]
   },
+<<<<<<< HEAD
   "_item-DiyBZXvu.js": {
     "file": "assets/item-DiyBZXvu.js",
+=======
+  "_item-BYMKK_s4.js": {
+    "file": "assets/item-BYMKK_s4.js",
+    "name": "item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_urgency-BOmF4fe2.js",
+      "_badge-DxvCgqB1.js",
+      "_item-BDz6MHZb.js",
+      "_pt-jv_QGq0b.js",
+      "_format-B0iQlhay.js"
+    ]
+  },
+  "_item-BeoDh7mA.js": {
+    "file": "assets/item-BeoDh7mA.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_item-B3FUrv9z.js",
       "_get-badge-color-Byh8ULIt.js"
     ]
   },
   "_item-iix2YgSZ.js": {
     "file": "assets/item-iix2YgSZ.js",
+=======
+      "_item-BDz6MHZb.js",
+      "_pt-jv_QGq0b.js",
+      "_format-B0iQlhay.js"
+    ]
+  },
+  "_item-H5AR_cyX.js": {
+    "file": "assets/item-H5AR_cyX.js",
+    "name": "item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_badge-DxvCgqB1.js",
+      "_item-BDz6MHZb.js",
+      "_pt-jv_QGq0b.js",
+      "_format-B0iQlhay.js"
+    ]
+  },
+  "_item-MU2MoHqM.js": {
+    "file": "assets/item-MU2MoHqM.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_urgency-BOmF4fe2.js",
       "resources/js/app.tsx",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_item-B3FUrv9z.js"
     ]
   },
   "_item-pnubSiG0.js": {
     "file": "assets/item-pnubSiG0.js",
+=======
+      "_item-BDz6MHZb.js"
+    ]
+  },
+  "_item-SOIAtrcH.js": {
+    "file": "assets/item-SOIAtrcH.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_item-B3FUrv9z.js",
       "_get-badge-color-Byh8ULIt.js"
     ]
   },
   "_item-ppMKgHt1.js": {
     "file": "assets/item-ppMKgHt1.js",
+=======
+      "_item-BDz6MHZb.js",
+      "_get-badge-color-Byh8ULIt.js"
+    ]
+  },
+  "_item-aqOKjSPq.js": {
+    "file": "assets/item-aqOKjSPq.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_item-B3FUrv9z.js",
       "_pt-jv_QGq0b.js",
       "_format-B0iQlhay.js"
+=======
+      "_item-BDz6MHZb.js",
+      "_get-badge-color-Byh8ULIt.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "_jsx-runtime-DIBGU2nq.js": {
@@ -875,14 +1213,23 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_lancamentos-recurso-table-DSo9YkkD.js": {
     "file": "assets/lancamentos-recurso-table-DSo9YkkD.js",
+=======
+  "_lancamentos-recurso-table-DCmK6Xl4.js": {
+    "file": "assets/lancamentos-recurso-table-DCmK6Xl4.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "lancamentos-recurso-table",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js"
     ]
@@ -922,8 +1269,13 @@
       "_jsx-runtime-DIBGU2nq.js"
     ]
   },
+<<<<<<< HEAD
   "_multiple-select-0Iqm25rC.js": {
     "file": "assets/multiple-select-0Iqm25rC.js",
+=======
+  "_multiple-select-qsucmtC9.js": {
+    "file": "assets/multiple-select-qsucmtC9.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "multiple-select",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -933,15 +1285,24 @@
       "_dist-C6xzvqf82.js",
       "_utils-BNhDZxi-.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_input-group-D3katUOH.js"
+=======
+      "_input-group-BNVjxXCr.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "_pagamentos-DtK05c6T.js": {
     "file": "assets/pagamentos-DtK05c6T.js",
     "name": "pagamentos"
   },
+<<<<<<< HEAD
   "_pagination-CK57RI9E.js": {
     "file": "assets/pagination-CK57RI9E.js",
+=======
+  "_pagination-BjR2DL7p.js": {
+    "file": "assets/pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "pagination",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -950,13 +1311,19 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_passkey-verify--0Pa1M-3.js": {
     "file": "assets/passkey-verify--0Pa1M-3.js",
+=======
+  "_passkey-verify-B7FNPUQT.js": {
+    "file": "assets/passkey-verify-B7FNPUQT.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "passkey-verify",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_react-CYuos3AN.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_spinner-B74vKTsl.js",
       "_input-error-Cqkovvfq.js"
     ]
@@ -971,6 +1338,22 @@
   },
   "_password-input-C5Aq2dRR.js": {
     "file": "assets/password-input-C5Aq2dRR.js",
+=======
+      "_spinner-A7jPuRhk.js",
+      "_input-error-Cqkovvfq.js"
+    ]
+  },
+  "_password-694hzVgf.js": {
+    "file": "assets/password-694hzVgf.js",
+    "name": "password",
+    "imports": [
+      "resources/js/app.tsx",
+      "_confirm-BXe1exSd.js"
+    ]
+  },
+  "_password-input-OU0Zxj5h.js": {
+    "file": "assets/password-input-OU0Zxj5h.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "password-input",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -986,13 +1369,22 @@
       "_jsx-runtime-DIBGU2nq.js"
     ]
   },
+<<<<<<< HEAD
   "_permission-section-B4pJB28O.js": {
     "file": "assets/permission-section-B4pJB28O.js",
+=======
+  "_permission-section-B55zJfoZ.js": {
+    "file": "assets/permission-section-B55zJfoZ.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "permission-section",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_lock-Dvqfcyqv.js",
+<<<<<<< HEAD
       "_multiple-select-0Iqm25rC.js"
+=======
+      "_multiple-select-qsucmtC9.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "_pt-jv_QGq0b.js": {
@@ -1029,6 +1421,7 @@
       "_badge-DxvCgqB1.js"
     ]
   },
+<<<<<<< HEAD
   "_role-section-gbIwBiKW.js": {
     "file": "assets/role-section-gbIwBiKW.js",
     "name": "role-section",
@@ -1040,6 +1433,19 @@
   },
   "_select-xUXtRxg9.js": {
     "file": "assets/select-xUXtRxg9.js",
+=======
+  "_role-section-DDcwfJa6.js": {
+    "file": "assets/role-section-DDcwfJa6.js",
+    "name": "role-section",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_switch-DY0lSQ5a.js",
+      "_badge-DxvCgqB1.js"
+    ]
+  },
+  "_select-C5NhaGya.js": {
+    "file": "assets/select-C5NhaGya.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "select",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1063,8 +1469,13 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_spinner-B74vKTsl.js": {
     "file": "assets/spinner-B74vKTsl.js",
+=======
+  "_spinner-A7jPuRhk.js": {
+    "file": "assets/spinner-A7jPuRhk.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "spinner",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1072,6 +1483,7 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_state-empty-BYtFnx2k.js": {
     "file": "assets/state-empty-BYtFnx2k.js",
     "name": "state-empty",
@@ -1154,6 +1566,90 @@
   },
   "_switch-BB1q9gne.js": {
     "file": "assets/switch-BB1q9gne.js",
+=======
+  "_state-empty-CoAKAE12.js": {
+    "file": "assets/state-empty-CoAKAE12.js",
+    "name": "state-empty",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-gJtw5fOc.js"
+    ]
+  },
+  "_state-empty-D8K7A1SU.js": {
+    "file": "assets/state-empty-D8K7A1SU.js",
+    "name": "state-empty",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-DZ4waZIs.js"
+    ]
+  },
+  "_state-happening-CRRqwo_7.js": {
+    "file": "assets/state-happening-CRRqwo_7.js",
+    "name": "state-happening",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-DZ4waZIs.js"
+    ]
+  },
+  "_state-happening-Xf3O6ygo.js": {
+    "file": "assets/state-happening-Xf3O6ygo.js",
+    "name": "state-happening",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-gJtw5fOc.js"
+    ]
+  },
+  "_state-loading-BMA0Z93Y.js": {
+    "file": "assets/state-loading-BMA0Z93Y.js",
+    "name": "state-loading",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-DZ4waZIs.js"
+    ]
+  },
+  "_state-loading-C4IvdHZs.js": {
+    "file": "assets/state-loading-C4IvdHZs.js",
+    "name": "state-loading",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-gJtw5fOc.js"
+    ]
+  },
+  "_state-today-CSA2-tqE.js": {
+    "file": "assets/state-today-CSA2-tqE.js",
+    "name": "state-today",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-DZ4waZIs.js"
+    ]
+  },
+  "_state-today-DFxB3YlO.js": {
+    "file": "assets/state-today-DFxB3YlO.js",
+    "name": "state-today",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_summary-item-gJtw5fOc.js"
+    ]
+  },
+  "_summary-item-DZ4waZIs.js": {
+    "file": "assets/summary-item-DZ4waZIs.js",
+    "name": "summary-item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_item-BDz6MHZb.js"
+    ]
+  },
+  "_summary-item-gJtw5fOc.js": {
+    "file": "assets/summary-item-gJtw5fOc.js",
+    "name": "summary-item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_item-BDz6MHZb.js"
+    ]
+  },
+  "_switch-DY0lSQ5a.js": {
+    "file": "assets/switch-DY0lSQ5a.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "switch",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1167,21 +1663,37 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_tab-content-cursos-Dd-qE2Q7.js": {
     "file": "assets/tab-content-cursos-Dd-qE2Q7.js",
+=======
+  "_tab-content-cursos-x6mqz2fk.js": {
+    "file": "assets/tab-content-cursos-x6mqz2fk.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-content-cursos",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_book-VbVsmrsO.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
+=======
+      "_pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
       "_CursoTuteladoController-jyRYsJPl.js"
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_CursoTuteladoController-Cu_vQe42.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "_table-DrQFDzr_.js": {
@@ -1192,6 +1704,7 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_table-pagination-DJ1gyBZa.js": {
     "file": "assets/table-pagination-DJ1gyBZa.js",
     "name": "table-pagination",
@@ -1203,6 +1716,19 @@
   },
   "_tabs-kOxtTIGC.js": {
     "file": "assets/tabs-kOxtTIGC.js",
+=======
+  "_table-pagination-Boc6VjFW.js": {
+    "file": "assets/table-pagination-Boc6VjFW.js",
+    "name": "table-pagination",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_pagination-BjR2DL7p.js",
+      "_card-CLsug2Zw.js"
+    ]
+  },
+  "_tabs-B3DB8TTx.js": {
+    "file": "assets/tabs-B3DB8TTx.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tabs",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1225,8 +1751,13 @@
       "_jsx-runtime-DIBGU2nq.js"
     ]
   },
+<<<<<<< HEAD
   "_text-link-q-G6qQSm.js": {
     "file": "assets/text-link-q-G6qQSm.js",
+=======
+  "_text-link-Cf7NxZm9.js": {
+    "file": "assets/text-link-Cf7NxZm9.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "text-link",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1242,8 +1773,13 @@
       "_utils-BNhDZxi-.js"
     ]
   },
+<<<<<<< HEAD
   "_toggle-group-B1gODp5T.js": {
     "file": "assets/toggle-group-B1gODp5T.js",
+=======
+  "_toggle-group-CmtZcxIc.js": {
+    "file": "assets/toggle-group-CmtZcxIc.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "toggle-group",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1257,12 +1793,21 @@
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_trimestre-selector-BU-pePQ9.js": {
     "file": "assets/trimestre-selector-BU-pePQ9.js",
     "name": "trimestre-selector",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_select-xUXtRxg9.js"
+=======
+  "_trimestre-selector-Wm7zis_g.js": {
+    "file": "assets/trimestre-selector-Wm7zis_g.js",
+    "name": "trimestre-selector",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_select-C5NhaGya.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "_urgency-BOmF4fe2.js": {
@@ -1273,23 +1818,38 @@
       "_circle-alert-CmOZxo2j.js"
     ]
   },
+<<<<<<< HEAD
   "_use-dialog-BVaztzAq.js": {
     "file": "assets/use-dialog-BVaztzAq.js",
+=======
+  "_use-dialog-BpUa4_F0.js": {
+    "file": "assets/use-dialog-BpUa4_F0.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "use-dialog",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_use-pagination-9zNRp6le.js": {
     "file": "assets/use-pagination-9zNRp6le.js",
+=======
+  "_use-pagination-DHYoJ6vI.js": {
+    "file": "assets/use-pagination-DHYoJ6vI.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "use-pagination",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
+<<<<<<< HEAD
   "_use-two-factor-auth-Dlbc2-Qe.js": {
     "file": "assets/use-two-factor-auth-Dlbc2-Qe.js",
+=======
+  "_use-two-factor-auth-DcpSOAnX.js": {
+    "file": "assets/use-two-factor-auth-DcpSOAnX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "use-two-factor-auth",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1316,8 +1876,13 @@
     "file": "assets/verificar-situacao-B5GGfqM_.js",
     "name": "verificar-situacao"
   },
+<<<<<<< HEAD
   "_verification-Bmu23grp.js": {
     "file": "assets/verification-Bmu23grp.js",
+=======
+  "_verification-Z6k_ABVG.js": {
+    "file": "assets/verification-Z6k_ABVG.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "verification",
     "imports": [
       "resources/js/app.tsx"
@@ -1360,7 +1925,11 @@
     "src": "node_modules/@fontsource-variable/roboto/files/roboto-vietnamese-wght-normal.woff2"
   },
   "resources/css/app.css": {
+<<<<<<< HEAD
     "file": "assets/app-CX_3Y-kI.css",
+=======
+    "file": "assets/app-Y_qLuPRN.css",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "app",
     "names": [
       "app.css"
@@ -1380,7 +1949,11 @@
     ]
   },
   "resources/js/app.tsx": {
+<<<<<<< HEAD
     "file": "assets/app-DOHJSGU3.js",
+=======
+    "file": "assets/app-DjgnDJ64.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -1410,7 +1983,11 @@
       "resources/js/pages/aluno/grelha-curricular/index.jsx",
       "resources/js/pages/aluno/minhas-notas/components/notas-resumo.jsx",
       "resources/js/pages/aluno/minhas-notas/components/notas-table.jsx",
+<<<<<<< HEAD
       "_trimestre-selector-BU-pePQ9.js",
+=======
+      "_trimestre-selector-Wm7zis_g.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/aluno/minhas-notas/index.jsx",
       "resources/js/pages/alunos/components/aluno-form.jsx",
       "resources/js/pages/alunos/components/aluno-table.jsx",
@@ -1486,7 +2063,11 @@
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/aprovacoes/editarMelhoria.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/aprovacoes/melhoria.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/aprovacoes/pendentes.jsx",
+<<<<<<< HEAD
       "_horarios-form-Illkq1Ih.js",
+=======
+      "_horarios-form-BckvfH2P.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
@@ -1495,7 +2076,11 @@
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/create.jsx",
+<<<<<<< HEAD
       "_lancamentos-recurso-table-DSo9YkkD.js",
+=======
+      "_lancamentos-recurso-table-DCmK6Xl4.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create.jsx",
@@ -1526,7 +2111,11 @@
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/show.jsx",
       "resources/js/pages/cursos-tutelados/components/forms/create.form.jsx",
       "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx",
+<<<<<<< HEAD
       "_edit-professor-modal-DeLj1fj9.js",
+=======
+      "_edit-professor-modal-CZwvuCnD.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx",
       "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx",
       "resources/js/pages/cursos-tutelados/create.jsx",
@@ -1537,6 +2126,7 @@
       "resources/js/pages/cursos-tutelados/show.jsx",
       "resources/js/pages/dashboard.jsx",
       "resources/js/pages/dashboards/aluno/components/avisos-eventos/index.jsx",
+<<<<<<< HEAD
       "_item-CXNueNWj.js",
       "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx",
       "_state-empty-LbB4pJjj.js",
@@ -1574,6 +2164,45 @@
       "resources/js/pages/gestao-acessos/components/drawer/index.jsx",
       "_permission-section-B4pJB28O.js",
       "_role-section-gbIwBiKW.js",
+=======
+      "_item-BeoDh7mA.js",
+      "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx",
+      "_state-empty-CoAKAE12.js",
+      "_state-happening-Xf3O6ygo.js",
+      "_state-loading-C4IvdHZs.js",
+      "_state-today-DFxB3YlO.js",
+      "_summary-item-gJtw5fOc.js",
+      "resources/js/pages/dashboards/aluno/components/greeting-header.jsx",
+      "resources/js/pages/dashboards/aluno/components/proximas-aulas/index.jsx",
+      "_item-SOIAtrcH.js",
+      "resources/js/pages/dashboards/aluno/index.jsx",
+      "resources/js/pages/dashboards/director/components/dashboard-summary/index.jsx",
+      "resources/js/pages/dashboards/director/components/feed-accoes/index.jsx",
+      "_item-MU2MoHqM.js",
+      "resources/js/pages/dashboards/director/components/greeting-header.jsx",
+      "resources/js/pages/dashboards/director/components/metricas/index.jsx",
+      "_item-BE0RSjkf.js",
+      "resources/js/pages/dashboards/director/components/proximos-eventos/index.jsx",
+      "_item-BYMKK_s4.js",
+      "resources/js/pages/dashboards/director/index.jsx",
+      "resources/js/pages/dashboards/professor/components/avisos-eventos/index.jsx",
+      "_item-H5AR_cyX.js",
+      "resources/js/pages/dashboards/professor/components/dashboard-summary/index.jsx",
+      "_state-empty-D8K7A1SU.js",
+      "_state-happening-CRRqwo_7.js",
+      "_state-loading-BMA0Z93Y.js",
+      "_state-today-CSA2-tqE.js",
+      "_summary-item-DZ4waZIs.js",
+      "resources/js/pages/dashboards/professor/components/greeting-header.jsx",
+      "resources/js/pages/dashboards/professor/components/proximas-aulas/index.jsx",
+      "_item-aqOKjSPq.js",
+      "resources/js/pages/dashboards/professor/index.jsx",
+      "resources/js/pages/erros/propina-pendente.jsx",
+      "_header-DXl21I2Z.js",
+      "resources/js/pages/gestao-acessos/components/drawer/index.jsx",
+      "_permission-section-B55zJfoZ.js",
+      "_role-section-DDcwfJa6.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/gestao-acessos/components/editar-acesso-drawer.jsx",
       "resources/js/pages/gestao-acessos/components/usuarios-table.jsx",
       "resources/js/pages/gestao-acessos/index.jsx",
@@ -1589,7 +2218,11 @@
       "resources/js/pages/instituicoes/components/show/instituicao-cursos.jsx",
       "resources/js/pages/instituicoes/components/skeletons/index.skeleton.jsx",
       "resources/js/pages/instituicoes/components/skeletons/show.skeleton.jsx",
+<<<<<<< HEAD
       "_tab-content-cursos-Dd-qE2Q7.js",
+=======
+      "_tab-content-cursos-x6mqz2fk.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/instituicoes/create.jsx",
       "resources/js/pages/instituicoes/edit.jsx",
       "resources/js/pages/instituicoes/index.jsx",
@@ -1600,8 +2233,13 @@
       "resources/js/pages/itens-pagaveis/edit.jsx",
       "resources/js/pages/itens-pagaveis/index.jsx",
       "resources/js/pages/itens-pagaveis/show.jsx",
+<<<<<<< HEAD
       "_cart-items-BczJmt2S.js",
       "_cart-summary-D35es4NI.js",
+=======
+      "_cart-items-CbfxY7xf.js",
+      "_cart-summary-CHvaHGYz.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/pagamentos/components/pagamentos-form.jsx",
       "resources/js/pages/pagamentos/components/pagamentos-table.jsx",
       "resources/js/pages/pagamentos/create.jsx",
@@ -1613,6 +2251,7 @@
       "resources/js/pages/pap/PendentesAprovacao.jsx",
       "resources/js/pages/pap/TemasMelhoria.jsx",
       "resources/js/pages/pap/components/InfoGrupoBox.jsx",
+<<<<<<< HEAD
       "_ModalDecisaoAprovacao-DNXF47Y2.js",
       "resources/js/pages/pap/components/RecomendacaoBox.jsx",
       "resources/js/pages/pap/components/grupo-pap-cards.jsx",
@@ -1622,6 +2261,17 @@
       "_resultado-badge-CxfsIBU-.js",
       "resources/js/pages/pautas/components/pauta-table/resumo-final.jsx",
       "_body-Dx7M-TCv.js",
+=======
+      "_ModalDecisaoAprovacao-D2Nhq__o.js",
+      "resources/js/pages/pap/components/RecomendacaoBox.jsx",
+      "resources/js/pages/pap/components/grupo-pap-cards.jsx",
+      "resources/js/pages/pap/index.jsx",
+      "_card-actions-CdaMSHFR.js",
+      "resources/js/pages/pautas/components/pauta-table/index.jsx",
+      "_resultado-badge-CxfsIBU-.js",
+      "resources/js/pages/pautas/components/pauta-table/resumo-final.jsx",
+      "_body-Dd3r6jk4.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_header-DaUk2T1V.js",
       "_body-B6_lB0i_.js",
       "_header-J9KAxMh0.js",
@@ -1676,7 +2326,11 @@
     ]
   },
   "resources/js/pages/aluno/grelha-curricular/components/grelha-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/grelha-table-DzakCSUo.js",
+=======
+    "file": "assets/grelha-table-BGNww4rE.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "grelha-table",
     "src": "resources/js/pages/aluno/grelha-curricular/components/grelha-table.jsx",
     "isDynamicEntry": true,
@@ -1684,12 +2338,20 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/aluno/grelha-curricular/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/grelha-curricular-CLe8bL-e.js",
+=======
+    "file": "assets/grelha-curricular-JtnmepSm.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "grelha-curricular",
     "src": "resources/js/pages/aluno/grelha-curricular/index.jsx",
     "isDynamicEntry": true,
@@ -1708,7 +2370,11 @@
     ]
   },
   "resources/js/pages/aluno/minhas-notas/components/notas-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/notas-table-g5FBuj-F.js",
+=======
+    "file": "assets/notas-table-1dUkt86T.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "notas-table",
     "src": "resources/js/pages/aluno/minhas-notas/components/notas-table.jsx",
     "isDynamicEntry": true,
@@ -1716,6 +2382,7 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
@@ -1724,6 +2391,16 @@
   },
   "resources/js/pages/aluno/minhas-notas/index.jsx": {
     "file": "assets/minhas-notas-BlvaXZ_e.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_trimestre-selector-Wm7zis_g.js"
+    ]
+  },
+  "resources/js/pages/aluno/minhas-notas/index.jsx": {
+    "file": "assets/minhas-notas-Bp2O2k9w.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "minhas-notas",
     "src": "resources/js/pages/aluno/minhas-notas/index.jsx",
     "isDynamicEntry": true,
@@ -1734,12 +2411,17 @@
     ]
   },
   "resources/js/pages/alunos/components/aluno-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/aluno-form-oxYkA1qK.js",
+=======
+    "file": "assets/aluno-form-C1tCSsIC.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "aluno-form",
     "src": "resources/js/pages/alunos/components/aluno-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -1748,21 +2430,43 @@
   },
   "resources/js/pages/alunos/components/aluno-table.jsx": {
     "file": "assets/aluno-table-DyfeMRjm.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js"
+    ]
+  },
+  "resources/js/pages/alunos/components/aluno-table.jsx": {
+    "file": "assets/aluno-table-DB-xbtih.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "aluno-table",
     "src": "resources/js/pages/alunos/components/aluno-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
+=======
+      "_pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_ellipsis-Dus2UbHw.js",
       "_filter-oRknpvMA.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_field-DBwSjZJQ.js",
       "_table-pagination-DJ1gyBZa.js",
       "_AlunoController-Csm-NACM.js"
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_field-voVIi7hX.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_AlunoController-BtFlHnvO.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "resources/js/pages/alunos/components/show/aluno-detalhes.jsx": {
@@ -1777,7 +2481,11 @@
     ]
   },
   "resources/js/pages/alunos/components/show/aluno-header.jsx": {
+<<<<<<< HEAD
     "file": "assets/aluno-header-B41Xr4F2.js",
+=======
+    "file": "assets/aluno-header-BQuEWRrM.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "aluno-header",
     "src": "resources/js/pages/alunos/components/show/aluno-header.jsx",
     "isDynamicEntry": true,
@@ -1801,7 +2509,11 @@
     ]
   },
   "resources/js/pages/alunos/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-BUNCQWdr.js",
+=======
+    "file": "assets/edit-CYSvZz8B.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/alunos/edit.jsx",
     "isDynamicEntry": true,
@@ -1809,23 +2521,39 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/alunos/components/aluno-form.jsx",
+<<<<<<< HEAD
       "_AlunoController-Csm-NACM.js"
     ]
   },
   "resources/js/pages/alunos/index.jsx": {
     "file": "assets/alunos-m3SC0Kux.js",
+=======
+      "_AlunoController-BtFlHnvO.js"
+    ]
+  },
+  "resources/js/pages/alunos/index.jsx": {
+    "file": "assets/alunos-CoKIoPYF.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "alunos",
     "src": "resources/js/pages/alunos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AlunoController-Csm-NACM.js",
+=======
+      "_AlunoController-BtFlHnvO.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/alunos/components/aluno-table.jsx"
     ]
   },
   "resources/js/pages/alunos/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-BDVMeYBf.js",
+=======
+    "file": "assets/show-6iqYlYNk.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/alunos/show.jsx",
     "isDynamicEntry": true,
@@ -1838,7 +2566,11 @@
     ]
   },
   "resources/js/pages/anos-lectivos/components/ano-lectivo-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/ano-lectivo-form-CaFUkSZE.js",
+=======
+    "file": "assets/ano-lectivo-form-XJfBYm6I.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "ano-lectivo-form",
     "src": "resources/js/pages/anos-lectivos/components/ano-lectivo-form.jsx",
     "isDynamicEntry": true,
@@ -1846,11 +2578,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-DBwSjZJQ.js"
     ]
   },
   "resources/js/pages/anos-lectivos/components/ano-lectivo-table.jsx": {
     "file": "assets/ano-lectivo-table-Zn-3-9Bh.js",
+=======
+      "_field-voVIi7hX.js"
+    ]
+  },
+  "resources/js/pages/anos-lectivos/components/ano-lectivo-table.jsx": {
+    "file": "assets/ano-lectivo-table-DHIhyl0v.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "ano-lectivo-table",
     "src": "resources/js/pages/anos-lectivos/components/ano-lectivo-table.jsx",
     "isDynamicEntry": true,
@@ -1860,6 +2600,7 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -1868,6 +2609,16 @@
   },
   "resources/js/pages/anos-lectivos/create.jsx": {
     "file": "assets/create-68nRbNQW.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_AnoLectivoController-BWGcJT-X.js"
+    ]
+  },
+  "resources/js/pages/anos-lectivos/create.jsx": {
+    "file": "assets/create-D2rVmp_0.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/anos-lectivos/create.jsx",
     "isDynamicEntry": true,
@@ -1875,11 +2626,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/anos-lectivos/components/ano-lectivo-form.jsx",
+<<<<<<< HEAD
       "_AnoLectivoController-DvfXUbzp.js"
     ]
   },
   "resources/js/pages/anos-lectivos/index.jsx": {
     "file": "assets/anos-lectivos-CIN6ccfy.js",
+=======
+      "_AnoLectivoController-BWGcJT-X.js"
+    ]
+  },
+  "resources/js/pages/anos-lectivos/index.jsx": {
+    "file": "assets/anos-lectivos-DZ4EuPzV.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "anos-lectivos",
     "src": "resources/js/pages/anos-lectivos/index.jsx",
     "isDynamicEntry": true,
@@ -1887,17 +2646,27 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/anos-lectivos/components/ano-lectivo-table.jsx",
+<<<<<<< HEAD
       "_use-dialog-BVaztzAq.js",
       "_AvisoController-SjE-mT4o.js"
     ]
   },
   "resources/js/pages/auth/confirm-password.jsx": {
     "file": "assets/confirm-password-BsnEfEYk.js",
+=======
+      "_use-dialog-BpUa4_F0.js",
+      "_AvisoController-C7hih3Li.js"
+    ]
+  },
+  "resources/js/pages/auth/confirm-password.jsx": {
+    "file": "assets/confirm-password-19hJXyWf.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "confirm-password",
     "src": "resources/js/pages/auth/confirm-password.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_password-input-C5Aq2dRR.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
@@ -1910,6 +2679,20 @@
   },
   "resources/js/pages/auth/forgot-password.jsx": {
     "file": "assets/forgot-password-DlkVfSit.js",
+=======
+      "_password-input-OU0Zxj5h.js",
+      "_label-Bsu1BWfE.js",
+      "resources/js/app.tsx",
+      "_spinner-A7jPuRhk.js",
+      "_google-button-DTLGO-Dg.js",
+      "_input-error-Cqkovvfq.js",
+      "_passkey-verify-B7FNPUQT.js",
+      "_confirm-BXe1exSd.js"
+    ]
+  },
+  "resources/js/pages/auth/forgot-password.jsx": {
+    "file": "assets/forgot-password-CnQHHQvb.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "forgot-password",
     "src": "resources/js/pages/auth/forgot-password.jsx",
     "isDynamicEntry": true,
@@ -1918,17 +2701,27 @@
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
       "_input-error-Cqkovvfq.js",
+<<<<<<< HEAD
       "_text-link-q-G6qQSm.js",
       "_password-UGynYRG9.js"
     ]
   },
   "resources/js/pages/auth/login.jsx": {
     "file": "assets/login-Cd_tyy8m.js",
+=======
+      "_text-link-Cf7NxZm9.js",
+      "_password-694hzVgf.js"
+    ]
+  },
+  "resources/js/pages/auth/login.jsx": {
+    "file": "assets/login-DDCZ4byl.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "login",
     "src": "resources/js/pages/auth/login.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_password-input-C5Aq2dRR.js",
       "_checkbox-Dm-iUrX3.js",
       "_label-Bsu1BWfE.js",
@@ -1944,11 +2737,29 @@
   },
   "resources/js/pages/auth/register.jsx": {
     "file": "assets/register-BL6oo7TC.js",
+=======
+      "_password-input-OU0Zxj5h.js",
+      "_checkbox-DWf1uin5.js",
+      "_label-Bsu1BWfE.js",
+      "resources/js/app.tsx",
+      "_spinner-A7jPuRhk.js",
+      "_google-button-DTLGO-Dg.js",
+      "_input-error-Cqkovvfq.js",
+      "_passkey-verify-B7FNPUQT.js",
+      "_text-link-Cf7NxZm9.js",
+      "_password-694hzVgf.js",
+      "_google-U0S9oOe3.js"
+    ]
+  },
+  "resources/js/pages/auth/register.jsx": {
+    "file": "assets/register-DqJYiRsf.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "register",
     "src": "resources/js/pages/auth/register.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_password-input-C5Aq2dRR.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
@@ -1961,11 +2772,26 @@
   },
   "resources/js/pages/auth/reset-password.jsx": {
     "file": "assets/reset-password-DXcqp6dV.js",
+=======
+      "_password-input-OU0Zxj5h.js",
+      "_label-Bsu1BWfE.js",
+      "resources/js/app.tsx",
+      "_spinner-A7jPuRhk.js",
+      "_google-button-DTLGO-Dg.js",
+      "_input-error-Cqkovvfq.js",
+      "_text-link-Cf7NxZm9.js",
+      "_google-U0S9oOe3.js"
+    ]
+  },
+  "resources/js/pages/auth/reset-password.jsx": {
+    "file": "assets/reset-password-CpIm7_Kq.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "reset-password",
     "src": "resources/js/pages/auth/reset-password.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_password-input-C5Aq2dRR.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
@@ -1976,6 +2802,18 @@
   },
   "resources/js/pages/auth/two-factor-challenge.jsx": {
     "file": "assets/two-factor-challenge-C4FD2Il4.js",
+=======
+      "_password-input-OU0Zxj5h.js",
+      "_label-Bsu1BWfE.js",
+      "resources/js/app.tsx",
+      "_spinner-A7jPuRhk.js",
+      "_input-error-Cqkovvfq.js",
+      "_password-694hzVgf.js"
+    ]
+  },
+  "resources/js/pages/auth/two-factor-challenge.jsx": {
+    "file": "assets/two-factor-challenge-Bz7v_X38.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "two-factor-challenge",
     "src": "resources/js/pages/auth/two-factor-challenge.jsx",
     "isDynamicEntry": true,
@@ -1983,17 +2821,26 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_input-error-Cqkovvfq.js",
+<<<<<<< HEAD
       "_use-two-factor-auth-Dlbc2-Qe.js"
     ]
   },
   "resources/js/pages/auth/verify-email.jsx": {
     "file": "assets/verify-email-D_EzGoFX.js",
+=======
+      "_use-two-factor-auth-DcpSOAnX.js"
+    ]
+  },
+  "resources/js/pages/auth/verify-email.jsx": {
+    "file": "assets/verify-email-DlAdjD-2.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "verify-email",
     "src": "resources/js/pages/auth/verify-email.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_spinner-B74vKTsl.js",
       "_text-link-q-G6qQSm.js",
       "_verification-Bmu23grp.js"
@@ -2001,31 +2848,57 @@
   },
   "resources/js/pages/avisos/components/aviso-form.jsx": {
     "file": "assets/aviso-form-BdS3XCzk.js",
+=======
+      "_spinner-A7jPuRhk.js",
+      "_text-link-Cf7NxZm9.js",
+      "_verification-Z6k_ABVG.js"
+    ]
+  },
+  "resources/js/pages/avisos/components/aviso-form.jsx": {
+    "file": "assets/aviso-form-DMizYIly.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "aviso-form",
     "src": "resources/js/pages/avisos/components/aviso-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_switch-BB1q9gne.js",
       "_toggle-group-B1gODp5T.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_field-DBwSjZJQ.js",
+=======
+      "_switch-DY0lSQ5a.js",
+      "_toggle-group-CmtZcxIc.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/avisos/components/aviso-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/aviso-table-BpEsfa9_.js",
+=======
+    "file": "assets/aviso-table-BqrPILMj.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "aviso-table",
     "src": "resources/js/pages/avisos/components/aviso-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
+=======
+      "_pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -2034,38 +2907,69 @@
   },
   "resources/js/pages/avisos/create.jsx": {
     "file": "assets/create--SpH3_tn.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_AvisoController-C7hih3Li.js"
+    ]
+  },
+  "resources/js/pages/avisos/create.jsx": {
+    "file": "assets/create-C7CwjnUh.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/avisos/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AvisoController-SjE-mT4o.js",
+=======
+      "_AvisoController-C7hih3Li.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/avisos/components/aviso-form.jsx"
     ]
   },
   "resources/js/pages/avisos/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-CFMK7e26.js",
+=======
+    "file": "assets/edit-CEhxWjyp.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/avisos/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AvisoController-SjE-mT4o.js",
+=======
+      "_AvisoController-C7hih3Li.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/avisos/components/aviso-form.jsx"
     ]
   },
   "resources/js/pages/avisos/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/avisos-DS2aktyA.js",
+=======
+    "file": "assets/avisos-BOcYjiOq.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "avisos",
     "src": "resources/js/pages/avisos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BVaztzAq.js",
       "_AvisoController-SjE-mT4o.js",
+=======
+      "_use-dialog-BpUa4_F0.js",
+      "_AvisoController-C7hih3Li.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/avisos/components/aviso-table.jsx"
     ]
   },
@@ -2082,7 +2986,11 @@
     ]
   },
   "resources/js/pages/certificado/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-C0NI1pwT.js",
+=======
+    "file": "assets/show-DG6MA7qF.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/certificado/show.jsx",
     "isDynamicEntry": true,
@@ -2093,7 +3001,11 @@
     ]
   },
   "resources/js/pages/classes/components/classe-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/classe-form-Bo7QDtJn.js",
+=======
+    "file": "assets/classe-form-DvbutQWj.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "classe-form",
     "src": "resources/js/pages/classes/components/classe-form.jsx",
     "isDynamicEntry": true,
@@ -2101,22 +3013,35 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-DBwSjZJQ.js",
+=======
+      "_field-voVIi7hX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/classes/components/classe-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/classe-table-71LbydV9.js",
+=======
+    "file": "assets/classe-table-D3br3qUb.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "classe-table",
     "src": "resources/js/pages/classes/components/classe-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
+=======
+      "_pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -2125,6 +3050,16 @@
   },
   "resources/js/pages/classes/create.jsx": {
     "file": "assets/create-LQBtS_Iv.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_ClasseController-CqhHV6zr.js"
+    ]
+  },
+  "resources/js/pages/classes/create.jsx": {
+    "file": "assets/create-D4gXxedI.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/classes/create.jsx",
     "isDynamicEntry": true,
@@ -2132,11 +3067,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/classes/components/classe-form.jsx",
+<<<<<<< HEAD
       "_ClasseController-CEiPX3SB.js"
     ]
   },
   "resources/js/pages/classes/edit.jsx": {
     "file": "assets/edit-BAa1tqwd.js",
+=======
+      "_ClasseController-CqhHV6zr.js"
+    ]
+  },
+  "resources/js/pages/classes/edit.jsx": {
+    "file": "assets/edit-DTytmBUp.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/classes/edit.jsx",
     "isDynamicEntry": true,
@@ -2144,24 +3087,41 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/classes/components/classe-form.jsx",
+<<<<<<< HEAD
       "_ClasseController-CEiPX3SB.js"
     ]
   },
   "resources/js/pages/classes/index.jsx": {
     "file": "assets/classes-2pdQZawF.js",
+=======
+      "_ClasseController-CqhHV6zr.js"
+    ]
+  },
+  "resources/js/pages/classes/index.jsx": {
+    "file": "assets/classes-nUNa60wX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "classes",
     "src": "resources/js/pages/classes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BVaztzAq.js",
       "_ClasseController-CEiPX3SB.js",
+=======
+      "_use-dialog-BpUa4_F0.js",
+      "_ClasseController-CqhHV6zr.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/classes/components/classe-table.jsx"
     ]
   },
   "resources/js/pages/classes/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-Bacn6oxr.js",
+=======
+    "file": "assets/show-Ch2GcdM2.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/classes/show.jsx",
     "isDynamicEntry": true,
@@ -2169,11 +3129,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_ClasseController-CEiPX3SB.js"
     ]
   },
   "resources/js/pages/colegio/components/colegio-table.jsx": {
     "file": "assets/colegio-table-DOwNp8VW.js",
+=======
+      "_ClasseController-CqhHV6zr.js"
+    ]
+  },
+  "resources/js/pages/colegio/components/colegio-table.jsx": {
+    "file": "assets/colegio-table-Dt6beQzL.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "colegio-table",
     "src": "resources/js/pages/colegio/components/colegio-table.jsx",
     "isDynamicEntry": true,
@@ -2182,11 +3150,19 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
+<<<<<<< HEAD
       "_table-pagination-DJ1gyBZa.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/show.jsx": {
     "file": "assets/show-DKLsAfbl.js",
+=======
+      "_table-pagination-Boc6VjFW.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/show.jsx": {
+    "file": "assets/show-TxCpk8vB.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/show.jsx",
     "isDynamicEntry": true,
@@ -2194,6 +3170,7 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_arrow-left-EnYF531l.js",
       "_ellipsis-Dus2UbHw.js",
+<<<<<<< HEAD
       "_tabs-kOxtTIGC.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2205,6 +3182,19 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx": {
     "file": "assets/tab-alunos-B4SfqfaP.js",
+=======
+      "_tabs-B3DB8TTx.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_CursoTuteladoController-WqoJp0rA.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx": {
+    "file": "assets/tab-alunos-BkZ-0H7d.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-alunos",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
     "isDynamicEntry": true,
@@ -2214,6 +3204,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -2223,6 +3214,17 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx": {
     "file": "assets/tab-disciplinas-CNqA5K4E.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_AlunoController-BtFlHnvO.js",
+      "_CertificadoController-CMJrZzZd.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx": {
+    "file": "assets/tab-disciplinas-BkbAixNy.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-disciplinas",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
     "isDynamicEntry": true,
@@ -2232,6 +3234,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -2241,6 +3244,17 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx": {
     "file": "assets/tab-grupos-pap-n9Dsa8Xh.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_use-dialog-BpUa4_F0.js",
+      "_ClasseTurnoDisciplinaController-CiC9AGdn.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx": {
+    "file": "assets/tab-grupos-pap-CcFoSwfh.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-grupos-pap",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
     "isDynamicEntry": true,
@@ -2250,6 +3264,7 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
+<<<<<<< HEAD
       "_table-pagination-DJ1gyBZa.js",
       "_use-pagination-9zNRp6le.js",
       "_GrupoPapController-CUvwKlLP.js"
@@ -2257,17 +3272,34 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx": {
     "file": "assets/tab-list-D7-uBnxv.js",
+=======
+      "_table-pagination-Boc6VjFW.js",
+      "_use-pagination-DHYoJ6vI.js",
+      "_GrupoPapController-tjmCJz--.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx": {
+    "file": "assets/tab-list-DfD5Dbji.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-list",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_tabs-kOxtTIGC.js",
+=======
+      "_tabs-B3DB8TTx.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx": {
+<<<<<<< HEAD
     "file": "assets/turma-header-CJBoaZ3W.js",
+=======
+    "file": "assets/turma-header-6PD_MZHD.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "turma-header",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx",
     "isDynamicEntry": true,
@@ -2276,16 +3308,25 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-BC3N2ill.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx": {
     "file": "assets/notas-table-B5fvX9_5.js",
+=======
+      "_ClasseTurnoTurmaController-C4EoZGWo.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx": {
+    "file": "assets/notas-table-MKwq6Dwf.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "notas-table",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2300,23 +3341,48 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx": {
     "file": "assets/notas-DSQ93pRD.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_verificar-situacao-B5GGfqM_.js",
+      "_NotaDisciplinaController-ChhsTD9_.js",
+      "_ExportarMiniPautaController-CzUwN7_C.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx": {
+    "file": "assets/notas-BN5-aXnT.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "notas",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-pagination-9zNRp6le.js",
+=======
+      "_use-pagination-DHYoJ6vI.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx": {
+<<<<<<< HEAD
     "file": "assets/create.form-BnAfotUW.js",
+=======
+    "file": "assets/create.form-D53YjWFi.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create.form",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2325,12 +3391,23 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx": {
     "file": "assets/create-BEFaApxB.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx": {
+    "file": "assets/create-CNkSVzPf.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_GrupoPapController-CUvwKlLP.js",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
       "_BancaJuriPapController-DLyXHxcl.js"
@@ -2338,6 +3415,15 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx": {
     "file": "assets/edit-DReBbWre.js",
+=======
+      "_GrupoPapController-tjmCJz--.js",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
+      "_BancaJuriPapController-4pX_59MS.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx": {
+    "file": "assets/edit-C8Nfl47N.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx",
     "isDynamicEntry": true,
@@ -2345,12 +3431,21 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
+<<<<<<< HEAD
       "_BancaJuriPapController-BDbzpBQz.js",
       "_GrupoPapController-CFS4CIIg.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx": {
     "file": "assets/grupo-pap-cards-BWN9Vlo5.js",
+=======
+      "_BancaJuriPapController-r0uPmiAH.js",
+      "_GrupoPapController-B9NQdId1.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx": {
+    "file": "assets/grupo-pap-cards-DDFCKBO5.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "grupo-pap-cards",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx",
     "isDynamicEntry": true,
@@ -2361,11 +3456,19 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_GrupoPapController-CUvwKlLP.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx": {
     "file": "assets/tab-aprovacao--OgUoNrX.js",
+=======
+      "_GrupoPapController-tjmCJz--.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx": {
+    "file": "assets/tab-aprovacao-D7VLD2w3.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-aprovacao",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx",
     "isDynamicEntry": true,
@@ -2377,12 +3480,21 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_ModalDecisaoAprovacao-DNXF47Y2.js",
       "_GrupoPapAprovacaoController-BE18FYbo.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx": {
     "file": "assets/tab-banca-BrBQ3-xT.js",
+=======
+      "_ModalDecisaoAprovacao-D2Nhq__o.js",
+      "_GrupoPapAprovacaoController-GZE_GJQ0.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx": {
+    "file": "assets/tab-banca-D4T0tURy.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-banca",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
     "isDynamicEntry": true,
@@ -2393,6 +3505,7 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -2402,6 +3515,17 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx": {
     "file": "assets/tab-historico-B3P7CWn1.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_BancaJuriPapController-4pX_59MS.js",
+      "_ProfessorController-Bu_EysEp.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx": {
+    "file": "assets/tab-historico-ClEpKb6j.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-historico",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx",
     "isDynamicEntry": true,
@@ -2415,12 +3539,20 @@
       "_refresh-cw-DseKGfw9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx": {
+<<<<<<< HEAD
     "file": "assets/tab-integrantes-CEfsn36i.js",
+=======
+    "file": "assets/tab-integrantes-jFaj8tUO.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-integrantes",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx",
     "isDynamicEntry": true,
@@ -2430,6 +3562,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -2439,6 +3572,17 @@
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx": {
     "file": "assets/create.form-p9k1isKs.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_AlunoController-BtFlHnvO.js",
+      "_ElementoGrupoPapController-CcApU2n3.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx": {
+    "file": "assets/create.form-B68KK4wa.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create.form",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx",
     "isDynamicEntry": true,
@@ -2446,20 +3590,34 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-DBwSjZJQ.js",
       "_multiple-select-0Iqm25rC.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx": {
     "file": "assets/create-CjbDKyNG.js",
+=======
+      "_field-voVIi7hX.js",
+      "_multiple-select-qsucmtC9.js"
+    ]
+  },
+  "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx": {
+    "file": "assets/create-NibERk-v.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_GrupoPapController-CFS4CIIg.js",
       "_ElementoGrupoPapController-ByoKkXbA.js",
+=======
+      "_GrupoPapController-B9NQdId1.js",
+      "_ElementoGrupoPapController-CcApU2n3.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx"
     ]
   },
@@ -2470,7 +3628,11 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/pap-7YKorw14.js",
+=======
+    "file": "assets/pap-D7W8OP_5.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "pap",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/index.jsx",
     "isDynamicEntry": true,
@@ -2480,7 +3642,11 @@
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-BcRnSDmC.js",
+=======
+    "file": "assets/show-Vi1UYEs7.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/show.jsx",
     "isDynamicEntry": true,
@@ -2490,6 +3656,7 @@
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "_label-Bsu1BWfE.js",
+<<<<<<< HEAD
       "_tabs-kOxtTIGC.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2502,44 +3669,83 @@
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx",
       "_ElementoGrupoPapController-ByoKkXbA.js",
+=======
+      "_tabs-B3DB8TTx.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js",
+      "_use-pagination-DHYoJ6vI.js",
+      "_BancaJuriPapController-r0uPmiAH.js",
+      "_GrupoPapController-B9NQdId1.js",
+      "_GrupoPapAprovacaoController-GZE_GJQ0.js",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx",
+      "_ElementoGrupoPapController-CcApU2n3.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx",
       "_alert-E7rLH5df.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-9yVBi5SK.js",
+=======
+    "file": "assets/show-BdcUqxkx.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_tabs-kOxtTIGC.js",
       "resources/js/app.tsx",
       "_use-dialog-BVaztzAq.js",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
       "_use-pagination-9zNRp6le.js",
+=======
+      "_tabs-B3DB8TTx.js",
+      "resources/js/app.tsx",
+      "_use-dialog-BpUa4_F0.js",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
+      "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
+      "_use-pagination-DHYoJ6vI.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-lKhhi9Ug.js",
+=======
+    "file": "assets/show-BRMHfvwQ.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_minus-CsrEuYwF.js",
+<<<<<<< HEAD
       "_tabs-kOxtTIGC.js",
+=======
+      "_tabs-B3DB8TTx.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/colegio/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/colegio-ClTdycxG.js",
+=======
+    "file": "assets/colegio-FuvnkCSM.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "colegio",
     "src": "resources/js/pages/colegio/index.jsx",
     "isDynamicEntry": true,
@@ -2550,7 +3756,11 @@
     ]
   },
   "resources/js/pages/colegio/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-DrlgBaJO.js",
+=======
+    "file": "assets/show-w_xhgqIe.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/colegio/show.jsx",
     "isDynamicEntry": true,
@@ -2559,12 +3769,21 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
+<<<<<<< HEAD
       "_table-pagination-DJ1gyBZa.js",
       "_CursoTuteladoController-DTmE_9G9.js"
     ]
   },
   "resources/js/pages/confirmacoes-matriculas/components/confirmacao-table.jsx": {
     "file": "assets/confirmacao-table-qJ4XIy84.js",
+=======
+      "_table-pagination-Boc6VjFW.js",
+      "_CursoTuteladoController-WqoJp0rA.js"
+    ]
+  },
+  "resources/js/pages/confirmacoes-matriculas/components/confirmacao-table.jsx": {
+    "file": "assets/confirmacao-table-e1cHZ8PY.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "confirmacao-table",
     "src": "resources/js/pages/confirmacoes-matriculas/components/confirmacao-table.jsx",
     "isDynamicEntry": true,
@@ -2573,15 +3792,26 @@
       "_createLucideIcon-6hAcjkHs.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_field-DBwSjZJQ.js",
       "_table-pagination-DJ1gyBZa.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_field-voVIi7hX.js",
+      "_table-pagination-Boc6VjFW.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_resultado-badge-CxfsIBU-.js"
     ]
   },
   "resources/js/pages/confirmacoes-matriculas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/confirmacoes-matriculas-Dm_4Q0oW.js",
+=======
+    "file": "assets/confirmacoes-matriculas-CXnr-RRN.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "confirmacoes-matriculas",
     "src": "resources/js/pages/confirmacoes-matriculas/index.jsx",
     "isDynamicEntry": true,
@@ -2592,12 +3822,17 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/create.jsx": {
+<<<<<<< HEAD
     "file": "assets/create-BHdzfA9l.js",
+=======
+    "file": "assets/create-CwX6KDoQ.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2608,6 +3843,18 @@
   },
   "resources/js/pages/cursos-tutelados/classes/show.jsx": {
     "file": "assets/show-DblD5vs-.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js",
+      "_multiple-select-qsucmtC9.js",
+      "_CursoClasseTurnoController-Ck7Z0HUc.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/show.jsx": {
+    "file": "assets/show-BLq6wzm_.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/classes/show.jsx",
     "isDynamicEntry": true,
@@ -2615,6 +3862,7 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_arrow-left-EnYF531l.js",
       "_ellipsis-Dus2UbHw.js",
+<<<<<<< HEAD
       "_tabs-kOxtTIGC.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2630,6 +3878,23 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx": {
     "file": "assets/disciplina-form-SpuulJ4R.js",
+=======
+      "_tabs-B3DB8TTx.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_use-dialog-BpUa4_F0.js",
+      "_ClasseTurnoDisciplinaController-CiC9AGdn.js",
+      "_ClasseTurnoTurmaController-C4EoZGWo.js",
+      "_CursoClasseTurnoController-Ck7Z0HUc.js",
+      "_CursoTuteladoController-Cu_vQe42.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx": {
+    "file": "assets/disciplina-form-DvVfTpF2.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "disciplina-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx",
     "isDynamicEntry": true,
@@ -2637,18 +3902,28 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-DBwSjZJQ.js",
       "_multiple-select-0Iqm25rC.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/create.jsx": {
     "file": "assets/create-BNXJP6eT.js",
+=======
+      "_field-voVIi7hX.js",
+      "_multiple-select-qsucmtC9.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/create.jsx": {
+    "file": "assets/create-DSfEnc9j.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoDisciplinaController-BE8TduLy.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx",
       "_CursoClasseController-C-TWo0-F.js"
@@ -2656,13 +3931,26 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/edit.jsx": {
     "file": "assets/edit-B3ms7cJU.js",
+=======
+      "_ClasseTurnoDisciplinaController-CiC9AGdn.js",
+      "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx",
+      "_CursoClasseController-DbpQwmzp.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/edit.jsx": {
+    "file": "assets/edit-Q3tTJHny.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoDisciplinaController-BE8TduLy.js",
+=======
+      "_ClasseTurnoDisciplinaController-CiC9AGdn.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx"
     ]
   },
@@ -2685,7 +3973,11 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx": {
+<<<<<<< HEAD
     "file": "assets/tab-alunos-XcjB6kEm.js",
+=======
+    "file": "assets/tab-alunos-lUHOdY32.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-alunos",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
     "isDynamicEntry": true,
@@ -2695,6 +3987,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -2704,6 +3997,17 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx": {
     "file": "assets/tab-disciplinas-B2G8LByD.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_AlunoController-BtFlHnvO.js",
+      "_CertificadoController-CMJrZzZd.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx": {
+    "file": "assets/tab-disciplinas-YSqapj7B.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-disciplinas",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
     "isDynamicEntry": true,
@@ -2714,6 +4018,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -2726,6 +4031,20 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx": {
     "file": "assets/tab-grupos-pap-DPr-bPWE.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_use-dialog-BpUa4_F0.js",
+      "_ClasseTurnoDisciplinaController-CiC9AGdn.js",
+      "_NotaDisciplinaController-ChhsTD9_.js",
+      "_horarios-form-BckvfH2P.js",
+      "_TurmaDisciplinaProfessorController-UJJ6NvIX.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx": {
+    "file": "assets/tab-grupos-pap-DnuFlx9Z.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-grupos-pap",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
     "isDynamicEntry": true,
@@ -2735,6 +4054,7 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -2743,17 +4063,35 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx": {
     "file": "assets/tab-list--ghO_gWf.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_use-pagination-DHYoJ6vI.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx": {
+    "file": "assets/tab-list-D0rcRdNW.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-list",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_tabs-kOxtTIGC.js",
+=======
+      "_tabs-B3DB8TTx.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-recurso.jsx": {
+<<<<<<< HEAD
     "file": "assets/tab-recurso-COkL-JMZ.js",
+=======
+    "file": "assets/tab-recurso-0AJNpbeW.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-recurso",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-recurso.jsx",
     "isDynamicEntry": true,
@@ -2763,6 +4101,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -2771,6 +4110,16 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx": {
     "file": "assets/turma-form-DIA6vmo9.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_lancamentos-recurso-table-DCmK6Xl4.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx": {
+    "file": "assets/turma-form-DsRavsgk.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "turma-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx",
     "isDynamicEntry": true,
@@ -2778,11 +4127,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-DBwSjZJQ.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx": {
     "file": "assets/turma-header-DuW4hvj_.js",
+=======
+      "_field-voVIi7hX.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx": {
+    "file": "assets/turma-header-CEZIKq8Y.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "turma-header",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx",
     "isDynamicEntry": true,
@@ -2792,28 +4149,45 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-BC3N2ill.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/create.jsx": {
     "file": "assets/create-D4JwMAtq.js",
+=======
+      "_ClasseTurnoTurmaController-C4EoZGWo.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/create.jsx": {
+    "file": "assets/create-KATSRisB.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-BC3N2ill.js",
+=======
+      "_ClasseTurnoTurmaController-C4EoZGWo.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/lancamentos-table-UiGE8C0W.js",
+=======
+    "file": "assets/lancamentos-table-ZKqXgZ7f.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "lancamentos-table",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2821,16 +4195,30 @@
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
       "_table-pagination-DJ1gyBZa.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_table-pagination-Boc6VjFW.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_verificar-situacao-B5GGfqM_.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/notas-table-BQcgRtXK.js",
+=======
+    "file": "assets/notas-table-B6xXRaDW.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "notas-table",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2845,36 +4233,70 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create.jsx": {
     "file": "assets/create-DBbRm-Ab.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_verificar-situacao-B5GGfqM_.js",
+      "_NotaDisciplinaController-ChhsTD9_.js",
+      "_ExportarMiniPautaController-CzUwN7_C.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create.jsx": {
+    "file": "assets/create-OLfBYaAo.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-pagination-9zNRp6le.js",
       "_NotaDisciplinaController-DmJqehAQ.js",
+=======
+      "_use-pagination-DHYoJ6vI.js",
+      "_NotaDisciplinaController-ChhsTD9_.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/notas-tdyajgA0.js",
+=======
+    "file": "assets/notas-MnSdINya.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "notas",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-pagination-9zNRp6le.js",
+=======
+      "_use-pagination-DHYoJ6vI.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/components/professor-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/professor-form-DrQi-DWf.js",
+=======
+    "file": "assets/professor-form-BUKk93L7.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "professor-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/components/professor-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2883,36 +4305,64 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create.jsx": {
     "file": "assets/create-DbA-q7eh2.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create.jsx": {
+    "file": "assets/create-CpCvZMZh2.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BVaztzAq.js",
       "_TurmaDisciplinaProfessorController-BQ1MDhTt.js",
+=======
+      "_use-dialog-BpUa4_F0.js",
+      "_TurmaDisciplinaProfessorController-UJJ6NvIX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-BeQi5uT2.js",
+=======
+    "file": "assets/edit-KnMLs5vA.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-BC3N2ill.js",
+=======
+      "_ClasseTurnoTurmaController-C4EoZGWo.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx": {
+<<<<<<< HEAD
     "file": "assets/create.form-DGwENFpk.js",
+=======
+    "file": "assets/create.form-DxXhoFOl.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create.form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -2921,32 +4371,60 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx": {
     "file": "assets/create-BPemNErA.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx": {
+    "file": "assets/create-D9-JwE2w.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_BancaJuriPapController-BDbzpBQz.js",
       "_GrupoPapController-CFS4CIIg.js",
+=======
+      "_BancaJuriPapController-r0uPmiAH.js",
+      "_GrupoPapController-B9NQdId1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-DDjA-9p9.js",
+=======
+    "file": "assets/edit-D9xcEJtF.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_BancaJuriPapController-BDbzpBQz.js",
       "_GrupoPapController-CFS4CIIg.js",
+=======
+      "_BancaJuriPapController-r0uPmiAH.js",
+      "_GrupoPapController-B9NQdId1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx": {
+<<<<<<< HEAD
     "file": "assets/grupo-pap-cards-Cg1BDJBH.js",
+=======
+    "file": "assets/grupo-pap-cards-CkRZ45MF.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "grupo-pap-cards",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx",
     "isDynamicEntry": true,
@@ -2957,6 +4435,7 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_badge-DxvCgqB1.js",
       "_GrupoPapController-CFS4CIIg.js"
@@ -2964,17 +4443,35 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx": {
     "file": "assets/grupo-pap-form-DqxY-RLM.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_badge-DxvCgqB1.js",
+      "_GrupoPapController-B9NQdId1.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx": {
+    "file": "assets/grupo-pap-form-B4HyCqsv.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "grupo-pap-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_field-DBwSjZJQ.js",
       "_textarea-CEblRWsJ.js",
       "_multiple-select-0Iqm25rC.js"
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js",
+      "_textarea-CEblRWsJ.js",
+      "_multiple-select-qsucmtC9.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/shared/info-grupo-box.jsx": {
@@ -2996,7 +4493,11 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx": {
+<<<<<<< HEAD
     "file": "assets/tab-aprovacao-B35O1r8M.js",
+=======
+    "file": "assets/tab-aprovacao-CIy3p6hs.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-aprovacao",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx",
     "isDynamicEntry": true,
@@ -3008,12 +4509,21 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_ModalDecisaoAprovacao-DNXF47Y2.js",
       "_GrupoPapAprovacaoController-BE18FYbo.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx": {
     "file": "assets/tab-banca-DaChwoKA.js",
+=======
+      "_ModalDecisaoAprovacao-D2Nhq__o.js",
+      "_GrupoPapAprovacaoController-GZE_GJQ0.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx": {
+    "file": "assets/tab-banca-aqFstgRS.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-banca",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
     "isDynamicEntry": true,
@@ -3024,6 +4534,7 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -3033,6 +4544,17 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx": {
     "file": "assets/tab-historico-XmnDzsIa.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_BancaJuriPapController-r0uPmiAH.js",
+      "_ProfessorController-Bu_EysEp.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx": {
+    "file": "assets/tab-historico-vvU5UzBK.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-historico",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx",
     "isDynamicEntry": true,
@@ -3046,12 +4568,20 @@
       "_refresh-cw-DseKGfw9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx": {
+<<<<<<< HEAD
     "file": "assets/tab-integrantes-BUknu5Hd.js",
+=======
+    "file": "assets/tab-integrantes-CysZXEHz.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-integrantes",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx",
     "isDynamicEntry": true,
@@ -3061,6 +4591,7 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -3070,32 +4601,61 @@
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/create.jsx": {
     "file": "assets/create-BfYTYDvJ.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_AlunoController-BtFlHnvO.js",
+      "_ElementoGrupoPapController-CcApU2n3.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/create.jsx": {
+    "file": "assets/create-DoT0w4M-.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-BC3N2ill.js",
       "_GrupoPapController-CFS4CIIg.js",
+=======
+      "_ClasseTurnoTurmaController-C4EoZGWo.js",
+      "_GrupoPapController-B9NQdId1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-BW6-OA5L.js",
+=======
+    "file": "assets/edit-VPu2uXZE.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ClasseTurnoTurmaController-BC3N2ill.js",
       "_GrupoPapController-CFS4CIIg.js",
+=======
+      "_ClasseTurnoTurmaController-C4EoZGWo.js",
+      "_GrupoPapController-B9NQdId1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx": {
+<<<<<<< HEAD
     "file": "assets/create.form-BLgc4jft.js",
+=======
+    "file": "assets/create.form-mLSlnjuR.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create.form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx",
     "isDynamicEntry": true,
@@ -3103,20 +4663,34 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-DBwSjZJQ.js",
       "_multiple-select-0Iqm25rC.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx": {
     "file": "assets/create-Di1lMC20.js",
+=======
+      "_field-voVIi7hX.js",
+      "_multiple-select-qsucmtC9.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx": {
+    "file": "assets/create-C1aHDQ-A.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_GrupoPapController-CFS4CIIg.js",
       "_ElementoGrupoPapController-ByoKkXbA.js",
+=======
+      "_GrupoPapController-B9NQdId1.js",
+      "_ElementoGrupoPapController-CcApU2n3.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx"
     ]
   },
@@ -3127,18 +4701,30 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/pap-DjMVVAZV.js",
+=======
+    "file": "assets/pap-BSnI4UPB.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "pap",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_GrupoPapController-CFS4CIIg.js",
+=======
+      "_GrupoPapController-B9NQdId1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-DDedvCxP.js",
+=======
+    "file": "assets/show-BcWhZ7Qp.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/show.jsx",
     "isDynamicEntry": true,
@@ -3148,6 +4734,7 @@
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "_label-Bsu1BWfE.js",
+<<<<<<< HEAD
       "_tabs-kOxtTIGC.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3157,6 +4744,17 @@
       "_GrupoPapController-CFS4CIIg.js",
       "_GrupoPapAprovacaoController-BE18FYbo.js",
       "_ElementoGrupoPapController-ByoKkXbA.js",
+=======
+      "_tabs-B3DB8TTx.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js",
+      "_use-pagination-DHYoJ6vI.js",
+      "_BancaJuriPapController-r0uPmiAH.js",
+      "_GrupoPapController-B9NQdId1.js",
+      "_GrupoPapAprovacaoController-GZE_GJQ0.js",
+      "_ElementoGrupoPapController-CcApU2n3.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_alert-E7rLH5df.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
@@ -3165,13 +4763,21 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/progressao.jsx": {
+<<<<<<< HEAD
     "file": "assets/progressao-BKsOcecA.js",
+=======
+    "file": "assets/progressao-HRLEWXuO.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "progressao",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/progressao.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
+=======
+      "_select-C5NhaGya.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_circle-alert-CmOZxo2j.js",
       "_circle-x-CCFZToYR.js",
       "_clock-B0WLxxUW.js",
@@ -3181,17 +4787,29 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-DrtWJ0gX.js",
+=======
+    "file": "assets/show-COLgjxIB.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_tabs-kOxtTIGC.js",
       "resources/js/app.tsx",
       "_use-dialog-BVaztzAq.js",
       "_use-pagination-9zNRp6le.js",
       "_ClasseTurnoTurmaController-BC3N2ill.js",
+=======
+      "_tabs-B3DB8TTx.js",
+      "resources/js/app.tsx",
+      "_use-dialog-BpUa4_F0.js",
+      "_use-pagination-DHYoJ6vI.js",
+      "_ClasseTurnoTurmaController-C4EoZGWo.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
@@ -3201,13 +4819,18 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/components/forms/create.form.jsx": {
+<<<<<<< HEAD
     "file": "assets/create.form-DprYgidL.js",
+=======
+    "file": "assets/create.form-BvdABQTB.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create.form",
     "src": "resources/js/pages/cursos-tutelados/components/forms/create.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_createLucideIcon-6hAcjkHs.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3217,11 +4840,23 @@
   },
   "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx": {
     "file": "assets/edit.form-BG2na7QY.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js",
+      "_multiple-select-qsucmtC9.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx": {
+    "file": "assets/edit.form-BiXMDEf9.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit.form",
     "src": "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3231,16 +4866,32 @@
   },
   "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx": {
     "file": "assets/tab-professores-Cbjdw5gq.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js",
+      "_multiple-select-qsucmtC9.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx": {
+    "file": "assets/tab-professores-CwcAhvyK.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-professores",
     "src": "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
+=======
+      "_pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -3251,16 +4902,33 @@
   },
   "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx": {
     "file": "assets/tab-turmas-oVVYGVsU.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_ProfessorController-Bu_EysEp.js",
+      "_CursoTuteladoProfessorController-BEICTY9T.js",
+      "_edit-professor-modal-CZwvuCnD.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx": {
+    "file": "assets/tab-turmas-Dz9knqBM.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "tab-turmas",
     "src": "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
+=======
+      "_pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -3269,6 +4937,16 @@
   },
   "resources/js/pages/cursos-tutelados/create.jsx": {
     "file": "assets/create-DMhJGL7q.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_ClasseTurnoTurmaController-C4EoZGWo.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/create.jsx": {
+    "file": "assets/create-DyF1Bk-e.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/create.jsx",
     "isDynamicEntry": true,
@@ -3279,24 +4957,37 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-mpaNYT7M.js",
+=======
+    "file": "assets/edit-C5Izhqw9.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_CursoTuteladoController-jyRYsJPl.js",
+=======
+      "_CursoTuteladoController-Cu_vQe42.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/professor-form-9V9HDaeF.js",
+=======
+    "file": "assets/professor-form-DlXB-H55.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "professor-form",
     "src": "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "_switch-BB1q9gne.js",
       "resources/js/app.tsx",
@@ -3306,32 +4997,61 @@
   },
   "resources/js/pages/cursos-tutelados/professores/create.jsx": {
     "file": "assets/create-DvO9OyZ7.js",
+=======
+      "_select-C5NhaGya.js",
+      "_switch-DY0lSQ5a.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js"
+    ]
+  },
+  "resources/js/pages/cursos-tutelados/professores/create.jsx": {
+    "file": "assets/create-Bpe9q-ix.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/professores/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_CursoTuteladoController-jyRYsJPl.js",
       "_CursoTuteladoProfessorController-Dvh5nHUb.js",
+=======
+      "_CursoTuteladoController-Cu_vQe42.js",
+      "_CursoTuteladoProfessorController-BEICTY9T.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/professores/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-YdEaUvtJ.js",
+=======
+    "file": "assets/edit-Dkng4Qw1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/professores/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_CursoTuteladoController-jyRYsJPl.js",
       "_CursoTuteladoProfessorController-Dvh5nHUb.js",
+=======
+      "_CursoTuteladoController-Cu_vQe42.js",
+      "_CursoTuteladoProfessorController-BEICTY9T.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-HyxstFMd.js",
+=======
+    "file": "assets/show-2sWJJQPq.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/show.jsx",
     "isDynamicEntry": true,
@@ -3339,6 +5059,7 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
+<<<<<<< HEAD
       "_tabs-kOxtTIGC.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3347,12 +5068,26 @@
       "_CursoTuteladoController-jyRYsJPl.js",
       "_CursoClasseController-C-TWo0-F.js",
       "_CursoTuteladoProfessorController-Dvh5nHUb.js",
+=======
+      "_tabs-B3DB8TTx.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_badge-DxvCgqB1.js",
+      "_use-dialog-BpUa4_F0.js",
+      "_CursoTuteladoController-Cu_vQe42.js",
+      "_CursoClasseController-DbpQwmzp.js",
+      "_CursoTuteladoProfessorController-BEICTY9T.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx",
       "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx"
     ]
   },
   "resources/js/pages/cursos/components/curso-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/curso-form-DGTrmP2X.js",
+=======
+    "file": "assets/curso-form-PXoEARhb.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "curso-form",
     "src": "resources/js/pages/cursos/components/curso-form.jsx",
     "isDynamicEntry": true,
@@ -3360,22 +5095,35 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-DBwSjZJQ.js",
+=======
+      "_field-voVIi7hX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/cursos/components/curso-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/curso-table-DTks_v8F.js",
+=======
+    "file": "assets/curso-table-C9bGC_TD.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "curso-table",
     "src": "resources/js/pages/cursos/components/curso-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
+=======
+      "_pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -3384,6 +5132,16 @@
   },
   "resources/js/pages/cursos/create.jsx": {
     "file": "assets/create-DxvEbA7M.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_CursosController-BWguroOA.js"
+    ]
+  },
+  "resources/js/pages/cursos/create.jsx": {
+    "file": "assets/create-71PX9fPi.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/cursos/create.jsx",
     "isDynamicEntry": true,
@@ -3391,11 +5149,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/cursos/components/curso-form.jsx",
+<<<<<<< HEAD
       "_CursosController-C6iwnjVa.js"
     ]
   },
   "resources/js/pages/cursos/edit.jsx": {
     "file": "assets/edit-BgPX2JxJ.js",
+=======
+      "_CursosController-BWguroOA.js"
+    ]
+  },
+  "resources/js/pages/cursos/edit.jsx": {
+    "file": "assets/edit-D2hXoOAq.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/cursos/edit.jsx",
     "isDynamicEntry": true,
@@ -3403,24 +5169,41 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/cursos/components/curso-form.jsx",
+<<<<<<< HEAD
       "_CursosController-C6iwnjVa.js"
     ]
   },
   "resources/js/pages/cursos/index.jsx": {
     "file": "assets/cursos-IDG7uVc3.js",
+=======
+      "_CursosController-BWguroOA.js"
+    ]
+  },
+  "resources/js/pages/cursos/index.jsx": {
+    "file": "assets/cursos-CeE6Zkq3.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "cursos",
     "src": "resources/js/pages/cursos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BVaztzAq.js",
       "_CursosController-C6iwnjVa.js",
+=======
+      "_use-dialog-BpUa4_F0.js",
+      "_CursosController-BWguroOA.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/cursos/components/curso-table.jsx"
     ]
   },
   "resources/js/pages/cursos/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-DjCwlvQe.js",
+=======
+    "file": "assets/show-BAgellhO.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/cursos/show.jsx",
     "isDynamicEntry": true,
@@ -3428,11 +5211,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_CursosController-C6iwnjVa.js"
     ]
   },
   "resources/js/pages/dashboard.jsx": {
     "file": "assets/dashboard-Dknc4XFT.js",
+=======
+      "_CursosController-BWguroOA.js"
+    ]
+  },
+  "resources/js/pages/dashboard.jsx": {
+    "file": "assets/dashboard-hxtbSzCE.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "dashboard",
     "src": "resources/js/pages/dashboard.jsx",
     "isDynamicEntry": true,
@@ -3442,18 +5233,31 @@
     ]
   },
   "resources/js/pages/dashboards/aluno/components/avisos-eventos/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/avisos-eventos-C7h1X-lX.js",
+=======
+    "file": "assets/avisos-eventos-BpQ5kPYD.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "avisos-eventos",
     "src": "resources/js/pages/dashboards/aluno/components/avisos-eventos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_item-B3FUrv9z.js",
       "_item-CXNueNWj.js"
     ]
   },
   "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx": {
     "file": "assets/dashboard-summary-DX-zeHKQ.js",
+=======
+      "_item-BDz6MHZb.js",
+      "_item-BeoDh7mA.js"
+    ]
+  },
+  "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx": {
+    "file": "assets/dashboard-summary-WNM45afv.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "dashboard-summary",
     "src": "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx",
     "isDynamicEntry": true,
@@ -3461,10 +5265,17 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_pt-jv_QGq0b.js",
       "_isWithinInterval-Ct8Vu7nv.js",
+<<<<<<< HEAD
       "_state-empty-LbB4pJjj.js",
       "_state-loading-uPeTOzsR.js",
       "_state-happening-BA3-3A_R.js",
       "_state-today-Dteev4U7.js"
+=======
+      "_state-empty-CoAKAE12.js",
+      "_state-loading-C4IvdHZs.js",
+      "_state-happening-Xf3O6ygo.js",
+      "_state-today-DFxB3YlO.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "resources/js/pages/dashboards/aluno/components/greeting-header.jsx": {
@@ -3477,18 +5288,31 @@
     ]
   },
   "resources/js/pages/dashboards/aluno/components/proximas-aulas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/proximas-aulas-CwIRQzJv.js",
+=======
+    "file": "assets/proximas-aulas-Dm-IF7o1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "proximas-aulas",
     "src": "resources/js/pages/dashboards/aluno/components/proximas-aulas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_item-B3FUrv9z.js",
       "_item-pnubSiG0.js"
     ]
   },
   "resources/js/pages/dashboards/aluno/index.jsx": {
     "file": "assets/aluno-KWMWNqeQ.js",
+=======
+      "_item-BDz6MHZb.js",
+      "_item-SOIAtrcH.js"
+    ]
+  },
+  "resources/js/pages/dashboards/aluno/index.jsx": {
+    "file": "assets/aluno-DvV7_mZy.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "aluno",
     "src": "resources/js/pages/dashboards/aluno/index.jsx",
     "isDynamicEntry": true,
@@ -3503,7 +5327,11 @@
     ]
   },
   "resources/js/pages/dashboards/director/components/dashboard-summary/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/dashboard-summary-pcE8bvC0.js",
+=======
+    "file": "assets/dashboard-summary-CkDD_-Y0.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "dashboard-summary",
     "src": "resources/js/pages/dashboards/director/components/dashboard-summary/index.jsx",
     "isDynamicEntry": true,
@@ -3511,19 +5339,32 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_urgency-BOmF4fe2.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_item-B3FUrv9z.js"
     ]
   },
   "resources/js/pages/dashboards/director/components/feed-accoes/index.jsx": {
     "file": "assets/feed-accoes-p9zRbQIL.js",
+=======
+      "_item-BDz6MHZb.js"
+    ]
+  },
+  "resources/js/pages/dashboards/director/components/feed-accoes/index.jsx": {
+    "file": "assets/feed-accoes-C8QILuBL.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "feed-accoes",
     "src": "resources/js/pages/dashboards/director/components/feed-accoes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_badge-check-BG_q7vMo.js",
+<<<<<<< HEAD
       "_item-B3FUrv9z.js",
       "_item-iix2YgSZ.js"
+=======
+      "_item-BDz6MHZb.js",
+      "_item-MU2MoHqM.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "resources/js/pages/dashboards/director/components/greeting-header.jsx": {
@@ -3536,29 +5377,50 @@
     ]
   },
   "resources/js/pages/dashboards/director/components/metricas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/metricas-DX0BYLy8.js",
+=======
+    "file": "assets/metricas-Dv0jtR-6.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "metricas",
     "src": "resources/js/pages/dashboards/director/components/metricas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_item-Cif3FzoU.js"
     ]
   },
   "resources/js/pages/dashboards/director/components/proximos-eventos/index.jsx": {
     "file": "assets/proximos-eventos-CgnBpczB.js",
+=======
+      "_item-BE0RSjkf.js"
+    ]
+  },
+  "resources/js/pages/dashboards/director/components/proximos-eventos/index.jsx": {
+    "file": "assets/proximos-eventos-DnOZnfmu.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "proximos-eventos",
     "src": "resources/js/pages/dashboards/director/components/proximos-eventos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_createLucideIcon-6hAcjkHs.js",
+<<<<<<< HEAD
       "_item-B3FUrv9z.js",
       "_item-CMEusWVx.js"
     ]
   },
   "resources/js/pages/dashboards/director/index.jsx": {
     "file": "assets/director-6S2RdiJN.js",
+=======
+      "_item-BDz6MHZb.js",
+      "_item-BYMKK_s4.js"
+    ]
+  },
+  "resources/js/pages/dashboards/director/index.jsx": {
+    "file": "assets/director-BqOC9Bbe.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "director",
     "src": "resources/js/pages/dashboards/director/index.jsx",
     "isDynamicEntry": true,
@@ -3574,18 +5436,31 @@
     ]
   },
   "resources/js/pages/dashboards/professor/components/avisos-eventos/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/avisos-eventos-CJVfyyhm.js",
+=======
+    "file": "assets/avisos-eventos-8RaeiSN5.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "avisos-eventos",
     "src": "resources/js/pages/dashboards/professor/components/avisos-eventos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_item-B3FUrv9z.js",
       "_item-ppMKgHt1.js"
     ]
   },
   "resources/js/pages/dashboards/professor/components/dashboard-summary/index.jsx": {
     "file": "assets/dashboard-summary-DXHGGh7z.js",
+=======
+      "_item-BDz6MHZb.js",
+      "_item-H5AR_cyX.js"
+    ]
+  },
+  "resources/js/pages/dashboards/professor/components/dashboard-summary/index.jsx": {
+    "file": "assets/dashboard-summary-Bppf9QSr.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "dashboard-summary",
     "src": "resources/js/pages/dashboards/professor/components/dashboard-summary/index.jsx",
     "isDynamicEntry": true,
@@ -3593,10 +5468,17 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_pt-jv_QGq0b.js",
       "_isWithinInterval-Ct8Vu7nv.js",
+<<<<<<< HEAD
       "_state-empty-BYtFnx2k.js",
       "_state-loading-CMMSovC2.js",
       "_state-happening-B9D9ifaQ.js",
       "_state-today-sZdAi26M.js"
+=======
+      "_state-empty-D8K7A1SU.js",
+      "_state-loading-BMA0Z93Y.js",
+      "_state-happening-CRRqwo_7.js",
+      "_state-today-CSA2-tqE.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "resources/js/pages/dashboards/professor/components/greeting-header.jsx": {
@@ -3609,18 +5491,31 @@
     ]
   },
   "resources/js/pages/dashboards/professor/components/proximas-aulas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/proximas-aulas-C-IL_cWn.js",
+=======
+    "file": "assets/proximas-aulas-CwMn9lT1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "proximas-aulas",
     "src": "resources/js/pages/dashboards/professor/components/proximas-aulas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_item-B3FUrv9z.js",
       "_item-DiyBZXvu.js"
     ]
   },
   "resources/js/pages/dashboards/professor/index.jsx": {
     "file": "assets/professor-DlePteuL.js",
+=======
+      "_item-BDz6MHZb.js",
+      "_item-aqOKjSPq.js"
+    ]
+  },
+  "resources/js/pages/dashboards/professor/index.jsx": {
+    "file": "assets/professor-BhyjLfNf.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "professor",
     "src": "resources/js/pages/dashboards/professor/index.jsx",
     "isDynamicEntry": true,
@@ -3635,7 +5530,11 @@
     ]
   },
   "resources/js/pages/erros/propina-pendente.jsx": {
+<<<<<<< HEAD
     "file": "assets/propina-pendente-Cigbt7wF.js",
+=======
+    "file": "assets/propina-pendente-CiIK_T1Q.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "propina-pendente",
     "src": "resources/js/pages/erros/propina-pendente.jsx",
     "isDynamicEntry": true,
@@ -3647,13 +5546,18 @@
     ]
   },
   "resources/js/pages/gestao-acessos/components/drawer/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/drawer-C5AKnMyI.js",
+=======
+    "file": "assets/drawer-OBDg1Q4E.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "drawer",
     "src": "resources/js/pages/gestao-acessos/components/drawer/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_header-B7noayAv.js",
       "_role-section-gbIwBiKW.js",
       "_permission-section-B4pJB28O.js",
@@ -3662,12 +5566,23 @@
   },
   "resources/js/pages/gestao-acessos/components/editar-acesso-drawer.jsx": {
     "file": "assets/editar-acesso-drawer-4TVuQsmQ.js",
+=======
+      "_header-DXl21I2Z.js",
+      "_role-section-DDcwfJa6.js",
+      "_permission-section-B55zJfoZ.js",
+      "_AccessManagementController-BdcY3g8J.js"
+    ]
+  },
+  "resources/js/pages/gestao-acessos/components/editar-acesso-drawer.jsx": {
+    "file": "assets/editar-acesso-drawer-B-6j8TS-.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "editar-acesso-drawer",
     "src": "resources/js/pages/gestao-acessos/components/editar-acesso-drawer.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_lock-Dvqfcyqv.js",
+<<<<<<< HEAD
       "_switch-BB1q9gne.js",
       "resources/js/app.tsx",
       "_badge-DxvCgqB1.js",
@@ -3677,6 +5592,17 @@
   },
   "resources/js/pages/gestao-acessos/components/usuarios-table.jsx": {
     "file": "assets/usuarios-table-DVgLJHHn.js",
+=======
+      "_switch-DY0lSQ5a.js",
+      "resources/js/app.tsx",
+      "_badge-DxvCgqB1.js",
+      "_multiple-select-qsucmtC9.js",
+      "_AccessManagementController-BdcY3g8J.js"
+    ]
+  },
+  "resources/js/pages/gestao-acessos/components/usuarios-table.jsx": {
+    "file": "assets/usuarios-table-DSfo2mUE.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "usuarios-table",
     "src": "resources/js/pages/gestao-acessos/components/usuarios-table.jsx",
     "isDynamicEntry": true,
@@ -3685,6 +5611,7 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -3693,13 +5620,27 @@
   },
   "resources/js/pages/gestao-acessos/index.jsx": {
     "file": "assets/gestao-acessos-BqRbgvOr.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_ClasseController-CqhHV6zr.js"
+    ]
+  },
+  "resources/js/pages/gestao-acessos/index.jsx": {
+    "file": "assets/gestao-acessos-DjR_3WW0.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "gestao-acessos",
     "src": "resources/js/pages/gestao-acessos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AccessManagementController-BahZAW8o.js",
+=======
+      "_AccessManagementController-BdcY3g8J.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/gestao-acessos/components/drawer/index.jsx",
       "resources/js/pages/gestao-acessos/components/usuarios-table.jsx"
     ]
@@ -3715,12 +5656,17 @@
     ]
   },
   "resources/js/pages/inscricoes/components/inscricao-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/inscricao-form-D2nBhnHb.js",
+=======
+    "file": "assets/inscricao-form-C4J3IXrv.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "inscricao-form",
     "src": "resources/js/pages/inscricoes/components/inscricao-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3729,17 +5675,32 @@
   },
   "resources/js/pages/inscricoes/components/inscricao-table.jsx": {
     "file": "assets/inscricao-table-BwVCttjG.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js"
+    ]
+  },
+  "resources/js/pages/inscricoes/components/inscricao-table.jsx": {
+    "file": "assets/inscricao-table-Bu7R358m.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "inscricao-table",
     "src": "resources/js/pages/inscricoes/components/inscricao-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_createLucideIcon-6hAcjkHs.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
+=======
+      "_pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_ellipsis-Dus2UbHw.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -3749,6 +5710,17 @@
   },
   "resources/js/pages/inscricoes/create.jsx": {
     "file": "assets/create-ueG2583W.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_format-status-9H8CcnX4.js",
+      "_inscricoes-BA980GJN.js"
+    ]
+  },
+  "resources/js/pages/inscricoes/create.jsx": {
+    "file": "assets/create-C0ZgBcSh.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/inscricoes/create.jsx",
     "isDynamicEntry": true,
@@ -3756,23 +5728,39 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/inscricoes/components/inscricao-form.jsx",
+<<<<<<< HEAD
       "_inscricoes-D2Y2hlGg.js"
     ]
   },
   "resources/js/pages/inscricoes/index.jsx": {
     "file": "assets/inscricoes-_XuDJlWD.js",
+=======
+      "_inscricoes-BA980GJN.js"
+    ]
+  },
+  "resources/js/pages/inscricoes/index.jsx": {
+    "file": "assets/inscricoes-e4_xVPdM.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "inscricoes",
     "src": "resources/js/pages/inscricoes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_inscricoes-D2Y2hlGg.js",
+=======
+      "_inscricoes-BA980GJN.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/inscricoes/components/inscricao-table.jsx"
     ]
   },
   "resources/js/pages/inscricoes/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-C9ECp9Q_.js",
+=======
+    "file": "assets/show-CXmeiUNC.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/inscricoes/show.jsx",
     "isDynamicEntry": true,
@@ -3785,12 +5773,17 @@
     ]
   },
   "resources/js/pages/instituicoes/components/instituicao-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/instituicao-form-C71x8iU2.js",
+=======
+    "file": "assets/instituicao-form-D4S86A2B.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "instituicao-form",
     "src": "resources/js/pages/instituicoes/components/instituicao-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
@@ -3799,6 +5792,16 @@
   },
   "resources/js/pages/instituicoes/components/instituicao-table.jsx": {
     "file": "assets/instituicao-table-Bi3wovT7.js",
+=======
+      "_select-C5NhaGya.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/components/instituicao-table.jsx": {
+    "file": "assets/instituicao-table-BETf5Qd2.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "instituicao-table",
     "src": "resources/js/pages/instituicoes/components/instituicao-table.jsx",
     "isDynamicEntry": true,
@@ -3808,6 +5811,7 @@
       "_ellipsis-Dus2UbHw.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -3816,6 +5820,16 @@
   },
   "resources/js/pages/instituicoes/components/show/instituicao-cabecalho.jsx": {
     "file": "assets/instituicao-cabecalho-BwW8i0KI.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_InstituicaoController-Cgs_bcHq.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/components/show/instituicao-cabecalho.jsx": {
+    "file": "assets/instituicao-cabecalho-9JNW7ngg.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "instituicao-cabecalho",
     "src": "resources/js/pages/instituicoes/components/show/instituicao-cabecalho.jsx",
     "isDynamicEntry": true,
@@ -3825,50 +5839,84 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_InstituicaoController-X87NgPuH.js"
     ]
   },
   "resources/js/pages/instituicoes/components/show/instituicao-cursos.jsx": {
     "file": "assets/instituicao-cursos-CY-6nvdp.js",
+=======
+      "_InstituicaoController-Cgs_bcHq.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/components/show/instituicao-cursos.jsx": {
+    "file": "assets/instituicao-cursos-CJMJ5LC7.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "instituicao-cursos",
     "src": "resources/js/pages/instituicoes/components/show/instituicao-cursos.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_InstituicaoController-X87NgPuH.js",
       "_tab-content-cursos-Dd-qE2Q7.js"
     ]
   },
   "resources/js/pages/instituicoes/components/skeletons/index.skeleton.jsx": {
     "file": "assets/index.skeleton-B3cGtDab.js",
+=======
+      "_InstituicaoController-Cgs_bcHq.js",
+      "_tab-content-cursos-x6mqz2fk.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/components/skeletons/index.skeleton.jsx": {
+    "file": "assets/index.skeleton-BDOzctdf.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "index.skeleton",
     "src": "resources/js/pages/instituicoes/components/skeletons/index.skeleton.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
+=======
+      "_pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/instituicoes/components/skeletons/show.skeleton.jsx": {
+<<<<<<< HEAD
     "file": "assets/show.skeleton-BINO05gD.js",
+=======
+    "file": "assets/show.skeleton-CsR4gPZw.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show.skeleton",
     "src": "resources/js/pages/instituicoes/components/skeletons/show.skeleton.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
       "_tabs-kOxtTIGC.js",
+=======
+      "_pagination-BjR2DL7p.js",
+      "_tabs-B3DB8TTx.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/instituicoes/create.jsx": {
+<<<<<<< HEAD
     "file": "assets/create-CRwzA7eL.js",
+=======
+    "file": "assets/create-Dk2ydEzl.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/instituicoes/create.jsx",
     "isDynamicEntry": true,
@@ -3876,11 +5924,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/instituicoes/components/instituicao-form.jsx",
+<<<<<<< HEAD
       "_InstituicaoController-X87NgPuH.js"
     ]
   },
   "resources/js/pages/instituicoes/edit.jsx": {
     "file": "assets/edit-CM8BZCJB.js",
+=======
+      "_InstituicaoController-Cgs_bcHq.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/edit.jsx": {
+    "file": "assets/edit-Cb3cjbjn.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/instituicoes/edit.jsx",
     "isDynamicEntry": true,
@@ -3888,24 +5944,41 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/instituicoes/components/instituicao-form.jsx",
+<<<<<<< HEAD
       "_InstituicaoController-X87NgPuH.js"
     ]
   },
   "resources/js/pages/instituicoes/index.jsx": {
     "file": "assets/instituicoes-DBzihAzV.js",
+=======
+      "_InstituicaoController-Cgs_bcHq.js"
+    ]
+  },
+  "resources/js/pages/instituicoes/index.jsx": {
+    "file": "assets/instituicoes-bwufeqAW.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "instituicoes",
     "src": "resources/js/pages/instituicoes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BVaztzAq.js",
       "_InstituicaoController-X87NgPuH.js",
+=======
+      "_use-dialog-BpUa4_F0.js",
+      "_InstituicaoController-Cgs_bcHq.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/instituicoes/components/instituicao-table.jsx"
     ]
   },
   "resources/js/pages/instituicoes/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-DRPPPQwf.js",
+=======
+    "file": "assets/show-rjJRr1Xd.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/instituicoes/show.jsx",
     "isDynamicEntry": true,
@@ -3916,23 +5989,40 @@
     ]
   },
   "resources/js/pages/itens-pagaveis/components/itens-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/itens-form-D2fURmr7.js",
+=======
+    "file": "assets/itens-form-M2YCTXrL.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "itens-form",
     "src": "resources/js/pages/itens-pagaveis/components/itens-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "_switch-BB1q9gne.js",
       "_toggle-group-B1gODp5T.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_field-DBwSjZJQ.js",
+=======
+      "_select-C5NhaGya.js",
+      "_switch-DY0lSQ5a.js",
+      "_toggle-group-CmtZcxIc.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_field-voVIi7hX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/itens-pagaveis/components/itens-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/itens-table-BMe_7rP0.js",
+=======
+    "file": "assets/itens-table-DG4fh8yU.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "itens-table",
     "src": "resources/js/pages/itens-pagaveis/components/itens-table.jsx",
     "isDynamicEntry": true,
@@ -3942,6 +6032,7 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
@@ -3951,6 +6042,17 @@
   },
   "resources/js/pages/itens-pagaveis/create.jsx": {
     "file": "assets/create-BWRwTkAt.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_ItemPagavelController-BS6o5Dpz.js"
+    ]
+  },
+  "resources/js/pages/itens-pagaveis/create.jsx": {
+    "file": "assets/create-VuyZGeyk.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/itens-pagaveis/create.jsx",
     "isDynamicEntry": true,
@@ -3958,11 +6060,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/itens-pagaveis/components/itens-form.jsx",
+<<<<<<< HEAD
       "_ItemPagavelController-CgJkD43o.js"
     ]
   },
   "resources/js/pages/itens-pagaveis/edit.jsx": {
     "file": "assets/edit-DoZn9Y2z.js",
+=======
+      "_ItemPagavelController-BS6o5Dpz.js"
+    ]
+  },
+  "resources/js/pages/itens-pagaveis/edit.jsx": {
+    "file": "assets/edit-BbRr2k4f.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/itens-pagaveis/edit.jsx",
     "isDynamicEntry": true,
@@ -3970,24 +6080,41 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/itens-pagaveis/components/itens-form.jsx",
+<<<<<<< HEAD
       "_ItemPagavelController-CgJkD43o.js"
     ]
   },
   "resources/js/pages/itens-pagaveis/index.jsx": {
     "file": "assets/itens-pagaveis-CDZSW2Ia.js",
+=======
+      "_ItemPagavelController-BS6o5Dpz.js"
+    ]
+  },
+  "resources/js/pages/itens-pagaveis/index.jsx": {
+    "file": "assets/itens-pagaveis-DIrwrD0M.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "itens-pagaveis",
     "src": "resources/js/pages/itens-pagaveis/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BVaztzAq.js",
       "_ItemPagavelController-CgJkD43o.js",
+=======
+      "_use-dialog-BpUa4_F0.js",
+      "_ItemPagavelController-BS6o5Dpz.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/itens-pagaveis/components/itens-table.jsx"
     ]
   },
   "resources/js/pages/itens-pagaveis/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-BUgHC-Fq.js",
+=======
+    "file": "assets/show-60ddKgCv.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/itens-pagaveis/show.jsx",
     "isDynamicEntry": true,
@@ -3996,16 +6123,25 @@
       "_arrow-left-EnYF531l.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_ItemPagavelController-CgJkD43o.js"
     ]
   },
   "resources/js/pages/pagamentos/components/pagamentos-form.jsx": {
     "file": "assets/pagamentos-form-CBPEwrm8.js",
+=======
+      "_ItemPagavelController-BS6o5Dpz.js"
+    ]
+  },
+  "resources/js/pages/pagamentos/components/pagamentos-form.jsx": {
+    "file": "assets/pagamentos-form-BiYx6pLj.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "pagamentos-form",
     "src": "resources/js/pages/pagamentos/components/pagamentos-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
       "_cart-summary-D35es4NI.js",
       "resources/js/app.tsx",
@@ -4017,6 +6153,19 @@
   },
   "resources/js/pages/pagamentos/components/pagamentos-table.jsx": {
     "file": "assets/pagamentos-table-BWFERSVr.js",
+=======
+      "_select-C5NhaGya.js",
+      "_cart-summary-CHvaHGYz.js",
+      "resources/js/app.tsx",
+      "_field-voVIi7hX.js",
+      "_cart-items-CbfxY7xf.js",
+      "_combobox-BVFKgd4B.js",
+      "_PagamentoController-Cl7Q23WU.js"
+    ]
+  },
+  "resources/js/pages/pagamentos/components/pagamentos-table.jsx": {
+    "file": "assets/pagamentos-table-rPrpfR_I.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "pagamentos-table",
     "src": "resources/js/pages/pagamentos/components/pagamentos-table.jsx",
     "isDynamicEntry": true,
@@ -4026,6 +6175,7 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
@@ -4035,6 +6185,17 @@
   },
   "resources/js/pages/pagamentos/create.jsx": {
     "file": "assets/create-BtuKTWlo.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_badge-DxvCgqB1.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_PagamentoController-Cl7Q23WU.js"
+    ]
+  },
+  "resources/js/pages/pagamentos/create.jsx": {
+    "file": "assets/create-Cc4tN5Df.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/pagamentos/create.jsx",
     "isDynamicEntry": true,
@@ -4044,32 +6205,53 @@
     ]
   },
   "resources/js/pages/pagamentos/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-CV7Ts1EC.js",
+=======
+    "file": "assets/edit-DHVci6jw.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/pagamentos/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_AvisoController-SjE-mT4o.js",
+=======
+      "_AvisoController-C7hih3Li.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/pagamentos/components/pagamentos-form.jsx"
     ]
   },
   "resources/js/pages/pagamentos/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/pagamentos-Bb0YPy_-.js",
+=======
+    "file": "assets/pagamentos-D0BT27rd.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "pagamentos",
     "src": "resources/js/pages/pagamentos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BVaztzAq.js",
       "_PagamentoController-CJ522zqU.js",
+=======
+      "_use-dialog-BpUa4_F0.js",
+      "_PagamentoController-Cl7Q23WU.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/pagamentos/components/pagamentos-table.jsx"
     ]
   },
   "resources/js/pages/pagamentos/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-CAI5P4rP.js",
+=======
+    "file": "assets/show-Dt0C0TCY.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/pagamentos/show.jsx",
     "isDynamicEntry": true,
@@ -4080,6 +6262,7 @@
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
+<<<<<<< HEAD
       "_table-pagination-DJ1gyBZa.js",
       "_pagamentos-DtK05c6T.js",
       "_PagamentoController-CJ522zqU.js"
@@ -4087,6 +6270,15 @@
   },
   "resources/js/pages/pap/EditarTemaMelhoria.jsx": {
     "file": "assets/EditarTemaMelhoria-mo_86da1.js",
+=======
+      "_table-pagination-Boc6VjFW.js",
+      "_pagamentos-DtK05c6T.js",
+      "_PagamentoController-Cl7Q23WU.js"
+    ]
+  },
+  "resources/js/pages/pap/EditarTemaMelhoria.jsx": {
+    "file": "assets/EditarTemaMelhoria-D3J6fOgI.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "EditarTemaMelhoria",
     "src": "resources/js/pages/pap/EditarTemaMelhoria.jsx",
     "isDynamicEntry": true,
@@ -4100,7 +6292,11 @@
     ]
   },
   "resources/js/pages/pap/HistoricoAprovacao.jsx": {
+<<<<<<< HEAD
     "file": "assets/HistoricoAprovacao-CYV0iTK8.js",
+=======
+    "file": "assets/HistoricoAprovacao-8RIDtejU.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "HistoricoAprovacao",
     "src": "resources/js/pages/pap/HistoricoAprovacao.jsx",
     "isDynamicEntry": true,
@@ -4112,7 +6308,11 @@
     ]
   },
   "resources/js/pages/pap/PendentesAprovacao.jsx": {
+<<<<<<< HEAD
     "file": "assets/PendentesAprovacao-BWyW8ofV.js",
+=======
+    "file": "assets/PendentesAprovacao-BsMB8ZgF.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "PendentesAprovacao",
     "src": "resources/js/pages/pap/PendentesAprovacao.jsx",
     "isDynamicEntry": true,
@@ -4120,12 +6320,20 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_ModalDecisaoAprovacao-DNXF47Y2.js",
+=======
+      "_ModalDecisaoAprovacao-D2Nhq__o.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/pap/components/InfoGrupoBox.jsx"
     ]
   },
   "resources/js/pages/pap/TemasMelhoria.jsx": {
+<<<<<<< HEAD
     "file": "assets/TemasMelhoria-DqnAy58x.js",
+=======
+    "file": "assets/TemasMelhoria-CUDcOnzv.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "TemasMelhoria",
     "src": "resources/js/pages/pap/TemasMelhoria.jsx",
     "isDynamicEntry": true,
@@ -4159,7 +6367,11 @@
     ]
   },
   "resources/js/pages/pap/components/grupo-pap-cards.jsx": {
+<<<<<<< HEAD
     "file": "assets/grupo-pap-cards-C5gmJJD9.js",
+=======
+    "file": "assets/grupo-pap-cards-CsTIGVB-.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "grupo-pap-cards",
     "src": "resources/js/pages/pap/components/grupo-pap-cards.jsx",
     "isDynamicEntry": true,
@@ -4169,6 +6381,7 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_badge-DxvCgqB1.js",
       "_GrupoPapController-CFS4CIIg.js"
@@ -4176,6 +6389,15 @@
   },
   "resources/js/pages/pap/index.jsx": {
     "file": "assets/pap-Clh7cmyJ.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_badge-DxvCgqB1.js",
+      "_GrupoPapController-B9NQdId1.js"
+    ]
+  },
+  "resources/js/pages/pap/index.jsx": {
+    "file": "assets/pap-BlIgCBsk.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "pap",
     "src": "resources/js/pages/pap/index.jsx",
     "isDynamicEntry": true,
@@ -4186,7 +6408,11 @@
     ]
   },
   "resources/js/pages/pautas/components/pauta-table/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/pauta-table-r-GUNWpI.js",
+=======
+    "file": "assets/pauta-table-5pFJQuxh.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "pauta-table",
     "src": "resources/js/pages/pautas/components/pauta-table/index.jsx",
     "isDynamicEntry": true,
@@ -4194,6 +6420,7 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -4203,6 +6430,17 @@
       "_body-Coe5xhSR.js",
       "_header-DaUk2T1V.js",
       "_body-Dx7M-TCv.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_utils-CxwIYYhK.js",
+      "_card-actions-CdaMSHFR.js",
+      "_header-gB5oHq_N.js",
+      "_body-Coe5xhSR.js",
+      "_header-DaUk2T1V.js",
+      "_body-Dd3r6jk4.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_header-J9KAxMh0.js",
       "_body-B6_lB0i_.js"
     ]
@@ -4227,7 +6465,11 @@
     ]
   },
   "resources/js/pages/pautas/components/resumo-cards/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/resumo-cards-DfoX7O9L.js",
+=======
+    "file": "assets/resumo-cards-CsO0YOjE.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "resumo-cards",
     "src": "resources/js/pages/pautas/components/resumo-cards/index.jsx",
     "isDynamicEntry": true,
@@ -4237,7 +6479,11 @@
     ]
   },
   "resources/js/pages/pautas/components/resumo-cards/item.jsx": {
+<<<<<<< HEAD
     "file": "assets/item-DvOVg1qr.js",
+=======
+    "file": "assets/item-BiwIrNTk.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "item",
     "src": "resources/js/pages/pautas/components/resumo-cards/item.jsx",
     "isDynamicEntry": true,
@@ -4248,7 +6494,11 @@
     ]
   },
   "resources/js/pages/pautas/cursos/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/cursos-BudbgTUs.js",
+=======
+    "file": "assets/cursos-Df9qRPNf.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "cursos",
     "src": "resources/js/pages/pautas/cursos/index.jsx",
     "isDynamicEntry": true,
@@ -4256,24 +6506,40 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_PautaController-twVT4RG2.js"
     ]
   },
   "resources/js/pages/pautas/index.jsx": {
     "file": "assets/pautas-BO-awN38.js",
+=======
+      "_PautaController-DZyHfmlJ.js"
+    ]
+  },
+  "resources/js/pages/pautas/index.jsx": {
+    "file": "assets/pautas-wdncTfx_.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "pautas",
     "src": "resources/js/pages/pautas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-pagination-9zNRp6le.js",
+=======
+      "_use-pagination-DHYoJ6vI.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/pautas/components/pauta-table/index.jsx",
       "resources/js/pages/pautas/components/resumo-cards.jsx"
     ]
   },
   "resources/js/pages/pautas/turmas/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/turmas-CLXeDOA4.js",
+=======
+    "file": "assets/turmas-xOpDsDkr.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "turmas",
     "src": "resources/js/pages/pautas/turmas/index.jsx",
     "isDynamicEntry": true,
@@ -4281,8 +6547,13 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_PautaController-twVT4RG2.js"
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_PautaController-DZyHfmlJ.js"
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     ]
   },
   "resources/js/pages/portal/index.jsx": {
@@ -4295,7 +6566,11 @@
     ]
   },
   "resources/js/pages/professores/components/professor-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/professor-form-Cw83CTC1.js",
+=======
+    "file": "assets/professor-form-5hGZJ9Pl.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "professor-form",
     "src": "resources/js/pages/professores/components/professor-form.jsx",
     "isDynamicEntry": true,
@@ -4303,22 +6578,35 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-DBwSjZJQ.js",
+=======
+      "_field-voVIi7hX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/professores/components/professor-table.jsx": {
+<<<<<<< HEAD
     "file": "assets/professor-table-BOlejpNg.js",
+=======
+    "file": "assets/professor-table-DPCDe-e5.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "professor-table",
     "src": "resources/js/pages/professores/components/professor-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
+=======
+      "_pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -4327,11 +6615,22 @@
   },
   "resources/js/pages/professores/components/tabs/cursos.tab.jsx": {
     "file": "assets/cursos.tab-C2-biyua.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_ProfessorController-Bu_EysEp.js"
+    ]
+  },
+  "resources/js/pages/professores/components/tabs/cursos.tab.jsx": {
+    "file": "assets/cursos.tab-CKgcooh7.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "cursos.tab",
     "src": "resources/js/pages/professores/components/tabs/cursos.tab.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
@@ -4343,6 +6642,19 @@
   },
   "resources/js/pages/professores/components/tabs/turmas.tab.jsx": {
     "file": "assets/turmas.tab-BNN5MeGL.js",
+=======
+      "_pagination-BjR2DL7p.js",
+      "_layers-cNsH7THB.js",
+      "resources/js/app.tsx",
+      "_card-CLsug2Zw.js",
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_CursosController-BWguroOA.js"
+    ]
+  },
+  "resources/js/pages/professores/components/tabs/turmas.tab.jsx": {
+    "file": "assets/turmas.tab-P1yDfzrY.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "turmas.tab",
     "src": "resources/js/pages/professores/components/tabs/turmas.tab.jsx",
     "isDynamicEntry": true,
@@ -4352,56 +6664,93 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/professores/create.jsx": {
+<<<<<<< HEAD
     "file": "assets/create-BCotxW2H.js",
+=======
+    "file": "assets/create-B8sYXpjc.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/professores/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ProfessorController-Cswdhgn1.js",
+=======
+      "_ProfessorController-Bu_EysEp.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/professores/edit.jsx": {
+<<<<<<< HEAD
     "file": "assets/edit-DkJxExOT.js",
+=======
+    "file": "assets/edit-BV_NT0b7.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/professores/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_ProfessorController-Cswdhgn1.js",
+=======
+      "_ProfessorController-Bu_EysEp.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/professores/index.jsx": {
+<<<<<<< HEAD
     "file": "assets/professores-BzkThH5i.js",
+=======
+    "file": "assets/professores-DcGAf861.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "professores",
     "src": "resources/js/pages/professores/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BVaztzAq.js",
       "_ProfessorController-Cswdhgn1.js",
+=======
+      "_use-dialog-BpUa4_F0.js",
+      "_ProfessorController-Bu_EysEp.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/professores/components/professor-table.jsx"
     ]
   },
   "resources/js/pages/professores/show.jsx": {
+<<<<<<< HEAD
     "file": "assets/show-DxmrELXu.js",
+=======
+    "file": "assets/show-DdN1_x6i.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "show",
     "src": "resources/js/pages/professores/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_minus-CsrEuYwF.js",
+<<<<<<< HEAD
       "_tabs-kOxtTIGC.js",
+=======
+      "_tabs-B3DB8TTx.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "resources/js/pages/professores/components/tabs/cursos.tab.jsx",
@@ -4419,14 +6768,22 @@
     ]
   },
   "resources/js/pages/regras-avaliacao/components/regras-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/regras-form-BGSeKbfi.js",
+=======
+    "file": "assets/regras-form-CyGcznhL.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "regras-form",
     "src": "resources/js/pages/regras-avaliacao/components/regras-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_dist-DVY39n7X.js",
+<<<<<<< HEAD
       "_select-xUXtRxg9.js",
+=======
+      "_select-C5NhaGya.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_dist-BKI9--UU.js",
       "_dist-BsG0KAXG.js",
       "_dist-BU5y4aRS.js",
@@ -4434,6 +6791,7 @@
       "_dist-B6Ek9oRb.js",
       "_dist-DbFgUCqG.js",
       "_dist-C6xzvqf82.js",
+<<<<<<< HEAD
       "_switch-BB1q9gne.js",
       "resources/js/app.tsx",
       "_field-DBwSjZJQ.js"
@@ -4441,6 +6799,15 @@
   },
   "resources/js/pages/regras-avaliacao/components/regras-table.jsx": {
     "file": "assets/regras-table-D9KD9hYo.js",
+=======
+      "_switch-DY0lSQ5a.js",
+      "resources/js/app.tsx",
+      "_field-voVIi7hX.js"
+    ]
+  },
+  "resources/js/pages/regras-avaliacao/components/regras-table.jsx": {
+    "file": "assets/regras-table-CklR4Irc.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "regras-table",
     "src": "resources/js/pages/regras-avaliacao/components/regras-table.jsx",
     "isDynamicEntry": true,
@@ -4450,6 +6817,7 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -4458,6 +6826,16 @@
   },
   "resources/js/pages/regras-avaliacao/create.jsx": {
     "file": "assets/create-k_2xay-e.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_RegraAvaliacaoController-Cmxj-5vK.js"
+    ]
+  },
+  "resources/js/pages/regras-avaliacao/create.jsx": {
+    "file": "assets/create-B7rj5qDk.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/regras-avaliacao/create.jsx",
     "isDynamicEntry": true,
@@ -4465,11 +6843,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/regras-avaliacao/components/regras-form.jsx",
+<<<<<<< HEAD
       "_RegraAvaliacaoController-BFM_Wyw3.js"
     ]
   },
   "resources/js/pages/regras-avaliacao/edit.jsx": {
     "file": "assets/edit-BwIR0O1S.js",
+=======
+      "_RegraAvaliacaoController-Cmxj-5vK.js"
+    ]
+  },
+  "resources/js/pages/regras-avaliacao/edit.jsx": {
+    "file": "assets/edit-BclWxhrD.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/regras-avaliacao/edit.jsx",
     "isDynamicEntry": true,
@@ -4477,19 +6863,32 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/regras-avaliacao/components/regras-form.jsx",
+<<<<<<< HEAD
       "_RegraAvaliacaoController-BFM_Wyw3.js"
     ]
   },
   "resources/js/pages/regras-avaliacao/index.jsx": {
     "file": "assets/regras-avaliacao-DSJ7prpS.js",
+=======
+      "_RegraAvaliacaoController-Cmxj-5vK.js"
+    ]
+  },
+  "resources/js/pages/regras-avaliacao/index.jsx": {
+    "file": "assets/regras-avaliacao--IaVwDNK.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "regras-avaliacao",
     "src": "resources/js/pages/regras-avaliacao/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BVaztzAq.js",
       "_RegraAvaliacaoController-BFM_Wyw3.js",
+=======
+      "_use-dialog-BpUa4_F0.js",
+      "_RegraAvaliacaoController-Cmxj-5vK.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/regras-avaliacao/components/regras-table.jsx"
     ]
   },
@@ -4500,7 +6899,11 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/settings/appearance.jsx": {
+<<<<<<< HEAD
     "file": "assets/appearance-DmFFA7oO.js",
+=======
+    "file": "assets/appearance-BTB6Tx6M.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "appearance",
     "src": "resources/js/pages/settings/appearance.jsx",
     "isDynamicEntry": true,
@@ -4512,12 +6915,17 @@
     ]
   },
   "resources/js/pages/settings/profile.jsx": {
+<<<<<<< HEAD
     "file": "assets/profile-DQu02Vwz.js",
+=======
+    "file": "assets/profile-BV0vDSqL.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "profile",
     "src": "resources/js/pages/settings/profile.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_password-input-C5Aq2dRR.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
@@ -4527,6 +6935,17 @@
   },
   "resources/js/pages/settings/security.jsx": {
     "file": "assets/security-xlIc3dZW.js",
+=======
+      "_password-input-OU0Zxj5h.js",
+      "_label-Bsu1BWfE.js",
+      "resources/js/app.tsx",
+      "_input-error-Cqkovvfq.js",
+      "_verification-Z6k_ABVG.js"
+    ]
+  },
+  "resources/js/pages/settings/security.jsx": {
+    "file": "assets/security-CwIiIpNN.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "security",
     "src": "resources/js/pages/settings/security.jsx",
     "isDynamicEntry": true,
@@ -4535,20 +6954,34 @@
       "_createLucideIcon-6hAcjkHs.js",
       "_check-D6_H2ueh.js",
       "_circle-alert-CmOZxo2j.js",
+<<<<<<< HEAD
       "_password-input-C5Aq2dRR.js",
+=======
+      "_password-input-OU0Zxj5h.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_react-CYuos3AN.js",
       "_refresh-cw-DseKGfw9.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_spinner-B74vKTsl.js",
       "_input-error-Cqkovvfq.js",
       "_use-two-factor-auth-Dlbc2-Qe.js",
+=======
+      "_spinner-A7jPuRhk.js",
+      "_input-error-Cqkovvfq.js",
+      "_use-two-factor-auth-DcpSOAnX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_alert-E7rLH5df.js"
     ]
   },
   "resources/js/pages/teste.jsx": {
+<<<<<<< HEAD
     "file": "assets/teste--Wone0v3.js",
+=======
+    "file": "assets/teste-CZESNyW-.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "teste",
     "src": "resources/js/pages/teste.jsx",
     "isDynamicEntry": true,
@@ -4565,6 +6998,7 @@
       "_dist-Ctfm89E2.js",
       "_utils-BNhDZxi-.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_field-DBwSjZJQ.js",
       "_textarea-CEblRWsJ.js",
       "_input-group-D3katUOH.js",
@@ -4573,16 +7007,31 @@
   },
   "resources/js/pages/turmas/components/turma-table.jsx": {
     "file": "assets/turma-table-uYJIBz4H.js",
+=======
+      "_field-voVIi7hX.js",
+      "_textarea-CEblRWsJ.js",
+      "_input-group-BNVjxXCr.js",
+      "_combobox-BVFKgd4B.js"
+    ]
+  },
+  "resources/js/pages/turmas/components/turma-table.jsx": {
+    "file": "assets/turma-table-C1dA8iSt.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "turma-table",
     "src": "resources/js/pages/turmas/components/turma-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+<<<<<<< HEAD
       "_pagination-CK57RI9E.js",
+=======
+      "_pagination-BjR2DL7p.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "_ellipsis-Dus2UbHw.js",
       "_filter-oRknpvMA.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_field-DBwSjZJQ.js",
@@ -4592,6 +7041,17 @@
   },
   "resources/js/pages/turmas/index.jsx": {
     "file": "assets/turmas-Or1z3X8J.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_field-voVIi7hX.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_ClasseTurnoTurmaController-C4EoZGWo.js"
+    ]
+  },
+  "resources/js/pages/turmas/index.jsx": {
+    "file": "assets/turmas-Ep8g2D4j.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "turmas",
     "src": "resources/js/pages/turmas/index.jsx",
     "isDynamicEntry": true,
@@ -4602,7 +7062,11 @@
     ]
   },
   "resources/js/pages/turnos/components/turno-form.jsx": {
+<<<<<<< HEAD
     "file": "assets/turno-form-Dkrd-15O.js",
+=======
+    "file": "assets/turno-form-Ccp1DNGF.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "turno-form",
     "src": "resources/js/pages/turnos/components/turno-form.jsx",
     "isDynamicEntry": true,
@@ -4610,11 +7074,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_field-DBwSjZJQ.js"
     ]
   },
   "resources/js/pages/turnos/components/turno-table.jsx": {
     "file": "assets/turno-table-ueh05NDd.js",
+=======
+      "_field-voVIi7hX.js"
+    ]
+  },
+  "resources/js/pages/turnos/components/turno-table.jsx": {
+    "file": "assets/turno-table-CcyLJpCs.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "turno-table",
     "src": "resources/js/pages/turnos/components/turno-table.jsx",
     "isDynamicEntry": true,
@@ -4624,6 +7096,7 @@
       "_ellipsis-Dus2UbHw.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
+<<<<<<< HEAD
       "_empty-state-B9lMnxoL.js",
       "_table-DrQFDzr_.js",
       "_table-pagination-DJ1gyBZa.js",
@@ -4632,6 +7105,16 @@
   },
   "resources/js/pages/turnos/create.jsx": {
     "file": "assets/create-DmakxNng.js",
+=======
+      "_empty-state-CDS8RrE1.js",
+      "_table-DrQFDzr_.js",
+      "_table-pagination-Boc6VjFW.js",
+      "_TurnoController-DKxN-nS_.js"
+    ]
+  },
+  "resources/js/pages/turnos/create.jsx": {
+    "file": "assets/create-DpKUcBWX.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "create",
     "src": "resources/js/pages/turnos/create.jsx",
     "isDynamicEntry": true,
@@ -4639,11 +7122,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/turnos/components/turno-form.jsx",
+<<<<<<< HEAD
       "_TurnoController-CUzkPWVj.js"
     ]
   },
   "resources/js/pages/turnos/edit.jsx": {
     "file": "assets/edit-DMIKUEpi.js",
+=======
+      "_TurnoController-DKxN-nS_.js"
+    ]
+  },
+  "resources/js/pages/turnos/edit.jsx": {
+    "file": "assets/edit-BfulOGbl.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "edit",
     "src": "resources/js/pages/turnos/edit.jsx",
     "isDynamicEntry": true,
@@ -4651,24 +7142,41 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/turnos/components/turno-form.jsx",
+<<<<<<< HEAD
       "_TurnoController-CUzkPWVj.js"
     ]
   },
   "resources/js/pages/turnos/index.jsx": {
     "file": "assets/turnos-BXxL2yNJ.js",
+=======
+      "_TurnoController-DKxN-nS_.js"
+    ]
+  },
+  "resources/js/pages/turnos/index.jsx": {
+    "file": "assets/turnos-Dv4WW-lw.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "turnos",
     "src": "resources/js/pages/turnos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
+<<<<<<< HEAD
       "_use-dialog-BVaztzAq.js",
       "_TurnoController-CUzkPWVj.js",
+=======
+      "_use-dialog-BpUa4_F0.js",
+      "_TurnoController-DKxN-nS_.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
       "resources/js/pages/turnos/components/turno-table.jsx"
     ]
   },
   "resources/js/pages/welcome.jsx": {
+<<<<<<< HEAD
     "file": "assets/welcome-CPK2UyNb.js",
+=======
+    "file": "assets/welcome-D6sfXYNL.js",
+>>>>>>> 2eec8e7 (Confirmação de pagamento de propina)
     "name": "welcome",
     "src": "resources/js/pages/welcome.jsx",
     "isDynamicEntry": true,

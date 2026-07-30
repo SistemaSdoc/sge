@@ -82,6 +82,7 @@ export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange, can 
                   <TableHead className="px-4">Turno</TableHead>
                   <TableHead className="px-4">Turma</TableHead>
                   <TableHead className="px-4">Classe</TableHead>
+                  <TableHead className="px-4">Propina</TableHead>
                   {hasActionColumn && (
                   <TableHead className="px-4 text-right">Acções</TableHead>
                   )}
@@ -111,6 +112,23 @@ export function AlunoTable({ data, deleteFn, pagination = {}, onPageChange, can 
                     <TableCell className="px-4 font-medium">
                       {aluno.classe}
                     </TableCell>
+                  <TableCell className="px-4">
+  {aluno.propina_status === 'pagou' && (
+    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+      Pagou
+    </span>
+  )}
+  {aluno.propina_status === 'atrasado' && (
+    <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">
+      Em atraso
+    </span>
+  )}
+  {aluno.propina_status === 'sem_turma' && (
+    <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+      Sem turma
+    </span>
+  )}
+</TableCell>
                     {hasActionColumn && (
                     <TableCell className="px-4 text-right">
                       {aluno.can?.update && (
