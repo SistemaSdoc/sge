@@ -27,13 +27,23 @@ class VerificarPropinaEmDia
             'rota' => $request->path(),
         ]);
 
+        // Se não tem aluno, libera
         if (! $aluno) {
             Log::debug('[VerificarPropinaEmDia] sem aluno associado — deixa passar');
-
             return $next($request);
         }
 
-        // O service devolve directamente a lista de pendências (array simples).
+        // Verifica o tipo da instituição
+        $instituicao = $aluno->user->instituicao;
+        if (! $instituicao || $instituicao->tipo !== 'colegio') {
+            Log::debug('[VerificarPropinaEmDia] instituição não é do tipo "colegio" — bloqueio desativado', [
+                'aluno_id' => $aluno->id,
+                'tipo_instituicao' => $instituicao?->tipo,
+            ]);
+            return $next($request);
+        }
+
+        // Agora sim, verifica pendências
         $pendencias = $this->verificador->pendenciasDoAluno($aluno);
 
         Log::debug('[VerificarPropinaEmDia] resultado da verificação', [
@@ -44,10 +54,10 @@ class VerificarPropinaEmDia
 
         if (empty($pendencias)) {
             Log::debug('[VerificarPropinaEmDia] aluno em dia — deixa passar', ['aluno_id' => $aluno->id]);
-
             return $next($request);
         }
 
+        // Bloqueia
         Log::warning('[VerificarPropinaEmDia] aluno bloqueado por propinas em atraso', [
             'aluno_id' => $aluno->id,
             'rota' => $request->path(),
