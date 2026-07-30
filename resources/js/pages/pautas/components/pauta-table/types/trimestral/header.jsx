@@ -58,7 +58,7 @@ export function TrimestralPautaHeader({ disciplinas, periodo }) {
             </TableHead>
 
             <TableHead className="border-r bg-muted px-4 text-center">
-              F
+              F.I
             </TableHead>
           </Fragment>
         ))}

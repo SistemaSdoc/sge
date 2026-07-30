@@ -34,6 +34,7 @@ import { usePagination } from '@/hooks/use-pagination';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { editar as editarTema } from '@/actions/App/Http/Controllers/GrupoPapAprovacaoController'; // ajustar o import real
+import { TabAprovacao } from './components/tabs/tab-aprovacao';
 
 export default function Show({
   instituicao,

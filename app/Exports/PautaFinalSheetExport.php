@@ -252,11 +252,11 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
             ]);
 
             foreach ([
-                $c1T => '1T',
-                $c2T => '2T',
-                $c3T => '3T',
-                $cF => 'F',
-                $cMF => 'MF',
+                $c1T => 'MT1',
+                $c2T => 'MT2',
+                $c3T => 'MT3',
+                $cF => 'F.I',
+                $cMF => 'MFD',
             ] as $col => $label) {
                 $ws->setCellValue("{$col}{$r2}", $label);
                 $ws->getStyle("{$col}{$r2}")->applyFromArray([

@@ -17,6 +17,17 @@ class PermissionSeeder extends Seeder
             'instituicoes.view',
             'instituicoes.update',
 
+            'confirmacao-matricula.viewAny',
+            'confirmacao-matricula.view',
+            'confirmacao-matricula.create',
+
+
+            'regra-avaliacao.viewAny',
+            'regra-avaliacao.view',
+            'regra-avaliacao.create',
+            'regra-avaliacao.update',
+            'regra-avaliacao.delete',
+
             // Alunos
             'alunos.viewAny',
             'alunos.view',

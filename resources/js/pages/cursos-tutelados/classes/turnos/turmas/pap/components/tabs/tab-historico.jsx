@@ -13,7 +13,6 @@ import {
   AlertCircle,
   Clock,
   RefreshCw,
-  ArrowRight,
   FileText,
   Landmark,
 } from 'lucide-react';
@@ -82,26 +81,18 @@ export function TabHistorico({ historico = [] }) {
           <EmptyState
             variant="table"
             icon={Landmark}
-            title="Nenhum registo ainda"
-            description=""
+            title="Nenhum registo encontrado"
+            description="Decida sobre a aprovação, reprovação ou solicite melhorias."
           />
         ) : (
           <div className="divide-y">
-            {historico.map((item, index) => {
+            {historico.map((item) => {
               const config = getStatus(item.estado_novo);
               const Icon = config.icon;
 
-              // O historico vem decrescente (mais recente no index 0)
-              // O "anterior" é o index + 1, não index - 1
-              const temaAnterior =
-                index < historico.length - 1
-                  ? historico[index + 1]?.tema
-                  : null;
-              const temaMudou =
-                item.tema && temaAnterior && item.tema !== temaAnterior;
-
               return (
                 <div key={item.id} className="px-6 py-4">
+
                   <div className="flex items-start justify-between gap-4">
                     <Badge
                       variant="outline"
@@ -129,17 +120,7 @@ export function TabHistorico({ historico = [] }) {
                     {item.tema && (
                       <div className="flex items-start gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
                         <FileText className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-                        {temaMudou ? (
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-muted-foreground line-through">
-                              {temaAnterior}
-                            </span>
-                            <ArrowRight className="size-3.5 shrink-0 text-muted-foreground" />
-                            <span className="font-medium">{item.tema}</span>
-                          </div>
-                        ) : (
-                          <span className="font-medium">{item.tema}</span>
-                        )}
+                        <span className="font-medium">{item.tema}</span>
                       </div>
                     )}
                   </div>

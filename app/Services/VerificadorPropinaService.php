@@ -8,9 +8,22 @@ use App\Models\PagamentoItem;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class VerificadorPropinaService
 {
+    /**
+     * Só itens cujo nome corresponda a isto entram no cálculo de bloqueio.
+     * Ajusta a lista se tiveres outras variações de nome (ex: "Mensalidade").
+     */
+    private const TERMOS_BLOQUEIO = ['propina', 'propinas'];
+
+    /**
+     * Devolve a lista de pendências do aluno (só itens de bloqueio, ex: propina).
+     * Array vazio = está em dia.
+     *
+     * Cada pendência: ['item_pagavel_id', 'nome', 'frequencia', 'mes' => int|null, 'ano' => int]
+     */
     public function pendenciasDoAluno(Aluno $aluno): array
     {
         $turma = $aluno->turmaActual()->first();
@@ -34,10 +47,9 @@ class VerificadorPropinaService
         }
 
         // Data de início do período de cobrança: máximo entre início do ano lectivo e data de matrícula
-        $dataMatricula = $aluno->data_matricula ?? $aluno->created_at; // ajuste conforme seu modelo
+        $dataMatricula = $aluno->data_matricula ?? $aluno->created_at;
         $inicioAno = Carbon::parse($anoLectivo->data_inicio)->startOfMonth();
         $inicio = $dataMatricula ? Carbon::parse($dataMatricula)->startOfMonth() : $inicioAno;
-        // Garantir que não comece antes do início do ano lectivo
         if ($inicio->lt($inicioAno)) {
             $inicio = $inicioAno;
         }
@@ -54,7 +66,6 @@ class VerificadorPropinaService
             'turma_id' => $turma->id,
             'curso_classe_id' => $turma->curso_classe_id,
             'ano_lectivo_id' => $anoLectivo->id,
-            'ano_lectivo_nome' => $anoLectivo->data_inicio,
             'ano_lectivo_data_inicio' => (string) $anoLectivo->data_inicio,
             'ano_lectivo_data_fim' => (string) $anoLectivo->data_fim,
             'data_matricula' => (string) $dataMatricula,
@@ -62,7 +73,7 @@ class VerificadorPropinaService
             'periodo_cobranca_fim' => (string) $fim,
         ]);
 
-        $itensAplicaveis = ItemPagavel::query()
+        $todosItens = ItemPagavel::query()
             ->where('instituicao_id', $aluno->user->instituicao_id)
             ->ativos()
             ->where(function ($q) use ($turma) {
@@ -71,15 +82,30 @@ class VerificadorPropinaService
             })
             ->get();
 
-        Log::debug('[VerificadorPropinaService] itens pagáveis aplicáveis', [
+        // Só os itens de "propina" entram no cálculo de bloqueio.
+        // Os restantes (uniforme, material, excursão, etc.) ficam de fora —
+        // o aluno pode continuar a vê-los/pagá-los sem ficar bloqueado por eles.
+        $itensAplicaveis = $todosItens->filter(
+            fn (ItemPagavel $item) => $this->ehItemDeBloqueio($item)
+        );
+
+        Log::debug('[VerificadorPropinaService] itens pagáveis (total vs bloqueio)', [
             'aluno_id' => $aluno->id,
-            'total' => $itensAplicaveis->count(),
-            'itens' => $itensAplicaveis->pluck('nome', 'id')->toArray(),
+            'total_itens' => $todosItens->count(),
+            'itens_bloqueio' => $itensAplicaveis->pluck('nome', 'id')->toArray(),
+            'itens_ignorados' => $todosItens->diff($itensAplicaveis)->pluck('nome', 'id')->toArray(),
         ]);
+
+        if ($itensAplicaveis->isEmpty()) {
+            Log::debug('[VerificadorPropinaService] nenhum item de propina configurado — não barra', [
+                'aluno_id' => $aluno->id,
+            ]);
+            return [];
+        }
 
         $pagamentosExistentes = PagamentoItem::query()
             ->where('aluno_id', $aluno->id)
-            ->whereHas('pagamento')
+            ->whereHas('pagamento') // garante que não foi anulado/soft-deleted
             ->get()
             ->groupBy('item_pagavel_id');
 
@@ -90,36 +116,27 @@ class VerificadorPropinaService
         ]);
 
         $pendencias = collect();
-        $totalPagos = 0;
-        $pagosList = [];
 
         foreach ($itensAplicaveis as $item) {
             $pagosDoItem = $pagamentosExistentes->get($item->id, collect());
 
             if ($item->frequencia === 'mensal') {
-                [$pendenciasDoItem, $pagosDoItemDetalhados] = $this->pendenciasMensais(
-                    $item,
-                    $pagosDoItem,
-                    $inicio,
-                    $fim
-                );
+                $pendenciasDoItem = $this->pendenciasMensais($item, $pagosDoItem, $inicio, $fim);
 
-                Log::debug('[VerificadorPropinaService] item mensal avaliado', [
+                Log::debug('[VerificadorPropinaService] propina mensal avaliada', [
                     'item_id' => $item->id,
                     'item_nome' => $item->nome,
-                    'meses_pagos' => $pagosDoItemDetalhados->pluck('mes_ano')->toArray(),
-                    'meses_em_falta' => $pendenciasDoItem->map(fn($p) => "{$p['mes']}/{$p['ano']}")->toArray(),
+                    'meses_pagos' => $pagosDoItem->pluck('mes')->toArray(),
+                    'meses_em_falta' => $pendenciasDoItem->map(fn ($p) => "{$p['mes']}/{$p['ano']}")->toArray(),
                 ]);
 
                 $pendencias = $pendencias->merge($pendenciasDoItem);
-                $totalPagos += $pagosDoItemDetalhados->count();
-                $pagosList = array_merge($pagosList, $pagosDoItemDetalhados->toArray());
             } else {
-                // única ou anual
+                // 'unica' ou 'anual': basta existir um pagamento no ano lectivo corrente
                 $anoCorrente = $anoLectivo->data_inicio->year;
                 $jaPago = $pagosDoItem->where('ano', $anoCorrente)->isNotEmpty();
 
-                Log::debug('[VerificadorPropinaService] item único/anual avaliado', [
+                Log::debug('[VerificadorPropinaService] propina única/anual avaliada', [
                     'item_id' => $item->id,
                     'item_nome' => $item->nome,
                     'ano_corrente' => $anoCorrente,
@@ -138,17 +155,12 @@ class VerificadorPropinaService
             }
         }
 
-        $resultado = [
-            'pendencias' => $pendencias->values()->all(),
-            'total_pendencias' => $pendencias->count(),
-            'pagos' => $pagosList,
-            'total_pagos' => $totalPagos,
-        ];
+        $resultado = $pendencias->values()->all();
 
         Log::debug('[VerificadorPropinaService] resultado final', [
             'aluno_id' => $aluno->id,
-            'total_pendencias' => $resultado['total_pendencias'],
-            'total_pagos' => $resultado['total_pagos'],
+            'total_pendencias' => count($resultado),
+            'pendencias' => $resultado,
         ]);
 
         return $resultado;
@@ -156,33 +168,33 @@ class VerificadorPropinaService
 
     public function estaEmDia(Aluno $aluno): bool
     {
-        $resultado = $this->pendenciasDoAluno($aluno);
-        return empty($resultado['pendencias']);
+        return empty($this->pendenciasDoAluno($aluno));
     }
 
-    private function pendenciasMensais(ItemPagavel $item, Collection $pagos, Carbon $inicio, Carbon $fim): array
+    private function ehItemDeBloqueio(ItemPagavel $item): bool
+    {
+        $nome = Str::lower(Str::ascii($item->nome)); // remove acentos: "propinas" == "propinás"
+
+        foreach (self::TERMOS_BLOQUEIO as $termo) {
+            if (Str::contains($nome, $termo)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function pendenciasMensais(ItemPagavel $item, Collection $pagos, Carbon $inicio, Carbon $fim): Collection
     {
         $pendencias = collect();
-        $pagosDetalhados = collect();
-
         $cursor = $inicio->copy();
 
         while ($cursor->lte($fim)) {
             $mes = $cursor->month;
             $ano = $cursor->year;
-            $pago = $pagos->contains(fn($p) => (int) $p->mes === $mes && (int) $p->ano === $ano);
+            $pago = $pagos->contains(fn ($p) => (int) $p->mes === $mes && (int) $p->ano === $ano);
 
-            if ($pago) {
-                $pagosDetalhados->push([
-                    'item_pagavel_id' => $item->id,
-                    'nome' => $item->nome,
-                    'frequencia' => $item->frequencia,
-                    'mes' => $mes,
-                    'ano' => $ano,
-                    'status' => 'pago',
-                    'mes_ano' => "{$mes}/{$ano}",
-                ]);
-            } else {
+            if (! $pago) {
                 $pendencias->push([
                     'item_pagavel_id' => $item->id,
                     'nome' => $item->nome,
@@ -195,6 +207,6 @@ class VerificadorPropinaService
             $cursor->addMonth();
         }
 
-        return [$pendencias, $pagosDetalhados];
+        return $pendencias;
     }
 }

@@ -29,23 +29,22 @@ class VerificarPropinaEmDia
 
         if (! $aluno) {
             Log::debug('[VerificarPropinaEmDia] sem aluno associado — deixa passar');
+
             return $next($request);
         }
 
-        $resultado = $this->verificador->pendenciasDoAluno($aluno);
-        $pendencias = $resultado['pendencias'] ?? [];
-        $pagos = $resultado['pagos'] ?? [];
+        // O service devolve directamente a lista de pendências (array simples).
+        $pendencias = $this->verificador->pendenciasDoAluno($aluno);
 
         Log::debug('[VerificarPropinaEmDia] resultado da verificação', [
             'aluno_id' => $aluno->id,
             'total_pendencias' => count($pendencias),
             'pendencias' => $pendencias,
-            'total_pagos' => count($pagos),
-            'pagos' => $pagos,
         ]);
 
         if (empty($pendencias)) {
             Log::debug('[VerificarPropinaEmDia] aluno em dia — deixa passar', ['aluno_id' => $aluno->id]);
+
             return $next($request);
         }
 
@@ -56,16 +55,16 @@ class VerificarPropinaEmDia
         ]);
 
         $previousUrl = url()->previous();
-        
-        return response()->view('errors.propina-pendente', [
-    'pendencias' => $pendencias,
-    'total' => count($pendencias),
-    'previousUrl' => $previousUrl,
-    'meses' => [
-        1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
-        5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
-        9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro'
-    ],
-], 403);
+
+        return Inertia::render('propinas/bloqueio', [
+            'pendencias' => $pendencias,
+            'total' => count($pendencias),
+            'previousUrl' => $previousUrl,
+            'meses' => [
+                1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+                5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+                9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro',
+            ],
+        ])->toResponse(request())->setStatusCode(403);
     }
 }

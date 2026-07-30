@@ -188,6 +188,7 @@ class ClasseTurnoTurmaController extends Controller
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
             ->paginate(10, ['*'], 'page_alunos');
 
+        // Construir a query base de disciplinas
         $disciplinasQuery = $turma->cursoClasseTurno
             ->classeTurnoDisciplinas()
             ->with([
@@ -197,10 +198,17 @@ class ClasseTurnoTurmaController extends Controller
                 'horarios',
             ]);
 
+        // Se é professor, filtrar apenas as disciplinas que ele leciona
         if ($user->hasRole('Professor')) {
             $professorId = $user->professor?->id;
 
-            if (! $professorId) {
+            if ($professorId) {
+                // Mostrar apenas disciplinas que este professor leciona
+                $disciplinasQuery->whereHas('turmaDisciplinaProfessores', fn ($q) => $q->where('professor_id', $professorId)
+                    ->where('turma_id', $turma->id)
+                );
+            } else {
+                // Professor sem registo de professor_id (inconsistência) → sem disciplinas
                 $disciplinasQuery->whereRaw('0 = 1');
             }
         }
@@ -222,8 +230,8 @@ class ClasseTurnoTurmaController extends Controller
             'cursoClasse' => $cursoClasse->only('id'),
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => new TurmaShowResource($turma),
-            'anoLectivoId' => $anoLectivoId,         // ← JÁ TEM
-            'anosLectivos' => AnoLectivo::all(),     // ← NOVO
+            'anoLectivoId' => $anoLectivoId,
+            'anosLectivos' => AnoLectivo::all(),
 
             'can' => [
                 'alunos' => [
