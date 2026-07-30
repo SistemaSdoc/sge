@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from '@inertiajs/react';
 import {
   Table,
   TableBody,
@@ -33,7 +32,6 @@ import { create } from '@/actions/App/Http/Controllers/NotaDisciplinaController'
 import { exportarDisciplina } from '@/actions/App/Http/Controllers/ExportarMiniPautaController';
 import TablePagination from '@/components/table-pagination';
 
-
 function buildInitialNotas(alunosData, periodo) {
   const state = {};
   for (const aluno of alunosData) {
@@ -58,6 +56,8 @@ export default function NotasTable({
   cursoClasseTurno,
   turma,
   can,
+  periodosDisponiveis = {},
+  todosDisponiveis = true,
   pagination = {},
   onPageChange,
 }) {
@@ -86,36 +86,58 @@ export default function NotasTable({
 
         {alunos.data.length > 0 && (
           <CardAction className="flex items-center gap-3">
-            <Select value={periodoSelecionado} onValueChange={handlePeriodoChange}>
+            <Select
+              value={periodoSelecionado}
+              onValueChange={handlePeriodoChange}
+            >
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Trimestre" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="1">1º Trimestre</SelectItem>
-                <SelectItem value="2">2º Trimestre</SelectItem>
-                <SelectItem value="3">3º Trimestre</SelectItem>
-                <SelectItem value="0">Todos</SelectItem>
+                <SelectItem
+                  value="2"
+                  disabled={
+                    !can?.overrideLockedPeriods && !periodosDisponiveis?.[2]
+                  }
+                >
+                  2º Trimestre
+                </SelectItem>
+                <SelectItem
+                  value="3"
+                  disabled={
+                    !can?.overrideLockedPeriods && !periodosDisponiveis?.[3]
+                  }
+                >
+                  3º Trimestre
+                </SelectItem>
+                <SelectItem
+                  value="0"
+                  disabled={!can?.overrideLockedPeriods && !todosDisponiveis}
+                >
+                  Todos
+                </SelectItem>
               </SelectContent>
             </Select>
 
-              <Button>
-                <a
-                  href={
-                    exportarDisciplina({
-                      instituicao,
-                      cursoTutelado,
-                      cursoClasse,
-                      cursoClasseTurno,
-                      turma,
-                      classeTurnoDisciplina: disciplina?.id,
-                    }).url + `?periodo=${periodoSelecionado}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Exportar
-                </a>
-              </Button>
+            <Button>
+              <a
+                href={
+                  exportarDisciplina({
+                    instituicao,
+                    cursoTutelado,
+                    cursoClasse,
+                    cursoClasseTurno,
+                    turma,
+                    classeTurnoDisciplina: disciplina?.id,
+                  }).url + `?periodo=${periodoSelecionado}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Exportar
+              </a>
+            </Button>
           </CardAction>
         )}
       </CardHeader>
@@ -145,7 +167,6 @@ export default function NotasTable({
 
             <TableBody>
               {alunos.data.map((aluno, index) => {
-
                 const n = notas[aluno.turma_aluno_id] ?? {};
                 const mt = mediaTrimestral(n.mac, n.npp, n.npt);
                 const faltasPeriodo = aluno.notas?.[periodoTabela]?.faltas ?? 0;

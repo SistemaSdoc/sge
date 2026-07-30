@@ -20,6 +20,7 @@ export default function Show({
   alunos,
   disciplinas,
   pautaRecurso,
+  pode_lancar_recurso,
   grupos,
   can,
 }) {
@@ -29,7 +30,6 @@ export default function Show({
   const disciplinasPagination = usePagination('disciplinas');
   const gruposPagination = usePagination('grupos');
   const recursosPagination = usePagination('disciplinas');
-
 
   const params = {
     instituicao: instituicao.id,
@@ -121,6 +121,7 @@ export default function Show({
               params={params}
               pagination={disciplinas.meta}
               onPageChange={disciplinasPagination.handlePageChange}
+              podeLancarRecurso={pode_lancar_recurso}
             />
           </TabsContent>
         )}

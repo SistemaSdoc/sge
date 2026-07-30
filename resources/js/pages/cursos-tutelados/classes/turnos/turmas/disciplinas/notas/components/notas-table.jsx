@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import {
   Table,
   TableBody,
@@ -12,7 +12,6 @@ import {
   Card,
   CardAction,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -57,6 +56,9 @@ export default function NotasTable({
   cursoClasseTurno,
   turma,
   can,
+  periodosDisponiveis = {},
+  podeLancarNotas = true,
+  todosDisponiveis = true,
   pagination = {},
   onPageChange,
 }) {
@@ -70,6 +72,8 @@ export default function NotasTable({
   );
 
   const isEmpty = alunosOrdenados.length === 0;
+  const botaoLancarDesabilitado =
+    !can?.overrideLockedPeriods && !podeLancarNotas;
 
   useEffect(() => {
     setNotas(buildInitialNotas(alunosOrdenados, periodoTabela));
@@ -99,16 +103,37 @@ export default function NotasTable({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="1">1º Trimestre</SelectItem>
-                <SelectItem value="2">2º Trimestre</SelectItem>
-                <SelectItem value="3">3º Trimestre</SelectItem>
-                <SelectItem value="0">Todos</SelectItem>
+                <SelectItem
+                  value="2"
+                  disabled={
+                    !can?.overrideLockedPeriods && !periodosDisponiveis?.[2]
+                  }
+                >
+                  2º Trimestre
+                </SelectItem>
+                <SelectItem
+                  value="3"
+                  disabled={
+                    !can?.overrideLockedPeriods && !periodosDisponiveis?.[3]
+                  }
+                >
+                  3º Trimestre
+                </SelectItem>
+                <SelectItem
+                  value="0"
+                  disabled={!can?.overrideLockedPeriods && !todosDisponiveis}
+                >
+                  Todos
+                </SelectItem>
               </SelectContent>
             </Select>
 
             {can?.create && (
-              <Button asChild>
-                <Link
-                  href={
+              <Button
+                type="button"
+                disabled={botaoLancarDesabilitado}
+                onClick={() =>
+                  router.visit(
                     create({
                       instituicao: instituicao,
                       cursoTutelado: cursoTutelado,
@@ -116,11 +141,11 @@ export default function NotasTable({
                       cursoClasseTurno: cursoClasseTurno,
                       turma: turma,
                       classeTurnoDisciplina: disciplina?.id,
-                    }).url
-                  }
-                >
-                  Lançar Notas
-                </Link>
+                    }).url,
+                  )
+                }
+              >
+                Lançar Notas
               </Button>
             )}
 

@@ -212,6 +212,9 @@ class ClasseTurnoTurmaController extends Controller
             ->paginate(5, ['*'], 'page_grupos');
 
         $pautaRecurso = $this->pautaService->gerarPauta($turma, 4, 5);
+        $podeLancarRecurso = $user->hasAnyRole(['Director', 'Subdirector'])
+            || collect($pautaRecurso['alunos'] ?? [])
+                ->contains(fn ($aluno) => is_null($aluno['nota_recurso'] ?? null));
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
             'instituicao' => $instituicao->only('id'),
@@ -237,6 +240,7 @@ class ClasseTurnoTurmaController extends Controller
             'alunos' => AlunoTurmaResource::collection($alunos),
             'disciplinas' => ClasseTurnoDisciplinaResource::collection($disciplinas),
             'pautaRecurso' => $pautaRecurso,
+            'pode_lancar_recurso' => $podeLancarRecurso,
             'grupos' => GrupoPapIndexResource::collection($grupos),
         ]);
     }

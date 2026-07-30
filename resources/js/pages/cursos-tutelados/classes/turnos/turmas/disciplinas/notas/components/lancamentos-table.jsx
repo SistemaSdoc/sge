@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -12,7 +12,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -36,6 +35,7 @@ import TablePagination from '@/components/table-pagination';
 export default function LancamentosTable({
   data,
   isPending,
+  errors = {},
   instituicaoId,
   cursoId,
   classeId,
@@ -43,11 +43,16 @@ export default function LancamentosTable({
   turmaId,
   disciplinaId,
   can,
+  periodosLancados = {},
+  periodosDisponiveis = {},
   pagination = {},
   onPageChange,
 }) {
   const [periodo, setPeriodo] = useState('1');
   const { getValor, setValor } = useNotasLocais(data?.tdp_id);
+  const periodoBloqueado =
+    Boolean(periodosLancados?.[periodo]) && !can?.overrideLockedPeriods;
+  const periodoPodeSerSelecionado = Boolean(periodosDisponiveis?.[periodo] ?? true);
   const alunos = [...(data?.alunos?.data ?? [])].sort((alunoA, alunoB) =>
     (alunoA?.nome ?? '').localeCompare(alunoB?.nome ?? '', 'pt', {
       sensitivity: 'base',
@@ -61,8 +66,13 @@ export default function LancamentosTable({
           <CardTitle>{data?.disciplina?.nome}</CardTitle>
 
           <CardDescription>
-            Preencha as notas dos alunos para o trimestre seleccionado
+            {periodoBloqueado
+              ? 'Este trimestre já foi lançado pelo professor e está bloqueado para alterações.'
+              : 'Preencha as notas dos alunos para o trimestre seleccionado'}
           </CardDescription>
+          {errors?.periodo && (
+            <p className="mt-2 text-sm text-destructive">{errors.periodo}</p>
+          )}
         </div>
 
         <CardAction className="flex items-center gap-3">
@@ -73,8 +83,12 @@ export default function LancamentosTable({
 
             <SelectContent>
               <SelectItem value="1">1º Trimestre</SelectItem>
-              <SelectItem value="2">2º Trimestre</SelectItem>
-              <SelectItem value="3">3º Trimestre</SelectItem>
+              <SelectItem value="2" disabled={!periodosDisponiveis?.[2]}>
+                2º Trimestre
+              </SelectItem>
+              <SelectItem value="3" disabled={!periodosDisponiveis?.[3]}>
+                3º Trimestre
+              </SelectItem>
             </SelectContent>
           </Select>
 
@@ -82,7 +96,9 @@ export default function LancamentosTable({
           <input type="hidden" name="tdp_id" value={data?.tdp_id ?? ''} />
           <input type="hidden" name="periodo" value={parseInt(periodo)} />
 
-          {can?.create && (
+          {can?.create &&
+            periodoPodeSerSelecionado &&
+            (!periodoBloqueado || can?.overrideLockedPeriods) && (
             <Button type="submit" disabled={isPending}>
               {isPending ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />
@@ -158,6 +174,7 @@ export default function LancamentosTable({
                         max={20}
                         name={`notas[${aluno.turma_aluno_id}][mac]`}
                         value={mac}
+                        disabled={isPending || periodoBloqueado}
                         onChange={(e) =>
                           setValor(
                             aluno.turma_aluno_id,
@@ -176,6 +193,7 @@ export default function LancamentosTable({
                         max={20}
                         name={`notas[${aluno.turma_aluno_id}][npp]`}
                         value={npp}
+                        disabled={isPending || periodoBloqueado}
                         onChange={(e) =>
                           setValor(
                             aluno.turma_aluno_id,
@@ -194,6 +212,7 @@ export default function LancamentosTable({
                         max={20}
                         name={`notas[${aluno.turma_aluno_id}][npt]`}
                         value={npt}
+                        disabled={isPending || periodoBloqueado}
                         onChange={(e) =>
                           setValor(
                             aluno.turma_aluno_id,
@@ -214,6 +233,7 @@ export default function LancamentosTable({
                         min={0}
                         name={`notas[${aluno.turma_aluno_id}][faltas]`}
                         value={faltas}
+                        disabled={isPending || periodoBloqueado}
                         onChange={(e) =>
                           setValor(
                             aluno.turma_aluno_id,

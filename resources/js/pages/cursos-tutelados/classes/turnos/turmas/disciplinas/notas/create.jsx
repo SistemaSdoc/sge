@@ -1,5 +1,4 @@
 import { Form, usePage } from '@inertiajs/react';
-import { Loader2 } from 'lucide-react';
 import LancamentosTable from './components/lancamentos-table';
 import { store } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
 import { usePagination } from '@/hooks/use-pagination';
@@ -42,10 +41,11 @@ export default function Create({
         method="post"
         options={{ preserveScroll: true }}
       >
-        {({ processing }) => (
+        {({ processing, errors }) => (
           <LancamentosTable
             data={data}
             isPending={processing}
+            errors={errors}
             instituicaoId={instituicao}
             cursoId={cursoTutelado}
             classeId={cursoClasse}
@@ -53,6 +53,8 @@ export default function Create({
             turmaId={turma}
             disciplinaId={classeTurnoDisciplina}
             can={can}
+            periodosLancados={data?.periodos_lancados ?? {}}
+            periodosDisponiveis={data?.periodos_disponiveis ?? {}}
             pagination={{
               current_page: data.alunos.current_page,
               last_page: data.alunos.last_page,

@@ -1,10 +1,19 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import {
-  Card, CardContent, CardDescription, CardHeader, CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table';
 import { Minus, BookIcon, Loader2 } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
@@ -18,6 +27,7 @@ export function TabRecurso({
   params,
   pagination,
   onPageChange,
+  podeLancarRecurso = true,
 }) {
   const [disciplinaSelecionada, setDisciplinaSelecionada] = useState(null);
   const [alunos, setAlunos] = useState([]);
@@ -54,7 +64,10 @@ export function TabRecurso({
 
     setIsPending(true);
     router.post(
-      indexRecurso({ ...params, classeTurnoDisciplina: disciplinaSelecionada.id }).url,
+      indexRecurso({
+        ...params,
+        classeTurnoDisciplina: disciplinaSelecionada.id,
+      }).url,
       payload,
       {
         onSuccess: () => {
@@ -71,7 +84,9 @@ export function TabRecurso({
     <Card className="gap-0">
       <CardHeader className="border-b">
         <CardTitle>Recurso</CardTitle>
-        <CardDescription>Disciplinas com alunos em situação de recurso</CardDescription>
+        <CardDescription>
+          Disciplinas com alunos em situação de recurso
+        </CardDescription>
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -92,11 +107,10 @@ export function TabRecurso({
             </TableHeader>
             <TableBody>
               {disciplinas.map((disciplina) => (
-                <TableRow
-                  key={disciplina.id}
-                  className="hover:cursor-pointer"
-                >
-                  <TableCell className="px-4 font-medium">{disciplina.nome}</TableCell>
+                <TableRow key={disciplina.id} className="hover:cursor-pointer">
+                  <TableCell className="px-4 font-medium">
+                    {disciplina.nome}
+                  </TableCell>
                   <TableCell>
                     {disciplina.professor?.nome ?? (
                       <Minus size={15} className="text-muted-foreground" />

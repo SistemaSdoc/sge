@@ -17,6 +17,7 @@ use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class NotaDisciplinaController extends Controller
@@ -43,6 +44,20 @@ class NotaDisciplinaController extends Controller
             ->firstOrFail();
 
         // Gate::authorize('view', $tdp);
+        $periodosLancados = $this->notaService->periodosLancados($tdp->id);
+        $periodosDisponiveis = $this->notaService->periodosDisponiveis($tdp->id);
+        $podeLancarNotas = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+            || ! (
+                $periodosLancados[1]
+                && $periodosLancados[2]
+                && $periodosLancados[3]
+            );
+        $todosDisponiveis = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+            || (
+                $periodosLancados[1]
+                && $periodosLancados[2]
+                && $periodosLancados[3]
+            );
 
         $turmaAlunos = TurmaAluno::query()
             ->select('turma_aluno.*')
@@ -69,6 +84,7 @@ class NotaDisciplinaController extends Controller
             'can' => [
                 'create' => Auth::user()->can('create', [Nota::class, $tdp]),
                 'export' => Auth::user()->can('export', [Nota::class, $tdp]),
+                'overrideLockedPeriods' => Auth::user()->hasAnyRole(['Director', 'Subdirector']),
             ],
             'disciplina' => [
                 'id' => $classeTurnoDisciplina->id,
@@ -87,6 +103,10 @@ class NotaDisciplinaController extends Controller
                 'current_page' => $turmaAlunos->currentPage(),
                 'last_page' => $turmaAlunos->lastPage(),
             ],
+            'periodos_lancados' => $periodosLancados,
+            'periodos_disponiveis' => $periodosDisponiveis,
+            'pode_lancar_notas' => $podeLancarNotas,
+            'todos_disponiveis' => $todosDisponiveis,
         ]);
 
     }
@@ -109,6 +129,20 @@ class NotaDisciplinaController extends Controller
 
         Gate::authorize('view', $tdp);
         Gate::authorize('create', [Nota::class, $tdp]);
+        $periodosLancados = $this->notaService->periodosLancados($tdp->id);
+        $periodosDisponiveis = $this->notaService->periodosDisponiveis($tdp->id);
+        $podeLancarNotas = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+            || ! (
+                $periodosLancados[1]
+                && $periodosLancados[2]
+                && $periodosLancados[3]
+            );
+        $todosDisponiveis = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+            || (
+                $periodosLancados[1]
+                && $periodosLancados[2]
+                && $periodosLancados[3]
+            );
 
         $turmaAlunos = TurmaAluno::query()
             ->select('turma_aluno.*')
@@ -134,6 +168,7 @@ class NotaDisciplinaController extends Controller
             'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
             'can' => [
                 'create' => Auth::user()->can('create', [Nota::class, $tdp]),
+                'overrideLockedPeriods' => Auth::user()->hasAnyRole(['Director', 'Subdirector']),
             ],
             'data' => [
                 'tdp_id' => $tdp->id,
@@ -154,6 +189,10 @@ class NotaDisciplinaController extends Controller
                     'current_page' => $turmaAlunos->currentPage(),
                     'last_page' => $turmaAlunos->lastPage(),
                 ],
+                'periodos_lancados' => $periodosLancados,
+                'periodos_disponiveis' => $periodosDisponiveis,
+                'pode_lancar_notas' => $podeLancarNotas,
+                'todos_disponiveis' => $todosDisponiveis,
             ],
         ]);
     }
@@ -182,14 +221,30 @@ class NotaDisciplinaController extends Controller
         ]);
 
         $tdp = TurmaDisciplinaProfessor::findOrFail($validated['tdp_id']);
+        $periodo = (int) $validated['periodo'];
 
         Gate::authorize('view', $tdp);
         Gate::authorize('create', [Nota::class, $tdp]);
 
+        if (! $this->notaService->periodoPodeSerLancado($tdp->id, $periodo)) {
+            throw ValidationException::withMessages([
+                'periodo' => 'Primeiro lança o trimestre anterior para continuar.',
+            ]);
+        }
+
+        if (
+            ! Auth::user()->hasAnyRole(['Director', 'Subdirector']) &&
+            $this->notaService->periodoLancado($tdp->id, $periodo)
+        ) {
+            throw ValidationException::withMessages([
+                'periodo' => 'Este trimestre já foi lançado. Apenas a direção pode alterá-lo.',
+            ]);
+        }
+
         $this->notaService->lancarNotas(
             $validated['notas'],
             $validated['tdp_id'],
-            (int) $validated['periodo'],
+            $periodo,
         );
 
         // Recalcular e persistir o resultado de cada aluno afectado

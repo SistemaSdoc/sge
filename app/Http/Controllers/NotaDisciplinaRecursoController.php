@@ -15,6 +15,7 @@ use App\Services\NotaService;
 use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class NotaDisciplinaRecursoController extends Controller
@@ -22,8 +23,7 @@ class NotaDisciplinaRecursoController extends Controller
     public function __construct(
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
 
     /**
      * Lista as notas das provas do recurso dos alunos de uma turma ...
@@ -45,7 +45,7 @@ class NotaDisciplinaRecursoController extends Controller
 
         $turmaAlunos = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id)
+            'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id)
                 ->whereIn('periodo', [3, 4]),
         ])
             ->where('turma_id', $turma->id)
@@ -53,8 +53,9 @@ class NotaDisciplinaRecursoController extends Controller
             ->where('activo', true)
             ->orderBy('id')
             ->get()
-            ->filter(function ($ta) use ($tdp) {
+            ->filter(function ($ta) {
                 $notaP3 = $ta->notas->firstWhere('periodo', 3);
+
                 return $notaP3
                     && $notaP3->media_final !== null
                     && $notaP3->media_final >= 7
@@ -68,7 +69,7 @@ class NotaDisciplinaRecursoController extends Controller
                 'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
                 'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
             ],
-            'alunos' => $turmaAlunos->values()->map(fn($ta) => [
+            'alunos' => $turmaAlunos->values()->map(fn ($ta) => [
                 'turma_aluno_id' => $ta->id,
                 'aluno_id' => $ta->aluno->id,
                 'nome' => $ta->aluno->inscricao?->candidato?->nome,
@@ -113,11 +114,19 @@ class NotaDisciplinaRecursoController extends Controller
         ClasseTurnoDisciplina $classeTurnoDisciplina
     ) {
         $validated = $request->validate([
-            'lancamentos' => 'required|array',
+            'lancamentos' => 'required|array|min:1',
             'lancamentos.*.turma_aluno_id' => 'required|exists:turma_aluno,id',
             'lancamentos.*.tdp_id' => 'required|exists:turma_disciplina_professor,id',
             'lancamentos.*.nota_recurso' => 'nullable|numeric|min:0|max:20',
         ]);
+
+        $tdp = TurmaDisciplinaProfessor::findOrFail($validated['lancamentos'][0]['tdp_id']);
+
+        if (! $this->notaService->periodoPodeSerLancado($tdp->id, 4)) {
+            throw ValidationException::withMessages([
+                'lancamentos' => 'Primeiro lança os três trimestres anteriores para continuar.',
+            ]);
+        }
 
         foreach ($validated['lancamentos'] as $lancamento) {
             Nota::updateOrCreate(
@@ -142,7 +151,7 @@ class NotaDisciplinaRecursoController extends Controller
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
         ])
             ->whereIn('id', $turmaAlunoIds)
-            ->each(fn($ta) => $this->pautaService->actualizarResultadoAluno($ta));
+            ->each(fn ($ta) => $this->pautaService->actualizarResultadoAluno($ta));
 
         return back();
     }

@@ -17,7 +17,6 @@ use App\Models\GrupoPap;
 use App\Models\Instituicao;
 use App\Models\Turma;
 use App\Services\Pauta\PautaService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -26,8 +25,8 @@ class ClasseTurnoTurmaController extends Controller
 {
     public function __construct(
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
+
     public function show(
         Instituicao $instituicao,
         string $colegio,
@@ -38,14 +37,14 @@ class ClasseTurnoTurmaController extends Controller
     ) {
         Gate::authorize('view', $turma);
 
-            \Log::info('ClasseTurnoTurma::show', [
-        'instituicao' => $instituicao?->id,
-        'colegio' => $colegio,
-        'cursoTutelado' => $cursoTutelado?->id,
-        'cursoClasse' => $cursoClasse?->id,
-        'cursoClasseTurno' => $cursoClasseTurno?->id,
-        'turma' => $turma?->id,
-    ]);
+        \Log::info('ClasseTurnoTurma::show', [
+            'instituicao' => $instituicao?->id,
+            'colegio' => $colegio,
+            'cursoTutelado' => $cursoTutelado?->id,
+            'cursoClasse' => $cursoClasse?->id,
+            'cursoClasseTurno' => $cursoClasseTurno?->id,
+            'turma' => $turma?->id,
+        ]);
 
         $user = Auth::user();
 
@@ -68,8 +67,6 @@ class ClasseTurnoTurmaController extends Controller
         | Turma
         |
         */
-
-
 
         /*
         |--------------------------------------------------------------------------
@@ -132,7 +129,7 @@ class ClasseTurnoTurmaController extends Controller
 
             $professorId = $user->professor?->id;
 
-            if (!$professorId) {
+            if (! $professorId) {
                 $disciplinasQuery->whereRaw('0 = 1');
             }
         }
@@ -173,6 +170,9 @@ class ClasseTurnoTurmaController extends Controller
 
         $pautaRecurso = $this->pautaService
             ->gerarPauta($turma, 4, 5);
+        $podeLancarRecurso = $user->hasAnyRole(['Director', 'Subdirector'])
+            || collect($pautaRecurso['alunos'] ?? [])
+                ->contains(fn ($aluno) => is_null($aluno['nota_recurso'] ?? null));
 
         /*
         |--------------------------------------------------------------------------
@@ -352,6 +352,7 @@ class ClasseTurnoTurmaController extends Controller
                 ),
 
                 'pautaRecurso' => $pautaRecurso,
+                'pode_lancar_recurso' => $podeLancarRecurso,
 
                 'grupos' => GrupoPapIndexResource::collection(
                     $grupos

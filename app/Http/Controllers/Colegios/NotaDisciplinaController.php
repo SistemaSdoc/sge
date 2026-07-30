@@ -59,6 +59,14 @@ class NotaDisciplinaController extends Controller
                 $classeTurnoDisciplina->id
             )
             ->firstOrFail();
+        $periodosLancados = $this->notaService->periodosLancados($tdp->id);
+        $periodosDisponiveis = $this->notaService->periodosDisponiveis($tdp->id);
+        $todosDisponiveis = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+            || (
+                $periodosLancados[1]
+                && $periodosLancados[2]
+                && $periodosLancados[3]
+            );
 
         /*
         |--------------------------------------------------------------------------
@@ -203,6 +211,10 @@ class NotaDisciplinaController extends Controller
                         'export',
                         [Nota::class, $tdp]
                     ),
+
+                    'overrideLockedPeriods' => Auth::user()->hasAnyRole(
+                        ['Director', 'Subdirector']
+                    ),
                 ],
 
                 /*
@@ -239,6 +251,10 @@ class NotaDisciplinaController extends Controller
 
                     'last_page' => $turmaAlunos->lastPage(),
                 ],
+
+                'periodos_lancados' => $periodosLancados,
+                'periodos_disponiveis' => $periodosDisponiveis,
+                'todos_disponiveis' => $todosDisponiveis,
             ]
         );
     }

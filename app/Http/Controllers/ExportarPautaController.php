@@ -84,15 +84,21 @@ class ExportarPautaController extends Controller
         // ── Exportar ───────────────────────────────────────────────────
         if ($isTrimestral) {
             $export = new PautaExport(
-                disciplinas: $disciplinas->pluck('nome')->toArray(),
+                disciplinas: $disciplinas->map(fn ($d) => [
+                    'nome' => $d['nome'],
+                    'sigla' => $d['sigla'] ?? mb_substr($d['nome'], 0, 6),
+                ])->toArray(),
                 alunos: $alunos,
                 curso: $nomeCurso,
                 turma: $turma->nome,
                 anoLetivo: $nomeAnoLectivo,
                 instituicao: $nomeInstituicao,
-                sala: '',
+                sala: $turma->sala ?? '',
                 classe: $nomeClasse,
-                periodo: $periodo ?? 'final',
+                periodo: (string) $periodo,
+                areaFormacao: 'INFORMÁTICA',
+                director: 'Novais José, Ph.D.',
+                logoPath: public_path('images/insignia_angola.png'),
             );
         } else {
             $export = new PautaFinalExport(

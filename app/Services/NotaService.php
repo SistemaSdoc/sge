@@ -12,6 +12,70 @@ class NotaService
         private readonly RegraAcademicaService $regraAcademicaService,
     ) {}
 
+    /**
+     * Indica se já existe lançamento para um trimestre de uma disciplina/turma.
+     */
+    public function periodoLancado(string $tdpId, int $periodo): bool
+    {
+        return Nota::query()
+            ->where('turma_disciplina_professor_id', $tdpId)
+            ->where('periodo', $periodo)
+            ->exists();
+    }
+
+    /**
+     * Devolve o estado de lançamento por período.
+     *
+     * @return array<int, bool>
+     */
+    public function periodosLancados(string $tdpId): array
+    {
+        $periodosLancados = [];
+
+        foreach ([1, 2, 3, 4] as $periodo) {
+            $periodosLancados[$periodo] = $this->periodoLancado($tdpId, $periodo);
+        }
+
+        return $periodosLancados;
+    }
+
+    /**
+     * Determina se um período pode ser lançado.
+     *
+     * Um período só fica disponível quando todos os anteriores já tiverem notas.
+     */
+    public function periodoPodeSerLancado(string $tdpId, int $periodo): bool
+    {
+        if ($periodo <= 1) {
+            return true;
+        }
+
+        for ($anterior = 1; $anterior < $periodo; $anterior++) {
+            if (! $this->periodoLancado($tdpId, $anterior)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return array<int, bool>
+     */
+    public function periodosDisponiveis(string $tdpId): array
+    {
+        $periodosDisponiveis = [];
+
+        foreach ([1, 2, 3, 4] as $periodo) {
+            $periodosDisponiveis[$periodo] = $this->periodoPodeSerLancado(
+                $tdpId,
+                $periodo
+            );
+        }
+
+        return $periodosDisponiveis;
+    }
+
     // ──────────────────────────────────────────────
     // LANÇAMENTO DE NOTAS
     // ──────────────────────────────────────────────

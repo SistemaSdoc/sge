@@ -32,6 +32,18 @@ class PautaSheetExport implements FromArray, WithEvents, WithTitle
 
     protected string $periodo;
 
+    protected ?string $areaFormacao;
+
+    protected ?string $director;
+
+    protected ?string $logoPath;
+
+    protected ?string $coordenadorTurma;
+
+    protected ?string $coordenadorCurso;
+
+    protected ?string $subdirectorPedagogico;
+
     const DATA_START_ROW = 9; // linha onde começam os alunos
 
     // ── PALETA SEMÂNTICA (só texto, sem fundos) ──────────────────────────────
@@ -52,7 +64,13 @@ class PautaSheetExport implements FromArray, WithEvents, WithTitle
         string $instituicao,
         string $sala,
         string $classe,
-        string $periodo
+        string $periodo,
+        ?string $areaFormacao = null,
+        ?string $director = null,
+        ?string $logoPath = null,
+        ?string $coordenadorTurma = null,
+        ?string $coordenadorCurso = null,
+        ?string $subdirectorPedagogico = null
     ) {
         $this->disciplinas = $disciplinas;
         $this->alunos = $alunos;
@@ -63,6 +81,12 @@ class PautaSheetExport implements FromArray, WithEvents, WithTitle
         $this->sala = $sala;
         $this->classe = $classe;
         $this->periodo = $periodo;
+        $this->areaFormacao = $areaFormacao;
+        $this->director = $director;
+        $this->logoPath = $logoPath;
+        $this->coordenadorTurma = $coordenadorTurma;
+        $this->coordenadorCurso = $coordenadorCurso;
+        $this->subdirectorPedagogico = $subdirectorPedagogico;
     }
 
     public function array(): array
@@ -82,6 +106,24 @@ class PautaSheetExport implements FromArray, WithEvents, WithTitle
                 $this->buildSheet($event->sheet->getDelegate());
             },
         ];
+    }
+
+    private function disciplinaNome(array|string $disciplina): string
+    {
+        if (is_array($disciplina)) {
+            return (string) ($disciplina['nome'] ?? $disciplina['sigla'] ?? '');
+        }
+
+        return (string) $disciplina;
+    }
+
+    private function disciplinaSigla(array|string $disciplina): string
+    {
+        if (is_array($disciplina)) {
+            return (string) ($disciplina['sigla'] ?? mb_substr((string) ($disciplina['nome'] ?? ''), 0, 6));
+        }
+
+        return (string) $disciplina;
     }
 
     protected function buildSheet(Worksheet $ws): void
@@ -137,7 +179,7 @@ class PautaSheetExport implements FromArray, WithEvents, WithTitle
         // ──────────────────────────────────────────────
         $ws->getRowDimension(2)->setRowHeight(14);
         $ws->mergeCells('A2:B2');
-        $ws->setCellValue('A2', 'ÁREA DE FORMAÇÃO: '.mb_strtoupper($this->curso));
+        $ws->setCellValue('A2', 'ÁREA DE FORMAÇÃO: '.mb_strtoupper($this->areaFormacao ?? $this->curso));
         $ws->getStyle('A2')->applyFromArray([
             'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
@@ -202,12 +244,14 @@ class PautaSheetExport implements FromArray, WithEvents, WithTitle
 
         // Cabeçalho de cada disciplina — nome rotado + sub-headers Nota|Falt
         foreach ($this->disciplinas as $d => $nomeDisciplina) {
+            $nomeDisciplinaLabel = $this->disciplinaNome($nomeDisciplina);
+
             $cNota = Coordinate::stringFromColumnIndex($colInicio + $d * 2);
             $cFaltas = Coordinate::stringFromColumnIndex($colInicio + $d * 2 + 1);
 
             // Merge das duas colunas para o nome da disciplina (linha 4)
             $ws->mergeCells("{$cNota}4:{$cFaltas}4");
-            $ws->setCellValue("{$cNota}4", mb_strtoupper($nomeDisciplina));
+            $ws->setCellValue("{$cNota}4", mb_strtoupper($nomeDisciplinaLabel));
             $ws->getStyle("{$cNota}4")->applyFromArray([
                 'font' => ['name' => 'Arial', 'size' => 8, 'bold' => true],
                 'alignment' => [
@@ -277,10 +321,12 @@ class PautaSheetExport implements FromArray, WithEvents, WithTitle
 
             // Notas e faltas por disciplina
             foreach ($this->disciplinas as $d => $nomeDisciplina) {
+                $nomeDisciplinaLabel = $this->disciplinaNome($nomeDisciplina);
+
                 $cNota = Coordinate::stringFromColumnIndex($colInicio + $d * 2);
                 $cFaltas = Coordinate::stringFromColumnIndex($colInicio + $d * 2 + 1);
 
-                $dadosDisc = $notasAluno[$nomeDisciplina] ?? null;
+                $dadosDisc = $notasAluno[$nomeDisciplinaLabel] ?? null;
                 $nota = $dadosDisc['media'] ?? null;
                 $faltas = $dadosDisc['faltas'] ?? null;
 
