@@ -82,8 +82,8 @@ export function TabHistorico({ historico = [] }) {
           <EmptyState
             variant="table"
             icon={Landmark}
-            title="Nenhum registo ainda"
-            description=""
+            title="Nenhum registo encontrado"
+            description="Decida sobre a aprovação, reprovação ou solicite melhorias."
           />
         ) : (
           <div className="divide-y">
