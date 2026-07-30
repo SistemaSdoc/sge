@@ -32,10 +32,10 @@ export default function NavigationMenu() {
           </a>
         </div>
         <a
-          href="#cta"
+          href="/login"
           class="border-line hover:bg-accent-dim border px-4.5 py-2.25 text-[13px] transition-colors duration-250 hover:border-accent"
         >
-          Pedir demonstração
+          Login
         </a>
       </div>
     </nav>

@@ -17,7 +17,7 @@ import { dashboard } from '@/routes';
 import type { LocalNavItem } from '@/types';
 
 const footerNavItems: LocalNavItem[] = [
-  {
+  /*{
     title: 'Outro item 1',
     href: '/dashboard',
     icon: BoxSelectIcon,
@@ -26,7 +26,7 @@ const footerNavItems: LocalNavItem[] = [
     title: 'Outro item 2',
     href: '/dashboard',
     icon: BoxSelectIcon,
-  },
+  },*/
 ];
 
 export function AppSidebar() {

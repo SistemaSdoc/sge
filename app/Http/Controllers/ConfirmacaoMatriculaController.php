@@ -32,7 +32,7 @@ class ConfirmacaoMatriculaController extends Controller
      */
     public function store(Request $request, Aluno $aluno)
     {
-        $this->authorize('confirmacao-matricula.confirmar');
+        $this->authorize('confirmacao-matricula.create');
 
         $this->confirmacaoMatriculaService->confirmarMatricula($aluno);
 
