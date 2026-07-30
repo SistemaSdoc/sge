@@ -18,6 +18,17 @@ class RolePermissionSeeder extends Seeder
                 'instituicoes.view',
                 'instituicoes.update',
 
+                'confirmacao-matricula.viewAny',
+                'confirmacao-matricula.view',
+                'confirmacao-matricula.create',
+
+
+                'regra-avaliacao.viewAny',
+                'regra-avaliacao.view',
+                'regra-avaliacao.create',
+                'regra-avaliacao.update',
+                'regra-avaliacao.delete',
+
                 // Alunos
                 'alunos.viewAny',
                 'alunos.view',
@@ -159,6 +170,12 @@ class RolePermissionSeeder extends Seeder
                 // Instituições
                 'instituicoes.view',
                 'instituicoes.update',
+
+                'regra-avaliacao.viewAny',
+                'regra-avaliacao.view',
+                'regra-avaliacao.create',
+                'regra-avaliacao.update',
+                'regra-avaliacao.delete',
 
                 // Alunos
                 'alunos.viewAny',
@@ -404,6 +421,11 @@ class RolePermissionSeeder extends Seeder
                 // Permissões de Professor (base)
                 'alunos.viewAny',
                 'alunos.view',
+
+                //
+                'confirmacao-matricula.viewAny',
+                'confirmacao-matricula.view',
+                'confirmacao-matricula.create',
 
                 'professores.viewAny',
                 'professores.view',

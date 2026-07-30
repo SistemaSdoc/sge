@@ -18,6 +18,8 @@ class ConfirmacaoMatriculaController extends Controller
      */
     public function index()
     {
+       $this->authorize('confirmacao-matricula.viewAny');
+
         $alunos = $this->confirmacaoMatriculaService->listarAlunosPorConfirmarMatricula();
 
         return Inertia::render('confirmacoes-matriculas/index', [
@@ -30,6 +32,8 @@ class ConfirmacaoMatriculaController extends Controller
      */
     public function store(Request $request, Aluno $aluno)
     {
+        $this->authorize('confirmacao-matricula.confirmar');
+
         $this->confirmacaoMatriculaService->confirmarMatricula($aluno);
 
         return redirect()->route('confirmar-matriculas.index');

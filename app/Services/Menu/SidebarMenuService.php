@@ -170,7 +170,7 @@ final class SidebarMenuService
                     title: 'Confirmações de Matrícula',
                     href: action([ConfirmacaoMatriculaController::class, 'index']),
                     icon: 'ClipboardCheck',
-                    can: fn () => Gate::allows('viewAny', ConfirmacaoMatricula::class)
+                    can: fn () => Gate::allows('confirmacao-matricula.viewAny'),
                 ),
             ]),
 

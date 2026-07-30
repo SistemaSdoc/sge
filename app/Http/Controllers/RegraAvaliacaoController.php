@@ -18,6 +18,9 @@ class RegraAvaliacaoController extends Controller
      */
     public function index()
     {
+
+        $this->authorize('viewAny', RegraAvaliacao::class);
+
         $regrasAvaliacao = RegraAvaliacao::with(['instituicao', 'anoLectivo', 'classe', 'nivelEnsino'])
             ->orderBy('created_at', 'desc')
             ->paginate(10)
@@ -56,6 +59,7 @@ class RegraAvaliacaoController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', RegraAvaliacao::class);
 
         $niveisEnsino = NivelEnsino::where('activo', 1)->orderBy('ordem')->get(['id', 'nome']);
 
@@ -66,7 +70,7 @@ class RegraAvaliacaoController extends Controller
             ->orderBy('classes.ordem')
             ->get()
             ->groupBy('nivel_ensino_id')
-            ->map(fn ($classes) => $classes->map->only(['id', 'nome'])->values());
+            ->map(fn($classes) => $classes->map->only(['id', 'nome'])->values());
 
         return Inertia::render('regras-avaliacao/create', [
             'niveisEnsino' => $niveisEnsino,
@@ -79,6 +83,8 @@ class RegraAvaliacaoController extends Controller
      */
     public function store(StoreRegraAvaliacaoRequest $request)
     {
+        $this->authorize('create', RegraAvaliacao::class);
+
         RegraAvaliacao::create([
             ...$request->validated(),
             'instituicao_id' => Auth::user()->instituicao_id,
@@ -93,6 +99,8 @@ class RegraAvaliacaoController extends Controller
      */
     public function show(RegraAvaliacao $regraAvaliacao)
     {
+        $this->authorize('view', $regraAvaliacao);
+
         return Inertia::render('regras-avaliacao/show', [
             'regraAvaliacao' => $regraAvaliacao,
         ]);
@@ -103,6 +111,8 @@ class RegraAvaliacaoController extends Controller
      */
     public function edit(RegraAvaliacao $regraAvaliacao)
     {
+        $this->authorize('update', $regraAvaliacao);    
+
         $niveisEnsino = NivelEnsino::where('activo', 1)->orderBy('ordem')->get(['id', 'nome']);
 
         $classesPorNivel = Classe::select('classes.id', 'classes.nome', 'classes.ordem', 'curso_classe.nivel_ensino_id')
@@ -112,7 +122,7 @@ class RegraAvaliacaoController extends Controller
             ->orderBy('classes.ordem')
             ->get()
             ->groupBy('nivel_ensino_id')
-            ->map(fn ($classes) => $classes->map->only(['id', 'nome'])->values());
+            ->map(fn($classes) => $classes->map->only(['id', 'nome'])->values());
 
         $regraAvaliacao->load(['classe', 'nivelEnsino']);
 
@@ -128,6 +138,8 @@ class RegraAvaliacaoController extends Controller
      */
     public function update(UpdateRegraAvaliacaoRequest $request, RegraAvaliacao $regraAvaliacao)
     {
+        $this->authorize('update', $regraAvaliacao);
+        
         $regraAvaliacao->update($request->validated());
 
         return redirect()->route('regras-avaliacao.index');
@@ -138,6 +150,7 @@ class RegraAvaliacaoController extends Controller
      */
     public function destroy(RegraAvaliacao $regraAvaliacao)
     {
+        $this->authorize('delete', $regraAvaliacao);
         $regraAvaliacao->delete();
 
         return redirect()->route('regras-avaliacao.index');

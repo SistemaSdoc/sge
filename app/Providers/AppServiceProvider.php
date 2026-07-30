@@ -9,6 +9,8 @@ use App\Policies\AcessManagementPolicy;
 use App\Policies\ColegioPolicy;
 use App\Policies\GrelhaCurricularPolicy;
 use App\Policies\HorarioPolicy;
+use App\Policies\ConfirmacaoMatriculaPolicy;
+use App\Policies\ItemPagavelPolicy;
 use App\Policies\PagamentoPolicy;
 use App\Policies\PautaPolicy;
 use Carbon\CarbonImmutable;
@@ -57,6 +59,11 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('SuperAdmin') ? true : null;
         });
 
+        Gate::define('confirmacao-matricula.viewAny', [ConfirmacaoMatriculaPolicy::class, 'viewAny']);
+        Gate::define('confirmacao-matricula.view', [ConfirmacaoMatriculaPolicy::class, 'view']);
+        Gate::define('confirmacao-matricula.create', [ConfirmacaoMatriculaPolicy::class, 'create']);
+
+
         // Registrar observadores de modelos
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
     }
@@ -72,7 +79,8 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
+        Password::defaults(
+            fn(): ?Password => app()->isProduction()
             ? Password::min(12)
                 ->mixedCase()
                 ->letters()
