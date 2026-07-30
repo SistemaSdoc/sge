@@ -3,36 +3,61 @@
 namespace App\Policies;
 
 use App\Models\User;
+use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 
 class ConfirmacaoMatriculaPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('confirmacao-matricula.viewAny');
+        try {
+            return $user->hasPermissionTo('confirmacao-matricula.viewAny');
+        } catch (PermissionDoesNotExist) {
+            return false;
+        }
     }
 
     public function view(User $user): bool
     {
-        return $user->hasPermissionTo('confirmacao-matricula.view');
+        try {
+            return $user->hasPermissionTo('confirmacao-matricula.view');
+        } catch (PermissionDoesNotExist) {
+            return false;
+        }
     }
 
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('confirmacao-matricula.create');
+        try {
+            return $user->hasPermissionTo('confirmacao-matricula.create');
+        } catch (PermissionDoesNotExist) {
+            return false;
+        }
     }
 
     public function update(User $user): bool
     {
-        return $user->hasPermissionTo('confirmacao-matricula.update');
+        try {
+            return $user->hasPermissionTo('confirmacao-matricula.update');
+        } catch (PermissionDoesNotExist) {
+            return false;
+        }
     }
 
     public function aprovar(User $user): bool
     {
-        return $user->hasPermissionTo('confirmacao-matricula.aprovar');
+        try {
+            return $user->hasPermissionTo('confirmacao-matricula.aprovar');
+        } catch (PermissionDoesNotExist) {
+            return false;
+        }
     }
 
     public function reprovar(User $user): bool
     {
-        return $user->hasPermissionTo('confirmacao-matricula.reprovar');
+        try {
+            return $user->hasPermissionTo('confirmacao-matricula.reprovar');
+        } catch (PermissionDoesNotExist) {
+            return false;
+        }
     }
 }
