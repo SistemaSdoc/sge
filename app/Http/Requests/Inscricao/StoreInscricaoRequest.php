@@ -57,6 +57,10 @@ class StoreInscricaoRequest extends FormRequest
                 'required',
                 'exists:curso_classe_turno,id',
             ],
+            'ano_lectivo_id' => [
+                'nullable',
+                'exists:ano_lectivos,id',
+            ],
         ];
     }
 
@@ -84,6 +88,7 @@ class StoreInscricaoRequest extends FormRequest
 
             'curso_classe_turno_id.required' => 'O curso/turno é obrigatório.',
             'curso_classe_turno_id.exists' => 'O curso/turno seleccionado não existe.',
+            'ano_lectivo_id.exists' => 'O ano lectivo seleccionado não existe.',
         ];
     }
 }

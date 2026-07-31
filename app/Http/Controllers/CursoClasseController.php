@@ -23,6 +23,15 @@ class CursoClasseController extends Controller
         $cursoClasse->load(['classe:id,nome', 'turnos.turno:id,nome']);
 
         $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::query()
+                ->where('data_inicio', '<=', now())
+                ->where('data_fim', '>=', now())
+                ->orderByDesc('data_inicio')
+                ->first()?->id
+            ?? AnoLectivo::query()
+                ->where('data_inicio', '>', now())
+                ->orderBy('data_inicio')
+                ->first()?->id
             ?? AnoLectivo::activo()?->id;
 
         // Se o turno pedido não pertence a este cursoClasse, cai para o primeiro
@@ -78,8 +87,11 @@ class CursoClasseController extends Controller
                     'create_turno' => Auth::user()->can('create', CursoClasseTurno::class),
                 ],
             ],
-            'anosLectivos' => AnoLectivo::all(),  // ← adicionado
-            'anoLectivoActual' => $anoLectivoId,  // ← adicionado
+            'anosLectivos' => AnoLectivo::query()
+                ->select('id', 'nome')
+                ->orderByDesc('data_inicio')
+                ->get(),
+            'anoLectivoActual' => $anoLectivoId,
         ]);
     }
 

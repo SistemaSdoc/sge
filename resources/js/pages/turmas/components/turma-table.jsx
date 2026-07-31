@@ -38,6 +38,15 @@ import {
 } from '@/components/ui/pagination';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { index } from '@/actions/App/Http/Controllers/TurmaController';
 import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
@@ -48,6 +57,9 @@ export function TurmaTable({
   deleteFn,
   pagination = {},
   onPageChange,
+  anosLectivos = [],
+  anoLectivoActual,
+  onAnoLectivoChange,
 }) {
   const lista = Array.isArray(turmas) ? turmas : turmas?.data ?? [];
   const isEmpty = lista.length === 0;
@@ -59,6 +71,21 @@ export function TurmaTable({
         <CardTitle>Turmas</CardTitle>
         <CardDescription>Lista de turmas disponíveis</CardDescription>
         <CardAction className="flex gap-3">
+          <Select value={anoLectivoActual ?? ''} onValueChange={onAnoLectivoChange}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Selecione o ano lectivo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Anos Lectivos</SelectLabel>
+                {anosLectivos.map((ano) => (
+                  <SelectItem key={ano.id} value={ano.id}>
+                    {ano.nome}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
           <Input placeholder="Digite para pesquisar..." />
           <Button variant="outline">
             <Filter /> Filtrar

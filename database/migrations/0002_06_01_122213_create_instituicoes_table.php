@@ -30,10 +30,10 @@ return new class extends Migration
         Schema::create('ano_lectivos', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('nome'); // ex: "2025/2026"
-            $table->date('data_inicio');
-            $table->date('data_fim');
+            $table->dateTime('data_inicio');
+            $table->dateTime('data_fim');
             $table->boolean('activo')->default(false); // só um ano lectivo activo de cada vez
-            $table->integer('status')->default(1);
+            $table->enum('estado', ['planeado', 'matriculas_abertas', 'em_curso', 'encerrado'])->default('planeado');
             $table->softDeletes();
             $table->timestamps();
         });

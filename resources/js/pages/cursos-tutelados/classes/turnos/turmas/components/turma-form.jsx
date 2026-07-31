@@ -2,8 +2,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-export function TurmaForm({ data, setData, errors, processing, onSubmit, can = {} }) {
+export function TurmaForm({ data, setData, errors, processing, onSubmit, can = {}, anosLectivos = [] }) {
   const canSubmit = Boolean(can.create ?? can.update ?? true);
 
   return (
@@ -40,6 +49,28 @@ export function TurmaForm({ data, setData, errors, processing, onSubmit, can = {
                     onChange={(e) => setData('max_alunos', e.target.value)}
                   />
                   {errors.max_alunos && <FieldError>{errors.max_alunos}</FieldError>}
+                </Field>
+
+                <Field>
+                  <FieldLabel>Ano Lectivo</FieldLabel>
+                  <Select
+                    value={data.ano_lectivo_id ?? ''}
+                    onValueChange={(value) => setData('ano_lectivo_id', value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione o ano lectivo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Anos Lectivos</SelectLabel>
+                        {anosLectivos.map((ano) => (
+                          <SelectItem key={ano?.id} value={ano?.id}>
+                            {ano?.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <Field>

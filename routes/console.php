@@ -1,21 +1,18 @@
 <?php
 
-use App\Services\AnoLectivoConsistencyService;
+use App\Console\Commands\FinalizarPautasVencidas;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
-use App\Console\Commands\FinalizarPautasVencidas;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::call(function () {
-    app(AnoLectivoConsistencyService::class)->sincronizar();
-})->dailyAt('00:00')
+Schedule::command('anoletivo:sincronizar')
+    ->everyMinute()
     ->name('ano-lectivo:sincronizar')
     ->withoutOverlapping();
-
 
 // Corre todos os dias às 23:55, só em produção
 Schedule::command(FinalizarPautasVencidas::class)

@@ -130,13 +130,14 @@ class ClasseTurnoTurmaController extends Controller
     ) {
         Gate::authorize('create', Turma::class);
 
-        // Ano lectivo ativo
-        $anoLectivoId = AnoLectivo::activo()?->id;
-
         $request->validate([
             'nome' => 'required|string|max:255',
             'max_alunos' => 'nullable|integer|min:1',
+            'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',
         ]);
+
+        $anoLectivoId = $request->input('ano_lectivo_id')
+            ?? AnoLectivo::activo()?->id;
 
         $jaExiste = Turma::where('curso_classe_turno_id', $cursoClasseTurno->id)
             ->where('ano_lectivo_id', $anoLectivoId)
@@ -154,12 +155,14 @@ class ClasseTurnoTurmaController extends Controller
             'max_alunos' => $request->max_alunos,
         ]);
 
+        $anoLectivoParam = $anoLectivoId ? ['ano_lectivo_id' => $anoLectivoId] : [];
+
         return to_route('cursos-tutelados.classes.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
             'cursoClasseTurno' => $cursoClasseTurno->id,
-        ])->with('success', 'Turma criada com sucesso!');
+        ] + $anoLectivoParam)->with('success', 'Turma criada com sucesso!');
     }
 
     public function show(
@@ -291,12 +294,19 @@ class ClasseTurnoTurmaController extends Controller
         $request->validate([
             'nome' => 'sometimes|string|max:255',
             'max_alunos' => 'nullable|integer|min:1',
+            'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',
         ]);
 
-        $turma->update($request->only(['nome', 'max_alunos']));
+        $anoLectivoId = $request->input('ano_lectivo_id')
+            ?? $turma->ano_lectivo_id;
+
+        $turma->update(array_filter([
+            'nome' => $request->input('nome', $turma->nome),
+            'max_alunos' => $request->input('max_alunos', $turma->max_alunos),
+            'ano_lectivo_id' => $anoLectivoId,
+        ], fn ($value) => $value !== null));
 
         // Preserva o filtro de ano lectivo na navegação de volta
-        $anoLectivoId = $request->input('ano_lectivo_id');
 
         if ($request->origem === 'turma') {
             return to_route('turmas.show', [

@@ -46,13 +46,25 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { create, show } from '@/routes/inscricoes';
 import TablePagination from '@/components/table-pagination';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export function InscricaoTable({
   inscricoes,
+  anoLectivoActual,
+  anosLectivos = [],
+  onAnoLectivoChange,
+  can = {},
   updateFn,
   pagination = {},
   onPageChange,
-  can,
 }) {
   const [nota, setNota] = useState('');
   const [inscricaoSelecionada, setInscricaoSelecionada] = useState(null);
@@ -107,7 +119,26 @@ export function InscricaoTable({
           <CardTitle>Candidatos</CardTitle>
           <CardDescription>Lista de candidatos</CardDescription>
           {can.create && (
-            <CardAction>
+            <CardAction className="flex gap-3">
+              <Select
+                value={anoLectivoActual ?? ''}
+                onValueChange={onAnoLectivoChange}
+              >
+                <SelectTrigger id="ano-lectivo" className="w-48">
+                  <SelectValue placeholder="Selecione o ano lectivo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Anos Lectivos</SelectLabel>
+                    {anosLectivos?.map((ano) => (
+                      <SelectItem key={ano.id} value={ano.id}>
+                        {ano.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
               <Button asChild>
                 <Link href={create.url()}>Adicionar</Link>
               </Button>
@@ -125,10 +156,10 @@ export function InscricaoTable({
               action={
                 can.create
                   ? {
-                    label: 'Adicionar Inscrição',
-                    href: create.url(),
-                    variant: 'outline',
-                  }
+                      label: 'Adicionar Inscrição',
+                      href: create.url(),
+                      variant: 'outline',
+                    }
                   : undefined
               }
             />
@@ -141,7 +172,7 @@ export function InscricaoTable({
                   <TableHead className="px-4">Turno</TableHead>
                   <TableHead className="px-4">Status</TableHead>
                   {hasActionColumn && (
-                  <TableHead className="px-4 text-right">Acções</TableHead>
+                    <TableHead className="px-4 text-right">Acções</TableHead>
                   )}
                 </TableRow>
               </TableHeader>
@@ -154,8 +185,8 @@ export function InscricaoTable({
                         ? 'hover:cursor-pointer'
                         : 'opacity-70'
                     }
-                    
-                     onClick={() => {
+
+                    onClick={() => {
                       if (inscricao.can?.view) {
                         router.visit(show(inscricao.id).url);
                       }
@@ -174,32 +205,36 @@ export function InscricaoTable({
                       {formatStatusInscricao(inscricao.status)}
                     </TableCell>
                     {hasActionColumn && (
-                    <TableCell className="px-4 text-right">
-                      {inscricao.status === 'pendente' && inscricao.can?.update && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8"
-                            >
-                              <MoreHorizontalIcon />
-                              <span className="sr-only">Open menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-auto!">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setInscricaoSelecionada(inscricao.id);
-                              }}
-                            >
-                              Definir nota da prova
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
-                    </TableCell>
+                      <TableCell className="px-4 text-right">
+                        {inscricao.status === 'pendente' &&
+                          inscricao.can?.update && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-8"
+                                >
+                                  <MoreHorizontalIcon />
+                                  <span className="sr-only">Open menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align="end"
+                                className="w-auto!"
+                              >
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setInscricaoSelecionada(inscricao.id);
+                                  }}
+                                >
+                                  Definir nota da prova
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                      </TableCell>
                     )}
                   </TableRow>
                 ))}

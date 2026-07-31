@@ -27,9 +27,12 @@ export default function InscricaoForm({
   cursoSelecionado,
   cursoClasseTurnoId,
   setCursoClasseTurnoId,
+  anosLectivos = [],
+  anoLectivoSelecionado,
+  onAnoLectivoChange,
 }) {
   const temTurnos = cursoSelecionado?.turnos?.length > 0;
-  
+
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
       <Card>
@@ -40,6 +43,32 @@ export default function InscricaoForm({
         <CardContent>
           <FieldGroup>
             <FieldSet>
+              <Field>
+                <FieldLabel>Ano Lectivo</FieldLabel>
+                <Select
+                  value={anoLectivoSelecionado}
+                  onValueChange={onAnoLectivoChange}
+                  disabled={processing}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o ano lectivo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Anos Lectivos</SelectLabel>
+                      {anosLectivos.map((ano) => (
+                        <SelectItem key={ano.id} value={ano.id}>
+                          {ano.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {errors.ano_lectivo_id && (
+                  <FieldError>{errors.ano_lectivo_id}</FieldError>
+                )}
+              </Field>
+
               <Field>
                 <FieldLabel>Nome do estudante</FieldLabel>
                 <Input

@@ -78,7 +78,7 @@ class InscricaoController extends Controller
     {
         $this->authorize('create', Inscricao::class);
 
-        $user = auth()->user();
+        $user = Auth::user();
         $instituicaoId = $user->instituicao_id;
 
         $anoLectivoId = request('ano_lectivo_id')
@@ -116,6 +116,7 @@ class InscricaoController extends Controller
 
         return Inertia::render('inscricoes/create', [
             'cursos' => $cursos,
+            'anosLectivos' => AnoLectivo::all(),
             'anoLectivoId' => $anoLectivoId,
         ]);
     }
@@ -125,7 +126,9 @@ class InscricaoController extends Controller
 
         $this->inscricaoService->criar($request->validated());
 
-        return redirect()->route('inscricoes.index');
+        return redirect()->route('inscricoes.index', [
+            'ano_lectivo_id' => $request->validated('ano_lectivo_id') ?? $request->input('ano_lectivo_id'),
+        ]);
     }
 
     public function show(Inscricao $inscricao)
@@ -152,7 +155,9 @@ class InscricaoController extends Controller
 
         $this->inscricaoService->atualizarNotaTeste($inscricao, $request->validated('nota_teste'));
 
-        return redirect()->route('inscricoes.index');
+        return redirect()->route('inscricoes.index', [
+            'ano_lectivo_id' => $inscricao->ano_lectivo_id,
+        ]);
     }
 
     public function destroy(Inscricao $inscricao)

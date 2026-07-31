@@ -18,18 +18,14 @@ class AnoLectivo extends Model
         'data_inicio',
         'data_fim',
         'activo',
+        'estado',
     ];
 
     protected $casts = [
-        'data_inicio' => 'date',
-        'data_fim' => 'date',
+        'data_inicio' => 'datetime',
+        'data_fim' => 'datetime',
         'activo' => 'boolean',
     ];
-
-    public function propinas(): HasMany
-    {
-        return $this->hasMany(Propina::class);
-    }
 
     protected static function booted(): void
     {
@@ -38,43 +34,33 @@ class AnoLectivo extends Model
         });
     }
 
-    public function getEstadoAttribute(): string
-    {
-        $hoje = now()->startOfDay();
-
-        return match (true) {
-            $hoje->lt($this->data_inicio) => 'planeado',
-            $hoje->gt($this->data_fim) => 'encerrado',
-            default => 'a_decorrer',
-        };
-    }
-
     public function scopeAtivo($query)
     {
-        return $query->whereDate('data_inicio', '<=', now())
-            ->whereDate('data_fim', '>=', now());
+        return $query->where('activo', true);
     }
 
     public static function activo(): ?self
     {
-        return static::ativo()
-            ->orderByDesc('data_inicio')
-            ->orderByDesc('data_fim')
-            ->first();
+        return static::ativo()->first();
     }
 
-    public function turmas()
+    public function turmas(): HasMany
     {
         return $this->hasMany(Turma::class);
     }
 
-    public function inscricoes()
+    public function inscricoes(): HasMany
     {
         return $this->hasMany(Inscricao::class);
     }
 
-    public function classeTurnoDisciplinas()
+    public function classeTurnoDisciplinas(): HasMany
     {
         return $this->hasMany(ClasseTurnoDisciplina::class, 'ano_lectivo_id');
+    }
+
+    public function propinas(): HasMany
+    {
+        return $this->hasMany(Propina::class);
     }
 }

@@ -46,15 +46,33 @@ import {
 } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 import { create } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
 import TablePagination from '@/components/table-pagination';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectLabel,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectSeparator,
+} from '@/components/ui/select';
 
-export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
+export default function Show({
+  instituicao,
+  cursoTutelado,
+  cursoClasse,
+  anosLectivos,
+  anoLectivoActual,
+}) {
   const instituicaoId = instituicao.id;
   const cursoId = cursoTutelado.id;
   const classeId = cursoClasse.id;
   const turnos = cursoClasse.turnos || [];
   const turmas = cursoClasse.turmas;
   const disciplinas = cursoClasse.disciplinas;
+  const [anoLectivoSelecionado, setAnoLectivoSelecionado] =
+    useState(anoLectivoActual);
 
   const selectedTurnoId = cursoClasse.turnoId;
   const can = cursoClasse.can ?? {};
@@ -74,6 +92,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
       window.location.pathname,
       {
         turno: turnoId,
+        ano_lectivo_id: anoLectivoSelecionado,
         page_turmas: 1,
         page_disciplinas: 1,
       },
@@ -90,7 +109,11 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
   const handlePageChange = (param) => (page) => {
     router.get(
       '',
-      { turno: selectedTurnoId, [param]: page },
+      {
+        turno: selectedTurnoId,
+        ano_lectivo_id: anoLectivoSelecionado,
+        [param]: page,
+      },
       { preserveState: true, preserveScroll: true },
     );
   };
@@ -113,6 +136,9 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
           }).url,
           {
             preserveScroll: true,
+            data: {
+              ano_lectivo_id: anoLectivoSelecionado,
+            },
 
             onSuccess: () => {
               toast.success('Disciplina removida com sucesso');
@@ -123,6 +149,24 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
           },
         ),
     });
+  };
+
+  const handleAnoLectivoChange = (value) => {
+    setAnoLectivoSelecionado(value);
+
+    router.get(
+      window.location.pathname,
+      {
+        turno: selectedTurnoId,
+        ano_lectivo_id: value,
+        page_turmas: 1,
+        page_disciplinas: 1,
+      },
+      {
+        preserveState: true,
+        preserveScroll: true,
+      },
+    );
   };
 
   return (
@@ -162,31 +206,57 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
 
       {turnos.length > 0 ? (
         <Tabs value={selectedTurnoId} onValueChange={handleTurnoChange}>
-          <TabsList variant={'line'}>
-            {turnos.map((turno) => (
-              <TabsTrigger key={turno.id} value={turno.id}>
-                {turno.nome}
-              </TabsTrigger>
-            ))}
+          <TabsList
+            variant={'line'}
+            className="p4-4 flex! w-full justify-between"
+          >
+            <div>
+              {turnos.map((turno) => (
+                <TabsTrigger key={turno.id} value={turno.id}>
+                  {turno.nome}
+                </TabsTrigger>
+              ))}
 
-            {can.create_turno && turnos.length < 3 && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                onClick={() =>
-                  router.visit(
-                    create({
-                      instituicao: instituicaoId,
-                      cursoTutelado: cursoId,
-                      cursoClasse: cursoClasse.id,
-                    }).url,
-                  )
-                }
+              {can.create_turno && turnos.length < 3 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7"
+                  onClick={() =>
+                    router.visit(
+                      create({
+                        instituicao: instituicaoId,
+                        cursoTutelado: cursoId,
+                        cursoClasse: cursoClasse.id,
+                      }).url,
+                    )
+                  }
+                >
+                  +
+                </Button>
+              )}
+            </div>
+
+            <div className="">
+              <Select
+                value={anoLectivoSelecionado}
+                onValueChange={handleAnoLectivoChange}
               >
-                +
-              </Button>
-            )}
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione o ano lectivo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Anos Lectivos</SelectLabel>
+                    {anosLectivos.map((ano) => (
+                      <SelectItem key={ano?.id} value={ano?.id}>
+                        {ano?.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
           </TabsList>
 
           <TabsContent value={selectedTurnoId} className="mt-2 space-y-6">
@@ -205,14 +275,14 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                       <Button asChild size="sm">
                         <Link
                           data={{ redirect_to: window.location.href }}
-                          href={
+                          href={`${
                             createDisciplina({
                               instituicao: instituicaoId,
                               cursoTutelado: cursoId,
                               cursoClasse: classeId,
                               cursoClasseTurno: selectedTurnoId,
                             }).url
-                          }
+                          }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`}
                         >
                           Adicionar
                         </Link>
@@ -220,6 +290,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                     </CardAction>
                   )}
                 </CardHeader>
+
                 {!disciplinas?.data?.length ? (
                   <CardContent className="flex flex-1 items-center justify-center">
                     <EmptyState
@@ -231,12 +302,14 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                         can.create_disciplina
                           ? {
                               label: 'Associar disciplinas',
-                              href: createDisciplina({
-                                instituicao: instituicaoId,
-                                cursoTutelado: cursoId,
-                                cursoClasse: classeId,
-                                cursoClasseTurno: selectedTurnoId,
-                              }).url,
+                              href: `${
+                                createDisciplina({
+                                  instituicao: instituicaoId,
+                                  cursoTutelado: cursoId,
+                                  cursoClasse: classeId,
+                                  cursoClasseTurno: selectedTurnoId,
+                                }).url
+                              }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`,
                               variant: 'outline',
                             }
                           : undefined
@@ -256,6 +329,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                             </TableHead>
                           </TableRow>
                         </TableHeader>
+
                         <TableBody>
                           {disciplinas.data.map((disc) => (
                             <TableRow key={disc.id}>
@@ -276,24 +350,6 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end">
-                                    {/*<DropdownMenuItem
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation();
-
-                                                                                router.visit(
-                                                                                    editDisciplina({
-                                                                                        instituicao: instituicaoId,
-                                                                                        cursoTutelado: cursoId,
-                                                                                        cursoClasse: classeId,
-                                                                                        cursoClasseTurno: selectedTurnoId,
-                                                                                        classeTurnoDisciplina: disc.id,
-                                                                                    }).url
-                                                                                );
-                                                                            }}
-                                                                        >
-                                                                            Editar
-                                                                        </DropdownMenuItem>*/}
-                                    <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                       variant="destructive"
                                       onClick={(e) => {
@@ -311,6 +367,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                         </TableBody>
                       </Table>
                     </CardContent>
+
                     <TablePagination
                       pagination={{
                         current_page: disciplinas.current_page,
@@ -348,6 +405,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                     </CardAction>
                   )}
                 </CardHeader>
+
                 {!turmas?.data?.length ? (
                   <CardContent className="flex flex-1 items-center justify-center">
                     <EmptyState
@@ -384,6 +442,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                             </TableHead>
                           </TableRow>
                         </TableHeader>
+
                         <TableBody>
                           {turmas.data.map((turma) => (
                             <TableRow
@@ -407,9 +466,11 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                               <TableCell className="px-4 font-medium">
                                 {turma.nome}
                               </TableCell>
+
                               <TableCell>
                                 {turma.alunos_activos_count}
                               </TableCell>
+
                               <TableCell className="px-4 text-right">
                                 {turma?.can?.edit && (
                                   <DropdownMenu>
@@ -453,6 +514,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse }) {
                         </TableBody>
                       </Table>
                     </CardContent>
+
                     <TablePagination
                       pagination={{
                         current_page: turmas.current_page,

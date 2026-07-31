@@ -54,12 +54,17 @@ class ClasseTurnoDisciplinaController extends Controller
         $request->validate([
             'disciplina_ids' => 'required|array|min:1',
             'disciplina_ids.*' => 'exists:disciplinas,id',
+            'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',
             'carga_horaria' => 'nullable|string|max:255',
             'tem_professor' => 'nullable|boolean',
         ]);
 
-        // Buscar as que já existem para ignorar duplicadas
+        $anoLectivoId = $request->input('ano_lectivo_id')
+            ?? AnoLectivo::activo()?->id;
+
+        // Buscar as que já existem para ignorar duplicadas no mesmo ano lectivo
         $jaExistentes = ClasseTurnoDisciplina::where('curso_classe_turno_id', $cursoClasseTurno->id)
+            ->where('ano_lectivo_id', $anoLectivoId)
             ->whereIn('disciplina_id', $request->disciplina_ids)
             ->pluck('disciplina_id')
             ->toArray();
@@ -71,10 +76,6 @@ class ClasseTurnoDisciplinaController extends Controller
                 'disciplina_ids' => 'Todas as disciplinas já estão associadas.',
             ]);
         }
-
-        // Captura ano_lectivo_id para usar no store
-        $anoLectivoId = $request->input('ano_lectivo_id')
-            ?? AnoLectivo::activo()?->id;
 
         $disciplinasAdicionadas = [];
         foreach (array_values($novas) as $disciplinaId) {

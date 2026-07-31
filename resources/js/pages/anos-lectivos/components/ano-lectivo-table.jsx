@@ -42,8 +42,15 @@ const ESTADO_CONFIG = {
     bg: 'bg-blue-50 dark:bg-blue-950/40',
     pulse: false,
   },
-  a_decorrer: {
-    label: 'A decorrer',
+  matriculas_abertas: {
+    label: 'Matrículas Abertas',
+    dot: 'bg-amber-500',
+    text: 'text-amber-700 dark:text-amber-400',
+    bg: 'bg-amber-50 dark:bg-amber-950/40',
+    pulse: true,
+  },
+  em_curso: {
+    label: 'Em Curso',
     dot: 'bg-emerald-500',
     text: 'text-emerald-700 dark:text-emerald-400',
     bg: 'bg-emerald-50 dark:bg-emerald-950/40',
@@ -71,9 +78,7 @@ function EstadoBadge({ estado }) {
             className={`absolute inline-flex h-full w-full animate-ping ${config.dot} opacity-75`}
           />
         )}
-        <span
-          className={`relative inline-flex size-1.5 ${config.dot}`}
-        />
+        <span className={`relative inline-flex size-1.5 ${config.dot}`} />
       </span>
       {config.label}
     </span>
@@ -85,6 +90,8 @@ function formatarData(data) {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   }).format(new Date(data));
 }
 
@@ -140,6 +147,7 @@ export default function AnoLectivoTable({
                 <TableHead className="px-4">Data de Início</TableHead>
                 <TableHead className="px-4">Data de Fim</TableHead>
                 <TableHead className="px-4">Estado</TableHead>
+                <TableHead className="px-4">Activo</TableHead>
                 {hasAnyAction && (
                   <TableHead className="px-4 text-right">Acções</TableHead>
                 )}
@@ -152,16 +160,33 @@ export default function AnoLectivoTable({
                     {anoLectivo.nome}
                   </TableCell>
 
-                  <TableCell className="px-4 font-medium">
+                  <TableCell className="px-4">
                     {formatarData(anoLectivo.data_inicio)}
                   </TableCell>
 
-                  <TableCell className="px-4 font-medium">
+                  <TableCell className="px-4">
                     {formatarData(anoLectivo.data_fim)}
                   </TableCell>
 
-                  <TableCell className="px-4 font-medium">
+                  <TableCell className="px-4">
                     <EstadoBadge estado={anoLectivo.estado} />
+                  </TableCell>
+
+                  <TableCell className="px-4">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium ${
+                        anoLectivo.activo
+                          ? 'bg-emerald-50 text-emerald-700 dark:text-emerald-400'
+                          : 'bg-gray-50 text-gray-700 dark:bg-gray-950/40 dark:text-gray-400'
+                      }`}
+                    >
+                      <span
+                        className={`size-1.5 ${
+                          anoLectivo.activo ? 'bg-emerald-500' : 'bg-gray-400'
+                        }`}
+                      />
+                      {anoLectivo.activo ? 'Sim' : 'Não'}
+                    </span>
                   </TableCell>
 
                   {hasAnyAction && (

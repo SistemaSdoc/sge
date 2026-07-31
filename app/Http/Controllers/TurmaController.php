@@ -18,17 +18,29 @@ class TurmaController extends Controller
         $professor = $user?->professor;
         $instituicaoId = $user->instituicao_id;
 
-        // Filtro ano lectivo
-        $anoLectivoId = request('ano_lectivo_id') 
-            ?? AnoLectivo::activo()?->id;
+        $anoLectivoId = filled(request('ano_lectivo_id'))
+            ? request('ano_lectivo_id')
+            : (AnoLectivo::query()
+                ->where('data_inicio', '<=', now())
+                ->where('data_fim', '>=', now())
+                ->orderByDesc('data_inicio')
+                ->first()?->id
+                ?? AnoLectivo::query()
+                    ->where('data_inicio', '>', now())
+                    ->orderBy('data_inicio')
+                    ->first()?->id
+                ?? AnoLectivo::query()->orderByDesc('data_inicio')->first()?->id);
 
         $query = Turma::query();
 
         $query->whereHas(
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
             fn ($q) => $q->where('instituicoes.id', $instituicaoId)
-        )
-        ->where('ano_lectivo_id', $anoLectivoId);  // ← Filtro ano lectivo
+        );
+
+        if ($anoLectivoId) {
+            $query->where('ano_lectivo_id', $anoLectivoId);
+        }
 
         if (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
             if (! $professor) {
@@ -38,7 +50,10 @@ class TurmaController extends Controller
                         'current_page' => 1,
                         'last_page' => 1,
                     ],
-                    'anosLectivos' => AnoLectivo::all(),
+                    'anosLectivos' => AnoLectivo::query()
+                        ->select('id', 'nome')
+                        ->orderByDesc('data_inicio')
+                        ->get(),
                     'anoLectivoActual' => $anoLectivoId,
                     'can' => [
                         'create_turma' => Auth::user()->can('create', Turma::class),

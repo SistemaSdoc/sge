@@ -4,6 +4,7 @@ namespace App\Services\Menu;
 
 use App\Http\Controllers\AccessManagementController;
 use App\Http\Controllers\AlunoController;
+use App\Http\Controllers\AnoLectivoController;
 use App\Http\Controllers\AvisoController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\Colegios\ColegioController;
@@ -22,7 +23,6 @@ use App\Http\Controllers\TurnoController;
 use App\Models\Aluno;
 use App\Models\Aviso;
 use App\Models\Classe;
-use App\Models\ConfirmacaoMatricula;
 use App\Models\Curso;
 use App\Models\GrupoPap;
 use App\Models\Inscricao;
@@ -82,6 +82,14 @@ final class SidebarMenuService
 
                         return $instituicao && Gate::allows('view', $instituicao);
                     },
+                ),
+
+                new MenuItem(
+                    key: 'anos-lectivos',
+                    title: 'Anos Lectivos',
+                    href: action([AnoLectivoController::class, 'index']),
+                    icon: 'BookOpen',
+                    can: true
                 ),
 
                 new MenuItem(

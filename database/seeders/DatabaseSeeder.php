@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
 
             // TABELAS BASE
             InstituicaoSeeder::class,
-            AnoLectivoSeeder::class,
+            //AnoLectivoSeeder::class,
            // CursoSeeder::class,
             ClasseSeeder::class,
             TurnoSeeder::class,

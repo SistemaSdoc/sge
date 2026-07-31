@@ -29,8 +29,7 @@ class InscricaoService
                 'email' => $dados['email'],
             ]);
 
-            // Busca o ano lectivo ativo
-            $anoLectivoId = AnoLectivo::activo()?->id;
+            $anoLectivoId = $dados['ano_lectivo_id'] ?? AnoLectivo::activo()?->id;
 
             if (!$anoLectivoId) {
                 throw new InvalidArgumentException('Nenhum ano lectivo activo encontrado.');
