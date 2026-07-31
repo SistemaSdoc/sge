@@ -81,6 +81,7 @@ class ItemPagavelController extends Controller
             ],
         ]);
     }
+    
     public function create()
     {
         $this->authorize('create', ItemPagavel::class);
