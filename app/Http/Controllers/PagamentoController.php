@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Pagamento\StorePagamentoRequest;
 use App\Http\Requests\Pagamento\UpdatePagamentoRequest;
 use App\Models\Aluno;
+use App\Models\AnoLectivo;
 use App\Models\ItemPagavel;
 use App\Models\Pagamento;
 use App\Models\PagamentoItem;
 use App\Models\Turma;
+use App\Services\VerificadorPropinaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +19,7 @@ use Inertia\Inertia;
 
 class PagamentoController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, VerificadorPropinaService $verificador)
     {
         $instituicaoId = $request->user()->instituicao_id;
 
@@ -65,13 +67,88 @@ class PagamentoController extends Controller
                 'nome' => $t->nome.' — '.($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
             ]);
 
+        $statusFiltro = $request->input('status_propina'); // 'pagos' | 'nao_pagos' | 'pendentes'
+
+        $alunosPorStatus = null;
+
+        if ($statusFiltro) {
+            $alunosPorStatus = $this->alunosAgrupadosPorStatus($request, $verificador, $statusFiltro);
+        }
+
         return Inertia::render('pagamentos/index', [
             'pagamentos' => $pagamentos,
             'turmas' => $turmas,
             'can' => [
                 'create' => Auth::user()->can('create', Pagamento::class),
             ],
+            'filtros' => $request->only(['aluno_id', 'data_inicio', 'data_fim']),
+            'statusFiltro' => $statusFiltro,
+            'alunosPorStatus' => $alunosPorStatus,
         ]);
+    }
+
+    /**
+     * Retorna alunos filtrados por status de propina (pagos/nao_pagos/pendentes),
+     * agrupados por Classe -> Turma, considerando o ano lectivo activo.
+     */
+    private function alunosAgrupadosPorStatus(Request $request, VerificadorPropinaService $verificador, string $status): array
+    {
+        $anoLectivoId = AnoLectivo::activo()?->id;
+
+        $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
+            ->doAnoLectivo($anoLectivoId)
+            ->whereHas('user', fn ($q) => $q->where('instituicao_id', $request->user()->instituicao_id))
+            ->with([
+                // FIX: 'instituicao_id' precisa de ser seleccionado aqui.
+                // Sem ele, $aluno->user->instituicao_id vinha null dentro do
+                // VerificadorPropinaService, e a query de ItemPagavel
+                // (where('instituicao_id', null)) nunca encontrava itens,
+                // fazendo todos os alunos caírem como "em dia" por omissão.
+                'user:id,nome,instituicao_id',
+                'inscricao.candidato:id,nome',
+                'inscricao.cursoClasseTurno.turno:id,nome',
+                'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
+                'turmas' => fn ($q) => $q->wherePivot('activo', true)
+                    ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
+            ])
+            ->get()
+            ->filter() // remove qualquer elemento nulo da colecção antes de continuar
+            ->values();
+
+        $filtrados = $alunos->filter(function (Aluno $aluno) use ($verificador, $status) {
+            $pendencias = $verificador->pendenciasDoAluno($aluno);
+            $emDia = empty($pendencias);
+            $mesesEmAtraso = count($pendencias);
+
+            return match ($status) {
+                'pagos' => $emDia,
+                'nao_pagos' => ! $emDia,
+                // "pendentes" = em atraso de 1 ou mais meses (mesma condição de nao_pagos,
+                // mantido separado caso queiras diferenciar limiares no futuro)
+                'pendentes' => ! $emDia && $mesesEmAtraso >= 1,
+                default => true,
+            };
+        });
+
+        // Agrupar por Classe -> Turma, mantendo nome, curso, turno
+        $agrupado = $filtrados
+            ->groupBy(fn (Aluno $aluno) => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome ?? 'Sem classe')
+            ->map(function ($alunosDaClasse) {
+                return $alunosDaClasse
+                    ->groupBy(fn (Aluno $aluno) => $aluno->turmas->first()?->nome ?? 'Sem turma')
+                    ->map(function ($alunosDaTurma) {
+                        return $alunosDaTurma->map(fn (Aluno $aluno) => [
+                            'id' => $aluno->id,
+                            'nome' => $aluno->inscricao?->candidato?->nome ?? $aluno->user?->nome,
+                            'curso' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
+                            'turma' => $aluno->turmas->first()?->nome,
+                            'classe' => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome,
+                            'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,
+                        ])->values();
+                    });
+            });
+
+        return $agrupado->toArray();
     }
 
     public function create(Request $request)
@@ -332,19 +409,15 @@ class PagamentoController extends Controller
 
         return back()->with('success', 'Pagamento atualizado com sucesso.');
     }
+public function destroy(Pagamento $pagamento)
+{
+    // $this->authorize('delete', $pagamento);
 
-    public function destroy(Pagamento $pagamento)
-    {
-        Log::warning('PagamentoController@destroy - anulando pagamento', [
-            'pagamento_id' => $pagamento->id,
-            'aluno_id' => $pagamento->aluno_id,
-            'valor_total' => $pagamento->valor_total,
-        ]);
-
+    DB::transaction(function () use ($pagamento) {
+        $pagamento->itens()->withTrashed()->forceDelete();
         $pagamento->delete();
+    });
 
-        Log::info('PagamentoController@destroy - pagamento anulado', ['pagamento_id' => $pagamento->id]);
-
-        return back()->with('success', 'Pagamento anulado com sucesso.');
-    }
+    return back()->with('success', 'Pagamento anulado com sucesso.');
+}
 }

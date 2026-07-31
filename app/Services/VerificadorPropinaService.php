@@ -35,6 +35,21 @@ class VerificadorPropinaService
             ]);
             return [];
         }
+        \Log::debug('DEBUG pendencias', [
+    'aluno_id' => $aluno->id,
+    'turma_existe' => (bool) $turma,
+    'ano_lectivo_turma' => $turma?->anoLectivo?->id,
+]);
+if (! $turma) {
+    // sem turma associada — não há como calcular pendência real
+    return [];
+}
+
+$anoLectivo = $turma->anoLectivo;
+
+if (! $anoLectivo) {
+    return [];
+}
 
         $turma->loadMissing(['cursoClasseTurno.cursoClasse']);
 
