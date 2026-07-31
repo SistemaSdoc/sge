@@ -6,9 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
-use App\Models\AnoLectivo;
-use App\Http\Resources\CursoTuteladoResourceShow;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -19,7 +16,7 @@ class ColegioController extends Controller
      */
     public function index(Request $request, Instituicao $instituicao)
     {
-        //$this->authorize('tutelar', $instituicao);
+        // $this->authorize('tutelar', $instituicao);
 
         // 1. Buscar IDs dos cursos tutelados desta instituição tutora
         $cursoTuteladoIds = CursoTutelado::where('instituicao_tutora_id', $instituicao->id)
@@ -40,7 +37,7 @@ class ColegioController extends Controller
         // 4. Carregar os cursos tutelados de cada colégio
         $colegiosComCursos = $colegios->getCollection()->map(function ($colegio) use ($instituicao) {
             $cursos = InstituicaoCurso::where('instituicao_id', $colegio->id)
-                ->whereHas('cursoTutelado', fn($q) => $q->where('instituicao_tutora_id', $instituicao->id))
+                ->whereHas('cursoTutelado', fn ($q) => $q->where('instituicao_tutora_id', $instituicao->id))
                 ->with(['curso:id,nome', 'cursoTutelado:id,instituicao_curso_id'])
                 ->get();
 
@@ -49,7 +46,7 @@ class ColegioController extends Controller
                 'nome' => $colegio->nome,
                 'tipo' => $colegio->tipo,
                 'total_cursos' => $cursos->count(),
-                'cursos' => $cursos->map(fn($ic) => [
+                'cursos' => $cursos->map(fn ($ic) => [
                     'id' => $ic->cursoTutelado->id,
                     'nome' => $ic->curso->nome,
                     'curso_tutelado_id' => $ic->cursoTutelado->id,
@@ -84,7 +81,7 @@ class ColegioController extends Controller
             ->paginate(10);
 
         $cursosFormatados = $cursos->getCollection()->map(
-            fn($ic) => [
+            fn ($ic) => [
                 'id' => $ic->cursoTutelado->id,
                 'nome' => $ic->curso->nome,
                 'curso_tutelado_id' => $ic->cursoTutelado->id,
@@ -101,6 +98,9 @@ class ColegioController extends Controller
             'colegio' => [
                 'id' => $colegio->id,
                 'nome' => $colegio->nome,
+            ],
+            'can' => [
+                'gerir_prazos' => auth()->user()->can('pautas.gerirPrazos'),
             ],
             'cursos' => $cursos,
         ]);

@@ -29,8 +29,6 @@ class SolicitacaoEdicaoPautaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -54,8 +52,10 @@ class SolicitacaoEdicaoPautaController extends Controller
         abort_if($jaExiste, 422, 'Já tens um pedido pendente para este período.');
 
         SolicitacaoEdicaoPauta::create([
-            ...$validated,
+            'turma_disciplina_professor_id' => $validated['tdp_id'],
+            'periodo' => $validated['periodo'],
             'professor_user_id' => Auth::id(),
+            'motivo' => $validated['motivo'],
         ]);
 
         // Notificar director da instituição
@@ -87,4 +87,4 @@ class SolicitacaoEdicaoPautaController extends Controller
 
         return back()->with('success', 'Decisão registada.');
     }
-    }
+}

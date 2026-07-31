@@ -91,6 +91,7 @@ class InstituicaoController extends Controller
                 'edit_instituicao' => Auth::user()->can('update', $instituicao),
                 'create_curso' => Auth::user()->can('create', Curso::class),
                 'view_instituicao' => Auth::user()->can('view', $instituicao),
+                'gerir_prazos' => Auth::user()->can('pautas.gerirPrazos'),
             ],
             'instituicao' => [
                 'id' => $instituicao->id,

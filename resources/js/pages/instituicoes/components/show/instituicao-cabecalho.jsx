@@ -6,15 +6,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  show,
-  edit,
-} from '@/actions/App/Http/Controllers/InstituicaoController';
+import { edit } from '@/actions/App/Http/Controllers/InstituicaoController';
+import { edit as editarPrazosLancamentoNotas } from '@/actions/App/Http/Controllers/PeriodoLancamentoNotasController';
 
 export function InstituicaoCabecalho({ data, storageUrl, can = {} }) {
   const canEdit = Boolean(can?.edit || can?.edit_instituicao);
+  const canGerirPrazos = Boolean(can?.gerir_prazos);
 
   return (
     <Card className="overflow-hidden pt-0!">
@@ -44,7 +44,7 @@ export function InstituicaoCabecalho({ data, storageUrl, can = {} }) {
             </p>
           </div>
 
-          {canEdit && (
+          {(canEdit || canGerirPrazos) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -56,8 +56,8 @@ export function InstituicaoCabecalho({ data, storageUrl, can = {} }) {
                 </Button>
               </DropdownMenuTrigger>
 
-              {canEdit && (
-                <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end">
+                {canEdit && (
                   <DropdownMenuItem
                     onClick={() =>
                       router.visit(edit({ instituicao: data.id }).url)
@@ -66,8 +66,20 @@ export function InstituicaoCabecalho({ data, storageUrl, can = {} }) {
                   >
                     Editar
                   </DropdownMenuItem>
-                </DropdownMenuContent>
-              )}
+                )}
+
+                {canEdit && canGerirPrazos && <DropdownMenuSeparator />}
+
+                {canGerirPrazos && (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      router.visit(editarPrazosLancamentoNotas(data.id).url)
+                    }
+                  >
+                    Prazos de lançamento
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
             </DropdownMenu>
           )}
         </div>

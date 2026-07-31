@@ -3,6 +3,7 @@
 use App\Http\Controllers\ExportarMiniPautaController;
 use App\Http\Controllers\ExportarPautaController;
 use App\Http\Controllers\PautaController;
+use App\Http\Controllers\SolicitacaoEdicaoPautaController;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -29,3 +30,6 @@ Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/
  * Exporta a pauta completa de uma turma.
  */
 Route::get('pautas/cursos/{cursoTutelado}/turmas/{turma}/exportar-pauta/excel', [ExportarPautaController::class, 'exportarExcel'])->name('exportar.pauta');
+
+Route::post('pautas/solicitar-edicao', [SolicitacaoEdicaoPautaController::class, 'store'])
+    ->name('pautas.solicitar-edicao');

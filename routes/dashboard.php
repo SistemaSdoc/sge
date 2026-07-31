@@ -30,6 +30,7 @@ use App\Http\Controllers\NotaAlunoController;
 use App\Http\Controllers\NotaDisciplinaController;
 use App\Http\Controllers\NotaDisciplinaRecursoController;
 use App\Http\Controllers\PagamentoController;
+use App\Http\Controllers\PeriodoLancamentoNotasController;
 use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
 use App\Http\Controllers\ProgressaoController;
 use App\Http\Controllers\RegraAvaliacaoController;
@@ -69,6 +70,10 @@ Route::get('/cursos/{curso}/instituicoes-tutoras', [CursosController::class, 'in
 Route::get('turmas', [TurmaController::class, 'index'])->name('turmaGeral');
 
 Route::prefix('instituicoes/{instituicao}')->group(function () {
+    Route::get('prazos-lancamento-notas', [PeriodoLancamentoNotasController::class, 'edit'])
+        ->name('prazos-lancamento-notas.edit');
+    Route::put('prazos-lancamento-notas', [PeriodoLancamentoNotasController::class, 'update'])
+        ->name('prazos-lancamento-notas.update');
 
     require __DIR__.'/modules/colegios.php';
 
