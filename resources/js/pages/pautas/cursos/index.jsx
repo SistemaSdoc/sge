@@ -29,7 +29,7 @@ export default function PautasCursos({ cursosTutelados }) {
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {cursosTutelados.map((ct) => {
-            const podeVer = ct.can?.view_turmas;
+            const pokeVer = ct.can?.view_turmas;
 
             const card = (
               <Card

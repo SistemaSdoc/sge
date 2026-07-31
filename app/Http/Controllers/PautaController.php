@@ -59,7 +59,8 @@ class PautaController extends Controller
             'cursosTutelados' => $query->get()->map(fn ($ct) => [
                 'id' => $ct->id,
                 'curso' => $ct->instituicaoCurso?->curso,
-                'instituicao' => $ct->instituicaoTutora,
+                //'instituicao' => $ct->instituicaoTutora,
+                'instituicao' => $ct->instituicaoCurso?->instituicao,
                 'podeEditar' => $ct->instituicaoCurso?->instituicao_id === $instituicaoId,
                 'can' => [
                     'view_turmas' => $user->can('pauta.viewAnyCurso', $ct),
