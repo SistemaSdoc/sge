@@ -35,6 +35,33 @@ export function ItensForm({
   cursosClasse = [],
   submitFn,
 }) {
+  // ---------- LOGS DE DEBUG ----------
+  console.log('[ItensForm] RENDER ------------------------------');
+  console.log('[ItensForm] data completo:', data);
+  console.log('[ItensForm] data.curso_classe_id:', JSON.stringify(data.curso_classe_id), 'tipo:', typeof data.curso_classe_id);
+  console.log('[ItensForm] cursosClasse recebido (length):', cursosClasse.length);
+  console.log('[ItensForm] cursosClasse recebido (array):', cursosClasse);
+
+  // valor que vai efectivamente para a prop `value` do Select
+  const selectValue = data.curso_classe_id || 'todos';
+  console.log('[ItensForm] selectValue calculado (vai para o Select):', JSON.stringify(selectValue));
+
+  // verifica se esse valor existe mesmo dentro da lista de opções
+  const idsDisponiveis = cursosClasse.map((cc) => String(cc.id));
+  const existeNaLista = idsDisponiveis.includes(selectValue) || selectValue === 'todos';
+  console.log('[ItensForm] IDs disponíveis no Select:', idsDisponiveis);
+  console.log('[ItensForm] selectValue existe na lista de opções?', existeNaLista);
+
+  if (!existeNaLista) {
+    console.warn(
+      '[ItensForm] ⚠️ PROBLEMA ENCONTRADO: o valor "' +
+        selectValue +
+        '" não corresponde a NENHUM id em cursosClasse. ' +
+        'O SelectValue vai ficar vazio/placeholder mesmo com dados corretos.'
+    );
+  }
+  // ---------- FIM LOGS DE DEBUG ----------
+
   return (
     <div className="mx-auto w-full max-w-2xl p-6">
       <form onSubmit={submitFn}>
@@ -109,21 +136,28 @@ export function ItensForm({
                 <Field data-invalid={Boolean(errors?.curso_classe_id)}>
                   <FieldLabel htmlFor="curso_classe_id">Curso / Classe</FieldLabel>
                   <Select
-                    value={data.curso_classe_id || 'todos'}
-                    onValueChange={(val) =>
-                      setData('curso_classe_id', val === 'todos' ? '' : val)
-                    }
+                    value={selectValue}
+                    onValueChange={(val) => {
+                      console.log('[ItensForm] onValueChange disparado. val recebido:', val);
+                      setData('curso_classe_id', val === 'todos' ? '' : val);
+                    }}
                   >
                     <SelectTrigger id="curso_classe_id" aria-invalid={Boolean(errors?.curso_classe_id)}>
                       <SelectValue placeholder="Aplica-se a toda a instituição" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="todos">Toda a instituição (sem curso/classe específico)</SelectItem>
-                      {cursosClasse.map((cc) => (
-                        <SelectItem key={cc.id} value={cc.id}>
-                          {cc.nome}
-                        </SelectItem>
-                      ))}
+                      {cursosClasse.map((cc) => {
+                        const valorItem = String(cc.id);
+                        if (valorItem === selectValue) {
+                          console.log('[ItensForm] ✅ SelectItem que DEVERIA aparecer selecionado:', cc.nome, valorItem);
+                        }
+                        return (
+                          <SelectItem key={cc.id} value={valorItem}>
+                            {cc.nome}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectContent>
                   </Select>
                   {errors?.curso_classe_id && (

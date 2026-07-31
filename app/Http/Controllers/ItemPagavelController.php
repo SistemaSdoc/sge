@@ -107,28 +107,86 @@ class ItemPagavelController extends Controller
         return redirect()->route('itens-pagaveis.index')->with('success', 'Item pagável criado com sucesso.');
     }
 
-    public function edit(ItemPagavel $itemPagavel)
+ public function edit(ItemPagavel $itemPagavel)
     {
-        $this->authorize('update', $itemPagavel);
-
-        return Inertia::render('itens-pagaveis/edit', [
-            'itemPagavel' => $itemPagavel,
-            'cursosClasse' => CursoClasse::query()
-                ->with(['classe:id,nome', 'cursoTutelado.instituicaoCurso.curso:id,nome'])
-                ->get()
-                ->map(fn (CursoClasse $cc) => [
-                    'id' => $cc->id,
-                    'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome.' — '.$cc->classe->nome,
-                ]),
+        Log::debug('[ItemPagavelController@edit] INICIO', [
+            'item_id' => $itemPagavel->id,
+            'item_atributos' => $itemPagavel->getAttributes(),
         ]);
+ 
+        $cursosClasse = CursoClasse::query()
+            ->with(['classe:id,nome', 'cursoTutelado.instituicaoCurso.curso:id,nome'])
+            ->get()
+            ->map(fn (CursoClasse $cc) => [
+                'id' => $cc->id,
+                'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome.' — '.$cc->classe->nome,
+            ]);
+ 
+        Log::debug('[ItemPagavelController@edit] cursosClasse carregados', [
+            'total' => $cursosClasse->count(),
+            'cursosClasse' => $cursosClasse->toArray(),
+        ]);
+ 
+        $props = [
+            'itemPagavel' => $itemPagavel,
+            'cursosClasse' => $cursosClasse,
+        ];
+ 
+        Log::debug('[ItemPagavelController@edit] props enviadas ao Inertia::render', $props);
+ 
+        return Inertia::render('itens-pagaveis/edit', [
+    'itemPagavel' => [
+        'id' => $itemPagavel->id,
+        'nome' => $itemPagavel->nome,
+        'descricao' => $itemPagavel->descricao,
+        'valor' => $itemPagavel->valor,
+        'frequencia' => $itemPagavel->frequencia,
+        'curso_classe_id' => $itemPagavel->curso_classe_id !== null 
+            ? (string) $itemPagavel->curso_classe_id 
+            : null,
+        'ativo' => (bool) $itemPagavel->ativo,
+    ],
+    'cursosClasse' => $cursosClasse, // já mapeado com id e nome
+]);
     }
+ 
 
     public function update(UpdateItemPagavelRequest $request, ItemPagavel $itemPagavel)
     {
-        $itemPagavel->update($request->validated());
-
+        Log::debug('[ItemPagavelController@update] INICIO', [
+            'item_id' => $itemPagavel->id,
+            'item_antes' => $itemPagavel->getAttributes(),
+            'request_all' => $request->all(),
+        ]);
+ 
+        $validado = $request->validated();
+ 
+        Log::debug('[ItemPagavelController@update] dados validados (validated())', [
+            'item_id' => $itemPagavel->id,
+            'validado' => $validado,
+        ]);
+ 
+        if (empty($validado)) {
+            Log::warning('[ItemPagavelController@update] validated() veio VAZIO — provavelmente rules() da FormRequest não batem com os campos enviados', [
+                'item_id' => $itemPagavel->id,
+                'campos_recebidos' => array_keys($request->all()),
+            ]);
+        }
+ 
+        $resultado = $itemPagavel->update($validado);
+ 
+        Log::debug('[ItemPagavelController@update] resultado do update()', [
+            'item_id' => $itemPagavel->id,
+            'update_retornou' => $resultado,
+            'wasChanged' => $itemPagavel->wasChanged(),
+            'changes' => $itemPagavel->getChanges(),
+            'item_depois' => $itemPagavel->fresh()?->getAttributes(),
+        ]);
+ 
         return redirect()->route('itens-pagaveis.index')->with('success', 'Item pagável actualizado com sucesso.');
     }
+ 
+
 
     public function destroy(ItemPagavel $itemPagavel)
     {
