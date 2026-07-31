@@ -56,7 +56,7 @@ class ElementoGrupoPapPolicy
         }
 
         return $user->can('elementogrupopap.atualizarNota')
-            && $elementoGrupoPap->grupoPap->instituicao()->id === $user->instituicao_id;
+            && $elementoGrupoPap->grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
     }
 
     /**

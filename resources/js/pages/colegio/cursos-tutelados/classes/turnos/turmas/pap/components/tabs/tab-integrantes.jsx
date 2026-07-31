@@ -25,9 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { EmptyState } from '@/components/empty-state';
 import { show as showAluno } from '@/actions/App/Http/Controllers/AlunoController';
-import { create as adicionarElemento } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
 import TablePagination from '@/components/table-pagination';
 
 export function TabIntegrantes({
@@ -36,7 +34,6 @@ export function TabIntegrantes({
   notas,
   setNotas,
   actualizarNotaFn,
-  removerIntegranteFn,
   pagination,
   onPageChange,
   can,
@@ -74,128 +71,103 @@ export function TabIntegrantes({
       <CardHeader className="border-b">
         <CardTitle>Integrantes do grupo</CardTitle>
         <CardDescription>Alunos membros e notas individuais</CardDescription>
-        {canCreateIntegrante && (
-          <CardAction>
-            <Button asChild>
-              <Link href={adicionarElemento.url(params)}>Adicionar</Link>
-            </Button>
-          </CardAction>
-        )}
       </CardHeader>
 
       <CardContent className="p-0!">
-        {isEmpty ? (
-          <EmptyState
-            variant="table"
-            icon={UsersIcon}
-            title="Nenhum integrante no grupo"
-            description="Comece adicionando os primeiros membros do grupo PAP"
-            action={canCreateIntegrante ? {
-              label: 'Adicionar Integrante',
-              href: adicionarElemento.url(params),
-              variant: 'outline',
-            } : undefined}
-          />
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/72">
-                <TableHead className="px-4">Nome</TableHead>
-                <TableHead>Matrícula</TableHead>
-                <TableHead>Nota individual</TableHead>
+
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/72">
+              <TableHead className="px-4">Nome</TableHead>
+              <TableHead>Matrícula</TableHead>
+              <TableHead>Nota individual</TableHead>
+              {hasActionsColumn && (
+                <TableHead className="px-4 text-right">Acções</TableHead>
+              )}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {elementos.map((el) => (
+              <TableRow
+                key={el.id}
+                className="hover:cursor-pointer"
+                onClick={() =>
+                  router.visit(showAluno.url({ aluno: el.aluno_id }))
+                }
+              >
+                <TableCell className="px-4 font-medium">{el.nome}</TableCell>
+                <TableCell>
+                  {el.matricula ?? (
+                    <Minus size={15} className="text-muted-foreground" />
+                  )}
+                </TableCell>
+
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  {canAtualizarNota && !notaJaLancada(el) ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        max="20"
+                        step="0.5"
+                        className="w-20"
+                        defaultValue={el.nota_individual != null ? Number(el.nota_individual) : ''}
+                        onChange={(e) =>
+                          setNotas((prev) => ({
+                            ...prev,
+                            [el.id]: e.target.value,
+                          }))
+                        }
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleSalvar(el)}
+                      >
+                        Salvar
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="text-sm font-medium tabular-nums">
+                      {el.nota_individual != null
+                        ? Number(el.nota_individual) % 1 === 0
+                          ? Number(el.nota_individual).toFixed(0)
+                          : Number(el.nota_individual)
+                        : '—'}
+                    </span>
+                  )}
+                </TableCell>
+
                 {hasActionsColumn && (
-                  <TableHead className="px-4 text-right">Acções</TableHead>
+                  <TableCell
+                    className="px-4 text-right"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="size-8">
+                          <MoreHorizontalIcon />
+                        </Button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuContent align="end">
+                        {canAtualizarNota && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              setEditando((prev) => ({ ...prev, [el.id]: true }))
+                            }
+                          >
+                            Editar nota
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 )}
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {elementos.map((el) => (
-                <TableRow
-                  key={el.id}
-                  className="hover:cursor-pointer"
-                  onClick={() =>
-                    router.visit(showAluno.url({ aluno: el.aluno_id }))
-                  }
-                >
-                  <TableCell className="px-4 font-medium">{el.nome}</TableCell>
-                  <TableCell>
-                    {el.matricula ?? (
-                      <Minus size={15} className="text-muted-foreground" />
-                    )}
-                  </TableCell>
-
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    {canAtualizarNota && !notaJaLancada(el) ? (
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="number"
-                          min="0"
-                          max="20"
-                          step="0.5"
-                          className="w-20"
-                          defaultValue={el.nota_individual ?? ''}
-                          onChange={(e) =>
-                            setNotas((prev) => ({
-                              ...prev,
-                              [el.id]: e.target.value,
-                            }))
-                          }
-                        />
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleSalvar(el)}
-                        >
-                          Salvar
-                        </Button>
-                      </div>
-                    ) : (
-                      <span className="text-sm font-medium tabular-nums">
-                        {el.nota_individual ?? '—'}
-                      </span>
-                    )}
-                  </TableCell>
-
-                  {hasActionsColumn && (
-                    <TableCell
-                      className="px-4 text-right"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="size-8">
-                            <MoreHorizontalIcon />
-                          </Button>
-                        </DropdownMenuTrigger>
-
-                        <DropdownMenuContent align="end">
-                          {canAtualizarNota && (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                setEditando((prev) => ({ ...prev, [el.id]: true }))
-                              }
-                            >
-                              Editar nota
-                            </DropdownMenuItem>
-                          )}
-
-                          {canRemoverIntegrante && (
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onClick={() => removerIntegranteFn(el.id)}
-                            >
-                              Remover do grupo
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
+            ))}
+          </TableBody>
+        </Table>
       </CardContent>
       <TablePagination pagination={pagination?.meta} onPageChange={onPageChange} />
     </Card>

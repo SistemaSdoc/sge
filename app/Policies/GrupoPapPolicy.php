@@ -23,7 +23,7 @@ class GrupoPapPolicy
      */
     public function view(User $user, GrupoPap $grupoPap): bool
     {
-       /* if ($user->hasRole('Aluno')) {
+        if ($user->hasRole('Aluno')) {
             return $grupoPap->alunos()
                 ->where('aluno_id', $user->aluno?->id)
                 ->exists();
@@ -51,9 +51,12 @@ class GrupoPapPolicy
         }
 
         return $user->hasPermissionTo('grupopap.view')
-            && $grupoPap->instituicao()?->id === $user->instituicao_id;*/
+            && (
+                $grupoPap->instituicao()?->id === $user->instituicao_id
+                || $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
+            );
 
-            return true;
+        return true;
     }
 
     /**
@@ -72,7 +75,7 @@ class GrupoPapPolicy
      */
     public function update(User $user, GrupoPap $grupoPap): bool
     {
-        if (! $user->hasRole('Professor')) {
+        if (!$user->hasRole('Professor')) {
             return $user->hasPermissionTo('grupopap.update')
                 && $grupoPap->instituicao()?->id === $user->instituicao_id;
         }
@@ -92,18 +95,77 @@ class GrupoPapPolicy
     }
 
     /**
+     * Determina se o utilizador pode corrigir o tema PAP.
+     *
+     * Requer permission e que o grupo pertença à sua instituição.
+     */
+    public function corrigirTema(User $user, GrupoPap $grupoPap): bool
+    {
+        if (!$grupoPap->podeSerEditado()) {
+            return false;
+        }
+
+        if (!$user->can('grupopap.corrigirTema')) {
+            return false;
+        }
+
+        $ehTutor = $grupoPap->professor_tutor_id === $user->professor?->id;
+
+        $ehMembro = $grupoPap->elementos()
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->exists();
+
+        return $ehTutor || $ehMembro;
+    }
+
+    /**
+     * Determina se o utilizador pode atualizar a nota do grupo PAP.
+     *
+     * Requer permission e que o grupo pertença à sua instituição.
+     */
+    public function aprovar(User $user, GrupoPap $grupoPap): bool
+    {
+        return $user->can('grupopap.aprovar')
+            && $grupoPap->podeSerAprovado()
+            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id; // ← adicionar
+    }
+
+    /**
+     * Determina se o utilizador pode reprovar o grupo PAP.
+     *
+     * Requer permission e que o grupo pertença à sua instituição.
+     */
+    public function reprovar(User $user, GrupoPap $grupoPap): bool
+    {
+        return $user->can('grupopap.reprovar')
+            && $grupoPap->podeSerAprovado()
+            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id; // ← adicionar
+    }
+
+    /**
+     * Determina se o utilizador pode solicitar melhoria para o grupo PAP.
+     *
+     * Requer permission e que o grupo pertença à sua instituição.
+     */
+    public function solicitarMelhoria(User $user, GrupoPap $grupoPap): bool
+    {
+        return $user->can('grupopap.solicitarMelhoria')
+            && $grupoPap->podeSerAprovado()
+            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id; // ← adicionar
+    }
+    /**
      * Determina se o utilizador pode definir a data de defesa.
      *
      * Requer permission específica e que o grupo pertença à sua instituição.
      */
     public function definirData(User $user, GrupoPap $grupoPap): bool
     {
+        if ($grupoPap->status_aprovacao !== 'aprovado') {
+            return false;
+        }
 
-       if ($grupoPap->status_aprovacao !== 'aprovado') {
-        return false;
-    }
         return $user->can('grupopap.definirData')
-            && $grupoPap->instituicao()->id === $user->instituicao_id;
+            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id; // ← era instituicao()
     }
 
     /**

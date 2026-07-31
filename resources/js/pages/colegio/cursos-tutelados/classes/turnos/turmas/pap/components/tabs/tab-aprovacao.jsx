@@ -10,7 +10,7 @@ import {
   aprovar,
   reprovar,
   solicitarMelhoria,
-} from '@/actions/App/Http/Controllers/GrupoPapAprovacaoController';
+} from '@/actions/App/Http/Controllers/Colegios/GrupoPapAprovacaoController';
 
 const STATUS = {
   pendente: {
@@ -68,7 +68,16 @@ export function TabAprovacao({ params, grupoPap, can, turma }) {
           : solicitarMelhoria;
 
     router.post(
-      rota.url({ grupoPap: grupoPap.id }),
+      rota.url({
+        instituicao: params.instituicao,  // instituto (tutora)
+        colegio: params.colegio,          // colégio (tutelado)
+        cursoTutelado: params.cursoTutelado,
+        cursoClasse: params.cursoClasse,
+        cursoClasseTurno: params.cursoClasseTurno,
+        turma: params.turma,
+        grupoPap: grupoPap.id,
+      }),
+
       action === 'aprovar'
         ? { comentario: comentario || null }
         : action === 'reprovar'
@@ -152,28 +161,34 @@ export function TabAprovacao({ params, grupoPap, can, turma }) {
                 Decida sobre a aprovação, reprovação ou solicite melhorias.
               </p>
 
-              {can?.update && (
+              {(can?.aprovar || can?.reprovar || can?.solicitarMelhoria) && (
                 <div className="flex flex-wrap justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => abrir('melhoria')}
-                    disabled={loading}
-                  >
-                    <AlertCircle className="size-4" />
-                    Solicitar Melhoria
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => abrir('reprovar')}
-                    disabled={loading}
-                  >
-                    <XCircle className="size-4" />
-                    Reprovar
-                  </Button>
-                  <Button onClick={() => abrir('aprovar')} disabled={loading}>
-                    <CheckCircle className="size-4" />
-                    Aprovar
-                  </Button>
+                  {can?.solicitarMelhoria && (
+                    <Button
+                      variant="outline"
+                      onClick={() => abrir('melhoria')}
+                      disabled={loading}
+                    >
+                      <AlertCircle className="size-4" />
+                      Solicitar Melhoria
+                    </Button>
+                  )}
+                  {can?.reprovar && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => abrir('reprovar')}
+                      disabled={loading}
+                    >
+                      <XCircle className="size-4" />
+                      Reprovar
+                    </Button>
+                  )}
+                  {can?.aprovar && (
+                    <Button onClick={() => abrir('aprovar')} disabled={loading}>
+                      <CheckCircle className="size-4" />
+                      Aprovar
+                    </Button>
+                  )}
                 </div>
               )}
             </div>

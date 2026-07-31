@@ -30,10 +30,13 @@ class BancaJuriPapPolicy
      */
     public function create(User $user, GrupoPap $grupoPap): bool
     {
-         if (is_null($grupoPap->data_defesa)) {
-        return false;
-    }
-        return $user->can('bancajuripap.create');
+        // Tem de ter data de defesa definida
+        if (is_null($grupoPap->data_defesa)) {
+            return false;
+        }
+
+        return $user->can('bancajuripap.create')
+            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
     }
 
     /**

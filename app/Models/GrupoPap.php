@@ -79,6 +79,16 @@ class GrupoPap extends Model
             ->instituicao;
     }
 
+    //para pegar a instituicao tutora do curso tutelado  (tutela externa)
+    public function instituicaoTutora(): ?Instituicao
+    {
+        return $this->turma
+            ?->cursoClasseTurno
+            ?->cursoClasse
+            ?->cursoTutelado
+                ?->instituicaoTutora;
+    }
+
     public function historicoAprovacao()
     {
         return $this->hasMany(

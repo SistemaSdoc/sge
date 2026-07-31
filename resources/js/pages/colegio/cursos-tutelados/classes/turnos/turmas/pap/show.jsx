@@ -27,7 +27,7 @@ import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/BancaJu
 import { destroy as destroyIntegrante } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
 import { edit } from '@/actions/App/Http/Controllers/GrupoPapController';
 import { definirData } from '@/actions/App/Http/Controllers/GrupoPapController';
-import { actualizarNota } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
+import { actualizarNota } from '@/actions/App/Http/Controllers/Colegios/ElementoGrupoPapController';
 import { FieldError } from '@/components/ui/field';
 import { usePagination } from '@/hooks/use-pagination';
 // Adicionar no topo dos imports
@@ -38,6 +38,7 @@ import { TabAprovacao } from './components/tabs/tab-aprovacao';
 
 export default function Show({
   instituicao,
+  colegio,
   cursoTutelado,
   cursoClasse,
   cursoClasseTurno,
@@ -71,12 +72,6 @@ export default function Show({
     local_defesa: grupoPap?.local_defesa ?? '',
   });
 
-  const removerIntegranteFn = (elementoGrupoPap) => {
-    router.delete(destroyIntegrante.url({ ...params, elementoGrupoPap }), {
-      onSuccess: () => router.reload(),
-    });
-  };
-
   const removerJuradoFn = (bancaJuriPap) => {
     router.delete(destroyJurado.url({ ...params, bancaJuriPap }), {
       onSuccess: () => router.reload(),
@@ -100,6 +95,10 @@ export default function Show({
   const submeterDataDefesa = () => {
     if (!data.data_defesa) {
       setError('data_defesa', 'A data da defesa é obrigatória.');
+      return;
+    }
+    if (!data.hora_defesa) {
+      setError('hora_defesa', 'A hora da defesa é obrigatória.');
       return;
     }
 
@@ -196,14 +195,18 @@ export default function Show({
               Local & Data de defesa
             </p>
             <p className="font-medium">
-              {grupoPap?.local_defesa}/
+              {grupoPap?.local_defesa
+                ? `${grupoPap.local_defesa} / `
+                : ''}
               {grupoPap?.data_defesa
-                ? new Date(grupoPap.data_defesa).toLocaleDateString('pt-PT', {
-                    weekday: 'short',
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                  })
+                ? new Date(grupoPap.data_defesa).toLocaleString('pt-PT', {
+                  weekday: 'short',
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })
                 : 'Por definir...'}
             </p>
           </div>
@@ -235,6 +238,17 @@ export default function Show({
               {errors.data_defesa && (
                 <FieldError>{errors.data_defesa}</FieldError>
               )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="hora_defesa">Hora da defesa</Label>
+              <Input
+                id="hora_defesa"
+                type="time"
+                value={data.hora_defesa}
+                onChange={(e) => setData('hora_defesa', e.target.value)}
+              />
+              {errors.hora_defesa && <FieldError>{errors.hora_defesa}</FieldError>}
             </div>
 
             <div className="space-y-1.5">
@@ -272,54 +286,54 @@ export default function Show({
       {['reprovado', 'melhoria-solicitada'].includes(
         grupoPap.status_aprovacao,
       ) && (
-        <Alert
-          variant={
-            grupoPap.status_aprovacao === 'reprovado'
-              ? 'destructive'
-              : 'default'
-          }
-        >
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>
-            {grupoPap.status_aprovacao === 'reprovado'
-              ? 'Tema reprovado'
-              : 'Melhoria solicitada'}
-          </AlertTitle>
-          <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <span className="text-sm">
-              {grupoPap.comentario_aprovacao ?? 'Sem comentário adicional.'}
-            </span>
-            {can?.corrigirTema && (
-              <Button
-                size="sm"
-                variant={
-                  grupoPap.status_aprovacao === 'reprovado'
-                    ? 'destructive'
-                    : 'default'
-                }
-                onClick={() =>
-                  router.visit(editarTema.url({ grupoPap: grupoPap.id }))
-                }
-              >
-                {grupoPap.status_aprovacao === 'reprovado'
-                  ? 'Enviar Novo Tema'
-                  : 'Corrigir Tema'}
-              </Button>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
+          <Alert
+            variant={
+              grupoPap.status_aprovacao === 'reprovado'
+                ? 'destructive'
+                : 'default'
+            }
+          >
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>
+              {grupoPap.status_aprovacao === 'reprovado'
+                ? 'Tema reprovado'
+                : 'Melhoria solicitada'}
+            </AlertTitle>
+            <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-sm">
+                {grupoPap.comentario_aprovacao ?? 'Sem comentário adicional.'}
+              </span>
+              {can?.corrigirTema && (
+                <Button
+                  size="sm"
+                  variant={
+                    grupoPap.status_aprovacao === 'reprovado'
+                      ? 'destructive'
+                      : 'default'
+                  }
+                  onClick={() =>
+                    router.visit(editarTema.url({ grupoPap: grupoPap.id }))
+                  }
+                >
+                  {grupoPap.status_aprovacao === 'reprovado'
+                    ? 'Enviar Novo Tema'
+                    : 'Corrigir Tema'}
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
 
       <Tabs defaultValue="integrantes-grupo" className="w-full">
         <TabsList>
           <TabsTrigger value="integrantes-grupo">
             Integrantes do grupo
           </TabsTrigger>
-
+          {can?.verBanca && (
           <TabsTrigger value="integrantes-banca">
             Integrantes da banca
           </TabsTrigger>
-
+          )}
           <TabsTrigger value="aprovacao">Aprovação</TabsTrigger>
 
           <TabsTrigger value="historico">Histórico</TabsTrigger>
@@ -330,15 +344,14 @@ export default function Show({
             grupoPap={grupoPap}
             params={params}
             setNotas={setNotas}
+            actualizarNotaFn={actualizarNotaFn}
             notas={notas}
             pagination={elementos}
             onPageChange={elementosPagination.handlePageChange}
-            actualizarNotaFn={actualizarNotaFn}
-            removerIntegranteFn={removerIntegranteFn}
             can={can}
           />
         </TabsContent>
-
+          {can?.verBanca && (
         <TabsContent value="integrantes-banca">
           <TabBanca
             params={params}
@@ -349,7 +362,7 @@ export default function Show({
             can={can}
           />
         </TabsContent>
-
+          )}
         <TabsContent value="aprovacao">
           <TabAprovacao params={params} grupoPap={grupoPap} can={can} />
         </TabsContent>

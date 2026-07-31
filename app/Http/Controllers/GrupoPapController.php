@@ -194,15 +194,20 @@ class GrupoPapController extends Controller
                 'update' => $user?->can('update', $grupoPap),
                 'definirData' => $user?->can('definirData', $grupoPap),
                 'delete' => $user?->can('delete', $grupoPap),
-                'corrigirTema' => $grupoPap->podeSerEditado(),
+                'corrigirTema' => $user?->can('corrigirTema', $grupoPap),
+                'aprovar' => $user?->can('aprovar', $grupoPap),
+                'reprovar' => $user?->can('reprovar', $grupoPap),
+                'solicitarMelhoria' => $user?->can('solicitarMelhoria', $grupoPap),
                 'elementos' => [
                     'create' => $user?->can('elementogrupopap.create'),
                     'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
+                        && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id // ← adicionar
                         && !is_null($grupoPap->data_defesa)
                         && !$grupoPap->data_defesa->isFuture()
                         && $grupoPap->jurados()->exists(),
                     'delete' => $user?->can('elementogrupopap.delete'),
                 ],
+                'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id,
                 'banca' => [
                     'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap]),
                     'update' => $user?->can('bancajuripap.update'),

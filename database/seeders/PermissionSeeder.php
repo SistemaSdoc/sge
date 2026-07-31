@@ -28,6 +28,9 @@ class PermissionSeeder extends Seeder
             'regra-avaliacao.update',
             'regra-avaliacao.delete',
 
+            //colegios
+            'colegios.viewAny',
+
             // Alunos
             'alunos.viewAny',
             'alunos.view',
@@ -120,6 +123,10 @@ class PermissionSeeder extends Seeder
             'bancajuripap.create',
             'bancajuripap.update',
             'bancajuripap.delete',
+            'grupopap.corrigirTema',
+            'grupopap.aprovar',
+            'grupopap.reprovar',
+            'grupopap.solicitarMelhoria',
 
             // Elemento Grupo PAP
             'elementogrupopap.viewAny',

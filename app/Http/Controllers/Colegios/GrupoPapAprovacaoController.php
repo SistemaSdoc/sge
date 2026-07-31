@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Colegios;
 
 use App\Http\Controllers\Controller;
+use App\Models\CursoClasse;
+use App\Models\CursoClasseTurno;
+use App\Models\CursoTutelado;
 use App\Models\GrupoPap;
 use App\Models\Instituicao;
+use App\Models\Turma;
 use App\Services\AprovacaoTemaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,8 +66,16 @@ class GrupoPapAprovacaoController extends Controller
     /**
      * Aprovar tema PAP
      */
-    public function aprovar(Request $request, GrupoPap $grupoPap)
-    {
+    public function aprovar(
+        Request $request,
+        Instituicao $instituicao,
+        string $colegio,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap
+    ) {
         // Verificar se pode ser aprovado
         if (!$grupoPap->podeSerAprovado()) {
             return back()->withErrors([
@@ -99,6 +111,12 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function reprovar(
         Request $request,
+        Instituicao $instituicao,
+        string $colegio,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
         GrupoPap $grupoPap
     ) {
         // Verificar autorização
@@ -168,6 +186,12 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function solicitarMelhoria(
         Request $request,
+        Instituicao $instituicao,
+        string $colegio,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
         GrupoPap $grupoPap
     ) {
         // Verificar autorização
@@ -215,29 +239,26 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        // Verificar se o utilizador pode reenviar este grupo PAP
-        /* $this->authorize(
-             'reenviarTema',
-             $grupoPap
-         );*/
+        //$this->authorize('reenviarTema', $grupoPap);
 
-        // Executar reenvio
+        $dados = $request->validate([
+            'nome_grupo' => ['required', 'string', 'max:255'],
+            'tema_grupo' => ['required', 'string', 'max:255'],
+        ]);
+
         $resultado = $this->service->reenviar(
             $grupoPap,
-            Auth::user()
+            Auth::user(),
+            $dados
         );
 
-        // Verificar se o estado atual permite o reenvio
         if (!$resultado) {
             return back()->withErrors([
                 'grupo' => 'Este tema não pode ser reenviado neste momento.',
             ]);
         }
 
-        return back()->with(
-            'success',
-            'Tema corrigido e reenviado para nova análise com sucesso.'
-        );
+        return back()->with('success', 'Tema corrigido e reenviado para nova análise com sucesso.');
     }
 
     /**

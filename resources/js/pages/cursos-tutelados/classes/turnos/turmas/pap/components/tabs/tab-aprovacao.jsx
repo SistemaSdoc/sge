@@ -152,8 +152,9 @@ export function TabAprovacao({ params, grupoPap, can, turma }) {
                 Decida sobre a aprovação, reprovação ou solicite melhorias.
               </p>
 
-              {can?.update && (
+              {(can?.aprovar || can?.reprovar || can?.solicitarMelhoria) && (
                 <div className="flex flex-wrap justify-end gap-2">
+                   {can?.solicitarMelhoria && (
                   <Button
                     variant="outline"
                     onClick={() => abrir('melhoria')}
@@ -162,6 +163,8 @@ export function TabAprovacao({ params, grupoPap, can, turma }) {
                     <AlertCircle className="size-4" />
                     Solicitar Melhoria
                   </Button>
+                  )}
+                  {can?.reprovar && (
                   <Button
                     variant="destructive"
                     onClick={() => abrir('reprovar')}
@@ -170,10 +173,13 @@ export function TabAprovacao({ params, grupoPap, can, turma }) {
                     <XCircle className="size-4" />
                     Reprovar
                   </Button>
+                  )}
+                  {can?.aprovar && (
                   <Button onClick={() => abrir('aprovar')} disabled={loading}>
                     <CheckCircle className="size-4" />
                     Aprovar
                   </Button>
+                  )}
                 </div>
               )}
             </div>

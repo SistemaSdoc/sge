@@ -12,7 +12,7 @@ class ColegioPolicy
     public function viewAny(User $user): bool
     {
         // Verificar permissão de Spatie (já definida no seeder)
-        if (! $user->hasPermissionTo('curso-tutelado.viewAny')) {
+        if (! $user->hasPermissionTo('colegios.viewAny')) {
             return false;
         }
 

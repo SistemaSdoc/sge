@@ -5,68 +5,74 @@ use App\Http\Controllers\Colegios\ClasseTurnoTurmaController;
 use App\Http\Controllers\Colegios\ColegioController;
 use App\Http\Controllers\Colegios\CursoClasseController;
 use App\Http\Controllers\Colegios\CursoTuteladoController;
+use App\Http\Controllers\Colegios\ElementoGrupoPapController;
 use App\Http\Controllers\Colegios\GrupoPapAprovacaoController;
 use App\Http\Controllers\Colegios\GrupoPapController;
 use App\Http\Controllers\Colegios\NotaDisciplinaController;
 use Illuminate\Support\Facades\Route;
-
+// colegios.php
 Route::prefix('colegios')->group(function () {
+
     Route::get('/', [ColegioController::class, 'index'])
         ->name('colegios.index');
 
-    Route::get('{colegio}', [ColegioController::class, 'show'])
-        ->name('colegios.show');
+    Route::prefix('{colegio}')->group(function () {
 
-    Route::get('{colegio}/cursos/{cursoTutelado}', [CursoTuteladoController::class, 'show'])
-        ->name('colegios.cursos.show');
+        Route::get('/', [ColegioController::class, 'show'])
+            ->name('colegios.show');
 
-    Route::get('{colegio}/cursos/{cursoTutelado}/classes/{cursoClasse}', [CursoClasseController::class, 'show'])
-        ->name('colegios.cursos.classes.show');
+        Route::prefix('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}')
+            ->group(function () {
 
-    Route::get('{colegio}/cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}', [ClasseTurnoTurmaController::class, 'show'])
-        ->name('colegios.cursos.classes.turnos.turmas.show');
+            Route::put('/elementos/{elementoGrupoPap}/nota', [ElementoGrupoPapController::class, 'actualizarNota'])
+            ->name('colegios.cursos.classes.turnos.turmas.pap.elementos.actualizarNota');
 
-    Route::get('{colegio}/cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/notas', [NotaDisciplinaController::class, 'index'])
-        ->name('colegios.cursos.classes.turnos.turmas.disciplinas.notas.index');
+            // Show do grupo PAP
+            Route::get('/', [GrupoPapController::class, 'show'])
+                ->name('colegios.cursos.classes.turnos.turmas.pap.show');
 
-    Route::get('{colegio}/cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}', [GrupoPapController::class, 'show'])
-        ->name('colegios.cursos.classes.turnos.turmas.pap.show');
+            // Aprovação — dentro do aninhamento completo
+            Route::post('/aprovar', [GrupoPapAprovacaoController::class, 'aprovar'])
+                ->name('colegio.grupo-pap-aprovacao.aprovar');
 
-    Route::prefix('{colegio}/cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}')->group(function () {
-        Route::resource('banca', BancaJuriPapController::class)
-            ->parameters(['banca' => 'bancaJuriPap'])
-            ->only(['create', 'store', 'edit', 'update', 'destroy']);
-    });
+            Route::post('/reprovar', [GrupoPapAprovacaoController::class, 'reprovar'])
+                ->name('colegio.grupo-pap-aprovacao.reprovar');
 
+            Route::post('/solicitar-melhoria', [GrupoPapAprovacaoController::class, 'solicitarMelhoria'])
+                ->name('colegio.grupo-pap-aprovacao.solicitar-melhoria');
 
-    Route::prefix('grupo-pap-aprovacao')
-        ->name('colegio.grupo-pap-aprovacao.')   // era 'grupo-pap-aprovacao.'
-        ->group(function () {
-            Route::get('/pendentes', [GrupoPapAprovacaoController::class, 'pendentes'])
-                ->name('pendentes');
-            Route::post('/{grupoPap}/aprovar', [GrupoPapAprovacaoController::class, 'aprovar'])
-                ->name('aprovar');
+            Route::post('/reenviar', [GrupoPapAprovacaoController::class, 'reenviar'])
+                ->name('colegio.grupo-pap-aprovacao.reenviar');
 
-            Route::post('/{grupoPap}/reprovar', [GrupoPapAprovacaoController::class, 'reprovar'])
-                ->name('reprovar');
+            // Banca
+            Route::resource('banca', BancaJuriPapController::class)
+                ->parameters(['banca' => 'bancaJuriPap'])
+                ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
-            Route::post('/{grupoPap}/solicitar-melhoria', [GrupoPapAprovacaoController::class, 'solicitarMelhoria'])
-                ->name('solicitar-melhoria');
+                
         });
 
-    Route::get('/grupo-pap-aprovacao/melhorias', [GrupoPapAprovacaoController::class, 'melhorias'])
-        ->name('colegio.grupo-pap-aprovacao.melhorias');   // era 'grupo-pap-aprovacao.melhorias'
+        // Outras rotas sem grupoPap
+        Route::get('cursos/{cursoTutelado}', [CursoTuteladoController::class, 'show'])
+            ->name('colegios.cursos.show');
 
-    Route::get('/grupo-pap-aprovacao/{grupoPap}/editar', [GrupoPapAprovacaoController::class, 'editar'])
-        ->name('colegio.grupo-pap-aprovacao.editar');
+        Route::get('cursos/{cursoTutelado}/classes/{cursoClasse}', [CursoClasseController::class, 'show'])
+            ->name('colegios.cursos.classes.show');
 
-    Route::put('/grupo-pap-aprovacao/{grupoPap}', [GrupoPapAprovacaoController::class, 'atualizar'])
-        ->name('colegio.grupo-pap-aprovacao.atualizar');
+        Route::get('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}', [ClasseTurnoTurmaController::class, 'show'])
+            ->name('colegios.cursos.classes.turnos.turmas.show');
 
-    Route::post('/grupo-pap-aprovacao/{grupoPap}/reenviar', [GrupoPapAprovacaoController::class, 'reenviar'])
-        ->name('colegio.grupo-pap-aprovacao.reenviar');
+        Route::get('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/notas', [NotaDisciplinaController::class, 'index'])
+            ->name('colegios.cursos.classes.turnos.turmas.disciplinas.notas.index');
 
-    Route::get('/grupo-pap-aprovacao/{grupoPap}/historico', [GrupoPapAprovacaoController::class, 'historico'])
-        ->name('colegio.grupo-pap-aprovacao.historico');
+        // Melhorias e edição — sem grupoPap no prefixo
+        Route::get('grupo-pap-aprovacao/melhorias', [GrupoPapAprovacaoController::class, 'melhorias'])
+            ->name('colegio.grupo-pap-aprovacao.melhorias');
 
+        Route::get('grupo-pap-aprovacao/{grupoPap}/editar', [GrupoPapAprovacaoController::class, 'editar'])
+            ->name('colegio.grupo-pap-aprovacao.editar');
+
+        Route::put('grupo-pap-aprovacao/{grupoPap}', [GrupoPapAprovacaoController::class, 'atualizar'])
+            ->name('colegio.grupo-pap-aprovacao.atualizar');
+    });
 });

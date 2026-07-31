@@ -14,6 +14,7 @@ use App\Http\Resources\GrupoPap\IndexResource;
 use App\Http\Resources\GrupoPap\ShowResource;
 use App\Models\Aluno;
 use App\Models\AnoLectivo;
+use App\Models\BancaJuriPap;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
@@ -133,6 +134,7 @@ class GrupoPapController extends Controller
         // Carregar dados do grupo PAP
         $grupoPap->load([
             'professor.user:id,nome,email',
+            'historicoAprovacao.utilizador:id,nome',
         ]);
 
         // Buscar banca
@@ -190,6 +192,7 @@ class GrupoPapController extends Controller
 
                 // Dados do PAP
                 'grupoPap' => new ShowResource($grupoPap),
+                'historico' => $grupoPap->historicoAprovacao->values(),
 
                 'banca' => BancaResource::collection($banca),
 
@@ -200,15 +203,26 @@ class GrupoPapController extends Controller
                     'update' => $user?->can('update', $grupoPap),
                     'definirData' => $user?->can('definirData', $grupoPap),
                     'delete' => $user?->can('delete', $grupoPap),
+                    'corrigirTema' => $user?->can('corrigirTema', $grupoPap),
+                    'aprovar' => $user?->can('aprovar', $grupoPap),           // ← adicionar
+                    'reprovar' => $user?->can('reprovar', $grupoPap),          // ← adicionar
+                    'solicitarMelhoria' => $user?->can('solicitarMelhoria', $grupoPap), // ← adicionar
+
 
                     'elementos' => [
                         'create' => $user?->can('elementogrupopap.create'),
-                        'atualizarNota' => $user?->can('elementogrupopap.atualizarNota'),
+                        'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
+                            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
+                            && !is_null($grupoPap->data_defesa)
+                            && !$grupoPap->data_defesa->isFuture()
+                            && $grupoPap->jurados()->exists(),
                         'delete' => $user?->can('elementogrupopap.delete'),
                     ],
 
+                    'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id,
+
                     'banca' => [
-                        'create' => $user?->can('bancajuripap.create'),
+                        'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap]),
                         'update' => $user?->can('bancajuripap.update'),
                         'delete' => $user?->can('bancajuripap.delete'),
                     ],
@@ -228,7 +242,10 @@ class GrupoPapController extends Controller
     ) {
         $this->authorize('definirData', $grupoPap);
 
-        $grupoPap->update($request->only(['data_defesa', 'local_defesa']));
+         $grupoPap->update([
+            'data_defesa' => $request->data_defesa . ' ' . $request->hora_defesa . ':00',
+            'local_defesa' => $request->local_defesa,
+        ]);
 
         return to_route('pap.show', [
             'instituicao' => $instituicao->id,

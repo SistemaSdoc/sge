@@ -328,23 +328,27 @@ export default function Show({
           </Alert>
         )}
 
+      {/* Tabs */}
       <Tabs defaultValue="integrantes-grupo" className="w-full">
-        <TabsList>
+        <TabsList variant={'line'}>
           <TabsTrigger value="integrantes-grupo">
             Integrantes do grupo
           </TabsTrigger>
+
+          {can?.verBanca && (
+            <TabsTrigger value="integrantes-banca">
+              Integrantes da banca
+            </TabsTrigger>
+          )}
 
           <TabsTrigger value="aprovacao">
             Aprovação
           </TabsTrigger>
 
-          <TabsTrigger value="integrantes-banca">
-            Integrantes da banca
-          </TabsTrigger>
-
           <TabsTrigger value="historico">
             Histórico
           </TabsTrigger>
+
         </TabsList>
 
         <TabsContent value="integrantes-grupo">
@@ -361,21 +365,23 @@ export default function Show({
           />
         </TabsContent>
 
+        {can?.verBanca && (
+          <TabsContent value="integrantes-banca">
+            <TabBanca
+              params={params}
+              grupoPap={grupoPap}
+              removerJuradoFn={removerJuradoFn}
+              pagination={banca}
+              onPageChange={bancaPagination.handlePageChange}
+              can={can}
+            />
+          </TabsContent>
+        )}
+
         <TabsContent value="aprovacao">
           <TabAprovacao
             params={params}
             grupoPap={grupoPap}
-            can={can}
-          />
-        </TabsContent>
-
-        <TabsContent value="integrantes-banca">
-          <TabBanca
-            params={params}
-            grupoPap={grupoPap}
-            removerJuradoFn={removerJuradoFn}
-            pagination={banca}
-            onPageChange={bancaPagination.handlePageChange}
             can={can}
           />
         </TabsContent>
@@ -388,6 +394,7 @@ export default function Show({
           />
         </TabsContent>
       </Tabs>
+
     </div>
   );
 }
