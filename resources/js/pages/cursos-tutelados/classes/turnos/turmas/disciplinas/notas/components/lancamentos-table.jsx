@@ -31,6 +31,15 @@ import { mediaTrimestral } from '@/utils/media-trimestral';
 import { verificarSituacao } from '@/utils/verificar-situacao';
 import { useNotasLocais } from '@/hooks/use-notas-locais';
 import TablePagination from '@/components/table-pagination';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { useForm } from '@inertiajs/react';
 
 export default function LancamentosTable({
   data,
@@ -42,23 +51,102 @@ export default function LancamentosTable({
   turnoId,
   turmaId,
   disciplinaId,
-  can,
   periodosLancados = {},
   periodosDisponiveis = {},
   pagination = {},
   onPageChange,
+  pautaStatus = {}, // { 1: { status, finalizada_automaticamente }, 2: {...}, 3: {...} }
+  dentroDoPrazo = {}, // { 1: true, 2: false, 3: false }
+  can, // adicionar: can.finalizar, can.solicitarEdicao
 }) {
   const [periodo, setPeriodo] = useState('1');
+  const [modalSolicitacao, setModalSolicitacao] = useState(false); // ← topo
   const { getValor, setValor } = useNotasLocais(data?.tdp_id);
+  const formSolicitacao = useForm({
+    // ← topo, nunca dentro de if
+    tdp_id: data?.tdp_id,
+    periodo,
+    motivo: '',
+  });
+
+  const statusPeriodo = pautaStatus?.[periodo]?.status ?? 'rascunho';
+  const finalizadaAutomaticamente =
+    pautaStatus?.[periodo]?.finalizada_automaticamente ?? false;
+  const estaFinalizada = statusPeriodo === 'finalizada';
+
   const periodoBloqueado =
-    Boolean(periodosLancados?.[periodo]) && !can?.overrideLockedPeriods;
-  const periodoPodeSerSelecionado = Boolean(periodosDisponiveis?.[periodo] ?? true);
+    !can?.overrideLockedPeriods &&
+    (estaFinalizada || !dentroDoPrazo?.[periodo]);
+
+  const podeGuardar =
+    can?.create &&
+    !estaFinalizada &&
+    (dentroDoPrazo?.[periodo] || can?.overrideLockedPeriods);
+
+  const podeFinalizar =
+    can?.finalizar &&
+    !estaFinalizada &&
+    (dentroDoPrazo?.[periodo] || can?.overrideLockedPeriods);
+
+  const podeSolicitarEdicao = can?.solicitarEdicao && estaFinalizada;
+
+  const periodoPodeSerSelecionado = Boolean(
+    periodosDisponiveis?.[periodo] ?? true,
+  );
   const alunos = [...(data?.alunos?.data ?? [])].sort((alunoA, alunoB) =>
     (alunoA?.nome ?? '').localeCompare(alunoB?.nome ?? '', 'pt', {
       sensitivity: 'base',
     }),
   );
   const isEmpty = alunos.length === 0;
+
+  const submeterSolicitacao = () => {
+    formSolicitacao.post(route('pautas.solicitar-edicao'), {
+      onSuccess: () => setModalSolicitacao(false),
+    });
+  };
+
+  // No JSX, antes do </Card>:
+  <Dialog open={modalSolicitacao} onOpenChange={setModalSolicitacao}>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Solicitar edição ao director</DialogTitle>
+      </DialogHeader>
+
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground">
+          Explica o motivo pelo qual precisas editar esta pauta já finalizada.
+        </p>
+        <Textarea
+          placeholder="Motivo da solicitação..."
+          value={formSolicitacao.data.motivo}
+          onChange={(e) => formSolicitacao.setData('motivo', e.target.value)}
+          rows={4}
+        />
+        {formSolicitacao.errors.motivo && (
+          <p className="text-sm text-destructive">
+            {formSolicitacao.errors.motivo}
+          </p>
+        )}
+      </div>
+
+      <DialogFooter>
+        <Button variant="outline" onClick={() => setModalSolicitacao(false)}>
+          Cancelar
+        </Button>
+        <Button
+          onClick={submeterSolicitacao}
+          disabled={formSolicitacao.processing || !formSolicitacao.data.motivo}
+        >
+          {formSolicitacao.processing ? (
+            <Loader2 className="mr-2 size-4 animate-spin" />
+          ) : null}
+          Enviar pedido
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>;
+
   return (
     <Card className="gap-0">
       <CardHeader className="border-b">
@@ -66,10 +154,15 @@ export default function LancamentosTable({
           <CardTitle>{data?.disciplina?.nome}</CardTitle>
 
           <CardDescription>
-            {periodoBloqueado
-              ? 'Este trimestre já foi lançado pelo professor e está bloqueado para alterações.'
-              : 'Preencha as notas dos alunos para o trimestre seleccionado'}
+            {finalizadaAutomaticamente
+              ? 'Esta pauta foi finalizada automaticamente por expiração do prazo.'
+              : estaFinalizada
+                ? 'Esta pauta já foi finalizada. Para editar, solicite autorização ao director.'
+                : !dentroDoPrazo?.[periodo] && !can?.overrideLockedPeriods
+                  ? 'O prazo de lançamento para este trimestre terminou.'
+                  : 'Preencha as notas dos alunos para o trimestre seleccionado.'}
           </CardDescription>
+
           {errors?.periodo && (
             <p className="mt-2 text-sm text-destructive">{errors.periodo}</p>
           )}
@@ -96,14 +189,42 @@ export default function LancamentosTable({
           <input type="hidden" name="tdp_id" value={data?.tdp_id ?? ''} />
           <input type="hidden" name="periodo" value={parseInt(periodo)} />
 
-          {can?.create &&
-            periodoPodeSerSelecionado &&
-            (!periodoBloqueado || can?.overrideLockedPeriods) && (
-            <Button type="submit" disabled={isPending}>
+          {podeGuardar && (
+            <Button
+              type="submit"
+              name="accao"
+              value="guardar"
+              variant="outline"
+              disabled={isPending}
+            >
               {isPending ? (
                 <Loader2 className="mr-2 size-4 animate-spin" />
               ) : null}
-              Lançar
+              Guardar rascunho
+            </Button>
+          )}
+
+          {podeFinalizar && (
+            <Button
+              type="submit"
+              name="accao"
+              value="finalizar"
+              disabled={isPending}
+            >
+              {isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : null}
+              Finalizar lançamento
+            </Button>
+          )}
+
+          {podeSolicitarEdicao && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => setModalSolicitacao(true)}
+            >
+              Solicitar edição ao director
             </Button>
           )}
         </CardAction>

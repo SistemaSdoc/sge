@@ -84,6 +84,11 @@ class RolePermissionSeeder extends Seeder
                 'notas.create',
                 'notas.update',
 
+                // Notas
+                'pautas.finalizar',
+                'pautas.decidirSolicitacaoEdicao',
+                'pautas.gerirPrazos',         // configurar data_limite
+
                 // Professores
                 'professores.viewAny',
                 'professores.view',
@@ -440,6 +445,9 @@ class RolePermissionSeeder extends Seeder
                 'pautas.viewAny',
                 'pautas.view',
 
+                'pautas.solicitarEdicao',
+                'pautas.finalizar',
+
                 'notas.create',
                 'notas.update',
                 'notas.viewAny',
@@ -490,6 +498,11 @@ class RolePermissionSeeder extends Seeder
                 // Notas
                 'notas.create',
                 'notas.update',
+
+
+                // Professor e Coordenador (já têm notas.create/update)
+                'pautas.solicitarEdicao',
+                'pautas.finalizar',
 
                 // Avisos
                 // 'avisos.viewAny',

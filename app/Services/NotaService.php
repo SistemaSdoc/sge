@@ -2,7 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\AnoLectivo;
 use App\Models\Nota;
+use App\Models\PautaStatus;
+use App\Models\PeriodoLancamentoNotas;
+use App\Models\SolicitacaoEdicaoPauta;
 use App\Models\TurmaAluno;
 use App\Services\Core\RegraAcademicaService;
 
@@ -10,7 +14,8 @@ class NotaService
 {
     public function __construct(
         private readonly RegraAcademicaService $regraAcademicaService,
-    ) {}
+    ) {
+    }
 
     /**
      * Indica se já existe lançamento para um trimestre de uma disciplina/turma.
@@ -51,7 +56,7 @@ class NotaService
         }
 
         for ($anterior = 1; $anterior < $periodo; $anterior++) {
-            if (! $this->periodoLancado($tdpId, $anterior)) {
+            if (!$this->periodoLancado($tdpId, $anterior)) {
                 return false;
             }
         }
@@ -201,11 +206,11 @@ class NotaService
         // Só calcula após os 3 trimestres
         $temTresTrimestres = collect([1, 2, 3])
             ->every(
-                fn ($p) => isset($notas[$p]) &&
-                ! is_null($notas[$p]->media_trimestral)
+                fn($p) => isset($notas[$p]) &&
+                !is_null($notas[$p]->media_trimestral)
             );
 
-        if (! $temTresTrimestres) {
+        if (!$temTresTrimestres) {
             return;
         }
 
@@ -224,7 +229,7 @@ class NotaService
         // ──────────────────────────────────────────────
 
         $temEEF = $notas->contains(
-            fn ($n) => $n->situacao_trimestral === 'EEF'
+            fn($n) => $n->situacao_trimestral === 'EEF'
         );
 
         $situacaoAnual = $this->situacaoAnual($mediaFinal, $temEEF);
@@ -237,7 +242,7 @@ class NotaService
 
         if (
             isset($notas[4]) &&
-            ! is_null($notas[4]->media_trimestral)
+            !is_null($notas[4]->media_trimestral)
         ) {
             $mediaRecurso = (float) $notas[4]->media_trimestral;
 
@@ -254,7 +259,7 @@ class NotaService
         // ──────────────────────────────────────────────
 
         foreach ($notas as $nota) {
-            if (! $nota instanceof Nota) {
+            if (!$nota instanceof Nota) {
                 continue;
             }
 
@@ -413,4 +418,69 @@ class NotaService
             ]
         );
     }
+
+    // Adicionar ao NotaService existente
+    public function getPautaStatus(string $tdpId, int $periodo): PautaStatus
+    {
+        return PautaStatus::firstOrCreate(
+            ['turma_disciplina_professor_id' => $tdpId, 'periodo' => $periodo],
+            ['status' => 'rascunho']
+        );
+    }
+
+    public function getPeriodoLancamento(string $instituicaoId, int $periodo): ?PeriodoLancamentoNotas
+    {
+        $anoLectivo = AnoLectivo::where('activo', true)->firstOrFail();
+
+        return PeriodoLancamentoNotas::where('instituicao_id', $instituicaoId)
+            ->where('ano_lectivo_id', $anoLectivo->id)
+            ->where('periodo', $periodo)
+            ->first();
+    }
+
+    public function dentroDoPrazo(string $instituicaoId, int $periodo): bool
+    {
+        $pl = $this->getPeriodoLancamento($instituicaoId, $periodo);
+        if (!$pl)
+            return false; // sem prazo configurado = bloqueado
+        return $pl->dentroDoPrazo();
+    }
+
+    public function podeSalvarOuFinalizar(
+        string $tdpId,
+        int $periodo,
+        string $instituicaoId,
+        bool $isDirector = false
+    ): array {
+        if ($isDirector) {
+            return ['pode' => true, 'motivo' => null];
+        }
+
+        $status = $this->getPautaStatus($tdpId, $periodo);
+
+        if ($status->estaFinalizada()) {
+            // Verificar se tem autorização activa
+            $temAutorizacao = SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdpId)
+                ->where('periodo', $periodo)
+                ->where('status', 'aprovada')
+                ->whereNull('usada_em')
+                ->exists();
+
+            if (!$temAutorizacao) {
+                return ['pode' => false, 'motivo' => 'pauta_finalizada'];
+            }
+        }
+
+        if (!$this->dentroDoPrazo($instituicaoId, $periodo)) {
+            return ['pode' => false, 'motivo' => 'prazo_encerrado'];
+        }
+
+        return ['pode' => true, 'motivo' => null];
+    }
+
+    private function resolverAnoLectivo(): AnoLectivo
+    {
+        return AnoLectivo::where('activo', true)->firstOrFail();
+    }
+
 }

@@ -72,6 +72,10 @@ class PermissionSeeder extends Seeder
             // Pautas
             'pautas.viewAny',
             'pautas.view',
+            'pautas.finalizar',
+            'pautas.decidirSolicitacaoEdicao',
+            'pautas.gerirPrazos',
+            'pautas.solicitarEdicao',
 
             // Notas
             'notas.create',

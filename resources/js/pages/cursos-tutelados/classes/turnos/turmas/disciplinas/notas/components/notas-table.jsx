@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import {
   Table,
@@ -65,19 +65,24 @@ export default function NotasTable({
   const [periodoSelecionado, setPeriodoSelecionado] = useState('1');
   const [periodoTabela, setPeriodoTabela] = useState('1');
   const [notas, setNotas] = useState({});
-  const alunosOrdenados = [...(alunos.data ?? [])].sort((alunoA, alunoB) =>
-    (alunoA?.nome ?? '').localeCompare(alunoB?.nome ?? '', 'pt', {
-      sensitivity: 'base',
-    }),
-  );
 
-  const isEmpty = alunosOrdenados.length === 0;
-  const botaoLancarDesabilitado =
-    !can?.overrideLockedPeriods && !podeLancarNotas;
+  const alunosOrdenados = useMemo(
+    () =>
+      [...(alunos.data ?? [])].sort((alunoA, alunoB) =>
+        (alunoA?.nome ?? '').localeCompare(alunoB?.nome ?? '', 'pt', {
+          sensitivity: 'base',
+        }),
+      ),
+    [alunos.data],
+  );
 
   useEffect(() => {
     setNotas(buildInitialNotas(alunosOrdenados, periodoTabela));
   }, [alunosOrdenados, periodoTabela]);
+
+  const isEmpty = alunosOrdenados.length === 0;
+  const botaoLancarDesabilitado =
+    !can?.overrideLockedPeriods && !podeLancarNotas;
 
   const handlePeriodoChange = (value) => {
     setPeriodoSelecionado(value);
