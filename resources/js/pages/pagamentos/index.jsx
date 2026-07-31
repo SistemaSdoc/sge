@@ -1,12 +1,9 @@
 import { useDialog } from '@/hooks/use-dialog';
 import { Head, router } from '@inertiajs/react';
 import PagamentosTable from './components/pagamentos-table';
-import {
-  index,
-  destroy,
-} from '@/actions/App/Http/Controllers/PagamentoController';
+import { index, destroy } from '@/actions/App/Http/Controllers/PagamentoController';
 
-export default function Index({ pagamentos, can }) {
+export default function Index({ pagamentos, can, filtros, cursosClasses }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (id) => {
@@ -20,7 +17,11 @@ export default function Index({ pagamentos, can }) {
   };
 
   const handlePageChange = (page) => {
-    router.visit(index().url, { data: { page }, preserveScroll: true });
+    router.visit(index().url, { data: { ...filtros, page }, preserveScroll: true });
+  };
+
+  const handleFilterChange = (newFiltros) => {
+    router.visit(index().url, { data: newFiltros, preserveScroll: true });
   };
 
   return (
@@ -35,6 +36,9 @@ export default function Index({ pagamentos, can }) {
           last_page: pagamentos.last_page,
         }}
         onPageChange={handlePageChange}
+        filtros={filtros}
+        cursosClasses={cursosClasses}
+        onFilterChange={handleFilterChange}
       />
     </div>
   );

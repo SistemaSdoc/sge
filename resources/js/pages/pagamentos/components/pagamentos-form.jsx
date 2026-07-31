@@ -53,17 +53,18 @@ export function PagamentosForm({ alunos, itensPagaveis, paidRecord }) {
     return studentPaid[itemPagavelId] ?? [];
   }
 
-  function handleAlunoChange(a) {
+function handleAlunoChange(a) {
     setData((prev) => ({ ...prev, aluno_id: a?.id ?? null, itens: [] }));
     if (a?.id) {
-      router.reload({
-        only: ['paidRecord'],
-        data: { aluno_id: a.id },
-        preserveState: true,
-        preserveScroll: true,
-      });
+        router.reload({
+            only: ['paidRecord', 'itensPagaveis'], //  adicionado o 'itensPagaveis'
+            data: { aluno_id: a.id },
+            preserveState: true,
+            preserveScroll: true,
+        });
     }
-  }
+}
+
 
   function handleToggleItem(item, checked) {
     setData((prev) => {

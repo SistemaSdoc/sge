@@ -17,54 +17,89 @@ class VerificarPropinaEmDia
 
     public function handle(Request $request, Closure $next): Response
     {
+        // LOG 1: Início da requisição
+        Log::debug('[VerificarPropinaEmDia] INÍCIO', [
+            'rota' => $request->path(),
+            'metodo' => $request->method(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
         $user = $request->user();
         $aluno = $user?->aluno;
 
-        Log::debug('[VerificarPropinaEmDia] handle', [
+        // LOG 2: Dados do usuário
+        Log::debug('[VerificarPropinaEmDia] USUÁRIO', [
             'user_id' => $user?->id,
+            'user_email' => $user?->email,
             'tem_aluno' => (bool) $aluno,
             'aluno_id' => $aluno?->id,
-            'rota' => $request->path(),
+            'aluno_nome' => $aluno?->nome ?? 'N/A',
         ]);
 
         // Se não tem aluno, libera
         if (! $aluno) {
-            Log::debug('[VerificarPropinaEmDia] sem aluno associado — deixa passar');
+            Log::debug('[VerificarPropinaEmDia] SEM ALUNO ASSOCIADO — libera acesso');
             return $next($request);
         }
 
-        // Verifica o tipo da instituição
+        // LOG 3: Dados da instituição
         $instituicao = $aluno->user->instituicao;
+        Log::debug('[VerificarPropinaEmDia] INSTITUIÇÃO', [
+            'aluno_id' => $aluno->id,
+            'instituicao_id' => $instituicao?->id,
+            'instituicao_nome' => $instituicao?->nome,
+            'tipo' => $instituicao?->tipo,
+            'eh_colegio' => ($instituicao && $instituicao->tipo === 'colegio'),
+        ]);
+
+        // Verifica o tipo da instituição
         if (! $instituicao || $instituicao->tipo !== 'colegio') {
-            Log::debug('[VerificarPropinaEmDia] instituição não é do tipo "colegio" — bloqueio desativado', [
+            Log::debug('[VerificarPropinaEmDia] INSTITUIÇÃO NÃO É "colegio" — bloqueio desativado', [
                 'aluno_id' => $aluno->id,
-                'tipo_instituicao' => $instituicao?->tipo,
+                'tipo' => $instituicao?->tipo,
             ]);
             return $next($request);
         }
 
+        // LOG 4: Chamada ao serviço de verificação
+        Log::debug('[VerificarPropinaEmDia] CHAMANDO VerificadorPropinaService', [
+            'aluno_id' => $aluno->id,
+        ]);
+
         // Agora sim, verifica pendências
         $pendencias = $this->verificador->pendenciasDoAluno($aluno);
 
-        Log::debug('[VerificarPropinaEmDia] resultado da verificação', [
+        // LOG 5: Resultado da verificação
+        Log::debug('[VerificarPropinaEmDia] RESULTADO DA VERIFICAÇÃO', [
             'aluno_id' => $aluno->id,
             'total_pendencias' => count($pendencias),
             'pendencias' => $pendencias,
+            'tipo_instituicao' => $instituicao->tipo,
         ]);
 
         if (empty($pendencias)) {
-            Log::debug('[VerificarPropinaEmDia] aluno em dia — deixa passar', ['aluno_id' => $aluno->id]);
+            Log::debug('[VerificarPropinaEmDia] ALUNO EM DIA — libera acesso', [
+                'aluno_id' => $aluno->id,
+            ]);
             return $next($request);
         }
 
-        // Bloqueia
-        Log::warning('[VerificarPropinaEmDia] aluno bloqueado por propinas em atraso', [
+        // LOG 6: Bloqueio
+        Log::warning('[VerificarPropinaEmDia] ALUNO BLOQUEADO — propinas em atraso', [
             'aluno_id' => $aluno->id,
             'rota' => $request->path(),
             'total_pendencias' => count($pendencias),
+            'itens_em_atraso' => array_column($pendencias, 'nome'),
         ]);
 
         $previousUrl = url()->previous();
+
+        // LOG 7: Renderização da página de bloqueio
+        Log::debug('[VerificarPropinaEmDia] RENDERIZANDO BLOQUEIO', [
+            'aluno_id' => $aluno->id,
+            'previous_url' => $previousUrl,
+        ]);
 
         return Inertia::render('propinas/bloqueio', [
             'pendencias' => $pendencias,
