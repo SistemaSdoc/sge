@@ -150,7 +150,8 @@ export default function PagamentosTable({
                           Ver detalhes
                         </DropdownMenuItem>
 
-                        <DropdownMenuSeparator />
+                       
+                        {/* <DropdownMenuSeparator />
 
                         <DropdownMenuItem
                           variant="destructive"
@@ -160,7 +161,7 @@ export default function PagamentosTable({
                           }}
                         >
                           Anular
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
