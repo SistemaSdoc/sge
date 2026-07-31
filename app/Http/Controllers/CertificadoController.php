@@ -152,11 +152,12 @@ class CertificadoController extends Controller
         // ✅ CORRIGIDO: Acesso via turmas (relação atual)
         $turmaAluno = $aluno->turmas()
             ->with([
+                'anoLectivo',
                 'cursoClasseTurno.cursoClasse.classe',
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
             ])
-            ->wherePivot('ano_lectivo', date('Y'))
+            ->whereHas('anoLectivo', fn($q) => $q->where('activo', true))
             ->first();
 
         if (!$turmaAluno) {
@@ -224,7 +225,7 @@ class CertificadoController extends Controller
         $calc = $this->calcularDadosCertificado($aluno, $turma);
 
         // QR Code
-        $url = 'http://192.168.1.175:8000/certificados/' . $aluno->id . '/verificar';
+        $url = 'http://192.168.1.211:8000/certificados/' . $aluno->id . '/verificar';
         $result = (new Builder(
             writer: new PngWriter(),
             data: $url,

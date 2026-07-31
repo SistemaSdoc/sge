@@ -205,9 +205,89 @@
         /* ── Tabela de notas ── */
         .tabela-box {
             border: 2px solid #000;
-            padding: 4px;
-            margin-top: 6px;
+            padding: 3px;
+            margin-top: 4px;
         }
+
+        td {
+            border: 1px solid #d1d5db;
+            padding: 3px 8px;
+            /* era 5px 10px */
+            color: #000;
+        }
+
+        .componente-header td {
+            font-weight: bold;
+            font-size: 10px;
+            padding: 2px 5px;
+            /* era 3px 5px */
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .footer-bottom {
+            margin-top: 20px;
+            width: 100%;
+            display: table;
+        }
+
+        .assinatura-wrap {
+            width: 100%;
+            /* antes: 80% */
+            display: table;
+            table-layout: fixed;
+        }
+
+        .assinatura {
+            display: table-cell;
+            width: 50%;
+            font-size: 11px;
+            text-align: left;
+            /* antes: center */
+            vertical-align: bottom;
+            padding: 0 10px;
+        }
+
+
+
+        /* garante que a linha do Director fica encostada à direita */
+        .assinatura-center .linha {
+            margin-left: auto;
+        }
+
+        .assinatura,
+        .assinatura-center {
+            display: table-cell;
+            width: 50%;
+            font-size: 11px;
+            text-align: center;
+            /* centrado, não left/right */
+            vertical-align: bottom;
+            padding: 0 10px;
+        }
+
+        .linha {
+            position: relative;
+            border-top: 1px solid #111;
+            margin-top: 20px;
+            height: 0;
+            width: 65%;
+            /* reduzido, antes 90% */
+            margin-left: auto;
+            margin-right: auto;
+            /* centra a linha dentro da célula */
+        }
+
+        .linha-com-phd .phd {
+            position: absolute;
+            right: 0;
+            top: -8px;
+            background: #fff;
+            padding-left: 5px;
+            font-size: 11px;
+            font-style: italic;
+        }
+
 
         table {
             width: 100%;
@@ -227,23 +307,9 @@
             border: 1px solid #ccc;
         }
 
-        td {
-            border: 1px solid #d1d5db;
-            padding: 5px 10px;
-            color: #000;
-        }
-
         .td-number {
             text-align: center;
             font-weight: bold;
-        }
-
-        .componente-header td {
-            font-weight: bold;
-            font-size: 10px;
-            padding: 3px 5px;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
         }
 
         /* ── Rodapé ── */
@@ -266,50 +332,6 @@
 
         /* ── Assinaturas + QR ──
            Usando display:table em vez de flex para máxima compatibilidade ── */
-        .footer-bottom {
-            margin-top: 50px;
-            width: 100%;
-            display: table;
-        }
-
-        .assinaturas {
-            display: table-cell;
-            width: 60px;
-            vertical-align: bottom;
-        }
-
-        .assinatura-wrap {
-            width: 100%;
-            display: table;
-        }
-
-        .assinatura,
-        .assinatura-center {
-            display: table-cell;
-            width: 50px;
-            font-size: 11px;
-            text-align: center;
-            vertical-align: bottom;
-            padding: 0 10px;
-        }
-
-        .linha {
-            position: relative;
-            border-top: 1px solid #111;
-            margin-top: 40px;
-            height: 0;
-        }
-
-        .linha-com-phd .phd {
-            position: absolute;
-            right: 0;
-            top: -8px;
-            /* ajusta fino aqui */
-            background: #fff;
-            padding-left: 5px;
-            font-size: 11px;
-            font-style: italic;
-        }
 
         .qr-cell {
             display: table-cell;
@@ -387,20 +409,20 @@
                     <span class="nome-aluno">{{ $candidato->nome }}</span>
 
                     @if($candidato->data_nascimento)
-                        nascid{{ $candidato->genero === 'F' ? 'a' : 'o' }} aos
-                        {{ \Carbon\Carbon::parse($candidato->data_nascimento)->translatedFormat('d \d\e F \d\e Y') }},
+                    nascid{{ $candidato->genero === 'F' ? 'a' : 'o' }} aos
+                    {{ \Carbon\Carbon::parse($candidato->data_nascimento)->translatedFormat('d \d\e F \d\e Y') }},
                     @endif
 
                     @if($candidato->naturalidade)
-                        natural de {{ $candidato->naturalidade }},
+                    natural de {{ $candidato->naturalidade }},
                     @endif
 
                     portador{{ $candidato->genero === 'F' ? 'a' : '' }} do Bilhete de Identidade
                     nº&nbsp;<strong>{{ $candidato->bi }}</strong>
 
                     @if($candidato->bi_local && $candidato->bi_data)
-                        , passado pelo arquivo de Identificação de {{ $candidato->bi_local }}
-                        aos {{ \Carbon\Carbon::parse($candidato->bi_data)->translatedFormat('d \d\e F \d\e Y') }},
+                    , passado pelo arquivo de Identificação de {{ $candidato->bi_local }}
+                    aos {{ \Carbon\Carbon::parse($candidato->bi_data)->translatedFormat('d \d\e F \d\e Y') }},
                     @endif
 
                     concluiu no ano lectivo de <strong>2025/2026</strong>
@@ -426,42 +448,42 @@
                         <tbody>
 
                             @if(!empty($notas['sociocultural']))
-                                <tr class="componente-header">
-                                    <td colspan="3">Componente Sociocultural</td>
-                                </tr>
-                                @foreach($notas['sociocultural'] as $nota)
-                                    <tr>
-                                        <td>{{ $nota['disciplina'] }}</td>
-                                        <td class="td-number">{{ number_format($nota['media_final'], 0) }}</td>
-                                        <td>{{ $nota['extenso'] }}</td>
-                                    </tr>
-                                @endforeach
+                            <tr class="componente-header">
+                                <td colspan="3">Componente Sociocultural</td>
+                            </tr>
+                            @foreach($notas['sociocultural'] as $nota)
+                            <tr>
+                                <td>{{ $nota['disciplina'] }}</td>
+                                <td class="td-number">{{ number_format($nota['media_final'], 0) }}</td>
+                                <td>{{ $nota['extenso'] }}</td>
+                            </tr>
+                            @endforeach
                             @endif
 
                             @if(!empty($notas['cientifica']))
-                                <tr class="componente-header">
-                                    <td colspan="3">Componente Científica</td>
-                                </tr>
-                                @foreach($notas['cientifica'] as $nota)
-                                    <tr>
-                                        <td>{{ $nota['disciplina'] }}</td>
-                                        <td class="td-number">{{ number_format($nota['media_final'], 0) }}</td>
-                                        <td>{{ $nota['extenso'] }}</td>
-                                    </tr>
-                                @endforeach
+                            <tr class="componente-header">
+                                <td colspan="3">Componente Científica</td>
+                            </tr>
+                            @foreach($notas['cientifica'] as $nota)
+                            <tr>
+                                <td>{{ $nota['disciplina'] }}</td>
+                                <td class="td-number">{{ number_format($nota['media_final'], 0) }}</td>
+                                <td>{{ $nota['extenso'] }}</td>
+                            </tr>
+                            @endforeach
                             @endif
 
                             @if(!empty($notas['tecnica']))
-                                <tr class="componente-header">
-                                    <td colspan="3">Componente Técnica, Tecnológica e Prática</td>
-                                </tr>
-                                @foreach($notas['tecnica'] as $nota)
-                                    <tr>
-                                        <td>{{ $nota['disciplina'] }}</td>
-                                        <td class="td-number">{{ number_format($nota['media_final'], 0) }}</td>
-                                        <td>{{ $nota['extenso'] }}</td>
-                                    </tr>
-                                @endforeach
+                            <tr class="componente-header">
+                                <td colspan="3">Componente Técnica, Tecnológica e Prática</td>
+                            </tr>
+                            @foreach($notas['tecnica'] as $nota)
+                            <tr>
+                                <td>{{ $nota['disciplina'] }}</td>
+                                <td class="td-number">{{ number_format($nota['media_final'], 0) }}</td>
+                                <td>{{ $nota['extenso'] }}</td>
+                            </tr>
+                            @endforeach
                             @endif
 
                             <tr>
@@ -482,7 +504,8 @@
                             <tr>
                                 <td><strong>Classificação Final do Curso (4×PC + PAP + ECS) / 6</strong></td>
                                 <td class="td-number">
-                                    <strong>{{ $classificacao_final !== null ? number_format($classificacao_final, 0) : '—' }}</strong>
+                                    <strong>{{ $classificacao_final !== null ? number_format($classificacao_final, 0) :
+                                        '—' }}</strong>
                                 </td>
                                 <td>{{ $classificacao_final_extenso }}</td>
                             </tr>
