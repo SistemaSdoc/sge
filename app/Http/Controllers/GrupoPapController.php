@@ -167,8 +167,13 @@ class GrupoPapController extends Controller
 
         $grupoPap->load([
             'professor.user:id,nome,email',
-            'historicoAprovacao.utilizador:id,nome',
+            'historicoAprovacao.utilizador:id,nome,instituicao_id',
         ]);
+
+        $instituicaoTutoraModel = $grupoPap->instituicaoTutora();
+        $instituicaoTutoraId = $instituicaoTutoraModel?->id;
+        $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
+        $siglaInstituto = $instituicaoTutoraModel?->sigla;
 
         $banca = $grupoPap->jurados()
             ->with('professor.user:id,nome,email')
@@ -187,7 +192,23 @@ class GrupoPapController extends Controller
             'anoLectivoId' => $anoLectivoId,          // ← NOVO
             'anosLectivos' => AnoLectivo::all(),      // ← NOVO
             'grupoPap' => new ShowResource($grupoPap),
-            'historico' => $grupoPap->historicoAprovacao->values(),
+            'historico' => $grupoPap->historicoAprovacao->map(function ($item) use ($instituicaoTutoraId, $nomeCurso, $siglaInstituto) {
+                $ehTutora = $item->estado_novo !== 'pendente'
+                    && $item->utilizador?->instituicao_id === $instituicaoTutoraId;
+                return [
+                    'id' => $item->id,
+                    'estado_anterior' => $item->estado_anterior,
+                    'estado_novo' => $item->estado_novo,
+                    'comentario' => $item->comentario,
+                    'tema' => $item->tema,
+                    'created_at' => $item->created_at?->toIso8601String(),
+                    'utilizador' => [
+                        'nome' => $ehTutora
+                            ? "Grupo disciplinar do curso de {$nomeCurso} do {$siglaInstituto}"
+                            : ($item->utilizador?->nome ?? '—'),
+                    ],
+                ];
+            })->values(),
             'banca' => BancaResource::collection($banca),
             'elementos' => ElementoResource::collection($elementos),
             'can' => [

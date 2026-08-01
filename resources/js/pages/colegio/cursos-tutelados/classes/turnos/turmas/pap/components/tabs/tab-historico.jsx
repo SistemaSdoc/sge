@@ -113,7 +113,7 @@ export function TabHistorico({ historico = [] }) {
 
 					{item.comentario && (
 					  <p className="text-sm text-muted-foreground">
-						{item.comentario}
+						R: {item.comentario}
 					  </p>
 					)}
 

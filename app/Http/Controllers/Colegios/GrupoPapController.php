@@ -131,10 +131,16 @@ class GrupoPapController extends Controller
         // Ano lectivo da turma
         $anoLectivoId = $turma->ano_lectivo_id;
 
+        // Buscar dados da instituição tutora e do curso tutelado
+        $instituicaoTutoraModel = $grupoPap->instituicaoTutora();
+        $instituicaoTutoraId = $instituicaoTutoraModel?->id;
+        $siglaInstituto = $instituicaoTutoraModel?->sigla;
+        $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
+
         // Carregar dados do grupo PAP
         $grupoPap->load([
             'professor.user:id,nome,email',
-            'historicoAprovacao.utilizador:id,nome',
+            'historicoAprovacao.utilizador:id,nome,instituicao_id',
         ]);
 
         // Buscar banca
@@ -157,6 +163,7 @@ class GrupoPapController extends Controller
                 'instituicao' => [
                     'id' => $instituicao->id,
                     'nome' => $instituicao->nome,
+                    'sigla' => $instituicao->sigla,
                 ],
 
                 // Colégio tutelado
@@ -168,6 +175,7 @@ class GrupoPapController extends Controller
                 // Curso tutelado
                 'cursoTutelado' => [
                     'id' => $cursoTutelado->id,
+                    'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
                 ],
 
                 // Classe
@@ -192,7 +200,22 @@ class GrupoPapController extends Controller
 
                 // Dados do PAP
                 'grupoPap' => new ShowResource($grupoPap),
-                'historico' => $grupoPap->historicoAprovacao->values(),
+                'historico' => $grupoPap->historicoAprovacao->map(function ($item) use ($instituicaoTutoraId, $nomeCurso, $siglaInstituto) {
+                    $ehTutora = $item->utilizador?->instituicao_id === $instituicaoTutoraId;
+                    return [
+                        'id' => $item->id,
+                        'estado_anterior' => $item->estado_anterior,
+                        'estado_novo' => $item->estado_novo,
+                        'comentario' => $item->comentario,
+                        'tema' => $item->tema,
+                        'created_at' => $item->created_at?->toIso8601String(),
+                        'utilizador' => [
+                            'nome' => $ehTutora
+                                ? "Grupo disciplinar do curso de {$nomeCurso} do {$siglaInstituto}"
+                                : ($item->utilizador?->nome ?? '—'),
+                        ],
+                    ];
+                })->values(),
 
                 'banca' => BancaResource::collection($banca),
 
@@ -242,7 +265,7 @@ class GrupoPapController extends Controller
     ) {
         $this->authorize('definirData', $grupoPap);
 
-         $grupoPap->update([
+        $grupoPap->update([
             'data_defesa' => $request->data_defesa . ' ' . $request->hora_defesa . ':00',
             'local_defesa' => $request->local_defesa,
         ]);

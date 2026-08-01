@@ -120,7 +120,10 @@ export default function Show({
               <h1 className="text-2xl font-semibold md:text-3xl">
                 {grupoPap?.nome_grupo}
               </h1>
-              <p className="text-sm opacity-90">{grupoPap?.tema_grupo}</p>
+               <h2 className="text-2xl font-semibold md:text-1xl">
+                Tema: {grupoPap?.tema_grupo}
+              </h2>
+              <p className="text-sm opacity-90">{colegio?.nome}</p>
             </div>
 
             {hasAnyAction && (
@@ -371,6 +374,8 @@ export default function Show({
           <TabHistorico
             params={params}
             grupoPap={grupoPap}
+            instituicao={instituicao}
+            cursoTutelado={cursoTutelado}
             historico={historico}
           />
         </TabsContent>

@@ -124,8 +124,12 @@ export default function Show({
           <div className="relative z-10 flex w-full items-end justify-between p-6">
             <div className="space-y-2 text-white">
               <h1 className="text-2xl font-semibold md:text-3xl">
-                {grupoPap?.nome_grupo} - {grupoPap?.tema_grupo}
+                {grupoPap?.nome_grupo}
               </h1>
+
+              <h2 className="text-2xl font-semibold md:text-1xl">
+                Tema: {grupoPap?.tema_grupo}
+              </h2>
             </div>
 
             {hasAnyAction && (
