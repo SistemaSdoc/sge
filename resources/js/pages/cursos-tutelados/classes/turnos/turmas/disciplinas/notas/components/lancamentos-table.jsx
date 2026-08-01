@@ -25,7 +25,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ClipboardListIcon } from 'lucide-react';
+import {
+  Loader2,
+  ClipboardListIcon,
+  ChevronDown,
+  ChevronUp,
+  LockKeyhole,
+  LockKeyholeOpen,
+} from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { mediaTrimestral } from '@/utils/media-trimestral';
 import { verificarSituacao } from '@/utils/verificar-situacao';
@@ -55,15 +62,16 @@ export default function LancamentosTable({
   periodosDisponiveis = {},
   pagination = {},
   onPageChange,
-  pautaStatus = {}, // { 1: { status, finalizada_automaticamente }, 2: {...}, 3: {...} }
-  dentroDoPrazo = {}, // { 1: true, 2: false, 3: false }
-  can, // adicionar: can.finalizar, can.solicitarEdicao
+  pautaStatus = {},
+  dentroDoPrazo = {},
+  can,
 }) {
   const [periodo, setPeriodo] = useState('1');
-  const [modalSolicitacao, setModalSolicitacao] = useState(false); // ← topo
+  const [modalSolicitacao, setModalSolicitacao] = useState(false);
+  const [expandidos, setExpandidos] = useState({});
+
   const { getValor, setValor } = useNotasLocais(data?.tdp_id);
   const formSolicitacao = useForm({
-    // ← topo, nunca dentro de if
     tdp_id: data?.tdp_id,
     periodo,
     motivo: '',
@@ -89,12 +97,34 @@ export default function LancamentosTable({
     (dentroDoPrazo?.[periodo] || podeOverride);
 
   const podeSolicitarEdicao = can?.solicitarEdicao && estaFinalizada;
+
   const alunos = [...(data?.alunos?.data ?? [])].sort((alunoA, alunoB) =>
     (alunoA?.nome ?? '').localeCompare(alunoB?.nome ?? '', 'pt', {
       sensitivity: 'base',
     }),
   );
   const isEmpty = alunos.length === 0;
+
+  // ── toggle global ──────────────────────────────────────────────
+  const todosAbertos =
+    alunos.length > 0 && alunos.every((a) => expandidos[a.turma_aluno_id]);
+
+  const toggleTodos = () => {
+    if (todosAbertos) {
+      setExpandidos({});
+    } else {
+      const todos = {};
+      alunos.forEach((a) => {
+        todos[a.turma_aluno_id] = true;
+      });
+      setExpandidos(todos);
+    }
+  };
+
+  // ── toggle individual ──────────────────────────────────────────
+  const toggleAluno = (id) => {
+    setExpandidos((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const submeterSolicitacao = () => {
     formSolicitacao.post('/dashboard/pautas/solicitar-edicao', {
@@ -175,6 +205,28 @@ export default function LancamentosTable({
           </div>
 
           <CardAction className="flex items-center gap-3">
+            {/* ── Toggle global ── */}
+            {!isEmpty && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={toggleTodos}
+              >
+                {todosAbertos ? (
+                  <>
+                    <LockKeyhole className="mr-1 size-4" />
+                    Fechar todos
+                  </>
+                ) : (
+                  <>
+                    <LockKeyholeOpen className="mr-1 size-4" />
+                    Abrir todos
+                  </>
+                )}
+              </Button>
+            )}
+
             <Select value={periodo} onValueChange={setPeriodo}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Trimestre" />
@@ -253,6 +305,8 @@ export default function LancamentosTable({
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/72">
+                  {/* coluna do chevron individual */}
+
                   <TableHead className="w-1! px-4">#</TableHead>
                   <TableHead className="w-48 px-4">Aluno</TableHead>
                   <TableHead className="w-1 text-center">MAC</TableHead>
@@ -260,6 +314,7 @@ export default function LancamentosTable({
                   <TableHead className="w-1 text-center">NPT</TableHead>
                   <TableHead className="w-1 text-center">MT</TableHead>
                   <TableHead className="w-1 text-center">F.I</TableHead>
+                  <TableHead className="w-8 px-2" />
                   <TableHead className="w-20 px-4 text-end">
                     Resultado
                   </TableHead>
@@ -268,6 +323,7 @@ export default function LancamentosTable({
               <TableBody>
                 {alunos.map((aluno, index) => {
                   const nota = aluno.notas?.[periodo] ?? {};
+                  const aberto = Boolean(expandidos[aluno.turma_aluno_id]);
 
                   // local tem prioridade sobre servidor
                   const mac =
@@ -294,84 +350,137 @@ export default function LancamentosTable({
                     <TableRow key={aluno.turma_aluno_id}>
                       <TableCell className="px-4">{index + 1}</TableCell>
                       <TableCell className="px-4">{aluno.nome}</TableCell>
+
+                      {/* ── MAC ── */}
                       <TableCell>
-                        <Input
-                          type="number"
-                          min={0}
-                          max={20}
-                          name={`notas[${aluno.turma_aluno_id}][mac]`}
-                          value={mac}
-                          disabled={isPending || periodoBloqueado}
-                          onChange={(e) =>
-                            setValor(
-                              aluno.turma_aluno_id,
-                              periodo,
-                              'mac',
-                              e.target.value,
-                            )
-                          }
-                          className="text-center"
-                        />
+                        {aberto ? (
+                          <Input
+                            type="number"
+                            min={0}
+                            max={20}
+                            name={`notas[${aluno.turma_aluno_id}][mac]`}
+                            value={mac}
+                            disabled={isPending || periodoBloqueado}
+                            onChange={(e) =>
+                              setValor(
+                                aluno.turma_aluno_id,
+                                periodo,
+                                'mac',
+                                e.target.value,
+                              )
+                            }
+                            className="text-center"
+                          />
+                        ) : (
+                          <span className="block text-center text-sm text-muted-foreground">
+                            {mac !== '' ? mac : '-'}
+                          </span>
+                        )}
                       </TableCell>
+
+                      {/* ── NPP ── */}
                       <TableCell>
-                        <Input
-                          type="number"
-                          min={0}
-                          max={20}
-                          name={`notas[${aluno.turma_aluno_id}][npp]`}
-                          value={npp}
-                          disabled={isPending || periodoBloqueado}
-                          onChange={(e) =>
-                            setValor(
-                              aluno.turma_aluno_id,
-                              periodo,
-                              'npp',
-                              e.target.value,
-                            )
-                          }
-                          className="text-center"
-                        />
+                        {aberto ? (
+                          <Input
+                            type="number"
+                            min={0}
+                            max={20}
+                            name={`notas[${aluno.turma_aluno_id}][npp]`}
+                            value={npp}
+                            disabled={isPending || periodoBloqueado}
+                            onChange={(e) =>
+                              setValor(
+                                aluno.turma_aluno_id,
+                                periodo,
+                                'npp',
+                                e.target.value,
+                              )
+                            }
+                            className="text-center"
+                          />
+                        ) : (
+                          <span className="block text-center text-sm text-muted-foreground">
+                            {npp !== '' ? npp : '-'}
+                          </span>
+                        )}
                       </TableCell>
+
+                      {/* ── NPT ── */}
                       <TableCell>
-                        <Input
-                          type="number"
-                          min={0}
-                          max={20}
-                          name={`notas[${aluno.turma_aluno_id}][npt]`}
-                          value={npt}
-                          disabled={isPending || periodoBloqueado}
-                          onChange={(e) =>
-                            setValor(
-                              aluno.turma_aluno_id,
-                              periodo,
-                              'npt',
-                              e.target.value,
-                            )
-                          }
-                          className="text-center"
-                        />
+                        {aberto ? (
+                          <Input
+                            type="number"
+                            min={0}
+                            max={20}
+                            name={`notas[${aluno.turma_aluno_id}][npt]`}
+                            value={npt}
+                            disabled={isPending || periodoBloqueado}
+                            onChange={(e) =>
+                              setValor(
+                                aluno.turma_aluno_id,
+                                periodo,
+                                'npt',
+                                e.target.value,
+                              )
+                            }
+                            className="text-center"
+                          />
+                        ) : (
+                          <span className="block text-center text-sm text-muted-foreground">
+                            {npt !== '' ? npt : '-'}
+                          </span>
+                        )}
                       </TableCell>
+
+                      {/* ── MT (calculado, sempre visível) ── */}
                       <TableCell className="text-center font-medium">
                         {mt ?? '-'}
                       </TableCell>
+
+                      {/* ── Faltas ── */}
                       <TableCell>
-                        <Input
-                          type="number"
-                          min={0}
-                          name={`notas[${aluno.turma_aluno_id}][faltas]`}
-                          value={faltas}
-                          disabled={isPending || periodoBloqueado}
-                          onChange={(e) =>
-                            setValor(
-                              aluno.turma_aluno_id,
-                              periodo,
-                              'faltas',
-                              e.target.value,
-                            )
-                          }
-                          className="text-center"
-                        />
+                        {aberto ? (
+                          <Input
+                            type="number"
+                            min={0}
+                            name={`notas[${aluno.turma_aluno_id}][faltas]`}
+                            value={faltas}
+                            disabled={isPending || periodoBloqueado}
+                            onChange={(e) =>
+                              setValor(
+                                aluno.turma_aluno_id,
+                                periodo,
+                                'faltas',
+                                e.target.value,
+                              )
+                            }
+                            className="text-center"
+                          />
+                        ) : (
+                          <span className="block text-center text-sm text-muted-foreground">
+                            {faltas !== '' ? faltas : '-'}
+                          </span>
+                        )}
                       </TableCell>
+
+                      {/* ── Chevron individual ── */}
+                      <TableCell className="px-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => toggleAluno(aluno.turma_aluno_id)}
+                        >
+                          {aberto ? (
+                            <LockKeyholeOpen className="size-4" />
+                          ) : (
+                            <LockKeyhole className="size-4" />
+                          )}
+                        </Button>
+                      </TableCell>
+
+                      {/* ── Resultado (sempre visível) ── */}
                       <TableCell className="px-4 text-end">
                         {situacao === 'APTO' && (
                           <Badge className="bg-green-50 text-green-500">
