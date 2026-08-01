@@ -3,11 +3,18 @@ import { AlunoTable } from './components/aluno-table';
 import { destroy, index } from '@/actions/App/Http/Controllers/AlunoController';
 
 export default function Index() {
-  const { alunos, can } = usePage().props;
-  
+  const { alunos, can, anoLectivoId, anosLectivos } = usePage().props;
+
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { page, ano_lectivo_id: anoLectivoId },
+      preserveScroll: true,
+    });
+  };
+
+  const handleAnoLectivoChange = (value) => {
+    router.visit(index().url, {
+      data: { ano_lectivo_id: value },
       preserveScroll: true,
     });
   };
@@ -22,6 +29,9 @@ export default function Index() {
         last_page: alunos.last_page,
       }}
       onPageChange={handlePageChange}
+      anoLectivoActual={anoLectivoId}
+      anosLectivos={anosLectivos}
+      onAnoLectivoChange={handleAnoLectivoChange}
     />
   );
 }

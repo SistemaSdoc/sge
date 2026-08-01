@@ -26,6 +26,7 @@ export default function ProfessorForm({
   errors,
   processing,
   submitFn,
+  anosLectivos = [],
 }) {
   return (
     <form
@@ -40,6 +41,33 @@ export default function ProfessorForm({
         <CardContent>
           <FieldGroup>
             <FieldSet>
+              <Field>
+                <FieldLabel>Ano Lectivo</FieldLabel>
+                <Select
+                  name="ano_lectivo_id"
+                  value={data?.ano_lectivo_id ?? ''}
+                  onValueChange={(value) => setData('ano_lectivo_id', value)}
+                  disabled={processing}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o ano lectivo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Anos Lectivos</SelectLabel>
+                      {anosLectivos.map((ano) => (
+                        <SelectItem key={ano?.id} value={ano?.id}>
+                          {ano?.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {errors.ano_lectivo_id && (
+                  <FieldError>{errors.ano_lectivo_id}</FieldError>
+                )}
+              </Field>
+
               <Field>
                 <FieldLabel>Disciplina</FieldLabel>
                 <Select

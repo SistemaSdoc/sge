@@ -139,14 +139,23 @@ export default function NotasTable({
                 disabled={botaoLancarDesabilitado}
                 onClick={() =>
                   router.visit(
-                    create({
-                      instituicao: instituicao,
-                      cursoTutelado: cursoTutelado,
-                      cursoClasse: cursoClasse,
-                      cursoClasseTurno: cursoClasseTurno,
-                      turma: turma,
-                      classeTurnoDisciplina: disciplina?.id,
-                    }).url,
+                    create(
+                      {
+                        instituicao: instituicao,
+                        cursoTutelado: cursoTutelado,
+                        cursoClasse: cursoClasse,
+                        cursoClasseTurno: cursoClasseTurno,
+                        turma: turma,
+                        classeTurnoDisciplina: disciplina?.id,
+                      },
+                      {
+                        query: {
+                          ano_lectivo_id: window.location.search.includes('ano_lectivo_id=')
+                            ? new URLSearchParams(window.location.search).get('ano_lectivo_id')
+                            : undefined,
+                        },
+                      },
+                    ).url,
                   )
                 }
               >

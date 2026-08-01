@@ -19,11 +19,7 @@ class RolePermissionSeeder extends Seeder
                 'instituicoes.update',
                 'colegios.viewAny',
 
-                'confirmacao-matricula.viewAny',
-                'confirmacao-matricula.view',
-                'confirmacao-matricula.create',
-
-
+                // Regra de Avaliação
                 'regra-avaliacao.viewAny',
                 'regra-avaliacao.view',
                 'regra-avaliacao.create',
@@ -88,7 +84,7 @@ class RolePermissionSeeder extends Seeder
                 // Notas
                 'pautas.finalizar',
                 'pautas.decidirSolicitacaoEdicao',
-                'pautas.gerirPrazos',         // configurar data_limite
+                'pautas.gerirPrazos',
 
                 // Professores
                 'professores.viewAny',
@@ -173,6 +169,10 @@ class RolePermissionSeeder extends Seeder
                 'itemspagaveis.create',
                 'itemspagaveis.update',
                 'itemspagaveis.delete',
+
+                // Confirmação de Matrícula
+                'confirmacoes.viewAny',
+                'confirmacoes.confirmar',
             ],
 
             'Subdirector' => [
@@ -180,6 +180,7 @@ class RolePermissionSeeder extends Seeder
                 'instituicoes.view',
                 'instituicoes.update',
 
+                // Regra de Avaliação
                 'regra-avaliacao.viewAny',
                 'regra-avaliacao.view',
                 'regra-avaliacao.create',
@@ -314,6 +315,10 @@ class RolePermissionSeeder extends Seeder
 
                 // Outros
                 'relatorios.view',
+
+                // Confirmação de Matrícula
+                'confirmacoes.viewAny',
+                'confirmacoes.confirmar',
             ],
 
             'Secretaria' => [
@@ -421,32 +426,31 @@ class RolePermissionSeeder extends Seeder
                 'itemspagaveis.view',
                 'itemspagaveis.create',
                 'itemspagaveis.update',
+
+                // Confirmação de Matrícula
+                'confirmacoes.viewAny',
+                'confirmacoes.confirmar',
             ],
 
             'Coordenador' => [
 
                 'instituicoes.view',
                 'instituicoes.update',
-                // Permissões de Professor (base)
+
                 'alunos.viewAny',
                 'alunos.view',
 
                 'colegios.viewAny',
 
-                //
-                'confirmacao-matricula.viewAny',
-                'confirmacao-matricula.view',
-                'confirmacao-matricula.create',
-
                 'professores.viewAny',
                 'professores.view',
-                'professores.create',      // ← adiciona (para criar/adicionar professores)
-                'professores.update',      // ← adiciona
+                'professores.create',
+                'professores.update',
 
                 'turmas.viewAny',
                 'turmas.view',
-                'turmas.create',           // ← já tem (herda do seeder)
-                'turmas.update',           // ← já tem (herda do seeder)
+                'turmas.create',
+                'turmas.update',
 
                 'pautas.viewAny',
                 'pautas.view',
@@ -487,6 +491,10 @@ class RolePermissionSeeder extends Seeder
                 // Curso Tutelado
                 'curso-tutelado.view',
                 'curso-tutelado.update',
+
+                // Confirmação de Matrícula
+                'confirmacoes.viewAny',
+                'confirmacoes.confirmar',
             ],
 
             'Professor' => [
@@ -508,7 +516,6 @@ class RolePermissionSeeder extends Seeder
                 // Notas
                 'notas.create',
                 'notas.update',
-
 
                 // Professor e Coordenador (já têm notas.create/update)
                 'pautas.solicitarEdicao',

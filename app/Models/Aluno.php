@@ -4,8 +4,8 @@ namespace App\Models;
 
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'user_id',
@@ -44,12 +44,12 @@ class Aluno extends Model
             $q->whereHas('turmas', function ($q2) use ($anoLectivoId) {
                 $q2->where('turmas.ano_lectivo_id', $anoLectivoId);
             })
-            ->orWhere(function ($q2) use ($anoLectivoId) {
-                $q2->whereDoesntHave('turmas')
-                    ->whereHas('inscricao', function ($q3) use ($anoLectivoId) {
-                        $q3->where('ano_lectivo_id', $anoLectivoId);
-                    });
-            });
+                ->orWhere(function ($q2) use ($anoLectivoId) {
+                    $q2->whereDoesntHave('turmas')
+                        ->whereHas('inscricao', function ($q3) use ($anoLectivoId) {
+                            $q3->where('ano_lectivo_id', $anoLectivoId);
+                        });
+                });
         });
     }
 
@@ -57,12 +57,12 @@ class Aluno extends Model
     {
         return $query->where(function ($q) {
             $q->whereHas('turmas', function ($q2) {
-                $q2->whereHas('anoLectivo', fn($q3) => $q3->ativo());
+                $q2->whereHas('anoLectivo', fn ($q3) => $q3->ativo());
             })
-            ->orWhere(function ($q2) {
-                $q2->whereDoesntHave('turmas')
-                    ->whereHas('inscricao.anoLectivo', fn($q3) => $q3->ativo());
-            });
+                ->orWhere(function ($q2) {
+                    $q2->whereDoesntHave('turmas')
+                        ->whereHas('inscricao.anoLectivo', fn ($q3) => $q3->ativo());
+                });
         });
     }
 
@@ -94,7 +94,7 @@ class Aluno extends Model
     {
         $turma = $this->turmaActual()->first();
 
-        if (!$turma) {
+        if (! $turma) {
             return null;
         }
 
@@ -132,7 +132,7 @@ class Aluno extends Model
 
     /**
      * Verifica se o aluno tem débitos pendentes (propinas em atraso)
-     * 
+     *
      * @return bool True se tiver débitos, False se estiver em dia
      */
     public function temDebitosPendentes(): bool
@@ -145,12 +145,12 @@ class Aluno extends Model
 
     /**
      * Verifica se o aluno está em dia com as propinas
-     * 
+     *
      * @return bool True se estiver em dia, False se tiver débitos
      */
     public function estaEmDia(): bool
     {
-        return !$this->temDebitosPendentes();
+        return ! $this->temDebitosPendentes();
     }
 
     public function grupoPap()
@@ -163,5 +163,10 @@ class Aluno extends Model
             'id',
             'grupo_pap_id'
         );
+    }
+
+    public function confirmacoesMatricula()
+    {
+        return $this->hasMany(ConfirmacaoMatricula::class);
     }
 }

@@ -2,62 +2,43 @@
 
 namespace App\Policies;
 
+use App\Models\TurmaAluno;
 use App\Models\User;
-use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 
 class ConfirmacaoMatriculaPolicy
 {
+    /**
+     * Determina se o utilizador pode listar confirmações de matrícula.
+     *
+     * Secretaria, Director e Subdirector podem listar
+     * as confirmações da sua instituição.
+     */
     public function viewAny(User $user): bool
     {
-        try {
-            return $user->hasPermissionTo('confirmacao-matricula.viewAny');
-        } catch (PermissionDoesNotExist) {
-            return false;
-        }
+        return $user->can('confirmacoes.viewAny') && $user->instituicao_id !== null;
     }
 
-    public function view(User $user): bool
+    /**
+     * Determina se o utilizador pode confirmar a matrícula de um aluno específico.
+     *
+     * Ação por item (botão/dropdown na listagem): requer permission
+     * e que o aluno da confirmação pertença à instituição do utilizador.
+     */
+    /**
+     * Determina se o utilizador pode confirmar a matrícula de um aluno específico.
+     *
+     * Ação por item (botão/dropdown na listagem): requer permission
+     * e que o aluno da turma pertença à instituição do utilizador.
+     */
+    public function confirmar(User $user, TurmaAluno $turmaAluno): bool
     {
-        try {
-            return $user->hasPermissionTo('confirmacao-matricula.view');
-        } catch (PermissionDoesNotExist) {
-            return false;
-        }
-    }
+        $instituicaoId = $turmaAluno->turma
+            ?->cursoClasseTurno
+            ?->cursoClasse
+            ?->cursoTutelado
+            ?->instituicaoCurso
+            ?->instituicao_id;
 
-    public function create(User $user): bool
-    {
-        try {
-            return $user->hasPermissionTo('confirmacao-matricula.create');
-        } catch (PermissionDoesNotExist) {
-            return false;
-        }
-    }
-
-    public function update(User $user): bool
-    {
-        try {
-            return $user->hasPermissionTo('confirmacao-matricula.update');
-        } catch (PermissionDoesNotExist) {
-            return false;
-        }
-    }
-
-    public function aprovar(User $user): bool
-    {
-        try {
-            return $user->hasPermissionTo('confirmacao-matricula.aprovar');
-        } catch (PermissionDoesNotExist) {
-            return false;
-        }
-    }
-
-    public function reprovar(User $user): bool
-    {
-        try {
-            return $user->hasPermissionTo('confirmacao-matricula.reprovar');
-        } catch (PermissionDoesNotExist) {
-            return false;
-        }
+        return $user->can('confirmacoes.confirmar') && $instituicaoId === $user->instituicao_id;
     }
 }

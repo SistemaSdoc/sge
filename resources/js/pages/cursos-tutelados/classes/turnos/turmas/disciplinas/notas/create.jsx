@@ -29,14 +29,21 @@ export default function Create({
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       <Form
         action={
-          store({
-            instituicao,
-            cursoTutelado,
-            cursoClasse,
-            cursoClasseTurno,
-            turma,
-            classeTurnoDisciplina,
-          }).url
+          store(
+            {
+              instituicao,
+              cursoTutelado,
+              cursoClasse,
+              cursoClasseTurno,
+              turma,
+              classeTurnoDisciplina,
+            },
+            {
+              query: {
+                ano_lectivo_id: new URLSearchParams(window.location.search).get('ano_lectivo_id') ?? undefined,
+              },
+            },
+          ).url
         }
         method="post"
         options={{ preserveScroll: true }}

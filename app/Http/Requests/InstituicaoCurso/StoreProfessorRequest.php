@@ -15,6 +15,7 @@ class StoreProfessorRequest extends FormRequest
     {
         return [
             'professor_id' => ['required', 'exists:professores,id'],
+            'ano_lectivo_id' => ['nullable', 'exists:ano_lectivos,id'],
         ];
     }
     public function messages(): array
@@ -22,6 +23,7 @@ class StoreProfessorRequest extends FormRequest
         return [
             'professor_id.required' => 'O professor é obrigatório.',
             'professor_id.exists' => 'O professor selecionado é inválido.',
+            'ano_lectivo_id.exists' => 'O ano lectivo selecionado é inválido.',
         ];
     }
 }

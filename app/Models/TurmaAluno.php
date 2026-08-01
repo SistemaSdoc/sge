@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
     'turma_id',
     'aluno_id',
     'activo',
+    'ano_lectivo_id',
     'estado_matricula',
     'resultado_academico',
 ])]
@@ -56,5 +57,4 @@ class TurmaAluno extends Pivot
             'ano_lectivo_id'
         );
     }
-    
 }

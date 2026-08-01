@@ -2,9 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreConfirmarMatriculaRequest;
 use App\Models\Aluno;
+use App\Models\AnoLectivo;
+use App\Models\ConfirmacaoMatricula;
+use App\Models\CursoClasse;
+use App\Models\CursoClasseTurno;
+use App\Models\CursoTutelado;
+use App\Models\Instituicao;
+use App\Models\Turma;
 use App\Services\ConfirmacaoMatriculaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ConfirmacaoMatriculaController extends Controller
@@ -14,28 +23,105 @@ class ConfirmacaoMatriculaController extends Controller
     ) {}
 
     /**
-     * Lista os alunos que precisam confirmar sua matrícula.
+     * Lista os alunos da turma atual que podem confirmar matrícula.
      */
-    public function index()
-    {
-       $this->authorize('confirmacao-matricula.viewAny');
+    public function index(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        Request $request
+    ) {
+        Gate::authorize('view', $turma);
 
-        $alunos = $this->confirmacaoMatriculaService->listarAlunosPorConfirmarMatricula();
+        Gate::authorize('viewAny', ConfirmacaoMatricula::class);
 
-        return Inertia::render('confirmacoes-matriculas/index', [
+        // Buscar anos lectivos
+        $anosLectivos = fn () => AnoLectivo::query()
+            ->where('activo', true)
+            ->orWhereDate('data_inicio', '>', now())
+            ->orderBy('data_inicio')
+            ->get()
+            ->map(fn ($ano) => [
+                'id' => $ano->id,
+                'nome' => $ano->nome,
+                'activo' => $ano->activo,
+            ]);
+
+        // Buscar turmas por ano (lazy loaded)
+        $turmasPorAno = Inertia::optional(fn () => $request->query('ano_id')
+            ? Turma::query()
+                ->where('ano_lectivo_id', $request->query('ano_id'))
+                ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado',
+                    fn ($q) => $q->where('instituicao_tutora_id', $instituicao->id)
+                )
+                ->get()
+                ->map(fn ($t) => [
+                    'id' => $t->id,
+                    'nome' => $t->nome,
+                    'turno' => $t->cursoClasseTurno?->turno?->nome,
+                    'max_alunos' => $t->max_alunos,
+                ])
+            : []
+        );
+
+        // Buscar alunos por confirmar
+        $alunos = $this->confirmacaoMatriculaService->listarAlunosPorConfirmarMatricula(
+            turma: $turma,
+            instituicaoId: $instituicao->id,
+        );
+
+        return Inertia::render('cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/index', [
+            'turma' => [
+                'id' => $turma->id,
+                'nome' => $turma->nome,
+            ],
+            'anosLectivos' => $anosLectivos,
+            'turmasPorAno' => $turmasPorAno,
             'alunos' => $alunos,
+            'params' => [
+                'instituicao' => $instituicao->id,
+                'cursoTutelado' => $cursoTutelado->id,
+                'cursoClasse' => $cursoClasse->id,
+                'cursoClasseTurno' => $cursoClasseTurno->id,
+                'turma' => $turma->id,
+            ],
         ]);
     }
 
     /**
-     * Confirma a matrícula de um aluno.
+     * Confirma a matrícula de um aluno no próximo ano lectivo, movendo-o para a nova turma.
      */
-    public function store(Request $request, Aluno $aluno)
-    {
-        $this->authorize('confirmacao-matricula.create');
+    public function store(
+        StoreConfirmarMatriculaRequest $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma
+    ) {
+        $validated = $request->validated();
 
-        $this->confirmacaoMatriculaService->confirmarMatricula($aluno);
+        $aluno = Aluno::findOrFail($validated['aluno_id']);
+        $turmaNova = Turma::findOrFail($validated['turma_nova_id']);
 
-        return redirect()->route('confirmar-matriculas.index');
+        try {
+            $this->confirmacaoMatriculaService->confirmarMatricula(
+                $aluno,
+                $turmaNova,
+                $turma,
+            );
+
+            return to_route('confirmar-matriculas.index', [
+                'instituicao' => $instituicao->id,
+                'cursoTutelado' => $cursoTutelado->id,
+                'cursoClasse' => $cursoClasse->id,
+                'cursoClasseTurno' => $cursoClasseTurno->id,
+                'turma' => $turma->id,
+            ]);
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
     }
 }

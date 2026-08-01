@@ -25,20 +25,21 @@ import {
 import { Minus, MoreHorizontalIcon, BookIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { HorariosForm } from '../horarios/horarios-form';
-import { useDialog } from '@/hooks/use-dialog';
 import { store as storeHorario } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaHorarioController';
 import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
 import { index } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
 import { create as createProfessor } from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController';
 import TablePagination from '@/components/table-pagination';
 import { toast } from 'sonner';
+import { useDialog } from '@/hooks/use-dialog';
 
 export function TabDisciplinas({
   disciplinas,
   params,
   pagination,
   onPageChange,
-  redirectTo, // <-- adiciona
+  redirectTo,
+  anoLectivoId,
   can = {},
 }) {
   const isEmpty = disciplinas.length === 0;
@@ -135,10 +136,17 @@ export function TabDisciplinas({
 
                       if (disciplina?.can?.view) {
                         router.visit(
-                          index({
-                            ...params,
-                            classeTurnoDisciplina: disciplina.id,
-                          }).url,
+                          index(
+                            {
+                              ...params,
+                              classeTurnoDisciplina: disciplina.id,
+                            },
+                            {
+                              query: {
+                                ano_lectivo_id: anoLectivoId,
+                              },
+                            },
+                          ).url,
                         );
                       }
                     }}
@@ -175,6 +183,10 @@ export function TabDisciplinas({
                                   createProfessor({
                                     ...params,
                                     classeTurnoDisciplina: disciplina.id,
+                                  }, {
+                                    query: {
+                                      ano_lectivo_id: anoLectivoId,
+                                    },
                                   }).url,
                                 );
                               }}

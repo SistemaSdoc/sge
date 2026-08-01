@@ -21,14 +21,13 @@ class PermissionSeeder extends Seeder
             'confirmacao-matricula.view',
             'confirmacao-matricula.create',
 
-
             'regra-avaliacao.viewAny',
             'regra-avaliacao.view',
             'regra-avaliacao.create',
             'regra-avaliacao.update',
             'regra-avaliacao.delete',
 
-            //colegios
+            // colegios
             'colegios.viewAny',
 
             // Alunos
@@ -189,6 +188,9 @@ class PermissionSeeder extends Seeder
             'coordenador.create-notas',
             'coordenador.update-notas',
             'coordenador.view-relatorios',
+
+            'confirmacoes.viewAny',
+            'confirmacoes.confirmar',
         ];
 
         foreach ($permissions as $permission) {

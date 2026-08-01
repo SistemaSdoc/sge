@@ -3,37 +3,44 @@ import { useProfessorForm } from '@/hooks/use-professor-form';
 import ProfessorForm from './components/professor-form';
 
 export default function Create() {
-    const {
-        instituicao,
-        cursoTutelado,
-        cursoClasse,
-        cursoClasseTurno,
-        turma,
-        classeTurnoDisciplina,
-        professores,
-        disciplinas,
-    } = usePage().props;
+  const {
+    instituicao,
+    cursoTutelado,
+    cursoClasse,
+    cursoClasseTurno,
+    turma,
+    classeTurnoDisciplina,
+    professores,
+    disciplinas,
+    anoLectivoId,
+    anosLectivos,
+  } = usePage().props;
 
-    const routeParams = {
-        instituicao,
-        cursoTutelado,
-        cursoClasse,
-        cursoClasseTurno,
-        turma,
-        classeTurnoDisciplina,
-    };
+  const routeParams = {
+    instituicao,
+    cursoTutelado,
+    cursoClasse,
+    cursoClasseTurno,
+    turma,
+    classeTurnoDisciplina,
+  };
 
-    const { data, setData, errors, submit } = useProfessorForm(routeParams, classeTurnoDisciplina);
+  const { data, setData, errors, submit } = useProfessorForm(
+    routeParams,
+    classeTurnoDisciplina,
+    anoLectivoId,
+  );
 
-    return (
-        <ProfessorForm
-            disciplinas={disciplinas ?? []}
-            professores={professores ?? []}
-            data={data}
-            setData={setData}
-            errors={errors}
-            processing={false}
-            submitFn={submit}
-        />
-    );
+  return (
+    <ProfessorForm
+      disciplinas={disciplinas ?? []}
+      professores={professores ?? []}
+      data={data}
+      setData={setData}
+      errors={errors}
+      processing={false}
+      submitFn={submit}
+      anosLectivos={anosLectivos ?? []}
+    />
+  );
 }

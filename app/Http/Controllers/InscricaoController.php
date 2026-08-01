@@ -43,7 +43,7 @@ class InscricaoController extends Controller
                 $instituicaoId,
                 fn($q) => $q->whereHas(
                     'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn($q) => $q->where('instituicao_id', $user->instituicao_id)
+                    fn($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )->when(
                 $anoLectivoId,

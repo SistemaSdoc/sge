@@ -7,9 +7,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Minus, MoreHorizontalIcon } from 'lucide-react';
+import { ArrowUpRight, Minus, MoreHorizontalIcon } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import { edit } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import { index } from '@/actions/App/Http/Controllers/ConfirmacaoMatriculaController';
 
 export function Header({
   turma,
@@ -20,6 +21,7 @@ export function Header({
   params,
   deleteFn,
 }) {
+  console.log('params', params);
   return (
     <Card className="overflow-hidden pt-0! pb-0">
       <div className="relative flex h-56 w-full items-end bg-muted">
@@ -66,23 +68,6 @@ export function Header({
                 Progressão de Alunos
               </DropdownMenuItem>
 
-              {/* ── NOVO ── 
-              {totalRecurso > 0 && (
-                <DropdownMenuItem
-                  className="text-blue-600"
-                  onClick={() =>
-                    router.visit(
-                      `/instituicoes/${instituicaoId}/cursos/${cursoId}/classes/${classeId}/turnos/${turnoId}/turmas/${turmaId}/recurso`,
-                    )
-                  }
-                >
-                  Lançar Recurso
-                  <Badge className="ml-auto bg-blue-50 text-xs text-blue-600">
-                    {totalRecurso} alunos
-                  </Badge>
-                </DropdownMenuItem>
-              )}*/}
-
               {turma.can?.delete && <DropdownMenuSeparator />}
 
               {turma.can?.delete && (
@@ -125,6 +110,17 @@ export function Header({
               turma.curso_classe_turno?.classe_turno_disciplinas?.length ??
               0}
           </p>
+        </div>
+
+        <div>
+          <Button
+            variant={'link'}
+            className="hover:cursor-pointer"
+            onClick={() => router.visit(index(params).url)}
+          >
+            Confirmar Matrículas
+            <ArrowUpRight />
+          </Button>
         </div>
       </CardContent>
     </Card>

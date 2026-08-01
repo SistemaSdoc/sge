@@ -70,7 +70,7 @@ function EstadoBadge({ estado }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium ${config.bg} ${config.text}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium ${config.text}`}
     >
       <span className="relative flex size-1.5">
         {config.pulse && (
@@ -105,6 +105,7 @@ export default function AnoLectivoTable({
   const hasAnyAction = anosLectivos.some(
     (anoLectivo) => anoLectivo.can.update || anoLectivo.can.delete,
   );
+
   const isEmpty = !anosLectivos || anosLectivos.length === 0;
 
   return (
@@ -112,14 +113,6 @@ export default function AnoLectivoTable({
       <CardHeader className="border-b">
         <CardTitle>Anos Lectivos</CardTitle>
         <CardDescription>Lista de anos lectivos cadastrados</CardDescription>
-        {can?.create ||
-          (true && (
-            <CardAction>
-              <Button asChild>
-                <Link href={create().url}>Adicionar</Link>
-              </Button>
-            </CardAction>
-          ))}
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -146,11 +139,8 @@ export default function AnoLectivoTable({
                 <TableHead className="px-4">Nome</TableHead>
                 <TableHead className="px-4">Data de Início</TableHead>
                 <TableHead className="px-4">Data de Fim</TableHead>
-                <TableHead className="px-4">Estado</TableHead>
-                <TableHead className="px-4">Activo</TableHead>
-                {hasAnyAction && (
-                  <TableHead className="px-4 text-right">Acções</TableHead>
-                )}
+                <TableHead className="px-4 text-center">Estado</TableHead>
+                <TableHead className="px-4 text-center">Activo</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -168,74 +158,28 @@ export default function AnoLectivoTable({
                     {formatarData(anoLectivo.data_fim)}
                   </TableCell>
 
-                  <TableCell className="px-4">
+                  <TableCell className="px-4 text-center">
                     <EstadoBadge estado={anoLectivo.estado} />
                   </TableCell>
 
-                  <TableCell className="px-4">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium ${
-                        anoLectivo.activo
-                          ? 'bg-emerald-50 text-emerald-700 dark:text-emerald-400'
-                          : 'bg-gray-50 text-gray-700 dark:bg-gray-950/40 dark:text-gray-400'
-                      }`}
-                    >
-                      <span
-                        className={`size-1.5 ${
-                          anoLectivo.activo ? 'bg-emerald-500' : 'bg-gray-400'
-                        }`}
-                      />
-                      {anoLectivo.activo ? 'Sim' : 'Não'}
-                    </span>
+                  <TableCell className="px-4 text-center">
+                    {anoLectivo.activo ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                        <span className="relative flex size-1.5">
+                          <span className="absolute inline-flex h-full w-full animate-ping bg-emerald-500 opacity-75" />
+                          <span className="relative inline-flex size-1.5 bg-emerald-500" />
+                        </span>
+                        Sim
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                        <span className="relative flex size-1.5">
+                          <span className="relative inline-flex size-1.5 bg-muted-foreground/50" />
+                        </span>
+                        Não
+                      </span>
+                    )}
                   </TableCell>
-
-                  {hasAnyAction && (
-                    <TableCell className="px-4 text-right">
-                      {(anoLectivo.can.update || anoLectivo.can.delete) && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-8"
-                            >
-                              <MoreHorizontalIcon />
-                              <span className="sr-only">Open menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-
-                          <DropdownMenuContent align="end">
-                            {anoLectivo.can.update && (
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  router.visit(edit(anoLectivo.id).url);
-                                }}
-                              >
-                                Editar
-                              </DropdownMenuItem>
-                            )}
-
-                            {anoLectivo.can.update && anoLectivo.can.delete && (
-                              <DropdownMenuSeparator />
-                            )}
-
-                            {anoLectivo.can.delete && (
-                              <DropdownMenuItem
-                                variant="destructive"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  deleteFn(anoLectivo.id);
-                                }}
-                              >
-                                Remover
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
-                    </TableCell>
-                  )}
                 </TableRow>
               ))}
             </TableBody>

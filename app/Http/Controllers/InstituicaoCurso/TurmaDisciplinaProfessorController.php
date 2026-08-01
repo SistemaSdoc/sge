@@ -29,12 +29,15 @@ class TurmaDisciplinaProfessorController extends Controller
     ) {
         Gate::authorize('definirProfessor', new TurmaDisciplinaProfessor);
 
+        $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::activo()?->id;
+
         $classeTurnoDisciplina->load('disciplina');
 
         $professores = $cursoTutelado->professores()
             ->with('user:id,nome')
             ->get()
-            ->map(fn(Professor $professor) => [
+            ->map(fn (Professor $professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ]);
@@ -56,6 +59,8 @@ class TurmaDisciplinaProfessorController extends Controller
                     ],
                 ],
             ],
+            'anoLectivoId' => $anoLectivoId,
+            'anosLectivos' => AnoLectivo::all(),
         ]);
     }
 
@@ -70,31 +75,46 @@ class TurmaDisciplinaProfessorController extends Controller
     ) {
         Gate::authorize('definirProfessor', new TurmaDisciplinaProfessor);
 
-        // Valida que a turma pertence ao ano lectivo actual
-        $anoLectivoActual = AnoLectivo::activo()?->id;
+        $request->validate([
+            'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',
+        ]);
 
-        abort_if($turma->ano_lectivo_id !== $anoLectivoActual, 403);
+        $jaExisteNaTurma = TurmaDisciplinaProfessor::where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
+            ->where('turma_id', $turma->id)
+            ->exists();
 
-        if ($classeTurnoDisciplina->tem_professor && !$request->boolean('force')) {
+        if ($jaExisteNaTurma && ! $request->boolean('force')) {
             return back()->withErrors([
-                'message' => 'Esta disciplina já tem um professor atribuído. Deseja substituí-lo?',
+                'message' => 'Já existe um professor atribuído a esta disciplina nesta turma. Deseja substituí-lo?',
                 'requires_confirmation' => true,
             ]);
         }
 
-        DB::transaction(function () use ($request, $classeTurnoDisciplina, $turma) {
-            TurmaDisciplinaProfessor::where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
-                ->where('turma_id', $turma->id)
-                ->delete();
+        $anoLectivoId = $request->input('ano_lectivo_id')
+            ?? request('ano_lectivo_id')
+            ?? AnoLectivo::activo()?->id;
 
-            TurmaDisciplinaProfessor::create([
-                'professor_id' => $request->professor_id,
-                'turma_id' => $turma->id,
-                'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
-            ]);
+        DB::transaction(function () use ($request, $classeTurnoDisciplina, $turma) {
+            $turmaDisciplinaProfessor = TurmaDisciplinaProfessor::where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
+                ->where('turma_id', $turma->id)
+                ->first();
+
+            if ($turmaDisciplinaProfessor) {
+                $turmaDisciplinaProfessor->update([
+                    'professor_id' => $request->professor_id,
+                ]);
+            } else {
+                TurmaDisciplinaProfessor::create([
+                    'professor_id' => $request->professor_id,
+                    'turma_id' => $turma->id,
+                    'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
+                ]);
+            }
 
             $classeTurnoDisciplina->update(['tem_professor' => true]);
         });
+
+        $anoLectivoParam = $anoLectivoId ? ['ano_lectivo_id' => $anoLectivoId] : [];
 
         return to_route('turmas.show', [
             'instituicao' => $instituicao->id,
@@ -103,6 +123,6 @@ class TurmaDisciplinaProfessorController extends Controller
             'cursoClasseTurno' => $cursoClasseTurno->id,
             'turma' => $turma->id,
             'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
-        ])->with('success', 'Professor associado com sucesso.');
+        ] + $anoLectivoParam)->with('success', 'Professor associado com sucesso.');
     }
 }

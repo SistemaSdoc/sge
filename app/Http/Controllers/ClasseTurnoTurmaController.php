@@ -194,6 +194,7 @@ class ClasseTurnoTurmaController extends Controller
         // Construir a query base de disciplinas
         $disciplinasQuery = $turma->cursoClasseTurno
             ->classeTurnoDisciplinas()
+            ->where('ano_lectivo_id', $turma->ano_lectivo_id)  // ← Usar o ano da TURMA, não o selecionado
             ->with([
                 'disciplina:id,nome,sigla',
                 'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),

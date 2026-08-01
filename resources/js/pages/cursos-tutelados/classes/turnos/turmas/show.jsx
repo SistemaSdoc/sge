@@ -23,6 +23,7 @@ export default function Show({
   pode_lancar_recurso,
   grupos,
   can,
+  anoLectivoId,
 }) {
   const { deleteConfirm } = useDialog();
 
@@ -37,6 +38,7 @@ export default function Show({
     cursoClasse: cursoClasse.id,
     cursoClasseTurno: cursoClasseTurno.id,
     turma: turma.data.id,
+    ano_lectivo_id: anoLectivoId,
   };
 
   const classe = turma.data.classe;
@@ -93,6 +95,7 @@ export default function Show({
             onPageChange={disciplinasPagination.handlePageChange}
             params={params}
             redirectTo={window.location.href}
+            anoLectivoId={anoLectivoId}
             can={can.disciplinas}
           />
         </TabsContent>

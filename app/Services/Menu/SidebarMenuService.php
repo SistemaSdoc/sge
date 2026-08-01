@@ -172,14 +172,6 @@ final class SidebarMenuService
                     icon: 'ClipboardList',
                     can: fn () => Gate::allows('viewAny', Inscricao::class)
                 ),
-
-                new MenuItem(
-                    key: 'confirmacoes-matriculas',
-                    title: 'Confirmações de Matrícula',
-                    href: action([ConfirmacaoMatriculaController::class, 'index']),
-                    icon: 'ClipboardCheck',
-                    can: fn () => Gate::allows('confirmacao-matricula.viewAny'),
-                ),
             ]),
 
             new MenuGroup('Usuários', [

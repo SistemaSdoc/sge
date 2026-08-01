@@ -3,12 +3,13 @@ import { useDialog } from '@/hooks/use-dialog';
 import { toast } from 'sonner';
 import { store } from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController';
 
-export function useProfessorForm(routeParams, classeTurnoDisciplina) {
+export function useProfessorForm(routeParams, classeTurnoDisciplina, initialAnoLectivoId = '') {
     const { confirm } = useDialog();
 
     const { data, setData, errors, setError } = useForm({
         professor_id: '',
         disciplina_id: classeTurnoDisciplina,
+        ano_lectivo_id: initialAnoLectivoId,
     });
 
     const doPost = (force = false) => {
