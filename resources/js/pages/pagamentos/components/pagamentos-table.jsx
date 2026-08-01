@@ -55,7 +55,6 @@ const metodoLabels = {
 
 export default function PagamentosTable({
   pagamentos = [],
-  can,
   deleteFn,
   pagination = {},
   onPageChange,
@@ -64,37 +63,6 @@ export default function PagamentosTable({
   onFilterChange,
 }) {
   const isEmpty = pagamentos.length === 0;
-
-  // Estado local para os filtros (se não vier do pai)
-  const [localFiltros, setLocalFiltros] = useState({
-    aluno_id: filtros.aluno_id || '',
-    data_inicio: filtros.data_inicio || '',
-    data_fim: filtros.data_fim || '',
-    curso_classe_id: filtros.curso_classe_id || '',
-  });
-
-  const handleFilterChange = (key, value) => {
-    const newFiltros = { ...localFiltros, [key]: value };
-    setLocalFiltros(newFiltros);
-    if (onFilterChange) {
-      onFilterChange(newFiltros);
-    }
-  };
-
-  const aplicarFiltros = () => {
-    // Aplica os filtros via router ou via callback
-    if (onFilterChange) {
-      onFilterChange(localFiltros);
-    }
-  };
-
-  const limparFiltros = () => {
-    const empty = { aluno_id: '', data_inicio: '', data_fim: '', curso_classe_id: '' };
-    setLocalFiltros(empty);
-    if (onFilterChange) {
-      onFilterChange(empty);
-    }
-  };
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
@@ -105,70 +73,9 @@ export default function PagamentosTable({
         </CardDescription>
 
         <CardAction className="flex flex-wrap items-center gap-2">
-          {/* Filtros */}
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Label htmlFor="aluno_id" className="sr-only">Aluno</Label>
-              <Input
-                id="aluno_id"
-                placeholder="Aluno (ID)"
-                value={localFiltros.aluno_id}
-                onChange={(e) => handleFilterChange('aluno_id', e.target.value)}
-                className="w-40"
-              />
-            </div>
 
-            <div className="flex items-center gap-1">
-              <Label htmlFor="data_inicio" className="sr-only">Data início</Label>
-              <Input
-                id="data_inicio"
-                type="date"
-                value={localFiltros.data_inicio}
-                onChange={(e) => handleFilterChange('data_inicio', e.target.value)}
-                className="w-36"
-              />
-            </div>
 
-            <div className="flex items-center gap-1">
-              <Label htmlFor="data_fim" className="sr-only">Data fim</Label>
-              <Input
-                id="data_fim"
-                type="date"
-                value={localFiltros.data_fim}
-                onChange={(e) => handleFilterChange('data_fim', e.target.value)}
-                className="w-36"
-              />
-            </div>
-
-            <div className="flex items-center gap-1">
-              <Label htmlFor="curso_classe_id" className="sr-only">Classe</Label>
-              <Select
-                value={localFiltros.curso_classe_id}
-                onValueChange={(value) => handleFilterChange('curso_classe_id', value)}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Todas as classes" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
-                  {cursosClasses.map((cc) => (
-                    <SelectItem key={cc.id} value={cc.id}>
-                      {cc.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button variant="outline" size="sm" onClick={aplicarFiltros}>
-              <FilterIcon className="mr-1 size-3" /> Filtrar
-            </Button>
-            <Button variant="ghost" size="sm" onClick={limparFiltros}>
-              Limpar
-            </Button>
-          </div>
-
-          {can?.create && (
+          {create && (
             <Button asChild>
               <Link href={create().url}>Registar</Link>
             </Button>
@@ -184,7 +91,7 @@ export default function PagamentosTable({
             title="Nenhum pagamento registado"
             description="Comece por registar o primeiro pagamento."
             action={
-              can?.create
+              create
                 ? {
                     label: 'Registar pagamento',
                     href: create().url,

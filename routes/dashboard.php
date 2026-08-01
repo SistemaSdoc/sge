@@ -38,6 +38,8 @@ use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RelatorioPropinaController;
+
 
 // Dashboard routes (Admin, Director, Coordenador, Secretaria, Professor)
 // Todas estas rotas requerem autenticação e role de staff
@@ -190,6 +192,12 @@ Route::middleware('propina.em.dia')->group(function () {
     Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])->name('grelha-curricular.index');
 });
 
+Route::get('turmas/{turma}/relatorio-propinas', [RelatorioPropinaController::class, 'porTurma'])
+    ->name('turmas.relatorio-propinas');
+
+Route::get('turmas/{turma}/relatorio-propinas/pdf', [RelatorioPropinaController::class, 'pdf'])
+    ->name('turmas.relatorio-propinas.pdf');
+    
 Route::resource('regras-avaliacao', RegraAvaliacaoController::class)
     ->parameters(['regras-avaliacao' => 'regraAvaliacao']);
 

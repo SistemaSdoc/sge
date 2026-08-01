@@ -97,6 +97,7 @@ class ItemPagavelController extends Controller
         ]);
     }
 
+    
     public function store(StoreItemPagavelRequest $request)
     {
         ItemPagavel::create([

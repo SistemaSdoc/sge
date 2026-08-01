@@ -17,7 +17,7 @@ class AnoLectivoSeeder extends Seeder
                 'data_inicio' => '2025-09-01',
                 'data_fim' => '2026-07-31',
                 'activo' => true,
-                'status' => 1,
+                'estado' => 'planeado',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
