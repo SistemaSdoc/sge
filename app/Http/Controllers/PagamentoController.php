@@ -5,11 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Pagamento\StorePagamentoRequest;
 use App\Http\Requests\Pagamento\UpdatePagamentoRequest;
 use App\Models\Aluno;
-use App\Models\Turma;
-use App\Models\CursoClasse;
 use App\Models\ItemPagavel;
 use App\Models\Pagamento;
 use App\Models\PagamentoItem;
+use App\Models\Turma;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -17,186 +16,179 @@ use Inertia\Inertia;
 
 class PagamentoController extends Controller
 {
+    public function index(Request $request)
+    {
+        $instituicaoId = $request->user()->instituicao_id;
 
-public function index(Request $request)
-{
-    $instituicaoId = $request->user()->instituicao_id;
-
-    Log::info('PagamentoController@index - início', [
-        'user_id' => $request->user()->id,
-        'instituicao_id' => $instituicaoId,
-    ]);
-
-    $pagamentos = Pagamento::query()
-        ->where('instituicao_id', $instituicaoId)
-        ->with(['aluno.user:id,nome'])
-        ->orderByDesc('data_pagamento')
-        ->paginate(15)
-        ->withQueryString()
-        ->through(function (Pagamento $p) {
-            $classes = $p->itens()
-                ->with('itemPagavel.cursoClasse.classe')
-                ->get()
-                ->pluck('itemPagavel.cursoClasse.classe.nome')
-                ->filter()
-                ->unique()
-                ->implode(', ');
-
-            return [
-                'id' => $p->id,
-                'aluno' => $p->aluno->user->nome,
-                'valor_total' => $p->valor_total,
-                'metodo' => $p->metodo,
-                'referencia' => $p->referencia,
-                'data_pagamento' => $p->data_pagamento->format('d/m/Y'),
-                'classes' => $classes ?: 'Geral',
-            ];
-        });
-
-    Log::info('PagamentoController@index - total de pagamentos', ['total' => $pagamentos->total()]);
-
-    $turmas = Turma::query()
-        ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($q) use ($instituicaoId) {
-            $q->where('instituicao_id', $instituicaoId);
-        })
-        ->with(['cursoClasseTurno.cursoClasse.classe'])
-        ->get()
-        ->map(fn (Turma $t) => [
-            'id' => $t->id,
-            'nome' => $t->nome . ' — ' . ($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
+        Log::info('PagamentoController@index - início', [
+            'user_id' => $request->user()->id,
+            'instituicao_id' => $instituicaoId,
         ]);
 
-    return Inertia::render('pagamentos/index', [
-        'pagamentos' => $pagamentos,
-        'turmas' => $turmas,
-    ]);
-}
+        $pagamentos = Pagamento::query()
+            ->where('instituicao_id', $instituicaoId)
+            ->with(['aluno.user:id,nome'])
+            ->orderByDesc('data_pagamento')
+            ->paginate(15)
+            ->withQueryString()
+            ->through(function (Pagamento $p) {
+                $classes = $p->itens()
+                    ->with('itemPagavel.cursoClasse.classe')
+                    ->get()
+                    ->pluck('itemPagavel.cursoClasse.classe.nome')
+                    ->filter()
+                    ->unique()
+                    ->implode(', ');
 
-public function create(Request $request)
-{
-    $instituicaoId = $request->user()->instituicao_id;
+                return [
+                    'id' => $p->id,
+                    'aluno' => $p->aluno->user->nome,
+                    'valor_total' => $p->valor_total,
+                    'metodo' => $p->metodo,
+                    'referencia' => $p->referencia,
+                    'data_pagamento' => $p->data_pagamento->format('d/m/Y'),
+                    'classes' => $classes ?: 'Geral',
+                ];
+            });
 
-    Log::info('PagamentoController@create - início', [
-        'instituicao_id' => $instituicaoId,
-        'aluno_id' => $request->query('aluno_id'),
-        'query_params' => $request->query(),
-    ]);
+        Log::info('PagamentoController@index - total de pagamentos', ['total' => $pagamentos->total()]);
 
-    // Buscar aluno e turma
-    $aluno = null;
-    $turma = null;
-    $cursoClasseId = null;
-    $classeId = null;
+        $turmas = Turma::query()
+            ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($q) use ($instituicaoId) {
+                $q->where('instituicao_id', $instituicaoId);
+            })
+            ->with(['cursoClasseTurno.cursoClasse.classe'])
+            ->get()
+            ->map(fn (Turma $t) => [
+                'id' => $t->id,
+                'nome' => $t->nome . ' — ' . ($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
+            ]);
 
-    if ($request->filled('aluno_id')) {
-        $aluno = Aluno::with('turmaActual')->find($request->aluno_id);
-        if ($aluno) {
-            $turma = $aluno->turmaActual->first();
-            if ($turma) {
-                // --- CORREÇÃO: carregar relacionamento e obter IDs via relação ---
-                $turma->loadMissing(['cursoClasseTurno.cursoClasse']);
-                $cursoClasseId = $turma->curso_classe_id
-                                ?? $turma->cursoClasseTurno->curso_classe_id
+        return Inertia::render('pagamentos/index', [
+            'pagamentos' => $pagamentos,
+            'turmas' => $turmas,
+        ]);
+    }
+
+    public function create(Request $request)
+    {
+        $instituicaoId = $request->user()->instituicao_id;
+
+        Log::info('PagamentoController@create - início', [
+            'instituicao_id' => $instituicaoId,
+            'aluno_id' => $request->query('aluno_id'),
+            'query_params' => $request->query(),
+        ]);
+
+        // Buscar aluno e turma
+        $aluno = null;
+        $turma = null;
+        $cursoClasseId = null;
+        $classeId = null;
+
+        if ($request->filled('aluno_id')) {
+            $aluno = Aluno::with('turmaActual')->find($request->aluno_id);
+            if ($aluno) {
+                $turma = $aluno->turmaActual->first();
+                if ($turma) {
+                    $turma->loadMissing(['cursoClasseTurno.cursoClasse']);
+                    $cursoClasseId = $turma->curso_classe_id
+                                    ?? $turma->cursoClasseTurno->curso_classe_id
+                                    ?? null;
+                    $classeId = $turma->classe_id
+                                ?? $turma->cursoClasseTurno->cursoClasse->classe_id
                                 ?? null;
-                $classeId = $turma->classe_id
-                            ?? $turma->cursoClasseTurno->cursoClasse->classe_id
-                            ?? null;
 
-                Log::debug('PagamentoController@create - turma do aluno', [
-                    'aluno_id' => $aluno->id,
-                    'turma_id' => $turma->id,
-                    'curso_classe_id' => $cursoClasseId,
-                    'classe_id' => $classeId,
-                ]);
+                    Log::debug('PagamentoController@create - turma do aluno', [
+                        'aluno_id' => $aluno->id,
+                        'turma_id' => $turma->id,
+                        'curso_classe_id' => $cursoClasseId,
+                        'classe_id' => $classeId,
+                    ]);
+                } else {
+                    Log::debug('PagamentoController@create - aluno sem turma', ['aluno_id' => $aluno->id]);
+                }
             } else {
-                Log::debug('PagamentoController@create - aluno sem turma', ['aluno_id' => $aluno->id]);
+                Log::warning('PagamentoController@create - aluno não encontrado', ['aluno_id' => $request->aluno_id]);
             }
-        } else {
-            Log::warning('PagamentoController@create - aluno não encontrado', ['aluno_id' => $request->aluno_id]);
         }
-    }
 
-    // Query de itens ativos
-    $itensQuery = ItemPagavel::query()
-        ->where('instituicao_id', $instituicaoId)
-        ->ativos();
+        // Query de itens ativos
+        $itensQuery = ItemPagavel::query()
+            ->where('instituicao_id', $instituicaoId)
+            ->ativos();
 
-    // Aplicar filtro usando os IDs obtidos (via relação ou diretos)
-    if ($turma && ($cursoClasseId || $classeId)) {
-        $itensQuery->where(function ($q) use ($cursoClasseId, $classeId) {
-            // 1. Itens universais
-            $q->whereNull('curso_classe_id');
+        if ($turma && ($cursoClasseId || $classeId)) {
+            $itensQuery->where(function ($q) use ($cursoClasseId, $classeId) {
+                // 1. Itens universais
+                $q->whereNull('curso_classe_id');
 
-            // 2. Diretamente vinculados ao curso_classe da turma
-            if ($cursoClasseId) {
-                $q->orWhere('curso_classe_id', $cursoClasseId);
-            }
+                // 2. Diretamente vinculados ao curso_classe da turma
+                if ($cursoClasseId) {
+                    $q->orWhere('curso_classe_id', $cursoClasseId);
+                }
 
-            // 3. Vinculados a um curso_classe com a mesma classe_id da turma
-            if ($classeId) {
-                $q->orWhereExists(function ($sub) use ($classeId) {
-                    $sub->from('curso_classe')
-                        ->whereColumn('curso_classe.id', 'itens_pagaveis.curso_classe_id')
-                        ->where('curso_classe.classe_id', $classeId);
-                });
-            }
+                // 3. Vinculados a um curso_classe com a mesma classe_id da turma
+                if ($classeId) {
+                    $q->orWhereExists(function ($sub) use ($classeId) {
+                        $sub->from('curso_classe')
+                            ->whereColumn('curso_classe.id', 'itens_pagaveis.curso_classe_id')
+                            ->where('curso_classe.classe_id', $classeId);
+                    });
+                }
+            });
+
+            Log::debug('PagamentoController@create - filtro aplicado (com vínculo)', [
+                'curso_classe_id' => $cursoClasseId,
+                'classe_id' => $classeId,
+            ]);
+        } else {
+            $itensQuery->whereNull('curso_classe_id');
+            Log::debug('PagamentoController@create - sem vínculo – a mostrar apenas itens universais');
+        }
+
+        $itensPagaveis = $itensQuery->get(['id', 'nome', 'valor', 'frequencia', 'curso_classe_id']);
+
+        $itensPagaveis->each(function ($item) {
+            $item->load('cursoClasse.classe');
+            Log::debug('PagamentoController@create - ITEM RETORNADO', [
+                'item_id' => $item->id,
+                'item_nome' => $item->nome,
+                'curso_classe_id' => $item->curso_classe_id,
+                'classe_associada' => $item->cursoClasse?->classe?->nome ?? 'Nenhuma',
+                'curso_associado' => $item->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome ?? 'Nenhum',
+                'frequencia' => $item->frequencia,
+                'valor' => $item->valor,
+            ]);
         });
 
-        Log::debug('PagamentoController@create - filtro aplicado (com vínculo)', [
-            'curso_classe_id' => $cursoClasseId,
-            'classe_id' => $classeId,
+        Log::info('PagamentoController@create - total de itens retornados', [
+            'total' => $itensPagaveis->count(),
+            'ids' => $itensPagaveis->pluck('id')->toArray(),
         ]);
-    } else {
-        // Fallback: turma sem vínculo → apenas itens universais
-        $itensQuery->whereNull('curso_classe_id');
-        Log::debug('PagamentoController@create - sem vínculo – a mostrar apenas itens universais');
+
+        $alunos = Aluno::query()
+            ->whereHas('user', fn ($q) => $q->where('instituicao_id', $instituicaoId))
+            ->with('user:id,nome')
+            ->activos()
+            ->get(['id', 'user_id'])
+            ->map(fn (Aluno $a) => [
+                'id' => $a->id,
+                'nome' => $a->user->nome,
+            ]);
+
+        $paidRecord = [];
+        if ($request->filled('aluno_id')) {
+            $paidRecord = $this->paidRecordDoAluno($request->aluno_id);
+            Log::debug('PagamentoController@create - paidRecord', ['paidRecord' => $paidRecord]);
+        }
+
+        return Inertia::render('pagamentos/create', [
+            'alunos' => $alunos,
+            'itensPagaveis' => $itensPagaveis,
+            'paidRecord' => $paidRecord,
+        ]);
     }
-
-    $itensPagaveis = $itensQuery->get(['id', 'nome', 'valor', 'frequencia', 'curso_classe_id']);
-
-    // Log detalhado de cada item retornado
-    $itensPagaveis->each(function ($item) {
-        $item->load('cursoClasse.classe');
-        Log::debug('PagamentoController@create - ITEM RETORNADO', [
-            'item_id' => $item->id,
-            'item_nome' => $item->nome,
-            'curso_classe_id' => $item->curso_classe_id,
-            'classe_associada' => $item->cursoClasse?->classe?->nome ?? 'Nenhuma',
-            'curso_associado' => $item->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome ?? 'Nenhum',
-            'frequencia' => $item->frequencia,
-            'valor' => $item->valor,
-        ]);
-    });
-
-    Log::info('PagamentoController@create - total de itens retornados', [
-        'total' => $itensPagaveis->count(),
-        'ids' => $itensPagaveis->pluck('id')->toArray(),
-    ]);
-
-    // Lista de alunos para o combobox
-    $alunos = Aluno::query()
-        ->whereHas('user', fn ($q) => $q->where('instituicao_id', $instituicaoId))
-        ->with('user:id,nome')
-        ->activos()
-        ->get(['id', 'user_id'])
-        ->map(fn (Aluno $a) => [
-            'id' => $a->id,
-            'nome' => $a->user->nome,
-        ]);
-
-    // PaidRecord
-    $paidRecord = [];
-    if ($request->filled('aluno_id')) {
-        $paidRecord = $this->paidRecordDoAluno($request->aluno_id);
-        Log::debug('PagamentoController@create - paidRecord', ['paidRecord' => $paidRecord]);
-    }
-
-    return Inertia::render('pagamentos/create', [
-        'alunos' => $alunos,
-        'itensPagaveis' => $itensPagaveis,
-        'paidRecord' => $paidRecord,
-    ]);
-}
 
     private function paidRecordDoAluno(string $alunoId): array
     {
@@ -215,8 +207,6 @@ public function create(Request $request)
                 ->all())
             ->toArray();
     }
-
-
 
     public function store(StorePagamentoRequest $request)
     {

@@ -64,21 +64,26 @@ class VerificadorPropinaService
             $inicio = $inicioAno;
         }
 
-        $fim = Carbon::now()->startOfMonth();
-        $fimAno = Carbon::parse($anoLectivo->data_fim)->startOfMonth();
-        if ($fim->gt($fimAno)) {
-            $fim = $fimAno;
-        }
+       $fim = Carbon::now()->startOfMonth();
+$fimAno = Carbon::parse($anoLectivo->data_fim)->startOfMonth();
+if ($fim->gt($fimAno)) {
+    $fim = $fimAno;
+}
 
-        Log::debug('[VerificadorPropinaService] PERIODO COBRANCA CALCULADO', [
-            'aluno_id'       => $aluno->id,
-            'data_matricula' => (string) $dataMatricula,
-            'inicio_ano'     => (string) $inicioAno,
-            'fim_ano'        => (string) $fimAno,
-            'inicio_periodo' => (string) $inicio,
-            'fim_periodo'    => (string) $fim,
-            'meses_entre'    => $inicio->diffInMonths($fim) + 1,
-        ]);
+// --- NOVO: aviso explícito quando o período é inválido ---
+if ($inicio->gt($fim)) {
+    Log::warning('[VerificadorPropinaService] PERÍODO INVERTIDO — matrícula posterior ao fim do ano lectivo (ou ano lectivo já terminou)', [
+        'aluno_id' => $aluno->id,
+        'turma_id' => $turma->id,
+        'data_matricula' => (string) $dataMatricula,
+        'inicio_calculado' => (string) $inicio,
+        'fim_calculado' => (string) $fim,
+        'ano_lectivo_fim' => (string) $anoLectivo->data_fim,
+        'meses_entre'    => $inicio->diffInMonths($fim) + 1,
+    ]);
+    return [];
+}
+
 
         $query = ItemPagavel::query()
             ->where('instituicao_id', $aluno->user->instituicao_id)

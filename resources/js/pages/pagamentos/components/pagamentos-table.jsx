@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { LayersIcon, MoreHorizontalIcon, FilterIcon } from 'lucide-react';
+import { LayersIcon, MoreHorizontalIcon, PlusIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,16 +28,6 @@ import {
 import TablePagination from '@/components/table-pagination';
 import { create, show, destroy } from '@/actions/App/Http/Controllers/PagamentoController';
 import { DropdownMenuSeparator } from '@radix-ui/react-dropdown-menu';
-import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 const formatCurrency = (value) => {
   const amount = Number(value ?? 0);
@@ -55,12 +45,10 @@ const metodoLabels = {
 
 export default function PagamentosTable({
   pagamentos = [],
+  can,
   deleteFn,
   pagination = {},
   onPageChange,
-  filtros = {},
-  cursosClasses = [],
-  onFilterChange,
 }) {
   const isEmpty = pagamentos.length === 0;
 
@@ -72,12 +60,13 @@ export default function PagamentosTable({
           Registos de propinas e outros encargos escolares.
         </CardDescription>
 
-        <CardAction className="flex flex-wrap items-center gap-2">
-
-
-          {create && (
+        <CardAction className="flex items-center gap-2">
+          {can?.create && (
             <Button asChild>
-              <Link href={create().url}>Registar</Link>
+              <Link href={create().url}>
+                <PlusIcon className="mr-1 size-4" />
+                Adicionar Pagamento
+              </Link>
             </Button>
           )}
         </CardAction>
@@ -91,7 +80,7 @@ export default function PagamentosTable({
             title="Nenhum pagamento registado"
             description="Comece por registar o primeiro pagamento."
             action={
-              create
+              can?.create
                 ? {
                     label: 'Registar pagamento',
                     href: create().url,
