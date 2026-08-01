@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\InstituicoesRequest;
 use App\Models\Curso;
+use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -89,7 +90,7 @@ class InstituicaoController extends Controller
         return Inertia::render('instituicoes/show', [
             'can' => [
                 'edit_instituicao' => Auth::user()->can('update', $instituicao),
-                'create_curso' => Auth::user()->can('create', Curso::class),
+                'create_curso' => Auth::user()->can('create', CursoTutelado::class),
                 'view_instituicao' => Auth::user()->can('view', $instituicao),
                 'gerir_prazos' => Auth::user()->can('pautas.gerirPrazos'),
             ],

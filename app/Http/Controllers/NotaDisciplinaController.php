@@ -130,104 +130,175 @@ class NotaDisciplinaController extends Controller
         ClasseTurnoDisciplina $classeTurnoDisciplina,
         Request $request
     ) {
-        $anoLectivoId = $request->input('ano_lectivo_id') ?? $turma->ano_lectivo_id;
+        Log::info('=== INÍCIO create NotaController ===');
 
-        $tdp = $this->resolveTurmaDisciplinaProfessor($turma, $classeTurnoDisciplina, $anoLectivoId);
+        try {
+            $anoLectivoId = $request->input('ano_lectivo_id') ?? $turma->ano_lectivo_id;
+            Log::info('ano_lectivo_id resolvido', ['anoLectivoId' => $anoLectivoId]);
 
-        if (! $tdp) {
-            Log::warning('TurmaDisciplinaProfessor não encontrado para notas', [
+            Log::info('Chamando resolveTurmaDisciplinaProfessor', [
                 'turma_id' => $turma->id,
                 'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
                 'ano_lectivo_id' => $anoLectivoId,
             ]);
 
-            return back()->with('warning', 'Ainda não existe uma associação de professor para esta disciplina neste ano lectivo.');
-        }
+            $tdp = $this->resolveTurmaDisciplinaProfessor($turma, $classeTurnoDisciplina, $anoLectivoId);
+            Log::info('resolveTurmaDisciplinaProfessor retornou', ['tdp_id' => $tdp?->id, 'tdp_null' => is_null($tdp)]);
 
-        Gate::authorize('view', $tdp);
-        Gate::authorize('create', [Nota::class, $tdp]);
-        $periodosLancados = $this->notaService->periodosLancados($tdp->id);
-        $periodosDisponiveis = $this->notaService->periodosDisponiveis($tdp->id);
-        $podeLancarNotas = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
-            || ! (
-                $periodosLancados[1]
-                && $periodosLancados[2]
-                && $periodosLancados[3]
-            );
-        $todosDisponiveis = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
-            || (
-                $periodosLancados[1]
-                && $periodosLancados[2]
-                && $periodosLancados[3]
-            );
+            if (! $tdp) {
+                Log::warning('TurmaDisciplinaProfessor não encontrado para notas', [
+                    'turma_id' => $turma->id,
+                    'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
+                    'ano_lectivo_id' => $anoLectivoId,
+                ]);
 
-        $turmaAlunos = TurmaAluno::query()
-            ->select('turma_aluno.*')
-            ->join('alunos', 'alunos.id', '=', 'turma_aluno.aluno_id')
-            ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
-            ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
-            ->with([
-                'aluno.inscricao.candidato:id,nome',
-                'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
-            ])
-            ->where('turma_aluno.turma_id', $turma->id)
-            ->where('turma_aluno.situacao', 'activo')
-            ->where('turma_aluno.activo', true)
-            ->orderBy('candidatos.nome')
-            ->paginate(20, ['*'], 'page_alunos');
+                return back()->with('warning', 'Ainda não existe uma associação de professor para esta disciplina neste ano lectivo.');
+            }
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
-            'instituicao' => $instituicao->id,
-            'cursoTutelado' => $cursoTutelado->id,
-            'cursoClasse' => $cursoClasse->id,
-            'cursoClasseTurno' => $cursoClasseTurno->id,
-            'turma' => $turma->id,
-            'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
+            Log::info('Gate::authorize view');
+            Gate::authorize('view', $tdp);
+            Log::info('Gate::authorize create');
+            Gate::authorize('create', [Nota::class, $tdp]);
 
-            'can' => [
+            Log::info('Buscando periodosLancados');
+            $periodosLancados = $this->notaService->periodosLancados($tdp->id);
+            Log::info('periodosLancados', $periodosLancados);
+
+            Log::info('Buscando periodosDisponiveis');
+            $periodosDisponiveis = $this->notaService->periodosDisponiveis($tdp->id);
+            Log::info('periodosDisponiveis', $periodosDisponiveis);
+
+            Log::info('Calculando podeLancarNotas');
+            $podeLancarNotas = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+                || ! (
+                    $periodosLancados[1]
+                    && $periodosLancados[2]
+                    && $periodosLancados[3]
+                );
+            Log::info('podeLancarNotas', ['value' => $podeLancarNotas]);
+
+            Log::info('Calculando todosDisponiveis');
+            $todosDisponiveis = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+                || (
+                    $periodosLancados[1]
+                    && $periodosLancados[2]
+                    && $periodosLancados[3]
+                );
+            Log::info('todosDisponiveis', ['value' => $todosDisponiveis]);
+
+            Log::info('Buscando turmaAlunos');
+            $turmaAlunos = TurmaAluno::query()
+                ->select('turma_aluno.*')
+                ->join('alunos', 'alunos.id', '=', 'turma_aluno.aluno_id')
+                ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
+                ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+                ->with([
+                    'aluno.inscricao.candidato:id,nome',
+                    'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+                ])
+                ->where('turma_aluno.turma_id', $turma->id)
+                ->where('turma_aluno.situacao', 'activo')
+                ->where('turma_aluno.activo', true)
+                ->orderBy('candidatos.nome')
+                ->paginate(20, ['*'], 'page_alunos');
+            Log::info('turmaAlunos buscados', ['total' => $turmaAlunos->total()]);
+
+            Log::info('Mapeando alunos para o frontend');
+            $alunosMapeados = $turmaAlunos->getCollection()->map(fn ($ta) => [
+                'turma_aluno_id' => $ta->id,
+                'aluno_id' => $ta->aluno->id,
+                'nome' => $ta->aluno->inscricao?->candidato?->nome,
+                'notas' => $ta->notas
+                    ->map(fn ($n) => $this->formatarNota($n))
+                    ->keyBy('periodo'),
+            ]);
+            Log::info('Alunos mapeados com sucesso', ['count' => $alunosMapeados->count()]);
+
+            Log::info('Verificando permissions can');
+            $can = [
                 'create' => Auth::user()->can('create', [Nota::class, $tdp]),
                 'overrideLockedPeriods' => Auth::user()->hasAnyRole(['Director', 'Subdirector']),
-                // NOVOS:
                 'finalizar' => Auth::user()->can('pautas.finalizar'),
                 'solicitarEdicao' => Auth::user()->can('pautas.solicitarEdicao'),
-            ],
-            'data' => [
-                'tdp_id' => $tdp->id,
-                'disciplina' => [
-                    'id' => $classeTurnoDisciplina->id,
-                    'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
-                    'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
-                ],
-                'alunos' => [
-                    'data' => $turmaAlunos->getCollection()->map(fn ($ta) => [
-                        'turma_aluno_id' => $ta->id,
-                        'aluno_id' => $ta->aluno->id,
-                        'nome' => $ta->aluno->inscricao?->candidato?->nome,
-                        'notas' => $ta->notas
-                            ->map(fn ($n) => $this->formatarNota($n))
-                            ->keyBy('periodo'),
-                    ]),
-                    'current_page' => $turmaAlunos->currentPage(),
-                    'last_page' => $turmaAlunos->lastPage(),
-                ],
-                'periodos_lancados' => $periodosLancados,
-                'periodos_disponiveis' => $periodosDisponiveis,
-                'pode_lancar_notas' => $podeLancarNotas,
-                'todos_disponiveis' => $todosDisponiveis,
-                // NOVOS:
-                'pauta_status' => [
-                    1 => $this->notaService->getPautaStatus($tdp->id, 1),
-                    2 => $this->notaService->getPautaStatus($tdp->id, 2),
-                    3 => $this->notaService->getPautaStatus($tdp->id, 3),
-                ],
-                'dentro_do_prazo' => [
+            ];
+            Log::info('Permissions verificadas', $can);
+
+            Log::info('Buscando getPautaStatus');
+            $pautaStatus = [
+                1 => $this->notaService->getPautaStatus($tdp->id, 1),
+                2 => $this->notaService->getPautaStatus($tdp->id, 2),
+                3 => $this->notaService->getPautaStatus($tdp->id, 3),
+            ];
+            Log::info('pautaStatus', $pautaStatus);
+
+            Log::info('Buscando dentroDoPrazo');
+            try {
+                $dentroDoPrazo = [
                     1 => $this->notaService->dentroDoPrazo($instituicao->id, 1),
                     2 => $this->notaService->dentroDoPrazo($instituicao->id, 2),
                     3 => $this->notaService->dentroDoPrazo($instituicao->id, 3),
-                ],
-            ],
-        ]);
+                ];
+                Log::info('dentroDoPrazo', $dentroDoPrazo);
+            } catch (\Exception $e) {
+                Log::error('Erro em dentroDoPrazo', [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                throw $e;
+            }
 
+            Log::info('Renderizando Inertia');
+            try {
+                return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
+                    'instituicao' => $instituicao->id,
+                    'cursoTutelado' => $cursoTutelado->id,
+                    'cursoClasse' => $cursoClasse->id,
+                    'cursoClasseTurno' => $cursoClasseTurno->id,
+                    'turma' => $turma->id,
+                    'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
+
+                    'can' => $can,
+                    'data' => [
+                        'tdp_id' => $tdp->id,
+                        'disciplina' => [
+                            'id' => $classeTurnoDisciplina->id,
+                            'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
+                            'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
+                        ],
+                        'alunos' => [
+                            'data' => $alunosMapeados,
+                            'current_page' => $turmaAlunos->currentPage(),
+                            'last_page' => $turmaAlunos->lastPage(),
+                        ],
+                        'periodos_lancados' => $periodosLancados,
+                        'periodos_disponiveis' => $periodosDisponiveis,
+                        'pode_lancar_notas' => $podeLancarNotas,
+                        'todos_disponiveis' => $todosDisponiveis,
+                        'pauta_status' => $pautaStatus,
+                        'dentro_do_prazo' => $dentroDoPrazo,
+                    ],
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Erro ao renderizar Inertia', [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                throw $e;
+            }
+
+        } catch (\Exception $e) {
+            Log::error('=== ERRO NO create NotaController ===', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -370,27 +441,28 @@ class NotaDisciplinaController extends Controller
         ClasseTurnoDisciplina $classeTurnoDisciplina,
         ?string $anoLectivoId = null,
     ): ?TurmaDisciplinaProfessor {
-        $tdp = TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
+        $yearCandidates = array_values(array_unique(array_filter([
+            $anoLectivoId,
+            $turma->ano_lectivo_id,
+            $classeTurnoDisciplina->ano_lectivo_id,
+        ], fn ($value) => filled($value))));
+
+        $baseQuery = TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
             ->where('turma_id', $turma->id)
-            ->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
-            ->when($anoLectivoId, function ($query) use ($anoLectivoId) {
-                $query->whereHas('classeTurnoDisciplina', function ($subQuery) use ($anoLectivoId) {
-                    $subQuery->where('ano_lectivo_id', $anoLectivoId);
-                });
-            })
-            ->first();
+            ->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id);
+
+        $tdp = $baseQuery->first();
 
         if ($tdp) {
             return $tdp;
         }
 
-        if ($anoLectivoId) {
+        foreach ($yearCandidates as $candidateYearId) {
             $tdp = TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
                 ->where('turma_id', $turma->id)
-                ->whereHas('classeTurnoDisciplina', function ($query) use ($classeTurnoDisciplina, $anoLectivoId) {
-                    $query->where('curso_classe_turno_id', $classeTurnoDisciplina->curso_classe_turno_id)
-                        ->where('disciplina_id', $classeTurnoDisciplina->disciplina_id)
-                        ->where('ano_lectivo_id', $anoLectivoId);
+                ->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
+                ->whereHas('classeTurnoDisciplina', function ($query) use ($candidateYearId): void {
+                    $query->where('ano_lectivo_id', $candidateYearId);
                 })
                 ->first();
 
@@ -401,7 +473,7 @@ class NotaDisciplinaController extends Controller
 
         return TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
             ->where('turma_id', $turma->id)
-            ->whereHas('classeTurnoDisciplina', function ($query) use ($classeTurnoDisciplina) {
+            ->whereHas('classeTurnoDisciplina', function ($query) use ($classeTurnoDisciplina): void {
                 $query->where('curso_classe_turno_id', $classeTurnoDisciplina->curso_classe_turno_id)
                     ->where('disciplina_id', $classeTurnoDisciplina->disciplina_id);
             })

@@ -36,9 +36,18 @@ export function AppDialog() {
     loading,
     confirmFn,
     content,
+    size = 'md',
     closeDialog,
     setLoading,
   } = useDialogStore();
+
+  const sizeClasses = {
+    sm: 'max-w-sm!',
+    md: 'max-w-md!',
+    lg: 'max-w-lg!',
+    xl: 'max-w-2xl!',
+    full: 'max-w-4xl!',
+  };
 
   /**
    * Executada quando o usuário clica no botão de confirmação.
@@ -56,7 +65,10 @@ export function AppDialog() {
   if (type === 'form') {
     return (
       <Dialog open={open} onOpenChange={closeDialog}>
-        <DialogContent className="max-w-2xl!">
+        <DialogContent
+          className={sizeClasses[size]}
+          onPointerDownOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             {description && (

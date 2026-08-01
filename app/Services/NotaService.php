@@ -9,6 +9,7 @@ use App\Models\PeriodoLancamentoNotas;
 use App\Models\SolicitacaoEdicaoPauta;
 use App\Models\TurmaAluno;
 use App\Services\Core\RegraAcademicaService;
+use Illuminate\Support\Facades\Log;
 
 class NotaService
 {
@@ -429,7 +430,16 @@ class NotaService
 
     public function getPeriodoLancamento(string $instituicaoId, int $periodo): ?PeriodoLancamentoNotas
     {
-        $anoLectivo = AnoLectivo::where('activo', true)->firstOrFail();
+        $anoLectivo = AnoLectivo::where('activo', true)->first();
+
+        if (! $anoLectivo) {
+            Log::warning('AnoLectivo ativo não encontrado em getPeriodoLancamento', [
+                'instituicao_id' => $instituicaoId,
+                'periodo' => $periodo,
+            ]);
+
+            return null;
+        }
 
         return PeriodoLancamentoNotas::where('instituicao_id', $instituicaoId)
             ->where('ano_lectivo_id', $anoLectivo->id)

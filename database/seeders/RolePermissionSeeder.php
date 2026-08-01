@@ -40,8 +40,8 @@ class RolePermissionSeeder extends Seeder
                 'turmas.delete',
 
                 // Turnos
-                'turnos.viewAny',
-                'turnos.view',
+                // 'turnos.viewAny',
+                // 'turnos.view',
                 // 'turnos.create',
                 // 'turnos.update',
                 // 'turnos.delete',
@@ -127,18 +127,18 @@ class RolePermissionSeeder extends Seeder
                 'elementogrupopap.atualizarNota',
 
                 // Classes
-                'classes.viewAny',
-                'classes.view',
-                'classes.create',
-                'classes.update',
-                'classes.delete',
+                // 'classes.viewAny',
+                // 'classes.view',
+                // 'classes.create',
+                // 'classes.update',
+                // 'classes.delete',
 
                 // Cursos
-                'cursos.viewAny',
-                'cursos.view',
-                'cursos.create',
-                'cursos.update',
-                'cursos.delete',
+                // 'cursos.viewAny',
+                // 'cursos.view',
+                // 'cursos.create',
+                // 'cursos.update',
+                // 'cursos.delete',
 
                 // Cursos Tutelados
                 'curso-tutelado.viewAny',
@@ -270,18 +270,18 @@ class RolePermissionSeeder extends Seeder
                 'elementogrupopap.atualizarNota',
 
                 // Classes
-                'classes.viewAny',
-                'classes.view',
-                'classes.create',
-                'classes.update',
-                'classes.delete',
+                // 'classes.viewAny',
+                // 'classes.view',
+                // 'classes.create',
+                // 'classes.update',
+                // 'classes.delete',
 
                 // Cursos
-                'cursos.viewAny',
-                'cursos.view',
-                'cursos.create',
-                'cursos.update',
-                'cursos.delete',
+                // 'cursos.viewAny',
+                // 'cursos.view',
+                // 'cursos.create',
+                // 'cursos.update',
+                // 'cursos.delete',
 
                 // Cursos Tutelados
                 'curso-tutelado.viewAny',
@@ -290,8 +290,8 @@ class RolePermissionSeeder extends Seeder
                 'curso-tutelado.update',
 
                 // Turnos
-                'turnos.viewAny',
-                'turnos.view',
+                // 'turnos.viewAny',
+                // 'turnos.view',
                 // 'turnos.create',
                 // 'turnos.update',
                 // 'turnos.delete',
@@ -362,8 +362,8 @@ class RolePermissionSeeder extends Seeder
                 'avisos.update',
 
                 // Turnos
-                'turnos.viewAny',
-                'turnos.view',
+                // 'turnos.viewAny',
+                // 'turnos.view',
                 // 'turnos.create',
                 // 'turnos.update',
 
@@ -397,16 +397,16 @@ class RolePermissionSeeder extends Seeder
                 'elementogrupopap.update',
 
                 // Cursos
-                'cursos.viewAny',
-                'cursos.view',
-                'cursos.create',
-                'cursos.update',
+                // 'cursos.viewAny',
+                // 'cursos.view',
+                // 'cursos.create',
+                // 'cursos.update',
 
                 // Classes
-                'classes.viewAny',
-                'classes.view',
-                'classes.create',
-                'classes.update',
+                // 'classes.viewAny',
+                // 'classes.view',
+                // 'classes.create',
+                // 'classes.update',
 
                 // Cursos Tutelados
                 'curso-tutelado.viewAny',

@@ -16,6 +16,7 @@ import {
   CreditCard,
   ClipboardCheck,
   CalendarClock,
+  Sheet,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -36,7 +37,8 @@ export const iconRegistry: Record<string, LucideIcon> = {
   ReceiptText,
   CreditCard,
   ClipboardCheck,
-  CalendarClock
+  CalendarClock,
+  Sheet,
 };
 
 export function resolveIcon(name: string): LucideIcon {

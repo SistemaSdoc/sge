@@ -42,6 +42,7 @@ export function TabTurmas({
   instituicaoId,
   cursoTuteladoId,
   can = {},
+  anoLectivoId,
 }) {
   const isEmpty = !turmas.data || turmas.data.length === 0;
 
@@ -78,13 +79,20 @@ export function TabTurmas({
                   className="hover:cursor-pointer"
                   onClick={() =>
                     router.visit(
-                      show({
-                        instituicao: instituicaoId,
-                        cursoTutelado: cursoTuteladoId,
-                        cursoClasse: turma.classe.id,
-                        cursoClasseTurno: turma.curso_classe_turno_id,
-                        turma: turma.id,
-                      }).url,
+                      show(
+                        {
+                          instituicao: instituicaoId,
+                          cursoTutelado: cursoTuteladoId,
+                          cursoClasse: turma.classe.id,
+                          cursoClasseTurno: turma.curso_classe_turno_id,
+                          turma: turma.id,
+                        },
+                        {
+                          query: {
+                            ano_lectivo_id: anoLectivoId,
+                          },
+                        },
+                      ).url,
                     )
                   }
                 >
@@ -124,13 +132,20 @@ export function TabTurmas({
                           onClick={(event) => {
                             event.stopPropagation();
                             router.visit(
-                              show({
-                                instituicao: instituicaoId,
-                                cursoTutelado: cursoTuteladoId,
-                                cursoClasse: turma.classe.id,
-                                cursoClasseTurno: turma.curso_classe_turno_id,
-                                turma: turma.id,
-                              }).url,
+                              show(
+                                {
+                                  instituicao: instituicaoId,
+                                  cursoTutelado: cursoTuteladoId,
+                                  cursoClasse: turma.classe.id,
+                                  cursoClasseTurno: turma.curso_classe_turno_id,
+                                  turma: turma.id,
+                                },
+                                {
+                                  query: {
+                                    ano_lectivo_id: anoLectivoId,
+                                  },
+                                },
+                              ).url,
                             );
                           }}
                         >

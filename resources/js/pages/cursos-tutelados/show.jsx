@@ -25,8 +25,21 @@ import {
 } from '@/actions/App/Http/Controllers/CursoTuteladoController';
 import { destroy } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
 import { useDialog } from '@/hooks/use-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-export default function Show({ cursoTutelado }) {
+export default function Show({
+  cursoTutelado,
+  anoLectivoId,
+  anosLectivos = [],
+}) {
   const instituicaoId = cursoTutelado.instituicao.id;
   const cursoTuteladoId = cursoTutelado.id;
   const cursoId = cursoTutelado.curso.id;
@@ -59,8 +72,21 @@ export default function Show({ cursoTutelado }) {
         data: {
           page_turmas: cursoTutelado.turmas?.current_page ?? 1,
           page_professores: cursoTutelado.professores?.current_page ?? 1,
+          ano_lectivo_id: anoLectivoId,
           [param]: page,
         },
+        preserveScroll: true,
+        preserveState: true,
+      },
+    );
+  };
+
+  const handleAnoLectivoChange = (value) => {
+    router.visit(
+      showCurso({ instituicao: instituicaoId, cursoTutelado: cursoTuteladoId })
+        .url,
+      {
+        data: { ano_lectivo_id: value },
         preserveScroll: true,
         preserveState: true,
       },
@@ -210,10 +236,32 @@ export default function Show({ cursoTutelado }) {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="turmas" className="w-full">
-        <TabsList variant={'line'}>
-          <TabsTrigger value="turmas">Turmas</TabsTrigger>
-          <TabsTrigger value="professores">Professores</TabsTrigger>
+      <Tabs defaultValue="turmas">
+        <TabsList variant={'line'} className="flex w-full justify-between">
+          <div>
+            <TabsTrigger value="turmas">Turmas</TabsTrigger>
+            <TabsTrigger value="professores">Professores</TabsTrigger>
+          </div>
+          <div>
+            <Select
+              value={anoLectivoId ?? ''}
+              onValueChange={handleAnoLectivoChange}
+            >
+              <SelectTrigger id="ano-lectivo" className="w-28">
+                <SelectValue placeholder="Selecione o ano lectivo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Anos Lectivos</SelectLabel>
+                  {anosLectivos?.map((ano) => (
+                    <SelectItem key={ano.id} value={ano.id}>
+                      {ano.nome}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
         </TabsList>
 
         <TabsContent value="turmas" className="mt-2">
@@ -222,6 +270,7 @@ export default function Show({ cursoTutelado }) {
             cursoTuteladoId={cursoTuteladoId}
             turmas={cursoTutelado.turmas}
             can={cursoTutelado.can}
+            anoLectivoId={anoLectivoId}
             pagination={{
               current_page: cursoTutelado.turmas?.current_page,
               last_page: cursoTutelado.turmas?.last_page,

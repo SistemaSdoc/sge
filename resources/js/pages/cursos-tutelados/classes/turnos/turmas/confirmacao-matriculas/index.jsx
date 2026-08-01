@@ -23,6 +23,7 @@ export default function Index() {
     openForm({
       title: `Confirmar Matrícula - ${aluno.nome}`,
       description: '',
+      size: 'lg',
       content: (
         <ConfirmarMatriculaModal
           aluno={aluno}
