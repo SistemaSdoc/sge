@@ -26,7 +26,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
-import { create, show, destroy } from '@/actions/App/Http/Controllers/PagamentoController';
+import {
+  create,
+  show,
+  destroy,
+} from '@/actions/App/Http/Controllers/PagamentoController';
 import { DropdownMenuSeparator } from '@radix-ui/react-dropdown-menu';
 
 const formatCurrency = (value) => {

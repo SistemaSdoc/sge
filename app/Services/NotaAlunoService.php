@@ -6,22 +6,64 @@ use App\Helpers\ArredondamentoHelper;
 use App\Models\Aluno;
 use App\Models\Turma;
 use App\Models\TurmaAluno;
+use App\Services\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Database\Eloquent\Collection;
 
 class NotaAlunoService
 {
-    public function notas(Aluno $aluno)
-    {
-        $turmaAluno = $aluno->turmaAlunoActual();
+    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
-        abort_if(!$turmaAluno, 404, 'Registo do aluno na turma não encontrado.');
+    public function notas(Aluno $aluno, ?string $classeId = null)
+    {
+        $turmaAluno = $this->obterTurmaAlunoDaClasse($aluno, $classeId);
+
+        if (! $turmaAluno) {
+            return collect();
+        }
 
         $disciplinasDaTurma = $this->disciplinasDaTurma($turmaAluno->turma);
         $notasPorDisciplina = $this->notasAgrupadasPorDisciplina($turmaAluno);
 
         return $disciplinasDaTurma->map(
-            fn($tdp) => $this->montarLinhaDisciplina($tdp, $notasPorDisciplina)
+            fn ($tdp) => $this->montarLinhaDisciplina($tdp, $notasPorDisciplina)
         )->values();
+    }
+
+    public function classesDisponiveis(Aluno $aluno): array
+    {
+        return TurmaAluno::query()
+            ->where('aluno_id', $aluno->id)
+            ->whereHas('turma.cursoClasseTurno.cursoClasse.classe')
+            ->with('turma.cursoClasseTurno.cursoClasse.classe')
+            ->get()
+            ->map(fn (TurmaAluno $turmaAluno) => $turmaAluno->turma?->cursoClasseTurno?->cursoClasse?->classe)
+            ->filter()
+            ->unique('id')
+            ->sortBy('nome')
+            ->map(fn ($classe) => [
+                'id' => $classe->id,
+                'nome' => $classe->nome,
+            ])
+            ->values()
+            ->toArray();
+    }
+
+    private function obterTurmaAlunoDaClasse(Aluno $aluno, ?string $classeId = null): ?TurmaAluno
+    {
+        $query = TurmaAluno::query()
+            ->where('aluno_id', $aluno->id)
+            ->with(['turma.anoLectivo', 'turma.cursoClasseTurno.cursoClasse.classe']);
+
+        if ($classeId) {
+            $query->whereHas('turma.cursoClasseTurno.cursoClasse.classe', function ($q) use ($classeId) {
+                $q->where('classes.id', $classeId);
+            });
+        }
+
+        return $query
+            ->orderByDesc('activo')
+            ->orderByDesc('created_at')
+            ->first();
     }
 
     private function disciplinasDaTurma(Turma $turma): Collection
@@ -29,8 +71,8 @@ class NotaAlunoService
         return $turma->turmaDisciplinaProfessor()
             ->with(['classeTurnoDisciplina.disciplina:id,nome,sigla'])
             ->get()
-            ->groupBy(fn($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
-            ->map(fn($tdps) => $tdps->first());
+            ->groupBy(fn ($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
+            ->map(fn ($tdps) => $tdps->first());
     }
 
     private function notasAgrupadasPorDisciplina(TurmaAluno $turmaAluno): Collection
@@ -38,7 +80,7 @@ class NotaAlunoService
         return $turmaAluno->notas()
             ->with(['turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome,sigla'])
             ->get()
-            ->groupBy(fn($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id);
+            ->groupBy(fn ($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id);
     }
 
     private function montarLinhaDisciplina($tdp, Collection $notasPorDisciplina): array
@@ -74,7 +116,7 @@ class NotaAlunoService
                     'media' => ArredondamentoHelper::roundToHalf($nota?->media_trimestral),
                     'faltas' => $nota?->faltas,
                     'situacao' => $nota?->situacao_trimestral,
-                ]
+                ],
             ];
         })->toArray();
     }

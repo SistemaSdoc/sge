@@ -34,12 +34,11 @@ use App\Http\Controllers\PeriodoLancamentoNotasController;
 use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
 use App\Http\Controllers\ProgressaoController;
 use App\Http\Controllers\RegraAvaliacaoController;
+use App\Http\Controllers\RelatorioPropinaController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RelatorioPropinaController;
-
 
 // Dashboard routes (Admin, Director, Coordenador, Secretaria, Professor)
 // Todas estas rotas requerem autenticação e role de staff
@@ -62,6 +61,12 @@ Route::resource('classes', ClasseControllerGeral::class)->parameters(['classes' 
 Route::resource('turnos', TurnoController::class);
 Route::resource('disciplinas', DisciplinaControllerGeral::class);
 Route::resource('alunos', AlunoController::class);
+Route::prefix('turmas/{aluno}')->name('turmas.')->group(function () {
+    Route::get('turmas-disponiveis', [TurmaController::class, 'getTurmasDisponiveis'])
+        ->name('turmas-disponiveis');
+    Route::post('atribuir', [TurmaController::class, 'atribuirTurma'])
+        ->name('atribuir');
+});
 Route::resource('inscricoes', InscricaoController::class)->parameters(['inscricoes' => 'inscricao']);
 Route::resource('professores', ProfessorControllerGeral::class)->parameters(['professores' => 'professor']);
 Route::get('/certificados/{aluno}', [CertificadoController::class, 'show'])->name('certificados.show');
@@ -101,8 +106,6 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
             ->only(['show'])
             ->parameters(['classes' => 'cursoClasse'])
             ->names(['show' => 'cursos-tutelados.classes.show']);
-
-        Route::get('/alunos', [CursoTuteladoController::class, 'alunos']);
 
         Route::prefix('turmas/{turma}')->group(function () {
             Route::post('progressao', [ProgressaoController::class, 'store']);

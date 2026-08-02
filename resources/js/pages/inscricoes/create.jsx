@@ -8,29 +8,14 @@ export default function Create() {
   const {
     cursos,
     anosLectivos = [],
-    anoLectivoId: initialAnoLectivoId,
   } = usePage().props;
 
   const [cursoId, setCursoId] = useState(undefined);
   const [cursoClasseTurnoId, setCursoClasseTurnoId] = useState(undefined);
-  const [anoLectivoSelecionado, setAnoLectivoSelecionado] = useState(
-    initialAnoLectivoId ?? '',
-  );
 
   const cursoSelecionado = cursos?.find(
     (c) => String(c.id) === String(cursoId),
   );
-
-  const handleAnoLectivoChange = (value) => {
-    if (!value) return;
-    setAnoLectivoSelecionado(value);
-    router.visit(window.location.pathname, {
-      data: {
-        ano_lectivo_id: value,
-      },
-      preserveScroll: true,
-    });
-  };
 
   return (
     <Form
@@ -39,10 +24,9 @@ export default function Create() {
       transform={(data) => ({
         ...data,
         curso_classe_turno_id: cursoClasseTurnoId,
-        ano_lectivo_id: anoLectivoSelecionado,
       })}
       onSuccess={() =>
-        router.visit(index.url({ ano_lectivo_id: anoLectivoSelecionado }))
+        router.visit(index.url())
       }
     >
       {({ errors, processing }) => (
@@ -58,9 +42,6 @@ export default function Create() {
           cursoSelecionado={cursoSelecionado}
           cursoClasseTurnoId={cursoClasseTurnoId}
           setCursoClasseTurnoId={setCursoClasseTurnoId}
-          anosLectivos={anosLectivos}
-          anoLectivoSelecionado={anoLectivoSelecionado}
-          onAnoLectivoChange={handleAnoLectivoChange}
         />
       )}
     </Form>

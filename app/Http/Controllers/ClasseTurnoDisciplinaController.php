@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AnoLectivo;
 use App\Models\ClasseTurnoDisciplina;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
@@ -12,12 +11,15 @@ use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
 use App\Models\Turma;
 use App\Models\TurmaDisciplinaProfessor;
+use App\Services\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ClasseTurnoDisciplinaController extends Controller
 {
+    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
+
     public function create(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
@@ -26,19 +28,13 @@ class ClasseTurnoDisciplinaController extends Controller
     ) {
         $this->authorize('create', ClasseTurnoDisciplina::class);
 
-        $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::activo()?->id;
-
         return Inertia::render('cursos-tutelados/classes/turnos/disciplinas/create', [
             'disciplinas' => Disciplina::select('id', 'nome')->orderBy('nome')->get(),
             'instituicaoId' => $instituicao->id,
             'cursoId' => $cursoTutelado->id,
             'classeId' => $cursoClasse->id,
             'turnoId' => $cursoClasseTurno->id,
-            'anoLectivoId' => $anoLectivoId,  // ← adicionado
-            'anosLectivos' => AnoLectivo::all(),  // ← adicionado
             'backUrl' => url()->previous(),
-
         ]);
     }
 
@@ -54,13 +50,12 @@ class ClasseTurnoDisciplinaController extends Controller
         $request->validate([
             'disciplina_ids' => 'required|array|min:1',
             'disciplina_ids.*' => 'exists:disciplinas,id',
-            'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',
             'carga_horaria' => 'nullable|string|max:255',
             'tem_professor' => 'nullable|boolean',
         ]);
 
-        $anoLectivoId = $request->input('ano_lectivo_id')
-            ?? AnoLectivo::activo()?->id;
+        // Determina automaticamente o ano lectivo
+        $anoLectivoId = $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         // Buscar as que já existem para ignorar duplicadas no mesmo ano lectivo
         $jaExistentes = ClasseTurnoDisciplina::where('curso_classe_turno_id', $cursoClasseTurno->id)
@@ -77,29 +72,23 @@ class ClasseTurnoDisciplinaController extends Controller
             ]);
         }
 
-        $disciplinasAdicionadas = [];
         foreach (array_values($novas) as $disciplinaId) {
-            $ctd = ClasseTurnoDisciplina::create([
+            ClasseTurnoDisciplina::create([
                 'curso_classe_turno_id' => $cursoClasseTurno->id,
                 'disciplina_id' => $disciplinaId,
                 'carga_horaria' => $request->carga_horaria,
                 'tem_professor' => $request->tem_professor ?? false,
-                'ano_lectivo_id' => $anoLectivoId,  // ← usar variável
+                'ano_lectivo_id' => $anoLectivoId,
             ]);
-            $disciplinasAdicionadas[] = $ctd;
         }
 
-        $redirectTo = $request->input('redirect_to');
-        $anoLectivoParam = $request->input('ano_lectivo_id') ? ['ano_lectivo_id' => $request->input('ano_lectivo_id')] : [];
-
-        return ($redirectTo)
-            ? redirect($redirectTo)
-            : to_route('cursos-tutelados.classes.show', [
-                'instituicao' => $instituicao->id,
-                'cursoTutelado' => $cursoTutelado->id,
-                'cursoClasse' => $cursoClasse->id,
-                'cursoClasseTurno' => $cursoClasseTurno->id,
-            ] + $anoLectivoParam);  // ← preservar filtro
+        return to_route('cursos-tutelados.classes.show', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+            'cursoClasseTurno' => $cursoClasseTurno->id,
+            'ano_lectivo_id' => $anoLectivoId,
+        ]);
     }
 
     public function edit(
@@ -111,11 +100,6 @@ class ClasseTurnoDisciplinaController extends Controller
     ) {
         $this->authorize('update', $classeTurnoDisciplina);
 
-        // Filtro ano lectivo
-        $anoLectivoId = request('ano_lectivo_id')
-            ?? $classeTurnoDisciplina->ano_lectivo_id
-            ?? AnoLectivo::activo()?->id;
-
         return Inertia::render(
             'cursos-tutelados/classes/turnos/disciplinas/edit',
             [
@@ -124,8 +108,7 @@ class ClasseTurnoDisciplinaController extends Controller
                 'cursoId' => $cursoTutelado->id,
                 'classeId' => $cursoClasse->id,
                 'turnoId' => $cursoClasseTurno->id,
-                'anoLectivoId' => $anoLectivoId,  // ← adicionado
-                'anosLectivos' => AnoLectivo::all(),  // ← adicionado
+                'anoLectivoId' => $classeTurnoDisciplina->ano_lectivo_id, // ← directo do registo
             ]
         );
     }
@@ -137,7 +120,7 @@ class ClasseTurnoDisciplinaController extends Controller
         Turma $turma,
         ClasseTurnoDisciplina $classeTurnoDisciplina
     ) {
-        $this->authorize('delete', $classeTurnoDisciplina);
+        $this->authorize('update', $classeTurnoDisciplina); // ← corrigir permissão (era 'delete')
 
         DB::transaction(function () use ($request, $classeTurnoDisciplina) {
 
@@ -165,6 +148,8 @@ class ClasseTurnoDisciplinaController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         ClasseTurnoDisciplina $classeTurnoDisciplina
     ) {
+        $this->authorize('delete', $classeTurnoDisciplina);
+
         abort_if($classeTurnoDisciplina->curso_classe_turno_id !== $cursoClasseTurno->id, 404);
 
         // Verificar se tem professores associados
@@ -179,7 +164,9 @@ class ClasseTurnoDisciplinaController extends Controller
         $classeTurnoDisciplina->delete();
 
         // Preservar filtro no redirect
-        $anoLectivoParam = request('ano_lectivo_id') ? ['ano_lectivo_id' => request('ano_lectivo_id')] : [];
+        $anoLectivoParam = $classeTurnoDisciplina->ano_lectivo_id
+            ? ['ano_lectivo_id' => $classeTurnoDisciplina->ano_lectivo_id]
+            : [];
 
         return to_route('cursos-tutelados.classes.show', [
             'instituicao' => $instituicao->id,

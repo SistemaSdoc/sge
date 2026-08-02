@@ -7,16 +7,15 @@ use App\Models\User;
 class ColegioPolicy
 {
     /**
-     * Apenas instituições do tipo "Instituto" podem ver os colégios tutelados.
+     * Determina se o utilizador pode ver a lista de colégios.
+     *
+     * Apenas utilizadores com a permissão correta e pertencentes a uma
+     * instituição do tipo "instituto" podem ver os colégios tutelados.
      */
     public function viewAny(User $user): bool
     {
-        // Verificar permissão de Spatie (já definida no seeder)
-        if (! $user->hasPermissionTo('colegios.viewAny')) {
-            return false;
-        }
-
-        // Apenas Institutos podem ver colégios
-        return $user->instituicao?->tipo === 'instituto';
+        return $user->hasPermissionTo('colegios.viewAny')
+            && $user->instituicao_id !== null
+            && $user->instituicao?->tipo === 'instituto';
     }
 }

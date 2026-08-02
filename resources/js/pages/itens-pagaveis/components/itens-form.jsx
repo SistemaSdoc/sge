@@ -38,26 +38,41 @@ export function ItensForm({
   // ---------- LOGS DE DEBUG ----------
   console.log('[ItensForm] RENDER ------------------------------');
   console.log('[ItensForm] data completo:', data);
-  console.log('[ItensForm] data.curso_classe_id:', JSON.stringify(data.curso_classe_id), 'tipo:', typeof data.curso_classe_id);
-  console.log('[ItensForm] cursosClasse recebido (length):', cursosClasse.length);
+  console.log(
+    '[ItensForm] data.curso_classe_id:',
+    JSON.stringify(data.curso_classe_id),
+    'tipo:',
+    typeof data.curso_classe_id,
+  );
+  console.log(
+    '[ItensForm] cursosClasse recebido (length):',
+    cursosClasse.length,
+  );
   console.log('[ItensForm] cursosClasse recebido (array):', cursosClasse);
 
   // valor que vai efectivamente para a prop `value` do Select
   const selectValue = data.curso_classe_id || 'todos';
-  console.log('[ItensForm] selectValue calculado (vai para o Select):', JSON.stringify(selectValue));
+  console.log(
+    '[ItensForm] selectValue calculado (vai para o Select):',
+    JSON.stringify(selectValue),
+  );
 
   // verifica se esse valor existe mesmo dentro da lista de opções
   const idsDisponiveis = cursosClasse.map((cc) => String(cc.id));
-  const existeNaLista = idsDisponiveis.includes(selectValue) || selectValue === 'todos';
+  const existeNaLista =
+    idsDisponiveis.includes(selectValue) || selectValue === 'todos';
   console.log('[ItensForm] IDs disponíveis no Select:', idsDisponiveis);
-  console.log('[ItensForm] selectValue existe na lista de opções?', existeNaLista);
+  console.log(
+    '[ItensForm] selectValue existe na lista de opções?',
+    existeNaLista,
+  );
 
   if (!existeNaLista) {
     console.warn(
       '[ItensForm] ⚠️ PROBLEMA ENCONTRADO: o valor "' +
         selectValue +
         '" não corresponde a NENHUM id em cursosClasse. ' +
-        'O SelectValue vai ficar vazio/placeholder mesmo com dados corretos.'
+        'O SelectValue vai ficar vazio/placeholder mesmo com dados corretos.',
     );
   }
   // ---------- FIM LOGS DE DEBUG ----------
@@ -78,7 +93,7 @@ export function ItensForm({
                   <Input
                     id="nome"
                     type="text"
-                    placeholder="Nome do item (ex.: Propina mensal)"
+                    placeholder="Nome do emolumento (ex.: Propina para a 10ª classe)"
                     value={data.nome ?? ''}
                     onChange={(e) => setData('nome', e.target.value)}
                     aria-invalid={Boolean(errors?.nome)}
@@ -86,26 +101,14 @@ export function ItensForm({
                   {errors?.nome && <FieldError>{errors.nome}</FieldError>}
                 </Field>
 
-                <Field data-invalid={Boolean(errors?.descricao)}>
-                  <FieldLabel htmlFor="descricao">Descrição</FieldLabel>
-                  <Textarea
-                    id="descricao"
-                    placeholder="Opcional"
-                    value={data.descricao ?? ''}
-                    onChange={(e) => setData('descricao', e.target.value)}
-                    aria-invalid={Boolean(errors?.descricao)}
-                  />
-                  {errors?.descricao && <FieldError>{errors.descricao}</FieldError>}
-                </Field>
-
-                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2">
                   <Field data-invalid={Boolean(errors?.valor)}>
                     <FieldLabel htmlFor="valor">Valor</FieldLabel>
                     <Input
                       id="valor"
                       type="number"
                       min="0"
-                      step="0.01"
+                      step="500"
                       placeholder="0,00"
                       value={data.valor ?? ''}
                       onChange={(e) => setData('valor', e.target.value)}
@@ -115,13 +118,13 @@ export function ItensForm({
                   </Field>
 
                   <Field data-invalid={Boolean(errors?.frequencia)}>
-                    <FieldLabel>Frequência</FieldLabel>
+                    <FieldLabel>Frequência de pagamento</FieldLabel>
                     <ToggleGroup
                       type="single"
                       variant="outline"
                       value={data.frequencia ?? 'mensal'}
                       onValueChange={(val) => val && setData('frequencia', val)}
-                      className="flex-wrap"
+                      className="flex w-full!"
                     >
                       {frequencias.map((f) => (
                         <ToggleGroupItem key={f.value} value={f.value}>
@@ -129,28 +132,44 @@ export function ItensForm({
                         </ToggleGroupItem>
                       ))}
                     </ToggleGroup>
-                    {errors?.frequencia && <FieldError>{errors.frequencia}</FieldError>}
+                    {errors?.frequencia && (
+                      <FieldError>{errors.frequencia}</FieldError>
+                    )}
                   </Field>
                 </div>
 
                 <Field data-invalid={Boolean(errors?.curso_classe_id)}>
-                  <FieldLabel htmlFor="curso_classe_id">Curso / Classe</FieldLabel>
+                  <FieldLabel htmlFor="curso_classe_id">
+                    Aplicar a Curso / Classe
+                  </FieldLabel>
                   <Select
                     value={selectValue}
                     onValueChange={(val) => {
-                      console.log('[ItensForm] onValueChange disparado. val recebido:', val);
+                      console.log(
+                        '[ItensForm] onValueChange disparado. val recebido:',
+                        val,
+                      );
                       setData('curso_classe_id', val === 'todos' ? '' : val);
                     }}
                   >
-                    <SelectTrigger id="curso_classe_id" aria-invalid={Boolean(errors?.curso_classe_id)}>
+                    <SelectTrigger
+                      id="curso_classe_id"
+                      aria-invalid={Boolean(errors?.curso_classe_id)}
+                    >
                       <SelectValue placeholder="Aplica-se a toda a instituição" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="todos">Toda a instituição (sem curso/classe específico)</SelectItem>
+                      <SelectItem value="todos">
+                        Toda a instituição (sem curso/classe específico)
+                      </SelectItem>
                       {cursosClasse.map((cc) => {
                         const valorItem = String(cc.id);
                         if (valorItem === selectValue) {
-                          console.log('[ItensForm] ✅ SelectItem que DEVERIA aparecer selecionado:', cc.nome, valorItem);
+                          console.log(
+                            '[ItensForm] ✅ SelectItem que DEVERIA aparecer selecionado:',
+                            cc.nome,
+                            valorItem,
+                          );
                         }
                         return (
                           <SelectItem key={cc.id} value={valorItem}>
@@ -165,19 +184,34 @@ export function ItensForm({
                   )}
                 </Field>
 
-                <Field className="mt-4 flex flex-row items-center justify-between rounded-lg border p-3">
+                <Field data-invalid={Boolean(errors?.descricao)}>
+                  <FieldLabel htmlFor="descricao">Descrição</FieldLabel>
+                  <Textarea
+                    id="descricao"
+                    placeholder="Opcional"
+                    value={data.descricao ?? ''}
+                    onChange={(e) => setData('descricao', e.target.value)}
+                    aria-invalid={Boolean(errors?.descricao)}
+                  />
+                  {errors?.descricao && (
+                    <FieldError>{errors.descricao}</FieldError>
+                  )}
+                </Field>
+
+                <Field className="flex flex-row items-center justify-between">
                   <FieldLabel htmlFor="ativo" className="cursor-pointer">
-                    Item activo
+                    Bloquear Estudantes se não pagarem este emolumento?
                   </FieldLabel>
                   <Switch
                     id="ativo"
+                    size="sm"
                     checked={Boolean(data.ativo)}
                     onCheckedChange={(val) => setData('ativo', val)}
                   />
                 </Field>
 
-                <Button type="submit" disabled={processing} className="mt-4">
-                  {processing ? 'A guardar...' : submitLabel}
+                <Button type="submit" disabled={processing}>
+                  {processing ? 'Criando...' : submitLabel}
                 </Button>
               </FieldSet>
             </FieldGroup>

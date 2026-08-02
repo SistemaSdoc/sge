@@ -7,14 +7,12 @@ export default function Create({
   cursoTutelado,
   cursoClasse,
   cursoClasseTurno,
-  anoLectivoId,
   anosLectivos = [],
   can = {},
 }) {
   const { data, setData, post, processing, errors } = useForm({
     nome: '',
     max_alunos: '',
-    ano_lectivo_id: anoLectivoId ?? '',
   });
 
   const handleSubmit = (e) => {
@@ -38,7 +36,6 @@ export default function Create({
       errors={errors}
       processing={processing}
       can={can}
-      anosLectivos={anosLectivos}
       onSubmit={handleSubmit}
     />
   );

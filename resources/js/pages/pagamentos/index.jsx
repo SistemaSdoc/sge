@@ -2,7 +2,10 @@ import { useDialog } from '@/hooks/use-dialog';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import PagamentosTable from './components/pagamentos-table';
-import { index, destroy } from '@/actions/App/Http/Controllers/PagamentoController';
+import {
+  index,
+  destroy,
+} from '@/actions/App/Http/Controllers/PagamentoController';
 import { porTurma } from '@/actions/App/Http/Controllers/RelatorioPropinaController';
 import { AlertTriangleIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -75,7 +78,11 @@ export default function Index({ pagamentos, can, turmas = [] }) {
             </div>
 
             <div className="flex justify-end">
-              <Button size="sm" disabled={!turmaEscolhida} onClick={verRelatorio}>
+              <Button
+                size="sm"
+                disabled={!turmaEscolhida}
+                onClick={verRelatorio}
+              >
                 Ver relatório
               </Button>
             </div>
@@ -85,6 +92,7 @@ export default function Index({ pagamentos, can, turmas = [] }) {
 
       <PagamentosTable
         pagamentos={pagamentos?.data ?? []}
+        can={can}
         deleteFn={handleDelete}
         pagination={{
           current_page: pagamentos.current_page,

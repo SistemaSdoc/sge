@@ -20,6 +20,7 @@ use App\Http\Controllers\RegraAvaliacaoController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Models\Aluno;
+use App\Models\AnoLectivo;
 use App\Models\Aviso;
 use App\Models\Classe;
 use App\Models\Curso;
@@ -77,7 +78,7 @@ final class SidebarMenuService
                             return false;
                         }
 
-                        $instituicao = Instituicao::find($user->instituicao_id);
+                        $instituicao = Instituicao::find($user?->instituicao_id, ['id']);
 
                         return $instituicao && Gate::allows('view', $instituicao);
                     },
@@ -168,7 +169,7 @@ final class SidebarMenuService
                     title: 'Anos Lectivos',
                     href: action([AnoLectivoController::class, 'index']),
                     icon: 'CalendarClock',
-                    can: true
+                    can: fn () => Gate::allows('viewAny', AnoLectivo::class)
                 ),
             ]),
 
@@ -220,30 +221,34 @@ final class SidebarMenuService
                             : '#';
                     })(),
                     icon: 'Building2',
-                    can: fn () => Gate::allows('colegios.viewAny'),
+                    can: fn () => Auth::user()?->hasPermissionTo('colegios.viewAny')
+                        && Auth::user()?->instituicao?->tipo === 'instituto',
                 ),
 
                 new MenuItem(
-                    key: 'pautas',
+                    key: 'pautas-colegios',
                     title: 'Pautas',
                     href: '#',
                     icon: 'Sheet',
-                    can: fn () => true,
+                    can: fn () => Auth::user()?->hasPermissionTo('colegios.viewAny')
+                        && Auth::user()?->instituicao?->tipo === 'instituto',
                 ),
 
                 new MenuItem(
-                    key: 'grupos-pap',
+                    key: 'grupos-pap-colegios',
                     title: 'Grupos PAP',
                     href: '#',
                     icon: 'Users',
-                    can: fn () => Gate::allows('viewAny', GrupoPap::class),
+                    can: fn () => Auth::user()?->hasPermissionTo('colegios.viewAny')
+                        && Auth::user()?->instituicao?->tipo === 'instituto'
+                        && Auth::user()?->hasPermissionTo('grupopap.viewAny'),
                 ),
             ]),
 
             new MenuGroup('Pagamentos', [
                 new MenuItem(
                     key: 'itens-pagaveis',
-                    title: 'Itens Pagáveis',
+                    title: 'Emolumentos Escolares',
                     href: route('itens-pagaveis.index'),
                     icon: 'ReceiptText',
                     can: fn () => Gate::allows('viewAny', ItemPagavel::class),

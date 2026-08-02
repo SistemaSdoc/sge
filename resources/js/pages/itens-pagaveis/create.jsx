@@ -7,15 +7,15 @@ export default function Create({ cursosClasse }) {
     nome: '',
     descricao: '',
     valor: '',
-    frequencia: 'mensal',
+    frequencia: '',
     curso_classe_id: '',
     ativo: true,
   });
 
   return (
     <ItensForm
-      title="Novo item pagável"
-      submitLabel="Criar item"
+      title="Novo Emolumento Escolar"
+      submitLabel="Criar emolumento"
       data={data}
       setData={setData}
       errors={errors}

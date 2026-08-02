@@ -3,35 +3,61 @@
 namespace App\Services;
 
 use App\Models\Aluno;
-use App\Models\AnoLectivo;
+use App\Services\AnoLectivo\AnoLectivoResolverService;
+use App\Services\NotaAlunoService;
 
 class GrelhaCurricularService
 {
-    public function gerarGrelhaCurricular(Aluno $aluno, ?string $anoLectivoId = null)
-    {
-        $anoLectivoId ??= AnoLectivo::activo()?->id;
+    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
-        $turma = $aluno->turmas()
-            ->where('turmas.ano_lectivo_id', $anoLectivoId)   // ← direto, sem passar por cursoClasseTurno
-            ->with('cursoClasseTurno.cursoClasse')
-            ->first();
-            
-        abort_if(!$turma, 404, 'Aluno não tem turma atribuída neste ano lectivo.');
+    public function gerarGrelhaCurricular(Aluno $aluno, ?string $classeId = null)
+    {
+        $turmaAluno = $this->obterTurmaAlunoDaClasse($aluno, $classeId);
+
+        if (! $turmaAluno) {
+            return collect();
+        }
+
+        $turma = $turmaAluno->turma;
 
         return $turma->cursoClasseTurno
             ->classeTurnoDisciplinas()
             ->with([
                 'disciplina:id,nome,sigla',
-                'turmaDisciplinaProfessores' => fn($q) => $q
+                'turmaDisciplinaProfessores' => fn ($q) => $q
                     ->where('turma_id', $turma->id)
                     ->with('professor.user:id,nome'),
             ])
             ->get()
-            ->map(fn($ctd) => [
+            ->map(fn ($ctd) => [
                 'sigla' => $ctd->disciplina->sigla,
                 'disciplina' => $ctd->disciplina->nome,
                 'professor' => $ctd->turmaDisciplinaProfessores->first()?->professor?->user?->nome
                     ?? 'Sem professor',
             ]);
+    }
+
+    public function classesDisponiveis(Aluno $aluno): array
+    {
+        return 
+            app(NotaAlunoService::class)->classesDisponiveis($aluno);
+    }
+
+    private function obterTurmaAlunoDaClasse(Aluno $aluno, ?string $classeId = null)
+    {
+        $query = \App\Models\TurmaAluno::query()
+            ->where('aluno_id', $aluno->id)
+            ->with(['turma.anoLectivo', 'turma.cursoClasseTurno.cursoClasse.classe']);
+
+        if ($classeId) {
+            $query->whereHas('turma.cursoClasseTurno.cursoClasse.classe', function ($q) use ($classeId) {
+                $q->where('classes.id', $classeId);
+            });
+        }
+
+        return $query
+            ->orderByDesc('activo')
+            ->orderByDesc('created_at')
+            ->first();
     }
 }

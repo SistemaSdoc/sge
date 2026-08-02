@@ -17,7 +17,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -49,7 +48,6 @@ const frequenciaLabels = {
 export default function ItensTable({
   itens = [],
   can,
-  deleteFn,
   pagination = {},
   onPageChange,
 }) {
@@ -59,14 +57,14 @@ export default function ItensTable({
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
       <CardHeader className="border-b">
-        <CardTitle>Itens pagáveis</CardTitle>
+        <CardTitle>Emolumentos Escolares</CardTitle>
         <CardDescription>
-          Itens utilizados para cobrar encargos escolares
+          Emolumentos utilizados para cobrar encargos escolares
         </CardDescription>
         <CardAction>
           {can?.create && (
             <Button asChild>
-              <Link href={create().url}>Novo item</Link>
+              <Link href={create().url}>Novo emolumento</Link>
             </Button>
           )}
         </CardAction>
@@ -77,12 +75,12 @@ export default function ItensTable({
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title="Nenhum item encontrado"
-            description="Adicione itens pagáveis para começar a cobrar"
+            title="Nenhum emolumento encontrado"
+            description="Adicione emolumentos para começar a cobrar"
             action={
               can?.create
                 ? {
-                    label: 'Adicionar item',
+                    label: 'Adicionar emolumento',
                     href: create().url,
                     variant: 'outline',
                   }
@@ -94,31 +92,38 @@ export default function ItensTable({
             <TableHeader>
               <TableRow className="bg-muted/72">
                 <TableHead className="px-4">Nome</TableHead>
-                <TableHead className="px-4">Curso / Classe</TableHead>
-                <TableHead className="px-4">Frequência</TableHead>
-                <TableHead className="px-4">Valor</TableHead>
-                <TableHead className="px-4">Estado</TableHead>
+                <TableHead className="px-4 text-center">Aplicada a</TableHead>
+                <TableHead className="px-4 text-center">Frequência</TableHead>
+                <TableHead className="px-4 text-center">Valor</TableHead>
+                <TableHead className="px-4 text-center">
+                  Estado {/** Bloqueia estudantes? */}
+                </TableHead>
                 {hasAnyAction && (
                   <TableHead className="px-4 text-right">Acções</TableHead>
                 )}
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {itens.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="px-4 font-medium">
                     {item.nome}
                   </TableCell>
-                  <TableCell className="px-4 text-muted-foreground">
+
+                  <TableCell className="px-4 text-center">
                     {item.curso_classe ?? 'Toda a instituição'}
                   </TableCell>
-                  <TableCell className="px-4 text-muted-foreground">
+
+                  <TableCell className="px-4 text-center">
                     {frequenciaLabels[item.frequencia] ?? item.frequencia}
                   </TableCell>
-                  <TableCell className="px-4 font-medium">
+
+                  <TableCell className="px-4 text-center font-medium">
                     {formatCurrency(item.valor)}
                   </TableCell>
-                  <TableCell className="px-4">
+
+                  <TableCell className="px-4 text-center">
                     <Badge variant={item.ativo ? 'default' : 'secondary'}>
                       {item.ativo ? 'Activo' : 'Inactivo'}
                     </Badge>
@@ -148,22 +153,6 @@ export default function ItensTable({
                                 }}
                               >
                                 Editar
-                              </DropdownMenuItem>
-                            )}
-
-                            {item.can?.update && item.can?.delete && (
-                              <DropdownMenuSeparator />
-                            )}
-
-                            {item.can?.delete && (
-                              <DropdownMenuItem
-                                variant="destructive"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  deleteFn(item.id);
-                                }}
-                              >
-                                Remover
                               </DropdownMenuItem>
                             )}
                           </DropdownMenuContent>

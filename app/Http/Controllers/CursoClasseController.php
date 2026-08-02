@@ -9,12 +9,15 @@ use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\Turma;
+use App\Services\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CursoClasseController extends Controller
 {
+    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
+
     /**
      * Display the specified resource (Show page via Inertia).
      */
@@ -22,17 +25,9 @@ class CursoClasseController extends Controller
     {
         $cursoClasse->load(['classe:id,nome', 'turnos.turno:id,nome']);
 
-        $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::query()
-                ->where('data_inicio', '<=', now())
-                ->where('data_fim', '>=', now())
-                ->orderByDesc('data_inicio')
-                ->first()?->id
-            ?? AnoLectivo::query()
-                ->where('data_inicio', '>', now())
-                ->orderBy('data_inicio')
-                ->first()?->id
-            ?? AnoLectivo::activo()?->id;
+        $anoLectivoId = filled(request('ano_lectivo_id'))
+            ? request('ano_lectivo_id')
+            : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         // Se o turno pedido não pertence a este cursoClasse, cai para o primeiro
         $turnoId = $cursoClasse->turnos->firstWhere('id', request('turno'))?->id

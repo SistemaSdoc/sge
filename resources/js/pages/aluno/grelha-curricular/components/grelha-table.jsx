@@ -1,5 +1,6 @@
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -15,6 +16,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 /**
  * Componente de tabela para exibição de notas do aluno.
@@ -28,7 +38,12 @@ import {
  * @param {number} trimestre - Trimestre selecionado (1, 2 ou 3)
  * @returns {JSX.Element}
  */
-export function GrelhaTable({ data = [] }) {
+export function GrelhaTable({
+  data = [],
+  classes = [],
+  classeId,
+  handleClasseChange,
+}) {
   const isEmpty = !data || data.length === 0;
 
   return (
@@ -39,6 +54,24 @@ export function GrelhaTable({ data = [] }) {
         <CardDescription>
           Visualize todas as disciplinas da sua turma e respetivos professores
         </CardDescription>
+
+        <CardAction>
+          <Select value={classeId ?? ''} onValueChange={handleClasseChange}>
+            <SelectTrigger id="classe" className="w-20">
+              <SelectValue placeholder="Selecione a classe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Classes</SelectLabel>
+                {classes?.map((classe) => (
+                  <SelectItem key={classe.id} value={classe.id}>
+                    {classe.nome}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </CardAction>
       </CardHeader>
 
       <CardContent className="gap-0 p-0!">

@@ -57,7 +57,10 @@ class ColegioController extends Controller
         $colegios->setCollection($colegiosComCursos);
 
         return Inertia::render('colegio/index', [
-            'instituicao' => ['id' => $instituicao->id, 'nome' => $instituicao->nome],
+            'instituicao' => [
+                'id' => $instituicao->id,
+                'nome' => $instituicao->nome,
+            ],
             'colegios' => $colegios,
         ]);
     }

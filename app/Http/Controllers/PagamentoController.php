@@ -10,6 +10,7 @@ use App\Models\Pagamento;
 use App\Models\PagamentoItem;
 use App\Models\Turma;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
@@ -61,12 +62,15 @@ class PagamentoController extends Controller
             ->get()
             ->map(fn (Turma $t) => [
                 'id' => $t->id,
-                'nome' => $t->nome . ' — ' . ($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
+                'nome' => $t->nome.' — '.($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
             ]);
 
         return Inertia::render('pagamentos/index', [
             'pagamentos' => $pagamentos,
             'turmas' => $turmas,
+            'can' => [
+                'create' => Auth::user()->can('create', Pagamento::class),
+            ],
         ]);
     }
 

@@ -48,6 +48,7 @@ export function AlunoTable({
   anoLectivoActual,
   anosLectivos = [],
   onAnoLectivoChange,
+  atribuirTurmaFn,
 }) {
   const isEmpty = !data || data.length === 0;
   const hasActionColumn = data?.some((aluno) => aluno.can?.update);
@@ -82,9 +83,6 @@ export function AlunoTable({
                 <Button variant="outline">Pesquisar</Button>
               </div>
             </Field>
-            <Button variant="outline">
-              <Filter /> Filtrar
-            </Button>
           </CardAction>
         </CardHeader>
 
@@ -186,16 +184,18 @@ export function AlunoTable({
                               >
                                 Editar
                               </DropdownMenuItem>
-                              <DropdownMenuSeparator />
+                              {/*
+                              
                               <DropdownMenuItem
-                                variant="destructive"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  deleteFn(aluno.id);
+                                  atribuirTurmaFn(aluno, e);
                                 }}
                               >
-                                Remover
+                                Atribuir Turma
                               </DropdownMenuItem>
+                              */}
+                              <DropdownMenuSeparator />
                             </DropdownMenuContent>
                           </DropdownMenu>
                         )}

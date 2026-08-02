@@ -20,6 +20,16 @@ import {
 import { TrimestroSelector } from './trimestre-selector';
 import { useState } from 'react';
 import { getStatusVariant } from '@/utils/get-variants';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
 /**
  * Componente de tabela para exibição de notas do aluno.
  *
@@ -32,7 +42,12 @@ import { getStatusVariant } from '@/utils/get-variants';
  * @param {number} trimestre - Trimestre selecionado (1, 2 ou 3)
  * @returns {JSX.Element}
  */
-export function NotasTable({ data = [] }) {
+export function NotasTable({
+  data = [],
+  classes = [],
+  classeId,
+  handleClasseChange,
+}) {
   const [trimestre, setTrimestre] = useState(1);
   const isEmpty = !data || data.length === 0;
   const formatarNota = (n) =>
@@ -49,6 +64,21 @@ export function NotasTable({ data = [] }) {
         </CardDescription>
 
         <CardAction className="flex flex-col gap-2 md:flex-row md:items-center">
+          <Select value={classeId ?? ''} onValueChange={handleClasseChange}>
+            <SelectTrigger id="classe" className="w-16">
+              <SelectValue placeholder="Selecione a classe" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Classes</SelectLabel>
+                {classes?.map((classe) => (
+                  <SelectItem key={classe.id} value={classe.id}>
+                    {classe.nome}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
           <TrimestroSelector value={trimestre} onChange={setTrimestre} />
         </CardAction>
       </CardHeader>

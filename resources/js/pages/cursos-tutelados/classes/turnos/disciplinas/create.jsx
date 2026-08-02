@@ -10,28 +10,12 @@ export default function Create() {
     cursoId,
     classeId,
     turnoId,
-    anoLectivoId: initialAnoLectivoId,
     anosLectivos,
   } = usePage().props;
   const [disciplinaIds, setDisciplinaIds] = useState([]);
-  const [anoLectivoSelecionado, setAnoLectivoSelecionado] = useState(
-    initialAnoLectivoId ?? '',
-  );
 
   const redirectTo =
     new URLSearchParams(window.location.search).get('redirect_to') ?? '';
-
-  const handleAnoLectivoChange = (value) => {
-    setAnoLectivoSelecionado(value);
-
-    router.visit(window.location.pathname, {
-      data: {
-        ano_lectivo_id: value,
-        redirect_to: redirectTo,
-      },
-      preserveScroll: true,
-    });
-  };
 
   return (
     <Form
@@ -45,7 +29,6 @@ export default function Create() {
         ...data,
         disciplina_ids: disciplinaIds,
         redirect_to: redirectTo,
-        ano_lectivo_id: anoLectivoSelecionado,
       })}
     >
       {({ errors, processing }) => (
@@ -55,9 +38,6 @@ export default function Create() {
           setDisciplinaIds={setDisciplinaIds}
           errors={errors}
           processing={processing}
-          anosLectivos={anosLectivos}
-          anoLectivoSelecionado={anoLectivoSelecionado}
-          onAnoLectivoChange={handleAnoLectivoChange}
         />
       )}
     </Form>

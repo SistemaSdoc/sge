@@ -9,7 +9,7 @@ use App\Http\Resources\Inscricao\InscricaoShowResource;
 use App\Models\AnoLectivo;
 use App\Models\CursoClasseTurno;
 use App\Models\Inscricao;
-use App\Models\Instituicao;
+use App\Services\AnoLectivo\AnoLectivoResolverService;
 use App\Services\InscricaoService;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -17,9 +17,9 @@ use Inertia\Inertia;
 class InscricaoController extends Controller
 {
     public function __construct(
+        private readonly AnoLectivoResolverService $anoLectivoResolverService,
         private InscricaoService $inscricaoService
-    ) {
-    }
+    ) {}
 
     public function index()
     {
@@ -28,27 +28,26 @@ class InscricaoController extends Controller
         $user = Auth::user();
         $instituicaoId = Auth::user()?->instituicaoFiltro();
 
-        // Ano lectivo ativo global
-        $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::activo()?->id;
-
+        $anoLectivoId = filled(request('ano_lectivo_id'))
+            ? request('ano_lectivo_id')
+            : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         $inscricoes = Inscricao::with([
             'candidato:id,nome',
             'cursoClasseTurno.turno:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-            'anoLectivo:id,nome',  
+            'anoLectivo:id,nome',
         ])->when(
-                $instituicaoId,
-                fn($q) => $q->whereHas(
-                    'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn($q) => $q->where('instituicao_id', $instituicaoId)
-                )
-            )->when(
-                $anoLectivoId,
-                fn($q) => $q->where('ano_lectivo_id', $anoLectivoId)
-            )->latest()->paginate(10);
+            $instituicaoId,
+            fn ($q) => $q->whereHas(
+                'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                fn ($q) => $q->where('instituicao_id', $instituicaoId)
+            )
+        )->when(
+            $anoLectivoId,
+            fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId)
+        )->latest()->paginate(10);
 
         $inscricoes->getCollection()->transform(function ($inscricao) use ($user) {
             $inscricao->can = [
@@ -66,7 +65,10 @@ class InscricaoController extends Controller
                 'current_page' => $inscricoes->currentPage(),
                 'last_page' => $inscricoes->lastPage(),
             ],
-            'anosLectivos' => AnoLectivo::all(), // Todos os anos
+            'anosLectivos' => AnoLectivo::query()
+                ->select('id', 'nome')
+                ->orderByDesc('data_inicio')
+                ->get(),
             'anoLectivoActual' => $anoLectivoId,
             'can' => [
                 'create' => $user->can('create', Inscricao::class),
@@ -82,7 +84,7 @@ class InscricaoController extends Controller
         $instituicaoId = $user->instituicao_id;
 
         $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::activo()?->id;
+            ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         // Busca curso_classe_turno apenas da instituição do utilizador, classe 10ª
         $cursoClasseTurnos = CursoClasseTurno::with([
@@ -90,13 +92,13 @@ class InscricaoController extends Controller
             'cursoClasse.classe:id,nome',
             'cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
         ])->whereHas(
-                'cursoClasse.cursoTutelado.instituicaoCurso',
-                fn($q) => $q->where('instituicao_id', $instituicaoId)
-            )->get();
+            'cursoClasse.cursoTutelado.instituicaoCurso',
+            fn ($q) => $q->where('instituicao_id', $instituicaoId)
+        )->get();
 
         // Agrupa por curso e filtra por classe 10ª
         $cursos = $cursoClasseTurnos
-            ->filter(fn($cct) => $cct->cursoClasse->classe?->nome === '10ª')
+            ->filter(fn ($cct) => $cct->cursoClasse->classe?->nome === '10ª')
             ->groupBy(function ($cct) {
                 return $cct->cursoClasse->cursoTutelado->instituicaoCurso->id;
             })
@@ -106,10 +108,10 @@ class InscricaoController extends Controller
                 return [
                     'id' => $primeiro->cursoClasse->cursoTutelado->instituicaoCurso->id,
                     'nome' => $primeiro->cursoClasse->cursoTutelado->instituicaoCurso->curso->nome,
-                    'turnos' => $group->map(fn($cct) => [
+                    'turnos' => $group->map(fn ($cct) => [
                         'id' => $cct->id,
                         'nome' => $cct->turno->nome,
-                    ])->values()
+                    ])->values(),
                 ];
             })
             ->values();
@@ -120,6 +122,7 @@ class InscricaoController extends Controller
             'anoLectivoId' => $anoLectivoId,
         ]);
     }
+
     public function store(StoreInscricaoRequest $request)
     {
         $this->authorize('create', Inscricao::class);
@@ -140,13 +143,12 @@ class InscricaoController extends Controller
             'cursoClasseTurno.turno:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-            'anoLectivo:id,nome', 
+            'anoLectivo:id,nome',
         ]);
 
         return Inertia::render('inscricoes/show', [
-            'inscricao' => (new InscricaoShowResource($inscricao))->resolve(),  // AAlterado, erro que estava a fazer aparecer tela preta ao acessar detalhes da inscrição
+            'inscricao' => (new InscricaoShowResource($inscricao))->resolve(),
         ]);
-
     }
 
     public function update(UpdateInscricaoRequest $request, Inscricao $inscricao)
@@ -155,9 +157,7 @@ class InscricaoController extends Controller
 
         $this->inscricaoService->atualizarNotaTeste($inscricao, $request->validated('nota_teste'));
 
-        return redirect()->route('inscricoes.index', [
-            'ano_lectivo_id' => $inscricao->ano_lectivo_id,
-        ]);
+        return redirect()->route('inscricoes.index');
     }
 
     public function destroy(Inscricao $inscricao)
