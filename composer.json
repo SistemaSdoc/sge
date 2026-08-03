@@ -21,6 +21,7 @@
     "laravel/wayfinder": "^0.1.14",
     "maatwebsite/excel": "*",
     "opcodesio/log-viewer": "^3.24",
+    "phpoffice/phpword": "^1.4",
     "spatie/browsershot": "^5.4",
     "spatie/laravel-permission": "^8.3"
   },

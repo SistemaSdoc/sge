@@ -26,6 +26,7 @@ import { Minus, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { show } from '@/actions/App/Http/Controllers/AlunoController';
 import { useCertificado } from '../../hooks/use-certificado';
+import { useDeclaracao } from '../../hooks/use-declaracao';
 import TablePagination from '@/components/table-pagination';
 
 export function TabAlunos({
@@ -36,6 +37,7 @@ export function TabAlunos({
   can = {},
 }) {
   const { gerarCertificado } = useCertificado(params);
+  const { gerarDeclaracao } = useDeclaracao(params);
   const canCreate = Boolean(can.create);
   const isEmpty = alunos.length === 0;
 
@@ -115,6 +117,11 @@ export function TabAlunos({
                             onClick={(e) => gerarCertificado(e, aluno.id)}
                           >
                             Gerar Certificado
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => gerarDeclaracao(e, aluno.id)}
+                          >
+                            Gerar Declaração
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
