@@ -58,6 +58,54 @@ export default function GrupoPapForm({
                 </Field>
 
                 <Field>
+                  <FieldLabel>Alunos</FieldLabel>
+                  <MultipleSelect
+                    placeholder="Selecione os alunos"
+                    items={alunos.map((a) => ({
+                      value: a.id,
+                      label: a.nome,
+                    }))}
+                    onChange={(opts) => setAlunoIds(opts.map((o) => o.value))}
+                    value={alunoIds.map((id) => ({
+                      value: id,
+                      label: alunos.find((a) => a.id === id)?.nome ?? id,
+                    }))}
+                  />
+
+                  {Object.keys(errors)
+                    .filter((key) => key.startsWith('alunos'))
+                    .map((key) => (
+                      <FieldError key={key}>{errors[key]}</FieldError>
+                    ))}
+                </Field>
+
+                <Field>
+                  <FieldLabel>Professor tutor</FieldLabel>
+                  <Select
+                    value={professorTutorId || undefined}
+                    onValueChange={setProfessorTutorId}
+                    disabled={processing}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione o professor tutor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Professores</SelectLabel>
+                        {professores.map((p) => (
+                          <SelectItem key={p.id} value={String(p.id)}>
+                            {p.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  {errors.professor_tutor_id && (
+                    <FieldError>{errors.professor_tutor_id}</FieldError>
+                  )}
+                </Field>
+
+                <Field>
                   <FieldLabel>Tema</FieldLabel>
                   <Input
                     name="tema_grupo"
@@ -72,56 +120,35 @@ export default function GrupoPapForm({
               </div>
 
               <Field>
-                <FieldLabel>Professor tutor</FieldLabel>
-                <Select
-                  value={professorTutorId || undefined}
-                  onValueChange={setProfessorTutorId}
+                <FieldLabel>Problema</FieldLabel>
+                <Input
+                  name="problema"
                   disabled={processing}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecione o professor tutor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Professores</SelectLabel>
-                      {professores.map((p) => (
-                        <SelectItem key={p.id} value={String(p.id)}>
-                          {p.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {errors.professor_tutor_id && (
-                  <FieldError>{errors.professor_tutor_id}</FieldError>
+                  placeholder="Ex.: Dificuldades na gestão de alunos e professores"
+                  defaultValue={grupoPap?.problema ?? ''}
+                />
+                {errors.problema && (
+                  <FieldError>{errors.problema}</FieldError>
+                )}
+              </Field>
+
+
+              <Field>
+                <FieldLabel>Objectivos</FieldLabel>
+                <Textarea
+                  name="objectivos"
+                  disabled={processing}
+                  placeholder="Descreve os objectivos geral e específicos..."
+                  defaultValue={grupoPap?.objectivos ?? ''}
+                />
+                {errors.objectivos && (
+                  <FieldError>{errors.objectivos}</FieldError>
                 )}
               </Field>
 
               <Field>
-                <FieldLabel>Alunos</FieldLabel>
-                <MultipleSelect
-                  placeholder="Selecione os alunos"
-                  items={alunos.map((a) => ({
-                    value: a.id,
-                    label: a.nome,
-                  }))}
-                  onChange={(opts) => setAlunoIds(opts.map((o) => o.value))}
-                  value={alunoIds.map((id) => ({
-                    value: id,
-                    label: alunos.find((a) => a.id === id)?.nome ?? id,
-                  }))}
-                />
-
-                {Object.keys(errors)
-                  .filter((key) => key.startsWith('alunos'))
-                  .map((key) => (
-                    <FieldError key={key}>{errors[key]}</FieldError>
-                  ))}
-              </Field>
-
-              <Field>
                 <FieldLabel>Estudo de caso</FieldLabel>
-                <Textarea
+                <Input
                   name="estudo_caso"
                   disabled={processing}
                   placeholder="Descreve o estudo de caso..."
@@ -147,6 +174,6 @@ export default function GrupoPapForm({
           </FieldGroup>
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 }

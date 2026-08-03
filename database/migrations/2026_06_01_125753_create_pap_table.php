@@ -18,6 +18,8 @@ return new class extends Migration {
             $table->foreign('professor_tutor_id')->references('id')->on('professores');
             $table->string('nome_grupo');
             $table->string('tema_grupo');
+            $table->text('problema')->nullable();
+            $table->text('objectivos')->nullable();
 
             // ← ADICIONA AQUI
             $table->enum('status_aprovacao', [

@@ -133,6 +133,8 @@ class GrupoPapController extends Controller
             'professor_tutor_id' => $request->professor_tutor_id,
             'nome_grupo' => $request->nome_grupo,
             'tema_grupo' => $request->tema_grupo,
+            'problema' => $request->problema,
+            'objectivos' => $request->objectivos,
             'estudo_caso' => $request->estudo_caso,
             'nota_final' => $request->nota_final,
             'data_defesa' => $request->data_defesa,
