@@ -40,6 +40,8 @@ export default function EditarTemaMelhoria({
 
   const [tema, setTema] = useState(grupoPap?.tema_grupo || '');
   const [nomeGrupo, setNomeGrupo] = useState(grupoPap?.nome_grupo || '');
+  const [problema, setProblema] = useState(grupoPap?.problema || '');
+  const [objectivos, setObjectivos] = useState(grupoPap?.objectivos || '');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -48,7 +50,7 @@ export default function EditarTemaMelhoria({
 
     router.put(
       rotaAtualizar.replace(':id', grupoPap.id),
-      { nome_grupo: nomeGrupo, tema_grupo: tema },
+      { nome_grupo: nomeGrupo, tema_grupo: tema, problema, objectivos }, // envia os valores actuais do form
       {
         onError: setErrors,
         onFinish: () => setLoading(false),
@@ -61,7 +63,7 @@ export default function EditarTemaMelhoria({
 
     router.put(
       rotaReenviar.replace(':id', grupoPap.id),
-      { nome_grupo: nomeGrupo, tema_grupo: tema }, // envia os valores actuais do form
+      { nome_grupo: nomeGrupo, tema_grupo: tema, problema, objectivos }, // envia os valores actuais do form
       {
         onError: setErrors,
         onFinish: () => setLoading(false),
@@ -122,14 +124,39 @@ export default function EditarTemaMelhoria({
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Tema do Grupo</label>
-            <Textarea
+            <Input
               value={tema}
               onChange={(e) => setTema(e.target.value)}
               disabled={loading}
-              className="min-h-32"
             />
             {errors.tema_grupo && (
               <p className="text-sm text-red-500">{errors.tema_grupo}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Problema</label>
+            <Textarea
+              value={problema}
+              onChange={(e) => setProblema(e.target.value)}
+              disabled={loading}
+              className="min-h-32"
+            />
+            {errors.problema && (
+              <p className="text-sm text-red-500">{errors.problema}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Objectivos</label>
+            <Textarea
+              value={objectivos}
+              onChange={(e) => setObjectivos(e.target.value)}
+              disabled={loading}
+              className="min-h-32"
+            />
+            {errors.objectivos && (
+              <p className="text-sm text-red-500">{errors.objectivos}</p>
             )}
           </div>
 

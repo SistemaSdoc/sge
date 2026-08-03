@@ -145,6 +145,8 @@ class GrupoPapAprovacaoController extends Controller
         $validated = $request->validate([
             'nome_grupo' => 'required|string|max:500',
             'tema_grupo' => 'required|string|max:500',
+            'problema' => 'nullable|string|max:2000',
+            'objectivos' => 'nullable|string|max:2000',
             'estudo_caso' => 'nullable|string|max:2000',
         ]);
 
@@ -210,6 +212,8 @@ class GrupoPapAprovacaoController extends Controller
         $validated = $request->validate([
             'nome_grupo' => 'required|string|max:500',
             'tema_grupo' => 'required|string|max:500',
+            'problema' => 'nullable|string|max:2000', 
+            'objectivos' => 'nullable|string|max:2000',
         ]);
 
         $resultado = $this->service->reenviar($grupoPap, Auth::user(), $validated);

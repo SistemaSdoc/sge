@@ -144,6 +144,8 @@ class AprovacaoTemaService
                 'utilizador_id' => $user->id,
                 'estado_anterior' => $estadoAnterior,
                 'tema' => $grupoPap->tema_grupo,
+                'problema' => $grupoPap->problema,
+                'objectivos' => $grupoPap->objectivos,
                 'estado_novo' => $novoEstado,
                 'comentario' => $comentario,
             ]);
@@ -177,6 +179,8 @@ class AprovacaoTemaService
             $grupoPap->update([
                 'nome_grupo' => $dados['nome_grupo'],
                 'tema_grupo' => $dados['tema_grupo'],
+                'problema' => $dados['problema'] ?? null,
+                'objectivos' => $dados['objectivos'] ?? null,
                 'status_aprovacao' => 'pendente',
                 'aprovado_por_id' => null,
                 'data_aprovacao' => null,
@@ -188,6 +192,8 @@ class AprovacaoTemaService
                 'utilizador_id' => $user->id,
                 'estado_anterior' => $estadoAnterior,
                 'tema' => $grupoPap->tema_grupo,
+                'problema' => $grupoPap->problema,   
+                'objectivos' => $grupoPap->objectivos,   
                 'estado_novo' => 'pendente',
                 'comentario' => 'Tema corrigido e reenviado para nova análise.',
             ]);

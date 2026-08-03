@@ -14,6 +14,8 @@ export default function ModalDecisaoAprovacao({
     open,
     onClose,
     tema,
+    problema,
+    objectivos,
     action,
     comentario,
     onComentarioChange,
@@ -78,8 +80,20 @@ export default function ModalDecisaoAprovacao({
                     </AlertDialogTitle>
 
                     <AlertDialogDescription>
+                        <span className="font-semibold text-foreground">Tema: </span>
                         {tema?.tema_grupo}
                     </AlertDialogDescription>
+
+                    <AlertDialogDescription>
+                        <span className="font-semibold text-foreground">Problema: </span>
+                        {tema?.problema}
+                    </AlertDialogDescription>
+
+                    <AlertDialogDescription>
+                        <span className="font-semibold text-foreground">Objectivos: </span>
+                        {tema?.objectivos}
+                    </AlertDialogDescription>
+
                 </AlertDialogHeader>
 
                 {/* Informação */}

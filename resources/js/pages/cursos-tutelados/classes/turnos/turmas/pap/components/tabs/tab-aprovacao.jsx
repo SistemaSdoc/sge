@@ -108,37 +108,36 @@ export function TabAprovacao({ params, grupoPap, can, turma }) {
             </Badge>
           </div>
         </CardHeader>
-
         <CardContent className="space-y-6 pt-6">
-          {/* Informações do Tema */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Tema
-              </p>
-              <p className="mt-1 text-sm font-medium">{grupoPap.tema_grupo}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Turma
-              </p>
-              <p className="mt-1 text-sm font-medium">
-                {grupoPap.turma?.nome || 'Não informado'}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Grupo
-              </p>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Grupo</p>
               <p className="mt-1 text-sm font-medium">{grupoPap.nome_grupo}</p>
             </div>
+
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Professor Tutor
-              </p>
-              <p className="mt-1 text-sm font-medium">
-                {grupoPap.professor?.nome || 'Não informado'}
-              </p>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Tema</p>
+              <p className="mt-1 text-sm font-medium">{grupoPap.tema_grupo}</p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Turma</p>
+              <p className="mt-1 text-sm font-medium">{grupoPap.turma?.nome || 'Não informado'}</p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Problema</p>
+              <p className="mt-1 text-sm font-medium">{grupoPap.problema}</p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Professor Tutor</p>
+              <p className="mt-1 text-sm font-medium">{grupoPap.professor?.nome || 'Não informado'}</p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Objectivos</p>
+              <p className="mt-1 text-sm font-medium">{grupoPap.objectivos}</p>
             </div>
           </div>
 
@@ -154,31 +153,31 @@ export function TabAprovacao({ params, grupoPap, can, turma }) {
 
               {(can?.aprovar || can?.reprovar || can?.solicitarMelhoria) && (
                 <div className="flex flex-wrap justify-end gap-2">
-                   {can?.solicitarMelhoria && (
-                  <Button
-                    variant="outline"
-                    onClick={() => abrir('melhoria')}
-                    disabled={loading}
-                  >
-                    <AlertCircle className="size-4" />
-                    Solicitar Melhoria
-                  </Button>
+                  {can?.solicitarMelhoria && (
+                    <Button
+                      variant="outline"
+                      onClick={() => abrir('melhoria')}
+                      disabled={loading}
+                    >
+                      <AlertCircle className="size-4" />
+                      Solicitar Melhoria
+                    </Button>
                   )}
                   {can?.reprovar && (
-                  <Button
-                    variant="destructive"
-                    onClick={() => abrir('reprovar')}
-                    disabled={loading}
-                  >
-                    <XCircle className="size-4" />
-                    Reprovar
-                  </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => abrir('reprovar')}
+                      disabled={loading}
+                    >
+                      <XCircle className="size-4" />
+                      Reprovar
+                    </Button>
                   )}
                   {can?.aprovar && (
-                  <Button onClick={() => abrir('aprovar')} disabled={loading}>
-                    <CheckCircle className="size-4" />
-                    Aprovar
-                  </Button>
+                    <Button onClick={() => abrir('aprovar')} disabled={loading}>
+                      <CheckCircle className="size-4" />
+                      Aprovar
+                    </Button>
                   )}
                 </div>
               )}

@@ -122,35 +122,36 @@ export function TabAprovacao({ params, grupoPap, can, turma }) {
           {/* Informações do Tema */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Tema
-              </p>
-              <p className="mt-1 text-sm font-medium">{grupoPap.tema_grupo}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Turma
-              </p>
-              <p className="mt-1 text-sm font-medium">
-                {grupoPap.turma?.nome || 'Não informado'}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Grupo
-              </p>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Grupo</p>
               <p className="mt-1 text-sm font-medium">{grupoPap.nome_grupo}</p>
             </div>
+
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Professor Tutor
-              </p>
-              <p className="mt-1 text-sm font-medium">
-                {grupoPap.professor?.nome || 'Não informado'}
-              </p>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Tema</p>
+              <p className="mt-1 text-sm font-medium">{grupoPap.tema_grupo}</p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Turma</p>
+              <p className="mt-1 text-sm font-medium">{grupoPap.turma?.nome || 'Não informado'}</p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Problema</p>
+              <p className="mt-1 text-sm font-medium">{grupoPap.problema}</p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Professor Tutor</p>
+              <p className="mt-1 text-sm font-medium">{grupoPap.professor?.nome || 'Não informado'}</p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">Objectivos</p>
+              <p className="mt-1 text-sm font-medium">{grupoPap.objectivos}</p>
             </div>
           </div>
-
+          
           {/* Separador */}
           <div className="border-t" />
 

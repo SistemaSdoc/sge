@@ -22,6 +22,8 @@ class ShowResource extends JsonResource
             'tema_grupo' => $this->tema_grupo,
             'estudo_caso' => $this->estudo_caso,
             'status' => $this->status,
+            'objectivos' => $this->objectivos,
+            'problema' => $this->problema,
             'status_aprovacao' => $this->status_aprovacao,
             'comentario_aprovacao' => $this->comentario_aprovacao,
             'nota_final' => $this->nota_final,

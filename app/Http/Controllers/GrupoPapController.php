@@ -203,6 +203,8 @@ class GrupoPapController extends Controller
                     'estado_novo' => $item->estado_novo,
                     'comentario' => $item->comentario,
                     'tema' => $item->tema,
+                    'problema' => $item->problema,
+                    'objectivos' => $item->objectivos,
                     'created_at' => $item->created_at?->toIso8601String(),
                     'utilizador' => [
                         'nome' => $ehTutora

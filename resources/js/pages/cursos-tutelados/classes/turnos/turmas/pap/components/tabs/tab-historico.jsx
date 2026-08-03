@@ -55,15 +55,15 @@ const getStatus = (s) => STATUS[s] || STATUS.pendente;
 const formatDate = (d) =>
   d
     ? new Date(d).toLocaleDateString('pt-PT', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      }) +
-      ' · ' +
-      new Date(d).toLocaleTimeString('pt-PT', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }) +
+    ' · ' +
+    new Date(d).toLocaleTimeString('pt-PT', {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
     : null;
 
 export function TabHistorico({ historico = [] }) {
@@ -120,7 +120,11 @@ export function TabHistorico({ historico = [] }) {
                     {item.tema && (
                       <div className="flex items-start gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
                         <FileText className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-                        <span className="font-medium">{item.tema}</span>
+                        <div className="space-y-1">
+                          <p><span className="font-medium">Tema:</span> {item.tema}</p>
+                          {item.problema && <p><span className="font-medium">Problema:</span>    {item.problema}</p>}
+                          {item.objectivos && <p><span className="font-medium">Objectivos:</span>  {item.objectivos}</p>}
+                        </div>
                       </div>
                     )}
                   </div>

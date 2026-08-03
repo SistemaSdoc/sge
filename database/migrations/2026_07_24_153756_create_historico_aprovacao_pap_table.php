@@ -22,6 +22,8 @@ return new class extends Migration {
                 ->restrictOnDelete();
 
             $table->string('tema');
+            $table->text('problema')->nullable();     
+            $table->text('objectivos')->nullable();   
 
             $table->string('estado_anterior')->nullable();
 

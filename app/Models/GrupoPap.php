@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
     'data_aprovacao',
     'comentario_aprovacao',
     'estudo_caso',
+    'objectivos',
+    'problema',
     'trabalho_grupo',
     'status',
     'nota_final',
