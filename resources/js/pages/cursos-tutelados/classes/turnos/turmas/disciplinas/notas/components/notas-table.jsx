@@ -136,7 +136,6 @@ export default function NotasTable({
             {can?.create && (
               <Button
                 type="button"
-                disabled={botaoLancarDesabilitado}
                 onClick={() =>
                   router.visit(
                     create(

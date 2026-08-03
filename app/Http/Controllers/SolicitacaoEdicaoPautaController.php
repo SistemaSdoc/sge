@@ -34,7 +34,7 @@ class SolicitacaoEdicaoPautaController extends Controller
                 'periodo' => $s->periodo,
                 'motivo' => $s->motivo,
                 'created_at' => $s->created_at->format('d/m/Y H:i'),
-                'professor' => $s->professor->name ?? '—',
+                'professor' => $s->professor->nome ?? '—',
                 'disciplina' => $s->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->nome ?? '—',
                 'turma' => $s->turmaDisciplinaProfessor->turma->nome ?? '—',
                 'link_prazos' => route('prazos-lancamento-notas.edit', [
