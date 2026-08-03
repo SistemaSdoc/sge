@@ -60,18 +60,6 @@ export default function Show({
             <CardTitle>{colegio.nome}</CardTitle>
             <CardDescription>Cursos tutelados do colégio</CardDescription>
           </div>
-
-          {can?.gerir_prazos && (
-            <CardAction>
-              <Button
-                onClick={() =>
-                  router.visit(editarPrazosLancamentoNotas(colegio.id).url)
-                }
-              >
-                Prazos de lançamento
-              </Button>
-            </CardAction>
-          )}
         </CardHeader>
 
         <CardContent className="p-0!">

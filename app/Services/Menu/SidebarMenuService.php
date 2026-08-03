@@ -177,7 +177,7 @@ final class SidebarMenuService
                     key: 'solicitacao-lancamento-notas',
                     title: 'Solocitações de Lançamentos',
                     href: action([SolicitacaoEdicaoPautaController::class, 'index']),
-                    icon: 'CalendarClock',
+                    icon: 'FileTextIcon',
                     can: fn() => true
                 ),
             ]),
