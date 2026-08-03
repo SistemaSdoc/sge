@@ -11,26 +11,26 @@ class AnosLectivosSimulacaoSeeder extends Seeder
     {
         $agora = now();
 
-        // Cria todos os anos com intervalos de 15 minutos entre eles
+        // Cria todos os 4 anos com intervalos de 2 minutos
         $anos = [
-            ['nome' => '2026/2027', 'offset' => 0,   'duracao' => 15],  // agora - agora+15
-            ['nome' => '2027/2028', 'offset' => 15,  'duracao' => 15],  // agora+15 - agora+30
-            ['nome' => '2028/2029', 'offset' => 30,  'duracao' => 15],  // agora+30 - agora+45
-            ['nome' => '2029/2030', 'offset' => 45,  'duracao' => 15],  // agora+45 - agora+60
-            ['nome' => '2030/2031', 'offset' => 60,  'duracao' => 120], // agora+60 - agora+180 (2h)
+            ['nome' => '2026/2027', 'offset' => 0],   // agora - agora+2
+            ['nome' => '2027/2028', 'offset' => 5],   // agora+2 - agora+4
+            ['nome' => '2028/2029', 'offset' => 10],   // agora+4 - agora+6
+            ['nome' => '2029/2030', 'offset' => 15],   // agora+6 - agora+8
+            ['nome' => '2030/2031', 'offset' => 20],   // agora+8 - agora+10
         ];
 
         foreach ($anos as $ano) {
             AnoLectivo::create([
                 'nome' => $ano['nome'],
                 'data_inicio' => $agora->copy()->addMinutes($ano['offset']),
-                'data_fim' => $agora->copy()->addMinutes($ano['offset'] + $ano['duracao'])->setSecond(59),
+                'data_fim' => $agora->copy()->addMinutes($ano['offset'] + 5)->setSecond(59),
                 'estado' => $ano['offset'] === 0 ? 'em_curso' : 'planeado',
                 'activo' => $ano['offset'] === 0,
             ]);
 
             $inicio = $agora->copy()->addMinutes($ano['offset'])->format('H:i');
-            $fim = $agora->copy()->addMinutes($ano['offset'] + $ano['duracao'])->format('H:i');
+            $fim = $agora->copy()->addMinutes($ano['offset'] + 5)->format('H:i');
             $this->command->info("✓ {$ano['nome']}: {$inicio} - {$fim}");
         }
 
