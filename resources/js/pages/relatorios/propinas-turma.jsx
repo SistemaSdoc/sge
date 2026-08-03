@@ -9,7 +9,8 @@ import {
   Table, TableHeader, TableRow, TableHead, TableBody, TableCell,
 } from '@/components/ui/table';
 import { EmptyState } from '@/components/empty-state';
-import { pdf } from  '@/actions/App/Http/Controllers/RelatorioPropinaController';
+import { pdf } from '@/actions/App/Http/Controllers/RelatorioPropinaController';
+
 const formatCurrency = (value) => {
   const amount = Number(value ?? 0);
   return `${amount.toLocaleString('pt', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AOA`;
@@ -21,14 +22,14 @@ const corBadge = (total) => {
   return 'secondary';
 };
 
-export default function RelatorioPropinasTurma({ turma, linhas, resumo, geradoEm }) {
+export default function RelatorioPropinasTurma({ turma, linhas, emDia, resumo, geradoEm }) {
   return (
     <div className="mx-auto w-full max-w-5xl p-6 space-y-4">
-      <Head title={`Propinas em atraso — ${turma.nome}`} />
+      <Head title={`Situação de propinas — ${turma.nome}`} />
 
       <Card>
         <CardHeader className="border-b">
-          <CardTitle>Propinas em atraso</CardTitle>
+          <CardTitle>Situação de propinas</CardTitle>
           <CardDescription>
             {turma.curso} — {turma.classe} — Turma {turma.nome} ({turma.turno}) · {turma.ano_lectivo}
           </CardDescription>
@@ -43,7 +44,7 @@ export default function RelatorioPropinasTurma({ turma, linhas, resumo, geradoEm
         </CardHeader>
 
         <CardContent className="p-0!">
-          <div className="grid grid-cols-3 divide-x border-b bg-muted/40 text-center">
+          <div className="grid grid-cols-4 divide-x border-b bg-muted/40 text-center">
             <div className="py-3">
               <p className="text-2xl font-bold">{resumo.total_alunos}</p>
               <p className="text-xs text-muted-foreground">Alunos na turma</p>
@@ -53,16 +54,24 @@ export default function RelatorioPropinasTurma({ turma, linhas, resumo, geradoEm
               <p className="text-xs text-muted-foreground">Em atraso</p>
             </div>
             <div className="py-3">
+              <p className="text-2xl font-bold">{resumo.total_em_dia}</p>
+              <p className="text-xs text-muted-foreground">Em dia</p>
+            </div>
+            <div className="py-3">
               <p className="text-2xl font-bold">{formatCurrency(resumo.valor_total_geral)}</p>
               <p className="text-xs text-muted-foreground">Total em dívida</p>
             </div>
           </div>
 
+          <div className="border-b px-4 py-3">
+            <p className="text-sm font-medium">Alunos em atraso</p>
+          </div>
+
           {linhas.length === 0 ? (
             <EmptyState
               icon={CheckCircle2Icon}
-              title="Tudo em dia"
-              description="Nenhum aluno desta turma tem propinas em atraso."
+              title="Nenhum aluno em atraso"
+              description="Todos os alunos desta turma estão com as propinas em dia."
             />
           ) : (
             <Table>
@@ -86,6 +95,46 @@ export default function RelatorioPropinasTurma({ turma, linhas, resumo, geradoEm
                     </TableCell>
                     <TableCell className="px-4 text-right font-medium">
                       {formatCurrency(linha.valor_total)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="border-b">
+          <CardTitle className="text-base">Alunos em dia</CardTitle>
+          <CardDescription>
+            {emDia.length} aluno{emDia.length === 1 ? '' : 's'} sem pendências nesta turma.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="p-0!">
+          {emDia.length === 0 ? (
+            <EmptyState
+              icon={CheckCircle2Icon}
+              title="Nenhum aluno em dia"
+              description="Ainda não há alunos com as propinas totalmente pagas nesta turma."
+            />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/72">
+                  <TableHead className="px-4">Aluno</TableHead>
+                  <TableHead className="px-4 text-right">Situação</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {emDia.map((aluno) => (
+                  <TableRow key={aluno.aluno_id}>
+                    <TableCell className="px-4 font-medium">{aluno.nome}</TableCell>
+                    <TableCell className="px-4 text-right">
+                      <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
+                        Em dia
+                      </Badge>
                     </TableCell>
                   </TableRow>
                 ))}

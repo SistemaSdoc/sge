@@ -61,12 +61,14 @@ class RelatorioPropinaController extends Controller
             'turma_id' => $turma->id,
         ]);
 
+        // Carrega todas as relações necessárias, incluindo a instituição
         $turma->loadMissing([
             'alunosActivos.user',
             'anoLectivo',
             'cursoClasseTurno.cursoClasse.classe',
             'cursoClasseTurno.turno',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
+            'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao', // NOVO
         ]);
 
         Log::debug('[RelatorioPropinaController] montarRelatorio - alunos activos na turma', [
@@ -75,7 +77,7 @@ class RelatorioPropinaController extends Controller
             'alunos_ids' => $turma->alunosActivos->pluck('id')->toArray(),
         ]);
 
-        $linhas = $turma->alunosActivos
+        $todosAlunos = $turma->alunosActivos
             ->map(function ($aluno) {
                 Log::debug('[RelatorioPropinaController] processando aluno', [
                     'aluno_id' => $aluno->id,
@@ -91,10 +93,18 @@ class RelatorioPropinaController extends Controller
                 ]);
 
                 if (empty($pendencias)) {
-                    Log::debug('[RelatorioPropinaController] aluno em dia — não entra no relatório', [
+                    Log::debug('[RelatorioPropinaController] aluno em dia', [
                         'aluno_id' => $aluno->id,
                     ]);
-                    return null;
+
+                    return [
+                        'aluno_id' => $aluno->id,
+                        'nome' => $aluno->user->nome,
+                        'em_dia' => true,
+                        'total_meses' => 0,
+                        'meses' => [],
+                        'valor_total' => 0,
+                    ];
                 }
 
                 $meses = collect($pendencias)
@@ -119,19 +129,28 @@ class RelatorioPropinaController extends Controller
                 return [
                     'aluno_id' => $aluno->id,
                     'nome' => $aluno->user->nome,
+                    'em_dia' => false,
                     'total_meses' => $meses->count(),
                     'meses' => $meses->all(),
                     'valor_total' => collect($pendencias)->sum('valor'),
                 ];
-            })
-            ->filter()
+            });
+
+        $devedores = $todosAlunos
+            ->filter(fn ($a) => ! $a['em_dia'])
             ->sortByDesc('total_meses')
+            ->values();
+
+        $emDia = $todosAlunos
+            ->filter(fn ($a) => $a['em_dia'])
+            ->sortBy('nome')
             ->values();
 
         Log::info('[RelatorioPropinaController] montarRelatorio - resumo final por aluno', [
             'turma_id' => $turma->id,
-            'total_devedores' => $linhas->count(),
-            'resumo_por_aluno' => $linhas->map(fn ($l) => [
+            'total_devedores' => $devedores->count(),
+            'total_em_dia' => $emDia->count(),
+            'resumo_por_aluno' => $devedores->map(fn ($l) => [
                 'nome' => $l['nome'],
                 'total_meses' => $l['total_meses'],
                 'valor_total' => $l['valor_total'],
@@ -142,10 +161,34 @@ class RelatorioPropinaController extends Controller
         $cursoNome = $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome;
         $turnoNome = $turma->cursoClasseTurno?->turno?->nome;
 
+        // Obtém a instituição a partir da turma
+        $instituicao = $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao;
+
+        $dadosInstituicao = null;
+        if ($instituicao) {
+            $logoPath = $instituicao->logo ? public_path('storage/' . $instituicao->logo) : null;
+            $logoBase64 = null;
+            if ($logoPath && file_exists($logoPath)) {
+                $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
+                $logoBase64 = 'data:image/' . $extension . ';base64,' . base64_encode(file_get_contents($logoPath));
+            }
+
+            $dadosInstituicao = [
+                'nome'        => $instituicao->nome,
+                'sigla'       => $instituicao->sigla,
+                'email'       => $instituicao->email,
+                'telefone'    => $instituicao->telefone,
+                'endereco'    => $instituicao->endereco,
+                'provincia'   => $instituicao->provincia,
+                'logo_base64' => $logoBase64,
+            ];
+        }
+
         Log::info('[RelatorioPropinaController] relatório gerado', [
             'turma_id' => $turma->id,
-            'total_devedores' => $linhas->count(),
-            'valor_total_geral' => $linhas->sum('valor_total'),
+            'total_devedores' => $devedores->count(),
+            'total_em_dia' => $emDia->count(),
+            'valor_total_geral' => $devedores->sum('valor_total'),
         ]);
 
         return [
@@ -158,13 +201,16 @@ class RelatorioPropinaController extends Controller
                 'ano_lectivo' => optional($turma->anoLectivo?->data_inicio)->year
                     . '/' . optional($turma->anoLectivo?->data_fim)->year,
             ],
-            'linhas' => $linhas,
+            'linhas' => $devedores,
+            'emDia' => $emDia,
             'resumo' => [
                 'total_alunos' => $turma->alunosActivos->count(),
-                'total_devedores' => $linhas->count(),
-                'valor_total_geral' => $linhas->sum('valor_total'),
+                'total_devedores' => $devedores->count(),
+                'total_em_dia' => $emDia->count(),
+                'valor_total_geral' => $devedores->sum('valor_total'),
             ],
             'geradoEm' => now()->format('d/m/Y H:i'),
+            'instituicao' => $dadosInstituicao,
         ];
     }
 
