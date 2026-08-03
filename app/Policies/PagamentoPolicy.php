@@ -9,7 +9,9 @@ class PagamentoPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('pagamentos.viewAny');
+        return $user->hasPermissionTo('pagamentos.viewAny')
+            && $user->instituicao_id !== null
+            && $user->instituicao?->tipo === 'colegio';
     }
 
     public function view(User $user, Pagamento $pagamento): bool

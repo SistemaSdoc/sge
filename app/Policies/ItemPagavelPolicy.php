@@ -9,7 +9,9 @@ class ItemPagavelPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('itemspagaveis.viewAny');
+        return $user->hasPermissionTo('itemspagaveis.viewAny')
+            && $user->instituicao_id !== null
+            && $user->instituicao?->tipo === 'colegio';
     }
 
     public function view(User $user, ItemPagavel $itemPagavel): bool

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AnoLectivo;
 use App\Models\CursoTutelado;
 use App\Models\Turma;
+use App\Services\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +14,8 @@ use Inertia\Inertia;
 class PautaController extends Controller
 {
     public function __construct(
-        private readonly PautaService $pautaService
+        private readonly PautaService $pautaService,
+        private readonly AnoLectivoResolverService $anoLectivoResolverService
     ) {}
 
     /**
@@ -59,7 +61,7 @@ class PautaController extends Controller
             'cursosTutelados' => $query->get()->map(fn ($ct) => [
                 'id' => $ct->id,
                 'curso' => $ct->instituicaoCurso?->curso,
-                //'instituicao' => $ct->instituicaoTutora,
+                // 'instituicao' => $ct->instituicaoTutora,
                 'instituicao' => $ct->instituicaoCurso?->instituicao,
                 'podeEditar' => $ct->instituicaoCurso?->instituicao_id === $instituicaoId,
                 'can' => [
@@ -85,8 +87,9 @@ class PautaController extends Controller
         $professorId = $user->professor?->id;
 
         // Filtro ano lectivo
-        $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::activo()?->id;
+        $anoLectivoId = filled(request('ano_lectivo_id'))
+            ? request('ano_lectivo_id')
+            : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',

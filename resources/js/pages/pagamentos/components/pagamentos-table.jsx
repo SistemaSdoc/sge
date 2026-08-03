@@ -68,7 +68,6 @@ export default function PagamentosTable({
           {can?.create && (
             <Button asChild>
               <Link href={create().url}>
-                <PlusIcon className="mr-1 size-4" />
                 Adicionar Pagamento
               </Link>
             </Button>

@@ -15,8 +15,12 @@ import {
   destroy,
 } from '@/actions/App/Http/Controllers/PagamentoController';
 
-
-export default function Index({ pagamentos, can, statusFiltro, alunosPorStatus }) {
+export default function Index({
+  pagamentos,
+  can,
+  statusFiltro,
+  alunosPorStatus,
+}) {
   const { deleteConfirm } = useDialog();
   const [turmaEscolhida, setTurmaEscolhida] = useState('');
   const [popoverAberto, setPopoverAberto] = useState(false);
@@ -35,22 +39,25 @@ export default function Index({ pagamentos, can, statusFiltro, alunosPorStatus }
     router.visit(index().url, { data: { page }, preserveScroll: true });
   };
 
- const handleStatusChange = (value) => {
-  router.visit(index().url, {
-    data: { status_propina: value === 'todos' ? undefined : value },
-    preserveScroll: true,
-    preserveState: false, // deixa o Inertia substituir as props inteiras vindas do server
-    replace: true,        // evita empilhar entradas de histórico com estados antigos
-  });
-};
+  const handleStatusChange = (value) => {
+    router.visit(index().url, {
+      data: { status_propina: value === 'todos' ? undefined : value },
+      preserveScroll: true,
+      preserveState: false, // deixa o Inertia substituir as props inteiras vindas do server
+      replace: true, // evita empilhar entradas de histórico com estados antigos
+    });
+  };
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6 space-y-6">
+    <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
       <Head title="Pagamentos" />
 
       <div className="flex items-center gap-3">
         <span className="text-sm font-medium">Lista de Pagamentos</span>
-        <Select value={statusFiltro ?? 'todos'} onValueChange={handleStatusChange}>
+        <Select
+          value={statusFiltro ?? 'todos'}
+          onValueChange={handleStatusChange}
+        >
           <SelectTrigger className="w-56">
             <SelectValue placeholder="Selecciona um filtro" />
           </SelectTrigger>

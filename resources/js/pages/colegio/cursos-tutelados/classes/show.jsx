@@ -24,26 +24,38 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  ArrowLeftIcon,
-  MoreHorizontalIcon,
-  UsersIcon,
-} from 'lucide-react';
+import { ArrowLeftIcon, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import { show as showCurso } from '@/actions/App/Http/Controllers/Colegios/CursoTuteladoController';
-import {
-  show as showTurma,
-} from '@/actions/App/Http/Controllers/Colegios/ClasseTurnoTurmaController';
+import { show as showTurma } from '@/actions/App/Http/Controllers/Colegios/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-export default function Show({ instituicao, cursoTutelado, cursoClasse, colegio }) {
+export default function Show({
+  instituicao,
+  cursoTutelado,
+  cursoClasse,
+  colegio,
+  anosLectivos = [],
+  anoLectivoActual,
+}) {
   const instituicaoId = instituicao.id;
   const cursoId = cursoTutelado.id;
   const classeId = cursoClasse.id;
   const turnos = cursoClasse.turnos || [];
   const turmas = cursoClasse.turmas;
   const selectedTurnoId = cursoClasse.turnoId;
+  const [anoLectivoSelecionado, setAnoLectivoSelecionado] =
+    useState(anoLectivoActual);
   const lastTurnoRef = useRef(null);
 
   const handleTurnoChange = (turnoId) => {
@@ -57,6 +69,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse, colegio 
       window.location.pathname,
       {
         turno: turnoId,
+        ano_lectivo_id: anoLectivoSelecionado,
         page_turmas: 1,
         page_disciplinas: 1,
       },
@@ -73,8 +86,30 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse, colegio 
   const handlePageChange = (param) => (page) => {
     router.get(
       '',
-      { turno: selectedTurnoId, [param]: page },
+      {
+        turno: selectedTurnoId,
+        ano_lectivo_id: anoLectivoSelecionado,
+        [param]: page,
+      },
       { preserveState: true, preserveScroll: true },
+    );
+  };
+
+  const handleAnoLectivoChange = (value) => {
+    setAnoLectivoSelecionado(value);
+
+    router.get(
+      window.location.pathname,
+      {
+        turno: selectedTurnoId,
+        ano_lectivo_id: value,
+        page_turmas: 1,
+        page_disciplinas: 1,
+      },
+      {
+        preserveState: true,
+        preserveScroll: true,
+      },
     );
   };
 
@@ -86,7 +121,9 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse, colegio 
           <CardDescription>
             Gerir disciplinas e turmas por turno
           </CardDescription>
-          <CardAction>
+          {/*
+          
+            <CardAction>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -111,15 +148,40 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse, colegio 
               </DropdownMenuContent>
             </DropdownMenu>
           </CardAction>
+          
+          */}
         </CardHeader>
       </Card>
       <Tabs value={selectedTurnoId} onValueChange={handleTurnoChange}>
-        <TabsList variant={'line'}>
-          {turnos.map((turno) => (
-            <TabsTrigger key={turno.id} value={turno.id}>
-              {turno.nome}
-            </TabsTrigger>
-          ))}
+        <TabsList variant={'line'} className="flex! w-full justify-between">
+          <div>
+            {turnos.map((turno) => (
+              <TabsTrigger key={turno.id} value={turno.id}>
+                {turno.nome}
+              </TabsTrigger>
+            ))}
+          </div>
+
+          <div>
+            <Select
+              value={anoLectivoSelecionado ?? ''}
+              onValueChange={handleAnoLectivoChange}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione o ano lectivo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Anos Lectivos</SelectLabel>
+                  {anosLectivos.map((ano) => (
+                    <SelectItem key={ano?.id} value={ano?.id}>
+                      {ano?.nome}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
         </TabsList>
 
         <TabsContent value={selectedTurnoId} className="mt-2 space-y-6">
@@ -182,9 +244,7 @@ export default function Show({ instituicao, cursoTutelado, cursoClasse, colegio 
                           <TableCell className="px-4 font-medium">
                             {turma.nome}
                           </TableCell>
-                          <TableCell>
-                            {turma.alunos_activos_count}
-                          </TableCell>
+                          <TableCell>{turma.alunos_activos_count}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
