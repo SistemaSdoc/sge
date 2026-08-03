@@ -98,10 +98,9 @@ export default function PagamentosTable({
             <TableHeader>
               <TableRow className="bg-muted/72">
                 <TableHead className="px-4">Aluno</TableHead>
-                <TableHead className="px-4">Classe</TableHead>
-                <TableHead className="px-4">Método</TableHead>
-                <TableHead className="px-4">Total</TableHead>
-                <TableHead className="px-4">Realizado em</TableHead>
+                <TableHead className="px-4 text-center">Método</TableHead>
+                <TableHead className="px-4 text-center">Total</TableHead>
+                <TableHead className="px-4 text-center">Realizado em</TableHead>
                 <TableHead className="px-4 text-right">Acções</TableHead>
               </TableRow>
             </TableHeader>
@@ -114,20 +113,21 @@ export default function PagamentosTable({
                   onClick={() => router.visit(show(p.id).url)}
                 >
                   <TableCell className="px-4 font-medium">{p.aluno}</TableCell>
-                  <TableCell className="px-4">
-                    <Badge variant="outline">{p.classes || 'Geral'}</Badge>
-                  </TableCell>
-                  <TableCell className="px-4">
+
+                  <TableCell className="px-4 text-center">
                     <Badge variant="secondary">
                       {metodoLabels[p.metodo] ?? p.metodo}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-4 font-medium">
+
+                  <TableCell className="px-4 font-medium text-center">
                     {formatCurrency(p.valor_total)}
                   </TableCell>
-                  <TableCell className="px-4 text-muted-foreground">
+
+                  <TableCell className="px-4 text-muted-foreground text-center">
                     {p.data_pagamento}
                   </TableCell>
+
                   <TableCell className="px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger

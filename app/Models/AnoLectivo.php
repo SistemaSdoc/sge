@@ -30,7 +30,12 @@ class AnoLectivo extends Model
     protected static function booted(): void
     {
         static::saving(function (AnoLectivo $ano) {
-            $ano->nome = $ano->data_inicio->format('Y').'/'.$ano->data_fim->format('y');
+            // Só gera o nome se não tiver sido definido
+            if (empty($ano->nome)) {
+                $anoInicio = $ano->data_inicio->year;
+                $anoFim = $ano->data_fim->year;
+                $ano->nome = "{$anoInicio}/{$anoFim}";
+            }
         });
     }
 

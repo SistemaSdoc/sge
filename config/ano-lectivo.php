@@ -16,6 +16,8 @@ return [
 
     'inicio_mes' => env('ANOLETIVO_INICIO_MES', 9),
     'inicio_dia' => env('ANOLETIVO_INICIO_DIA', 1),
+    'inicio_hora' => env('ANOLETIVO_INICIO_HORA', 0),        // ← ADICIONA
+    'inicio_minuto' => env('ANOLETIVO_INICIO_MINUTO', 0),
     'fim_mes' => env('ANOLETIVO_FIM_MES', 7),
     'fim_dia' => env('ANOLETIVO_FIM_DIA', 31),
     'fim_hora' => env('ANOLETIVO_FIM_HORA', 23),

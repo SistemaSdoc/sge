@@ -79,107 +79,66 @@ class AnoLectivoConsistencyService
     private function criarAnoInicial(): void
     {
         $hoje = now();
+        $anoInicio = $hoje->month >= config('ano-lectivo.inicio_mes') ? $hoje->year : $hoje->year - 1;
 
-        // Se estamos em julho (vácuo), criar o ano QUE ESTÁ TERMINANDO
-        if ($hoje->month == 7) {
-            $anoInicio = $hoje->year - 1;
-        } else {
-            $anoInicio = $hoje->month >= config('ano-lectivo.inicio_mes') ? $hoje->year : $hoje->year - 1;
-        }
-
-        $dataInicio = Carbon::create(
-            $anoInicio,
-            config('ano-lectivo.inicio_mes'),
-            config('ano-lectivo.inicio_dia'),
-            0, 0, 0
-        );
-
-        $dataFim = Carbon::create(
-            $anoInicio + 1,
-            config('ano-lectivo.fim_mes'),
-            config('ano-lectivo.fim_dia'),
-            (int) config('ano-lectivo.fim_hora'),
-            (int) config('ano-lectivo.fim_minuto'),
-            59
-        );
-
-        $novoAno = AnoLectivo::create([
-            'data_inicio' => $dataInicio,
-            'data_fim' => $dataFim,
-            'activo' => true,
-            'estado' => 'em_curso',
-        ]);
-
-        Log::info('Ano lectivo inicial criado', [
-            'nome' => $novoAno->nome,
-            'periodo' => $dataInicio->format('d/m/Y H:i:s').' até '.$dataFim->format('d/m/Y H:i:s'),
-            'id' => $novoAno->id,
-        ]);
-    }
-
-    private function garantirProximoAno(): void
-    {
-        $anoAtual = AnoLectivo::query()
-            ->where('activo', true)
-            ->first();
-
-        if (! $anoAtual) {
-            Log::debug('Nenhum ano lectivo activo para verificar próximo ano');
-
-            return;
-        }
-
-        $minutosFaltando = now()->diffInMinutes($anoAtual->data_fim, false);
-        $antecedencia = config('ano-lectivo.antecedencia_criacao_minutos');
-
-        // Se faltam menos do que o configurado, criar o próximo ano
-        if ($minutosFaltando <= $antecedencia) {
-            $anoProximoInicio = $anoAtual->data_fim->year;
-
-            $dataInicioProximo = Carbon::create(
-                $anoProximoInicio,
+        AnoLectivo::create([
+            'data_inicio' => Carbon::create(
+                $anoInicio,
                 config('ano-lectivo.inicio_mes'),
                 config('ano-lectivo.inicio_dia'),
-                0, 0, 0
-            );
-
-            $proximoJaExiste = AnoLectivo::query()
-                ->whereYear('data_inicio', $anoProximoInicio)
-                ->whereMonth('data_inicio', config('ano-lectivo.inicio_mes'))
-                ->whereDay('data_inicio', config('ano-lectivo.inicio_dia'))
-                ->exists();
-
-            if ($proximoJaExiste) {
-                Log::debug('Próximo ano lectivo já existe', [
-                    'ano_atual' => $anoAtual->nome,
-                    'proximo_ano' => $anoProximoInicio.'/'.($anoProximoInicio + 1),
-                ]);
-
-                return;
-            }
-
-            $dataFimProximo = Carbon::create(
-                $anoProximoInicio + 1,
+                (int) config('ano-lectivo.inicio_hora'),      // ← ADICIONA
+                (int) config('ano-lectivo.inicio_minuto'),    // ← ADICIONA
+                0
+            ),
+            'data_fim' => Carbon::create(
+                $anoInicio + 1,
                 config('ano-lectivo.fim_mes'),
                 config('ano-lectivo.fim_dia'),
                 (int) config('ano-lectivo.fim_hora'),
                 (int) config('ano-lectivo.fim_minuto'),
                 59
-            );
+            ),
+            'activo' => true,
+            'estado' => 'em_curso',
+        ]);
+    }
 
-            $proximoAno = AnoLectivo::create([
-                'data_inicio' => $dataInicioProximo,
-                'data_fim' => $dataFimProximo,
-                'activo' => false,
-                'estado' => config('ano-lectivo.status_inicial_proximo_ano'),
-            ]);
+    private function garantirProximoAno(): void
+    {
+        $anoAtual = AnoLectivo::query()->where('activo', true)->first();
+        if (! $anoAtual) {
+            Log::info('Nenhum ano activo encontrado');
 
-            Log::info('Próximo ano lectivo criado antecipadamente', [
-                'nome' => $proximoAno->nome,
-                'periodo' => $dataInicioProximo->format('d/m/Y H:i:s').' até '.$dataFimProximo->format('d/m/Y H:i:s'),
-                'estado' => $proximoAno->estado,
-                'antecedencia' => $antecedencia.' minutos antes do término',
-            ]);
+            return;
+        }
+
+        Log::info("Ano actual: {$anoAtual->nome}, termina em: {$anoAtual->data_fim->format('H:i:s')}");
+
+        $minutosFaltando = now()->diffInMinutes($anoAtual->data_fim, false);
+        Log::info("Minutos faltando: {$minutosFaltando}");
+        Log::info('Antecedência configurada: '.config('ano-lectivo.antecedencia_criacao_minutos'));
+
+        if ($minutosFaltando <= config('ano-lectivo.antecedencia_criacao_minutos')) {
+            Log::info('DENTRO DO PRAZO - Procurando próximo ano...');
+
+            $proximoAno = AnoLectivo::query()
+                ->where('data_inicio', '=', $anoAtual->data_fim)
+                ->where('estado', 'planeado')
+                ->first();
+
+            Log::info('Próximo encontrado: '.($proximoAno ? $proximoAno->nome : 'NENHUM'));
+
+            if ($proximoAno && $proximoAno->estado === 'planeado') {
+                Log::info("Atualizando {$proximoAno->nome} para matriculas_abertas");
+                $proximoAno->update([
+                    'estado' => config('ano-lectivo.status_inicial_proximo_ano'),
+                ]);
+            } elseif (! $proximoAno) {
+                Log::info('Criando novo ano...');
+                // ... resto do create
+            }
+        } else {
+            Log::info("FORA DO PRAZO - Faltam {$minutosFaltando} minutos");
         }
     }
 }
