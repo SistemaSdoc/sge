@@ -28,7 +28,8 @@ class NotaDisciplinaController extends Controller
     public function __construct(
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {}
+    ) {
+    }
 
     /**
      * Lista as notas dos alunos de uma turma numa disciplina
@@ -46,7 +47,7 @@ class NotaDisciplinaController extends Controller
 
         $tdp = $this->resolveTurmaDisciplinaProfessor($turma, $classeTurnoDisciplina, $anoLectivoId);
 
-        if (! $tdp) {
+        if (!$tdp) {
             return back()->with('warning', 'Ainda não existe uma associação de professor para esta disciplina neste ano lectivo.');
         }
 
@@ -54,7 +55,7 @@ class NotaDisciplinaController extends Controller
         $periodosLancados = $this->notaService->periodosLancados($tdp->id);
         $periodosDisponiveis = $this->notaService->periodosDisponiveis($tdp->id);
         $podeLancarNotas = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
-            || ! (
+            || !(
                 $periodosLancados[1]
                 && $periodosLancados[2]
                 && $periodosLancados[3]
@@ -66,6 +67,13 @@ class NotaDisciplinaController extends Controller
                 && $periodosLancados[3]
             );
 
+        // Adicionar antes do map dos alunos
+        $pautaStatusIndex = [
+            1 => $this->notaService->getPautaStatusSoLeitura($tdp->id, 1),
+            2 => $this->notaService->getPautaStatusSoLeitura($tdp->id, 2),
+            3 => $this->notaService->getPautaStatusSoLeitura($tdp->id, 3),
+        ];
+
         $turmaAlunos = TurmaAluno::query()
             ->select('turma_aluno.*')
             ->join('alunos', 'alunos.id', '=', 'turma_aluno.aluno_id')
@@ -73,13 +81,16 @@ class NotaDisciplinaController extends Controller
             ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
             ->with([
                 'aluno.inscricao.candidato:id,nome',
-                'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+                'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
             ])
             ->where('turma_aluno.turma_id', $turma->id)
             ->where('turma_aluno.situacao', 'activo')
             ->where('turma_aluno.activo', true)
             ->orderBy('candidatos.nome')
             ->paginate(20, ['*'], 'page_alunos');
+
+        $professorDono = Auth::user()->professor?->id === $tdp->professor_id;
+        $podeVerRascunho = $professorDono || Auth::user()->hasAnyRole(['Director', 'Subdirector']);
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index', [
             'instituicao' => $instituicao->id,
@@ -99,12 +110,29 @@ class NotaDisciplinaController extends Controller
                 'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
             ],
             'alunos' => [
-                'data' => $turmaAlunos->getCollection()->map(fn ($ta) => [
+                'data' => $turmaAlunos->getCollection()->map(fn($ta) => [
                     'turma_aluno_id' => $ta->id,
                     'aluno_id' => $ta->aluno->id,
                     'nome' => $ta->aluno->inscricao?->candidato?->nome,
                     'notas' => $ta->notas
-                        ->map(fn ($n) => $this->formatarNota($n))
+                        ->filter(function ($nota) use ($tdp, $podeVerRascunho) {
+                            if ($nota->turma_disciplina_professor_id !== $tdp->id) {
+                                return false;
+                            }
+                            $status = $this->notaService->getPautaStatusSoLeitura($tdp->id, $nota->periodo);
+                            $eRascunho = $status === null || $status->status === 'rascunho';
+                            if ($eRascunho && !$podeVerRascunho) {
+                                return false;
+                            }
+                            return true;
+                        })
+                        ->map(function ($n) use ($pautaStatusIndex) {
+                            $status = $pautaStatusIndex[$n->periodo] ?? null;
+                            return [
+                                ...$this->formatarNota($n),
+                                'is_rascunho' => $status === null || $status->status === 'rascunho',
+                            ];
+                        })
                         ->keyBy('periodo'),
                 ])->values(),
                 'current_page' => $turmaAlunos->currentPage(),
@@ -145,7 +173,7 @@ class NotaDisciplinaController extends Controller
             $tdp = $this->resolveTurmaDisciplinaProfessor($turma, $classeTurnoDisciplina, $anoLectivoId);
             Log::info('resolveTurmaDisciplinaProfessor retornou', ['tdp_id' => $tdp?->id, 'tdp_null' => is_null($tdp)]);
 
-            if (! $tdp) {
+            if (!$tdp) {
                 Log::warning('TurmaDisciplinaProfessor não encontrado para notas', [
                     'turma_id' => $turma->id,
                     'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
@@ -154,6 +182,9 @@ class NotaDisciplinaController extends Controller
 
                 return back()->with('warning', 'Ainda não existe uma associação de professor para esta disciplina neste ano lectivo.');
             }
+
+            $professorDono = Auth::user()->professor?->id === $tdp->professor_id;
+            $podeVerRascunho = $professorDono || Auth::user()->hasAnyRole(['Director', 'Subdirector']);
 
             Log::info('Gate::authorize view');
             Gate::authorize('view', $tdp);
@@ -170,7 +201,7 @@ class NotaDisciplinaController extends Controller
 
             Log::info('Calculando podeLancarNotas');
             $podeLancarNotas = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
-                || ! (
+                || !(
                     $periodosLancados[1]
                     && $periodosLancados[2]
                     && $periodosLancados[3]
@@ -194,7 +225,7 @@ class NotaDisciplinaController extends Controller
                 ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
                 ->with([
                     'aluno.inscricao.candidato:id,nome',
-                    'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+                    'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
                 ])
                 ->where('turma_aluno.turma_id', $turma->id)
                 ->where('turma_aluno.situacao', 'activo')
@@ -204,14 +235,19 @@ class NotaDisciplinaController extends Controller
             Log::info('turmaAlunos buscados', ['total' => $turmaAlunos->total()]);
 
             Log::info('Mapeando alunos para o frontend');
-            $alunosMapeados = $turmaAlunos->getCollection()->map(fn ($ta) => [
+            $alunosMapeados = $turmaAlunos->getCollection()->map(fn($ta) => [
                 'turma_aluno_id' => $ta->id,
                 'aluno_id' => $ta->aluno->id,
                 'nome' => $ta->aluno->inscricao?->candidato?->nome,
                 'notas' => $ta->notas
-                    ->map(fn ($n) => $this->formatarNota($n))
+                    ->filter(fn($nota) => $nota->turma_disciplina_professor_id === $tdp->id)
+                    ->map(fn($n) => [
+                        ...$this->formatarNota($n),
+                        'is_rascunho' => ($pautaStatus[$n->periodo]->status ?? 'rascunho') === 'rascunho',
+                    ])
                     ->keyBy('periodo'),
             ]);
+
             Log::info('Alunos mapeados com sucesso', ['count' => $alunosMapeados->count()]);
 
             Log::info('Verificando permissions can');
@@ -278,6 +314,28 @@ class NotaDisciplinaController extends Controller
                         'todos_disponiveis' => $todosDisponiveis,
                         'pauta_status' => $pautaStatus,
                         'dentro_do_prazo' => $dentroDoPrazo,
+                        'autorizacao_ate' => [   // ← adicionar isto
+                            1 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
+                                ->where('periodo', 1)->where('status', 'aprovada')
+                                ->whereNull('usada_em')->where('prazo_edicao_ate', '>', now())
+                                ->first()?->prazo_edicao_ate?->toISOString(),
+                            2 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
+                                ->where('periodo', 2)->where('status', 'aprovada')
+                                ->whereNull('usada_em')->where('prazo_edicao_ate', '>', now())
+                                ->first()?->prazo_edicao_ate?->toISOString(),
+                            3 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
+                                ->where('periodo', 3)->where('status', 'aprovada')
+                                ->whereNull('usada_em')->where('prazo_edicao_ate', '>', now())
+                                ->first()?->prazo_edicao_ate?->toISOString(),
+                        ],
+                        'tem_solicitacao_pendente' => [
+                            1 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
+                                ->where('periodo', 1)->where('status', 'pendente')->exists(),
+                            2 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
+                                ->where('periodo', 2)->where('status', 'pendente')->exists(),
+                            3 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
+                                ->where('periodo', 3)->where('status', 'pendente')->exists(),
+                        ],
                     ],
                 ]);
             } catch (\Exception $e) {
@@ -331,7 +389,7 @@ class NotaDisciplinaController extends Controller
         Gate::authorize('view', $tdp);
         Gate::authorize('create', [Nota::class, $tdp]);
 
-        if (! $this->notaService->periodoPodeSerLancado($tdp->id, $periodo)) {
+        if (!$this->notaService->periodoPodeSerLancado($tdp->id, $periodo)) {
             throw ValidationException::withMessages([
                 'periodo' => 'Primeiro lança o trimestre anterior para continuar.',
             ]);
@@ -345,7 +403,7 @@ class NotaDisciplinaController extends Controller
             $isDirector
         );
 
-        if (! $verificacao['pode']) {
+        if (!$verificacao['pode']) {
             $mensagem = match ($verificacao['motivo']) {
                 'pauta_finalizada' => 'Esta pauta já foi finalizada. Solicite autorização ao director para editar.',
                 'prazo_encerrado' => 'O prazo de lançamento terminou. Solicite autorização ao director.',
@@ -355,6 +413,7 @@ class NotaDisciplinaController extends Controller
         }
 
         $this->notaService->lancarNotas($validated['notas'], $validated['tdp_id'], $periodo);
+
 
         TurmaAluno::with([
             'aluno',
@@ -372,6 +431,13 @@ class NotaDisciplinaController extends Controller
                 ['turma_disciplina_professor_id' => $tdp->id, 'periodo' => $periodo],
                 ['status' => 'finalizada', 'finalizada_em' => now(), 'finalizada_automaticamente' => false]
             );
+
+            // Marcar autorização usada — tanto edicao como lancamento
+            SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
+                ->where('periodo', $periodo)
+                ->where('status', 'aprovada')
+                ->whereNull('usada_em')
+                ->update(['usada_em' => now()]);
 
             return back()->with('success', 'Pauta finalizada com sucesso.');
         }
@@ -445,7 +511,7 @@ class NotaDisciplinaController extends Controller
             $anoLectivoId,
             $turma->ano_lectivo_id,
             $classeTurnoDisciplina->ano_lectivo_id,
-        ], fn ($value) => filled($value))));
+        ], fn($value) => filled($value))));
 
         $baseQuery = TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
             ->where('turma_id', $turma->id)

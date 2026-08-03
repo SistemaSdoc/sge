@@ -15,9 +15,16 @@ Schedule::command('anoletivo:sincronizar')
     ->withoutOverlapping();
 
 // Corre todos os dias às 23:55, só em produção
+// Schedule::command(FinalizarPautasVencidas::class)
+//     ->dailyAt('23:55')
+//     ->environments(['production'])
+//     ->withoutOverlapping()         // evita correr duas vezes em simultâneo
+//     ->onOneServer()                // se tiveres múltiplos servidores
+//     ->appendOutputTo(storage_path('logs/pautas-finalizadas.log'));
+
+// Corre local em Desenvolvimento
 Schedule::command(FinalizarPautasVencidas::class)
-    ->dailyAt('23:55')
-    ->environments(['production'])
-    ->withoutOverlapping()         // evita correr duas vezes em simultâneo
-    ->onOneServer()                // se tiveres múltiplos servidores
+    ->everyFifteenMinutes()
+    ->withoutOverlapping()
+    ->onOneServer()
     ->appendOutputTo(storage_path('logs/pautas-finalizadas.log'));

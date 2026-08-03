@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -65,50 +65,105 @@ export default function LancamentosTable({
   pautaStatus = {},
   dentroDoPrazo = {},
   can,
+  onSubmit,
+  autorizacaoAte = {}, // prazo de edição autorizado
+  temSolicitacaoPendente = {},
 }) {
+  // ── 1. TODOS OS useState PRIMEIRO ──────────────────────────────
   const [periodo, setPeriodo] = useState('1');
   const [modalSolicitacao, setModalSolicitacao] = useState(false);
   const [expandidos, setExpandidos] = useState({});
+  const [tempoRestante, setTempoRestante] = useState(null);
 
+  // ── 2. HOOKS QUE DEPENDEM DE STATE ─────────────────────────────
   const { getValor, setValor } = useNotasLocais(data?.tdp_id);
-  const formSolicitacao = useForm({
-    tdp_id: data?.tdp_id,
-    periodo,
-    motivo: '',
-  });
 
+  // ── 3. VARIÁVEIS DERIVADAS ──────────────────────────────────────
   const statusPeriodo = pautaStatus?.[periodo]?.status ?? 'rascunho';
   const finalizadaAutomaticamente =
     pautaStatus?.[periodo]?.finalizada_automaticamente ?? false;
   const estaFinalizada = statusPeriodo === 'finalizada';
+  const estaExpirada = statusPeriodo === 'expirada';
   const podeOverride = Boolean(can?.overrideLockedPeriods);
+  const temAutorizacaoActiva = Boolean(autorizacaoAte?.[periodo]);
+  const tipoSolicitacao =
+    estaFinalizada || estaExpirada ? 'reabertura_edicao' : 'extensao_prazo'; // ← aqui
 
   const periodoBloqueado =
-    !podeOverride && (estaFinalizada || !dentroDoPrazo?.[periodo]);
+    !podeOverride &&
+    !temAutorizacaoActiva &&
+    (estaFinalizada || estaExpirada || !dentroDoPrazo?.[periodo]);
 
   const podeGuardar =
     can?.create &&
-    (podeOverride || !estaFinalizada) &&
-    (dentroDoPrazo?.[periodo] || podeOverride);
+    (podeOverride ||
+      temAutorizacaoActiva ||
+      (!estaFinalizada && !estaExpirada && dentroDoPrazo?.[periodo]));
 
   const podeFinalizar =
     can?.finalizar &&
-    (podeOverride || !estaFinalizada) &&
-    (dentroDoPrazo?.[periodo] || podeOverride);
+    (podeOverride ||
+      temAutorizacaoActiva ||
+      (!estaFinalizada && !estaExpirada && dentroDoPrazo?.[periodo]));
 
-  const podeSolicitarEdicao = can?.solicitarEdicao && estaFinalizada;
+  const podeSolicitarEdicao =
+    can?.solicitarEdicao &&
+    !temAutorizacaoActiva && // ← não mostrar se já tem autorização activa
+    (estaFinalizada || estaExpirada || !dentroDoPrazo?.[periodo]);
 
-  const alunos = [...(data?.alunos?.data ?? [])].sort((alunoA, alunoB) =>
-    (alunoA?.nome ?? '').localeCompare(alunoB?.nome ?? '', 'pt', {
-      sensitivity: 'base',
-    }),
+  // ── 4. useForm DEPOIS ──────────────────────────────────────────
+  const formSolicitacao = useForm({
+    tdp_id: data?.tdp_id,
+    periodo: parseInt(periodo),
+    motivo: '',
+    tipo: tipoSolicitacao,
+  });
+
+  // ── 5. DADOS ────────────────────────────────────────────────────
+  const alunos = [...(data?.alunos?.data ?? [])].sort((a, b) =>
+    (a?.nome ?? '').localeCompare(b?.nome ?? '', 'pt', { sensitivity: 'base' }),
   );
   const isEmpty = alunos.length === 0;
 
-  // ── toggle global ──────────────────────────────────────────────
   const todosAbertos =
     alunos.length > 0 && alunos.every((a) => expandidos[a.turma_aluno_id]);
 
+  // ── 6. TODOS OS useEffect NO FINAL ─────────────────────────────
+  useEffect(() => {
+    const tipo =
+      estaFinalizada || estaExpirada ? 'reabertura_edicao' : 'extensao_prazo';
+    formSolicitacao.setData({
+      ...formSolicitacao.data,
+      tipo,
+      periodo: parseInt(periodo),
+    });
+  }, [periodo, statusPeriodo]);
+
+  useEffect(() => {
+    const prazo = autorizacaoAte?.[periodo];
+    if (!prazo) {
+      setTempoRestante(null);
+      return;
+    }
+
+    const calcular = () => {
+      const diff = new Date(prazo) - new Date();
+      if (diff <= 0) {
+        setTempoRestante('Expirado');
+        return;
+      }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setTempoRestante(`${h}h ${m}m ${s}s`);
+    };
+
+    calcular();
+    const interval = setInterval(calcular, 1000);
+    return () => clearInterval(interval);
+  }, [periodo, autorizacaoAte]);
+
+  // ── 7. FUNÇÕES ──────────────────────────────────────────────────
   const toggleTodos = () => {
     if (todosAbertos) {
       setExpandidos({});
@@ -132,12 +187,46 @@ export default function LancamentosTable({
     });
   };
 
+  // Recolher os dados dos inputs para enviar
+  const recolherDados = () => {
+    const notas = {};
+    alunos.forEach((aluno) => {
+      notas[aluno.turma_aluno_id] = {
+        mac:
+          getValor(aluno.turma_aluno_id, periodo, 'mac') ??
+          aluno.notas?.[periodo]?.mac ??
+          '',
+        npp:
+          getValor(aluno.turma_aluno_id, periodo, 'npp') ??
+          aluno.notas?.[periodo]?.nota_prova_professor ??
+          '',
+        npt:
+          getValor(aluno.turma_aluno_id, periodo, 'npt') ??
+          aluno.notas?.[periodo]?.nota_prova_trimestral ??
+          '',
+        faltas:
+          getValor(aluno.turma_aluno_id, periodo, 'faltas') ??
+          aluno.notas?.[periodo]?.faltas ??
+          '',
+      };
+    });
+    return {
+      tdp_id: data?.tdp_id,
+      periodo: parseInt(periodo),
+      notas,
+    };
+  };
+
   return (
     <>
       <Dialog open={modalSolicitacao} onOpenChange={setModalSolicitacao}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Solicitar edição ao director</DialogTitle>
+            <DialogTitle>
+              {tipoSolicitacao === 'reabertura_edicao'
+                ? 'Solicitar reabertura de edição'
+                : 'Solicitar extensão de prazo'}
+            </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-2">
@@ -197,6 +286,11 @@ export default function LancamentosTable({
                   : !dentroDoPrazo?.[periodo] && !can?.overrideLockedPeriods
                     ? 'O prazo de lançamento para este trimestre terminou.'
                     : 'Preencha as notas dos alunos para o trimestre seleccionado.'}
+              {tempoRestante && (
+                <p className="mt-1 text-sm font-medium text-orange-600">
+                  ⏱ Tempo de edição restante: {tempoRestante}
+                </p>
+              )}
             </CardDescription>
 
             {errors?.periodo && (
@@ -226,7 +320,6 @@ export default function LancamentosTable({
                 )}
               </Button>
             )}
-
             <Select value={periodo} onValueChange={setPeriodo}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Trimestre" />
@@ -242,41 +335,30 @@ export default function LancamentosTable({
                 </SelectItem>
               </SelectContent>
             </Select>
-
             {/* hidden inputs para tdp_id e periodo */}
             <input type="hidden" name="tdp_id" value={data?.tdp_id ?? ''} />
             <input type="hidden" name="periodo" value={parseInt(periodo)} />
-
             {podeGuardar && (
               <Button
-                type="submit"
-                name="accao"
-                value="guardar"
+                type="button"
                 variant="outline"
                 disabled={isPending}
+                onClick={() => onSubmit('guardar', recolherDados())}
               >
-                {isPending ? (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                ) : null}
                 Guardar rascunho
               </Button>
             )}
-
             {podeFinalizar && (
               <Button
-                type="submit"
-                name="accao"
-                value="finalizar"
+                type="button"
                 disabled={isPending}
+                onClick={() => onSubmit('finalizar', recolherDados())}
               >
-                {isPending ? (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                ) : null}
                 Finalizar lançamento
               </Button>
             )}
 
-            {podeSolicitarEdicao && (
+            {podeSolicitarEdicao && !temSolicitacaoPendente?.[periodo] && (
               <Button
                 type="button"
                 variant="destructive"
@@ -284,6 +366,11 @@ export default function LancamentosTable({
               >
                 Solicitar edição ao director
               </Button>
+            )}
+            {podeSolicitarEdicao && temSolicitacaoPendente?.[periodo] && (
+              <Badge className="bg-yellow-50 px-3 py-1 text-yellow-700">
+                Solicitação pendente
+              </Badge>
             )}
           </CardAction>
         </CardHeader>
@@ -482,6 +569,12 @@ export default function LancamentosTable({
 
                       {/* ── Resultado (sempre visível) ── */}
                       <TableCell className="px-4 text-end">
+                        {nota?.[periodo]?.is_rascunho &&
+                          can?.overrideLockedPeriods && (
+                            <Badge className="mr-1 bg-yellow-50 text-yellow-600">
+                              Rascunho
+                            </Badge>
+                          )}
                         {situacao === 'APTO' && (
                           <Badge className="bg-green-50 text-green-500">
                             APTO

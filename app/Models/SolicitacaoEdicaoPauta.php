@@ -14,17 +14,36 @@ class SolicitacaoEdicaoPauta extends Model
     protected $fillable = [
         'turma_disciplina_professor_id',
         'periodo',
+        'tipo',
         'professor_user_id',
         'motivo',
         'status',
         'decidido_por',
         'decidido_em',
+        'prazo_edicao_ate',
         'observacao',
         'usada_em',
     ];
 
     protected $casts = [
         'decidido_em' => 'datetime',
+        'prazo_edicao_ate' => 'datetime',
         'usada_em' => 'datetime',
     ];
+
+    public function turmaDisciplinaProfessor()
+    {
+        return $this->belongsTo(TurmaDisciplinaProfessor::class, 'turma_disciplina_professor_id');
+    }
+
+    public function professor()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'professor_user_id');
+    }
+
+    public function decididoPor()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'decidido_por');
+    }
+
 }

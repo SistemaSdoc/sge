@@ -27,16 +27,16 @@ class PeriodoLancamentoNotasController extends Controller
             ->get()
             ->keyBy('periodo');
 
-        $periodos = collect([1, 2, 3])->map(fn (int $periodo) => [
+        $periodos = collect([1, 2, 3])->map(fn(int $periodo) => [
             'periodo' => $periodo,
-            'data_inicio' => $periodosExistentes->get($periodo)?->data_inicio?->format('Y-m-d') ?? '',
-            'data_limite' => $periodosExistentes->get($periodo)?->data_limite?->format('Y-m-d') ?? '',
+            'data_inicio' => $periodosExistentes->get($periodo)?->data_inicio?->format('Y-m-d\TH:i') ?? '',
+            'data_limite' => $periodosExistentes->get($periodo)?->data_limite?->format('Y-m-d\TH:i') ?? '',
             'tem_prazo' => $periodosExistentes->has($periodo),
             'dentro_do_prazo' => $periodosExistentes->get($periodo)?->dentroDoPrazo() ?? false,
         ]);
 
         $periodoInicial = $periodos->first(
-            fn (array $periodo) => ! $periodo['tem_prazo']
+            fn(array $periodo) => !$periodo['tem_prazo']
         )['periodo'] ?? 1;
 
         return Inertia::render('pautas/prazos-lancamento-notas/edit', [
@@ -78,9 +78,9 @@ class PeriodoLancamentoNotasController extends Controller
         if (
             $periodo > 1
             && (
-                ! $periodoAnterior
-                || ! $periodoAnterior->data_inicio
-                || ! $periodoAnterior->data_limite
+                !$periodoAnterior
+                || !$periodoAnterior->data_inicio
+                || !$periodoAnterior->data_limite
             )
         ) {
             throw ValidationException::withMessages([
@@ -88,8 +88,8 @@ class PeriodoLancamentoNotasController extends Controller
             ]);
         }
 
-        $inicio = Carbon::parse($validated['data_inicio'])->startOfDay();
-        $limite = Carbon::parse($validated['data_limite'])->startOfDay();
+        $inicio = Carbon::parse($validated['data_inicio']);
+        $limite = Carbon::parse($validated['data_limite']);
 
         if ($inicio->gt($limite)) {
             throw ValidationException::withMessages([

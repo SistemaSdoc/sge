@@ -36,6 +36,7 @@ use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
 use App\Http\Controllers\ProgressaoController;
 use App\Http\Controllers\RegraAvaliacaoController;
 use App\Http\Controllers\RelatorioPropinaController;
+use App\Http\Controllers\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\UserController;
@@ -235,6 +236,11 @@ Route::resource('pagamentos', PagamentoController::class)
 Route::get('/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta', [CursoTuteladoController::class, 'pauta'])
     ->name('pauta');
 
+Route::get('/pautas/solicitacoes', [SolicitacaoEdicaoPautaController::class, 'index'])
+    ->name('pautas.solicitacoes.index');
+Route::post('/pautas/solicitacoes/{solicitacao}/decidir', [SolicitacaoEdicaoPautaController::class, 'decidir'])
+    ->name('pautas.solicitacoes.decidir');
+    
 Route::prefix('grupo-pap-aprovacao')
     ->name('grupo-pap-aprovacao.')
     ->group(function () {

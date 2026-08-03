@@ -16,12 +16,12 @@ class PeriodoLancamentoNotas extends Model
         'data_limite',
     ];
     protected $casts = [
-        'data_inicio' => 'date',
-        'data_limite' => 'date',
+        'data_inicio' => 'datetime',
+        'data_limite' => 'datetime',
     ];
 
     public function dentroDoPrazo(): bool
     {
-        return today()->between($this->data_inicio, $this->data_limite);
+        return now()->between($this->data_inicio, $this->data_limite);
     }
 }

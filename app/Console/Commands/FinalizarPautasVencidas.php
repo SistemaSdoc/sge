@@ -2,38 +2,55 @@
 
 namespace App\Console\Commands;
 
-use App\Models\AnoLectivo;
 use App\Models\PautaStatus;
 use App\Models\PeriodoLancamentoNotas;
+use App\Models\TurmaDisciplinaProfessor;
 use Illuminate\Console\Command;
 
 class FinalizarPautasVencidas extends Command
 {
     protected $signature = 'pautas:finalizar-vencidas';
+    protected $description = 'Expira pautas em rascunho com prazo encerrado e notifica professores';
 
     public function handle(): void
     {
-        $prazosEncerrados = PeriodoLancamentoNotas::where('data_limite', '<', today())->get();
+        $agora = now();
 
-        foreach ($prazosEncerrados as $prazo) {
-            // Buscar todos os TDPs da instituição neste período ainda em rascunho
-            PautaStatus::where('periodo', $prazo->periodo)
-                ->where('status', 'rascunho')
-                ->whereHas('turmaDisciplinaProfessor.turma', function ($q) use ($prazo) {
-                    $q->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado', function ($q2) use ($prazo) {
-                        $q2->where('instituicao_id', $prazo->instituicao_id);
+        // ── 1. Expirar pautas com prazo encerrado ──────────────────
+        PeriodoLancamentoNotas::where('data_limite', '<', $agora)
+            ->get()
+
+            // Versão sem precisar da relação no PautaStatus
+            ->each(function (PeriodoLancamentoNotas $prazo) use ($agora) {
+                // Busca os TDP ids da instituição primeiro
+                $tdpIds = TurmaDisciplinaProfessor::whereHas(
+                    'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
+                    fn($q) => $q->where('instituicao_tutora_id', $prazo->instituicao_id)
+                )->pluck('id');
+
+                PautaStatus::whereIn('turma_disciplina_professor_id', $tdpIds)
+                    ->where('periodo', $prazo->periodo)
+                    ->where('status', 'rascunho')
+                    ->each(function (PautaStatus $ps) use ($agora) {
+                        $ps->update([
+                            'status' => 'expirada',
+                            'finalizada_em' => $agora,
+                            'finalizada_automaticamente' => true,
+                        ]);
                     });
-                })
-                ->each(function (PautaStatus $ps) {
-                    $ps->update([
-                        'status' => 'finalizada',
-                        'finalizada_em' => now(),
-                        'finalizada_automaticamente' => true,
-                    ]);
+            });
 
-                    // Notificar professor
-                    // $ps->turmaDisciplinaProfessor->professor->user->notify(...)
-                });
-        }
+        // ── 2. Notificar professores com prazo a expirar em breve ──
+        PeriodoLancamentoNotas::whereBetween('data_limite', [$agora, $agora->copy()->addHours(24)])
+            ->whereNull('notificado_em')
+            ->get()
+            ->each(function (PeriodoLancamentoNotas $prazo) use ($agora) {
+                // TODO: notificar professores com rascunhos abertos
+                // ...
+    
+                $prazo->update(['notificado_em' => $agora]);
+            });
+
+        $this->info('Concluído: ' . $agora);
     }
 }

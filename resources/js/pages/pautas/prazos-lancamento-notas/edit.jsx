@@ -91,7 +91,7 @@ function PeriodoFields({ periodo, data, setData, errors }) {
           <FieldLabel htmlFor="data_inicio">Data de início</FieldLabel>
           <Input
             id="data_inicio"
-            type="date"
+            type="datetime-local"
             value={data.data_inicio ?? ''}
             onChange={(e) => setData('data_inicio', e.target.value)}
           />
@@ -102,7 +102,7 @@ function PeriodoFields({ periodo, data, setData, errors }) {
           <FieldLabel htmlFor="data_limite">Data limite</FieldLabel>
           <Input
             id="data_limite"
-            type="date"
+            type="datetime-local"
             value={data.data_limite ?? ''}
             onChange={(e) => setData('data_limite', e.target.value)}
           />

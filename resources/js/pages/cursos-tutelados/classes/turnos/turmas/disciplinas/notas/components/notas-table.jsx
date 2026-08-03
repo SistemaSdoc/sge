@@ -150,8 +150,12 @@ export default function NotasTable({
                       },
                       {
                         query: {
-                          ano_lectivo_id: window.location.search.includes('ano_lectivo_id=')
-                            ? new URLSearchParams(window.location.search).get('ano_lectivo_id')
+                          ano_lectivo_id: window.location.search.includes(
+                            'ano_lectivo_id=',
+                          )
+                            ? new URLSearchParams(window.location.search).get(
+                                'ano_lectivo_id',
+                              )
                             : undefined,
                         },
                       },
@@ -230,7 +234,15 @@ export default function NotasTable({
                     <TableCell className="text-center">
                       {n.faltas ?? ''}
                     </TableCell>
+
+                    {/* ── Resultado (sempre visível) ── */}
                     <TableCell className="px-4 text-end">
+                      {aluno.notas?.[periodoTabela]?.is_rascunho &&
+                        can?.overrideLockedPeriods && (
+                          <Badge className="mr-1 bg-yellow-50 text-yellow-600">
+                            Rascunho
+                          </Badge>
+                        )}
                       {situacao === 'APTO' && (
                         <Badge className="bg-green-50 text-green-500">
                           APTO

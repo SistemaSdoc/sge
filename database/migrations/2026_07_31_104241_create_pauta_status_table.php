@@ -15,8 +15,9 @@ return new class extends Migration {
             $table->foreignUuid('turma_disciplina_professor_id')
                 ->constrained('turma_disciplina_professor');
             $table->unsignedTinyInteger('periodo');
-            $table->enum('status', ['rascunho', 'finalizada'])->default('rascunho');
+            $table->enum('status', ['rascunho', 'finalizada', 'expirada'])->default('rascunho');
             $table->boolean('finalizada_automaticamente')->default(false);
+            $table->timestamp('notificado_em')->nullable();
             $table->timestamp('finalizada_em')->nullable();
             $table->timestamps();
 

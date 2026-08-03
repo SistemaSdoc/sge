@@ -22,4 +22,10 @@ class PautaStatus extends Model
     {
         return $this->status === 'finalizada';
     }
+
+    public function turmaDisciplinaProfessor()
+    {
+        return $this->belongsTo(TurmaDisciplinaProfessor::class, 'turma_disciplina_professor_id');
+    }
+
 }

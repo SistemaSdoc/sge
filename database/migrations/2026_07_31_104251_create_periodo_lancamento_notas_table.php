@@ -15,8 +15,9 @@ return new class extends Migration {
             $table->foreignUuid('instituicao_id')->constrained('instituicoes');
             $table->foreignUuid('ano_lectivo_id')->constrained('ano_lectivos');
             $table->unsignedTinyInteger('periodo'); // 1, 2 ou 3
-            $table->date('data_inicio');
-            $table->date('data_limite');
+            $table->dateTime('data_inicio');
+            $table->dateTime('data_limite');
+             $table->timestamp('notificado_em')->nullable();
             $table->timestamps();
 
             $table->unique(['instituicao_id', 'ano_lectivo_id', 'periodo'], 'pln_inst_ano_periodo_unique');
