@@ -43,8 +43,8 @@ class ConfirmacaoMatriculaService
                 $q->where('ano_lectivo_id', $anoAtual->id);
 
                 if ($instituicaoId) {
-                    $q->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado', function ($q2) use ($instituicaoId) {
-                        $q2->where('instituicao_tutora_id', $instituicaoId);
+                    $q->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($q2) use ($instituicaoId) {
+                        $q2->where('instituicao_id', $instituicaoId);
                     });
                 }
 
@@ -102,7 +102,7 @@ class ConfirmacaoMatriculaService
                     ],
                 ];
             });
-    }   
+    }
 
     /**
      * Confirma a matrícula de um aluno no próximo ano lectivo.

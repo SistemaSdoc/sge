@@ -112,7 +112,7 @@ export function AlunoTable({
                   <TableHead className="px-4">Turno</TableHead>
                   <TableHead className="px-4">Turma</TableHead>
                   <TableHead className="px-4">Classe</TableHead>
-                  <TableHead className="px-4">Propina</TableHead>
+                  {/* <TableHead className="px-4">Propina</TableHead> */}
                   {hasActionColumn && (
                     <TableHead className="px-4 text-right">Acções</TableHead>
                   )}
@@ -142,7 +142,7 @@ export function AlunoTable({
                     <TableCell className="px-4 font-medium">
                       {aluno.classe}
                     </TableCell>
-                    <TableCell className="px-4">
+                    {/* <TableCell className="px-4">
                       {aluno.propina_status === 'pagou' && (
                         <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
                           Pagou
@@ -158,7 +158,7 @@ export function AlunoTable({
                           Sem turma
                         </span>
                       )}
-                    </TableCell>
+                    </TableCell> */}
                     {hasActionColumn && (
                       <TableCell className="px-4 text-right">
                         {aluno.can?.update && (
