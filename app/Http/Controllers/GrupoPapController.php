@@ -64,6 +64,12 @@ class GrupoPapController extends Controller
                 'alunos',
                 fn($q) => $q->where('aluno_id', $user->aluno?->id)
             ))
+            ->when($user->hasRole('Professor'), fn($q) => $q->where(function ($q) use ($user) {
+                $professorId = $user->professor?->id;
+                $q->whereHas('turma.professores', fn($q) => $q->where('professores.id', $professorId))
+                    ->orWhereHas('jurados', fn($q) => $q->where('professor_id', $professorId))
+                    ->orWhere('professor_tutor_id', $professorId);
+            }))
             ->latest()->paginate(10)->withQueryString();   // ← withQueryString para manter ano_lectivo_id na paginação
 
         $grupos->getCollection()->transform(function ($grupo) use ($user) {
