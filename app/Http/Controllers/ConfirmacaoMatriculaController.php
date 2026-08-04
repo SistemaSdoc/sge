@@ -53,8 +53,8 @@ class ConfirmacaoMatriculaController extends Controller
         $turmasPorAno = Inertia::optional(fn () => $request->query('ano_id')
             ? Turma::query()
                 ->where('ano_lectivo_id', $request->query('ano_id'))
-                ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado',
-                    fn ($q) => $q->where('instituicao_tutora_id', $instituicao->id)
+                ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                    fn ($q) => $q->where('instituicao_id', $instituicao->id)
                 )
                 ->get()
                 ->map(fn ($t) => [

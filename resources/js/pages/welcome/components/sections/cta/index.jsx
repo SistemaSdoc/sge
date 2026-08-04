@@ -1,26 +1,27 @@
+import { Button } from '@/components/ui/button';
+
+const CONTACT_EMAIL = 'geral@sdoca.it.ao';
+
 export default function Cta() {
+  const contactHref = `mailto:${CONTACT_EMAIL}`;
+
   return (
-    <section id="cta" className="px-12 py-27.5 text-center">
-      <div className="mono mb-5 flex justify-center">Comece hoje</div>
-      <h2 className="reveal font-display text-[clamp(32px,5vw,56px)] font-semibold tracking-[-0.01em]">
+    <section id="cta" className="px-4 py-16 text-center sm:px-12 sm:py-27.5">
+      <div className="mb-4 flex justify-center mono text-sm sm:mb-5">Comece hoje</div>
+      <h2 className="reveal mx-auto max-w-3xl font-display text-[clamp(28px,6vw,56px)] font-semibold tracking-[-0.01em]">
         Centralize a gestão de todas as tuas escolas.
       </h2>
-      <p className="mt-4.5 text-muted">
-        Uma demonstração de 20 minutos, com os teus próprios dados de exemplo.
+      <p className="mx-auto mt-4 text-sm leading-relaxed text-muted-foreground sm:mt-4.5 sm:text-base">
+        Uma demonstração de 20 minutos, com os seus próprios dados de exemplo.
       </p>
-      <div className="mt-10 flex justify-center gap-4">
-        <a
-          href="#"
-          className="bg-text inline-flex items-center gap-2 px-6 py-3.25 text-sm font-medium text-[#0a0a0c] transition-[transform,background-color] duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:-translate-y-0.5 hover:bg-accent hover:text-white"
-        >
-          Agendar demonstração →
-        </a>
-        <a
-          href="#"
-          className="border-line hover:text-text hover:border-text border-b pb-0.5 text-sm text-muted transition-colors duration-250"
-        >
-          Falar com a equipa
-        </a>
+      <div className="mt-8 flex flex-col justify-center gap-3 sm:mt-10 sm:flex-row">
+        <Button asChild size={'lg'} className="w-full sm:w-auto">
+          <a href={contactHref}>Agendar demonstração</a>
+        </Button>
+
+        <Button asChild variant="outline" size={'lg'} className="w-full sm:w-auto">
+          <a href={contactHref}>Falar com a equipa</a>
+        </Button>
       </div>
     </section>
   );

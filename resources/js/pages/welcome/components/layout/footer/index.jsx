@@ -1,8 +1,8 @@
 export default function Footer() {
   return (
-    <footer class="border-line text-muted-dim flex justify-between border-t px-12 py-10 text-[13px]">
-      <span>© 2026 Ludus</span>
-      <span class="mono">Sistema de Gestão Escolar</span>
+    <footer className="border-border text-muted-foreground flex flex-col gap-3 border-t px-4 py-8 text-[13px] sm:flex-row sm:justify-between sm:px-12 sm:py-10">
+      <span>© 2026 SDOCA</span>
+      <span className="">Sistema de Gestão Escolar - SDOCA</span>
     </footer>
   );
 }

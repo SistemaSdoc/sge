@@ -19,43 +19,43 @@ const PAUTAS = [
 
 export default function Plataforma() {
   return (
-    <section id="plataforma" className="border-line border-b px-12 py-22.5">
-      <div className="mb-15 flex flex-wrap items-end justify-between gap-10">
-        <h2 className="reveal font-display max-w-140 text-[clamp(28px,3.4vw,44px)] font-semibold tracking-[-0.01em]">
+    <section id="plataforma" className="border-border border-b px-4 py-16 sm:px-12 sm:py-22.5">
+      <div className="mb-8 flex flex-col items-start gap-6 sm:mb-15 sm:flex-wrap sm:items-end sm:justify-between lg:flex-row">
+        <h2 className="reveal font-display max-w-140 text-[clamp(24px,4.2vw,44px)] font-semibold tracking-[-0.01em]">
           Um painel, todas as escolas do grupo.
         </h2>
-        <p className="max-w-[320px] pb-1 text-[15px] leading-relaxed text-muted">
+        <p className="max-w-[320px] pb-1 text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
           Troca de escola sem sair da sessão. O que muda é o contexto — nunca a
           confiança nos dados.
         </p>
       </div>
-      <div className="reveal border-line bg-surface mt-15 overflow-hidden border">
-        <div className="border-line flex items-center gap-2 border-b px-4.5 py-3.5">
-          <span className="bg-line h-2 w-2 rounded-full"></span>
-          <span className="bg-line h-2 w-2 rounded-full"></span>
-          <span className="bg-line h-2 w-2 rounded-full"></span>
-          <span className="text-muted-dim ml-3 font-mono text-xs">
+      <div className="reveal border-border bg-card mt-8 overflow-hidden border sm:mt-15">
+        <div className="border-border flex flex-wrap items-center gap-2 border-b px-3 py-3.5 sm:px-4.5">
+          <span className="bg-muted/30 h-2 w-2 rounded-full"></span>
+          <span className="bg-muted/30 h-2 w-2 rounded-full"></span>
+          <span className="bg-muted/30 h-2 w-2 rounded-full"></span>
+          <span className="text-muted-foreground ml-0 font-mono text-[10px] sm:ml-3 sm:text-xs">
             sge.escola.ao/colegio-aurora/pautas
           </span>
         </div>
-        <div className="grid min-h-85 grid-cols-[200px_1fr]">
-          <div className="border-line border-r py-6">
+        <div className="grid min-h-85 grid-cols-1 md:grid-cols-[200px_1fr]">
+          <div className="border-border border-b py-4 md:border-r md:border-b-0 md:py-6">
             {SIDEBAR_LINKS.map((link) => (
               <a
                 key={link.label}
                 href="#"
                 className={`block border-l-2 px-6 py-2.5 text-[13px] ${
                   link.active
-                    ? 'text-text border-accent bg-accent/6'
-                    : 'border-transparent text-muted'
+                    ? 'text-foreground border-accent bg-accent/10'
+                    : 'border-transparent text-muted-foreground'
                 }`}
               >
                 {link.label}
               </a>
             ))}
           </div>
-          <div className="p-7">
-            <div className="border-line-soft text-muted-dim grid grid-cols-[2fr_1fr_1fr_1fr] items-center gap-3 border-b py-3.5 font-mono text-[11px] uppercase">
+          <div className="p-3 sm:p-7">
+            <div className="border-border/10 text-muted-foreground hidden grid-cols-[2fr_1fr_1fr_1fr] items-center gap-3 border-b py-3.5 font-mono text-[11px] uppercase sm:grid">
               <span>Aluno</span>
               <span>Classe</span>
               <span>Média</span>

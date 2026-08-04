@@ -110,7 +110,7 @@ export default function Welcome() {
   }, []);
 
   return (
-    <div className="overflow-x-hidden bg-bg font-sans text-text antialiased selection:bg-accent selection:text-black">
+    <div className="overflow-x-hidden bg-background font-sans text-foreground antialiased selection:bg-accent selection:text-secondary">
       <NavigationMenu />
       <div className="wrap">
         <Hero />

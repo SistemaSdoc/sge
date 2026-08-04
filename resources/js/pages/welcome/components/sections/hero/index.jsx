@@ -1,4 +1,8 @@
+import { ArrowUpRight } from 'lucide-react';
 import TenantCard from './tenant-card';
+import { Button } from '@/components/ui/button';
+
+const CONTACT_EMAIL = 'geral@sdoca.it.ao';
 
 const TENANTS = [
   {
@@ -28,69 +32,82 @@ const TENANTS = [
 ];
 
 export default function Hero() {
+  const contactHref = `mailto:${CONTACT_EMAIL}`;
+
   return (
-    <section
-      id="produto"
-      className="border-line relative border-b px-12 pt-45 pb-25"
-    >
-      <div className="mono mb-7 flex items-center gap-2.5">
+    <section id="produto" className="border-b border-border pt-24 pb-16 sm:pt-45 sm:pb-25">
+      {/*<div className="mb-7 flex items-center gap-2.5 text-xs uppercase tracking-[0.24em] text-muted-foreground">
         <span className="h-1.5 w-1.5 rounded-full bg-accent"></span> Gestão
         escolar multi-tenant
-      </div>
-      <h1
-        id="hero-title"
-        className="reveal font-display max-w-225 text-[clamp(40px,6.4vw,84px)] leading-[1.02] font-semibold tracking-[-0.02em]"
-      >
-        Uma plataforma. <span className="text-muted-dim">Todas as escolas</span>
-        <br />
-        do teu grupo.
-      </h1>
-      <p
-        id="hero-sub"
-        className="reveal mt-7 max-w-120 text-[17px] leading-relaxed text-muted"
-      >
-        Matrículas, currículo académico, avaliações e relatórios de cada escola,
-        isolados por tenant, geridos a partir de um único painel.
-      </p>
-      <div id="hero-cta" className="reveal mt-10 flex items-center gap-4">
-        <a
-          href="#cta"
-          className="bg-text inline-flex items-center gap-2 px-6 py-3.25 text-sm font-medium text-[#0a0a0c] transition-[transform,background-color] duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] hover:-translate-y-0.5 hover:bg-accent hover:text-white"
+      </div>*/}
+      <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+        <h1
+          id="hero-title"
+          className="reveal mx-auto max-w-4xl font-display text-[clamp(30px,7vw,84px)] leading-[1.02] font-semibold tracking-[-0.02em]"
         >
-          Agendar demonstração →
-        </a>
-        <a
-          href="#modulos"
-          className="border-line hover:text-text hover:border-text border-b pb-0.5 text-sm text-muted transition-colors duration-250"
+          Uma plataforma.{' '}
+          <span className="text-secondary">Todas as escolas</span>
+          <br />
+          do seu grupo.
+        </h1>
+        <p
+          id="hero-sub"
+          className="reveal mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:mt-7 sm:text-[17px]"
         >
-          Ver módulos
-        </a>
+          Matrículas, currículo académico, avaliações e relatórios de cada
+          escola, isolados por tenant, geridos a partir de um único painel.
+        </p>
+        <div
+          id="hero-cta"
+          className="reveal mx-auto mt-8 flex flex-col items-stretch justify-center gap-3 sm:mt-10 sm:flex-row sm:items-center"
+        >
+          <Button size={'lg'} className="w-full sm:w-auto">
+            <a href={contactHref}>Agendar demonstração</a>
+            <ArrowUpRight size={20} />
+          </Button>
+
+          <Button asChild variant="outline" className="w-full sm:w-auto">
+            <a href="#modulos">Ver módulos</a>
+          </Button>
+        </div>
       </div>
 
       <div
         id="hero-meta"
-        className="reveal border-line mt-22.5 grid grid-cols-3 border-t"
+        className="reveal mt-12 grid grid-cols-1 border-y border-border px-4 sm:mt-22.5 sm:grid-cols-2 sm:px-12"
       >
-        <div className="border-line border-r pt-5">
-          <div className="font-display text-[28px] font-semibold">99.9%</div>
-          <div className="mono mt-1.5">Disponibilidade</div>
+        <div className="flex w-full flex-col items-center border-b border-border p-6 sm:border-r sm:border-b-0">
+          <div className="font-display text-[24px] font-semibold sm:text-[28px]">
+            99.9%<span className="text-secondary">%</span>
+          </div>
+          <div className="mt-1.5 text-xs tracking-[0.24em] text-muted-foreground uppercase">
+            Disponibilidade
+          </div>
         </div>
-        <div className="border-line border-r pt-5">
+
+        {/*<div className="border-r border-border p-6">
           <div className="font-display text-[28px] font-semibold">
             &lt;150ms
           </div>
-          <div className="mono mt-1.5">Tempo de resposta / tenant</div>
-        </div>
-        <div className="pt-5">
-          <div className="font-display text-[28px] font-semibold">100%</div>
-          <div className="mono mt-1.5">Dados isolados por escola</div>
+          <div className="mt-1.5 text-xs tracking-[0.24em] text-muted-foreground uppercase">
+            Tempo de resposta / tenant
+          </div>
+        </div>*/}
+
+        <div className="flex flex-col items-center p-6">
+          <div className="font-display text-[24px] font-semibold sm:text-[28px]">
+            100<span className="text-secondary">%</span>
+          </div>
+          <div className="mt-1.5 text-xs tracking-[0.24em] text-muted-foreground uppercase">
+            Dados isolados por escola
+          </div>
         </div>
       </div>
 
       <div className="absolute top-42.5 right-12 hidden h-100 w-85 min-[1100px]:block">
-        {TENANTS.map((t) => (
+        {/*{TENANTS.map((t) => (
           <TenantCard key={t.id} {...t} />
-        ))}
+        ))}*/}
       </div>
     </section>
   );

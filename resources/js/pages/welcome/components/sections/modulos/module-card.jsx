@@ -2,18 +2,15 @@ export default function ModuleCard({
   number,
   title,
   description,
-  borderRight,
+  className = '',
 }) {
   return (
     <div
-      className={`reveal px-8 py-9 ${
-        borderRight ? 'min-[900px]:border-r' : ''
-      } border-line hover:bg-surface flex min-h-55 flex-col justify-between border-b transition-colors duration-300`}
+      className={`reveal flex h-full min-h-55 flex-col justify-between border-b border-border px-8 py-9 transition-colors duration-300 hover:bg-muted/10 ${className}`}
     >
-      <span className="text-muted-dim font-mono text-xs">{number}</span>
       <div>
-        <h3 className="font-display mt-6 text-[19px] font-semibold">{title}</h3>
-        <p className="mt-2.5 text-sm leading-relaxed text-muted">
+        <h3 className="mt-6 font-display text-[19px] font-semibold">{title}</h3>
+        <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
           {description}
         </p>
       </div>

@@ -240,7 +240,7 @@
     top: 0;
     bottom: 0;
     width: 1px;
-    background: var(--color-line-soft);
+    background: var(--color-border);
   }
   &::before {
     left: 0;
@@ -292,7 +292,7 @@
   align-items: center;
   gap: 28px;
   &::after {
-    content: '—';
+    content: '';
     color: var(--color-line);
   }
 }

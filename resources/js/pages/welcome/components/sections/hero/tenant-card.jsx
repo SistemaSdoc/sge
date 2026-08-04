@@ -9,12 +9,12 @@ export default function TenantCard({
   return (
     <div
       id={id}
-      className="border-line bg-surface absolute inset-0 flex flex-col justify-between border p-5"
+      className="border-border bg-card absolute inset-0 flex flex-col justify-between border p-5"
       style={style}
     >
       <div className="flex items-center justify-between">
         <span className="font-display text-[15px] font-semibold">{school}</span>
-        <span className="border-accent-dim border px-1.75 py-0.75 font-mono text-[10px] text-accent">
+        <span className="rounded-full border border-accent/30 bg-accent/10 px-1.75 py-0.75 font-mono text-[10px] text-accent">
           {tenant}
         </span>
       </div>
@@ -22,12 +22,12 @@ export default function TenantCard({
         {bars.map((h, i) => (
           <div
             key={i}
-            className="bg-line flex-1"
+            className="bg-muted/30 flex-1"
             style={{ height: `${h}%` }}
           ></div>
         ))}
       </div>
-      <div className="flex justify-between font-mono text-[11px] text-muted">
+      <div className="flex justify-between font-mono text-[11px] text-muted-foreground">
         <span>Média geral</span>
         <span>{average}</span>
       </div>

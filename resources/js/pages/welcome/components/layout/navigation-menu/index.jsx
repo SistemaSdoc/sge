@@ -1,42 +1,44 @@
+import { Button } from '@/components/ui/button';
+import { Link } from '@inertiajs/react';
+
 export default function NavigationMenu() {
   return (
-    <nav class="border-line bg-bg/75 fixed top-0 right-0 left-0 z-50 border-b backdrop-blur-md">
-      <div class="wrap flex h-16 items-center justify-between px-12">
-        <div class="font-display flex items-center gap-2.5 text-base font-semibold">
-          <span class="logo-mark"></span> SGE
+    <nav className="fixed top-0 right-0 left-0 z-50 border-b border-border bg-background/95 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-325 items-center justify-between px-4 sm:px-12">
+        <div className="flex items-center gap-2.5 font-display text-base font-semibold">
+          SGE
         </div>
-        <div class="hidden gap-9 min-[820px]:flex">
+        <div className="hidden gap-9 min-[820px]:flex">
           <a
             href="#produto"
-            class="hover:text-text text-[13px] text-muted transition-colors duration-250"
+            className="text-[13px] text-muted-foreground transition-colors duration-250 hover:text-foreground"
           >
             Produto
           </a>
           <a
             href="#modulos"
-            class="hover:text-text text-[13px] text-muted transition-colors duration-250"
+            className="text-[13px] text-muted-foreground transition-colors duration-250 hover:text-foreground"
           >
             Módulos
           </a>
           <a
             href="#plataforma"
-            class="hover:text-text text-[13px] text-muted transition-colors duration-250"
+            className="text-[13px] text-muted-foreground transition-colors duration-250 hover:text-foreground"
           >
             Plataforma
           </a>
           <a
             href="#clientes"
-            class="hover:text-text text-[13px] text-muted transition-colors duration-250"
+            className="text-[13px] text-muted-foreground transition-colors duration-250 hover:text-foreground"
           >
             Clientes
           </a>
         </div>
-        <a
-          href="/login"
-          class="border-line hover:bg-accent-dim border px-4.5 py-2.25 text-[13px] transition-colors duration-250 hover:border-accent"
-        >
-          Login
-        </a>
+        <Button asChild size={'lg'} className="h-9 px-3 text-sm sm:h-10 sm:px-4">
+          <Link href="/login" prefetch>
+            Login
+          </Link>
+        </Button>
       </div>
     </nav>
   );
