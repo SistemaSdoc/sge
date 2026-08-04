@@ -27,6 +27,10 @@ class PermissionSeeder extends Seeder
             'regra-avaliacao.update',
             'regra-avaliacao.delete',
 
+            // Solicitacao Edicao Pauta
+            'solicitacao-edicao-pauta.viewAny',
+            'solicitacao-edicao-pauta.view',
+
             // colegios
             'colegios.viewAny',
 

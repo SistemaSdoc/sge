@@ -19,6 +19,10 @@ class RolePermissionSeeder extends Seeder
                 'instituicoes.update',
                 'colegios.viewAny',
 
+                //solicitacao-edicao-pauta
+                'solicitacao-edicao-pauta.viewAny',
+                'solicitacao-edicao-pauta.view',
+
                 // Regra de Avaliação
                 'regra-avaliacao.viewAny',
                 'regra-avaliacao.view',
