@@ -239,7 +239,9 @@ class GrupoPapController extends Controller
                         && $grupoPap->jurados()->exists(),
                     'delete' => $user?->can('elementogrupopap.delete'),
                 ],
-                'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id,
+                // 'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id,
+                'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
+                    && !$user->hasRole('Aluno'),
                 'banca' => [
                     'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap]),
                     'update' => $user?->can('bancajuripap.update'),

@@ -346,7 +346,7 @@ export default function Show({
           )}
 
           <TabsTrigger value="aprovacao">
-            Aprovação
+            Aprovação do tema
           </TabsTrigger>
 
           <TabsTrigger value="historico">

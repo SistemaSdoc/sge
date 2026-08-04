@@ -337,7 +337,7 @@ export default function Show({
             Integrantes da banca
           </TabsTrigger>
           )}
-          <TabsTrigger value="aprovacao">Aprovação</TabsTrigger>
+          <TabsTrigger value="aprovacao">Aprovação do tema</TabsTrigger>
 
           <TabsTrigger value="historico">Histórico</TabsTrigger>
         </TabsList>
