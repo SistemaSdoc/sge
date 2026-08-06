@@ -10,6 +10,7 @@ use App\Models\ItemPagavel;
 use App\Models\Pagamento;
 use App\Models\PagamentoItem;
 use App\Models\Turma;
+use App\Notifications\PropinaEmAtrasoNotification;
 use App\Services\VerificadorPropinaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,11 @@ use Inertia\Inertia;
 
 class PagamentoController extends Controller
 {
-    public function index(Request $request, VerificadorPropinaService $verificador)
+    public function __construct(
+        private readonly VerificadorPropinaService $verificador
+    ) {}
+
+    public function index(Request $request)
     {
         $instituicaoId = $request->user()->instituicao_id;
 
@@ -72,7 +77,7 @@ class PagamentoController extends Controller
         $alunosPorStatus = null;
 
         if ($statusFiltro) {
-            $alunosPorStatus = $this->alunosAgrupadosPorStatus($request, $verificador, $statusFiltro);
+            $alunosPorStatus = $this->alunosAgrupadosPorStatus($request, $statusFiltro);
         }
 
         return Inertia::render('pagamentos/index', [
@@ -91,7 +96,7 @@ class PagamentoController extends Controller
      * Retorna alunos filtrados por status de propina (pagos/nao_pagos/pendentes),
      * agrupados por Classe -> Turma, considerando o ano lectivo activo.
      */
-    private function alunosAgrupadosPorStatus(Request $request, VerificadorPropinaService $verificador, string $status): array
+    private function alunosAgrupadosPorStatus(Request $request, string $status): array
     {
         $anoLectivoId = AnoLectivo::activo()?->id;
 
@@ -115,8 +120,13 @@ class PagamentoController extends Controller
             ->filter() // remove qualquer elemento nulo da colecção antes de continuar
             ->values();
 
-        $filtrados = $alunos->filter(function (Aluno $aluno) use ($verificador, $status) {
-            $pendencias = $verificador->pendenciasDoAluno($aluno);
+        Log::debug('PagamentoController@alunosAgrupadosPorStatus - alunos carregados', [
+            'status' => $status,
+            'total_alunos' => $alunos->count(),
+        ]);
+
+        $filtrados = $alunos->filter(function (Aluno $aluno) use ($status) {
+            $pendencias = $this->verificador->pendenciasDoAluno($aluno);
             $emDia = empty($pendencias);
             $mesesEmAtraso = count($pendencias);
 
@@ -129,6 +139,11 @@ class PagamentoController extends Controller
                 default => true,
             };
         });
+
+        Log::debug('PagamentoController@alunosAgrupadosPorStatus - alunos filtrados', [
+            'status' => $status,
+            'total_filtrados' => $filtrados->count(),
+        ]);
 
         // Agrupar por Classe -> Turma, mantendo nome, curso, turno
         $agrupado = $filtrados
@@ -344,9 +359,59 @@ class PagamentoController extends Controller
                 'valor_total' => $valorTotal,
                 'itens_quantidade' => count($linhasParaCriar),
             ]);
+
+            $this->resolverNotificacoesSePropinaEmDia($request->input('aluno_id'));
         });
 
         return redirect()->route('pagamentos.index')->with('success', 'Pagamento registado com sucesso.');
+    }
+
+    /**
+     * Depois de registar um pagamento, verifica se o aluno ficou em dia
+     * com as propinas. Se sim, marca como lidas as notificações de
+     * "propina em atraso" que ainda estavam por ler. Se ainda houver
+     * dívida (ex: pagou só parte dos meses), a notificação mantém-se.
+     */
+    private function resolverNotificacoesSePropinaEmDia(string $alunoId): void
+    {
+        Log::debug('PagamentoController@resolverNotificacoesSePropinaEmDia - início', [
+            'aluno_id' => $alunoId,
+        ]);
+
+        $aluno = Aluno::with('user')->find($alunoId);
+
+        if (! $aluno || ! $aluno->user) {
+            Log::debug('PagamentoController@resolverNotificacoesSePropinaEmDia - aluno ou user não encontrado', [
+                'aluno_id' => $alunoId,
+            ]);
+            return;
+        }
+
+        $pendencias = $this->verificador->pendenciasDoAluno($aluno);
+
+        Log::debug('PagamentoController@resolverNotificacoesSePropinaEmDia - pendências após pagamento', [
+            'aluno_id' => $alunoId,
+            'total_pendencias' => count($pendencias),
+        ]);
+
+        if (! empty($pendencias)) {
+            Log::debug('PagamentoController@resolverNotificacoesSePropinaEmDia - ainda tem dívida, notificação mantém-se', [
+                'aluno_id' => $alunoId,
+                'meses_restantes' => count($pendencias),
+            ]);
+            return;
+        }
+
+        $marcadas = $aluno->user->notifications()
+            ->where('type', PropinaEmAtrasoNotification::class)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
+
+        Log::info('PagamentoController@resolverNotificacoesSePropinaEmDia - notificações resolvidas (propina paga)', [
+            'aluno_id' => $alunoId,
+            'user_id' => $aluno->user->id,
+            'total_marcadas' => $marcadas,
+        ]);
     }
 
     public function show(Pagamento $pagamento)
@@ -409,15 +474,24 @@ class PagamentoController extends Controller
 
         return back()->with('success', 'Pagamento atualizado com sucesso.');
     }
-public function destroy(Pagamento $pagamento)
-{
-    // $this->authorize('delete', $pagamento);
 
-    DB::transaction(function () use ($pagamento) {
-        $pagamento->itens()->withTrashed()->forceDelete();
-        $pagamento->delete();
-    });
+    public function destroy(Pagamento $pagamento)
+    {
+        // $this->authorize('delete', $pagamento);
 
-    return back()->with('success', 'Pagamento anulado com sucesso.');
-}
+        Log::warning('PagamentoController@destroy - anulando pagamento', [
+            'pagamento_id' => $pagamento->id,
+            'aluno_id' => $pagamento->aluno_id,
+            'valor_total' => $pagamento->valor_total,
+        ]);
+
+        DB::transaction(function () use ($pagamento) {
+            $pagamento->itens()->withTrashed()->forceDelete();
+            $pagamento->delete();
+        });
+
+        Log::info('PagamentoController@destroy - pagamento anulado', ['pagamento_id' => $pagamento->id]);
+
+        return back()->with('success', 'Pagamento anulado com sucesso.');
+    }
 }

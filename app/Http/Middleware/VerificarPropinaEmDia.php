@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Notifications\PropinaEmAtrasoNotification;
 use App\Services\VerificadorPropinaService;
 use Closure;
 use Illuminate\Http\Request;
@@ -11,6 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VerificarPropinaEmDia
 {
+    private const MESES = [
+        1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+        5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+        9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro',
+    ];
+
     public function __construct(
         private readonly VerificadorPropinaService $verificador
     ) {}
@@ -93,6 +100,9 @@ class VerificarPropinaEmDia
             'itens_em_atraso' => array_column($pendencias, 'nome'),
         ]);
 
+        // LOG 6.1: Notificação (cria apenas se o estado da dívida mudou)
+        $this->notificarSeNecessario($user, $pendencias);
+
         $previousUrl = url()->previous();
 
         // LOG 7: Renderização da página de bloqueio
@@ -105,11 +115,54 @@ class VerificarPropinaEmDia
             'pendencias' => $pendencias,
             'total' => count($pendencias),
             'previousUrl' => $previousUrl,
-            'meses' => [
-                1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
-                5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
-                9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro',
-            ],
+            'meses' => self::MESES,
         ])->toResponse(request())->setStatusCode(403);
     }
+
+private function notificarSeNecessario($user, array $pendencias): void
+{
+    $totalPendencias = count($pendencias);
+    $valorTotal = (float) collect($pendencias)->sum('valor');
+    $assinatura = md5($totalPendencias . '-' . $valorTotal);
+
+    Log::debug('[VerificarPropinaEmDia] VERIFICANDO SE PRECISA NOTIFICAR', [
+        'user_id' => $user->id,
+        'total_pendencias' => $totalPendencias,
+        'valor_total' => $valorTotal,
+        'assinatura' => $assinatura,
+    ]);
+
+    // Compara com a ÚLTIMA notificação deste tipo, lida ou não —
+    // o que importa é se o estado da dívida já foi notificado antes,
+    // não se a pessoa já a leu.
+    $ultima = $user->notifications()
+        ->where('type', PropinaEmAtrasoNotification::class)
+        ->latest()
+        ->first();
+
+    if ($ultima && ($ultima->data['assinatura'] ?? null) === $assinatura) {
+        Log::debug('[VerificarPropinaEmDia] notificação já existe para este estado — não duplica', [
+            'user_id' => $user->id,
+            'assinatura' => $assinatura,
+            'notificacao_existente_id' => $ultima->id,
+            'ja_lida' => $ultima->read_at !== null,
+        ]);
+        return;
+    }
+
+    $meses = collect($pendencias)
+        ->filter(fn ($p) => $p['mes'] !== null)
+        ->map(fn ($p) => self::MESES[$p['mes']] . '/' . $p['ano'])
+        ->values()
+        ->all();
+
+    $user->notify(new PropinaEmAtrasoNotification($totalPendencias, $valorTotal, $meses, $assinatura));
+
+    Log::info('[VerificarPropinaEmDia] notificação criada', [
+        'user_id' => $user->id,
+        'total_pendencias' => $totalPendencias,
+        'valor_total' => $valorTotal,
+        'assinatura' => $assinatura,
+    ]);
+}
 }

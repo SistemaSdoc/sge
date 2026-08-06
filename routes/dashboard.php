@@ -41,6 +41,7 @@ use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\NotificacaoController;
 
 // Dashboard routes (Admin, Director, Coordenador, Secretaria, Professor)
 // Todas estas rotas requerem autenticação e role de staff
@@ -232,6 +233,11 @@ Route::resource('pagamentos', PagamentoController::class)
         'destroy' => 'pagamentos.destroy',
     ])
     ->parameters(['pagamentos' => 'pagamento']);
+
+
+Route::get('notificacoes', [NotificacaoController::class, 'index'])->name('notificacoes.index');
+Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])->name('notificacoes.ler');
+Route::post('notificacoes/ler-todas', [NotificacaoController::class, 'marcarTodasLidas'])->name('notificacoes.ler-todas');
 
 Route::get('/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta', [CursoTuteladoController::class, 'pauta'])
     ->name('pauta');
