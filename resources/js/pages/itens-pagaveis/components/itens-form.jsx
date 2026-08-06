@@ -69,7 +69,7 @@ export function ItensForm({
 
   if (!existeNaLista) {
     console.warn(
-      '[ItensForm] ⚠️ PROBLEMA ENCONTRADO: o valor "' +
+      '[ItensForm]  PROBLEMA ENCONTRADO: o valor "' +
         selectValue +
         '" não corresponde a NENHUM id em cursosClasse. ' +
         'O SelectValue vai ficar vazio/placeholder mesmo com dados corretos.',
@@ -108,7 +108,6 @@ export function ItensForm({
                       id="valor"
                       type="number"
                       min="0"
-                      step="500"
                       placeholder="0,00"
                       value={data.valor ?? ''}
                       onChange={(e) => setData('valor', e.target.value)}
@@ -166,7 +165,7 @@ export function ItensForm({
                         const valorItem = String(cc.id);
                         if (valorItem === selectValue) {
                           console.log(
-                            '[ItensForm] ✅ SelectItem que DEVERIA aparecer selecionado:',
+                            '[ItensForm]  SelectItem que DEVERIA aparecer selecionado:',
                             cc.nome,
                             valorItem,
                           );

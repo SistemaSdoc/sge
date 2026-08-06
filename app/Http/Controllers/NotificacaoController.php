@@ -2,14 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\PropinaEmAtrasoNotification;
+use App\Services\VerificadorPropinaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class NotificacaoController extends Controller
 {
+    public function __construct(
+        private readonly VerificadorPropinaService $verificador
+    ) {}
+
     public function index(Request $request)
     {
         $user = $request->user();
+
+        $this->limparNotificacoesResolvidas($user);
 
         $notificacoes = $user->notifications()
             ->latest()
@@ -35,6 +43,45 @@ class NotificacaoController extends Controller
             'notificacoes' => $notificacoes,
             'nao_lidas' => $user->unreadNotifications()->count(),
         ]);
+    }
+
+    /**
+     * Remove notificações de propina em atraso cuja dívida já foi paga.
+     * Corre a cada carregamento do sino — barato, porque só há um aluno
+     * por user e a verificação já é usada no middleware.
+     */
+    private function limparNotificacoesResolvidas($user): void
+    {
+        $aluno = $user->aluno;
+
+        if (! $aluno) {
+            return;
+        }
+
+        $pendenciasAtuais = $this->verificador->pendenciasDoAluno($aluno);
+        $assinaturaAtual = md5(count($pendenciasAtuais) . '-' . collect($pendenciasAtuais)->sum('valor'));
+
+        $notificacoesPropina = $user->notifications()
+            ->where('type', PropinaEmAtrasoNotification::class)
+            ->get();
+
+        foreach ($notificacoesPropina as $n) {
+            $assinaturaNotificacao = $n->data['assinatura'] ?? null;
+
+            // Se já não há pendências, ou se a assinatura da notificação
+            // não bate com o estado actual da dívida, está resolvida.
+            $resolvida = empty($pendenciasAtuais) || $assinaturaNotificacao !== $assinaturaAtual;
+
+            if ($resolvida) {
+                Log::debug('[NotificacaoController] a apagar notificação resolvida', [
+                    'user_id' => $user->id,
+                    'notificacao_id' => $n->id,
+                    'assinatura_notificacao' => $assinaturaNotificacao,
+                    'assinatura_atual' => $assinaturaAtual,
+                ]);
+                $n->delete();
+            }
+        }
     }
 
     public function marcarLida(Request $request, string $id)

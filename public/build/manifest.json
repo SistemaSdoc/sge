@@ -1,160 +1,160 @@
 {
-  "_AccessManagementController-zVHI72V9.js": {
-    "file": "assets/AccessManagementController-zVHI72V9.js",
+  "_AccessManagementController-a02GHSGQ.js": {
+    "file": "assets/AccessManagementController-a02GHSGQ.js",
     "name": "AccessManagementController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_AlunoController-CelYMrHc.js": {
-    "file": "assets/AlunoController-CelYMrHc.js",
+  "_AlunoController-Cb_7UMVs.js": {
+    "file": "assets/AlunoController-Cb_7UMVs.js",
     "name": "AlunoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_AvisoController-A4YafqKq.js": {
-    "file": "assets/AvisoController-A4YafqKq.js",
+  "_AvisoController-DEPwlg1I.js": {
+    "file": "assets/AvisoController-DEPwlg1I.js",
     "name": "AvisoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_BancaJuriPapController-BQrw-b4V.js": {
-    "file": "assets/BancaJuriPapController-BQrw-b4V.js",
+  "_BancaJuriPapController-COE1g_mc.js": {
+    "file": "assets/BancaJuriPapController-COE1g_mc.js",
     "name": "BancaJuriPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_BancaJuriPapController-aXG63SCu.js": {
-    "file": "assets/BancaJuriPapController-aXG63SCu.js",
+  "_BancaJuriPapController-D6gPM_zo.js": {
+    "file": "assets/BancaJuriPapController-D6gPM_zo.js",
     "name": "BancaJuriPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_CertificadoController-CTxt6Abq.js": {
-    "file": "assets/CertificadoController-CTxt6Abq.js",
+  "_CertificadoController-D-lAJ1By.js": {
+    "file": "assets/CertificadoController-D-lAJ1By.js",
     "name": "CertificadoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_ClasseController-qztH_iV8.js": {
-    "file": "assets/ClasseController-qztH_iV8.js",
+  "_ClasseController-CltH3I1U.js": {
+    "file": "assets/ClasseController-CltH3I1U.js",
     "name": "ClasseController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_ClasseTurnoDisciplinaController-Cvxp1uxi.js": {
-    "file": "assets/ClasseTurnoDisciplinaController-Cvxp1uxi.js",
+  "_ClasseTurnoDisciplinaController-ClU_vItO.js": {
+    "file": "assets/ClasseTurnoDisciplinaController-ClU_vItO.js",
     "name": "ClasseTurnoDisciplinaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_ClasseTurnoTurmaController-DcrNZ1_f.js": {
-    "file": "assets/ClasseTurnoTurmaController-DcrNZ1_f.js",
+  "_ClasseTurnoTurmaController-BJS1wXu2.js": {
+    "file": "assets/ClasseTurnoTurmaController-BJS1wXu2.js",
     "name": "ClasseTurnoTurmaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_ConfirmacaoMatriculaController-BduW_x6h.js": {
-    "file": "assets/ConfirmacaoMatriculaController-BduW_x6h.js",
+  "_ConfirmacaoMatriculaController-x4eK4y0O.js": {
+    "file": "assets/ConfirmacaoMatriculaController-x4eK4y0O.js",
     "name": "ConfirmacaoMatriculaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_CursoClasseTurnoController-CHKIip4a.js": {
-    "file": "assets/CursoClasseTurnoController-CHKIip4a.js",
+  "_CursoClasseTurnoController-DYLsd5up.js": {
+    "file": "assets/CursoClasseTurnoController-DYLsd5up.js",
     "name": "CursoClasseTurnoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_CursoTuteladoController-XGPeKI-6.js": {
-    "file": "assets/CursoTuteladoController-XGPeKI-6.js",
+  "_CursoTuteladoController-BKzAO4MQ.js": {
+    "file": "assets/CursoTuteladoController-BKzAO4MQ.js",
     "name": "CursoTuteladoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_CursoTuteladoController-yr_F5s8i.js": {
-    "file": "assets/CursoTuteladoController-yr_F5s8i.js",
+  "_CursoTuteladoController-BsfiUi9n.js": {
+    "file": "assets/CursoTuteladoController-BsfiUi9n.js",
     "name": "CursoTuteladoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_CursoTuteladoProfessorController-C_u0kLXj.js": {
-    "file": "assets/CursoTuteladoProfessorController-C_u0kLXj.js",
+  "_CursoTuteladoProfessorController-DDowFx15.js": {
+    "file": "assets/CursoTuteladoProfessorController-DDowFx15.js",
     "name": "CursoTuteladoProfessorController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_CursosController-DbZ7Cc3a.js": {
-    "file": "assets/CursosController-DbZ7Cc3a.js",
+  "_CursosController-3XJ_dqBC.js": {
+    "file": "assets/CursosController-3XJ_dqBC.js",
     "name": "CursosController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_ElementoGrupoPapController-CdE4_iDO.js": {
-    "file": "assets/ElementoGrupoPapController-CdE4_iDO.js",
+  "_ElementoGrupoPapController-DG9QbnUI.js": {
+    "file": "assets/ElementoGrupoPapController-DG9QbnUI.js",
     "name": "ElementoGrupoPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_ExportarMiniPautaController-BCm7zrhc.js": {
-    "file": "assets/ExportarMiniPautaController-BCm7zrhc.js",
+  "_ExportarMiniPautaController-Bl3rb6Qm.js": {
+    "file": "assets/ExportarMiniPautaController-Bl3rb6Qm.js",
     "name": "ExportarMiniPautaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_GrupoPapAprovacaoController-CxOhTG-L.js": {
-    "file": "assets/GrupoPapAprovacaoController-CxOhTG-L.js",
+  "_GrupoPapAprovacaoController-DGAFUYZg.js": {
+    "file": "assets/GrupoPapAprovacaoController-DGAFUYZg.js",
     "name": "GrupoPapAprovacaoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_GrupoPapController-DaJS-_ih.js": {
-    "file": "assets/GrupoPapController-DaJS-_ih.js",
+  "_GrupoPapController-CgPJJHDG.js": {
+    "file": "assets/GrupoPapController-CgPJJHDG.js",
     "name": "GrupoPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_GrupoPapController-Dd80qiqd.js": {
-    "file": "assets/GrupoPapController-Dd80qiqd.js",
+  "_GrupoPapController-HC7ndm0C.js": {
+    "file": "assets/GrupoPapController-HC7ndm0C.js",
     "name": "GrupoPapController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_InstituicaoController-CZhAtonY.js": {
-    "file": "assets/InstituicaoController-CZhAtonY.js",
+  "_InstituicaoController-CvJ0BiSw.js": {
+    "file": "assets/InstituicaoController-CvJ0BiSw.js",
     "name": "InstituicaoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_ItemPagavelController-CjqLuiAF.js": {
-    "file": "assets/ItemPagavelController-CjqLuiAF.js",
+  "_ItemPagavelController-BLmzytdL.js": {
+    "file": "assets/ItemPagavelController-BLmzytdL.js",
     "name": "ItemPagavelController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_ModalDecisaoAprovacao-D_5omByi.js": {
-    "file": "assets/ModalDecisaoAprovacao-D_5omByi.js",
+  "_ModalDecisaoAprovacao-ClzSiiBH.js": {
+    "file": "assets/ModalDecisaoAprovacao-ClzSiiBH.js",
     "name": "ModalDecisaoAprovacao",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -162,64 +162,64 @@
       "_textarea-CEblRWsJ.js"
     ]
   },
-  "_NotaDisciplinaController-x35tcpaG.js": {
-    "file": "assets/NotaDisciplinaController-x35tcpaG.js",
+  "_NotaDisciplinaController-B_nUIudp.js": {
+    "file": "assets/NotaDisciplinaController-B_nUIudp.js",
     "name": "NotaDisciplinaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_PagamentoController-aI7AMB_6.js": {
-    "file": "assets/PagamentoController-aI7AMB_6.js",
+  "_PagamentoController-BmdXH5La.js": {
+    "file": "assets/PagamentoController-BmdXH5La.js",
     "name": "PagamentoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_PautaController-CdQIm8Da.js": {
-    "file": "assets/PautaController-CdQIm8Da.js",
+  "_PautaController-D1NJmF2H.js": {
+    "file": "assets/PautaController-D1NJmF2H.js",
     "name": "PautaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_PeriodoLancamentoNotasController-BF5Wg0D1.js": {
-    "file": "assets/PeriodoLancamentoNotasController-BF5Wg0D1.js",
+  "_PeriodoLancamentoNotasController-Dwh6Y8D9.js": {
+    "file": "assets/PeriodoLancamentoNotasController-Dwh6Y8D9.js",
     "name": "PeriodoLancamentoNotasController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_ProfessorController-BAuYSksp.js": {
-    "file": "assets/ProfessorController-BAuYSksp.js",
+  "_ProfessorController-BkisaHSB.js": {
+    "file": "assets/ProfessorController-BkisaHSB.js",
     "name": "ProfessorController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_RegraAvaliacaoController-BUofa0NC.js": {
-    "file": "assets/RegraAvaliacaoController-BUofa0NC.js",
+  "_RegraAvaliacaoController-B-hl7LaT.js": {
+    "file": "assets/RegraAvaliacaoController-B-hl7LaT.js",
     "name": "RegraAvaliacaoController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_TurmaController-Bt8IawAd.js": {
-    "file": "assets/TurmaController-Bt8IawAd.js",
+  "_TurmaController-BLn-kyff.js": {
+    "file": "assets/TurmaController-BLn-kyff.js",
     "name": "TurmaController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_TurmaDisciplinaProfessorController-CsOatDLw.js": {
-    "file": "assets/TurmaDisciplinaProfessorController-CsOatDLw.js",
+  "_TurmaDisciplinaProfessorController-BFwvS-Sg.js": {
+    "file": "assets/TurmaDisciplinaProfessorController-BFwvS-Sg.js",
     "name": "TurmaDisciplinaProfessorController",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_TurnoController-svCABrd-.js": {
-    "file": "assets/TurnoController-svCABrd-.js",
+  "_TurnoController-DRKMW7tc.js": {
+    "file": "assets/TurnoController-DRKMW7tc.js",
     "name": "TurnoController",
     "imports": [
       "resources/js/app.tsx"
@@ -275,22 +275,22 @@
       "_utils-CxwIYYhK.js"
     ]
   },
-  "_body-Coe5xhSR.js": {
-    "file": "assets/body-Coe5xhSR.js",
+  "_body-BVJoe1Dp.js": {
+    "file": "assets/body-BVJoe1Dp.js",
     "name": "body",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
+      "resources/js/app.tsx",
       "_table-DrQFDzr_.js",
       "_resultado-badge-CxfsIBU-.js",
       "_utils-CxwIYYhK.js"
     ]
   },
-  "_body-MRY6lUzW.js": {
-    "file": "assets/body-MRY6lUzW.js",
+  "_body-Coe5xhSR.js": {
+    "file": "assets/body-Coe5xhSR.js",
     "name": "body",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "resources/js/app.tsx",
       "_table-DrQFDzr_.js",
       "_resultado-badge-CxfsIBU-.js",
       "_utils-CxwIYYhK.js"
@@ -311,32 +311,32 @@
       "_utils-BNhDZxi-.js"
     ]
   },
-  "_card-actions-Cf1O2L--.js": {
-    "file": "assets/card-actions-Cf1O2L--.js",
+  "_card-actions-B6Kh6Cwc.js": {
+    "file": "assets/card-actions-B6Kh6Cwc.js",
     "name": "card-actions",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_utils-CxwIYYhK.js"
     ]
   },
-  "_cart-items-B7K_gw0I.js": {
-    "file": "assets/cart-items-B7K_gw0I.js",
+  "_cart-items-D0c-okAj.js": {
+    "file": "assets/cart-items-D0c-okAj.js",
     "name": "cart-items",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_checkbox-D6ynfuFg.js",
-      "_toggle-group-C5HK_sWT.js",
+      "_checkbox-C9aAnhRE.js",
+      "_toggle-group-CrRRz3HM.js",
       "_utils-BNhDZxi-.js",
       "_badge-DxvCgqB1.js",
-      "_item-CLJ3TrEI.js",
+      "_item-F24236cm.js",
       "_pagamentos-DtK05c6T.js"
     ]
   },
-  "_cart-summary--3rbFvvm.js": {
-    "file": "assets/cart-summary--3rbFvvm.js",
+  "_cart-summary-DrvIpwcg.js": {
+    "file": "assets/cart-summary-DrvIpwcg.js",
     "name": "cart-summary",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -345,7 +345,7 @@
       "_card-CLsug2Zw.js",
       "_empty-D6FHIzKb.js",
       "_badge-DxvCgqB1.js",
-      "_spinner-B9n0XSrm.js",
+      "_spinner-CVStNLW1.js",
       "_pagamentos-DtK05c6T.js"
     ]
   },
@@ -356,8 +356,8 @@
       "_createLucideIcon-6hAcjkHs.js"
     ]
   },
-  "_checkbox-D6ynfuFg.js": {
-    "file": "assets/checkbox-D6ynfuFg.js",
+  "_checkbox-C9aAnhRE.js": {
+    "file": "assets/checkbox-C9aAnhRE.js",
     "name": "checkbox",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -401,8 +401,8 @@
       "_createLucideIcon-6hAcjkHs.js"
     ]
   },
-  "_combobox-Cqo6gbmC.js": {
-    "file": "assets/combobox-Cqo6gbmC.js",
+  "_combobox-BORgtga3.js": {
+    "file": "assets/combobox-BORgtga3.js",
     "name": "combobox",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -412,11 +412,11 @@
       "_floating-ui.react-dom-C18jycQX.js",
       "_utils-BNhDZxi-.js",
       "resources/js/app.tsx",
-      "_input-group-DICwUrPD.js"
+      "_input-group-DotPjJuF.js"
     ]
   },
-  "_confirm-DnKpPKpr.js": {
-    "file": "assets/confirm-DnKpPKpr.js",
+  "_confirm-4Hadcjp_.js": {
+    "file": "assets/confirm-4Hadcjp_.js",
     "name": "confirm",
     "imports": [
       "resources/js/app.tsx"
@@ -549,15 +549,15 @@
       "_utils-BNhDZxi-.js"
     ]
   },
-  "_edit-professor-modal-Fzqvg_3h.js": {
-    "file": "assets/edit-professor-modal-Fzqvg_3h.js",
+  "_edit-professor-modal-DoT2yAe2.js": {
+    "file": "assets/edit-professor-modal-DoT2yAe2.js",
     "name": "edit-professor-modal",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
-      "_field-CgPeqgv8.js",
-      "_CursoTuteladoProfessorController-C_u0kLXj.js"
+      "_field-CPGys7N3.js",
+      "_CursoTuteladoProfessorController-DDowFx15.js"
     ]
   },
   "_ellipsis-Dus2UbHw.js": {
@@ -576,8 +576,8 @@
       "_dist-RDu3SUJ-.js"
     ]
   },
-  "_empty-state-COjfYAoV.js": {
-    "file": "assets/empty-state-COjfYAoV.js",
+  "_empty-state-BQe9KcIY.js": {
+    "file": "assets/empty-state-BQe9KcIY.js",
     "name": "empty-state",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -595,8 +595,8 @@
       "_dist-Ctfm89E2.js"
     ]
   },
-  "_field-CgPeqgv8.js": {
-    "file": "assets/field-CgPeqgv8.js",
+  "_field-CPGys7N3.js": {
+    "file": "assets/field-CPGys7N3.js",
     "name": "field",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -637,24 +637,24 @@
     "file": "assets/get-badge-color-Byh8ULIt.js",
     "name": "get-badge-color"
   },
-  "_google-button-DmHSTk1e.js": {
-    "file": "assets/google-button-DmHSTk1e.js",
-    "name": "google-button",
-    "imports": [
-      "_jsx-runtime-DIBGU2nq.js",
-      "resources/js/app.tsx",
-      "_spinner-B9n0XSrm.js"
-    ]
-  },
-  "_google-vTbvk9uP.js": {
-    "file": "assets/google-vTbvk9uP.js",
+  "_google-CVt00Uo-.js": {
+    "file": "assets/google-CVt00Uo-.js",
     "name": "google",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_header-BzpNVWRJ.js": {
-    "file": "assets/header-BzpNVWRJ.js",
+  "_google-button-Bh0_EbqQ.js": {
+    "file": "assets/google-button-Bh0_EbqQ.js",
+    "name": "google-button",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "resources/js/app.tsx",
+      "_spinner-CVStNLW1.js"
+    ]
+  },
+  "_header-BXZt1GbL.js": {
+    "file": "assets/header-BXZt1GbL.js",
     "name": "header",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -685,12 +685,12 @@
       "_table-DrQFDzr_.js"
     ]
   },
-  "_horarios-form-C9QnELxK.js": {
-    "file": "assets/horarios-form-C9QnELxK.js",
+  "_horarios-form-CIyc3BDr.js": {
+    "file": "assets/horarios-form-CIyc3BDr.js",
     "name": "horarios-form",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_checkbox-D6ynfuFg.js",
+      "_checkbox-C9aAnhRE.js",
       "resources/js/app.tsx",
       "_table-DrQFDzr_.js"
     ]
@@ -703,8 +703,8 @@
       "_utils-BNhDZxi-.js"
     ]
   },
-  "_input-group-DICwUrPD.js": {
-    "file": "assets/input-group-DICwUrPD.js",
+  "_input-group-DotPjJuF.js": {
+    "file": "assets/input-group-DotPjJuF.js",
     "name": "input-group",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -714,8 +714,8 @@
       "_textarea-CEblRWsJ.js"
     ]
   },
-  "_inscricoes-Bx2T82cT.js": {
-    "file": "assets/inscricoes-Bx2T82cT.js",
+  "_inscricoes-D6pJejSj.js": {
+    "file": "assets/inscricoes-D6pJejSj.js",
     "name": "inscricoes",
     "imports": [
       "resources/js/app.tsx"
@@ -776,18 +776,8 @@
       "_pt-jv_QGq0b.js"
     ]
   },
-  "_item-8KkBaN9b.js": {
-    "file": "assets/item-8KkBaN9b.js",
-    "name": "item",
-    "imports": [
-      "_jsx-runtime-DIBGU2nq.js",
-      "_badge-DxvCgqB1.js",
-      "_item-CLJ3TrEI.js",
-      "_get-badge-color-Byh8ULIt.js"
-    ]
-  },
-  "_item-BHjffaMA.js": {
-    "file": "assets/item-BHjffaMA.js",
+  "_item-5dJrBr1J.js": {
+    "file": "assets/item-5dJrBr1J.js",
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -796,40 +786,73 @@
       "_card-CLsug2Zw.js"
     ]
   },
-  "_item-BI2_Yky3.js": {
-    "file": "assets/item-BI2_Yky3.js",
+  "_item-BaXzRLTc.js": {
+    "file": "assets/item-BaXzRLTc.js",
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_badge-DxvCgqB1.js",
-      "_item-CLJ3TrEI.js",
-      "_pt-jv_QGq0b.js",
-      "_format-B0iQlhay.js"
-    ]
-  },
-  "_item-BelXyzWV.js": {
-    "file": "assets/item-BelXyzWV.js",
-    "name": "item",
-    "imports": [
-      "_jsx-runtime-DIBGU2nq.js",
-      "_badge-DxvCgqB1.js",
-      "_item-CLJ3TrEI.js",
+      "_item-F24236cm.js",
       "_get-badge-color-Byh8ULIt.js"
     ]
   },
-  "_item-Bj5jsLF-.js": {
-    "file": "assets/item-Bj5jsLF-.js",
+  "_item-BeC_u5iS.js": {
+    "file": "assets/item-BeC_u5iS.js",
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_badge-DxvCgqB1.js",
-      "_item-CLJ3TrEI.js",
+      "_item-F24236cm.js",
+      "_get-badge-color-Byh8ULIt.js"
+    ]
+  },
+  "_item-CaRj-XfB.js": {
+    "file": "assets/item-CaRj-XfB.js",
+    "name": "item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_urgency-BOmF4fe2.js",
+      "_badge-DxvCgqB1.js",
+      "_item-F24236cm.js",
       "_pt-jv_QGq0b.js",
       "_format-B0iQlhay.js"
     ]
   },
-  "_item-CLJ3TrEI.js": {
-    "file": "assets/item-CLJ3TrEI.js",
+  "_item-Cqz0cNc_.js": {
+    "file": "assets/item-Cqz0cNc_.js",
+    "name": "item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_badge-DxvCgqB1.js",
+      "_item-F24236cm.js",
+      "_pt-jv_QGq0b.js",
+      "_format-B0iQlhay.js"
+    ]
+  },
+  "_item-CtCcgbp4.js": {
+    "file": "assets/item-CtCcgbp4.js",
+    "name": "item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_urgency-BOmF4fe2.js",
+      "resources/js/app.tsx",
+      "_badge-DxvCgqB1.js",
+      "_item-F24236cm.js"
+    ]
+  },
+  "_item-DD70m2DA.js": {
+    "file": "assets/item-DD70m2DA.js",
+    "name": "item",
+    "imports": [
+      "_jsx-runtime-DIBGU2nq.js",
+      "_badge-DxvCgqB1.js",
+      "_item-F24236cm.js",
+      "_pt-jv_QGq0b.js",
+      "_format-B0iQlhay.js"
+    ]
+  },
+  "_item-F24236cm.js": {
+    "file": "assets/item-F24236cm.js",
     "name": "item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -837,29 +860,6 @@
       "_utils-BNhDZxi-.js",
       "_dist-RDu3SUJ-.js",
       "resources/js/app.tsx"
-    ]
-  },
-  "_item-CYlIRg7B.js": {
-    "file": "assets/item-CYlIRg7B.js",
-    "name": "item",
-    "imports": [
-      "_jsx-runtime-DIBGU2nq.js",
-      "_urgency-BOmF4fe2.js",
-      "_badge-DxvCgqB1.js",
-      "_item-CLJ3TrEI.js",
-      "_pt-jv_QGq0b.js",
-      "_format-B0iQlhay.js"
-    ]
-  },
-  "_item-Dnlydt-n.js": {
-    "file": "assets/item-Dnlydt-n.js",
-    "name": "item",
-    "imports": [
-      "_jsx-runtime-DIBGU2nq.js",
-      "_urgency-BOmF4fe2.js",
-      "resources/js/app.tsx",
-      "_badge-DxvCgqB1.js",
-      "_item-CLJ3TrEI.js"
     ]
   },
   "_jsx-runtime-DIBGU2nq.js": {
@@ -875,14 +875,14 @@
       "_utils-BNhDZxi-.js"
     ]
   },
-  "_lancamentos-recurso-table-DzmD3YcP.js": {
-    "file": "assets/lancamentos-recurso-table-DzmD3YcP.js",
+  "_lancamentos-recurso-table-C4hnRA6j.js": {
+    "file": "assets/lancamentos-recurso-table-C4hnRA6j.js",
     "name": "lancamentos-recurso-table",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js"
     ]
@@ -929,8 +929,8 @@
       "_jsx-runtime-DIBGU2nq.js"
     ]
   },
-  "_multiple-select-DGlWtw8E.js": {
-    "file": "assets/multiple-select-DGlWtw8E.js",
+  "_multiple-select-B0nSQiAs.js": {
+    "file": "assets/multiple-select-B0nSQiAs.js",
     "name": "multiple-select",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -940,15 +940,15 @@
       "_dist-C6xzvqf82.js",
       "_utils-BNhDZxi-.js",
       "resources/js/app.tsx",
-      "_input-group-DICwUrPD.js"
+      "_input-group-DotPjJuF.js"
     ]
   },
   "_pagamentos-DtK05c6T.js": {
     "file": "assets/pagamentos-DtK05c6T.js",
     "name": "pagamentos"
   },
-  "_pagination-BB-g6kfA.js": {
-    "file": "assets/pagination-BB-g6kfA.js",
+  "_pagination-D_wO9tfv.js": {
+    "file": "assets/pagination-D_wO9tfv.js",
     "name": "pagination",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -957,27 +957,27 @@
       "resources/js/app.tsx"
     ]
   },
-  "_passkey-verify-DzAdKgzU.js": {
-    "file": "assets/passkey-verify-DzAdKgzU.js",
+  "_passkey-verify-BmFJzjiL.js": {
+    "file": "assets/passkey-verify-BmFJzjiL.js",
     "name": "passkey-verify",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_react-CYuos3AN.js",
       "resources/js/app.tsx",
-      "_spinner-B9n0XSrm.js",
+      "_spinner-CVStNLW1.js",
       "_input-error-Cqkovvfq.js"
     ]
   },
-  "_password-BKywHz20.js": {
-    "file": "assets/password-BKywHz20.js",
+  "_password-DxC4kFjS.js": {
+    "file": "assets/password-DxC4kFjS.js",
     "name": "password",
     "imports": [
       "resources/js/app.tsx",
-      "_confirm-DnKpPKpr.js"
+      "_confirm-4Hadcjp_.js"
     ]
   },
-  "_password-input-CfU-IiqZ.js": {
-    "file": "assets/password-input-CfU-IiqZ.js",
+  "_password-input-DIhFUOsB.js": {
+    "file": "assets/password-input-DIhFUOsB.js",
     "name": "password-input",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -993,13 +993,13 @@
       "_jsx-runtime-DIBGU2nq.js"
     ]
   },
-  "_permission-section-CIeepncD.js": {
-    "file": "assets/permission-section-CIeepncD.js",
+  "_permission-section-BXpEsNvV.js": {
+    "file": "assets/permission-section-BXpEsNvV.js",
     "name": "permission-section",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_lock-Dvqfcyqv.js",
-      "_multiple-select-DGlWtw8E.js"
+      "_multiple-select-B0nSQiAs.js"
     ]
   },
   "_pt-jv_QGq0b.js": {
@@ -1036,17 +1036,17 @@
       "_badge-DxvCgqB1.js"
     ]
   },
-  "_role-section-B6T0ArGZ.js": {
-    "file": "assets/role-section-B6T0ArGZ.js",
+  "_role-section-CqCl4JQ5.js": {
+    "file": "assets/role-section-CqCl4JQ5.js",
     "name": "role-section",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_switch-CTtzV2Gt.js",
+      "_switch-DmyJbcjY.js",
       "_badge-DxvCgqB1.js"
     ]
   },
-  "_select-BtCKxIuM.js": {
-    "file": "assets/select-BtCKxIuM.js",
+  "_select-BMxD8oA9.js": {
+    "file": "assets/select-BMxD8oA9.js",
     "name": "select",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1070,8 +1070,8 @@
       "resources/js/app.tsx"
     ]
   },
-  "_spinner-B9n0XSrm.js": {
-    "file": "assets/spinner-B9n0XSrm.js",
+  "_spinner-CVStNLW1.js": {
+    "file": "assets/spinner-CVStNLW1.js",
     "name": "spinner",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1079,88 +1079,88 @@
       "resources/js/app.tsx"
     ]
   },
-  "_state-empty-CZZsowuA.js": {
-    "file": "assets/state-empty-CZZsowuA.js",
+  "_state-empty-DVh5ZIJU.js": {
+    "file": "assets/state-empty-DVh5ZIJU.js",
     "name": "state-empty",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_summary-item-mH8pth1R.js"
+      "_summary-item-Cjynkxy4.js"
     ]
   },
-  "_state-empty-DXcrHeo9.js": {
-    "file": "assets/state-empty-DXcrHeo9.js",
+  "_state-empty-NsqcL1U0.js": {
+    "file": "assets/state-empty-NsqcL1U0.js",
     "name": "state-empty",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_summary-item-b8wlRNlX.js"
+      "_summary-item-BmjcQyA_.js"
     ]
   },
-  "_state-happening-A2HUbTZE.js": {
-    "file": "assets/state-happening-A2HUbTZE.js",
+  "_state-happening-B1JEG01d.js": {
+    "file": "assets/state-happening-B1JEG01d.js",
     "name": "state-happening",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_summary-item-mH8pth1R.js"
+      "_summary-item-Cjynkxy4.js"
     ]
   },
-  "_state-happening-C7EhPEPt.js": {
-    "file": "assets/state-happening-C7EhPEPt.js",
+  "_state-happening-C2QtUlba.js": {
+    "file": "assets/state-happening-C2QtUlba.js",
     "name": "state-happening",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_summary-item-b8wlRNlX.js"
+      "_summary-item-BmjcQyA_.js"
     ]
   },
-  "_state-loading-CGZAAJrJ.js": {
-    "file": "assets/state-loading-CGZAAJrJ.js",
+  "_state-loading-BXaeUimI.js": {
+    "file": "assets/state-loading-BXaeUimI.js",
     "name": "state-loading",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_summary-item-mH8pth1R.js"
+      "_summary-item-Cjynkxy4.js"
     ]
   },
-  "_state-loading-DVkC1qyD.js": {
-    "file": "assets/state-loading-DVkC1qyD.js",
+  "_state-loading-ByYyA3Uh.js": {
+    "file": "assets/state-loading-ByYyA3Uh.js",
     "name": "state-loading",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_summary-item-b8wlRNlX.js"
+      "_summary-item-BmjcQyA_.js"
     ]
   },
-  "_state-today-BM5-RMu_.js": {
-    "file": "assets/state-today-BM5-RMu_.js",
+  "_state-today-DSl0Cx3m.js": {
+    "file": "assets/state-today-DSl0Cx3m.js",
     "name": "state-today",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_summary-item-mH8pth1R.js"
+      "_summary-item-BmjcQyA_.js"
     ]
   },
-  "_state-today-CVHXsed6.js": {
-    "file": "assets/state-today-CVHXsed6.js",
+  "_state-today-fzJggabP.js": {
+    "file": "assets/state-today-fzJggabP.js",
     "name": "state-today",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_summary-item-b8wlRNlX.js"
+      "_summary-item-Cjynkxy4.js"
     ]
   },
-  "_summary-item-b8wlRNlX.js": {
-    "file": "assets/summary-item-b8wlRNlX.js",
+  "_summary-item-BmjcQyA_.js": {
+    "file": "assets/summary-item-BmjcQyA_.js",
     "name": "summary-item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_item-CLJ3TrEI.js"
+      "_item-F24236cm.js"
     ]
   },
-  "_summary-item-mH8pth1R.js": {
-    "file": "assets/summary-item-mH8pth1R.js",
+  "_summary-item-Cjynkxy4.js": {
+    "file": "assets/summary-item-Cjynkxy4.js",
     "name": "summary-item",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_item-CLJ3TrEI.js"
+      "_item-F24236cm.js"
     ]
   },
-  "_switch-CTtzV2Gt.js": {
-    "file": "assets/switch-CTtzV2Gt.js",
+  "_switch-DmyJbcjY.js": {
+    "file": "assets/switch-DmyJbcjY.js",
     "name": "switch",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1174,21 +1174,21 @@
       "resources/js/app.tsx"
     ]
   },
-  "_tab-content-cursos-xLH5sRY5.js": {
-    "file": "assets/tab-content-cursos-xLH5sRY5.js",
+  "_tab-content-cursos-L5km5UW0.js": {
+    "file": "assets/tab-content-cursos-L5km5UW0.js",
     "name": "tab-content-cursos",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_book-VbVsmrsO.js",
-      "_pagination-BB-g6kfA.js",
+      "_pagination-D_wO9tfv.js",
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_CursoTuteladoController-XGPeKI-6.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_CursoTuteladoController-BKzAO4MQ.js"
     ]
   },
   "_table-DrQFDzr_.js": {
@@ -1199,17 +1199,17 @@
       "_utils-BNhDZxi-.js"
     ]
   },
-  "_table-pagination-PuIFCAqd.js": {
-    "file": "assets/table-pagination-PuIFCAqd.js",
+  "_table-pagination-D4r3FHNP.js": {
+    "file": "assets/table-pagination-D4r3FHNP.js",
     "name": "table-pagination",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_pagination-BB-g6kfA.js",
+      "_pagination-D_wO9tfv.js",
       "_card-CLsug2Zw.js"
     ]
   },
-  "_tabs-BlGFFIIk.js": {
-    "file": "assets/tabs-BlGFFIIk.js",
+  "_tabs-zBxrftKP.js": {
+    "file": "assets/tabs-zBxrftKP.js",
     "name": "tabs",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1232,8 +1232,8 @@
       "_jsx-runtime-DIBGU2nq.js"
     ]
   },
-  "_text-link-CQf1vuFb.js": {
-    "file": "assets/text-link-CQf1vuFb.js",
+  "_text-link-Bn9qX0QU.js": {
+    "file": "assets/text-link-Bn9qX0QU.js",
     "name": "text-link",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1249,8 +1249,8 @@
       "_utils-BNhDZxi-.js"
     ]
   },
-  "_toggle-group-C5HK_sWT.js": {
-    "file": "assets/toggle-group-C5HK_sWT.js",
+  "_toggle-group-CrRRz3HM.js": {
+    "file": "assets/toggle-group-CrRRz3HM.js",
     "name": "toggle-group",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1264,12 +1264,12 @@
       "resources/js/app.tsx"
     ]
   },
-  "_trimestre-selector-DZO_H4Tf.js": {
-    "file": "assets/trimestre-selector-DZO_H4Tf.js",
+  "_trimestre-selector-B3OTfsMz.js": {
+    "file": "assets/trimestre-selector-B3OTfsMz.js",
     "name": "trimestre-selector",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js"
+      "_select-BMxD8oA9.js"
     ]
   },
   "_urgency-BOmF4fe2.js": {
@@ -1280,23 +1280,23 @@
       "_circle-alert-CmOZxo2j.js"
     ]
   },
-  "_use-dialog-DPE1ejA8.js": {
-    "file": "assets/use-dialog-DPE1ejA8.js",
+  "_use-dialog-BVmPjg7L.js": {
+    "file": "assets/use-dialog-BVmPjg7L.js",
     "name": "use-dialog",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx"
     ]
   },
-  "_use-pagination-UzN-O2dW.js": {
-    "file": "assets/use-pagination-UzN-O2dW.js",
+  "_use-pagination-D6LkOpCw.js": {
+    "file": "assets/use-pagination-D6LkOpCw.js",
     "name": "use-pagination",
     "imports": [
       "resources/js/app.tsx"
     ]
   },
-  "_use-two-factor-auth-BkfPM_QX.js": {
-    "file": "assets/use-two-factor-auth-BkfPM_QX.js",
+  "_use-two-factor-auth-C3SZlz-o.js": {
+    "file": "assets/use-two-factor-auth-C3SZlz-o.js",
     "name": "use-two-factor-auth",
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
@@ -1323,8 +1323,8 @@
     "file": "assets/verificar-situacao-B5GGfqM_.js",
     "name": "verificar-situacao"
   },
-  "_verification-D9ZCzFD_.js": {
-    "file": "assets/verification-D9ZCzFD_.js",
+  "_verification-C0VG-Mpg.js": {
+    "file": "assets/verification-C0VG-Mpg.js",
     "name": "verification",
     "imports": [
       "resources/js/app.tsx"
@@ -1387,7 +1387,7 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-C8QP6hz4.js",
+    "file": "assets/app-qnewhIlf.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -1417,7 +1417,7 @@
       "resources/js/pages/aluno/grelha-curricular/index.jsx",
       "resources/js/pages/aluno/minhas-notas/components/notas-resumo.jsx",
       "resources/js/pages/aluno/minhas-notas/components/notas-table.jsx",
-      "_trimestre-selector-DZO_H4Tf.js",
+      "_trimestre-selector-B3OTfsMz.js",
       "resources/js/pages/aluno/minhas-notas/index.jsx",
       "resources/js/pages/alunos/components/aluno-form.jsx",
       "resources/js/pages/alunos/components/aluno-table.jsx",
@@ -1490,7 +1490,7 @@
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/aprovacoes/editarMelhoria.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/aprovacoes/melhoria.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/aprovacoes/pendentes.jsx",
-      "_horarios-form-C9QnELxK.js",
+      "_horarios-form-CIyc3BDr.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
@@ -1502,7 +1502,7 @@
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/components/confirmar-matricula-modal.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/index.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/create.jsx",
-      "_lancamentos-recurso-table-DzmD3YcP.js",
+      "_lancamentos-recurso-table-C4hnRA6j.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create.jsx",
@@ -1533,7 +1533,7 @@
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/show.jsx",
       "resources/js/pages/cursos-tutelados/components/forms/create.form.jsx",
       "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx",
-      "_edit-professor-modal-Fzqvg_3h.js",
+      "_edit-professor-modal-DoT2yAe2.js",
       "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx",
       "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx",
       "resources/js/pages/cursos-tutelados/create.jsx",
@@ -1544,44 +1544,44 @@
       "resources/js/pages/cursos-tutelados/show.jsx",
       "resources/js/pages/dashboard.jsx",
       "resources/js/pages/dashboards/aluno/components/avisos-eventos/index.jsx",
-      "_item-BI2_Yky3.js",
+      "_item-Cqz0cNc_.js",
       "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx",
-      "_state-empty-CZZsowuA.js",
-      "_state-happening-A2HUbTZE.js",
-      "_state-loading-CGZAAJrJ.js",
-      "_state-today-BM5-RMu_.js",
-      "_summary-item-mH8pth1R.js",
+      "_state-empty-DVh5ZIJU.js",
+      "_state-happening-B1JEG01d.js",
+      "_state-loading-BXaeUimI.js",
+      "_state-today-fzJggabP.js",
+      "_summary-item-Cjynkxy4.js",
       "resources/js/pages/dashboards/aluno/components/greeting-header.jsx",
       "resources/js/pages/dashboards/aluno/components/notificacoes-sino.jsx",
       "resources/js/pages/dashboards/aluno/components/proximas-aulas/index.jsx",
-      "_item-BelXyzWV.js",
+      "_item-BaXzRLTc.js",
       "resources/js/pages/dashboards/aluno/index.jsx",
       "resources/js/pages/dashboards/director/components/dashboard-summary/index.jsx",
       "resources/js/pages/dashboards/director/components/feed-accoes/index.jsx",
-      "_item-Dnlydt-n.js",
+      "_item-CtCcgbp4.js",
       "resources/js/pages/dashboards/director/components/greeting-header.jsx",
       "resources/js/pages/dashboards/director/components/metricas/index.jsx",
-      "_item-BHjffaMA.js",
+      "_item-5dJrBr1J.js",
       "resources/js/pages/dashboards/director/components/proximos-eventos/index.jsx",
-      "_item-CYlIRg7B.js",
+      "_item-CaRj-XfB.js",
       "resources/js/pages/dashboards/director/index.jsx",
       "resources/js/pages/dashboards/professor/components/avisos-eventos/index.jsx",
-      "_item-Bj5jsLF-.js",
+      "_item-DD70m2DA.js",
       "resources/js/pages/dashboards/professor/components/dashboard-summary/index.jsx",
-      "_state-empty-DXcrHeo9.js",
-      "_state-happening-C7EhPEPt.js",
-      "_state-loading-DVkC1qyD.js",
-      "_state-today-CVHXsed6.js",
-      "_summary-item-b8wlRNlX.js",
+      "_state-empty-NsqcL1U0.js",
+      "_state-happening-C2QtUlba.js",
+      "_state-loading-ByYyA3Uh.js",
+      "_state-today-DSl0Cx3m.js",
+      "_summary-item-BmjcQyA_.js",
       "resources/js/pages/dashboards/professor/components/greeting-header.jsx",
       "resources/js/pages/dashboards/professor/components/proximas-aulas/index.jsx",
-      "_item-8KkBaN9b.js",
+      "_item-BeC_u5iS.js",
       "resources/js/pages/dashboards/professor/index.jsx",
       "resources/js/pages/erros/propina-pendente.jsx",
-      "_header-BzpNVWRJ.js",
+      "_header-BXZt1GbL.js",
       "resources/js/pages/gestao-acessos/components/drawer/index.jsx",
-      "_permission-section-CIeepncD.js",
-      "_role-section-B6T0ArGZ.js",
+      "_permission-section-BXpEsNvV.js",
+      "_role-section-CqCl4JQ5.js",
       "resources/js/pages/gestao-acessos/components/editar-acesso-drawer.jsx",
       "resources/js/pages/gestao-acessos/components/usuarios-table.jsx",
       "resources/js/pages/gestao-acessos/index.jsx",
@@ -1597,7 +1597,7 @@
       "resources/js/pages/instituicoes/components/show/instituicao-cursos.jsx",
       "resources/js/pages/instituicoes/components/skeletons/index.skeleton.jsx",
       "resources/js/pages/instituicoes/components/skeletons/show.skeleton.jsx",
-      "_tab-content-cursos-xLH5sRY5.js",
+      "_tab-content-cursos-L5km5UW0.js",
       "resources/js/pages/instituicoes/create.jsx",
       "resources/js/pages/instituicoes/edit.jsx",
       "resources/js/pages/instituicoes/index.jsx",
@@ -1609,8 +1609,8 @@
       "resources/js/pages/itens-pagaveis/index.jsx",
       "resources/js/pages/itens-pagaveis/show.jsx",
       "resources/js/pages/pagamentos/components/alunos-por-status-propina.jsx",
-      "_cart-items-B7K_gw0I.js",
-      "_cart-summary--3rbFvvm.js",
+      "_cart-items-D0c-okAj.js",
+      "_cart-summary-DrvIpwcg.js",
       "resources/js/pages/pagamentos/components/pagamentos-form.jsx",
       "resources/js/pages/pagamentos/components/pagamentos-table.jsx",
       "resources/js/pages/pagamentos/create.jsx",
@@ -1622,15 +1622,15 @@
       "resources/js/pages/pap/PendentesAprovacao.jsx",
       "resources/js/pages/pap/TemasMelhoria.jsx",
       "resources/js/pages/pap/components/InfoGrupoBox.jsx",
-      "_ModalDecisaoAprovacao-D_5omByi.js",
+      "_ModalDecisaoAprovacao-ClzSiiBH.js",
       "resources/js/pages/pap/components/RecomendacaoBox.jsx",
       "resources/js/pages/pap/components/grupo-pap-cards.jsx",
       "resources/js/pages/pap/index.jsx",
-      "_card-actions-Cf1O2L--.js",
+      "_card-actions-B6Kh6Cwc.js",
       "resources/js/pages/pautas/components/pauta-table/index.jsx",
       "_resultado-badge-CxfsIBU-.js",
       "resources/js/pages/pautas/components/pauta-table/resumo-final.jsx",
-      "_body-MRY6lUzW.js",
+      "_body-BVJoe1Dp.js",
       "_header-DaUk2T1V.js",
       "_body-B6_lB0i_.js",
       "_header-J9KAxMh0.js",
@@ -1687,21 +1687,21 @@
     ]
   },
   "resources/js/pages/aluno/grelha-curricular/components/grelha-table.jsx": {
-    "file": "assets/grelha-table-CdZWmZ3d.js",
+    "file": "assets/grelha-table-CyAoajXd.js",
     "name": "grelha-table",
     "src": "resources/js/pages/aluno/grelha-curricular/components/grelha-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/aluno/grelha-curricular/index.jsx": {
-    "file": "assets/grelha-curricular-HxuTCaNG.js",
+    "file": "assets/grelha-curricular-CUtyyu92.js",
     "name": "grelha-curricular",
     "src": "resources/js/pages/aluno/grelha-curricular/index.jsx",
     "isDynamicEntry": true,
@@ -1721,23 +1721,23 @@
     ]
   },
   "resources/js/pages/aluno/minhas-notas/components/notas-table.jsx": {
-    "file": "assets/notas-table-CQ2QcmJb.js",
+    "file": "assets/notas-table-ByZGLguu.js",
     "name": "notas-table",
     "src": "resources/js/pages/aluno/minhas-notas/components/notas-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
-      "_trimestre-selector-DZO_H4Tf.js"
+      "_trimestre-selector-B3OTfsMz.js"
     ]
   },
   "resources/js/pages/aluno/minhas-notas/index.jsx": {
-    "file": "assets/minhas-notas-BmR6EQvZ.js",
+    "file": "assets/minhas-notas-plcK17-i.js",
     "name": "minhas-notas",
     "src": "resources/js/pages/aluno/minhas-notas/index.jsx",
     "isDynamicEntry": true,
@@ -1749,46 +1749,46 @@
     ]
   },
   "resources/js/pages/alunos/components/aluno-form.jsx": {
-    "file": "assets/aluno-form-D4UrTGgw.js",
+    "file": "assets/aluno-form-BjMCG3y8.js",
     "name": "aluno-form",
     "src": "resources/js/pages/alunos/components/aluno-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js"
+      "_field-CPGys7N3.js"
     ]
   },
   "resources/js/pages/alunos/components/aluno-table.jsx": {
-    "file": "assets/aluno-table-CPPMGRs0.js",
+    "file": "assets/aluno-table-C3RbbOcW.js",
     "name": "aluno-table",
     "src": "resources/js/pages/alunos/components/aluno-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "_ellipsis-Dus2UbHw.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_field-CgPeqgv8.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_AlunoController-CelYMrHc.js"
+      "_field-CPGys7N3.js",
+      "_table-pagination-D4r3FHNP.js",
+      "_AlunoController-Cb_7UMVs.js"
     ]
   },
   "resources/js/pages/alunos/components/atribuir-turma-form.jsx": {
-    "file": "assets/atribuir-turma-form-UKxonzJu.js",
+    "file": "assets/atribuir-turma-form-CPnKTUme.js",
     "name": "atribuir-turma-form",
     "src": "resources/js/pages/alunos/components/atribuir-turma-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
-      "_field-CgPeqgv8.js"
+      "_field-CPGys7N3.js"
     ]
   },
   "resources/js/pages/alunos/components/show/aluno-detalhes.jsx": {
@@ -1803,7 +1803,7 @@
     ]
   },
   "resources/js/pages/alunos/components/show/aluno-header.jsx": {
-    "file": "assets/aluno-header-CRQoul7S.js",
+    "file": "assets/aluno-header-UO4SVhA8.js",
     "name": "aluno-header",
     "src": "resources/js/pages/alunos/components/show/aluno-header.jsx",
     "isDynamicEntry": true,
@@ -1827,7 +1827,7 @@
     ]
   },
   "resources/js/pages/alunos/edit.jsx": {
-    "file": "assets/edit-D_t_Dxso.js",
+    "file": "assets/edit-CbZuJtLm.js",
     "name": "edit",
     "src": "resources/js/pages/alunos/edit.jsx",
     "isDynamicEntry": true,
@@ -1835,26 +1835,26 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/alunos/components/aluno-form.jsx",
-      "_AlunoController-CelYMrHc.js"
+      "_AlunoController-Cb_7UMVs.js"
     ]
   },
   "resources/js/pages/alunos/index.jsx": {
-    "file": "assets/alunos-CC8Z7Z2M.js",
+    "file": "assets/alunos-BTTsKkvD.js",
     "name": "alunos",
     "src": "resources/js/pages/alunos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_AlunoController-CelYMrHc.js",
+      "_AlunoController-Cb_7UMVs.js",
       "resources/js/pages/alunos/components/aluno-table.jsx",
       "resources/js/pages/alunos/components/atribuir-turma-form.jsx",
-      "_use-dialog-DPE1ejA8.js",
-      "_TurmaController-Bt8IawAd.js"
+      "_use-dialog-BVmPjg7L.js",
+      "_TurmaController-BLn-kyff.js"
     ]
   },
   "resources/js/pages/alunos/show.jsx": {
-    "file": "assets/show-66h-zG4d.js",
+    "file": "assets/show-CsJ3yVZ-.js",
     "name": "show",
     "src": "resources/js/pages/alunos/show.jsx",
     "isDynamicEntry": true,
@@ -1867,7 +1867,7 @@
     ]
   },
   "resources/js/pages/anos-lectivos/components/ano-lectivo-table.jsx": {
-    "file": "assets/ano-lectivo-table-DPSsFpIZ.js",
+    "file": "assets/ano-lectivo-table-yZHzc4dk.js",
     "name": "ano-lectivo-table",
     "src": "resources/js/pages/anos-lectivos/components/ano-lectivo-table.jsx",
     "isDynamicEntry": true,
@@ -1876,43 +1876,43 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js"
+      "_table-pagination-D4r3FHNP.js"
     ]
   },
   "resources/js/pages/anos-lectivos/index.jsx": {
-    "file": "assets/anos-lectivos-1FIbI7Up.js",
+    "file": "assets/anos-lectivos-BLdSutuE.js",
     "name": "anos-lectivos",
     "src": "resources/js/pages/anos-lectivos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
+      "_use-dialog-BVmPjg7L.js",
       "resources/js/pages/anos-lectivos/components/ano-lectivo-table.jsx",
-      "_AvisoController-A4YafqKq.js"
+      "_AvisoController-DEPwlg1I.js"
     ]
   },
   "resources/js/pages/auth/confirm-password.jsx": {
-    "file": "assets/confirm-password-dhTjiOhW.js",
+    "file": "assets/confirm-password-B4K3ynpJ.js",
     "name": "confirm-password",
     "src": "resources/js/pages/auth/confirm-password.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_password-input-CfU-IiqZ.js",
+      "_password-input-DIhFUOsB.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
-      "_spinner-B9n0XSrm.js",
-      "_google-button-DmHSTk1e.js",
+      "_spinner-CVStNLW1.js",
+      "_google-button-Bh0_EbqQ.js",
       "_input-error-Cqkovvfq.js",
-      "_passkey-verify-DzAdKgzU.js",
-      "_confirm-DnKpPKpr.js"
+      "_passkey-verify-BmFJzjiL.js",
+      "_confirm-4Hadcjp_.js"
     ]
   },
   "resources/js/pages/auth/forgot-password.jsx": {
-    "file": "assets/forgot-password-DLSlAVak.js",
+    "file": "assets/forgot-password-NfMhvlUH.js",
     "name": "forgot-password",
     "src": "resources/js/pages/auth/forgot-password.jsx",
     "isDynamicEntry": true,
@@ -1921,64 +1921,64 @@
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
       "_input-error-Cqkovvfq.js",
-      "_text-link-CQf1vuFb.js",
-      "_password-BKywHz20.js"
+      "_text-link-Bn9qX0QU.js",
+      "_password-DxC4kFjS.js"
     ]
   },
   "resources/js/pages/auth/login.jsx": {
-    "file": "assets/login-Bnt1Ceo9.js",
+    "file": "assets/login-Dgo-psXS.js",
     "name": "login",
     "src": "resources/js/pages/auth/login.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_password-input-CfU-IiqZ.js",
-      "_checkbox-D6ynfuFg.js",
+      "_password-input-DIhFUOsB.js",
+      "_checkbox-C9aAnhRE.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
-      "_spinner-B9n0XSrm.js",
-      "_google-button-DmHSTk1e.js",
+      "_spinner-CVStNLW1.js",
+      "_google-button-Bh0_EbqQ.js",
       "_input-error-Cqkovvfq.js",
-      "_passkey-verify-DzAdKgzU.js",
-      "_text-link-CQf1vuFb.js",
-      "_password-BKywHz20.js",
-      "_google-vTbvk9uP.js"
+      "_passkey-verify-BmFJzjiL.js",
+      "_text-link-Bn9qX0QU.js",
+      "_password-DxC4kFjS.js",
+      "_google-CVt00Uo-.js"
     ]
   },
   "resources/js/pages/auth/register.jsx": {
-    "file": "assets/register-D56lHz2_.js",
+    "file": "assets/register-CmV49Qq8.js",
     "name": "register",
     "src": "resources/js/pages/auth/register.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_password-input-CfU-IiqZ.js",
+      "_password-input-DIhFUOsB.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
-      "_spinner-B9n0XSrm.js",
-      "_google-button-DmHSTk1e.js",
+      "_spinner-CVStNLW1.js",
+      "_google-button-Bh0_EbqQ.js",
       "_input-error-Cqkovvfq.js",
-      "_text-link-CQf1vuFb.js",
-      "_google-vTbvk9uP.js"
+      "_text-link-Bn9qX0QU.js",
+      "_google-CVt00Uo-.js"
     ]
   },
   "resources/js/pages/auth/reset-password.jsx": {
-    "file": "assets/reset-password-ByiNEUJx.js",
+    "file": "assets/reset-password-CjgEvBth.js",
     "name": "reset-password",
     "src": "resources/js/pages/auth/reset-password.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_password-input-CfU-IiqZ.js",
+      "_password-input-DIhFUOsB.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
-      "_spinner-B9n0XSrm.js",
+      "_spinner-CVStNLW1.js",
       "_input-error-Cqkovvfq.js",
-      "_password-BKywHz20.js"
+      "_password-DxC4kFjS.js"
     ]
   },
   "resources/js/pages/auth/two-factor-challenge.jsx": {
-    "file": "assets/two-factor-challenge-Cr5M3ljV.js",
+    "file": "assets/two-factor-challenge-LNtUaJKt.js",
     "name": "two-factor-challenge",
     "src": "resources/js/pages/auth/two-factor-challenge.jsx",
     "isDynamicEntry": true,
@@ -1986,89 +1986,89 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_input-error-Cqkovvfq.js",
-      "_use-two-factor-auth-BkfPM_QX.js"
+      "_use-two-factor-auth-C3SZlz-o.js"
     ]
   },
   "resources/js/pages/auth/verify-email.jsx": {
-    "file": "assets/verify-email-DnfLsscc.js",
+    "file": "assets/verify-email-B_Mo86-4.js",
     "name": "verify-email",
     "src": "resources/js/pages/auth/verify-email.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_spinner-B9n0XSrm.js",
-      "_text-link-CQf1vuFb.js",
-      "_verification-D9ZCzFD_.js"
+      "_spinner-CVStNLW1.js",
+      "_text-link-Bn9qX0QU.js",
+      "_verification-C0VG-Mpg.js"
     ]
   },
   "resources/js/pages/avisos/components/aviso-form.jsx": {
-    "file": "assets/aviso-form-ReZo3rrC.js",
+    "file": "assets/aviso-form-Df9XqhDg.js",
     "name": "aviso-form",
     "src": "resources/js/pages/avisos/components/aviso-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_switch-CTtzV2Gt.js",
-      "_toggle-group-C5HK_sWT.js",
+      "_switch-DmyJbcjY.js",
+      "_toggle-group-CrRRz3HM.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
+      "_field-CPGys7N3.js",
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/avisos/components/aviso-table.jsx": {
-    "file": "assets/aviso-table-DCMMGtB8.js",
+    "file": "assets/aviso-table-B6EX2nfo.js",
     "name": "aviso-table",
     "src": "resources/js/pages/avisos/components/aviso-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_pagination-BB-g6kfA.js",
+      "_pagination-D_wO9tfv.js",
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_AvisoController-A4YafqKq.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_AvisoController-DEPwlg1I.js"
     ]
   },
   "resources/js/pages/avisos/create.jsx": {
-    "file": "assets/create-DSH3KpXu.js",
+    "file": "assets/create-DcUygdfP.js",
     "name": "create",
     "src": "resources/js/pages/avisos/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_AvisoController-A4YafqKq.js",
+      "_AvisoController-DEPwlg1I.js",
       "resources/js/pages/avisos/components/aviso-form.jsx"
     ]
   },
   "resources/js/pages/avisos/edit.jsx": {
-    "file": "assets/edit-BWymmQjg.js",
+    "file": "assets/edit-Co_UXCcl.js",
     "name": "edit",
     "src": "resources/js/pages/avisos/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_AvisoController-A4YafqKq.js",
+      "_AvisoController-DEPwlg1I.js",
       "resources/js/pages/avisos/components/aviso-form.jsx"
     ]
   },
   "resources/js/pages/avisos/index.jsx": {
-    "file": "assets/avisos-9hkXRD-C.js",
+    "file": "assets/avisos-Cl16S5WF.js",
     "name": "avisos",
     "src": "resources/js/pages/avisos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
-      "_AvisoController-A4YafqKq.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_AvisoController-DEPwlg1I.js",
       "resources/js/pages/avisos/components/aviso-table.jsx"
     ]
   },
@@ -2085,7 +2085,7 @@
     ]
   },
   "resources/js/pages/certificado/show.jsx": {
-    "file": "assets/show-sMv9H65b.js",
+    "file": "assets/show-DkxvbPFw.js",
     "name": "show",
     "src": "resources/js/pages/certificado/show.jsx",
     "isDynamicEntry": true,
@@ -2096,7 +2096,7 @@
     ]
   },
   "resources/js/pages/classes/components/classe-form.jsx": {
-    "file": "assets/classe-form-C-Yyj12g.js",
+    "file": "assets/classe-form-5qI3NAwy.js",
     "name": "classe-form",
     "src": "resources/js/pages/classes/components/classe-form.jsx",
     "isDynamicEntry": true,
@@ -2104,30 +2104,30 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
+      "_field-CPGys7N3.js",
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/classes/components/classe-table.jsx": {
-    "file": "assets/classe-table-D6G5X34n.js",
+    "file": "assets/classe-table-rFPYVBqb.js",
     "name": "classe-table",
     "src": "resources/js/pages/classes/components/classe-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_pagination-BB-g6kfA.js",
+      "_pagination-D_wO9tfv.js",
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_ClasseController-qztH_iV8.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_ClasseController-CltH3I1U.js"
     ]
   },
   "resources/js/pages/classes/create.jsx": {
-    "file": "assets/create-Bq4PXYWF.js",
+    "file": "assets/create-D_YZC4s9.js",
     "name": "create",
     "src": "resources/js/pages/classes/create.jsx",
     "isDynamicEntry": true,
@@ -2135,11 +2135,11 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/classes/components/classe-form.jsx",
-      "_ClasseController-qztH_iV8.js"
+      "_ClasseController-CltH3I1U.js"
     ]
   },
   "resources/js/pages/classes/edit.jsx": {
-    "file": "assets/edit-9RYiBlaW.js",
+    "file": "assets/edit-CbncIfGz.js",
     "name": "edit",
     "src": "resources/js/pages/classes/edit.jsx",
     "isDynamicEntry": true,
@@ -2147,24 +2147,24 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/classes/components/classe-form.jsx",
-      "_ClasseController-qztH_iV8.js"
+      "_ClasseController-CltH3I1U.js"
     ]
   },
   "resources/js/pages/classes/index.jsx": {
-    "file": "assets/classes-CQoYqp9k.js",
+    "file": "assets/classes-mwwd1wmA.js",
     "name": "classes",
     "src": "resources/js/pages/classes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
-      "_ClasseController-qztH_iV8.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_ClasseController-CltH3I1U.js",
       "resources/js/pages/classes/components/classe-table.jsx"
     ]
   },
   "resources/js/pages/classes/show.jsx": {
-    "file": "assets/show-IAmEQv23.js",
+    "file": "assets/show-B_mNBd3J.js",
     "name": "show",
     "src": "resources/js/pages/classes/show.jsx",
     "isDynamicEntry": true,
@@ -2172,11 +2172,11 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_ClasseController-qztH_iV8.js"
+      "_ClasseController-CltH3I1U.js"
     ]
   },
   "resources/js/pages/colegio/components/colegio-table.jsx": {
-    "file": "assets/colegio-table-CUmHInFn.js",
+    "file": "assets/colegio-table-61k7ZjEM.js",
     "name": "colegio-table",
     "src": "resources/js/pages/colegio/components/colegio-table.jsx",
     "isDynamicEntry": true,
@@ -2185,28 +2185,28 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js"
+      "_table-pagination-D4r3FHNP.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/show.jsx": {
-    "file": "assets/show-Ds_JuUG0.js",
+    "file": "assets/show-D9XJtfHC.js",
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
-      "_tabs-BlGFFIIk.js",
+      "_select-BMxD8oA9.js",
+      "_tabs-zBxrftKP.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_CursoTuteladoController-yr_F5s8i.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_CursoTuteladoController-BsfiUi9n.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx": {
-    "file": "assets/tab-alunos-BitMAmLq.js",
+    "file": "assets/tab-alunos-CPu0m-_a.js",
     "name": "tab-alunos",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
     "isDynamicEntry": true,
@@ -2216,15 +2216,15 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_AlunoController-CelYMrHc.js",
-      "_CertificadoController-CTxt6Abq.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_AlunoController-Cb_7UMVs.js",
+      "_CertificadoController-D-lAJ1By.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx": {
-    "file": "assets/tab-disciplinas-khVrMy2G.js",
+    "file": "assets/tab-disciplinas-CSOwcvsQ.js",
     "name": "tab-disciplinas",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
     "isDynamicEntry": true,
@@ -2234,15 +2234,15 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_use-dialog-DPE1ejA8.js",
-      "_ClasseTurnoDisciplinaController-Cvxp1uxi.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_ClasseTurnoDisciplinaController-ClU_vItO.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx": {
-    "file": "assets/tab-grupos-pap-CkFGcZPA.js",
+    "file": "assets/tab-grupos-pap-BnVC8WTQ.js",
     "name": "tab-grupos-pap",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
     "isDynamicEntry": true,
@@ -2252,24 +2252,24 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_use-pagination-UzN-O2dW.js",
-      "_GrupoPapController-DaJS-_ih.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_use-pagination-D6LkOpCw.js",
+      "_GrupoPapController-CgPJJHDG.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx": {
-    "file": "assets/tab-list-elk0tTR3.js",
+    "file": "assets/tab-list-BnG7_XVW.js",
     "name": "tab-list",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_tabs-BlGFFIIk.js",
+      "_tabs-zBxrftKP.js",
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx": {
-    "file": "assets/turma-header-D7e-TXA4.js",
+    "file": "assets/turma-header-DuxGqeLB.js",
     "name": "turma-header",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx",
     "isDynamicEntry": true,
@@ -2278,68 +2278,68 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_ClasseTurnoTurmaController-DcrNZ1_f.js"
+      "_ClasseTurnoTurmaController-BJS1wXu2.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx": {
-    "file": "assets/notas-table-Dx6XZWrx.js",
+    "file": "assets/notas-table-Cgq7w0eR.js",
     "name": "notas-table",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
-      "_table-pagination-PuIFCAqd.js",
+      "_table-pagination-D4r3FHNP.js",
       "_verificar-situacao-B5GGfqM_.js",
-      "_NotaDisciplinaController-x35tcpaG.js",
-      "_ExportarMiniPautaController-BCm7zrhc.js"
+      "_NotaDisciplinaController-B_nUIudp.js",
+      "_ExportarMiniPautaController-Bl3rb6Qm.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx": {
-    "file": "assets/notas-Cf87s3kn.js",
+    "file": "assets/notas-CrQUbNbm.js",
     "name": "notas",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-pagination-UzN-O2dW.js",
+      "_use-pagination-D6LkOpCw.js",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx": {
-    "file": "assets/create.form-B-rNh5mU.js",
+    "file": "assets/create.form-zkwNmZX8.js",
     "name": "create.form",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js"
+      "_field-CPGys7N3.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx": {
-    "file": "assets/create-J1uzBbhl.js",
+    "file": "assets/create-AzzHGCBD.js",
     "name": "create",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_GrupoPapController-DaJS-_ih.js",
+      "_GrupoPapController-CgPJJHDG.js",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
-      "_BancaJuriPapController-aXG63SCu.js"
+      "_BancaJuriPapController-D6gPM_zo.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx": {
-    "file": "assets/edit-DBXcMqN4.js",
+    "file": "assets/edit-Dzz87G41.js",
     "name": "edit",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx",
     "isDynamicEntry": true,
@@ -2347,12 +2347,12 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
-      "_BancaJuriPapController-BQrw-b4V.js",
-      "_GrupoPapController-Dd80qiqd.js"
+      "_BancaJuriPapController-COE1g_mc.js",
+      "_GrupoPapController-HC7ndm0C.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx": {
-    "file": "assets/grupo-pap-cards-CZC9zENJ.js",
+    "file": "assets/grupo-pap-cards-Dc0xD1lV.js",
     "name": "grupo-pap-cards",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx",
     "isDynamicEntry": true,
@@ -2363,11 +2363,11 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_badge-DxvCgqB1.js",
-      "_GrupoPapController-DaJS-_ih.js"
+      "_GrupoPapController-CgPJJHDG.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx": {
-    "file": "assets/tab-aprovacao-DNxWYmby.js",
+    "file": "assets/tab-aprovacao-CZwdHgdZ.js",
     "name": "tab-aprovacao",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx",
     "isDynamicEntry": true,
@@ -2379,11 +2379,11 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_badge-DxvCgqB1.js",
-      "_ModalDecisaoAprovacao-D_5omByi.js"
+      "_ModalDecisaoAprovacao-ClzSiiBH.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx": {
-    "file": "assets/tab-banca-DiUZ60Vg.js",
+    "file": "assets/tab-banca-CGkmCw-8.js",
     "name": "tab-banca",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
     "isDynamicEntry": true,
@@ -2394,15 +2394,15 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_BancaJuriPapController-aXG63SCu.js",
-      "_ProfessorController-BAuYSksp.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_BancaJuriPapController-D6gPM_zo.js",
+      "_ProfessorController-BkisaHSB.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx": {
-    "file": "assets/tab-historico-Blbfzrxt.js",
+    "file": "assets/tab-historico-ByyAU2U0.js",
     "name": "tab-historico",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx",
     "isDynamicEntry": true,
@@ -2416,12 +2416,12 @@
       "_refresh-cw-DseKGfw9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx": {
-    "file": "assets/tab-integrantes-BTfCCRxC.js",
+    "file": "assets/tab-integrantes-HU4Kqs_s.js",
     "name": "tab-integrantes",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx",
     "isDynamicEntry": true,
@@ -2432,12 +2432,12 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_AlunoController-CelYMrHc.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_AlunoController-Cb_7UMVs.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx": {
-    "file": "assets/create.form-4ZL6-KIT.js",
+    "file": "assets/create.form-CsJ2iH10.js",
     "name": "create.form",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx",
     "isDynamicEntry": true,
@@ -2445,21 +2445,21 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
-      "_multiple-select-DGlWtw8E.js"
+      "_field-CPGys7N3.js",
+      "_multiple-select-B0nSQiAs.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx": {
-    "file": "assets/create-DXqgQTAX.js",
+    "file": "assets/create-CV3xmymR.js",
     "name": "create",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_GrupoPapController-Dd80qiqd.js",
+      "_GrupoPapController-HC7ndm0C.js",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx",
-      "_ElementoGrupoPapController-CdE4_iDO.js"
+      "_ElementoGrupoPapController-DG9QbnUI.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/elementos/edit.jsx": {
@@ -2469,7 +2469,7 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/index.jsx": {
-    "file": "assets/pap-B7zVPwFO.js",
+    "file": "assets/pap-yjSwHR5S.js",
     "name": "pap",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/index.jsx",
     "isDynamicEntry": true,
@@ -2479,7 +2479,7 @@
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/show.jsx": {
-    "file": "assets/show-lwnw_fEk.js",
+    "file": "assets/show-wfjPUoFs.js",
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/show.jsx",
     "isDynamicEntry": true,
@@ -2489,56 +2489,56 @@
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "_label-Bsu1BWfE.js",
-      "_tabs-BlGFFIIk.js",
+      "_tabs-zBxrftKP.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
-      "_use-pagination-UzN-O2dW.js",
-      "_BancaJuriPapController-BQrw-b4V.js",
-      "_GrupoPapController-Dd80qiqd.js",
+      "_field-CPGys7N3.js",
+      "_use-pagination-D6LkOpCw.js",
+      "_BancaJuriPapController-COE1g_mc.js",
+      "_GrupoPapController-HC7ndm0C.js",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx",
-      "_ElementoGrupoPapController-CdE4_iDO.js",
+      "_ElementoGrupoPapController-DG9QbnUI.js",
       "_alert-E7rLH5df.js",
-      "_GrupoPapAprovacaoController-CxOhTG-L.js"
+      "_GrupoPapAprovacaoController-DGAFUYZg.js"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/show.jsx": {
-    "file": "assets/show-CJsCHiEY.js",
+    "file": "assets/show-mK5jHala.js",
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_tabs-BlGFFIIk.js",
+      "_tabs-zBxrftKP.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
+      "_use-dialog-BVmPjg7L.js",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
-      "_use-pagination-UzN-O2dW.js",
+      "_use-pagination-D6LkOpCw.js",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx",
       "resources/js/pages/colegio/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx"
     ]
   },
   "resources/js/pages/colegio/cursos-tutelados/show.jsx": {
-    "file": "assets/show-BEu8LC8L.js",
+    "file": "assets/show-kUyliQZ0.js",
     "name": "show",
     "src": "resources/js/pages/colegio/cursos-tutelados/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_minus-CsrEuYwF.js",
-      "_tabs-BlGFFIIk.js",
+      "_tabs-zBxrftKP.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/colegio/index.jsx": {
-    "file": "assets/colegio-CkJJc-WN.js",
+    "file": "assets/colegio-Bb7ncJyI.js",
     "name": "colegio",
     "src": "resources/js/pages/colegio/index.jsx",
     "isDynamicEntry": true,
@@ -2549,7 +2549,7 @@
     ]
   },
   "resources/js/pages/colegio/show.jsx": {
-    "file": "assets/show-DvSqi2wO.js",
+    "file": "assets/show-D2tCcOda.js",
     "name": "show",
     "src": "resources/js/pages/colegio/show.jsx",
     "isDynamicEntry": true,
@@ -2558,84 +2558,84 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_CursoTuteladoController-yr_F5s8i.js",
-      "_PeriodoLancamentoNotasController-BF5Wg0D1.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_CursoTuteladoController-BsfiUi9n.js",
+      "_PeriodoLancamentoNotasController-Dwh6Y8D9.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/create.jsx": {
-    "file": "assets/create-BPpWvIp3.js",
+    "file": "assets/create-DKl2z5_r.js",
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
-      "_multiple-select-DGlWtw8E.js",
-      "_CursoClasseTurnoController-CHKIip4a.js"
+      "_field-CPGys7N3.js",
+      "_multiple-select-B0nSQiAs.js",
+      "_CursoClasseTurnoController-DYLsd5up.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/show.jsx": {
-    "file": "assets/show-CB1xY7WY.js",
+    "file": "assets/show-A_e1SCu2.js",
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/classes/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_arrow-left-EnYF531l.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "_ellipsis-Dus2UbHw.js",
-      "_tabs-BlGFFIIk.js",
+      "_tabs-zBxrftKP.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_use-dialog-DPE1ejA8.js",
-      "_ClasseTurnoDisciplinaController-Cvxp1uxi.js",
-      "_ClasseTurnoTurmaController-DcrNZ1_f.js",
-      "_CursoClasseTurnoController-CHKIip4a.js",
-      "_CursoTuteladoController-XGPeKI-6.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_ClasseTurnoDisciplinaController-ClU_vItO.js",
+      "_ClasseTurnoTurmaController-BJS1wXu2.js",
+      "_CursoClasseTurnoController-DYLsd5up.js",
+      "_CursoTuteladoController-BKzAO4MQ.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx": {
-    "file": "assets/disciplina-form-BOonUOYZ.js",
+    "file": "assets/disciplina-form-B6AVCEhK.js",
     "name": "disciplina-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
-      "_multiple-select-DGlWtw8E.js"
+      "_field-CPGys7N3.js",
+      "_multiple-select-B0nSQiAs.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/create.jsx": {
-    "file": "assets/create-B1rGrlpo.js",
+    "file": "assets/create-DKJVfxfM.js",
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_ClasseTurnoDisciplinaController-Cvxp1uxi.js",
+      "_ClasseTurnoDisciplinaController-ClU_vItO.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/edit.jsx": {
-    "file": "assets/edit-BNc5zIDr.js",
+    "file": "assets/edit-B_Ia3Ors.js",
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_ClasseTurnoDisciplinaController-Cvxp1uxi.js",
+      "_ClasseTurnoDisciplinaController-ClU_vItO.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/disciplinas/components/disciplina-form.jsx"
     ]
   },
@@ -2658,7 +2658,7 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx": {
-    "file": "assets/tab-alunos-CdxUj9lS.js",
+    "file": "assets/tab-alunos-CDlSVa2q.js",
     "name": "tab-alunos",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
     "isDynamicEntry": true,
@@ -2668,15 +2668,15 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_AlunoController-CelYMrHc.js",
-      "_CertificadoController-CTxt6Abq.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_AlunoController-Cb_7UMVs.js",
+      "_CertificadoController-D-lAJ1By.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx": {
-    "file": "assets/tab-disciplinas-B30jKC7j.js",
+    "file": "assets/tab-disciplinas-CLG61OYn.js",
     "name": "tab-disciplinas",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
     "isDynamicEntry": true,
@@ -2687,18 +2687,18 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_use-dialog-DPE1ejA8.js",
-      "_ClasseTurnoDisciplinaController-Cvxp1uxi.js",
-      "_NotaDisciplinaController-x35tcpaG.js",
-      "_horarios-form-C9QnELxK.js",
-      "_TurmaDisciplinaProfessorController-CsOatDLw.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_ClasseTurnoDisciplinaController-ClU_vItO.js",
+      "_NotaDisciplinaController-B_nUIudp.js",
+      "_horarios-form-CIyc3BDr.js",
+      "_TurmaDisciplinaProfessorController-BFwvS-Sg.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx": {
-    "file": "assets/tab-grupos-pap-C7590ddX.js",
+    "file": "assets/tab-grupos-pap-Dg4drr-3.js",
     "name": "tab-grupos-pap",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
     "isDynamicEntry": true,
@@ -2708,25 +2708,25 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_use-pagination-UzN-O2dW.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_use-pagination-D6LkOpCw.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx": {
-    "file": "assets/tab-list-22227TkQ.js",
+    "file": "assets/tab-list-BwkNIf7d.js",
     "name": "tab-list",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-list.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_tabs-BlGFFIIk.js",
+      "_tabs-zBxrftKP.js",
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-recurso.jsx": {
-    "file": "assets/tab-recurso-BsHzOSl7.js",
+    "file": "assets/tab-recurso-q4pA23w8.js",
     "name": "tab-recurso",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-recurso.jsx",
     "isDynamicEntry": true,
@@ -2736,14 +2736,14 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_lancamentos-recurso-table-DzmD3YcP.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_lancamentos-recurso-table-C4hnRA6j.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx": {
-    "file": "assets/turma-form-BRZAgwRV.js",
+    "file": "assets/turma-form-CaCI74v_.js",
     "name": "turma-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx",
     "isDynamicEntry": true,
@@ -2751,11 +2751,11 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js"
+      "_field-CPGys7N3.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx": {
-    "file": "assets/turma-header-ks8dgzjb.js",
+    "file": "assets/turma-header-CB-tdRau.js",
     "name": "turma-header",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-header.jsx",
     "isDynamicEntry": true,
@@ -2766,12 +2766,12 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_ClasseTurnoTurmaController-DcrNZ1_f.js",
-      "_ConfirmacaoMatriculaController-BduW_x6h.js"
+      "_ClasseTurnoTurmaController-BJS1wXu2.js",
+      "_ConfirmacaoMatriculaController-x4eK4y0O.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/components/confirmacao-table.jsx": {
-    "file": "assets/confirmacao-table-Bj_NyI05.js",
+    "file": "assets/confirmacao-table-Bx4ggre3.js",
     "name": "confirmacao-table",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/components/confirmacao-table.jsx",
     "isDynamicEntry": true,
@@ -2780,195 +2780,195 @@
       "_ellipsis-Dus2UbHw.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_field-CgPeqgv8.js",
-      "_table-pagination-PuIFCAqd.js",
+      "_field-CPGys7N3.js",
+      "_table-pagination-D4r3FHNP.js",
       "_resultado-badge-CxfsIBU-.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/components/confirmar-matricula-modal.jsx": {
-    "file": "assets/confirmar-matricula-modal-C2-NxuYK.js",
+    "file": "assets/confirmar-matricula-modal-DDnL-_tH.js",
     "name": "confirmar-matricula-modal",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/components/confirmar-matricula-modal.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
-      "_field-CgPeqgv8.js",
-      "_ConfirmacaoMatriculaController-BduW_x6h.js"
+      "_field-CPGys7N3.js",
+      "_ConfirmacaoMatriculaController-x4eK4y0O.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/index.jsx": {
-    "file": "assets/confirmacao-matriculas-DU6TJLMX.js",
+    "file": "assets/confirmacao-matriculas-CLnSHUot.js",
     "name": "confirmacao-matriculas",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
-      "_ConfirmacaoMatriculaController-BduW_x6h.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_ConfirmacaoMatriculaController-x4eK4y0O.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/components/confirmacao-table.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/components/confirmar-matricula-modal.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/create.jsx": {
-    "file": "assets/create-BO-jni_V.js",
+    "file": "assets/create-_aKb5yRI.js",
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_ClasseTurnoTurmaController-DcrNZ1_f.js",
+      "_ClasseTurnoTurmaController-BJS1wXu2.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx": {
-    "file": "assets/lancamentos-table-rVfiodWS.js",
+    "file": "assets/lancamentos-table-CuhDBWya.js",
     "name": "lancamentos-table",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_createLucideIcon-6hAcjkHs.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "_lock-keyhole-_vkVQUyz.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
-      "_table-pagination-PuIFCAqd.js",
+      "_table-pagination-D4r3FHNP.js",
       "_textarea-CEblRWsJ.js",
       "_verificar-situacao-B5GGfqM_.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx": {
-    "file": "assets/notas-table-DznPMQXK.js",
+    "file": "assets/notas-table-DA0OykP3.js",
     "name": "notas-table",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
-      "_table-pagination-PuIFCAqd.js",
+      "_table-pagination-D4r3FHNP.js",
       "_verificar-situacao-B5GGfqM_.js",
-      "_NotaDisciplinaController-x35tcpaG.js",
-      "_ExportarMiniPautaController-BCm7zrhc.js"
+      "_NotaDisciplinaController-B_nUIudp.js",
+      "_ExportarMiniPautaController-Bl3rb6Qm.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create.jsx": {
-    "file": "assets/create-DUOOkJO_.js",
+    "file": "assets/create-D8HBOkGj.js",
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-pagination-UzN-O2dW.js",
-      "_NotaDisciplinaController-x35tcpaG.js",
+      "_use-pagination-D6LkOpCw.js",
+      "_NotaDisciplinaController-B_nUIudp.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/lancamentos-table.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx": {
-    "file": "assets/notas-DsYMK56E.js",
+    "file": "assets/notas-C9g_wpAR.js",
     "name": "notas",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-pagination-UzN-O2dW.js",
+      "_use-pagination-D6LkOpCw.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/components/notas-table.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/components/professor-form.jsx": {
-    "file": "assets/professor-form-BE6ltK_I.js",
+    "file": "assets/professor-form-BLvh6HGN.js",
     "name": "professor-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/components/professor-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js"
+      "_field-CPGys7N3.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create.jsx": {
-    "file": "assets/create-pyXJxv8l2.js",
+    "file": "assets/create-BM_cp-EF2.js",
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
-      "_TurmaDisciplinaProfessorController-CsOatDLw.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_TurmaDisciplinaProfessorController-BFwvS-Sg.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/edit.jsx": {
-    "file": "assets/edit-Be951gP02.js",
+    "file": "assets/edit-mk2bHcGH2.js",
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_ClasseTurnoTurmaController-DcrNZ1_f.js",
+      "_ClasseTurnoTurmaController-BJS1wXu2.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/turma-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx": {
-    "file": "assets/create.form-DPRfpD0Q.js",
+    "file": "assets/create.form-ttqXhlC0.js",
     "name": "create.form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js"
+      "_field-CPGys7N3.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx": {
-    "file": "assets/create-EMUK6pwl.js",
+    "file": "assets/create-CsxdCfxm.js",
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_BancaJuriPapController-BQrw-b4V.js",
-      "_GrupoPapController-Dd80qiqd.js",
+      "_BancaJuriPapController-COE1g_mc.js",
+      "_GrupoPapController-HC7ndm0C.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx": {
-    "file": "assets/edit-SzN6SIeg.js",
+    "file": "assets/edit-LzgpVNeM.js",
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_BancaJuriPapController-BQrw-b4V.js",
-      "_GrupoPapController-Dd80qiqd.js",
+      "_BancaJuriPapController-COE1g_mc.js",
+      "_GrupoPapController-HC7ndm0C.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/banca/components/create.form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx": {
-    "file": "assets/grupo-pap-cards-BEPkecvj.js",
+    "file": "assets/grupo-pap-cards-BnhhYwi6.js",
     "name": "grupo-pap-cards",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx",
     "isDynamicEntry": true,
@@ -2979,24 +2979,24 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_badge-DxvCgqB1.js",
-      "_GrupoPapController-Dd80qiqd.js"
+      "_GrupoPapController-HC7ndm0C.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx": {
-    "file": "assets/grupo-pap-form-5_9ScVHl.js",
+    "file": "assets/grupo-pap-form-BIfNapyy.js",
     "name": "grupo-pap-form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
+      "_field-CPGys7N3.js",
       "_textarea-CEblRWsJ.js",
-      "_multiple-select-DGlWtw8E.js"
+      "_multiple-select-B0nSQiAs.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/shared/info-grupo-box.jsx": {
@@ -3018,7 +3018,7 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx": {
-    "file": "assets/tab-aprovacao-D5meYWLi.js",
+    "file": "assets/tab-aprovacao-BJWV4UCk.js",
     "name": "tab-aprovacao",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx",
     "isDynamicEntry": true,
@@ -3030,12 +3030,12 @@
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_badge-DxvCgqB1.js",
-      "_ModalDecisaoAprovacao-D_5omByi.js",
-      "_GrupoPapAprovacaoController-CxOhTG-L.js"
+      "_ModalDecisaoAprovacao-ClzSiiBH.js",
+      "_GrupoPapAprovacaoController-DGAFUYZg.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx": {
-    "file": "assets/tab-banca-cfU_EgAV.js",
+    "file": "assets/tab-banca-i1qZSK4D.js",
     "name": "tab-banca",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
     "isDynamicEntry": true,
@@ -3046,15 +3046,15 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_BancaJuriPapController-BQrw-b4V.js",
-      "_ProfessorController-BAuYSksp.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_BancaJuriPapController-COE1g_mc.js",
+      "_ProfessorController-BkisaHSB.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx": {
-    "file": "assets/tab-historico-DWrbz2YG.js",
+    "file": "assets/tab-historico-CH0gSmiQ.js",
     "name": "tab-historico",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx",
     "isDynamicEntry": true,
@@ -3068,12 +3068,12 @@
       "_refresh-cw-DseKGfw9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx": {
-    "file": "assets/tab-integrantes-CdT8mhhf.js",
+    "file": "assets/tab-integrantes-CPlflsxh.js",
     "name": "tab-integrantes",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-integrantes.jsx",
     "isDynamicEntry": true,
@@ -3083,41 +3083,41 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_AlunoController-CelYMrHc.js",
-      "_ElementoGrupoPapController-CdE4_iDO.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_AlunoController-Cb_7UMVs.js",
+      "_ElementoGrupoPapController-DG9QbnUI.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/create.jsx": {
-    "file": "assets/create-AZ6sZXB_.js",
+    "file": "assets/create-__XXsa6k.js",
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_ClasseTurnoTurmaController-DcrNZ1_f.js",
-      "_GrupoPapController-Dd80qiqd.js",
+      "_ClasseTurnoTurmaController-BJS1wXu2.js",
+      "_GrupoPapController-HC7ndm0C.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/edit.jsx": {
-    "file": "assets/edit-BQwOz2Bm.js",
+    "file": "assets/edit-BHjp0wVJ.js",
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_ClasseTurnoTurmaController-DcrNZ1_f.js",
-      "_GrupoPapController-Dd80qiqd.js",
+      "_ClasseTurnoTurmaController-BJS1wXu2.js",
+      "_GrupoPapController-HC7ndm0C.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx": {
-    "file": "assets/create.form-UZb_ED74.js",
+    "file": "assets/create.form-CTzvVR9C.js",
     "name": "create.form",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx",
     "isDynamicEntry": true,
@@ -3125,20 +3125,20 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
-      "_multiple-select-DGlWtw8E.js"
+      "_field-CPGys7N3.js",
+      "_multiple-select-B0nSQiAs.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx": {
-    "file": "assets/create-B0lczp6j.js",
+    "file": "assets/create-BGi9A3U6.js",
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_GrupoPapController-Dd80qiqd.js",
-      "_ElementoGrupoPapController-CdE4_iDO.js",
+      "_GrupoPapController-HC7ndm0C.js",
+      "_ElementoGrupoPapController-DG9QbnUI.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/elementos/components/create.form.jsx"
     ]
   },
@@ -3149,18 +3149,18 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/index.jsx": {
-    "file": "assets/pap-B6m69Ibo.js",
+    "file": "assets/pap-B9LTNg6A.js",
     "name": "pap",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_GrupoPapController-Dd80qiqd.js",
+      "_GrupoPapController-HC7ndm0C.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/grupo-pap-cards.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/show.jsx": {
-    "file": "assets/show-CBVh2P3r.js",
+    "file": "assets/show-C2NmdB2b.js",
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/show.jsx",
     "isDynamicEntry": true,
@@ -3170,16 +3170,16 @@
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "_label-Bsu1BWfE.js",
-      "_tabs-BlGFFIIk.js",
+      "_tabs-zBxrftKP.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
-      "_use-pagination-UzN-O2dW.js",
-      "_BancaJuriPapController-BQrw-b4V.js",
-      "_GrupoPapController-Dd80qiqd.js",
-      "_ElementoGrupoPapController-CdE4_iDO.js",
+      "_field-CPGys7N3.js",
+      "_use-pagination-D6LkOpCw.js",
+      "_BancaJuriPapController-COE1g_mc.js",
+      "_GrupoPapController-HC7ndm0C.js",
+      "_ElementoGrupoPapController-DG9QbnUI.js",
       "_alert-E7rLH5df.js",
-      "_GrupoPapAprovacaoController-CxOhTG-L.js",
+      "_GrupoPapAprovacaoController-DGAFUYZg.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-aprovacao.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-banca.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/pap/components/tabs/tab-historico.jsx",
@@ -3187,13 +3187,13 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/progressao.jsx": {
-    "file": "assets/progressao-5pyJaT4W.js",
+    "file": "assets/progressao-Tph44HCJ.js",
     "name": "progressao",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/progressao.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "_circle-alert-CmOZxo2j.js",
       "_circle-x-CCFZToYR.js",
       "_clock-B0WLxxUW.js",
@@ -3203,17 +3203,17 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/classes/turnos/turmas/show.jsx": {
-    "file": "assets/show-C24zLRNP.js",
+    "file": "assets/show-DnjAfbjf.js",
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/classes/turnos/turmas/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_tabs-BlGFFIIk.js",
+      "_tabs-zBxrftKP.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
-      "_use-pagination-UzN-O2dW.js",
-      "_ClasseTurnoTurmaController-DcrNZ1_f.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_use-pagination-D6LkOpCw.js",
+      "_ClasseTurnoTurmaController-BJS1wXu2.js",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-alunos.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-disciplinas.jsx",
       "resources/js/pages/cursos-tutelados/classes/turnos/turmas/components/tabs/tab-grupos-pap.jsx",
@@ -3223,74 +3223,74 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/components/forms/create.form.jsx": {
-    "file": "assets/create.form-Ce3AlTvm.js",
+    "file": "assets/create.form-DSQAJ7MH.js",
     "name": "create.form",
     "src": "resources/js/pages/cursos-tutelados/components/forms/create.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_createLucideIcon-6hAcjkHs.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
-      "_multiple-select-DGlWtw8E.js"
+      "_field-CPGys7N3.js",
+      "_multiple-select-B0nSQiAs.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx": {
-    "file": "assets/edit.form-Cv54DnY0.js",
+    "file": "assets/edit.form-BqiMGuzO.js",
     "name": "edit.form",
     "src": "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
-      "_multiple-select-DGlWtw8E.js"
+      "_field-CPGys7N3.js",
+      "_multiple-select-B0nSQiAs.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx": {
-    "file": "assets/tab-professores-BViRIzzU.js",
+    "file": "assets/tab-professores-D7GQ12xz.js",
     "name": "tab-professores",
     "src": "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_pagination-BB-g6kfA.js",
+      "_pagination-D_wO9tfv.js",
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_ProfessorController-BAuYSksp.js",
-      "_CursoTuteladoProfessorController-C_u0kLXj.js",
-      "_edit-professor-modal-Fzqvg_3h.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_ProfessorController-BkisaHSB.js",
+      "_CursoTuteladoProfessorController-DDowFx15.js",
+      "_edit-professor-modal-DoT2yAe2.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx": {
-    "file": "assets/tab-turmas-DOAoVAdd.js",
+    "file": "assets/tab-turmas-C3zojqwd.js",
     "name": "tab-turmas",
     "src": "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_pagination-BB-g6kfA.js",
+      "_pagination-D_wO9tfv.js",
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_ClasseTurnoTurmaController-DcrNZ1_f.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_ClasseTurnoTurmaController-BJS1wXu2.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/create.jsx": {
-    "file": "assets/create-DJWVHxCN.js",
+    "file": "assets/create-D_RBhxnI.js",
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/create.jsx",
     "isDynamicEntry": true,
@@ -3301,80 +3301,80 @@
     ]
   },
   "resources/js/pages/cursos-tutelados/edit.jsx": {
-    "file": "assets/edit-pDjv_0Gp.js",
+    "file": "assets/edit-C01UBFF8.js",
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_CursoTuteladoController-XGPeKI-6.js",
+      "_CursoTuteladoController-BKzAO4MQ.js",
       "resources/js/pages/cursos-tutelados/components/forms/edit.form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx": {
-    "file": "assets/professor-form-BJXXB6I4.js",
+    "file": "assets/professor-form-CuTSOrzW.js",
     "name": "professor-form",
     "src": "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
-      "_switch-CTtzV2Gt.js",
+      "_select-BMxD8oA9.js",
+      "_switch-DmyJbcjY.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js"
+      "_field-CPGys7N3.js"
     ]
   },
   "resources/js/pages/cursos-tutelados/professores/create.jsx": {
-    "file": "assets/create-DPorSgI3.js",
+    "file": "assets/create-CsNreWpI.js",
     "name": "create",
     "src": "resources/js/pages/cursos-tutelados/professores/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_CursoTuteladoController-XGPeKI-6.js",
-      "_CursoTuteladoProfessorController-C_u0kLXj.js",
+      "_CursoTuteladoController-BKzAO4MQ.js",
+      "_CursoTuteladoProfessorController-DDowFx15.js",
       "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/professores/edit.jsx": {
-    "file": "assets/edit-DVNf7dUv.js",
+    "file": "assets/edit-DdrI93ci.js",
     "name": "edit",
     "src": "resources/js/pages/cursos-tutelados/professores/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_CursoTuteladoController-XGPeKI-6.js",
-      "_CursoTuteladoProfessorController-C_u0kLXj.js",
+      "_CursoTuteladoController-BKzAO4MQ.js",
+      "_CursoTuteladoProfessorController-DDowFx15.js",
       "resources/js/pages/cursos-tutelados/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/cursos-tutelados/show.jsx": {
-    "file": "assets/show-DGKQMgdu.js",
+    "file": "assets/show-CQwnizVo.js",
     "name": "show",
     "src": "resources/js/pages/cursos-tutelados/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "_ellipsis-Dus2UbHw.js",
       "_minus-CsrEuYwF.js",
-      "_tabs-BlGFFIIk.js",
+      "_tabs-zBxrftKP.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_badge-DxvCgqB1.js",
-      "_use-dialog-DPE1ejA8.js",
-      "_CursoTuteladoController-XGPeKI-6.js",
-      "_CursoTuteladoProfessorController-C_u0kLXj.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_CursoTuteladoController-BKzAO4MQ.js",
+      "_CursoTuteladoProfessorController-DDowFx15.js",
       "resources/js/pages/cursos-tutelados/components/tabs/tab-professores.jsx",
       "resources/js/pages/cursos-tutelados/components/tabs/tab-turmas.jsx"
     ]
   },
   "resources/js/pages/cursos/components/curso-form.jsx": {
-    "file": "assets/curso-form-8Acm-z38.js",
+    "file": "assets/curso-form-BFwODVbr.js",
     "name": "curso-form",
     "src": "resources/js/pages/cursos/components/curso-form.jsx",
     "isDynamicEntry": true,
@@ -3382,30 +3382,30 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
+      "_field-CPGys7N3.js",
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/cursos/components/curso-table.jsx": {
-    "file": "assets/curso-table-CIC1Vt4R.js",
+    "file": "assets/curso-table-HbCTe4U7.js",
     "name": "curso-table",
     "src": "resources/js/pages/cursos/components/curso-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_pagination-BB-g6kfA.js",
+      "_pagination-D_wO9tfv.js",
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_CursosController-DbZ7Cc3a.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_CursosController-3XJ_dqBC.js"
     ]
   },
   "resources/js/pages/cursos/create.jsx": {
-    "file": "assets/create-Dkc4iEpo.js",
+    "file": "assets/create-DWHA2kvR.js",
     "name": "create",
     "src": "resources/js/pages/cursos/create.jsx",
     "isDynamicEntry": true,
@@ -3413,11 +3413,11 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/cursos/components/curso-form.jsx",
-      "_CursosController-DbZ7Cc3a.js"
+      "_CursosController-3XJ_dqBC.js"
     ]
   },
   "resources/js/pages/cursos/edit.jsx": {
-    "file": "assets/edit-C79dRaAq.js",
+    "file": "assets/edit-B_yDg5zq.js",
     "name": "edit",
     "src": "resources/js/pages/cursos/edit.jsx",
     "isDynamicEntry": true,
@@ -3425,24 +3425,24 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/cursos/components/curso-form.jsx",
-      "_CursosController-DbZ7Cc3a.js"
+      "_CursosController-3XJ_dqBC.js"
     ]
   },
   "resources/js/pages/cursos/index.jsx": {
-    "file": "assets/cursos-CdwSr7Ln.js",
+    "file": "assets/cursos-BnjCTjYD.js",
     "name": "cursos",
     "src": "resources/js/pages/cursos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
-      "_CursosController-DbZ7Cc3a.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_CursosController-3XJ_dqBC.js",
       "resources/js/pages/cursos/components/curso-table.jsx"
     ]
   },
   "resources/js/pages/cursos/show.jsx": {
-    "file": "assets/show-Knk2RlTI.js",
+    "file": "assets/show-BjECtbeI.js",
     "name": "show",
     "src": "resources/js/pages/cursos/show.jsx",
     "isDynamicEntry": true,
@@ -3450,11 +3450,11 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_CursosController-DbZ7Cc3a.js"
+      "_CursosController-3XJ_dqBC.js"
     ]
   },
   "resources/js/pages/dashboard.jsx": {
-    "file": "assets/dashboard-B7vtTemh.js",
+    "file": "assets/dashboard-Cpmi9maV.js",
     "name": "dashboard",
     "src": "resources/js/pages/dashboard.jsx",
     "isDynamicEntry": true,
@@ -3464,18 +3464,18 @@
     ]
   },
   "resources/js/pages/dashboards/aluno/components/avisos-eventos/index.jsx": {
-    "file": "assets/avisos-eventos-0fn-1UKT.js",
+    "file": "assets/avisos-eventos-ReTYeyKo.js",
     "name": "avisos-eventos",
     "src": "resources/js/pages/dashboards/aluno/components/avisos-eventos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_item-CLJ3TrEI.js",
-      "_item-BI2_Yky3.js"
+      "_item-F24236cm.js",
+      "_item-Cqz0cNc_.js"
     ]
   },
   "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx": {
-    "file": "assets/dashboard-summary-BCP8fBas.js",
+    "file": "assets/dashboard-summary-VPlRQb9L.js",
     "name": "dashboard-summary",
     "src": "resources/js/pages/dashboards/aluno/components/dashboard-summary/index.jsx",
     "isDynamicEntry": true,
@@ -3483,10 +3483,10 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_pt-jv_QGq0b.js",
       "_isWithinInterval-Ct8Vu7nv.js",
-      "_state-empty-CZZsowuA.js",
-      "_state-loading-CGZAAJrJ.js",
-      "_state-happening-A2HUbTZE.js",
-      "_state-today-BM5-RMu_.js"
+      "_state-empty-DVh5ZIJU.js",
+      "_state-loading-BXaeUimI.js",
+      "_state-happening-B1JEG01d.js",
+      "_state-today-fzJggabP.js"
     ]
   },
   "resources/js/pages/dashboards/aluno/components/greeting-header.jsx": {
@@ -3499,7 +3499,7 @@
     ]
   },
   "resources/js/pages/dashboards/aluno/components/notificacoes-sino.jsx": {
-    "file": "assets/notificacoes-sino-sqc6YWja.js",
+    "file": "assets/notificacoes-sino-BT7GaPQB.js",
     "name": "notificacoes-sino",
     "src": "resources/js/pages/dashboards/aluno/components/notificacoes-sino.jsx",
     "isDynamicEntry": true,
@@ -3520,18 +3520,18 @@
     ]
   },
   "resources/js/pages/dashboards/aluno/components/proximas-aulas/index.jsx": {
-    "file": "assets/proximas-aulas-CJ-TgrCD.js",
+    "file": "assets/proximas-aulas-Dsl6HI8a.js",
     "name": "proximas-aulas",
     "src": "resources/js/pages/dashboards/aluno/components/proximas-aulas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_item-CLJ3TrEI.js",
-      "_item-BelXyzWV.js"
+      "_item-F24236cm.js",
+      "_item-BaXzRLTc.js"
     ]
   },
   "resources/js/pages/dashboards/aluno/index.jsx": {
-    "file": "assets/aluno-Dh_AQNqS.js",
+    "file": "assets/aluno-B8AskZNA.js",
     "name": "aluno",
     "src": "resources/js/pages/dashboards/aluno/index.jsx",
     "isDynamicEntry": true,
@@ -3547,7 +3547,7 @@
     ]
   },
   "resources/js/pages/dashboards/director/components/dashboard-summary/index.jsx": {
-    "file": "assets/dashboard-summary-BsoXNFYl.js",
+    "file": "assets/dashboard-summary-XdwY-jHu.js",
     "name": "dashboard-summary",
     "src": "resources/js/pages/dashboards/director/components/dashboard-summary/index.jsx",
     "isDynamicEntry": true,
@@ -3555,19 +3555,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_urgency-BOmF4fe2.js",
       "resources/js/app.tsx",
-      "_item-CLJ3TrEI.js"
+      "_item-F24236cm.js"
     ]
   },
   "resources/js/pages/dashboards/director/components/feed-accoes/index.jsx": {
-    "file": "assets/feed-accoes-DldyKo0L.js",
+    "file": "assets/feed-accoes-DsRF3GCP.js",
     "name": "feed-accoes",
     "src": "resources/js/pages/dashboards/director/components/feed-accoes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_badge-check-BG_q7vMo.js",
-      "_item-CLJ3TrEI.js",
-      "_item-Dnlydt-n.js"
+      "_item-F24236cm.js",
+      "_item-CtCcgbp4.js"
     ]
   },
   "resources/js/pages/dashboards/director/components/greeting-header.jsx": {
@@ -3580,29 +3580,29 @@
     ]
   },
   "resources/js/pages/dashboards/director/components/metricas/index.jsx": {
-    "file": "assets/metricas-Bl8PhXE6.js",
+    "file": "assets/metricas-GT1RIrhh.js",
     "name": "metricas",
     "src": "resources/js/pages/dashboards/director/components/metricas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_item-BHjffaMA.js"
+      "_item-5dJrBr1J.js"
     ]
   },
   "resources/js/pages/dashboards/director/components/proximos-eventos/index.jsx": {
-    "file": "assets/proximos-eventos-DJ0W-4dY.js",
+    "file": "assets/proximos-eventos-BpbKkVjG.js",
     "name": "proximos-eventos",
     "src": "resources/js/pages/dashboards/director/components/proximos-eventos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_createLucideIcon-6hAcjkHs.js",
-      "_item-CLJ3TrEI.js",
-      "_item-CYlIRg7B.js"
+      "_item-F24236cm.js",
+      "_item-CaRj-XfB.js"
     ]
   },
   "resources/js/pages/dashboards/director/index.jsx": {
-    "file": "assets/director-BCIpWPS1.js",
+    "file": "assets/director-Y_DJMizo.js",
     "name": "director",
     "src": "resources/js/pages/dashboards/director/index.jsx",
     "isDynamicEntry": true,
@@ -3618,18 +3618,18 @@
     ]
   },
   "resources/js/pages/dashboards/professor/components/avisos-eventos/index.jsx": {
-    "file": "assets/avisos-eventos-CQ6dKm38.js",
+    "file": "assets/avisos-eventos-CoX6-ACs.js",
     "name": "avisos-eventos",
     "src": "resources/js/pages/dashboards/professor/components/avisos-eventos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_item-CLJ3TrEI.js",
-      "_item-Bj5jsLF-.js"
+      "_item-F24236cm.js",
+      "_item-DD70m2DA.js"
     ]
   },
   "resources/js/pages/dashboards/professor/components/dashboard-summary/index.jsx": {
-    "file": "assets/dashboard-summary-ZyWKOlqk.js",
+    "file": "assets/dashboard-summary-Ck-MKKSb.js",
     "name": "dashboard-summary",
     "src": "resources/js/pages/dashboards/professor/components/dashboard-summary/index.jsx",
     "isDynamicEntry": true,
@@ -3637,10 +3637,10 @@
       "_jsx-runtime-DIBGU2nq.js",
       "_pt-jv_QGq0b.js",
       "_isWithinInterval-Ct8Vu7nv.js",
-      "_state-empty-DXcrHeo9.js",
-      "_state-loading-DVkC1qyD.js",
-      "_state-happening-C7EhPEPt.js",
-      "_state-today-CVHXsed6.js"
+      "_state-empty-NsqcL1U0.js",
+      "_state-loading-ByYyA3Uh.js",
+      "_state-happening-C2QtUlba.js",
+      "_state-today-DSl0Cx3m.js"
     ]
   },
   "resources/js/pages/dashboards/professor/components/greeting-header.jsx": {
@@ -3653,18 +3653,18 @@
     ]
   },
   "resources/js/pages/dashboards/professor/components/proximas-aulas/index.jsx": {
-    "file": "assets/proximas-aulas-BOfu64tF.js",
+    "file": "assets/proximas-aulas-BR9YyYg1.js",
     "name": "proximas-aulas",
     "src": "resources/js/pages/dashboards/professor/components/proximas-aulas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_item-CLJ3TrEI.js",
-      "_item-8KkBaN9b.js"
+      "_item-F24236cm.js",
+      "_item-BeC_u5iS.js"
     ]
   },
   "resources/js/pages/dashboards/professor/index.jsx": {
-    "file": "assets/professor-B4SHNqgz.js",
+    "file": "assets/professor-B_bY-ts2.js",
     "name": "professor",
     "src": "resources/js/pages/dashboards/professor/index.jsx",
     "isDynamicEntry": true,
@@ -3679,7 +3679,7 @@
     ]
   },
   "resources/js/pages/erros/propina-pendente.jsx": {
-    "file": "assets/propina-pendente-BvLvb0pe.js",
+    "file": "assets/propina-pendente-BH9F4O4j.js",
     "name": "propina-pendente",
     "src": "resources/js/pages/erros/propina-pendente.jsx",
     "isDynamicEntry": true,
@@ -3691,36 +3691,36 @@
     ]
   },
   "resources/js/pages/gestao-acessos/components/drawer/index.jsx": {
-    "file": "assets/drawer-C9E1QKm2.js",
+    "file": "assets/drawer-BJnQ8-Be.js",
     "name": "drawer",
     "src": "resources/js/pages/gestao-acessos/components/drawer/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_header-BzpNVWRJ.js",
-      "_role-section-B6T0ArGZ.js",
-      "_permission-section-CIeepncD.js",
-      "_AccessManagementController-zVHI72V9.js"
+      "_header-BXZt1GbL.js",
+      "_role-section-CqCl4JQ5.js",
+      "_permission-section-BXpEsNvV.js",
+      "_AccessManagementController-a02GHSGQ.js"
     ]
   },
   "resources/js/pages/gestao-acessos/components/editar-acesso-drawer.jsx": {
-    "file": "assets/editar-acesso-drawer-BEf3dXt8.js",
+    "file": "assets/editar-acesso-drawer-D6UUc5fo.js",
     "name": "editar-acesso-drawer",
     "src": "resources/js/pages/gestao-acessos/components/editar-acesso-drawer.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_lock-Dvqfcyqv.js",
-      "_switch-CTtzV2Gt.js",
+      "_switch-DmyJbcjY.js",
       "resources/js/app.tsx",
       "_badge-DxvCgqB1.js",
-      "_multiple-select-DGlWtw8E.js",
-      "_AccessManagementController-zVHI72V9.js"
+      "_multiple-select-B0nSQiAs.js",
+      "_AccessManagementController-a02GHSGQ.js"
     ]
   },
   "resources/js/pages/gestao-acessos/components/usuarios-table.jsx": {
-    "file": "assets/usuarios-table-sztyNaDn.js",
+    "file": "assets/usuarios-table-aKPTPmcs.js",
     "name": "usuarios-table",
     "src": "resources/js/pages/gestao-acessos/components/usuarios-table.jsx",
     "isDynamicEntry": true,
@@ -3729,27 +3729,27 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_ClasseController-qztH_iV8.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_ClasseController-CltH3I1U.js"
     ]
   },
   "resources/js/pages/gestao-acessos/index.jsx": {
-    "file": "assets/gestao-acessos-CUvXRfy5.js",
+    "file": "assets/gestao-acessos-yI58bRSj.js",
     "name": "gestao-acessos",
     "src": "resources/js/pages/gestao-acessos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_AccessManagementController-zVHI72V9.js",
+      "_AccessManagementController-a02GHSGQ.js",
       "resources/js/pages/gestao-acessos/components/drawer/index.jsx",
       "resources/js/pages/gestao-acessos/components/usuarios-table.jsx"
     ]
   },
   "resources/js/pages/horarios/index.jsx": {
-    "file": "assets/horarios-BpXUMcIe.js",
+    "file": "assets/horarios-DmJefpqa.js",
     "name": "horarios",
     "src": "resources/js/pages/horarios/index.jsx",
     "isDynamicEntry": true,
@@ -3761,41 +3761,41 @@
     ]
   },
   "resources/js/pages/inscricoes/components/inscricao-form.jsx": {
-    "file": "assets/inscricao-form-BGF_OYbk.js",
+    "file": "assets/inscricao-form-yEhsbaeY.js",
     "name": "inscricao-form",
     "src": "resources/js/pages/inscricoes/components/inscricao-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js"
+      "_field-CPGys7N3.js"
     ]
   },
   "resources/js/pages/inscricoes/components/inscricao-table.jsx": {
-    "file": "assets/inscricao-table-C3GjsvSG.js",
+    "file": "assets/inscricao-table-BNJ984N9.js",
     "name": "inscricao-table",
     "src": "resources/js/pages/inscricoes/components/inscricao-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_createLucideIcon-6hAcjkHs.js",
-      "_pagination-BB-g6kfA.js",
-      "_select-BtCKxIuM.js",
+      "_pagination-D_wO9tfv.js",
+      "_select-BMxD8oA9.js",
       "_ellipsis-Dus2UbHw.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
+      "_table-pagination-D4r3FHNP.js",
       "_format-status-9H8CcnX4.js",
-      "_inscricoes-Bx2T82cT.js"
+      "_inscricoes-D6pJejSj.js"
     ]
   },
   "resources/js/pages/inscricoes/create.jsx": {
-    "file": "assets/create-Y19C5Jyf.js",
+    "file": "assets/create-hLwZGD-4.js",
     "name": "create",
     "src": "resources/js/pages/inscricoes/create.jsx",
     "isDynamicEntry": true,
@@ -3803,23 +3803,23 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/inscricoes/components/inscricao-form.jsx",
-      "_inscricoes-Bx2T82cT.js"
+      "_inscricoes-D6pJejSj.js"
     ]
   },
   "resources/js/pages/inscricoes/index.jsx": {
-    "file": "assets/inscricoes-DvFLW57D.js",
+    "file": "assets/inscricoes-CcCmRmvW.js",
     "name": "inscricoes",
     "src": "resources/js/pages/inscricoes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_inscricoes-Bx2T82cT.js",
+      "_inscricoes-D6pJejSj.js",
       "resources/js/pages/inscricoes/components/inscricao-table.jsx"
     ]
   },
   "resources/js/pages/inscricoes/show.jsx": {
-    "file": "assets/show-DUcnVasW.js",
+    "file": "assets/show-DC4iEeYo.js",
     "name": "show",
     "src": "resources/js/pages/inscricoes/show.jsx",
     "isDynamicEntry": true,
@@ -3832,20 +3832,20 @@
     ]
   },
   "resources/js/pages/instituicoes/components/instituicao-form.jsx": {
-    "file": "assets/instituicao-form-CRxB_bHK.js",
+    "file": "assets/instituicao-form-D1FINxdN.js",
     "name": "instituicao-form",
     "src": "resources/js/pages/instituicoes/components/instituicao-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js"
+      "_field-CPGys7N3.js"
     ]
   },
   "resources/js/pages/instituicoes/components/instituicao-table.jsx": {
-    "file": "assets/instituicao-table-BRRBfUgk.js",
+    "file": "assets/instituicao-table-DBVXd6ea.js",
     "name": "instituicao-table",
     "src": "resources/js/pages/instituicoes/components/instituicao-table.jsx",
     "isDynamicEntry": true,
@@ -3855,14 +3855,14 @@
       "_ellipsis-Dus2UbHw.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_InstituicaoController-CZhAtonY.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_InstituicaoController-CvJ0BiSw.js"
     ]
   },
   "resources/js/pages/instituicoes/components/show/instituicao-cabecalho.jsx": {
-    "file": "assets/instituicao-cabecalho-DZ43WAyh.js",
+    "file": "assets/instituicao-cabecalho-NIJ4tUSU.js",
     "name": "instituicao-cabecalho",
     "src": "resources/js/pages/instituicoes/components/show/instituicao-cabecalho.jsx",
     "isDynamicEntry": true,
@@ -3872,51 +3872,51 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_PeriodoLancamentoNotasController-BF5Wg0D1.js",
-      "_InstituicaoController-CZhAtonY.js"
+      "_PeriodoLancamentoNotasController-Dwh6Y8D9.js",
+      "_InstituicaoController-CvJ0BiSw.js"
     ]
   },
   "resources/js/pages/instituicoes/components/show/instituicao-cursos.jsx": {
-    "file": "assets/instituicao-cursos-BPnUajre.js",
+    "file": "assets/instituicao-cursos-B7SXHsfh.js",
     "name": "instituicao-cursos",
     "src": "resources/js/pages/instituicoes/components/show/instituicao-cursos.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_InstituicaoController-CZhAtonY.js",
-      "_tab-content-cursos-xLH5sRY5.js"
+      "_InstituicaoController-CvJ0BiSw.js",
+      "_tab-content-cursos-L5km5UW0.js"
     ]
   },
   "resources/js/pages/instituicoes/components/skeletons/index.skeleton.jsx": {
-    "file": "assets/index.skeleton-BRIsGxrY.js",
+    "file": "assets/index.skeleton-DXx8WcOf.js",
     "name": "index.skeleton",
     "src": "resources/js/pages/instituicoes/components/skeletons/index.skeleton.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_pagination-BB-g6kfA.js",
+      "_pagination-D_wO9tfv.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/instituicoes/components/skeletons/show.skeleton.jsx": {
-    "file": "assets/show.skeleton-1Qnrs2q3.js",
+    "file": "assets/show.skeleton-DFMriYxH.js",
     "name": "show.skeleton",
     "src": "resources/js/pages/instituicoes/components/skeletons/show.skeleton.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_pagination-BB-g6kfA.js",
-      "_tabs-BlGFFIIk.js",
+      "_pagination-D_wO9tfv.js",
+      "_tabs-zBxrftKP.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/instituicoes/create.jsx": {
-    "file": "assets/create-vHdqc_gE.js",
+    "file": "assets/create-B53qhjo5.js",
     "name": "create",
     "src": "resources/js/pages/instituicoes/create.jsx",
     "isDynamicEntry": true,
@@ -3924,11 +3924,11 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/instituicoes/components/instituicao-form.jsx",
-      "_InstituicaoController-CZhAtonY.js"
+      "_InstituicaoController-CvJ0BiSw.js"
     ]
   },
   "resources/js/pages/instituicoes/edit.jsx": {
-    "file": "assets/edit-LzZTnNDJ.js",
+    "file": "assets/edit-C7LJ2kx9.js",
     "name": "edit",
     "src": "resources/js/pages/instituicoes/edit.jsx",
     "isDynamicEntry": true,
@@ -3936,24 +3936,24 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/instituicoes/components/instituicao-form.jsx",
-      "_InstituicaoController-CZhAtonY.js"
+      "_InstituicaoController-CvJ0BiSw.js"
     ]
   },
   "resources/js/pages/instituicoes/index.jsx": {
-    "file": "assets/instituicoes-D8CdNm-D.js",
+    "file": "assets/instituicoes-D0ZDNDQ4.js",
     "name": "instituicoes",
     "src": "resources/js/pages/instituicoes/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
-      "_InstituicaoController-CZhAtonY.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_InstituicaoController-CvJ0BiSw.js",
       "resources/js/pages/instituicoes/components/instituicao-table.jsx"
     ]
   },
   "resources/js/pages/instituicoes/show.jsx": {
-    "file": "assets/show-CwsOA7A8.js",
+    "file": "assets/show-FceExBHL.js",
     "name": "show",
     "src": "resources/js/pages/instituicoes/show.jsx",
     "isDynamicEntry": true,
@@ -3964,23 +3964,23 @@
     ]
   },
   "resources/js/pages/itens-pagaveis/components/itens-form.jsx": {
-    "file": "assets/itens-form-BBzBa867.js",
+    "file": "assets/itens-form-CLMQYDqi.js",
     "name": "itens-form",
     "src": "resources/js/pages/itens-pagaveis/components/itens-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
-      "_switch-CTtzV2Gt.js",
-      "_toggle-group-C5HK_sWT.js",
+      "_select-BMxD8oA9.js",
+      "_switch-DmyJbcjY.js",
+      "_toggle-group-CrRRz3HM.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
+      "_field-CPGys7N3.js",
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/itens-pagaveis/components/itens-table.jsx": {
-    "file": "assets/itens-table-DsydQIGZ.js",
+    "file": "assets/itens-table-BrOoWINu.js",
     "name": "itens-table",
     "src": "resources/js/pages/itens-pagaveis/components/itens-table.jsx",
     "isDynamicEntry": true,
@@ -3990,15 +3990,15 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_ItemPagavelController-CjqLuiAF.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_ItemPagavelController-BLmzytdL.js"
     ]
   },
   "resources/js/pages/itens-pagaveis/create.jsx": {
-    "file": "assets/create-C4O1gcBP.js",
+    "file": "assets/create-DUkLrBFv.js",
     "name": "create",
     "src": "resources/js/pages/itens-pagaveis/create.jsx",
     "isDynamicEntry": true,
@@ -4006,11 +4006,11 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/itens-pagaveis/components/itens-form.jsx",
-      "_ItemPagavelController-CjqLuiAF.js"
+      "_ItemPagavelController-BLmzytdL.js"
     ]
   },
   "resources/js/pages/itens-pagaveis/edit.jsx": {
-    "file": "assets/edit-DBD4Olks.js",
+    "file": "assets/edit-vgphygje.js",
     "name": "edit",
     "src": "resources/js/pages/itens-pagaveis/edit.jsx",
     "isDynamicEntry": true,
@@ -4018,23 +4018,23 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/itens-pagaveis/components/itens-form.jsx",
-      "_ItemPagavelController-CjqLuiAF.js"
+      "_ItemPagavelController-BLmzytdL.js"
     ]
   },
   "resources/js/pages/itens-pagaveis/index.jsx": {
-    "file": "assets/itens-pagaveis-JyzVqRXU.js",
+    "file": "assets/itens-pagaveis-CvKRAeMo.js",
     "name": "itens-pagaveis",
     "src": "resources/js/pages/itens-pagaveis/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_ItemPagavelController-CjqLuiAF.js",
+      "_ItemPagavelController-BLmzytdL.js",
       "resources/js/pages/itens-pagaveis/components/itens-table.jsx"
     ]
   },
   "resources/js/pages/itens-pagaveis/show.jsx": {
-    "file": "assets/show-DosR1gTm.js",
+    "file": "assets/show-Cgeyu-cZ.js",
     "name": "show",
     "src": "resources/js/pages/itens-pagaveis/show.jsx",
     "isDynamicEntry": true,
@@ -4043,7 +4043,7 @@
       "_arrow-left-EnYF531l.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_ItemPagavelController-CjqLuiAF.js"
+      "_ItemPagavelController-BLmzytdL.js"
     ]
   },
   "resources/js/pages/pagamentos/components/alunos-por-status-propina.jsx": {
@@ -4058,23 +4058,23 @@
     ]
   },
   "resources/js/pages/pagamentos/components/pagamentos-form.jsx": {
-    "file": "assets/pagamentos-form-C1ko52C3.js",
+    "file": "assets/pagamentos-form-CqObx4-c.js",
     "name": "pagamentos-form",
     "src": "resources/js/pages/pagamentos/components/pagamentos-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
-      "_cart-summary--3rbFvvm.js",
+      "_select-BMxD8oA9.js",
+      "_cart-summary-DrvIpwcg.js",
       "resources/js/app.tsx",
-      "_field-CgPeqgv8.js",
-      "_cart-items-B7K_gw0I.js",
-      "_combobox-Cqo6gbmC.js",
-      "_PagamentoController-aI7AMB_6.js"
+      "_field-CPGys7N3.js",
+      "_cart-items-D0c-okAj.js",
+      "_combobox-BORgtga3.js",
+      "_PagamentoController-BmdXH5La.js"
     ]
   },
   "resources/js/pages/pagamentos/components/pagamentos-table.jsx": {
-    "file": "assets/pagamentos-table-kZaJHXzi.js",
+    "file": "assets/pagamentos-table-DyLom_6s.js",
     "name": "pagamentos-table",
     "src": "resources/js/pages/pagamentos/components/pagamentos-table.jsx",
     "isDynamicEntry": true,
@@ -4084,15 +4084,15 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_PagamentoController-aI7AMB_6.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_PagamentoController-BmdXH5La.js"
     ]
   },
   "resources/js/pages/pagamentos/create.jsx": {
-    "file": "assets/create-BdtEBuMY.js",
+    "file": "assets/create-CT4kSXZJ.js",
     "name": "create",
     "src": "resources/js/pages/pagamentos/create.jsx",
     "isDynamicEntry": true,
@@ -4102,34 +4102,34 @@
     ]
   },
   "resources/js/pages/pagamentos/edit.jsx": {
-    "file": "assets/edit-BqIJGn4G.js",
+    "file": "assets/edit-D54Im_ST.js",
     "name": "edit",
     "src": "resources/js/pages/pagamentos/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_AvisoController-A4YafqKq.js",
+      "_AvisoController-DEPwlg1I.js",
       "resources/js/pages/pagamentos/components/pagamentos-form.jsx"
     ]
   },
   "resources/js/pages/pagamentos/index.jsx": {
-    "file": "assets/pagamentos-DQicsTKh.js",
+    "file": "assets/pagamentos-DZbIblPm.js",
     "name": "pagamentos",
     "src": "resources/js/pages/pagamentos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
+      "_use-dialog-BVmPjg7L.js",
       "resources/js/pages/pagamentos/components/alunos-por-status-propina.jsx",
-      "_PagamentoController-aI7AMB_6.js",
+      "_PagamentoController-BmdXH5La.js",
       "resources/js/pages/pagamentos/components/pagamentos-table.jsx"
     ]
   },
   "resources/js/pages/pagamentos/show.jsx": {
-    "file": "assets/show-CQ_IsFAZ.js",
+    "file": "assets/show-DxXTo75b.js",
     "name": "show",
     "src": "resources/js/pages/pagamentos/show.jsx",
     "isDynamicEntry": true,
@@ -4140,13 +4140,13 @@
       "_card-CLsug2Zw.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js",
-      "_table-pagination-PuIFCAqd.js",
+      "_table-pagination-D4r3FHNP.js",
       "_pagamentos-DtK05c6T.js",
-      "_PagamentoController-aI7AMB_6.js"
+      "_PagamentoController-BmdXH5La.js"
     ]
   },
   "resources/js/pages/pap/EditarTemaMelhoria.jsx": {
-    "file": "assets/EditarTemaMelhoria-fn9UZ1T0.js",
+    "file": "assets/EditarTemaMelhoria-ZXW2DLj9.js",
     "name": "EditarTemaMelhoria",
     "src": "resources/js/pages/pap/EditarTemaMelhoria.jsx",
     "isDynamicEntry": true,
@@ -4160,7 +4160,7 @@
     ]
   },
   "resources/js/pages/pap/HistoricoAprovacao.jsx": {
-    "file": "assets/HistoricoAprovacao-Dz-LrPJW.js",
+    "file": "assets/HistoricoAprovacao-cokp3DUc.js",
     "name": "HistoricoAprovacao",
     "src": "resources/js/pages/pap/HistoricoAprovacao.jsx",
     "isDynamicEntry": true,
@@ -4172,7 +4172,7 @@
     ]
   },
   "resources/js/pages/pap/PendentesAprovacao.jsx": {
-    "file": "assets/PendentesAprovacao-KZWKGo-I.js",
+    "file": "assets/PendentesAprovacao-D2Rbzups.js",
     "name": "PendentesAprovacao",
     "src": "resources/js/pages/pap/PendentesAprovacao.jsx",
     "isDynamicEntry": true,
@@ -4180,12 +4180,12 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_ModalDecisaoAprovacao-D_5omByi.js",
+      "_ModalDecisaoAprovacao-ClzSiiBH.js",
       "resources/js/pages/pap/components/InfoGrupoBox.jsx"
     ]
   },
   "resources/js/pages/pap/TemasMelhoria.jsx": {
-    "file": "assets/TemasMelhoria-Do2qr22U.js",
+    "file": "assets/TemasMelhoria-nolwqTNY.js",
     "name": "TemasMelhoria",
     "src": "resources/js/pages/pap/TemasMelhoria.jsx",
     "isDynamicEntry": true,
@@ -4220,7 +4220,7 @@
     ]
   },
   "resources/js/pages/pap/components/grupo-pap-cards.jsx": {
-    "file": "assets/grupo-pap-cards-ChgrIpjN.js",
+    "file": "assets/grupo-pap-cards-CejZZG4U.js",
     "name": "grupo-pap-cards",
     "src": "resources/js/pages/pap/components/grupo-pap-cards.jsx",
     "isDynamicEntry": true,
@@ -4230,26 +4230,26 @@
       "_users-round-Cnr4Vcd-.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_badge-DxvCgqB1.js",
-      "_GrupoPapController-Dd80qiqd.js"
+      "_GrupoPapController-HC7ndm0C.js"
     ]
   },
   "resources/js/pages/pap/index.jsx": {
-    "file": "assets/pap-CYf9oMH2.js",
+    "file": "assets/pap-BHhlpQdL.js",
     "name": "pap",
     "src": "resources/js/pages/pap/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "resources/js/pages/pap/components/grupo-pap-cards.jsx"
     ]
   },
   "resources/js/pages/pautas/components/pauta-table/index.jsx": {
-    "file": "assets/pauta-table-YzJJdW5_.js",
+    "file": "assets/pauta-table-DI3cpqm-.js",
     "name": "pauta-table",
     "src": "resources/js/pages/pautas/components/pauta-table/index.jsx",
     "isDynamicEntry": true,
@@ -4257,15 +4257,15 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
+      "_table-pagination-D4r3FHNP.js",
       "_utils-CxwIYYhK.js",
-      "_card-actions-Cf1O2L--.js",
+      "_card-actions-B6Kh6Cwc.js",
       "_header-gB5oHq_N.js",
       "_body-Coe5xhSR.js",
       "_header-DaUk2T1V.js",
-      "_body-MRY6lUzW.js",
+      "_body-BVJoe1Dp.js",
       "_header-J9KAxMh0.js",
       "_body-B6_lB0i_.js"
     ]
@@ -4290,7 +4290,7 @@
     ]
   },
   "resources/js/pages/pautas/components/resumo-cards/index.jsx": {
-    "file": "assets/resumo-cards-SlHH7nyW.js",
+    "file": "assets/resumo-cards-DGufGIas.js",
     "name": "resumo-cards",
     "src": "resources/js/pages/pautas/components/resumo-cards/index.jsx",
     "isDynamicEntry": true,
@@ -4300,7 +4300,7 @@
     ]
   },
   "resources/js/pages/pautas/components/resumo-cards/item.jsx": {
-    "file": "assets/item-CXLcrGKW.js",
+    "file": "assets/item-CpFKeFFl.js",
     "name": "item",
     "src": "resources/js/pages/pautas/components/resumo-cards/item.jsx",
     "isDynamicEntry": true,
@@ -4311,7 +4311,7 @@
     ]
   },
   "resources/js/pages/pautas/cursos/index.jsx": {
-    "file": "assets/cursos-Bb5lS_Bd.js",
+    "file": "assets/cursos-g_kL5THw.js",
     "name": "cursos",
     "src": "resources/js/pages/pautas/cursos/index.jsx",
     "isDynamicEntry": true,
@@ -4319,38 +4319,38 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_PautaController-CdQIm8Da.js"
+      "_PautaController-D1NJmF2H.js"
     ]
   },
   "resources/js/pages/pautas/index.jsx": {
-    "file": "assets/pautas-D1SNhq2-.js",
+    "file": "assets/pautas-HehXoF5r.js",
     "name": "pautas",
     "src": "resources/js/pages/pautas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-pagination-UzN-O2dW.js",
+      "_use-pagination-D6LkOpCw.js",
       "resources/js/pages/pautas/components/pauta-table/index.jsx",
       "resources/js/pages/pautas/components/resumo-cards.jsx"
     ]
   },
   "resources/js/pages/pautas/prazos-lancamento-notas/edit.jsx": {
-    "file": "assets/edit-C-KAMBXI.js",
+    "file": "assets/edit-CYsDQnSc.js",
     "name": "edit",
     "src": "resources/js/pages/pautas/prazos-lancamento-notas/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
-      "_PeriodoLancamentoNotasController-BF5Wg0D1.js"
+      "_field-CPGys7N3.js",
+      "_PeriodoLancamentoNotasController-Dwh6Y8D9.js"
     ]
   },
   "resources/js/pages/pautas/solicitacoes/index.jsx": {
-    "file": "assets/solicitacoes-23xjjFwv.js",
+    "file": "assets/solicitacoes-_yRTwt4J.js",
     "name": "solicitacoes",
     "src": "resources/js/pages/pautas/solicitacoes/index.jsx",
     "isDynamicEntry": true,
@@ -4362,21 +4362,21 @@
     ]
   },
   "resources/js/pages/pautas/turmas/index.jsx": {
-    "file": "assets/turmas-hMeceoN1.js",
+    "file": "assets/turmas-KRNuQOjo.js",
     "name": "turmas",
     "src": "resources/js/pages/pautas/turmas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
-      "_PautaController-CdQIm8Da.js"
+      "_empty-state-BQe9KcIY.js",
+      "_PautaController-D1NJmF2H.js"
     ]
   },
   "resources/js/pages/professores/components/professor-form.jsx": {
-    "file": "assets/professor-form-XcARpIRs.js",
+    "file": "assets/professor-form-BKQyxv-v.js",
     "name": "professor-form",
     "src": "resources/js/pages/professores/components/professor-form.jsx",
     "isDynamicEntry": true,
@@ -4384,46 +4384,46 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js",
+      "_field-CPGys7N3.js",
       "_textarea-CEblRWsJ.js"
     ]
   },
   "resources/js/pages/professores/components/professor-table.jsx": {
-    "file": "assets/professor-table-ChKf0yfh.js",
+    "file": "assets/professor-table-B8SFHUta.js",
     "name": "professor-table",
     "src": "resources/js/pages/professores/components/professor-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_pagination-BB-g6kfA.js",
+      "_pagination-D_wO9tfv.js",
       "_ellipsis-Dus2UbHw.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_ProfessorController-BAuYSksp.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_ProfessorController-BkisaHSB.js"
     ]
   },
   "resources/js/pages/professores/components/tabs/cursos.tab.jsx": {
-    "file": "assets/cursos.tab-CKLIJVFh.js",
+    "file": "assets/cursos.tab-BT4Juk1Y.js",
     "name": "cursos.tab",
     "src": "resources/js/pages/professores/components/tabs/cursos.tab.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_pagination-BB-g6kfA.js",
+      "_pagination-D_wO9tfv.js",
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_CursosController-DbZ7Cc3a.js"
+      "_CursosController-3XJ_dqBC.js"
     ]
   },
   "resources/js/pages/professores/components/tabs/turmas.tab.jsx": {
-    "file": "assets/turmas.tab-ItcWuNJG.js",
+    "file": "assets/turmas.tab-0TQE8tVe.js",
     "name": "turmas.tab",
     "src": "resources/js/pages/professores/components/tabs/turmas.tab.jsx",
     "isDynamicEntry": true,
@@ -4433,56 +4433,56 @@
       "_minus-CsrEuYwF.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js"
     ]
   },
   "resources/js/pages/professores/create.jsx": {
-    "file": "assets/create-DY5pX7Ib.js",
+    "file": "assets/create-O0c2Eyiz.js",
     "name": "create",
     "src": "resources/js/pages/professores/create.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_ProfessorController-BAuYSksp.js",
+      "_ProfessorController-BkisaHSB.js",
       "resources/js/pages/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/professores/edit.jsx": {
-    "file": "assets/edit-CeqeuddM.js",
+    "file": "assets/edit-ET16T1Ng.js",
     "name": "edit",
     "src": "resources/js/pages/professores/edit.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_ProfessorController-BAuYSksp.js",
+      "_ProfessorController-BkisaHSB.js",
       "resources/js/pages/professores/components/professor-form.jsx"
     ]
   },
   "resources/js/pages/professores/index.jsx": {
-    "file": "assets/professores-CzvqOC3E.js",
+    "file": "assets/professores-BQmjnnxM.js",
     "name": "professores",
     "src": "resources/js/pages/professores/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
-      "_ProfessorController-BAuYSksp.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_ProfessorController-BkisaHSB.js",
       "resources/js/pages/professores/components/professor-table.jsx"
     ]
   },
   "resources/js/pages/professores/show.jsx": {
-    "file": "assets/show-COoIbJL-.js",
+    "file": "assets/show-DEFImSko.js",
     "name": "show",
     "src": "resources/js/pages/professores/show.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_minus-CsrEuYwF.js",
-      "_tabs-BlGFFIIk.js",
+      "_tabs-zBxrftKP.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
       "resources/js/pages/professores/components/tabs/cursos.tab.jsx",
@@ -4490,7 +4490,7 @@
     ]
   },
   "resources/js/pages/propinas/bloqueio.jsx": {
-    "file": "assets/bloqueio-ENGqsIWg.js",
+    "file": "assets/bloqueio-BbYm0ixR.js",
     "name": "bloqueio",
     "src": "resources/js/pages/propinas/bloqueio.jsx",
     "isDynamicEntry": true,
@@ -4500,14 +4500,14 @@
     ]
   },
   "resources/js/pages/regras-avaliacao/components/regras-form.jsx": {
-    "file": "assets/regras-form-DlOf8gf6.js",
+    "file": "assets/regras-form-d3_zmDYN.js",
     "name": "regras-form",
     "src": "resources/js/pages/regras-avaliacao/components/regras-form.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_dist-DVY39n7X.js",
-      "_select-BtCKxIuM.js",
+      "_select-BMxD8oA9.js",
       "_dist-BKI9--UU.js",
       "_dist-BsG0KAXG.js",
       "_dist-BU5y4aRS.js",
@@ -4515,13 +4515,13 @@
       "_dist-B6Ek9oRb.js",
       "_dist-DbFgUCqG.js",
       "_dist-C6xzvqf82.js",
-      "_switch-CTtzV2Gt.js",
+      "_switch-DmyJbcjY.js",
       "resources/js/app.tsx",
-      "_field-CgPeqgv8.js"
+      "_field-CPGys7N3.js"
     ]
   },
   "resources/js/pages/regras-avaliacao/components/regras-table.jsx": {
-    "file": "assets/regras-table-B4A7VWmH.js",
+    "file": "assets/regras-table-BEQoM80y.js",
     "name": "regras-table",
     "src": "resources/js/pages/regras-avaliacao/components/regras-table.jsx",
     "isDynamicEntry": true,
@@ -4531,14 +4531,14 @@
       "_layers-cNsH7THB.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_RegraAvaliacaoController-BUofa0NC.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_RegraAvaliacaoController-B-hl7LaT.js"
     ]
   },
   "resources/js/pages/regras-avaliacao/create.jsx": {
-    "file": "assets/create-CfA66b6L.js",
+    "file": "assets/create-jTK9Rf2f.js",
     "name": "create",
     "src": "resources/js/pages/regras-avaliacao/create.jsx",
     "isDynamicEntry": true,
@@ -4546,11 +4546,11 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/regras-avaliacao/components/regras-form.jsx",
-      "_RegraAvaliacaoController-BUofa0NC.js"
+      "_RegraAvaliacaoController-B-hl7LaT.js"
     ]
   },
   "resources/js/pages/regras-avaliacao/edit.jsx": {
-    "file": "assets/edit-BlQHd5TY.js",
+    "file": "assets/edit-CrWecBQb.js",
     "name": "edit",
     "src": "resources/js/pages/regras-avaliacao/edit.jsx",
     "isDynamicEntry": true,
@@ -4558,19 +4558,19 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/regras-avaliacao/components/regras-form.jsx",
-      "_RegraAvaliacaoController-BUofa0NC.js"
+      "_RegraAvaliacaoController-B-hl7LaT.js"
     ]
   },
   "resources/js/pages/regras-avaliacao/index.jsx": {
-    "file": "assets/regras-avaliacao-DH8g5922.js",
+    "file": "assets/regras-avaliacao-BGqlSXlA.js",
     "name": "regras-avaliacao",
     "src": "resources/js/pages/regras-avaliacao/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
-      "_RegraAvaliacaoController-BUofa0NC.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_RegraAvaliacaoController-B-hl7LaT.js",
       "resources/js/pages/regras-avaliacao/components/regras-table.jsx"
     ]
   },
@@ -4581,7 +4581,7 @@
     "isDynamicEntry": true
   },
   "resources/js/pages/relatorios/propinas-turma.jsx": {
-    "file": "assets/propinas-turma-hUq8cBMY.js",
+    "file": "assets/propinas-turma-kTHiTjU5.js",
     "name": "propinas-turma",
     "src": "resources/js/pages/relatorios/propinas-turma.jsx",
     "isDynamicEntry": true,
@@ -4590,13 +4590,13 @@
       "_createLucideIcon-6hAcjkHs.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
       "_badge-DxvCgqB1.js"
     ]
   },
   "resources/js/pages/settings/appearance.jsx": {
-    "file": "assets/appearance-C28XaX8d.js",
+    "file": "assets/appearance-rbXIf-o4.js",
     "name": "appearance",
     "src": "resources/js/pages/settings/appearance.jsx",
     "isDynamicEntry": true,
@@ -4608,21 +4608,21 @@
     ]
   },
   "resources/js/pages/settings/profile.jsx": {
-    "file": "assets/profile-BGHcBnbw.js",
+    "file": "assets/profile-C3M6HyVo.js",
     "name": "profile",
     "src": "resources/js/pages/settings/profile.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
-      "_password-input-CfU-IiqZ.js",
+      "_password-input-DIhFUOsB.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
       "_input-error-Cqkovvfq.js",
-      "_verification-D9ZCzFD_.js"
+      "_verification-C0VG-Mpg.js"
     ]
   },
   "resources/js/pages/settings/security.jsx": {
-    "file": "assets/security-8i8APpnM.js",
+    "file": "assets/security-DA-LQpL-.js",
     "name": "security",
     "src": "resources/js/pages/settings/security.jsx",
     "isDynamicEntry": true,
@@ -4631,21 +4631,21 @@
       "_createLucideIcon-6hAcjkHs.js",
       "_check-D6_H2ueh.js",
       "_circle-alert-CmOZxo2j.js",
-      "_password-input-CfU-IiqZ.js",
+      "_password-input-DIhFUOsB.js",
       "_react-CYuos3AN.js",
       "_lock-keyhole-_vkVQUyz.js",
       "_refresh-cw-DseKGfw9.js",
       "_label-Bsu1BWfE.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_spinner-B9n0XSrm.js",
+      "_spinner-CVStNLW1.js",
       "_input-error-Cqkovvfq.js",
-      "_use-two-factor-auth-BkfPM_QX.js",
+      "_use-two-factor-auth-C3SZlz-o.js",
       "_alert-E7rLH5df.js"
     ]
   },
   "resources/js/pages/teste.jsx": {
-    "file": "assets/teste-CMuWfbzL.js",
+    "file": "assets/teste-CgpuPFxC.js",
     "name": "teste",
     "src": "resources/js/pages/teste.jsx",
     "isDynamicEntry": true,
@@ -4662,47 +4662,47 @@
       "_dist-Ctfm89E2.js",
       "_utils-BNhDZxi-.js",
       "resources/js/app.tsx",
-      "_field-CgPeqgv8.js",
+      "_field-CPGys7N3.js",
       "_textarea-CEblRWsJ.js",
-      "_input-group-DICwUrPD.js",
-      "_combobox-Cqo6gbmC.js"
+      "_input-group-DotPjJuF.js",
+      "_combobox-BORgtga3.js"
     ]
   },
   "resources/js/pages/turmas/components/turma-table.jsx": {
-    "file": "assets/turma-table-yN-7cI-9.js",
+    "file": "assets/turma-table-Dumiyc-D.js",
     "name": "turma-table",
     "src": "resources/js/pages/turmas/components/turma-table.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "_createLucideIcon-6hAcjkHs.js",
-      "_pagination-BB-g6kfA.js",
-      "_select-BtCKxIuM.js",
+      "_pagination-D_wO9tfv.js",
+      "_select-BMxD8oA9.js",
       "_ellipsis-Dus2UbHw.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_field-CgPeqgv8.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_TurmaController-Bt8IawAd.js",
-      "_ClasseTurnoTurmaController-DcrNZ1_f.js"
+      "_field-CPGys7N3.js",
+      "_table-pagination-D4r3FHNP.js",
+      "_TurmaController-BLn-kyff.js",
+      "_ClasseTurnoTurmaController-BJS1wXu2.js"
     ]
   },
   "resources/js/pages/turmas/index.jsx": {
-    "file": "assets/turmas-BKNCYkuz.js",
+    "file": "assets/turmas-BbsLPBQ3.js",
     "name": "turmas",
     "src": "resources/js/pages/turmas/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_TurmaController-Bt8IawAd.js",
+      "_TurmaController-BLn-kyff.js",
       "resources/js/pages/turmas/components/turma-table.jsx"
     ]
   },
   "resources/js/pages/turnos/components/turno-form.jsx": {
-    "file": "assets/turno-form-Bt7GnRxR.js",
+    "file": "assets/turno-form-D-bJuQ8V.js",
     "name": "turno-form",
     "src": "resources/js/pages/turnos/components/turno-form.jsx",
     "isDynamicEntry": true,
@@ -4710,11 +4710,11 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_field-CgPeqgv8.js"
+      "_field-CPGys7N3.js"
     ]
   },
   "resources/js/pages/turnos/components/turno-table.jsx": {
-    "file": "assets/turno-table-DHHjcGus.js",
+    "file": "assets/turno-table-Cgift-pX.js",
     "name": "turno-table",
     "src": "resources/js/pages/turnos/components/turno-table.jsx",
     "isDynamicEntry": true,
@@ -4724,14 +4724,14 @@
       "_ellipsis-Dus2UbHw.js",
       "resources/js/app.tsx",
       "_card-CLsug2Zw.js",
-      "_empty-state-COjfYAoV.js",
+      "_empty-state-BQe9KcIY.js",
       "_table-DrQFDzr_.js",
-      "_table-pagination-PuIFCAqd.js",
-      "_TurnoController-svCABrd-.js"
+      "_table-pagination-D4r3FHNP.js",
+      "_TurnoController-DRKMW7tc.js"
     ]
   },
   "resources/js/pages/turnos/create.jsx": {
-    "file": "assets/create-B81Q_VN3.js",
+    "file": "assets/create-Cut_Mj3v.js",
     "name": "create",
     "src": "resources/js/pages/turnos/create.jsx",
     "isDynamicEntry": true,
@@ -4739,11 +4739,11 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/turnos/components/turno-form.jsx",
-      "_TurnoController-svCABrd-.js"
+      "_TurnoController-DRKMW7tc.js"
     ]
   },
   "resources/js/pages/turnos/edit.jsx": {
-    "file": "assets/edit-ScMB926q.js",
+    "file": "assets/edit-Bnv8E8AV.js",
     "name": "edit",
     "src": "resources/js/pages/turnos/edit.jsx",
     "isDynamicEntry": true,
@@ -4751,24 +4751,24 @@
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
       "resources/js/pages/turnos/components/turno-form.jsx",
-      "_TurnoController-svCABrd-.js"
+      "_TurnoController-DRKMW7tc.js"
     ]
   },
   "resources/js/pages/turnos/index.jsx": {
-    "file": "assets/turnos-i58_81GG.js",
+    "file": "assets/turnos-BDWoihIP.js",
     "name": "turnos",
     "src": "resources/js/pages/turnos/index.jsx",
     "isDynamicEntry": true,
     "imports": [
       "_jsx-runtime-DIBGU2nq.js",
       "resources/js/app.tsx",
-      "_use-dialog-DPE1ejA8.js",
-      "_TurnoController-svCABrd-.js",
+      "_use-dialog-BVmPjg7L.js",
+      "_TurnoController-DRKMW7tc.js",
       "resources/js/pages/turnos/components/turno-table.jsx"
     ]
   },
   "resources/js/pages/welcome.jsx": {
-    "file": "assets/welcome-CvRIqRcf.js",
+    "file": "assets/welcome-CA39D3ae.js",
     "name": "welcome",
     "src": "resources/js/pages/welcome.jsx",
     "isDynamicEntry": true,
@@ -4787,7 +4787,7 @@
     ]
   },
   "resources/js/pages/welcome/components/layout/navigation-menu/index.jsx": {
-    "file": "assets/navigation-menu-ecu7twuT.js",
+    "file": "assets/navigation-menu-CyVwBzj_.js",
     "name": "navigation-menu",
     "src": "resources/js/pages/welcome/components/layout/navigation-menu/index.jsx",
     "isDynamicEntry": true,
@@ -4806,7 +4806,7 @@
     ]
   },
   "resources/js/pages/welcome/components/sections/cta/index.jsx": {
-    "file": "assets/cta-I9TRH_ah.js",
+    "file": "assets/cta-D9ny30FW.js",
     "name": "cta",
     "src": "resources/js/pages/welcome/components/sections/cta/index.jsx",
     "isDynamicEntry": true,
@@ -4816,7 +4816,7 @@
     ]
   },
   "resources/js/pages/welcome/components/sections/hero/index.jsx": {
-    "file": "assets/hero-CcxYcHhN.js",
+    "file": "assets/hero-CEnQAIh6.js",
     "name": "hero",
     "src": "resources/js/pages/welcome/components/sections/hero/index.jsx",
     "isDynamicEntry": true,
@@ -4857,7 +4857,7 @@
     ]
   },
   "resources/js/pages/welcome/index.jsx": {
-    "file": "assets/welcome-BAzvCZoA.js",
+    "file": "assets/welcome-B-Zz3sQF.js",
     "name": "welcome",
     "src": "resources/js/pages/welcome/index.jsx",
     "isDynamicEntry": true,
