@@ -207,6 +207,7 @@ Route::get('turmas/{turma}/relatorio-propinas', [RelatorioPropinaController::cla
 
 Route::get('turmas/{turma}/relatorio-propinas/pdf', [RelatorioPropinaController::class, 'pdf'])
     ->name('turmas.relatorio-propinas.pdf');
+    
 Route::resource('regras-avaliacao', RegraAvaliacaoController::class)
     ->parameters(['regras-avaliacao' => 'regraAvaliacao']);
 
