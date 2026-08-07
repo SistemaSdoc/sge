@@ -196,12 +196,6 @@
       border-color: #d9d19a;
     }
 
-    .badge-em-dia {
-      background: #e2e9e2;
-      color: #365036;
-      border-color: #b9ccb9;
-    }
-
     .meses-lista {
       font-size: 9px;
       color: #5a5a5a;
@@ -291,7 +285,7 @@
   </div>
 
   <!-- Título do relatório -->
-  <p class="titulo-relatorio">Relatório de Situação de Propinas</p>
+  <p class="titulo-relatorio">Relatório de Situação de Propinas por Turma</p>
   <p class="subtitulo-relatorio">
     {{ $turma['curso'] ?? '' }} — {{ $turma['classe'] ?? '' }} — Turma {{ $turma['nome'] ?? '' }}
     @if($turma['turno'] ?? false) ({{ $turma['turno'] }}) @endif
@@ -312,8 +306,12 @@
       <div class="info-valor">{{ $resumo['total_devedores'] }}</div>
     </div>
     <div class="info-item">
-      <div class="info-label">Alunos com situação financeira regularizada</div>
+      <div class="info-label">Alunos Reguralizado(s)</div>
       <div class="info-valor">{{ $resumo['total_em_dia'] }}</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Total em multas</div>
+      <div class="info-valor">{{ number_format($resumo['multa_total_geral'], 2, ',', '.') }} AOA</div>
     </div>
     <div class="info-item">
       <div class="info-label">Valor total em dívida</div>
@@ -329,10 +327,11 @@
     <table class="dados">
       <thead>
         <tr>
-          <th style="width: 28px;">#</th>
+          <th style="width: 24px;">#</th>
           <th>Aluno</th>
-          <th style="width: 70px; text-align:center;">Meses em falta</th>
-          <th style="width: 220px;">Meses</th>
+          <th style="width: 60px; text-align:center;">Meses em falta</th>
+          <th style="width: 190px;">Meses</th>
+          <th style="width: 75px; text-align:right;">Multa</th>
           <th style="width: 90px; text-align:right;">Valor devido</th>
         </tr>
       </thead>
@@ -345,10 +344,19 @@
               @php
                 $badge = $linha['total_meses'] >= 3 ? 'badge-alerta' : ($linha['total_meses'] === 2 ? 'badge-atencao' : 'badge-leve');
               @endphp
-              <span class="badge {{ $badge }}">{{ $linha['total_meses'] }}</span>
+              <span >{{ $linha['total_meses'] }}</span>
             </td>
             <td class="meses-lista">
               {{ collect($linha['meses'])->pluck('label')->implode(', ') }}
+            </td>
+            <td style="text-align:right;">
+              @if($linha['multa_total'] > 0)
+                <span style="color:#7a2e2e; font-weight:bold;">
+                  {{ number_format($linha['multa_total'], 2, ',', '.') }}
+                </span>
+              @else
+                —
+              @endif
             </td>
             <td style="text-align:right; font-weight:bold;">
               {{ number_format($linha['valor_total'], 2, ',', '.') }} AOA
@@ -359,10 +367,10 @@
     </table>
   @endif
 
-  <p class="secao-titulo">Alunos com situação financeira regularizada</p>
+  <p class="secao-titulo">Alunos Reguralizado(s)</p>
 
   @if(count($emDia) === 0)
-    <p class="sem-registos">Nenhum aluno desta turma está com situação financeira regularizada.</p>
+    <p class="sem-registos">Nenhum aluno desta turma está Reguralizado.</p>
   @else
     <table class="dados em-dia">
       <thead>
@@ -378,7 +386,7 @@
             <td>{{ $i + 1 }}</td>
             <td>{{ $aluno['nome'] }}</td>
             <td style="text-align:center;">
-              <span class="badge badge-em-dia">Regularizada</span>
+              <span>Reguralizada</span>
             </td>
           </tr>
         @endforeach
@@ -398,7 +406,11 @@
     </div>
     <div class="resumo-item">
       <div class="resumo-num">{{ $resumo['total_em_dia'] }}</div>
-      <div class="resumo-label">Regularizados</div>
+      <div class="resumo-label">Reguralizado(s)</div>
+    </div>
+    <div class="resumo-item">
+      <div class="resumo-num">{{ number_format($resumo['multa_total_geral'], 0, ',', '.') }} AOA</div>
+      <div class="resumo-label">Total em Multas</div>
     </div>
     <div class="resumo-item">
       <div class="resumo-num">{{ number_format($resumo['valor_total_geral'], 0, ',', '.') }} AOA</div>

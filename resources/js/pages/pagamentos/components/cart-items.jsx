@@ -11,6 +11,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { formatMoney, frequencyLabel, MONTH_LABELS } from '@/lib/pagamentos';
 import { cn } from '@/lib/utils';
+import { TriangleAlert } from 'lucide-react';
 
 export function CartItem({
   item,
@@ -20,6 +21,7 @@ export function CartItem({
   disabled = false,
   onToggle,
   onMonthsChange,
+  valorDoMes,
 }) {
   const isMonthly = item.frequencia === 'mensal';
 
@@ -36,6 +38,14 @@ export function CartItem({
     (!isMonthly && uniquePaidMonths.length > 0) || isFullyPaid;
 
   const isDisabled = disabled || alreadyPaid;
+
+  // Meses seleccionados que têm multa aplicável, segundo o backend.
+  const mesesComMulta = isMonthly && valorDoMes
+    ? selectedMonths.filter((mes) => {
+        const info = valorDoMes(mes);
+        return info && Number(info.multa) > 0;
+      })
+    : [];
 
   return (
     <Item variant="outline" className={cn(isDisabled && 'opacity-60')}>
@@ -65,6 +75,14 @@ export function CartItem({
               {isMonthly && isFullyPaid ? 'Todos os meses pagos' : 'Já pago'}
             </Badge>
           )}
+
+          {isMonthly && item.multa_dias_tolerancia && item.multa_valor && (
+            <Badge variant="outline" className="gap-1 p-1 text-[10px] text-destructive">
+              <TriangleAlert className="size-2.5" />
+              Multa após dia {item.multa_dias_tolerancia}
+            </Badge>
+          )}
+
           {item.descricao && <span>{item.descricao}</span>}
         </ItemDescription>
       </ItemContent>
@@ -94,19 +112,33 @@ export function CartItem({
             {MONTH_LABELS.map((label, index) => {
               const month = index + 1;
               const isPaid = paidMonths.includes(month);
+              const info = valorDoMes ? valorDoMes(month) : null;
+              const temMulta = info && Number(info.multa) > 0;
 
               return (
                 <ToggleGroupItem
                   key={month}
                   value={String(month)}
                   disabled={isPaid}
-                  className={cn('min-w-11', isPaid && 'line-through')}
+                  className={cn(
+                    'min-w-11',
+                    isPaid && 'line-through',
+                    temMulta && 'border-destructive/50 text-destructive',
+                  )}
                 >
                   {label}
+                  {temMulta && '*'}
                 </ToggleGroupItem>
               );
             })}
           </ToggleGroup>
+
+          {mesesComMulta.length > 0 && (
+            <p className="flex items-center gap-1 text-xs text-destructive">
+              <TriangleAlert className="size-3" />
+              * Mês(es) com multa por atraso incluída no valor
+            </p>
+          )}
         </ItemFooter>
       )}
     </Item>
