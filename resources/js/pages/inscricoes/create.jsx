@@ -8,10 +8,12 @@ export default function Create() {
   const {
     cursos,
     anosLectivos = [],
+    entity_label: entityLabel,
   } = usePage().props;
 
   const [cursoId, setCursoId] = useState(undefined);
   const [cursoClasseTurnoId, setCursoClasseTurnoId] = useState(undefined);
+  const [portadorDeficiencia, setPortadorDeficiencia] = useState(undefined);
 
   const cursoSelecionado = cursos?.find(
     (c) => String(c.id) === String(cursoId),
@@ -25,9 +27,7 @@ export default function Create() {
         ...data,
         curso_classe_turno_id: cursoClasseTurnoId,
       })}
-      onSuccess={() =>
-        router.visit(index.url())
-      }
+      onSuccess={() => router.visit(index.url())}
     >
       {({ errors, processing }) => (
         <InscricaoForm
@@ -42,6 +42,9 @@ export default function Create() {
           cursoSelecionado={cursoSelecionado}
           cursoClasseTurnoId={cursoClasseTurnoId}
           setCursoClasseTurnoId={setCursoClasseTurnoId}
+          portadorDeficiencia={portadorDeficiencia}
+          setPortadorDeficiencia={setPortadorDeficiencia}
+          entityLabel={entityLabel}
         />
       )}
     </Form>

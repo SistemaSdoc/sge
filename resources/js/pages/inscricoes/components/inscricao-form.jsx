@@ -27,8 +27,12 @@ export default function InscricaoForm({
   cursoSelecionado,
   cursoClasseTurnoId,
   setCursoClasseTurnoId,
+  portadorDeficiencia,
+  setPortadorDeficiencia,
+  entityLabel = 'Inscrição',
 }) {
   const temTurnos = cursoSelecionado?.turnos?.length > 0;
+  const entityLabelText = entityLabel || 'Inscrição';
 
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
@@ -49,6 +53,31 @@ export default function InscricaoForm({
                 />
                 {errors.nome && <FieldError>{errors.nome}</FieldError>}
               </Field>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Field>
+                  <FieldLabel>Nome do pai</FieldLabel>
+                  <Input
+                    name="nome_pai"
+                    disabled={processing}
+                    placeholder="Ex.: João Silva"
+                  />
+                  {errors.nome_pai && (
+                    <FieldError>{errors.nome_pai}</FieldError>
+                  )}
+                </Field>
+
+                <Field>
+                  <FieldLabel>Nome da mãe</FieldLabel>
+                  <Input
+                    name="nome_mae"
+                    disabled={processing}
+                    placeholder="Ex.: Maria Silva"
+                  />
+                  {errors.nome_mae && (
+                    <FieldError>{errors.nome_mae}</FieldError>
+                  )}
+                </Field>
+              </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field>
@@ -62,15 +91,68 @@ export default function InscricaoForm({
                 </Field>
 
                 <Field>
-                  <FieldLabel>Nº Estudante</FieldLabel>
-                  <Input
-                    name="numero_estudante"
-                    disabled={processing}
-                    placeholder="Ex.: ES2026/034"
-                  />
-                  {errors.numero_estudante && (
-                    <FieldError>{errors.numero_estudante}</FieldError>
+                  <FieldLabel>Data de Nascimento</FieldLabel>
+                  <Input type="date" name="data_nascimento" />
+                  {errors.data_nascimento && (
+                    <FieldError>{errors.data_nascimento}</FieldError>
                   )}
+                </Field>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Field>
+                  <FieldLabel>Nacionalidade</FieldLabel>
+                  <Input
+                    name="nacionalidade"
+                    disabled={processing}
+                    placeholder="Ex.: Angolana"
+                  />
+                  {errors.nacionalidade && (
+                    <FieldError>{errors.nacionalidade}</FieldError>
+                  )}
+                </Field>
+
+                <Field>
+                  <FieldLabel>Naturalidade</FieldLabel>
+                  <Input
+                    name="naturalidade"
+                    disabled={processing}
+                    placeholder="Ex.: Luanda"
+                  />
+                  {errors.naturalidade && (
+                    <FieldError>{errors.naturalidade}</FieldError>
+                  )}
+                </Field>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {' '}
+                <Field>
+                  <FieldLabel>Morada</FieldLabel>
+                  <Input
+                    name="morada"
+                    disabled={processing}
+                    placeholder="Ex.: Luanda Sul"
+                  />
+                  {errors.morada && <FieldError>{errors.morada}</FieldError>}
+                </Field>
+                <Field>
+                  <FieldLabel>Portador de Deficiência</FieldLabel>
+                  <Select
+                    value={portadorDeficiencia}
+                    onValueChange={setPortadorDeficiencia}
+                    disabled={processing}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione uma opção" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Opções</SelectLabel>
+                        <SelectItem value="sim">Sim</SelectItem>
+                        <SelectItem value="nao">Não</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </Field>
               </div>
 
@@ -105,25 +187,15 @@ export default function InscricaoForm({
                 </Field>
               </div>
 
-              <Field>
-                <FieldLabel>Morada</FieldLabel>
-                <Input
-                  name="morada"
-                  disabled={processing}
-                  placeholder="Ex.: Luanda Sul"
-                />
-                {errors.morada && <FieldError>{errors.morada}</FieldError>}
-              </Field>
-
               {/* <Field>
-                <FieldLabel>Instituição</FieldLabel>
+                <FieldLabel>{entityLabel}</FieldLabel>
                 <Select
                   value={instituicaoId}
                   onValueChange={setInstituicaoId}
                   disabled={processing}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecione a instituição" />
+                    <SelectValue placeholder={`Selecione ${entityLabelText.toLowerCase()}`} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -198,7 +270,19 @@ export default function InscricaoForm({
                   )}
                 </Field>
               </div>
-
+              {/*  nº de estudante
+              <Field>
+                <FieldLabel>Nº Estudante</FieldLabel>
+                <Input
+                  name="numero_estudante"
+                  disabled
+                  placeholder="Ex.: ES2026/034"
+                />
+                {errors.numero_estudante && (
+                  <FieldError>{errors.numero_estudante}</FieldError>
+                )}
+              </Field>
+                  */}
               <Field>
                 <Button type="submit" disabled={processing}>
                   Inscrever
