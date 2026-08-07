@@ -4,9 +4,13 @@ import { Minus } from 'lucide-react';
 import { formatStatusInscricao } from '@/utils/format-status';
 
 export default function Show() {
-  const { inscricao, entity_label: entityLabelProp } = usePage().props;
+  const {
+    inscricao,
+    entity_label: entityLabelProp,
+    tem_nota_teste: temNotaTeste,
+  } = usePage().props;
   const candidato = inscricao?.candidato ?? {};
-  const entityLabel = entityLabelProp || 'Inscrição';
+  const entityLabel = entityLabelProp || 'Matrícula';
 
   const renderValue = (value) => {
     if (value === null || value === undefined || value === '') {
@@ -16,22 +20,15 @@ export default function Show() {
     return value;
   };
 
-  const renderDeficiencia = (value) => {
-    if (value === true || value === 'sim' || value === 'Sim' || value === 'S') {
-      return 'Sim';
+  const splitFiliacao = (value) => {
+    if (typeof value !== 'string') {
+      return [];
     }
 
-    if (
-      value === false ||
-      value === 'nao' ||
-      value === 'Não' ||
-      value === 'Nao' ||
-      value === 'N'
-    ) {
-      return 'Não';
-    }
-
-    return <Minus size={15} className="text-muted-foreground" />;
+    return value
+      .split(/\s+e\s+/i)
+      .map((part) => part.trim())
+      .filter(Boolean);
   };
 
   return (
@@ -76,15 +73,23 @@ export default function Show() {
             <p className="font-medium">{renderValue(candidato.nome)}</p>
           </div>
 
-          <div>
-            <p className="text-sm text-muted-foreground">Nome do pai</p>
-            <p className="font-medium">{renderValue(candidato.nome_pai)}</p>
-          </div>
+          {splitFiliacao(candidato.filiacao)[0] && (
+            <div>
+              <p className="text-sm text-muted-foreground">Nome do pai</p>
+              <p className="font-medium">
+                {renderValue(splitFiliacao(candidato.filiacao)[0])}
+              </p>
+            </div>
+          )}
 
-          <div>
-            <p className="text-sm text-muted-foreground">Nome da mãe</p>
-            <p className="font-medium">{renderValue(candidato.nome_mae)}</p>
-          </div>
+          {splitFiliacao(candidato.filiacao)[1] && (
+            <div>
+              <p className="text-sm text-muted-foreground">Nome da mãe</p>
+              <p className="font-medium">
+                {renderValue(splitFiliacao(candidato.filiacao)[1])}
+              </p>
+            </div>
+          )}
 
           <div>
             <p className="text-sm text-muted-foreground">Data de nascimento</p>
@@ -111,15 +116,6 @@ export default function Show() {
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">
-              Portador de deficiência
-            </p>
-            <p className="font-medium">
-              {renderDeficiencia(candidato.portador_deficiencia)}
-            </p>
-          </div>
-
-          <div>
             <p className="text-sm text-muted-foreground">Nº Bilhete</p>
             <p className="font-medium">{renderValue(candidato.bi)}</p>
           </div>
@@ -131,14 +127,16 @@ export default function Show() {
             </p>
           </div>
 */}
-          <div>
-            <p className="text-sm text-muted-foreground">Nota da prova</p>
-            <p className="font-medium">
-              {inscricao.nota_teste ?? (
-                <Minus size={15} className="text-muted-foreground" />
-              )}
-            </p>
-          </div>
+          {temNotaTeste && (
+            <div>
+              <p className="text-sm text-muted-foreground">Nota da prova</p>
+              <p className="font-medium">
+                {inscricao.nota_teste ?? (
+                  <Minus size={15} className="text-muted-foreground" />
+                )}
+              </p>
+            </div>
+          )}
 
           <div>
             <p className="text-sm text-muted-foreground">Status</p>
@@ -149,7 +147,7 @@ export default function Show() {
 
           <div>
             <p className="text-sm text-muted-foreground">
-              Inscrição realizada em
+              {entityLabel} realizada em
             </p>
             <p className="font-medium">{inscricao.created_at}</p>
           </div>

@@ -17,9 +17,8 @@ use Illuminate\Database\Eloquent\Model;
     'genero',
     'nacionalidade',
     'naturalidade',
-    'portador_deficiencia',
     'filiacao',
-    'data_nascimento'
+    'data_nascimento',
 ])]
 class Candidato extends Model
 {
@@ -41,8 +40,8 @@ class Candidato extends Model
 
     protected function generoLabel(): Attribute
     {
-    return Attribute::make(
-        get: fn () => $this->genero === 'M' ? 'Masculino' : 'Feminino',
-    );
+        return Attribute::make(
+            get: fn () => $this->genero === 'M' ? 'Masculino' : 'Feminino',
+        );
     }
 }

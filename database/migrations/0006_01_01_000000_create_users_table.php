@@ -51,7 +51,6 @@ return new class extends Migration
             $table->enum('genero', ['M', 'F'])->nullable();
             $table->string('nacionalidade')->nullable();
             $table->string('naturalidade')->nullable();
-            $table->boolean('portador_deficiencia')->default(false);
             $table->string('filiacao')->nullable();
             $table->date('data_nascimento')->nullable();
             $table->string('numero_estudante')->unique();
@@ -64,7 +63,7 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *//*  */
+     */ /* */
     public function down(): void
     {
         Schema::dropIfExists('users');

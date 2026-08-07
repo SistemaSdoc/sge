@@ -27,21 +27,40 @@ export default function InscricaoForm({
   cursoSelecionado,
   cursoClasseTurnoId,
   setCursoClasseTurnoId,
-  portadorDeficiencia,
-  setPortadorDeficiencia,
-  entityLabel = 'Inscrição',
+  turnoSelecionado,
+  turmaId,
+  setTurmaId,
+  notaTeste,
+  setNotaTeste,
+  entityLabel = 'Matrícula',
+  temNotaTeste = false,
+  anoLectivoActual,
 }) {
   const temTurnos = cursoSelecionado?.turnos?.length > 0;
-  const entityLabelText = entityLabel || 'Inscrição';
+  const turmas = turnoSelecionado?.turmas ?? [];
+  const temTurmas = turmas.length > 0;
+  const hasInstitutionError = Boolean(errors?.instituicao || errors?.message);
 
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
       <Card>
         <CardHeader className="border-b">
-          <CardTitle>Inscrição</CardTitle>
+          <CardTitle>{entityLabel}</CardTitle>
         </CardHeader>
 
         <CardContent>
+          {hasInstitutionError && (
+            <div
+              role="alert"
+              className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+            >
+              <p className="font-medium">
+                Não foi possível registar a {entityLabel.toLowerCase()}.
+              </p>
+              <p>{errors?.instituicao ?? errors?.message}</p>
+            </div>
+          )}
+
           <FieldGroup>
             <FieldSet>
               <Field>
@@ -125,7 +144,6 @@ export default function InscricaoForm({
                 </Field>
               </div>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {' '}
                 <Field>
                   <FieldLabel>Morada</FieldLabel>
                   <Input
@@ -136,25 +154,33 @@ export default function InscricaoForm({
                   {errors.morada && <FieldError>{errors.morada}</FieldError>}
                 </Field>
                 <Field>
-                  <FieldLabel>Portador de Deficiência</FieldLabel>
-                  <Select
-                    value={portadorDeficiencia}
-                    onValueChange={setPortadorDeficiencia}
-                    disabled={processing}
-                  >
+                  <FieldLabel>Género</FieldLabel>
+                  <Select name="genero" disabled={processing} defaultValue="M">
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione uma opção" />
+                      <SelectValue placeholder="Selecione um género" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectLabel>Opções</SelectLabel>
-                        <SelectItem value="sim">Sim</SelectItem>
-                        <SelectItem value="nao">Não</SelectItem>
+                        <SelectLabel>Géneros</SelectLabel>
+                        <SelectItem value="M">Masculino</SelectItem>
+                        <SelectItem value="F">Feminino</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                  {errors.genero && <FieldError>{errors.genero}</FieldError>}
                 </Field>
               </div>
+
+              <input
+                type="hidden"
+                name="ano_lectivo_id"
+                value={anoLectivoActual || ''}
+              />
+              <input
+                type="hidden"
+                name="curso_classe_turno_id"
+                value={cursoClasseTurnoId ?? ''}
+              />
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field>
@@ -213,11 +239,17 @@ export default function InscricaoForm({
                 )}
               </Field> */}
 
+              <input
+                type="hidden"
+                name="ano_lectivo_id"
+                value={anoLectivoActual || ''}
+              />
+
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field>
                   <FieldLabel>Curso</FieldLabel>
                   <Select
-                    value={cursoId}
+                    value={cursoId ?? ''}
                     onValueChange={setCursoId}
                     disabled={processing}
                   >
@@ -239,7 +271,7 @@ export default function InscricaoForm({
                 <Field>
                   <FieldLabel>Turno</FieldLabel>
                   <Select
-                    value={cursoClasseTurnoId}
+                    value={cursoClasseTurnoId ?? ''}
                     onValueChange={setCursoClasseTurnoId}
                     disabled={processing || !cursoId}
                   >
@@ -270,6 +302,61 @@ export default function InscricaoForm({
                   )}
                 </Field>
               </div>
+
+              {temNotaTeste && (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <Field>
+                    <FieldLabel>Turma</FieldLabel>
+                    <Select
+                      value={turmaId ?? ''}
+                      onValueChange={setTurmaId}
+                      disabled={processing || !cursoClasseTurnoId}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue
+                          placeholder={
+                            !cursoClasseTurnoId
+                              ? 'Selecione um turno primeiro'
+                              : !temTurmas
+                                ? 'Nenhuma turma disponível'
+                                : 'Selecione uma turma (opcional)'
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Turmas</SelectLabel>
+                          {turmas.map((t) => (
+                            <SelectItem key={t.id} value={String(t.id)}>
+                              {t.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    {errors.turma_id && (
+                      <FieldError>{errors.turma_id}</FieldError>
+                    )}
+                  </Field>
+
+                  <Field>
+                    <FieldLabel>Nota do Teste / Prova</FieldLabel>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="20"
+                      value={notaTeste}
+                      onChange={(e) => setNotaTeste(e.target.value)}
+                      disabled={processing}
+                      placeholder="Ex.: 14.5 (opcional)"
+                    />
+                    {errors.nota_teste && (
+                      <FieldError>{errors.nota_teste}</FieldError>
+                    )}
+                  </Field>
+                </div>
+              )}
               {/*  nº de estudante
               <Field>
                 <FieldLabel>Nº Estudante</FieldLabel>
@@ -285,7 +372,7 @@ export default function InscricaoForm({
                   */}
               <Field>
                 <Button type="submit" disabled={processing}>
-                  Inscrever
+                  Matricular
                 </Button>
               </Field>
             </FieldSet>

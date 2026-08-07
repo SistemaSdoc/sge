@@ -75,11 +75,11 @@ class Instituicao extends Model
 
     public function permiteInscricao(): bool
     {
-        return $this->tipo === 'colegio';
+        return in_array($this->tipo, ['colegio', 'instituicao', 'instituto']);
     }
 
     public function permiteMatricula(): bool
     {
-        return in_array($this->tipo, ['colegio', 'instituicao']);
+        return in_array($this->tipo, ['colegio', 'instituicao', 'instituto']);
     }
 }

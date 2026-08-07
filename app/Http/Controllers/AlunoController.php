@@ -121,7 +121,7 @@ class AlunoController extends Controller
         $user = Auth::user();
 
         $aluno->load([
-            'inscricao.candidato:id,nome,bi,email,telefone',
+            'inscricao.candidato:id,nome,bi,email,telefone,nacionalidade,naturalidade,morada,filiacao,data_nascimento',
             'inscricao.cursoClasseTurno.turno:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
@@ -140,6 +140,11 @@ class AlunoController extends Controller
                 'bi' => $aluno->inscricao?->candidato?->bi,
                 'email' => $aluno->inscricao?->candidato?->email,
                 'telefone' => $aluno->inscricao?->candidato?->telefone,
+                'nacionalidade' => $aluno->inscricao?->candidato?->nacionalidade,
+                'naturalidade' => $aluno->inscricao?->candidato?->naturalidade,
+                'morada' => $aluno->inscricao?->candidato?->morada,
+                'filiacao' => $aluno->inscricao?->candidato?->filiacao,
+                'data_nascimento' => $aluno->inscricao?->candidato?->data_nascimento,
                 'curso' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
                 'instituicao' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
                 'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,

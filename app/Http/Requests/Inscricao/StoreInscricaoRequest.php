@@ -2,9 +2,6 @@
 
 namespace App\Http\Requests\Inscricao;
 
-use App\Models\AnoLectivo;
-use App\Models\CursoClasseTurno;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreInscricaoRequest extends FormRequest
@@ -26,7 +23,7 @@ class StoreInscricaoRequest extends FormRequest
                 'unique:users,bi',
             ],
             'numero_estudante' => [
-                'required',
+                'nullable',
                 'string',
                 'max:20',
                 'unique:candidatos,numero_estudante',
@@ -59,9 +56,10 @@ class StoreInscricaoRequest extends FormRequest
                 'string',
                 'max:255',
             ],
-            'portador_deficiencia' => [
+            'morada' => [
                 'nullable',
-                'boolean',
+                'string',
+                'max:255',
             ],
             'filiacao' => [
                 'nullable',
@@ -69,7 +67,7 @@ class StoreInscricaoRequest extends FormRequest
                 'max:255',
             ],
 
-                'data_nascimento' => [
+            'data_nascimento' => [
                 'required',
                 'date',
                 'before:today',
@@ -78,6 +76,16 @@ class StoreInscricaoRequest extends FormRequest
             'curso_classe_turno_id' => [
                 'required',
                 'exists:curso_classe_turno,id',
+            ],
+            'turma_id' => [
+                'nullable',
+                'exists:turmas,id',
+            ],
+            'nota_teste' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:20',
             ],
             'ano_lectivo_id' => [
                 'nullable',
@@ -117,8 +125,6 @@ class StoreInscricaoRequest extends FormRequest
             'naturalidade.required' => 'A naturalidade é obrigatória.',
             'naturalidade.max' => 'A naturalidade não pode ter mais de 255 caracteres.',
 
-            'portador_deficiencia.boolean' => 'O campo portador de deficiência deve ser verdadeiro ou falso.',
-
             'filiacao.max' => 'A filiação não pode ter mais de 255 caracteres.',
 
             'data_nascimento.required' => 'A data de nascimento é obrigatória.',
@@ -127,6 +133,10 @@ class StoreInscricaoRequest extends FormRequest
 
             'curso_classe_turno_id.required' => 'O curso/turno é obrigatório.',
             'curso_classe_turno_id.exists' => 'O curso/turno seleccionado não existe.',
+            'turma_id.exists' => 'A turma seleccionada não existe.',
+            'nota_teste.numeric' => 'A nota do teste deve ser um valor numérico.',
+            'nota_teste.min' => 'A nota do teste não pode ser inferior a 0.',
+            'nota_teste.max' => 'A nota do teste não pode ser superior a 20.',
             'ano_lectivo_id.exists' => 'O ano lectivo seleccionado não existe.',
         ];
     }

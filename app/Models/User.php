@@ -24,12 +24,6 @@ use Spatie\Permission\Traits\HasRoles;
     'google_id',
     'facebook_id',
     'avatar',
-    'genero',
-    'nacionalidade',
-    'naturalidade',
-    'portador_deficiencia',
-    'filiacao',
-    'data_nascimento',
 ])]
 
 #[Hidden([

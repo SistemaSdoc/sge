@@ -6,7 +6,6 @@ use App\Models\Candidato;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class CandidatoSeeder extends Seeder
 {
@@ -19,8 +18,7 @@ class CandidatoSeeder extends Seeder
             $genero = fake()->randomElement(['M', 'F']);
             $nacionalidade = 'Angolana';
             $naturalidade = fake('pt_PT')->city();
-            $portadorDeficiencia = fake()->boolean(10);
-            $filiacao = fake('pt_PT')->name() . ' e ' . fake('pt_PT')->name();
+            $filiacao = fake('pt_PT')->name().' e '.fake('pt_PT')->name();
             $dataNascimento = fake()->dateTimeBetween('-20 years', '-15 years')->format('Y-m-d');
 
             $user = User::create([
@@ -30,7 +28,6 @@ class CandidatoSeeder extends Seeder
                 'genero' => $genero,
                 'nacionalidade' => $nacionalidade,
                 'naturalidade' => $naturalidade,
-                'portador_deficiencia' => $portadorDeficiencia,
                 'filiacao' => $filiacao,
                 'data_nascimento' => $dataNascimento,
             ]);
@@ -38,15 +35,14 @@ class CandidatoSeeder extends Seeder
             Candidato::create([
                 'nome' => $nome,
                 'bi' => $this->gerarBiFicticio(),
-                'numero_estudante' => 'CAND-' . str_pad($i, 5, '0', STR_PAD_LEFT),
+                'numero_estudante' => 'CAND-'.str_pad($i, 5, '0', STR_PAD_LEFT),
                 'morada' => fake('pt_PT')->address(),
-                'telefone' => '9' . fake()->numerify('########'),
+                'telefone' => '9'.fake()->numerify('########'),
                 'email' => $user->email,
                 'user_id' => $user->id,
                 'genero' => $genero,
                 'nacionalidade' => $nacionalidade,
                 'naturalidade' => $naturalidade,
-                'portador_deficiencia' => $portadorDeficiencia,
                 'filiacao' => $filiacao,
                 'data_nascimento' => $dataNascimento,
             ]);
@@ -56,6 +52,6 @@ class CandidatoSeeder extends Seeder
     private function gerarBiFicticio(): string
     {
         // Formato aproximado de BI angolano: 9 dígitos + LA + 3 dígitos
-        return fake()->numerify('#########') . 'LA' . fake()->numerify('###');
+        return fake()->numerify('#########').'LA'.fake()->numerify('###');
     }
 }
