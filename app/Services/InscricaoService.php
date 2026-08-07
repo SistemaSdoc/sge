@@ -40,6 +40,7 @@ class InscricaoService
                 'naturalidade' => $dados['naturalidade'] ?? null,
                 'filiacao' => $dados['filiacao'] ?? null,
                 'data_nascimento' => $dados['data_nascimento'],
+                'municipio' => $dados['municipio'],
             ]);
 
             $anoLectivoId = $dados['ano_lectivo_id'] ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();

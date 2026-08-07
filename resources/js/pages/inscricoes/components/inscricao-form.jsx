@@ -143,6 +143,20 @@ export default function InscricaoForm({
                   )}
                 </Field>
               </div>
+
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <Field>
+                    <FieldLabel>Município</FieldLabel>
+                    <Input
+                      name="municipio"
+                      disabled={processing}
+                      placeholder="Ex.: Belas"
+                    />
+                    {errors.municipio && <FieldError>{errors.municipio}</FieldError>}
+                  </Field>
+                  </div>
+
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field>
                   <FieldLabel>Morada</FieldLabel>

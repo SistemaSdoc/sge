@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
     'naturalidade',
     'filiacao',
     'data_nascimento',
+    'municipio',
 ])]
 class Candidato extends Model
 {

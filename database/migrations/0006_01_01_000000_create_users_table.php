@@ -56,6 +56,7 @@ return new class extends Migration
             $table->string('numero_estudante')->unique();
             $table->string('telefone')->nullable();
             $table->string('email')->unique()->nullable();
+            $table->string('municipio')->nullable();
             $table->string('morada')->nullable();
             $table->timestamps();
         });

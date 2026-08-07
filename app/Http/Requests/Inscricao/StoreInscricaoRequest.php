@@ -73,6 +73,12 @@ class StoreInscricaoRequest extends FormRequest
                 'before:today',
             ],
 
+            'municipio' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
             'curso_classe_turno_id' => [
                 'required',
                 'exists:curso_classe_turno,id',
@@ -130,6 +136,9 @@ class StoreInscricaoRequest extends FormRequest
             'data_nascimento.required' => 'A data de nascimento é obrigatória.',
             'data_nascimento.date' => 'A data de nascimento deve ser uma data válida.',
             'data_nascimento.before' => 'A data de nascimento deve ser anterior à data de hoje.',
+
+            'municipio.required' => 'O município é obrigatório.',
+            'municipio.max' => 'O município não pode ter mais de 255 caracteres.',
 
             'curso_classe_turno_id.required' => 'O curso/turno é obrigatório.',
             'curso_classe_turno_id.exists' => 'O curso/turno seleccionado não existe.',

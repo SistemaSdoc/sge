@@ -20,6 +20,7 @@ class CandidatoSeeder extends Seeder
             $naturalidade = fake('pt_PT')->city();
             $filiacao = fake('pt_PT')->name().' e '.fake('pt_PT')->name();
             $dataNascimento = fake()->dateTimeBetween('-20 years', '-15 years')->format('Y-m-d');
+            $municipio = fake('pt_PT')->city();
 
             $user = User::create([
                 'nome' => $nome,
@@ -30,6 +31,7 @@ class CandidatoSeeder extends Seeder
                 'naturalidade' => $naturalidade,
                 'filiacao' => $filiacao,
                 'data_nascimento' => $dataNascimento,
+    
             ]);
 
             Candidato::create([
@@ -45,6 +47,7 @@ class CandidatoSeeder extends Seeder
                 'naturalidade' => $naturalidade,
                 'filiacao' => $filiacao,
                 'data_nascimento' => $dataNascimento,
+                'municipio' => $municipio,
             ]);
         }
     }
