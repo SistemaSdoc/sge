@@ -5,6 +5,7 @@ import { ProximasAulas } from './components/proximas-aulas';
 import { AvisosEventos } from './components/avisos-eventos/index';
 import { usePage } from '@inertiajs/react';
 import { DashboardPanel } from '@/components/dashboard-panel';
+import NotificacoesSino from './components/notificacoes-sino';
 
 export default function AlunoDashboard({ proximasAulas = [], avisos = [] }) {
   const { auth } = usePage().props;
@@ -13,11 +14,15 @@ export default function AlunoDashboard({ proximasAulas = [], avisos = [] }) {
 
   return (
     <div className="space-y-6 p-6">
-      <GreetingHeader
-        greeting={greeting}
-        userName={auth?.user?.nome}
-        todayFormatted={todayFormatted}
-      />
+      <div className="flex items-start justify-between gap-4">
+        <GreetingHeader
+          greeting={greeting}
+          userName={auth?.user?.nome}
+          todayFormatted={todayFormatted}
+        />
+
+        <NotificacoesSino />
+      </div>
 
       <DashboardSummary aulas={proximasAulas} />
 

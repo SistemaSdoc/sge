@@ -16,11 +16,23 @@ class CandidatoSeeder extends Seeder
 
         for ($i = 1; $i <= $total; $i++) {
             $nome = fake('pt_PT')->name();
+            $genero = fake()->randomElement(['M', 'F']);
+            $nacionalidade = 'Angolana';
+            $naturalidade = fake('pt_PT')->city();
+            $portadorDeficiencia = fake()->boolean(10);
+            $filiacao = fake('pt_PT')->name() . ' e ' . fake('pt_PT')->name();
+            $dataNascimento = fake()->dateTimeBetween('-20 years', '-15 years')->format('Y-m-d');
 
             $user = User::create([
                 'nome' => $nome,
                 'email' => "candidato{$i}@sge.test",
                 'password' => Hash::make('password'),
+                'genero' => $genero,
+                'nacionalidade' => $nacionalidade,
+                'naturalidade' => $naturalidade,
+                'portador_deficiencia' => $portadorDeficiencia,
+                'filiacao' => $filiacao,
+                'data_nascimento' => $dataNascimento,
             ]);
 
             Candidato::create([
@@ -31,6 +43,12 @@ class CandidatoSeeder extends Seeder
                 'telefone' => '9' . fake()->numerify('########'),
                 'email' => $user->email,
                 'user_id' => $user->id,
+                'genero' => $genero,
+                'nacionalidade' => $nacionalidade,
+                'naturalidade' => $naturalidade,
+                'portador_deficiencia' => $portadorDeficiencia,
+                'filiacao' => $filiacao,
+                'data_nascimento' => $dataNascimento,
             ]);
         }
     }

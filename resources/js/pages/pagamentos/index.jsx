@@ -1,8 +1,10 @@
 import { useDialog } from '@/hooks/use-dialog';
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
+import { FileTextIcon, DownloadIcon } from 'lucide-react';
 import PagamentosTable from './components/pagamentos-table';
 import AlunosPorStatusPropina from './components/alunos-por-status-propina';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -14,16 +16,20 @@ import {
   index,
   destroy,
 } from '@/actions/App/Http/Controllers/PagamentoController';
+import {
+  porTurma,
+  pdf as pdfRelatorioTurma,
+} from '@/actions/App/Http/Controllers/RelatorioPropinaController';
 
 export default function Index({
   pagamentos,
+  turmas,
   can,
   statusFiltro,
   alunosPorStatus,
 }) {
   const { deleteConfirm } = useDialog();
   const [turmaEscolhida, setTurmaEscolhida] = useState('');
-  const [popoverAberto, setPopoverAberto] = useState(false);
 
   const handleDelete = (id) => {
     deleteConfirm({
@@ -43,30 +49,61 @@ export default function Index({
     router.visit(index().url, {
       data: { status_propina: value === 'todos' ? undefined : value },
       preserveScroll: true,
-      preserveState: false, // deixa o Inertia substituir as props inteiras vindas do server
-      replace: true, // evita empilhar entradas de histórico com estados antigos
+      preserveState: false,
+      replace: true,
     });
+  };
+
+  const handleVerRelatorio = () => {
+    if (!turmaEscolhida) return;
+    router.visit(porTurma(turmaEscolhida).url);
+  };
+
+  const handleBaixarPdf = () => {
+    if (!turmaEscolhida) return;
+    window.open(pdfRelatorioTurma(turmaEscolhida).url, '_blank');
   };
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
       <Head title="Pagamentos" />
 
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium">Lista de Pagamentos</span>
-        <Select
-          value={statusFiltro ?? 'todos'}
-          onValueChange={handleStatusChange}
-        >
-          <SelectTrigger className="w-56">
-            <SelectValue placeholder="Selecciona um filtro" />
+      {/* Relatório de propinas por turma (devedores vs em dia) */}
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 p-3">
+        <span className="text-sm font-medium">Relatório por turma</span>
+
+        <Select value={turmaEscolhida} onValueChange={setTurmaEscolhida}>
+          <SelectTrigger className="w-64">
+            <SelectValue placeholder="Escolhe uma turma" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="todos">Registro de pagamento</SelectItem>
-            <SelectItem value="pagos">Pagos</SelectItem>
-            <SelectItem value="nao_pagos">Não Pagos</SelectItem>
+            {(turmas ?? []).map((t) => (
+              <SelectItem key={t.id} value={t.id}>
+                {t.nome}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
+
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={!turmaEscolhida}
+          onClick={handleVerRelatorio}
+        >
+          <FileTextIcon className="mr-1.5 size-4" />
+          Ver relatório
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!turmaEscolhida}
+          onClick={handleBaixarPdf}
+        >
+          <DownloadIcon className="mr-1.5 size-4" />
+          Baixar PDF
+        </Button>
       </div>
 
       {statusFiltro && alunosPorStatus ? (

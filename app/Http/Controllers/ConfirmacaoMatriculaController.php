@@ -37,6 +37,10 @@ class ConfirmacaoMatriculaController extends Controller
 
         Gate::authorize('viewAny', ConfirmacaoMatricula::class);
 
+        if (! $instituicao->permiteMatricula()) {
+            abort(403, 'Esta instituição não está autorizada a aceder a confirmação de matrículas.');
+        }
+
         // Buscar anos lectivos
         $anosLectivos = fn () => AnoLectivo::query()
             ->where('activo', true)
@@ -100,7 +104,14 @@ class ConfirmacaoMatriculaController extends Controller
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
-    ) {
+    ) 
+            
+
+    {
+
+    if (! $instituicao->permiteMatricula()) {
+    return back()->with('error', 'Esta instituição não está autorizada a confirmar matrículas.');
+        }
         $validated = $request->validated();
 
         $aluno = Aluno::findOrFail($validated['aluno_id']);

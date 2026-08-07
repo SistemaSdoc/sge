@@ -35,7 +35,10 @@ export default function Hero() {
   const contactHref = `mailto:${CONTACT_EMAIL}`;
 
   return (
-    <section id="produto" className="border-b border-border pt-24 pb-16 sm:pt-45 sm:pb-25">
+    <section
+      id="produto"
+      className="border-b border-border pt-24 sm:pt-45 sm:pb-22.5"
+    >
       {/*<div className="mb-7 flex items-center gap-2.5 text-xs uppercase tracking-[0.24em] text-muted-foreground">
         <span className="h-1.5 w-1.5 rounded-full bg-accent"></span> Gestão
         escolar multi-tenant

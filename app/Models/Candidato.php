@@ -14,6 +14,12 @@ use Illuminate\Database\Eloquent\Model;
     'telefone',
     'email',
     'user_id',
+    'genero',
+    'nacionalidade',
+    'naturalidade',
+    'portador_deficiencia',
+    'filiacao',
+    'data_nascimento'
 ])]
 class Candidato extends Model
 {
@@ -31,5 +37,12 @@ class Candidato extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected function generoLabel(): Attribute
+    {
+    return Attribute::make(
+        get: fn () => $this->genero === 'M' ? 'Masculino' : 'Feminino',
+    );
     }
 }
