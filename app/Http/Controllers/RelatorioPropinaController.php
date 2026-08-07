@@ -61,14 +61,13 @@ class RelatorioPropinaController extends Controller
             'turma_id' => $turma->id,
         ]);
 
-        // Carrega todas as relações necessárias, incluindo a instituição
         $turma->loadMissing([
             'alunosActivos.user',
             'anoLectivo',
             'cursoClasseTurno.cursoClasse.classe',
             'cursoClasseTurno.turno',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
-            'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao', // NOVO
+            'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
         ]);
 
         Log::debug('[RelatorioPropinaController] montarRelatorio - alunos activos na turma', [
@@ -103,6 +102,8 @@ class RelatorioPropinaController extends Controller
                         'em_dia' => true,
                         'total_meses' => 0,
                         'meses' => [],
+                        'valor_base_total' => 0,
+                        'multa_total' => 0,
                         'valor_total' => 0,
                     ];
                 }
@@ -113,17 +114,27 @@ class RelatorioPropinaController extends Controller
                         'mes' => $p['mes'],
                         'ano' => $p['ano'],
                         'label' => self::MESES[$p['mes']] . '/' . $p['ano'],
+                        'valor_base' => $p['valor_base'] ?? $p['valor'],
+                        'multa' => $p['multa'] ?? 0,
+                        'valor' => $p['valor'],
+                        'com_multa' => ($p['multa'] ?? 0) > 0,
                     ])
                     ->values();
 
                 $itensNaoMensais = collect($pendencias)->filter(fn ($p) => $p['mes'] === null);
+
+                $valorBaseTotal = collect($pendencias)->sum(fn ($p) => $p['valor_base'] ?? $p['valor']);
+                $multaTotal = collect($pendencias)->sum(fn ($p) => $p['multa'] ?? 0);
+                $valorTotal = collect($pendencias)->sum('valor');
 
                 Log::debug('[RelatorioPropinaController] cálculo de meses em falta', [
                     'aluno_id' => $aluno->id,
                     'total_meses_em_falta' => $meses->count(),
                     'meses_em_falta' => $meses->pluck('label')->toArray(),
                     'itens_nao_mensais_em_falta' => $itensNaoMensais->pluck('nome')->toArray(),
-                    'valor_total_devido' => collect($pendencias)->sum('valor'),
+                    'valor_base_total' => $valorBaseTotal,
+                    'multa_total' => $multaTotal,
+                    'valor_total_devido' => $valorTotal,
                 ]);
 
                 return [
@@ -132,7 +143,9 @@ class RelatorioPropinaController extends Controller
                     'em_dia' => false,
                     'total_meses' => $meses->count(),
                     'meses' => $meses->all(),
-                    'valor_total' => collect($pendencias)->sum('valor'),
+                    'valor_base_total' => $valorBaseTotal,
+                    'multa_total' => $multaTotal,
+                    'valor_total' => $valorTotal,
                 ];
             });
 
@@ -154,6 +167,7 @@ class RelatorioPropinaController extends Controller
                 'nome' => $l['nome'],
                 'total_meses' => $l['total_meses'],
                 'valor_total' => $l['valor_total'],
+                'multa_total' => $l['multa_total'],
             ])->toArray(),
         ]);
 
@@ -161,7 +175,6 @@ class RelatorioPropinaController extends Controller
         $cursoNome = $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome;
         $turnoNome = $turma->cursoClasseTurno?->turno?->nome;
 
-        // Obtém a instituição a partir da turma
         $instituicao = $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao;
 
         $dadosInstituicao = null;
@@ -189,6 +202,7 @@ class RelatorioPropinaController extends Controller
             'total_devedores' => $devedores->count(),
             'total_em_dia' => $emDia->count(),
             'valor_total_geral' => $devedores->sum('valor_total'),
+            'multa_total_geral' => $devedores->sum('multa_total'),
         ]);
 
         return [
@@ -208,6 +222,7 @@ class RelatorioPropinaController extends Controller
                 'total_devedores' => $devedores->count(),
                 'total_em_dia' => $emDia->count(),
                 'valor_total_geral' => $devedores->sum('valor_total'),
+                'multa_total_geral' => $devedores->sum('multa_total'),
             ],
             'geradoEm' => now()->format('d/m/Y H:i'),
             'instituicao' => $dadosInstituicao,

@@ -69,7 +69,7 @@ export default function Index({
       <Head title="Pagamentos" />
 
       {/* Relatório de propinas por turma (devedores vs em dia) */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 p-3">
+      <div className="flex flex-wrap items-center gap-3 border bg-muted/30 p-3">
         <span className="text-sm font-medium">Relatório por turma</span>
 
         <Select value={turmaEscolhida} onValueChange={setTurmaEscolhida}>

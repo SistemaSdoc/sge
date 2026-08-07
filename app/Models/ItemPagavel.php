@@ -22,11 +22,15 @@ class ItemPagavel extends Model
         'descricao',
         'valor',
         'frequencia',
+    'multa_dias_tolerancia',
+    'multa_valor',
         'ativo',
     ];
 
     protected $casts = [
         'valor' => 'decimal:2',
+    'multa_valor' => 'decimal:2',
+    'multa_dias_tolerancia' => 'integer',
         'ativo' => 'boolean',
     ];
 

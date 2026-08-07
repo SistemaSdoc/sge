@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class VerificadorPropinaService
 {
-    private const TERMOS_BLOQUEIO = ['propina','Propinas','Propina', 'propinas'];
+    private const TERMOS_BLOQUEIO = ['propina', 'propinas'];
 
     public function pendenciasDoAluno(Aluno $aluno): array
     {
@@ -35,21 +35,6 @@ class VerificadorPropinaService
             ]);
             return [];
         }
-        \Log::debug('DEBUG pendencias', [
-    'aluno_id' => $aluno->id,
-    'turma_existe' => (bool) $turma,
-    'ano_lectivo_turma' => $turma?->anoLectivo?->id,
-]);
-if (! $turma) {
-    // sem turma associada — não há como calcular pendência real
-    return [];
-}
-
-$anoLectivo = $turma->anoLectivo;
-
-if (! $anoLectivo) {
-    return [];
-}
 
         $turma->loadMissing(['cursoClasseTurno.cursoClasse']);
 
@@ -79,26 +64,23 @@ if (! $anoLectivo) {
             $inicio = $inicioAno;
         }
 
-       $fim = Carbon::now()->startOfMonth();
-$fimAno = Carbon::parse($anoLectivo->data_fim)->startOfMonth();
-if ($fim->gt($fimAno)) {
-    $fim = $fimAno;
-}
+        $fim = Carbon::now()->startOfMonth();
+        $fimAno = Carbon::parse($anoLectivo->data_fim)->startOfMonth();
+        if ($fim->gt($fimAno)) {
+            $fim = $fimAno;
+        }
 
-// --- NOVO: aviso explícito quando o período é inválido ---
-if ($inicio->gt($fim)) {
-    Log::warning('[VerificadorPropinaService] PERÍODO INVERTIDO — matrícula posterior ao fim do ano lectivo (ou ano lectivo já terminou)', [
-        'aluno_id' => $aluno->id,
-        'turma_id' => $turma->id,
-        'data_matricula' => (string) $dataMatricula,
-        'inicio_calculado' => (string) $inicio,
-        'fim_calculado' => (string) $fim,
-        'ano_lectivo_fim' => (string) $anoLectivo->data_fim,
-        'meses_entre'    => $inicio->diffInMonths($fim) + 1,
-    ]);
-    return [];
-}
-
+        if ($inicio->gt($fim)) {
+            Log::warning('[VerificadorPropinaService] PERÍODO INVERTIDO — matrícula posterior ao fim do ano lectivo (ou ano lectivo já terminou)', [
+                'aluno_id' => $aluno->id,
+                'turma_id' => $turma->id,
+                'data_matricula' => (string) $dataMatricula,
+                'inicio_calculado' => (string) $inicio,
+                'fim_calculado' => (string) $fim,
+                'ano_lectivo_fim' => (string) $anoLectivo->data_fim,
+            ]);
+            return [];
+        }
 
         $query = ItemPagavel::query()
             ->where('instituicao_id', $aluno->user->instituicao_id)
@@ -174,7 +156,9 @@ if ($inicio->gt($fim)) {
                         'frequencia'      => $item->frequencia,
                         'mes'             => null,
                         'ano'             => $anoCorrente,
-                        'valor'           => $item->valor, // <-- adicionado
+                        'valor_base'      => (float) $item->valor,
+                        'multa'           => 0.0,
+                        'valor'           => (float) $item->valor,
                     ]);
                 }
             }
@@ -185,6 +169,7 @@ if ($inicio->gt($fim)) {
         Log::debug('[VerificadorPropinaService] RESULTADO FINAL', [
             'aluno_id'         => $aluno->id,
             'total_pendencias' => count($resultado),
+            'valor_total_com_multas' => collect($resultado)->sum('valor'),
         ]);
 
         return $resultado;
@@ -206,33 +191,99 @@ if ($inicio->gt($fim)) {
         return false;
     }
 
-    private function pendenciasMensais(ItemPagavel $item, Collection $pagos, Carbon $inicio, Carbon $fim): Collection
-    {
-        $pendencias = collect();
-        $cursor = $inicio->copy();
 
-        while ($cursor->lte($fim)) {
-            $mes = $cursor->month;
-            $ano = $cursor->year;
+private function pendenciasMensais(ItemPagavel $item, Collection $pagos, Carbon $inicio, Carbon $fim): Collection
+{
+    $pendencias = collect();
+    $cursor = $inicio->copy();
 
-            $pago = $pagos->contains(fn ($p) => (int) $p->mes === $mes && (int) $p->ano === $ano);
+    while ($cursor->lte($fim)) {
+        $mes = $cursor->month;
+        $ano = $cursor->year;
 
-            if (! $pago) {
-                $pendencias->push([
-                    'item_pagavel_id' => $item->id,
-                    'nome'            => $item->nome,
-                    'frequencia'      => $item->frequencia,
-                    'mes'             => $mes,
-                    'ano'             => $ano,
-                    'valor'           => $item->valor, // <-- adicionado
-                ]);
-            }
+        $pago = $pagos->contains(fn ($p) => (int) $p->mes === $mes && (int) $p->ano === $ano);
 
-            $cursor->addMonth();
+        if (! $pago) {
+            $valores = $this->valorComMulta($item, $mes, $ano);
+
+            $pendencias->push([
+                'item_pagavel_id' => $item->id,
+                'nome'            => $item->nome,
+                'frequencia'      => $item->frequencia,
+                'mes'             => $mes,
+                'ano'             => $ano,
+                'valor_base'      => $valores['valor_base'],
+                'multa'           => $valores['multa'],
+                'valor'           => $valores['valor'],
+            ]);
         }
 
-        return $pendencias;
+        $cursor->addMonth();
     }
+
+    return $pendencias;
+}
+
+/**
+ * Calcula o valor a pagar por um item mensal (ex: propina) num mês/ano
+ * específico, já incluindo a multa por atraso se aplicável. Usado tanto
+ * no cálculo de pendências (pendenciasMensais) como no fluxo de
+ * registo de pagamento (PagamentoController), para que os dois locais
+ * nunca fiquem dessincronizados quanto ao valor correto a cobrar.
+ *
+ * @return array{valor_base: float, multa: float, valor: float}
+ */
+public function valorComMulta(ItemPagavel $item, int $mes, int $ano): array
+{
+    $valorBase = (float) $item->valor;
+    $multa = $this->calcularMulta($item, $mes, $ano);
+
+    return [
+        'valor_base' => $valorBase,
+        'multa' => $multa,
+        'valor' => $valorBase + $multa,
+    ];
+}
+
+/**
+ * Calcula a multa por atraso de um item mensal (ex: propina) num
+ * mês/ano específico. Se o item não tiver multa_dias_tolerancia ou
+ * multa_valor configurados, não há multa (retorna 0).
+ *
+ * Exemplo: multa_dias_tolerancia = 10 significa que o pagamento
+ * pode ser feito até ao dia 10 do próprio mês sem multa. A partir
+ * do dia 11 (inclusive), a multa passa a ser cobrada.
+ */
+private function calcularMulta(ItemPagavel $item, int $mes, int $ano): float
+{
+    if (! $item->multa_dias_tolerancia || ! $item->multa_valor) {
+        return 0.0;
+    }
+
+    $dataLimite = Carbon::create($ano, $mes, 1)
+        ->addDays($item->multa_dias_tolerancia - 1)
+        ->endOfDay();
+
+    $aplicaMulta = Carbon::now()->gt($dataLimite);
+
+    Log::debug('[VerificadorPropinaService] calcularMulta', [
+        'item_id' => $item->id,
+        'item_nome' => $item->nome,
+        'mes' => $mes,
+        'ano' => $ano,
+        'dias_tolerancia' => $item->multa_dias_tolerancia,
+        'data_limite' => (string) $dataLimite,
+        'hoje' => (string) Carbon::now(),
+        'aplica_multa' => $aplicaMulta,
+        'valor_multa_configurado' => (float) $item->multa_valor,
+    ]);
+
+    return $aplicaMulta ? (float) $item->multa_valor : 0.0;
+}
+
+
+
+
 
     public function statusAlunos(Collection $alunos): Collection
     {
