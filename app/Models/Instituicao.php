@@ -72,4 +72,14 @@ class Instituicao extends Model
 
         return parent::resolveChildRouteBinding($childType, $value, $field);
     }
+
+    public function permiteInscricao(): bool
+    {
+        return $this->tipo === 'colegio';
+    }
+
+    public function permiteMatricula(): bool
+    {
+        return in_array($this->tipo, ['colegio', 'instituicao']);
+    }
 }

@@ -29,6 +29,12 @@ class InscricaoService
                 'numero_estudante' => $dados['numero_estudante'],
                 'telefone' => $dados['telefone'] ?? null,
                 'email' => $dados['email'],
+                'genero' => $dados['genero'] ?? null,
+                'nacionalidade' => $dados['nacionalidade'] ?? null,
+                'naturalidade' => $dados['naturalidade'] ?? null,
+                'portador_deficiencia' => $dados['portador_deficiencia'] ?? false,
+                'filiacao' => $dados['filiacao'] ?? null,
+                'data_nascimento' => $dados['data_nascimento'],
             ]);
 
             $anoLectivoId = $dados['ano_lectivo_id'] ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
@@ -112,6 +118,12 @@ class InscricaoService
                 'telefone' => $inscricao->candidato->telefone,
                 'instituicao_id' => $instituicaoId,
                 'password' => Hash::make('12345678'),
+                'genero' => $inscricao->candidato->genero,
+                'nacionalidade' => $inscricao->candidato->nacionalidade,
+                'naturalidade' => $inscricao->candidato->naturalidade,
+                'portador_deficiencia' => $inscricao->candidato->portador_deficiencia,
+                'filiacao' => $inscricao->candidato->filiacao,
+                'data_nascimento' => $inscricao->candidato->data_nascimento,
             ]
         );
 

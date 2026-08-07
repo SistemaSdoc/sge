@@ -12,6 +12,7 @@ use App\Models\Inscricao;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use App\Services\InscricaoService;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Instituicao;
 use Inertia\Inertia;
 
 class InscricaoController extends Controller
@@ -83,6 +84,12 @@ class InscricaoController extends Controller
         $user = Auth::user();
         $instituicaoId = $user->instituicao_id;
 
+        $instituicao = Instituicao::findOrFail($instituicaoId);
+
+        if (! $instituicao->permiteInscricao()) {
+            abort(403, 'Apenas instituições do tipo Colégio podem aceder a inscrições.');
+        }
+
         $anoLectivoId = request('ano_lectivo_id')
             ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
@@ -126,6 +133,14 @@ class InscricaoController extends Controller
     public function store(StoreInscricaoRequest $request)
     {
         $this->authorize('create', Inscricao::class);
+
+        $instituicao = Instituicao::findOrFail(Auth::user()->instituicao_id);
+
+        if (! $instituicao->permiteInscricao()) {
+            return back()->withErrors([
+                'instituicao' => 'Apenas instituições do tipo Colégio podem registar inscrições.',
+            ]);
+        }
 
         $this->inscricaoService->criar($request->validated());
 
