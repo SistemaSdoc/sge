@@ -312,4 +312,4 @@ Route::inertia('propinas/bloqueio', 'propinas/bloqueio')->name('propinas.divida'
 
 Route::get('/preecher-historico', [PreencherHistoricoController::class, 'create'])
     ->name('preencher-historico.create');
-// Route::inertia('alunos', 'horarios/index')->name('horarios');
+Route::inertia('historico', 'preencher-historico/components/lancamentos-table')->name('hsit');

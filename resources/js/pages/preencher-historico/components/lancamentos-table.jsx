@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useForm } from '@inertiajs/react';
+import { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -9,12 +10,14 @@ import {
 } from '@/components/ui/table';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  CardAction,
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -22,585 +25,364 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import {
-  Loader2,
-  ClipboardListIcon,
-  ChevronDown,
-  ChevronUp,
-  LockKeyhole,
-  LockKeyholeOpen,
-} from 'lucide-react';
-import { EmptyState } from '@/components/empty-state';
+import { ArrowLeft, Loader2, LockKeyhole, LockKeyholeOpen } from 'lucide-react';
 import { mediaTrimestral } from '@/utils/media-trimestral';
-import { verificarSituacao } from '@/utils/verificar-situacao';
-import { useNotasLocais } from '@/hooks/use-notas-locais';
-import TablePagination from '@/components/table-pagination';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { useForm } from '@inertiajs/react';
 
-export default function LancamentosTable({
-  data,
-  isPending,
-  errors = {},
-  instituicaoId,
-  cursoId,
-  classeId,
-  turnoId,
-  turmaId,
-  disciplinaId,
-  periodosLancados = {},
-  periodosDisponiveis = {},
-  pagination = {},
-  onPageChange,
-  pautaStatus = {},
-  dentroDoPrazo = {},
+export default function Create({
+  instituicao,
+  cursoTutelado,
+  cursoClasse,
+  cursoClasseTurno,
+  turma,
+  classeTurnoDisciplina,
   can,
-  onSubmit,
-  autorizacaoAte = {}, // prazo de edição autorizado
-  temSolicitacaoPendente = {},
 }) {
-  // ── 1. TODOS OS useState PRIMEIRO ──────────────────────────────
-  const [periodo, setPeriodo] = useState('1');
-  const [modalSolicitacao, setModalSolicitacao] = useState(false);
-  const [expandidos, setExpandidos] = useState({});
-  const [tempoRestante, setTempoRestante] = useState(null);
+  // DADOS MOCKADOS - Aluno e Turma
+  const mockAluno = {
+    id: '019fe147-3b48-70fa-9505-2830d4ead9c6',
+    nome: 'Paulina Capitão',
+    matricula: 'MAT-2026-0002',
+  };
 
-  // ── 2. HOOKS QUE DEPENDEM DE STATE ─────────────────────────────
-  const { getValor, setValor } = useNotasLocais(data?.tdp_id);
+  const mockTurmaAluno = {
+    id: '019fdba5-beed-70be-b1d0-032538d735b6',
+  };
 
-  // ── 3. VARIÁVEIS DERIVADAS ──────────────────────────────────────
-  const statusPeriodo = pautaStatus?.[periodo]?.status ?? 'rascunho';
-  const finalizadaAutomaticamente =
-    pautaStatus?.[periodo]?.finalizada_automaticamente ?? false;
-  const estaFinalizada = statusPeriodo === 'finalizada';
-  const estaExpirada = statusPeriodo === 'expirada';
-  const podeOverride = Boolean(can?.overrideLockedPeriods);
-  const temAutorizacaoActiva = Boolean(autorizacaoAte?.[periodo]);
-  const tipoSolicitacao =
-    estaFinalizada || estaExpirada ? 'reabertura_edicao' : 'extensao_prazo'; // ← aqui
+  const mockTurma = {
+    id: '019fdba4-9ed2-71de-83ca-5918e60f0f8e',
+    nome: 'A',
+  };
 
-  const periodoBloqueado =
-    !podeOverride &&
-    !temAutorizacaoActiva &&
-    (estaFinalizada || estaExpirada || !dentroDoPrazo?.[periodo]);
+  const mockClasse = {
+    nome: '10ª',
+  };
 
-  const podeGuardar =
-    can?.create &&
-    (podeOverride ||
-      temAutorizacaoActiva ||
-      (!estaFinalizada && !estaExpirada && dentroDoPrazo?.[periodo]));
+  const mockAnoLectivo = {
+    nome: '2024/2025',
+  };
 
-  const podeFinalizar =
-    can?.finalizar &&
-    (podeOverride ||
-      temAutorizacaoActiva ||
-      (!estaFinalizada && !estaExpirada && dentroDoPrazo?.[periodo]));
+  // DADOS MOCKADOS - Disciplinas
+  const mockDisciplinas = [
+    { id: '1', nome: 'Português', sigla: 'PT' },
+    { id: '2', nome: 'Matemática', sigla: 'MAT' },
+    { id: '3', nome: 'História', sigla: 'HIST' },
+    { id: '4', nome: 'Geografia', sigla: 'GEO' },
+    { id: '5', nome: 'Inglês', sigla: 'ING' },
+    { id: '6', nome: 'Educação Física', sigla: 'EF' },
+  ];
 
-  const podeSolicitarEdicao =
-    can?.solicitarEdicao &&
-    !temAutorizacaoActiva && // ← não mostrar se já tem autorização activa
-    (estaFinalizada || estaExpirada || !dentroDoPrazo?.[periodo]);
+  // DADOS MOCKADOS - Notas iniciais
+  const mockNotasIniciais = {
+    1: {
+      1: { mac: 14, npp: 15, npt: 14, faltas: 2 },
+      2: { mac: 15, npp: 16, npt: 15, faltas: 1 },
+      3: { mac: 16, npp: 17, npt: 16, faltas: 0 },
+    },
+    2: {
+      1: { mac: 12, npp: 13, npt: 12, faltas: 3 },
+      2: { mac: 13, npp: 14, npt: 13, faltas: 2 },
+      3: { mac: 14, npp: 15, npt: 14, faltas: 1 },
+    },
+    3: {
+      1: { mac: 15, npp: 16, npt: 15, faltas: 1 },
+      2: { mac: 16, npp: 17, npt: 16, faltas: 0 },
+      3: { mac: 17, npp: 18, npt: 17, faltas: 0 },
+    },
+    4: {
+      1: { mac: 13, npp: 14, npt: 13, faltas: 2 },
+      2: { mac: 14, npp: 15, npt: 14, faltas: 1 },
+      3: { mac: 15, npp: 16, npt: 15, faltas: 0 },
+    },
+    5: {
+      1: { mac: 16, npp: 17, npt: 16, faltas: 0 },
+      2: { mac: 17, npp: 18, npt: 17, faltas: 0 },
+      3: { mac: 18, npp: 19, npt: 18, faltas: 0 },
+    },
+    6: {
+      1: { mac: 18, npp: 19, npt: 18, faltas: 0 },
+      2: { mac: 19, npp: 20, npt: 19, faltas: 0 },
+      3: { mac: 20, npp: 20, npt: 20, faltas: 0 },
+    },
+  };
 
-  // ── 4. useForm DEPOIS ──────────────────────────────────────────
-  const formSolicitacao = useForm({
-    tdp_id: data?.tdp_id,
-    periodo: parseInt(periodo),
-    motivo: '',
-    tipo: tipoSolicitacao,
+  const { data, setData, post, processing, errors } = useForm({
+    turma_aluno_id: mockTurmaAluno.id,
+    notas: mockNotasIniciais,
   });
 
-  // ── 5. DADOS ────────────────────────────────────────────────────
-  const alunos = [...(data?.alunos?.data ?? [])].sort((a, b) =>
-    (a?.nome ?? '').localeCompare(b?.nome ?? '', 'pt', { sensitivity: 'base' }),
-  );
-  const isEmpty = alunos.length === 0;
+  const [periodo, setPeriodo] = useState('1');
+  const [expandidos, setExpandidos] = useState({});
+  const [todosAbertos, setTodosAbertos] = useState(false);
 
-  const todosAbertos =
-    alunos.length > 0 && alunos.every((a) => expandidos[a.turma_aluno_id]);
-
-  // ── 6. TODOS OS useEffect NO FINAL ─────────────────────────────
-  useEffect(() => {
-    const tipo =
-      estaFinalizada || estaExpirada ? 'reabertura_edicao' : 'extensao_prazo';
-    formSolicitacao.setData({
-      ...formSolicitacao.data,
-      tipo,
-      periodo: parseInt(periodo),
-    });
-  }, [periodo, statusPeriodo]);
-
-  useEffect(() => {
-    const prazo = autorizacaoAte?.[periodo];
-    if (!prazo) {
-      setTempoRestante(null);
-      return;
-    }
-
-    const calcular = () => {
-      const diff = new Date(prazo) - new Date();
-      if (diff <= 0) {
-        setTempoRestante('Expirado');
-        return;
-      }
-      const h = Math.floor(diff / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      setTempoRestante(`${h}h ${m}m ${s}s`);
-    };
-
-    calcular();
-    const interval = setInterval(calcular, 1000);
-    return () => clearInterval(interval);
-  }, [periodo, autorizacaoAte]);
-
-  // ── 7. FUNÇÕES ──────────────────────────────────────────────────
   const toggleTodos = () => {
     if (todosAbertos) {
       setExpandidos({});
+      setTodosAbertos(false);
     } else {
       const todos = {};
-      alunos.forEach((a) => {
-        todos[a.turma_aluno_id] = true;
+      mockDisciplinas.forEach((d) => {
+        todos[d.id] = true;
       });
       setExpandidos(todos);
+      setTodosAbertos(true);
     }
   };
 
-  // ── toggle individual ──────────────────────────────────────────
-  const toggleAluno = (id) => {
-    setExpandidos((prev) => ({ ...prev, [id]: !prev[id] }));
+  const toggleDisciplina = (disciplinaId) => {
+    setExpandidos((prev) => ({
+      ...prev,
+      [disciplinaId]: !prev[disciplinaId],
+    }));
   };
 
-  const submeterSolicitacao = () => {
-    formSolicitacao.post('/dashboard/pautas/solicitar-edicao', {
-      onSuccess: () => setModalSolicitacao(false),
-    });
+  const setNota = (disciplinaId, campo, valor) => {
+    setData((prev) => ({
+      ...prev,
+      notas: {
+        ...prev.notas,
+        [disciplinaId]: {
+          ...prev.notas[disciplinaId],
+          [periodo]: {
+            ...prev.notas[disciplinaId]?.[periodo],
+            [campo]: valor,
+          },
+        },
+      },
+    }));
   };
 
-  // Recolher os dados dos inputs para enviar
-  const recolherDados = () => {
-    const notas = {};
-    alunos.forEach((aluno) => {
-      notas[aluno.turma_aluno_id] = {
-        mac:
-          getValor(aluno.turma_aluno_id, periodo, 'mac') ??
-          aluno.notas?.[periodo]?.mac ??
-          '',
-        npp:
-          getValor(aluno.turma_aluno_id, periodo, 'npp') ??
-          aluno.notas?.[periodo]?.nota_prova_professor ??
-          '',
-        npt:
-          getValor(aluno.turma_aluno_id, periodo, 'npt') ??
-          aluno.notas?.[periodo]?.nota_prova_trimestral ??
-          '',
-        faltas:
-          getValor(aluno.turma_aluno_id, periodo, 'faltas') ??
-          aluno.notas?.[periodo]?.faltas ??
-          '',
-      };
-    });
-    return {
-      tdp_id: data?.tdp_id,
+  const getNota = (disciplinaId, campo) => {
+    return data.notas[disciplinaId]?.[periodo]?.[campo] ?? '';
+  };
+
+  const handleSubmit = (accao) => {
+    const dadosEnvio = {
+      turma_aluno_id: mockTurmaAluno.id,
       periodo: parseInt(periodo),
-      notas,
+      notas: mockDisciplinas.reduce((acc, disciplina) => {
+        acc[disciplina.id] = {
+          mac: getNota(disciplina.id, 'mac'),
+          npp: getNota(disciplina.id, 'npp'),
+          npt: getNota(disciplina.id, 'npt'),
+          faltas: getNota(disciplina.id, 'faltas'),
+        };
+        return acc;
+      }, {}),
+      accao,
     };
+    console.log('Dados a enviar:', dadosEnvio);
+    // post(route('nota.store-historico', { turmaAluno: mockTurmaAluno.id }), {
+    //   preserveScroll: true,
+    // });
   };
 
   return (
-    <>
-      <Dialog open={modalSolicitacao} onOpenChange={setModalSolicitacao}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {tipoSolicitacao === 'reabertura_edicao'
-                ? 'Solicitar reabertura de edição'
-                : 'Solicitar extensão de prazo'}
-            </DialogTitle>
-          </DialogHeader>
+    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+      {/* Header */}
 
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">
-              Explica o motivo pelo qual precisas editar esta pauta já
-              finalizada.
-            </p>
-            <Textarea
-              placeholder="Motivo da solicitação..."
-              value={formSolicitacao.data.motivo}
-              onChange={(e) =>
-                formSolicitacao.setData('motivo', e.target.value)
-              }
-              rows={4}
-            />
-            {formSolicitacao.errors.motivo && (
-              <p className="text-sm text-destructive">
-                {formSolicitacao.errors.motivo}
-              </p>
-            )}
-          </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Lançamento de Histórico Académico</CardTitle>
+          <CardDescription>
+            Aluno: <strong>{mockAluno.nome}</strong> ({mockAluno.matricula}) |
+            Classe: <strong>{mockClasse.nome}</strong> | Turma:{' '}
+            <strong>{mockTurma.nome}</strong> | Ano:{' '}
+            <strong>{mockAnoLectivo.nome}</strong>
+          </CardDescription>
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setModalSolicitacao(false)}
-            >
-              Cancelar
+          <CardAction>
+            <Button variant={'outline'} size={'sm'}>
+              <ArrowLeft />
+              Voltar
             </Button>
-            <Button
-              onClick={submeterSolicitacao}
-              disabled={
-                formSolicitacao.processing || !formSolicitacao.data.motivo
-              }
-            >
-              {formSolicitacao.processing ? (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              ) : null}
-              Enviar pedido
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </CardAction>
+        </CardHeader>
+      </Card>
 
+      {/* Tabela de Disciplinas */}
       <Card className="gap-0">
         <CardHeader className="border-b">
           <div>
-            <CardTitle>{data?.disciplina?.nome}</CardTitle>
-
+            <CardTitle>Disciplinas</CardTitle>
             <CardDescription>
-              {finalizadaAutomaticamente
-                ? 'Esta pauta foi encerrada automaticamente devido ao término do prazo estabelecido para o lançamento das notas.'
-                : estaFinalizada
-                  ? can?.overrideLockedPeriods
-                    ? 'Esta pauta encontra-se encerrada. No entanto, possui permissão para efetuar alterações.'
-                    : 'Esta pauta encontra-se encerrada. Para realizar alterações, é necessária a autorização da Direção.'
-                  : !dentroDoPrazo?.[periodo] && !can?.overrideLockedPeriods
-                    ? 'O período de lançamento das notas para este trimestre encontra-se encerrado.'
-                    : 'Preencha as classificações dos alunos correspondentes ao trimestre selecionado.'}
-
-              {tempoRestante && (
-                <p className="mt-1 text-sm font-medium text-orange-600">
-                  ⏱ <strong>Tempo restante para edição:</strong> {tempoRestante}
-                </p>
-              )}
+              Preencha as notas para o trimestre selecionado.
             </CardDescription>
-
-            {errors?.periodo && (
-              <p className="mt-2 text-sm text-destructive">{errors.periodo}</p>
-            )}
           </div>
 
           <CardAction className="flex items-center gap-3">
-            {/* ── Toggle global ── */}
-            {!isEmpty && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={toggleTodos}
-              >
-                {todosAbertos ? (
-                  <>
-                    <LockKeyhole className="mr-1 size-4" />
-                    Fechar todos
-                  </>
-                ) : (
-                  <>
-                    <LockKeyholeOpen className="mr-1 size-4" />
-                    Abrir todos
-                  </>
-                )}
-              </Button>
-            )}
+            {/* Toggle global */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={toggleTodos}
+            >
+              {todosAbertos ? (
+                <>
+                  <LockKeyhole className="mr-1 size-4" />
+                  Fechar todos
+                </>
+              ) : (
+                <>
+                  <LockKeyholeOpen className="mr-1 size-4" />
+                  Abrir todos
+                </>
+              )}
+            </Button>
+
+            {/* Select Trimestre */}
             <Select value={periodo} onValueChange={setPeriodo}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Trimestre" />
               </SelectTrigger>
-
               <SelectContent>
                 <SelectItem value="1">1º Trimestre</SelectItem>
-                <SelectItem value="2" disabled={!periodosDisponiveis?.[2]}>
-                  2º Trimestre
-                </SelectItem>
-                <SelectItem value="3" disabled={!periodosDisponiveis?.[3]}>
-                  3º Trimestre
-                </SelectItem>
+                <SelectItem value="2">2º Trimestre</SelectItem>
+                <SelectItem value="3">3º Trimestre</SelectItem>
               </SelectContent>
             </Select>
-            {/* hidden inputs para tdp_id e periodo */}
-            <input type="hidden" name="tdp_id" value={data?.tdp_id ?? ''} />
-            <input type="hidden" name="periodo" value={parseInt(periodo)} />
-            {podeGuardar && (
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-                onClick={() => onSubmit('guardar', recolherDados())}
-              >
-                Guardar rascunho
-              </Button>
-            )}
-            {podeFinalizar && (
-              <Button
-                type="button"
-                disabled={isPending}
-                onClick={() => onSubmit('finalizar', recolherDados())}
-              >
-                Finalizar lançamento
-              </Button>
-            )}
 
-            {podeSolicitarEdicao && !temSolicitacaoPendente?.[periodo] && (
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => setModalSolicitacao(true)}
-              >
-                Solicitar edição ao director
-              </Button>
-            )}
-            {podeSolicitarEdicao && temSolicitacaoPendente?.[periodo] && (
-              <Badge className="bg-yellow-50 px-3 py-1 text-yellow-700">
-                Solicitação pendente
-              </Badge>
-            )}
+            {/* Botões */}
+            <Button
+              type="button"
+              variant="outline"
+              disabled={processing}
+              onClick={() => handleSubmit('guardar')}
+            >
+              Guardar rascunho
+            </Button>
+            <Button
+              type="button"
+              disabled={processing}
+              onClick={() => handleSubmit('finalizar')}
+            >
+              {processing && <Loader2 className="mr-2 size-4 animate-spin" />}
+              Finalizar lançamento
+            </Button>
           </CardAction>
         </CardHeader>
 
-        <CardContent className="p-0!">
-          {isEmpty ? (
-            <EmptyState
-              variant="table"
-              icon={ClipboardListIcon}
-              title="Nenhum lançamento"
-              description="Nenhuma nota para registar"
-              action={{
-                label: 'Lançar Notas',
-                href: '#',
-                variant: 'outline',
-              }}
-            />
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/72">
-                  {/* coluna do chevron individual */}
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/72">
+                <TableHead className="w-48 px-4">Disciplina</TableHead>
+                <TableHead className="w-20 px-4 text-center">MAC</TableHead>
+                <TableHead className="w-20 px-4 text-center">NPP</TableHead>
+                <TableHead className="w-20 px-4 text-center">NPT</TableHead>
+                <TableHead className="w-20 px-4 text-center">MT</TableHead>
+                <TableHead className="w-8 px-2" />
+              </TableRow>
+            </TableHeader>
 
-                  <TableHead className="w-1! px-4">#</TableHead>
-                  <TableHead className="w-48 px-4">Aluno</TableHead>
-                  <TableHead className="w-1 text-center">MAC</TableHead>
-                  <TableHead className="w-1 text-center">NPP</TableHead>
-                  <TableHead className="w-1 text-center">NPT</TableHead>
-                  <TableHead className="w-1 text-center">MT</TableHead>
-                  <TableHead className="w-1 text-center">F.I</TableHead>
-                  <TableHead className="w-8 px-2" />
-                  <TableHead className="w-20 px-4 text-end">
-                    Resultado
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {alunos.map((aluno, index) => {
-                  const nota = aluno.notas?.[periodo] ?? {};
-                  const aberto = Boolean(expandidos[aluno.turma_aluno_id]);
+            <TableBody>
+              {mockDisciplinas.map((disciplina) => {
+                const mac = getNota(disciplina.id, 'mac');
+                const npp = getNota(disciplina.id, 'npp');
+                const npt = getNota(disciplina.id, 'npt');
+                const mt = mediaTrimestral(mac, npp, npt);
+                const aberto = expandidos[disciplina.id];
 
-                  // local tem prioridade sobre servidor
-                  const mac =
-                    getValor(aluno.turma_aluno_id, periodo, 'mac') ??
-                    nota.mac ??
-                    '';
-                  const npp =
-                    getValor(aluno.turma_aluno_id, periodo, 'npp') ??
-                    nota.nota_prova_professor ??
-                    '';
-                  const npt =
-                    getValor(aluno.turma_aluno_id, periodo, 'npt') ??
-                    nota.nota_prova_trimestral ??
-                    '';
-                  const faltas =
-                    getValor(aluno.turma_aluno_id, periodo, 'faltas') ??
-                    nota.faltas ??
-                    '';
+                return (
+                  <TableRow key={disciplina.id}>
+                    <TableCell className="px-4 font-medium">
+                      {disciplina.nome}
+                    </TableCell>
 
-                  const mt = mediaTrimestral(mac, npp, npt);
-                  const situacao = verificarSituacao(mt, Number(faltas));
+                    {/* MAC */}
+                    <TableCell className="px-4">
+                      {aberto ? (
+                        <Input
+                          type="number"
+                          min={0}
+                          max={20}
+                          step={0.1}
+                          value={mac}
+                          disabled={processing}
+                          onChange={(e) =>
+                            setNota(disciplina.id, 'mac', e.target.value)
+                          }
+                          className="text-center"
+                        />
+                      ) : (
+                        <span className="block text-center text-sm text-muted-foreground">
+                          {mac !== '' ? mac : '-'}
+                        </span>
+                      )}
+                    </TableCell>
 
-                  return (
-                    <TableRow key={aluno.turma_aluno_id}>
-                      <TableCell className="px-4">{index + 1}</TableCell>
-                      <TableCell className="px-4">{aluno.nome}</TableCell>
+                    {/* NPP */}
+                    <TableCell className="px-4">
+                      {aberto ? (
+                        <Input
+                          type="number"
+                          min={0}
+                          max={20}
+                          step={0.1}
+                          value={npp}
+                          disabled={processing}
+                          onChange={(e) =>
+                            setNota(disciplina.id, 'npp', e.target.value)
+                          }
+                          className="text-center"
+                        />
+                      ) : (
+                        <span className="block text-center text-sm text-muted-foreground">
+                          {npp !== '' ? npp : '-'}
+                        </span>
+                      )}
+                    </TableCell>
 
-                      {/* ── MAC ── */}
-                      <TableCell>
+                    {/* NPT */}
+                    <TableCell className="px-4">
+                      {aberto ? (
+                        <Input
+                          type="number"
+                          min={0}
+                          max={20}
+                          step={0.1}
+                          value={npt}
+                          disabled={processing}
+                          onChange={(e) =>
+                            setNota(disciplina.id, 'npt', e.target.value)
+                          }
+                          className="text-center"
+                        />
+                      ) : (
+                        <span className="block text-center text-sm text-muted-foreground">
+                          {npt !== '' ? npt : '-'}
+                        </span>
+                      )}
+                    </TableCell>
+
+                    {/* MT (calculada) */}
+                    <TableCell className="px-4 text-center font-semibold">
+                      {mt ?? '-'}
+                    </TableCell>
+
+                    {/* Toggle individual */}
+                    <TableCell className="px-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => toggleDisciplina(disciplina.id)}
+                      >
                         {aberto ? (
-                          <Input
-                            type="number"
-                            min={0}
-                            max={20}
-                            name={`notas[${aluno.turma_aluno_id}][mac]`}
-                            value={mac}
-                            disabled={isPending || periodoBloqueado}
-                            onChange={(e) =>
-                              setValor(
-                                aluno.turma_aluno_id,
-                                periodo,
-                                'mac',
-                                e.target.value,
-                              )
-                            }
-                            className="text-center"
-                          />
+                          <LockKeyholeOpen className="size-4" />
                         ) : (
-                          <span className="block text-center text-sm text-muted-foreground">
-                            {mac !== '' ? mac : '-'}
-                          </span>
+                          <LockKeyhole className="size-4" />
                         )}
-                      </TableCell>
-
-                      {/* ── NPP ── */}
-                      <TableCell>
-                        {aberto ? (
-                          <Input
-                            type="number"
-                            min={0}
-                            max={20}
-                            name={`notas[${aluno.turma_aluno_id}][npp]`}
-                            value={npp}
-                            disabled={isPending || periodoBloqueado}
-                            onChange={(e) =>
-                              setValor(
-                                aluno.turma_aluno_id,
-                                periodo,
-                                'npp',
-                                e.target.value,
-                              )
-                            }
-                            className="text-center"
-                          />
-                        ) : (
-                          <span className="block text-center text-sm text-muted-foreground">
-                            {npp !== '' ? npp : '-'}
-                          </span>
-                        )}
-                      </TableCell>
-
-                      {/* ── NPT ── */}
-                      <TableCell>
-                        {aberto ? (
-                          <Input
-                            type="number"
-                            min={0}
-                            max={20}
-                            name={`notas[${aluno.turma_aluno_id}][npt]`}
-                            value={npt}
-                            disabled={isPending || periodoBloqueado}
-                            onChange={(e) =>
-                              setValor(
-                                aluno.turma_aluno_id,
-                                periodo,
-                                'npt',
-                                e.target.value,
-                              )
-                            }
-                            className="text-center"
-                          />
-                        ) : (
-                          <span className="block text-center text-sm text-muted-foreground">
-                            {npt !== '' ? npt : '-'}
-                          </span>
-                        )}
-                      </TableCell>
-
-                      {/* ── MT (calculado, sempre visível) ── */}
-                      <TableCell className="text-center font-medium">
-                        {mt ?? '-'}
-                      </TableCell>
-
-                      {/* ── Faltas ── */}
-                      <TableCell>
-                        {aberto ? (
-                          <Input
-                            type="number"
-                            min={0}
-                            name={`notas[${aluno.turma_aluno_id}][faltas]`}
-                            value={faltas}
-                            disabled={isPending || periodoBloqueado}
-                            onChange={(e) =>
-                              setValor(
-                                aluno.turma_aluno_id,
-                                periodo,
-                                'faltas',
-                                e.target.value,
-                              )
-                            }
-                            className="text-center"
-                          />
-                        ) : (
-                          <span className="block text-center text-sm text-muted-foreground">
-                            {faltas !== '' ? faltas : '-'}
-                          </span>
-                        )}
-                      </TableCell>
-
-                      {/* ── Chevron individual ── */}
-                      <TableCell className="px-2">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={() => toggleAluno(aluno.turma_aluno_id)}
-                        >
-                          {aberto ? (
-                            <LockKeyholeOpen className="size-4" />
-                          ) : (
-                            <LockKeyhole className="size-4" />
-                          )}
-                        </Button>
-                      </TableCell>
-
-                      {/* ── Resultado (sempre visível) ── */}
-                      <TableCell className="px-4 text-end">
-                        {nota?.[periodo]?.is_rascunho &&
-                          can?.overrideLockedPeriods && (
-                            <Badge className="mr-1 bg-yellow-50 text-yellow-600">
-                              Rascunho
-                            </Badge>
-                          )}
-                        {situacao === 'APTO' && (
-                          <Badge className="bg-green-50 text-green-500">
-                            APTO
-                          </Badge>
-                        )}
-                        {situacao === 'N/APTO' && (
-                          <Badge className="bg-red-50 text-red-500">
-                            NÃO APTO
-                          </Badge>
-                        )}
-                        {situacao === null && (
-                          <span className="text-sm text-muted-foreground">
-                            -
-                          </span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         </CardContent>
-        <TablePagination pagination={pagination} onPageChange={onPageChange} />
       </Card>
-    </>
+    </div>
   );
 }
