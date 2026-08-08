@@ -2,131 +2,180 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ArredondamentoHelper;
 use App\Models\Aluno;
-use App\Models\AnoLectivo;
+use App\Models\ClasseTurnoDisciplina;
 use App\Models\CursoClasseTurno;
+use App\Models\Nota;
+use App\Models\PautaStatus;
 use App\Models\Turma;
 use App\Models\TurmaAluno;
+use App\Models\TurmaDisciplinaProfessor;
+use App\Services\NotaService;
+use App\Services\Pauta\PautaService;
 use App\Services\PreencherHistoricoService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class PreencherHistoricoController extends Controller
 {
     public function __construct(
-        private PreencherHistoricoService $service
-    ) {
-    }
+        private readonly PreencherHistoricoService $service,
+        private readonly NotaService $notaService,
+        private readonly PautaService $pautaService,
+    ) {}
 
     /**
-     * Mostra modal com dados iniciais.
+     * Mostra o formulário de lançamento do histórico académico de um aluno.
+     *
+     * A turma histórica já foi criada pelo método confirmar().
+     * Aqui listamos todas as disciplinas dessa turma e as notas já lançadas.
      */
-    public function show(Aluno $aluno)
+    public function create(Request $request, Aluno $aluno)
     {
-        $this->authorize('view', $aluno);
+        $this->authorize('update', $aluno);
 
-        $instituicaoId = auth()->user()?->instituicao_id;
+        $turmaAluno = TurmaAluno::with([
+            'turma.cursoClasseTurno.cursoClasse.classe',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicao',
+        ])
+            ->where('aluno_id', $aluno->id)
+            ->findOrFail($request->query('turma_aluno_id'));
 
-        // Classes que faltam
-        $classesFaltando = $this->service->obterClassesFaltando($aluno);
+        $turma = $turmaAluno->turma;
+        $cursoClasseTurno = $turma->cursoClasseTurno;
 
-        if (empty($classesFaltando)) {
-            return back()->with('message', 'Aluno não precisa preencher histórico.');
-        }
+        // Todos os TDPs desta turma (uma linha por disciplina)
+        $tdps = TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
+            ->where('turma_id', $turma->id)
+            ->get();
 
-        // Anos lectivos passados
-        $anosLectivos = AnoLectivo::where('activo', false)
-            ->orderBy('data_fim', 'desc')
-            ->limit(5)
+        // Notas já lançadas para este turmaAluno, indexadas por tdp_id
+        $notasExistentes = Nota::where('turma_aluno_id', $turmaAluno->id)
             ->get()
-            ->map(fn($a) => [
-                'id' => $a->id,
-                'nome' => $a->nome,
-            ])
-            ->toArray();
+            ->groupBy('turma_disciplina_professor_id');
 
-        return Inertia::render('Historico/Preencher', [
-            'aluno' => [
-                'id' => $aluno->id,
-                'nome' => $aluno->user?->name,
-                'matricula' => $aluno->matricula,
-            ],
-            'classesFaltando' => $classesFaltando,
-            'anosLectivos' => $anosLectivos,
-        ]);
-    }
+        $disciplinas = $tdps->map(function (TurmaDisciplinaProfessor $tdp) use ($notasExistentes) {
+            $notas = $notasExistentes->get($tdp->id, collect());
 
-    public function getTurnos(Request $request)
-    {
-        $anoLectivoId = $request->query('ano_lectivo_id');
-        $cursoClasseId = $request->query('curso_classe_id');
-        $instituicaoId = auth()->user()?->instituicao_id;
+            return [
+                'tdp_id'   => $tdp->id,
+                'id'       => $tdp->classeTurnoDisciplina->id,
+                'nome'     => $tdp->classeTurnoDisciplina->disciplina->nome,
+                'sigla'    => $tdp->classeTurnoDisciplina->disciplina->sigla,
+                'notas'    => $notas->keyBy('periodo')->map(fn ($n) => $this->formatarNota($n)),
+            ];
+        });
 
-        if (!$anoLectivoId || !$cursoClasseId || !$instituicaoId) {
-            return response()->json(['error' => 'Parâmetros faltam'], 400);
-        }
+        $instituicao = $turma->cursoClasseTurno
+            ->cursoClasse
+            ->cursoTutelado
+            ->instituicao;
 
-        try {
-            $turnos = CursoClasseTurno::where('curso_classe_id', $cursoClasseId)
-                ->with('turno')
-                ->get()
-                ->map(fn($cct) => [
-                    'id' => $cct->id,
-                    'turno_id' => $cct->turno->id,
-                    'turno_nome' => $cct->turno->nome,
-                ])
-                ->values()
-                ->toArray();
-
-            return response()->json($turnos);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function getTurmas(Request $request)
-    {
-        $anoLectivoId = $request->query('ano_lectivo_id');
-        $cursoClasseTurnoId = $request->query('curso_classe_turno_id');
-        $instituicaoId = auth()->user()?->instituicao_id;
-
-        if (!$anoLectivoId || !$cursoClasseTurnoId || !$instituicaoId) {
-            return response()->json(['error' => 'Parâmetros faltam'], 400);
-        }
-
-        try {
-            $turmas = Turma::where('curso_classe_turno_id', $cursoClasseTurnoId)
-                ->where('ano_lectivo_id', $anoLectivoId)
-                ->orderBy('nome')
-                ->get()
-                ->map(fn($t) => [
-                    'id' => $t->id,
-                    'nome' => $t->nome,
-                ])
-                ->toArray();
-
-            return response()->json($turmas);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Mostra formulário para preencher histórico.
-     */
-    public function create(Aluno $aluno, TurmaAluno $turmaAluno)
-    {
         return Inertia::render('preencher-historico/create', [
-            'aluno' => $aluno,
-            'turmaAluno' => $turmaAluno->load([
-                'turma.cursoClasseTurno.cursoClasse.classe',
-                'turma.anoLectivo',
-            ]),
+            'aluno' => [
+                'id'         => $aluno->id,
+                'nome'       => $aluno->inscricao?->candidato?->nome,
+                'matricula'  => $aluno->matricula,
+            ],
+            'turmaAluno' => [
+                'id' => $turmaAluno->id,
+            ],
+            'turma' => [
+                'id'          => $turma->id,
+                'nome'        => $turma->nome,
+                'ano_lectivo' => $turma->anoLectivo?->nome,
+                'classe'      => $cursoClasseTurno->cursoClasse->classe->nome ?? null,
+                'turno'       => $cursoClasseTurno->turno?->nome ?? null,
+            ],
+            'disciplinas' => $disciplinas->values(),
+            'can' => [
+                'lancar' => Auth::user()->can('update', $aluno),
+            ],
         ]);
     }
 
     /**
-     * POST /historico/confirmar
+     * Salva as notas do histórico académico.
+     *
+     * Recebe: turma_aluno_id, periodo, notas[tdp_id][mac|npp|npt|faltas]
+     * Segue o mesmo padrão do NotaDisciplinaController@store.
+     */
+    public function store(Request $request, Aluno $aluno)
+    {
+        $this->authorize('update', $aluno);
+
+        $validated = $request->validate([
+            'turma_aluno_id' => 'required|uuid|exists:turma_aluno,id',
+            'periodo'        => 'required|integer|in:1,2,3',
+            'notas'          => 'required|array',
+            'notas.*.mac'    => 'nullable|numeric|min:0|max:20',
+            'notas.*.npp'    => 'nullable|numeric|min:0|max:20',
+            'notas.*.npt'    => 'nullable|numeric|min:0|max:20',
+            'notas.*.faltas' => 'nullable|integer|min:0',
+            'accao'          => 'required|in:guardar,finalizar',
+        ]);
+
+        $turmaAluno = TurmaAluno::with([
+            'turma',
+            'aluno',
+            'turma.cursoClasseTurno.cursoClasse',
+        ])->findOrFail($validated['turma_aluno_id']);
+
+        $periodo = (int) $validated['periodo'];
+
+        // Lançar nota por disciplina (cada chave de notas é um tdp_id)
+        foreach ($validated['notas'] as $tdpId => $valores) {
+            $tdp = TurmaDisciplinaProfessor::findOrFail($tdpId);
+
+            Nota::updateOrCreate(
+                [
+                    'turma_aluno_id'                => $turmaAluno->id,
+                    'turma_disciplina_professor_id' => $tdp->id,
+                    'periodo'                       => $periodo,
+                ],
+                [
+                    'mac'                  => $valores['mac'] !== '' ? $valores['mac'] : null,
+                    'nota_prova_professor' => $valores['npp'] !== '' ? $valores['npp'] : null,
+                    'nota_prova_trimestral'=> $valores['npt'] !== '' ? $valores['npt'] : null,
+                    'faltas'               => $valores['faltas'] !== '' ? $valores['faltas'] : null,
+                ]
+            );
+        }
+
+        // Recalcular resultado do aluno na turma (igual ao store normal)
+        $turmaAluno->load([
+            'aluno',
+            'notas',
+            'turma.cursoClasseTurno.cursoClasse.classe',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
+        ]);
+        $this->pautaService->actualizarResultadoAluno($turmaAluno);
+
+        if ($validated['accao'] === 'finalizar') {
+            // Marca todas as disciplinas deste período como finalizadas
+            $tdpIds = TurmaDisciplinaProfessor::where('turma_id', $turmaAluno->turma_id)
+                ->pluck('id');
+
+            foreach ($tdpIds as $tdpId) {
+                PautaStatus::updateOrCreate(
+                    ['turma_disciplina_professor_id' => $tdpId, 'periodo' => $periodo],
+                    ['status' => 'finalizada', 'finalizada_em' => now(), 'finalizada_automaticamente' => false]
+                );
+            }
+
+            return back()->with('success', 'Histórico do trimestre '.$periodo.' finalizado com sucesso.');
+        }
+
+        return back()->with('success', 'Rascunho do trimestre '.$periodo.' guardado.');
+    }
+
+    /**
+     * POST /historico/:aluno/confirmar
+     * Cria o TurmaAluno histórico e redireciona para o create.
      */
     public function confirmar(Request $request, Aluno $aluno)
     {
@@ -137,7 +186,7 @@ class PreencherHistoricoController extends Controller
         ]);
 
         try {
-            $instituicaoId = auth()->user()?->instituicao_id;
+            $instituicaoId = Auth::user()?->instituicao_id;
             $turmaAluno = $this->service->criarTurmaAlunoHistorico(
                 $aluno,
                 $validated['turma_id'],
@@ -153,5 +202,21 @@ class PreencherHistoricoController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    private function formatarNota(Nota $n): array
+    {
+        return [
+            'id'                  => $n->id,
+            'periodo'             => $n->periodo,
+            'mac'                 => $n->mac,
+            'nota_prova_professor'  => $n->nota_prova_professor,
+            'nota_prova_trimestral' => $n->nota_prova_trimestral,
+            'media_trimestral'    => ArredondamentoHelper::roundToHalf($n->media_trimestral),
+            'media_final'         => ArredondamentoHelper::roundToHalf($n->media_final),
+            'faltas'              => $n->faltas,
+            'situacao_trimestral' => $n->situacao_trimestral,
+            'situacao_anual'      => $n->situacao_anual,
+        ];
     }
 }
