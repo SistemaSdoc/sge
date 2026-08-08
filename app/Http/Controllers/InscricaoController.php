@@ -117,24 +117,34 @@ class InscricaoController extends Controller
         )->get();
 
         $cursos = $cursoClasseTurnos
-            ->filter(fn ($cct) => $cct->cursoClasse->classe?->nome === '10ª')
             ->groupBy(function ($cct) {
                 return $cct->cursoClasse->cursoTutelado->instituicaoCurso->id;
             })
             ->map(function ($group) {
                 $primeiro = $group->first();
 
+                $classes = $group->groupBy(fn ($cct) => $cct->cursoClasse->classe->id)
+                    ->map(function ($classGroup) {
+                        $firstInClass = $classGroup->first();
+
+                        return [
+                            'id' => $firstInClass->cursoClasse->classe->id,
+                            'nome' => $firstInClass->cursoClasse->classe->nome,
+                            'turnos' => $classGroup->map(fn ($cct) => [
+                                'id' => $cct->id,
+                                'nome' => $cct->turno->nome,
+                                'turmas' => $cct->turmas->map(fn ($t) => [
+                                    'id' => $t->id,
+                                    'nome' => $t->nome,
+                                ])->values(),
+                            ])->values(),
+                        ];
+                    })->values();
+
                 return [
                     'id' => $primeiro->cursoClasse->cursoTutelado->instituicaoCurso->id,
                     'nome' => $primeiro->cursoClasse->cursoTutelado->instituicaoCurso->curso->nome,
-                    'turnos' => $group->map(fn ($cct) => [
-                        'id' => $cct->id,
-                        'nome' => $cct->turno->nome,
-                        'turmas' => $cct->turmas->map(fn ($t) => [
-                            'id' => $t->id,
-                            'nome' => $t->nome,
-                        ])->values(),
-                    ])->values(),
+                    'classes' => $classes,
                 ];
             })
             ->values();

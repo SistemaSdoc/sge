@@ -25,6 +25,8 @@ export default function InscricaoForm({
   cursoId,
   setCursoId,
   cursoSelecionado,
+  classeId,
+  setClasseId,
   cursoClasseTurnoId,
   setCursoClasseTurnoId,
   turnoSelecionado,
@@ -36,7 +38,9 @@ export default function InscricaoForm({
   temNotaTeste = false,
   anoLectivoActual,
 }) {
-  const temTurnos = cursoSelecionado?.turnos?.length > 0;
+  const classes = cursoSelecionado?.classes ?? [];
+  const classeSelecionada = classes?.find((cl) => String(cl.id) === String(classeId));
+  const temTurnos = classeSelecionada?.turnos?.length > 0;
   const turmas = turnoSelecionado?.turmas ?? [];
   const temTurmas = turmas.length > 0;
   const hasInstitutionError = Boolean(errors?.instituicao || errors?.message);
@@ -259,7 +263,7 @@ export default function InscricaoForm({
                 value={anoLectivoActual || ''}
               />
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <Field>
                   <FieldLabel>Curso</FieldLabel>
                   <Select
@@ -283,17 +287,42 @@ export default function InscricaoForm({
                 </Field>
 
                 <Field>
-                  <FieldLabel>Turno</FieldLabel>
+                  <FieldLabel>Classe</FieldLabel>
                   <Select
-                    value={cursoClasseTurnoId ?? ''}
-                    onValueChange={setCursoClasseTurnoId}
+                    value={classeId ?? ''}
+                    onValueChange={setClasseId}
                     disabled={processing || !cursoId}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue
+                        placeholder={!cursoId ? 'Selecione um curso primeiro' : 'Selecione uma classe'}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Classes</SelectLabel>
+                        {classes.map((cl) => (
+                          <SelectItem key={cl.id} value={String(cl.id)}>
+                            {cl.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field>
+                  <FieldLabel>Turno</FieldLabel>
+                  <Select
+                    value={cursoClasseTurnoId ?? ''}
+                    onValueChange={setCursoClasseTurnoId}
+                    disabled={processing || !classeId}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue
                         placeholder={
-                          !cursoId
-                            ? 'Selecione um curso primeiro'
+                          !classeId
+                            ? 'Selecione uma classe primeiro'
                             : !temTurnos
                               ? 'Nenhum turno disponível'
                               : 'Selecione um turno'
@@ -303,7 +332,7 @@ export default function InscricaoForm({
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Turnos</SelectLabel>
-                        {cursoSelecionado?.turnos?.map((t) => (
+                        {classeSelecionada?.turnos?.map((t) => (
                           <SelectItem key={t.id} value={String(t.id)}>
                             {t.nome}
                           </SelectItem>

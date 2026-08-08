@@ -14,6 +14,7 @@ export default function Create() {
   } = usePage().props;
 
   const [cursoId, setCursoId] = useState(undefined);
+  const [classeId, setClasseId] = useState(undefined);
   const [cursoClasseTurnoId, setCursoClasseTurnoId] = useState(undefined);
   const [turmaId, setTurmaId] = useState(undefined);
   const [notaTeste, setNotaTeste] = useState('');
@@ -22,7 +23,11 @@ export default function Create() {
     (c) => String(c.id) === String(cursoId),
   );
 
-  const turnoSelecionado = cursoSelecionado?.turnos?.find(
+  const classeSelecionada = cursoSelecionado?.classes?.find(
+    (cl) => String(cl.id) === String(classeId),
+  );
+
+  const turnoSelecionado = classeSelecionada?.turnos?.find(
     (t) => String(t.id) === String(cursoClasseTurnoId),
   );
 
@@ -59,10 +64,17 @@ export default function Create() {
           cursoId={cursoId}
           setCursoId={(val) => {
             setCursoId(val);
+            setClasseId(undefined);
             setCursoClasseTurnoId(undefined);
             setTurmaId(undefined);
           }}
           cursoSelecionado={cursoSelecionado}
+          classeId={classeId}
+          setClasseId={(val) => {
+            setClasseId(val);
+            setCursoClasseTurnoId(undefined);
+            setTurmaId(undefined);
+          }}
           cursoClasseTurnoId={cursoClasseTurnoId}
           setCursoClasseTurnoId={(val) => {
             setCursoClasseTurnoId(val);
