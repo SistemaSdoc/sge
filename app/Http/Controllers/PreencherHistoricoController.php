@@ -6,6 +6,7 @@ use App\Models\Aluno;
 use App\Models\AnoLectivo;
 use App\Models\CursoClasseTurno;
 use App\Models\Turma;
+use App\Models\TurmaAluno;
 use App\Services\PreencherHistoricoService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,7 +15,8 @@ class PreencherHistoricoController extends Controller
 {
     public function __construct(
         private PreencherHistoricoService $service
-    ) {}
+    ) {
+    }
 
     /**
      * Mostra modal com dados iniciais.
@@ -37,7 +39,7 @@ class PreencherHistoricoController extends Controller
             ->orderBy('data_fim', 'desc')
             ->limit(5)
             ->get()
-            ->map(fn ($a) => [
+            ->map(fn($a) => [
                 'id' => $a->id,
                 'nome' => $a->nome,
             ])
@@ -60,7 +62,7 @@ class PreencherHistoricoController extends Controller
         $cursoClasseId = $request->query('curso_classe_id');
         $instituicaoId = auth()->user()?->instituicao_id;
 
-        if (! $anoLectivoId || ! $cursoClasseId || ! $instituicaoId) {
+        if (!$anoLectivoId || !$cursoClasseId || !$instituicaoId) {
             return response()->json(['error' => 'Parâmetros faltam'], 400);
         }
 
@@ -68,7 +70,7 @@ class PreencherHistoricoController extends Controller
             $turnos = CursoClasseTurno::where('curso_classe_id', $cursoClasseId)
                 ->with('turno')
                 ->get()
-                ->map(fn ($cct) => [
+                ->map(fn($cct) => [
                     'id' => $cct->id,
                     'turno_id' => $cct->turno->id,
                     'turno_nome' => $cct->turno->nome,
@@ -88,7 +90,7 @@ class PreencherHistoricoController extends Controller
         $cursoClasseTurnoId = $request->query('curso_classe_turno_id');
         $instituicaoId = auth()->user()?->instituicao_id;
 
-        if (! $anoLectivoId || ! $cursoClasseTurnoId || ! $instituicaoId) {
+        if (!$anoLectivoId || !$cursoClasseTurnoId || !$instituicaoId) {
             return response()->json(['error' => 'Parâmetros faltam'], 400);
         }
 
@@ -97,7 +99,7 @@ class PreencherHistoricoController extends Controller
                 ->where('ano_lectivo_id', $anoLectivoId)
                 ->orderBy('nome')
                 ->get()
-                ->map(fn ($t) => [
+                ->map(fn($t) => [
                     'id' => $t->id,
                     'nome' => $t->nome,
                 ])
@@ -107,6 +109,20 @@ class PreencherHistoricoController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Mostra formulário para preencher histórico.
+     */
+    public function create(Aluno $aluno, TurmaAluno $turmaAluno)
+    {
+        return Inertia::render('preencher-historico/create', [
+            'aluno' => $aluno,
+            'turmaAluno' => $turmaAluno->load([
+                'turma.cursoClasseTurno.cursoClasse.classe',
+                'turma.anoLectivo',
+            ]),
+        ]);
     }
 
     /**
@@ -129,7 +145,10 @@ class PreencherHistoricoController extends Controller
             );
 
             return redirect()
-                ->route('pauta.editar', ['turmaAluno' => $turmaAluno->id, 'modo' => 'historico'])
+                ->route('historico.create', [
+                    'aluno' => $aluno->id,
+                    'turmaAluno' => $turmaAluno->id,
+                ])
                 ->with('message', 'Histórico criado. Procede ao lançamento de notas.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);

@@ -15,6 +15,9 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Loader2 } from 'lucide-react';
+import {
+  confirmar
+} from '@/actions/App/Http/Controllers/PreencherHistoricoController';
 
 export default function Preencher({
   aluno,
@@ -75,6 +78,13 @@ export default function Preencher({
     post(route('historico.confirmar', { aluno: aluno.id }), {
       preserveScroll: true,
       onSuccess,
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    post(confirmar({ aluno: aluno.id }), {
+      preserveScroll: true,
     });
   };
 
@@ -226,8 +236,8 @@ export default function Preencher({
         <Button variant="outline" onClick={onCancel} disabled={processing}>
           Cancelar
         </Button>
-        
-        <Button onClick={handleConfirm} disabled={!data.turma_id || processing}>
+
+        <Button onClick={handleSubmit} disabled={!data.turma_id || processing}>
           {processing && <Loader2 className="mr-2 size-4 animate-spin" />}
           Confirmar
         </Button>

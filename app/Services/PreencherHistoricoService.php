@@ -22,13 +22,13 @@ class PreencherHistoricoService
             'cursoClasseTurno.cursoClasse.classe',
         ]);
 
-        if (! $inscricao) {
+        if (!$inscricao) {
             return [];
         }
 
         $cursoClasseActual = $inscricao->cursoClasseTurno?->cursoClasse;
 
-        if (! $cursoClasseActual) {
+        if (!$cursoClasseActual) {
             return [];
         }
 
@@ -37,7 +37,7 @@ class PreencherHistoricoService
 
         $classesAnteriores = CursoClasse::with('classe')
             ->where('curso_tutelado_id', $cursoTuteladoId)
-            ->whereHas('classe', fn ($q) => $q->where('ordem', '<', $ordemActual))
+            ->whereHas('classe', fn($q) => $q->where('ordem', '<', $ordemActual))
             ->get();
 
         if ($classesAnteriores->isEmpty()) {
@@ -45,7 +45,7 @@ class PreencherHistoricoService
         }
 
         return $classesAnteriores
-            ->map(fn ($cc) => [
+            ->map(fn($cc) => [
                 'curso_classe_id' => $cc->id,
                 'classe' => $cc->classe->nome,
                 'ordem' => $cc->classe->ordem,
@@ -64,7 +64,7 @@ class PreencherHistoricoService
             ->with('turno')
             ->distinct()
             ->get()
-            ->map(fn ($cct) => [
+            ->map(fn($cct) => [
                 'id' => $cct->id,
                 'turno_id' => $cct->turno->id,
                 'turno_nome' => $cct->turno->nome,
@@ -87,7 +87,7 @@ class PreencherHistoricoService
                 $q->where('instituicao_id', $instituicaoId);
             })
             ->get()
-            ->map(fn ($t) => [
+            ->map(fn($t) => [
                 'id' => $t->id,
                 'nome' => $t->nome,
                 'max_alunos' => $t->max_alunos,
@@ -106,12 +106,10 @@ class PreencherHistoricoService
     ): TurmaAluno {
         $turma = Turma::findOrFail($turmaId);
 
-        // Validar instituição
-        if ($turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_id !== $instituicaoId) {
+        if ($turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_tutora_id !== $instituicaoId) {
             throw new \Exception('Turma não pertence à sua instituição.');
         }
 
-        // Validar se já tem notas
         $jaTem = TurmaAluno::where('aluno_id', $aluno->id)
             ->where('turma_id', $turmaId)
             ->whereHas('notas')
@@ -121,12 +119,11 @@ class PreencherHistoricoService
             throw new \Exception('Aluno já tem notas registadas para essa turma.');
         }
 
-        // Criar TurmaAluno
         return TurmaAluno::create([
             'aluno_id' => $aluno->id,
             'turma_id' => $turmaId,
             'ano_lectivo_id' => $turma->ano_lectivo_id,
-            'activo' => false, // Histórico
+            'activo' => false,
             'situacao' => 'concluido',
         ]);
     }
