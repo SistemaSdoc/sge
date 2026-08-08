@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Aluno;
 use App\Models\AnoLectivo;
+use App\Models\CursoClasseTurno;
 use App\Models\Turma;
 use App\Models\User;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
@@ -114,7 +115,7 @@ class AlunoController extends Controller
         ]);
     }
 
-    public function show(Aluno $aluno)
+    public function show(Aluno $aluno, Request $request)
     {
         Gate::authorize('view', $aluno);
 
@@ -136,7 +137,6 @@ class AlunoController extends Controller
         $historicoService = app(PreencherHistoricoService::class);
         $pendentes = $historicoService->obterClassesFaltando($aluno);
 
-        // Anos lectivos passados para o modal
         $anosLectivos = AnoLectivo::where('activo', false)
             ->orderBy('data_fim', 'desc')
             ->limit(5)
@@ -146,6 +146,30 @@ class AlunoController extends Controller
                 'nome' => $a->nome,
             ])
             ->toArray();
+
+        $turnos = Inertia::optional(fn () => $request->filled('ano_lectivo_id') && $request->filled('curso_classe_id')
+        ? CursoClasseTurno::query()
+            ->where('curso_classe_id', $request->query('curso_classe_id'))
+            ->with('turno:id,nome')
+            ->get()
+            ->map(fn ($cct) => [
+                'id' => $cct->id,
+                'turno_nome' => $cct->turno?->nome,
+            ])
+        : []
+        );
+
+        $turmasPorTurno = Inertia::optional(fn () => $request->filled('ano_lectivo_id') && $request->filled('curso_classe_turno_id')
+                ? Turma::query()
+                    ->where('ano_lectivo_id', $request->query('ano_lectivo_id'))
+                    ->where('curso_classe_turno_id', $request->query('curso_classe_turno_id'))
+                    ->get()
+                    ->map(fn ($t) => [
+                        'id' => $t->id,
+                        'nome' => $t->nome,
+                    ])
+                : []
+        );
 
         return Inertia::render('alunos/show', [
             'aluno' => [
@@ -177,6 +201,8 @@ class AlunoController extends Controller
             'historicoPendente' => $pendentes,
             'classesFaltando' => $pendentes,
             'anosLectivos' => $anosLectivos,
+            'turnos' => $turnos,
+            'turmasPorTurno' => $turmasPorTurno,
         ]);
     }
 

@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, router, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -17,71 +16,70 @@ import {
 } from '@/components/ui/field';
 import { Loader2 } from 'lucide-react';
 
-export default function Preencher({ aluno, classesFaltando, anosLectivos }) {
+export default function Preencher({
+  aluno,
+  classesFaltando,
+  anosLectivos,
+  onCancel,
+  onSuccess,
+}) {
+  const { turnos = [], turmasPorTurno = [] } = usePage().props;
   const { data, setData, post, processing, errors } = useForm({
+    ano_lectivo_id: '',
+    curso_classe_id: '',
+    curso_classe_turno_id: '',
     turma_id: '',
   });
 
-  const [selectedAno, setSelectedAno] = useState('');
-  const [selectedClasse, setSelectedClasse] = useState('');
-  const [selectedTurno, setSelectedTurno] = useState('');
+  const handleAnoOuClasseChange = (field, value) => {
+    const next = {
+      ...data,
+      [field]: value,
+      curso_classe_turno_id: '',
+      turma_id: '',
+    };
+    setData(next);
 
-  const [turnos, setTurnos] = useState([]);
-  const [turmas, setTurmas] = useState([]);
-
-  useEffect(() => {
-    if (selectedAno && selectedClasse) {
-      fetch(
-        `/dashboard/historico/turnos?ano_lectivo_id=${selectedAno}&curso_classe_id=${selectedClasse}`,
-      )
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`Erro ${res.status}: ${res.statusText}`);
-          }
-          return res.json();
-        })
-        .then((data) => {
-          console.log('Turnos carregados:', data);
-          setTurnos(data);
-          setSelectedTurno('');
-          setTurmas([]);
-        })
-        .catch((err) => {
-          console.error('Erro ao carregar turnos:', err);
-          setTurnos([]);
-        });
+    if (next.ano_lectivo_id && next.curso_classe_id) {
+      router.visit(window.location.href, {
+        data: {
+          ano_lectivo_id: next.ano_lectivo_id,
+          curso_classe_id: next.curso_classe_id,
+        },
+        only: ['turnos'],
+        preserveState: true,
+        preserveScroll: true,
+      });
     }
-  }, [selectedAno, selectedClasse]);
+  };
 
-  useEffect(() => {
-    if (selectedAno && selectedTurno) {
-      fetch(
-        `/dashboard/historico/turmas?ano_lectivo_id=${selectedAno}&curso_classe_turno_id=${selectedTurno}`,
-      )
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error(`Erro ${res.status}: ${res.statusText}`);
-          }
-          return res.json();
-        })
-        .then((data) => {
-          console.log('Turmas carregadas:', data);
-          setTurmas(data);
-        })
-        .catch((err) => {
-          console.error('Erro ao carregar turmas:', err);
-          setTurmas([]);
-        });
-    }
-  }, [selectedAno, selectedTurno]);
+  const handleTurnoChange = (value) => {
+    setData((prev) => ({
+      ...prev,
+      curso_classe_turno_id: value,
+      turma_id: '',
+    }));
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    post(route('historico.confirmar', { aluno: aluno.id }));
+    router.visit(window.location.href, {
+      data: {
+        ano_lectivo_id: data.ano_lectivo_id,
+        curso_classe_turno_id: value,
+      },
+      only: ['turmasPorTurno'],
+      preserveState: true,
+      preserveScroll: true,
+    });
+  };
+
+  const handleConfirm = () => {
+    post(route('historico.confirmar', { aluno: aluno.id }), {
+      preserveScroll: true,
+      onSuccess,
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
       {/* Info */}
       <div className="space-y-1 rounded-lg bg-slate-50 p-3 dark:bg-slate-900/30">
         <div className="text-sm font-medium">{aluno.nome}</div>
@@ -97,13 +95,19 @@ export default function Preencher({ aluno, classesFaltando, anosLectivos }) {
             <FieldLabel htmlFor="ano">
               Ano Lectivo <span className="text-red-500">*</span>
             </FieldLabel>
-            <Select value={selectedAno} onValueChange={setSelectedAno}>
+            <Select
+              value={data.ano_lectivo_id}
+              onValueChange={(val) =>
+                handleAnoOuClasseChange('ano_lectivo_id', val)
+              }
+              disabled={processing}
+            >
               <SelectTrigger id="ano">
                 <SelectValue placeholder="Selecione um ano..." />
               </SelectTrigger>
               <SelectContent>
                 {anosLectivos.map((ano) => (
-                  <SelectItem key={ano.id} value={ano.id}>
+                  <SelectItem key={ano.id} value={String(ano.id)}>
                     {ano.nome}
                   </SelectItem>
                 ))}
@@ -111,15 +115,17 @@ export default function Preencher({ aluno, classesFaltando, anosLectivos }) {
             </Select>
           </Field>
 
-          {/* Classe (apenas as que faltam) */}
+          {/* Classe */}
           <Field>
             <FieldLabel htmlFor="classe">
               Classe <span className="text-red-500">*</span>
             </FieldLabel>
             <Select
-              value={selectedClasse}
-              onValueChange={setSelectedClasse}
-              disabled={!selectedAno}
+              value={data.curso_classe_id}
+              onValueChange={(val) =>
+                handleAnoOuClasseChange('curso_classe_id', val)
+              }
+              disabled={!data.ano_lectivo_id || processing}
             >
               <SelectTrigger id="classe">
                 <SelectValue placeholder="Selecione uma classe..." />
@@ -128,7 +134,7 @@ export default function Preencher({ aluno, classesFaltando, anosLectivos }) {
                 {classesFaltando.map((classe) => (
                   <SelectItem
                     key={classe.curso_classe_id}
-                    value={classe.curso_classe_id}
+                    value={String(classe.curso_classe_id)}
                   >
                     {classe.classe}
                   </SelectItem>
@@ -137,20 +143,22 @@ export default function Preencher({ aluno, classesFaltando, anosLectivos }) {
             </Select>
           </Field>
 
-          {/* Turno (filtrado por classe) */}
+          {/* Turno */}
           <Field>
             <FieldLabel htmlFor="turno">
               Turno <span className="text-red-500">*</span>
             </FieldLabel>
             <Select
-              value={selectedTurno}
-              onValueChange={setSelectedTurno}
-              disabled={!selectedClasse || turnos.length === 0}
+              value={data.curso_classe_turno_id}
+              onValueChange={handleTurnoChange}
+              disabled={
+                !data.curso_classe_id || turnos.length === 0 || processing
+              }
             >
               <SelectTrigger id="turno">
                 <SelectValue
                   placeholder={
-                    !selectedClasse
+                    !data.curso_classe_id
                       ? 'Selecione uma classe primeiro...'
                       : turnos.length === 0
                         ? 'Nenhum turno disponível'
@@ -160,7 +168,7 @@ export default function Preencher({ aluno, classesFaltando, anosLectivos }) {
               </SelectTrigger>
               <SelectContent>
                 {turnos.map((turno) => (
-                  <SelectItem key={turno.id} value={turno.id}>
+                  <SelectItem key={turno.id} value={String(turno.id)}>
                     {turno.turno_nome}
                   </SelectItem>
                 ))}
@@ -168,7 +176,7 @@ export default function Preencher({ aluno, classesFaltando, anosLectivos }) {
             </Select>
           </Field>
 
-          {/* Turma (filtrada por turno) */}
+          {/* Turma */}
           <Field>
             <FieldLabel htmlFor="turma">
               Turma <span className="text-red-500">*</span>
@@ -176,42 +184,54 @@ export default function Preencher({ aluno, classesFaltando, anosLectivos }) {
             <Select
               value={data.turma_id}
               onValueChange={(val) => setData('turma_id', val)}
-              disabled={!selectedTurno || turmas.length === 0}
+              disabled={
+                !data.curso_classe_turno_id ||
+                turmasPorTurno.length === 0 ||
+                processing
+              }
             >
               <SelectTrigger id="turma">
                 <SelectValue
                   placeholder={
-                    !selectedTurno
+                    !data.curso_classe_turno_id
                       ? 'Selecione um turno primeiro...'
-                      : turmas.length === 0
+                      : turmasPorTurno.length === 0
                         ? 'Nenhuma turma disponível'
                         : 'Selecione uma turma...'
                   }
                 />
               </SelectTrigger>
               <SelectContent>
-                {turmas.map((turma) => (
-                  <SelectItem key={turma.id} value={turma.id}>
+                {turmasPorTurno.map((turma) => (
+                  <SelectItem key={turma.id} value={String(turma.id)}>
                     {turma.nome}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             {errors.turma_id && <FieldError>{errors.turma_id}</FieldError>}
+            <FieldDescription>
+              {turmasPorTurno.length === 0 && data.curso_classe_turno_id ? (
+                <span className="text-amber-600">Nenhuma turma disponível</span>
+              ) : (
+                `${turmasPorTurno.length} turma(s) disponível(eis)`
+              )}
+            </FieldDescription>
           </Field>
         </div>
       </FieldGroup>
 
       {/* Botões */}
       <div className="flex justify-end gap-3 pt-4">
-        <Button type="button" variant="outline" disabled={processing}>
+        <Button variant="outline" onClick={onCancel} disabled={processing}>
           Cancelar
         </Button>
-        <Button type="submit" disabled={!data.turma_id || processing}>
+        
+        <Button onClick={handleConfirm} disabled={!data.turma_id || processing}>
           {processing && <Loader2 className="mr-2 size-4 animate-spin" />}
           Confirmar
         </Button>
       </div>
-    </form>
+    </div>
   );
 }

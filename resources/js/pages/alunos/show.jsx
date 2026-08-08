@@ -7,13 +7,14 @@ import { useDialog } from '@/hooks/use-dialog';
 import Preencher from '../preencher-historico/components/preencher-modal';
 
 export default function Show() {
-  const page = usePage();
   const {
     aluno,
     historicoPendente = [],
     classesFaltando = [],
     anosLectivos = [],
-  } = page.props;
+    turnos = [],
+    turmasPorTurno = [],
+  } = usePage().props;
 
   const { openForm, closeDialog } = useDialog();
 
