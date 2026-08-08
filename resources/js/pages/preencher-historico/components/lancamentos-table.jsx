@@ -1,4 +1,3 @@
-import { useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import {
   Table,
@@ -10,14 +9,12 @@ import {
 } from '@/components/ui/table';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  CardAction,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -25,56 +22,60 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, Loader2, LockKeyhole, LockKeyholeOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, LockKeyhole, LockKeyholeOpen, ArrowLeft } from 'lucide-react';
 import { mediaTrimestral } from '@/utils/media-trimestral';
 import { verificarSituacao } from '@/utils/verificar-situacao';
-import { Badge } from '@/components/ui/badge';
 
-export default function PreencherHistoricoCreate({
+export default function LancamentosHistoricoTable({
   aluno,
   turmaAluno,
   turma,
   disciplinas = [],
+  isPending,
+  errors = {},
   can,
+  onSubmit,
 }) {
   const [periodo, setPeriodo] = useState('1');
   const [expandidos, setExpandidos] = useState({});
 
-  // useForm: notas[tdp_id][periodo][campo]
-  // Pré-popula com os dados que vêm do servidor
-  const notasIniciais = disciplinas.reduce((acc, d) => {
-    acc[d.tdp_id] = d.notas ?? {};
-    return acc;
-  }, {});
-
-  const { data, setData, post, processing, errors } = useForm({
-    turma_aluno_id: turmaAluno.id,
-    periodo: 1,
-    notas: notasIniciais,
-    accao: 'guardar',
+  // notas locais: { [tdp_id]: { [periodo]: { mac, npp, npt, faltas } } }
+  // pré-populadas com o que vier do servidor
+  const [notasLocais, setNotasLocais] = useState(() => {
+    const inicial = {};
+    disciplinas.forEach((d) => {
+      inicial[d.tdp_id] = {};
+      Object.entries(d.notas ?? {}).forEach(([per, nota]) => {
+        inicial[d.tdp_id][per] = {
+          mac:    nota.mac    ?? '',
+          npp:    nota.nota_prova_professor  ?? '',
+          npt:    nota.nota_prova_trimestral ?? '',
+          faltas: nota.faltas ?? '',
+        };
+      });
+    });
+    return inicial;
   });
 
   // ── helpers ────────────────────────────────────────────────────────────────
 
-  const getNota = (tdpId, campo) => {
-    const nota = data.notas[tdpId]?.[periodo];
-    if (!nota) return '';
-    const map = { mac: 'mac', npp: 'nota_prova_professor', npt: 'nota_prova_trimestral', faltas: 'faltas' };
-    return nota[map[campo]] ?? nota[campo] ?? '';
-  };
+  const getNota = (tdpId, campo) =>
+    notasLocais[tdpId]?.[periodo]?.[campo] ?? '';
 
   const setNota = (tdpId, campo, valor) => {
-    const map = { mac: 'mac', npp: 'nota_prova_professor', npt: 'nota_prova_trimestral', faltas: 'faltas' };
-    setData('notas', {
-      ...data.notas,
+    setNotasLocais((prev) => ({
+      ...prev,
       [tdpId]: {
-        ...data.notas[tdpId],
+        ...prev[tdpId],
         [periodo]: {
-          ...(data.notas[tdpId]?.[periodo] ?? {}),
-          [map[campo]]: valor,
+          ...(prev[tdpId]?.[periodo] ?? {}),
+          [campo]: valor,
         },
       },
-    });
+    }));
   };
 
   const toggleDisciplina = (tdpId) =>
@@ -91,44 +92,42 @@ export default function PreencherHistoricoCreate({
     }
   };
 
-  // Monta o payload com o formato que o store espera: notas[tdp_id][mac|npp|npt|faltas]
-  const handleSubmit = (accao) => {
-    const notasEnvio = disciplinas.reduce((acc, d) => {
-      acc[d.tdp_id] = {
+  // monta payload no formato que o store espera
+  const recolherDados = () => {
+    const notas = {};
+    disciplinas.forEach((d) => {
+      notas[d.tdp_id] = {
         mac:    getNota(d.tdp_id, 'mac'),
         npp:    getNota(d.tdp_id, 'npp'),
         npt:    getNota(d.tdp_id, 'npt'),
         faltas: getNota(d.tdp_id, 'faltas'),
       };
-      return acc;
-    }, {});
-
-    post(route('preencher-historico.store', { aluno: aluno.id }), {
-      data: {
-        turma_aluno_id: turmaAluno.id,
-        periodo:        parseInt(periodo),
-        notas:          notasEnvio,
-        accao,
-      },
-      preserveScroll: true,
     });
+    return {
+      turma_aluno_id: turmaAluno.id,
+      periodo:        parseInt(periodo),
+      notas,
+    };
   };
 
   // ── render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
-      {/* Cabeçalho */}
+    <>
+      {/* Cabeçalho do aluno */}
       <Card>
         <CardHeader>
-          <CardTitle>Lançamento de Histórico Académico</CardTitle>
-          <CardDescription>
-            Aluno: <strong>{aluno.nome}</strong> ({aluno.matricula}) &nbsp;|&nbsp;
-            Classe: <strong>{turma.classe}</strong> &nbsp;|&nbsp;
-            Turma: <strong>{turma.nome}</strong> &nbsp;|&nbsp;
-            Turno: <strong>{turma.turno}</strong> &nbsp;|&nbsp;
-            Ano: <strong>{turma.ano_lectivo}</strong>
-          </CardDescription>
+          <div>
+            <CardTitle>Lançamento de Histórico Académico</CardTitle>
+            <CardDescription>
+              Aluno: <strong>{aluno?.nome}</strong>
+              {aluno?.matricula ? ` (${aluno.matricula})` : ''}{' '}
+              &nbsp;|&nbsp; Classe: <strong>{turma?.classe}</strong>
+              &nbsp;|&nbsp; Turma: <strong>{turma?.nome}</strong>
+              &nbsp;|&nbsp; Turno: <strong>{turma?.turno}</strong>
+              &nbsp;|&nbsp; Ano: <strong>{turma?.ano_lectivo}</strong>
+            </CardDescription>
+          </div>
           <CardAction>
             <Button variant="outline" size="sm" onClick={() => window.history.back()}>
               <ArrowLeft className="mr-1 size-4" />
@@ -152,7 +151,6 @@ export default function PreencherHistoricoCreate({
           </div>
 
           <CardAction className="flex items-center gap-3">
-            {/* Toggle global */}
             <Button type="button" variant="ghost" size="sm" onClick={toggleTodos}>
               {todosAbertos ? (
                 <>
@@ -167,14 +165,7 @@ export default function PreencherHistoricoCreate({
               )}
             </Button>
 
-            {/* Select Trimestre */}
-            <Select
-              value={periodo}
-              onValueChange={(v) => {
-                setPeriodo(v);
-                setData('periodo', parseInt(v));
-              }}
-            >
+            <Select value={periodo} onValueChange={setPeriodo}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Trimestre" />
               </SelectTrigger>
@@ -190,18 +181,18 @@ export default function PreencherHistoricoCreate({
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={processing}
-                  onClick={() => handleSubmit('guardar')}
+                  disabled={isPending}
+                  onClick={() => onSubmit('guardar', recolherDados())}
                 >
-                  {processing ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                  {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
                   Guardar rascunho
                 </Button>
                 <Button
                   type="button"
-                  disabled={processing}
-                  onClick={() => handleSubmit('finalizar')}
+                  disabled={isPending}
+                  onClick={() => onSubmit('finalizar', recolherDados())}
                 >
-                  {processing ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                  {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
                   Finalizar trimestre
                 </Button>
               </>
@@ -209,7 +200,7 @@ export default function PreencherHistoricoCreate({
           </CardAction>
         </CardHeader>
 
-        <CardContent className="p-0">
+        <CardContent className="p-0!">
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/72">
@@ -219,7 +210,7 @@ export default function PreencherHistoricoCreate({
                 <TableHead className="w-1 text-center">NPP</TableHead>
                 <TableHead className="w-1 text-center">NPT</TableHead>
                 <TableHead className="w-1 text-center">MT</TableHead>
-                <TableHead className="w-1 text-center">Faltas</TableHead>
+                <TableHead className="w-1 text-center">F.I</TableHead>
                 <TableHead className="w-8 px-2" />
                 <TableHead className="w-20 px-4 text-end">Resultado</TableHead>
               </TableRow>
@@ -249,9 +240,9 @@ export default function PreencherHistoricoCreate({
                     <TableCell>
                       {aberto ? (
                         <Input
-                          type="number" min={0} max={20} step={0.5}
+                          type="number" min={0} max={20}
                           value={mac}
-                          disabled={processing || !can?.lancar}
+                          disabled={isPending || !can?.lancar}
                           onChange={(e) => setNota(disciplina.tdp_id, 'mac', e.target.value)}
                           className="text-center"
                         />
@@ -266,9 +257,9 @@ export default function PreencherHistoricoCreate({
                     <TableCell>
                       {aberto ? (
                         <Input
-                          type="number" min={0} max={20} step={0.5}
+                          type="number" min={0} max={20}
                           value={npp}
-                          disabled={processing || !can?.lancar}
+                          disabled={isPending || !can?.lancar}
                           onChange={(e) => setNota(disciplina.tdp_id, 'npp', e.target.value)}
                           className="text-center"
                         />
@@ -283,9 +274,9 @@ export default function PreencherHistoricoCreate({
                     <TableCell>
                       {aberto ? (
                         <Input
-                          type="number" min={0} max={20} step={0.5}
+                          type="number" min={0} max={20}
                           value={npt}
-                          disabled={processing || !can?.lancar}
+                          disabled={isPending || !can?.lancar}
                           onChange={(e) => setNota(disciplina.tdp_id, 'npt', e.target.value)}
                           className="text-center"
                         />
@@ -296,7 +287,7 @@ export default function PreencherHistoricoCreate({
                       )}
                     </TableCell>
 
-                    {/* MT (calculada no frontend) */}
+                    {/* MT */}
                     <TableCell className="text-center font-medium">
                       {mt ?? '-'}
                     </TableCell>
@@ -307,7 +298,7 @@ export default function PreencherHistoricoCreate({
                         <Input
                           type="number" min={0}
                           value={faltas}
-                          disabled={processing || !can?.lancar}
+                          disabled={isPending || !can?.lancar}
                           onChange={(e) => setNota(disciplina.tdp_id, 'faltas', e.target.value)}
                           className="text-center"
                         />
@@ -354,6 +345,6 @@ export default function PreencherHistoricoCreate({
           </Table>
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 }

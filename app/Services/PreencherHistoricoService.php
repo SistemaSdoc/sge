@@ -3,18 +3,16 @@
 namespace App\Services;
 
 use App\Models\Aluno;
-use App\Models\Classe;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
 use App\Models\Turma;
 use App\Models\TurmaAluno;
-use App\Models\Turno;
 
 class PreencherHistoricoService
 {
     /**
-     * Retorna classes que o aluno precisa de histórico.
-     * (Classes anteriores à actual sem notas registadas)
+     * Retorna classes que o aluno ainda precisa de histórico.
+     * Só devolve classes anteriores à actual que NÃO têm notas registadas.
      */
     public function obterClassesFaltando(Aluno $aluno): array
     {
@@ -44,7 +42,18 @@ class PreencherHistoricoService
             return [];
         }
 
+        // IDs das turmas onde o aluno já tem notas lançadas
+        $turmasComNotas = TurmaAluno::where('aluno_id', $aluno->id)
+            ->whereHas('notas')
+            ->with('turma.cursoClasseTurno.cursoClasse')
+            ->get()
+            ->pluck('turma.cursoClasseTurno.curso_classe_id')
+            ->filter()
+            ->unique()
+            ->values();
+
         return $classesAnteriores
+            ->reject(fn($cc) => $turmasComNotas->contains($cc->id))
             ->map(fn($cc) => [
                 'curso_classe_id' => $cc->id,
                 'classe' => $cc->classe->nome,
@@ -56,7 +65,7 @@ class PreencherHistoricoService
     }
 
     /**
-     * Retorna turnos disponíveis para uma classe num ano lectivo.
+     * Retorna turnos disponíveis para uma classe.
      */
     public function obterTurnos(string $anoLectivoId, string $cursoClasseId, string $instituicaoId): array
     {
@@ -96,8 +105,9 @@ class PreencherHistoricoService
     }
 
     /**
-     * Cria TurmaAluno + redireciona para pauta.
-     * Valida se já existe histórico para essa turma.
+     * Cria ou reutiliza TurmaAluno histórico.
+     * Nunca cria duplicados — se já existe sem notas, reutiliza.
+     * Se já tem notas, lança excepção.
      */
     public function criarTurmaAlunoHistorico(
         Aluno $aluno,
@@ -110,13 +120,23 @@ class PreencherHistoricoService
             throw new \Exception('Turma não pertence à sua instituição.');
         }
 
-        $jaTem = TurmaAluno::where('aluno_id', $aluno->id)
+        // Se já existe com notas, não permite recriar
+        $comNotas = TurmaAluno::where('aluno_id', $aluno->id)
             ->where('turma_id', $turmaId)
             ->whereHas('notas')
-            ->exists();
+            ->first();
 
-        if ($jaTem) {
+        if ($comNotas) {
             throw new \Exception('Aluno já tem notas registadas para essa turma.');
+        }
+
+        // Se já existe sem notas, reutiliza em vez de duplicar
+        $semNotas = TurmaAluno::where('aluno_id', $aluno->id)
+            ->where('turma_id', $turmaId)
+            ->first();
+
+        if ($semNotas) {
+            return $semNotas;
         }
 
         return TurmaAluno::create([

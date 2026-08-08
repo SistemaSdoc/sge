@@ -15,9 +15,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Loader2 } from 'lucide-react';
-import {
-  confirmar
-} from '@/actions/App/Http/Controllers/PreencherHistoricoController';
+import { confirmar } from '@/actions/App/Http/Controllers/PreencherHistoricoController';
 
 export default function Preencher({
   aluno,
@@ -74,17 +72,21 @@ export default function Preencher({
     });
   };
 
-  const handleConfirm = () => {
-    post(route('historico.confirmar', { aluno: aluno.id }), {
-      preserveScroll: true,
-      onSuccess,
-    });
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    post(confirmar({ aluno: aluno.id }), {
+    // usa a URL gerada pelo Wayfinder correctamente
+    post(confirmar({ aluno: aluno.id }).url, {
       preserveScroll: true,
+      onSuccess: () => {
+        // fecha o modal e navega para a página de lançamento
+        // o redirect do controller já trata da navegação,
+        // mas como é um modal sobre o show do aluno, precisamos
+        // chamar onSuccess para fechar o dialog antes da navegação
+        onSuccess?.();
+      },
+      onError: () => {
+        // erros ficam nos form.errors, modal mantém-se aberto
+      },
     });
   };
 
@@ -220,6 +222,7 @@ export default function Preencher({
               </SelectContent>
             </Select>
             {errors.turma_id && <FieldError>{errors.turma_id}</FieldError>}
+            {errors.error && <FieldError>{errors.error}</FieldError>}
             <FieldDescription>
               {turmasPorTurno.length === 0 && data.curso_classe_turno_id ? (
                 <span className="text-amber-600">Nenhuma turma disponível</span>
@@ -237,7 +240,10 @@ export default function Preencher({
           Cancelar
         </Button>
 
-        <Button onClick={handleSubmit} disabled={!data.turma_id || processing}>
+        <Button
+          onClick={handleSubmit}
+          disabled={!data.turma_id || processing}
+        >
           {processing && <Loader2 className="mr-2 size-4 animate-spin" />}
           Confirmar
         </Button>

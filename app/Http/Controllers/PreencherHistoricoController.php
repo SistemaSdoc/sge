@@ -25,7 +25,8 @@ class PreencherHistoricoController extends Controller
         private readonly PreencherHistoricoService $service,
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {}
+    ) {
+    }
 
     /**
      * Mostra o formulário de lançamento do histórico académico de um aluno.
@@ -40,7 +41,7 @@ class PreencherHistoricoController extends Controller
         $turmaAluno = TurmaAluno::with([
             'turma.cursoClasseTurno.cursoClasse.classe',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicao',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
         ])
             ->where('aluno_id', $aluno->id)
             ->findOrFail($request->query('turma_aluno_id'));
@@ -62,11 +63,11 @@ class PreencherHistoricoController extends Controller
             $notas = $notasExistentes->get($tdp->id, collect());
 
             return [
-                'tdp_id'   => $tdp->id,
-                'id'       => $tdp->classeTurnoDisciplina->id,
-                'nome'     => $tdp->classeTurnoDisciplina->disciplina->nome,
-                'sigla'    => $tdp->classeTurnoDisciplina->disciplina->sigla,
-                'notas'    => $notas->keyBy('periodo')->map(fn ($n) => $this->formatarNota($n)),
+                'tdp_id' => $tdp->id,
+                'id' => $tdp->classeTurnoDisciplina->id,
+                'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
+                'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
+                'notas' => $notas->keyBy('periodo')->map(fn($n) => $this->formatarNota($n)),
             ];
         });
 
@@ -77,19 +78,19 @@ class PreencherHistoricoController extends Controller
 
         return Inertia::render('preencher-historico/create', [
             'aluno' => [
-                'id'         => $aluno->id,
-                'nome'       => $aluno->inscricao?->candidato?->nome,
-                'matricula'  => $aluno->matricula,
+                'id' => $aluno->id,
+                'nome' => $aluno->inscricao?->candidato?->nome,
+                'matricula' => $aluno->matricula,
             ],
             'turmaAluno' => [
                 'id' => $turmaAluno->id,
             ],
             'turma' => [
-                'id'          => $turma->id,
-                'nome'        => $turma->nome,
+                'id' => $turma->id,
+                'nome' => $turma->nome,
                 'ano_lectivo' => $turma->anoLectivo?->nome,
-                'classe'      => $cursoClasseTurno->cursoClasse->classe->nome ?? null,
-                'turno'       => $cursoClasseTurno->turno?->nome ?? null,
+                'classe' => $cursoClasseTurno->cursoClasse->classe->nome ?? null,
+                'turno' => $cursoClasseTurno->turno?->nome ?? null,
             ],
             'disciplinas' => $disciplinas->values(),
             'can' => [
@@ -104,19 +105,20 @@ class PreencherHistoricoController extends Controller
      * Recebe: turma_aluno_id, periodo, notas[tdp_id][mac|npp|npt|faltas]
      * Segue o mesmo padrão do NotaDisciplinaController@store.
      */
+
     public function store(Request $request, Aluno $aluno)
     {
         $this->authorize('update', $aluno);
 
         $validated = $request->validate([
             'turma_aluno_id' => 'required|uuid|exists:turma_aluno,id',
-            'periodo'        => 'required|integer|in:1,2,3',
-            'notas'          => 'required|array',
-            'notas.*.mac'    => 'nullable|numeric|min:0|max:20',
-            'notas.*.npp'    => 'nullable|numeric|min:0|max:20',
-            'notas.*.npt'    => 'nullable|numeric|min:0|max:20',
+            'periodo' => 'required|integer|in:1,2,3',
+            'notas' => 'required|array',
+            'notas.*.mac' => 'nullable|numeric|min:0|max:20',
+            'notas.*.npp' => 'nullable|numeric|min:0|max:20',
+            'notas.*.npt' => 'nullable|numeric|min:0|max:20',
             'notas.*.faltas' => 'nullable|integer|min:0',
-            'accao'          => 'required|in:guardar,finalizar',
+            'accao' => 'required|in:guardar,finalizar',
         ]);
 
         $turmaAluno = TurmaAluno::with([
@@ -127,36 +129,42 @@ class PreencherHistoricoController extends Controller
 
         $periodo = (int) $validated['periodo'];
 
-        // Lançar nota por disciplina (cada chave de notas é um tdp_id)
         foreach ($validated['notas'] as $tdpId => $valores) {
             $tdp = TurmaDisciplinaProfessor::findOrFail($tdpId);
+            $mac = is_numeric($valores['mac']) ? (float) $valores['mac'] : null;
+            $npp = is_numeric($valores['npp']) ? (float) $valores['npp'] : null;
+            $npt = is_numeric($valores['npt']) ? (float) $valores['npt'] : null;
+            $faltas = is_numeric($valores['faltas']) ? (int) $valores['faltas'] : null;
+
+            // média simples — confirma se é esta a fórmula do teu sistema
+            $media = ($mac !== null && $npp !== null && $npt !== null)
+                ? ArredondamentoHelper::roundToHalf(($mac + $npp + $npt) / 3)
+                : null;
+
+            $situacaoTrimestral = match (true) {
+                $media === null => null,
+                $media >= 10 && ($faltas ?? 0) < 20 => 'APTO',
+                default => 'N/APTO',
+            };
 
             Nota::updateOrCreate(
                 [
-                    'turma_aluno_id'                => $turmaAluno->id,
+                    'turma_aluno_id' => $turmaAluno->id,
                     'turma_disciplina_professor_id' => $tdp->id,
-                    'periodo'                       => $periodo,
+                    'periodo' => $periodo,
                 ],
                 [
-                    'mac'                  => $valores['mac'] !== '' ? $valores['mac'] : null,
-                    'nota_prova_professor' => $valores['npp'] !== '' ? $valores['npp'] : null,
-                    'nota_prova_trimestral'=> $valores['npt'] !== '' ? $valores['npt'] : null,
-                    'faltas'               => $valores['faltas'] !== '' ? $valores['faltas'] : null,
+                    'mac' => $mac,
+                    'nota_prova_professor' => $npp,
+                    'nota_prova_trimestral' => $npt,
+                    'faltas' => $faltas,
+                    'media_trimestral' => $media,
+                    'situacao_trimestral' => $situacaoTrimestral,
                 ]
             );
         }
 
-        // Recalcular resultado do aluno na turma (igual ao store normal)
-        $turmaAluno->load([
-            'aluno',
-            'notas',
-            'turma.cursoClasseTurno.cursoClasse.classe',
-            'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-        ]);
-        $this->pautaService->actualizarResultadoAluno($turmaAluno);
-
         if ($validated['accao'] === 'finalizar') {
-            // Marca todas as disciplinas deste período como finalizadas
             $tdpIds = TurmaDisciplinaProfessor::where('turma_id', $turmaAluno->turma_id)
                 ->pluck('id');
 
@@ -167,10 +175,10 @@ class PreencherHistoricoController extends Controller
                 );
             }
 
-            return back()->with('success', 'Histórico do trimestre '.$periodo.' finalizado com sucesso.');
+            return back()->with('success', 'Histórico do trimestre ' . $periodo . ' finalizado com sucesso.');
         }
 
-        return back()->with('success', 'Rascunho do trimestre '.$periodo.' guardado.');
+        return back()->with('success', 'Rascunho do trimestre ' . $periodo . ' guardado.');
     }
 
     /**
@@ -193,12 +201,15 @@ class PreencherHistoricoController extends Controller
                 $instituicaoId
             );
 
+            // Inertia precisa de um redirect para navegar —
+            // o modal fecha via onSuccess antes da navegação acontecer
             return redirect()
-                ->route('historico.create', [
-                    'aluno' => $aluno->id,
-                    'turmaAluno' => $turmaAluno->id,
-                ])
-                ->with('message', 'Histórico criado. Procede ao lançamento de notas.');
+                ->to(
+                    route('preencher-historico.create', ['aluno' => $aluno->id])
+                    . '?turma_aluno_id=' . $turmaAluno->id
+                )
+                ->with('success', 'Histórico criado. Procede ao lançamento de notas.');
+
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -207,16 +218,16 @@ class PreencherHistoricoController extends Controller
     private function formatarNota(Nota $n): array
     {
         return [
-            'id'                  => $n->id,
-            'periodo'             => $n->periodo,
-            'mac'                 => $n->mac,
-            'nota_prova_professor'  => $n->nota_prova_professor,
+            'id' => $n->id,
+            'periodo' => $n->periodo,
+            'mac' => $n->mac,
+            'nota_prova_professor' => $n->nota_prova_professor,
             'nota_prova_trimestral' => $n->nota_prova_trimestral,
-            'media_trimestral'    => ArredondamentoHelper::roundToHalf($n->media_trimestral),
-            'media_final'         => ArredondamentoHelper::roundToHalf($n->media_final),
-            'faltas'              => $n->faltas,
+            'media_trimestral' => ArredondamentoHelper::roundToHalf($n->media_trimestral),
+            'media_final' => ArredondamentoHelper::roundToHalf($n->media_final),
+            'faltas' => $n->faltas,
             'situacao_trimestral' => $n->situacao_trimestral,
-            'situacao_anual'      => $n->situacao_anual,
+            'situacao_anual' => $n->situacao_anual,
         ];
     }
 }

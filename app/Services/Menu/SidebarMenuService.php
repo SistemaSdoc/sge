@@ -174,7 +174,7 @@ final class SidebarMenuService
 
                 new MenuItem(
                     key: 'solicitacao-lancamento-notas',
-                    title: 'Solocitações de Lançamentos',
+                    title: 'Solicitações de Lançamentos',
                     href: action([SolicitacaoEdicaoPautaController::class, 'index']),
                     icon: 'FileTextIcon',
                     can: fn () => Gate::allows('viewAny', SolicitacaoEdicaoPauta::class)
