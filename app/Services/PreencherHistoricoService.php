@@ -143,7 +143,7 @@ class PreencherHistoricoService
             'aluno_id' => $aluno->id,
             'turma_id' => $turmaId,
             'ano_lectivo_id' => $turma->ano_lectivo_id,
-            'activo' => false,
+            'activo' => true,
             'situacao' => 'concluido',
         ]);
     }

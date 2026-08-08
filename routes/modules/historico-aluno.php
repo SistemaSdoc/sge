@@ -7,18 +7,6 @@ use Illuminate\Support\Facades\Route;
 /**
  * Mostra a página de preenchimento do histórico de um aluno.
  */
-Route::get(
-    '/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/preencher-historico',
-    [ConfirmacaoMatriculaController::class, 'index']
-)->name('confirmar-matriculas.index')->name('preencher-historico.create');
-
-/**
- * Salva o histórico de um aluno.
- */
-Route::post(
-    '/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/preencher-historico',
-    [ConfirmacaoMatriculaController::class, 'store']
-)->name('preencher-historico.store');
 
 Route::get('/historico/{aluno}', [PreencherHistoricoController::class, 'show'])
     ->name('historico.show');

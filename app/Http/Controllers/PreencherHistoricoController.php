@@ -130,37 +130,10 @@ class PreencherHistoricoController extends Controller
         $periodo = (int) $validated['periodo'];
 
         foreach ($validated['notas'] as $tdpId => $valores) {
-            $tdp = TurmaDisciplinaProfessor::findOrFail($tdpId);
-            $mac = is_numeric($valores['mac']) ? (float) $valores['mac'] : null;
-            $npp = is_numeric($valores['npp']) ? (float) $valores['npp'] : null;
-            $npt = is_numeric($valores['npt']) ? (float) $valores['npt'] : null;
-            $faltas = is_numeric($valores['faltas']) ? (int) $valores['faltas'] : null;
-
-            // média simples — confirma se é esta a fórmula do teu sistema
-            $media = ($mac !== null && $npp !== null && $npt !== null)
-                ? ArredondamentoHelper::roundToHalf(($mac + $npp + $npt) / 3)
-                : null;
-
-            $situacaoTrimestral = match (true) {
-                $media === null => null,
-                $media >= 10 && ($faltas ?? 0) < 20 => 'APTO',
-                default => 'N/APTO',
-            };
-
-            Nota::updateOrCreate(
-                [
-                    'turma_aluno_id' => $turmaAluno->id,
-                    'turma_disciplina_professor_id' => $tdp->id,
-                    'periodo' => $periodo,
-                ],
-                [
-                    'mac' => $mac,
-                    'nota_prova_professor' => $npp,
-                    'nota_prova_trimestral' => $npt,
-                    'faltas' => $faltas,
-                    'media_trimestral' => $media,
-                    'situacao_trimestral' => $situacaoTrimestral,
-                ]
+            $this->notaService->lancarNotas(
+                [$turmaAluno->id => $valores],
+                $tdpId,
+                $periodo
             );
         }
 
