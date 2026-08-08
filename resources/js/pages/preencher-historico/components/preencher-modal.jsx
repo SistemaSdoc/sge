@@ -93,7 +93,7 @@ export default function Preencher({
   return (
     <div className="space-y-6">
       {/* Info */}
-      <div className="space-y-1 rounded-lg bg-slate-50 p-3 dark:bg-slate-900/30">
+      <div className="p- space-y-1">
         <div className="text-sm font-medium">{aluno.nome}</div>
         <div className="text-xs text-muted-foreground">
           Matrícula: {aluno.matricula}
@@ -101,7 +101,7 @@ export default function Preencher({
       </div>
 
       <FieldGroup>
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Ano Lectivo */}
           <Field>
             <FieldLabel htmlFor="ano">
@@ -154,7 +154,9 @@ export default function Preencher({
               </SelectContent>
             </Select>
           </Field>
+        </div>
 
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Turno */}
           <Field>
             <FieldLabel htmlFor="turno">
@@ -235,7 +237,7 @@ export default function Preencher({
       </FieldGroup>
 
       {/* Botões */}
-      <div className="flex justify-end gap-3 pt-4">
+      <div className="flex justify-end gap-3">
         <Button variant="outline" onClick={onCancel} disabled={processing}>
           Cancelar
         </Button>

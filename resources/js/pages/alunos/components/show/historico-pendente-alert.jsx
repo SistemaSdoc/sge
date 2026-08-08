@@ -1,7 +1,13 @@
-import { router } from '@inertiajs/react';
-import { AlertTriangleIcon } from 'lucide-react';
+import { ArrowRightIcon, ArrowUpRight, CircleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from '@/components/ui/item';
 
 export function HistoricoPendenteAlert({
   aluno,
@@ -11,31 +17,34 @@ export function HistoricoPendenteAlert({
   const classes = pendentes.map((p) => p.classe).join(', ');
 
   return (
-    <Card className="border-amber-500 bg-amber-50 dark:bg-amber-950/20">
-      <CardContent className="flex items-start gap-3 p-4">
-        <AlertTriangleIcon className="mt-0.5 size-5 shrink-0 text-amber-500" />
-        <div className="flex-1 space-y-2">
-          <p className="text-sm font-medium text-amber-800 dark:text-amber-400">
-            Histórico escolar incompleto
-          </p>
-          <p className="text-sm text-amber-700 dark:text-amber-500">
-            Este aluno não tem as notas registadas das seguintes classes
-            anteriores: <strong>{classes}</strong>. Para emitir o certificado
-            correctamente, é necessário lançar o histórico.
-          </p>
-          <Button
-            size="sm"
-            variant="outline"
-            className="border-amber-500 text-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/30"
-            onClick={(e) => {
-              e.stopPropagation();
-              abrirSelecaoFn(aluno, e);
-            }}
-          >
-            Lançar histórico em falta
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <Item variant="outline" className="" size={'sm'}>
+      <ItemMedia variant="icon">
+        <CircleAlert className="text-yellow-600 dark:text-yellow-400" />
+      </ItemMedia>
+
+      <ItemContent>
+        <ItemTitle className="text-sm">Histórico escolar incompleto</ItemTitle>
+        <ItemDescription className="">
+          Faltam notas para a <span className="font-medium">{classes}</span>{' '}
+          {/*para
+          emitir o certificado.*/}
+        </ItemDescription>
+      </ItemContent>
+
+      <ItemActions>
+        <Button
+          size="sm"
+          variant="outline"
+          className=""
+          onClick={(e) => {
+            e.stopPropagation();
+            abrirSelecaoFn(aluno, e);
+          }}
+        >
+          Lançar histórico
+          <ArrowUpRight className="size-3.5" />
+        </Button>
+      </ItemActions>
+    </Item>
   );
 }

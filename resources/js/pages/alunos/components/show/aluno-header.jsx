@@ -1,7 +1,8 @@
 import { router } from '@inertiajs/react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontalIcon, Minus } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { MoreHorizontalIcon, Minus, Pencil, Dot } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,22 +11,35 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+function getInitials(nome = '') {
+  return nome
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase();
+}
+
 export function AlunoHeader({ aluno }) {
   const hasAnyAction = aluno.can?.update || aluno.can?.delete;
 
   return (
     <Card className="overflow-hidden pt-0!">
-      <div className="relative flex h-56 w-full items-end bg-muted">
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative z-10 flex w-full items-end justify-between p-6">
-          <div className="space-y-2 text-white">
-            <h1 className="text-2xl font-semibold md:text-3xl">{aluno.nome}</h1>
-            <p className="text-sm opacity-90">
-              {aluno.matricula ?? <Minus size={15} className="opacity-60" />}
-            </p>
-          </div>
+      {/* Banner */}
+      <div className="relative h-40 w-full bg-muted md:h-56">
+        {aluno.banner_url && (
+          <img
+            src={aluno.banner_url}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
 
-          {hasAnyAction && (
+        <div className="absolute inset-0 bg-black/20" />
+
+        {hasAnyAction && (
+          <div className="absolute top-4 right-4 z-10">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -43,14 +57,13 @@ export function AlunoHeader({ aluno }) {
                       router.visit(`/dashboard/alunos/${aluno.id}/edit`)
                     }
                   >
+                    <Pencil className="mr-2 size-4" />
                     Editar
                   </DropdownMenuItem>
                 )}
-
                 {aluno.can?.update && aluno.can?.delete && (
                   <DropdownMenuSeparator />
                 )}
-
                 {aluno.can?.delete && (
                   <DropdownMenuItem
                     variant="destructive"
@@ -65,7 +78,40 @@ export function AlunoHeader({ aluno }) {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
+          </div>
+        )}
+      </div>
+
+      {/* Avatar sobreposto + info */}
+      <div className="relative flex flex-col items-center px-6 pb-0 text-center">
+        <Avatar className="-mt-14 size-28 border-4 border-background shadow-sm md:-mt-16 md:size-32">
+          <AvatarImage src={aluno.foto_url} alt={aluno.nome} />
+          <AvatarFallback className="text-xl">
+            {getInitials(aluno.nome)}
+          </AvatarFallback>
+        </Avatar>
+
+        <h1 className="mt-3 text-2xl font-semibold md:text-3xl">
+          {aluno.nome}
+        </h1>
+
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-x-1 gap-y-1 text-sm text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <span className="">Curso:</span>{' '}
+            {aluno.curso || <Minus size={14} />} <Dot />
+          </span>
+
+          <span className="flex items-center gap-1">
+            Classe: {aluno.turma.classe || <Minus size={14} />} <Dot />
+          </span>
+
+          <span className="flex items-center gap-1">
+            Turno: {aluno.turno || <Minus size={14} />} <Dot />
+          </span>
+
+          <span className="flex items-center gap-1">
+            Turma: {aluno.turma.nome || <Minus size={14} />}
+          </span>
         </div>
       </div>
     </Card>
