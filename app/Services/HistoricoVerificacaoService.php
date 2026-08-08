@@ -13,27 +13,30 @@ class HistoricoVerificacaoService
             'cursoClasseTurno.cursoClasse.classe',
         ]);
 
-        if (!$inscricao)
+        if (! $inscricao) {
             return [];
+        }
 
         $cursoClasseActual = $inscricao->cursoClasseTurno?->cursoClasse;
 
-        if (!$cursoClasseActual)
+        if (! $cursoClasseActual) {
             return [];
+        }
 
         $ordemActual = $cursoClasseActual->classe->ordem;
         $cursoTuteladoId = $cursoClasseActual->curso_tutelado_id;
 
         $classesAnteriores = CursoClasse::with('classe')
             ->where('curso_tutelado_id', $cursoTuteladoId)
-            ->whereHas('classe', fn($q) => $q->where('ordem', '<', $ordemActual))
+            ->whereHas('classe', fn ($q) => $q->where('ordem', '<', $ordemActual))
             ->get();
 
-        if ($classesAnteriores->isEmpty())
+        if ($classesAnteriores->isEmpty()) {
             return [];
+        }
 
         return $classesAnteriores
-            ->map(fn($cc) => [
+            ->map(fn ($cc) => [
                 'curso_classe_id' => $cc->id,
                 'classe' => $cc->classe->nome,
                 'ordem' => $cc->classe->ordem,
