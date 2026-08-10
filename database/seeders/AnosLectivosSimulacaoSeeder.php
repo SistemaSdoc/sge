@@ -11,18 +11,18 @@ class AnosLectivosSimulacaoSeeder extends Seeder
     {
         $agora = now();
 
-        // 2026/2027: começa agora, dura 10 min
-        // 2027/2028: começa depois de 10 min, dura 10 min
-        // 2028/2029: começa depois, dura 10 min
-        // 2029/2030: começa depois, dura 24h
-        // 2030/2031: começa depois de 24h, dura 10 min
+        // 2026/2027: começa agora, dura 5 min
+        // 2027/2028: começa depois de 5 min, dura 5 min
+        // 2028/2029: começa depois de 10 min, dura 24h (1440 min)
+        // 2029/2030: começa depois de 24h+10 min, dura 10 min
+        // 2030/2031: começa depois, dura 10 min
 
         $anos = [
-            ['nome' => '2026/2027', 'offset' => 0, 'duracao' => 10],      // 0 - 10
-            ['nome' => '2027/2028', 'offset' => 10, 'duracao' => 10],     // 10 - 20
-            ['nome' => '2028/2029', 'offset' => 20, 'duracao' => 10],     // 20 - 30
-            ['nome' => '2029/2030', 'offset' => 30, 'duracao' => 1440],   // 30 - 1470 (24h)
-            ['nome' => '2030/2031', 'offset' => 1470, 'duracao' => 10],   // 1470 - 1480
+            ['nome' => '2026/2027', 'offset' => 0,    'duracao' => 5],      // 0 - 5
+            ['nome' => '2027/2028', 'offset' => 5,    'duracao' => 5],      // 5 - 10
+            ['nome' => '2028/2029', 'offset' => 10,   'duracao' => 5],      // 10 - 15
+            ['nome' => '2029/2030', 'offset' => 15,   'duracao' => 1440],   // 15 - 1455 (24h)
+            ['nome' => '2030/2031', 'offset' => 1455, 'duracao' => 10],     // 1455 - 1465
         ];
 
         foreach ($anos as $ano) {

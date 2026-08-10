@@ -5,7 +5,7 @@ import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController'
 import GrupoPapForm from '../pap/components/grupo-pap-form';
 import { useState } from 'react';
 
-export function Create() {
+export default function Create() {
   const {
     instituicao,
     cursoTutelado,

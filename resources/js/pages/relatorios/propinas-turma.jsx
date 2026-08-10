@@ -3,10 +3,20 @@ import { DownloadIcon, CheckCircle2Icon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  Card, CardHeader, CardTitle, CardDescription, CardContent, CardAction,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardAction,
 } from '@/components/ui/card';
 import {
-  Table, TableHeader, TableRow, TableHead, TableBody, TableCell,
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
 } from '@/components/ui/table';
 import { EmptyState } from '@/components/empty-state';
 import { pdf } from '@/actions/App/Http/Controllers/RelatorioPropinaController';
@@ -22,16 +32,23 @@ const corBadge = (total) => {
   return 'secondary';
 };
 
-export default function RelatorioPropinasTurma({ turma, linhas, emDia, resumo, geradoEm }) {
+export default function RelatorioPropinasTurma({
+  turma,
+  linhas,
+  emDia,
+  resumo,
+  geradoEm,
+}) {
   return (
-    <div className="mx-auto w-full max-w-5xl p-6 space-y-4">
+    <div className="mx-auto w-full max-w-5xl space-y-4 p-6">
       <Head title={`Situação de propinas — ${turma.nome}`} />
 
       <Card>
         <CardHeader className="border-b">
           <CardTitle>Situação de propinas</CardTitle>
           <CardDescription>
-            {turma.curso} — {turma.classe} — Turma {turma.nome} ({turma.turno}) · {turma.ano_lectivo}
+            {turma.curso} — {turma.classe} — Turma {turma.nome} ({turma.turno})
+            · {turma.ano_lectivo}
           </CardDescription>
 
           <CardAction>
@@ -51,26 +68,30 @@ export default function RelatorioPropinasTurma({ turma, linhas, emDia, resumo, g
             </div>
             <div className="py-3">
               <p className="text-2xl font-bold">{resumo.total_devedores}</p>
-              <p className="text-xs text-muted-foreground">Em atraso</p>
+              <p className="text-xs text-muted-foreground">Não regularizada</p>
             </div>
             <div className="py-3">
               <p className="text-2xl font-bold">{resumo.total_em_dia}</p>
-              <p className="text-xs text-muted-foreground">Em dia</p>
+              <p className="text-xs text-muted-foreground">Regularizada</p>
             </div>
             <div className="py-3">
-              <p className="text-2xl font-bold">{formatCurrency(resumo.valor_total_geral)}</p>
+              <p className="text-2xl font-bold">
+                {formatCurrency(resumo.valor_total_geral)}
+              </p>
               <p className="text-xs text-muted-foreground">Total em dívida</p>
             </div>
           </div>
 
           <div className="border-b px-4 py-3">
-            <p className="text-sm font-medium">Alunos em atraso</p>
+            <p className="text-sm font-medium">
+              Alunos com situação financeira não regularizada
+            </p>
           </div>
 
           {linhas.length === 0 ? (
             <EmptyState
               icon={CheckCircle2Icon}
-              title="Nenhum aluno em atraso"
+              title="Nenhum aluno com situação financeira regularizada"
               description="Todos os alunos desta turma estão com as propinas em dia."
             />
           ) : (
@@ -78,19 +99,27 @@ export default function RelatorioPropinasTurma({ turma, linhas, emDia, resumo, g
               <TableHeader>
                 <TableRow className="bg-muted/72">
                   <TableHead className="px-4">Aluno</TableHead>
-                  <TableHead className="px-4 text-center">Meses em falta</TableHead>
+                  <TableHead className="px-4 text-center">
+                    Meses em falta
+                  </TableHead>
                   <TableHead className="px-4">Meses</TableHead>
-                  <TableHead className="px-4 text-right">Valor devido</TableHead>
+                  <TableHead className="px-4 text-right">
+                    Valor devido
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {linhas.map((linha) => (
                   <TableRow key={linha.aluno_id}>
-                    <TableCell className="px-4 font-medium">{linha.nome}</TableCell>
-                    <TableCell className="px-4 text-center">
-                      <Badge variant={corBadge(linha.total_meses)}>{linha.total_meses}</Badge>
+                    <TableCell className="px-4 font-medium">
+                      {linha.nome}
                     </TableCell>
-                    <TableCell className="px-4 text-muted-foreground text-sm">
+                    <TableCell className="px-4 text-center">
+                      <Badge variant={corBadge(linha.total_meses)}>
+                        {linha.total_meses}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="px-4 text-sm text-muted-foreground">
                       {linha.meses.map((m) => m.label).join(', ')}
                     </TableCell>
                     <TableCell className="px-4 text-right font-medium">
@@ -106,9 +135,12 @@ export default function RelatorioPropinasTurma({ turma, linhas, emDia, resumo, g
 
       <Card>
         <CardHeader className="border-b">
-          <CardTitle className="text-base">Alunos em dia</CardTitle>
+          <CardTitle className="text-base">
+            Alunos com situação financeira regularizada
+          </CardTitle>
           <CardDescription>
-            {emDia.length} aluno{emDia.length === 1 ? '' : 's'} sem pendências nesta turma.
+            {emDia.length} aluno{emDia.length === 1 ? '' : 's'} sem pendências
+            nesta turma.
           </CardDescription>
         </CardHeader>
 
@@ -130,10 +162,15 @@ export default function RelatorioPropinasTurma({ turma, linhas, emDia, resumo, g
               <TableBody>
                 {emDia.map((aluno) => (
                   <TableRow key={aluno.aluno_id}>
-                    <TableCell className="px-4 font-medium">{aluno.nome}</TableCell>
+                    <TableCell className="px-4 font-medium">
+                      {aluno.nome}
+                    </TableCell>
                     <TableCell className="px-4 text-right">
-                      <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
-                        Em dia
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-100 text-green-700 hover:bg-green-100"
+                      >
+                        Regularizada
                       </Badge>
                     </TableCell>
                   </TableRow>
