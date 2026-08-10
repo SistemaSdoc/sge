@@ -88,6 +88,7 @@ class AlunoController extends Controller
                 return [
                     'id' => $aluno->id,
                     'matricula' => $aluno->matricula,
+                    'numero_processo' => $aluno->numero_processo,
                     'nome' => $aluno->inscricao?->candidato?->nome,
                     'bi' => $aluno->inscricao?->candidato?->bi,
                     'email' => $aluno->inscricao?->candidato?->email,
@@ -136,6 +137,7 @@ class AlunoController extends Controller
             'aluno' => [
                 'id' => $aluno->id,
                 'matricula' => $aluno->matricula,
+                'numero_processo' => $aluno->numero_processo,
                 'nome' => $aluno->inscricao?->candidato?->nome,
                 'bi' => $aluno->inscricao?->candidato?->bi,
                 'email' => $aluno->inscricao?->candidato?->email,
@@ -185,6 +187,7 @@ class AlunoController extends Controller
             'aluno' => [
                 'id' => $aluno->id,
                 'matricula' => $aluno->matricula,
+                'numero_processo' => $aluno->numero_processo,
                 'nome' => $aluno->inscricao?->candidato?->nome,
                 'bi' => $aluno->inscricao?->candidato?->bi,
             ],
@@ -232,7 +235,7 @@ class AlunoController extends Controller
                 // Activa/associa a nova turma
                 $aluno->turmas()->syncWithoutDetaching([
                     $dados['turma_id'] => [
-                        'activo' => true,  // ✅ Só isto
+                        'activo' => true,  // Só isto
                     ],
                 ]);
             }

@@ -35,6 +35,14 @@ export function AlunoDetails({ aluno }) {
             )}
           </p>
         </div>
+        <div>
+          <p className="text-sm text-muted-foreground">Nº Processo</p>
+          <p className="font-medium">
+            {aluno.numero_processo || (
+              <Minus size={15} className="text-muted-foreground" />
+            )}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

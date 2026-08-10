@@ -23,6 +23,7 @@ class AlunoResourceShow extends JsonResource
             'bi' => $this->user->bi,
             'telefone' => $this->user->telefone,
             'matricula' => $this->matricula,
+            'numero_processo' => $this->numero_processo,
             'turma_actual' => $turmaActual ? [
                 'id' => $turmaActual->id,
                 'nome' => $turmaActual->nome,
