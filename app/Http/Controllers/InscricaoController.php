@@ -9,6 +9,7 @@ use App\Http\Resources\Inscricao\InscricaoShowResource;
 use App\Models\AnoLectivo;
 use App\Models\CursoClasseTurno;
 use App\Models\Inscricao;
+use App\Models\Instituicao;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use App\Services\InscricaoService;
 use Illuminate\Support\Facades\Auth;
@@ -21,12 +22,27 @@ class InscricaoController extends Controller
         private InscricaoService $inscricaoService
     ) {}
 
+    /**
+     * Resolve os labels e flags de acordo com o tipo de instituição do utilizador.
+     *
+     * @return array{label: string, label_plural: string, tem_nota_teste: bool}
+     */
+    private function resolveContextoInstituicao(): array
+    {
+        return [
+            'label' => 'Matrícula',
+            'label_plural' => 'Matrículas',
+            'tem_nota_teste' => true,
+        ];
+    }
+
     public function index()
     {
         $this->authorize('viewAny', Inscricao::class);
 
         $user = Auth::user();
         $instituicaoId = Auth::user()?->instituicaoFiltro();
+        $contexto = $this->resolveContextoInstituicao();
 
         $anoLectivoId = filled(request('ano_lectivo_id'))
             ? request('ano_lectivo_id')
@@ -73,6 +89,9 @@ class InscricaoController extends Controller
             'can' => [
                 'create' => $user->can('create', Inscricao::class),
             ],
+            'entity_label' => $contexto['label'],
+            'entity_label_plural' => $contexto['label_plural'],
+            'tem_nota_teste' => $contexto['tem_nota_teste'],
         ]);
     }
 
@@ -82,44 +101,67 @@ class InscricaoController extends Controller
 
         $user = Auth::user();
         $instituicaoId = $user->instituicao_id;
+        $contexto = $this->resolveContextoInstituicao();
 
         $anoLectivoId = request('ano_lectivo_id')
             ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
-        // Busca curso_classe_turno apenas da instituição do utilizador, classe 10ª
         $cursoClasseTurnos = CursoClasseTurno::with([
             'turno:id,nome',
             'cursoClasse.classe:id,nome',
             'cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
+            'turmas' => fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId)->select('id', 'nome', 'curso_classe_turno_id'),
         ])->whereHas(
             'cursoClasse.cursoTutelado.instituicaoCurso',
             fn ($q) => $q->where('instituicao_id', $instituicaoId)
         )->get();
 
-        // Agrupa por curso e filtra por classe 10ª
         $cursos = $cursoClasseTurnos
-            ->filter(fn ($cct) => $cct->cursoClasse->classe?->nome === '10ª')
             ->groupBy(function ($cct) {
                 return $cct->cursoClasse->cursoTutelado->instituicaoCurso->id;
             })
             ->map(function ($group) {
                 $primeiro = $group->first();
 
+                $classes = $group->groupBy(fn ($cct) => $cct->cursoClasse->classe->id)
+                    ->map(function ($classGroup) {
+                        $firstInClass = $classGroup->first();
+
+                        return [
+                            'id' => $firstInClass->cursoClasse->classe->id,
+                            'nome' => $firstInClass->cursoClasse->classe->nome,
+                            'turnos' => $classGroup->map(fn ($cct) => [
+                                'id' => $cct->id,
+                                'nome' => $cct->turno->nome,
+                                'turmas' => $cct->turmas->map(fn ($t) => [
+                                    'id' => $t->id,
+                                    'nome' => $t->nome,
+                                ])->values(),
+                            ])->values(),
+                        ];
+                    })->values();
+
                 return [
                     'id' => $primeiro->cursoClasse->cursoTutelado->instituicaoCurso->id,
                     'nome' => $primeiro->cursoClasse->cursoTutelado->instituicaoCurso->curso->nome,
-                    'turnos' => $group->map(fn ($cct) => [
-                        'id' => $cct->id,
-                        'nome' => $cct->turno->nome,
-                    ])->values(),
+                    'classes' => $classes,
                 ];
             })
             ->values();
 
+        $anosLectivos = AnoLectivo::query()
+            ->select('id', 'nome', 'data_inicio', 'data_fim')
+            ->orderByDesc('data_inicio')
+            ->get();
+
         return Inertia::render('inscricoes/create', [
             'cursos' => $cursos,
-            'anosLectivos' => AnoLectivo::all(),
+            'anosLectivos' => $anosLectivos,
             'anoLectivoId' => $anoLectivoId,
+            'anoLectivoActual' => $anoLectivoId,
+            'entity_label' => $contexto['label'],
+            'entity_label_plural' => $contexto['label_plural'],
+            'tem_nota_teste' => $contexto['tem_nota_teste'],
         ]);
     }
 
@@ -127,7 +169,9 @@ class InscricaoController extends Controller
     {
         $this->authorize('create', Inscricao::class);
 
-        $this->inscricaoService->criar($request->validated());
+        $instituicao = Instituicao::findOrFail(Auth::user()->instituicao_id);
+
+        $this->inscricaoService->criar($request->validated(), $instituicao);
 
         return redirect()->route('inscricoes.index', [
             'ano_lectivo_id' => $request->validated('ano_lectivo_id') ?? $request->input('ano_lectivo_id'),
@@ -137,9 +181,10 @@ class InscricaoController extends Controller
     public function show(Inscricao $inscricao)
     {
         $this->authorize('view', $inscricao);
+        $contexto = $this->resolveContextoInstituicao();
 
         $inscricao->load([
-            'candidato:id,nome,bi,numero_estudante,email,telefone,morada',
+            'candidato:id,nome,bi,numero_estudante,email,telefone,morada,nacionalidade,naturalidade,filiacao,data_nascimento',
             'cursoClasseTurno.turno:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
@@ -148,6 +193,9 @@ class InscricaoController extends Controller
 
         return Inertia::render('inscricoes/show', [
             'inscricao' => (new InscricaoShowResource($inscricao))->resolve(),
+            'entity_label' => $contexto['label'],
+            'entity_label_plural' => $contexto['label_plural'],
+            'tem_nota_teste' => $contexto['tem_nota_teste'],
         ]);
     }
 

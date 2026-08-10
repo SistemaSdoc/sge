@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class VerificadorPropinaService
 {
-    private const TERMOS_BLOQUEIO = ['propina', 'propinas'];
+    private const TERMOS_BLOQUEIO = ['propina','Propinas','Propina', 'propinas'];
 
     public function pendenciasDoAluno(Aluno $aluno): array
     {

@@ -65,13 +65,18 @@ export function InscricaoTable({
   updateFn,
   pagination = {},
   onPageChange,
+  entityLabel = 'Matrícula',
+  entityLabelPlural = 'Matrículas',
+  temNotaTeste = false,
 }) {
   const [nota, setNota] = useState('');
   const [inscricaoSelecionada, setInscricaoSelecionada] = useState(null);
   const isEmpty = !inscricoes || inscricoes.length === 0;
-  const hasActionColumn = inscricoes?.some(
-    (inscricao) => inscricao.status === 'pendente' && inscricao.can?.update,
-  );
+  const hasActionColumn =
+    temNotaTeste &&
+    inscricoes?.some(
+      (inscricao) => inscricao.status === 'pendente' && inscricao.can?.update,
+    );
 
   return (
     <>
@@ -116,8 +121,8 @@ export function InscricaoTable({
 
       <Card className="gap-0">
         <CardHeader className="border-b">
-          <CardTitle>Candidatos</CardTitle>
-          <CardDescription>Lista de candidatos</CardDescription>
+          <CardTitle>{entityLabelPlural}</CardTitle>
+          <CardDescription>Lista de {entityLabelPlural.toLowerCase()}</CardDescription>
           {can.create && (
             <CardAction className="flex gap-3">
               <Select
@@ -151,12 +156,12 @@ export function InscricaoTable({
             <EmptyState
               variant="table"
               icon={UserCheckIcon}
-              title="Nenhuma inscrição cadastrada"
-              description="Comece adicionando a primeira inscrição à tabela"
+              title={`Nenhuma ${entityLabel.toLowerCase()} cadastrada`}
+              description={`Comece adicionando a primeira ${entityLabel.toLowerCase()} à tabela`}
               action={
                 can.create
                   ? {
-                      label: 'Adicionar Inscrição',
+                      label: `Adicionar ${entityLabel}`,
                       href: create.url(),
                       variant: 'outline',
                     }

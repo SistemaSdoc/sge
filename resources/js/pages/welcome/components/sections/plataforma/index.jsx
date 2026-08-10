@@ -19,9 +19,12 @@ const PAUTAS = [
 
 export default function Plataforma() {
   return (
-    <section id="plataforma" className="border-border border-b px-4 py-16 sm:px-12 sm:py-22.5">
+    <section
+      id="plataforma"
+      className="border-b border-border px-4 pb-22.5 sm:px-12 sm:py-22.5"
+    >
       <div className="mb-8 flex flex-col items-start gap-6 sm:mb-15 sm:flex-wrap sm:items-end sm:justify-between lg:flex-row">
-        <h2 className="reveal font-display max-w-140 text-[clamp(24px,4.2vw,44px)] font-semibold tracking-[-0.01em]">
+        <h2 className="reveal max-w-140 font-display text-[clamp(24px,4.2vw,44px)] font-semibold tracking-[-0.01em]">
           Um painel, todas as escolas do grupo.
         </h2>
         <p className="max-w-[320px] pb-1 text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
@@ -29,24 +32,24 @@ export default function Plataforma() {
           confiança nos dados.
         </p>
       </div>
-      <div className="reveal border-border bg-card mt-8 overflow-hidden border sm:mt-15">
-        <div className="border-border flex flex-wrap items-center gap-2 border-b px-3 py-3.5 sm:px-4.5">
-          <span className="bg-muted/30 h-2 w-2 rounded-full"></span>
-          <span className="bg-muted/30 h-2 w-2 rounded-full"></span>
-          <span className="bg-muted/30 h-2 w-2 rounded-full"></span>
-          <span className="text-muted-foreground ml-0 font-mono text-[10px] sm:ml-3 sm:text-xs">
+      <div className="reveal mt-8 overflow-hidden border border-border bg-card sm:mt-15">
+        <div className="flex flex-wrap items-center gap-2 border-b border-border px-3 py-3.5 sm:px-4.5">
+          <span className="h-2 w-2 rounded-full bg-muted/30"></span>
+          <span className="h-2 w-2 rounded-full bg-muted/30"></span>
+          <span className="h-2 w-2 rounded-full bg-muted/30"></span>
+          <span className="ml-0 font-mono text-[10px] text-muted-foreground sm:ml-3 sm:text-xs">
             sge.escola.ao/colegio-aurora/pautas
           </span>
         </div>
         <div className="grid min-h-85 grid-cols-1 md:grid-cols-[200px_1fr]">
-          <div className="border-border border-b py-4 md:border-r md:border-b-0 md:py-6">
+          <div className="border-b border-border py-4 md:border-r md:border-b-0 md:py-6">
             {SIDEBAR_LINKS.map((link) => (
               <a
                 key={link.label}
                 href="#"
                 className={`block border-l-2 px-6 py-2.5 text-[13px] ${
                   link.active
-                    ? 'text-foreground border-accent bg-accent/10'
+                    ? 'border-accent bg-accent/10 text-foreground'
                     : 'border-transparent text-muted-foreground'
                 }`}
               >
@@ -55,7 +58,7 @@ export default function Plataforma() {
             ))}
           </div>
           <div className="p-3 sm:p-7">
-            <div className="border-border/10 text-muted-foreground hidden grid-cols-[2fr_1fr_1fr_1fr] items-center gap-3 border-b py-3.5 font-mono text-[11px] uppercase sm:grid">
+            <div className="hidden grid-cols-[2fr_1fr_1fr_1fr] items-center gap-3 border-b border-border/10 py-3.5 font-mono text-[11px] text-muted-foreground uppercase sm:grid">
               <span>Aluno</span>
               <span>Classe</span>
               <span>Média</span>

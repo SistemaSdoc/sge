@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Aluno;
 use App\Models\AnoLectivo;
+use App\Models\CursoClasseTurno;
 use App\Models\Turma;
 use App\Models\User;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
+use App\Services\PreencherHistoricoService;
 use App\Services\VerificadorPropinaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -114,7 +116,7 @@ class AlunoController extends Controller
         ]);
     }
 
-    public function show(Aluno $aluno)
+    public function show(Aluno $aluno, Request $request)
     {
         Gate::authorize('view', $aluno);
 
@@ -122,7 +124,7 @@ class AlunoController extends Controller
         $user = Auth::user();
 
         $aluno->load([
-            'inscricao.candidato:id,nome,bi,email,telefone',
+            'inscricao.candidato:id,nome,bi,email,telefone,nacionalidade,naturalidade,morada,filiacao,data_nascimento',
             'inscricao.cursoClasseTurno.turno:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
@@ -133,6 +135,43 @@ class AlunoController extends Controller
                 ]),
         ]);
 
+        $historicoService = app(PreencherHistoricoService::class);
+        $pendentes = $historicoService->obterClassesFaltando($aluno);
+
+        $anosLectivos = AnoLectivo::where('activo', false)
+            ->orderBy('data_fim', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(fn ($a) => [
+                'id' => $a->id,
+                'nome' => $a->nome,
+            ])
+            ->toArray();
+
+        $turnos = Inertia::optional(fn () => $request->filled('ano_lectivo_id') && $request->filled('curso_classe_id')
+        ? CursoClasseTurno::query()
+            ->where('curso_classe_id', $request->query('curso_classe_id'))
+            ->with('turno:id,nome')
+            ->get()
+            ->map(fn ($cct) => [
+                'id' => $cct->id,
+                'turno_nome' => $cct->turno?->nome,
+            ])
+        : []
+        );
+
+        $turmasPorTurno = Inertia::optional(fn () => $request->filled('ano_lectivo_id') && $request->filled('curso_classe_turno_id')
+                ? Turma::query()
+                    ->where('ano_lectivo_id', $request->query('ano_lectivo_id'))
+                    ->where('curso_classe_turno_id', $request->query('curso_classe_turno_id'))
+                    ->get()
+                    ->map(fn ($t) => [
+                        'id' => $t->id,
+                        'nome' => $t->nome,
+                    ])
+                : []
+        );
+
         return Inertia::render('alunos/show', [
             'aluno' => [
                 'id' => $aluno->id,
@@ -142,6 +181,11 @@ class AlunoController extends Controller
                 'bi' => $aluno->inscricao?->candidato?->bi,
                 'email' => $aluno->inscricao?->candidato?->email,
                 'telefone' => $aluno->inscricao?->candidato?->telefone,
+                'nacionalidade' => $aluno->inscricao?->candidato?->nacionalidade,
+                'naturalidade' => $aluno->inscricao?->candidato?->naturalidade,
+                'morada' => $aluno->inscricao?->candidato?->morada,
+                'filiacao' => $aluno->inscricao?->candidato?->filiacao,
+                'data_nascimento' => $aluno->inscricao?->candidato?->data_nascimento,
                 'curso' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
                 'instituicao' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
                 'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,
@@ -156,6 +200,11 @@ class AlunoController extends Controller
                     'delete' => $user->can('delete', $aluno),
                 ],
             ],
+            'historicoPendente' => $pendentes,
+            'classesFaltando' => $pendentes,
+            'anosLectivos' => $anosLectivos,
+            'turnos' => $turnos,
+            'turmasPorTurno' => $turmasPorTurno,
         ]);
     }
 

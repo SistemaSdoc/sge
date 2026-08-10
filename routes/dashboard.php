@@ -30,8 +30,10 @@ use App\Http\Controllers\ItemPagavelController;
 use App\Http\Controllers\NotaAlunoController;
 use App\Http\Controllers\NotaDisciplinaController;
 use App\Http\Controllers\NotaDisciplinaRecursoController;
+use App\Http\Controllers\NotificacaoController;
 use App\Http\Controllers\PagamentoController;
 use App\Http\Controllers\PeriodoLancamentoNotasController;
+use App\Http\Controllers\PreencherHistoricoController;
 use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
 use App\Http\Controllers\ProgressaoController;
 use App\Http\Controllers\RegraAvaliacaoController;
@@ -54,6 +56,7 @@ require __DIR__ . '/modules/progressao.php';
 require __DIR__ . '/modules/notas.php';
 require __DIR__ . '/modules/acess-management.php';
 require __DIR__ . '/modules/confirmar-matriculas.php';
+require __DIR__ . '/modules/historico-aluno.php';
 
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
@@ -206,6 +209,7 @@ Route::get('turmas/{turma}/relatorio-propinas', [RelatorioPropinaController::cla
 
 Route::get('turmas/{turma}/relatorio-propinas/pdf', [RelatorioPropinaController::class, 'pdf'])
     ->name('turmas.relatorio-propinas.pdf');
+
 Route::resource('regras-avaliacao', RegraAvaliacaoController::class)
     ->parameters(['regras-avaliacao' => 'regraAvaliacao']);
 
@@ -233,6 +237,10 @@ Route::resource('pagamentos', PagamentoController::class)
     ])
     ->parameters(['pagamentos' => 'pagamento']);
 
+Route::get('notificacoes', [NotificacaoController::class, 'index'])->name('notificacoes.index');
+Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])->name('notificacoes.ler');
+Route::post('notificacoes/ler-todas', [NotificacaoController::class, 'marcarTodasLidas'])->name('notificacoes.ler-todas');
+
 Route::get('/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta', [CursoTuteladoController::class, 'pauta'])
     ->name('pauta');
 
@@ -240,7 +248,7 @@ Route::get('/pautas/solicitacoes', [SolicitacaoEdicaoPautaController::class, 'in
     ->name('pautas.solicitacoes.index');
 Route::post('/pautas/solicitacoes/{solicitacao}/decidir', [SolicitacaoEdicaoPautaController::class, 'decidir'])
     ->name('pautas.solicitacoes.decidir');
-    
+
 Route::prefix('grupo-pap-aprovacao')
     ->name('grupo-pap-aprovacao.')
     ->group(function () {
@@ -301,3 +309,24 @@ Route::get('/grupo-pap-aprovacao/{grupoPap}/historico', [GrupoPapAprovacaoContro
 Route::inertia('horarios', 'horarios/index')->name('horarios');
 
 Route::inertia('propinas/bloqueio', 'propinas/bloqueio')->name('propinas.divida');
+
+// ─── Histórico Académico ────────────────────────────────────────────────────
+
+Route::prefix('historico/{aluno}')
+    ->name('preencher-historico.')
+    ->group(function () {
+        // GET  /historico/{aluno}/lancar?turma_aluno_id=...
+        // Formulário de lançamento das notas históricas
+        Route::get('lancar', [PreencherHistoricoController::class, 'create'])
+            ->name('create');
+
+        // POST /historico/{aluno}/lancar
+        // Guarda ou finaliza as notas do trimestre seleccionado
+        Route::post('lancar', [PreencherHistoricoController::class, 'store'])
+            ->name('store');
+
+        // POST /historico/{aluno}/confirmar
+        // Cria o TurmaAluno histórico e redireciona para o create
+        Route::post('confirmar', [PreencherHistoricoController::class, 'confirmar'])
+            ->name('confirmar');
+    });

@@ -84,8 +84,12 @@ class NotaDisciplinaController extends Controller
                 'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
             ])
             ->where('turma_aluno.turma_id', $turma->id)
-            ->where('turma_aluno.situacao', 'activo')
-            ->where('turma_aluno.activo', true)
+            ->where(function ($q) {
+                $q->where(function ($q) {
+                    $q->where('turma_aluno.situacao', 'activo')
+                        ->where('turma_aluno.activo', true);
+                })->orWhere('turma_aluno.situacao', 'concluido');
+            })
             ->orderBy('candidatos.nome')
             ->paginate(20, ['*'], 'page_alunos');
 
@@ -124,10 +128,12 @@ class NotaDisciplinaController extends Controller
                             if ($eRascunho && !$podeVerRascunho) {
                                 return false;
                             }
+
                             return true;
                         })
                         ->map(function ($n) use ($pautaStatusIndex) {
                             $status = $pautaStatusIndex[$n->periodo] ?? null;
+
                             return [
                                 ...$this->formatarNota($n),
                                 'is_rascunho' => $status === null || $status->status === 'rascunho',
@@ -228,8 +234,12 @@ class NotaDisciplinaController extends Controller
                     'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
                 ])
                 ->where('turma_aluno.turma_id', $turma->id)
-                ->where('turma_aluno.situacao', 'activo')
-                ->where('turma_aluno.activo', true)
+                ->where(function ($q) {
+                    $q->where(function ($q) {
+                        $q->where('turma_aluno.situacao', 'activo')
+                            ->where('turma_aluno.activo', true);
+                    })->orWhere('turma_aluno.situacao', 'concluido');
+                })
                 ->orderBy('candidatos.nome')
                 ->paginate(20, ['*'], 'page_alunos');
             Log::info('turmaAlunos buscados', ['total' => $turmaAlunos->total()]);
@@ -413,7 +423,6 @@ class NotaDisciplinaController extends Controller
         }
 
         $this->notaService->lancarNotas($validated['notas'], $validated['tdp_id'], $periodo);
-
 
         TurmaAluno::with([
             'aluno',

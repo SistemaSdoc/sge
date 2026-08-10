@@ -38,11 +38,11 @@ class BancaJuriPapController extends Controller
             ->whereNotIn('id', $juradosNaBanca)
             ->whereHas(
                 'cursosTutelados',
-                fn($q) => $q
+                fn ($q) => $q
                     ->where('curso_tutelado_id', $cursoTutelado->id)
                     ->where('tipo', 'principal')
             )->get()
-            ->map(fn($professor) => [
+            ->map(fn ($professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ])->values();
@@ -115,11 +115,11 @@ class BancaJuriPapController extends Controller
             ->whereNotIn('id', $juradosNaBanca)
             ->whereHas(
                 'cursosTutelados',
-                fn($q) => $q
+                fn ($q) => $q
                     ->where('curso_tutelado_id', $cursoTutelado->id)
                     ->where('tipo', 'principal')
             )->get()
-            ->map(fn($professor) => [
+            ->map(fn ($professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ])->values();
@@ -164,9 +164,9 @@ class BancaJuriPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Membro da banca actualizado com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Membro da banca actualizado com sucesso!',
+        ]);
     }
 
     /**

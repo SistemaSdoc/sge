@@ -38,3 +38,6 @@ Route::get(
 )->name('certificados.verificar');
 
 Route::inertia('/candidatura', 'teste');
+
+// Proxy route to consult BI externally (avoids CORS issues)
+Route::get('/bi/consultar/{bi}', [\App\Http\Controllers\BiController::class, 'consult']);

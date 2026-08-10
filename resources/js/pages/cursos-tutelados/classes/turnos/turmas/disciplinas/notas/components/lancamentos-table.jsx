@@ -278,17 +278,18 @@ export default function LancamentosTable({
 
             <CardDescription>
               {finalizadaAutomaticamente
-                ? 'Esta pauta foi finalizada automaticamente por expiração do prazo.'
+                ? 'Esta pauta foi encerrada automaticamente devido ao término do prazo estabelecido para o lançamento das notas.'
                 : estaFinalizada
                   ? can?.overrideLockedPeriods
-                    ? 'Esta pauta já foi finalizada, mas tens permissão para a alterar.'
-                    : 'Esta pauta já foi finalizada. Para editar, solicite autorização ao director.'
+                    ? 'Esta pauta encontra-se encerrada. No entanto, possui permissão para efetuar alterações.'
+                    : 'Esta pauta encontra-se encerrada. Para realizar alterações, é necessária a autorização da Direção.'
                   : !dentroDoPrazo?.[periodo] && !can?.overrideLockedPeriods
-                    ? 'O prazo de lançamento para este trimestre terminou.'
-                    : 'Preencha as notas dos alunos para o trimestre seleccionado.'}
+                    ? 'O período de lançamento das notas para este trimestre encontra-se encerrado.'
+                    : 'Preencha as classificações dos alunos correspondentes ao trimestre selecionado.'}
+
               {tempoRestante && (
                 <p className="mt-1 text-sm font-medium text-orange-600">
-                  ⏱ Tempo de edição restante: {tempoRestante}
+                  ⏱ <strong>Tempo restante para edição:</strong> {tempoRestante}
                 </p>
               )}
             </CardDescription>

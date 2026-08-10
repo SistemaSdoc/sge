@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Aluno;
 use App\Models\Candidato;
 use App\Models\Inscricao;
+use App\Models\Instituicao;
 use App\Models\User;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Support\Facades\DB;
@@ -18,17 +19,28 @@ class InscricaoService
     public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
     /**
-     * Cria um registro em inscrições para o candidato
+     * Cria um registro em inscrições para o candidato.
+     *
+     * Para instituições do tipo "colegio" a inscrição é imediatamente aprovada
+     * sem necessidade de nota de teste.
+     * Para instituições do tipo "instituto" o estado é calculado com base na nota.
      */
-    public function criar(array $dados): Inscricao
+    public function criar(array $dados, ?Instituicao $instituicao = null): Inscricao
     {
         return DB::transaction(function () use ($dados) {
             $candidato = Candidato::create([
                 'nome' => $dados['nome'],
                 'bi' => $dados['bi'],
-                'numero_estudante' => $dados['numero_estudante'],
+                'numero_estudante' => $dados['numero_estudante'] ?? null,
                 'telefone' => $dados['telefone'] ?? null,
                 'email' => $dados['email'],
+                'morada' => $dados['morada'] ?? null,
+                'genero' => $dados['genero'] ?? null,
+                'nacionalidade' => $dados['nacionalidade'] ?? null,
+                'naturalidade' => $dados['naturalidade'] ?? null,
+                'filiacao' => $dados['filiacao'] ?? null,
+                'data_nascimento' => $dados['data_nascimento'],
+                'municipio' => $dados['municipio'],
             ]);
 
             $anoLectivoId = $dados['ano_lectivo_id'] ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
@@ -37,12 +49,23 @@ class InscricaoService
                 throw new InvalidArgumentException('Nenhum ano lectivo activo encontrado.');
             }
 
-            return Inscricao::create([
+            $hasNota = isset($dados['nota_teste']) && $dados['nota_teste'] !== '' && $dados['nota_teste'] !== null;
+            $nota = $hasNota ? (float) $dados['nota_teste'] : null;
+            $status = $hasNota ? ($nota >= 10 ? 'aprovado' : 'reprovado') : 'pendente';
+
+            $inscricao = Inscricao::create([
                 'candidato_id' => $candidato->id,
                 'curso_classe_turno_id' => $dados['curso_classe_turno_id'],
                 'ano_lectivo_id' => $anoLectivoId,
-                'status' => 'pendente',
+                'status' => $status,
+                'nota_teste' => $nota,
             ]);
+
+            if ($status === 'aprovado') {
+                $this->criarAlunoSeNecessario($inscricao, $dados['turma_id'] ?? null);
+            }
+
+            return $inscricao;
         });
     }
 
@@ -84,7 +107,7 @@ class InscricaoService
     /**
      * Cria um aluno associado a uma inscrição, caso ainda não exista.
      */
-    private function criarAlunoSeNecessario(Inscricao $inscricao): void
+    private function criarAlunoSeNecessario(Inscricao $inscricao, ?string $turmaId = null): void
     {
         if (! $inscricao->candidato?->bi) {
             throw new InvalidArgumentException('O candidato não tem BI registado.');
@@ -118,13 +141,22 @@ class InscricaoService
         $role = Role::where('name', 'Aluno')->firstOrFail();
         $user->assignRole($role);
 
-        // ✅ AGORA INCLUI ano_lectivo_id
-        Aluno::create([
+        $aluno = Aluno::create([
             'user_id' => $user->id,
             'inscricao_id' => $inscricao->id,
-            'ano_lectivo_id' => $inscricao->ano_lectivo_id,  // ← ADICIONA ISTO
+            'ano_lectivo_id' => $inscricao->ano_lectivo_id,
             'matricula' => $this->gerarMatriculaUnica(),
         ]);
+
+        if ($turmaId) {
+            $aluno->turmas()->syncWithoutDetaching([
+                $turmaId => [
+                    'activo' => true,
+                    'situacao' => 'activo',
+                    'ano_lectivo_id' => $inscricao->ano_lectivo_id,
+                ],
+            ]);
+        }
     }
 
     private function gerarMatriculaUnica(): string

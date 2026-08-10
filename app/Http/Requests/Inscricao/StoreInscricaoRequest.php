@@ -2,26 +2,15 @@
 
 namespace App\Http\Requests\Inscricao;
 
-use App\Models\AnoLectivo;
-use App\Models\CursoClasseTurno;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreInscricaoRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
@@ -34,7 +23,7 @@ class StoreInscricaoRequest extends FormRequest
                 'unique:users,bi',
             ],
             'numero_estudante' => [
-                'required',
+                'nullable',
                 'string',
                 'max:20',
                 'unique:candidatos,numero_estudante',
@@ -53,9 +42,56 @@ class StoreInscricaoRequest extends FormRequest
                 'unique:candidatos,email',
                 'unique:users,email',
             ],
+            'genero' => [
+                'required',
+                'in:M,F',
+            ],
+            'nacionalidade' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'naturalidade' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'morada' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'filiacao' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'data_nascimento' => [
+                'required',
+                'date',
+                'before:today',
+            ],
+
+            'municipio' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
             'curso_classe_turno_id' => [
                 'required',
                 'exists:curso_classe_turno,id',
+            ],
+            'turma_id' => [
+                'nullable',
+                'exists:turmas,id',
+            ],
+            'nota_teste' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:20',
             ],
             'ano_lectivo_id' => [
                 'nullable',
@@ -86,8 +122,30 @@ class StoreInscricaoRequest extends FormRequest
             'email.max' => 'O email não pode ter mais de 255 caracteres.',
             'email.unique' => 'Já existe um registo com este email.',
 
+            'genero.required' => 'O género é obrigatório.',
+            'genero.in' => 'O género deve ser Masculino ou Feminino.',
+
+            'nacionalidade.required' => 'A nacionalidade é obrigatória.',
+            'nacionalidade.max' => 'A nacionalidade não pode ter mais de 255 caracteres.',
+
+            'naturalidade.required' => 'A naturalidade é obrigatória.',
+            'naturalidade.max' => 'A naturalidade não pode ter mais de 255 caracteres.',
+
+            'filiacao.max' => 'A filiação não pode ter mais de 255 caracteres.',
+
+            'data_nascimento.required' => 'A data de nascimento é obrigatória.',
+            'data_nascimento.date' => 'A data de nascimento deve ser uma data válida.',
+            'data_nascimento.before' => 'A data de nascimento deve ser anterior à data de hoje.',
+
+            'municipio.required' => 'O município é obrigatório.',
+            'municipio.max' => 'O município não pode ter mais de 255 caracteres.',
+
             'curso_classe_turno_id.required' => 'O curso/turno é obrigatório.',
             'curso_classe_turno_id.exists' => 'O curso/turno seleccionado não existe.',
+            'turma_id.exists' => 'A turma seleccionada não existe.',
+            'nota_teste.numeric' => 'A nota do teste deve ser um valor numérico.',
+            'nota_teste.min' => 'A nota do teste não pode ser inferior a 0.',
+            'nota_teste.max' => 'A nota do teste não pode ser superior a 20.',
             'ano_lectivo_id.exists' => 'O ano lectivo seleccionado não existe.',
         ];
     }

@@ -4,7 +4,15 @@ import { update } from '@/routes/inscricoes';
 import { InscricaoTable } from './components/inscricao-table';
 
 export default function Index() {
-  const { inscricoes, anosLectivos, anoLectivoActual, can } = usePage().props;
+  const {
+    inscricoes,
+    anosLectivos,
+    anoLectivoActual,
+    can,
+    entity_label: entityLabel,
+    entity_label_plural: entityLabelPlural,
+    tem_nota_teste: temNotaTeste,
+  } = usePage().props;
 
   const handlePageChange = (page) => {
     router.visit('/dashboard/inscricoes', {
@@ -36,6 +44,9 @@ export default function Index() {
         anoLectivoActual={anoLectivoActual}
         anosLectivos={anosLectivos}
         onAnoLectivoChange={handleAnoLectivoChange}
+        entityLabel={entityLabel}
+        entityLabelPlural={entityLabelPlural}
+        temNotaTeste={temNotaTeste}
       />
     </div>
   );
