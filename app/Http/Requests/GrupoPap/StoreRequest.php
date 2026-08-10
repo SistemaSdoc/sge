@@ -31,7 +31,7 @@ class StoreRequest extends FormRequest
                 new ProfessorTitularDoCurso($this->route('cursoTutelado')),
             ],
             'nome_grupo' => 'required|string|max:255',
-            'tema_grupo' => 'required|string|max:255',
+            'tema_grupo' => 'nullable|string|max:255',
             'problema' => 'nullable|string',
             'objectivos' => 'nullable|string',
             'alunos' => 'required|array|min:1',

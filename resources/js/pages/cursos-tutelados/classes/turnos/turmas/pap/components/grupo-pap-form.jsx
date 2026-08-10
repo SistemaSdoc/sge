@@ -43,7 +43,7 @@ export default function GrupoPapForm({
         <CardContent>
           <FieldGroup>
             <FieldSet>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
                 <Field>
                   <FieldLabel>Nome do grupo</FieldLabel>
                   <Input
@@ -105,60 +105,9 @@ export default function GrupoPapForm({
                   )}
                 </Field>
 
-                <Field>
-                  <FieldLabel>Tema</FieldLabel>
-                  <Input
-                    name="tema_grupo"
-                    disabled={processing}
-                    placeholder="Ex.: Sistema de Gestão Escolar"
-                    defaultValue={grupoPap?.tema_grupo ?? ''}
-                  />
-                  {errors.tema_grupo && (
-                    <FieldError>{errors.tema_grupo}</FieldError>
-                  )}
-                </Field>
               </div>
 
-              <Field>
-                <FieldLabel>Problema</FieldLabel>
-                <Input
-                  name="problema"
-                  disabled={processing}
-                  placeholder="Ex.: Dificuldades na gestão de alunos e professores"
-                  defaultValue={grupoPap?.problema ?? ''}
-                />
-                {errors.problema && (
-                  <FieldError>{errors.problema}</FieldError>
-                )}
-              </Field>
-
-
-              <Field>
-                <FieldLabel>Objectivos</FieldLabel>
-                <Textarea
-                  name="objectivos"
-                  disabled={processing}
-                  placeholder="Descreve os objectivos geral e específicos..."
-                  defaultValue={grupoPap?.objectivos ?? ''}
-                />
-                {errors.objectivos && (
-                  <FieldError>{errors.objectivos}</FieldError>
-                )}
-              </Field>
-
-              <Field>
-                <FieldLabel>Estudo de caso</FieldLabel>
-                <Input
-                  name="estudo_caso"
-                  disabled={processing}
-                  placeholder="Descreve o estudo de caso..."
-                  defaultValue={grupoPap?.estudo_caso ?? ''}
-                />
-                {errors.estudo_caso && (
-                  <FieldError>{errors.estudo_caso}</FieldError>
-                )}
-              </Field>
-
+            
               <Field>
                 <Button type="submit" disabled={processing}>
                   {processing ? (

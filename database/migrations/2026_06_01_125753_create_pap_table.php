@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->uuid('professor_tutor_id');
             $table->foreign('professor_tutor_id')->references('id')->on('professores');
             $table->string('nome_grupo');
-            $table->string('tema_grupo');
+            $table->string('tema_grupo')->nullable();
             $table->text('problema')->nullable();
             $table->text('objectivos')->nullable();
 
