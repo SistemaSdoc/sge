@@ -30,10 +30,10 @@ import { definirData } from '@/actions/App/Http/Controllers/GrupoPapController';
 import { actualizarNota } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
 import { FieldError } from '@/components/ui/field';
 import { usePagination } from '@/hooks/use-pagination';
-// Adicionar no topo dos imports
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { editar as editarTema } from '@/actions/App/Http/Controllers/GrupoPapAprovacaoController'; // ajustar o import real
+import { editar as editarTema } from '@/actions/App/Http/Controllers/GrupoPapAprovacaoController';
+import { create as createTema } from '@/actions/App/Http/Controllers/GrupoPapTemaController';
 
 export default function Show({
   instituicao,
@@ -127,7 +127,7 @@ export default function Show({
                 {grupoPap?.nome_grupo}
               </h1>
 
-              <h2 className="text-2xl font-semibold md:text-1xl">
+              <h2 className="md:text-1xl text-2xl font-semibold">
                 Tema: {grupoPap?.tema_grupo}
               </h2>
             </div>
@@ -152,6 +152,12 @@ export default function Show({
                       Editar
                     </DropdownMenuItem>
                   )}
+
+                  <DropdownMenuItem
+                    onClick={() => router.visit(createTema.url(params))}
+                  >
+                    Definir Tema
+                  </DropdownMenuItem>
 
                   {can?.definirData && (
                     <DropdownMenuItem onClick={() => setDialogDataAberto(true)}>
@@ -204,18 +210,16 @@ export default function Show({
               Local & Data de defesa
             </p>
             <p className="font-medium">
-              {grupoPap?.local_defesa
-                ? `${grupoPap.local_defesa} / `
-                : ''}
+              {grupoPap?.local_defesa ? `${grupoPap.local_defesa} / ` : ''}
               {grupoPap?.data_defesa
                 ? new Date(grupoPap.data_defesa).toLocaleString('pt-PT', {
-                  weekday: 'short',
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
                 : 'Por definir...'}
             </p>
           </div>
@@ -257,7 +261,9 @@ export default function Show({
                 value={data.hora_defesa}
                 onChange={(e) => setData('hora_defesa', e.target.value)}
               />
-              {errors.hora_defesa && <FieldError>{errors.hora_defesa}</FieldError>}
+              {errors.hora_defesa && (
+                <FieldError>{errors.hora_defesa}</FieldError>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -345,14 +351,9 @@ export default function Show({
             </TabsTrigger>
           )}
 
-          <TabsTrigger value="aprovacao">
-            Aprovação do tema
-          </TabsTrigger>
+          <TabsTrigger value="aprovacao">Aprovação do tema</TabsTrigger>
 
-          <TabsTrigger value="historico">
-            Histórico
-          </TabsTrigger>
-
+          <TabsTrigger value="historico">Histórico</TabsTrigger>
         </TabsList>
 
         <TabsContent value="integrantes-grupo">
@@ -383,11 +384,7 @@ export default function Show({
         )}
 
         <TabsContent value="aprovacao">
-          <TabAprovacao
-            params={params}
-            grupoPap={grupoPap}
-            can={can}
-          />
+          <TabAprovacao params={params} grupoPap={grupoPap} can={can} />
         </TabsContent>
 
         <TabsContent value="historico">
@@ -398,7 +395,6 @@ export default function Show({
           />
         </TabsContent>
       </Tabs>
-
     </div>
   );
 }

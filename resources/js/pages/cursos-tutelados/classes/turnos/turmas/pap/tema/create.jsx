@@ -1,22 +1,17 @@
 import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/GrupoPapController';
-import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
-import GrupoPapForm from '../pap/components/grupo-pap-form';
-import { useState } from 'react';
+import { store } from '@/actions/App/Http/Controllers/GrupoPapTemaController';
+import { TemaForm } from './components/tema-form';
 
-export function Create() {
+export default function Create() {
   const {
     instituicao,
     cursoTutelado,
     cursoClasse,
     cursoClasseTurno,
+    grupoPap,
     turma,
-    form,
   } = usePage().props;
-
-  const [professorTutorId, setProfessorTutorId] = useState(undefined);
-  const [alunoIds, setAlunoIds] = useState([]);
 
   return (
     <Form
@@ -26,11 +21,10 @@ export function Create() {
         cursoClasse: cursoClasse.id,
         cursoClasseTurno: cursoClasseTurno.id,
         turma: turma.id,
+        grupoPap: grupoPap.id,
       })}
       transform={(data) => ({
         ...data,
-        professor_tutor_id: professorTutorId,
-        alunos: alunoIds,
       })}
       onSuccess={() =>
         router.visit(
@@ -45,16 +39,10 @@ export function Create() {
       }
     >
       {({ errors, processing }) => (
-        <GrupoPapForm
-          title="Criar grupo PAP"
+        <TemaForm
+          title="Definir Tema do Grupo"
           errors={errors}
           processing={processing}
-          professores={form.professores}
-          alunos={form.alunos}
-          professorTutorId={professorTutorId}
-          setProfessorTutorId={setProfessorTutorId}
-          alunoIds={alunoIds}
-          setAlunoIds={setAlunoIds}
         />
       )}
     </Form>
