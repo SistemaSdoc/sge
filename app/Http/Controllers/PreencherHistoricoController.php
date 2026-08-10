@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Helpers\ArredondamentoHelper;
 use App\Models\Aluno;
-use App\Models\ClasseTurnoDisciplina;
-use App\Models\CursoClasseTurno;
 use App\Models\Nota;
 use App\Models\PautaStatus;
 use App\Models\Turma;
@@ -16,7 +14,6 @@ use App\Services\Pauta\PautaService;
 use App\Services\PreencherHistoricoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class PreencherHistoricoController extends Controller
@@ -25,8 +22,7 @@ class PreencherHistoricoController extends Controller
         private readonly PreencherHistoricoService $service,
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
 
     /**
      * Mostra o formulário de lançamento do histórico académico de um aluno.
@@ -67,7 +63,7 @@ class PreencherHistoricoController extends Controller
                 'id' => $tdp->classeTurnoDisciplina->id,
                 'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
                 'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
-                'notas' => $notas->keyBy('periodo')->map(fn($n) => $this->formatarNota($n)),
+                'notas' => $notas->keyBy('periodo')->map(fn ($n) => $this->formatarNota($n)),
             ];
         });
 
@@ -105,7 +101,6 @@ class PreencherHistoricoController extends Controller
      * Recebe: turma_aluno_id, periodo, notas[tdp_id][mac|npp|npt|faltas]
      * Segue o mesmo padrão do NotaDisciplinaController@store.
      */
-
     public function store(Request $request, Aluno $aluno)
     {
         $this->authorize('update', $aluno);
@@ -129,6 +124,21 @@ class PreencherHistoricoController extends Controller
 
         $periodo = (int) $validated['periodo'];
 
+        // Verifica se há pelo menos uma nota preenchida ao finalizar
+        if ($validated['accao'] === 'finalizar') {
+            $temNotas = false;
+            foreach ($validated['notas'] as $valores) {
+                if ($valores['mac'] !== null || $valores['npp'] !== null || $valores['npt'] !== null || $valores['faltas'] !== null) {
+                    $temNotas = true;
+                    break;
+                }
+            }
+
+            if (! $temNotas) {
+                return back()->withErrors(['error' => 'Deve preencher pelo menos uma nota antes de finalizar o trimestre.']);
+            }
+        }
+
         foreach ($validated['notas'] as $tdpId => $valores) {
             $this->notaService->lancarNotas(
                 [$turmaAluno->id => $valores],
@@ -148,10 +158,10 @@ class PreencherHistoricoController extends Controller
                 );
             }
 
-            return back()->with('success', 'Histórico do trimestre ' . $periodo . ' finalizado com sucesso.');
+            return back()->with('success', 'Histórico do trimestre '.$periodo.' finalizado com sucesso.');
         }
 
-        return back()->with('success', 'Rascunho do trimestre ' . $periodo . ' guardado.');
+        return back()->with('success', 'Rascunho do trimestre '.$periodo.' guardado.');
     }
 
     /**
@@ -179,7 +189,7 @@ class PreencherHistoricoController extends Controller
             return redirect()
                 ->to(
                     route('preencher-historico.create', ['aluno' => $aluno->id])
-                    . '?turma_aluno_id=' . $turmaAluno->id
+                    .'?turma_aluno_id='.$turmaAluno->id
                 )
                 ->with('success', 'Histórico criado. Procede ao lançamento de notas.');
 

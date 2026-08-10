@@ -4,15 +4,22 @@ namespace App\Services;
 
 use App\Models\Aluno;
 use App\Models\CursoClasse;
+use App\Models\CursoClasseRecord;
 use App\Models\CursoClasseTurno;
+use App\Models\PautaStatus;
 use App\Models\Turma;
 use App\Models\TurmaAluno;
+use App\Models\TurmaDisciplinaProfessor;
+use Illuminate\Support\Collection;
 
 class PreencherHistoricoService
 {
     /**
      * Retorna classes que o aluno ainda precisa de histórico.
-     * Só devolve classes anteriores à actual que NÃO têm notas registadas.
+     * Mostra:
+     * - "Lançar Notas" para classes sem turma_aluno
+     * - "Continuar" para classes com notas não finalizadas
+     * - Oculta classes com lançamento completo e finalizado
      */
     public function obterClassesFaltando(Aluno $aluno): array
     {
@@ -20,48 +27,132 @@ class PreencherHistoricoService
             'cursoClasseTurno.cursoClasse.classe',
         ]);
 
-        if (!$inscricao) {
+        $cursoClasseActual = $inscricao?->cursoClasseTurno?->cursoClasse;
+        $ordemActual = $cursoClasseActual?->classe?->ordem;
+        $cursoTuteladoId = $cursoClasseActual?->curso_tutelado_id;
+
+        $classes = $cursoTuteladoId
+            ? CursoClasseRecord::with('classe')
+                ->where('curso_tutelado_id', $cursoTuteladoId)
+                ->when(
+                    $ordemActual !== null,
+                    fn($q) => $q->whereHas('classe', fn($q2) => $q2->where('ordem', '<', $ordemActual))
+                )
+                ->get()
+            : collect();
+
+        if ($classes->isEmpty()) {
+            $classes = $this->obterClassesPorTurmaAluno($aluno);
+        }
+
+        if ($classes->isEmpty()) {
             return [];
         }
 
-        $cursoClasseActual = $inscricao->cursoClasseTurno?->cursoClasse;
-
-        if (!$cursoClasseActual) {
-            return [];
-        }
-
-        $ordemActual = $cursoClasseActual->classe->ordem;
-        $cursoTuteladoId = $cursoClasseActual->curso_tutelado_id;
-
-        $classesAnteriores = CursoClasse::with('classe')
-            ->where('curso_tutelado_id', $cursoTuteladoId)
-            ->whereHas('classe', fn($q) => $q->where('ordem', '<', $ordemActual))
+        $turmaAlunos = TurmaAluno::where('aluno_id', $aluno->id)
+            ->with([
+                'turma.cursoClasseTurno.cursoClasse.classe',
+                'notas',   // ← carrega notas para detectar "sem notas"
+            ])
             ->get();
 
-        if ($classesAnteriores->isEmpty()) {
-            return [];
+        $resultado = [];
+
+        foreach ($classes as $cc) {
+            $ta = $turmaAlunos->first(
+                fn($x) => $x->turma?->cursoClasseTurno?->curso_classe_id === $cc->id
+            );
+
+            if (!$ta) {
+                // Nunca iniciou — mostra botão "Lançar Notas"
+                $resultado[] = [
+                    'curso_classe_id' => $cc->id,
+                    'classe' => $cc->classe->nome,
+                    'ordem' => $cc->classe->ordem,
+                    'turma_aluno_id' => null,
+                    'em_curso' => false,
+                    'tem_notas' => false,
+                ];
+                continue;
+            }
+
+            $todasFinalizadas = $this->verificarSeTodasPautasFinalizadas($ta->turma->id);
+
+            if ($todasFinalizadas) {
+                // Completo — oculta
+                continue;
+            }
+
+            // turma_aluno existe mas histórico incompleto (com ou sem notas)
+            $resultado[] = [
+                'curso_classe_id' => $cc->id,
+                'classe' => $cc->classe->nome,
+                'ordem' => $cc->classe->ordem,
+                'turma_aluno_id' => $ta->id,
+                'em_curso' => true,
+                'tem_notas' => $ta->notas->isNotEmpty(),
+            ];
         }
 
-        // IDs das turmas onde o aluno já tem notas lançadas
-        $turmasComNotas = TurmaAluno::where('aluno_id', $aluno->id)
-            ->whereHas('notas')
-            ->with('turma.cursoClasseTurno.cursoClasse')
-            ->get()
-            ->pluck('turma.cursoClasseTurno.curso_classe_id')
+        return collect($resultado)->sortBy('ordem')->values()->toArray();
+    }
+
+    private function obterClassesPorTurmaAluno(Aluno $aluno): Collection
+    {
+        $turmaAlunos = TurmaAluno::where('aluno_id', $aluno->id)
+            ->with('turma.cursoClasseTurno.cursoClasse.classe')
+            ->get();
+
+        $cursoClasseIds = $turmaAlunos
+            ->map(fn($ta) => $ta->turma?->cursoClasseTurno?->curso_classe_id)
             ->filter()
             ->unique()
             ->values();
 
-        return $classesAnteriores
-            ->reject(fn($cc) => $turmasComNotas->contains($cc->id))
-            ->map(fn($cc) => [
-                'curso_classe_id' => $cc->id,
-                'classe' => $cc->classe->nome,
-                'ordem' => $cc->classe->ordem,
-            ])
-            ->sortBy('ordem')
-            ->values()
-            ->toArray();
+        if ($cursoClasseIds->isEmpty()) {
+            return collect();
+        }
+
+        return CursoClasseRecord::with('classe')
+            ->whereIn('id', $cursoClasseIds)
+            ->get();
+    }
+
+    /**
+     * Verifica se TODAS as pautas de uma turma (todos os trimestres e todas as disciplinas)
+     * foram finalizadas.
+     *
+     * Retorna true apenas se:
+     * - Para o período 1: TODAS as disciplinas têm pauta finalizada
+     * - Para o período 2: TODAS as disciplinas têm pauta finalizada
+     * - Para o período 3: TODAS as disciplinas têm pauta finalizada
+     */
+    private function verificarSeTodasPautasFinalizadas(string $turmaId): bool
+    {
+        $tdps = TurmaDisciplinaProfessor::where('turma_id', $turmaId)
+            ->pluck('id');
+
+        if ($tdps->isEmpty()) {
+            return false;
+        }
+
+        $numDisciplinas = $tdps->count();
+
+        // Verifica cada período (1, 2, 3)
+        for ($periodo = 1; $periodo <= 3; $periodo++) {
+            $pautasFinalizadasNestePeriodo = PautaStatus::whereIn('turma_disciplina_professor_id', $tdps)
+                ->where('periodo', $periodo)
+                ->where('status', 'finalizada')
+                ->count();
+
+            // Se não tem o mesmo número de pautas finalizadas que disciplinas,
+            // significa que faltam disciplinas neste período
+            if ($pautasFinalizadasNestePeriodo !== $numDisciplinas) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

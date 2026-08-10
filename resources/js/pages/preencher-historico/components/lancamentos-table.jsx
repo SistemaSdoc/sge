@@ -92,6 +92,17 @@ export default function LancamentosHistoricoTable({
     }
   };
 
+  // verifica se há pelo menos uma nota preenchida
+  const temNotasPreenchidas = () => {
+    return disciplinas.some((d) => {
+      const mac    = getNota(d.tdp_id, 'mac');
+      const npp    = getNota(d.tdp_id, 'npp');
+      const npt    = getNota(d.tdp_id, 'npt');
+      const faltas = getNota(d.tdp_id, 'faltas');
+      return mac !== '' || npp !== '' || npt !== '' || faltas !== '';
+    });
+  };
+
   // monta payload no formato que o store espera
   const recolherDados = () => {
     const notas = {};
@@ -189,7 +200,8 @@ export default function LancamentosHistoricoTable({
                 </Button>
                 <Button
                   type="button"
-                  disabled={isPending}
+                  disabled={isPending || !temNotasPreenchidas()}
+                  title={!temNotasPreenchidas() ? 'Preencha pelo menos uma nota antes de finalizar' : ''}
                   onClick={() => onSubmit('finalizar', recolherDados())}
                 >
                   {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}

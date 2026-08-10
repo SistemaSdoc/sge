@@ -16,16 +16,18 @@ export default function Show() {
 
   const { openForm, closeDialog } = useDialog();
 
-  const abrirSelecaoAnoDialog = (alunoData, e) => {
+  // Chamado pelo botão "Iniciar" — pendente sem turma_aluno ainda
+  const abrirModal = (alunoData, e, pendente) => {
     e.stopPropagation();
     openForm({
       title: 'Preencher Histórico Académico',
-      description: ``,
+      description: '',
       size: 'lg',
       content: (
         <Preencher
           aluno={alunoData}
-          classesFaltando={classesFaltando}
+          // só mostra classes que ainda não têm turma_aluno
+          classesFaltando={classesFaltando.filter((c) => !c.em_curso)}
           anosLectivos={anosLectivos}
           onCancel={() => closeDialog()}
           onSuccess={() => {
@@ -45,7 +47,7 @@ export default function Show() {
         <HistoricoPendenteAlert
           aluno={aluno}
           pendentes={historicoPendente}
-          abrirSelecaoFn={abrirSelecaoAnoDialog}
+          abrirSelecaoFn={abrirModal}
         />
       )}
 
@@ -53,7 +55,6 @@ export default function Show() {
         <div className="space-y-6 lg:col-span-1">
           <AlunoSidebar aluno={aluno} />
         </div>
-
         <div className="space-y-6 lg:col-span-2">
           <AlunoActivity aluno={aluno} />
         </div>
