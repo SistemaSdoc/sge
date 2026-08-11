@@ -28,12 +28,14 @@ class PreencherHistoricoService
         ]);
 
         $cursoClasseActual = $inscricao?->cursoClasseTurno?->cursoClasse;
-        $ordemActual = $cursoClasseActual?->classe?->ordem;
+        $ordemActual = $cursoClasseActual?->classe?->ordem
+            ?? $aluno->turmaActual()->first()?->cursoClasseTurno?->cursoClasse?->classe?->ordem;
         $cursoTuteladoId = $cursoClasseActual?->curso_tutelado_id;
 
         $classes = collect();
 
-        // Tenta primeiro pela tutela (instituto)
+        // Mantém apenas classes anteriores à classe actual. Quando existem duas classes,
+        // uma que ficou pendente não pode ser escondida por uma outra classe em curso.
         if ($cursoTuteladoId) {
             $classes = CursoClasseRecord::with('classe')
                 ->where('curso_tutelado_id', $cursoTuteladoId)
