@@ -46,11 +46,11 @@ export function TabAlunos({
       <CardHeader className="border-b">
         <CardTitle>Alunos</CardTitle>
         <CardDescription>Alunos inscritos nesta turma</CardDescription>
-        {canCreate && (
+        {/* {canCreate && (
           <CardAction>
             <Button>Adicionar</Button>
           </CardAction>
-        )}
+        )} */}
       </CardHeader>
 
       <CardContent className="p-0!">
