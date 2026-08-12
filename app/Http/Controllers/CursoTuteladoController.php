@@ -14,7 +14,7 @@ use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
 use App\Models\NivelEnsino;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -24,19 +24,44 @@ class CursoTuteladoController extends Controller
 {
     public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
+    public function index(Instituicao $instituicao)
+    {
+        $cursos = $instituicao->instituicaoCursos()
+            ->with(['curso:id,nome', 'cursoTutelado.instituicaoTutora:id,nome'])
+            ->paginate(10)
+            ->through(fn ($instituicaoCurso) => [
+                'id' => $instituicaoCurso->cursoTutelado->id,
+                'nome' => $instituicaoCurso->curso->nome,
+                'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,
+                'can' => [
+                    'view' => Auth::user()->can('view', $instituicaoCurso->cursoTutelado),
+                    'update' => Auth::user()->can('update', $instituicaoCurso->cursoTutelado),
+                    'delete' => Auth::user()->can('delete', $instituicaoCurso->cursoTutelado),
+                ],
+            ]);
+
+        return Inertia::render('cursos-tutelados/index', [
+            'cursos' => $cursos,
+            'instituicao' => $instituicao->only('id'),
+            'can' => [
+                'create_curso' => Auth::user()->can('create', CursoTutelado::class),
+            ],
+        ]);
+    }
+
     public function create(Instituicao $instituicao)
     {
         Gate::authorize('create', CursoTutelado::class);
 
-        $classes = Classe::select('id', 'nome')
+        $classes = Classe::select(['id', 'nome'])
             ->orderBy('nome')
             ->get();
 
-        $niveisEnsino = NivelEnsino::select('id', 'nome')
+        $niveisEnsino = NivelEnsino::select(['id', 'nome'])
             ->orderBy('nome')
             ->get();
 
-        $cursos = Curso::select('id', 'nome')
+        $cursos = Curso::select(['id', 'nome'])
             ->orderBy('nome')
             ->get();
 
@@ -48,10 +73,8 @@ class CursoTuteladoController extends Controller
         ]);
     }
 
-    public function store(
-        StoreCursoTuteladoRequest $request,
-        Instituicao $instituicao
-    ): RedirectResponse {
+    public function store(StoreCursoTuteladoRequest $request, Instituicao $instituicao)
+    {
         Gate::authorize('create', CursoTutelado::class);
 
         $validated = $request->validated();
@@ -98,7 +121,7 @@ class CursoTuteladoController extends Controller
             );
         });
 
-        return to_route('instituicoes.show', $instituicao)->with('toast', [
+        return to_route('cursos-tutelados.index', $instituicao)->with('toast', [
             'type' => 'success',
             'message' => 'Curso criado com sucesso!',
         ]);
@@ -213,7 +236,7 @@ class CursoTuteladoController extends Controller
             $cursoTutelado->classes()->sync($validated['classes']);
         });
 
-        return to_route('instituicoes.show', $instituicao)->with('toast', [
+        return to_route('cursos-tutelados.index', $instituicao)->with('toast', [
             'type' => 'success',
             'message' => 'Curso tutelado atualizado com sucesso!',
         ]);

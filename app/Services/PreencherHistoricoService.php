@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Aluno;
-use App\Models\CursoClasse;
 use App\Models\CursoClasseRecord;
 use App\Models\CursoClasseTurno;
 use App\Models\PautaStatus;
@@ -36,7 +35,7 @@ class PreencherHistoricoService
                 ->where('curso_tutelado_id', $cursoTuteladoId)
                 ->when(
                     $ordemActual !== null,
-                    fn($q) => $q->whereHas('classe', fn($q2) => $q2->where('ordem', '<', $ordemActual))
+                    fn ($q) => $q->whereHas('classe', fn ($q2) => $q2->where('ordem', '<', $ordemActual))
                 )
                 ->get()
             : collect();
@@ -60,10 +59,10 @@ class PreencherHistoricoService
 
         foreach ($classes as $cc) {
             $ta = $turmaAlunos->first(
-                fn($x) => $x->turma?->cursoClasseTurno?->curso_classe_id === $cc->id
+                fn ($x) => $x->turma?->cursoClasseTurno?->curso_classe_id === $cc->id
             );
 
-            if (!$ta) {
+            if (! $ta) {
                 // Nunca iniciou — mostra botão "Lançar Notas"
                 $resultado[] = [
                     'curso_classe_id' => $cc->id,
@@ -73,6 +72,7 @@ class PreencherHistoricoService
                     'em_curso' => false,
                     'tem_notas' => false,
                 ];
+
                 continue;
             }
 
@@ -104,7 +104,7 @@ class PreencherHistoricoService
             ->get();
 
         $cursoClasseIds = $turmaAlunos
-            ->map(fn($ta) => $ta->turma?->cursoClasseTurno?->curso_classe_id)
+            ->map(fn ($ta) => $ta->turma?->cursoClasseTurno?->curso_classe_id)
             ->filter()
             ->unique()
             ->values();
@@ -164,7 +164,7 @@ class PreencherHistoricoService
             ->with('turno')
             ->distinct()
             ->get()
-            ->map(fn($cct) => [
+            ->map(fn ($cct) => [
                 'id' => $cct->id,
                 'turno_id' => $cct->turno->id,
                 'turno_nome' => $cct->turno->nome,
@@ -187,7 +187,7 @@ class PreencherHistoricoService
                 $q->where('instituicao_id', $instituicaoId);
             })
             ->get()
-            ->map(fn($t) => [
+            ->map(fn ($t) => [
                 'id' => $t->id,
                 'nome' => $t->nome,
                 'max_alunos' => $t->max_alunos,

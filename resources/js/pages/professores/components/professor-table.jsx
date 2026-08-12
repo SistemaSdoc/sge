@@ -22,14 +22,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-
-import {
   Table,
   TableBody,
   TableCell,

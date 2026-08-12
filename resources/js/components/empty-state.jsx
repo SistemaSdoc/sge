@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { IconStack } from './ui/icon-stack';
 import {
   Empty,
   EmptyContent,
@@ -134,13 +135,13 @@ export function EmptyState({
 
       <EmptyHeader>
         {Icon && (
-          <EmptyMedia variant="icon">
-            <div className="text-secondary">
+          <EmptyMedia>
+            <IconStack aria-hidden="true" className="h-16 w-14">
               <Icon
-                className={`${iconSizeClasses[effectiveVariant]} transition-all`}
+                className={`${iconSizeClasses[effectiveVariant]} text-secondary transition-all`}
                 strokeWidth={1.5}
               />
-            </div>
+            </IconStack>
           </EmptyMedia>
         )}
         <EmptyContent className={contentGapClasses[effectiveVariant]}>

@@ -1,5 +1,13 @@
 import { Button } from '@/components/ui/button';
-import { Filter, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
+import {
+  ChevronDownIcon,
+  Filter,
+  ListFilterIcon,
+  MoreHorizontalIcon,
+  Search,
+  UsersIcon,
+  XIcon,
+} from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { router } from '@inertiajs/react';
 
@@ -27,6 +35,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
 import {
@@ -38,18 +48,10 @@ import {
 } from '@/components/ui/pagination';
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { index } from '@/actions/App/Http/Controllers/TurmaController';
 import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
+import { ButtonGroup } from '@/components/ui/button-group';
 
 export function TurmaTable({
   turmas,
@@ -60,40 +62,63 @@ export function TurmaTable({
   anosLectivos = [],
   anoLectivoActual,
   onAnoLectivoChange,
+  handleAdicionarTurma,
 }) {
-  const lista = Array.isArray(turmas) ? turmas : turmas?.data ?? [];
+  const lista = Array.isArray(turmas) ? turmas : (turmas?.data ?? []);
   const isEmpty = lista.length === 0;
   const hasActionColumn = lista.some((turma) => turma.can?.view);
 
   return (
     <Card className="gap-0">
       <CardHeader className="border-b">
-        <CardTitle>Turmas</CardTitle>
-        <CardDescription>Lista de turmas disponíveis</CardDescription>
-        <CardAction className="flex gap-3">
-          <Select value={anoLectivoActual ?? ''} onValueChange={onAnoLectivoChange}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Selecione o ano lectivo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Anos Lectivos</SelectLabel>
-                {anosLectivos.map((ano) => (
-                  <SelectItem key={ano.id} value={ano.id}>
-                    {ano.nome}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Input placeholder="Digite para pesquisar..." />
-          <Button variant="outline">
-            <Filter /> Filtrar
-          </Button>
-        </CardAction>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle>Turmas</CardTitle>
+            <CardDescription>Lista de turmas disponíveis</CardDescription>
+          </div>
+          <CardAction className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto" onClick={handleAdicionarTurma}>
+              Adicionar Turma
+            </Button>
+          </CardAction>
+        </div>
       </CardHeader>
 
       <CardContent className="p-0!">
+        <div className="flex justify-end border-b bg-muted/30 px-4 py-3">
+          <div className="flex max-w-sm gap-0.5">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" aria-label="Filter">
+                  {anoLectivoActual
+                    ? anosLectivos.find((a) => a.id === anoLectivoActual)?.nome
+                    : 'Filtrar'}
+                  <ChevronDownIcon aria-hidden="true" />
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuLabel>Anos Lectivos</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {anosLectivos.map((ano) => (
+                  <DropdownMenuItem
+                    key={ano.id}
+                    onClick={() => onAnoLectivoChange(ano.id)}
+                    className={anoLectivoActual === ano.id ? 'bg-accent' : ''}
+                  >
+                    {ano.nome}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Input placeholder="Pesquisar..." className="" />
+            <Button variant="outline" size="icon">
+              <Search />
+              <span className="sr-only">Pesquisar</span>
+            </Button>
+          </div>
+        </div>
+
         {isEmpty ? (
           <EmptyState
             variant="table"
@@ -117,7 +142,9 @@ export function TurmaTable({
               {lista.map((turma) => (
                 <TableRow
                   key={turma.id}
-                  className={turma.can?.view ? 'hover:cursor-pointer' : 'opacity-70'}
+                  className={
+                    turma.can?.view ? 'hover:cursor-pointer' : 'opacity-70'
+                  }
                   onClick={() => {
                     if (turma.can?.view) {
                       router.visit(
@@ -150,31 +177,24 @@ export function TurmaTable({
                   {hasActionColumn && (
                     <TableCell className="px-4 text-right">
                       {turma.can?.view && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="size-8">
-                              <MoreHorizontalIcon />
-                              <span className="sr-only">Open menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() =>
-                                router.visit(
-                                  show({
-                                    instituicao: turma.instituicao.id,
-                                    cursoTutelado: turma.curso.id,
-                                    cursoClasse: turma.classe.id,
-                                    cursoClasseTurno: turma.turno.id,
-                                    turma: turma.id,
-                                  }),
-                                )
-                              }
-                            >
-                              Ver turma
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.visit(
+                              show({
+                                instituicao: turma.instituicao.id,
+                                cursoTutelado: turma.curso.id,
+                                cursoClasse: turma.classe.id,
+                                cursoClasseTurno: turma.turno.id,
+                                turma: turma.id,
+                              }),
+                            );
+                          }}
+                        >
+                          Ver detalher
+                        </Button>
                       )}
                     </TableCell>
                   )}
