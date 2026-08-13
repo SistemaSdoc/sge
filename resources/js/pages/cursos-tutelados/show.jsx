@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/tooltip';
 import { TabTurmas } from './components/tabs/tab-turmas';
 import { TabProfessores } from './components/tabs/tab-professores';
+import { TabCriteriosPap } from './components/tabs/tab-criteriospap';
 import { Badge } from '@/components/ui/badge';
 import { show as showClasse } from '@/actions/App/Http/Controllers/CursoClasseController';
 import {
@@ -34,6 +35,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+// Imports a adicionar:
+import { useState, useRef } from 'react';
+import { FileText, Upload } from 'lucide-react';
+import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/CursoTuteladoController';
 
 export default function Show({
   cursoTutelado,
@@ -241,6 +246,7 @@ export default function Show({
           <div>
             <TabsTrigger value="turmas">Turmas</TabsTrigger>
             <TabsTrigger value="professores">Professores</TabsTrigger>
+            <TabsTrigger value="criterios-pap">Critérios PAP</TabsTrigger>
           </div>
           <div>
             <Select
@@ -291,6 +297,16 @@ export default function Show({
               last_page: cursoTutelado.professores?.last_page,
             }}
             onPageChange={handlePageChange('page_professores')}
+          />
+        </TabsContent>
+
+        <TabsContent value="criterios-pap" className="mt-2">
+          <TabCriteriosPap
+            instituicaoId={instituicaoId}
+            cursoTuteladoId={cursoTuteladoId}
+            criteriosPapUrl={cursoTutelado.criterios_pap_url}
+            manualPtUrl={cursoTutelado.manual_pt_url}
+            can={cursoTutelado.can}
           />
         </TabsContent>
       </Tabs>

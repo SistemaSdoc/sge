@@ -34,6 +34,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { editar as editarTema } from '@/actions/App/Http/Controllers/GrupoPapAprovacaoController';
 import { create as createTema } from '@/actions/App/Http/Controllers/GrupoPapTemaController';
+import { FileText } from 'lucide-react';
 
 export default function Show({
   instituicao,
@@ -51,7 +52,7 @@ export default function Show({
   const [dialogDataAberto, setDialogDataAberto] = useState(false);
   const bancaPagination = usePagination('banca');
   const elementosPagination = usePagination('elementos');
-  const hasAnyAction = Boolean(can?.update || can?.definirData);
+  //const hasAnyAction = Boolean(can?.update || can?.definirData);
 
   const params = {
     instituicao: instituicao.id,
@@ -132,41 +133,41 @@ export default function Show({
               </h2>
             </div>
 
-            {hasAnyAction && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-white/20"
-                  >
-                    <MoreHorizontalIcon />
-                  </Button>
-                </DropdownMenuTrigger>
+            {/* {hasAnyAction && (*/}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/20"
+                >
+                  <MoreHorizontalIcon />
+                </Button>
+              </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-full max-w-2xl">
-                  {can?.update && (
-                    <DropdownMenuItem
-                      onClick={() => router.visit(edit.url(params))}
-                    >
-                      Editar
-                    </DropdownMenuItem>
-                  )}
-
+              <DropdownMenuContent align="end" className="w-full max-w-2xl">
+                {can?.update && (
                   <DropdownMenuItem
-                    onClick={() => router.visit(createTema.url(params))}
+                    onClick={() => router.visit(edit.url(params))}
                   >
-                    Definir Tema
+                    Editar
                   </DropdownMenuItem>
+                )}
 
-                  {can?.definirData && (
-                    <DropdownMenuItem onClick={() => setDialogDataAberto(true)}>
-                      Definir data da defesa
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+                {can?.definirTema && (
+                  <DropdownMenuItem onClick={() => router.visit(createTema.url(params))}>
+                    {grupoPap.status_aprovacao === 'rascunho' ? 'Definir Tema' : 'Corrigir Tema'}
+                  </DropdownMenuItem>
+                )}
+
+                {can?.definirData && (
+                  <DropdownMenuItem onClick={() => setDialogDataAberto(true)}>
+                    Definir data da defesa
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {/* )} */}
           </div>
         </div>
 
@@ -213,16 +214,33 @@ export default function Show({
               {grupoPap?.local_defesa ? `${grupoPap.local_defesa} / ` : ''}
               {grupoPap?.data_defesa
                 ? new Date(grupoPap.data_defesa).toLocaleString('pt-PT', {
-                    weekday: 'short',
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })
+                  weekday: 'short',
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })
                 : 'Por definir...'}
             </p>
           </div>
+
+          {grupoPap?.criterios_pap_url && (
+            <div>
+              <p className="text-sm text-muted-foreground">Critérios PAP</p>
+
+              <a
+                href={grupoPap.criterios_pap_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
+                <FileText className="size-4" />
+                Ver documento
+              </a>
+            </div>
+          )}
+
         </CardContent>
       </Card>
 
@@ -298,7 +316,8 @@ export default function Show({
         </DialogContent>
       </Dialog>
       {/* Banner de ação — reprovado ou melhoria solicitada */}
-      {can?.corrigirTema &&
+      {
+        can?.corrigirTema &&
         ['reprovado', 'melhoria-solicitada'].includes(
           grupoPap.status_aprovacao,
         ) && (
@@ -336,7 +355,8 @@ export default function Show({
               </Button>
             </AlertDescription>
           </Alert>
-        )}
+        )
+      }
 
       {/* Tabs */}
       <Tabs defaultValue="integrantes-grupo" className="w-full">
@@ -351,7 +371,9 @@ export default function Show({
             </TabsTrigger>
           )}
 
-          <TabsTrigger value="aprovacao">Aprovação do tema</TabsTrigger>
+          {grupoPap.status_aprovacao !== 'rascunho' && (
+            <TabsTrigger value="aprovacao">Aprovação do tema</TabsTrigger>
+          )}
 
           <TabsTrigger value="historico">Histórico</TabsTrigger>
         </TabsList>
@@ -382,11 +404,11 @@ export default function Show({
             />
           </TabsContent>
         )}
-
-        <TabsContent value="aprovacao">
-          <TabAprovacao params={params} grupoPap={grupoPap} can={can} />
-        </TabsContent>
-
+        {grupoPap.status_aprovacao !== 'rascunho' && (
+          <TabsContent value="aprovacao">
+            <TabAprovacao params={params} grupoPap={grupoPap} can={can} />
+          </TabsContent>
+        )}
         <TabsContent value="historico">
           <TabHistorico
             params={params}
@@ -395,6 +417,6 @@ export default function Show({
           />
         </TabsContent>
       </Tabs>
-    </div>
+    </div >
   );
 }

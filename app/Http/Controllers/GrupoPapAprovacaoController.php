@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\GrupoPap;
+use App\Models\HistoricoAprovacaoPap;
 use App\Services\AprovacaoTemaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class GrupoPapAprovacaoController extends Controller
 {
@@ -56,6 +58,73 @@ class GrupoPapAprovacaoController extends Controller
                 'grupo-pap-aprovacao.solicitar-melhoria',
                 ':id'
             ),
+        ]);
+    }
+
+    public function aprovarTutor(Request $request, GrupoPap $grupoPap)
+    {
+
+        $this->authorize('aprovarComoTutor', $grupoPap);
+
+        $validated = $request->validate([
+            'comentario' => 'nullable|string|max:2000',
+        ]);
+
+        DB::transaction(function () use ($grupoPap, $validated) {
+            $grupoPap->update([
+                'status_aprovacao' => GrupoPap::APROVACAO_PENDENTE,
+            ]);
+
+            HistoricoAprovacaoPap::create([
+                'grupo_pap_id' => $grupoPap->id,
+                'utilizador_id' => Auth::id(),
+                'estado_anterior' => GrupoPap::APROVACAO_SUBMETIDO,
+                'estado_novo' => GrupoPap::APROVACAO_PENDENTE,
+                'tema' => $grupoPap->tema_grupo,
+                'problema' => $grupoPap->problema,
+                'objectivos' => $grupoPap->objectivos,
+                'comentario' => $validated['comentario'] ?? 'Aprovado pelo professor tutor.',
+            ]);
+        });
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => 'Tema enviado para a coordenação.',
+        ]);
+    }
+
+    /**
+     * Solicitar melhoria no tema PAP como tutor.
+     */
+    public function solicitarMelhoriaComoTutor(Request $request, GrupoPap $grupoPap)
+    {
+        $this->authorize('solicitarMelhoriaComoTutor', $grupoPap);
+
+        $validated = $request->validate([
+            'recomendacao' => 'required|string|min:10|max:2000',
+        ]);
+
+        DB::transaction(function () use ($grupoPap, $validated) {
+            $grupoPap->update([
+                'status_aprovacao' => GrupoPap::APROVACAO_MELHORIA,
+                'comentario_aprovacao' => $validated['recomendacao'],
+            ]);
+
+            HistoricoAprovacaoPap::create([
+                'grupo_pap_id' => $grupoPap->id,
+                'utilizador_id' => Auth::id(),
+                'estado_anterior' => GrupoPap::APROVACAO_SUBMETIDO,
+                'estado_novo' => GrupoPap::APROVACAO_MELHORIA,
+                'tema' => $grupoPap->tema_grupo,
+                'problema' => $grupoPap->problema,
+                'objectivos' => $grupoPap->objectivos,
+                'comentario' => $validated['recomendacao'],
+            ]);
+        });
+
+        return back()->with('toast', [
+            'type' => 'warning',
+            'message' => 'Melhoria solicitada aos alunos.',
         ]);
     }
 
@@ -212,7 +281,7 @@ class GrupoPapAprovacaoController extends Controller
         $validated = $request->validate([
             'nome_grupo' => 'required|string|max:500',
             'tema_grupo' => 'required|string|max:500',
-            'problema' => 'nullable|string|max:2000', 
+            'problema' => 'nullable|string|max:2000',
             'objectivos' => 'nullable|string|max:2000',
         ]);
 

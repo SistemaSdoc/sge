@@ -25,7 +25,8 @@ class GrupoPapTemaController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('create', [GrupoPap::class, $grupoPap]);
+        //$this->authorize('create', [GrupoPap::class, $grupoPap]);
+        $this->authorize('definirTema', $grupoPap);
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
@@ -52,7 +53,7 @@ class GrupoPapTemaController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('create', [GrupoPap::class, $grupoPap]);
+        $this->authorize('definirTema', $grupoPap);
 
         $validated = $request->validate([
             'tema_grupo' => 'required|string|max:255',
@@ -61,7 +62,10 @@ class GrupoPapTemaController extends Controller
             'estudo_caso' => 'nullable|string|max:1000',
         ]);
 
-        $grupoPap->update($validated);
+        $grupoPap->update([
+            ...$validated,
+            'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
+        ]);
 
         return to_route('pap.show', [
             'instituicao' => $instituicao->id,
@@ -71,9 +75,9 @@ class GrupoPapTemaController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Proposta do grupo PAP criada com sucesso!',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Proposta do grupo PAP criada com sucesso!',
+                ]);
     }
 
     /**
@@ -87,7 +91,7 @@ class GrupoPapTemaController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('update', $grupoPap);
+        $this->authorize('definirTema', $grupoPap);
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
@@ -114,7 +118,7 @@ class GrupoPapTemaController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('update', $grupoPap);
+        $this->authorize('definirTema', $grupoPap);
 
         $validated = $request->validate([
             'tema_grupo' => 'required|string|max:255',
@@ -123,7 +127,10 @@ class GrupoPapTemaController extends Controller
             'estudo_caso' => 'nullable|string|max:1000',
         ]);
 
-        $grupoPap->update($validated);
+        $grupoPap->update([
+            ...$validated,
+            'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO, // ← também aqui
+        ]);
 
         return to_route('pap.show', [
             'instituicao' => $instituicao->id,
@@ -133,8 +140,8 @@ class GrupoPapTemaController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Proposta do grupo PAP actualizada com sucesso!',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Proposta do grupo PAP actualizada com sucesso!',
+                ]);
     }
 }

@@ -23,11 +23,13 @@ return new class extends Migration {
 
             // ← ADICIONA AQUI
             $table->enum('status_aprovacao', [
+                'rascunho',
+                'submetido',
                 'pendente',
                 'aprovado',
                 'reprovado',
                 'melhoria-solicitada'
-            ])->default('pendente');
+            ])->default('rascunho');
 
             $table->uuid('aprovado_por_id')->nullable();
             $table->foreign('aprovado_por_id')->references('id')->on('users')->nullOnDelete();

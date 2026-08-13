@@ -4,6 +4,7 @@ namespace App\Http\Resources\GrupoPap;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ShowResource extends JsonResource
 {
@@ -38,6 +39,20 @@ class ShowResource extends JsonResource
                 'nome' => $this->turma->nome,
 
             ] : null,
+            'criterios_pap_url' => $this->turma
+                ?->cursoClasseTurno
+                ?->cursoClasse
+                ?->cursoTutelado
+                    ?->criterios_pap_path
+                ? Storage::url($this->turma->cursoClasseTurno->cursoClasse->cursoTutelado->criterios_pap_path)
+                : null,
+            'manual_pt_url' => $this->turma
+                ?->cursoClasseTurno
+                ?->cursoClasse
+                ?->cursoTutelado
+                    ?->manual_pt_path
+                ? Storage::url($this->turma->cursoClasseTurno->cursoClasse->cursoTutelado->manual_pt_path)
+                : null,
             'aprovado_por' => $this->aprovadoPor ? [
                 'id' => $this->aprovadoPor->id,
                 'nome' => $this->aprovadoPor->nome ?? null,

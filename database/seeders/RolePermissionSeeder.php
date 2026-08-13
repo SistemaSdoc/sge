@@ -534,7 +534,6 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.view',
                 'grupopap.create',
                 'grupopap.update',
-                'grupopap.corrigirTema',
 
                 // Elemento Grupo PAP
                 'elementogrupopap.viewAny',
@@ -557,6 +556,7 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.viewAny',
                 'grupopap.view',
                 'grupopap.corrigirTema',
+                'grupopap.definirTema',
             ],
 
             'Candidato' => [],

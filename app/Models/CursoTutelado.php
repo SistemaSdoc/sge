@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable([
     'instituicao_curso_id',
     'instituicao_tutora_id',
+    'criterios_pap_path',
+    'manual_pt_path',
 ])]
 
 class CursoTutelado extends Model
