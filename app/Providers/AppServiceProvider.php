@@ -6,6 +6,7 @@ use App\Listeners\RegisteredListener;
 use App\Models\CursoTuteladoProfessor;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Policies\AcessManagementPolicy;
+use App\Observers\PagamentoObserver;
 use App\Policies\ColegioPolicy;
 use App\Policies\GrelhaCurricularPolicy;
 use App\Policies\HorarioPolicy;
@@ -14,6 +15,7 @@ use App\Policies\ItemPagavelPolicy;
 use App\Policies\PagamentoPolicy;
 use App\Policies\PautaPolicy;
 use Carbon\CarbonImmutable;
+use App\Models\Pagamento;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -66,6 +68,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Registrar observadores de modelos
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
+        Pagamento::observe(PagamentoObserver::class);
     }
 
     /**

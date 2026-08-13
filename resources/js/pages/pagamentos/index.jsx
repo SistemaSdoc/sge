@@ -16,11 +16,12 @@ import {
   index,
   destroy,
 } from '@/actions/App/Http/Controllers/PagamentoController';
+import { exibir as verRecibo } from '@/actions/App/Http/Controllers/ReciboController';
+import { exportar as exportarRecibo } from '@/actions/App/Http/Controllers/ReciboController';
 import {
   porTurma,
   pdf as pdfRelatorioTurma,
 } from '@/actions/App/Http/Controllers/RelatorioPropinaController';
-
 export default function Index({
   pagamentos,
   turmas,
@@ -64,6 +65,15 @@ export default function Index({
     window.open(pdfRelatorioTurma(turmaEscolhida).url, '_blank');
   };
 
+  const handleVerRecibo = (pagamentoId) => {
+    window.open(verRecibo(pagamentoId).url, '_blank');
+  };
+
+  const handleExportarRecibo = (pagamentoId) => {
+    window.location.href = exportarRecibo(pagamentoId).url;
+};
+
+
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
       <Head title="Pagamentos" />
@@ -104,6 +114,7 @@ export default function Index({
           <DownloadIcon className="mr-1.5 size-4" />
           Baixar PDF
         </Button>
+
       </div>
 
       {statusFiltro && alunosPorStatus ? (
@@ -116,6 +127,8 @@ export default function Index({
           can={can}
           pagamentos={pagamentos?.data ?? []}
           deleteFn={handleDelete}
+          verReciboFn={handleVerRecibo} 
+          exportarReciboFn={handleExportarRecibo} 
           pagination={{
             current_page: pagamentos.current_page,
             last_page: pagamentos.last_page,

@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { LayersIcon, MoreHorizontalIcon, PlusIcon } from 'lucide-react';
+import { LayersIcon, MoreHorizontalIcon, PlusIcon, FileTextIcon  } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +51,8 @@ export default function PagamentosTable({
   pagamentos = [],
   can,
   deleteFn,
+  verReciboFn,
+  exportarReciboFn,
   pagination = {},
   onPageChange,
 }) {
@@ -149,7 +151,25 @@ export default function PagamentosTable({
                           Ver detalhes
                         </DropdownMenuItem>
 
-                       
+                        <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          verReciboFn(p.id);
+                        }}
+                      >
+                        <FileTextIcon className="mr-2 size-4" />
+                        Ver Recibo
+                       </DropdownMenuItem>
+
+                       <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          exportarReciboFn(p.id);
+                        }}
+                      >
+                        <FileTextIcon className="mr-2 size-4" />
+                        Exportar
+                      </DropdownMenuItem>
                         {/* <DropdownMenuSeparator />
 
                         <DropdownMenuItem

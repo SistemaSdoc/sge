@@ -354,6 +354,10 @@ class PagamentoController extends Controller
 
             $pagamento->itens()->createMany($linhasParaCriar);
 
+            $pagamento->refresh(); // garante que a relação 'itens' está atualizada em memória
+            $pagamento->gerarRecibo();
+
+
             Log::info('PagamentoController@store - pagamento registado', [
                 'pagamento_id' => $pagamento->id,
                 'valor_total' => $valorTotal,

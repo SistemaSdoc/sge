@@ -43,6 +43,7 @@ use App\Http\Controllers\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReciboController;
 use Illuminate\Support\Facades\Route;
 
 // Dashboard routes (Admin, Director, Coordenador, Secretaria, Professor)
@@ -245,6 +246,12 @@ Route::resource('pagamentos', PagamentoController::class)
 Route::get('notificacoes', [NotificacaoController::class, 'index'])->name('notificacoes.index');
 Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])->name('notificacoes.ler');
 Route::post('notificacoes/ler-todas', [NotificacaoController::class, 'marcarTodasLidas'])->name('notificacoes.ler-todas');
+
+Route::get('/pagamentos/{pagamento}/recibo', [ReciboController::class, 'exibir'])
+    ->name('pagamentos.recibo');
+    
+Route::get('/pagamentos/{pagamento}/recibo/exportar', [ReciboController::class, 'exportar'])
+    ->name('pagamentos.recibo.exportar');
 
 Route::get('/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta', [CursoTuteladoController::class, 'pauta'])
     ->name('pauta');
