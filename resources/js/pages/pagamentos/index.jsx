@@ -33,10 +33,10 @@ export default function Index({
 
   const handleDelete = (id) => {
     deleteConfirm({
-      title: 'Tens a certeza?',
+      title: 'Anular este pagamento?',
       description:
-        'Esta acção é irreversível. O pagamento será removido permanentemente.',
-      confirmLabel: 'Eliminar',
+        'Esta acção é irreversível. O pagamento será removido permanentemente e, se o aluno voltar a ficar em atraso, ele será notificado novamente.',
+      confirmLabel: 'Anular pagamento',
       confirmFn: () => router.delete(destroy(id).url),
     });
   };
