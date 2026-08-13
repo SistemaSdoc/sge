@@ -1,17 +1,17 @@
-import { TurmaTable } from './components/turma-table';
-import { Head, router } from '@inertiajs/react';
-import { index } from '@/actions/App/Http/Controllers/TurmaController';
-import { TurmaForm } from './components/turma-form';
 import { useDrawer } from '@/hooks/use-drawer';
+import { Head, router } from '@inertiajs/react';
+import { TurmaForm } from './components/turma-form';
+import { TurmaTable } from './components/turma-table';
+import { index } from '@/actions/App/Http/Controllers/TurmaController';
 
 export default function Index({
-  turmas,
   can,
-  anosLectivos = [],
-  anoLectivoActual,
+  turmas,
   cursos = [],
   classes = [],
   instituicaoId,
+  anoLectivoActual,
+  anosLectivos = [],
 }) {
   const { openForm, closeDrawer } = useDrawer();
 
@@ -38,13 +38,13 @@ export default function Index({
       content: (
         <TurmaForm
           instituicaoId={instituicaoId}
-          cursos={cursos}
+          closeDrawer={closeDrawer}
           classes={classes}
+          cursos={cursos}
           onSuccess={() => {
             closeDrawer();
             router.reload({ only: ['turmas'] });
           }}
-          closeDrawer={closeDrawer}
         />
       ),
     });
@@ -56,8 +56,8 @@ export default function Index({
 
       <TurmaTable
         can={can}
-        turmas={turmas.data ?? []}
         pagination={turmas}
+        turmas={turmas.data ?? []}
         anosLectivos={anosLectivos}
         onPageChange={handlePageChange}
         anoLectivoActual={anoLectivoActual}

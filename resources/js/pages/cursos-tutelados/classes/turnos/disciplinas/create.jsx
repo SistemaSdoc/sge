@@ -5,34 +5,33 @@ import { useState } from 'react';
 
 export default function Create() {
   const {
+    instituicao,
+    cursoTutelado,
+    cursoClasse,
+    cursoClasseTurno,
     disciplinas,
-    instituicaoId,
-    cursoId,
-    classeId,
-    turnoId,
     anosLectivos,
   } = usePage().props;
   const [disciplinaIds, setDisciplinaIds] = useState([]);
 
-  const redirectTo =
-    new URLSearchParams(window.location.search).get('redirect_to') ?? '';
+  const params = {
+    instituicao,
+    cursoTutelado,
+    cursoClasse,
+    cursoClasseTurno,
+  };
 
   return (
     <Form
-      {...store.form({
-        instituicao: instituicaoId,
-        cursoTutelado: cursoId,
-        cursoClasse: classeId,
-        cursoClasseTurno: turnoId,
-      })}
+      {...store.form(params)}
       transform={(data) => ({
         ...data,
         disciplina_ids: disciplinaIds,
-        redirect_to: redirectTo,
       })}
     >
       {({ errors, processing }) => (
         <DisciplinaForm
+          params={params}
           disciplinas={disciplinas}
           disciplinaIds={disciplinaIds}
           setDisciplinaIds={setDisciplinaIds}

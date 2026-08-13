@@ -20,6 +20,7 @@ use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class ClasseTurnoTurmaController extends Controller
@@ -150,13 +151,11 @@ class ClasseTurnoTurmaController extends Controller
             'max_alunos' => $request->max_alunos,
         ]);
 
-        return to_route('cursos-tutelados.classes.show', [
+        return redirect()->intended(route('cursos-tutelados.classes.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
-            'cursoClasseTurno' => $cursoClasseTurno->id,
-            'ano_lectivo_id' => $anoLectivoId,
-        ])->with('success', 'Turma criada com sucesso!');
+        ]))->with('success', 'Turma criada com sucesso!');
     }
 
     public function show(
@@ -167,6 +166,8 @@ class ClasseTurnoTurmaController extends Controller
         Turma $turma
     ) {
         Gate::authorize('view', $turma);
+
+        Redirect::setIntendedUrl(request()->fullUrl());
 
         $user = Auth::user();
 
@@ -261,11 +262,23 @@ class ClasseTurnoTurmaController extends Controller
         Turma $turma
     ) {
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/edit', [
+            'instituicao' => [
+                'id' => $instituicao->id,
+                'nome' => $instituicao->nome,
+            ],
+            'cursoTutelado' => [
+                'id' => $cursoTutelado->id,
+                'nome' => $cursoTutelado->instituicaoCurso->curso->nome ?? 'Curso não encontrado',
+            ],
+            'cursoClasse' => [
+                'id' => $cursoClasse->id,
+                'nome' => $cursoClasse->classe->nome ?? 'Classe não encontrado',
+            ],
+            'cursoClasseTurno' => [
+                'id' => $cursoClasseTurno->id,
+                'nome' => $cursoClasseTurno->turno->nome ?? 'Turno não encontrado',
+            ],
             'turma' => $turma,
-            'instituicaoId' => $instituicao->id,
-            'cursoId' => $cursoTutelado->id,
-            'classeId' => $cursoClasse->id,
-            'turnoId' => $cursoClasseTurno->id,
             'origem' => request('origem'),
             'can' => [
                 'update' => Auth::user()->can('update', $turma),

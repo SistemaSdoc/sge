@@ -4,7 +4,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -32,8 +31,10 @@ import {
   MoreHorizontalIcon,
   BookOpenIcon,
   UsersIcon,
-  ChevronLeft,
   ChevronRight,
+  ArrowUpLeft,
+  Plus,
+  Haze,
 } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
 import { show as showCurso } from '@/actions/App/Http/Controllers/CursoTuteladoController';
@@ -55,7 +56,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectSeparator,
 } from '@/components/ui/select';
 
 export default function Show({
@@ -173,33 +173,51 @@ export default function Show({
     <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
       <Card className="gap-0">
         <CardHeader>
-          <CardTitle className="text-xl">{cursoClasse.classe?.nome}</CardTitle>
+          <CardTitle className="flex items-center gap-1">
+            {cursoTutelado.curso.nome} <ChevronRight className="size-4" />{' '}
+            {cursoClasse.classe?.nome}{' '}
+          </CardTitle>
+
           <CardDescription>
-            Gerir disciplinas e turmas por turno
+            Gerir disciplinas e turmas por turno no ano lectivo{' '}
+            <span className="font-bold">
+              {anosLectivos.find((ano) => ano.id === anoLectivoActual).nome}
+            </span>
           </CardDescription>
-          <CardAction>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreHorizontalIcon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-auto!">
-                <DropdownMenuItem
-                  onClick={() =>
-                    router.visit(
-                      showCurso({
-                        instituicao: instituicaoId,
-                        cursoTutelado: cursoId,
-                      }).url,
-                    )
-                  }
-                >
-                  <ArrowLeftIcon strokeWidth={1.5} /> Voltar ao curso
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </DropdownMenuContent>
-            </DropdownMenu>
+
+          <CardAction className="flex gap-3">
+            <Button
+              variant="outline"
+              size={'sm'}
+              onClick={() =>
+                router.visit(
+                  showCurso({
+                    instituicao: instituicaoId,
+                    cursoTutelado: cursoId,
+                  }).url,
+                )
+              }
+            >
+              <ArrowUpLeft /> Voltar ao curso
+            </Button>
+
+            {can.create_turno && turnos.length < 3 && (
+              <Button
+                variant=""
+                size="sm"
+                onClick={() =>
+                  router.visit(
+                    create({
+                      instituicao: instituicaoId,
+                      cursoTutelado: cursoId,
+                      cursoClasse: cursoClasse.id,
+                    }).url,
+                  )
+                }
+              >
+                Adicionar Turno
+              </Button>
+            )}
           </CardAction>
         </CardHeader>
       </Card>
@@ -216,25 +234,6 @@ export default function Show({
                   {turno.nome}
                 </TabsTrigger>
               ))}
-
-              {can.create_turno && turnos.length < 3 && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  onClick={() =>
-                    router.visit(
-                      create({
-                        instituicao: instituicaoId,
-                        cursoTutelado: cursoId,
-                        cursoClasse: cursoClasse.id,
-                      }).url,
-                    )
-                  }
-                >
-                  +
-                </Button>
-              )}
             </div>
 
             <div className="">
@@ -261,15 +260,24 @@ export default function Show({
 
           <TabsContent value={selectedTurnoId} className="mt-2 space-y-6">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <Card className="flex flex-col gap-0">
+              {/* DISCIPLINAS */}
+              <Card className="grid grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
                 <CardHeader className="border-b">
                   <CardTitle className="flex! gap-2">
                     <BookOpenIcon className="size-5 text-secondary" />
                     Disciplinas ({disciplinas?.total ?? 0})
                   </CardTitle>
+
                   <CardDescription>
-                    Disciplinas do turno selecionado
+                    Disciplinas do turno da{' '}
+                    <span>
+                      {
+                        turnos.find((turno) => turno.id === selectedTurnoId)
+                          .nome
+                      }
+                    </span>
                   </CardDescription>
+
                   {can.create_disciplina && (
                     <CardAction>
                       <Button asChild size="sm">
@@ -284,7 +292,7 @@ export default function Show({
                             }).url
                           }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`}
                         >
-                          Adicionar
+                          Adicionar Disciplina
                         </Link>
                       </Button>
                     </CardAction>
@@ -292,7 +300,7 @@ export default function Show({
                 </CardHeader>
 
                 {!disciplinas?.data?.length ? (
-                  <CardContent className="flex flex-1 items-center justify-center">
+                  <CardContent className="flex items-center justify-center">
                     <EmptyState
                       variant="table"
                       icon={BookOpenIcon}
@@ -301,7 +309,7 @@ export default function Show({
                       action={
                         can.create_disciplina
                           ? {
-                              label: 'Associar disciplinas',
+                              label: 'Adicionar Disciplina',
                               href: `${
                                 createDisciplina({
                                   instituicao: instituicaoId,
@@ -318,14 +326,14 @@ export default function Show({
                   </CardContent>
                 ) : (
                   <>
-                    <CardContent className="p-0!">
+                    <CardContent className="overflow-y-auto p-0!">
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/72">
                             <TableHead className="px-4">Sigla</TableHead>
-                            <TableHead>Nome</TableHead>
+                            <TableHead className="text-center">Nome</TableHead>
                             <TableHead className="px-4 text-right">
-                              Accoes
+                              Acções
                             </TableHead>
                           </TableRow>
                         </TableHeader>
@@ -336,31 +344,23 @@ export default function Show({
                               <TableCell className="px-4 font-medium">
                                 {disc.disciplina.sigla}
                               </TableCell>
-                              <TableCell>{disc.disciplina.nome}</TableCell>
+
+                              <TableCell className="text-center">
+                                {disc.disciplina.nome}
+                              </TableCell>
+
                               <TableCell className="px-4 text-right">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="size-8"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <MoreHorizontalIcon />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem
-                                      variant="destructive"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteDisciplina(disc.id);
-                                      }}
-                                    >
-                                      Remover
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
+                                <Button
+                                  size="xs"
+                                  variant="destructive"
+                                  className="text-[10px]"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteDisciplina(disc.id);
+                                  }}
+                                >
+                                  Remover
+                                </Button>
                               </TableCell>
                             </TableRow>
                           ))}
@@ -379,13 +379,24 @@ export default function Show({
                 )}
               </Card>
 
-              <Card className="flex flex-col gap-0">
+              {/* TURMAS */}
+              <Card className="grid grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
                 <CardHeader className="border-b">
                   <CardTitle className="flex! gap-2">
-                    <UsersIcon className="size-5 text-primary" />
+                    <UsersIcon className="size-5 text-secondary" />
                     Turmas ({turmas?.total ?? 0})
                   </CardTitle>
-                  <CardDescription>Turmas do turno selecionado</CardDescription>
+
+                  <CardDescription>
+                    Turmas do turno da{' '}
+                    <span>
+                      {
+                        turnos.find((turno) => turno.id === selectedTurnoId)
+                          .nome
+                      }
+                    </span>
+                  </CardDescription>
+
                   {can.create_turma && (
                     <CardAction>
                       <Button asChild size="sm">
@@ -399,7 +410,7 @@ export default function Show({
                             }).url
                           }
                         >
-                          Adicionar
+                          Adicionar Turma
                         </Link>
                       </Button>
                     </CardAction>
@@ -407,12 +418,12 @@ export default function Show({
                 </CardHeader>
 
                 {!turmas?.data?.length ? (
-                  <CardContent className="flex flex-1 items-center justify-center">
+                  <CardContent className="flex items-center justify-center">
                     <EmptyState
                       variant="table"
                       icon={UsersIcon}
                       title="Nenhuma turma"
-                      description="Este turno ainda não tem turmas criadas"
+                      description="Este turno ainda não tem turmas adicionadas"
                       action={
                         can.create_turma
                           ? {
@@ -431,14 +442,16 @@ export default function Show({
                   </CardContent>
                 ) : (
                   <>
-                    <CardContent className="p-0!">
+                    <CardContent className="overflow-y-auto p-0!">
                       <Table>
                         <TableHeader>
                           <TableRow className="bg-muted/72">
                             <TableHead className="px-4">Nome</TableHead>
-                            <TableHead>Alunos</TableHead>
+                            <TableHead className="text-center">
+                              Alunos
+                            </TableHead>
                             <TableHead className="px-4 text-right">
-                              Accoes
+                              Acções
                             </TableHead>
                           </TableRow>
                         </TableHeader>
@@ -467,46 +480,31 @@ export default function Show({
                                 {turma.nome}
                               </TableCell>
 
-                              <TableCell>
+                              <TableCell className="text-center">
                                 {turma.alunos_activos_count}
                               </TableCell>
 
                               <TableCell className="px-4 text-right">
                                 {turma?.can?.edit && (
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="size-8"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <MoreHorizontalIcon />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-
-                                    <DropdownMenuContent align="end">
-                                      {turma?.can?.edit && (
-                                        <DropdownMenuItem
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            router.visit(
-                                              editTurma({
-                                                instituicao: instituicaoId,
-                                                cursoTutelado: cursoId,
-                                                cursoClasse: classeId,
-                                                cursoClasseTurno:
-                                                  selectedTurnoId,
-                                                turma: turma.id,
-                                              }).url + '?origem=classe',
-                                            );
-                                          }}
-                                        >
-                                          Editar
-                                        </DropdownMenuItem>
-                                      )}
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
+                                  <Button
+                                    variant="outline"
+                                    size="xs"
+                                    className="text-[10px]"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      router.visit(
+                                        editTurma({
+                                          instituicao: instituicaoId,
+                                          cursoTutelado: cursoId,
+                                          cursoClasse: classeId,
+                                          cursoClasseTurno: selectedTurnoId,
+                                          turma: turma.id,
+                                        }).url + '?origem=classe',
+                                      );
+                                    }}
+                                  >
+                                    Editar
+                                  </Button>
                                 )}
                               </TableCell>
                             </TableRow>
@@ -532,13 +530,14 @@ export default function Show({
         <Card>
           <CardContent className="flex items-center justify-center py-20">
             <EmptyState
-              icon={BookOpenIcon}
+              icon={Haze}
+              variant="table"
               title="Nenhum turno"
-              description="Esta classe ainda não tem turnos associados"
+              description="Esta classe ainda não tem turnos definidos"
               action={
                 can.create_turno
                   ? {
-                      label: '+ Adicionar Turno',
+                      label: 'Adicionar Turno',
                       onClick: () =>
                         router.visit(
                           create({

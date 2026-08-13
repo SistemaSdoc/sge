@@ -66,7 +66,10 @@ class CursoTuteladoController extends Controller
             ->get();
 
         return Inertia::render('cursos-tutelados/create', [
-            'instituicao' => $instituicao->only('id'),
+            'instituicao' => [
+                'id' => $instituicao->only('id'),
+                'nome' => $instituicao->nome,
+            ],
             'classes' => $classes,
             'cursos' => $cursos,
             'niveisEnsino' => $niveisEnsino,

@@ -10,11 +10,9 @@ import {
 } from '@/components/ui/select';
 import {
   Field,
-  FieldContent,
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from '@/components/ui/field';
 import { toast } from 'sonner';
 import { index } from '@/actions/App/Http/Controllers/TurmaController';
@@ -105,7 +103,7 @@ export function TurmaForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      <FieldGroup className="@container/field-group flex flex-col gap-6">
+      <FieldGroup className="@container/field-group">
         {/* Curso */}
         <Field data-invalid={!!errors.curso_tutelado_id}>
           <FieldLabel htmlFor="curso">Curso</FieldLabel>
@@ -141,8 +139,8 @@ export function TurmaForm({
               <SelectValue
                 placeholder={
                   data.curso_tutelado_id
-                    ? 'Seleciona uma classe'
-                    : 'Seleciona um curso primeiro'
+                    ? 'Selecione uma classe'
+                    : 'Selecione um curso primeiro'
                 }
               />
             </SelectTrigger>
@@ -174,8 +172,8 @@ export function TurmaForm({
               <SelectValue
                 placeholder={
                   data.curso_classe_id
-                    ? 'Seleciona um turno'
-                    : 'Seleciona uma classe primeiro'
+                    ? 'Selecione um turno'
+                    : 'Selecione uma classe primeiro'
                 }
               />
             </SelectTrigger>
@@ -207,6 +205,7 @@ export function TurmaForm({
           {errors.nome && <FieldError>{errors.nome}</FieldError>}
         </Field>
 
+        {/* Botões de acção */}
         <Field>
           <Button type="submit" disabled={!isFormValid || processing}>
             {processing ? 'A criar...' : 'Criar Turma'}

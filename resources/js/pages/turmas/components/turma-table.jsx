@@ -1,13 +1,5 @@
 import { Button } from '@/components/ui/button';
-import {
-  ChevronDownIcon,
-  Filter,
-  ListFilterIcon,
-  MoreHorizontalIcon,
-  Search,
-  UsersIcon,
-  XIcon,
-} from 'lucide-react';
+import { ChevronDownIcon, Search, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { router } from '@inertiajs/react';
 
@@ -16,7 +8,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -39,19 +30,9 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { index } from '@/actions/App/Http/Controllers/TurmaController';
 import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
-import { ButtonGroup } from '@/components/ui/button-group';
 
 export function TurmaTable({
   turmas,
@@ -74,12 +55,22 @@ export function TurmaTable({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Turmas</CardTitle>
-            <CardDescription>Lista de turmas disponíveis</CardDescription>
+            <CardDescription>
+              Lista de turmas cadastradas no ano lectivo{' '}
+              <span className="font-semibold">
+                {anosLectivos.find((ano) => ano.id === anoLectivoActual).nome}
+              </span>
+            </CardDescription>
           </div>
           <CardAction className="w-full sm:w-auto">
-            <Button className="w-full sm:w-auto" onClick={handleAdicionarTurma}>
-              Adicionar Turma
-            </Button>
+            {can?.create && (
+              <Button
+                className="w-full sm:w-auto"
+                onClick={handleAdicionarTurma}
+              >
+                Adicionar Turma
+              </Button>
+            )}
           </CardAction>
         </div>
       </CardHeader>
@@ -104,7 +95,7 @@ export function TurmaTable({
                   <DropdownMenuItem
                     key={ano.id}
                     onClick={() => onAnoLectivoChange(ano.id)}
-                    className={anoLectivoActual === ano.id ? 'bg-accent' : ''}
+                    className={anoLectivoActual === ano.id ? 'bg-muted' : ''}
                   >
                     {ano.nome}
                   </DropdownMenuItem>
@@ -123,7 +114,8 @@ export function TurmaTable({
           <EmptyState
             variant="table"
             icon={UsersIcon}
-            title="Nenhuma turma associada"
+            title="Nenhuma turma adicionada, ainda"
+            description="Ainda não cadrastou nenhum turma neste ano lectivo."
           />
         ) : (
           <Table>
@@ -132,7 +124,7 @@ export function TurmaTable({
                 <TableHead className="px-4">Nome</TableHead>
                 <TableHead className="px-4">Curso</TableHead>
                 <TableHead className="px-4">Classe</TableHead>
-                <TableHead className="px-4">Total de Alunos</TableHead>
+                <TableHead className="px-4">Turno</TableHead>
                 {hasActionColumn && (
                   <TableHead className="px-4 text-right">Acções</TableHead>
                 )}
@@ -172,7 +164,7 @@ export function TurmaTable({
                   </TableCell>
 
                   <TableCell className="px-4 font-medium">
-                    {turma?.total_alunos}
+                    {turma?.turno?.nome}
                   </TableCell>
                   {hasActionColumn && (
                     <TableCell className="px-4 text-right">

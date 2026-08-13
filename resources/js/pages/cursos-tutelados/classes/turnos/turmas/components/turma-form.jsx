@@ -1,3 +1,4 @@
+import { Spinner } from '@/components/spinner';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,8 +15,13 @@ import {
   FieldSet,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { ArrowUpLeft, Loader } from 'lucide-react';
 
 export function TurmaForm({
+  title,
+  description,
+  submitLabel,
+  params,
   data,
   setData,
   errors,
@@ -28,15 +34,31 @@ export function TurmaForm({
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
       <form onSubmit={onSubmit}>
-        <Card className="overflow-visible">
-          <CardHeader>
-            <CardTitle>Criar Turma</CardTitle>
-            <CardDescription>
-              Preencha os dados abaixo para criar a turma
-            </CardDescription>
+        <Card className="gap-0 overflow-visible">
+          <CardHeader className="border-b">
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
           </CardHeader>
 
-          <CardContent>
+          {/* Cards de contexto */}
+          <div className="grid grid-cols-3 divide-x border-b bg-muted/50 text-center">
+            <div className="px-4 py-4">
+              <p className="text-sm font-bold">{params.cursoTutelado.nome}</p>
+              <p className="text-xs text-muted-foreground">Curso</p>
+            </div>
+            <div className="px-4 py-4">
+              <p className="text-sm font-bold">{params.cursoClasse.nome}</p>
+              <p className="text-xs text-muted-foreground">Classe</p>
+            </div>
+            <div className="px-4 py-4">
+              <p className="text-sm font-bold">
+                {params.cursoClasseTurno.nome}
+              </p>
+              <p className="text-xs text-muted-foreground">Classe</p>
+            </div>
+          </div>
+
+          <CardContent className="pt-6">
             <FieldGroup>
               <FieldSet>
                 <Field>
@@ -67,7 +89,18 @@ export function TurmaForm({
 
                 <Field>
                   <Button type="submit" disabled={processing || !canSubmit}>
-                    Salvar
+                    {processing ? <Spinner className="size-4" /> : null}
+                    {submitLabel}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant={'outline'}
+                    disabled={processing}
+                    onClick={() => window.history.back()}
+                  >
+                    <ArrowUpLeft />
+                    Voltar a classe
                   </Button>
                 </Field>
               </FieldSet>

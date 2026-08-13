@@ -10,6 +10,7 @@ use App\Models\CursoTutelado;
 use App\Models\Turma;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class TurmaController extends Controller
@@ -19,6 +20,8 @@ class TurmaController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Turma::class);
+
+        Redirect::setIntendedUrl(request()->fullUrl());
 
         $user = Auth::user();
         $professor = $user?->professor;
@@ -115,7 +118,7 @@ class TurmaController extends Controller
                 ])
             ),
             'can' => [
-                'create_turma' => $user->can('create', Turma::class),
+                'create' => $user->can('create', Turma::class),
             ],
         ]);
     }

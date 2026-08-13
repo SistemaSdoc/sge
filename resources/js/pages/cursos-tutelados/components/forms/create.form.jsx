@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Field,
   FieldError,
@@ -19,10 +25,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
+import { ArrowUpLeft, Plus } from 'lucide-react';
 
 export function CursoForm({
   title,
+  instituicao,
   classes,
   cursos,
   niveisEnsino,
@@ -41,6 +48,10 @@ export function CursoForm({
         <Card className="overflow-visible">
           <CardHeader className="border-b">
             <CardTitle>{title}</CardTitle>
+            <CardDescription>
+              Preencha os campos abaixo para adicionar um novo curso ao{' '}
+              <span className="font-bold">{instituicao.nome}</span>
+            </CardDescription>
           </CardHeader>
 
           <CardContent>
@@ -165,7 +176,16 @@ export function CursoForm({
 
                 <Field>
                   <Button type="submit" disabled={processing}>
-                    Adicionar
+                    Adicionar Curso
+                  </Button>
+
+                  <Button
+                    variant={'outline'}
+                    disabled={processing}
+                    onClick={() => window.history.back()}
+                  >
+                    <ArrowUpLeft />
+                    Voltar a lista de cursos
                   </Button>
                 </Field>
               </FieldSet>

@@ -12,6 +12,7 @@ use App\Models\Turma;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class CursoClasseController extends Controller
@@ -23,6 +24,8 @@ class CursoClasseController extends Controller
      */
     public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse)
     {
+        Redirect::setIntendedUrl(request()->fullUrl());
+
         $cursoClasse->load(['classe:id,nome', 'turnos.turno:id,nome']);
 
         $anoLectivoId = filled(request('ano_lectivo_id'))
@@ -40,14 +43,14 @@ class CursoClasseController extends Controller
                 ->where('ano_lectivo_id', $anoLectivoId)
                 ->withCount('alunosActivos')
                 ->orderBy('nome')
-                ->paginate(5, ['*'], 'page_turmas')
+                ->paginate(7, ['*'], 'page_turmas')
             : $this->emptyPaginator('page_turmas');
 
         $disciplinas = $turnoActual
             ? $turnoActual->classeTurnoDisciplinas()
                 ->where('ano_lectivo_id', $anoLectivoId)
                 ->with('disciplina:id,nome,sigla,componente')
-                ->paginate(5, ['*'], 'page_disciplinas')
+                ->paginate(7, ['*'], 'page_disciplinas')
             : $this->emptyPaginator('page_disciplinas');
 
         return Inertia::render('cursos-tutelados/classes/show', [
