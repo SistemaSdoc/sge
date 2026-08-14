@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\InstituicoesRequest;
-use App\Models\Curso;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use Illuminate\Support\Facades\Auth;

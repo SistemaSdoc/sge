@@ -59,7 +59,7 @@ class NotificacaoController extends Controller
         }
 
         $pendenciasAtuais = $this->verificador->pendenciasDoAluno($aluno);
-        $assinaturaAtual = md5(count($pendenciasAtuais) . '-' . collect($pendenciasAtuais)->sum('valor'));
+        $assinaturaAtual = md5(count($pendenciasAtuais).'-'.collect($pendenciasAtuais)->sum('valor'));
 
         $notificacoesPropina = $user->notifications()
             ->where('type', PropinaEmAtrasoNotification::class)

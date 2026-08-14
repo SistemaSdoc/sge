@@ -384,6 +384,7 @@ class PagamentoController extends Controller
             Log::debug('PagamentoController@resolverNotificacoesSePropinaEmDia - aluno ou user não encontrado', [
                 'aluno_id' => $alunoId,
             ]);
+
             return;
         }
 
@@ -399,6 +400,7 @@ class PagamentoController extends Controller
                 'aluno_id' => $alunoId,
                 'meses_restantes' => count($pendencias),
             ]);
+
             return;
         }
 

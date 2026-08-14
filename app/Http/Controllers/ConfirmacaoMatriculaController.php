@@ -104,13 +104,10 @@ class ConfirmacaoMatriculaController extends Controller
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
-    ) 
-            
+    ) {
 
-    {
-
-    if (! $instituicao->permiteMatricula()) {
-    return back()->with('error', 'Esta instituição não está autorizada a confirmar matrículas.');
+        if (! $instituicao->permiteMatricula()) {
+            return back()->with('error', 'Esta instituição não está autorizada a confirmar matrículas.');
         }
         $validated = $request->validated();
 

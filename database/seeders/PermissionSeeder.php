@@ -111,6 +111,8 @@ class PermissionSeeder extends Seeder
             'inscricoes.create',
             'inscricoes.update',
             'inscricoes.delete',
+            'inscricoes.cancelar',
+            'inscricoes.reativar',
 
             // Grupo PAP
             'grupopap.viewAny',

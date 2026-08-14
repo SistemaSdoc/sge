@@ -7,6 +7,7 @@ export default function Edit({ itemPagavel, cursosClasse = [] }) {
   // Inicializa com valores vazios
   const { put, data, setData, processing, errors } = useForm({
     nome: '',
+    tipo: '',
     descricao: '',
     valor: '',
     frequencia: 'mensal',
@@ -19,12 +20,13 @@ export default function Edit({ itemPagavel, cursosClasse = [] }) {
     if (itemPagavel) {
       setData({
         nome: itemPagavel.nome ?? '',
+        tipo: itemPagavel.tipo ?? '',
         descricao: itemPagavel.descricao ?? '',
         valor: itemPagavel.valor ?? '',
         frequencia: itemPagavel.frequencia ?? 'mensal',
         //  CONVERTE PARA STRING – O SELECT SÓ FUNCIONA COM STRINGS
-        curso_classe_id: itemPagavel.curso_classe_id != null 
-          ? String(itemPagavel.curso_classe_id) 
+        curso_classe_id: itemPagavel.curso_classe_id != null
+          ? String(itemPagavel.curso_classe_id)
           : '',
         ativo: itemPagavel.ativo ?? true,
       });

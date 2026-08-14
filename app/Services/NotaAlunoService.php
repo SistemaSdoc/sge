@@ -12,15 +12,13 @@ use Illuminate\Database\Eloquent\Collection;
 
 class NotaAlunoService
 {
-    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService)
-    {
-    }
+    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
     public function notas(Aluno $aluno, ?string $classeId = null)
     {
         $turmaAluno = $this->obterTurmaAlunoDaClasse($aluno, $classeId);
 
-        if (!$turmaAluno) {
+        if (! $turmaAluno) {
             return collect();
         }
 
@@ -28,7 +26,7 @@ class NotaAlunoService
         $notasPorDisciplina = $this->notasAgrupadasPorDisciplina($turmaAluno);
 
         return $disciplinasDaTurma->map(
-            fn($tdp) => $this->montarLinhaDisciplina($tdp, $notasPorDisciplina)
+            fn ($tdp) => $this->montarLinhaDisciplina($tdp, $notasPorDisciplina)
         )->values();
     }
 
@@ -39,11 +37,11 @@ class NotaAlunoService
             ->whereHas('turma.cursoClasseTurno.cursoClasse.classe')
             ->with('turma.cursoClasseTurno.cursoClasse.classe')
             ->get()
-            ->map(fn(TurmaAluno $turmaAluno) => $turmaAluno->turma?->cursoClasseTurno?->cursoClasse?->classe)
+            ->map(fn (TurmaAluno $turmaAluno) => $turmaAluno->turma?->cursoClasseTurno?->cursoClasse?->classe)
             ->filter()
             ->unique('id')
             ->sortBy('nome')
-            ->map(fn($classe) => [
+            ->map(fn ($classe) => [
                 'id' => $classe->id,
                 'nome' => $classe->nome,
             ])
@@ -74,8 +72,8 @@ class NotaAlunoService
         return $turma->turmaDisciplinaProfessor()
             ->with(['classeTurnoDisciplina.disciplina:id,nome,sigla'])
             ->get()
-            ->groupBy(fn($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
-            ->map(fn($tdps) => $tdps->first());
+            ->groupBy(fn ($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
+            ->map(fn ($tdps) => $tdps->first());
     }
 
     private function notasAgrupadasPorDisciplina(TurmaAluno $turmaAluno): Collection
@@ -89,19 +87,20 @@ class NotaAlunoService
         $statusMap = PautaStatus::whereIn('turma_disciplina_professor_id', $tdpIds)
             ->get()
             ->groupBy('turma_disciplina_professor_id')
-            ->map(fn($group) => $group->keyBy('periodo'));
+            ->map(fn ($group) => $group->keyBy('periodo'));
 
         return $notas
             ->filter(function ($nota) use ($statusMap) {
                 $status = $statusMap
                     ->get($nota->turma_disciplina_professor_id)
-                        ?->get($nota->periodo);
+                    ?->get($nota->periodo);
 
                 // Sem status ou rascunho → esconder do aluno
                 return $status && $status->status !== 'rascunho';
             })
-            ->groupBy(fn($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id);
+            ->groupBy(fn ($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id);
     }
+
     private function montarLinhaDisciplina($tdp, Collection $notasPorDisciplina): array
     {
         $disciplina = $tdp->classeTurnoDisciplina->disciplina;

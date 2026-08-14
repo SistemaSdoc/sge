@@ -77,5 +77,4 @@ class Turma extends Model
     {
         return $this->belongsTo(AnoLectivo::class);
     }
-
 }

@@ -28,8 +28,7 @@ class NotaDisciplinaController extends Controller
     public function __construct(
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
 
     /**
      * Lista as notas dos alunos de uma turma numa disciplina
@@ -47,7 +46,7 @@ class NotaDisciplinaController extends Controller
 
         $tdp = $this->resolveTurmaDisciplinaProfessor($turma, $classeTurnoDisciplina, $anoLectivoId);
 
-        if (!$tdp) {
+        if (! $tdp) {
             return back()->with('warning', 'Ainda não existe uma associação de professor para esta disciplina neste ano lectivo.');
         }
 
@@ -55,7 +54,7 @@ class NotaDisciplinaController extends Controller
         $periodosLancados = $this->notaService->periodosLancados($tdp->id);
         $periodosDisponiveis = $this->notaService->periodosDisponiveis($tdp->id);
         $podeLancarNotas = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
-            || !(
+            || ! (
                 $periodosLancados[1]
                 && $periodosLancados[2]
                 && $periodosLancados[3]
@@ -81,7 +80,7 @@ class NotaDisciplinaController extends Controller
             ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
             ->with([
                 'aluno.inscricao.candidato:id,nome',
-                'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+                'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
             ])
             ->where('turma_aluno.turma_id', $turma->id)
             ->where(function ($q) {
@@ -114,7 +113,7 @@ class NotaDisciplinaController extends Controller
                 'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
             ],
             'alunos' => [
-                'data' => $turmaAlunos->getCollection()->map(fn($ta) => [
+                'data' => $turmaAlunos->getCollection()->map(fn ($ta) => [
                     'turma_aluno_id' => $ta->id,
                     'aluno_id' => $ta->aluno->id,
                     'nome' => $ta->aluno->inscricao?->candidato?->nome,
@@ -125,7 +124,7 @@ class NotaDisciplinaController extends Controller
                             }
                             $status = $this->notaService->getPautaStatusSoLeitura($tdp->id, $nota->periodo);
                             $eRascunho = $status === null || $status->status === 'rascunho';
-                            if ($eRascunho && !$podeVerRascunho) {
+                            if ($eRascunho && ! $podeVerRascunho) {
                                 return false;
                             }
 
@@ -179,7 +178,7 @@ class NotaDisciplinaController extends Controller
             $tdp = $this->resolveTurmaDisciplinaProfessor($turma, $classeTurnoDisciplina, $anoLectivoId);
             Log::info('resolveTurmaDisciplinaProfessor retornou', ['tdp_id' => $tdp?->id, 'tdp_null' => is_null($tdp)]);
 
-            if (!$tdp) {
+            if (! $tdp) {
                 Log::warning('TurmaDisciplinaProfessor não encontrado para notas', [
                     'turma_id' => $turma->id,
                     'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
@@ -207,7 +206,7 @@ class NotaDisciplinaController extends Controller
 
             Log::info('Calculando podeLancarNotas');
             $podeLancarNotas = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
-                || !(
+                || ! (
                     $periodosLancados[1]
                     && $periodosLancados[2]
                     && $periodosLancados[3]
@@ -231,7 +230,7 @@ class NotaDisciplinaController extends Controller
                 ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
                 ->with([
                     'aluno.inscricao.candidato:id,nome',
-                    'notas' => fn($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
+                    'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
                 ])
                 ->where('turma_aluno.turma_id', $turma->id)
                 ->where(function ($q) {
@@ -245,13 +244,13 @@ class NotaDisciplinaController extends Controller
             Log::info('turmaAlunos buscados', ['total' => $turmaAlunos->total()]);
 
             Log::info('Mapeando alunos para o frontend');
-            $alunosMapeados = $turmaAlunos->getCollection()->map(fn($ta) => [
+            $alunosMapeados = $turmaAlunos->getCollection()->map(fn ($ta) => [
                 'turma_aluno_id' => $ta->id,
                 'aluno_id' => $ta->aluno->id,
                 'nome' => $ta->aluno->inscricao?->candidato?->nome,
                 'notas' => $ta->notas
-                    ->filter(fn($nota) => $nota->turma_disciplina_professor_id === $tdp->id)
-                    ->map(fn($n) => [
+                    ->filter(fn ($nota) => $nota->turma_disciplina_professor_id === $tdp->id)
+                    ->map(fn ($n) => [
                         ...$this->formatarNota($n),
                         'is_rascunho' => ($pautaStatus[$n->periodo]->status ?? 'rascunho') === 'rascunho',
                     ])
@@ -399,7 +398,7 @@ class NotaDisciplinaController extends Controller
         Gate::authorize('view', $tdp);
         Gate::authorize('create', [Nota::class, $tdp]);
 
-        if (!$this->notaService->periodoPodeSerLancado($tdp->id, $periodo)) {
+        if (! $this->notaService->periodoPodeSerLancado($tdp->id, $periodo)) {
             throw ValidationException::withMessages([
                 'periodo' => 'Primeiro lança o trimestre anterior para continuar.',
             ]);
@@ -413,7 +412,7 @@ class NotaDisciplinaController extends Controller
             $isDirector
         );
 
-        if (!$verificacao['pode']) {
+        if (! $verificacao['pode']) {
             $mensagem = match ($verificacao['motivo']) {
                 'pauta_finalizada' => 'Esta pauta já foi finalizada. Solicite autorização ao director para editar.',
                 'prazo_encerrado' => 'O prazo de lançamento terminou. Solicite autorização ao director.',
@@ -520,7 +519,7 @@ class NotaDisciplinaController extends Controller
             $anoLectivoId,
             $turma->ano_lectivo_id,
             $classeTurnoDisciplina->ano_lectivo_id,
-        ], fn($value) => filled($value))));
+        ], fn ($value) => filled($value))));
 
         $baseQuery = TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
             ->where('turma_id', $turma->id)

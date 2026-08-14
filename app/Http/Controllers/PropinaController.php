@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AnoLectivo;
 use App\Models\ItemPagavel;
 use App\Models\Propina;
 use App\Models\Turma;
@@ -17,18 +16,17 @@ class PropinaController extends Controller
 
         $propinas = Propina::query()
             ->with(['aluno:id,nome,numero_processo', 'itemPagavel:id,nome,tipo'])
-            ->when($request->aluno_id, fn($q) => $q->where('aluno_id', $request->aluno_id))
-            ->when($request->turma_id, fn($q) => $q->whereHas(
+            ->when($request->aluno_id, fn ($q) => $q->where('aluno_id', $request->aluno_id))
+            ->when($request->turma_id, fn ($q) => $q->whereHas(
                 'aluno.inscricaoActiva',
-                fn($sub) =>
-                $sub->where('turma_id', $request->turma_id)
+                fn ($sub) => $sub->where('turma_id', $request->turma_id)
             ))
-            ->when($request->estado, fn($q) => $q->where('estado', $request->estado))
-            ->when($request->mes, fn($q) => $q->where('mes', $request->mes))
+            ->when($request->estado, fn ($q) => $q->where('estado', $request->estado))
+            ->when($request->mes, fn ($q) => $q->where('mes', $request->mes))
             ->orderByDesc('data_vencimento')
             ->paginate(20)
             ->withQueryString()
-            ->through(fn(Propina $propina) => [
+            ->through(fn (Propina $propina) => [
                 'id' => $propina->id,
                 'aluno' => $propina->aluno->only(['id', 'nome', 'numero_processo']),
                 'item_pagavel' => $propina->itemPagavel->only(['id', 'nome', 'tipo']),

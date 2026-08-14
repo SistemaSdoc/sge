@@ -10,6 +10,7 @@ use App\Http\Controllers\Colegios\GrupoPapAprovacaoController;
 use App\Http\Controllers\Colegios\GrupoPapController;
 use App\Http\Controllers\Colegios\NotaDisciplinaController;
 use Illuminate\Support\Facades\Route;
+
 // colegios.php
 Route::prefix('colegios')->group(function () {
 
@@ -24,33 +25,32 @@ Route::prefix('colegios')->group(function () {
         Route::prefix('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}')
             ->group(function () {
 
-            Route::put('/elementos/{elementoGrupoPap}/nota', [ElementoGrupoPapController::class, 'actualizarNota'])
-            ->name('colegios.cursos.classes.turnos.turmas.pap.elementos.actualizarNota');
+                Route::put('/elementos/{elementoGrupoPap}/nota', [ElementoGrupoPapController::class, 'actualizarNota'])
+                    ->name('colegios.cursos.classes.turnos.turmas.pap.elementos.actualizarNota');
 
-            // Show do grupo PAP
-            Route::get('/', [GrupoPapController::class, 'show'])
-                ->name('colegios.cursos.classes.turnos.turmas.pap.show');
+                // Show do grupo PAP
+                Route::get('/', [GrupoPapController::class, 'show'])
+                    ->name('colegios.cursos.classes.turnos.turmas.pap.show');
 
-            // Aprovação — dentro do aninhamento completo
-            Route::post('/aprovar', [GrupoPapAprovacaoController::class, 'aprovar'])
-                ->name('colegio.grupo-pap-aprovacao.aprovar');
+                // Aprovação — dentro do aninhamento completo
+                Route::post('/aprovar', [GrupoPapAprovacaoController::class, 'aprovar'])
+                    ->name('colegio.grupo-pap-aprovacao.aprovar');
 
-            Route::post('/reprovar', [GrupoPapAprovacaoController::class, 'reprovar'])
-                ->name('colegio.grupo-pap-aprovacao.reprovar');
+                Route::post('/reprovar', [GrupoPapAprovacaoController::class, 'reprovar'])
+                    ->name('colegio.grupo-pap-aprovacao.reprovar');
 
-            Route::post('/solicitar-melhoria', [GrupoPapAprovacaoController::class, 'solicitarMelhoria'])
-                ->name('colegio.grupo-pap-aprovacao.solicitar-melhoria');
+                Route::post('/solicitar-melhoria', [GrupoPapAprovacaoController::class, 'solicitarMelhoria'])
+                    ->name('colegio.grupo-pap-aprovacao.solicitar-melhoria');
 
-            Route::post('/reenviar', [GrupoPapAprovacaoController::class, 'reenviar'])
-                ->name('colegio.grupo-pap-aprovacao.reenviar');
+                Route::post('/reenviar', [GrupoPapAprovacaoController::class, 'reenviar'])
+                    ->name('colegio.grupo-pap-aprovacao.reenviar');
 
-            // Banca
-            Route::resource('banca', BancaJuriPapController::class)
-                ->parameters(['banca' => 'bancaJuriPap'])
-                ->only(['create', 'store', 'edit', 'update', 'destroy']);
+                // Banca
+                Route::resource('banca', BancaJuriPapController::class)
+                    ->parameters(['banca' => 'bancaJuriPap'])
+                    ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
-                
-        });
+            });
 
         // Outras rotas sem grupoPap
         Route::get('cursos/{cursoTutelado}', [CursoTuteladoController::class, 'show'])

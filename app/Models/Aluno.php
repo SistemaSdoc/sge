@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
     'inscricao_id',
     'instituicao_id', // ADICIONADO
     'matricula',
-    'numero_processo',  // ADICIONADO 
+    'numero_processo',  // ADICIONADO
     'situacao',
 ])]
 

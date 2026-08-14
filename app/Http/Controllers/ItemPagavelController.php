@@ -55,6 +55,7 @@ class ItemPagavelController extends Controller
             $dados = [
                 'id' => $item->id,
                 'nome' => $item->nome,
+                'tipo' => $item->tipo,
                 'descricao' => $item->descricao,
                 'valor' => $item->valor,
                 'frequencia' => $item->frequencia,

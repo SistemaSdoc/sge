@@ -8,7 +8,7 @@ class UpdatePagamentoRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; # $this->user()->can('update', $this->route('pagamento'));
+        return true; // $this->user()->can('update', $this->route('pagamento'));
     }
 
     public function rules(): array

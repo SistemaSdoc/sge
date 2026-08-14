@@ -47,6 +47,7 @@ class VerificarPropinaEmDia
         // Se não tem aluno, libera
         if (! $aluno) {
             Log::debug('[VerificarPropinaEmDia] SEM ALUNO ASSOCIADO — libera acesso');
+
             return $next($request);
         }
 
@@ -66,6 +67,7 @@ class VerificarPropinaEmDia
                 'aluno_id' => $aluno->id,
                 'tipo' => $instituicao?->tipo,
             ]);
+
             return $next($request);
         }
 
@@ -89,6 +91,7 @@ class VerificarPropinaEmDia
             Log::debug('[VerificarPropinaEmDia] ALUNO EM DIA — libera acesso', [
                 'aluno_id' => $aluno->id,
             ]);
+
             return $next($request);
         }
 
@@ -119,50 +122,51 @@ class VerificarPropinaEmDia
         ])->toResponse(request())->setStatusCode(403);
     }
 
-private function notificarSeNecessario($user, array $pendencias): void
-{
-    $totalPendencias = count($pendencias);
-    $valorTotal = (float) collect($pendencias)->sum('valor');
-    $assinatura = md5($totalPendencias . '-' . $valorTotal);
+    private function notificarSeNecessario($user, array $pendencias): void
+    {
+        $totalPendencias = count($pendencias);
+        $valorTotal = (float) collect($pendencias)->sum('valor');
+        $assinatura = md5($totalPendencias.'-'.$valorTotal);
 
-    Log::debug('[VerificarPropinaEmDia] VERIFICANDO SE PRECISA NOTIFICAR', [
-        'user_id' => $user->id,
-        'total_pendencias' => $totalPendencias,
-        'valor_total' => $valorTotal,
-        'assinatura' => $assinatura,
-    ]);
-
-    // Compara com a ÚLTIMA notificação deste tipo, lida ou não —
-    // o que importa é se o estado da dívida já foi notificado antes,
-    // não se a pessoa já a leu.
-    $ultima = $user->notifications()
-        ->where('type', PropinaEmAtrasoNotification::class)
-        ->latest()
-        ->first();
-
-    if ($ultima && ($ultima->data['assinatura'] ?? null) === $assinatura) {
-        Log::debug('[VerificarPropinaEmDia] notificação já existe para este estado — não duplica', [
+        Log::debug('[VerificarPropinaEmDia] VERIFICANDO SE PRECISA NOTIFICAR', [
             'user_id' => $user->id,
+            'total_pendencias' => $totalPendencias,
+            'valor_total' => $valorTotal,
             'assinatura' => $assinatura,
-            'notificacao_existente_id' => $ultima->id,
-            'ja_lida' => $ultima->read_at !== null,
         ]);
-        return;
+
+        // Compara com a ÚLTIMA notificação deste tipo, lida ou não —
+        // o que importa é se o estado da dívida já foi notificado antes,
+        // não se a pessoa já a leu.
+        $ultima = $user->notifications()
+            ->where('type', PropinaEmAtrasoNotification::class)
+            ->latest()
+            ->first();
+
+        if ($ultima && ($ultima->data['assinatura'] ?? null) === $assinatura) {
+            Log::debug('[VerificarPropinaEmDia] notificação já existe para este estado — não duplica', [
+                'user_id' => $user->id,
+                'assinatura' => $assinatura,
+                'notificacao_existente_id' => $ultima->id,
+                'ja_lida' => $ultima->read_at !== null,
+            ]);
+
+            return;
+        }
+
+        $meses = collect($pendencias)
+            ->filter(fn ($p) => $p['mes'] !== null)
+            ->map(fn ($p) => self::MESES[$p['mes']].'/'.$p['ano'])
+            ->values()
+            ->all();
+
+        $user->notify(new PropinaEmAtrasoNotification($totalPendencias, $valorTotal, $meses, $assinatura));
+
+        Log::info('[VerificarPropinaEmDia] notificação criada', [
+            'user_id' => $user->id,
+            'total_pendencias' => $totalPendencias,
+            'valor_total' => $valorTotal,
+            'assinatura' => $assinatura,
+        ]);
     }
-
-    $meses = collect($pendencias)
-        ->filter(fn ($p) => $p['mes'] !== null)
-        ->map(fn ($p) => self::MESES[$p['mes']] . '/' . $p['ano'])
-        ->values()
-        ->all();
-
-    $user->notify(new PropinaEmAtrasoNotification($totalPendencias, $valorTotal, $meses, $assinatura));
-
-    Log::info('[VerificarPropinaEmDia] notificação criada', [
-        'user_id' => $user->id,
-        'total_pendencias' => $totalPendencias,
-        'valor_total' => $valorTotal,
-        'assinatura' => $assinatura,
-    ]);
-}
 }

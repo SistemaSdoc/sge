@@ -27,7 +27,7 @@ class PeriodoLancamentoNotasController extends Controller
             ->get()
             ->keyBy('periodo');
 
-        $periodos = collect([1, 2, 3])->map(fn(int $periodo) => [
+        $periodos = collect([1, 2, 3])->map(fn (int $periodo) => [
             'periodo' => $periodo,
             'data_inicio' => $periodosExistentes->get($periodo)?->data_inicio?->format('Y-m-d\TH:i') ?? '',
             'data_limite' => $periodosExistentes->get($periodo)?->data_limite?->format('Y-m-d\TH:i') ?? '',
@@ -36,7 +36,7 @@ class PeriodoLancamentoNotasController extends Controller
         ]);
 
         $periodoInicial = $periodos->first(
-            fn(array $periodo) => !$periodo['tem_prazo']
+            fn (array $periodo) => ! $periodo['tem_prazo']
         )['periodo'] ?? 1;
 
         return Inertia::render('pautas/prazos-lancamento-notas/edit', [
@@ -78,9 +78,9 @@ class PeriodoLancamentoNotasController extends Controller
         if (
             $periodo > 1
             && (
-                !$periodoAnterior
-                || !$periodoAnterior->data_inicio
-                || !$periodoAnterior->data_limite
+                ! $periodoAnterior
+                || ! $periodoAnterior->data_inicio
+                || ! $periodoAnterior->data_limite
             )
         ) {
             throw ValidationException::withMessages([

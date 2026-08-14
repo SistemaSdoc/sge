@@ -26,9 +26,9 @@ class ProfessorController extends Controller
             ->with(['user:id,nome,telefone'])
             ->when(
                 $instituicaoId,
-                fn($q) => $q->whereHas(
+                fn ($q) => $q->whereHas(
                     'user',
-                    fn($q) => $q->where('instituicao_id', $instituicaoId)
+                    fn ($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
             ->orderBy('created_at', 'asc')
@@ -92,7 +92,7 @@ class ProfessorController extends Controller
 
         $cursos = $professor->cursosTutelados->map(function ($ct) {
             $curso = $ct->instituicaoCurso?->curso;
-            if (!$curso) {
+            if (! $curso) {
                 return null;
             }
 
@@ -100,10 +100,10 @@ class ProfessorController extends Controller
         })->filter()->unique('id')->values();
 
         $turmas = Turma::with('cursoClasseTurno.cursoClasse.classe:id,nome')
-            ->whereHas('turmaDisciplinaProfessor', fn($q) => $q->where('professor_id', $professor->id))
+            ->whereHas('turmaDisciplinaProfessor', fn ($q) => $q->where('professor_id', $professor->id))
             ->where('ano_lectivo_id', $anoLectivoId)   // ← direto na turma
             ->get()
-            ->map(fn($turma) => [
+            ->map(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,

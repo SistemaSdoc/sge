@@ -4,7 +4,6 @@ namespace App\Listeners;
 
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
-use Spatie\Permission\Models\Role;
 
 class RegisteredListener
 {

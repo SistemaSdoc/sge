@@ -12,6 +12,7 @@ class CursoClasseRecord extends Model
     protected $table = 'curso_classe';
 
     public $incrementing = false;
+
     public $keyType = 'string';
 
     public function classe()

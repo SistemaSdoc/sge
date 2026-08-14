@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Aluno;
 use App\Models\AnoLectivo;
 use App\Models\Candidato;
 use App\Models\Classe;

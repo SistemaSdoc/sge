@@ -3,19 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\GrupoPap;
-use Carbon\Carbon;
-
-use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 
 class FolhaAprovacaoController extends Controller
-
 {
-
     public function index()
     {
         $grupos = GrupoPap::with(['professor', 'turma'])->get();
+
         return view('documentos.folhaAprovacao.index', compact('grupos'));
     }
 
@@ -39,7 +35,7 @@ class FolhaAprovacaoController extends Controller
             'instituicao' // 👈 passar para a view
         ))->setPaper('a4', 'portrait');
 
-        return $pdf->download('Folha_Aprovacao_' . $grupo->nome_grupo . '.pdf');
+        return $pdf->download('Folha_Aprovacao_'.$grupo->nome_grupo.'.pdf');
 
         // Para pré-visualizar no browser em vez de baixar:
         // return $pdf->stream('folha-aprovacao.pdf');
@@ -68,8 +64,9 @@ class FolhaAprovacaoController extends Controller
             17 => 'DEZASSETE',
             18 => 'DEZOITO',
             19 => 'DEZANOVE',
-            20 => 'VINTE'
+            20 => 'VINTE',
         ];
-        return $mapa[(int)$nota] ?? '';
+
+        return $mapa[(int) $nota] ?? '';
     }
 }

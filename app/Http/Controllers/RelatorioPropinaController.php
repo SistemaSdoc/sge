@@ -45,7 +45,7 @@ class RelatorioPropinaController extends Controller
 
         $pdf = Pdf::loadView('pdf.relatorio-propinas', $dados)->setPaper('a4', 'portrait');
 
-        $nomeFicheiro = 'relatorio-propinas-' . Str::slug($dados['turma']['nome']) . '.pdf';
+        $nomeFicheiro = 'relatorio-propinas-'.Str::slug($dados['turma']['nome']).'.pdf';
 
         Log::info('[RelatorioPropinaController] pdf - a gerar download', [
             'turma_id' => $turma->id,
@@ -112,7 +112,7 @@ class RelatorioPropinaController extends Controller
                     ->map(fn ($p) => [
                         'mes' => $p['mes'],
                         'ano' => $p['ano'],
-                        'label' => self::MESES[$p['mes']] . '/' . $p['ano'],
+                        'label' => self::MESES[$p['mes']].'/'.$p['ano'],
                     ])
                     ->values();
 
@@ -166,20 +166,20 @@ class RelatorioPropinaController extends Controller
 
         $dadosInstituicao = null;
         if ($instituicao) {
-            $logoPath = $instituicao->logo ? public_path('storage/' . $instituicao->logo) : null;
+            $logoPath = $instituicao->logo ? public_path('storage/'.$instituicao->logo) : null;
             $logoBase64 = null;
             if ($logoPath && file_exists($logoPath)) {
                 $extension = pathinfo($logoPath, PATHINFO_EXTENSION);
-                $logoBase64 = 'data:image/' . $extension . ';base64,' . base64_encode(file_get_contents($logoPath));
+                $logoBase64 = 'data:image/'.$extension.';base64,'.base64_encode(file_get_contents($logoPath));
             }
 
             $dadosInstituicao = [
-                'nome'        => $instituicao->nome,
-                'sigla'       => $instituicao->sigla,
-                'email'       => $instituicao->email,
-                'telefone'    => $instituicao->telefone,
-                'endereco'    => $instituicao->endereco,
-                'provincia'   => $instituicao->provincia,
+                'nome' => $instituicao->nome,
+                'sigla' => $instituicao->sigla,
+                'email' => $instituicao->email,
+                'telefone' => $instituicao->telefone,
+                'endereco' => $instituicao->endereco,
+                'provincia' => $instituicao->provincia,
                 'logo_base64' => $logoBase64,
             ];
         }
@@ -199,7 +199,7 @@ class RelatorioPropinaController extends Controller
                 'curso' => $cursoNome,
                 'turno' => $turnoNome,
                 'ano_lectivo' => optional($turma->anoLectivo?->data_inicio)->year
-                    . '/' . optional($turma->anoLectivo?->data_fim)->year,
+                    .'/'.optional($turma->anoLectivo?->data_fim)->year,
             ],
             'linhas' => $devedores,
             'emDia' => $emDia,

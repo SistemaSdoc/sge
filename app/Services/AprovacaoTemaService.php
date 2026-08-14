@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Models\CursoTutelado;
 use App\Models\GrupoPap;
 use App\Models\HistoricoAprovacaoPap;
-use Illuminate\Support\Collection;
+use App\Models\Professor;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class AprovacaoTemaService
@@ -16,15 +18,15 @@ class AprovacaoTemaService
      */
     public function temasPendentesParaCoordenador(string $professorId): Collection
     {
-        $professor = \App\Models\Professor::find($professorId);
+        $professor = Professor::find($professorId);
         $instituicaoId = $professor->user->instituicao_id ?? null;
 
-        if (!$instituicaoId) {
+        if (! $instituicaoId) {
             return collect();
         }
 
         // ✅ BUSCAR CURSOS TUTELADOS ONDE O PROFESSOR É COORDENADOR
-        $cursosTutelados = \App\Models\CursoTutelado::query()
+        $cursosTutelados = CursoTutelado::query()
             ->where('instituicao_tutora_id', $instituicaoId)
             ->whereHas(
                 'professores',
@@ -38,7 +40,6 @@ class AprovacaoTemaService
         if ($cursosTutelados->isEmpty()) {
             return collect();
         }
-
 
         // Buscar grupos PAP pendentes desses cursos
         return GrupoPap::query()
@@ -121,7 +122,7 @@ class AprovacaoTemaService
     ): bool {
 
         // Só pode ser analisado se estiver pendente
-        if (!$grupoPap->podeSerAprovado()) {
+        if (! $grupoPap->podeSerAprovado()) {
             return false;
         }
 
@@ -167,7 +168,7 @@ class AprovacaoTemaService
     ): bool {
 
         // Só pode reenviar se uma melhoria tiver sido solicitada
-        if (!$grupoPap->podeSerReenviado()) {
+        if (! $grupoPap->podeSerReenviado()) {
             return false;
         }
 
@@ -192,8 +193,8 @@ class AprovacaoTemaService
                 'utilizador_id' => $user->id,
                 'estado_anterior' => $estadoAnterior,
                 'tema' => $grupoPap->tema_grupo,
-                'problema' => $grupoPap->problema,   
-                'objectivos' => $grupoPap->objectivos,   
+                'problema' => $grupoPap->problema,
+                'objectivos' => $grupoPap->objectivos,
                 'estado_novo' => 'pendente',
                 'comentario' => 'Tema corrigido e reenviado para nova análise.',
             ]);

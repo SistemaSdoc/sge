@@ -38,12 +38,11 @@ class SolicitacaoEdicaoPauta extends Model
 
     public function professor()
     {
-        return $this->belongsTo(\App\Models\User::class, 'professor_user_id');
+        return $this->belongsTo(User::class, 'professor_user_id');
     }
 
     public function decididoPor()
     {
-        return $this->belongsTo(\App\Models\User::class, 'decidido_por');
+        return $this->belongsTo(User::class, 'decidido_por');
     }
-
 }

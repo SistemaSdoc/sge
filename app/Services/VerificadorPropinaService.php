@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 class VerificadorPropinaService
 {
-    private const TERMOS_BLOQUEIO = ['propina','Propinas','Propina', 'propinas'];
+    private const TERMOS_BLOQUEIO = ['propina', 'Propinas', 'Propina', 'propinas'];
 
     public function pendenciasDoAluno(Aluno $aluno): array
     {
@@ -24,6 +24,7 @@ class VerificadorPropinaService
         $turma = $aluno->turmaActual()->first();
         if (! $turma) {
             Log::debug('[VerificadorPropinaService] SEM TURMA ATUAL — retorna vazio', ['aluno_id' => $aluno->id]);
+
             return [];
         }
 
@@ -33,23 +34,24 @@ class VerificadorPropinaService
                 'aluno_id' => $aluno->id,
                 'turma_id' => $turma->id,
             ]);
+
             return [];
         }
         \Log::debug('DEBUG pendencias', [
-    'aluno_id' => $aluno->id,
-    'turma_existe' => (bool) $turma,
-    'ano_lectivo_turma' => $turma?->anoLectivo?->id,
-]);
-if (! $turma) {
-    // sem turma associada — não há como calcular pendência real
-    return [];
-}
+            'aluno_id' => $aluno->id,
+            'turma_existe' => (bool) $turma,
+            'ano_lectivo_turma' => $turma?->anoLectivo?->id,
+        ]);
+        if (! $turma) {
+            // sem turma associada — não há como calcular pendência real
+            return [];
+        }
 
-$anoLectivo = $turma->anoLectivo;
+        $anoLectivo = $turma->anoLectivo;
 
-if (! $anoLectivo) {
-    return [];
-}
+        if (! $anoLectivo) {
+            return [];
+        }
 
         $turma->loadMissing(['cursoClasseTurno.cursoClasse']);
 
@@ -62,14 +64,14 @@ if (! $anoLectivo) {
                     ?? null;
 
         Log::debug('[VerificadorPropinaService] DADOS TURMA E ANO', [
-            'aluno_id'           => $aluno->id,
-            'turma_id'           => $turma->id,
-            'turma_nome'         => $turma->nome ?? 'N/A',
-            'curso_classe_id'    => $cursoClasseId,
-            'classe_id'          => $classeId,
-            'ano_lectivo_id'     => $anoLectivo->id,
+            'aluno_id' => $aluno->id,
+            'turma_id' => $turma->id,
+            'turma_nome' => $turma->nome ?? 'N/A',
+            'curso_classe_id' => $cursoClasseId,
+            'classe_id' => $classeId,
+            'ano_lectivo_id' => $anoLectivo->id,
             'ano_lectivo_inicio' => (string) $anoLectivo->data_inicio,
-            'ano_lectivo_fim'    => (string) $anoLectivo->data_fim,
+            'ano_lectivo_fim' => (string) $anoLectivo->data_fim,
         ]);
 
         $dataMatricula = $aluno->data_matricula ?? $aluno->created_at;
@@ -79,26 +81,26 @@ if (! $anoLectivo) {
             $inicio = $inicioAno;
         }
 
-       $fim = Carbon::now()->startOfMonth();
-$fimAno = Carbon::parse($anoLectivo->data_fim)->startOfMonth();
-if ($fim->gt($fimAno)) {
-    $fim = $fimAno;
-}
+        $fim = Carbon::now()->startOfMonth();
+        $fimAno = Carbon::parse($anoLectivo->data_fim)->startOfMonth();
+        if ($fim->gt($fimAno)) {
+            $fim = $fimAno;
+        }
 
-// --- NOVO: aviso explícito quando o período é inválido ---
-if ($inicio->gt($fim)) {
-    Log::warning('[VerificadorPropinaService] PERÍODO INVERTIDO — matrícula posterior ao fim do ano lectivo (ou ano lectivo já terminou)', [
-        'aluno_id' => $aluno->id,
-        'turma_id' => $turma->id,
-        'data_matricula' => (string) $dataMatricula,
-        'inicio_calculado' => (string) $inicio,
-        'fim_calculado' => (string) $fim,
-        'ano_lectivo_fim' => (string) $anoLectivo->data_fim,
-        'meses_entre'    => $inicio->diffInMonths($fim) + 1,
-    ]);
-    return [];
-}
+        // --- NOVO: aviso explícito quando o período é inválido ---
+        if ($inicio->gt($fim)) {
+            Log::warning('[VerificadorPropinaService] PERÍODO INVERTIDO — matrícula posterior ao fim do ano lectivo (ou ano lectivo já terminou)', [
+                'aluno_id' => $aluno->id,
+                'turma_id' => $turma->id,
+                'data_matricula' => (string) $dataMatricula,
+                'inicio_calculado' => (string) $inicio,
+                'fim_calculado' => (string) $fim,
+                'ano_lectivo_fim' => (string) $anoLectivo->data_fim,
+                'meses_entre' => $inicio->diffInMonths($fim) + 1,
+            ]);
 
+            return [];
+        }
 
         $query = ItemPagavel::query()
             ->where('instituicao_id', $aluno->user->instituicao_id)
@@ -133,19 +135,20 @@ if ($inicio->gt($fim)) {
         $todosItens = $query->get();
         Log::debug('[VerificadorPropinaService] ITENS ENCONTRADOS (brutos)', [
             'aluno_id' => $aluno->id,
-            'modo'     => $modo,
-            'total'    => $todosItens->count(),
+            'modo' => $modo,
+            'total' => $todosItens->count(),
         ]);
 
         $itensAplicaveis = $todosItens->filter(fn ($item) => $this->ehItemDeBloqueio($item));
 
         Log::debug('[VerificadorPropinaService] ITENS APÓS FILTRO BLOQUEIO', [
-            'aluno_id'       => $aluno->id,
+            'aluno_id' => $aluno->id,
             'total_bloqueio' => $itensAplicaveis->count(),
         ]);
 
         if ($itensAplicaveis->isEmpty()) {
             Log::debug('[VerificadorPropinaService] NENHUM ITEM DE BLOQUEIO — retorna vazio', ['aluno_id' => $aluno->id]);
+
             return [];
         }
 
@@ -170,11 +173,11 @@ if ($inicio->gt($fim)) {
                 if (! $jaPago) {
                     $pendencias->push([
                         'item_pagavel_id' => $item->id,
-                        'nome'            => $item->nome,
-                        'frequencia'      => $item->frequencia,
-                        'mes'             => null,
-                        'ano'             => $anoCorrente,
-                        'valor'           => $item->valor, // <-- adicionado
+                        'nome' => $item->nome,
+                        'frequencia' => $item->frequencia,
+                        'mes' => null,
+                        'ano' => $anoCorrente,
+                        'valor' => $item->valor, // <-- adicionado
                     ]);
                 }
             }
@@ -183,7 +186,7 @@ if ($inicio->gt($fim)) {
         $resultado = $pendencias->values()->all();
 
         Log::debug('[VerificadorPropinaService] RESULTADO FINAL', [
-            'aluno_id'         => $aluno->id,
+            'aluno_id' => $aluno->id,
             'total_pendencias' => count($resultado),
         ]);
 
@@ -203,6 +206,7 @@ if ($inicio->gt($fim)) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -220,11 +224,11 @@ if ($inicio->gt($fim)) {
             if (! $pago) {
                 $pendencias->push([
                     'item_pagavel_id' => $item->id,
-                    'nome'            => $item->nome,
-                    'frequencia'      => $item->frequencia,
-                    'mes'             => $mes,
-                    'ano'             => $ano,
-                    'valor'           => $item->valor, // <-- adicionado
+                    'nome' => $item->nome,
+                    'frequencia' => $item->frequencia,
+                    'mes' => $mes,
+                    'ano' => $ano,
+                    'valor' => $item->valor, // <-- adicionado
                 ]);
             }
 
@@ -240,9 +244,9 @@ if ($inicio->gt($fim)) {
             $pendencias = $this->pendenciasDoAluno($aluno);
 
             return [
-                'aluno_id'   => $aluno->id,
-                'nome'       => $aluno->inscricao?->candidato?->nome,
-                'em_dia'     => empty($pendencias),
+                'aluno_id' => $aluno->id,
+                'nome' => $aluno->inscricao?->candidato?->nome,
+                'em_dia' => empty($pendencias),
                 'pendencias' => $pendencias,
             ];
         });

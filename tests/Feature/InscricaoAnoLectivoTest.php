@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\AnoLectivo;
-use App\Models\Candidato;
 use App\Models\Classe;
 use App\Models\Curso;
 use App\Models\CursoClasse;

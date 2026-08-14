@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
-use Inertia\Response;
+
 class SolicitacaoEdicaoPautaController extends Controller
 {
     /**
@@ -18,7 +18,6 @@ class SolicitacaoEdicaoPautaController extends Controller
     // App/Http/Controllers/SolicitacaoEdicaoPautaController.php
     public function index(Request $request)
     {
-
 
         $this->authorize('viewAny', SolicitacaoEdicaoPauta::class);
 
@@ -32,7 +31,7 @@ class SolicitacaoEdicaoPautaController extends Controller
             ->where('status', 'pendente')
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn($s) => [
+            ->map(fn ($s) => [
                 'id' => $s->id,
                 'tipo' => $s->tipo,
                 'periodo' => $s->periodo,
@@ -48,11 +47,9 @@ class SolicitacaoEdicaoPautaController extends Controller
 
         return Inertia::render('pautas/solicitacoes/index', [
             'solicitacoes' => $solicitacoes,
-            ''
+            '',
         ]);
     }
-
-
 
     /**
      * Store a newly created resource in storage.
@@ -99,7 +96,7 @@ class SolicitacaoEdicaoPautaController extends Controller
         return back()->with('success', 'Pedido enviado ao director.');
     }
 
-    //Decidir uma solicitação de edição de pauta (aprovada ou rejeitada)
+    // Decidir uma solicitação de edição de pauta (aprovada ou rejeitada)
     public function decidir(Request $request, SolicitacaoEdicaoPauta $solicitacao)
     {
         abort_unless($request->user()->hasAnyRole(['Director', 'Subdirector']), 403);
@@ -152,12 +149,7 @@ class SolicitacaoEdicaoPautaController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-
-
-    }
-
+    public function create() {}
 
     // Director decide
     // public function decidir(Request $request, SolicitacaoEdicaoPauta $solicitacao)

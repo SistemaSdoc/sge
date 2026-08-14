@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AnoLectivo;
 use App\Models\Nota;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use App\Services\NotaAlunoService;

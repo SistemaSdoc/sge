@@ -410,7 +410,7 @@
 
                     @if($candidato->data_nascimento)
                     nascid{{ $candidato->genero === 'F' ? 'a' : 'o' }} aos
-                    {{ \Carbon\Carbon::parse($candidato->data_nascimento)->translatedFormat('d \d\e F \d\e Y') }},
+                    {{ \Carbon\Carbon::parse($candidato->data_nascimento)->locale('pt')->translatedFormat('d \d\e F \d\e Y') }},
                     @endif
 
                     @if($candidato->naturalidade)

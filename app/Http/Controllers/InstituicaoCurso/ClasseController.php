@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\InstituicaoCurso;
 
-use App\Models\Classe;
-use App\Models\InstituicaoCurso;
-use App\Models\Instituicao;
 use App\Http\Controllers\Controller;
+use App\Models\Classe;
+use App\Models\Instituicao;
+use App\Models\InstituicaoCurso;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -27,7 +27,7 @@ class ClasseController extends Controller /* implements HasMiddleware */
     {
         $classes = Classe::whereHas(
             'instituicaoCursos',
-            fn($q) => $q->where('instituicao_curso_id', $instituicaoCurso->id)
+            fn ($q) => $q->where('instituicao_curso_id', $instituicaoCurso->id)
         )->get();
 
         return response()->json($classes);
@@ -54,7 +54,7 @@ class ClasseController extends Controller /* implements HasMiddleware */
     public function update(Request $request, Instituicao $instituicao, InstituicaoCurso $instituicaoCurso, Classe $classe)
     {
         $request->validate([
-            'nome' => 'required|string|max:50|unique:classes,nome,' . $classe->id,
+            'nome' => 'required|string|max:50|unique:classes,nome,'.$classe->id,
         ]);
 
         $classe->update([

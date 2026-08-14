@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Colegios;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ElementosGrupoPap\ActualizarNotaRequest;
-use App\Http\Requests\ElementosGrupoPap\StoreRequest;
-use App\Models\Aluno;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
@@ -13,7 +11,6 @@ use App\Models\ElementoGrupoPap;
 use App\Models\GrupoPap;
 use App\Models\Instituicao;
 use App\Models\Turma;
-use Inertia\Inertia;
 
 class ElementoGrupoPapController extends Controller
 {

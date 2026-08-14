@@ -172,4 +172,22 @@ class InscricaoService
 
         return sprintf('MAT-%d-%04d', $ano, $max + 1);
     }
+
+    public function cancelar(Inscricao $inscricao): void
+    {
+        if ($inscricao->status === 'cancelado') {
+            throw new InvalidArgumentException('A inscrição já se encontra cancelada.');
+        }
+
+        $inscricao->update(['status' => 'cancelado']);
+    }
+
+    public function reativar(Inscricao $inscricao): void
+    {
+        if ($inscricao->status !== 'cancelado') {
+            throw new InvalidArgumentException('Só é possível reativar uma inscrição cancelada.');
+        }
+
+        $inscricao->update(['status' => 'aprovado']);
+    }
 }

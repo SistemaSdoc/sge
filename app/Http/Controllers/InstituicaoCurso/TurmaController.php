@@ -18,7 +18,7 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 
-class TurmaController extends Controller //implements HasMiddleware
+class TurmaController extends Controller // implements HasMiddleware
 {
     /*public static function middleware(): array
     {
@@ -70,7 +70,7 @@ class TurmaController extends Controller //implements HasMiddleware
             )
             ->exists();
 
-        if (!$valido) {
+        if (! $valido) {
             return response()->json(['message' => 'Classe/turno inválido para este curso.'], 422);
         }
 

@@ -3,6 +3,7 @@
 use App\Models\Aluno;
 use App\Models\AnoLectivo;
 use App\Models\Classe;
+use App\Models\ClasseTurnoDisciplina;
 use App\Models\Curso;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
@@ -11,7 +12,6 @@ use App\Models\Disciplina;
 use App\Models\Inscricao;
 use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
-use App\Models\ClasseTurnoDisciplina;
 use App\Models\Professor;
 use App\Models\Turma;
 use App\Models\TurmaAluno;
@@ -19,7 +19,6 @@ use App\Models\TurmaDisciplinaProfessor;
 use App\Models\Turno;
 use App\Models\User;
 use App\Services\ConfirmacaoMatriculaService;
-use Illuminate\Support\Arr;
 
 it('returns incompleto when there are missing final grades on the confirmation list', function () {
     $instituicao = Instituicao::create([

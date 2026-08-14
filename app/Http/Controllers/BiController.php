@@ -15,7 +15,7 @@ class BiController extends Controller
         try {
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
-            ])->timeout(10)->get("https://bi.sdoca.it.ao/consultar/" . rawurlencode($bi));
+            ])->timeout(10)->get('https://bi.sdoca.it.ao/consultar/'.rawurlencode($bi));
 
             $body = $response->body();
             $status = $response->status();

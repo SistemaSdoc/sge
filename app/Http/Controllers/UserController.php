@@ -26,7 +26,6 @@ class UserController extends Controller
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
         ]);
 
-
         $import = new UsersImport;
 
         Excel::import($import, $request->file('file'), null, \Maatwebsite\Excel\Excel::XLSX);

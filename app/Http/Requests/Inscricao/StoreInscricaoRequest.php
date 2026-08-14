@@ -84,11 +84,11 @@ class StoreInscricaoRequest extends FormRequest
                 'exists:curso_classe_turno,id',
             ],
             'turma_id' => [
-                'nullable',
+                'required',
                 'exists:turmas,id',
             ],
             'nota_teste' => [
-                'nullable',
+                'required',
                 'numeric',
                 'min:0',
                 'max:20',
@@ -142,8 +142,13 @@ class StoreInscricaoRequest extends FormRequest
 
             'curso_classe_turno_id.required' => 'O curso/turno é obrigatório.',
             'curso_classe_turno_id.exists' => 'O curso/turno seleccionado não existe.',
+
+            'turma_id.required' => 'A turma é obrigatória.',
             'turma_id.exists' => 'A turma seleccionada não existe.',
+
+            'nota_teste.required' => 'A nota do teste é obrigatório.',
             'nota_teste.numeric' => 'A nota do teste deve ser um valor numérico.',
+
             'nota_teste.min' => 'A nota do teste não pode ser inferior a 0.',
             'nota_teste.max' => 'A nota do teste não pode ser superior a 20.',
             'ano_lectivo_id.exists' => 'O ano lectivo seleccionado não existe.',

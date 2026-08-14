@@ -15,9 +15,7 @@ use Illuminate\Support\Facades\Log;
 
 class ConfirmacaoMatriculaService
 {
-    public function __construct(private readonly RegraAcademicaService $regraAcademicaService)
-    {
-    }
+    public function __construct(private readonly RegraAcademicaService $regraAcademicaService) {}
 
     /**
      * Lista alunos que podem confirmar matrícula
@@ -27,7 +25,7 @@ class ConfirmacaoMatriculaService
     {
         $anoAtual = $turma?->anoLectivo ?: AnoLectivo::ativo()->first();
 
-        if (!$anoAtual) {
+        if (! $anoAtual) {
             return collect()->paginate(10);
         }
 
@@ -52,9 +50,9 @@ class ConfirmacaoMatriculaService
                     $q->where('id', $turma->id);
                 }
             })
-            ->whereHas('notas', fn($q) => $q->where('periodo', 1)->whereNotNull('media_trimestral'), '>=', 1)
-            ->whereHas('notas', fn($q) => $q->where('periodo', 2)->whereNotNull('media_trimestral'), '>=', 1)
-            ->whereHas('notas', fn($q) => $q->where('periodo', 3)->whereNotNull('media_trimestral'), '>=', 1)
+            ->whereHas('notas', fn ($q) => $q->where('periodo', 1)->whereNotNull('media_trimestral'), '>=', 1)
+            ->whereHas('notas', fn ($q) => $q->where('periodo', 2)->whereNotNull('media_trimestral'), '>=', 1)
+            ->whereHas('notas', fn ($q) => $q->where('periodo', 3)->whereNotNull('media_trimestral'), '>=', 1)
             ->where('activo', true)
             ->when($anoProximo, function ($q) use ($anoProximo) {
                 $q->whereDoesntHave('aluno.confirmacoesMatricula', function ($q2) use ($anoProximo) {
@@ -113,16 +111,16 @@ class ConfirmacaoMatriculaService
         Turma $turmaAtual,
     ): ConfirmacaoMatricula {
         Log::info('=== INICIANDO CONFIRMAÇÃO DE MATRÍCULA ===');
-        Log::info('Aluno ID: ' . $aluno->id . ' (' . $aluno->nome . ')');
-        Log::info('Turma Atual ID: ' . $turmaAtual->id . ' (' . $turmaAtual->nome . ')');
-        Log::info('Turma Nova ID: ' . $turmaNova->id . ' (' . $turmaNova->nome . ')');
+        Log::info('Aluno ID: '.$aluno->id.' ('.$aluno->nome.')');
+        Log::info('Turma Atual ID: '.$turmaAtual->id.' ('.$turmaAtual->nome.')');
+        Log::info('Turma Nova ID: '.$turmaNova->id.' ('.$turmaNova->nome.')');
 
         // Validar se aluno está na turma atual
         $turmaAtualAluno = TurmaAluno::where('aluno_id', $aluno->id)
             ->where('turma_id', $turmaAtual->id)
             ->first();
 
-        if (!$turmaAtualAluno) {
+        if (! $turmaAtualAluno) {
             Log::error('ERRO: Aluno não está nesta turma');
             throw new \Exception('Aluno não está nesta turma');
         }
@@ -130,13 +128,13 @@ class ConfirmacaoMatriculaService
 
         // Buscar ano lectivo atual
         $anoAtual = $turmaAtual->anoLectivo;
-        Log::info('Ano Actual: ' . $anoAtual->nome . ' (ID: ' . $anoAtual->id . ')');
-        Log::info('  - Data Início: ' . $anoAtual->data_inicio->format('Y-m-d H:i:s'));
-        Log::info('  - Data Fim: ' . $anoAtual->data_fim->format('Y-m-d H:i:s'));
-        Log::info('  - Activo: ' . ($anoAtual->activo ? 'SIM' : 'NÃO'));
+        Log::info('Ano Actual: '.$anoAtual->nome.' (ID: '.$anoAtual->id.')');
+        Log::info('  - Data Início: '.$anoAtual->data_inicio->format('Y-m-d H:i:s'));
+        Log::info('  - Data Fim: '.$anoAtual->data_fim->format('Y-m-d H:i:s'));
+        Log::info('  - Activo: '.($anoAtual->activo ? 'SIM' : 'NÃO'));
 
         // Buscar próximo ano lectivo
-        Log::info('Procurando próximo ano após: ' . $anoAtual->data_fim->format('Y-m-d H:i:s'));
+        Log::info('Procurando próximo ano após: '.$anoAtual->data_fim->format('Y-m-d H:i:s'));
 
         $anoProximo = AnoLectivo::query()
             ->where('id', '!=', $anoAtual->id)  // qualquer ano que não seja o actual
@@ -144,18 +142,18 @@ class ConfirmacaoMatriculaService
             ->orderBy('data_inicio')
             ->first();
 
-        if (!$anoProximo) {
+        if (! $anoProximo) {
             Log::error('ERRO: Próximo ano lectivo não existe');
             Log::info('Anos lectivos disponíveis:');
             AnoLectivo::orderBy('data_inicio')->each(function ($ano) {
-                Log::info('  - ' . $ano->nome . ' (' . $ano->data_inicio->format('Y-m-d H:i:s') . ' até ' . $ano->data_fim->format('Y-m-d H:i:s') . ')');
+                Log::info('  - '.$ano->nome.' ('.$ano->data_inicio->format('Y-m-d H:i:s').' até '.$ano->data_fim->format('Y-m-d H:i:s').')');
             });
             throw new \Exception('Próximo ano lectivo não existe');
         }
 
-        Log::info('✓ Próximo ano encontrado: ' . $anoProximo->nome . ' (ID: ' . $anoProximo->id . ')');
-        Log::info('  - Data Início: ' . $anoProximo->data_inicio->format('Y-m-d H:i:s'));
-        Log::info('  - Data Fim: ' . $anoProximo->data_fim->format('Y-m-d H:i:s'));
+        Log::info('✓ Próximo ano encontrado: '.$anoProximo->nome.' (ID: '.$anoProximo->id.')');
+        Log::info('  - Data Início: '.$anoProximo->data_inicio->format('Y-m-d H:i:s'));
+        Log::info('  - Data Fim: '.$anoProximo->data_fim->format('Y-m-d H:i:s'));
 
         // Validar se já confirmou
         $jaConfirmou = ConfirmacaoMatricula::where('aluno_id', $aluno->id)
@@ -172,7 +170,7 @@ class ConfirmacaoMatriculaService
         // Transação
         Log::info('Iniciando transação...');
 
-        return DB::transaction(function () use ($aluno, $anoAtual, $anoProximo, $turmaAtualAluno, $turmaNova, ) {
+        return DB::transaction(function () use ($aluno, $anoAtual, $anoProximo, $turmaAtualAluno, $turmaNova) {
             Log::info('Criando registro de ConfirmacaoMatricula...');
             $confirmacao = ConfirmacaoMatricula::create([
                 'aluno_id' => $aluno->id,
@@ -184,7 +182,7 @@ class ConfirmacaoMatriculaService
                 'data_confirmacao' => now(),
                 'confirmado_por' => Auth::id(),
             ]);
-            Log::info('✓ ConfirmacaoMatricula criada (ID: ' . $confirmacao->id . ')');
+            Log::info('✓ ConfirmacaoMatricula criada (ID: '.$confirmacao->id.')');
 
             Log::info('Criando TurmaAluno para o próximo ano...');
             $novaInscricao = TurmaAluno::create([
@@ -193,7 +191,7 @@ class ConfirmacaoMatriculaService
                 'ano_lectivo_id' => $anoProximo->id,
                 'activo' => true,
             ]);
-            Log::info('✓ TurmaAluno criada (ID: ' . $novaInscricao->id . ')');
+            Log::info('✓ TurmaAluno criada (ID: '.$novaInscricao->id.')');
 
             Log::info('=== CONFIRMAÇÃO DE MATRÍCULA CONCLUÍDA COM SUCESSO ===');
 
@@ -204,8 +202,8 @@ class ConfirmacaoMatriculaService
     private function resolverProximaClasse(?Turma $turmaActual, ?int $ordemClasseActual): ?string
     {
         Log::info('=== RESOLVENDO PRÓXIMA CLASSE ===');
-        Log::info('Turma Actual: ' . $turmaActual?->nome);
-        Log::info('Ordem Classe Actual: ' . $ordemClasseActual);
+        Log::info('Turma Actual: '.$turmaActual?->nome);
+        Log::info('Ordem Classe Actual: '.$ordemClasseActual);
 
         $cursoTutelado = $turmaActual?->cursoClasseTurno?->cursoClasse?->cursoTutelado;
 
@@ -214,7 +212,7 @@ class ConfirmacaoMatriculaService
 
             return null;
         }
-        Log::info('✓ CursoTutelado encontrado: ' . $cursoTutelado->nome);
+        Log::info('✓ CursoTutelado encontrado: '.$cursoTutelado->nome);
 
         if ($ordemClasseActual === null) {
             Log::warning('AVISO: Ordem Classe Actual é null');
@@ -223,13 +221,13 @@ class ConfirmacaoMatriculaService
         }
 
         $proximaOrdem = $ordemClasseActual + 1;
-        Log::info('Procurando classe com ordem: ' . $proximaOrdem);
+        Log::info('Procurando classe com ordem: '.$proximaOrdem);
 
         // Listar todas as classes do curso
         $todasClasses = $cursoTutelado->classes()->get();
-        Log::info('Total de classes no curso: ' . $todasClasses->count());
+        Log::info('Total de classes no curso: '.$todasClasses->count());
         $todasClasses->each(function ($classe) {
-            Log::info('  - Classe: ' . $classe->nome . ' (Ordem: ' . $classe->ordem . ')');
+            Log::info('  - Classe: '.$classe->nome.' (Ordem: '.$classe->ordem.')');
         });
 
         $proximaClasse = $cursoTutelado
@@ -238,9 +236,9 @@ class ConfirmacaoMatriculaService
             ->value('nome');
 
         if ($proximaClasse) {
-            Log::info('✓ Próxima classe encontrada: ' . $proximaClasse);
+            Log::info('✓ Próxima classe encontrada: '.$proximaClasse);
         } else {
-            Log::warning('AVISO: Nenhuma classe com ordem ' . $proximaOrdem . ' encontrada (possivelmente última classe)');
+            Log::warning('AVISO: Nenhuma classe com ordem '.$proximaOrdem.' encontrada (possivelmente última classe)');
         }
 
         return $proximaClasse;

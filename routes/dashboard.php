@@ -17,6 +17,7 @@ use App\Http\Controllers\CursoTuteladoProfessorController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeclaracaoController;
 use App\Http\Controllers\DisciplinaController as DisciplinaControllerGeral;
+use App\Http\Controllers\DocumentosController;
 use App\Http\Controllers\ElementoGrupoPapController;
 use App\Http\Controllers\FinalistaController;
 use App\Http\Controllers\FolhaAprovacaoController;
@@ -51,13 +52,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-require __DIR__.'/modules/pautas.php';
-require __DIR__.'/modules/certificado.php';
-require __DIR__.'/modules/progressao.php';
-require __DIR__.'/modules/notas.php';
-require __DIR__.'/modules/acess-management.php';
-require __DIR__.'/modules/confirmar-matriculas.php';
-require __DIR__.'/modules/historico-aluno.php';
+require __DIR__ . '/modules/pautas.php';
+require __DIR__ . '/modules/certificado.php';
+require __DIR__ . '/modules/progressao.php';
+require __DIR__ . '/modules/notas.php';
+require __DIR__ . '/modules/acess-management.php';
+require __DIR__ . '/modules/confirmar-matriculas.php';
+require __DIR__ . '/modules/historico-aluno.php';
 
 // Recursos
 Route::resource('instituicoes', InstituicaoController::class)->parameters(['instituicoes' => 'instituicao']);
@@ -73,6 +74,8 @@ Route::prefix('turmas/{aluno}')->name('turmas.')->group(function () {
     Route::post('atribuir', [TurmaController::class, 'atribuirTurma'])
         ->name('atribuir');
 });
+Route::patch('inscricoes/{inscricao}/reativar', [InscricaoController::class, 'reativar'])
+    ->name('inscricoes.reativar');
 Route::resource('inscricoes', InscricaoController::class)->parameters(['inscricoes' => 'inscricao']);
 Route::resource('professores', ProfessorControllerGeral::class)->parameters(['professores' => 'professor']);
 Route::get('/certificados/{aluno}', [CertificadoController::class, 'show'])->name('certificados.show');
@@ -88,7 +91,7 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
     Route::put('prazos-lancamento-notas', [PeriodoLancamentoNotasController::class, 'update'])
         ->name('prazos-lancamento-notas.update');
 
-    require __DIR__.'/modules/colegios.php';
+    require __DIR__ . '/modules/colegios.php';
 
     Route::get('alunos/{aluno}/historico', [FinalistaController::class, 'historico']);
     Route::get('aluno/grelha-curricular', [AlunoController::class, 'grelhaCurricular']);
@@ -277,36 +280,36 @@ Route::get(
     '/grupo-pap-aprovacao/melhorias',
     [GrupoPapAprovacaoController::class, 'melhorias']
 )->name(
-    'grupo-pap-aprovacao.melhorias'
-);
+        'grupo-pap-aprovacao.melhorias'
+    );
 
 Route::get(
     '/grupo-pap-aprovacao/{grupoPap}/editar',
     [GrupoPapAprovacaoController::class, 'editar']
 )->name(
-    'grupo-pap-aprovacao.editar'
-);
+        'grupo-pap-aprovacao.editar'
+    );
 
 Route::put(
     '/grupo-pap-aprovacao/{grupoPap}',
     [GrupoPapAprovacaoController::class, 'atualizar']
 )->name(
-    'grupo-pap-aprovacao.atualizar'
-);
+        'grupo-pap-aprovacao.atualizar'
+    );
 
 Route::put(
     '/grupo-pap-aprovacao/{grupoPap}/reenviar',
     [GrupoPapAprovacaoController::class, 'reenviar']
 )->name(
-    'grupo-pap-aprovacao.reenviar'
-);
+        'grupo-pap-aprovacao.reenviar'
+    );
 
 Route::get(
     '/grupo-pap-aprovacao/{grupoPap}/historico',
     [GrupoPapAprovacaoController::class, 'historico']
 )->name(
-    'grupo-pap-aprovacao.historico'
-);
+        'grupo-pap-aprovacao.historico'
+    );
 
 Route::get('/grupo-pap-aprovacao/{grupoPap}/historico', [GrupoPapAprovacaoController::class, 'historico'])
     ->name('grupo-pap-aprovacao.historico');
@@ -335,3 +338,19 @@ Route::prefix('historico/{aluno}')
         Route::post('confirmar', [PreencherHistoricoController::class, 'confirmar'])
             ->name('confirmar');
     });
+
+Route::get(
+    'documentos/pesquisar-aluno',
+    [DocumentosController::class, 'pesquisarAluno']
+)->name('documentos.pesquisar-aluno');
+
+Route::match(
+    ['GET', 'POST'],
+    'documentos/exportar',
+    [DocumentosController::class, 'exportar']
+)->name('documentos.exportar');
+
+Route::get(
+    'documentos',
+    [DocumentosController::class, 'index']
+)->name('documentos.index');

@@ -10,6 +10,7 @@ use Illuminate\Console\Command;
 class FinalizarPautasVencidas extends Command
 {
     protected $signature = 'pautas:finalizar-vencidas';
+
     protected $description = 'Expira pautas em rascunho com prazo encerrado e notifica professores';
 
     public function handle(): void
@@ -25,7 +26,7 @@ class FinalizarPautasVencidas extends Command
                 // Busca os TDP ids da instituição primeiro
                 $tdpIds = TurmaDisciplinaProfessor::whereHas(
                     'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-                    fn($q) => $q->where('instituicao_tutora_id', $prazo->instituicao_id)
+                    fn ($q) => $q->where('instituicao_tutora_id', $prazo->instituicao_id)
                 )->pluck('id');
 
                 PautaStatus::whereIn('turma_disciplina_professor_id', $tdpIds)
@@ -47,10 +48,10 @@ class FinalizarPautasVencidas extends Command
             ->each(function (PeriodoLancamentoNotas $prazo) use ($agora) {
                 // TODO: notificar professores com rascunhos abertos
                 // ...
-    
+
                 $prazo->update(['notificado_em' => $agora]);
             });
 
-        $this->info('Concluído: ' . $agora);
+        $this->info('Concluído: '.$agora);
     }
 }

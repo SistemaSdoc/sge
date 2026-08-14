@@ -9,8 +9,8 @@ use App\Models\CursoTutelado;
 use App\Models\Disciplina;
 use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
-use App\Models\Turno;
 use App\Models\Turma;
+use App\Models\Turno;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 

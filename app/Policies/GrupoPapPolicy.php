@@ -75,7 +75,7 @@ class GrupoPapPolicy
      */
     public function update(User $user, GrupoPap $grupoPap): bool
     {
-        if (!$user->hasRole('Professor')) {
+        if (! $user->hasRole('Professor')) {
             return $user->hasPermissionTo('grupopap.update')
                 && $grupoPap->instituicao()?->id === $user->instituicao_id;
         }
@@ -101,18 +101,18 @@ class GrupoPapPolicy
      */
     public function corrigirTema(User $user, GrupoPap $grupoPap): bool
     {
-        if (!$grupoPap->podeSerEditado()) {
+        if (! $grupoPap->podeSerEditado()) {
             return false;
         }
 
-        if (!$user->can('grupopap.corrigirTema')) {
+        if (! $user->can('grupopap.corrigirTema')) {
             return false;
         }
 
         $ehTutor = $grupoPap->professor_tutor_id === $user->professor?->id;
 
         $ehMembro = $grupoPap->elementos()
-            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
             ->exists();
 
         return $ehTutor || $ehMembro;
@@ -153,6 +153,7 @@ class GrupoPapPolicy
             && $grupoPap->podeSerAprovado()
             && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id; // ← adicionar
     }
+
     /**
      * Determina se o utilizador pode definir a data de defesa.
      *

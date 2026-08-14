@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Observers\CursoTuteladoProfessorObserver;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\Pivot;

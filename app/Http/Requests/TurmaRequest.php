@@ -28,6 +28,7 @@ class TurmaRequest extends FormRequest
             'curso_classe_turno_id' => 'required|exists:curso_classe_turno,id',
         ];
     }
+
     public function messages(): array
     {
         return [

@@ -27,8 +27,8 @@ class StoreProfessoresRequest extends FormRequest
 
         return [
             'nome' => 'required|string|max:255',
-            'bi' => 'required|string|max:20|unique:users,bi,' . $userId,
-            'email' => 'required|email|unique:users,email,' . $userId,
+            'bi' => 'required|string|max:20|unique:users,bi,'.$userId,
+            'email' => 'required|email|unique:users,email,'.$userId,
             'telefone' => 'required|max:20',
             'especialidade' => 'string|max:255',
         ];

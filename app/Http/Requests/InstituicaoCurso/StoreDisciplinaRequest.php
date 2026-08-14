@@ -17,6 +17,7 @@ class StoreDisciplinaRequest extends FormRequest
             'disciplina_id' => ['required', 'exists:disciplinas,id'],
         ];
     }
+
     public function messages(): array
     {
         return [

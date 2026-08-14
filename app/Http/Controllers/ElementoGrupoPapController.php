@@ -36,11 +36,11 @@ class ElementoGrupoPapController extends Controller
             ->whereNotIn('id', $alunosEmGrupo)
             ->whereHas(
                 'turmas',
-                fn($q) => $q
+                fn ($q) => $q
                     ->where('turmas.id', $turma->id)
                     ->where('turma_aluno.activo', true)
             )->get()
-            ->map(fn($aluno) => [
+            ->map(fn ($aluno) => [
                 'id' => $aluno->id,
                 'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
             ])->values();
@@ -71,7 +71,7 @@ class ElementoGrupoPapController extends Controller
         $this->authorize('create', ElementoGrupoPap::class);
 
         $grupoPap->elementos()->createMany(
-            collect($request->alunos)->map(fn($id) => ['aluno_id' => $id])->toArray()
+            collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
         );
 
         return to_route('pap.show', [

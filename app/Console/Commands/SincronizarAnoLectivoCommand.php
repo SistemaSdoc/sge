@@ -20,7 +20,7 @@ class SincronizarAnoLectivoCommand extends Command
         $service->sincronizar();
 
         $this->info('Sincronização de ano letivo concluída.');
-        
+
         return 0;
     }
 }

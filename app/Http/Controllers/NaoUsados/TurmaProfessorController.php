@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\NaoUsados;
 
-use Illuminate\Http\Request;
-use App\Models\TurmaProfessor;
-use App\Models\Turma;
-use App\Models\Professor;
 use App\Models\CursoClasseTurno;
+use App\Models\Professor;
+use App\Models\Turma;
+use App\Models\TurmaProfessor;
+use Illuminate\Http\Request;
 
 class TurmaProfessorController extends Controller
 {
@@ -20,7 +20,7 @@ class TurmaProfessorController extends Controller
             'professor',
             // ALTERADO: Acesso via cursoClasseTurno
             'turma.cursoClasseTurno.classeTurnoDisciplina.disciplina',
-            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso'
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
         ])->get();
 
         return view('turma_professor.index', compact('turmaProfessores'));
@@ -123,6 +123,7 @@ class TurmaProfessorController extends Controller
     public function destroy(TurmaProfessor $turmaProfessor)
     {
         $turmaProfessor->delete();
+
         return redirect()->route('turma_professor.index')->with('success', 'Atribuição excluída com sucesso!');
     }
 }

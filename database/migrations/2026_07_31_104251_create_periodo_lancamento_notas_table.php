@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -17,7 +18,7 @@ return new class extends Migration {
             $table->unsignedTinyInteger('periodo'); // 1, 2 ou 3
             $table->dateTime('data_inicio');
             $table->dateTime('data_limite');
-             $table->timestamp('notificado_em')->nullable();
+            $table->timestamp('notificado_em')->nullable();
             $table->timestamps();
 
             $table->unique(['instituicao_id', 'ano_lectivo_id', 'periodo'], 'pln_inst_ano_periodo_unique');

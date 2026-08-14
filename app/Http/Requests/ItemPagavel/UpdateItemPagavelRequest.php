@@ -15,12 +15,12 @@ class UpdateItemPagavelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nome'          => 'sometimes|required|string|max:255',
-            'descricao'     => 'nullable|string',
+            'nome' => 'sometimes|required|string|max:255',
+            'descricao' => 'nullable|string',
             'curso_classe_id' => 'sometimes|required|exists:curso_classe,id',
-            'valor'         => 'sometimes|required|numeric|min:0',
-            'frequencia'    => 'sometimes|required|in:unico,mensal,anual',
-            'ativo'         => 'sometimes|boolean',
+            'valor' => 'sometimes|required|numeric|min:0',
+            'frequencia' => 'sometimes|required|in:unico,mensal,anual',
+            'ativo' => 'sometimes|boolean',
         ];
     }
 
