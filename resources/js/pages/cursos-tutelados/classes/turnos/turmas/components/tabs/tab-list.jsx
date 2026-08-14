@@ -3,9 +3,9 @@ import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function TurmaTabsList({ classe, totalRecurso }) {
   return (
-    <TabsList variant={'line'}>
-      <TabsTrigger value="alunos">Alunos</TabsTrigger>
-      <TabsTrigger value="disciplinas">Disciplinas</TabsTrigger>
+    <TabsList variant={'default'}>
+      <TabsTrigger value="alunos">Alunos da turma</TabsTrigger>
+      <TabsTrigger value="disciplinas">Disciplinas da turma</TabsTrigger>
 
       {classe?.nome === '13ª' && (
         <TabsTrigger value="grupos-pap">Grupos para PAP</TabsTrigger>

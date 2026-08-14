@@ -42,13 +42,13 @@ export function TabAlunos({
   const isEmpty = alunos.length === 0;
 
   return (
-    <Card className="gap-0">
+    <Card className="grid grid-rows-[auto_1fr_auto] gap-0">
       <CardHeader className="border-b">
         <CardTitle>Alunos</CardTitle>
-        <CardDescription>Alunos inscritos nesta turma</CardDescription>
+        <CardDescription>Alunos matriculados nesta turma</CardDescription>
         {canCreate && (
           <CardAction>
-            <Button>Adicionar</Button>
+            <Button>Adicionar Alunos</Button>
           </CardAction>
         )}
       </CardHeader>
@@ -58,7 +58,7 @@ export function TabAlunos({
           <EmptyState
             variant="table"
             icon={UsersIcon}
-            title="Nenhum aluno inscrito"
+            title="Nenhum aluno adicionado"
             description="Comece adicionando alunos à turma"
           />
         ) : (
@@ -66,9 +66,7 @@ export function TabAlunos({
             <TableHeader>
               <TableRow className="bg-muted/72">
                 <TableHead className="px-4">Nome</TableHead>
-                <TableHead>Matrícula</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Telefone</TableHead>
+                <TableHead className="text-center">Matrícula</TableHead>
                 <TableHead className="px-4 text-right">Acções</TableHead>
               </TableRow>
             </TableHeader>
@@ -85,46 +83,20 @@ export function TabAlunos({
                       {aluno?.nome}
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="text-center">
                       {aluno.matricula ?? (
                         <Minus size={15} className="text-muted-foreground" />
                       )}
                     </TableCell>
 
-                    <TableCell>
-                      {aluno?.email ?? (
-                        <Minus size={15} className="text-muted-foreground" />
-                      )}
-                    </TableCell>
-
-                    <TableCell>
-                      {aluno?.telefone ?? (
-                        <Minus size={15} className="text-muted-foreground" />
-                      )}
-                    </TableCell>
-
                     <TableCell className="px-4 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontalIcon />
-                            <span className="sr-only">Abrir menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-
-                        <DropdownMenuContent align="end" className="w-auto">
-                          <DropdownMenuItem
-                            onClick={(e) => gerarCertificado(e, aluno.id)}
-                          >
-                            Gerar Certificado
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => gerarDeclaracao(e, aluno.id)}
-                          >
-                            Gerar Declaração
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        className="text-[10px]"
+                      >
+                        Ver detalhes
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );

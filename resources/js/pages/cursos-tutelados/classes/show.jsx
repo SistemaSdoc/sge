@@ -10,42 +10,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EmptyState } from '@/components/empty-state';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { toast } from 'sonner';
-import {
-  ArrowLeftIcon,
-  MoreHorizontalIcon,
-  BookOpenIcon,
-  UsersIcon,
-  ChevronRight,
-  ArrowUpLeft,
-  Plus,
-  Haze,
-} from 'lucide-react';
-import { Link, router } from '@inertiajs/react';
-import { show as showCurso } from '@/actions/App/Http/Controllers/CursoTuteladoController';
-import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
-import { destroy } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
-import {
-  show as showTurma,
-  create as createTurma,
-  edit as editTurma,
-} from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
-import { create } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
 import TablePagination from '@/components/table-pagination';
 import { useRef, useState } from 'react';
 import {
@@ -57,6 +21,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { toast } from 'sonner';
+import { BookOpenIcon, UsersIcon, ArrowUpLeft, Haze } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import { show as showCurso } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
+import { destroy } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
+import {
+  show as showTurma,
+  create as createTurma,
+  edit as editTurma,
+} from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import { create } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
 
 export default function Show({
   instituicao,
@@ -64,10 +56,8 @@ export default function Show({
   cursoClasse,
   anosLectivos,
   anoLectivoActual,
+  can,
 }) {
-  const instituicaoId = instituicao.id;
-  const cursoId = cursoTutelado.id;
-  const classeId = cursoClasse.id;
   const turnos = cursoClasse.turnos || [];
   const turmas = cursoClasse.turmas;
   const disciplinas = cursoClasse.disciplinas;
@@ -75,11 +65,18 @@ export default function Show({
     useState(anoLectivoActual);
 
   const selectedTurnoId = cursoClasse.turnoId;
-  const can = cursoClasse.can ?? {};
 
   const { deleteConfirm } = useDialog();
 
   const lastTurnoRef = useRef(null);
+
+  // Parâmetros base reutilizáveis
+  const params = {
+    instituicao: instituicao.id,
+    cursoTutelado: cursoTutelado.id,
+    cursoClasse: cursoClasse.id,
+    cursoClasseTurno: selectedTurnoId,
+  };
 
   const handleTurnoChange = (turnoId) => {
     if (lastTurnoRef.current === turnoId) {
@@ -128,10 +125,7 @@ export default function Show({
           destroy[
             '/dashboard/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/disciplinas/{classeTurnoDisciplina}'
           ]({
-            instituicao: instituicaoId,
-            cursoTutelado: cursoId,
-            cursoClasse: classeId,
-            cursoClasseTurno: selectedTurnoId,
+            ...params,
             classeTurnoDisciplina: disciplinaId,
           }).url,
           {
@@ -169,20 +163,51 @@ export default function Show({
     );
   };
 
+  const anoLectivoAtualNome = anosLectivos.find(
+    (ano) => ano.id === anoLectivoActual,
+  )?.nome;
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
       <Card className="gap-0">
         <CardHeader>
-          <CardTitle className="flex items-center gap-1">
-            {cursoTutelado.curso.nome} <ChevronRight className="size-4" />{' '}
-            {cursoClasse.classe?.nome}{' '}
-          </CardTitle>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  {can.curso.view ? (
+                    <Link
+                      className="text-sm font-semibold text-primary hover:text-primary/80"
+                      href={
+                        showCurso({
+                          instituicao,
+                          cursoTutelado,
+                        }).url
+                      }
+                    >
+                      {cursoTutelado.nome}
+                    </Link>
+                  ) : (
+                    <span className="text-sm font-semibold text-primary">
+                      {cursoTutelado.nome}
+                    </span>
+                  )}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+
+              <BreadcrumbSeparator />
+
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-sm font-semibold text-secondary">
+                  {cursoClasse.nome}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
 
           <CardDescription>
             Gerir disciplinas e turmas por turno no ano lectivo{' '}
-            <span className="font-bold">
-              {anosLectivos.find((ano) => ano.id === anoLectivoActual).nome}
-            </span>
+            <span className="font-bold">{anoLectivoAtualNome}</span>
           </CardDescription>
 
           <CardAction className="flex gap-3">
@@ -192,8 +217,8 @@ export default function Show({
               onClick={() =>
                 router.visit(
                   showCurso({
-                    instituicao: instituicaoId,
-                    cursoTutelado: cursoId,
+                    instituicao: params.instituicao,
+                    cursoTutelado: params.cursoTutelado,
                   }).url,
                 )
               }
@@ -201,16 +226,15 @@ export default function Show({
               <ArrowUpLeft /> Voltar ao curso
             </Button>
 
-            {can.create_turno && turnos.length < 3 && (
+            {can.turno.create && turnos.length < 3 && (
               <Button
-                variant=""
                 size="sm"
                 onClick={() =>
                   router.visit(
                     create({
-                      instituicao: instituicaoId,
-                      cursoTutelado: cursoId,
-                      cursoClasse: cursoClasse.id,
+                      instituicao: params.instituicao,
+                      cursoTutelado: params.cursoTutelado,
+                      cursoClasse: params.cursoClasse,
                     }).url,
                   )
                 }
@@ -224,19 +248,18 @@ export default function Show({
 
       {turnos.length > 0 ? (
         <Tabs value={selectedTurnoId} onValueChange={handleTurnoChange}>
-          <TabsList
-            variant={'line'}
-            className="p4-4 flex! w-full justify-between"
-          >
-            <div>
-              {turnos.map((turno) => (
-                <TabsTrigger key={turno.id} value={turno.id}>
-                  {turno.nome}
-                </TabsTrigger>
-              ))}
-            </div>
+          <div className="flex! w-full justify-between">
+            <TabsList variant={'default'} className="p4-4">
+              <div>
+                {turnos.map((turno) => (
+                  <TabsTrigger key={turno.id} value={turno.id}>
+                    {turno.nome}
+                  </TabsTrigger>
+                ))}
+              </div>
+            </TabsList>
 
-            <div className="">
+            <div>
               <Select
                 value={anoLectivoSelecionado}
                 onValueChange={handleAnoLectivoChange}
@@ -256,7 +279,7 @@ export default function Show({
                 </SelectContent>
               </Select>
             </div>
-          </TabsList>
+          </div>
 
           <TabsContent value={selectedTurnoId} className="mt-2 space-y-6">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -264,7 +287,6 @@ export default function Show({
               <Card className="grid grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
                 <CardHeader className="border-b">
                   <CardTitle className="flex! gap-2">
-                    <BookOpenIcon className="size-5 text-secondary" />
                     Disciplinas ({disciplinas?.total ?? 0})
                   </CardTitle>
 
@@ -273,22 +295,19 @@ export default function Show({
                     <span>
                       {
                         turnos.find((turno) => turno.id === selectedTurnoId)
-                          .nome
+                          ?.nome
                       }
                     </span>
                   </CardDescription>
 
-                  {can.create_disciplina && (
+                  {can.disciplina.create && (
                     <CardAction>
                       <Button asChild size="sm">
                         <Link
                           data={{ redirect_to: window.location.href }}
                           href={`${
                             createDisciplina({
-                              instituicao: instituicaoId,
-                              cursoTutelado: cursoId,
-                              cursoClasse: classeId,
-                              cursoClasseTurno: selectedTurnoId,
+                              ...params,
                             }).url
                           }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`}
                         >
@@ -307,15 +326,12 @@ export default function Show({
                       title="Nenhuma disciplina"
                       description="Este turno ainda não tem disciplinas associadas"
                       action={
-                        can.create_disciplina
+                        can.disciplina.create
                           ? {
                               label: 'Adicionar Disciplina',
                               href: `${
                                 createDisciplina({
-                                  instituicao: instituicaoId,
-                                  cursoTutelado: cursoId,
-                                  cursoClasse: classeId,
-                                  cursoClasseTurno: selectedTurnoId,
+                                  ...params,
                                 }).url
                               }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`,
                               variant: 'outline',
@@ -383,7 +399,6 @@ export default function Show({
               <Card className="grid grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
                 <CardHeader className="border-b">
                   <CardTitle className="flex! gap-2">
-                    <UsersIcon className="size-5 text-secondary" />
                     Turmas ({turmas?.total ?? 0})
                   </CardTitle>
 
@@ -392,21 +407,18 @@ export default function Show({
                     <span>
                       {
                         turnos.find((turno) => turno.id === selectedTurnoId)
-                          .nome
+                          ?.nome
                       }
                     </span>
                   </CardDescription>
 
-                  {can.create_turma && (
+                  {can.turma.create && (
                     <CardAction>
                       <Button asChild size="sm">
                         <Link
                           href={
                             createTurma({
-                              instituicao: instituicaoId,
-                              cursoTutelado: cursoId,
-                              cursoClasse: classeId,
-                              cursoClasseTurno: selectedTurnoId,
+                              ...params,
                             }).url
                           }
                         >
@@ -425,14 +437,11 @@ export default function Show({
                       title="Nenhuma turma"
                       description="Este turno ainda não tem turmas adicionadas"
                       action={
-                        can.create_turma
+                        can.turma.create
                           ? {
                               label: 'Adicionar Turma',
                               href: createTurma({
-                                instituicao: instituicaoId,
-                                cursoTutelado: cursoId,
-                                cursoClasse: classeId,
-                                cursoClasseTurno: selectedTurnoId,
+                                ...params,
                               }).url,
                               variant: 'outline',
                             }
@@ -466,10 +475,7 @@ export default function Show({
                                 if (turma.can?.view) {
                                   router.visit(
                                     showTurma({
-                                      instituicao: instituicaoId,
-                                      cursoTutelado: cursoId,
-                                      cursoClasse: classeId,
-                                      cursoClasseTurno: selectedTurnoId,
+                                      ...params,
                                       turma: turma.id,
                                     }).url,
                                   );
@@ -494,10 +500,7 @@ export default function Show({
                                       e.stopPropagation();
                                       router.visit(
                                         editTurma({
-                                          instituicao: instituicaoId,
-                                          cursoTutelado: cursoId,
-                                          cursoClasse: classeId,
-                                          cursoClasseTurno: selectedTurnoId,
+                                          ...params,
                                           turma: turma.id,
                                         }).url + '?origem=classe',
                                       );
@@ -535,15 +538,13 @@ export default function Show({
               title="Nenhum turno"
               description="Esta classe ainda não tem turnos definidos"
               action={
-                can.create_turno
+                can.turno.create
                   ? {
                       label: 'Adicionar Turno',
                       onClick: () =>
                         router.visit(
                           create({
-                            instituicao: instituicaoId,
-                            cursoTutelado: cursoId,
-                            cursoClasse: cursoClasse.id,
+                            ...params,
                           }).url,
                         ),
                       variant: 'outline',

@@ -224,9 +224,18 @@ class ClasseTurnoTurmaController extends Controller
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
             'instituicao' => $instituicao->only('id'),
-            'cursoTutelado' => $cursoTutelado->only('id'),
-            'cursoClasse' => $cursoClasse->only('id'),
-            'cursoClasseTurno' => $cursoClasseTurno->only('id'),
+            'cursoTutelado' => [
+                'id' => $cursoTutelado->only('id'),
+                'nome' => $cursoTutelado->instituicaoCurso->curso->nome,
+            ],
+            'cursoClasse' => [
+                'id' => $cursoClasse->only('id'),
+                'nome' => $cursoClasse->classe->nome,
+            ],
+            'cursoClasseTurno' => [
+                'id' => $cursoClasseTurno->id,
+                'nome' => $cursoClasseTurno->turno->nome,
+            ],
             'turma' => new TurmaShowResource($turma),
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => AnoLectivo::query()
@@ -235,6 +244,15 @@ class ClasseTurnoTurmaController extends Controller
                 ->get(),
 
             'can' => [
+                'curso' => [
+                    'view' => $user->can('view', $cursoTutelado),
+                ],
+                'classe' => [
+                    'view' => $user->can('view', $cursoClasse),
+                ],
+                'turno' => [
+                    'view' => $user->can('view', $cursoClasseTurno),
+                ],
                 'alunos' => [
                     'create' => $user->can('create', Aluno::class),
                 ],

@@ -22,8 +22,13 @@ class CursoClasseController extends Controller
     /**
      * Display the specified resource (Show page via Inertia).
      */
-    public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado, CursoClasse $cursoClasse)
-    {
+    public function show(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse
+    ) {
+        $this->authorize('view', $cursoClasse);
+
         Redirect::setIntendedUrl(request()->fullUrl());
 
         $cursoClasse->load(['classe:id,nome', 'turnos.turno:id,nome']);
@@ -39,12 +44,23 @@ class CursoClasseController extends Controller
         $turnoActual = $cursoClasse->turnos->firstWhere('id', $turnoId);
 
         $turmas = $turnoActual
-            ? $turnoActual->turmas()
-                ->where('ano_lectivo_id', $anoLectivoId)
-                ->withCount('alunosActivos')
-                ->orderBy('nome')
-                ->paginate(7, ['*'], 'page_turmas')
-            : $this->emptyPaginator('page_turmas');
+        ? $turnoActual->turmas()
+            ->where('ano_lectivo_id', $anoLectivoId)
+            ->withCount('alunosActivos')
+            ->orderBy('nome')
+            ->paginate(7, ['*'], 'page_turmas')
+            ->through(function (Turma $turma) {
+                return [
+                    'id' => $turma->id,
+                    'nome' => $turma->nome,
+                    'alunos_activos_count' => $turma->alunosActivos()->count(),
+                    'can' => [
+                        'view' => Auth::user()->can('view', $turma),
+                        'edit' => Auth::user()->can('update', $turma),
+                    ],
+                ];
+            })
+        : $this->emptyPaginator('page_turmas');
 
         $disciplinas = $turnoActual
             ? $turnoActual->classeTurnoDisciplinas()
@@ -53,43 +69,54 @@ class CursoClasseController extends Controller
                 ->paginate(7, ['*'], 'page_disciplinas')
             : $this->emptyPaginator('page_disciplinas');
 
+        // Formatar turnos
+        $turnos = $cursoClasse->turnos->map(fn ($t) => [
+            'id' => $t->id,
+            'nome' => $t->turno->nome,
+        ])->toArray();
+
+        // Formatar permissions
+        $permissions = [
+            'curso' => [
+                'view' => Auth::user()->can('view', $cursoTutelado),
+            ],
+            'classe' => [
+                'view' => Auth::user()->can('view', $cursoClasse),
+            ],
+            'turno' => [
+                'create' => Auth::user()->can('create', CursoClasseTurno::class),
+            ],
+            'disciplina' => [
+                'create' => Auth::user()->can('create', ClasseTurnoDisciplina::class),
+            ],
+            'turma' => [
+                'create' => Auth::user()->can('create', Turma::class),
+            ],
+        ];
+
+        // Formatar anos lectivos
+        $anosLectivos = AnoLectivo::query()->select('id', 'nome')->orderByDesc('data_inicio')->get();
+
         return Inertia::render('cursos-tutelados/classes/show', [
-            'instituicao' => ['id' => $instituicao->id, 'nome' => $instituicao->nome],
+            'instituicao' => [
+                'id' => $instituicao->id,
+                'nome' => $instituicao->nome,
+            ],
             'cursoTutelado' => [
                 'id' => $cursoTutelado->id,
-                'curso' => [
-                    'id' => $cursoTutelado->instituicaoCurso->curso->id,
-                    'nome' => $cursoTutelado->instituicaoCurso->curso->nome,
-                ],
+                'nome' => $cursoTutelado->instituicaoCurso->curso->nome,
             ],
             'cursoClasse' => [
                 'id' => $cursoClasse->id,
-                'classe' => ['id' => $cursoClasse->classe->id, 'nome' => $cursoClasse->classe->nome],
-                'turnos' => $cursoClasse->turnos->map(fn ($t) => ['id' => $t->id, 'nome' => $t->turno->nome])->toArray(),
+                'nome' => $cursoClasse->classe->nome,
+                'turnos' => $turnos,
                 'turnoId' => $turnoId,
-                'turmas' => $turmas->through(function (Turma $turma) {
-                    return [
-                        'id' => $turma->id,
-                        'nome' => $turma->nome,
-                        'alunos_activos_count' => $turma->alunosActivos()->count(),
-                        'can' => [
-                            'view' => Auth::user()->can('view', $turma),
-                            'edit' => Auth::user()->can('update', $turma),
-                        ],
-                    ];
-                }),
+                'turmas' => $turmas,
                 'disciplinas' => $disciplinas,
-                'can' => [
-                    'create_disciplina' => Auth::user()->can('create', ClasseTurnoDisciplina::class),
-                    'create_turma' => Auth::user()->can('create', Turma::class),
-                    'create_turno' => Auth::user()->can('create', CursoClasseTurno::class),
-                ],
             ],
-            'anosLectivos' => AnoLectivo::query()
-                ->select('id', 'nome')
-                ->orderByDesc('data_inicio')
-                ->get(),
+            'anosLectivos' => $anosLectivos,
             'anoLectivoActual' => $anoLectivoId,
+            'can' => $permissions,
         ]);
     }
 

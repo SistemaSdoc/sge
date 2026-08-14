@@ -88,7 +88,10 @@ export function TurmaForm({
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={processing || !canSubmit}>
+                  <Button
+                    type="submit"
+                    disabled={processing || !canSubmit || !data.nome}
+                  >
                     {processing ? <Spinner className="size-4" /> : null}
                     {submitLabel}
                   </Button>

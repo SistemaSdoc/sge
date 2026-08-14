@@ -81,7 +81,10 @@ export default function DisciplinaForm({
               </Field>
 
               <Field>
-                <Button type="submit" disabled={processing}>
+                <Button
+                  type="submit"
+                  disabled={processing || disciplinaIds.length === 0}
+                >
                   {processing ? <Spinner className="size-4" /> : null}
                   Adicionar Disciplinas
                 </Button>
@@ -93,7 +96,7 @@ export default function DisciplinaForm({
                   onClick={() => window.history.back()}
                 >
                   <ArrowUpLeft />
-                  Voltar a classe
+                  Voltar
                 </Button>
               </Field>
             </FieldSet>
