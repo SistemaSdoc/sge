@@ -43,21 +43,26 @@ class GrelhaCurricularService
             app(NotaAlunoService::class)->classesDisponiveis($aluno);
     }
 
-    private function obterTurmaAlunoDaClasse(Aluno $aluno, ?string $classeId = null)
-    {
-        $query = \App\Models\TurmaAluno::query()
-            ->where('aluno_id', $aluno->id)
-            ->with(['turma.anoLectivo', 'turma.cursoClasseTurno.cursoClasse.classe']);
+ private function obterTurmaAlunoDaClasse(Aluno $aluno, ?string $classeId = null)
+{
+    $anoLectivoId = \App\Models\AnoLectivo::where('activo', true)->value('id');
 
-        if ($classeId) {
-            $query->whereHas('turma.cursoClasseTurno.cursoClasse.classe', function ($q) use ($classeId) {
-                $q->where('classes.id', $classeId);
-            });
-        }
+    $query = \App\Models\TurmaAluno::query()
+        ->where('aluno_id', $aluno->id)
+        ->whereHas('turma', function ($q) use ($anoLectivoId) {
+            $q->where('ano_lectivo_id', $anoLectivoId);
+        })
+        ->with(['turma.anoLectivo', 'turma.cursoClasseTurno.cursoClasse.classe']);
 
-        return $query
-            ->orderByDesc('activo')
-            ->orderByDesc('created_at')
-            ->first();
+    if ($classeId) {
+        $query->whereHas('turma.cursoClasseTurno.cursoClasse.classe', function ($q) use ($classeId) {
+            $q->where('classes.id', $classeId);
+        });
     }
+
+    return $query
+        ->orderByDesc('activo')
+        ->orderByDesc('created_at')
+        ->first();
+}
 }

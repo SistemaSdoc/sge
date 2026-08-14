@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable([
     'user_id',
     'especialidade',
+    'nivel_academico',
 ])]
 
 class Professor extends Model

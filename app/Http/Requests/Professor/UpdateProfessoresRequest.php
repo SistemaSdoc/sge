@@ -32,6 +32,7 @@ class UpdateProfessoresRequest extends FormRequest
             'email' => ['email', Rule::unique('users', 'email')->ignore($userId)],
             'telefone' => 'max:20',
             'especialidade' => 'nullable|string|max:255',
+            'nivel_academico' => 'nullable|string|max:255',
         ];
     }
 

@@ -31,6 +31,7 @@ class StoreProfessoresRequest extends FormRequest
             'email' => 'required|email|unique:users,email,' . $userId,
             'telefone' => 'required|max:20',
             'especialidade' => 'string|max:255',
+            'nivel_academico' => 'string|max:255',
         ];
     }
 

@@ -9,6 +9,7 @@ export default function Edit({ professor }) {
     bi: professor.user.bi,
     telefone: professor.user.telefone,
     especialidade: professor.especialidade,
+    nivel_academico: professor.nivel_academico,
   });
 
   return (
