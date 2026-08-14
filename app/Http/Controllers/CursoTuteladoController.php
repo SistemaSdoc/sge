@@ -26,26 +26,40 @@ class CursoTuteladoController extends Controller
 
     public function create(Instituicao $instituicao)
     {
-        Gate::authorize('create', CursoTutelado::class);
+          Gate::authorize('create', CursoTutelado::class);
 
-        $classes = Classe::select('id', 'nome')
-            ->orderBy('nome')
-            ->get();
+    $classes = Classe::select('id', 'nome')
+        ->orderBy('nome')
+        ->get();
 
-        $niveisEnsino = NivelEnsino::select('id', 'nome')
-            ->orderBy('nome')
-            ->get();
+    $niveisEnsino = NivelEnsino::select('id', 'nome')
+        ->orderBy('nome')
+        ->get();
 
-        $cursos = Curso::select('id', 'nome')
-            ->orderBy('nome')
-            ->get();
+    $cursosJaAssociadosQuery = InstituicaoCurso::query();
 
-        return Inertia::render('cursos-tutelados/create', [
-            'instituicao' => $instituicao->only('id'),
-            'classes' => $classes,
-            'cursos' => $cursos,
-            'niveisEnsino' => $niveisEnsino,
-        ]);
+    if ($instituicao->tipo === 'instituto') {
+        // Instituto: esconde cursos já associados a qualquer colégio
+        $cursosJaAssociadosQuery->whereHas('instituicao', fn ($q) => $q->where('tipo', 'colegio'));
+    } else {
+        // Colégio: esconde só os cursos já associados a este próprio colégio
+        // (cursos de institutos continuam a aparecer)
+        $cursosJaAssociadosQuery->where('instituicao_id', $instituicao->id);
+    }
+
+    $cursosJaAssociados = $cursosJaAssociadosQuery->pluck('curso_id');
+
+    $cursos = Curso::select('id', 'nome')
+        ->whereNotIn('id', $cursosJaAssociados)
+        ->orderBy('nome')
+        ->get();
+
+    return Inertia::render('cursos-tutelados/create', [
+        'instituicao' => $instituicao->only('id'),
+        'classes' => $classes,
+        'cursos' => $cursos,
+        'niveisEnsino' => $niveisEnsino,
+    ]);
     }
 
     public function store(
