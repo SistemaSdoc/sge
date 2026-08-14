@@ -241,6 +241,22 @@ export default function Show({
             </div>
           )}
 
+          {grupoPap?.manual_pt_url && (
+            <div>
+              <p className="text-sm text-muted-foreground">Manual de PT</p>
+
+              <a
+                href={grupoPap.manual_pt_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
+                <FileText className="size-4" />
+                Ver documento
+              </a>
+            </div>
+          )}
+
         </CardContent>
       </Card>
 

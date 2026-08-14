@@ -5,7 +5,7 @@ import { TabBanca } from './components/tabs/tab-banca';
 //import { TabAprovacao } from './components/tabs/tab-aprovacao';
 import { TabHistorico } from './components/tabs/tab-historico';
 import { Card, CardContent } from '@/components/ui/card';
-import { Minus, MoreHorizontalIcon } from 'lucide-react';
+import { Minus, MoreHorizontalIcon, FileText } from 'lucide-react';
 import { TabIntegrantes } from './components/tabs/tab-integrantes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -120,7 +120,7 @@ export default function Show({
               <h1 className="text-2xl font-semibold md:text-3xl">
                 {grupoPap?.nome_grupo}
               </h1>
-               <h2 className="text-2xl font-semibold md:text-1xl">
+              <h2 className="text-2xl font-semibold md:text-1xl">
                 Tema: {grupoPap?.tema_grupo}
               </h2>
               <p className="text-sm opacity-90">{colegio?.nome}</p>
@@ -213,6 +213,38 @@ export default function Show({
                 : 'Por definir...'}
             </p>
           </div>
+
+          {grupoPap?.criterios_pap_url && (
+            <div>
+              <p className="text-sm text-muted-foreground">Critérios PAP</p>
+
+              <a
+                href={grupoPap.criterios_pap_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
+                <FileText className="size-4" />
+                Ver documento
+              </a>
+            </div>
+          )}
+
+          {grupoPap?.manual_pt_url && (
+            <div>
+              <p className="text-sm text-muted-foreground">Manual de PT</p>
+
+              <a
+                href={grupoPap.manual_pt_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              >
+                <FileText className="size-4" />
+                Ver documento
+              </a>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -333,9 +365,9 @@ export default function Show({
             Integrantes do grupo
           </TabsTrigger>
           {can?.verBanca && (
-          <TabsTrigger value="integrantes-banca">
-            Integrantes da banca
-          </TabsTrigger>
+            <TabsTrigger value="integrantes-banca">
+              Integrantes da banca
+            </TabsTrigger>
           )}
           <TabsTrigger value="aprovacao">Aprovação do tema</TabsTrigger>
 
@@ -354,18 +386,18 @@ export default function Show({
             can={can}
           />
         </TabsContent>
-          {can?.verBanca && (
-        <TabsContent value="integrantes-banca">
-          <TabBanca
-            params={params}
-            grupoPap={grupoPap}
-            removerJuradoFn={removerJuradoFn}
-            pagination={banca}
-            onPageChange={bancaPagination.handlePageChange}
-            can={can}
-          />
-        </TabsContent>
-          )}
+        {can?.verBanca && (
+          <TabsContent value="integrantes-banca">
+            <TabBanca
+              params={params}
+              grupoPap={grupoPap}
+              removerJuradoFn={removerJuradoFn}
+              pagination={banca}
+              onPageChange={bancaPagination.handlePageChange}
+              can={can}
+            />
+          </TabsContent>
+        )}
         <TabsContent value="aprovacao">
           <TabAprovacao params={params} grupoPap={grupoPap} can={can} />
         </TabsContent>
