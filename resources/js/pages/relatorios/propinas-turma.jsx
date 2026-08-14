@@ -75,7 +75,7 @@ export default function RelatorioPropinasTurma({
               <p className="text-xs text-muted-foreground">Reguralizado(s)</p>
             </div>
             <div className="py-3">
-              <p className="text-2xl font-bold text-destructive">
+              <p className="text-2xl font-bold  ">
                 {formatCurrency(resumo.multa_total_geral)}
               </p>
               <p className="text-xs text-muted-foreground">Total em multas</p>
@@ -132,7 +132,7 @@ export default function RelatorioPropinasTurma({
                           <span key={i} className="inline-flex items-center gap-1">
                             {m.label}
                             {m.com_multa && (
-                              <AlertCircleIcon className="size-3 text-destructive" />
+                              <AlertCircleIcon className="size-3  " />
                             )}
                             {i < linha.meses.length - 1 && ','}
                           </span>
@@ -141,7 +141,7 @@ export default function RelatorioPropinasTurma({
                     </TableCell>
                     <TableCell className="px-4 text-right">
                       {linha.multa_total > 0 ? (
-                        <span className="font-medium text-destructive">
+                        <span className="font-medium  ">
                           {formatCurrency(linha.multa_total)}
                         </span>
                       ) : (

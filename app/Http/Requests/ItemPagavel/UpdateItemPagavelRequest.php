@@ -17,7 +17,7 @@ class UpdateItemPagavelRequest extends FormRequest
         return [
             'nome'          => 'sometimes|required|string|max:255',
             'descricao'     => 'nullable|string',
-            'curso_classe_id' => 'sometimes|required|exists:curso_classe,id',
+            'curso_classe_id' => 'sometimes|nullable|required|exists:curso_classe,id',
             'valor'         => 'sometimes|required|numeric|min:0',
             'frequencia'    => 'sometimes|required|in:unico,mensal,anual',
             'multa_dias_tolerancia' => 'nullable|integer|min:1|max:31',

@@ -129,8 +129,7 @@ export default function ItensTable({
 
                     <TableCell className="px-4 text-center">
                       {temMulta ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-destructive">
-                          <TriangleAlert className="size-3" />
+                        <span className="inline-flex items-center gap-1 text-xs  ">
                           {formatCurrency(item.multa_valor)} após dia {item.multa_dias_tolerancia}
                         </span>
                       ) : (

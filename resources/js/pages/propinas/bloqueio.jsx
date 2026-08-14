@@ -1,5 +1,4 @@
 import { Head, Link } from '@inertiajs/react';
-import { AlertTriangle, TriangleAlert } from 'lucide-react';
 import { dashboard } from '@/routes';
 
 const formatCurrency = (value) => {
@@ -15,7 +14,7 @@ export default function Bloqueio({ pendencias, total, meses }) {
     <>
       <Head title="Acesso Bloqueado" />
       <div className="flex flex-col items-center justify-center gap-3 px-4 py-16 text-center sm:gap-4 sm:p-6 sm:py-24">
-        <AlertTriangle className="size-8 text-destructive sm:size-10" />
+      
         <h1 className="text-lg font-semibold sm:text-xl">Propinas em atraso</h1>
 
         <p className="max-w-xs text-sm text-muted-foreground sm:max-w-md">
@@ -40,8 +39,8 @@ export default function Bloqueio({ pendencias, total, meses }) {
                 <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground">
                   <span>Propina: {formatCurrency(p.valor_base ?? p.valor)}</span>
                   {p.multa > 0 && (
-                    <span className="flex items-center gap-1 font-medium text-destructive">
-                      <TriangleAlert className="size-3" />
+                    <span className="flex items-center gap-1 font-medium  ">
+                      
                       Multa: {formatCurrency(p.multa)}
                     </span>
                   )}
@@ -59,7 +58,7 @@ export default function Bloqueio({ pendencias, total, meses }) {
           </p>
 
           {multaTotal > 0 && (
-            <p className="text-xs text-destructive">
+            <p className="text-xs  ">
               Inclui {formatCurrency(multaTotal)} em multas por atraso
             </p>
           )}

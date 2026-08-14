@@ -143,7 +143,7 @@ export function PagamentosForm({
       {hasErrors && (
         <div
           role="alert"
-          className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm  "
         >
           <p className="font-medium">Não foi possível registar o pagamento.</p>
           <ul className="mt-2 list-disc space-y-1 pl-5">

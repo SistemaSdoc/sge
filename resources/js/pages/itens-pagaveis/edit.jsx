@@ -12,12 +12,16 @@ export default function Edit({ itemPagavel, cursosClasse = [] }) {
     frequencia: 'mensal',
     curso_classe_id: '',
     ativo: true,
+    multa_dias_tolerancia: '',  
+    multa_valor: '',             
   });
 
   //  ESSENCIAL: sincroniza quando itemPagavel for carregado
   useEffect(() => {
     if (itemPagavel) {
       setData({
+  multa_dias_tolerancia: '',  
+  multa_valor: '',             
         nome: itemPagavel.nome ?? '',
         descricao: itemPagavel.descricao ?? '',
         valor: itemPagavel.valor ?? '',
@@ -27,6 +31,8 @@ export default function Edit({ itemPagavel, cursosClasse = [] }) {
           ? String(itemPagavel.curso_classe_id) 
           : '',
         ativo: itemPagavel.ativo ?? true,
+      multa_dias_tolerancia: itemPagavel.multa_dias_tolerancia ?? '',
+      multa_valor: itemPagavel.multa_valor ?? '',     
       });
     }
   }, [itemPagavel]);

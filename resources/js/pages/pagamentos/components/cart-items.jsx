@@ -11,7 +11,6 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { formatMoney, frequencyLabel, MONTH_LABELS } from '@/lib/pagamentos';
 import { cn } from '@/lib/utils';
-import { TriangleAlert } from 'lucide-react';
 
 export function CartItem({
   item,
@@ -77,8 +76,8 @@ export function CartItem({
           )}
 
           {isMonthly && item.multa_dias_tolerancia && item.multa_valor && (
-            <Badge variant="outline" className="gap-1 p-1 text-[10px] text-destructive">
-              <TriangleAlert className="size-2.5" />
+            <Badge variant="outline" className="gap-1 p-1 text-[10px]  ">
+           
               Multa após dia {item.multa_dias_tolerancia}
             </Badge>
           )}
@@ -123,7 +122,7 @@ export function CartItem({
                   className={cn(
                     'min-w-11',
                     isPaid && 'line-through',
-                    temMulta && 'border-destructive/50 text-destructive',
+                    temMulta && 'border-destructive/50  ',
                   )}
                 >
                   {label}
@@ -134,9 +133,9 @@ export function CartItem({
           </ToggleGroup>
 
           {mesesComMulta.length > 0 && (
-            <p className="flex items-center gap-1 text-xs text-destructive">
-              <TriangleAlert className="size-3" />
-              * Mês(es) com multa por atraso incluída no valor
+            <p className="flex items-center gap-1 text-xs  ">
+            
+               Mês com multa por atraso incluída no valor
             </p>
           )}
         </ItemFooter>

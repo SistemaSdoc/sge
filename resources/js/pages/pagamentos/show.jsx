@@ -60,6 +60,8 @@ function periodoLabel(frequencia, mes, ano) {
 
 export default function Show({ pagamento }) {
   const itens = pagamento.itens.data;
+  const temAlgumaMulta = itens.some((item) => Number(item.multa) > 0);
+  const multaTotalPagina = itens.reduce((soma, item) => soma + Number(item.multa ?? 0), 0);
 
   function handlePageChange(page) {
     router.reload({
@@ -109,6 +111,9 @@ export default function Show({ pagamento }) {
                   <TableHead className="px-4">Item</TableHead>
                   <TableHead className="px-4">Frequência</TableHead>
                   <TableHead className="px-4">Período</TableHead>
+                  {temAlgumaMulta && (
+                    <TableHead className="px-4 text-right">Multa</TableHead>
+                  )}
                   <TableHead className="px-4 text-right">Valor</TableHead>
                 </TableRow>
               </TableHeader>
@@ -126,6 +131,18 @@ export default function Show({ pagamento }) {
                     <TableCell className="px-4 text-muted-foreground">
                       {periodoLabel(item.frequencia, item.mes, item.ano)}
                     </TableCell>
+                    {temAlgumaMulta && (
+                      <TableCell className="px-4 text-right">
+                        {Number(item.multa) > 0 ? (
+                          <span className="inline-flex items-center gap-1 font-medium">
+                         
+                            {formatCurrency(item.multa)}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                    )}
                     <TableCell className="px-4 text-right font-medium tabular-nums">
                       {formatCurrency(item.valor)}
                     </TableCell>
@@ -134,8 +151,9 @@ export default function Show({ pagamento }) {
               </TableBody>
 
               <TableFooter>
+          
                 <TableRow>
-                  <TableCell colSpan={3} className="px-4">
+                  <TableCell colSpan={temAlgumaMulta ? 3 : 3} className="px-4">
                     Total
                   </TableCell>
                   <TableCell className="px-4 text-right">
@@ -189,6 +207,17 @@ export default function Show({ pagamento }) {
             </div>
 
             <Separator />
+
+                  {temAlgumaMulta && (
+
+                    <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">  Total em multas</span>
+              <span className="text-lg font-bold tabular-nums">
+              {formatCurrency(multaTotalPagina)}
+              </span>
+            </div>
+
+                )}
 
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Total</span>

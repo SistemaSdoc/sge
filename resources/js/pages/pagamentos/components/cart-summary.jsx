@@ -1,4 +1,4 @@
-import { XIcon, ShoppingCartIcon, TriangleAlert } from 'lucide-react';
+import { XIcon, ShoppingCartIcon } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -130,21 +130,14 @@ export function CartSummary({
                       <span>Base: {formatMoney(d.valorBase)}</span>
                       {d.multa > 0 && (
                         <>
-                          <span className="text-destructive">+ Multa: {formatMoney(d.multa)}</span>
+                          <span className=" ">+ Multa: {formatMoney(d.multa)}</span>
                           <span>= {formatMoney(d.valor)}</span>
                         </>
                       )}
                       {d.multa === 0 && <span>= {formatMoney(d.valor)}</span>}
                     </div>
                   ))}
-                  {/* Resumo do item */}
-                  <div className="mt-1 flex items-center gap-2 text-xs font-medium">
-                    <span>Subtotal: {formatMoney(baseTotal)}</span>
-                    {multaTotal > 0 && (
-                      <span className="text-destructive">+ Multa: {formatMoney(multaTotal)}</span>
-                    )}
-                    <span>= {formatMoney(subtotal)}</span>
-                  </div>
+               
                 </div>
               )}
 
@@ -167,8 +160,8 @@ export function CartSummary({
             <span className="tabular-nums">{formatMoney(baseTotalGeral)}</span>
           </div>
           {multaTotalGeral > 0 && (
-            <div className="flex items-center justify-between text-destructive">
-              <span>Total em multas</span>
+            <div className="flex items-center justify-between  ">
+              <span>Multa</span>
               <span className="tabular-nums">{formatMoney(multaTotalGeral)}</span>
             </div>
           )}
