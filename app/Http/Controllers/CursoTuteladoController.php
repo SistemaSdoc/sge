@@ -156,15 +156,22 @@ class CursoTuteladoController extends Controller
             'professores.user:id,nome',
         ]);
 
-        $resource = (new CursoTuteladoResourceShow($cursoTutelado))->resolve();
-
         return Inertia::render('cursos-tutelados/show', [
-            'cursoTutelado' => $resource,
+            'instituicao' => [
+                'id' => $instituicao->id,
+                'nome' => $instituicao->nome,
+            ],
+            'cursoTutelado' => (new CursoTuteladoResourceShow($cursoTutelado))->resolve(),
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => AnoLectivo::query()
                 ->select('id', 'nome')
                 ->orderByDesc('data_inicio')
                 ->get(),
+            'can' => [
+                'instituicao' => [
+                    'view' => Auth::user()->can('view', $instituicao),
+                ],
+            ],
         ]);
     }
 

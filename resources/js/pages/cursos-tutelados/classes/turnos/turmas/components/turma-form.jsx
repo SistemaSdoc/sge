@@ -103,7 +103,7 @@ export function TurmaForm({
                     onClick={() => window.history.back()}
                   >
                     <ArrowUpLeft />
-                    Voltar a classe
+                    Voltar
                   </Button>
                 </Field>
               </FieldSet>

@@ -3,7 +3,7 @@ import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function TurmaTabsList({ classe, totalRecurso }) {
   return (
-    <TabsList variant={'default'}>
+    <TabsList>
       <TabsTrigger value="alunos">Alunos da turma</TabsTrigger>
       <TabsTrigger value="disciplinas">Disciplinas da turma</TabsTrigger>
 

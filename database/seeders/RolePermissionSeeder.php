@@ -514,7 +514,7 @@ class RolePermissionSeeder extends Seeder
                 'turmas.view',
 
                 // Pautas
-                'pautas.viewAny',
+                //'pautas.viewAny',
                 'pautas.view',
 
                 // Notas

@@ -30,6 +30,7 @@ import {
   ClipboardListIcon,
   LockKeyhole,
   LockKeyholeOpen,
+  Clock,
 } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { mediaTrimestral } from '@/utils/media-trimestral';
@@ -82,7 +83,7 @@ export default function LancamentosTable({
     pautaStatus?.[periodo]?.finalizada_automaticamente ?? false;
   const estaFinalizada = statusPeriodo === 'finalizada';
   const estaExpirada = statusPeriodo === 'expirada';
-  const podeOverride = Boolean(can?.overrideLockedPeriods);
+  const podeOverride = Boolean(can?.notas?.overrideLockedPeriods);
   const temAutorizacaoActiva = Boolean(autorizacaoAte?.[periodo]);
   const tipoSolicitacao =
     estaFinalizada || estaExpirada ? 'reabertura_edicao' : 'extensao_prazo';
@@ -93,19 +94,19 @@ export default function LancamentosTable({
     (estaFinalizada || estaExpirada || !dentroDoPrazo?.[periodo]);
 
   const podeGuardar =
-    can?.create &&
+    can?.notas?.create &&
     (podeOverride ||
       temAutorizacaoActiva ||
       (!estaFinalizada && !estaExpirada && dentroDoPrazo?.[periodo]));
 
   const podeFinalizar =
-    can?.finalizar &&
+    can?.notas?.finalizar &&
     (podeOverride ||
       temAutorizacaoActiva ||
       (!estaFinalizada && !estaExpirada && dentroDoPrazo?.[periodo]));
 
   const podeSolicitarEdicao =
-    can?.solicitarEdicao &&
+    can?.notas?.solicitarEdicao &&
     !temAutorizacaoActiva &&
     (estaFinalizada || estaExpirada || !dentroDoPrazo?.[periodo]);
 
@@ -277,16 +278,18 @@ export default function LancamentosTable({
               {finalizadaAutomaticamente
                 ? 'Esta pauta foi encerrada automaticamente devido ao término do prazo estabelecido para o lançamento das notas.'
                 : estaFinalizada
-                  ? can?.overrideLockedPeriods
+                  ? can?.notas?.overrideLockedPeriods
                     ? 'Esta pauta encontra-se encerrada. No entanto, possui permissão para efetuar alterações.'
                     : 'Esta pauta encontra-se encerrada. Para realizar alterações, é necessária a autorização da Direção.'
-                  : !dentroDoPrazo?.[periodo] && !can?.overrideLockedPeriods
+                  : !dentroDoPrazo?.[periodo] &&
+                      !can?.notas?.overrideLockedPeriods
                     ? 'O período de lançamento das notas para este trimestre encontra-se encerrado.'
                     : 'Preencha as classificações dos alunos correspondentes ao trimestre selecionado.'}
 
               {tempoRestante && (
-                <p className="mt-1 text-sm font-medium text-orange-600">
-                  ⏱ <strong>Tempo restante para edição:</strong> {tempoRestante}
+                <p className="mt-1 flex items-center gap-2 text-sm font-medium text-sky-600">
+                  <Clock className="size-4" />{' '}
+                  <strong>Tempo restante para edição:</strong> {tempoRestante}
                 </p>
               )}
             </CardDescription>

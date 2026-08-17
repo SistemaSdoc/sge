@@ -49,6 +49,7 @@ import {
   edit as editTurma,
 } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 import { create } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
+import { cn } from '@/lib/utils';
 
 export default function Show({
   instituicao,
@@ -168,9 +169,9 @@ export default function Show({
   )?.nome;
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
+    <div className="space-y- mx-auto w-full max-w-6xl p-6">
       <Card className="gap-0">
-        <CardHeader>
+        <CardHeader className="">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -248,37 +249,55 @@ export default function Show({
 
       {turnos.length > 0 ? (
         <Tabs value={selectedTurnoId} onValueChange={handleTurnoChange}>
-          <div className="flex! w-full justify-between">
-            <TabsList variant={'default'} className="p4-4">
-              <div>
-                {turnos.map((turno) => (
-                  <TabsTrigger key={turno.id} value={turno.id}>
-                    {turno.nome}
-                  </TabsTrigger>
-                ))}
-              </div>
-            </TabsList>
-
-            <div>
-              <Select
-                value={anoLectivoSelecionado}
-                onValueChange={handleAnoLectivoChange}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione o ano lectivo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Anos Lectivos</SelectLabel>
-                    {anosLectivos.map((ano) => (
-                      <SelectItem key={ano?.id} value={ano?.id}>
-                        {ano?.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+          {/* Grid de turnos — mesma borda e hover dos cards de Classes */}
+          <div className="overflow-hidden border border-foreground/10">
+            <div className="-mr-px -mb-px grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3">
+              {turnos.map((turno) => {
+                const isActive = selectedTurnoId === turno.id;
+                return (
+                  <button
+                    key={turno.id}
+                    type="button"
+                    onClick={() => handleTurnoChange(turno.id)}
+                    className={cn(
+                      'cursor-pointer border-r border-b border-foreground/10 bg-card px-3 py-3 text-left text-card-foreground transition-colors active:bg-accent sm:px-4 sm:py-4',
+                      isActive
+                        ? 'bg-accent text-secondary'
+                        : 'hover:bg-accent hover:text-secondary',
+                    )}
+                  >
+                    <h3 className="mb-0.5 text-xs font-medium sm:mb-1 sm:text-sm">
+                      {turno.nome}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {isActive ? 'A ver' : 'Clique aqui para ver o turno'}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
+          </div>
+
+          {/* Barra superior: select de ano lectivo */}
+          <div className="flex justify-end">
+            <Select
+              value={anoLectivoSelecionado}
+              onValueChange={handleAnoLectivoChange}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Selecione o ano lectivo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Anos Lectivos</SelectLabel>
+                  {anosLectivos.map((ano) => (
+                    <SelectItem key={ano?.id} value={ano?.id}>
+                      {ano?.nome}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
 
           <TabsContent value={selectedTurnoId} className="mt-2 space-y-6">

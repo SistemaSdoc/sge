@@ -130,7 +130,7 @@ export function Header({ can, turma, params }) {
                           cursoTutelado: params.cursoTutelado.id,
                           cursoClasse: params.cursoClasse.id,
                           cursoClasseTurno: params.cursoClasseTurno.id,
-                          turma: params.turma.id
+                          turma: params.turma.id,
                         }).url
                       }
                       data={{ turma: params.turma.id }}
@@ -164,7 +164,7 @@ export function Header({ can, turma, params }) {
 
         {/* Actions */}
         <CardAction className="flex gap-3">
-          {can.curso.view && (
+          {can.turma.view && (
             <Button variant="outline" size="sm" onClick={handleBackClick}>
               <ArrowUpLeft /> Voltar a turma
             </Button>

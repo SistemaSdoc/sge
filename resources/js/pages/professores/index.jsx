@@ -12,7 +12,8 @@ export default function Index({ professores }) {
   const handleDelete = (professorId) => {
     deleteConfirm({
       title: 'Tens a certeza?',
-      description: 'Esta acção é irreversível. O professor será eliminado permanentemente.',
+      description:
+        'Esta acção é irreversível. O professor será eliminado permanentemente.',
       confirmLabel: 'Eliminar',
       confirmFn: () => router.delete(destroy(professorId).url),
     });

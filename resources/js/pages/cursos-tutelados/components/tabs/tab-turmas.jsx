@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -16,31 +15,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { MoreHorizontalIcon, Minus, UsersIcon } from 'lucide-react';
+import { Minus, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
 import TablePagination from '@/components/table-pagination';
 import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 
 export function TabTurmas({
+  params,
   turmas,
   pagination = {},
   onPageChange,
-  instituicaoId,
-  cursoTuteladoId,
   can = {},
   anoLectivoId,
 }) {
@@ -49,7 +33,9 @@ export function TabTurmas({
   return (
     <Card className="gap-0">
       <CardHeader className="border-b">
-        <CardTitle>Turmas</CardTitle>
+        <CardTitle>
+          Turmas ({params.cursoTutelado.contadores?.turmas ?? 0})
+        </CardTitle>
         <CardDescription>Turmas deste curso</CardDescription>
       </CardHeader>
 
@@ -81,16 +67,13 @@ export function TabTurmas({
                     router.visit(
                       show(
                         {
-                          instituicao: instituicaoId,
-                          cursoTutelado: cursoTuteladoId,
+                          ...params,
                           cursoClasse: turma.classe.id,
                           cursoClasseTurno: turma.curso_classe_turno_id,
                           turma: turma.id,
                         },
                         {
-                          query: {
-                            ano_lectivo_id: anoLectivoId,
-                          },
+                          query: { ano_lectivo_id: anoLectivoId },
                         },
                       ).url,
                     )
@@ -119,46 +102,31 @@ export function TabTurmas({
                   </TableCell>
 
                   <TableCell className="px-4 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <MoreHorizontalIcon />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            router.visit(
-                              show(
-                                {
-                                  instituicao: instituicaoId,
-                                  cursoTutelado: cursoTuteladoId,
-                                  cursoClasse: turma.classe.id,
-                                  cursoClasseTurno: turma.curso_classe_turno_id,
-                                  turma: turma.id,
-                                },
-                                {
-                                  query: {
-                                    ano_lectivo_id: anoLectivoId,
-                                  },
-                                },
-                              ).url,
-                            );
-                          }}
-                        >
-                          Ver turma
-                        </DropdownMenuItem>
-
-                        <DropdownMenuSeparator />
-
-                        {/*<DropdownMenuItem variant="destructive" disabled>
-                          Remover
-                        </DropdownMenuItem>*/}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      className="text-[10px]"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        router.visit(
+                          show(
+                            {
+                              ...params,
+                              cursoClasse: turma.classe.id,
+                              cursoClasseTurno: turma.curso_classe_turno_id,
+                              turma: turma.id,
+                            },
+                            {
+                              query: {
+                                ano_lectivo_id: anoLectivoId,
+                              },
+                            },
+                          ).url,
+                        );
+                      }}
+                    >
+                      Ver turma
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
