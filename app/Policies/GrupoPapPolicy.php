@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\CursoTuteladoProfessor;
 use App\Models\GrupoPap;
 use App\Models\User;
 
@@ -32,18 +33,27 @@ class GrupoPapPolicy
         if ($user->hasRole('Professor')) {
             $professor = $user->professor;
 
-            // ✅ Professor DA TURMA
+            // Coordenador: acesso por permissão, sem restrição de turma/tutor/jurado
+            if ($user->hasPermissionTo('grupopap.view')) {
+                $ehCoordenador = CursoTuteladoProfessor::where('professor_id', $professor?->id)
+                    ->where('coordenador', true)
+                    ->exists();
+
+                if ($ehCoordenador) {
+                    return $grupoPap->instituicao()?->id === $user->instituicao_id
+                        || $grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
+                }
+            }
+
             $daFturma = $grupoPap->turma
                 ->professores()
                 ->where('professores.id', $professor?->id)
                 ->exists();
 
-            // ✅ Jurado do grupo
             $ehJurado = $grupoPap->jurados()
                 ->where('professor_id', $professor?->id)
                 ->exists();
 
-            // ✅ Professor TUTOR (criou/tutela o grupo)
             $ehTutor = $grupoPap->professor_tutor_id === $professor?->id;
 
             return ($daFturma || $ehJurado || $ehTutor)
@@ -55,8 +65,6 @@ class GrupoPapPolicy
                 $grupoPap->instituicao()?->id === $user->instituicao_id
                 || $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
             );
-
-        return true;
     }
 
     /**
@@ -109,13 +117,10 @@ class GrupoPapPolicy
             return false;
         }
 
-        $ehTutor = $grupoPap->professor_tutor_id === $user->professor?->id;
-
-        $ehMembro = $grupoPap->elementos()
+        // Apenas membros do grupo podem corrigir o tema
+        return $grupoPap->elementos()
             ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
             ->exists();
-
-        return $ehTutor || $ehMembro;
     }
 
     /**
@@ -166,6 +171,49 @@ class GrupoPapPolicy
 
         return $user->can('grupopap.definirData')
             && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id; // ← era instituicao()
+    }
+
+    /**
+     * Determina se o utilizador pode definir o tema do grupo PAP.
+     *
+     * Requer permission específica e que o grupo pertença à sua instituição.
+     */
+    public function definirTema(User $user, GrupoPap $grupoPap): bool
+    {
+        if (!$grupoPap->podeDefinirTema()) {
+            return false;
+        }
+
+        if (!$user->can('grupopap.definirTema')) {
+            return false;
+        }
+
+        // Só membros do grupo
+        return $grupoPap->elementos()
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->exists();
+    }
+
+    /**
+     * Determina se o utilizador pode aprovar o grupo PAP como tutor.
+     *
+     * Requer que o grupo pertença à sua instituição e que seja tutor do grupo.
+     */
+    public function aprovarComoTutor(User $user, GrupoPap $grupoPap): bool
+    {
+        return $grupoPap->podeSerAprovadoPeloTutor()
+            && $grupoPap->professor_tutor_id === $user->professor?->id;
+    }
+
+    /**
+     * Determina se o utilizador pode reprovar o grupo PAP como tutor.
+     *
+     * Requer que o grupo pertença à sua instituição e que seja tutor do grupo.
+     */
+    public function solicitarMelhoriaComoTutor(User $user, GrupoPap $grupoPap): bool
+    {
+        return $grupoPap->podeSerAprovadoPeloTutor() // status === 'submetido'
+            && $grupoPap->professor_tutor_id === $user->professor?->id;
     }
 
     /**

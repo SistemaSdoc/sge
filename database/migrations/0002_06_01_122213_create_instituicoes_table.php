@@ -63,6 +63,8 @@ return new class extends Migration
             $table->foreign('instituicao_curso_id')->references('id')->on('instituicao_curso');
             $table->uuid('instituicao_tutora_id');
             $table->foreign('instituicao_tutora_id')->references('id')->on('instituicoes');
+            $table->string('criterios_pap_path')->nullable();
+            $table->string('manual_pt_path')->nullable();
             $table->timestamps();
         });
 

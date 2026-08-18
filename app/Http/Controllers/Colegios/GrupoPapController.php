@@ -24,6 +24,7 @@ use App\Models\Instituicao;
 use App\Models\Professor;
 use App\Models\Turma;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class GrupoPapController extends Controller
@@ -92,6 +93,7 @@ class GrupoPapController extends Controller
             'turma_id' => $turma->id,
             'professor_tutor_id' => $request->professor_tutor_id,
             'nome_grupo' => $request->nome_grupo,
+            'status_aprovacao' => GrupoPap::APROVACAO_RASCUNHO,
             'tema_grupo' => $request->tema_grupo,
             'estudo_caso' => $request->estudo_caso,
             'nota_final' => $request->nota_final,
@@ -142,6 +144,8 @@ class GrupoPapController extends Controller
             'professor.user:id,nome,email',
             'historicoAprovacao.utilizador:id,nome,instituicao_id',
         ]);
+
+        $cursoTutelado->load(['instituicaoCurso.curso']);
 
         // Buscar banca
         $banca = $grupoPap->jurados()
@@ -217,6 +221,10 @@ class GrupoPapController extends Controller
                     ];
                 })->values(),
 
+                'criterios_pap_url' => $cursoTutelado->criterios_pap_path
+                    ? Storage::url($cursoTutelado->criterios_pap_path)
+                    : null,
+
                 'banca' => BancaResource::collection($banca),
 
                 'elementos' => ElementoResource::collection($elementos),
@@ -229,6 +237,8 @@ class GrupoPapController extends Controller
                     'corrigirTema' => $user?->can('corrigirTema', $grupoPap),
                     'aprovar' => $user?->can('aprovar', $grupoPap),           // ← adicionar
                     'reprovar' => $user?->can('reprovar', $grupoPap),          // ← adicionar
+                    'aprovarComoTutor' => $user?->can('aprovarComoTutor', $grupoPap), // ← falta
+                    'solicitarMelhoriaComoTutor' => $user?->can('solicitarMelhoriaComoTutor', $grupoPap), // ← falta
                     'solicitarMelhoria' => $user?->can('solicitarMelhoria', $grupoPap), // ← adicionar
 
 

@@ -181,7 +181,7 @@ class AprovacaoTemaService
                 'tema_grupo' => $dados['tema_grupo'],
                 'problema' => $dados['problema'] ?? null,
                 'objectivos' => $dados['objectivos'] ?? null,
-                'status_aprovacao' => 'pendente',
+                'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
                 'aprovado_por_id' => null,
                 'data_aprovacao' => null,
             ]);
@@ -192,10 +192,10 @@ class AprovacaoTemaService
                 'utilizador_id' => $user->id,
                 'estado_anterior' => $estadoAnterior,
                 'tema' => $grupoPap->tema_grupo,
-                'problema' => $grupoPap->problema,   
-                'objectivos' => $grupoPap->objectivos,   
-                'estado_novo' => 'pendente',
-                'comentario' => 'Tema corrigido e reenviado para nova análise.',
+                'problema' => $grupoPap->problema,
+                'objectivos' => $grupoPap->objectivos,
+                'estado_novo' => GrupoPap::APROVACAO_SUBMETIDO,
+                'comentario' => 'Tema corrigido e reenviado para revisão do professor tutor.',
             ]);
 
             return true;

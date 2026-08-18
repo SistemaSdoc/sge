@@ -33,10 +33,12 @@ class GrupoPap extends Model
 
     protected $primaryKey = 'id';
 
-
-    const STATUS_PENDENTE = 'pendente';
-    const STATUS_EM_ANDAMENTO = 'em-andamento';
-    const STATUS_CONCLUIDO = 'concluido';
+    const APROVACAO_RASCUNHO = 'rascunho';
+    const APROVACAO_SUBMETIDO = 'submetido';
+    const APROVACAO_PENDENTE = 'pendente';
+    const APROVACAO_APROVADO = 'aprovado';
+    const APROVACAO_REPROVADO = 'reprovado';
+    const APROVACAO_MELHORIA = 'melhoria-solicitada';
     protected function casts(): array
     {
         return [
@@ -129,11 +131,11 @@ class GrupoPap extends Model
         return $query->where('status_aprovacao', 'melhoria-solicitada');
     }
 
-    public function podeSerAprovado(): bool
+    /*public function podeSerAprovado(): bool
     {
         // Pode aprovar se ainda não foi finalizado (aprovado ou reprovado)
         return in_array($this->status_aprovacao, ['pendente', 'melhoria-solicitada']);
-    }
+    }*/
 
     public function podeSerReenviado(): bool
     {
@@ -144,6 +146,26 @@ class GrupoPap extends Model
     public function podeSerEditado(): bool
     {
         return in_array($this->status_aprovacao, ['reprovado', 'melhoria-solicitada']);
+    }
+
+    public function podeDefinirTema(): bool
+    {
+        return in_array($this->status_aprovacao, ['rascunho', 'melhoria-solicitada']);
+    }
+
+    public function podeSermitidoAoTutor(): bool
+    {
+        return $this->status_aprovacao === 'rascunho' && !is_null($this->tema_grupo);
+    }
+
+    public function podeSerAprovadoPeloTutor(): bool
+    {
+        return $this->status_aprovacao === 'submetido';
+    }
+
+    public function podeSerAprovado(): bool  // pela coordenação
+    {
+        return $this->status_aprovacao === 'pendente';
     }
 
 

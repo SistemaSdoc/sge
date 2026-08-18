@@ -2,7 +2,13 @@ import { router } from '@inertiajs/react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TabTurmas } from './components/tabs/tab-turmas';
 import { TabProfessores } from './components/tabs/tab-professores';
-import { show as showCurso } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { TabCriteriosPap } from './components/tabs/tab-criteriospap';
+import { Badge } from '@/components/ui/badge';
+import { show as showClasse } from '@/actions/App/Http/Controllers/CursoClasseController';
+import {
+  edit,
+  show as showCurso,
+} from '@/actions/App/Http/Controllers/CursoTuteladoController';
 import { destroy } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
 import { useDialog } from '@/hooks/use-dialog';
 import {
@@ -15,6 +21,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Header } from './components/curso-header';
+// Imports a adicionar:
+import { useState, useRef } from 'react';
+import { FileText, Upload } from 'lucide-react';
+import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/CursoTuteladoController';
 
 export default function Show({
   instituicao,
@@ -120,6 +130,16 @@ export default function Show({
             deleteFn={handleDeleteProfessor}
             pagination={cursoTutelado?.professores}
             onPageChange={handlePageChange('page_professores')}
+          />
+        </TabsContent>
+
+        <TabsContent value="criterios-pap" className="mt-2">
+          <TabCriteriosPap
+            instituicaoId={instituicaoId}
+            cursoTuteladoId={cursoTuteladoId}
+            criteriosPapUrl={cursoTutelado.criterios_pap_url}
+            manualPtUrl={cursoTutelado.manual_pt_url}
+            can={cursoTutelado.can}
           />
         </TabsContent>
       </Tabs>

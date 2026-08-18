@@ -30,7 +30,8 @@ class GrupoPapController extends Controller
 {
     public function __construct(
         private readonly AnoLectivoResolverService $anoLectivoResolverService
-    ) {}
+    ) {
+    }
 
     public function index()
     {
@@ -51,24 +52,27 @@ class GrupoPapController extends Controller
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
             'elementos.aluno.inscricao.candidato:id,nome',
-        ])->when($instituicaoId, fn ($q) => $q->whereHas(
-            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-            fn ($q) => $q->where('instituicao_id', $instituicaoId)
-        ))
-            ->when($anoLectivoId, fn ($q) => $q->whereHas(
+        ])->when($instituicaoId, fn($q) => $q->whereHas(
+                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                fn($q) => $q->where('instituicao_id', $instituicaoId)
+            ))
+            ->when($anoLectivoId, fn($q) => $q->whereHas(
                 'turma',
-                fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId)   // ← direto na turma, não via cursoClasseTurno
+                fn($q) => $q->where('ano_lectivo_id', $anoLectivoId)   // ← direto na turma, não via cursoClasseTurno
             ))
-            ->when($user->hasRole('Aluno'), fn ($q) => $q->whereHas(
+            ->when($user->hasRole('Aluno'), fn($q) => $q->whereHas(
                 'alunos',
-                fn ($q) => $q->where('aluno_id', $user->aluno?->id)
+                fn($q) => $q->where('aluno_id', $user->aluno?->id)
             ))
-            ->when($user->hasRole('Professor'), fn ($q) => $q->where(function ($q) use ($user) {
-                $professorId = $user->professor?->id;
-                $q->whereHas('turma.professores', fn ($q) => $q->where('professores.id', $professorId))
-                    ->orWhereHas('jurados', fn ($q) => $q->where('professor_id', $professorId))
-                    ->orWhere('professor_tutor_id', $professorId);
-            }))
+            ->when(
+                $user->hasRole('Professor') && !$user->hasPermissionTo('grupopap.viewAny'),
+                fn($q) => $q->where(function ($q) use ($user) {
+                    $professorId = $user->professor?->id;
+                    $q->whereHas('turma.professores', fn($q) => $q->where('professores.id', $professorId))
+                        ->orWhereHas('jurados', fn($q) => $q->where('professor_id', $professorId))
+                        ->orWhere('professor_tutor_id', $professorId);
+                })
+            )
             ->latest()->paginate(10)->withQueryString();   // ← withQueryString para manter ano_lectivo_id na paginação
 
         $grupos->getCollection()->transform(function ($grupo) use ($user) {
@@ -77,6 +81,7 @@ class GrupoPapController extends Controller
                 'update' => $user->can('update', $grupo),
                 'delete' => $user->can('delete', $grupo),
                 'definirData' => $user->can('definirData', $grupo),
+                'definirTema' => $user->can('definirTema', $grupo),
             ];
 
             return $grupo;
@@ -114,7 +119,7 @@ class GrupoPapController extends Controller
             ->whereHas('turmas', function ($q) use ($turma) {
                 $q->where('turmas.id', $turma->id)
                     ->where('turma_aluno.activo', true);
-            })->with('inscricao.candidato:id,nome')->get()->map(fn ($aluno) => [
+            })->with('inscricao.candidato:id,nome')->get()->map(fn($aluno) => [
                 'id' => $aluno->id,
                 'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
             ])->values();
@@ -148,6 +153,7 @@ class GrupoPapController extends Controller
             'turma_id' => $turma->id,
             'professor_tutor_id' => $request->professor_tutor_id,
             'nome_grupo' => $request->nome_grupo,
+            'status_aprovacao' => GrupoPap::APROVACAO_RASCUNHO,
             'tema_grupo' => $request->tema_grupo,
             'problema' => $request->problema,
             'objectivos' => $request->objectivos,
@@ -157,7 +163,7 @@ class GrupoPapController extends Controller
         ]);
 
         $grupo->elementos()->createMany(
-            collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
+            collect($request->alunos)->map(fn($id) => ['aluno_id' => $id])->toArray()
         );
 
         return to_route('pap.show', [
@@ -186,6 +192,7 @@ class GrupoPapController extends Controller
         $grupoPap->load([
             'professor.user:id,nome,email',
             'historicoAprovacao.utilizador:id,nome,instituicao_id',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
         ]);
 
         $instituicaoTutoraModel = $grupoPap->instituicaoTutora();
@@ -240,18 +247,20 @@ class GrupoPapController extends Controller
                 'aprovar' => $user?->can('aprovar', $grupoPap),
                 'reprovar' => $user?->can('reprovar', $grupoPap),
                 'solicitarMelhoria' => $user?->can('solicitarMelhoria', $grupoPap),
+                'definirTema' => $user->can('definirTema', $grupoPap),
+                'aprovarComoTutor' => $user?->can('aprovarComoTutor', $grupoPap),
                 'elementos' => [
                     'create' => $user?->can('elementogrupopap.create'),
                     'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
                         && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id // ← adicionar
-                        && ! is_null($grupoPap->data_defesa)
-                        && ! $grupoPap->data_defesa->isFuture()
+                        && !is_null($grupoPap->data_defesa)
+                        && !$grupoPap->data_defesa->isFuture()
                         && $grupoPap->jurados()->exists(),
                     'delete' => $user?->can('elementogrupopap.delete'),
                 ],
                 // 'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id,
                 'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
-                    && ! $user->hasRole('Aluno'),
+                    && !$user->hasRole('Aluno'),
                 'banca' => [
                     'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap]),
                     'update' => $user?->can('bancajuripap.update'),
@@ -346,9 +355,9 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Grupo PAP actualizado com sucesso!',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Grupo PAP actualizado com sucesso!',
+                ]);
     }
 
     public function destroy(GrupoPap $grupoPap)
@@ -373,7 +382,7 @@ class GrupoPapController extends Controller
         $this->authorize('definirData', $grupoPap);
 
         $grupoPap->update([
-            'data_defesa' => $request->data_defesa.' '.$request->hora_defesa.':00',
+            'data_defesa' => $request->data_defesa . ' ' . $request->hora_defesa . ':00',
             'local_defesa' => $request->local_defesa,
         ]);
 
@@ -385,9 +394,9 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Data e local da defesa definidos com sucesso!',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Data e local da defesa definidos com sucesso!',
+                ]);
     }
 
     public function editarTema(
@@ -425,19 +434,17 @@ class GrupoPapController extends Controller
     ) {
         $this->authorize('corrigirTema', $grupoPap);
 
-        $request->validate([
+        $validated = $request->validate([
             'tema_grupo' => 'required|string|max:255',
             'problema' => 'nullable|string',
             'objectivos' => 'nullable|string',
             'estudo_caso' => 'nullable|string',
         ]);
 
-        $grupoPap->update($request->only([
-            'tema_grupo',
-            'problema',
-            'objectivos',
-            'estudo_caso',
-        ]));
+        $grupoPap->update([
+            ...$validated,
+            'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO, // ← volta ao tutor
+        ]);
 
         return to_route('pap.show', [
             'instituicao' => $instituicao->id,
@@ -447,8 +454,8 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Tema do grupo PAP actualizado com sucesso!',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Tema corrigido. Aguarda revisão do professor tutor.',
+                ]);
     }
 }
