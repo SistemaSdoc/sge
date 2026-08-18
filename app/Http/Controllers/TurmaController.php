@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Turma\TurmaResourceIndex;
-use App\Models\Aluno;
 use App\Models\AnoLectivo;
+use App\Models\CursoClasse;
+use App\Models\CursoClasseTurno;
+use App\Models\CursoTutelado;
 use App\Models\Turma;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class TurmaController extends Controller
@@ -19,6 +21,8 @@ class TurmaController extends Controller
     {
         $this->authorize('viewAny', Turma::class);
 
+        Redirect::setIntendedUrl(request()->fullUrl());
+
         $user = Auth::user();
         $professor = $user?->professor;
         $instituicaoId = $user->instituicao_id;
@@ -26,6 +30,25 @@ class TurmaController extends Controller
         $anoLectivoId = filled(request('ano_lectivo_id'))
             ? request('ano_lectivo_id')
             : $this->anoLectivoResolverService->obterAnoLectivoDefault();
+
+        $cursos = CursoTutelado::query()
+            ->whereHas('instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicaoId))
+            ->with('instituicaoCurso.curso:id,nome')
+            ->get()
+            ->map(fn ($ct) => [
+                'id' => $ct->id,
+                'nome' => $ct->instituicaoCurso?->curso?->nome,
+            ]);
+
+        $cursoClasses = CursoClasse::query()
+            ->whereHas('cursoTutelado.instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicaoId))
+            ->with('classe:id,nome')
+            ->get()
+            ->map(fn ($cc) => [
+                'id' => $cc->id,
+                'curso_tutelado_id' => $cc->curso_tutelado_id,
+                'nome' => $cc->classe?->nome,
+            ]);
 
         $query = Turma::query()
             ->whereHas(
@@ -50,8 +73,11 @@ class TurmaController extends Controller
                         ->orderByDesc('data_inicio')
                         ->get(),
                     'anoLectivoActual' => $anoLectivoId,
+                    'cursos' => $cursos,
+                    'classes' => $cursoClasses,
+                    'turnos' => [],
                     'can' => [
-                        'create_turma' => Auth::user()->can('create', Turma::class),
+                        'create_turma' => $user->can('create', Turma::class),
                     ],
                 ]);
             }
@@ -69,6 +95,7 @@ class TurmaController extends Controller
         ])->paginate(10);
 
         return Inertia::render('turmas/index', [
+            'instituicaoId' => $instituicaoId,
             'turmas' => [
                 'data' => TurmaResourceIndex::collection($turmas->items())->toArray(request()),
                 'current_page' => $turmas->currentPage(),
@@ -79,63 +106,20 @@ class TurmaController extends Controller
                 ->orderByDesc('data_inicio')
                 ->get(),
             'anoLectivoActual' => $anoLectivoId,
+            'cursos' => $cursos,
+            'classes' => $cursoClasses,
+            'turnos' => Inertia::defer(fn () => CursoClasseTurno::query()
+                ->where('curso_classe_id', request('curso_classe_id'))
+                ->with('turno:id,nome')
+                ->get()
+                ->map(fn ($cct) => [
+                    'id' => $cct->id,
+                    'nome' => $cct->turno?->nome,
+                ])
+            ),
             'can' => [
-                'create_turma' => Auth::user()->can('create', Turma::class),
+                'create' => $user->can('create', Turma::class),
             ],
         ]);
-    }
-
-    public function getTurmasDisponiveis(Aluno $aluno)
-    {
-        $this->authorize('update', $aluno);
-
-        $anoLectivoId = $this->obterAnoLectivoDefault();
-
-        $turmas = Turma::where('curso_classe_turno_id', $aluno->inscricao->curso_classe_turno_id)
-            ->where('ano_lectivo_id', $anoLectivoId)
-            ->with('cursoClasseTurno.cursoClasse.classe:id,nome')
-            ->get()
-            ->map(fn ($turma) => [
-                'id' => $turma->id,
-                'nome' => $turma->nome,
-                'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
-            ]);
-
-        return response()->json($turmas);
-    }
-
-    public function atribuirTurma(Request $request, Aluno $aluno)
-    {
-        $this->authorize('update', $aluno);
-
-        $request->validate([
-            'turma_id' => 'required|exists:turmas,id',
-        ]);
-
-        $anoLectivoId = $this->obterAnoLectivoDefault();
-
-        $turma = Turma::where('id', $request->turma_id)
-            ->where('curso_classe_turno_id', $aluno->inscricao->curso_classe_turno_id)
-            ->where('ano_lectivo_id', $anoLectivoId)
-            ->firstOrFail();
-
-        $turmaAtual = $aluno->turmas()->wherePivot('activo', true)->first();
-
-        if (! $turmaAtual || $turmaAtual->id !== $turma->id) {
-            if ($turmaAtual) {
-                $aluno->turmas()->updateExistingPivot($turmaAtual->id, [
-                    'activo' => false,
-                ]);
-            }
-
-            $aluno->turmas()->syncWithoutDetaching([
-                $turma->id => [
-                    'activo' => true,
-                    'situacao' => 'activo',
-                ],
-            ]);
-        }
-
-        return back()->with('success', 'Turma atribuída com sucesso!');
     }
 }

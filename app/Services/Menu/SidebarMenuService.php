@@ -9,6 +9,7 @@ use App\Http\Controllers\AvisoController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\Colegios\ColegioController;
 use App\Http\Controllers\CursosController;
+use App\Http\Controllers\CursoTuteladoController;
 use App\Http\Controllers\GrelhaCurricularController;
 use App\Http\Controllers\GrupoPapController;
 use App\Http\Controllers\InscricaoController;
@@ -68,6 +69,30 @@ final class SidebarMenuService
 
                         return $id
                             ? action([InstituicaoController::class, 'show'], ['instituicao' => $id])
+                            : '#';
+                    })(),
+                    icon: 'Building2',
+                    can: function () {
+                        $user = Auth::user();
+
+                        if (! $user?->instituicao_id) {
+                            return false;
+                        }
+
+                        $instituicao = Instituicao::find($user?->instituicao_id, ['id']);
+
+                        return $instituicao && Gate::allows('view', $instituicao);
+                    },
+                ),
+
+                new MenuItem(
+                    key: 'meus-cursos',
+                    title: 'Meus Cursos',
+                    href: (function () {
+                        $id = Auth::user()?->instituicao_id;
+
+                        return $id
+                            ? action([CursoTuteladoController::class, 'index'], ['instituicao' => $id])
                             : '#';
                     })(),
                     icon: 'Building2',

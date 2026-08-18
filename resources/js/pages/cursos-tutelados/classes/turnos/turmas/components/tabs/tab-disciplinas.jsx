@@ -27,7 +27,7 @@ import { EmptyState } from '@/components/empty-state';
 import { HorariosForm } from '../horarios/horarios-form';
 import { store as storeHorario } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaHorarioController';
 import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
-import { index } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
+import { create as createNotas } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
 import { create as createProfessor } from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController';
 import TablePagination from '@/components/table-pagination';
 import { toast } from 'sonner';
@@ -50,7 +50,11 @@ export function TabDisciplinas({
     e.stopPropagation();
 
     const action = storeHorario.form({
-      ...params,
+      instituicao: params.instituicao.id,
+      cursoTutelado: params.cursoTutelado.id,
+      cursoClasse: params.cursoClasse.id,
+      cursoClasseTurno: params.cursoClasseTurno.id,
+      turma: params.turma,
       classeTurnoDisciplina: disciplina.id,
     }).action;
 
@@ -75,7 +79,7 @@ export function TabDisciplinas({
   };
 
   return (
-    <Card className="gap-0">
+    <Card className="grid grid-rows-[auto_1fr_auto] gap-0">
       <CardHeader className="border-b">
         <CardTitle>Disciplinas</CardTitle>
         <CardDescription>Disciplinas lecionadas nesta turma</CardDescription>
@@ -86,14 +90,14 @@ export function TabDisciplinas({
                 data={{ redirect_to: window.location.href }}
                 href={createDisciplina(params).url}
               >
-                Adicionar
+                Adicionar Disciplinas
               </Link>
             </Button>
           </CardAction>
         )}
       </CardHeader>
 
-      <CardContent className="p-0!">
+      <CardContent className="overflow-y-auto p-0!">
         {isEmpty ? (
           <EmptyState
             variant="table"
@@ -125,7 +129,7 @@ export function TabDisciplinas({
                   <TableRow
                     key={disciplina.id}
                     aria-disabled={!disciplina?.can?.view}
-                    className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-70 aria-disabled:hover:bg-transparent"
+                    className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:hover:bg-transparent"
                     onClick={() => {
                       if (!disciplina.professor) {
                         toast.warning(
@@ -136,9 +140,13 @@ export function TabDisciplinas({
 
                       if (disciplina?.can?.view) {
                         router.visit(
-                          index(
+                          createNotas(
                             {
-                              ...params,
+                              instituicao: params.instituicao.id,
+                              cursoTutelado: params.cursoTutelado.id,
+                              cursoClasse: params.cursoClasse.id,
+                              cursoClasseTurno: params.cursoClasseTurno.id,
+                              turma: params.turma,
                               classeTurnoDisciplina: disciplina.id,
                             },
                             {
@@ -165,7 +173,7 @@ export function TabDisciplinas({
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
                             className="size-8"
                           >
@@ -180,14 +188,22 @@ export function TabDisciplinas({
                               onClick={(e) => {
                                 e.stopPropagation();
                                 router.visit(
-                                  createProfessor({
-                                    ...params,
-                                    classeTurnoDisciplina: disciplina.id,
-                                  }, {
-                                    query: {
-                                      ano_lectivo_id: anoLectivoId,
+                                  createProfessor(
+                                    {
+                                      instituicao: params.instituicao.id,
+                                      cursoTutelado: params.cursoTutelado.id,
+                                      cursoClasse: params.cursoClasse.id,
+                                      cursoClasseTurno:
+                                        params.cursoClasseTurno.id,
+                                      turma: params.turma,
+                                      classeTurnoDisciplina: disciplina.id,
                                     },
-                                  }).url,
+                                    {
+                                      query: {
+                                        ano_lectivo_id: anoLectivoId,
+                                      },
+                                    },
+                                  ).url,
                                 );
                               }}
                             >

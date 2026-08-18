@@ -18,7 +18,7 @@ export function AppDrawer() {
 
   return (
     <Drawer open={open} direction="right" onOpenChange={closeDrawer}>
-      <DrawerContent className="w-105">
+      <DrawerContent className="w-105" onPointerDownOutside={(e) => e.preventDefault()}>
         <DrawerHeader>
           <DrawerTitle>{title}</DrawerTitle>
           {description && <DrawerDescription>{description}</DrawerDescription>}

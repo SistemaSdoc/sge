@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -25,21 +24,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { update } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
+import { Spinner } from '@/components/spinner';
 
-export default function EditProfessorModal({ vinculo, open, onClose }) {
+export default function EditProfessorModal({ vinculo, open, onClose, params }) {
   const [tipo, setTipo] = useState(vinculo?.tipo ?? '');
   const [errors, setErrors] = useState({});
   const [processing, setProcessing] = useState(false);
-
-  // console.log(vinculo.instituicaoId, vinculo.cursoTuteladoId, vinculo.id)
-  // console.log(vinculo.vinculo_id)
 
   function handleSubmit() {
     setProcessing(true);
     router.put(
       update({
-        instituicao: vinculo.instituicaoId,
-        cursoTutelado: vinculo.cursoTuteladoId,
+        ...params,
         professore: vinculo.vinculo_id,
       }).url,
       { tipo },
@@ -54,7 +50,7 @@ export default function EditProfessorModal({ vinculo, open, onClose }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent aria-describedby={undefined}>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Editar Tipo de Professor</DialogTitle>
         </DialogHeader>
@@ -87,7 +83,7 @@ export default function EditProfessorModal({ vinculo, open, onClose }) {
               <Button onClick={handleSubmit} disabled={processing}>
                 {processing ? (
                   <>
-                    <Loader2 className="animate-spin" /> A guardar...
+                    <Spinner className="animate-spin" /> A guardar...
                   </>
                 ) : (
                   'Guardar'

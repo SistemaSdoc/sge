@@ -15,22 +15,24 @@ export default function Create({
     max_alunos: '',
   });
 
+  const params = {
+    instituicao,
+    cursoTutelado,
+    cursoClasse,
+    cursoClasseTurno,
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    post(
-      store({
-        instituicao: instituicao.id,
-        cursoTutelado: cursoTutelado.id,
-        cursoClasse: cursoClasse.id,
-        cursoClasseTurno: cursoClasseTurno.id,
-      }).url,
-      { preserveScroll: true },
-    );
+    post(store(params).url, { preserveScroll: true });
   };
 
   return (
     <TurmaForm
+      title="Adicionar Turma"
+      description="Preencha os dados abaixo para adicionar uma nova turma."
+      submitLabel="Adicionar Turma"
+      params={params}
       data={data}
       setData={setData}
       errors={errors}

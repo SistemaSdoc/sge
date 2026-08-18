@@ -1,17 +1,25 @@
-import { TurmaTable } from './components/turma-table';
+import { useDrawer } from '@/hooks/use-drawer';
 import { Head, router } from '@inertiajs/react';
+import { TurmaForm } from './components/turma-form';
+import { TurmaTable } from './components/turma-table';
 import { index } from '@/actions/App/Http/Controllers/TurmaController';
 
 export default function Index({
-  turmas,
   can,
-  anosLectivos = [],
+  turmas,
+  cursos = [],
+  classes = [],
+  instituicaoId,
   anoLectivoActual,
+  anosLectivos = [],
 }) {
+  const { openForm, closeDrawer } = useDrawer();
+
   const handlePageChange = (page) => {
     router.visit(index().url, {
       data: { page, ano_lectivo_id: anoLectivoActual },
       preserveScroll: true,
+      preserveState: true,
     });
   };
 
@@ -19,6 +27,26 @@ export default function Index({
     router.visit(index().url, {
       data: { ano_lectivo_id: value },
       preserveScroll: true,
+      preserveState: true,
+    });
+  };
+
+  const handleAdicionarTurma = () => {
+    openForm({
+      title: 'Criar Nova Turma',
+      description: 'Preenche os dados para criar uma nova turma',
+      content: (
+        <TurmaForm
+          instituicaoId={instituicaoId}
+          closeDrawer={closeDrawer}
+          classes={classes}
+          cursos={cursos}
+          onSuccess={() => {
+            closeDrawer();
+            router.reload({ only: ['turmas'] });
+          }}
+        />
+      ),
     });
   };
 
@@ -27,16 +55,14 @@ export default function Index({
       <Head title="Turmas" />
 
       <TurmaTable
-        turmas={turmas.data ?? []}
         can={can}
+        pagination={turmas}
+        turmas={turmas.data ?? []}
         anosLectivos={anosLectivos}
+        onPageChange={handlePageChange}
         anoLectivoActual={anoLectivoActual}
         onAnoLectivoChange={handleAnoLectivoChange}
-        pagination={{
-          current_page: turmas.current_page,
-          last_page: turmas.last_page,
-        }}
-        onPageChange={handlePageChange}
+        handleAdicionarTurma={handleAdicionarTurma}
       />
     </div>
   );
