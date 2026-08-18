@@ -22,14 +22,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-
-import {
   Table,
   TableBody,
   TableCell,
@@ -71,7 +63,6 @@ export function ProfessorTable({
             variant="table"
             icon={LayersIcon}
             title="Nenhum professor cadastrado"
-            description="Comece adicionando a primeiro professor à tabela"
             action={{
               label: 'Adicionar Professor',
               href: create().url,
@@ -104,37 +95,31 @@ export function ProfessorTable({
                   </TableCell>
 
                   <TableCell className="px-4 text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
-                          <MoreHorizontalIcon />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        className="text-[10px]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.visit(edit(professor.id).url);
+                        }}
+                      >
+                        Editar
+                      </Button>
 
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.visit(edit(professor.id).url);
-                          }}
-                        >
-                          Editar
-                        </DropdownMenuItem>
-
-                        <DropdownMenuSeparator />
-
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteFn(professor.id);
-                          }}
-                        >
-                          Remover
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      <Button
+                        variant="destructive"
+                        size="xs"
+                        className="text-[10px]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteFn(professor.id);
+                        }}
+                      >
+                        Remover
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

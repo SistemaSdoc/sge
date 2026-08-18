@@ -297,6 +297,7 @@ export default function Show({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       {/* Banner de ação — reprovado ou melhoria solicitada */}
       {can?.corrigirTema &&
         ['reprovado', 'melhoria-solicitada'].includes(
@@ -340,7 +341,7 @@ export default function Show({
 
       {/* Tabs */}
       <Tabs defaultValue="integrantes-grupo" className="w-full">
-        <TabsList variant={'line'}>
+        <TabsList>
           <TabsTrigger value="integrantes-grupo">
             Integrantes do grupo
           </TabsTrigger>

@@ -6,7 +6,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -18,27 +17,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-import { MoreHorizontalIcon, Minus, BookOpenIcon } from 'lucide-react';
+
+import { Minus, BookOpenIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import CursoTuteladoProfessorController, {
-  create,
-  edit,
-  destroy,
-} from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
+import { create } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
 import { show } from '@/actions/App/Http/Controllers/ProfessorController';
 
 import TablePagination from '@/components/table-pagination';
@@ -46,12 +28,10 @@ import { useState } from 'react';
 import EditProfessorModal from './edit-professor-modal';
 
 export function TabProfessores({
+  params,
   professores,
   pagination = {},
   onPageChange,
-  deleteProfessor,
-  instituicaoId,
-  cursoTuteladoId,
   deleteFn,
   can = {},
 }) {
@@ -63,21 +43,14 @@ export function TabProfessores({
     <>
       <Card className="gap-0">
         <CardHeader className="border-b">
-          <CardTitle>Professores</CardTitle>
+          <CardTitle>
+            Professores ({params.cursoTutelado.contadores?.professores ?? 0})
+          </CardTitle>
           <CardDescription>Professores associados a este curso</CardDescription>
           {can?.attachProfessor && (
             <CardAction>
               <Button asChild>
-                <Link
-                  href={
-                    create({
-                      instituicao: instituicaoId,
-                      cursoTutelado: cursoTuteladoId,
-                    }).url
-                  }
-                >
-                  Adicionar
-                </Link>
+                <Link href={create({ ...params }).url}>Adicionar</Link>
               </Button>
             </CardAction>
           )}
@@ -93,10 +66,7 @@ export function TabProfessores({
               action={
                 can?.attachProfessor && {
                   label: 'Adicionar Professor',
-                  href: create({
-                    instituicao: instituicaoId,
-                    cursoTutelado: cursoTuteladoId,
-                  }).url,
+                  href: create({ ...params }).url,
                   variant: 'outline',
                 }
               }
@@ -112,6 +82,7 @@ export function TabProfessores({
                   )}
                 </TableRow>
               </TableHeader>
+
               <TableBody>
                 {professores.data.map((professor) => (
                   <TableRow
@@ -124,60 +95,46 @@ export function TabProfessores({
                     <TableCell className="px-4 font-medium">
                       {professor.nome}
                     </TableCell>
+
                     <TableCell>
                       {professor.tipo ?? (
                         <Minus size={15} className="text-muted-foreground" />
                       )}
                     </TableCell>
-                    {hasAnyAction && (
-                    <TableCell className="px-4 text-right">
-                      {(professor.can?.update || professor.can?.delete) && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                          >
-                            <MoreHorizontalIcon />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
 
-                        <DropdownMenuContent className="w-auto" align="end">
-                          <DropdownMenuSeparator />
-                          {professor.can?.update && (
-                            <DropdownMenuItem
+                    {hasAnyAction && (
+                      <TableCell className="px-4 text-right">
+                        {(professor.can?.update || professor.can?.delete) && (
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              className="text-[10px]"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setEditVinculo({
                                   ...professor,
-                                  instituicaoId,
-                                  cursoTuteladoId,
+                                  ...params,
                                 });
                               }}
                             >
                               Editar do Curso
-                            </DropdownMenuItem>
-                          )}
-                          {professor.can?.update && professor.can?.delete && (
-                              <DropdownMenuSeparator />
-                            )}
-                          {professor.can?.delete && (
-                            <DropdownMenuItem
+                            </Button>
+
+                            <Button
                               variant="destructive"
+                              size="xs"
+                              className="text-[10px]"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 deleteFn(professor.vinculo_id);
                               }}
                             >
                               Remover do curso
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      )}
-                    </TableCell>
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
                     )}
                   </TableRow>
                 ))}
@@ -191,6 +148,7 @@ export function TabProfessores({
 
       {editVinculo && (
         <EditProfessorModal
+          params={params}
           vinculo={editVinculo}
           open={!!editVinculo}
           onClose={() => setEditVinculo(null)}

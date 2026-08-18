@@ -28,10 +28,9 @@ import { Badge } from '@/components/ui/badge';
 import {
   Loader2,
   ClipboardListIcon,
-  ChevronDown,
-  ChevronUp,
   LockKeyhole,
   LockKeyholeOpen,
+  Clock,
 } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { mediaTrimestral } from '@/utils/media-trimestral';
@@ -84,10 +83,10 @@ export default function LancamentosTable({
     pautaStatus?.[periodo]?.finalizada_automaticamente ?? false;
   const estaFinalizada = statusPeriodo === 'finalizada';
   const estaExpirada = statusPeriodo === 'expirada';
-  const podeOverride = Boolean(can?.overrideLockedPeriods);
+  const podeOverride = Boolean(can?.notas?.overrideLockedPeriods);
   const temAutorizacaoActiva = Boolean(autorizacaoAte?.[periodo]);
   const tipoSolicitacao =
-    estaFinalizada || estaExpirada ? 'reabertura_edicao' : 'extensao_prazo'; // ← aqui
+    estaFinalizada || estaExpirada ? 'reabertura_edicao' : 'extensao_prazo';
 
   const periodoBloqueado =
     !podeOverride &&
@@ -95,20 +94,20 @@ export default function LancamentosTable({
     (estaFinalizada || estaExpirada || !dentroDoPrazo?.[periodo]);
 
   const podeGuardar =
-    can?.create &&
+    can?.notas?.create &&
     (podeOverride ||
       temAutorizacaoActiva ||
       (!estaFinalizada && !estaExpirada && dentroDoPrazo?.[periodo]));
 
   const podeFinalizar =
-    can?.finalizar &&
+    can?.notas?.finalizar &&
     (podeOverride ||
       temAutorizacaoActiva ||
       (!estaFinalizada && !estaExpirada && dentroDoPrazo?.[periodo]));
 
   const podeSolicitarEdicao =
-    can?.solicitarEdicao &&
-    !temAutorizacaoActiva && // ← não mostrar se já tem autorização activa
+    can?.notas?.solicitarEdicao &&
+    !temAutorizacaoActiva &&
     (estaFinalizada || estaExpirada || !dentroDoPrazo?.[periodo]);
 
   // ── 4. useForm DEPOIS ──────────────────────────────────────────
@@ -176,7 +175,6 @@ export default function LancamentosTable({
     }
   };
 
-  // ── toggle individual ──────────────────────────────────────────
   const toggleAluno = (id) => {
     setExpandidos((prev) => ({ ...prev, [id]: !prev[id] }));
   };
@@ -280,16 +278,18 @@ export default function LancamentosTable({
               {finalizadaAutomaticamente
                 ? 'Esta pauta foi encerrada automaticamente devido ao término do prazo estabelecido para o lançamento das notas.'
                 : estaFinalizada
-                  ? can?.overrideLockedPeriods
+                  ? can?.notas?.overrideLockedPeriods
                     ? 'Esta pauta encontra-se encerrada. No entanto, possui permissão para efetuar alterações.'
                     : 'Esta pauta encontra-se encerrada. Para realizar alterações, é necessária a autorização da Direção.'
-                  : !dentroDoPrazo?.[periodo] && !can?.overrideLockedPeriods
+                  : !dentroDoPrazo?.[periodo] &&
+                      !can?.notas?.overrideLockedPeriods
                     ? 'O período de lançamento das notas para este trimestre encontra-se encerrado.'
                     : 'Preencha as classificações dos alunos correspondentes ao trimestre selecionado.'}
 
               {tempoRestante && (
-                <p className="mt-1 text-sm font-medium text-orange-600">
-                  ⏱ <strong>Tempo restante para edição:</strong> {tempoRestante}
+                <p className="mt-1 flex items-center gap-2 text-sm font-medium text-sky-600">
+                  <Clock className="size-4" />{' '}
+                  <strong>Tempo restante para edição:</strong> {tempoRestante}
                 </p>
               )}
             </CardDescription>
@@ -300,7 +300,6 @@ export default function LancamentosTable({
           </div>
 
           <CardAction className="flex items-center gap-3">
-            {/* ── Toggle global ── */}
             {!isEmpty && (
               <Button
                 type="button"
@@ -336,7 +335,6 @@ export default function LancamentosTable({
                 </SelectItem>
               </SelectContent>
             </Select>
-            {/* hidden inputs para tdp_id e periodo */}
             <input type="hidden" name="tdp_id" value={data?.tdp_id ?? ''} />
             <input type="hidden" name="periodo" value={parseInt(periodo)} />
             {podeGuardar && (
@@ -393,8 +391,6 @@ export default function LancamentosTable({
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/72">
-                  {/* coluna do chevron individual */}
-
                   <TableHead className="w-1! px-4">#</TableHead>
                   <TableHead className="w-48 px-4">Aluno</TableHead>
                   <TableHead className="w-1 text-center">MAC</TableHead>
@@ -413,7 +409,6 @@ export default function LancamentosTable({
                   const nota = aluno.notas?.[periodo] ?? {};
                   const aberto = Boolean(expandidos[aluno.turma_aluno_id]);
 
-                  // local tem prioridade sobre servidor
                   const mac =
                     getValor(aluno.turma_aluno_id, periodo, 'mac') ??
                     nota.mac ??
@@ -439,7 +434,6 @@ export default function LancamentosTable({
                       <TableCell className="px-4">{index + 1}</TableCell>
                       <TableCell className="px-4">{aluno.nome}</TableCell>
 
-                      {/* ── MAC ── */}
                       <TableCell>
                         {aberto ? (
                           <Input
@@ -466,7 +460,6 @@ export default function LancamentosTable({
                         )}
                       </TableCell>
 
-                      {/* ── NPP ── */}
                       <TableCell>
                         {aberto ? (
                           <Input
@@ -493,7 +486,6 @@ export default function LancamentosTable({
                         )}
                       </TableCell>
 
-                      {/* ── NPT ── */}
                       <TableCell>
                         {aberto ? (
                           <Input
@@ -520,12 +512,10 @@ export default function LancamentosTable({
                         )}
                       </TableCell>
 
-                      {/* ── MT (calculado, sempre visível) ── */}
                       <TableCell className="text-center font-medium">
                         {mt ?? '-'}
                       </TableCell>
 
-                      {/* ── Faltas ── */}
                       <TableCell>
                         {aberto ? (
                           <Input
@@ -551,7 +541,6 @@ export default function LancamentosTable({
                         )}
                       </TableCell>
 
-                      {/* ── Chevron individual ── */}
                       <TableCell className="px-2">
                         <Button
                           type="button"
@@ -568,14 +557,12 @@ export default function LancamentosTable({
                         </Button>
                       </TableCell>
 
-                      {/* ── Resultado (sempre visível) ── */}
                       <TableCell className="px-4 text-end">
-                        {nota?.[periodo]?.is_rascunho &&
-                          can?.overrideLockedPeriods && (
-                            <Badge className="mr-1 bg-yellow-50 text-yellow-600">
-                              Rascunho
-                            </Badge>
-                          )}
+                        {nota?.is_rascunho && can?.overrideLockedPeriods && (
+                          <Badge className="mr-1 bg-yellow-50 text-yellow-600">
+                            Rascunho
+                          </Badge>
+                        )}
                         {situacao === 'APTO' && (
                           <Badge className="bg-green-50 text-green-500">
                             APTO

@@ -11,6 +11,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { formatMoney, frequencyLabel, MONTH_LABELS } from '@/lib/pagamentos';
 import { cn } from '@/lib/utils';
+import { TriangleAlert } from 'lucide-react';
 
 export function CartItem({
   item,

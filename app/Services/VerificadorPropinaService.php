@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Aluno;
 use App\Models\ItemPagavel;
 use App\Models\PagamentoItem;
+use App\Models\User;
+use App\Notifications\PropinaEmAtrasoNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -297,5 +299,62 @@ private function calcularMulta(ItemPagavel $item, int $mes, int $ano): float
                 'pendencias' => $pendencias,
             ];
         });
+    }
+
+    /**
+     * Notifica o utilizador sobre propinas em atraso, evitando duplicar
+     * quando o estado da dívida (nº de pendências + valor total, já com
+     * multa) é o mesmo de uma notificação anterior — lida ou não.
+     * Partilhado entre o middleware (acesso bloqueado), o controller
+     * (pagamento anulado) e o comando agendado (aviso proactivo diário).
+     */
+    public function notificarSeNecessario(User $user, array $pendencias): void
+    {
+        if (empty($pendencias)) {
+            return;
+        }
+
+        $totalPendencias = count($pendencias);
+        $valorTotal = (float) collect($pendencias)->sum('valor');
+        $multaTotal = (float) collect($pendencias)->sum('multa');
+        $assinatura = md5($totalPendencias . '-' . $valorTotal);
+
+        Log::debug('[VerificadorPropinaService] notificarSeNecessario', [
+            'user_id' => $user->id,
+            'total_pendencias' => $totalPendencias,
+            'valor_total' => $valorTotal,
+            'multa_total' => $multaTotal,
+            'assinatura' => $assinatura,
+        ]);
+
+        $ultima = $user->notifications()
+            ->where('type', PropinaEmAtrasoNotification::class)
+            ->latest()
+            ->first();
+
+        if ($ultima && ($ultima->data['assinatura'] ?? null) === $assinatura) {
+            Log::debug('[VerificadorPropinaService] notificação já existe para este estado — não duplica', [
+                'user_id' => $user->id,
+                'assinatura' => $assinatura,
+                'notificacao_existente_id' => $ultima->id,
+            ]);
+            return;
+        }
+
+        $meses = collect($pendencias)
+            ->filter(fn ($p) => $p['mes'] !== null)
+            ->map(fn ($p) => self::MESES[$p['mes']] . '/' . $p['ano'])
+            ->values()
+            ->all();
+
+        $user->notify(new PropinaEmAtrasoNotification($totalPendencias, $valorTotal, $multaTotal, $meses, $assinatura));
+
+        Log::info('[VerificadorPropinaService] notificação criada', [
+            'user_id' => $user->id,
+            'total_pendencias' => $totalPendencias,
+            'valor_total' => $valorTotal,
+            'multa_total' => $multaTotal,
+            'assinatura' => $assinatura,
+        ]);
     }
 }

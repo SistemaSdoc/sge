@@ -1,8 +1,9 @@
 import { useForm } from '@inertiajs/react';
-import LancamentosTable from './components/lancamentos-table';
+import LancamentosTable from './components/create/lancamentos-table';
 import { store } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
 import { usePagination } from '@/hooks/use-pagination';
 import { usePage } from '@inertiajs/react';
+import { Header } from './components/create/lancamentos-header';
 
 export default function Create({
   instituicao,
@@ -16,20 +17,22 @@ export default function Create({
   const { data } = usePage().props;
   const alunosPagination = usePagination('alunos');
 
+  const params = {
+    instituicao,
+    cursoTutelado,
+    cursoClasse,
+    cursoClasseTurno,
+    turma,
+    classeTurnoDisciplina,
+  };
+
   const form = useForm({});
 
   const handleSubmit = (accao, formData) => {
     form.transform(() => ({ ...formData, accao }));
     form.post(
       store(
-        {
-          instituicao,
-          cursoTutelado,
-          cursoClasse,
-          cursoClasseTurno,
-          turma,
-          classeTurnoDisciplina,
-        },
+        { ...params },
         {
           query: {
             ano_lectivo_id:
@@ -54,7 +57,9 @@ export default function Create({
   }
 
   return (
-    <div className="max mx-auto w-6xl w-full space-y-6 p-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+      <Header can={can} turma={turma} params={params} />
+
       <LancamentosTable
         data={data}
         isPending={form.processing}

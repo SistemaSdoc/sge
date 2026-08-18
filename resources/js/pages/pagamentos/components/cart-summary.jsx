@@ -1,4 +1,4 @@
-import { XIcon, ShoppingCartIcon } from 'lucide-react';
+import { XIcon, ShoppingCartIcon, TriangleAlert } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

@@ -5,67 +5,203 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Card,
+  CardAction,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowUpRight, Minus, MoreHorizontalIcon } from 'lucide-react';
-import { router } from '@inertiajs/react';
-import { edit } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import { ArrowUpLeft, ArrowUpRight, MoreHorizontalIcon } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import { show as showClasse } from '@/actions/App/Http/Controllers/CursoClasseController';
+import { show as showCurso } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { edit as editTurma } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 import { index } from '@/actions/App/Http/Controllers/ConfirmacaoMatriculaController';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 export function Header({
+  can,
   turma,
   disciplinas,
   alunos,
-  preview,
-  routeParams,
+  anosLectivos,
+  anoLectivoId,
   params,
   deleteFn,
 }) {
-  console.log('params', params);
   return (
-    <Card className="overflow-hidden pt-0! pb-0">
-      <div className="relative flex h-56 w-full items-end bg-muted">
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative z-10 flex w-full items-end justify-between p-6">
-          <div className="space-y-2 text-white">
-            <h1 className="text-2xl font-bold text-secondary md:text-3xl">
-              {turma.nome}
-            </h1>
+    <Card className="gap-0! overflow-visible pb-0">
+      <CardHeader className="border-b">
+        {/* Contexto de navegação */}
+        <CardTitle className="flex items-center gap-1">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  {can.curso.view ? (
+                    <Link
+                      className="text-sm font-semibold text-primary hover:text-primary/80"
+                      href={
+                        showCurso({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                        }).url
+                      }
+                    >
+                      {params.cursoTutelado?.nome}
+                    </Link>
+                  ) : (
+                    <span className="text-sm font-semibold text-primary">
+                      {params.cursoTutelado?.nome}
+                    </span>
+                  )}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
 
-            <p className="text-sm font-bold">
-              {turma?.nome} — {turma.classe.nome}
-            </p>
-          </div>
+              <BreadcrumbSeparator />
 
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  {can.classe.view ? (
+                    <Link
+                      className="text-sm font-semibold text-primary hover:text-primary/80"
+                      href={
+                        showClasse({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                          cursoClasse: params.cursoClasse.id,
+                        }).url
+                      }
+                    >
+                      {params.cursoClasse?.nome}
+                    </Link>
+                  ) : (
+                    <span className="text-sm font-semibold text-primary">
+                      {params.cursoClasse?.nome}
+                    </span>
+                  )}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+
+              <BreadcrumbSeparator />
+
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  {can.classe.view ? (
+                    <Link
+                      className="text-sm font-semibold text-primary hover:text-primary/80"
+                      href={
+                        showClasse({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                          cursoClasse: params.cursoClasse.id,
+                        }).url
+                      }
+                      data={{ turno: params.cursoClasseTurno.id }}
+                    >
+                      {params.cursoClasseTurno?.nome}
+                    </Link>
+                  ) : (
+                    <span className="text-sm font-semibold text-primary">
+                      {params.cursoClasseTurno?.nome}
+                    </span>
+                  )}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+
+              <BreadcrumbSeparator />
+
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-sm font-semibold text-secondary">
+                  {turma.nome}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </CardTitle>
+
+        <CardDescription>
+          Gerir alunos e disciplinas desta turma no ano lectivo{' '}
+          <span className="font-bold">
+            {anosLectivos.find((ano) => ano.id === anoLectivoId)?.nome}
+          </span>
+        </CardDescription>
+
+        <CardAction className="flex gap-3">
+          {/* Botão de voltar */}
+          {can.curso?.view && (
+            <Button
+              variant="outline"
+              size={'sm'}
+              onClick={() =>
+                router.visit(
+                  showClasse({
+                    instituicao: params.instituicao.id,
+                    cursoTutelado: params.cursoTutelado.id,
+                    cursoClasse: params.cursoClasse.id,
+                  }).url,
+                )
+              }
+            >
+              <ArrowUpLeft /> Voltar a classe
+            </Button>
+          )}
+
+          {/* Botão de edição de turma */}
+          {turma.can.edit && (
+            <Button
+              variant=""
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                router.visit(
+                  editTurma({
+                    instituicao: params.instituicao.id,
+                    cursoTutelado: params.cursoTutelado.id,
+                    cursoClasse: params.cursoClasse.id,
+                    cursoClasseTurno: params.cursoClasseTurno.id,
+                    turma: params.turma,
+                  }).url + '?origem=classe',
+                );
+              }}
+            >
+              Editar Turma
+            </Button>
+          )}
+
+          {/* Menu dropdown de acções */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-white/20"
-              >
+              <Button variant="outline" size="icon-sm">
                 <MoreHorizontalIcon />
               </Button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-auto">
-              {turma.can?.edit && (
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    router.visit(edit(params).url + '?origem=classe');
-                  }}
-                >
-                  Editar
-                </DropdownMenuItem>
-              )}
-
-              {turma.can?.edit && <DropdownMenuSeparator />}
-
               <DropdownMenuItem
-                onClick={() => router.visit(preview({ ...routeParams }).url)}
+                onClick={() =>
+                  router.visit(
+                    index({
+                      instituicao: params.instituicao.id,
+                      cursoTutelado: params.cursoTutelado.id,
+                      cursoClasse: params.cursoClasse.id,
+                      cursoClasseTurno: params.cursoClasseTurno.id,
+                      turma: params.turma,
+                    }).url,
+                  )
+                }
               >
-                Progressão de Alunos
+                Confirmar Matrículas
+                <ArrowUpRight />
               </DropdownMenuItem>
 
               {turma.can?.delete && <DropdownMenuSeparator />}
@@ -83,46 +219,29 @@ export function Header({
               )}
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-      </div>
+        </CardAction>
+      </CardHeader>
 
-      <CardContent className="grid grid-cols-1 gap-6 py-6 sm:grid-cols-2 md:grid-cols-4">
-        <div>
-          <p className="text-sm text-muted-foreground">Máximo de alunos</p>
-          <p className="font-bold">
-            {turma.max_alunos ?? (
-              <Minus size={15} className="text-muted-foreground" />
-            )}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-sm text-muted-foreground">Total de alunos</p>
-          <p className="font-bold">
+      {/* Cards de métricas */}
+      <div className="grid grid-cols-2 divide-x bg-muted/50 text-center">
+        <div className="px-4 py-4">
+          <p className="text-sm font-bold">
+            {' '}
             {alunos?.total ?? turma.alunos?.length ?? 0}
           </p>
+          <p className="text-xs text-muted-foreground">Alunos nesta turma</p>
         </div>
-
-        <div>
-          <p className="text-sm text-muted-foreground">Total de disciplinas</p>
-          <p className="font-bold">
+        <div className="px-4 py-4">
+          <p className="text-sm font-bold">
             {disciplinas?.total ??
               turma.curso_classe_turno?.classe_turno_disciplinas?.length ??
               0}
           </p>
+          <p className="text-xs text-muted-foreground">
+            Disciplinas lecionadas nesta turma
+          </p>
         </div>
-
-        <div>
-          <Button
-            variant={'link'}
-            className="hover:cursor-pointer"
-            onClick={() => router.visit(index(params).url)}
-          >
-            Confirmar Matrículas
-            <ArrowUpRight />
-          </Button>
-        </div>
-      </CardContent>
+      </div>
     </Card>
   );
 }

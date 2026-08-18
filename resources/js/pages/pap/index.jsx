@@ -1,13 +1,6 @@
 import { GrupoPapCards } from './components/grupo-pap-cards';
 import { Head, router } from '@inertiajs/react';
 import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
   Select,
   SelectContent,
   SelectGroup,

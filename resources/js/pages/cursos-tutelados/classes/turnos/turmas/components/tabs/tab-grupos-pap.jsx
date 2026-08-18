@@ -5,7 +5,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -22,19 +21,20 @@ import { EmptyState } from '@/components/empty-state';
 import { Link } from '@inertiajs/react';
 import { usePagination } from '@/hooks/use-pagination';
 import TablePagination from '@/components/table-pagination';
+import {
+  create,
+  show,
+} from '@/actions/App/Http/Controllers/GrupoPapController';
 //import {create} from '@/routes/cursos-tutelados/classes/turnos/turmas/disciplinas/professores'
 //import {create} from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController'
 
 export function TabGruposPAP({
   turma,
   grupos,
-  instituicaoId,
-  cursoTuteladoId,
-  cursoClasseId,
-  cursoClasseTurnoId,
   pagination,
   onPageChange,
   can,
+  params,
 }) {
   const turmaId = turma.id;
   const isEmpty = grupos.length === 0;
@@ -51,7 +51,17 @@ export function TabGruposPAP({
         {can?.create && (
           <CardAction>
             <Button asChild>
-              <Link href={`${baseUrl}/pap/create`}>Criar grupo</Link>
+              <Link
+                href={create({
+                  instituicao: params.instituicao.id,
+                  cursoTutelado: params.cursoTutelado.id,
+                  cursoClasse: params.cursoClasse.id,
+                  cursoClasseTurno: params.cursoClasseTurno.id,
+                  turma: params.turma,
+                })}
+              >
+                Criar grupo
+              </Link>
             </Button>
           </CardAction>
         )}
@@ -62,13 +72,19 @@ export function TabGruposPAP({
           <EmptyState
             variant="table"
             icon={Users2Icon}
-            title="Nenhum grupo para PAP"
+            title="Nenhum grupo criado, ainda"
             description="Comece adicionando grupos"
             action={
               can?.create
                 ? {
                     label: 'Criar Grupo',
-                    href: `${baseUrl}/pap/create`,
+                    href: create({
+                      instituicao: params.instituicao.id,
+                      cursoTutelado: params.cursoTutelado.id,
+                      cursoClasse: params.cursoClasse.id,
+                      cursoClasseTurno: params.cursoClasseTurno.id,
+                      turma: params.turma,
+                    }),
                     variant: 'outline',
                   }
                 : undefined
@@ -78,10 +94,10 @@ export function TabGruposPAP({
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/72">
-                <TableHead className="px-4">Nome do grupo</TableHead>
+                <TableHead className="px-4">Nome</TableHead>
                 <TableHead>Tema</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Nota final</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead className="px-4 text-end">Acções</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -89,17 +105,31 @@ export function TabGruposPAP({
                 <TableRow
                   key={grupo.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(`${baseUrl}/pap/${grupo.id}`)}
+                  onClick={() =>
+                    router.visit(
+                      show({
+                        instituicao: params.instituicao.id,
+                        cursoTutelado: params.cursoTutelado.id,
+                        cursoClasse: params.cursoClasse.id,
+                        cursoClasseTurno: params.cursoClasseTurno.id,
+                        turma: params.turma,
+                        grupoPap: grupo.id,
+                      }),
+                    )
+                  }
                 >
                   <TableCell className="px-4 font-medium">
                     {grupo.nome}
                   </TableCell>
+
                   <TableCell>{grupo.tema}</TableCell>
+
                   <TableCell>{grupo.status}</TableCell>
-                  <TableCell>
-                    {grupo.nota_final ?? (
-                      <Minus size={15} className="text-muted-foreground" />
-                    )}
+
+                  <TableCell className="text-end">
+                    <Button variant="outline" size="xs" className="text-[10px]">
+                      Ver detalhes
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

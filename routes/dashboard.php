@@ -80,6 +80,9 @@ Route::get('/certificados/{aluno}', [CertificadoController::class, 'show'])->nam
 Route::get('/alunos/{aluno}/turmas-disponiveis', [AlunoController::class, 'turmasDisponiveis']);
 Route::get('/cursos/{curso}/instituicoes-tutoras', [CursosController::class, 'instituicoesTutoras']);
 
+Route::get('/turmas/get-turnos/{cursoClasse}', [TurmaController::class, 'getTurnos'])
+    ->name('turmas.get-turnos');
+
 Route::get('turmas', [TurmaController::class, 'index'])->name('turmaGeral');
 
 Route::prefix('instituicoes/{instituicao}')->group(function () {

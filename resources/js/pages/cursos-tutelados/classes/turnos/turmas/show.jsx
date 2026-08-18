@@ -24,6 +24,7 @@ export default function Show({
   grupos,
   can,
   anoLectivoId,
+  anosLectivos,
 }) {
   const { deleteConfirm } = useDialog();
 
@@ -33,12 +34,12 @@ export default function Show({
   const recursosPagination = usePagination('disciplinas');
 
   const params = {
-    instituicao: instituicao.id,
-    cursoTutelado: cursoTutelado.id,
-    cursoClasse: cursoClasse.id,
-    cursoClasseTurno: cursoClasseTurno.id,
+    instituicao,
+    cursoTutelado,
+    cursoClasse,
+    cursoClasseTurno,
     turma: turma.data.id,
-    ano_lectivo_id: anoLectivoId,
+    // ano_lectivo_id: anoLectivoId,
   };
 
   const classe = turma.data.classe;
@@ -64,55 +65,53 @@ export default function Show({
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       <Header
+        can={can}
         turma={turma.data}
         disciplinas={disciplinas}
         alunos={alunos}
         totalRecurso={totalRecurso}
         preview={preview}
-        routeParams={params}
         params={params}
+        anoLectivoId={anoLectivoId}
+        anosLectivos={anosLectivos}
         deleteFn={handleDelete}
       />
 
-      <Tabs defaultValue="alunos" className="w-full">
+      <Tabs defaultValue="disciplinas" className="w-full">
         <TurmaTabsList classe={classe} totalRecurso={totalRecurso} />
 
-        <TabsContent value="alunos" className="mt-2">
+        <TabsContent value="alunos" className="mt-2 space-y-6">
           <TabAlunos
+            can={can.alunos}
             alunos={alunos.data}
+            params={params}
             pagination={alunos.meta}
             onPageChange={alunosPagination.handlePageChange}
-            params={params}
-            can={can.alunos}
           />
         </TabsContent>
 
-        <TabsContent value="disciplinas" className="mt-2">
+        <TabsContent value="disciplinas" className="mt-2 space-y-6">
           <TabDisciplinas
-            disciplinas={disciplinas.data}
+            can={can.disciplinas}
             turma={turma}
-            pagination={disciplinas.meta}
-            onPageChange={disciplinasPagination.handlePageChange}
+            disciplinas={disciplinas.data}
+            anoLectivoId={anoLectivoId}
             params={params}
             redirectTo={window.location.href}
-            anoLectivoId={anoLectivoId}
-            can={can.disciplinas}
+            pagination={disciplinas.meta}
+            onPageChange={disciplinasPagination.handlePageChange}
           />
         </TabsContent>
 
         {classe?.nome === '13ª' && (
           <TabsContent value="grupos-pap" className="mt-2">
             <TabGruposPAP
+              can={can.grupos}
               turma={turma.data}
               grupos={grupos.data}
-              instituicaoId={params.instituicao}
-              cursoTuteladoId={params.cursoTutelado}
-              cursoClasseId={params.cursoClasse}
-              cursoClasseTurnoId={params.cursoClasseTurno}
+              params={params}
               pagination={grupos.meta}
               onPageChange={gruposPagination.handlePageChange}
-              params={params}
-              can={can.grupos}
             />
           </TabsContent>
         )}

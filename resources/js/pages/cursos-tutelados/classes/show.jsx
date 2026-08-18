@@ -4,47 +4,12 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { EmptyState } from '@/components/empty-state';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { toast } from 'sonner';
-import {
-  ArrowLeftIcon,
-  MoreHorizontalIcon,
-  BookOpenIcon,
-  UsersIcon,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
-import { Link, router } from '@inertiajs/react';
-import { show as showCurso } from '@/actions/App/Http/Controllers/CursoTuteladoController';
-import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
-import { destroy } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
-import {
-  show as showTurma,
-  create as createTurma,
-  edit as editTurma,
-} from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
-import { create } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
 import TablePagination from '@/components/table-pagination';
 import { useRef, useState } from 'react';
 import {
@@ -55,8 +20,29 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectSeparator,
 } from '@/components/ui/select';
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { toast } from 'sonner';
+import { BookOpenIcon, UsersIcon, Haze } from 'lucide-react';
+import { Link, router } from '@inertiajs/react';
+import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
+import { destroy } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
+import {
+  show as showTurma,
+  create as createTurma,
+  edit as editTurma,
+} from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import { create } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
+import { cn } from '@/lib/utils';
+import { Header } from './components/classe-header';
 
 export default function Show({
   instituicao,
@@ -64,10 +50,8 @@ export default function Show({
   cursoClasse,
   anosLectivos,
   anoLectivoActual,
+  can,
 }) {
-  const instituicaoId = instituicao.id;
-  const cursoId = cursoTutelado.id;
-  const classeId = cursoClasse.id;
   const turnos = cursoClasse.turnos || [];
   const turmas = cursoClasse.turmas;
   const disciplinas = cursoClasse.disciplinas;
@@ -75,11 +59,18 @@ export default function Show({
     useState(anoLectivoActual);
 
   const selectedTurnoId = cursoClasse.turnoId;
-  const can = cursoClasse.can ?? {};
 
   const { deleteConfirm } = useDialog();
 
   const lastTurnoRef = useRef(null);
+
+  // Parâmetros base reutilizáveis
+  const params = {
+    instituicao,
+    cursoTutelado,
+    cursoClasse,
+    cursoClasseTurno: selectedTurnoId,
+  };
 
   const handleTurnoChange = (turnoId) => {
     if (lastTurnoRef.current === turnoId) {
@@ -128,10 +119,7 @@ export default function Show({
           destroy[
             '/dashboard/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/disciplinas/{classeTurnoDisciplina}'
           ]({
-            instituicao: instituicaoId,
-            cursoTutelado: cursoId,
-            cursoClasse: classeId,
-            cursoClasseTurno: selectedTurnoId,
+            ...params,
             classeTurnoDisciplina: disciplinaId,
           }).url,
           {
@@ -169,382 +157,348 @@ export default function Show({
     );
   };
 
+  const anoLectivoAtualNome = anosLectivos.find(
+    (ano) => ano.id === anoLectivoActual,
+  )?.nome;
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
-      <Card className="gap-0">
-        <CardHeader>
-          <CardTitle className="text-xl">{cursoClasse.classe?.nome}</CardTitle>
-          <CardDescription>
-            Gerir disciplinas e turmas por turno
-          </CardDescription>
-          <CardAction>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreHorizontalIcon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-auto!">
-                <DropdownMenuItem
-                  onClick={() =>
-                    router.visit(
-                      showCurso({
-                        instituicao: instituicaoId,
-                        cursoTutelado: cursoId,
-                      }).url,
-                    )
-                  }
-                >
-                  <ArrowLeftIcon strokeWidth={1.5} /> Voltar ao curso
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardAction>
-        </CardHeader>
-      </Card>
+      {/* Header com Breadcrumb */}
+      <Header
+        can={can}
+        turnos={turnos}
+        params={params}
+        anoLectivoAtualNome={anoLectivoAtualNome}
+      />
 
       {turnos.length > 0 ? (
-        <Tabs value={selectedTurnoId} onValueChange={handleTurnoChange}>
-          <TabsList
-            variant={'line'}
-            className="p4-4 flex! w-full justify-between"
-          >
-            <div>
-              {turnos.map((turno) => (
-                <TabsTrigger key={turno.id} value={turno.id}>
-                  {turno.nome}
-                </TabsTrigger>
-              ))}
+        <>
+          {/* Grid de Turnos — mesma estilização do Card */}
+          <div className="overflow-hidden bg-card ring-1 ring-foreground/10">
+            <div
+              className="grid"
+              style={{
+                gridTemplateColumns: `repeat(${turnos.length}, 1fr)`,
+              }}
+            >
+              {turnos.map((turno, index) => {
+                const isActive = selectedTurnoId === turno.id;
+                const isLastInRow = index === turnos.length - 1;
 
-              {can.create_turno && turnos.length < 3 && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  onClick={() =>
-                    router.visit(
-                      create({
-                        instituicao: instituicaoId,
-                        cursoTutelado: cursoId,
-                        cursoClasse: cursoClasse.id,
-                      }).url,
-                    )
-                  }
-                >
-                  +
-                </Button>
-              )}
+                return (
+                  <button
+                    key={turno.id}
+                    type="button"
+                    onClick={() => handleTurnoChange(turno.id)}
+                    className={cn(
+                      'cursor-pointer bg-card px-4 py-4 text-left text-card-foreground transition-colors hover:bg-muted/50',
+                      isActive ? 'text-secondary' : '',
+                      !isLastInRow && 'border-r border-foreground/10',
+                    )}
+                  >
+                    <h3 className="mb-1 text-sm font-medium">{turno.nome}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {isActive ? 'A ver' : 'Clique aqui para ver'}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
+          </div>
 
-            <div className="">
-              <Select
-                value={anoLectivoSelecionado}
-                onValueChange={handleAnoLectivoChange}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione o ano lectivo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Anos Lectivos</SelectLabel>
-                    {anosLectivos.map((ano) => (
-                      <SelectItem key={ano?.id} value={ano?.id}>
-                        {ano?.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-          </TabsList>
+          {/* Select de Ano Lectivo */}
+          <div className="flex justify-end">
+            <Select
+              value={anoLectivoSelecionado}
+              onValueChange={handleAnoLectivoChange}
+            >
+              <SelectTrigger className="md:w-40 w-full">
+                <SelectValue placeholder="Selecione o ano lectivo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Anos Lectivos</SelectLabel>
+                  {anosLectivos.map((ano) => (
+                    <SelectItem key={ano?.id} value={ano?.id}>
+                      {ano?.nome}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <TabsContent value={selectedTurnoId} className="mt-2 space-y-6">
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <Card className="flex flex-col gap-0">
-                <CardHeader className="border-b">
-                  <CardTitle className="flex! gap-2">
-                    <BookOpenIcon className="size-5 text-secondary" />
-                    Disciplinas ({disciplinas?.total ?? 0})
-                  </CardTitle>
-                  <CardDescription>
-                    Disciplinas do turno selecionado
-                  </CardDescription>
-                  {can.create_disciplina && (
-                    <CardAction>
-                      <Button asChild size="sm">
-                        <Link
-                          data={{ redirect_to: window.location.href }}
-                          href={`${
-                            createDisciplina({
-                              instituicao: instituicaoId,
-                              cursoTutelado: cursoId,
-                              cursoClasse: classeId,
-                              cursoClasseTurno: selectedTurnoId,
-                            }).url
-                          }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`}
-                        >
-                          Adicionar
-                        </Link>
-                      </Button>
-                    </CardAction>
+          {/* Conteúdo das Tabs */}
+          <Tabs value={selectedTurnoId}>
+            <TabsContent value={selectedTurnoId} className="mt-2 space-y-6">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                {/* DISCIPLINAS */}
+                <Card className="grid grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
+                  <CardHeader className="border-b">
+                    <CardTitle className="flex! gap-2">
+                      Disciplinas ({disciplinas?.total ?? 0})
+                    </CardTitle>
+
+                    <CardDescription>
+                      Disciplinas do turno da{' '}
+                      <span>
+                        {
+                          turnos.find((turno) => turno.id === selectedTurnoId)
+                            ?.nome
+                        }
+                      </span>
+                    </CardDescription>
+
+                    {can.disciplina.create && (
+                      <CardAction>
+                        <Button asChild size="sm">
+                          <Link
+                            data={{ redirect_to: window.location.href }}
+                            href={`${
+                              createDisciplina({
+                                ...params,
+                              }).url
+                            }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`}
+                          >
+                            Adicionar Disciplina
+                          </Link>
+                        </Button>
+                      </CardAction>
+                    )}
+                  </CardHeader>
+
+                  {!disciplinas?.data?.length ? (
+                    <CardContent className="flex items-center justify-center">
+                      <EmptyState
+                        variant="table"
+                        icon={BookOpenIcon}
+                        title="Nenhuma disciplina"
+                        description="Este turno ainda não tem disciplinas associadas"
+                        action={
+                          can.disciplina.create
+                            ? {
+                                label: 'Adicionar Disciplina',
+                                href: `${
+                                  createDisciplina({
+                                    ...params,
+                                  }).url
+                                }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`,
+                                variant: 'outline',
+                              }
+                            : undefined
+                        }
+                      />
+                    </CardContent>
+                  ) : (
+                    <>
+                      <CardContent className="overflow-y-auto p-0!">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/72">
+                              <TableHead className="px-4">Sigla</TableHead>
+                              <TableHead className="text-center">
+                                Nome
+                              </TableHead>
+                              <TableHead className="px-4 text-right">
+                                Acções
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+
+                          <TableBody>
+                            {disciplinas.data.map((disc) => (
+                              <TableRow key={disc.id}>
+                                <TableCell className="px-4 font-medium">
+                                  {disc.disciplina.sigla}
+                                </TableCell>
+
+                                <TableCell className="text-center">
+                                  {disc.disciplina.nome}
+                                </TableCell>
+
+                                <TableCell className="px-4 text-right">
+                                  <Button
+                                    size="xs"
+                                    variant="destructive"
+                                    className="text-[10px]"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteDisciplina(disc.id);
+                                    }}
+                                  >
+                                    Remover
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+
+                      <TablePagination
+                        pagination={{
+                          current_page: disciplinas.current_page,
+                          last_page: disciplinas.last_page,
+                        }}
+                        onPageChange={handlePageChange('page_disciplinas')}
+                      />
+                    </>
                   )}
-                </CardHeader>
+                </Card>
 
-                {!disciplinas?.data?.length ? (
-                  <CardContent className="flex flex-1 items-center justify-center">
-                    <EmptyState
-                      variant="table"
-                      icon={BookOpenIcon}
-                      title="Nenhuma disciplina"
-                      description="Este turno ainda não tem disciplinas associadas"
-                      action={
-                        can.create_disciplina
-                          ? {
-                              label: 'Associar disciplinas',
-                              href: `${
-                                createDisciplina({
-                                  instituicao: instituicaoId,
-                                  cursoTutelado: cursoId,
-                                  cursoClasse: classeId,
-                                  cursoClasseTurno: selectedTurnoId,
-                                }).url
-                              }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`,
-                              variant: 'outline',
+                {/* TURMAS */}
+                <Card className="grid grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
+                  <CardHeader className="border-b">
+                    <CardTitle className="flex! gap-2">
+                      Turmas ({turmas?.total ?? 0})
+                    </CardTitle>
+
+                    <CardDescription>
+                      Turmas do turno da{' '}
+                      <span>
+                        {
+                          turnos.find((turno) => turno.id === selectedTurnoId)
+                            ?.nome
+                        }
+                      </span>
+                    </CardDescription>
+
+                    {can.turma.create && (
+                      <CardAction>
+                        <Button asChild size="sm">
+                          <Link
+                            href={
+                              createTurma({
+                                ...params,
+                              }).url
                             }
-                          : undefined
-                      }
-                    />
-                  </CardContent>
-                ) : (
-                  <>
-                    <CardContent className="p-0!">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="bg-muted/72">
-                            <TableHead className="px-4">Sigla</TableHead>
-                            <TableHead>Nome</TableHead>
-                            <TableHead className="px-4 text-right">
-                              Accoes
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
+                          >
+                            Adicionar Turma
+                          </Link>
+                        </Button>
+                      </CardAction>
+                    )}
+                  </CardHeader>
 
-                        <TableBody>
-                          {disciplinas.data.map((disc) => (
-                            <TableRow key={disc.id}>
-                              <TableCell className="px-4 font-medium">
-                                {disc.disciplina.sigla}
-                              </TableCell>
-                              <TableCell>{disc.disciplina.nome}</TableCell>
-                              <TableCell className="px-4 text-right">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
+                  {!turmas?.data?.length ? (
+                    <CardContent className="flex items-center justify-center">
+                      <EmptyState
+                        variant="table"
+                        icon={UsersIcon}
+                        title="Nenhuma turma"
+                        description="Este turno ainda não tem turmas adicionadas"
+                        action={
+                          can.turma.create
+                            ? {
+                                label: 'Adicionar Turma',
+                                href: createTurma({
+                                  ...params,
+                                }).url,
+                                variant: 'outline',
+                              }
+                            : undefined
+                        }
+                      />
+                    </CardContent>
+                  ) : (
+                    <>
+                      <CardContent className="overflow-y-auto p-0!">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/72">
+                              <TableHead className="px-4">Nome</TableHead>
+                              <TableHead className="text-center">
+                                Alunos
+                              </TableHead>
+                              <TableHead className="px-4 text-right">
+                                Acções
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+
+                          <TableBody>
+                            {turmas.data.map((turma) => (
+                              <TableRow
+                                key={turma.id}
+                                aria-disabled={!turma.can?.view}
+                                className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-70 aria-disabled:hover:bg-transparent"
+                                onClick={() => {
+                                  if (turma.can?.view) {
+                                    router.visit(
+                                      showTurma({
+                                        ...params,
+                                        turma: turma.id,
+                                      }).url,
+                                    );
+                                  }
+                                }}
+                              >
+                                <TableCell className="px-4 font-medium">
+                                  {turma.nome}
+                                </TableCell>
+
+                                <TableCell className="text-center">
+                                  {turma.alunos_activos_count}
+                                </TableCell>
+
+                                <TableCell className="px-4 text-right">
+                                  {turma?.can?.edit && (
                                     <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="size-8"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <MoreHorizontalIcon />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem
-                                      variant="destructive"
+                                      variant="outline"
+                                      size="xs"
+                                      className="text-[10px]"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        handleDeleteDisciplina(disc.id);
+                                        router.visit(
+                                          editTurma({
+                                            ...params,
+                                            turma: turma.id,
+                                          }).url + '?origem=classe',
+                                        );
                                       }}
                                     >
-                                      Remover
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </CardContent>
+                                      Editar
+                                    </Button>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
 
-                    <TablePagination
-                      pagination={{
-                        current_page: disciplinas.current_page,
-                        last_page: disciplinas.last_page,
-                      }}
-                      onPageChange={handlePageChange('page_disciplinas')}
-                    />
-                  </>
-                )}
-              </Card>
-
-              <Card className="flex flex-col gap-0">
-                <CardHeader className="border-b">
-                  <CardTitle className="flex! gap-2">
-                    <UsersIcon className="size-5 text-primary" />
-                    Turmas ({turmas?.total ?? 0})
-                  </CardTitle>
-                  <CardDescription>Turmas do turno selecionado</CardDescription>
-                  {can.create_turma && (
-                    <CardAction>
-                      <Button asChild size="sm">
-                        <Link
-                          href={
-                            createTurma({
-                              instituicao: instituicaoId,
-                              cursoTutelado: cursoId,
-                              cursoClasse: classeId,
-                              cursoClasseTurno: selectedTurnoId,
-                            }).url
-                          }
-                        >
-                          Adicionar
-                        </Link>
-                      </Button>
-                    </CardAction>
+                      <TablePagination
+                        pagination={{
+                          current_page: turmas.current_page,
+                          last_page: turmas.last_page,
+                        }}
+                        onPageChange={handlePageChange('page_turmas')}
+                      />
+                    </>
                   )}
-                </CardHeader>
-
-                {!turmas?.data?.length ? (
-                  <CardContent className="flex flex-1 items-center justify-center">
-                    <EmptyState
-                      variant="table"
-                      icon={UsersIcon}
-                      title="Nenhuma turma"
-                      description="Este turno ainda não tem turmas criadas"
-                      action={
-                        can.create_turma
-                          ? {
-                              label: 'Adicionar Turma',
-                              href: createTurma({
-                                instituicao: instituicaoId,
-                                cursoTutelado: cursoId,
-                                cursoClasse: classeId,
-                                cursoClasseTurno: selectedTurnoId,
-                              }).url,
-                              variant: 'outline',
-                            }
-                          : undefined
-                      }
-                    />
-                  </CardContent>
-                ) : (
-                  <>
-                    <CardContent className="p-0!">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="bg-muted/72">
-                            <TableHead className="px-4">Nome</TableHead>
-                            <TableHead>Alunos</TableHead>
-                            <TableHead className="px-4 text-right">
-                              Accoes
-                            </TableHead>
-                          </TableRow>
-                        </TableHeader>
-
-                        <TableBody>
-                          {turmas.data.map((turma) => (
-                            <TableRow
-                              key={turma.id}
-                              aria-disabled={!turma.can?.view}
-                              className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-70 aria-disabled:hover:bg-transparent"
-                              onClick={() => {
-                                if (turma.can?.view) {
-                                  router.visit(
-                                    showTurma({
-                                      instituicao: instituicaoId,
-                                      cursoTutelado: cursoId,
-                                      cursoClasse: classeId,
-                                      cursoClasseTurno: selectedTurnoId,
-                                      turma: turma.id,
-                                    }).url,
-                                  );
-                                }
-                              }}
-                            >
-                              <TableCell className="px-4 font-medium">
-                                {turma.nome}
-                              </TableCell>
-
-                              <TableCell>
-                                {turma.alunos_activos_count}
-                              </TableCell>
-
-                              <TableCell className="px-4 text-right">
-                                {turma?.can?.edit && (
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="size-8"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <MoreHorizontalIcon />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-
-                                    <DropdownMenuContent align="end">
-                                      {turma?.can?.edit && (
-                                        <DropdownMenuItem
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            router.visit(
-                                              editTurma({
-                                                instituicao: instituicaoId,
-                                                cursoTutelado: cursoId,
-                                                cursoClasse: classeId,
-                                                cursoClasseTurno:
-                                                  selectedTurnoId,
-                                                turma: turma.id,
-                                              }).url + '?origem=classe',
-                                            );
-                                          }}
-                                        >
-                                          Editar
-                                        </DropdownMenuItem>
-                                      )}
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-
-                    <TablePagination
-                      pagination={{
-                        current_page: turmas.current_page,
-                        last_page: turmas.last_page,
-                      }}
-                      onPageChange={handlePageChange('page_turmas')}
-                    />
-                  </>
-                )}
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </>
       ) : (
         <Card>
           <CardContent className="flex items-center justify-center py-20">
             <EmptyState
-              icon={BookOpenIcon}
+              icon={Haze}
+              variant="table"
               title="Nenhum turno"
-              description="Esta classe ainda não tem turnos associados"
+              description="Esta classe ainda não tem turnos definidos"
               action={
-                can.create_turno
+                can.turno.create
                   ? {
-                      label: '+ Adicionar Turno',
+                      label: 'Adicionar Turno',
                       onClick: () =>
                         router.visit(
                           create({
-                            instituicao: instituicaoId,
-                            cursoTutelado: cursoId,
-                            cursoClasse: cursoClasse.id,
+                            instituicao: params.instituicao,
+                            cursoTutelado: params.cursoTutelado,
+                            cursoClasse: params.cursoClasse,
                           }).url,
                         ),
                       variant: 'outline',

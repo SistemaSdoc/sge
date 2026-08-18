@@ -22,9 +22,18 @@ class CursoClasseTurnoController extends Controller
         abort_if($cursoClasse->curso_tutelado_id !== $cursoTutelado->id, 404);
 
         return Inertia::render('cursos-tutelados/classes/create', [
-            'instituicao' => $instituicao,
-            'cursoTutelado' => $cursoTutelado,
-            'cursoClasse' => $cursoClasse,
+            'instituicao' => [
+                'id' => $instituicao->only('id'),
+                'nome' => $instituicao->nome,
+            ],
+            'cursoTutelado' => [
+                'id' => $cursoTutelado->id,
+                'nome' => $cursoTutelado->instituicaoCurso->curso->nome,
+            ],
+            'cursoClasse' => [
+                'id' => $cursoClasse->id,
+                'nome' => $cursoClasse->classe->nome,
+            ],
             'turnos' => Turno::all(),
         ]);
 

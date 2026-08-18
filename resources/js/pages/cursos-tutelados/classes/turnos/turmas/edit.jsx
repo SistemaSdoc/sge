@@ -3,12 +3,12 @@ import { TurmaForm } from './components/turma-form';
 import { update } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
 
 export default function Edit({
+  instituicao,
+  cursoTutelado,
+  cursoClasse,
+  cursoClasseTurno,
   turma,
   origem,
-  instituicaoId,
-  cursoId,
-  classeId,
-  turnoId,
   anoLectivoId,
   anosLectivos = [],
   can = {},
@@ -20,23 +20,26 @@ export default function Edit({
     ano_lectivo_id: anoLectivoId,
   });
 
+  const params = {
+    instituicao,
+    cursoTutelado,
+    cursoClasse,
+    cursoClasseTurno,
+    turma: turma.id,
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    put(
-      update({
-        instituicao: instituicaoId,
-        cursoTutelado: cursoId,
-        cursoClasse: classeId,
-        cursoClasseTurno: turnoId,
-        turma: turma.id,
-      }).url,
-      { preserveScroll: true },
-    );
+    put(update(params).url, { preserveScroll: true });
   };
 
   return (
     <TurmaForm
+      title="Editar Turma"
+      description="Altere os dados da turma e salve as alterações."
+      submitLabel="Salvar Alterações"
+      params={params}
       data={data}
       setData={setData}
       errors={errors}

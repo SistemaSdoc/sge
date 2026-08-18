@@ -1,6 +1,11 @@
-import { useState } from 'react';
-import { useForm, router } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useForm } from '@inertiajs/react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Field,
@@ -9,41 +14,18 @@ import {
   FieldGroup,
   FieldSet,
 } from '@/components/ui/field';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectLabel,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import MultipleSelect from '@/components/multiple-select';
 import { store } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
+import { ArrowUpLeft } from 'lucide-react';
 
 export default function Create({
   instituicao,
   cursoTutelado,
-  classesTurnos,
   cursoClasse,
   turnos,
 }) {
   const { data, setData, put, processing, errors } = useForm({
     turnos: [],
-  });
-
-  //const [cursoClasseId, setCursoClasseId] = useState('');
-
-  const handleClasseChange = (value) => {
-    setCursoClasseId(value);
-    const classe = classesTurnos?.find((c) => String(c.id) === value);
-    setData('turnos', classe?.turnos?.map((t) => t.turno.id) ?? []);
-  };
-  console.log({
-    instituicao,
-    cursoTutelado,
-    classesTurnos,
-    turnos,
   });
 
   const handleSubmit = (e) => {
@@ -63,39 +45,31 @@ export default function Create({
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
       <form onSubmit={handleSubmit}>
-        <Card className="overflow-visible">
+        <Card className="gap-0 overflow-visible">
           <CardHeader className="border-b">
-            <CardTitle>Definir Turnos por Classe</CardTitle>
+            <CardTitle>Definir Turnos</CardTitle>
+            <CardDescription>
+              Defina quais turnos esta classe estará disponível
+            </CardDescription>
           </CardHeader>
 
-          <CardContent>
+          {/* Cards de contexto */}
+          <div className="grid grid-cols-2 divide-x border-b bg-muted/50 text-center">
+            <div className="px-4 py-4">
+              <p className="text-sm font-bold">{cursoTutelado.nome}</p>
+              <p className="text-xs text-muted-foreground">Curso</p>
+            </div>
+            <div className="px-4 py-4">
+              <p className="text-sm font-bold">{cursoClasse.nome}</p>
+              <p className="text-xs text-muted-foreground">Classe</p>
+            </div>
+          </div>
+
+          {/* Form */}
+          <CardContent className="pt-6">
             <FieldGroup>
               <FieldSet>
-              {/*
-                <Field>
-                  <FieldLabel>Classe</FieldLabel>
-
-                  <Select
-                    onValueChange={handleClasseChange}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione a classe" />
-                    </SelectTrigger>
-
-                     <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Classes</SelectLabel>
-
-                        {classesTurnos?.map((cc) => (
-                          <SelectItem key={cc.id} value={String(cc.id)}>
-                            {cc.classe.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent> 
-                  </Select>
-                </Field>
-              */}
+                {/* Turnos */}
                 <Field>
                   <FieldLabel>Turnos</FieldLabel>
                   <MultipleSelect
@@ -116,9 +90,22 @@ export default function Create({
                   {errors.turnos && <FieldError>{errors.turnos}</FieldError>}
                 </Field>
 
-                <Field>
-                  <Button type="submit" disabled={processing}>
-                    Guardar
+                {/* Botões de acção */}
+                <Field orientation={'vertical'}>
+                  <Button
+                    type="submit"
+                    disabled={processing || data.turnos.length === 0}
+                  >
+                    Definir Turnos
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    disabled={processing}
+                    onClick={() => window.history.back()}
+                  >
+                    <ArrowUpLeft />
+                    Voltar a classe
                   </Button>
                 </Field>
               </FieldSet>

@@ -2,222 +2,139 @@ import { router } from '@inertiajs/react';
 
 import { Badge } from '@/components/ui/badge';
 
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function HistoricoAprovacao({
-    grupoPap,
-    historico = [],
-}) {
+export default function HistoricoAprovacao({ grupoPap, historico = [] }) {
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 'pendente':
+        return 'Pendente';
 
-    const getStatusLabel = (status) => {
+      case 'aprovado':
+        return 'Aprovado';
 
-        switch (status) {
+      case 'reprovado':
+        return 'Reprovado';
 
-            case 'pendente':
-                return 'Pendente';
+      case 'melhoria-solicitada':
+        return 'Melhoria Solicitada';
 
-            case 'aprovado':
-                return 'Aprovado';
+      default:
+        return status;
+    }
+  };
 
-            case 'reprovado':
-                return 'Reprovado';
+  const getStatusVariant = (status) => {
+    switch (status) {
+      case 'aprovado':
+        return 'default';
 
-            case 'melhoria-solicitada':
-                return 'Melhoria Solicitada';
+      case 'reprovado':
+        return 'destructive';
 
-            default:
-                return status;
-        }
-    };
+      case 'melhoria-solicitada':
+        return 'outline';
 
-    const getStatusVariant = (status) => {
+      default:
+        return 'secondary';
+    }
+  };
 
-        switch (status) {
+  return (
+    <div className="mx-auto max-w-4xl space-y-6 p-6">
+      {/* Cabeçalho */}
+      <div>
+        <h1 className="text-3xl font-bold">Histórico de Aprovação</h1>
 
-            case 'aprovado':
-                return 'default';
+        <p className="mt-1 text-gray-600">
+          Acompanhe todas as decisões tomadas sobre este tema PAP.
+        </p>
+      </div>
 
-            case 'reprovado':
-                return 'destructive';
+      {/* Dados do grupo */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{grupoPap.nome_grupo}</CardTitle>
+        </CardHeader>
 
-            case 'melhoria-solicitada':
-                return 'outline';
+        <CardContent>
+          <div className="space-y-2">
+            <p>
+              <strong>Tema:</strong> {grupoPap.tema_grupo}
+            </p>
 
-            default:
-                return 'secondary';
-        }
-    };
+            <p>
+              <strong>Curso:</strong>{' '}
+              {grupoPap.turma?.cursoClasseTurno?.cursoClasse?.cursoTutelado
+                ?.nome || 'Não informado'}
+            </p>
 
-    return (
-        <div className="mx-auto max-w-4xl space-y-6 p-6">
+            <p>
+              <strong>Professor tutor:</strong>{' '}
+              {grupoPap.professor?.user?.nome || 'Não informado'}
+            </p>
 
-            {/* Cabeçalho */}
-            <div>
+            <p>
+              <strong>Turma:</strong> {grupoPap.turma?.nome || 'Não informado'}
+            </p>
 
-                <h1 className="text-3xl font-bold">
-                    Histórico de Aprovação
-                </h1>
+            <p>
+              <strong>Estado atual:</strong>{' '}
+              <Badge variant={getStatusVariant(grupoPap.status_aprovacao)}>
+                {getStatusLabel(grupoPap.status_aprovacao)}
+              </Badge>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
-                <p className="mt-1 text-gray-600">
-                    Acompanhe todas as decisões tomadas
-                    sobre este tema PAP.
-                </p>
+      {/* Histórico */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Histórico de Decisões</CardTitle>
+        </CardHeader>
 
-            </div>
+        <CardContent>
+          {historico.length === 0 ? (
+            <p className="text-sm text-gray-500">
+              Nenhum histórico disponível.
+            </p>
+          ) : (
+            <div className="space-y-6">
+              {historico.map((item) => (
+                <div key={item.id} className="relative border-l-2 pl-5">
+                  {/* Estado */}
+                  <div className="flex items-center gap-2">
+                    <Badge variant={getStatusVariant(item.estado_novo)}>
+                      {getStatusLabel(item.estado_novo)}
+                    </Badge>
+                  </div>
 
-            {/* Dados do grupo */}
-            <Card>
+                  {/* Utilizador */}
+                  <p className="mt-2 text-sm">
+                    <strong>Responsável:</strong>{' '}
+                    {item.utilizador?.nome || 'Utilizador não informado'}
+                  </p>
 
-                <CardHeader>
-                    <CardTitle>
-                        {grupoPap.nome_grupo}
-                    </CardTitle>
-                </CardHeader>
+                  {/* Data */}
+                  <p className="text-xs text-gray-500">
+                    {item.created_at
+                      ? new Date(item.created_at).toLocaleString('pt-PT')
+                      : ''}
+                  </p>
 
-                <CardContent>
-
-                    <div className="space-y-2">
-
-                        <p>
-                            <strong>Tema:</strong>{' '}
-                            {grupoPap.tema_grupo}
-                        </p>
-
-                        <p>
-                            <strong>Curso:</strong>{' '}
-                            {grupoPap.turma?.cursoClasseTurno?.cursoClasse?.cursoTutelado?.nome || 'Não informado'}
-                        </p>
-
-                        <p>
-                            <strong>Professor tutor:</strong>{' '}
-                            {grupoPap.professor?.user?.nome || 'Não informado'}
-                        </p>
-
-                        <p>
-                            <strong>Turma:</strong>{' '}
-                            {grupoPap.turma?.nome ||
-                                'Não informado'}
-                        </p>
-
-                        <p>
-                            <strong>Estado atual:</strong>{' '}
-
-                            <Badge
-                                variant={getStatusVariant(
-                                    grupoPap.status_aprovacao
-                                )}
-                            >
-                                {getStatusLabel(
-                                    grupoPap.status_aprovacao
-                                )}
-                            </Badge>
-
-                        </p>
-
+                  {/* Comentário */}
+                  {item.comentario && (
+                    <div className="mt-3 rounded-md bg-gray-50 p-3">
+                      <p className="text-sm text-gray-700">{item.comentario}</p>
                     </div>
-
-                </CardContent>
-
-            </Card>
-
-            {/* Histórico */}
-            <Card>
-
-                <CardHeader>
-                    <CardTitle>
-                        Histórico de Decisões
-                    </CardTitle>
-                </CardHeader>
-
-                <CardContent>
-
-                    {historico.length === 0 ? (
-
-                        <p className="text-sm text-gray-500">
-                            Nenhum histórico disponível.
-                        </p>
-
-                    ) : (
-
-                        <div className="space-y-6">
-
-                            {historico.map((item) => (
-
-                                <div
-                                    key={item.id}
-                                    className="relative border-l-2 pl-5"
-                                >
-
-                                    {/* Estado */}
-                                    <div className="flex items-center gap-2">
-
-                                        <Badge
-                                            variant={getStatusVariant(
-                                                item.estado_novo
-                                            )}
-                                        >
-                                            {getStatusLabel(
-                                                item.estado_novo
-                                            )}
-                                        </Badge>
-
-                                    </div>
-
-                                    {/* Utilizador */}
-                                    <p className="mt-2 text-sm">
-
-                                        <strong>
-                                            Responsável:
-                                        </strong>{' '}
-
-                                        {item.utilizador?.nome ||
-                                            'Utilizador não informado'}
-
-                                    </p>
-
-                                    {/* Data */}
-                                    <p className="text-xs text-gray-500">
-
-                                        {item.created_at
-                                            ? new Date(
-                                                item.created_at
-                                            ).toLocaleString(
-                                                'pt-PT'
-                                            )
-                                            : ''}
-
-                                    </p>
-
-                                    {/* Comentário */}
-                                    {item.comentario && (
-
-                                        <div className="mt-3 rounded-md bg-gray-50 p-3">
-
-                                            <p className="text-sm text-gray-700">
-                                                {item.comentario}
-                                            </p>
-
-                                        </div>
-
-                                    )}
-
-                                </div>
-
-                            ))}
-
-                        </div>
-
-                    )}
-
-                </CardContent>
-
-            </Card>
-
-        </div>
-    );
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

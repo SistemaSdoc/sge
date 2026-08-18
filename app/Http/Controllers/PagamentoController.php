@@ -20,19 +20,25 @@ use Inertia\Inertia;
 
 class PagamentoController extends Controller
 {
+    private const MESES = [
+        1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+        5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+        9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro',
+    ];
+
     public function __construct(
         private readonly VerificadorPropinaService $verificador,
         private readonly PropinaNotificacaoService $notificador,
     ) {}
 
-    public function index(Request $request)
-    {
-        $instituicaoId = $request->user()->instituicao_id;
+public function index(Request $request)
+{
+    $instituicaoId = $request->user()->instituicao_id;
 
-        Log::info('PagamentoController@index - início', [
-            'user_id' => $request->user()->id,
-            'instituicao_id' => $instituicaoId,
-        ]);
+    Log::info('PagamentoController@index - início', [
+        'user_id' => $request->user()->id,
+        'instituicao_id' => $instituicaoId,
+    ]);
 
         $pagamentos = Pagamento::query()
             ->where('instituicao_id', $instituicaoId)
@@ -75,38 +81,66 @@ class PagamentoController extends Controller
                 ];
             });
 
-        Log::info('PagamentoController@index - total de pagamentos', ['total' => $pagamentos->total()]);
-
-        $turmas = Turma::query()
-            ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($q) use ($instituicaoId) {
-                $q->where('instituicao_id', $instituicaoId);
-            })
-            ->with(['cursoClasseTurno.cursoClasse.classe'])
-            ->get()
-            ->map(fn (Turma $t) => [
-                'id' => $t->id,
-                'nome' => $t->nome.' — '.($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
+            // LOG DEBUG: para perceber porque o botão "Anular" não aparece
+            // para certos utilizadores. Confirma aqui se falha por falta
+            // da permission 'pagamentos.delete' ou por mismatch de
+            // instituicao_id entre o pagamento e o utilizador.
+            Log::debug('PagamentoController@index - verificação can.delete', [
+                'pagamento_id' => $p->id,
+                'user_id' => $request->user()->id,
+                'user_tem_permissao_pagamentos_delete' => $request->user()->can('pagamentos.delete'),
+                'user_instituicao_id' => $request->user()->instituicao_id,
+                'pagamento_aluno_instituicao_id' => $p->aluno?->user?->instituicao_id,
+                'instituicoes_batem' => $p->aluno?->user?->instituicao_id === $request->user()->instituicao_id,
+                'resultado_policy_delete' => $podeApagar,
             ]);
 
-        $statusFiltro = $request->input('status_propina'); // 'pagos' | 'nao_pagos' | 'pendentes'
+            return [
+                'id' => $p->id,
+                'aluno' => $p->aluno->user->nome,
+                'valor_total' => $p->valor_total,
+                'metodo' => $p->metodo,
+                'referencia' => $p->referencia,
+                'data_pagamento' => $p->data_pagamento->format('d/m/Y'),
+                'classes' => $classes ?: 'Geral',
+                'can' => [
+                    'delete' => $podeApagar ?? true,
+                ],
+            ];
+        });
 
-        $alunosPorStatus = null;
+    Log::info('PagamentoController@index - total de pagamentos', ['total' => $pagamentos->total()]);
 
-        if ($statusFiltro) {
-            $alunosPorStatus = $this->alunosAgrupadosPorStatus($request, $statusFiltro);
-        }
-
-        return Inertia::render('pagamentos/index', [
-            'pagamentos' => $pagamentos,
-            'turmas' => $turmas,
-            'can' => [
-                'create' => Auth::user()->can('create', Pagamento::class),
-            ],
-            'filtros' => $request->only(['aluno_id', 'data_inicio', 'data_fim']),
-            'statusFiltro' => $statusFiltro,
-            'alunosPorStatus' => $alunosPorStatus,
+    $turmas = Turma::query()
+        ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($q) use ($instituicaoId) {
+            $q->where('instituicao_id', $instituicaoId);
+        })
+        ->with(['cursoClasseTurno.cursoClasse.classe'])
+        ->get()
+        ->map(fn (Turma $t) => [
+            'id' => $t->id,
+            'nome' => $t->nome.' — '.($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
         ]);
+
+    $statusFiltro = $request->input('status_propina'); // 'pagos' | 'nao_pagos' | 'pendentes'
+
+    $alunosPorStatus = null;
+
+    if ($statusFiltro) {
+        $alunosPorStatus = $this->alunosAgrupadosPorStatus($request, $statusFiltro);
     }
+
+    return Inertia::render('pagamentos/index', [
+        'pagamentos' => $pagamentos,
+        'turmas' => $turmas,
+        'can' => [
+            'create' => Auth::user()->can('create', Pagamento::class),
+        ],
+        'filtros' => $request->only(['aluno_id', 'data_inicio', 'data_fim']),
+        'statusFiltro' => $statusFiltro,
+        'alunosPorStatus' => $alunosPorStatus,
+    ]);
+}
 
     /**
      * Retorna alunos filtrados por status de propina (pagos/nao_pagos/pendentes),
@@ -542,15 +576,15 @@ public function show(Pagamento $pagamento)
         return back()->with('success', 'Pagamento atualizado com sucesso.');
     }
 
-    public function destroy(Pagamento $pagamento)
-    {
-        // $this->authorize('delete', $pagamento);
+public function destroy(Pagamento $pagamento)
+{
+    // $this->authorize('delete', $pagamento);
 
-        Log::warning('PagamentoController@destroy - anulando pagamento', [
-            'pagamento_id' => $pagamento->id,
-            'aluno_id' => $pagamento->aluno_id,
-            'valor_total' => $pagamento->valor_total,
-        ]);
+    Log::warning('PagamentoController@destroy - anulando pagamento', [
+        'pagamento_id' => $pagamento->id,
+        'aluno_id' => $pagamento->aluno_id,
+        'valor_total' => $pagamento->valor_total,
+    ]);
 
         $alunoId = $pagamento->aluno_id;
 
@@ -559,7 +593,10 @@ public function show(Pagamento $pagamento)
             $pagamento->delete();
         });
 
-        Log::info('PagamentoController@destroy - pagamento anulado', ['pagamento_id' => $pagamento->id]);
+    DB::transaction(function () use ($pagamento) {
+        $pagamento->itens()->delete();
+        $pagamento->delete();
+    });
 
         // Depois de anular, a dívida que este pagamento tinha "resolvido"
         // pode voltar a existir. Se voltar, é preciso reactivar o aviso

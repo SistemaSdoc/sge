@@ -30,11 +30,19 @@ class ClasseTurnoDisciplinaController extends Controller
 
         return Inertia::render('cursos-tutelados/classes/turnos/disciplinas/create', [
             'disciplinas' => Disciplina::select('id', 'nome')->orderBy('nome')->get(),
-            'instituicaoId' => $instituicao->id,
-            'cursoId' => $cursoTutelado->id,
-            'classeId' => $cursoClasse->id,
-            'turnoId' => $cursoClasseTurno->id,
-            'backUrl' => url()->previous(),
+            'instituicao' => $instituicao->only('id'),
+            'cursoTutelado' => [
+                'id' => $cursoTutelado->id,
+                'nome' => $cursoTutelado->instituicaoCurso->curso->nome,
+            ],
+            'cursoClasse' => [
+                'id' => $cursoClasse->id,
+                'nome' => $cursoClasse->classe->nome,
+            ],
+            'cursoClasseTurno' => [
+                'id' => $cursoClasseTurno->id,
+                'nome' => $cursoClasseTurno->turno->nome,
+            ],
         ]);
     }
 
@@ -82,13 +90,14 @@ class ClasseTurnoDisciplinaController extends Controller
             ]);
         }
 
-        return to_route('cursos-tutelados.classes.show', [
+        return redirect()->intended(route('cursos-tutelados.classes.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
             'cursoClasseTurno' => $cursoClasseTurno->id,
             'ano_lectivo_id' => $anoLectivoId,
-        ]);
+        ]))->with('success', 'Turma criada com sucesso!');
+
     }
 
     public function edit(

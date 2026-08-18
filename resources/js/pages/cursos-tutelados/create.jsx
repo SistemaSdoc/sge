@@ -21,7 +21,8 @@ export default function Create({ instituicao, classes, cursos, niveisEnsino }) {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6">
       <CursoForm
-        title="Novo curso tutelado"
+        title="Adicionar Curso"
+        instituicao={instituicao}
         classes={classes}
         cursos={cursos}
         niveisEnsino={niveisEnsino}
