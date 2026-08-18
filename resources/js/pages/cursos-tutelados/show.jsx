@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Header } from './classes/components/curso-header';
+import { Header } from './components/curso-header';
 
 export default function Show({
   instituicao,
@@ -30,7 +30,7 @@ export default function Show({
     cursoTutelado,
   };
 
-  const handleDelete = (vinculoId) => {
+  const handleDeleteProfessor = (vinculoId) => {
     deleteConfirm({
       title: 'Tens a certeza?',
       description:
@@ -117,7 +117,7 @@ export default function Show({
             params={params}
             professores={cursoTutelado.professores}
             can={cursoTutelado.can}
-            deleteFn={handleDelete}
+            deleteFn={handleDeleteProfessor}
             pagination={cursoTutelado?.professores}
             onPageChange={handlePageChange('page_professores')}
           />

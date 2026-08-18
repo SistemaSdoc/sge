@@ -13,6 +13,7 @@ import { ArrowUpLeft } from 'lucide-react';
 import { show as showInstituicao } from '@/actions/App/Http/Controllers/InstituicaoController';
 import { show as showClasse } from '@/actions/App/Http/Controllers/CursoClasseController';
 import { edit } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { cn } from '@/lib/utils';
 
 export function Header({ can, params }) {
   return (
@@ -100,22 +101,38 @@ export function Header({ can, params }) {
       {/* Cards de Classes */}
       <div className="overflow-hidden">
         {params.cursoTutelado.classes?.length > 0 ? (
-          <div className="-mb-px grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7">
-            {params.cursoTutelado.classes.map((c) => (
-              <Link
-                key={c.id}
-                href={showClasse({ ...params, cursoClasse: c.id }).url}
-              >
-                <div className="cursor-pointer border-r border-b border-foreground/10 bg-card px-3 py-3 text-card-foreground transition-colors hover:bg-accent hover:text-secondary active:bg-accent sm:px-4 sm:py-4">
-                  <h3 className="mb-0.5 text-xs font-medium sm:mb-1 sm:text-sm">
-                    {c.nome}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    Clique aqui para ver
-                  </p>
-                </div>
-              </Link>
-            ))}
+          <div
+            className="-mb-px grid"
+            style={{
+              gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, 150px), 1fr))`,
+            }}
+          >
+            {params.cursoTutelado.classes.map((c, index) => {
+              const totalItems = params.cursoTutelado.classes.length;
+              const isLastItem = index === totalItems - 1;
+
+              return (
+                <Link
+                  key={c.id}
+                  href={showClasse({ ...params, cursoClasse: c.id }).url}
+                >
+                  <div
+                    className={cn(
+                      'cursor-pointer bg-card px-3 py-3 text-card-foreground transition-colors hover:bg-accent hover:text-secondary active:bg-accent sm:px-4 sm:py-4',
+                      !isLastItem && 'border-r border-b border-foreground/10',
+                      isLastItem && 'border-b border-foreground/10',
+                    )}
+                  >
+                    <h3 className="mb-0.5 text-xs font-medium sm:mb-1 sm:text-sm">
+                      {c.nome}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Clique aqui para ver
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center bg-card p-6 py-4 text-center text-xs/relaxed text-card-foreground">
