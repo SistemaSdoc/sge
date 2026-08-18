@@ -87,6 +87,7 @@ export default function Show({
           <TabsList className="order-2 w-auto md:order-1">
             <TabsTrigger value="turmas">Turmas</TabsTrigger>
             <TabsTrigger value="professores">Professores</TabsTrigger>
+            <TabsTrigger value="criterios-pap">Critérios para a PAP</TabsTrigger>
           </TabsList>
 
           <div className="order-1 md:order-2">
@@ -135,8 +136,7 @@ export default function Show({
 
         <TabsContent value="criterios-pap" className="mt-2">
           <TabCriteriosPap
-            instituicaoId={instituicaoId}
-            cursoTuteladoId={cursoTuteladoId}
+            params={params}
             criteriosPapUrl={cursoTutelado.criterios_pap_url}
             manualPtUrl={cursoTutelado.manual_pt_url}
             can={cursoTutelado.can}

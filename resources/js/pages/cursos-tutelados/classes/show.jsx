@@ -212,7 +212,7 @@ export default function Show({
               value={anoLectivoSelecionado}
               onValueChange={handleAnoLectivoChange}
             >
-              <SelectTrigger className="md:w-40 w-full">
+              <SelectTrigger className="w-full md:w-40">
                 <SelectValue placeholder="Selecione o ano lectivo" />
               </SelectTrigger>
               <SelectContent>

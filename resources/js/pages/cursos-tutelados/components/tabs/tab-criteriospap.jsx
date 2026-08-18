@@ -35,7 +35,8 @@ import {
 } from '@/components/ui/dialog';
 import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/CursoTuteladoController';
 
-export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUrl, manualPtUrl, can }) {
+export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, can }) {
+  console.log('url recebida: ', criteriosPapUrl)
   const criteriosId = useId();
   const manualId = useId();
   const [modalAberto, setModalAberto] = useState(false);
@@ -69,17 +70,25 @@ export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUr
 
     setUploading(true);
     router.post(
-      uploadCriteriosPap({ instituicao: instituicaoId, cursoTutelado: cursoTuteladoId }).url,
+      uploadCriteriosPap({
+        instituicao: params.instituicao.id,
+        cursoTutelado: params.cursoTutelado.id,
+      }).url,
       payload,
       {
         forceFormData: true,
         preserveScroll: true,
         onSuccess: () => {
+          console.log('chegou no sucess');
           setUploading(false);
           handleFecharModal();
           router.reload({ only: ['cursoTutelado'] });
         },
-        onError: () => setUploading(false),
+        onError: () => {
+          console.log('chegou no sucess')
+
+          setUploading(false);
+        },
       },
     );
   };
@@ -95,7 +104,8 @@ export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUr
         <CardHeader className="border-b">
           <CardTitle>Critérios PAP</CardTitle>
           <CardDescription>
-            Documentos PDF com os critérios de aprovação do tema e o manual PT para este curso.
+            Documentos PDF com os critérios de aprovação do tema e o manual PT
+            para este curso.
           </CardDescription>
           {can?.uploadCriteriosPap && (
             <CardAction>
@@ -121,7 +131,9 @@ export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUr
                   <TableRow key={label}>
                     <TableCell className="px-4">
                       <div className="flex items-center gap-2">
-                        <FileText className={`size-4 ${url ? 'text-red-500' : 'text-muted-foreground'}`} />
+                        <FileText
+                          className={`size-4 ${url ? 'text-red-500' : 'text-muted-foreground'}`}
+                        />
                         <span className="font-medium">{label}</span>
                       </div>
                     </TableCell>
@@ -134,28 +146,39 @@ export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUr
                       {url ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="size-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8"
+                            >
                               <MoreHorizontalIcon />
                               <span className="sr-only">Abrir menu</span>
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <a href={url} target="_blank" rel="noopener noreferrer">
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
                                 Visualizar
                               </a>
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       ) : (
-                        <span className="text-muted-foreground text-xs">—</span>
+                        <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="px-4 py-8 text-center text-muted-foreground">
+                  <TableCell
+                    colSpan={3}
+                    className="px-4 py-8 text-center text-muted-foreground"
+                  >
                     Nenhum documento carregado ainda.
                   </TableCell>
                 </TableRow>
@@ -166,38 +189,60 @@ export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUr
       </Card>
 
       {/* Modal de upload */}
-      <Dialog open={modalAberto} onOpenChange={(v) => { if (!v) handleFecharModal(); else setModalAberto(true); }}>
+      <Dialog
+        open={modalAberto}
+        onOpenChange={(v) => {
+          if (!v) handleFecharModal();
+          else setModalAberto(true);
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {todosCarregados ? 'Substituir Documentos' : 'Adicionar Documentos'}
+              {todosCarregados
+                ? 'Substituir Documentos'
+                : 'Adicionar Documentos'}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label htmlFor={criteriosId}>
-                Critérios PAP (PDF){!faltaCriterios && <span className="text-muted-foreground font-normal"> — opcional</span>}
+                Critérios PAP (PDF)
+                {!faltaCriterios && (
+                  <span className="font-normal text-muted-foreground">
+                    {' '}
+                    — opcional
+                  </span>
+                )}
               </Label>
               <Input
                 id={criteriosId}
                 type="file"
                 accept=".pdf"
-                onChange={(e) => setFicheiroCriterios(e.target.files?.[0] ?? null)}
-                className="text-muted-foreground file:border-input file:text-foreground p-0 pr-3 italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:bg-transparent file:px-3 file:text-sm file:font-medium file:not-italic"
+                onChange={(e) =>
+                  setFicheiroCriterios(e.target.files?.[0] ?? null)
+                }
+                className="p-0 pr-3 text-muted-foreground italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:border-input file:bg-transparent file:px-3 file:text-sm file:font-medium file:text-foreground file:not-italic"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor={manualId}>
-                Manual PT (PDF){!faltaManual && <span className="text-muted-foreground font-normal"> — opcional</span>}
+                Manual PT (PDF)
+                {!faltaManual && (
+                  <span className="font-normal text-muted-foreground">
+                    {' '}
+                    — opcional
+                  </span>
+                )}
               </Label>
               <Input
                 id={manualId}
                 type="file"
                 accept=".pdf"
                 onChange={(e) => setFicheiroManual(e.target.files?.[0] ?? null)}
-                className="text-muted-foreground file:border-input file:text-foreground p-0 pr-3 italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:bg-transparent file:px-3 file:text-sm file:font-medium file:not-italic"
+                className="p-0 pr-3 text-muted-foreground italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:border-input file:bg-transparent file:px-3 file:text-sm file:font-medium file:text-foreground file:not-italic"
               />
             </div>
           </div>
@@ -206,7 +251,10 @@ export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUr
             <Button variant="outline" onClick={handleFecharModal}>
               Cancelar
             </Button>
-            <Button onClick={handleUpload} disabled={!uploadValido || uploading}>
+            <Button
+              onClick={handleUpload}
+              disabled={!uploadValido || uploading}
+            >
               {uploading ? 'A carregar...' : 'Carregar'}
             </Button>
           </DialogFooter>

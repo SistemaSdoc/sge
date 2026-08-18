@@ -96,8 +96,6 @@ class PagamentoController extends Controller
                 ];
             });
 
-
-
         Log::info('PagamentoController@index - total de pagamentos', ['total' => $pagamentos->total()]);
 
         $turmas = Turma::query()
@@ -106,9 +104,9 @@ class PagamentoController extends Controller
             })
             ->with(['cursoClasseTurno.cursoClasse.classe'])
             ->get()
-            ->map(fn(Turma $t) => [
+            ->map(fn (Turma $t) => [
                 'id' => $t->id,
-                'nome' => $t->nome . ' — ' . ($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
+                'nome' => $t->nome.' — '.($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
             ]);
 
         $statusFiltro = $request->input('status_propina'); // 'pagos' | 'nao_pagos' | 'pendentes'
@@ -491,26 +489,6 @@ class PagamentoController extends Controller
             'aluno_id' => $alunoId,
             'total_pendencias' => count($pendencias),
         ]);
-
-        if (!empty($pendencias)) {
-            Log::debug('PagamentoController@resolverNotificacoesSePropinaEmDia - ainda tem dívida, notificação mantém-se', [
-                'aluno_id' => $alunoId,
-                'meses_restantes' => count($pendencias),
-            ]);
-
-            return;
-        }
-
-        $marcadas = $aluno->user->notifications()
-            ->where('type', PropinaEmAtrasoNotification::class)
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
-
-        Log::info('PagamentoController@resolverNotificacoesSePropinaEmDia - notificações resolvidas (propina paga)', [
-            'aluno_id' => $alunoId,
-            'user_id' => $aluno->user->id,
-            'total_marcadas' => $marcadas,
-        ]);
     }
 
     public function show(Pagamento $pagamento)
@@ -640,6 +618,7 @@ class PagamentoController extends Controller
             Log::debug('PagamentoController@notificarSePropinaVoltouEmAtraso - aluno ou user não encontrado', [
                 'aluno_id' => $alunoId,
             ]);
+
             return;
         }
 
