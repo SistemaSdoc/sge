@@ -123,7 +123,7 @@ class AlunoController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        // ✅ Calcular pendentes ANTES do load() que polui as relações em memória
+        // Calcular pendentes ANTES do load() que polui as relações em memória
         $historicoService = app(PreencherHistoricoService::class);
         $pendentes = $historicoService->obterClassesFaltando($aluno);
 

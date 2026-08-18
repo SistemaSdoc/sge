@@ -38,7 +38,17 @@ export function usePesquisaAlunos() {
       }
 
       const data = await res.json();
-      const lista = Array.isArray(data) ? data.filter(Boolean) : data ? [data] : [];
+
+      // Rejeita objectos vazios ou sem id
+      const lista = Array.isArray(data)
+        ? data.filter((a) => a?.id)
+        : data?.id
+          ? [data]
+          : [];
+
+      setResultados(lista);
+      setNotFound(lista.length === 0);
+
 
       setResultados(lista);
       setNotFound(lista.length === 0);

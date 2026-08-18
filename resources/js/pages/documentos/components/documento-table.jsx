@@ -98,7 +98,7 @@ export function DocumentoTable({ documentos, classes = [] }) {
 
                     <TableCell className="px-4">
                       {documento.curso_classe_id ? (
-                        <Badge variant="secondary">Classe específica</Badge>
+                        <Badge variant="outline">Classe específica</Badge>
                       ) : (
                         <Badge variant="outline">Geral</Badge>
                       )}

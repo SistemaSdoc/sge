@@ -1,7 +1,6 @@
 import { AlertCircle, Download, Loader2, Search, X } from 'lucide-react';
 import { useRef, useState } from 'react';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,8 +9,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -21,8 +25,6 @@ import {
 } from '@/components/ui/select';
 
 import { usePesquisaAlunos } from '../hooks/use-pesquisa-alunos';
-
-// ─── Item da lista ────────────────────────────────────────────────────────────
 
 function AlunoItem({ aluno, seleccionado, onSeleccionar }) {
   const activo = seleccionado?.id === aluno.id;
@@ -48,12 +50,11 @@ function AlunoItem({ aluno, seleccionado, onSeleccionar }) {
   );
 }
 
-// ─── Modal ────────────────────────────────────────────────────────────────────
-
 export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
   const [query, setQuery] = useState('');
   const [alunoSeleccionado, setAlunoSeleccionado] = useState(null);
   const [classeId, setClasseId] = useState('');
+  const [efeito, setEfeito] = useState('');
   const [erro, setErro] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -97,18 +98,16 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
     }
   }
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setErro(null);
 
     if (!alunoSeleccionado) {
       setErro('Pesquise e seleccione o aluno antes de exportar.');
-
       return;
     }
 
     if (requerSelectClasse && !classeId) {
       setErro('Seleccione a classe para este documento.');
-
       return;
     }
 
@@ -116,26 +115,42 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
       item_pagavel_id: documento.id,
       aluno_id: alunoSeleccionado.id,
       ...(requerSelectClasse && classeId ? { classe_id: classeId } : {}),
+      ...(efeito ? { efeito } : {}),
     });
 
     setLoading(true);
 
     try {
-      window.open(
-        `/dashboard/documentos/exportar?${params.toString()}`,
-        '_blank',
-      );
-      handleClose();
+      const res = await fetch(`/dashboard/documentos/exportar?${params.toString()}`, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { Accept: '*/*' },
+      });
+
+      const contentType = res.headers.get('content-type') || '';
+
+      if (res.ok && contentType.includes('application/pdf')) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        handleClose();
+        return;
+      }
+
+      try {
+        const data = await res.json();
+        setErro(data.message || 'Ocorreu um erro ao gerar o documento.');
+      } catch {
+        setErro('Ocorreu um erro ao gerar o documento.');
+      }
     } catch {
-      setErro('Ocorreu um erro ao abrir o PDF do documento.');
+      setErro('Ocorreu um erro ao contactar o servidor.');
     } finally {
       setLoading(false);
     }
   }
 
-  if (!documento) {
-    return null;
-  }
+  if (!documento) return null;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -151,66 +166,62 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 pt-2">
+        <div className="space-y-6">
           {/* Pesquisa */}
-          <div className="space-y-1.5">
-            <Label htmlFor="pesquisa">Aluno</Label>
-
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                {searching ? (
-                  <Loader2 className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
-                ) : (
-                  <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                )}
-
-                <Input
-                  id="pesquisa"
-                  ref={inputRef}
-                  placeholder="Nº de processo ou nome…"
-                  className="pr-8 pl-9"
-                  value={query}
-                  onChange={(e) => {
-                    setQuery(e.target.value);
-
-                    if (!e.target.value) {
-                      handleLimparPesquisa();
-                    }
-                  }}
-                  onKeyDown={handleKeyDown}
-                  autoComplete="off"
-                />
-
-                {query && (
-                  <button
-                    type="button"
-                    onClick={handleLimparPesquisa}
-                    className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                )}
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="pesquisa">
+                Aluno <span className="text-red-500">*</span>
+              </FieldLabel>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  {searching ? (
+                    <Loader2 className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                  ) : (
+                    <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  )}
+                  <Input
+                    id="pesquisa"
+                    ref={inputRef}
+                    placeholder="Nº de processo ou nome…"
+                    className="pr-8 pl-9"
+                    value={query}
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                      if (!e.target.value) handleLimparPesquisa();
+                    }}
+                    onKeyDown={handleKeyDown}
+                    autoComplete="off"
+                  />
+                  {query && (
+                    <button
+                      type="button"
+                      onClick={handleLimparPesquisa}
+                      className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => pesquisar(query)}
+                  disabled={searching || query.trim().length < 3}
+                >
+                  {searching ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
+                </Button>
               </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => pesquisar(query)}
-                disabled={searching || query.trim().length < 3}
-              >
-                {searching ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Search className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-
-            <p className="text-xs text-muted-foreground">
-              Escreva pelo menos 3 caracteres e prima <strong>Enter</strong> ou
-              clique em <Search className="inline h-3 w-3" /> para pesquisar.
-            </p>
-          </div>
+              <FieldDescription>
+                Escreva pelo menos 3 caracteres e prima <strong>Enter</strong> ou
+                clique em <Search className="inline h-3 w-3" /> para pesquisar.
+              </FieldDescription>
+            </Field>
+          </FieldGroup>
 
           {/* Resultados */}
           {resultados.length > 0 && (
@@ -221,7 +232,6 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
                   : `${resultados.length} alunos encontrados`}{' '}
                 — seleccione um
               </p>
-
               <div className="max-h-48 space-y-1.5 overflow-y-auto pr-0.5">
                 {resultados.map((aluno) => (
                   <AlunoItem
@@ -252,38 +262,56 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
             </div>
           )}
 
-          {/* Selector de classe */}
+          {/* Classe + Efeito */}
           {requerSelectClasse && alunoSeleccionado && (
-            <div className="space-y-1.5">
-              <Label htmlFor="classe">Classe</Label>
-              <Select value={classeId} onValueChange={setClasseId}>
-                <SelectTrigger id="classe">
-                  <SelectValue placeholder="Seleccione a classe…" />
-                </SelectTrigger>
-                <SelectContent>
-                  {(alunoSeleccionado.classes ?? classes ?? []).map((c) => (
-                    <SelectItem
-                      key={c.curso_classe_id ?? c.id}
-                      value={String(c.curso_classe_id ?? c.id)}
-                    >
-                      {(c.curso ? `${c.curso} · ` : '') + (c.classe ?? c.nome)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <FieldGroup>
+              <div className="grid grid-cols-2 gap-4">
+                <Field>
+                  <FieldLabel htmlFor="classe">
+                    Classe <span className="text-red-500">*</span>
+                  </FieldLabel>
+                  <Select value={classeId} onValueChange={setClasseId}>
+                    <SelectTrigger id="classe">
+                      <SelectValue placeholder="Seleccione a classe…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(alunoSeleccionado.classes ?? classes ?? []).map((c) => (
+                        <SelectItem
+                          key={c.curso_classe_id ?? c.id}
+                          value={String(c.curso_classe_id ?? c.id)}
+                        >
+                          {(c.curso ? `${c.curso} · ` : '') + (c.classe ?? c.nome)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FieldDescription>Escolha a classe do documento</FieldDescription>
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="efeito">Efeito</FieldLabel>
+                  <Input
+                    id="efeito"
+                    placeholder="Ex: de frequência…"
+                    value={efeito}
+                    onChange={(e) => setEfeito(e.target.value)}
+                  />
+                  <FieldDescription>Opcional</FieldDescription>
+                </Field>
+              </div>
+            </FieldGroup>
           )}
 
           {/* Erro */}
           {erro && (
-            <Alert variant="destructive" className="py-2">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{erro}</AlertDescription>
-            </Alert>
+            <div className="flex items-center gap-2.5 rounded-lg border border-red-100 bg-red-50 px-4 py-3">
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
+              <p className="text-sm text-red-700">{erro}</p>
+            </div>
           )}
 
-          {/* Acções */}
-          <div className="flex justify-end gap-2 pt-2">
+          {/* Botões */}
+          <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={handleClose} disabled={loading}>
               Cancelar
             </Button>
@@ -293,9 +321,9 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
               className="gap-2"
             >
               {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 size-4 animate-spin" />
               ) : (
-                <Download className="h-4 w-4" />
+                <Download className="mr-2 size-4" />
               )}
               Exportar PDF
             </Button>

@@ -115,7 +115,7 @@ export default function ItensTable({
                   <TableCell className="px-4 text-center">
                     <Badge
                       variant={
-                        item.tipo === 'documento' ? 'outline' : 'secondary'
+                        item.tipo === 'documento' ? 'outline' : 'outline'
                       }
                     >
                       {item.tipo === 'documento' ? 'Documento' : 'Financeiro'}

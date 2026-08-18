@@ -27,7 +27,8 @@ class ClasseTurnoTurmaController extends Controller
     public function __construct(
         private readonly AnoLectivoResolverService $anoLectivoResolverService,
         private readonly PautaService $pautaService,
-    ) {}
+    ) {
+    }
 
     public function index(
         Instituicao $instituicao,
@@ -43,12 +44,12 @@ class ClasseTurnoTurmaController extends Controller
 
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
-            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
             ->where('ano_lectivo_id', $anoLectivoId)  // ← Filtro
             ->when(
                 $user->hasRole('Professor'),
-                fn ($q) => $q->whereHas('professores', function ($q) use ($user) {
+                fn($q) => $q->whereHas('professores', function ($q) use ($user) {
                     $q->where('professor_id', $user->professor->id);
                 })
             )
@@ -70,7 +71,7 @@ class ClasseTurnoTurmaController extends Controller
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
                 ],
             ],
-            'turmas' => $turmas->through(fn ($turma) => [
+            'turmas' => $turmas->through(fn($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -183,6 +184,7 @@ class ClasseTurnoTurmaController extends Controller
 
         $alunos = $turma->alunos()
             ->wherePivot('activo', true)
+            ->whereHas('inscricao', fn($q) => $q->where('status', '!=', 'cancelado'))
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
             ->paginate(10, ['*'], 'page_alunos');
 
@@ -192,7 +194,7 @@ class ClasseTurnoTurmaController extends Controller
             ->where('ano_lectivo_id', $turma->ano_lectivo_id)
             ->with([
                 'disciplina:id,nome,sigla',
-                'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
+                'turmaDisciplinaProfessores' => fn($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
                 'horarios',
             ]);
@@ -202,8 +204,10 @@ class ClasseTurnoTurmaController extends Controller
             $professorId = $user->professor?->id;
 
             if ($professorId) {
-                $disciplinasQuery->whereHas('turmaDisciplinaProfessores', fn ($q) => $q->where('professor_id', $professorId)
-                    ->where('turma_id', $turma->id)
+                $disciplinasQuery->whereHas(
+                    'turmaDisciplinaProfessores',
+                    fn($q) => $q->where('professor_id', $professorId)
+                        ->where('turma_id', $turma->id)
                 );
             } else {
                 $disciplinasQuery->whereRaw('0 = 1');
@@ -219,7 +223,7 @@ class ClasseTurnoTurmaController extends Controller
         $pautaRecurso = $this->pautaService->gerarPauta($turma, 4, 5);
         $podeLancarRecurso = $user->hasAnyRole(['Director', 'Subdirector'])
             || collect($pautaRecurso['alunos'] ?? [])
-                ->contains(fn ($aluno) => is_null($aluno['nota_recurso'] ?? null));
+                ->contains(fn($aluno) => is_null($aluno['nota_recurso'] ?? null));
 
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
             'instituicao' => $instituicao->only('id'),
@@ -291,7 +295,7 @@ class ClasseTurnoTurmaController extends Controller
         $turma->update(array_filter([
             'nome' => $request->input('nome', $turma->nome),
             'max_alunos' => $request->input('max_alunos', $turma->max_alunos),
-        ], fn ($value) => $value !== null));
+        ], fn($value) => $value !== null));
 
         // Preserva o filtro de ano lectivo na navegação de volta
         $anoLectivoParam = $turma->ano_lectivo_id ? ['ano_lectivo_id' => $turma->ano_lectivo_id] : [];
