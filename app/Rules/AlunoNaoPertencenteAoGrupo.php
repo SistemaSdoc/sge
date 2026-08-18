@@ -7,20 +7,18 @@ use App\Models\ElementoGrupoPap;
 use App\Models\GrupoPap;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Translation\PotentiallyTranslatedString;
 
 class AlunoNaoPertencenteAoGrupo implements ValidationRule
 {
     public function __construct(
         protected GrupoPap $grupoPap,
         protected bool $isUpdate = false,
-    ) {
-    }
+    ) {}
 
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         // No update, ignorar alunos que já estão neste grupo
-        if (!$this->isUpdate) {
+        if (! $this->isUpdate) {
             $jaNoGrupoActual = ElementoGrupoPap::where('grupo_pap_id', $this->grupoPap->id)
                 ->where('aluno_id', $value)
                 ->exists();
@@ -28,6 +26,7 @@ class AlunoNaoPertencenteAoGrupo implements ValidationRule
             if ($jaNoGrupoActual) {
                 $nome = Aluno::find($value)?->inscricao?->candidato?->nome ?? 'Aluno';
                 $fail("$nome já pertence a este grupo.");
+
                 return;
             }
         }

@@ -14,8 +14,9 @@ class TurmaSeeder extends Seeder
             ->where('activo', true)
             ->value('id');
 
-        if (!$anoLectivoId) {
+        if (! $anoLectivoId) {
             $this->command->error('Nenhum ano lectivo activo encontrado. Corre o AnoLectivoSeeder primeiro.');
+
             return;
         }
 
@@ -69,7 +70,7 @@ class TurmaSeeder extends Seeder
                 default => 'X'
             };
 
-            $nomeTurma = 'A' . $siglaTurno . $siglaCurso;
+            $nomeTurma = 'A'.$siglaTurno.$siglaCurso;
 
             DB::table('turmas')->updateOrInsert(
                 [

@@ -1,16 +1,17 @@
 <?php
 
 use App\Http\Controllers\PagamentoController;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 
 it('inclui itens anuais e unicos com mes zero no paid record', function () {
     $controller = new PagamentoController;
-    $method = new \ReflectionMethod($controller, 'paidRecordDoAluno');
+    $method = new ReflectionMethod($controller, 'paidRecordDoAluno');
     $method->setAccessible(true);
 
     $alunoId = (string) Str::uuid();
 
-    $collection = new \Illuminate\Database\Eloquent\Collection([
+    $collection = new Collection([
         (object) [
             'item_pagavel_id' => (string) Str::uuid(),
             'mes' => 0,

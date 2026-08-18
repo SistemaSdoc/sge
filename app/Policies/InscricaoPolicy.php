@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Inscricao;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class InscricaoPolicy
 {
@@ -64,5 +63,18 @@ class InscricaoPolicy
     public function forceDelete(User $user, Inscricao $inscricao): bool
     {
         return false;
+    }
+
+    public function cancelar(User $user, Inscricao $inscricao): bool
+    {
+        return $user->can('inscricoes.cancelar', $inscricao) // ou a tua lógica de permissão
+            && $inscricao->status !== 'cancelado'
+            && $inscricao->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;
+    }
+
+    public function reativar(User $user, Inscricao $inscricao): bool
+    {
+        return $inscricao->status === 'cancelado'
+            && $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']);
     }
 }

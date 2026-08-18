@@ -27,17 +27,17 @@ class PautaPolicy
      */
     public function viewAnyCurso(User $user, CursoTutelado $cursoTutelado): bool
     {
-       /* if (! $user->can('pautas.viewAny')) {
-            return false;
-        }
+        /* if (! $user->can('pautas.viewAny')) {
+             return false;
+         }
 
-        if (! $this->pertenceAInstituicaoCurso($user, $cursoTutelado)) {
-            return false;
-        }
+         if (! $this->pertenceAInstituicaoCurso($user, $cursoTutelado)) {
+             return false;
+         }
 
-        if ($user->hasRole('Professor')) {
-            return $this->professorAssociadoAoCurso($user, $cursoTutelado);
-        }*/
+         if ($user->hasRole('Professor')) {
+             return $this->professorAssociadoAoCurso($user, $cursoTutelado);
+         }*/
 
         return true;
     }
@@ -51,17 +51,17 @@ class PautaPolicy
      */
     public function view(User $user, Turma $turma): bool
     {
-       /* if (! $user->can('pautas.view')) {
-            return false;
-        }
+        /* if (! $user->can('pautas.view')) {
+             return false;
+         }
 
-        if (! $this->pertenceAInstituicao($user, $turma)) {
-            return false;
-        }
+         if (! $this->pertenceAInstituicao($user, $turma)) {
+             return false;
+         }
 
-        if ($user->hasRole('Professor')) {
-            return $this->isProfessorDaTurma($user, $turma);
-        }*/
+         if ($user->hasRole('Professor')) {
+             return $this->isProfessorDaTurma($user, $turma);
+         }*/
 
         return true;
     }

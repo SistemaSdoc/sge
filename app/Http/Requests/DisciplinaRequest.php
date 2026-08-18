@@ -27,6 +27,7 @@ class DisciplinaRequest extends FormRequest
             'carga_horaria' => 'required|integer|min:1',
         ];
     }
+
     public function messages(): array
     {
         return [

@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('itens_pagaveis', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('instituicao_id')->constrained('instituicoes'); 
+            $table->foreignUuid('instituicao_id')->constrained('instituicoes');
             $table->foreignUuid('curso_classe_id')->nullable()->constrained('curso_classe')->cascadeOnDelete();
             $table->string('nome');
+            $table->enum('tipo', ['documento', 'financeiro'])
+                ->default('financeiro');
             $table->text('descricao')->nullable();
             $table->decimal('valor', 10, 2);
             $table->enum('frequencia', ['mensal', 'anual', 'unico']);

@@ -18,6 +18,7 @@ class StoreProfessorRequest extends FormRequest
             'ano_lectivo_id' => ['nullable', 'exists:ano_lectivos,id'],
         ];
     }
+
     public function messages(): array
     {
         return [

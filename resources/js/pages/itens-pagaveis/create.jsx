@@ -5,6 +5,7 @@ import { store } from '@/actions/App/Http/Controllers/ItemPagavelController';
 export default function Create({ cursosClasse }) {
   const { post, data, setData, processing, errors } = useForm({
     nome: '',
+    tipo: '',
     descricao: '',
     valor: '',
     frequencia: '',

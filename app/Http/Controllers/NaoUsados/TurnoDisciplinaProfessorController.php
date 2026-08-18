@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\NaoUsados;
 
-use Illuminate\Http\Request;
-use App\Models\Professor;
 use App\Models\TurnoDisciplinaProfessor;
+use Illuminate\Http\Request;
 
 class TurnoDisciplinaProfessorController extends Controller
 {
@@ -17,11 +16,12 @@ class TurnoDisciplinaProfessorController extends Controller
             'professor.user',
             'classeTurnoDisciplina.cursoClasseTurno.cursoClasse.curso',
             'classeTurnoDisciplina.cursoClasseTurno.turno',
-            'classeTurnoDisciplina.disciplina'
+            'classeTurnoDisciplina.disciplina',
         ])->get();
 
         return response()->json($dados);
     }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -47,7 +47,7 @@ class TurnoDisciplinaProfessorController extends Controller
 
         if ($existe) {
             return response()->json([
-                'message' => 'Professor já está atribuído a esta disciplina/turno.'
+                'message' => 'Professor já está atribuído a esta disciplina/turno.',
             ], 400);
         }
 
@@ -58,10 +58,10 @@ class TurnoDisciplinaProfessorController extends Controller
 
         return response()->json([
             'message' => 'Professor atribuído com sucesso!',
-            'data' => $vinculo
+            'data' => $vinculo,
         ]);
     }
-    
+
     /**
      * Display the specified resource.
      */
@@ -95,7 +95,7 @@ class TurnoDisciplinaProfessorController extends Controller
         $vinculo->delete();
 
         return response()->json([
-            'message' => 'Vínculo removido com sucesso!'
+            'message' => 'Vínculo removido com sucesso!',
         ]);
     }
 }

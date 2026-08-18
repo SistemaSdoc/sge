@@ -15,7 +15,9 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -24,6 +26,11 @@ const frequencias = [
   { label: 'Mensal', value: 'mensal' },
   { label: 'Anual', value: 'anual' },
   { label: 'Único', value: 'unico' },
+];
+
+const tipo = [
+  { label: 'Financeiro', value: 'financeiro' },
+  { label: 'Documento', value: 'documento' },
 ];
 
 export function ItensForm({
@@ -98,6 +105,27 @@ export function ItensForm({
                     )}
                   </Field>
                 </div>
+
+                <Field>
+                  <FieldLabel>Tipo</FieldLabel>
+                  <Select
+                    value={data.tipo ?? 'financeiro'}
+                    onValueChange={(val) => setData('tipo', val)}
+                    disabled={processing}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione um Tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Tipos</SelectLabel>
+                        <SelectItem value="financeiro">Financeiro</SelectItem>
+                        <SelectItem value="documento">Documento</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  {errors.tipo && <FieldError>{errors.tipo}</FieldError>}
+                </Field>
 
                 <Field data-invalid={Boolean(errors?.curso_classe_id)}>
                   <FieldLabel htmlFor="curso_classe_id">

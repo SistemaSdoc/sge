@@ -46,6 +46,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { create, show } from '@/routes/inscricoes';
 import TablePagination from '@/components/table-pagination';
+import { destroy } from '@/actions/App/Http/Controllers/InscricaoController';
 import {
   Select,
   SelectContent,
@@ -68,15 +69,15 @@ export function InscricaoTable({
   entityLabel = 'Matrícula',
   entityLabelPlural = 'Matrículas',
   temNotaTeste = false,
+  destroyFn,
+  reativarFn,
 }) {
   const [nota, setNota] = useState('');
   const [inscricaoSelecionada, setInscricaoSelecionada] = useState(null);
   const isEmpty = !inscricoes || inscricoes.length === 0;
   const hasActionColumn =
     temNotaTeste &&
-    inscricoes?.some(
-      (inscricao) => inscricao.status === 'pendente' && inscricao.can?.update,
-    );
+    inscricoes?.some((inscricao) => inscricao.status && inscricao.can?.update);
 
   return (
     <>
@@ -122,7 +123,9 @@ export function InscricaoTable({
       <Card className="gap-0">
         <CardHeader className="border-b">
           <CardTitle>{entityLabelPlural}</CardTitle>
-          <CardDescription>Lista de {entityLabelPlural.toLowerCase()}</CardDescription>
+          <CardDescription>
+            Lista de {entityLabelPlural.toLowerCase()}
+          </CardDescription>
           {can.create && (
             <CardAction className="flex gap-3">
               <Select
@@ -211,8 +214,8 @@ export function InscricaoTable({
                     </TableCell>
                     {hasActionColumn && (
                       <TableCell className="px-4 text-right">
-                        {inscricao.status === 'pendente' &&
-                          inscricao.can?.update && (
+                        {inscricao.can?.cancelar &&
+                          inscricao.status === 'aprovado' && (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button
@@ -221,20 +224,42 @@ export function InscricaoTable({
                                   className="size-8"
                                 >
                                   <MoreHorizontalIcon />
-                                  <span className="sr-only">Open menu</span>
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent
-                                align="end"
-                                className="w-auto!"
-                              >
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                  variant="destructive"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    destroyFn(inscricao.id);
+                                  }}
+                                >
+                                  Cancelar Matrícula
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+
+                        {inscricao.can?.reativar &&
+                          inscricao.status === 'cancelado' && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-8"
+                                >
+                                  <MoreHorizontalIcon />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
                                 <DropdownMenuItem
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setInscricaoSelecionada(inscricao.id);
+                                    reativarFn(inscricao.id);
                                   }}
                                 >
-                                  Definir nota da prova
+                                  Reativar Matrícula
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>

@@ -18,12 +18,13 @@ class UpdateTurmaRequest extends FormRequest
 
             'curso_classe_turno_id' => [
                 'sometimes',
-                'exists:curso_classe_turno,id'
+                'exists:curso_classe_turno,id',
             ],
 
             'max_alunos' => ['nullable', 'integer', 'min:1'],
         ];
     }
+
     public function messages(): array
     {
         return [

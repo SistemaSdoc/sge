@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreign('curso_classe_turno_id')->references('id')->on('curso_classe_turno');
             $table->uuid('candidato_id');
             $table->foreign('candidato_id')->references('id')->on('candidatos');
-            $table->enum('status', ['pendente', 'apto_prova', 'aprovado', 'reprovado', 'reprovado_prova'])->default('pendente');
+            $table->enum('status', ['pendente', 'apto_prova', 'aprovado', 'reprovado', 'reprovado_prova', 'cancelado'])->default('pendente');
             $table->string('nota_teste')->nullable();
             $table->uuid('ano_lectivo_id');
             $table->foreign('ano_lectivo_id')->references('id')->on('ano_lectivos');
@@ -25,29 +25,29 @@ return new class extends Migration
         });
 
         Schema::create('alunos', function (Blueprint $table) {
-    $table->uuid('id')->primary();
-    $table->uuid('inscricao_id');
-    $table->foreign('inscricao_id')->references('id')->on('inscricoes');
-    $table->uuid('user_id')->nullable();
-    $table->foreign('user_id')->references('id')->on('users');
-    $table->string('matricula')->unique()->nullable();
+            $table->uuid('id')->primary();
+            $table->uuid('inscricao_id');
+            $table->foreign('inscricao_id')->references('id')->on('inscricoes');
+            $table->uuid('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->string('matricula')->unique()->nullable();
 
-    // coluna que guarda a que instituição o aluno pertence
-    $table->uuid('instituicao_id')->nullable();
-    // liga instituicao_id à tabela instituicoes (integridade referencial)
-    $table->foreign('instituicao_id')->references('id')->on('instituicoes');
+            // coluna que guarda a que instituição o aluno pertence
+            $table->uuid('instituicao_id')->nullable();
+            // liga instituicao_id à tabela instituicoes (integridade referencial)
+            $table->foreign('instituicao_id')->references('id')->on('instituicoes');
 
-    // coluna que guarda o número de processo do aluno
-    $table->string('numero_processo', 20)->nullable();
+            // coluna que guarda o número de processo do aluno
+            $table->string('numero_processo', 20)->nullable();
 
-    $table->enum('situacao', ['activo', 'finalista', 'concluido', 'reprovado', 'desistente'])->default('activo');
-    $table->timestamps();
+            $table->enum('situacao', ['activo', 'finalista', 'concluido', 'reprovado', 'desistente'])->default('activo');
+            $table->timestamps();
 
-    // numero_processo só precisa de ser único DENTRO da mesma
-    // instituição — não globalmente. Duas instituições diferentes podem ter
-    // ambas um aluno com numero_processo = 00001, sem conflito.
-    $table->unique(['instituicao_id', 'numero_processo']);
-});
+            // numero_processo só precisa de ser único DENTRO da mesma
+            // instituição — não globalmente. Duas instituições diferentes podem ter
+            // ambas um aluno com numero_processo = 00001, sem conflito.
+            $table->unique(['instituicao_id', 'numero_processo']);
+        });
 
         Schema::create('turma_aluno', function (Blueprint $table) {
             $table->uuid('id')->primary();

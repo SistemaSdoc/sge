@@ -4,14 +4,10 @@ namespace App\Http\Controllers\Colegios;
 
 use App\Http\Controllers\Controller;
 use App\Models\AnoLectivo;
-use App\Models\ClasseTurnoDisciplina;
 use App\Models\CursoClasse;
-use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
 use App\Models\Turma;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -93,7 +89,7 @@ class CursoClasseController extends Controller
                 ],
 
                 'turnos' => $cursoClasse->turnos
-                    ->map(fn($t) => [
+                    ->map(fn ($t) => [
                         'id' => $t->id,
                         'nome' => $t->turno->nome,
                     ])
@@ -102,7 +98,7 @@ class CursoClasseController extends Controller
                 'turnoId' => $turnoId,
 
                 'turmas' => $turmas->through(
-                    fn(Turma $turma) => [
+                    fn (Turma $turma) => [
                         'id' => $turma->id,
                         'nome' => $turma->nome,
                         'alunos_activos_count' => $turma->alunos_activos_count,

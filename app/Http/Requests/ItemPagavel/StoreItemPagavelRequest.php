@@ -25,6 +25,7 @@ class StoreItemPagavelRequest extends FormRequest
     {
         return [
             'nome' => ['required', 'string', 'max:100'],
+            'tipo' => ['required', Rule::in(['financeiro', 'documento'])],
             'descricao' => ['nullable', 'string', 'max:255'],
             'valor' => ['required', 'numeric', 'min:0', 'max:9999999.99'],
             'frequencia' => ['required', Rule::in(['mensal', 'anual', 'unico'])],
@@ -42,6 +43,8 @@ class StoreItemPagavelRequest extends FormRequest
     {
         return [
             'nome.required' => 'O nome do item é obrigatório.',
+            'tipo.required' => 'Selecciona o tipo do item.',
+            'tipo.in' => 'Tipo inválido. Use financeiro ou documento.',
             'valor.required' => 'O valor é obrigatório.',
             'valor.min' => 'O valor não pode ser negativo.',
             'frequencia.required' => 'Selecione a frequência de pagamento.',

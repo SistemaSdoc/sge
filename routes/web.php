@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BiController;
 use App\Http\Controllers\CertificadoController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,4 +41,4 @@ Route::get(
 Route::inertia('/candidatura', 'teste');
 
 // Proxy route to consult BI externally (avoids CORS issues)
-Route::get('/bi/consultar/{bi}', [\App\Http\Controllers\BiController::class, 'consult']);
+Route::get('/bi/consultar/{bi}', [BiController::class, 'consult']);

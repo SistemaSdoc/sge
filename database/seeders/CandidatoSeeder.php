@@ -31,7 +31,7 @@ class CandidatoSeeder extends Seeder
                 'naturalidade' => $naturalidade,
                 'filiacao' => $filiacao,
                 'data_nascimento' => $dataNascimento,
-    
+
             ]);
 
             Candidato::create([

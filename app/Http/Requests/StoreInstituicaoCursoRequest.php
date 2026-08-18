@@ -14,11 +14,11 @@ class StoreInstituicaoCursoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'curso_id'    => ['nullable', 'string', 'exists:cursos,id'],
-            'nome'        => ['nullable', 'string', 'min:2', 'max:255'],
+            'curso_id' => ['nullable', 'string', 'exists:cursos,id'],
+            'nome' => ['nullable', 'string', 'min:2', 'max:255'],
             'duracao_anos' => ['nullable', 'integer', 'min:1', 'max:10'],
-            'classes'     => ['required', 'array', 'min:1'],
-            'classes.*'   => ['string', 'exists:classes,id'],
+            'classes' => ['required', 'array', 'min:1'],
+            'classes.*' => ['string', 'exists:classes,id'],
         ];
     }
 
@@ -41,9 +41,9 @@ class StoreInstituicaoCursoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'classes.required'  => 'Selecciona pelo menos uma classe',
-            'classes.min'       => 'Selecciona pelo menos uma classe',
-            'curso_id.exists'   => 'O curso seleccionado não existe',
+            'classes.required' => 'Selecciona pelo menos uma classe',
+            'classes.min' => 'Selecciona pelo menos uma classe',
+            'curso_id.exists' => 'O curso seleccionado não existe',
         ];
     }
 }

@@ -13,8 +13,7 @@ class GrupoPapAprovacaoController extends Controller
 {
     public function __construct(
         private AprovacaoTemaService $service
-    ) {
-    }
+    ) {}
 
     /**
      * Listar temas PAP pendentes de aprovação
@@ -25,7 +24,7 @@ class GrupoPapAprovacaoController extends Controller
         $user = Auth::user();
 
         // O utilizador precisa estar associado a um professor
-        if (!$user->professor) {
+        if (! $user->professor) {
             return inertia('pap/PendentesAprovacao', [
                 'temasPendentes' => [],
                 'rotaAprovar' => null,
@@ -134,7 +133,7 @@ class GrupoPapAprovacaoController extends Controller
     public function aprovar(Request $request, GrupoPap $grupoPap)
     {
         // Verificar se pode ser aprovado
-        if (!$grupoPap->podeSerAprovado()) {
+        if (! $grupoPap->podeSerAprovado()) {
             return back()->withErrors([
                 'grupo' => 'Este tema já foi finalizado e não pode ser alterado.',
             ])->with('status', 'erro');
@@ -150,7 +149,7 @@ class GrupoPapAprovacaoController extends Controller
             $validated['comentario'] ?? null
         );
 
-        if (!$resultado) {
+        if (! $resultado) {
             return back()->withErrors([
                 'grupo' => 'Erro ao aprovar o tema.',
             ]);
@@ -194,7 +193,7 @@ class GrupoPapAprovacaoController extends Controller
         );
 
         // Verificar se o tema pode ser reprovado
-        if (!$resultado) {
+        if (! $resultado) {
             return back()->withErrors([
                 'grupo' => 'Este tema não pode ser reprovado neste momento.',
             ]);
@@ -255,7 +254,7 @@ class GrupoPapAprovacaoController extends Controller
         );
 
         // Verificar se a operação foi realizada
-        if (!$resultado) {
+        if (! $resultado) {
             return back()->withErrors([
                 'grupo' => 'Não é possível solicitar melhoria neste momento.',
             ]);
@@ -274,7 +273,7 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function reenviar(Request $request, GrupoPap $grupoPap)
     {
-        if (!$grupoPap->podeSerReenviado()) {
+        if (! $grupoPap->podeSerReenviado()) {
             return back()->withErrors(['grupo' => 'Este tema não pode ser reenviado neste momento.']);
         }
 
@@ -287,7 +286,7 @@ class GrupoPapAprovacaoController extends Controller
 
         $resultado = $this->service->reenviar($grupoPap, Auth::user(), $validated);
 
-        if (!$resultado) {
+        if (! $resultado) {
             return back()->withErrors(['grupo' => 'Erro ao reenviar o tema.']);
         }
 
@@ -323,7 +322,7 @@ class GrupoPapAprovacaoController extends Controller
             ->where('status_aprovacao', 'melhoria-solicitada')
             ->whereHas(
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-                function ($query) use ($user) {
+                function ($query) {
                     // Aqui deve ser aplicada a regra
                     // para garantir que o grupo pertence
                     // ao colégio do utilizador.

@@ -2,7 +2,6 @@
 
 use App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
-use Laravel\Socialite\Two\InvalidStateException;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
 test('user is redirected to google', function () {

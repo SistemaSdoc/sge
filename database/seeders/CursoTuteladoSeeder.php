@@ -20,7 +20,7 @@ class CursoTuteladoSeeder extends Seeder
                     'instituicao_tutora_id' => $item->instituicao_id,
                 ],
                 [
-                    'id'                    => (string) Str::uuid7(),
+                    'id' => (string) Str::uuid7(),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]

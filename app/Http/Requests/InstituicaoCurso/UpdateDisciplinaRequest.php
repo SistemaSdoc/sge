@@ -19,6 +19,7 @@ class UpdateDisciplinaRequest extends FormRequest
             'descricao' => ['nullable', 'string'],
         ];
     }
+
     public function messages(): array
     {
         return [

@@ -12,12 +12,10 @@ use App\Models\Instituicao;
 use App\Models\Turma;
 use App\Models\TurmaAluno;
 use App\Models\TurmaDisciplinaProfessor;
-use Illuminate\Http\Response;
-use Spatie\Browsershot\Browsershot;
-use App\Services\QrCodeService;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
 use Inertia\Inertia;
+use Spatie\Browsershot\Browsershot;
 
 class CertificadoController extends Controller
 {
@@ -40,7 +38,7 @@ class CertificadoController extends Controller
         foreach ($tdps as $tdp) {
             $disciplina = $tdp->classeTurnoDisciplina?->disciplina;
 
-            if (!$disciplina) {
+            if (! $disciplina) {
                 continue;
             }
 
@@ -48,7 +46,7 @@ class CertificadoController extends Controller
                 ->where('aluno_id', $aluno->id)
                 ->first();
 
-            if (!$turmaAluno) {
+            if (! $turmaAluno) {
                 continue;
             }
 
@@ -57,14 +55,14 @@ class CertificadoController extends Controller
                 ->whereNotNull('media_final')
                 ->first();
 
-            if (!$nota) {
+            if (! $nota) {
                 continue;
             }
 
             $mediaArredondada = round((float) $nota->media_final * 2) / 2;
             $id = $disciplina->id;
 
-            if (!isset($porDisciplina[$id])) {
+            if (! isset($porDisciplina[$id])) {
                 $porDisciplina[$id] = [
                     'disciplina' => $disciplina->nome,
                     'componente' => $disciplina->componente ?? 'tecnica',
@@ -94,7 +92,7 @@ class CertificadoController extends Controller
             }
 
             // ← PAP e ECS NÃO entram na tabela de disciplinas
-            if (!in_array($nomeDisc, $nomesPapEcs)) {
+            if (! in_array($nomeDisc, $nomesPapEcs)) {
                 $notas[$componente][] = [
                     'disciplina' => $item['disciplina'],
                     'media_final' => $mediaFinal,
@@ -113,7 +111,7 @@ class CertificadoController extends Controller
         // Nota PAP via ElementoGrupoPap (mantém igual)
         $elementoPap = ElementoGrupoPap::whereHas(
             'grupoPap',
-            fn($q) => $q->whereIn('turma_id', $turmasDoAluno)
+            fn ($q) => $q->whereIn('turma_id', $turmasDoAluno)
         )->where('aluno_id', $aluno->id)->first();
 
         $notaPap = $elementoPap?->nota_individual
@@ -157,14 +155,14 @@ class CertificadoController extends Controller
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
             ])
-            ->whereHas('anoLectivo', fn($q) => $q->where('activo', true))
+            ->whereHas('anoLectivo', fn ($q) => $q->where('activo', true))
             ->first();
 
-        if (!$turmaAluno) {
+        if (! $turmaAluno) {
             return response(['erro' => 'Aluno não possui turma no ano lectivo atual'], 404);
         }
 
-        if (!$aluno->inscricao || !$aluno->inscricao->candidato) {
+        if (! $aluno->inscricao || ! $aluno->inscricao->candidato) {
             return response(['erro' => 'Aluno não possui inscrição ou candidato associado'], 404);
         }
 
@@ -185,7 +183,7 @@ class CertificadoController extends Controller
                 'instituicao' => $instituicaoCurso?->instituicao?->nome,
                 'curso' => $instituicaoCurso?->curso?->nome,  // ✅ CORRIGIDO: name → nome
                 'classe' => $turmaAluno->cursoClasseTurno?->cursoClasse?->classe?->nome,  //  CORRIGIDO
-                'ano_lectivo' => date('Y') . '/' . (date('Y') + 1),  // ✅ CORRIGIDO: removido ano_letivo
+                'ano_lectivo' => date('Y').'/'.(date('Y') + 1),  // ✅ CORRIGIDO: removido ano_letivo
                 'ano_defesa' => date('Y'),
                 'resultado_final' => $this->determinarResultadoFinal($calc['classificacao_final']),
                 'media_pc' => $calc['media_pc'],
@@ -225,12 +223,12 @@ class CertificadoController extends Controller
         $calc = $this->calcularDadosCertificado($aluno, $turma);
 
         // QR Code
-        //$url = 'http://192.168.1.211:8000/certificados/' . $aluno->id . '/verificar';
-        
-        $url = url('/certificados/' . $aluno->id . '/verificar');
+        // $url = 'http://192.168.1.211:8000/certificados/' . $aluno->id . '/verificar';
+
+        $url = url('/certificados/'.$aluno->id.'/verificar');
 
         $result = (new Builder(
-            writer: new PngWriter(),
+            writer: new PngWriter,
             data: $url,
             size: 120,
             margin: 10,
@@ -246,7 +244,7 @@ class CertificadoController extends Controller
             'turma' => $turma,
             'candidato' => $candidato,
             'aluno' => $aluno,
-            'ano_letivo' => date('Y') . '/' . (date('Y') + 1),
+            'ano_letivo' => date('Y').'/'.(date('Y') + 1),
             'qrcode' => $qrcode,
         ]);
 
@@ -277,7 +275,7 @@ class CertificadoController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header(
                 'Content-Disposition',
-                'attachment; filename="certificado_' . $candidato->nome . '.pdf"'
+                'attachment; filename="certificado_'.$candidato->nome.'.pdf"'
             );
     }
 
@@ -293,10 +291,10 @@ class CertificadoController extends Controller
 
         $calc = $this->calcularDadosCertificado($aluno, $turma);
 
-        $url = 'http://192.168.1.175:8000/certificados/' . $aluno->id . '/verificar';
+        $url = 'http://192.168.1.175:8000/certificados/'.$aluno->id.'/verificar';
 
         $result = (new Builder(
-            writer: new PngWriter(),
+            writer: new PngWriter,
             data: $url,
             size: 120,
             margin: 10,
@@ -312,7 +310,7 @@ class CertificadoController extends Controller
             'turma' => $turma,
             'candidato' => $candidato,
             'aluno' => $aluno,
-            'ano_letivo' => date('Y') . '/' . (date('Y') + 1),
+            'ano_letivo' => date('Y').'/'.(date('Y') + 1),
             'qrcode' => $qrcode,
         ]);
 
@@ -343,7 +341,7 @@ class CertificadoController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header(
                 'Content-Disposition',
-                'attachment; filename="certificado_' . $candidato->nome . '.pdf"'
+                'attachment; filename="certificado_'.$candidato->nome.'.pdf"'
             );
     }
 
@@ -382,6 +380,6 @@ class CertificadoController extends Controller
             20 => 'Vinte',
         ];
 
-        return ($mapa[$chave] ?? (string) $chave) . ' Valores';
+        return ($mapa[$chave] ?? (string) $chave).' Valores';
     }
 }

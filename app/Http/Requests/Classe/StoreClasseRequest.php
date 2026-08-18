@@ -23,7 +23,7 @@ class StoreClasseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nome' => ['required', 'string', 'max:50',],
+            'nome' => ['required', 'string', 'max:50'],
             'ordem' => 'required|integer',
         ];
     }

@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\Aluno;
+use App\Models\TurmaAluno;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
-use App\Services\NotaAlunoService;
 
 class GrelhaCurricularService
 {
@@ -39,13 +39,12 @@ class GrelhaCurricularService
 
     public function classesDisponiveis(Aluno $aluno): array
     {
-        return 
-            app(NotaAlunoService::class)->classesDisponiveis($aluno);
+        return app(NotaAlunoService::class)->classesDisponiveis($aluno);
     }
 
     private function obterTurmaAlunoDaClasse(Aluno $aluno, ?string $classeId = null)
     {
-        $query = \App\Models\TurmaAluno::query()
+        $query = TurmaAluno::query()
             ->where('aluno_id', $aluno->id)
             ->with(['turma.anoLectivo', 'turma.cursoClasseTurno.cursoClasse.classe']);
 

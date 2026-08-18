@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class PeriodoLancamentoNotas extends Model
 {
     use HasUuid;
+
     protected $fillable = [
         'instituicao_id',
         'periodo',
@@ -15,6 +16,7 @@ class PeriodoLancamentoNotas extends Model
         'data_inicio',
         'data_limite',
     ];
+
     protected $casts = [
         'data_inicio' => 'datetime',
         'data_limite' => 'datetime',

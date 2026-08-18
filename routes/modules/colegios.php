@@ -10,6 +10,7 @@ use App\Http\Controllers\Colegios\GrupoPapAprovacaoController;
 use App\Http\Controllers\Colegios\GrupoPapController;
 use App\Http\Controllers\Colegios\NotaDisciplinaController;
 use Illuminate\Support\Facades\Route;
+
 // colegios.php
 Route::prefix('colegios')->group(function () {
 
@@ -55,6 +56,14 @@ Route::prefix('colegios')->group(function () {
                     ->parameters(['banca' => 'bancaJuriPap'])
                     ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
+
+                Route::post('/reenviar', [GrupoPapAprovacaoController::class, 'reenviar'])
+                    ->name('colegio.grupo-pap-aprovacao.reenviar');
+
+                // Banca
+                Route::resource('banca', BancaJuriPapController::class)
+                    ->parameters(['banca' => 'bancaJuriPap'])
+                    ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
             });
 

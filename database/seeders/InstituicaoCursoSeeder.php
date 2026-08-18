@@ -22,7 +22,7 @@ class InstituicaoCursoSeeder extends Seeder
 
                 if (! $exists) {
                     DB::table('instituicao_curso')->insert([
-                        'id'                    => (string) Str::uuid7(),
+                        'id' => (string) Str::uuid7(),
                         'instituicao_id' => $instituicao->id,
                         'curso_id' => $curso->id,
                         'duracao_anos' => 4,

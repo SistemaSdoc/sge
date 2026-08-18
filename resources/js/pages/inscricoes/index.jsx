@@ -1,7 +1,7 @@
 import { router, usePage } from '@inertiajs/react';
-
-import { update } from '@/routes/inscricoes';
+import { update, destroy, reativar } from '@/routes/inscricoes'; // ← verifica o nome exportado
 import { InscricaoTable } from './components/inscricao-table';
+import { useDialog } from '@/hooks/use-dialog';
 
 export default function Index() {
   const {
@@ -28,6 +28,32 @@ export default function Index() {
     });
   };
 
+  const { confirm } = useDialog();
+
+const handleReativarInscricao = (id) => {
+  confirm({
+    title: 'Reativar inscrição',
+    description: 'Esta inscrição voltará ao estado anterior.',
+    confirmLabel: 'Reativar',
+    confirmFn: () =>
+      router.patch(reativar.url(id), {
+        preserveScroll: true,
+      }),
+  });
+};
+
+  const handleCancelarInscricao = (id) => {
+    confirm({
+      title: 'Tens a certeza?',
+      description: 'Esta matrícula será cancelada.',
+      confirmLabel: 'Cancelar Matrícula',
+      confirmFn: () =>
+        router.delete(destroy.url(id), {
+          preserveScroll: true,
+        }),
+    });
+  };
+
   return (
     <div className="mx-auto w-full max-w-7xl p-6">
       <InscricaoTable
@@ -41,6 +67,8 @@ export default function Index() {
         updateFn={(id, nota_teste) =>
           router.patch(update.url(id), { nota_teste })
         }
+        destroyFn={handleCancelarInscricao}
+        reativarFn={handleReativarInscricao}
         anoLectivoActual={anoLectivoActual}
         anosLectivos={anosLectivos}
         onAnoLectivoChange={handleAnoLectivoChange}

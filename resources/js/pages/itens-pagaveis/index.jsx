@@ -1,5 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import ItensTable from './components/itens-table';
+import ItensTable from '../itens-pagaveis/components/itens-table';
 import { index } from '@/actions/App/Http/Controllers/ItemPagavelController';
 
 export default function Index({ itens, can }) {

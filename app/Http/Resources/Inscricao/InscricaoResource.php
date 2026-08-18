@@ -13,6 +13,8 @@ class InscricaoResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $user = $request->user();
+
         return [
             'id' => $this->id,
             'status' => $this->status,
@@ -21,9 +23,11 @@ class InscricaoResource extends JsonResource
             'instituicao' => $this->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
             'turno' => $this->cursoClasseTurno?->turno?->nome,
             'can' => [
-                'view' => $this->can['view'] ?? false,
-                'update' => $this->can['update'] ?? false,
-                'delete' => $this->can['delete'] ?? false,
+                'view' => $user->can('view', $this->resource),
+                'update' => $user->can('update', $this->resource),
+                'delete' => $user->can('delete', $this->resource),
+                'cancelar' => $user->can('cancelar', $this->resource),
+                'reativar' => $user->can('reativar', $this->resource),
             ],
         ];
     }

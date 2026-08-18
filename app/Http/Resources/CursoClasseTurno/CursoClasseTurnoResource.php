@@ -10,13 +10,13 @@ class CursoClasseTurnoResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'     => $this->id,
+            'id' => $this->id,
             'classe' => [
-                'id'   => $this->classe->id,
+                'id' => $this->classe->id,
                 'nome' => $this->classe->nome,
             ],
-            'turnos' => $this->turnos->map(fn($cct) => [
-                'id'   => $cct->id,
+            'turnos' => $this->turnos->map(fn ($cct) => [
+                'id' => $cct->id,
                 'nome' => $cct->turno->nome,
             ]),
         ];

@@ -3,19 +3,10 @@
 namespace App\Http\Controllers\Colegios;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCursoTuteladoRequest;
-use App\Http\Resources\CursoTutelado\CursoTuteladoResourceEdit;
-use App\Http\Resources\CursoTutelado\CursoTuteladoResourceShow;
 use App\Models\AnoLectivo;
-use App\Models\Classe;
 use App\Models\Curso;
 use App\Models\CursoTutelado;
 use App\Models\Instituicao;
-use App\Models\InstituicaoCurso;
-use App\Models\Turma;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class CursoTuteladoController extends Controller
@@ -94,18 +85,18 @@ class CursoTuteladoController extends Controller
                 ],
 
                 'classes' => $cursoTutelado->cursoClasses->map(
-                    fn($cc) => [
+                    fn ($cc) => [
                         'id' => $cc->id,
                         'nome' => $cc->classe->nome,
 
                         'turnos' => $cc->turnos->map(
-                            fn($cct) => $cct->turno->nome
+                            fn ($cct) => $cct->turno->nome
                         ),
                     ]
                 ),
 
                 'professores' => $cursoTutelado->professores->map(
-                    fn($prof) => [
+                    fn ($prof) => [
                         'id' => $prof->id,
                         'vinculo_id' => $prof->pivot->id,
                         'nome' => $prof->user?->nome,
@@ -115,14 +106,14 @@ class CursoTuteladoController extends Controller
 
                 'contadores' => [
                     'turmas' => $cursoTutelado->cursoClasses
-                        ->flatMap(fn($cc) => $cc->turnos)
-                        ->flatMap(fn($cct) => $cct->turmas)
+                        ->flatMap(fn ($cc) => $cc->turnos)
+                        ->flatMap(fn ($cct) => $cct->turmas)
                         ->count(),
 
                     'alunos' => $cursoTutelado->cursoClasses
-                        ->flatMap(fn($cc) => $cc->turnos)
-                        ->flatMap(fn($cct) => $cct->turmas)
-                        ->flatMap(fn($turma) => $turma->alunos)
+                        ->flatMap(fn ($cc) => $cc->turnos)
+                        ->flatMap(fn ($cct) => $cct->turmas)
+                        ->flatMap(fn ($turma) => $turma->alunos)
                         ->unique('id')
                         ->count(),
                 ],

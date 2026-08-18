@@ -2,20 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreCursoInstituicaoRequest;
 use App\Http\Requests\StoreInstituicaoCursoRequest;
-use App\Http\Resources\CursoTutelado\CursoTuteladoResourceIndex;
-use App\Models\Classe;
 use App\Models\Curso;
-use App\Models\InstituicaoCurso;
-use App\Models\CursoTutelado;
 use App\Models\Instituicao;
+use App\Models\InstituicaoCurso;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\DB;
 
-class InstituicaoCursoController extends Controller //implements HasMiddleware
+class InstituicaoCursoController extends Controller // implements HasMiddleware
 {
     /*public static function middleware(): array
     {
@@ -84,7 +80,7 @@ class InstituicaoCursoController extends Controller //implements HasMiddleware
 
             if ($temTurmas) {
                 return response()->json([
-                    'message' => 'Não é possível remover um turno que tem turmas associadas.'
+                    'message' => 'Não é possível remover um turno que tem turmas associadas.',
                 ], 422);
             }
         }

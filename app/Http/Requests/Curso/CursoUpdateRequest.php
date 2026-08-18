@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Curso;
 
-use App\Models\Curso;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 

@@ -19,7 +19,7 @@ class RolePermissionSeeder extends Seeder
                 'instituicoes.update',
                 'colegios.viewAny',
 
-                //solicitacao-edicao-pauta
+                // solicitacao-edicao-pauta
                 'solicitacao-edicao-pauta.viewAny',
                 'solicitacao-edicao-pauta.view',
 
@@ -55,6 +55,8 @@ class RolePermissionSeeder extends Seeder
                 'inscricoes.view',
                 'inscricoes.create',
                 'inscricoes.update',
+                'inscricoes.cancelar',
+                'inscricoes.reativar',
 
                 // CursoClasse
                 'cursoclasse.viewAny',
@@ -208,6 +210,8 @@ class RolePermissionSeeder extends Seeder
                 'inscricoes.view',
                 'inscricoes.create',
                 'inscricoes.update',
+                'inscricoes.cancelar',
+                'inscricoes.reativar',
 
                 // CursoClasse
                 'cursoclasse.viewAny',
@@ -376,7 +380,8 @@ class RolePermissionSeeder extends Seeder
                 'inscricoes.view',
                 'inscricoes.create',
                 'inscricoes.update',
-
+                'inscricoes.cancelar',
+                'inscricoes.reativar',
                 // CursoClasse
                 'cursoclasse.viewAny',
                 'cursoclasse.view',

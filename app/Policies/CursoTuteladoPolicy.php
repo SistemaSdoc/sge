@@ -20,7 +20,7 @@ class CursoTuteladoPolicy
      */
     public function view(User $user, CursoTutelado $cursoTutelado): bool
     {
-        if (!$user->can('curso-tutelado.view') || $user->instituicao_id === null) {
+        if (! $user->can('curso-tutelado.view') || $user->instituicao_id === null) {
             return false;
         }
 
@@ -52,7 +52,7 @@ class CursoTuteladoPolicy
 
     /**
      * Determine whether the user can update the model.
-     * 
+     *
      * LÓGICA:
      * - Tutora: pode atualizar conteúdo, currículo, docentes
      * - Oferta: pode atualizar aplicação local (turmas, configurações)
@@ -68,7 +68,7 @@ class CursoTuteladoPolicy
         }
 
         // Lógica existente para Director/Subdirector
-        if (!$user->can('curso-tutelado.update')) {
+        if (! $user->can('curso-tutelado.update')) {
             return false;
         }
 
@@ -104,17 +104,16 @@ class CursoTuteladoPolicy
         return $user->hasPermissionTo('curso-tutelado.update');
     }
 
-
     /**
      * Determine whether the user can delete the model.
-     * 
+     *
      * LÓGICA:
      * - Apenas a Tutora pode remover a tutela
      * - A instituição de oferta não pode remover
      */
     public function delete(User $user, CursoTutelado $cursoTutelado): bool
     {
-        if (!$user->can('curso-tutelado.delete')) {
+        if (! $user->can('curso-tutelado.delete')) {
             return false;
         }
 

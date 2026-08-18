@@ -28,6 +28,7 @@ class ClasseTurnoDisciplina extends Pivot
     {
         return $this->belongsTo(CursoClasseTurno::class, 'curso_classe_turno_id');
     }
+
     public function anoLectivo()
     {
         return $this->belongsTo(AnoLectivo::class, 'ano_lectivo_id');
@@ -65,6 +66,4 @@ class ClasseTurnoDisciplina extends Pivot
     {
         return $this->hasMany(ClasseTurnoDisciplinaHorario::class, 'classe_turno_disciplina_id');
     }
-
-
 }

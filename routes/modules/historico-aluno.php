@@ -1,13 +1,11 @@
 <?php
 
-use App\Http\Controllers\ConfirmacaoMatriculaController;
 use App\Http\Controllers\PreencherHistoricoController;
 use Illuminate\Support\Facades\Route;
 
 /**
  * Mostra a página de preenchimento do histórico de um aluno.
  */
-
 Route::get('/historico/{aluno}', [PreencherHistoricoController::class, 'show'])
     ->name('historico.show');
 

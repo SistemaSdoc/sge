@@ -21,6 +21,7 @@ class ItemPagavel extends Model
         'nome',
         'descricao',
         'valor',
+        'tipo',
         'frequencia',
     'multa_dias_tolerancia',
     'multa_valor',

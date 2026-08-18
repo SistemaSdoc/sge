@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
     'candidato_id',
     'ano_lectivo_id',
     'status',
-    'nota_teste'
+    'nota_teste',
 ])]
 class Inscricao extends Model
 {

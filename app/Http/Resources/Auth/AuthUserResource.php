@@ -15,8 +15,8 @@ class AuthUserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'    => $this->id,
-            'name'  => $this->nome,
+            'id' => $this->id,
+            'name' => $this->nome,
             'email' => $this->email,
             'instituicao_id' => $this->instituicao_id,
             'roles' => RoleResource::collection($this->whenLoaded('roles')),

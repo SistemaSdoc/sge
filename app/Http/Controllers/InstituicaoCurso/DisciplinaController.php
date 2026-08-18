@@ -6,16 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\InstituicaoCurso\StoreDisciplinaRequest;
 use App\Http\Requests\InstituicaoCurso\UpdateDisciplinaRequest;
 use App\Http\Resources\DisciplinaResource;
-use App\Models\CursoDisciplina;
-use App\Models\InstituicaoCurso;
-use App\Models\CursoInstituicaoClasse;
 use App\Models\CursoClasseDisciplina;
+use App\Models\CursoDisciplina;
 use App\Models\Disciplina;
 use App\Models\Instituicao;
+use App\Models\InstituicaoCurso;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
-class DisciplinaController extends Controller //implements HasMiddleware
+class DisciplinaController extends Controller // implements HasMiddleware
 {
     /*public static function middleware(): array
     {
@@ -27,7 +26,7 @@ class DisciplinaController extends Controller //implements HasMiddleware
             new Middleware('permission:disciplinas.delete', only: ['destroy']),
         ];
     }*/
-    
+
     public function index(Instituicao $instituicao, InstituicaoCurso $instituicaoCurso)
     {
         $disciplinas = Disciplina::with(['classes' => function ($q) use ($instituicaoCurso) {
@@ -46,7 +45,7 @@ class DisciplinaController extends Controller //implements HasMiddleware
         $request->validate([
             'disciplina_id' => 'required|exists:disciplinas,id',
             'classes' => 'required|array',
-            'classes.*' => 'required|exists:curso_instituicao_classe,id'
+            'classes.*' => 'required|exists:curso_instituicao_classe,id',
         ]);
 
         /* foreach ($request->classes as $classeId) {
@@ -71,7 +70,7 @@ class DisciplinaController extends Controller //implements HasMiddleware
 
         return response()->json([
             'message' => 'Disciplina associada às classes com sucesso!',
-            'data' => $disciplina
+            'data' => $disciplina,
         ]);
     }
 
@@ -88,7 +87,7 @@ class DisciplinaController extends Controller //implements HasMiddleware
     }
 
     public function destroy(Instituicao $instituicao, InstituicaoCurso $instituicaoCurso, Disciplina $disciplina)
-    {/* 
+    {/*
         CursoDisciplina::where('curso_instituicao_id', $instituicaoCurso->id)
             ->where('disciplina_id', $disciplina->id)
             ->delete(); */

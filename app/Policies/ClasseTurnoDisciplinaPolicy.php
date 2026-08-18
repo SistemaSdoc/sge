@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\ClasseTurnoDisciplina;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ClasseTurnoDisciplinaPolicy
 {
@@ -24,7 +23,7 @@ class ClasseTurnoDisciplinaPolicy
         /*return $user->can('classeturnodisciplina.view')
             && $classeTurnoDisciplina->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;*/
 
-            return true;
+        return true;
     }
 
     /**

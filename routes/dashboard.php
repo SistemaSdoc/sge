@@ -17,6 +17,7 @@ use App\Http\Controllers\CursoTuteladoProfessorController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeclaracaoController;
 use App\Http\Controllers\DisciplinaController as DisciplinaControllerGeral;
+use App\Http\Controllers\DocumentosController;
 use App\Http\Controllers\ElementoGrupoPapController;
 use App\Http\Controllers\FinalistaController;
 use App\Http\Controllers\FolhaAprovacaoController;
@@ -73,6 +74,8 @@ Route::prefix('turmas/{aluno}')->name('turmas.')->group(function () {
     Route::post('atribuir', [TurmaController::class, 'atribuirTurma'])
         ->name('atribuir');
 });
+Route::patch('inscricoes/{inscricao}/reativar', [InscricaoController::class, 'reativar'])
+    ->name('inscricoes.reativar');
 Route::resource('inscricoes', InscricaoController::class)->parameters(['inscricoes' => 'inscricao']);
 Route::resource('professores', ProfessorControllerGeral::class)->parameters(['professores' => 'professor']);
 Route::get('/certificados/{aluno}', [CertificadoController::class, 'show'])->name('certificados.show');
@@ -351,3 +354,18 @@ Route::post(
     'instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/criterios-pap',
     [CursoTuteladoController::class, 'uploadCriteriosPap']
 )->name('cursos-tutelados.criterios-pap');
+Route::get(
+    'documentos/pesquisar-aluno',
+    [DocumentosController::class, 'pesquisarAluno']
+)->name('documentos.pesquisar-aluno');
+
+Route::match(
+    ['GET', 'POST'],
+    'documentos/exportar',
+    [DocumentosController::class, 'exportar']
+)->name('documentos.exportar');
+
+Route::get(
+    'documentos',
+    [DocumentosController::class, 'index']
+)->name('documentos.index');

@@ -54,26 +54,17 @@ class InscricaoController extends Controller
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
             'anoLectivo:id,nome',
-        ])->when(
-            $instituicaoId,
-            fn ($q) => $q->whereHas(
-                'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                fn ($q) => $q->where('instituicao_id', $instituicaoId)
-            )
-        )->when(
-            $anoLectivoId,
-            fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId)
-        )->latest()->paginate(10);
-
-        $inscricoes->getCollection()->transform(function ($inscricao) use ($user) {
-            $inscricao->can = [
-                'view' => $user->can('view', $inscricao),
-                'update' => $user->can('update', $inscricao),
-                'delete' => $user->can('delete', $inscricao),
-            ];
-
-            return $inscricao;
-        });
+        ])
+            ->when(
+                $instituicaoId,
+                fn ($q) => $q->whereHas(
+                    'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                    fn ($q) => $q->where('instituicao_id', $instituicaoId)
+                )
+            )->when(
+                $anoLectivoId,
+                fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId)
+            )->latest()->paginate(10);
 
         return Inertia::render('inscricoes/index', [
             'inscricoes' => [
@@ -208,8 +199,22 @@ class InscricaoController extends Controller
         return redirect()->route('inscricoes.index');
     }
 
+    // Cancelar Matrícula de um aluno
     public function destroy(Inscricao $inscricao)
     {
-        //
+        $this->authorize('cancelar', $inscricao);
+
+        $this->inscricaoService->cancelar($inscricao);
+
+        return redirect()->route('inscricoes.index');
+    }
+
+    public function reativar(Inscricao $inscricao)
+    {
+        $this->authorize('reativar', $inscricao);
+
+        $this->inscricaoService->reativar($inscricao);
+
+        return redirect()->route('inscricoes.index');
     }
 }

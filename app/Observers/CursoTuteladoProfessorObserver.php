@@ -19,25 +19,25 @@ class CursoTuteladoProfessorObserver
     {
         $user = $pivot->professor->user;
 
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
         // Agora é coordenador
-        if ($pivot->coordenador && !$user->hasRole('Coordenador')) {
+        if ($pivot->coordenador && ! $user->hasRole('Coordenador')) {
             $user->assignRole('Coordenador');
             app()[PermissionRegistrar::class]->forgetCachedPermissions();
         }
 
         // Deixou de ser coordenador
-        if (!$pivot->coordenador && $user->hasRole('Coordenador')) {
+        if (! $pivot->coordenador && $user->hasRole('Coordenador')) {
             // Apenas remove se não é coordenador de nenhum outro curso
             $ehCoordenadorEmOutroCurso = CursoTuteladoProfessor::where('professor_id', $pivot->professor_id)
                 ->where('coordenador', true)
                 ->where('id', '!=', $pivot->id) // Exclui o atual
                 ->exists();
 
-            if (!$ehCoordenadorEmOutroCurso) {
+            if (! $ehCoordenadorEmOutroCurso) {
                 $user->removeRole('Coordenador');
                 app()[PermissionRegistrar::class]->forgetCachedPermissions();
             }
@@ -48,7 +48,7 @@ class CursoTuteladoProfessorObserver
     {
         $user = $pivot->professor->user;
 
-        if (!$user || !$pivot->coordenador) {
+        if (! $user || ! $pivot->coordenador) {
             return;
         }
 
@@ -57,7 +57,7 @@ class CursoTuteladoProfessorObserver
             ->where('coordenador', true)
             ->exists();
 
-        if (!$ehCoordenadorEmOutroCurso) {
+        if (! $ehCoordenadorEmOutroCurso) {
             $user->removeRole('Coordenador');
             app()[PermissionRegistrar::class]->forgetCachedPermissions();
         }

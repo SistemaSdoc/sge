@@ -18,8 +18,8 @@ class CursoResourceIndex extends JsonResource
             'id' => $this->id,
             'nome' => $this->nome,
             // 'duracao_anos' => $this->duracao_anos,
-            //'descricao' => $this->descricao,
-            //'status' => $this->status,
+            // 'descricao' => $this->descricao,
+            // 'status' => $this->status,
         ];
     }
 }

@@ -92,6 +92,7 @@ export default function ItensTable({
             <TableHeader>
               <TableRow className="bg-muted/72">
                 <TableHead className="px-4">Nome</TableHead>
+                <TableHead className="px-4 text-center">Tipo</TableHead>
                 <TableHead className="px-4 text-center">Aplicada a</TableHead>
                 <TableHead className="px-4 text-center">Frequência</TableHead>
                 <TableHead className="px-4 text-center">Valor</TableHead>
@@ -114,6 +115,19 @@ export default function ItensTable({
                     <TableCell className="px-4 font-medium">
                       {item.nome}
                     </TableCell>
+                  <TableCell className="px-4 text-center">
+                    <Badge
+                      variant={
+                        item.tipo === 'documento' ? 'outline' : 'outline'
+                      }
+                    >
+                      {item.tipo === 'documento' ? 'Documento' : 'Financeiro'}
+                    </Badge>
+                  </TableCell>
+
+                  <TableCell className="px-4 text-center">
+                    {item.curso_classe ?? 'Toda a instituição'}
+                  </TableCell>
 
                     <TableCell className="px-4 text-center">
                       {item.curso_classe ?? 'Toda a instituição'}

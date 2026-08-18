@@ -7,7 +7,6 @@ use App\Models\Professor;
 use App\Models\User;
 use App\Traits\DashboardHelpers;
 use Auth;
-use Illuminate\Database\Eloquent\Collection;
 
 class DashboardProfessorService
 {

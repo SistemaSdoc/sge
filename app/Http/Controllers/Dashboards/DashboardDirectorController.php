@@ -18,7 +18,7 @@ class DashboardDirectorController extends Controller
     public function metricas(): JsonResponse
     {
         $instituicaoId = $this->instituicaoId();
-        
+
         $metricas = $this->service->obterMetricas($instituicaoId);
 
         return response()->json($metricas);

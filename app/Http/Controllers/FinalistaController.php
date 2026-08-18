@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aluno;
+use App\Models\CursoTutelado;
+use App\Models\Instituicao;
 use App\Models\Turma;
 use App\Models\TurmaAluno;
-use App\Models\Instituicao;
-use App\Models\CursoTutelado;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\DB;
 
-class FinalistaController extends Controller //implements HasMiddleware
+class FinalistaController extends Controller // implements HasMiddleware
 {
     /*public static function middleware(): array
     {
@@ -28,15 +28,15 @@ class FinalistaController extends Controller //implements HasMiddleware
         $turma->load([
             'finalistas.inscricao.candidato:id,nome',
             'finalistas.user:id,email',
-            'finalistas.grupoPap' => fn($q) => $q->whereHas(
+            'finalistas.grupoPap' => fn ($q) => $q->whereHas(
                 'elementos',
-                fn($q) => $q->whereHas('aluno', fn($q) => $q->whereIn('id', $turma->finalistas->pluck('id')))
+                fn ($q) => $q->whereHas('aluno', fn ($q) => $q->whereIn('id', $turma->finalistas->pluck('id')))
             ),
         ]);
 
         return response()->json([
             'turma' => $turma->nome,
-            'finalistas' => $turma->finalistas->map(fn($aluno) => [
+            'finalistas' => $turma->finalistas->map(fn ($aluno) => [
                 'id' => $aluno->id,
                 'nome' => $aluno->inscricao?->candidato?->nome,
                 'matricula' => $aluno->matricula,
@@ -55,7 +55,7 @@ class FinalistaController extends Controller //implements HasMiddleware
         $classe = $turma->cursoClasseTurno?->cursoClasse?->classe?->nome;
         if ($classe !== '13ª') {
             return response()->json([
-                'message' => 'Só alunos da 13ª classe podem concluir o PAP.'
+                'message' => 'Só alunos da 13ª classe podem concluir o PAP.',
             ], 422);
         }
 
@@ -66,7 +66,7 @@ class FinalistaController extends Controller //implements HasMiddleware
 
         if ($turmaAluno->situacao !== 'activo') {
             return response()->json([
-                'message' => 'Este aluno já não está activo nesta turma.'
+                'message' => 'Este aluno já não está activo nesta turma.',
             ], 422);
         }
 
@@ -93,7 +93,7 @@ class FinalistaController extends Controller //implements HasMiddleware
 
         if ($turmaAluno->situacao !== 'pap_concluido') {
             return response()->json([
-                'message' => 'O aluno tem de ter o PAP concluído antes de ser marcado como concluído.'
+                'message' => 'O aluno tem de ter o PAP concluído antes de ser marcado como concluído.',
             ], 422);
         }
 
@@ -165,7 +165,7 @@ class FinalistaController extends Controller //implements HasMiddleware
             'nome' => $aluno->inscricao?->candidato?->nome,
             'matricula' => $aluno->matricula,
             'situacao' => $aluno->situacao,
-            'historico' => $aluno->historicoTurmas->map(fn($turma) => [
+            'historico' => $aluno->historicoTurmas->map(fn ($turma) => [
                 'turma' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
                 'turno' => $turma->cursoClasseTurno?->turno?->nome,
@@ -175,14 +175,14 @@ class FinalistaController extends Controller //implements HasMiddleware
                 'notas' => TurmaAluno::where('turma_id', $turma->id)
                     ->where('aluno_id', $aluno->id)
                     ->first()
-                        ?->notas()
+                    ?->notas()
                     ->with('turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina:id,nome,sigla')
                     ->get()
-                    ->map(fn($nota) => [
+                    ->map(fn ($nota) => [
                         'disciplina' => $nota->turmaDisciplinaProfessor?->classeTurnoDisciplina?->disciplina?->nome,
                         'sigla' => $nota->turmaDisciplinaProfessor?->classeTurnoDisciplina?->disciplina?->sigla,
                         'periodo' => $nota->periodo,
-                        //'mac' => $nota->mac,
+                        // 'mac' => $nota->mac,
                         'nota_prova_professor' => $nota->nota_prova_professor,
                         'nota_prova_trimestral' => $nota->nota_prova_trimestral,
                         'media_trimestral' => $nota->media_trimestral,

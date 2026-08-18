@@ -26,6 +26,7 @@ class VerificadorPropinaService
         $turma = $aluno->turmaActual()->first();
         if (! $turma) {
             Log::debug('[VerificadorPropinaService] SEM TURMA ATUAL — retorna vazio', ['aluno_id' => $aluno->id]);
+
             return [];
         }
 
@@ -35,6 +36,7 @@ class VerificadorPropinaService
                 'aluno_id' => $aluno->id,
                 'turma_id' => $turma->id,
             ]);
+
             return [];
         }
 
@@ -49,14 +51,14 @@ class VerificadorPropinaService
                     ?? null;
 
         Log::debug('[VerificadorPropinaService] DADOS TURMA E ANO', [
-            'aluno_id'           => $aluno->id,
-            'turma_id'           => $turma->id,
-            'turma_nome'         => $turma->nome ?? 'N/A',
-            'curso_classe_id'    => $cursoClasseId,
-            'classe_id'          => $classeId,
-            'ano_lectivo_id'     => $anoLectivo->id,
+            'aluno_id' => $aluno->id,
+            'turma_id' => $turma->id,
+            'turma_nome' => $turma->nome ?? 'N/A',
+            'curso_classe_id' => $cursoClasseId,
+            'classe_id' => $classeId,
+            'ano_lectivo_id' => $anoLectivo->id,
             'ano_lectivo_inicio' => (string) $anoLectivo->data_inicio,
-            'ano_lectivo_fim'    => (string) $anoLectivo->data_fim,
+            'ano_lectivo_fim' => (string) $anoLectivo->data_fim,
         ]);
 
         $dataMatricula = $aluno->data_matricula ?? $aluno->created_at;
@@ -117,19 +119,20 @@ class VerificadorPropinaService
         $todosItens = $query->get();
         Log::debug('[VerificadorPropinaService] ITENS ENCONTRADOS (brutos)', [
             'aluno_id' => $aluno->id,
-            'modo'     => $modo,
-            'total'    => $todosItens->count(),
+            'modo' => $modo,
+            'total' => $todosItens->count(),
         ]);
 
         $itensAplicaveis = $todosItens->filter(fn ($item) => $this->ehItemDeBloqueio($item));
 
         Log::debug('[VerificadorPropinaService] ITENS APÓS FILTRO BLOQUEIO', [
-            'aluno_id'       => $aluno->id,
+            'aluno_id' => $aluno->id,
             'total_bloqueio' => $itensAplicaveis->count(),
         ]);
 
         if ($itensAplicaveis->isEmpty()) {
             Log::debug('[VerificadorPropinaService] NENHUM ITEM DE BLOQUEIO — retorna vazio', ['aluno_id' => $aluno->id]);
+
             return [];
         }
 
@@ -169,7 +172,7 @@ class VerificadorPropinaService
         $resultado = $pendencias->values()->all();
 
         Log::debug('[VerificadorPropinaService] RESULTADO FINAL', [
-            'aluno_id'         => $aluno->id,
+            'aluno_id' => $aluno->id,
             'total_pendencias' => count($resultado),
             'valor_total_com_multas' => collect($resultado)->sum('valor'),
         ]);
@@ -190,6 +193,7 @@ class VerificadorPropinaService
                 return true;
             }
         }
+
         return false;
     }
 
@@ -293,9 +297,9 @@ private function calcularMulta(ItemPagavel $item, int $mes, int $ano): float
             $pendencias = $this->pendenciasDoAluno($aluno);
 
             return [
-                'aluno_id'   => $aluno->id,
-                'nome'       => $aluno->inscricao?->candidato?->nome,
-                'em_dia'     => empty($pendencias),
+                'aluno_id' => $aluno->id,
+                'nome' => $aluno->inscricao?->candidato?->nome,
+                'em_dia' => empty($pendencias),
                 'pendencias' => $pendencias,
             ];
         });

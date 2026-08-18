@@ -19,8 +19,7 @@ class ProgressaoController extends Controller
 {
     public function __construct(
         private readonly AprovacaoService $aprovacaoService,
-    ) {
-    }
+    ) {}
 
     // ─────────────────────────────────────────────────────────────
     // PREVIEW
@@ -98,7 +97,7 @@ class ProgressaoController extends Controller
                     });
                 })
                 ->get()
-                ->map(fn($t) => [
+                ->map(fn ($t) => [
                     'id' => $t->id,
                     'nome' => $t->nome,
                     'classe' => $t->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -156,7 +155,7 @@ class ProgressaoController extends Controller
                 $nome = $ta->aluno
                     ->inscricao
                     ?->candidato
-                        ?->nome ?? 'Desconhecido';
+                    ?->nome ?? 'Desconhecido';
 
                 $resultadoFinal = $this->aprovacaoService
                     ->calcularAprovacao($ta->id);
@@ -170,68 +169,68 @@ class ProgressaoController extends Controller
                     // ─────────────────────────────────────
                     'TRANSITAR' => (function () use ($ta, $turmaDestino, $novoAnoLectivoId, $nome, $resultadoFinal, &$resultados) {
 
-                            $this->moverParaProximaClasse(
+                        $this->moverParaProximaClasse(
                             $ta,
                             $turmaDestino->id,
                             $novoAnoLectivoId
-                            );
+                        );
 
-                            $resultados['transitados'][] = [
+                        $resultados['transitados'][] = [
                             'nome' => $nome,
                             'situacao' => $resultadoFinal['situacao'],
                             'detalhes' => $resultadoFinal['detalhes'],
-                            ];
-                        })(),
+                        ];
+                    })(),
 
                     // ─────────────────────────────────────
                     // AGUARDAR RECURSO
                     // ─────────────────────────────────────
                     'AGUARDAR_RECURSO' => (function () use ($ta, $nome, $resultadoFinal, &$resultados) {
-                            // Aluno continua activo, marca como aguardando_recurso
-                            $ta->update([
+                        // Aluno continua activo, marca como aguardando_recurso
+                        $ta->update([
                             'situacao' => 'aguardando_recurso',
-                            ]);
+                        ]);
 
-                            $resultados['recurso'][] = [
+                        $resultados['recurso'][] = [
                             'nome' => $nome,
                             'detalhes' => $resultadoFinal['detalhes'],
-                            ];
-                        })(),
+                        ];
+                    })(),
 
                     // ─────────────────────────────────────
                     // RETER
                     // ─────────────────────────────────────
                     'RETER' => (function () use ($ta, $turma, $nome, $resultadoFinal, &$resultados) {
 
-                            // ✅ Cria novo TurmaAluno na mesma turma (repetirá de ano)
-                            // Sem tentar adicionar ano_lectivo_id (não existe em turma_aluno)
-                            TurmaAluno::create([
+                        // ✅ Cria novo TurmaAluno na mesma turma (repetirá de ano)
+                        // Sem tentar adicionar ano_lectivo_id (não existe em turma_aluno)
+                        TurmaAluno::create([
                             'turma_id' => $turma->id,
                             'aluno_id' => $ta->aluno_id,
                             'activo' => true,
                             'situacao' => 'retido',
-                            ]);
+                        ]);
 
-                            // Encerra anterior
-                            $ta->update([
+                        // Encerra anterior
+                        $ta->update([
                             'activo' => false,
                             'situacao' => 'retido',
-                            ]);
+                        ]);
 
-                            $resultados['retidos'][] = [
+                        $resultados['retidos'][] = [
                             'nome' => $nome,
                             'situacao' => $resultadoFinal['situacao'],
                             'detalhes' => $resultadoFinal['detalhes'],
-                            ];
-                        })(),
+                        ];
+                    })(),
 
                     // ─────────────────────────────────────
                     // INCOMPLETO
                     // ─────────────────────────────────────
                     default => (function () use ($nome, &$resultados) {
 
-                            $resultados['incompletos'][] = $nome;
-                        })(),
+                        $resultados['incompletos'][] = $nome;
+                    })(),
                 };
             }
         });
@@ -307,44 +306,44 @@ class ProgressaoController extends Controller
                     // ─────────────────────────────────────
                     'TRANSITAR' => (function () use ($ta, $turmaDestino, $novoAnoLectivoId, $nome, &$resultados) {
 
-                            $this->moverParaProximaClasse(
+                        $this->moverParaProximaClasse(
                             $ta,
                             $turmaDestino->id,
                             $novoAnoLectivoId
-                            );
+                        );
 
-                            $resultados['transitados'][] = $nome;
-                        })(),
+                        $resultados['transitados'][] = $nome;
+                    })(),
 
                     // ─────────────────────────────────────
                     // REPROVADO NO RECURSO
                     // ─────────────────────────────────────
                     'RETER' => (function () use ($ta, $turma, $nome, &$resultados) {
 
-                            // ✅ Cria novo TurmaAluno na mesma turma
-                            TurmaAluno::create([
+                        // ✅ Cria novo TurmaAluno na mesma turma
+                        TurmaAluno::create([
                             'turma_id' => $turma->id,
                             'aluno_id' => $ta->aluno_id,
                             'activo' => true,
                             'situacao' => 'retido',
-                            ]);
+                        ]);
 
-                            // Encerra anterior
-                            $ta->update([
+                        // Encerra anterior
+                        $ta->update([
                             'activo' => false,
                             'situacao' => 'reprovado_recurso',
-                            ]);
+                        ]);
 
-                            $resultados['retidos'][] = $nome;
-                        })(),
+                        $resultados['retidos'][] = $nome;
+                    })(),
 
                     // ─────────────────────────────────────
                     // NOTAS AINDA NÃO LANÇADAS
                     // ─────────────────────────────────────
                     default => (function () use ($nome, &$resultados) {
 
-                            $resultados['pendentes'][] = $nome;
-                        })(),
+                        $resultados['pendentes'][] = $nome;
+                    })(),
                 };
             }
         });
