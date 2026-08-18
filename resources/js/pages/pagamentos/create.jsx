@@ -1,11 +1,21 @@
+import { Head } from '@inertiajs/react';
 import { PagamentosForm } from './components/pagamentos-form';
 
-export default function Page({ alunos, itensPagaveis, paidRecord }) {
+export default function Create({
+  alunos,
+  itensPagaveis,
+  paidRecord,
+  pendenciasComMulta,
+}) {
   return (
-    <PagamentosForm
-      alunos={alunos}
-      itensPagaveis={itensPagaveis}
-      paidRecord={paidRecord}
-    />
+    <>
+      <Head title="Novo Pagamento" />
+      <PagamentosForm
+        alunos={alunos}
+        itensPagaveis={itensPagaveis}
+        paidRecord={paidRecord}
+        pendenciasComMulta={pendenciasComMulta}
+      />
+    </>
   );
 }

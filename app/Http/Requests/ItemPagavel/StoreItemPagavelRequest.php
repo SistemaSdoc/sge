@@ -32,6 +32,8 @@ class StoreItemPagavelRequest extends FormRequest
                 'nullable', 'uuid',
                 'exists:curso_classe,id'  // ← REMOVIDO O where('instituicao_id', ...)
             ],
+            'multa_dias_tolerancia' => ['nullable', 'integer', 'min:1', 'max:31'],
+            'multa_valor' => ['nullable', 'numeric', 'min:0', 'max:9999999.99'],
             'ativo' => ['boolean'],
         ];
     }
@@ -45,6 +47,8 @@ class StoreItemPagavelRequest extends FormRequest
             'frequencia.required' => 'Selecione a frequência de pagamento.',
             'frequencia.in' => 'Frequência inválida. Use mensal, anual ou único.',
             'curso_classe_id.exists' => 'Curso/classe inválido.',
+            'multa_dias_tolerancia.max' => 'Os dias de tolerância não podem exceder 31.',
+            'multa_valor.min' => 'O valor da multa não pode ser negativo.',
         ];
     }
 }

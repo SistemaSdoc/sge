@@ -6,6 +6,7 @@ import {
   FieldGroup,
   FieldLabel,
   FieldSet,
+  FieldDescription,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,47 +36,8 @@ export function ItensForm({
   cursosClasse = [],
   submitFn,
 }) {
-  // ---------- LOGS DE DEBUG ----------
-  console.log('[ItensForm] RENDER ------------------------------');
-  console.log('[ItensForm] data completo:', data);
-  console.log(
-    '[ItensForm] data.curso_classe_id:',
-    JSON.stringify(data.curso_classe_id),
-    'tipo:',
-    typeof data.curso_classe_id,
-  );
-  console.log(
-    '[ItensForm] cursosClasse recebido (length):',
-    cursosClasse.length,
-  );
-  console.log('[ItensForm] cursosClasse recebido (array):', cursosClasse);
-
-  // valor que vai efectivamente para a prop `value` do Select
   const selectValue = data.curso_classe_id || 'todos';
-  console.log(
-    '[ItensForm] selectValue calculado (vai para o Select):',
-    JSON.stringify(selectValue),
-  );
-
-  // verifica se esse valor existe mesmo dentro da lista de opções
-  const idsDisponiveis = cursosClasse.map((cc) => String(cc.id));
-  const existeNaLista =
-    idsDisponiveis.includes(selectValue) || selectValue === 'todos';
-  console.log('[ItensForm] IDs disponíveis no Select:', idsDisponiveis);
-  console.log(
-    '[ItensForm] selectValue existe na lista de opções?',
-    existeNaLista,
-  );
-
-  if (!existeNaLista) {
-    console.warn(
-      '[ItensForm]  PROBLEMA ENCONTRADO: o valor "' +
-        selectValue +
-        '" não corresponde a NENHUM id em cursosClasse. ' +
-        'O SelectValue vai ficar vazio/placeholder mesmo com dados corretos.',
-    );
-  }
-  // ---------- FIM LOGS DE DEBUG ----------
+  const temMulta = data.multa_dias_tolerancia || data.multa_valor;
 
   return (
     <div className="mx-auto w-full max-w-2xl p-6">
@@ -144,10 +106,6 @@ export function ItensForm({
                   <Select
                     value={selectValue}
                     onValueChange={(val) => {
-                      console.log(
-                        '[ItensForm] onValueChange disparado. val recebido:',
-                        val,
-                      );
                       setData('curso_classe_id', val === 'todos' ? '' : val);
                     }}
                   >
@@ -161,21 +119,11 @@ export function ItensForm({
                       <SelectItem value="todos">
                         Toda a instituição (sem curso/classe específico)
                       </SelectItem>
-                      {cursosClasse.map((cc) => {
-                        const valorItem = String(cc.id);
-                        if (valorItem === selectValue) {
-                          console.log(
-                            '[ItensForm]  SelectItem que DEVERIA aparecer selecionado:',
-                            cc.nome,
-                            valorItem,
-                          );
-                        }
-                        return (
-                          <SelectItem key={cc.id} value={valorItem}>
-                            {cc.nome}
-                          </SelectItem>
-                        );
-                      })}
+                      {cursosClasse.map((cc) => (
+                        <SelectItem key={cc.id} value={String(cc.id)}>
+                          {cc.nome}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {errors?.curso_classe_id && (
@@ -208,6 +156,62 @@ export function ItensForm({
                     onCheckedChange={(val) => setData('ativo', val)}
                   />
                 </Field>
+
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm font-medium">Multa por atraso</p>
+                  <p className="mb-3 text-xs text-muted-foreground">
+                    Opcional. Deixa os dois campos vazios se este emolumento não tiver multa.
+                    Só se aplica a itens de frequência mensal (ex: propina).
+                  </p>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field data-invalid={Boolean(errors?.multa_dias_tolerancia)}>
+                      <FieldLabel htmlFor="multa_dias_tolerancia">
+                        Dias de tolerância (a partir do início do mês)
+                      </FieldLabel>
+                      <Input
+                        id="multa_dias_tolerancia"
+                        type="number"
+                        min="1"
+                        max="31"
+                        placeholder="Ex.: 10"
+                        value={data.multa_dias_tolerancia ?? ''}
+                        onChange={(e) => setData('multa_dias_tolerancia', e.target.value)}
+                        aria-invalid={Boolean(errors?.multa_dias_tolerancia)}
+                      />
+                      <FieldDescription>
+                        Ex.: 10 = pode pagar até ao dia 10 sem multa; a partir do dia 11, aplica-se.
+                      </FieldDescription>
+                      {errors?.multa_dias_tolerancia && (
+                        <FieldError>{errors.multa_dias_tolerancia}</FieldError>
+                      )}
+                    </Field>
+
+                    <Field data-invalid={Boolean(errors?.multa_valor)}>
+                      <FieldLabel htmlFor="multa_valor">Valor da multa (Kz)</FieldLabel>
+                      <Input
+                        id="multa_valor"
+                        type="number"
+                        min="0"
+                        placeholder="Ex.: 2500"
+                        value={data.multa_valor ?? ''}
+                        onChange={(e) => setData('multa_valor', e.target.value)}
+                        aria-invalid={Boolean(errors?.multa_valor)}
+                      />
+                      {errors?.multa_valor && (
+                        <FieldError>{errors.multa_valor}</FieldError>
+                      )}
+                    </Field>
+                  </div>
+
+                  {temMulta && (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Resumo: após o dia {data.multa_dias_tolerancia || '—'} do mês, soma-se{' '}
+                      {data.multa_valor ? `${Number(data.multa_valor).toLocaleString('pt')} Kz` : '—'}{' '}
+                      ao valor da propina em atraso.
+                    </p>
+                  )}
+                </div>
 
                 <Button type="submit" disabled={processing}>
                   {processing ? 'Criando...' : submitLabel}

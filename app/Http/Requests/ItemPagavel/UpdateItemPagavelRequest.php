@@ -20,6 +20,8 @@ class UpdateItemPagavelRequest extends FormRequest
             'curso_classe_id' => 'sometimes|required|exists:curso_classe,id',
             'valor'         => 'sometimes|required|numeric|min:0',
             'frequencia'    => 'sometimes|required|in:unico,mensal,anual',
+            'multa_dias_tolerancia' => 'nullable|integer|min:1|max:31',
+            'multa_valor'   => 'nullable|numeric|min:0',
             'ativo'         => 'sometimes|boolean',
         ];
     }

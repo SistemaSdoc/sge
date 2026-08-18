@@ -68,6 +68,7 @@ export default function PagamentosTable({
           {can?.create && (
             <Button asChild>
               <Link href={create().url}>
+                <PlusIcon className="mr-1.5 size-4" />
                 Adicionar Pagamento
               </Link>
             </Button>
@@ -149,18 +150,21 @@ export default function PagamentosTable({
                           Ver detalhes
                         </DropdownMenuItem>
 
-                       
-                        {/* <DropdownMenuSeparator />
+                        {p.can?.delete && (
+                          <>
+                            <DropdownMenuSeparator />
 
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteFn(p.id);
-                          }}
-                        >
-                          Anular
-                        </DropdownMenuItem> */}
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteFn(p.id);
+                              }}
+                            >
+                              Anular pagamento
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

@@ -23,11 +23,12 @@ export default function Preencher({
   anosLectivos,
   onCancel,
   onSuccess,
+  cursoClasseIdInicial = null,
 }) {
   const { turnos = [], turmasPorTurno = [] } = usePage().props;
   const { data, setData, post, processing, errors } = useForm({
     ano_lectivo_id: '',
-    curso_classe_id: '',
+    curso_classe_id: cursoClasseIdInicial ?? '',
     curso_classe_turno_id: '',
     turma_id: '',
   });

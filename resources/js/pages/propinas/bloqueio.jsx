@@ -1,8 +1,16 @@
 import { Head, Link } from '@inertiajs/react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, TriangleAlert } from 'lucide-react';
 import { dashboard } from '@/routes';
 
+const formatCurrency = (value) => {
+  const amount = Number(value ?? 0);
+  return `${amount.toLocaleString('pt', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AOA`;
+};
+
 export default function Bloqueio({ pendencias, total, meses }) {
+  const valorTotal = pendencias.reduce((soma, p) => soma + Number(p.valor ?? 0), 0);
+  const multaTotal = pendencias.reduce((soma, p) => soma + Number(p.multa ?? 0), 0);
+
   return (
     <>
       <Head title="Acesso Bloqueado" />
@@ -20,22 +28,46 @@ export default function Bloqueio({ pendencias, total, meses }) {
             {pendencias.map((p, i) => (
               <li
                 key={i}
-                className="flex items-center justify-between gap-4 px-4 py-3 text-sm"
+                className="flex flex-col gap-1 px-4 py-3 text-sm"
               >
-                <span className="font-medium">{p.nome}</span>
-                <span className="text-muted-foreground">
-                  {meses[p.mes] ?? p.mes} / {p.ano}
-                </span>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="font-medium">{p.nome}</span>
+                  <span className="text-muted-foreground">
+                    {meses[p.mes] ?? p.mes} / {p.ano}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground">
+                  <span>Propina: {formatCurrency(p.valor_base ?? p.valor)}</span>
+                  {p.multa > 0 && (
+                    <span className="flex items-center gap-1 font-medium text-destructive">
+                      <TriangleAlert className="size-3" />
+                      Multa: {formatCurrency(p.multa)}
+                    </span>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
         )}
 
-        <p className="text-sm text-muted-foreground">
-          Total de{' '}
-          <span className="font-semibold text-foreground">{total}</span>{' '}
-          {total === 1 ? 'mês em falta' : 'meses em falta'}
-        </p>
+        <div className="flex flex-col items-center gap-1">
+          <p className="text-sm text-muted-foreground">
+            Total de{' '}
+            <span className="font-semibold text-foreground">{total}</span>{' '}
+            {total === 1 ? 'mês em falta' : 'meses em falta'}
+          </p>
+
+          {multaTotal > 0 && (
+            <p className="text-xs text-destructive">
+              Inclui {formatCurrency(multaTotal)} em multas por atraso
+            </p>
+          )}
+
+          <p className="text-sm font-semibold text-foreground">
+            Total a pagar: {formatCurrency(valorTotal)}
+          </p>
+        </div>
 
         <Link
           href={dashboard()}

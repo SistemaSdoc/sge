@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { DownloadIcon, CheckCircle2Icon } from 'lucide-react';
+import { DownloadIcon, CheckCircle2Icon, AlertCircleIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -61,7 +61,7 @@ export default function RelatorioPropinasTurma({
         </CardHeader>
 
         <CardContent className="p-0!">
-          <div className="grid grid-cols-4 divide-x border-b bg-muted/40 text-center">
+          <div className="grid grid-cols-5 divide-x border-b bg-muted/40 text-center">
             <div className="py-3">
               <p className="text-2xl font-bold">{resumo.total_alunos}</p>
               <p className="text-xs text-muted-foreground">Alunos na turma</p>
@@ -72,7 +72,13 @@ export default function RelatorioPropinasTurma({
             </div>
             <div className="py-3">
               <p className="text-2xl font-bold">{resumo.total_em_dia}</p>
-              <p className="text-xs text-muted-foreground">Regularizada</p>
+              <p className="text-xs text-muted-foreground">Reguralizado(s)</p>
+            </div>
+            <div className="py-3">
+              <p className="text-2xl font-bold text-destructive">
+                {formatCurrency(resumo.multa_total_geral)}
+              </p>
+              <p className="text-xs text-muted-foreground">Total em multas</p>
             </div>
             <div className="py-3">
               <p className="text-2xl font-bold">
@@ -103,6 +109,7 @@ export default function RelatorioPropinasTurma({
                     Meses em falta
                   </TableHead>
                   <TableHead className="px-4">Meses</TableHead>
+                  <TableHead className="px-4 text-right">Multa</TableHead>
                   <TableHead className="px-4 text-right">
                     Valor devido
                   </TableHead>
@@ -120,7 +127,26 @@ export default function RelatorioPropinasTurma({
                       </Badge>
                     </TableCell>
                     <TableCell className="px-4 text-sm text-muted-foreground">
-                      {linha.meses.map((m) => m.label).join(', ')}
+                      <div className="flex flex-wrap gap-1">
+                        {linha.meses.map((m, i) => (
+                          <span key={i} className="inline-flex items-center gap-1">
+                            {m.label}
+                            {m.com_multa && (
+                              <AlertCircleIcon className="size-3 text-destructive" />
+                            )}
+                            {i < linha.meses.length - 1 && ','}
+                          </span>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-4 text-right">
+                      {linha.multa_total > 0 ? (
+                        <span className="font-medium text-destructive">
+                          {formatCurrency(linha.multa_total)}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     <TableCell className="px-4 text-right font-medium">
                       {formatCurrency(linha.valor_total)}
@@ -148,7 +174,7 @@ export default function RelatorioPropinasTurma({
           {emDia.length === 0 ? (
             <EmptyState
               icon={CheckCircle2Icon}
-              title="Nenhum aluno em dia"
+              title="Nenhum Reguralizado"
               description="Ainda não há alunos com as propinas totalmente pagas nesta turma."
             />
           ) : (
@@ -166,10 +192,7 @@ export default function RelatorioPropinasTurma({
                       {aluno.nome}
                     </TableCell>
                     <TableCell className="px-4 text-right">
-                      <Badge
-                        variant="secondary"
-                        className="bg-green-100 text-green-700 hover:bg-green-100"
-                      >
+                      <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
                         Regularizada
                       </Badge>
                     </TableCell>

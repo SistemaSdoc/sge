@@ -33,10 +33,10 @@ export default function Index({
 
   const handleDelete = (id) => {
     deleteConfirm({
-      title: 'Tens a certeza?',
+      title: 'Anular este pagamento?',
       description:
-        'Esta acção é irreversível. O pagamento será removido permanentemente.',
-      confirmLabel: 'Eliminar',
+        'Esta acção é irreversível. O pagamento será removido permanentemente e, se o aluno voltar a ficar em atraso, ele será notificado novamente.',
+      confirmLabel: 'Anular pagamento',
       confirmFn: () => router.delete(destroy(id).url),
     });
   };
@@ -69,7 +69,7 @@ export default function Index({
       <Head title="Pagamentos" />
 
       {/* Relatório de propinas por turma (devedores vs em dia) */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 p-3">
+      <div className="flex flex-wrap items-center gap-3 border bg-muted/30 p-3">
         <span className="text-sm font-medium">Relatório por turma</span>
 
         <Select value={turmaEscolhida} onValueChange={setTurmaEscolhida}>

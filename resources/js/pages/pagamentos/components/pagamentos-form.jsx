@@ -33,7 +33,12 @@ const metodos = [
   { value: 'outro', label: 'Outro' },
 ];
 
-export function PagamentosForm({ alunos, itensPagaveis, paidRecord }) {
+export function PagamentosForm({
+  alunos,
+  itensPagaveis,
+  paidRecord,
+  pendenciasComMulta = {},
+}) {
   const currentMonth = new Date().getMonth() + 1;
   const currentYear = new Date().getFullYear();
 
@@ -53,18 +58,24 @@ export function PagamentosForm({ alunos, itensPagaveis, paidRecord }) {
     return studentPaid[itemPagavelId] ?? [];
   }
 
-function handleAlunoChange(a) {
+  // Função que busca o valor com multa para um item/mês/ano
+  function valorDoMes(itemId, mes, ano) {
+    const linhas = pendenciasComMulta[itemId] ?? [];
+    const encontrada = linhas.find((p) => p.mes === mes && p.ano === ano);
+    return encontrada ?? null;
+  }
+
+  function handleAlunoChange(a) {
     setData((prev) => ({ ...prev, aluno_id: a?.id ?? null, itens: [] }));
     if (a?.id) {
-        router.reload({
-            only: ['paidRecord', 'itensPagaveis'], //  adicionado o 'itensPagaveis'
-            data: { aluno_id: a.id },
-            preserveState: true,
-            preserveScroll: true,
-        });
+      router.reload({
+        only: ['paidRecord', 'itensPagaveis', 'pendenciasComMulta'],
+        data: { aluno_id: a.id },
+        preserveState: true,
+        preserveScroll: true,
+      });
     }
-}
-
+  }
 
   function handleToggleItem(item, checked) {
     setData((prev) => {
@@ -90,7 +101,6 @@ function handleAlunoChange(a) {
             item_pagavel_id: item.id,
             ano: currentYear,
             meses,
-            valor: item.valor,
           },
         ],
       };
@@ -233,6 +243,7 @@ function handleAlunoChange(a) {
                 disabled={!aluno}
                 onToggle={(checked) => handleToggleItem(item, checked)}
                 onMonthsChange={(meses) => handleMonthsChange(item.id, meses)}
+                valorDoMes={(mes) => valorDoMes(item.id, mes, currentYear)}
               />
             );
           })}
@@ -246,6 +257,7 @@ function handleAlunoChange(a) {
             processing={processing}
             onRemove={handleRemove}
             onSubmit={handleSubmit}
+            valorDoMes={valorDoMes}
           />
         </aside>
       </div>

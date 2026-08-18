@@ -50,7 +50,7 @@ export function TabAlunos({
           <CardAction>
             <Button>Adicionar Alunos</Button>
           </CardAction>
-        )}
+        )} */}
       </CardHeader>
 
       <CardContent className="p-0!">

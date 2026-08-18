@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Aluno;
 use App\Models\ItemPagavel;
 use App\Models\PagamentoItem;
+use App\Models\User;
+use App\Notifications\PropinaEmAtrasoNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -12,7 +14,13 @@ use Illuminate\Support\Str;
 
 class VerificadorPropinaService
 {
-    private const TERMOS_BLOQUEIO = ['propina','Propinas','Propina', 'propinas'];
+    private const TERMOS_BLOQUEIO = ['propina', 'propinas'];
+
+    private const MESES = [
+        1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+        5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+        9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro',
+    ];
 
     public function pendenciasDoAluno(Aluno $aluno): array
     {
@@ -35,21 +43,6 @@ class VerificadorPropinaService
             ]);
             return [];
         }
-        \Log::debug('DEBUG pendencias', [
-    'aluno_id' => $aluno->id,
-    'turma_existe' => (bool) $turma,
-    'ano_lectivo_turma' => $turma?->anoLectivo?->id,
-]);
-if (! $turma) {
-    // sem turma associada — não há como calcular pendência real
-    return [];
-}
-
-$anoLectivo = $turma->anoLectivo;
-
-if (! $anoLectivo) {
-    return [];
-}
 
         $turma->loadMissing(['cursoClasseTurno.cursoClasse']);
 
@@ -79,26 +72,23 @@ if (! $anoLectivo) {
             $inicio = $inicioAno;
         }
 
-       $fim = Carbon::now()->startOfMonth();
-$fimAno = Carbon::parse($anoLectivo->data_fim)->startOfMonth();
-if ($fim->gt($fimAno)) {
-    $fim = $fimAno;
-}
+        $fim = Carbon::now()->startOfMonth();
+        $fimAno = Carbon::parse($anoLectivo->data_fim)->startOfMonth();
+        if ($fim->gt($fimAno)) {
+            $fim = $fimAno;
+        }
 
-// --- NOVO: aviso explícito quando o período é inválido ---
-if ($inicio->gt($fim)) {
-    Log::warning('[VerificadorPropinaService] PERÍODO INVERTIDO — matrícula posterior ao fim do ano lectivo (ou ano lectivo já terminou)', [
-        'aluno_id' => $aluno->id,
-        'turma_id' => $turma->id,
-        'data_matricula' => (string) $dataMatricula,
-        'inicio_calculado' => (string) $inicio,
-        'fim_calculado' => (string) $fim,
-        'ano_lectivo_fim' => (string) $anoLectivo->data_fim,
-        'meses_entre'    => $inicio->diffInMonths($fim) + 1,
-    ]);
-    return [];
-}
-
+        if ($inicio->gt($fim)) {
+            Log::warning('[VerificadorPropinaService] PERÍODO INVERTIDO — matrícula posterior ao fim do ano lectivo (ou ano lectivo já terminou)', [
+                'aluno_id' => $aluno->id,
+                'turma_id' => $turma->id,
+                'data_matricula' => (string) $dataMatricula,
+                'inicio_calculado' => (string) $inicio,
+                'fim_calculado' => (string) $fim,
+                'ano_lectivo_fim' => (string) $anoLectivo->data_fim,
+            ]);
+            return [];
+        }
 
         $query = ItemPagavel::query()
             ->where('instituicao_id', $aluno->user->instituicao_id)
@@ -174,7 +164,9 @@ if ($inicio->gt($fim)) {
                         'frequencia'      => $item->frequencia,
                         'mes'             => null,
                         'ano'             => $anoCorrente,
-                        'valor'           => $item->valor, // <-- adicionado
+                        'valor_base'      => (float) $item->valor,
+                        'multa'           => 0.0,
+                        'valor'           => (float) $item->valor,
                     ]);
                 }
             }
@@ -185,6 +177,7 @@ if ($inicio->gt($fim)) {
         Log::debug('[VerificadorPropinaService] RESULTADO FINAL', [
             'aluno_id'         => $aluno->id,
             'total_pendencias' => count($resultado),
+            'valor_total_com_multas' => collect($resultado)->sum('valor'),
         ]);
 
         return $resultado;
@@ -218,13 +211,17 @@ if ($inicio->gt($fim)) {
             $pago = $pagos->contains(fn ($p) => (int) $p->mes === $mes && (int) $p->ano === $ano);
 
             if (! $pago) {
+                $valores = $this->valorComMulta($item, $mes, $ano);
+
                 $pendencias->push([
                     'item_pagavel_id' => $item->id,
                     'nome'            => $item->nome,
                     'frequencia'      => $item->frequencia,
                     'mes'             => $mes,
                     'ano'             => $ano,
-                    'valor'           => $item->valor, // <-- adicionado
+                    'valor_base'      => $valores['valor_base'],
+                    'multa'           => $valores['multa'],
+                    'valor'           => $valores['valor'],
                 ]);
             }
 
@@ -232,6 +229,51 @@ if ($inicio->gt($fim)) {
         }
 
         return $pendencias;
+    }
+
+    /**
+     * Calcula o valor a pagar por um item mensal (ex: propina) num mês/ano
+     * específico, já incluindo a multa por atraso se aplicável.
+     *
+     * @return array{valor_base: float, multa: float, valor: float}
+     */
+    public function valorComMulta(ItemPagavel $item, int $mes, int $ano): array
+    {
+        $valorBase = (float) $item->valor;
+        $multa = $this->calcularMulta($item, $mes, $ano);
+
+        return [
+            'valor_base' => $valorBase,
+            'multa' => $multa,
+            'valor' => $valorBase + $multa,
+        ];
+    }
+
+    private function calcularMulta(ItemPagavel $item, int $mes, int $ano): float
+    {
+        if (! $item->multa_dias_tolerancia || ! $item->multa_valor) {
+            return 0.0;
+        }
+
+        $dataLimite = Carbon::create($ano, $mes, 1)
+            ->addDays($item->multa_dias_tolerancia - 1)
+            ->endOfDay();
+
+        $aplicaMulta = Carbon::now()->gt($dataLimite);
+
+        Log::debug('[VerificadorPropinaService] calcularMulta', [
+            'item_id' => $item->id,
+            'item_nome' => $item->nome,
+            'mes' => $mes,
+            'ano' => $ano,
+            'dias_tolerancia' => $item->multa_dias_tolerancia,
+            'data_limite' => (string) $dataLimite,
+            'hoje' => (string) Carbon::now(),
+            'aplica_multa' => $aplicaMulta,
+            'valor_multa_configurado' => (float) $item->multa_valor,
+        ]);
+
+        return $aplicaMulta ? (float) $item->multa_valor : 0.0;
     }
 
     public function statusAlunos(Collection $alunos): Collection
@@ -246,5 +288,62 @@ if ($inicio->gt($fim)) {
                 'pendencias' => $pendencias,
             ];
         });
+    }
+
+    /**
+     * Notifica o utilizador sobre propinas em atraso, evitando duplicar
+     * quando o estado da dívida (nº de pendências + valor total, já com
+     * multa) é o mesmo de uma notificação anterior — lida ou não.
+     * Partilhado entre o middleware (acesso bloqueado), o controller
+     * (pagamento anulado) e o comando agendado (aviso proactivo diário).
+     */
+    public function notificarSeNecessario(User $user, array $pendencias): void
+    {
+        if (empty($pendencias)) {
+            return;
+        }
+
+        $totalPendencias = count($pendencias);
+        $valorTotal = (float) collect($pendencias)->sum('valor');
+        $multaTotal = (float) collect($pendencias)->sum('multa');
+        $assinatura = md5($totalPendencias . '-' . $valorTotal);
+
+        Log::debug('[VerificadorPropinaService] notificarSeNecessario', [
+            'user_id' => $user->id,
+            'total_pendencias' => $totalPendencias,
+            'valor_total' => $valorTotal,
+            'multa_total' => $multaTotal,
+            'assinatura' => $assinatura,
+        ]);
+
+        $ultima = $user->notifications()
+            ->where('type', PropinaEmAtrasoNotification::class)
+            ->latest()
+            ->first();
+
+        if ($ultima && ($ultima->data['assinatura'] ?? null) === $assinatura) {
+            Log::debug('[VerificadorPropinaService] notificação já existe para este estado — não duplica', [
+                'user_id' => $user->id,
+                'assinatura' => $assinatura,
+                'notificacao_existente_id' => $ultima->id,
+            ]);
+            return;
+        }
+
+        $meses = collect($pendencias)
+            ->filter(fn ($p) => $p['mes'] !== null)
+            ->map(fn ($p) => self::MESES[$p['mes']] . '/' . $p['ano'])
+            ->values()
+            ->all();
+
+        $user->notify(new PropinaEmAtrasoNotification($totalPendencias, $valorTotal, $multaTotal, $meses, $assinatura));
+
+        Log::info('[VerificadorPropinaService] notificação criada', [
+            'user_id' => $user->id,
+            'total_pendencias' => $totalPendencias,
+            'valor_total' => $valorTotal,
+            'multa_total' => $multaTotal,
+            'assinatura' => $assinatura,
+        ]);
     }
 }

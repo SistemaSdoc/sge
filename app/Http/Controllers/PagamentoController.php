@@ -20,77 +20,102 @@ use Inertia\Inertia;
 
 class PagamentoController extends Controller
 {
+    private const MESES = [
+        1 => 'Janeiro', 2 => 'Fevereiro', 3 => 'Março', 4 => 'Abril',
+        5 => 'Maio', 6 => 'Junho', 7 => 'Julho', 8 => 'Agosto',
+        9 => 'Setembro', 10 => 'Outubro', 11 => 'Novembro', 12 => 'Dezembro',
+    ];
+
     public function __construct(
         private readonly VerificadorPropinaService $verificador
     ) {}
 
-    public function index(Request $request)
-    {
-        $instituicaoId = $request->user()->instituicao_id;
+public function index(Request $request)
+{
+    $instituicaoId = $request->user()->instituicao_id;
 
-        Log::info('PagamentoController@index - início', [
-            'user_id' => $request->user()->id,
-            'instituicao_id' => $instituicaoId,
-        ]);
+    Log::info('PagamentoController@index - início', [
+        'user_id' => $request->user()->id,
+        'instituicao_id' => $instituicaoId,
+    ]);
 
-        $pagamentos = Pagamento::query()
-            ->where('instituicao_id', $instituicaoId)
-            ->with(['aluno.user:id,nome'])
-            ->orderByDesc('data_pagamento')
-            ->paginate(15)
-            ->withQueryString()
-            ->through(function (Pagamento $p) {
-                $classes = $p->itens()
-                    ->with('itemPagavel.cursoClasse.classe')
-                    ->get()
-                    ->pluck('itemPagavel.cursoClasse.classe.nome')
-                    ->filter()
-                    ->unique()
-                    ->implode(', ');
+    $pagamentos = Pagamento::query()
+        ->where('instituicao_id', $instituicaoId)
+        ->with(['aluno.user:id,nome,instituicao_id'])
+        ->orderByDesc('data_pagamento')
+        ->paginate(15)
+        ->withQueryString()
+        ->through(function (Pagamento $p) use ($request) {
+            $classes = $p->itens()
+                ->with('itemPagavel.cursoClasse.classe')
+                ->get()
+                ->pluck('itemPagavel.cursoClasse.classe.nome')
+                ->filter()
+                ->unique()
+                ->implode(', ');
 
-                return [
-                    'id' => $p->id,
-                    'aluno' => $p->aluno->user->nome,
-                    'valor_total' => $p->valor_total,
-                    'metodo' => $p->metodo,
-                    'referencia' => $p->referencia,
-                    'data_pagamento' => $p->data_pagamento->format('d/m/Y'),
-                    'classes' => $classes ?: 'Geral',
-                ];
-            });
+            $podeApagar = $request->user()->can('delete', $p);
 
-        Log::info('PagamentoController@index - total de pagamentos', ['total' => $pagamentos->total()]);
-
-        $turmas = Turma::query()
-            ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($q) use ($instituicaoId) {
-                $q->where('instituicao_id', $instituicaoId);
-            })
-            ->with(['cursoClasseTurno.cursoClasse.classe'])
-            ->get()
-            ->map(fn (Turma $t) => [
-                'id' => $t->id,
-                'nome' => $t->nome.' — '.($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
+            // LOG DEBUG: para perceber porque o botão "Anular" não aparece
+            // para certos utilizadores. Confirma aqui se falha por falta
+            // da permission 'pagamentos.delete' ou por mismatch de
+            // instituicao_id entre o pagamento e o utilizador.
+            Log::debug('PagamentoController@index - verificação can.delete', [
+                'pagamento_id' => $p->id,
+                'user_id' => $request->user()->id,
+                'user_tem_permissao_pagamentos_delete' => $request->user()->can('pagamentos.delete'),
+                'user_instituicao_id' => $request->user()->instituicao_id,
+                'pagamento_aluno_instituicao_id' => $p->aluno?->user?->instituicao_id,
+                'instituicoes_batem' => $p->aluno?->user?->instituicao_id === $request->user()->instituicao_id,
+                'resultado_policy_delete' => $podeApagar,
             ]);
 
-        $statusFiltro = $request->input('status_propina'); // 'pagos' | 'nao_pagos' | 'pendentes'
+            return [
+                'id' => $p->id,
+                'aluno' => $p->aluno->user->nome,
+                'valor_total' => $p->valor_total,
+                'metodo' => $p->metodo,
+                'referencia' => $p->referencia,
+                'data_pagamento' => $p->data_pagamento->format('d/m/Y'),
+                'classes' => $classes ?: 'Geral',
+                'can' => [
+                    'delete' => $podeApagar ?? true,
+                ],
+            ];
+        });
 
-        $alunosPorStatus = null;
+    Log::info('PagamentoController@index - total de pagamentos', ['total' => $pagamentos->total()]);
 
-        if ($statusFiltro) {
-            $alunosPorStatus = $this->alunosAgrupadosPorStatus($request, $statusFiltro);
-        }
-
-        return Inertia::render('pagamentos/index', [
-            'pagamentos' => $pagamentos,
-            'turmas' => $turmas,
-            'can' => [
-                'create' => Auth::user()->can('create', Pagamento::class),
-            ],
-            'filtros' => $request->only(['aluno_id', 'data_inicio', 'data_fim']),
-            'statusFiltro' => $statusFiltro,
-            'alunosPorStatus' => $alunosPorStatus,
+    $turmas = Turma::query()
+        ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($q) use ($instituicaoId) {
+            $q->where('instituicao_id', $instituicaoId);
+        })
+        ->with(['cursoClasseTurno.cursoClasse.classe'])
+        ->get()
+        ->map(fn (Turma $t) => [
+            'id' => $t->id,
+            'nome' => $t->nome.' — '.($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
         ]);
+
+    $statusFiltro = $request->input('status_propina'); // 'pagos' | 'nao_pagos' | 'pendentes'
+
+    $alunosPorStatus = null;
+
+    if ($statusFiltro) {
+        $alunosPorStatus = $this->alunosAgrupadosPorStatus($request, $statusFiltro);
     }
+
+    return Inertia::render('pagamentos/index', [
+        'pagamentos' => $pagamentos,
+        'turmas' => $turmas,
+        'can' => [
+            'create' => Auth::user()->can('create', Pagamento::class),
+        ],
+        'filtros' => $request->only(['aluno_id', 'data_inicio', 'data_fim']),
+        'statusFiltro' => $statusFiltro,
+        'alunosPorStatus' => $alunosPorStatus,
+    ]);
+}
 
     /**
      * Retorna alunos filtrados por status de propina (pagos/nao_pagos/pendentes),
@@ -243,7 +268,7 @@ class PagamentoController extends Controller
             Log::debug('PagamentoController@create - sem vínculo – a mostrar apenas itens universais');
         }
 
-        $itensPagaveis = $itensQuery->get(['id', 'nome', 'valor', 'frequencia', 'curso_classe_id']);
+        $itensPagaveis = $itensQuery->get(['id', 'nome', 'valor', 'frequencia', 'curso_classe_id', 'multa_dias_tolerancia', 'multa_valor']);
 
         $itensPagaveis->each(function ($item) {
             $item->load('cursoClasse.classe');
@@ -255,6 +280,8 @@ class PagamentoController extends Controller
                 'curso_associado' => $item->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome ?? 'Nenhum',
                 'frequencia' => $item->frequencia,
                 'valor' => $item->valor,
+                'multa_dias_tolerancia' => $item->multa_dias_tolerancia,
+                'multa_valor' => $item->multa_valor,
             ]);
         });
 
@@ -274,15 +301,40 @@ class PagamentoController extends Controller
             ]);
 
         $paidRecord = [];
-        if ($request->filled('aluno_id')) {
+        $pendenciasComMulta = [];
+
+        if ($request->filled('aluno_id') && $aluno) {
             $paidRecord = $this->paidRecordDoAluno($request->aluno_id);
             Log::debug('PagamentoController@create - paidRecord', ['paidRecord' => $paidRecord]);
+
+            // Pendências reais do aluno (com valor base + multa já calculados),
+            // para o frontend saber exactamente quanto cobrar por cada mês em
+            // atraso, sem ter de recalcular a multa no lado do cliente.
+            $pendencias = $this->verificador->pendenciasDoAluno($aluno);
+
+            $pendenciasComMulta = collect($pendencias)
+                ->filter(fn ($p) => $p['mes'] !== null) // só mensais têm multa
+                ->groupBy('item_pagavel_id')
+                ->map(fn ($porItem) => $porItem->map(fn ($p) => [
+                    'mes' => $p['mes'],
+                    'ano' => $p['ano'],
+                    'valor_base' => $p['valor_base'],
+                    'multa' => $p['multa'],
+                    'valor' => $p['valor'],
+                ])->values())
+                ->toArray();
+
+            Log::debug('PagamentoController@create - pendências com multa calculadas', [
+                'aluno_id' => $aluno->id,
+                'pendenciasComMulta' => $pendenciasComMulta,
+            ]);
         }
 
         return Inertia::render('pagamentos/create', [
             'alunos' => $alunos,
             'itensPagaveis' => $itensPagaveis,
             'paidRecord' => $paidRecord,
+            'pendenciasComMulta' => $pendenciasComMulta,
         ]);
     }
 
@@ -318,10 +370,40 @@ class PagamentoController extends Controller
 
             foreach ($request->input('itens') as $linha) {
                 $item = ItemPagavel::findOrFail($linha['item_pagavel_id']);
-                $valorUnitario = $linha['valor'] ?? $item->valor;
                 $meses = $item->frequencia === 'mensal' ? $linha['meses'] : [0];
+                $temValorManual = array_key_exists('valor', $linha) && $linha['valor'] !== null && $linha['valor'] !== '';
 
                 foreach ($meses as $mes) {
+                    if ($temValorManual) {
+                        // Utilizador sobrepôs o valor manualmente (ex: desconto,
+                        // acordo especial) — respeita-se tal como já acontecia.
+                        $valorUnitario = (float) $linha['valor'];
+
+                        Log::debug('PagamentoController@store - valor manual aplicado (multa não recalculada)', [
+                            'item_id' => $item->id,
+                            'mes' => $mes,
+                            'ano' => $linha['ano'],
+                            'valor_manual' => $valorUnitario,
+                        ]);
+                    } elseif ($item->frequencia === 'mensal') {
+                        // Calcula o valor correto incluindo multa por atraso,
+                        // usando a mesma lógica que gerou a pendência mostrada
+                        // ao utilizador — evita cobrar só a propina "seca".
+                        $valores = $this->verificador->valorComMulta($item, $mes, $linha['ano']);
+                        $valorUnitario = $valores['valor'];
+
+                        Log::debug('PagamentoController@store - valor calculado com multa', [
+                            'item_id' => $item->id,
+                            'mes' => $mes,
+                            'ano' => $linha['ano'],
+                            'valor_base' => $valores['valor_base'],
+                            'multa' => $valores['multa'],
+                            'valor_total_mes' => $valorUnitario,
+                        ]);
+                    } else {
+                        $valorUnitario = (float) $item->valor;
+                    }
+
                     $linhasParaCriar[] = [
                         'item_pagavel_id' => $item->id,
                         'aluno_id' => $request->input('aluno_id'),
@@ -337,7 +419,7 @@ class PagamentoController extends Controller
                     'item_nome' => $item->nome,
                     'frequencia' => $item->frequencia,
                     'meses' => $meses,
-                    'valor_unitario' => $valorUnitario,
+                    'tem_valor_manual' => $temValorManual,
                 ]);
             }
 
@@ -475,23 +557,46 @@ class PagamentoController extends Controller
         return back()->with('success', 'Pagamento atualizado com sucesso.');
     }
 
-    public function destroy(Pagamento $pagamento)
-    {
-        // $this->authorize('delete', $pagamento);
+public function destroy(Pagamento $pagamento)
+{
+    // $this->authorize('delete', $pagamento);
 
-        Log::warning('PagamentoController@destroy - anulando pagamento', [
-            'pagamento_id' => $pagamento->id,
-            'aluno_id' => $pagamento->aluno_id,
-            'valor_total' => $pagamento->valor_total,
-        ]);
+    Log::warning('PagamentoController@destroy - anulando pagamento', [
+        'pagamento_id' => $pagamento->id,
+        'aluno_id' => $pagamento->aluno_id,
+        'valor_total' => $pagamento->valor_total,
+    ]);
 
-        DB::transaction(function () use ($pagamento) {
-            $pagamento->itens()->withTrashed()->forceDelete();
-            $pagamento->delete();
-        });
+    $alunoId = $pagamento->aluno_id;
 
-        Log::info('PagamentoController@destroy - pagamento anulado', ['pagamento_id' => $pagamento->id]);
+    DB::transaction(function () use ($pagamento) {
+        $pagamento->itens()->delete();
+        $pagamento->delete();
+    });
 
-        return back()->with('success', 'Pagamento anulado com sucesso.');
+    Log::info('PagamentoController@destroy - pagamento anulado', ['pagamento_id' => $pagamento->id]);
+
+    $this->notificarSePropinaVoltouEmAtraso($alunoId);
+
+    return back()->with('success', 'Pagamento anulado com sucesso.');
+}
+
+    /**
+     * Depois de anular um pagamento, verifica se o aluno voltou a ter
+     * pendências de propina. Se sim, cria uma notificação nova (com
+     * assinatura própria do estado actual da dívida), para o aluno não
+     * ficar em atraso sem qualquer aviso — espelha a lógica usada em
+     * VerificarPropinaEmDia::notificarSeNecessario.
+     */
+private function notificarSePropinaVoltouEmAtraso(string $alunoId): void
+{
+    $aluno = Aluno::with('user')->find($alunoId);
+
+    if (! $aluno || ! $aluno->user) {
+        return;
     }
+
+    $pendencias = $this->verificador->pendenciasDoAluno($aluno);
+    $this->verificador->notificarSeNecessario($aluno->user, $pendencias);
+}
 }
