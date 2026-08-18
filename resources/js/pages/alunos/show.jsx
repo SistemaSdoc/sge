@@ -28,6 +28,7 @@ export default function Show() {
           aluno={alunoData}
           // só mostra classes que ainda não têm turma_aluno
           classesFaltando={classesFaltando.filter((c) => !c.em_curso)}
+          cursoClasseIdInicial={pendente?.curso_classe_id ?? null}
           anosLectivos={anosLectivos}
           onCancel={() => closeDialog()}
           onSuccess={() => {
