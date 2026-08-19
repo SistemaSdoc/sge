@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\BiController;
-use App\Http\Controllers\CertificadoController;
+use App\Http\Controllers\Central\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Central\Auth\RegisteredController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,6 +16,27 @@ use Illuminate\Support\Facades\Route;
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () {
         Route::inertia('/', 'welcome/index')->name('home');
+
+        Route::get('register', [RegisteredController::class, 'create'])
+            ->middleware('guest')
+            ->name('central.register');
+
+        Route::post('register', [RegisteredController::class, 'store'])
+            ->middleware('guest')
+            ->name('central.register.store');
+
+        Route::get('login', [AuthenticatedSessionController::class, 'create'])
+            ->middleware('guest')
+            ->name('central.login');
+
+        Route::post('login', [AuthenticatedSessionController::class, 'store'])
+            ->middleware('guest')
+            ->middleware('throttle:login')
+            ->name('central.login.store');
+
+        Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+            ->middleware('auth')
+            ->name('central.logout');
     });
 }
 
@@ -26,6 +47,3 @@ foreach (config('tenancy.central_domains') as $domain) {
  * As rotas específicas de configurações estão definidas em routes/settings.php
  */
 require __DIR__.'/settings.php';
-
-
-

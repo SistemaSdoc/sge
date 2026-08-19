@@ -3,7 +3,8 @@
 namespace App\Providers;
 
 use App\Listeners\RegisteredListener;
-use App\Models\CursoTuteladoProfessor;
+use App\Models\tenant\CursoTuteladoProfessor;
+use App\Models\tenant\Pagamento;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Policies\AcessManagementPolicy;
 use App\Observers\PagamentoObserver;
@@ -14,7 +15,6 @@ use App\Policies\HorarioPolicy;
 use App\Policies\PagamentoPolicy;
 use App\Policies\PautaPolicy;
 use Carbon\CarbonImmutable;
-use App\Models\Pagamento;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
