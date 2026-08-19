@@ -88,7 +88,14 @@ export function TabDisciplinas({
             <Button asChild>
               <Link
                 data={{ redirect_to: window.location.href }}
-                href={createDisciplina(params).url}
+                href={
+                  createDisciplina({
+                    instituicao: params.instituicao.id,
+                    cursoTutelado: params.cursoTutelado.id,
+                    cursoClasse: params.cursoClasse.id,
+                    cursoClasseTurno: params.cursoClasseTurno,
+                  }).url
+                }
               >
                 Adicionar Disciplinas
               </Link>
@@ -97,7 +104,7 @@ export function TabDisciplinas({
         )}
       </CardHeader>
 
-      <CardContent className="overflow-y-auto p-0!">
+      <CardContent className="p-0!">
         {isEmpty ? (
           <EmptyState
             variant="table"
@@ -107,9 +114,17 @@ export function TabDisciplinas({
             action={{
               label: 'Adicionar Disciplina',
               onClick: () =>
-                router.visit(createDisciplina(params).url, {
-                  data: { redirect_to: redirectTo },
-                }),
+                router.visit(
+                  createDisciplina({
+                    instituicao: params.instituicao.id,
+                    cursoTutelado: params.cursoTutelado.id,
+                    cursoClasse: params.cursoClasse.id,
+                    cursoClasseTurno: params.cursoClasseTurno,
+                  }).url,
+                  {
+                    data: { redirect_to: redirectTo },
+                  },
+                ),
               variant: 'outline',
             }}
           />

@@ -1,5 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import { MoreHorizontalIcon, LayersIcon, TriangleAlert } from 'lucide-react';
+import { MoreHorizontalIcon, LayersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -115,19 +115,15 @@ export default function ItensTable({
                     <TableCell className="px-4 font-medium">
                       {item.nome}
                     </TableCell>
-                  <TableCell className="px-4 text-center">
-                    <Badge
-                      variant={
-                        item.tipo === 'documento' ? 'outline' : 'outline'
-                      }
-                    >
-                      {item.tipo === 'documento' ? 'Documento' : 'Financeiro'}
-                    </Badge>
-                  </TableCell>
-
-                  <TableCell className="px-4 text-center">
-                    {item.curso_classe ?? 'Toda a instituição'}
-                  </TableCell>
+                    <TableCell className="px-4 text-center">
+                      <Badge
+                        variant={
+                          item.tipo === 'documento' ? 'outline' : 'outline'
+                        }
+                      >
+                        {item.tipo === 'documento' ? 'Documento' : 'Financeiro'}
+                      </Badge>
+                    </TableCell>
 
                     <TableCell className="px-4 text-center">
                       {item.curso_classe ?? 'Toda a instituição'}
@@ -143,8 +139,9 @@ export default function ItensTable({
 
                     <TableCell className="px-4 text-center">
                       {temMulta ? (
-                        <span className="inline-flex items-center gap-1 text-xs  ">
-                          {formatCurrency(item.multa_valor)} após dia {item.multa_dias_tolerancia}
+                        <span className="inline-flex items-center gap-1 text-xs">
+                          {formatCurrency(item.multa_valor)} após dia{' '}
+                          {item.multa_dias_tolerancia}
                         </span>
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>

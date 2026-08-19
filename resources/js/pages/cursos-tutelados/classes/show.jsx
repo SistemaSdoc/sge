@@ -198,7 +198,7 @@ export default function Show({
                   >
                     <h3 className="mb-1 text-sm font-medium">{turno.nome}</h3>
                     <p className="text-xs text-muted-foreground">
-                      {isActive ? 'A ver' : 'Clique aqui para ver'}
+                      {isActive ? 'A visualizar' : 'Clique aqui para ver'}
                     </p>
                   </button>
                 );

@@ -2,7 +2,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -204,7 +203,7 @@ export function Header({
                 <ArrowUpRight />
               </DropdownMenuItem>
 
-              {turma.can?.delete && <DropdownMenuSeparator />}
+              {/*{turma.can?.delete && <DropdownMenuSeparator />}
 
               {turma.can?.delete && (
                 <DropdownMenuItem
@@ -216,7 +215,7 @@ export function Header({
                 >
                   Remover
                 </DropdownMenuItem>
-              )}
+              )}*/}
             </DropdownMenuContent>
           </DropdownMenu>
         </CardAction>

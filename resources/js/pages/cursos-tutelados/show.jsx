@@ -85,9 +85,15 @@ export default function Show({
       <Tabs defaultValue="turmas" onValueChange={(value) => {}}>
         <div className="flex w-full flex-col gap-3 md:flex md:flex-row md:justify-between">
           <TabsList className="order-2 w-auto md:order-1">
-            <TabsTrigger value="turmas">Turmas</TabsTrigger>
-            <TabsTrigger value="professores">Professores</TabsTrigger>
-            <TabsTrigger value="criterios-pap">Critérios para a PAP</TabsTrigger>
+            <TabsTrigger value="turmas" className="hover:cursor-pointer">
+              Turmas
+            </TabsTrigger>
+            <TabsTrigger value="professores" className="hover:cursor-pointer">
+              Professores
+            </TabsTrigger>
+            <TabsTrigger value="criterios-pap" className="hover:cursor-pointer">
+              Critérios para a PAP
+            </TabsTrigger>
           </TabsList>
 
           <div className="order-1 md:order-2">
