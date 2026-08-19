@@ -12,6 +12,7 @@ use App\Models\Central\ElementoGrupoPap;
 use App\Models\Central\GrupoPap;
 use App\Models\Central\Instituicao;
 use App\Models\Central\Turma;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 
 class ElementoGrupoPapController extends Controller

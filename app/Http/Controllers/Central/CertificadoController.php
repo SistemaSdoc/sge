@@ -14,6 +14,7 @@ use App\Models\Central\TurmaAluno;
 use App\Models\Central\TurmaDisciplinaProfessor;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 use Spatie\Browsershot\Browsershot;
 

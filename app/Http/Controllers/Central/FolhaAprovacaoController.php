@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Central;
 
 use App\Models\Central\GrupoPap;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class FolhaAprovacaoController extends Controller

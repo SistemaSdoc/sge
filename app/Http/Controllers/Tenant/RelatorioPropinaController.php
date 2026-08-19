@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Models\Tenant\Turma;
 use App\Services\VerificadorPropinaService;
 use Barryvdh\DomPDF\Facade\Pdf;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Central;
 use App\Http\Requests\Classe\StoreClasseRequest;
 use App\Http\Requests\Classe\UpdateClasseRequest;
 use App\Models\Central\Classe;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

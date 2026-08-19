@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Propina;
 use App\Models\Tenant\Turma;

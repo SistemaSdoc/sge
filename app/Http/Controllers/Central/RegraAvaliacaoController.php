@@ -8,6 +8,7 @@ use App\Models\Central\AnoLectivo;
 use App\Models\Central\Classe;
 use App\Models\Central\NivelEnsino;
 use App\Models\Central\RegraAvaliacao;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

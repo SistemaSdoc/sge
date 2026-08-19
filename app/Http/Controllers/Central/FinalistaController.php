@@ -8,6 +8,7 @@ use App\Models\Central\Instituicao;
 use App\Models\Central\Turma;
 use App\Models\Central\TurmaAluno;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Routing\Controller;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;

@@ -7,6 +7,7 @@ use App\Models\Central\Instituicao;
 use App\Models\Central\PeriodoLancamentoNotas;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;

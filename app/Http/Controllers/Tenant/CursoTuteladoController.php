@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCursoTuteladoRequest;
 use App\Http\Resources\CursoTutelado\CursoTuteladoResourceEdit;
 use App\Http\Resources\CursoTutelado\CursoTuteladoResourceShow;

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreConfirmarMatriculaRequest;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;

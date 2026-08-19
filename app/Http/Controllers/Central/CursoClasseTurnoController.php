@@ -8,6 +8,7 @@ use App\Models\Central\CursoTutelado;
 use App\Models\Central\Instituicao;
 use App\Models\Central\Turno;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 
 class CursoClasseTurnoController extends Controller

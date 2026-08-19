@@ -7,6 +7,7 @@ use App\Http\Requests\ItemPagavel\UpdateItemPagavelRequest;
 use App\Models\Central\CursoClasse;
 use App\Models\Central\ItemPagavel;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;

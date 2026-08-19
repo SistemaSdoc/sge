@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Ai\Agents\ResumoDirector;
 use App\Ai\Agents\Teste;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Imports\UsersImport;
 use App\Models\Tenant\Instituicao;

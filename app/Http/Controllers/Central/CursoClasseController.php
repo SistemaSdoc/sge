@@ -11,6 +11,7 @@ use App\Models\Central\Instituicao;
 use App\Models\Central\Turma;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;

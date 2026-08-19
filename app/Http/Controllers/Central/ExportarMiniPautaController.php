@@ -14,6 +14,7 @@ use App\Models\Central\Turma;
 use App\Models\Central\TurmaAluno;
 use App\Models\Central\TurmaDisciplinaProfessor;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Facades\Excel;
 

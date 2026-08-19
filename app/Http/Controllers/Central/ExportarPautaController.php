@@ -12,6 +12,7 @@ use App\Models\Central\Turma;
 use App\Models\Central\TurmaAluno;
 use App\Models\Central\TurmaDisciplinaProfessor;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ExportarPautaController extends Controller

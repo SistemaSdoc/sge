@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Models\Tenant\AnoLectivo;
 use App\Services\Dashboards\DashboardAlunoService;
 use App\Services\Dashboards\DashboardDirectorService;

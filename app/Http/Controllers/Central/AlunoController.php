@@ -11,6 +11,7 @@ use App\Services\AnoLectivo\AnoLectivoResolverService;
 use App\Services\PreencherHistoricoService;
 use App\Services\VerificadorPropinaService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;

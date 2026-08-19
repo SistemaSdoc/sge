@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Central;
 use App\Http\Requests\InstituicoesRequest;
 use App\Models\Central\CursoTutelado;
 use App\Models\Central\Instituicao;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;

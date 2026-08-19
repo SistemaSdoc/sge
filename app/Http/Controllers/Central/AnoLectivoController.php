@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Central;
 use App\Models\Central\AnoLectivo;
 use App\Services\AnoLectivoConsistencyService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 
 class AnoLectivoController extends Controller

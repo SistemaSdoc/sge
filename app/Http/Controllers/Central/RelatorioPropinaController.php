@@ -6,6 +6,7 @@ use App\Models\Central\Turma;
 use App\Services\VerificadorPropinaService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;

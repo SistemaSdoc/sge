@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\AccessManagement\StoreRoleAndPermissionRequest;
 use App\Models\Tenant\User;
 use Illuminate\Support\Facades\Auth;

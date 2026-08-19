@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ItemPagavel\StoreItemPagavelRequest;
 use App\Http\Requests\ItemPagavel\UpdateItemPagavelRequest;
 use App\Models\Tenant\CursoClasse;

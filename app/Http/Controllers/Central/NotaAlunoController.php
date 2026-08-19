@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Central;
 use App\Models\Central\Nota;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use App\Services\NotaAlunoService;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;

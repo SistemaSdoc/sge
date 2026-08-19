@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Central;
 use App\Http\Requests\DisciplinaRequest;
 use App\Models\Central\Disciplina;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class DisciplinaController extends Controller
 {

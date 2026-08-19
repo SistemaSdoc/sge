@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\BancaJuriPap\StoreRequest;
 use App\Http\Requests\BancaJuriPap\UpdateRequest;
 use App\Models\Tenant\AnoLectivo;

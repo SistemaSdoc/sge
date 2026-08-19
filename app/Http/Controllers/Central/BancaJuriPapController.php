@@ -13,6 +13,7 @@ use App\Models\Central\GrupoPap;
 use App\Models\Central\Instituicao;
 use App\Models\Central\Professor;
 use App\Models\Central\Turma;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 
 class BancaJuriPapController extends Controller

@@ -8,6 +8,7 @@ use App\Models\Central\Turma;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

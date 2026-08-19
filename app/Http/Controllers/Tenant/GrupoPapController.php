@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\GrupoPap\DefinirDataDefesaRequest;
 use App\Http\Requests\GrupoPap\StoreRequest;
 use App\Http\Requests\GrupoPap\UpdateRequest;

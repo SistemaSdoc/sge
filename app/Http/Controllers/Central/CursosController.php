@@ -7,6 +7,7 @@ use App\Http\Requests\Curso\CursoUpdateRequest;
 use App\Models\Central\Curso;
 use App\Models\Central\InstituicaoCurso;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

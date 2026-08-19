@@ -6,6 +6,7 @@ use App\Models\Central\ItemPagavel;
 use App\Models\Central\Propina;
 use App\Models\Central\Turma;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 
 class PropinaController extends Controller

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;

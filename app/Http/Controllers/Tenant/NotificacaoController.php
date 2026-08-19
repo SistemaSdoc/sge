@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Notifications\PropinaEmAtrasoNotification;
 use App\Services\VerificadorPropinaService;
 use Illuminate\Http\Request;

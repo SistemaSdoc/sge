@@ -9,6 +9,7 @@ use App\Models\Central\CursoClasseTurno;
 use App\Models\Central\CursoTutelado;
 use App\Models\Central\Turma;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Central;
 use App\Notifications\PropinaEmAtrasoNotification;
 use App\Services\VerificadorPropinaService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
 
 class NotificacaoController extends Controller

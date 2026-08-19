@@ -13,6 +13,7 @@ use App\Models\Central\Turma;
 use App\Models\Central\TurmaDisciplinaProfessor;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 

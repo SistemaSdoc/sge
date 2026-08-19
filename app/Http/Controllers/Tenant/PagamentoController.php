@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Pagamento\StorePagamentoRequest;
 use App\Http\Requests\Pagamento\UpdatePagamentoRequest;
 use App\Models\Tenant\Aluno;

@@ -12,6 +12,7 @@ use App\Models\Central\Inscricao;
 use App\Models\Central\Instituicao;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use App\Services\InscricaoService;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

@@ -8,6 +8,7 @@ use App\Services\CertificadoService;
 use App\Services\DeclaracaoComNotaService;
 use App\Services\DeclaracaoSemNotaService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Inertia\Inertia;
 use Symfony\Component\Process\Process;
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Central;
 
 use App\Http\Requests\AccessManagement\StoreRoleAndPermissionRequest;
 use App\Models\Central\User;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;

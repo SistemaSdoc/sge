@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\NaoUsados;
 
+use App\Http\Controllers\Controller;
 use App\Models\CursoClasseTurno;
 use App\Models\Professor;
 use App\Models\Turma;

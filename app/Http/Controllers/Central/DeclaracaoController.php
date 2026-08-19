@@ -9,6 +9,7 @@ use App\Models\Central\CursoTutelado;
 use App\Models\Central\Instituicao;
 use App\Models\Central\Turma;
 use App\Services\DeclaracaoSemNotaService;
+use Illuminate\Routing\Controller;
 use Symfony\Component\Process\Process;
 
 class DeclaracaoController extends Controller

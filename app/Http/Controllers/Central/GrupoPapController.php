@@ -23,6 +23,7 @@ use App\Models\Central\Instituicao;
 use App\Models\Central\Professor;
 use App\Models\Central\Turma;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

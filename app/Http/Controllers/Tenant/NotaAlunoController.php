@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Models\Tenant\Nota;
 use App\Services\AnoLectivo\AnoLectivoResolverService;
 use App\Services\NotaAlunoService;

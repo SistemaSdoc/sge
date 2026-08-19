@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreClasseTurnoDisciplinaHorarioRequest;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\ClasseTurnoDisciplinaHorario;

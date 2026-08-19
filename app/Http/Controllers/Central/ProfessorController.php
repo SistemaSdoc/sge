@@ -8,6 +8,7 @@ use App\Models\Central\AnoLectivo;
 use App\Models\Central\Professor;
 use App\Models\Central\Turma;
 use App\Models\Central\User;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;

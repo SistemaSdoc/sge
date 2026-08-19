@@ -8,6 +8,7 @@ use App\Models\Central\GrupoPap;
 use App\Models\Central\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

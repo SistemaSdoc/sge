@@ -17,6 +17,7 @@ use App\Models\Central\TurmaDisciplinaProfessor;
 use App\Services\NotaService;
 use App\Services\Pauta\PautaService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;

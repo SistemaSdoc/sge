@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Central;
 
 use App\Models\Central\Pagamento;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 
 class ReciboController extends Controller

@@ -10,6 +10,7 @@ use App\Models\Central\CursoClasseTurno;
 use App\Models\Central\CursoTutelado;
 use App\Models\Central\Instituicao;
 use App\Models\Central\Turma;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 

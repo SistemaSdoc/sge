@@ -13,6 +13,7 @@ use App\Services\NotaService;
 use App\Services\Pauta\PautaService;
 use App\Services\PreencherHistoricoService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

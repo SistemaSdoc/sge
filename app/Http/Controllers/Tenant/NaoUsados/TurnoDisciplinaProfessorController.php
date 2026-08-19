@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\NaoUsados;
 
+use App\Http\Controllers\Controller;
 use App\Models\TurnoDisciplinaProfessor;
 use Illuminate\Http\Request;
 

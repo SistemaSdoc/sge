@@ -7,6 +7,7 @@ use App\Services\Dashboards\DashboardAlunoService;
 use App\Services\Dashboards\DashboardDirectorService;
 use App\Services\Dashboards\DashboardProfessorService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;

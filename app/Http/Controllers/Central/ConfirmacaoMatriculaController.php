@@ -13,6 +13,7 @@ use App\Models\Central\Instituicao;
 use App\Models\Central\Turma;
 use App\Services\ConfirmacaoMatriculaService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 

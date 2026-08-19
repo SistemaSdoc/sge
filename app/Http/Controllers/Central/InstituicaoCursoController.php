@@ -7,6 +7,7 @@ use App\Models\Central\Curso;
 use App\Models\Central\Instituicao;
 use App\Models\Central\InstituicaoCurso;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;

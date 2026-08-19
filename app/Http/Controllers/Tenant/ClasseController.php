@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Classe\StoreClasseRequest;
 use App\Http\Requests\Classe\UpdateClasseRequest;
 use App\Models\Tenant\Classe;

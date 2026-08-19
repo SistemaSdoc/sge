@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\RegraAvaliacao\StoreRegraAvaliacaoRequest;
 use App\Http\Requests\RegraAvaliacao\UpdateRegraAvaliacaoRequest;
 use App\Models\Tenant\AnoLectivo;

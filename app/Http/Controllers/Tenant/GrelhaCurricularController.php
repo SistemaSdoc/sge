@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Services\GrelhaCurricularService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;

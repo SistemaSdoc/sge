@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Central;
 
 use App\Services\GrelhaCurricularService;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;

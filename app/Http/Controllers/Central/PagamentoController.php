@@ -13,6 +13,7 @@ use App\Models\Central\Turma;
 use App\Services\PropinaNotificacaoService;
 use App\Services\VerificadorPropinaService;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

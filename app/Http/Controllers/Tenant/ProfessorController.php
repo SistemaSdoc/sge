@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Professor\StoreProfessoresRequest;
 use App\Http\Requests\Professor\UpdateProfessoresRequest;
 use App\Models\Tenant\AnoLectivo;

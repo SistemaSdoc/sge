@@ -7,6 +7,7 @@ use App\Models\Central\CursoTuteladoProfessor;
 use App\Models\Central\Instituicao;
 use App\Models\Central\Professor;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

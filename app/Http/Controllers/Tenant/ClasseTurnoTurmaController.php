@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Resources\AlunoTurmaResource;
 use App\Http\Resources\ClasseTurnoDisciplinaResource;
 use App\Http\Resources\GrupoPapIndexResource;

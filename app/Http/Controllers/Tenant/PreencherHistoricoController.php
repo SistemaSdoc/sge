@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Helpers\ArredondamentoHelper;
+use App\Http\Controllers\Controller;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\PautaStatus;

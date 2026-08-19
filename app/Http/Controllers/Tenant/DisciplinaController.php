@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\DisciplinaRequest;
 use App\Models\Tenant\Disciplina;
 use Illuminate\Http\Request;
