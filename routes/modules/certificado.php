@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\CertificadoController;
+use App\Http\Controllers\Tenant\CertificadoController;
 use Illuminate\Support\Facades\Route;
 
 // Routa para gerar os certficados das instituições

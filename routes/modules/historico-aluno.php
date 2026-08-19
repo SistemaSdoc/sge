@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\PreencherHistoricoController;
+use App\Http\Controllers\Tenant\PreencherHistoricoController;
 use Illuminate\Support\Facades\Route;
 
 /*

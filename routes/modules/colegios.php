@@ -1,14 +1,14 @@
 <?php
 
-use App\Http\Controllers\Colegios\BancaJuriPapController;
-use App\Http\Controllers\Colegios\ClasseTurnoTurmaController;
-use App\Http\Controllers\Colegios\ColegioController;
-use App\Http\Controllers\Colegios\CursoClasseController;
-use App\Http\Controllers\Colegios\CursoTuteladoController;
-use App\Http\Controllers\Colegios\ElementoGrupoPapController;
-use App\Http\Controllers\Colegios\GrupoPapAprovacaoController;
-use App\Http\Controllers\Colegios\GrupoPapController;
-use App\Http\Controllers\Colegios\NotaDisciplinaController;
+use App\Http\Controllers\Tenant\Colegios\BancaJuriPapController;
+use App\Http\Controller\Tenant\Colegios\ClasseTurnoTurmaController;
+use App\Http\Controllers\Tenant\Colegios\ColegioController;
+use App\Http\Controllers\Tenant\Colegios\CursoClasseController;
+use App\Http\Controllers\Tenant\Colegios\CursoTuteladoController;
+use App\Http\Controllers\Tenant\Colegios\ElementoGrupoPapController;
+use App\Http\Controllers\Tenant\Colegios\GrupoPapAprovacaoController;
+use App\Http\Controllers\Tenant\Colegios\GrupoPapController;
+use App\Http\Controllers\Tenant\Colegios\NotaDisciplinaController;
 use Illuminate\Support\Facades\Route;
 
 // colegios.php

@@ -1,10 +1,10 @@
 <?php
 
-use App\Http\Controllers\CursoTuteladoController;
-use App\Http\Controllers\ExportarMiniPautaController;
-use App\Http\Controllers\ExportarPautaController;
-use App\Http\Controllers\PautaController;
-use App\Http\Controllers\SolicitacaoEdicaoPautaController;
+use App\Http\Controllers\Tenant\CursoTuteladoController;
+use App\Http\Controllers\Tenant\ExportarMiniPautaController;
+use App\Http\Controllers\Tenant\ExportarPautaController;
+use App\Http\Controllers\Tenant\PautaController;
+use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use Illuminate\Support\Facades\Route;
 
 /*

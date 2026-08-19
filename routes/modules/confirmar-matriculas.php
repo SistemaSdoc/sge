@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ConfirmacaoMatriculaController;
+use App\Http\Controllers\Tenant\ConfirmacaoMatriculaController;
 use Illuminate\Support\Facades\Route;
 
 /**

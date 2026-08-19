@@ -2,7 +2,7 @@
 
 namespace App\Services\Central\Auth;
 
-use App\Models\Tenant;
+use App\Models\central\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;

@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\Auth\FacebookAuthController;
-use App\Http\Controllers\Auth\GoogleAuthController;
-use App\Http\Controllers\Auth\PasswordConfirmationGoogleController;
+use App\Http\Controllers\Tenant\Auth\FacebookAuthController;
+use App\Http\Controllers\Tenant\Auth\GoogleAuthController;
+use App\Http\Controllers\Tenant\Auth\PasswordConfirmationGoogleController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->name('auth.')->group(function () {

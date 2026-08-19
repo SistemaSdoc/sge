@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Settings\ProfileController;
-use App\Http\Controllers\Settings\SecurityController;
+use App\Http\Controllers\Tenant\ProfileController;
+use App\Http\Controllers\Tenant\Settings\SecurityController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
