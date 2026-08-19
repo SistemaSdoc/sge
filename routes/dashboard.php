@@ -38,13 +38,13 @@ use App\Http\Controllers\PeriodoLancamentoNotasController;
 use App\Http\Controllers\PreencherHistoricoController;
 use App\Http\Controllers\ProfessorController as ProfessorControllerGeral;
 use App\Http\Controllers\ProgressaoController;
+use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\RegraAvaliacaoController;
 use App\Http\Controllers\RelatorioPropinaController;
 use App\Http\Controllers\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\ReciboController;
 use Illuminate\Support\Facades\Route;
 
 // Dashboard routes (Admin, Director, Coordenador, Secretaria, Professor)
@@ -255,9 +255,9 @@ Route::post('notificacoes/ler-todas', [NotificacaoController::class, 'marcarToda
 
 Route::get('/pagamentos/{pagamento}/recibo', [ReciboController::class, 'exibir'])
     ->name('pagamentos.recibo');
-    
+
 Route::get('/pagamentos/{pagamento}/recibo/exportar', [ReciboController::class, 'exportar'])
-    ->name('pagamentos.recibo.exportar');
+        ->name('pagamentos.recibo.exportar');
 
 Route::get('/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta', [CursoTuteladoController::class, 'pauta'])
     ->name('pauta');
