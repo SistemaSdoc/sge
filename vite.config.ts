@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
           }),
         ],
       }),
-      inertia(),
+      inertia({ ssr: false }),
       react({
         babel: {
           plugins: ['babel-plugin-react-compiler'],
