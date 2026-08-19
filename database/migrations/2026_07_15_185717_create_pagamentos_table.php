@@ -18,6 +18,8 @@ return new class extends Migration
             $table->foreignUuid('registado_por')->constrained('users'); // quem processou
             $table->date('data_pagamento');
             $table->decimal('valor_total', 12, 2); // soma dos pagamento_itens, denormalizado p/ listagens rápidas
+            $table->string('numero_recibo')->nullable();
+            $table->string('recibo_path')->nullable();
             $table->enum('metodo', ['dinheiro', 'transferencia', 'multicaixa', 'outro']);
             $table->string('referencia')->nullable(); // nº de recibo/transacção
             $table->text('observacoes')->nullable();

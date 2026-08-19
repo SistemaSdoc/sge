@@ -1,5 +1,10 @@
 import { Link, router } from '@inertiajs/react';
-import { LayersIcon, MoreHorizontalIcon, PlusIcon } from 'lucide-react';
+import {
+  LayersIcon,
+  MoreHorizontalIcon,
+  PlusIcon,
+  FileTextIcon,
+} from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +56,8 @@ export default function PagamentosTable({
   pagamentos = [],
   can,
   deleteFn,
+  verReciboFn,
+  exportarReciboFn,
   pagination = {},
   onPageChange,
 }) {
@@ -120,11 +127,11 @@ export default function PagamentosTable({
                     </Badge>
                   </TableCell>
 
-                  <TableCell className="px-4 font-medium text-center">
+                  <TableCell className="px-4 text-center font-medium">
                     {formatCurrency(p.valor_total)}
                   </TableCell>
 
-                  <TableCell className="px-4 text-muted-foreground text-center">
+                  <TableCell className="px-4 text-center text-muted-foreground">
                     {p.data_pagamento}
                   </TableCell>
 
@@ -150,21 +157,37 @@ export default function PagamentosTable({
                           Ver detalhes
                         </DropdownMenuItem>
 
-                        {p.can?.delete && (
-                          <>
-                            <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            verReciboFn(p.id);
+                          }}
+                        >
+                          <FileTextIcon className="mr-2 size-4" />
+                          Ver Recibo
+                        </DropdownMenuItem>
 
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteFn(p.id);
-                              }}
-                            >
-                              Anular pagamento
-                            </DropdownMenuItem>
-                          </>
-                        )}
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            exportarReciboFn(p.id);
+                          }}
+                        >
+                          <FileTextIcon className="mr-2 size-4" />
+                          Exportar
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteFn(p.id);
+                          }}
+                        >
+                          Anular pagamento
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

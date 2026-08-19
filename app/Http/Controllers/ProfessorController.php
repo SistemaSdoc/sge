@@ -22,7 +22,7 @@ class ProfessorController extends Controller
         $user = Auth::user();
         $instituicaoId = $user?->instituicaoFiltro();
 
-        $professores = Professor::select(['id', 'user_id', 'created_at'])
+        $professores = Professor::select(['id', 'user_id', 'especialidade', 'nivel_academico', 'created_at'])
             ->with(['user:id,nome,telefone'])
             ->when(
                 $instituicaoId,
@@ -68,6 +68,7 @@ class ProfessorController extends Controller
         Professor::create([
             'user_id' => $user->id,
             'especialidade' => $request->especialidade,
+            'nivel_academico' => $request->nivel_academico,
         ]);
 
         return to_route('professores.index')->with('toast', [
@@ -144,6 +145,7 @@ class ProfessorController extends Controller
 
         $professor->update([
             'especialidade' => $request->especialidade,
+            'nivel_academico' => $request->nivel_academico,
         ]);
 
         return to_route('professores.index')->with('toast', [

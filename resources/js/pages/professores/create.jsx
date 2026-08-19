@@ -8,6 +8,8 @@ export default function Create() {
     bi: '',
     telefone: '',
     email: '',
+    especialidade: '',
+    nivel_academico: '',
   });
 
   return (

@@ -52,6 +52,24 @@ export default function Show({ professor, cursos, turmas }) {
             </p>
           </div>
         </CardContent>
+
+        <div>
+          <p className="text-sm text-muted-foreground">Especialidade</p>
+          <p className="font-medium">
+            {professor?.especialidade || (
+              <Minus size={15} className="text-muted-foreground" />
+            )}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-sm text-muted-foreground">Nível Académico</p>
+          <p className="font-medium">
+            {professor?.nivel_academico || (
+              <Minus size={15} className="text-muted-foreground" />
+            )}
+          </p>
+        </div>
       </Card>
 
       <CursosTable cursos={cursos}/>

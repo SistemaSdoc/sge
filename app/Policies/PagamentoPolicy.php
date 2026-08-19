@@ -17,7 +17,7 @@ class PagamentoPolicy
     public function view(User $user, Pagamento $pagamento): bool
     {
         return $user->can('pagamentos.view')
-            && $pagamento->aluno?->user?->instituicao_id === $user->instituicao_id;
+            && $pagamento->instituicao_id === $user->instituicao_id;
     }
 
     public function create(User $user): bool
@@ -28,13 +28,13 @@ class PagamentoPolicy
     public function update(User $user, Pagamento $pagamento): bool
     {
         return $user->can('pagamentos.update')
-            && $pagamento->aluno?->user?->instituicao_id === $user->instituicao_id;
+            && $pagamento->instituicao_id === $user->instituicao_id;
     }
 
     public function delete(User $user, Pagamento $pagamento): bool
     {
         return $user->can('pagamentos.delete')
-            && $pagamento->aluno?->user?->instituicao_id === $user->instituicao_id;
+            && $pagamento->instituicao_id === $user->instituicao_id;
     }
 
     public function restore(User $user, Pagamento $pagamento): bool
