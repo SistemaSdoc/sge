@@ -4,6 +4,13 @@ use App\Http\Controllers\BiController;
 use App\Http\Controllers\CertificadoController;
 use Illuminate\Support\Facades\Route;
 
+
+foreach (config('tenancy.central_domains') as $domain) {
+    Route::domain($domain)->group(function () {
+        // your actual routes
+    });
+}
+
 Route::inertia('/', 'welcome/index')->name('home');
 
 /**
