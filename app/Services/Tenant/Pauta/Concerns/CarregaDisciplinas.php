@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\Pauta\Concerns;
+namespace App\Services\Tenant\Pauta\Concerns;
 
-use App\Models\Turma;
-use App\Models\TurmaDisciplinaProfessor;
+use App\Models\tenant\Turma;
+use App\Models\tenant\TurmaDisciplinaProfessor;
 use Illuminate\Support\Collection;
 
 trait CarregaDisciplinas

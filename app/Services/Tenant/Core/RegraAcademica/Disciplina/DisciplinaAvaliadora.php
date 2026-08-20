@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Core\RegraAcademica\Disciplina;
+namespace App\Services\Tenant\Core\RegraAcademica\Disciplina;
 
 use Illuminate\Support\Collection;
 

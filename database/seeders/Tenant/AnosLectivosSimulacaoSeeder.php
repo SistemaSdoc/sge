@@ -1,8 +1,8 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Tenant;
 
-use App\Models\AnoLectivo;
+use App\Models\tenant\AnoLectivo;
 use Illuminate\Database\Seeder;
 
 class AnosLectivosSimulacaoSeeder extends Seeder

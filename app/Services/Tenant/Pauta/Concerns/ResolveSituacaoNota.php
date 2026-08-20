@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Pauta\Concerns;
+namespace App\Services\Tenant\Pauta\Concerns;
 
 trait ResolveSituacaoNota
 {

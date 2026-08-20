@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services\Pauta\Generators;
+namespace App\Services\Tenant\Pauta\Generators;
 
-use App\Models\Nota;
-use App\Models\Turma;
-use App\Models\TurmaAluno;
-use App\Models\TurmaDisciplinaProfessor;
-use App\Services\Pauta\Concerns\CarregaDisciplinas;
-use App\Services\Pauta\Concerns\ResolveSituacaoNota;
+use App\Models\tenant\Nota;
+use App\Models\tenant\Turma;
+use App\Models\tenant\TurmaAluno;
+use App\Models\tenant\TurmaDisciplinaProfessor;
+use App\Services\Tenant\Pauta\Concerns\CarregaDisciplinas;
+use App\Services\Tenant\Pauta\Concerns\ResolveSituacaoNota;
 use Illuminate\Support\Collection;
 
 class PautaTrimestralGenerator

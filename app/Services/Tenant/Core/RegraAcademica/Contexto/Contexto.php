@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Services\Core\RegraAcademica\Contexto;
+namespace App\Services\Tenant\Core\RegraAcademica\Contexto;
 
-use App\Models\TurmaAluno;
+use App\Models\tenant\CandidatoTurmaAluno;
+use App\Models\tenant\TurmaAluno;
 
 /**
  * Carrega o contexto académico necessário para avaliar o aluno.

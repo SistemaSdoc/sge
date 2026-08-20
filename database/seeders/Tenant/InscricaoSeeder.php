@@ -1,11 +1,11 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Tenant;
 
-use App\Models\AnoLectivo;
-use App\Models\Candidato;
-use App\Models\CursoClasseTurno;
-use App\Models\Inscricao;
+use App\Models\tenant\AnoLectivo;
+use App\Models\tenant\Candidato;
+use App\Models\tenant\CursoClasseTurno;
+use App\Models\tenant\Inscricao;
 use Illuminate\Database\Seeder;
 
 class InscricaoSeeder extends Seeder

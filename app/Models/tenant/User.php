@@ -38,6 +38,8 @@ class User extends Authenticatable implements PasskeyUser
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
+    protected $guard_name = 'web';
+
     protected function casts(): array
     {
         return [

@@ -1,10 +1,10 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Tenant;
 
 use Illuminate\Database\Seeder;
 
-class AlunoSeeder extends Seeder
+class CursoTuteladoProfessorSeeder extends Seeder
 {
     /**
      * Run the database seeds.

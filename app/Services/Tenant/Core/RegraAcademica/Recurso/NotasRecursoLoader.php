@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Core\RegraAcademica\Recurso;
+namespace App\Services\Tenant\Core\RegraAcademica\Recurso;
 
-use App\Models\TurmaAluno;
+use App\Models\tenant\TurmaAluno;
 
 /**
  * Carrega as relações necessárias para a fase de recurso.

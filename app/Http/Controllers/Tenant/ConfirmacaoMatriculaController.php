@@ -12,7 +12,7 @@ use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
-use App\Services\ConfirmacaoMatriculaService;
+use App\Services\Tenant\ConfirmacaoMatriculaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\Core\RegraAcademica\RegraAplicavel;
+namespace App\Services\Tenant\Core\RegraAcademica\RegraAplicavel;
 
-use App\Models\RegraAvaliacao;
-use App\Models\TurmaAluno;
+use App\Models\tenant\RegraAvaliacao;
+use App\Models\tenant\TurmaAluno;
 
 /**
  * Entry point para resolver a regra de avaliação aplicável ao aluno.

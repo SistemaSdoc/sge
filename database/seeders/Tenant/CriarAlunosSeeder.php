@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Database\Seeders;
+namespace Database\Seeders\Tenant;
 
-use App\Models\Aluno;
-use App\Models\Candidato;
-use App\Models\Inscricao;
-use App\Models\TurmaAluno;
+use App\Models\tenant\Aluno;
+use App\Models\tenant\Candidato;
+use App\Models\tenant\Inscricao;
+use App\Models\tenant\TurmaAluno;
 use Illuminate\Database\Seeder;
 
 class CriarAlunosSeeder extends Seeder

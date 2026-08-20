@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\tenant\AnoLectivo;
 use App\Services\Dashboards\DashboardAlunoService;
 use App\Services\Dashboards\DashboardDirectorService;
 use App\Services\Dashboards\DashboardProfessorService;

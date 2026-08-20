@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\AnoLectivo;
+namespace App\Services\Tenant\AnoLectivo;
 
-use App\Models\AnoLectivo;
+use App\Models\tenant\AnoLectivo;
 
 /**
  * Resolver para o ano lectivo

@@ -1,8 +1,8 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Tenant;
 
-use App\Models\Disciplina;
+use App\Models\tenant\Disciplina;
 use Illuminate\Database\Seeder;
 
 class DisciplinaSeeder extends Seeder

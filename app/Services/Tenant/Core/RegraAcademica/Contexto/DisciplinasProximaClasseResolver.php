@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Core\RegraAcademica\Contexto;
+namespace App\Services\Tenant\Core\RegraAcademica\Contexto;
 
-use App\Models\CursoClasse;
+use App\Models\tenant\CursoClasse;
 use Illuminate\Support\Collection;
 
 /**

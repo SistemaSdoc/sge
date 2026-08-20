@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Services\Core\RegraAcademica\Recurso;
+namespace App\Services\Tenant\Core\RegraAcademica\Recurso;
 
-use App\Models\TurmaAluno;
-use App\Services\Core\RegraAcademica\RegraAplicavel\RegraAplicavel;
+use App\Models\tenant\TurmaAluno;
+use App\Services\Core\RegraAcademica\Recurso\RecursoStatusResolver;
+use App\Services\Tenant\Core\RegraAcademica\RegraAplicavel\RegraAplicavel;
 
 /**
  * Entry point para resolver a fase de recurso do aluno.

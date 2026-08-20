@@ -1,41 +1,41 @@
 <?php
 
-namespace App\Services\Menu;
+namespace App\Services\Tenant\Menu;
 
 use App\Http\Controllers\AccessManagementController;
-use App\Http\Controllers\AlunoController;
-use App\Http\Controllers\AnoLectivoController;
-use App\Http\Controllers\AvisoController;
-use App\Http\Controllers\ClasseController;
-use App\Http\Controllers\Colegios\ColegioController;
-use App\Http\Controllers\CursosController;
-use App\Http\Controllers\CursoTuteladoController;
-use App\Http\Controllers\DocumentosController;
-use App\Http\Controllers\GrelhaCurricularController;
-use App\Http\Controllers\GrupoPapController;
-use App\Http\Controllers\InscricaoController;
-use App\Http\Controllers\InstituicaoController;
-use App\Http\Controllers\NotaAlunoController;
-use App\Http\Controllers\PautaController;
-use App\Http\Controllers\ProfessorController;
-use App\Http\Controllers\RegraAvaliacaoController;
-use App\Http\Controllers\SolicitacaoEdicaoPautaController;
-use App\Http\Controllers\TurmaController;
-use App\Http\Controllers\TurnoController;
-use App\Models\Aluno;
-use App\Models\AnoLectivo;
-use App\Models\Aviso;
-use App\Models\Classe;
-use App\Models\Curso;
-use App\Models\GrupoPap;
-use App\Models\Inscricao;
-use App\Models\Instituicao;
-use App\Models\Nota;
-use App\Models\Professor;
-use App\Models\RegraAvaliacao;
-use App\Models\SolicitacaoEdicaoPauta;
-use App\Models\Turma;
-use App\Models\Turno;
+use App\Http\Controllers\Tenant\AlunoController;
+use App\Http\Controllers\Tenant\AnoLectivoController;
+use App\Http\Controllers\Tenant\AvisoController;
+use App\Http\Controllers\Tenant\ClasseController;
+use App\Http\Controllers\Tenant\Colegios\ColegioController;
+use App\Http\Controllers\Tenant\CursosController;
+use App\Http\Controllers\Tenant\CursoTuteladoController;
+use App\Http\Controllers\Tenant\DocumentosController;
+use App\Http\Controllers\Tenant\GrelhaCurricularController;
+use App\Http\Controllers\Tenant\GrupoPapController;
+use App\Http\Controllers\Tenant\InscricaoController;
+use App\Http\Controllers\Tenant\InstituicaoController;
+use App\Http\Controllers\Tenant\NotaAlunoController;
+use App\Http\Controllers\Tenant\PautaController;
+use App\Http\Controllers\Tenant\ProfessorController;
+use App\Http\Controllers\Tenant\RegraAvaliacaoController;
+use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
+use App\Http\Controllers\Tenant\TurmaController;
+use App\Http\Controllers\Tenant\TurnoController;
+use App\Models\tenant\Aluno;
+use App\Models\tenant\AnoLectivo;
+use App\Models\tenant\Aviso;
+use App\Models\tenant\Classe;
+use App\Models\tenant\Curso;
+use App\Models\tenant\GrupoPap;
+use App\Models\tenant\Inscricao;
+use App\Models\tenant\Instituicao;
+use App\Models\tenant\Nota;
+use App\Models\tenant\Professor;
+use App\Models\tenant\RegraAvaliacao;
+use App\Models\tenant\SolicitacaoEdicaoPauta;
+use App\Models\tenant\Turma;
+use App\Models\tenant\Turno;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
@@ -49,7 +49,7 @@ final class SidebarMenuService
                 new MenuItem(
                     key: 'dashboard',
                     title: 'Dashboard',
-                    href: route('dashboard'),
+                    href: route('tenant.dashboard'),
                     icon: 'LayoutGrid',
                     can: true,
                 ),

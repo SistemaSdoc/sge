@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Core\RegraAcademica\Resultado;
+namespace App\Services\Tenant\Core\RegraAcademica\Resultado;
 
 use Illuminate\Support\Collection;
 

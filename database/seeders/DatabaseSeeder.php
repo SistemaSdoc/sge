@@ -10,32 +10,12 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             // PAPÉIS E PERMISSÕES
-            PermissionSeeder::class,
             RoleSeeder::class,
+            PermissionSeeder::class,
             RolePermissionSeeder::class,
-
-            // TABELAS BASE
-            InstituicaoSeeder::class,
-            AnosLectivosSimulacaoSeeder::class,
-            // AnoLectivoSeeder::class,
-            // CursoSeeder::class,
-            ClasseSeeder::class,
-            TurnoSeeder::class,
-            DisciplinaSeeder::class,
-            NiveisEnsinoSeeder::class,
-
-            // RELACIONAMENTOS ACADÉMICOS
-            InstituicaoCursoSeeder::class,
-            // CursoTuteladoSeeder::class,
-            // CursoClasseSeeder::class,
-            // CursoClasseTurnoSeeder::class,
-
-            // TURMAS
-            // TurmaSeeder::class,
 
             // USUÁRIOS
             SuperAdminSeeder::class,
-            InstituicaoUserSeeder::class,
         ]);
     }
 }

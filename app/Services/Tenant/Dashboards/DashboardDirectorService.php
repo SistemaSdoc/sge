@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services\Dashboards;
+namespace App\Services\Tenant\Dashboards;
 
-use App\Models\Aluno;
-use App\Models\Aviso;
-use App\Models\GrupoPap;
-use App\Models\Inscricao;
-use App\Models\Professor;
-use App\Models\Turma;
+use App\Models\tenant\Aluno;
+use App\Models\tenant\Aviso;
+use App\Models\tenant\GrupoPap;
+use App\Models\tenant\Inscricao;
+use App\Models\tenant\Professor;
+use App\Models\tenant\Turma;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 

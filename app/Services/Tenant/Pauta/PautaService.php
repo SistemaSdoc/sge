@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services\Pauta;
+namespace App\Services\Tenant\Pauta;
 
-use App\Models\Turma;
-use App\Models\TurmaAluno;
-use App\Services\Core\RegraAcademicaService;
-use App\Services\Pauta\Generators\PautaFinalGenerator;
-use App\Services\Pauta\Generators\PautaRecursoGenerator;
-use App\Services\Pauta\Generators\PautaTrimestralGenerator;
+use App\Models\tenant\Turma;
+use App\Models\tenant\TurmaAluno;
+use App\Services\Tenant\Core\RegraAcademicaService;
+use App\Services\Tenant\Pauta\Generators\PautaFinalGenerator;
+use App\Services\Tenant\Pauta\Generators\PautaRecursoGenerator;
+use App\Services\Tenant\Pauta\Generators\PautaTrimestralGenerator;
 
 class PautaService
 {

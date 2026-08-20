@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Services\Dashboards;
+namespace App\Services\Tenant\Dashboards;
 
-use App\Models\Aviso;
-use App\Models\Professor;
-use App\Models\User;
+use App\Models\tenant\Aviso;
+use App\Models\tenant\Professor;
+use App\Models\tenant\User;
 use App\Traits\DashboardHelpers;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardProfessorService
 {

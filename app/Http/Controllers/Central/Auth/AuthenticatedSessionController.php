@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Central\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\Central\LoginRequest;
+use App\Http\Requests\Central\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -29,11 +29,6 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         return redirect()->intended(route('central.dashboard'));
-    }
-
-    public function token(string $token)
-    {
-        return UserImpersonation::makeResponse($token);
     }
 
     /**

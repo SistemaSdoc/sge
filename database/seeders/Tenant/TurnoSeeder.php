@@ -1,8 +1,8 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Tenant;
 
-use App\Models\Turno;
+use App\Models\tenant\Turno;
 use Illuminate\Database\Seeder;
 
 class TurnoSeeder extends Seeder

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\AnoLectivo;
-use App\Services\AnoLectivoConsistencyService;
+use App\Services\Tenant\AnoLectivoConsistencyService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 

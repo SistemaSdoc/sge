@@ -2,9 +2,9 @@
 
 namespace App\Services\Core\RegraAcademica\Recurso;
 
-use App\Models\Nota;
-use App\Models\TurmaAluno;
-use App\Services\Core\RegraAcademica\RegraAplicavel\RegraAplicavel;
+use App\Models\tenant\Nota;
+use App\Models\tenant\TurmaAluno;
+use App\Services\Tenant\Core\RegraAcademica\RegraAplicavel\RegraAplicavel;
 use Illuminate\Support\Collection;
 
 /**

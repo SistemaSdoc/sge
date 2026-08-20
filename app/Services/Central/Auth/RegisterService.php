@@ -3,7 +3,7 @@
 namespace App\Services\Central\Auth;
 
 use App\Models\central\Tenant;
-use App\Models\User;
+use App\Models\tenant\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 

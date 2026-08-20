@@ -1,8 +1,8 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Tenant;
 
-use App\Models\Instituicao;
+use App\Models\tenant\Instituicao;
 use Illuminate\Database\Seeder;
 
 class InstituicaoSeeder extends Seeder

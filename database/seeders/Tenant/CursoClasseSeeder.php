@@ -1,10 +1,10 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Tenant;
 
-use App\Models\Classe;
-use App\Models\CursoTutelado;
-use App\Models\NivelEnsino;
+use App\Models\tenant\Classe;
+use App\Models\tenant\CursoTutelado;
+use App\Models\tenant\NivelEnsino;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Services\Core;
+namespace App\Services\Tenant\Core;
 
-use App\Models\Nota;
-use App\Models\TurmaAluno;
-use App\Services\Core\RegraAcademica\Contexto\Contexto;
-use App\Services\Core\RegraAcademica\Disciplina\Disciplina;
-use App\Services\Core\RegraAcademica\Recurso\Recurso;
-use App\Services\Core\RegraAcademica\RegraAplicavel\RegraAplicavel;
-use App\Services\Core\RegraAcademica\Resultado\Resultado;
+use App\Models\tenant\Nota;
+use App\Models\tenant\TurmaAluno;
+use App\Services\Tenant\Core\RegraAcademica\Contexto\Contexto;
+use App\Services\Tenant\Core\RegraAcademica\Disciplina\Disciplina;
+use App\Services\Tenant\Core\RegraAcademica\Recurso\Recurso;
+use App\Services\Tenant\Core\RegraAcademica\RegraAplicavel\RegraAplicavel;
+use App\Services\Tenant\Core\RegraAcademica\Resultado\Resultado;
 
 class RegraAcademicaService
 {

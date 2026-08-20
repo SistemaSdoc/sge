@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Menu;
+namespace App\Services\Tenant\Menu;
 
 final class MenuGroup
 {

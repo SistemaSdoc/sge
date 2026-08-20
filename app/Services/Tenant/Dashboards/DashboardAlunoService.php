@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Services\Dashboards;
+namespace App\Services\Tenant\Dashboards;
 
-use App\Models\Aluno;
-use App\Models\Aviso;
-use App\Models\GrupoPap;
-use App\Models\TurmaAluno;
+use App\Models\tenant\Aluno;
+use App\Models\tenant\Aviso;
+use App\Models\tenant\GrupoPap;
+use App\Models\tenant\TurmaAluno;
 use App\Traits\DashboardHelpers;
-use Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardAlunoService
 {
@@ -149,7 +149,8 @@ class DashboardAlunoService
     public function obterAvisos(Aluno $aluno, ?int $limite = 10)
     {
         $user = Auth::user();
-        $instituicaoId = $user?->instituicaoFiltro();
+        #$instituicaoId = $user?->instituicaoFiltro();
+        $instituicaoId = $user?->instituicao_id;
         $today = Carbon::today();
 
         // Avisos ativos
