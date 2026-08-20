@@ -118,7 +118,7 @@ export function TabHistorico({ historico = [] }) {
                     )}
 
                     {item.tema && (
-                      <div className="flex items-start gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
+                      <div className="flex items-start gap-2 border bg-muted/30 px-3 py-2 text-xs">
                         <FileText className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
                         <div className="space-y-1">
                           <p><span className="font-medium">Tema:</span> {item.tema}</p>

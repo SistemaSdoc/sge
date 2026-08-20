@@ -138,6 +138,10 @@ class AprovacaoTemaService
                 ...($novoEstado === 'aprovado' ? ['status' => 'em-andamento'] : []),
             ]);
 
+            if ($novoEstado === 'aprovado') {
+                app(TrabalhoPapService::class)->inicializar($grupoPap);
+            }
+
             // Registar histórico da decisão
             HistoricoAprovacaoPap::create([
                 'grupo_pap_id' => $grupoPap->id,

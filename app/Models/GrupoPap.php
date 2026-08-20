@@ -53,6 +53,11 @@ class GrupoPap extends Model
         return $this->belongsTo(Professor::class, 'professor_tutor_id');
     }
 
+    public function trabalhoPap()
+    {
+        return $this->hasOne(TrabalhoPap::class, 'grupo_pap_id');
+    }
+
     public function jurados()
     {
         return $this->hasMany(BancaJuriPap::class);

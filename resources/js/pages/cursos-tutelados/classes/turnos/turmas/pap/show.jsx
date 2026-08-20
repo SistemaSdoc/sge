@@ -34,6 +34,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { editar as editarTema } from '@/actions/App/Http/Controllers/GrupoPapAprovacaoController';
 import { create as createTema } from '@/actions/App/Http/Controllers/GrupoPapTemaController';
+import { TabTrabalho } from './components/tabs/tab-trabalho';
 import { FileText } from 'lucide-react';
 
 export default function Show({
@@ -43,6 +44,7 @@ export default function Show({
   cursoClasseTurno,
   turma,
   grupoPap,
+  trabalho,
   historico,
   banca,
   elementos,
@@ -233,7 +235,7 @@ export default function Show({
                 href={grupoPap.criterios_pap_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                className="flex items-center gap-1.5 font-medium text-primary hover:underline"
               >
                 <FileText className="size-4" />
                 Ver documento
@@ -249,7 +251,7 @@ export default function Show({
                 href={grupoPap.manual_pt_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                className="flex items-center gap-1.5 font-medium text-primary hover:underline"
               >
                 <FileText className="size-4" />
                 Ver documento
@@ -391,6 +393,11 @@ export default function Show({
             <TabsTrigger value="aprovacao">Aprovação do tema</TabsTrigger>
           )}
 
+          {/* ← NOVO: só aparece quando o tema está aprovado */}
+          {grupoPap.status_aprovacao === 'aprovado' && (
+            <TabsTrigger value="trabalho">Trabalho PAP</TabsTrigger>
+          )}
+
           <TabsTrigger value="historico">Histórico</TabsTrigger>
         </TabsList>
 
@@ -425,6 +432,19 @@ export default function Show({
             <TabAprovacao params={params} grupoPap={grupoPap} can={can} />
           </TabsContent>
         )}
+
+        {/* ← NOVO */}
+        {grupoPap.status_aprovacao === 'aprovado' && (
+          <TabsContent value="trabalho">
+            <TabTrabalho
+              params={params}
+              grupoPap={grupoPap}
+              trabalho={trabalho}
+              can={can}
+            />
+          </TabsContent>
+        )}
+
         <TabsContent value="historico">
           <TabHistorico
             params={params}

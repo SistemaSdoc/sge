@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PapHelper;
 use App\Http\Requests\GrupoPap\DefinirDataDefesaRequest;
 use App\Http\Requests\GrupoPap\StoreRequest;
 use App\Http\Requests\GrupoPap\UpdateRequest;
@@ -195,6 +196,12 @@ class GrupoPapController extends Controller
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
         ]);
 
+        $trabalho = $grupoPap->trabalhoPap()->with([
+            'versoes.submetidoPor:id,nome',
+            'versoes.feedbacks.utilizador:id,nome,instituicao_id', // ← instituicao_id
+            'aprovadoPor:id,nome,instituicao_id',                  // ← instituicao_id
+        ])->first();
+
         $instituicaoTutoraModel = $grupoPap->instituicaoTutora();
         $instituicaoTutoraId = $instituicaoTutoraModel?->id;
         $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
@@ -217,10 +224,40 @@ class GrupoPapController extends Controller
             'anoLectivoId' => $anoLectivoId,          // ← NOVO
             'anosLectivos' => AnoLectivo::all(),      // ← NOVO
             'grupoPap' => new ShowResource($grupoPap),
-            'historico' => $grupoPap->historicoAprovacao->map(function ($item) use ($instituicaoTutoraId, $nomeCurso, $siglaInstituto) {
-                $ehTutora = $item->estado_novo !== 'pendente'
-                    && $item->utilizador?->instituicao_id === $instituicaoTutoraId;
-
+            'trabalho' => $trabalho ? [
+                'id' => $trabalho->id,
+                'status' => $trabalho->status,
+                'data_aprovacao' => $trabalho->data_aprovacao?->toIso8601String(),
+                'aprovado_por' => $trabalho->aprovadoPor
+                    ? PapHelper::nomeAprovador(
+                        $trabalho->aprovadoPor,
+                        $instituicaoTutoraModel,
+                        $nomeCurso,
+                    )
+                    : null,
+                'versoes' => $trabalho->versoes->map(fn($v) => [
+                    'id' => $v->id,
+                    'numero_versao' => $v->numero_versao,
+                    'nome_original' => $v->nome_original,
+                    'status_quando_submetido' => $v->status_quando_submetido,
+                    'submetido_por' => $v->submetidoPor?->nome,
+                    'created_at' => $v->created_at?->toIso8601String(),
+                    'feedbacks' => $v->feedbacks->map(fn($f) => [
+                        'id' => $f->id,
+                        'tipo' => $f->tipo,
+                        'comentario' => $f->comentario,
+                        'utilizador' => PapHelper::nomeAprovador(
+                            $f->utilizador,
+                            $instituicaoTutoraModel,
+                            $nomeCurso,
+                        ),
+                        'created_at' => $f->created_at?->toIso8601String(),
+                        'tem_ficheiro_correcao' => !is_null($f->caminho_ficheiro_correcao),  // <-- novo
+                        'nome_original_correcao' => $f->nome_original_correcao,               // <-- novo
+                    ]),
+                ]),
+            ] : null,
+            'historico' => $grupoPap->historicoAprovacao->map(function ($item) use ($instituicaoTutoraModel, $nomeCurso) {
                 return [
                     'id' => $item->id,
                     'estado_anterior' => $item->estado_anterior,
@@ -231,9 +268,11 @@ class GrupoPapController extends Controller
                     'objectivos' => $item->objectivos,
                     'created_at' => $item->created_at?->toIso8601String(),
                     'utilizador' => [
-                        'nome' => $ehTutora
-                            ? "Grupo disciplinar do curso de {$nomeCurso} do {$siglaInstituto}"
-                            : ($item->utilizador?->nome ?? '—'),
+                        'nome' => PapHelper::nomeAprovador(
+                            $item->utilizador,
+                            $instituicaoTutoraModel,
+                            $nomeCurso,
+                        ),
                     ],
                 ];
             })->values(),
@@ -249,6 +288,14 @@ class GrupoPapController extends Controller
                 'solicitarMelhoria' => $user?->can('solicitarMelhoria', $grupoPap),
                 'definirTema' => $user->can('definirTema', $grupoPap),
                 'aprovarComoTutor' => $user?->can('aprovarComoTutor', $grupoPap),
+                // trabalho
+                'submeter' => $user?->can('submeterTrabalho', $grupoPap),
+                'aprovarTrabalhoComoTutor' => $user?->can('aprovarTrabalhoComoTutor', $grupoPap),
+                'solicitarCorrecaoComoTutor' => $user?->can('solicitarCorrecaoTrabalhoComoTutor', $grupoPap),
+                'aprovarComoCoordenacao' => $user?->can('aprovarTrabalhoComoCoordenacao', $grupoPap),
+                'solicitarCorrecaoComoCoordenacao' => $user?->can('solicitarCorrecaoTrabalhoComoCoordenacao', $grupoPap),
+                'downloadVersao' => $user?->can('downloadVersaoTrabalho', $grupoPap),
+
                 'elementos' => [
                     'create' => $user?->can('elementogrupopap.create'),
                     'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
@@ -399,6 +446,7 @@ class GrupoPapController extends Controller
                 ]);
     }
 
+
     public function editarTema(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
@@ -458,4 +506,5 @@ class GrupoPapController extends Controller
                     'message' => 'Tema corrigido. Aguarda revisão do professor tutor.',
                 ]);
     }
+
 }
