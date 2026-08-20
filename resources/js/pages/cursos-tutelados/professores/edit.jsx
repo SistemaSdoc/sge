@@ -2,8 +2,8 @@ import { Form } from '@inertiajs/react';
 import { usePage, router } from '@inertiajs/react';
 import { useState } from 'react';
 
-import { update } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
-import { show } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 
 import ProfessorForm from './components/professor-form';
 

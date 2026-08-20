@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { CursosTuteladosTable } from './components/curso-tutelado-table';
-import { index } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { index } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 
 export default function Index({ cursos, instituicao, can = {} }) {
   const handlePageChange = (page) => {

@@ -2,7 +2,7 @@ import { useDrawer } from '@/hooks/use-drawer';
 import { Head, router } from '@inertiajs/react';
 import { TurmaForm } from './components/turma-form';
 import { TurmaTable } from './components/turma-table';
-import { index } from '@/actions/App/Http/Controllers/TurmaController';
+import { index } from '@/actions/App/Http/Controllers/Tenant/TurmaController';
 
 export default function Index({
   can,

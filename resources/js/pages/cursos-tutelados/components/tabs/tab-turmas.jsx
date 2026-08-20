@@ -18,7 +18,7 @@ import {
 import { Minus, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import TablePagination from '@/components/table-pagination';
-import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 
 export function TabTurmas({
   params,

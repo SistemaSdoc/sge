@@ -32,7 +32,7 @@ import {
   show,
   create,
   edit,
-} from '@/actions/App/Http/Controllers/RegraAvaliacaoController';
+} from '@/actions/App/Http/Controllers/Tenant/RegraAvaliacaoController';
 import TablePagination from '@/components/table-pagination';
 
 export function RegraTable({

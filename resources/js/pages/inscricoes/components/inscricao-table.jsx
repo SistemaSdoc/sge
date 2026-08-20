@@ -44,9 +44,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { create, show } from '@/routes/inscricoes';
+import { create, show } from '@/routes/dashboard/inscricoes';
 import TablePagination from '@/components/table-pagination';
-import { destroy } from '@/actions/App/Http/Controllers/InscricaoController';
+import { destroy } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
 import {
   Select,
   SelectContent,

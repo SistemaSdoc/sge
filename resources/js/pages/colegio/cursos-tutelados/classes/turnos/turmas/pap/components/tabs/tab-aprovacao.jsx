@@ -11,7 +11,7 @@ import {
   solicitarMelhoria,
   aprovarTutor,
   solicitarMelhoriaComoTutor,
-} from '@/actions/App/Http/Controllers/Colegios/GrupoPapAprovacaoController';
+} from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapAprovacaoController';
 
 const STATUS = {
   rascunho: { label: 'Rascunho', icon: Clock, badgeClass: 'bg-muted text-muted-foreground border-transparent' },

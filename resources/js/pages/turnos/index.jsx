@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { TurnoTable } from './components/turno-table';
-import { index, destroy } from '@/actions/App/Http/Controllers/TurnoController';
+import { index, destroy } from '@/actions/App/Http/Controllers/Tenant/TurnoController';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Index({ turnos, can }) {

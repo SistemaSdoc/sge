@@ -4,12 +4,12 @@ import { TabTurmas } from './components/tabs/tab-turmas';
 import { TabProfessores } from './components/tabs/tab-professores';
 import { TabCriteriosPap } from './components/tabs/tab-criteriospap';
 import { Badge } from '@/components/ui/badge';
-import { show as showClasse } from '@/actions/App/Http/Controllers/CursoClasseController';
+import { show as showClasse } from '@/actions/App/Http/Controllers/Tenant/CursoClasseController';
 import {
   edit,
   show as showCurso,
-} from '@/actions/App/Http/Controllers/CursoTuteladoController';
-import { destroy } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
+} from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
+import { destroy } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
 import { useDialog } from '@/hooks/use-dialog';
 import {
   Select,
@@ -24,7 +24,7 @@ import { Header } from './components/curso-header';
 // Imports a adicionar:
 import { useState, useRef } from 'react';
 import { FileText, Upload } from 'lucide-react';
-import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 
 export default function Show({
   instituicao,

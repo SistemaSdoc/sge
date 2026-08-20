@@ -13,10 +13,10 @@ import {
   CardHeader,
 } from '@/components/ui/card';
 import { ArrowUpLeft } from 'lucide-react';
-import { show as showCurso } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { show as showCurso } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import { Button } from '@/components/ui/button';
 import { Link, router } from '@inertiajs/react';
-import { create } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
+import { create } from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
 
 export function Header({ can, params, anoLectivoAtualNome, turnos }) {
   return (

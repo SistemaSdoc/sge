@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
-import { update } from '@/actions/App/Http/Controllers/PeriodoLancamentoNotasController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/PeriodoLancamentoNotasController';
 import { Button } from '@/components/ui/button';
 import {
   Card,

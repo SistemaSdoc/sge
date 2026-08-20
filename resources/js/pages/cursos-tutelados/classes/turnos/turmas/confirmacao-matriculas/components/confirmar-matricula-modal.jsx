@@ -18,7 +18,7 @@ import { Loader2 } from 'lucide-react';
 import {
   index,
   store,
-} from '@/actions/App/Http/Controllers/ConfirmacaoMatriculaController';
+} from '@/actions/App/Http/Controllers/Tenant/ConfirmacaoMatriculaController';
 
 export function ConfirmarMatriculaModal({
   aluno,

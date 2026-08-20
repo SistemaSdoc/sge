@@ -33,14 +33,14 @@ import {
 import { toast } from 'sonner';
 import { BookOpenIcon, UsersIcon, Haze } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
-import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
-import { destroy } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
+import { create as createDisciplina } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
+import { destroy } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
 import {
   show as showTurma,
   create as createTurma,
   edit as editTurma,
-} from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
-import { create } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
+} from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
+import { create } from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
 import { cn } from '@/lib/utils';
 import { Header } from './components/classe-header';
 

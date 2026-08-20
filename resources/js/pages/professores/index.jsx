@@ -3,7 +3,7 @@ import { ProfessorTable } from './components/professor-table';
 import {
   index,
   destroy,
-} from '@/actions/App/Http/Controllers/ProfessorController';
+} from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Index({ professores }) {

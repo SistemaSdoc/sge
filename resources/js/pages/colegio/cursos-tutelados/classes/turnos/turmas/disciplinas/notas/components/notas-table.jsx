@@ -28,8 +28,8 @@ import { FileTextIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { mediaTrimestral } from '@/utils/media-trimestral';
 import { verificarSituacao } from '@/utils/verificar-situacao';
-import { create } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
-import { exportarDisciplina } from '@/actions/App/Http/Controllers/ExportarMiniPautaController';
+import { create } from '@/actions/App/Http/Controllers/Tenant/NotaDisciplinaController';
+import { exportarDisciplina } from '@/actions/App/Http/Controllers/Tenant/ExportarMiniPautaController';
 import TablePagination from '@/components/table-pagination';
 
 function buildInitialNotas(alunosData, periodo) {

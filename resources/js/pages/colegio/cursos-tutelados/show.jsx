@@ -16,7 +16,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { show  } from '@/actions/App/Http/Controllers/Colegios/CursoClasseController';
+import { show  } from '@/actions/App/Http/Controllers/Tenant/Colegios/CursoClasseController';
 
 export default function Show({ cursoTutelado, colegio  }) {
   const instituicaoId = cursoTutelado.instituicao.id;

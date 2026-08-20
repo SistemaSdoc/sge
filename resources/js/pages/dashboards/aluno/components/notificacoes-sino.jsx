@@ -7,7 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { index, marcarLida, marcarTodasLidas } from '@/actions/App/Http/Controllers/NotificacaoController';
+import { index, marcarLida, marcarTodasLidas } from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
 
 const INTERVALO_POLLING = 30000; // 30s
 

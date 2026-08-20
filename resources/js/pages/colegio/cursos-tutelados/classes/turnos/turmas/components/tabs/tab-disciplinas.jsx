@@ -20,8 +20,8 @@ import {
 import { Minus, BookIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { useDialog } from '@/hooks/use-dialog';
-import { create as createDisciplina } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
-import { index } from '@/actions/App/Http/Controllers/Colegios/NotaDisciplinaController';
+import { create as createDisciplina } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
+import { index } from '@/actions/App/Http/Controllers/Tenant/Colegios/NotaDisciplinaController';
 import TablePagination from '@/components/table-pagination';
 import { toast } from 'sonner';
 

@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/select';
 import { CartSummary } from './cart-summary';
 import { CartItem } from './cart-items';
-import { store } from '@/actions/App/Http/Controllers/PagamentoController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/PagamentoController';
 
 const metodos = [
   { value: 'dinheiro', label: 'Dinheiro' },

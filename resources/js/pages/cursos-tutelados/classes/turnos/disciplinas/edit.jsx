@@ -1,5 +1,5 @@
 import { Form, usePage } from '@inertiajs/react';
-import { update } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
 import DisciplinaForm from './components/disciplina-form';
 
 export default function Edit() {

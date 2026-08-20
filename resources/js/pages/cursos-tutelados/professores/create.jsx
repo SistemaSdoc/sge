@@ -1,7 +1,7 @@
 import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
-import { show } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import ProfessorForm from './components/professor-form';
 import { useState } from 'react';
 

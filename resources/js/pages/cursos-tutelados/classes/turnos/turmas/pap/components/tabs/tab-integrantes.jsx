@@ -26,8 +26,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { EmptyState } from '@/components/empty-state';
-import { show as showAluno } from '@/actions/App/Http/Controllers/AlunoController';
-import { create as adicionarElemento } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
+import { show as showAluno } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
+import { create as adicionarElemento } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
 import TablePagination from '@/components/table-pagination';
 
 export function TabIntegrantes({

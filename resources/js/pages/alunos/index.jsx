@@ -3,8 +3,8 @@ import { useForm } from '@inertiajs/react';
 import { AlunoTable } from './components/aluno-table';
 import { AtribuirTurmaForm } from './components/atribuir-turma-form';
 import { useDialog } from '@/hooks/use-dialog';
-import { index } from '@/actions/App/Http/Controllers/AlunoController';
-import { atribuirTurma } from '@/actions/App/Http/Controllers/TurmaController';
+import { index } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
+import { atribuirTurma } from '@/actions/App/Http/Controllers/Tenant/TurmaController';
 
 export default function Index() {
   const { alunos, can, anoLectivoId, anosLectivos } = usePage().props;

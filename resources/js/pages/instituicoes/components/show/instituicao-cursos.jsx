@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { TabContentCursos } from '../tabs/tab-content-cursos';
-import { show } from '@/actions/App/Http/Controllers/InstituicaoController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/InstituicaoController';
 
 export function InstituicaoCursos({
   cursos,

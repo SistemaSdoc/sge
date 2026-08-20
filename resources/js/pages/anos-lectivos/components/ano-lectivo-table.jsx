@@ -32,7 +32,7 @@ import TablePagination from '@/components/table-pagination';
 import {
   create,
   edit,
-} from '@/actions/App/Http/Controllers/AnoLectivoController';
+} from '@/actions/App/Http/Controllers/Tenant/AnoLectivoController';
 
 const ESTADO_CONFIG = {
   planeado: {

@@ -14,10 +14,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { ArrowUpLeft, ArrowUpRight, MoreHorizontalIcon } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
-import { show as showClasse } from '@/actions/App/Http/Controllers/CursoClasseController';
-import { show as showCurso } from '@/actions/App/Http/Controllers/CursoTuteladoController';
-import { edit as editTurma } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
-import { index } from '@/actions/App/Http/Controllers/ConfirmacaoMatriculaController';
+import { show as showClasse } from '@/actions/App/Http/Controllers/Tenant/CursoClasseController';
+import { show as showCurso } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
+import { edit as editTurma } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
+import { index } from '@/actions/App/Http/Controllers/Tenant/ConfirmacaoMatriculaController';
 import {
   Breadcrumb,
   BreadcrumbItem,

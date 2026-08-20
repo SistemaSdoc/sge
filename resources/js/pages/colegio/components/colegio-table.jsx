@@ -17,7 +17,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 
-import { show } from '@/actions/App/Http/Controllers/Colegios/ColegioController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/Colegios/ColegioController';
 import TablePagination from '@/components/table-pagination';
 
 export function ColegioTable({

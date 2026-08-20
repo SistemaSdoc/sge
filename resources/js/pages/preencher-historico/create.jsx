@@ -1,5 +1,5 @@
 import { useForm, usePage } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/PreencherHistoricoController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/PreencherHistoricoController';
 import LancamentosHistoricoTable from './components/lancamentos-table';
 
 export default function Create({ aluno, turmaAluno, turma, can }) {

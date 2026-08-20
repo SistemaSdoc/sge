@@ -1,7 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { RegraAvaliacaoForm } from './components/regras-form';
 import { Head } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/RegraAvaliacaoController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/RegraAvaliacaoController';
 
 export default function Create({ niveisEnsino, classesPorNivel }) {
   const { data, setData, errors, post, processing } = useForm({

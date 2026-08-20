@@ -10,9 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import { Link, router } from '@inertiajs/react';
 import { ArrowUpLeft } from 'lucide-react';
-import { show as showInstituicao } from '@/actions/App/Http/Controllers/InstituicaoController';
-import { show as showClasse } from '@/actions/App/Http/Controllers/CursoClasseController';
-import { edit } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { show as showInstituicao } from '@/actions/App/Http/Controllers/Tenant/InstituicaoController';
+import { show as showClasse } from '@/actions/App/Http/Controllers/Tenant/CursoClasseController';
+import { edit } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import { cn } from '@/lib/utils';
 
 export function Header({ can, params }) {

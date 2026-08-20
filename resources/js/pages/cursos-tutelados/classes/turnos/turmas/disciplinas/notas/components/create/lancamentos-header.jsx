@@ -16,9 +16,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { ArrowUpLeft } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
-import { show as showClasse } from '@/actions/App/Http/Controllers/CursoClasseController';
-import { show as showCurso } from '@/actions/App/Http/Controllers/CursoTuteladoController';
-import { show as showTurma } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import { show as showClasse } from '@/actions/App/Http/Controllers/Tenant/CursoClasseController';
+import { show as showCurso } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
+import { show as showTurma } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 
 export function Header({ can, turma, params }) {
   const handleBackClick = () => {

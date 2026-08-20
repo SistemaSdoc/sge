@@ -20,7 +20,7 @@ import { EmptyState } from '@/components/empty-state';
 import { toast } from 'sonner';
 import TablePagination from '@/components/table-pagination';
 import LancamentosRecursoTable from '../../disciplinas/notas/components/lancamentos-recurso-table';
-import { index as indexRecurso } from '@/actions/App/Http/Controllers/NotaDisciplinaRecursoController';
+import { index as indexRecurso } from '@/actions/App/Http/Controllers/Tenant/NotaDisciplinaRecursoController';
 
 export function TabRecurso({
   disciplinas = [],

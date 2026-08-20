@@ -15,13 +15,13 @@ import {
 import {
   index,
   destroy,
-} from '@/actions/App/Http/Controllers/PagamentoController';
-import { exibir as verRecibo } from '@/actions/App/Http/Controllers/ReciboController';
-import { exportar as exportarRecibo } from '@/actions/App/Http/Controllers/ReciboController';
+} from '@/actions/App/Http/Controllers/Tenant/PagamentoController';
+import { exibir as verRecibo } from '@/actions/App/Http/Controllers/Tenant/ReciboController';
+import { exportar as exportarRecibo } from '@/actions/App/Http/Controllers/Tenant/ReciboController';
 import {
   porTurma,
   pdf as pdfRelatorioTurma,
-} from '@/actions/App/Http/Controllers/RelatorioPropinaController';
+} from '@/actions/App/Http/Controllers/Tenant/RelatorioPropinaController';
 export default function Index({
   pagamentos,
   turmas,

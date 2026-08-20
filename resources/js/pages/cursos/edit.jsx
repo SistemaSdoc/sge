@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { CursoForm } from './components/curso-form';
-import { update } from '@/actions/App/Http/Controllers/CursosController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/CursosController';
 
 export default function Edit({ can = {}, curso }) {
   const { put, data, setData, processing, errors } = useForm({

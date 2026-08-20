@@ -24,7 +24,7 @@ import TablePagination from '@/components/table-pagination';
 import {
   create,
   show,
-} from '@/actions/App/Http/Controllers/GrupoPapController';
+} from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 //import {create} from '@/routes/cursos-tutelados/classes/turnos/turmas/disciplinas/professores'
 //import {create} from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController'
 

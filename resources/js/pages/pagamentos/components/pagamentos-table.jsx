@@ -35,7 +35,7 @@ import {
   create,
   show,
   destroy,
-} from '@/actions/App/Http/Controllers/PagamentoController';
+} from '@/actions/App/Http/Controllers/Tenant/PagamentoController';
 import { DropdownMenuSeparator } from '@radix-ui/react-dropdown-menu';
 
 const formatCurrency = (value) => {

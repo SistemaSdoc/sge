@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { TurmaForm } from './components/turma-form';
-import { store } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 
 export default function Create({
   instituicao,

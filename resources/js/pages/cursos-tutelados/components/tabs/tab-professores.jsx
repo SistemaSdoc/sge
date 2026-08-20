@@ -20,8 +20,8 @@ import {
 
 import { Minus, BookOpenIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { create } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
-import { show } from '@/actions/App/Http/Controllers/ProfessorController';
+import { create } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 
 import TablePagination from '@/components/table-pagination';
 import { useState } from 'react';

@@ -11,7 +11,7 @@ import {
   solicitarMelhoria,
   aprovarTutor,
   solicitarMelhoriaComoTutor,
-} from '@/actions/App/Http/Controllers/GrupoPapAprovacaoController';
+} from '@/actions/App/Http/Controllers/Tenant/GrupoPapAprovacaoController';
 
 const STATUS = {
   rascunho: {

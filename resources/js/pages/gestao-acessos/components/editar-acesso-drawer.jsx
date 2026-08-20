@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useInitials } from '@/hooks/use-initials';
 import { Lock, X } from 'lucide-react';
-import { store } from '@/actions/App/Http/Controllers/AccessManagementController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/AccessManagementController';
 import MultiSelectorField from '@/components/multiple-select';
 
 const ROLE_COLORS = [

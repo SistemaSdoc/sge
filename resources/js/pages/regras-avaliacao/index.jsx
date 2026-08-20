@@ -3,7 +3,7 @@ import { RegraTable } from './components/regras-table';
 import {
   index,
   destroy,
-} from '@/actions/App/Http/Controllers/RegraAvaliacaoController';
+} from '@/actions/App/Http/Controllers/Tenant/RegraAvaliacaoController';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Index({ regrasAvaliacao }) {

@@ -1,5 +1,5 @@
 import { router, Link } from '@inertiajs/react';
-import { show } from '@/actions/App/Http/Controllers/GrupoPapController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import {
   Card,
   CardContent,

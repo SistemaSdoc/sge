@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { ProfessorForm } from './components/professor-form';
-import { update } from '@/actions/App/Http/Controllers/ProfessorController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 
 export default function Edit({ professor }) {
   const { put, data, setData, processing, errors } = useForm({

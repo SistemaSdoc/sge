@@ -38,7 +38,7 @@ import {
   create,
   show,
   edit,
-} from '@/actions/App/Http/Controllers/CursoTuteladoController';
+} from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import TablePagination from '@/components/table-pagination';
 
 export function TabContentCursos({

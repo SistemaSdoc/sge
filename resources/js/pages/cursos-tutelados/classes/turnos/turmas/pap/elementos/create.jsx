@@ -1,7 +1,7 @@
 import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
-import { show } from '@/actions/App/Http/Controllers/GrupoPapController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import { useState } from 'react';
 import { CreateForm } from './components/create.form';
 

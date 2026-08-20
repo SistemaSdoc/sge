@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Link } from '@inertiajs/react';
-import { edit } from '@/actions/App/Http/Controllers/ClasseController';
+import { edit } from '@/actions/App/Http/Controllers/Tenant/ClasseController';
 
 export default function Show({ classe, can = {} }) {
   const canEdit = Boolean(can?.edit_classe || can?.update);

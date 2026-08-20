@@ -42,7 +42,7 @@ import {
   create,
   show,
   edit,
-} from '@/actions/App/Http/Controllers/AvisoController';
+} from '@/actions/App/Http/Controllers/Tenant/AvisoController';
 
 export default function avisoTable({
   avisos,

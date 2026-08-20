@@ -13,7 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { index as dashboardIndex } from '@/routes/dashboard';
 import type { LocalNavItem } from '@/types';
 
 const footerNavItems: LocalNavItem[] = [
@@ -38,7 +38,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href={dashboard()} prefetch>
+              <Link href={dashboardIndex()} prefetch>
                 <AppLogo />
               </Link>
             </SidebarMenuButton>

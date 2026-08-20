@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card';
 import { EmptyState } from '@/components/empty-state';
 import { BookOpenIcon, LayersIcon, MoreHorizontalIcon } from 'lucide-react';
-import { show } from '@/actions/App/Http/Controllers/CursosController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/CursosController';
 import {
   Table,
   TableBody,

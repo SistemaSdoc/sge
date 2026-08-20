@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import LancamentosTable from './components/create/lancamentos-table';
-import { store } from '@/actions/App/Http/Controllers/NotaDisciplinaController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/NotaDisciplinaController';
 import { usePagination } from '@/hooks/use-pagination';
 import { usePage } from '@inertiajs/react';
 import { Header } from './components/create/lancamentos-header';

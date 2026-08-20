@@ -15,7 +15,7 @@ import {
   FieldSet,
 } from '@/components/ui/field';
 import MultipleSelect from '@/components/multiple-select';
-import { store } from '@/actions/App/Http/Controllers/CursoClasseTurnoController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
 import { ArrowUpLeft } from 'lucide-react';
 
 export default function Create({

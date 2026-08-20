@@ -1,7 +1,7 @@
 import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/GrupoPapController';
-import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import GrupoPapForm from '../pap/components/grupo-pap-form';
 import { useState } from 'react';
 

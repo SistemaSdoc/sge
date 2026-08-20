@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { TurnoForm } from './components/turno-form';
-import { update } from '@/actions/App/Http/Controllers/TurnoController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/TurnoController';
 
 export default function Edit({ can = {}, turno }) {
   const { put, data, setData, processing, errors } = useForm({

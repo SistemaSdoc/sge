@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { Input } from '@/components/ui/input';
-import { show } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
 
 export function TurmaTable({

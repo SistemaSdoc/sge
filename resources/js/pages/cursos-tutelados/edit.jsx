@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { CursoForm } from './components/forms/edit.form';
-import { update } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 
 export default function Edit({
   instituicao,

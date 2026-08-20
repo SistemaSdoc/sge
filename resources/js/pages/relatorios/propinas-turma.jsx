@@ -19,7 +19,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { EmptyState } from '@/components/empty-state';
-import { pdf } from '@/actions/App/Http/Controllers/RelatorioPropinaController';
+import { pdf } from '@/actions/App/Http/Controllers/Tenant/RelatorioPropinaController';
 
 const formatCurrency = (value) => {
   const amount = Number(value ?? 0);

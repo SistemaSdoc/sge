@@ -19,7 +19,7 @@ import {
 
 import { Minus, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { show } from '@/actions/App/Http/Controllers/AlunoController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
 import TablePagination from '@/components/table-pagination';
 
 export function TabAlunos({

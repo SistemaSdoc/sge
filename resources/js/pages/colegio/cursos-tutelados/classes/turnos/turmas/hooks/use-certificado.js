@@ -1,4 +1,4 @@
-import { gerar } from '@/actions/App/Http/Controllers/CertificadoController';
+import { gerar } from '@/actions/App/Http/Controllers/Tenant/CertificadoController';
 
 export function useCertificado(params) {
   const gerarCertificado = async (e, alunoId) => {

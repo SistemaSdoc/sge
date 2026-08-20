@@ -1,7 +1,7 @@
 import { useForm, router } from '@inertiajs/react';
 import { useDialog } from '@/hooks/use-dialog';
 import { toast } from 'sonner';
-import { store } from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/InstituicaoCurso/TurmaDisciplinaProfessorController';
 
 export function useProfessorForm(routeParams, classeTurnoDisciplina, initialAnoLectivoId = '') {
     const { confirm } = useDialog();

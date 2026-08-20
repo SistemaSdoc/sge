@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { AvisoForm } from './components/aviso-form';
-import { store } from '@/actions/App/Http/Controllers/AvisoController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/AvisoController';
 
 export default function Create() {
   const { post, data, setData, processing, errors } = useForm({

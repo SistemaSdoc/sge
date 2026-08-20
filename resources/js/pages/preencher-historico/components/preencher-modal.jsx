@@ -15,7 +15,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Loader2 } from 'lucide-react';
-import { confirmar } from '@/actions/App/Http/Controllers/PreencherHistoricoController';
+import { confirmar } from '@/actions/App/Http/Controllers/Tenant/PreencherHistoricoController';
 
 export default function Preencher({
   aluno,

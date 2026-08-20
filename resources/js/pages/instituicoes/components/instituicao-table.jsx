@@ -31,7 +31,7 @@ import {
   edit,
   show,
   create,
-} from '@/actions/App/Http/Controllers/InstituicaoController';
+} from '@/actions/App/Http/Controllers/Tenant/InstituicaoController';
 import TablePagination from '@/components/table-pagination';
 
 export function InstituicaoTable({

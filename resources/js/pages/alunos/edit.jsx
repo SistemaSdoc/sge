@@ -2,7 +2,7 @@ import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import AlunoForm from './components/aluno-form';
-import {update, index} from '@/actions/App/Http/Controllers/AlunoController'
+import {update, index} from '@/actions/App/Http/Controllers/Tenant/AlunoController'
 
 export default function Edit() {
   const { aluno, turmas } = usePage().props;

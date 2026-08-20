@@ -1,6 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
 import { ConfirmacaoTable } from './components/confirmacao-table';
-import { index } from '@/actions/App/Http/Controllers/ConfirmacaoMatriculaController';
+import { index } from '@/actions/App/Http/Controllers/Tenant/ConfirmacaoMatriculaController';
 import { useDialog } from '@/hooks/use-dialog';
 import { ConfirmarMatriculaModal } from './components/confirmar-matricula-modal';
 

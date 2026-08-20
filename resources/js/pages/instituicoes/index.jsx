@@ -4,7 +4,7 @@ import { useDialog } from '@/hooks/use-dialog';
 import {
   index,
   destroy,
-} from '@/actions/App/Http/Controllers/InstituicaoController';
+} from '@/actions/App/Http/Controllers/Tenant/InstituicaoController';
 
 export default function Index({ instituicoes, can }) {
   const { deleteConfirm } = useDialog();

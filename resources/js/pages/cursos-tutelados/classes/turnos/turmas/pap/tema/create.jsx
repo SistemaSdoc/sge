@@ -1,6 +1,6 @@
 import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/GrupoPapTemaController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/GrupoPapTemaController';
 import { TemaForm } from './components/tema-form';
 
 export default function Create() {

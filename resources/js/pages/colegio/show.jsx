@@ -18,8 +18,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import { show } from '@/actions/App/Http/Controllers/Colegios/CursoTuteladoController';
-import { edit as editarPrazosLancamentoNotas } from '@/actions/App/Http/Controllers/PeriodoLancamentoNotasController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/Colegios/CursoTuteladoController';
+import { edit as editarPrazosLancamentoNotas } from '@/actions/App/Http/Controllers/Tenant/PeriodoLancamentoNotasController';
 import TablePagination from '@/components/table-pagination';
 
 export default function Show({

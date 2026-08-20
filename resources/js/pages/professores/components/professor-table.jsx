@@ -34,7 +34,7 @@ import {
   create,
   show,
   edit,
-} from '@/actions/App/Http/Controllers/ProfessorController';
+} from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 import TablePagination from '@/components/table-pagination';
 
 export function ProfessorTable({

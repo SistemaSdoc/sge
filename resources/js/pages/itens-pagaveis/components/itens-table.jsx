@@ -32,7 +32,7 @@ import TablePagination from '@/components/table-pagination';
 import {
   create,
   edit,
-} from '@/actions/App/Http/Controllers/ItemPagavelController';
+} from '@/actions/App/Http/Controllers/Tenant/ItemPagavelController';
 
 const formatCurrency = (value) => {
   const amount = Number(value ?? 0);

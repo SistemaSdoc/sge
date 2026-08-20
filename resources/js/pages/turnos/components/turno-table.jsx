@@ -29,7 +29,7 @@ import {
   create,
   show,
   edit,
-} from '@/actions/App/Http/Controllers/TurnoController';
+} from '@/actions/App/Http/Controllers/Tenant/TurnoController';
 import TablePagination from '@/components/table-pagination';
 
 export function TurnoTable({

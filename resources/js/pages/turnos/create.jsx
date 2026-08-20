@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { TurnoForm } from './components/turno-form';
-import { store } from '@/actions/App/Http/Controllers/TurnoController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/TurnoController';
 
 export default function Create({ can = {} }) {
   const { post, data, setData, processing, errors } = useForm({

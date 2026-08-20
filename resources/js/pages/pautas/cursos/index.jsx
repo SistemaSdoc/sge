@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { indexTurmas } from '@/actions/App/Http/Controllers/PautaController';
+import { indexTurmas } from '@/actions/App/Http/Controllers/Tenant/PautaController';
 
 export default function PautasCursos({ cursosTutelados }) {
   return (

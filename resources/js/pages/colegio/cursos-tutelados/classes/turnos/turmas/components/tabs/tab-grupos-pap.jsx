@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/table';
 import { Minus, Users2Icon } from 'lucide-react';
 import { usePagination } from '@/hooks/use-pagination';
-import { show } from '@/actions/App/Http/Controllers/Colegios/GrupoPapController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapController';
 
 import TablePagination from '@/components/table-pagination';
 

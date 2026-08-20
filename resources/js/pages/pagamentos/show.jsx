@@ -28,7 +28,7 @@ import {
 import {
   index,
   show,
-} from '@/actions/App/Http/Controllers/PagamentoController';
+} from '@/actions/App/Http/Controllers/Tenant/PagamentoController';
 import { MONTH_LABELS } from '@/lib/pagamentos';
 import TablePagination from '@/components/table-pagination';
 

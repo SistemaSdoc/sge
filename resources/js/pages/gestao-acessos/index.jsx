@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { UsuariosTable } from './components/usuarios-table';
-import { index } from '@/actions/App/Http/Controllers/AccessManagementController';
+import { index } from '@/actions/App/Http/Controllers/Tenant/AccessManagementController';
 import { useDrawer } from '@/hooks/use-drawer';
 import { EditarAcessoDrawer } from './components/drawer';
 

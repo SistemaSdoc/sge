@@ -3,7 +3,7 @@ import { ClasseTable } from './components/classe-table';
 import {
   index,
   destroy,
-} from '@/actions/App/Http/Controllers/ClasseController';
+} from '@/actions/App/Http/Controllers/Tenant/ClasseController';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Index({ classes, can }) {

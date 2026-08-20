@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { update } from '@/actions/App/Http/Controllers/CursoTuteladoProfessorController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
 import { Spinner } from '@/components/spinner';
 
 export default function EditProfessorModal({ vinculo, open, onClose, params }) {

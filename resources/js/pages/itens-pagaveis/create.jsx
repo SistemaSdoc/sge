@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { ItensForm } from './components/itens-form';
-import { store } from '@/actions/App/Http/Controllers/ItemPagavelController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/ItemPagavelController';
 
 export default function Create({ cursosClasse }) {
   const { post, data, setData, processing, errors } = useForm({

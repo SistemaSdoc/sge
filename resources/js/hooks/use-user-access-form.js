@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/AccessManagementController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/AccessManagementController';
 
 export function useUserAccessForm(usuario, onSuccess) {
   const { data, setData, post, processing } = useForm({

@@ -41,7 +41,7 @@ import {
   show,
   create,
   edit,
-} from '@/actions/App/Http/Controllers/ClasseController';
+} from '@/actions/App/Http/Controllers/Tenant/ClasseController';
 import TablePagination from '@/components/table-pagination';
 
 export function ClasseTable({

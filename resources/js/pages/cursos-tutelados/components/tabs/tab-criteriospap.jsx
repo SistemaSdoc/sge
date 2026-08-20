@@ -33,7 +33,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/CursoTuteladoController';
+import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 
 export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, can }) {
   console.log('url recebida: ', criteriosPapUrl)

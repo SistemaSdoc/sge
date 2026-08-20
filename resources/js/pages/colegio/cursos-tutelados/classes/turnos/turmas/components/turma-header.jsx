@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Minus, MoreHorizontalIcon } from 'lucide-react';
 import { router } from '@inertiajs/react';
-import { edit } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import { edit } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 
 export function Header({
   turma,

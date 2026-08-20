@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { store } from '@/routes/cursos-tutelados';
+import { store } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import { CursoForm } from './components/forms/create.form';
 
 export default function Create({ instituicao, classes, cursos, niveisEnsino }) {

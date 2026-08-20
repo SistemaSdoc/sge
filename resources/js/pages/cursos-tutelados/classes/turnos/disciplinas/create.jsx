@@ -1,5 +1,5 @@
 import { Form, router, usePage } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/ClasseTurnoDisciplinaController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
 import DisciplinaForm from './components/disciplina-form';
 import { useState } from 'react';
 

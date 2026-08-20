@@ -25,7 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { show as showAluno } from '@/actions/App/Http/Controllers/AlunoController';
+import { show as showAluno } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
 import TablePagination from '@/components/table-pagination';
 
 export function TabIntegrantes({

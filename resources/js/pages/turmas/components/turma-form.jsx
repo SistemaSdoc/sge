@@ -15,8 +15,8 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { toast } from 'sonner';
-import { index } from '@/actions/App/Http/Controllers/TurmaController';
-import { store } from '@/actions/App/Http/Controllers/ClasseTurnoTurmaController';
+import { index } from '@/actions/App/Http/Controllers/Tenant/TurmaController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 
 export function TurmaForm({
   cursos = [],

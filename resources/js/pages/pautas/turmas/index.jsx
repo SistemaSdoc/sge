@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/select';
 import { BookOpen } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { pauta } from '@/actions/App/Http/Controllers/PautaController';
+import { pauta } from '@/actions/App/Http/Controllers/Tenant/PautaController';
 
 export default function Index({
   cursoTutelado,

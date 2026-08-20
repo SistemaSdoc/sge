@@ -1,6 +1,6 @@
 import { router, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { index, show } from '@/actions/App/Http/Controllers/GrupoPapController';
+import { index, show } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import {
   Card,
   CardAction,

@@ -8,7 +8,7 @@ import {
 import { PERIODOS } from './utils';
 import { Button } from '@/components/ui/button';
 import { CardAction } from '@/components/ui/card';
-import { exportarExcel } from '@/actions/App/Http/Controllers/ExportarPautaController';
+import { exportarExcel } from '@/actions/App/Http/Controllers/Tenant/ExportarPautaController';
 
 export function PautaCardActions({ params, periodo, setPeriodo }) {
   return (

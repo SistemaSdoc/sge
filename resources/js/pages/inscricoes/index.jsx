@@ -1,6 +1,7 @@
 import { router, usePage } from '@inertiajs/react';
-import { update, destroy, reativar } from '@/routes/inscricoes'; // ← verifica o nome exportado
 import { InscricaoTable } from './components/inscricao-table';
+import {  update, destroy, reativar } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
+
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Index() {

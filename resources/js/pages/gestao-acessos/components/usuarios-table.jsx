@@ -23,7 +23,7 @@ import {
   show,
   create,
   edit,
-} from '@/actions/App/Http/Controllers/ClasseController';
+} from '@/actions/App/Http/Controllers/Tenant/ClasseController';
 import TablePagination from '@/components/table-pagination';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';

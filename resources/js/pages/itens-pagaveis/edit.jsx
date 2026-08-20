@@ -1,7 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { ItensForm } from './components/itens-form';
-import { update } from '@/actions/App/Http/Controllers/ItemPagavelController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/ItemPagavelController';
 
 export default function Edit({ itemPagavel, cursosClasse = [] }) {
   // Inicializa com valores vazios

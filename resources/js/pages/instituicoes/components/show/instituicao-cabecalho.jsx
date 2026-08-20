@@ -9,8 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { edit } from '@/actions/App/Http/Controllers/InstituicaoController';
-import { edit as editarPrazosLancamentoNotas } from '@/actions/App/Http/Controllers/PeriodoLancamentoNotasController';
+import { edit } from '@/actions/App/Http/Controllers/Tenant/InstituicaoController';
+import { edit as editarPrazosLancamentoNotas } from '@/actions/App/Http/Controllers/Tenant/PeriodoLancamentoNotasController';
 
 export function InstituicaoCabecalho({ data, storageUrl, can = {} }) {
   const canEdit = Boolean(can?.edit || can?.edit_instituicao);

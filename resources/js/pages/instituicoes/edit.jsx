@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { InstituicaoForm } from './components/instituicao-form';
-import { update } from '@/actions/App/Http/Controllers/InstituicaoController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/InstituicaoController';
 
 export default function Edit({ can = {}, instituicao }) {
   const { put, data, setData, processing, errors } = useForm({

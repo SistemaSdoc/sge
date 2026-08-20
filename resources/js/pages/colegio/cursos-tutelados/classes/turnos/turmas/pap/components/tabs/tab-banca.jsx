@@ -24,8 +24,8 @@ import {
 import { MoreHorizontalIcon, Minus, Users2Icon } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
 import { EmptyState } from '@/components/empty-state';
-import { show as showProfessor } from '@/actions/App/Http/Controllers/ProfessorController';
-import { create as adicionarJurado, edit } from '@/actions/App/Http/Controllers/Colegios/BancaJuriPapController';
+import { show as showProfessor } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
+import { create as adicionarJurado, edit } from '@/actions/App/Http/Controllers/Tenant/Colegios/BancaJuriPapController';
 import TablePagination from '@/components/table-pagination';
 
 export function TabBanca({

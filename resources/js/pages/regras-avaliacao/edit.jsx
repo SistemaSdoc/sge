@@ -1,7 +1,7 @@
 import { useForm } from '@inertiajs/react';
 import { RegraAvaliacaoForm } from './components/regras-form';
 import { Head } from '@inertiajs/react';
-import { update } from '@/actions/App/Http/Controllers/RegraAvaliacaoController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/RegraAvaliacaoController';
 
 export default function Edit({
   regraAvaliacao,

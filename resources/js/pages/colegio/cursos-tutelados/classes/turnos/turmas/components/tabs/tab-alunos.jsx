@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Minus, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { show } from '@/actions/App/Http/Controllers/AlunoController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
 import { useCertificado } from '../../hooks/use-certificado';
 import TablePagination from '@/components/table-pagination';
 

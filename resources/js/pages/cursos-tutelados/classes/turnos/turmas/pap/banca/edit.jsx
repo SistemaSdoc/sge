@@ -1,7 +1,7 @@
 import { Form, useForm } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
-import { update } from '@/actions/App/Http/Controllers/BancaJuriPapController';
-import { show } from '@/actions/App/Http/Controllers/GrupoPapController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/BancaJuriPapController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import { CreateForm } from './components/create.form';
 
 export default function Edit() {

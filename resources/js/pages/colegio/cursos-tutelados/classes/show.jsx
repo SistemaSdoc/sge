@@ -26,8 +26,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ArrowLeftIcon, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { router } from '@inertiajs/react';
-import { show as showCurso } from '@/actions/App/Http/Controllers/Colegios/CursoTuteladoController';
-import { show as showTurma } from '@/actions/App/Http/Controllers/Colegios/ClasseTurnoTurmaController';
+import { show as showCurso } from '@/actions/App/Http/Controllers/Tenant/Colegios/CursoTuteladoController';
+import { show as showTurma } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
 import { useRef, useState } from 'react';
 import {

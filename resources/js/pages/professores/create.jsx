@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { ProfessorForm } from './components/professor-form';
-import { store } from '@/actions/App/Http/Controllers/ProfessorController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 
 export default function Create() {
   const { post, data, setData, processing, errors } = useForm({

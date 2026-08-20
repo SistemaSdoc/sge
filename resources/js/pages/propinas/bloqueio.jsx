@@ -1,6 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import { dashboard } from '@/routes';
-
+import { index } from '@/actions/App/Http/Controllers/Tenant/DashboardController';
 const formatCurrency = (value) => {
   const amount = Number(value ?? 0);
   return `${amount.toLocaleString('pt', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AOA`;
@@ -69,7 +68,7 @@ export default function Bloqueio({ pendencias, total, meses }) {
         </div>
 
         <Link
-          href={dashboard()}
+          href={index().url}
           className="text-sm font-medium text-primary underline underline-offset-4"
         >
           Voltar ao Dashboard

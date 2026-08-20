@@ -1,6 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { PagamentosForm } from './components/pagamentos-form';
-import { update } from '@/actions/App/Http/Controllers/AvisoController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/AvisoController';
 
 export default function Edit({ pagamento, alunos = [], itensPagaveis = [] }) {
   const { put, data, setData, processing, errors } = useForm({

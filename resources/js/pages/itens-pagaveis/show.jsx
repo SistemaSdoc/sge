@@ -1,7 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeftIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { index } from '@/actions/App/Http/Controllers/ItemPagavelController';
+import { index } from '@/actions/App/Http/Controllers/Tenant/ItemPagavelController';
 
 const formatCurrency = (value) => {
   const amount = Number(value ?? 0);

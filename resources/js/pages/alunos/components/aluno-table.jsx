@@ -28,7 +28,7 @@ import {
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import TablePagination from '@/components/table-pagination';
-import { edit } from '@/actions/App/Http/Controllers/AlunoController';
+import { edit } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
 import {
   Select,
   SelectContent,

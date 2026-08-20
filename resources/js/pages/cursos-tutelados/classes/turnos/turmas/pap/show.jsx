@@ -23,17 +23,17 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/BancaJuriPapController';
-import { destroy as destroyIntegrante } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
-import { edit } from '@/actions/App/Http/Controllers/GrupoPapController';
-import { definirData } from '@/actions/App/Http/Controllers/GrupoPapController';
-import { actualizarNota } from '@/actions/App/Http/Controllers/ElementoGrupoPapController';
+import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/BancaJuriPapController';
+import { destroy as destroyIntegrante } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
+import { edit } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { definirData } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { actualizarNota } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
 import { FieldError } from '@/components/ui/field';
 import { usePagination } from '@/hooks/use-pagination';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { editar as editarTema } from '@/actions/App/Http/Controllers/GrupoPapAprovacaoController';
-import { create as createTema } from '@/actions/App/Http/Controllers/GrupoPapTemaController';
+import { editar as editarTema } from '@/actions/App/Http/Controllers/Tenant/GrupoPapAprovacaoController';
+import { create as createTema } from '@/actions/App/Http/Controllers/Tenant/GrupoPapTemaController';
 import { FileText } from 'lucide-react';
 
 export default function Show({
