@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Policies\Tenant;
+
+use App\Models\tenant\User;
+
+class GrelhaCurricularPolicy
+{
+    /**
+     * Determina se o utilizador pode ver a sua grelha curricular.
+     *
+     * Exclusivo de alunos. O controller filtra os dados
+     * pelo aluno autenticado via query.
+     */
+    public function viewAny(User $user): bool
+    {
+        return $user->can('grelha.viewAny') && $user->hasRole('Aluno');
+    }
+}
