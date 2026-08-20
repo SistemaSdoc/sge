@@ -70,19 +70,19 @@ Route::middleware([
     */
 
     Route::get('/', [AuthenticatedSessionController::class, 'create'])
-        ->middleware('guest')
+        ->middleware('guest:tenant')
         ->name('tenant.login');
 
     Route::post('/', [AuthenticatedSessionController::class, 'store'])
-        ->middleware('guest')
+        ->middleware('guest:tenant')
         ->name('tenant.login.store');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->middleware('auth')
+        ->middleware('auth:tenant')
         ->name('tenant.logout');
 
     Route::get('token/{token}', [AuthenticatedSessionController::class, 'token'])
-        ->middleware('guest')
+        ->middleware('guest:tenant')
         ->name('tenant.login.token');
 
     /*

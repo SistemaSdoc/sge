@@ -28,7 +28,8 @@ class DashboardController extends Controller
      */
     public function index(): Response|RedirectResponse
     {
-        $user = Auth::user();
+
+        $user = Auth::guard('tenant')->user();
 
         $anoLectivoId = AnoLectivo::activo()?->id;
 

@@ -38,6 +38,9 @@ class User extends Authenticatable implements PasskeyUser
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
+    // Propriedade que o Laravel usa
+    protected $guard = 'web';
+    // Propriedade que o Spatie usa
     protected $guard_name = 'web';
 
     protected function casts(): array

@@ -19,27 +19,28 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::inertia('/', 'tenant/welcome/index')->name('home');
 
         Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->middleware('auth:web')
             ->name('central.dashboard');
 
         Route::get('register', [RegisteredController::class, 'create'])
-            ->middleware('guest')
+            ->middleware('guest:web')
             ->name('central.register');
 
         Route::post('register', [RegisteredController::class, 'store'])
-            ->middleware('guest')
+            ->middleware('guest:web')
             ->name('central.register.store');
 
         Route::get('login', [AuthenticatedSessionController::class, 'create'])
-            ->middleware('guest')
+            ->middleware('guest:web')
             ->name('central.login');
 
         Route::post('login', [AuthenticatedSessionController::class, 'store'])
-            ->middleware('guest')
+            ->middleware('guest:web')
             ->middleware('throttle:login')
             ->name('central.login.store');
 
         Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-            ->middleware('auth')
+            ->middleware('auth:web')
             ->name('central.logout');
     });
 }

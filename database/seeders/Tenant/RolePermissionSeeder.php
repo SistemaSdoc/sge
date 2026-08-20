@@ -3,6 +3,7 @@
 namespace Database\Seeders\Tenant;
 
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -519,7 +520,7 @@ class RolePermissionSeeder extends Seeder
                 'turmas.view',
 
                 // Pautas
-                //'pautas.viewAny',
+                // 'pautas.viewAny',
                 'pautas.view',
 
                 // Notas
@@ -567,8 +568,19 @@ class RolePermissionSeeder extends Seeder
             'Candidato' => [],
         ];
 
+        // Garante que todas as permissões existem no guard correto antes de sincronizar
+        $todasPermissoes = collect($mapa)->flatten()->unique()->values();
+
+        $todasPermissoes->each(function (string $permissao) {
+            Permission::findOrCreate($permissao, 'tenant');
+        });
+
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
         foreach ($mapa as $roleName => $permissions) {
-            Role::findByName($roleName)->syncPermissions($permissions);
+            Role::findByName($roleName, 'tenant')->syncPermissions(
+                Permission::whereIn('name', $permissions)->where('guard_name', 'tenant')->get()
+            );
         }
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();

@@ -38,7 +38,10 @@ class User extends Authenticatable implements PasskeyUser
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
-    protected $guard_name = 'web';
+    protected $guard = 'tenant';
+
+    // Propriedade que o Spatie usa
+    protected $guard_name = 'tenant';
 
     protected function casts(): array
     {

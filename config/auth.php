@@ -1,6 +1,7 @@
 <?php
 
-use App\Models\central\User;
+use App\Models\central\User as CentralUser;
+use App\Models\tenant\User as TenantUser;
 
 return [
 
@@ -42,6 +43,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'tenant' => [
+            'driver' => 'session',
+            'provider' => 'tenant_users',
+        ],
     ],
 
     /*
@@ -64,7 +69,12 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', User::class),
+            'model' => env('AUTH_MODEL', CentralUser::class),
+        ],
+
+        'tenant_users' => [
+            'driver' => 'eloquent',
+            'model' => TenantUser::class,
         ],
 
         // 'users' => [
@@ -96,6 +106,13 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
+        'tenant_users' => [
+            'provider' => 'tenant_users',
+            'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
         ],
