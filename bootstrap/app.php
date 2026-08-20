@@ -31,6 +31,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'roleOrPermission' => RoleOrPermissionMiddleware::class,
             'propina.em.dia' => VerificarPropinaEmDia::class,
         ]);
+
+        $middleware->redirectGuestsTo(function () {
+            return tenancy()->initialized ? route('tenant.login') : route('central.login');
+        });
+
+        $middleware->redirectUsersTo(function () {
+            return tenancy()->initialized ? route('tenant.dashboard') : route('central.dashboard');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

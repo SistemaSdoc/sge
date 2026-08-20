@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Tenant\Colegios\BancaJuriPapController;
-use App\Http\Controller\Tenant\Colegios\ClasseTurnoTurmaController;
+use App\Http\Controllers\Tenant\Colegios\ClasseTurnoTurmaController;
 use App\Http\Controllers\Tenant\Colegios\ColegioController;
 use App\Http\Controllers\Tenant\Colegios\CursoClasseController;
 use App\Http\Controllers\Tenant\Colegios\CursoTuteladoController;
@@ -55,7 +55,6 @@ Route::prefix('colegios')->group(function () {
                 Route::resource('banca', BancaJuriPapController::class)
                     ->parameters(['banca' => 'bancaJuriPap'])
                     ->only(['create', 'store', 'edit', 'update', 'destroy']);
-
 
                 Route::post('/reenviar', [GrupoPapAprovacaoController::class, 'reenviar'])
                     ->name('colegio.grupo-pap-aprovacao.reenviar');

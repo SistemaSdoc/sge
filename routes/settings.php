@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Tenant\ProfileController;
+use App\Http\Controllers\Tenant\Settings\ProfileController;
 use App\Http\Controllers\Tenant\Settings\SecurityController;
 use Illuminate\Support\Facades\Route;
 

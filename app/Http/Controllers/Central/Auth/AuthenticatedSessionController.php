@@ -3,29 +3,43 @@
 namespace App\Http\Controllers\Central\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\Central\LoginRequest;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Stancl\Tenancy\Features\UserImpersonation;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
+     * Display the login view.
+     */
+    public function create()
+    {
+        return Inertia::render('central/auth/login');
+    }
+
+    /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): Response
+    public function store(LoginRequest $request)
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        return response()->noContent();
+        return redirect()->intended(route('central.dashboard'));
+    }
+
+    public function token(string $token)
+    {
+        return UserImpersonation::makeResponse($token);
     }
 
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): Response
+    public function destroy(Request $request)
     {
         Auth::guard('web')->logout();
 
@@ -33,6 +47,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return response()->noContent();
+        return redirect()->route('central.login');
     }
 }

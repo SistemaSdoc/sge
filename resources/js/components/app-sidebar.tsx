@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { BoxSelectIcon } from 'lucide-react';
+import { index } from '@/actions/App/Http/Controllers/Central/DashboardController';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';

@@ -1,5 +1,6 @@
 import { Link, router } from '@inertiajs/react';
 import { LogOut, Settings2 } from 'lucide-react';
+import { edit } from '@/actions/App/Http/Controllers/Tenant/Settings/ProfileController';
 import {
   DropdownMenuGroup,
   DropdownMenuItem,

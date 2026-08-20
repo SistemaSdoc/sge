@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Central\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Central\Auth\RegisteredController;
+use App\Http\Controllers\Central\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,6 +17,9 @@ use Illuminate\Support\Facades\Route;
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () {
         Route::inertia('/', 'welcome/index')->name('home');
+
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->name('central.dashboard');
 
         Route::get('register', [RegisteredController::class, 'create'])
             ->middleware('guest')
@@ -39,11 +43,3 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->name('central.logout');
     });
 }
-
-/**
- * Rotas de configurações de conta (alterar senha, atualizar perfil, etc.)
- * Estas rotas requerem autenticação e estão definidas em routes/settings.php
- * Middleware 'auth' já aplicado para garantir que apenas usuários autenticados possam acessar
- * As rotas específicas de configurações estão definidas em routes/settings.php
- */
-require __DIR__.'/settings.php';

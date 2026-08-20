@@ -100,12 +100,12 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
 
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('tenant.dashboard');
+
     Route::middleware(['auth', 'verified', 'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno'])
         ->prefix('dashboard')
-        ->name('dashboard.')
+        ->name('tenant.dashboard.')
         ->group(function () {
-
-            Route::get('/', [DashboardController::class, 'index'])->name('index');
 
             require base_path('routes/modules/confirmar-matriculas.php');
             require base_path('routes/modules/acess-management.php');
@@ -114,6 +114,7 @@ Route::middleware([
             require base_path('routes/modules/progressao.php');
             require base_path('routes/modules/pautas.php');
             require base_path('routes/modules/notas.php');
+            require base_path('routes/settings.php');
 
             Route::resource('users', UserController::class);
             Route::resource('alunos', AlunoController::class);
