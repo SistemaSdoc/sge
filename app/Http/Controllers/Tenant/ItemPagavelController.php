@@ -63,7 +63,7 @@ public function index(Request $request)
         'can_create' => $request->user()->can('create', ItemPagavel::class) ?? true,
     ]);
 
-    return Inertia::render('itens-pagaveis/index', [
+    return Inertia::render('tenant/itens-pagaveis/index', [
         'itens' => $itens,
         'can' => [
             'create' => $request->user()->can('create', ItemPagavel::class) ?? true,
@@ -77,7 +77,7 @@ public function index(Request $request)
 
         $instituicao = Auth::user()->instituicao_id; // ← Pega da autenticação
 
-        return Inertia::render('itens-pagaveis/create', [
+        return Inertia::render('tenant/itens-pagaveis/create', [
             'cursosClasse' => CursoClasse::query()
                 ->with(['classe:id,nome', 'cursoTutelado.instituicaoCurso.curso:id,nome'])
                 ->whereHas('cursoTutelado.instituicaoCurso', function ($q) use ($instituicao) {
@@ -121,7 +121,7 @@ public function edit(ItemPagavel $itemPagavel)
         'cursosClasse' => $cursosClasse->toArray(),
     ]);
 
-    return Inertia::render('itens-pagaveis/edit', [
+    return Inertia::render('tenant/itens-pagaveis/edit', [
         'itemPagavel' => [
             'id' => $itemPagavel->id,
             'nome' => $itemPagavel->nome,

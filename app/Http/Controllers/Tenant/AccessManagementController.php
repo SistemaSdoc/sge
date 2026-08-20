@@ -33,7 +33,7 @@ class AccessManagementController extends Controller
                 'inheritedPermissions' => $u->getPermissionsViaRoles()->pluck('name'),
             ]);
 
-        return Inertia::render('gestao-acessos/index', [
+        return Inertia::render('tenant/gestao-acessos/index', [
             'users' => $users,
             'roles' => Role::whereNotIn('name', ['SuperAdmin'])->get()->pluck('name'),
             'allPermissions' => Permission::all()->pluck('name'),

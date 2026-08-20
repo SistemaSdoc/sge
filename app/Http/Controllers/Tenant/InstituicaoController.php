@@ -38,7 +38,7 @@ class InstituicaoController extends Controller
                 ];
             });
 
-        return Inertia::render('instituicoes/index', [
+        return Inertia::render('tenant/instituicoes/index', [
             'can' => [
                 'create_instituicao' => Auth::user()->can('create', Instituicao::class),
             ],
@@ -48,7 +48,7 @@ class InstituicaoController extends Controller
 
     public function create()
     {
-        return Inertia::render('instituicoes/create', [
+        return Inertia::render('tenant/instituicoes/create', [
             'can' => [
                 'create_instituicao' => Auth::user()->can('create', Instituicao::class),
             ],
@@ -87,7 +87,7 @@ class InstituicaoController extends Controller
                 ],
             ]);
 
-        return Inertia::render('instituicoes/show', [
+        return Inertia::render('tenant/instituicoes/show', [
             'can' => [
                 'edit_instituicao' => Auth::user()->can('update', $instituicao),
                 'create_curso' => Auth::user()->can('create', CursoTutelado::class),
@@ -112,7 +112,7 @@ class InstituicaoController extends Controller
 
     public function edit(Instituicao $instituicao)
     {
-        return Inertia::render('instituicoes/edit', [
+        return Inertia::render('tenant/instituicoes/edit', [
             'can' => [
                 'update_instituicao' => Auth::user()->can('update', $instituicao),
             ],

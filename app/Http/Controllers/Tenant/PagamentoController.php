@@ -97,7 +97,7 @@ class PagamentoController extends Controller
             $alunosPorStatus = $this->alunosAgrupadosPorStatus($request, $statusFiltro);
         }
 
-        return Inertia::render('pagamentos/index', [
+        return Inertia::render('tenant/pagamentos/index', [
             'pagamentos' => $pagamentos,
             'turmas' => $turmas,
             'can' => [
@@ -322,7 +322,7 @@ class PagamentoController extends Controller
             ]);
         }
 
-        return Inertia::render('pagamentos/create', [
+        return Inertia::render('tenant/pagamentos/create', [
             'alunos' => $alunos,
             'itensPagaveis' => $itensPagaveis,
             'paidRecord' => $paidRecord,
@@ -506,7 +506,7 @@ class PagamentoController extends Controller
 
         Log::debug('PagamentoController@show - itens retornados', ['total' => $itens->total()]);
 
-        return Inertia::render('pagamentos/show', [
+        return Inertia::render('tenant/pagamentos/show', [
             'pagamento' => [
                 'id' => $pagamento->id,
                 'aluno' => $pagamento->aluno->user->nome,
@@ -525,7 +525,7 @@ class PagamentoController extends Controller
     {
         Log::info('PagamentoController@edit - início', ['pagamento_id' => $pagamento->id]);
 
-        return Inertia::render('pagamentos/edit', [
+        return Inertia::render('tenant/pagamentos/edit', [
             'pagamento' => $pagamento->load('itens.itemPagavel', 'aluno'),
         ]);
     }

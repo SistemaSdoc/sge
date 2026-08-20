@@ -64,7 +64,7 @@ class ClasseTurnoTurmaController extends Controller
             ])
             ->paginate(5);
 
-        return Inertia::render('pautas/index', [
+        return Inertia::render('tenant/pautas/index', [
             'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => [
                 'id' => $cursoTutelado->id,
@@ -97,7 +97,7 @@ class ClasseTurnoTurmaController extends Controller
         $cursoClasse->load('classe');
         $cursoClasseTurno->load('turno');
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/create', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/create', [
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,
@@ -227,7 +227,7 @@ class ClasseTurnoTurmaController extends Controller
             || collect($pautaRecurso['alunos'] ?? [])
                 ->contains(fn($aluno) => is_null($aluno['nota_recurso'] ?? null));
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/show', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/show', [
             'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => [
                 'id' => $cursoTutelado->only('id'),
@@ -284,7 +284,7 @@ class ClasseTurnoTurmaController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/edit', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/edit', [
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,

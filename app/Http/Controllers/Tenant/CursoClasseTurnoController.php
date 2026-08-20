@@ -22,7 +22,7 @@ class CursoClasseTurnoController extends Controller
 
         abort_if($cursoClasse->curso_tutelado_id !== $cursoTutelado->id, 404);
 
-        return Inertia::render('cursos-tutelados/classes/create', [
+        return Inertia::render('tenant/cursos-tutelados/classes/create', [
             'instituicao' => [
                 'id' => $instituicao->only('id'),
                 'nome' => $instituicao->nome,

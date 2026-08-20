@@ -30,7 +30,7 @@ class AnoLectivoController extends Controller
                 ],
             ]);
 
-        return Inertia::render('anos-lectivos/index', [
+        return Inertia::render('tenant/anos-lectivos/index', [
             'anosLectivos' => $anosLectivos,
         ]);
     }
@@ -39,7 +39,7 @@ class AnoLectivoController extends Controller
     {
         $this->authorize('update', $anoLectivo);
 
-        return Inertia::render('anos-lectivos/edit', [
+        return Inertia::render('tenant/anos-lectivos/edit', [
             'anoLectivo' => $anoLectivo,
         ]);
     }

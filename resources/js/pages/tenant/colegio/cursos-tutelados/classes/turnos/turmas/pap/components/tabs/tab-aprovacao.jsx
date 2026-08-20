@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, AlertCircle, Clock } from 'lucide-react';
-import ModalDecisaoAprovacao from '@/pages/pap/components/ModalDecisaoAprovacao';
+import ModalDecisaoAprovacao from '@/pages/tenant/pap/components/ModalDecisaoAprovacao';
 import {
   aprovar,
   reprovar,

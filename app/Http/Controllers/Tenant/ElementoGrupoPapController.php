@@ -46,7 +46,7 @@ class ElementoGrupoPapController extends Controller
                 'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
             ])->values();
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/elementos/create', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/elementos/create', [
             'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => $cursoTutelado->only('id'),
             'cursoClasse' => $cursoClasse->only('id'),

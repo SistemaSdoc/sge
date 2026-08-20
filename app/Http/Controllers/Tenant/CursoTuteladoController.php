@@ -43,7 +43,7 @@ class CursoTuteladoController extends Controller
                 ],
             ]);
 
-        return Inertia::render('cursos-tutelados/index', [
+        return Inertia::render('tenant/cursos-tutelados/index', [
             'cursos' => $cursos,
             'instituicao' => $instituicao->only('id'),
             'can' => [
@@ -82,7 +82,7 @@ class CursoTuteladoController extends Controller
         ->orderBy('nome')
         ->get();
 
-    return Inertia::render('cursos-tutelados/create', [
+    return Inertia::render('tenant/cursos-tutelados/create', [
         'instituicao' => $instituicao->only('id'),
         'classes' => $classes,
         'cursos' => $cursos,
@@ -172,7 +172,7 @@ class CursoTuteladoController extends Controller
             'professores.user:id,nome',
         ]);
 
-        return Inertia::render('cursos-tutelados/show', [
+        return Inertia::render('tenant/cursos-tutelados/show', [
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,
@@ -227,7 +227,7 @@ class CursoTuteladoController extends Controller
                 ->get();
         }
 
-        return Inertia::render('cursos-tutelados/edit', [
+        return Inertia::render('tenant/cursos-tutelados/edit', [
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,

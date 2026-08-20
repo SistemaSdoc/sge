@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { index } from '@/actions/App/Http/Controllers/Central/DashboardController';
+import { index as dashboardIndex} from '@/actions/App/Http/Controllers/Central/DashboardController';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -13,7 +13,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { index as dashboardIndex } from '@/routes/dashboard';
 import type { LocalNavItem } from '@/types';
 
 const footerNavItems: LocalNavItem[] = [

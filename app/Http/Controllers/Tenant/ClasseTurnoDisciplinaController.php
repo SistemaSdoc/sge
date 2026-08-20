@@ -29,7 +29,7 @@ class ClasseTurnoDisciplinaController extends Controller
     ) {
         $this->authorize('create', ClasseTurnoDisciplina::class);
 
-        return Inertia::render('cursos-tutelados/classes/turnos/disciplinas/create', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/disciplinas/create', [
             'disciplinas' => Disciplina::select('id', 'nome')->orderBy('nome')->get(),
             'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => [
@@ -111,7 +111,7 @@ class ClasseTurnoDisciplinaController extends Controller
         $this->authorize('update', $classeTurnoDisciplina);
 
         return Inertia::render(
-            'cursos-tutelados/classes/turnos/disciplinas/edit',
+            'tenant/cursos-tutelados/classes/turnos/disciplinas/edit',
             [
                 'disciplina' => $classeTurnoDisciplina,
                 'instituicaoId' => $instituicao->id,

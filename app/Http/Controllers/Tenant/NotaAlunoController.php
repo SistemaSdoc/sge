@@ -28,7 +28,7 @@ class NotaAlunoController extends Controller
         $classes = $this->notaAlunoService->classesDisponiveis($aluno);
         $classeId = request('classe_id') ?? collect($classes)->first()['id'] ?? null;
 
-        return Inertia::render('aluno/minhas-notas/index', [
+        return Inertia::render('tenant/aluno/minhas-notas/index', [
             'notas' => $this->notaAlunoService->notas($aluno, $classeId),
             'classes' => $classes,
             'classeId' => $classeId,

@@ -67,7 +67,7 @@ class InscricaoController extends Controller
                 fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId)
             )->latest()->paginate(10);
 
-        return Inertia::render('inscricoes/index', [
+        return Inertia::render('tenant/inscricoes/index', [
             'inscricoes' => [
                 'data' => InscricaoResource::collection($inscricoes->items())->toArray(request()),
                 'current_page' => $inscricoes->currentPage(),
@@ -146,7 +146,7 @@ class InscricaoController extends Controller
             ->orderByDesc('data_inicio')
             ->get();
 
-        return Inertia::render('inscricoes/create', [
+        return Inertia::render('tenant/inscricoes/create', [
             'cursos' => $cursos,
             'anosLectivos' => $anosLectivos,
             'anoLectivoId' => $anoLectivoId,
@@ -183,7 +183,7 @@ class InscricaoController extends Controller
             'anoLectivo:id,nome',
         ]);
 
-        return Inertia::render('inscricoes/show', [
+        return Inertia::render('tenant/inscricoes/show', [
             'inscricao' => (new InscricaoShowResource($inscricao))->resolve(),
             'entity_label' => $contexto['label'],
             'entity_label_plural' => $contexto['label_plural'],

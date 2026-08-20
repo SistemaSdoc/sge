@@ -35,7 +35,7 @@ class ProfessorController extends Controller
             ->orderBy('created_at', 'asc')
             ->paginate(10);
 
-        return Inertia::render('professores/index', [
+        return Inertia::render('tenant/professores/index', [
             'professores' => $professores,
         ]);
     }
@@ -44,7 +44,7 @@ class ProfessorController extends Controller
     {
         $this->authorize('create', Professor::class);
 
-        return Inertia::render('professores/create');
+        return Inertia::render('tenant/professores/create');
     }
 
     public function store(StoreProfessoresRequest $request)
@@ -112,7 +112,7 @@ class ProfessorController extends Controller
                 'turno' => $turma->cursoClasseTurno?->turno?->nome,
             ]);
 
-        return Inertia::render('professores/show', [
+        return Inertia::render('tenant/professores/show', [
             'professor' => $professor,
             'cursos' => $cursos,
             'turmas' => $turmas,
@@ -125,7 +125,7 @@ class ProfessorController extends Controller
     {
         $this->authorize('update', $professor);
 
-        return Inertia::render('professores/edit', [
+        return Inertia::render('tenant/professores/edit', [
             'professor' => $professor->load('user:id,nome,email,bi,telefone'),
         ]);
     }

@@ -98,7 +98,7 @@ class CursoClasseController extends Controller
         // Formatar anos lectivos
         $anosLectivos = AnoLectivo::query()->select('id', 'nome')->orderByDesc('data_inicio')->get();
 
-        return Inertia::render('cursos-tutelados/classes/show', [
+        return Inertia::render('tenant/cursos-tutelados/classes/show', [
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,

@@ -63,7 +63,7 @@ class TurmaController extends Controller
 
         if (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
             if (! $professor) {
-                return Inertia::render('turmas/index', [
+                return Inertia::render('tenant/turmas/index', [
                     'turmas' => [
                         'data' => [],
                         'current_page' => 1,
@@ -95,7 +95,7 @@ class TurmaController extends Controller
             'alunosActivos',
         ])->paginate(10);
 
-        return Inertia::render('turmas/index', [
+        return Inertia::render('tenant/turmas/index', [
             'instituicaoId' => $instituicaoId,
             'turmas' => [
                 'data' => TurmaResourceIndex::collection($turmas->items())->toArray(request()),

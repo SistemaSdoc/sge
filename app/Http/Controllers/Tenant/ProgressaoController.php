@@ -59,7 +59,7 @@ class ProgressaoController extends Controller
             ];
         });
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/progressao', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/progressao', [
             'turma' => $turma->nome,
 
             'total' => $resultado->count(),
@@ -236,7 +236,7 @@ class ProgressaoController extends Controller
             }
         });
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/progressao-resultado', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/progressao-resultado', [
             'resultado' => [
                 'resultados' => $resultados,
             ],

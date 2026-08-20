@@ -31,7 +31,7 @@ class GrupoPapTemaController extends Controller
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/tema/create', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/tema/create', [
             'instituicao' => $instituicao->only('id', 'nome'),
             'cursoTutelado' => $cursoTutelado->only('id'),
             'cursoClasse' => $cursoClasse->only('id'),
@@ -96,7 +96,7 @@ class GrupoPapTemaController extends Controller
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/tema/edit', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/tema/edit', [
             'instituicao' => $instituicao->only('id', 'nome'),
             'cursoTutelado' => $cursoTutelado->only('id'),
             'cursoClasse' => $cursoClasse->only('id'),

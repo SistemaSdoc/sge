@@ -27,7 +27,7 @@ import {
 import { Field } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import TablePagination from '@/components/table-pagination';
-import { ResultadoBadge } from '@/pages/pautas/components/pauta-table/resultado-badge';
+import { ResultadoBadge } from '@/pages/tenant/pautas/components/pauta-table/resultado-badge';
 
 export function ConfirmacaoTable({
   data,

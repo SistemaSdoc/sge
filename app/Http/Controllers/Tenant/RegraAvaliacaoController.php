@@ -34,7 +34,7 @@ class RegraAvaliacaoController extends Controller
                 ];
             });
 
-        return Inertia::render('regras-avaliacao/index', [
+        return Inertia::render('tenant/regras-avaliacao/index', [
             'regrasAvaliacao' => $regrasAvaliacao,
         ]);
     }

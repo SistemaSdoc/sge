@@ -62,7 +62,7 @@ class GrupoPapController extends Controller
             return $grupo;
         });
 
-        return Inertia::render('pap/index', [
+        return Inertia::render('tenant/pap/index', [
             'gruposPap' => IndexResource::collection($grupos),
             'anoLectivoId' => $anoLectivoId,          // ← adicionado
             'anosLectivos' => AnoLectivo::all(),      // ← adicionado
@@ -154,7 +154,7 @@ class GrupoPapController extends Controller
             ->paginate(10, ['*'], 'page_elementos');
 
         return Inertia::render(
-            'colegio/cursos-tutelados/classes/turnos/turmas/pap/show',
+            'tenant/colegio/cursos-tutelados/classes/turnos/turmas/pap/show',
             [
                 // Instituição tutora
                 'instituicao' => [

@@ -37,7 +37,7 @@ class CursosController extends Controller
                 ];
             });
 
-        return Inertia::render('cursos/index', [
+        return Inertia::render('tenant/cursos/index', [
             'cursos' => $cursos,
             'can' => [
                 'create_curso' => Auth::user()->can('create', Curso::class),
@@ -47,7 +47,7 @@ class CursosController extends Controller
 
     public function create()
     {
-        return Inertia::render('cursos/create', [
+        return Inertia::render('tenant/cursos/create', [
             'can' => [
                 'create_curso' => Auth::user()->can('create', Curso::class),
             ],
@@ -73,7 +73,7 @@ class CursosController extends Controller
 
     public function show(Curso $curso)
     {
-        return Inertia::render('cursos/show', [
+        return Inertia::render('tenant/cursos/show', [
             'curso' => $curso,
             'can' => [
                 'update_curso' => Auth::user()->can('update', $curso),
@@ -85,7 +85,7 @@ class CursosController extends Controller
 
     public function edit(Curso $curso)
     {
-        return Inertia::render('cursos/edit', [
+        return Inertia::render('tenant/cursos/edit', [
             'curso' => $curso,
             'can' => [
                 'update_curso' => Auth::user()->can('update', $curso),

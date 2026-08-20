@@ -31,7 +31,7 @@ class RelatorioPropinaController extends Controller
 
         $this->autorizarTurma($request, $turma);
 
-        return Inertia::render('relatorios/propinas-turma', $this->montarRelatorio($turma));
+        return Inertia::render('tenant/relatorios/propinas-turma', $this->montarRelatorio($turma));
     }
 
     public function pdf(Request $request, Turma $turma)

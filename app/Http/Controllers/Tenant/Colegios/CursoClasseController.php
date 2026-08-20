@@ -54,7 +54,7 @@ class CursoClasseController extends Controller
                 ->paginate(5, ['*'], 'page_turmas')
             : $this->emptyPaginator('page_turmas');
 
-        return Inertia::render('colegio/cursos-tutelados/classes/show', [
+        return Inertia::render('tenant/colegio/cursos-tutelados/classes/show', [
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,

@@ -41,7 +41,7 @@ class AvisoController extends Controller
             ];
         });
 
-        return Inertia::render('avisos/index', [
+        return Inertia::render('tenant/avisos/index', [
             'avisos' => $avisos,
             'can' => [
                 'create' => $user->can('create', Aviso::class),
@@ -53,7 +53,7 @@ class AvisoController extends Controller
     {
         $this->authorize('create', Aviso::class);
 
-        return Inertia::render('avisos/create');
+        return Inertia::render('tenant/avisos/create');
     }
 
     // POST /api/avisos
@@ -86,7 +86,7 @@ class AvisoController extends Controller
     {
         $this->authorize('view', $aviso);
 
-        return Inertia::render('avisos.show', [
+        return Inertia::render('tenant/avisos.show', [
             'aviso' => $aviso,
         ]);
     }
@@ -95,7 +95,7 @@ class AvisoController extends Controller
     {
         $this->authorize('update', $aviso);
 
-        return Inertia::render('avisos/edit', [
+        return Inertia::render('tenant/avisos/edit', [
             'aviso' => $aviso,
         ]);
     }
@@ -189,7 +189,7 @@ class AvisoController extends Controller
 
         // return response()->json(['data' => $combined]);
 
-        return Inertia::render('avisos/index', [
+        return Inertia::render('tenant/avisos/index', [
             'avisos' => $combined,
         ]);
     }
@@ -221,7 +221,7 @@ class AvisoController extends Controller
 
         // return response()->json(['data' => $avisos]);
 
-        return Inertia::render('avisos/index', [
+        return Inertia::render('tenant/avisos/index', [
             'avisos' => $avisos,
         ]);
     }

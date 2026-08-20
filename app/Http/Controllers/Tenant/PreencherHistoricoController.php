@@ -73,7 +73,7 @@ class PreencherHistoricoController extends Controller
             ->cursoTutelado
             ->instituicao;
 
-        return Inertia::render('preencher-historico/create', [
+        return Inertia::render('tenant/preencher-historico/create', [
             'aluno' => [
                 'id' => $aluno->id,
                 'nome' => $aluno->inscricao?->candidato?->nome,

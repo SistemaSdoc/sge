@@ -75,7 +75,7 @@ class AlunoController extends Controller
             return $aluno;
         });
 
-        return Inertia::render('alunos/index', [
+        return Inertia::render('tenant/alunos/index', [
             'alunos' => $alunos->through(function ($aluno) use ($verificador) {
 
                 $status = $aluno->turmaActual()->first()
@@ -190,7 +190,7 @@ class AlunoController extends Controller
             : []
         );
 
-        return Inertia::render('alunos/show', [
+        return Inertia::render('tenant/alunos/show', [
             'aluno' => [
                 'id' => $aluno->id,
                 'matricula' => $aluno->matricula,
@@ -250,7 +250,7 @@ class AlunoController extends Controller
 
         $turmaAtual = $aluno->turmas()->wherePivot('activo', true)->first();
 
-        return Inertia::render('alunos/edit', [
+        return Inertia::render('tenant/alunos/edit', [
             'aluno' => [
                 'id' => $aluno->id,
                 'matricula' => $aluno->matricula,

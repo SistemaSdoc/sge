@@ -29,7 +29,7 @@ class DocumentosController extends Controller
             ->where('ativo', 1)
             ->get(['id', 'nome', 'curso_classe_id', 'valor']);
 
-        return Inertia::render('documentos/index', [
+        return Inertia::render('tenant/documentos/index', [
             'documentos' => $documentos,
         ]);
     }

@@ -39,7 +39,7 @@ class ClasseController extends Controller
                 ];
             });
 
-        return Inertia::render('classes/index', [
+        return Inertia::render('tenant/classes/index', [
             'classes' => $classes,
             'can' => [
                 'create_classe' => Auth::user()->can('create', Classe::class),
@@ -52,7 +52,7 @@ class ClasseController extends Controller
      */
     public function create()
     {
-        return Inertia::render('classes/create', [
+        return Inertia::render('tenant/classes/create', [
             'can' => [
                 'create_classe' => Auth::user()->can('create', Classe::class),
             ],
@@ -77,7 +77,7 @@ class ClasseController extends Controller
      */
     public function show(Classe $classe)
     {
-        return Inertia::render('classes/show', [
+        return Inertia::render('tenant/classes/show', [
             'classe' => $classe,
             'can' => [
                 'view_classe' => Auth::user()->can('view', $classe),
@@ -92,7 +92,7 @@ class ClasseController extends Controller
      */
     public function edit(Classe $classe)
     {
-        return Inertia::render('classes/edit', [
+        return Inertia::render('tenant/classes/edit', [
             'classe' => $classe,
             'can' => [
                 'edit_classe' => Auth::user()->can('update', $classe),

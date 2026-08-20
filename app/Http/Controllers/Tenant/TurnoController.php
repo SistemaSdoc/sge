@@ -34,7 +34,7 @@ class TurnoController extends Controller
                 ];
             });
 
-        return Inertia::render('turnos/index', [
+        return Inertia::render('tenant/turnos/index', [
             'turnos' => $turnos,
             'can' => [
                 'create_turno' => Auth::user()->can('create', Turno::class),
@@ -44,7 +44,7 @@ class TurnoController extends Controller
 
     public function create()
     {
-        return Inertia::render('turnos/create', [
+        return Inertia::render('tenant/turnos/create', [
             'can' => [
                 'create_turno' => Auth::user()->can('create', Turno::class),
             ],
@@ -69,7 +69,7 @@ class TurnoController extends Controller
 
     public function show(Turno $turno)
     {
-        return Inertia::render('turnos/show', [
+        return Inertia::render('tenant/turnos/show', [
             'turno' => $turno,
             'can' => [
                 'view_turno' => Auth::user()->can('view', $turno),
@@ -81,7 +81,7 @@ class TurnoController extends Controller
 
     public function edit(Turno $turno)
     {
-        return Inertia::render('turnos/edit', [
+        return Inertia::render('tenant/turnos/edit', [
             'turno' => $turno,
             'can' => [
                 'edit_turno' => Auth::user()->can('update', $turno),
@@ -95,7 +95,7 @@ class TurnoController extends Controller
             'nome' => $request->nome,
         ]);
 
-        return to_route('turnos.index')->with('toast', [
+        return to_route('tenant/turnos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Turno atualizado com sucesso!',
         ]);
@@ -105,7 +105,7 @@ class TurnoController extends Controller
     {
         $turno->delete();
 
-        return to_route('turnos.index')->with('toast', [
+        return to_route('tenant/turnos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Turno excluído com sucesso!',
         ]);

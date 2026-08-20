@@ -88,7 +88,7 @@ class GrupoPapController extends Controller
             return $grupo;
         });
 
-        return Inertia::render('pap/index', [
+        return Inertia::render('tenant/pap/index', [
             'gruposPap' => IndexResource::collection($grupos),
             'anoLectivoId' => $anoLectivoId,          // ← adicionado
             'anosLectivos' => AnoLectivo::all(),      // ← adicionado
@@ -125,7 +125,7 @@ class GrupoPapController extends Controller
                 'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
             ])->values();
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/create', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/create', [
             'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => $cursoTutelado->only('id', 'nome'),
             'cursoClasse' => $cursoClasse->only('id', 'nome'),
@@ -209,7 +209,7 @@ class GrupoPapController extends Controller
             ->with('aluno.inscricao.candidato:id,nome,email', 'aluno:id,matricula,inscricao_id')
             ->paginate(10, ['*'], 'page_elementos');
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/show', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/show', [
             'instituicao' => $instituicao->only('id', 'nome'),
             'cursoTutelado' => $cursoTutelado->only('id'),
             'cursoClasse' => $cursoClasse->only('id'),
@@ -307,7 +307,7 @@ class GrupoPapController extends Controller
             })
             ->values();
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/edit', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/edit', [
             'instituicao' => $instituicao->only('id', 'nome'),
             'cursoTutelado' => $cursoTutelado->only('id'),
             'cursoClasse' => $cursoClasse->only('id'),
@@ -412,7 +412,7 @@ class GrupoPapController extends Controller
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/editar-tema', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/editar-tema', [
             'instituicao' => $instituicao->only('id', 'nome'),
             'cursoTutelado' => $cursoTutelado->only('id'),
             'cursoClasse' => $cursoClasse->only('id'),

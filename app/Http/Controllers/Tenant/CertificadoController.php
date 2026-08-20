@@ -175,7 +175,7 @@ class CertificadoController extends Controller
         // ── Usa o mesmo cálculo do gerar() ───────────────────────────────
         $calc = $this->calcularDadosCertificado($aluno, $turmaAluno);
 
-        return Inertia::render('certificado/show', [
+        return Inertia::render('tenant/certificado/show', [
             'certificado' => [
                 'id' => $aluno->id,
                 'nome' => $candidato->nome,           //  CORRIGIDO: nome_completo → nome

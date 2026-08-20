@@ -103,7 +103,7 @@ class NotaDisciplinaController extends Controller
         */
 
         return Inertia::render(
-            'colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index',
+            'tenant/colegio/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index',
             [
 
                 /*

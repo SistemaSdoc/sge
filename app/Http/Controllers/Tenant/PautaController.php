@@ -58,7 +58,7 @@ class PautaController extends Controller
             );
         }
 
-        return Inertia::render('pautas/cursos/index', [
+        return Inertia::render('tenant/pautas/cursos/index', [
             'cursosTutelados' => $query->get()->map(fn ($ct) => [
                 'id' => $ct->id,
                 'curso' => $ct->instituicaoCurso?->curso,
@@ -109,7 +109,7 @@ class PautaController extends Controller
             ->orderBy('nome')
             ->get();
 
-        return Inertia::render('pautas/turmas/index', [
+        return Inertia::render('tenant/pautas/turmas/index', [
             'cursoTutelado' => [
                 'id' => $cursoTutelado->id,
                 'curso' => [
@@ -161,7 +161,7 @@ class PautaController extends Controller
             'anoLectivo:id,nome',
         ]);
 
-        return Inertia::render('pautas/index', [
+        return Inertia::render('tenant/pautas/index', [
             'cursoTutelado' => $cursoTutelado->only('id'),
             'pauta' => $this->pautaService->gerarPauta($turma, $periodo, $perPage, $filtro),
             'periodo' => $periodo,

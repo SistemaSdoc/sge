@@ -42,7 +42,7 @@ class PropinaController extends Controller
                 ],
             ]);
 
-        return Inertia::render('Propina/Index', [
+        return Inertia::render('tenant/Propina/Index', [
             'propinas' => $propinas,
             'filters' => $request->only(['aluno_id', 'turma_id', 'estado', 'mes']),
             'can' => [
@@ -55,7 +55,7 @@ class PropinaController extends Controller
     {
         $this->authorize('create', Propina::class);
 
-        return Inertia::render('Propina/Create', [
+        return Inertia::render('tenant/Propina/Create', [
             'itensPagaveis' => ItemPagavel::where('instituicao_id', auth()->user()->instituicao_id)->get(['id', 'nome', 'tipo', 'valor_padrao']),
         ]);
     }
@@ -130,7 +130,7 @@ class PropinaController extends Controller
     {
         $this->authorize('update', $propina);
 
-        return Inertia::render('Propina/Edit', [
+        return Inertia::render('tenant/Propina/Edit', [
             'propina' => $propina->load(['aluno:id,nome', 'itemPagavel:id,nome']),
         ]);
     }

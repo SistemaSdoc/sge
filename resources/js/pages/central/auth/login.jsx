@@ -11,7 +11,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { register } from '@/routes';
-import { redirect } from '@/routes/auth/google';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 
@@ -99,7 +98,7 @@ export default function Login({ status, canResetPassword }) {
               </Button>
             </div>
 
-            {/* <div className="text-center text-sm text-muted-foreground">
+           {/* <div className="text-center text-sm text-muted-foreground">
               Não tem uma conta?{' '}
               <TextLink href={register()} tabIndex={5}>
                 Criar

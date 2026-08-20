@@ -23,7 +23,7 @@ class GrelhaCurricularController extends Controller
         $classes = $this->grelhaCurricularService->classesDisponiveis($aluno);
         $classeId = request('classe_id') ?? collect($classes)->first()['id'] ?? null;
 
-        return Inertia::render('aluno/grelha-curricular/index', [
+        return Inertia::render('tenant/aluno/grelha-curricular/index', [
             'grelhaCurricular' => $this->grelhaCurricularService->gerarGrelhaCurricular($aluno, $classeId),
             'classes' => $classes,
             'classeId' => $classeId,

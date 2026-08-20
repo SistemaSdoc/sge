@@ -42,7 +42,7 @@ class TurmaDisciplinaProfessorController extends Controller
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ]);
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/disciplinas/professores/create', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

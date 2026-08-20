@@ -1,11 +1,11 @@
 import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
-import { update } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import { show } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
-import GrupoPapForm from '../pap/components/grupo-pap-form';
+import GrupoPapForm from './components/grupo-pap-form';
 import { useState } from 'react';
 
-export default function Edit() {
+export default function Create() {
   const {
     instituicao,
     cursoTutelado,
@@ -13,26 +13,19 @@ export default function Edit() {
     cursoClasseTurno,
     turma,
     form,
-    grupoPap,
   } = usePage().props;
 
-  const [professorTutorId, setProfessorTutorId] = useState(
-    form.grupoPap.professor_tutor_id,
-  );
-
-  const [alunoIds, setAlunoIds] = useState(
-    form.grupoPap.alunos?.map((id) => String(id)) ?? [],
-  );
+  const [professorTutorId, setProfessorTutorId] = useState(undefined);
+  const [alunoIds, setAlunoIds] = useState([]);
 
   return (
     <Form
-      action={update({
+      action={store({
         instituicao: instituicao.id,
         cursoTutelado: cursoTutelado.id,
         cursoClasse: cursoClasse.id,
         cursoClasseTurno: cursoClasseTurno.id,
         turma: turma.id,
-        grupoPap: form.grupoPap.id,
       })}
       transform={(data) => ({
         ...data,
@@ -53,7 +46,7 @@ export default function Edit() {
     >
       {({ errors, processing }) => (
         <GrupoPapForm
-          title="Editar grupo PAP"
+          title="Criar grupo PAP"
           errors={errors}
           processing={processing}
           professores={form.professores}
@@ -62,7 +55,6 @@ export default function Edit() {
           setProfessorTutorId={setProfessorTutorId}
           alunoIds={alunoIds}
           setAlunoIds={setAlunoIds}
-          grupoPap={form.grupoPap}
         />
       )}
     </Form>

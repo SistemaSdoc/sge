@@ -48,7 +48,7 @@ class BancaJuriPapController extends Controller
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ])->values();
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/banca/create', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/banca/create', [
             'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => $cursoTutelado->only('id'),
             'cursoClasse' => $cursoClasse->only('id'),
@@ -125,7 +125,7 @@ class BancaJuriPapController extends Controller
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ])->values();
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/banca/edit', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/banca/edit', [
             'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => $cursoTutelado->only('id'),
             'cursoClasse' => $cursoClasse->only('id'),

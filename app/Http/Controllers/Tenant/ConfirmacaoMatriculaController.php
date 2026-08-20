@@ -77,7 +77,7 @@ class ConfirmacaoMatriculaController extends Controller
             instituicaoId: $instituicao->id,
         );
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/index', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/index', [
             'turma' => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,

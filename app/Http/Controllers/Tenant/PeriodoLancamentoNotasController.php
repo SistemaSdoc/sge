@@ -40,7 +40,7 @@ class PeriodoLancamentoNotasController extends Controller
             fn (array $periodo) => ! $periodo['tem_prazo']
         )['periodo'] ?? 1;
 
-        return Inertia::render('pautas/prazos-lancamento-notas/edit', [
+        return Inertia::render('tenant/pautas/prazos-lancamento-notas/edit', [
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,

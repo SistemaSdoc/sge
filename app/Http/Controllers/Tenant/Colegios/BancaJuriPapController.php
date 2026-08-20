@@ -61,7 +61,7 @@ class BancaJuriPapController extends Controller
             ->values();
 
         return Inertia::render(
-            'colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/create',
+            'tenant/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/create',
             [
                 'instituicao' => [
                     'id' => $instituicao->id,
@@ -177,7 +177,7 @@ class BancaJuriPapController extends Controller
             ->values();
 
         return Inertia::render(
-            'colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/edit',
+            'tenant/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/edit',
             [
                 'instituicao' => [
                     'id' => $instituicao->id,

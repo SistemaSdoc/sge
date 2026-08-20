@@ -96,7 +96,7 @@ class NotaDisciplinaController extends Controller
         $professorDono = Auth::user()->professor?->id === $tdp->professor_id;
         $podeVerRascunho = $professorDono || Auth::user()->hasAnyRole(['Director', 'Subdirector']);
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
@@ -298,7 +298,7 @@ class NotaDisciplinaController extends Controller
 
             Log::info('Renderizando Inertia');
             try {
-                return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
+                return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
                     'instituicao' => $instituicao->id,
                     'cursoTutelado' => $cursoTutelado->id,
                     'cursoClasse' => $cursoClasse->id,
@@ -450,7 +450,7 @@ class NotaDisciplinaController extends Controller
             ],
         ];
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
             'instituicao' => [
                 'id' => $instituicao->id,
             ],

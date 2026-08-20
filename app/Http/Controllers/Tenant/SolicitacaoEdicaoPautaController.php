@@ -46,7 +46,7 @@ class SolicitacaoEdicaoPautaController extends Controller
                 ]),
             ]);
 
-        return Inertia::render('pautas/solicitacoes/index', [
+        return Inertia::render('tenant/pautas/solicitacoes/index', [
             'solicitacoes' => $solicitacoes,
             '',
         ]);

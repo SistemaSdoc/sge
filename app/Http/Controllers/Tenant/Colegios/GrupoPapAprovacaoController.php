@@ -31,7 +31,7 @@ class GrupoPapAprovacaoController extends Controller
 
         // O utilizador precisa estar associado a um professor
         if (! $user->professor) {
-            return inertia('pap/PendentesAprovacao', [
+            return inertia('tenant/pap/PendentesAprovacao', [
                 'temasPendentes' => [],
                 'rotaAprovar' => null,
                 'rotaReprovar' => null,
@@ -45,7 +45,7 @@ class GrupoPapAprovacaoController extends Controller
             $user->professor->id
         );
 
-        return inertia('pap/PendentesAprovacao', [
+        return inertia('tenant/pap/PendentesAprovacao', [
             'temasPendentes' => $temasPendentes,
 
             'rotaAprovar' => route('colegio.grupo-pap-aprovacao.aprovar', [
@@ -368,7 +368,7 @@ class GrupoPapAprovacaoController extends Controller
             ->latest()
             ->get();
 
-        return inertia('pap/TemasMelhoria', [
+        return inertia('tenant/pap/TemasMelhoria', [
             'temas' => $temas,
 
             'rotaEditar' => route('colegio.grupo-pap-aprovacao.editar', [
@@ -393,7 +393,7 @@ class GrupoPapAprovacaoController extends Controller
             'professor.user',
         ]);
 
-        return inertia('pap/EditarTemaMelhoria', [
+        return inertia('tenant/pap/EditarTemaMelhoria', [
             'grupoPap' => $grupoPap,
 
             'rotaAtualizar' => route('colegio.grupo-pap-aprovacao.atualizar', [
@@ -423,7 +423,7 @@ class GrupoPapAprovacaoController extends Controller
             'historicoAprovacao.utilizador',
         ]);
 
-        return inertia('pap/HistoricoAprovacao', [
+        return inertia('tenant/pap/HistoricoAprovacao', [
             'grupoPap' => $grupoPap,
             'historico' => $grupoPap->historicoAprovacao,
         ]);

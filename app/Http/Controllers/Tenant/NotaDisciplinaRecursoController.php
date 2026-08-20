@@ -63,7 +63,7 @@ class NotaDisciplinaRecursoController extends Controller
                     && $notaP3->media_final < 10;
             });
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/disciplinas/notas', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/disciplinas/notas', [
             'tdp_id' => $tdp->id,
             'disciplina' => [
                 'id' => $classeTurnoDisciplina->id,
@@ -91,7 +91,7 @@ class NotaDisciplinaRecursoController extends Controller
     ) {
         $pauta = $this->pautaService->gerarPauta($turma, 4, 5);
 
-        return Inertia::render('cursos-tutelados/classes/turnos/turmas/notas/recurso/create', [
+        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/notas/recurso/create', [
             'instituicaoId' => $instituicao->id,
             'cursoId' => $cursoTutelado->id,
             'turmaId' => $turma->id,

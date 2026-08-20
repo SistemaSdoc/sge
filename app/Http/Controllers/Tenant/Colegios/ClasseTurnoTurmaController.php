@@ -181,7 +181,7 @@ class ClasseTurnoTurmaController extends Controller
         */
 
         return Inertia::render(
-            'colegio/cursos-tutelados/classes/turnos/turmas/show',
+            'tenant/colegio/cursos-tutelados/classes/turnos/turmas/show',
             [
                 /*
                 |--------------------------------------------------------------------------

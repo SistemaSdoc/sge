@@ -53,7 +53,7 @@ class CursoTuteladoController extends Controller
             ])
             ->firstOrFail();
 
-        return Inertia::render('colegio/cursos-tutelados/show', [
+        return Inertia::render('tenant/colegio/cursos-tutelados/show', [
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,

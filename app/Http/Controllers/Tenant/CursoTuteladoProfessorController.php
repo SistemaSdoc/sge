@@ -41,7 +41,7 @@ class CursoTuteladoProfessorController extends Controller
             ->orderBy('id')
             ->get();
 
-        return Inertia::render('cursos-tutelados/professores/create', [
+        return Inertia::render('tenant/cursos-tutelados/professores/create', [
             'professores' => $professores,
             'instituicaoId' => $instituicao->id,
             'cursoTuteladoId' => $cursoTutelado->id,
