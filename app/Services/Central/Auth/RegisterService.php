@@ -72,11 +72,15 @@ class RegisterService
      */
     private function createTenantUser(array $data): User
     {
-        return User::create([
+        $user = User::create([
             'nome' => $data['nome'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+
+        $user->assignRole('Director');
+
+        return $user;
     }
 
     /**

@@ -7,7 +7,7 @@ use App\Models\tenant\AnoLectivo;
 use App\Models\tenant\ConfirmacaoMatricula;
 use App\Models\tenant\Turma;
 use App\Models\tenant\TurmaAluno;
-use App\Services\Core\RegraAcademicaService;
+use App\Services\Tenant\Core\RegraAcademicaService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

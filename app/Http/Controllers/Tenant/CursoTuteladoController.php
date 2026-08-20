@@ -14,7 +14,7 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\NivelEnsino;
-use App\Services\AnoLectivo\AnoLectivoResolverService;
+use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { update } from '@/routes/password';
+//rota errado temporária
+import { store as update } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
 
 export default function ResetPassword({ token, email, passwordRules }) {
   return (

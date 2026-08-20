@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
-use App\Services\AprovacaoTemaService;
+use App\Services\Tenant\AprovacaoTemaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

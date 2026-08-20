@@ -10,7 +10,7 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
-use App\Services\AprovacaoService;
+use App\Services\Tenant\AprovacaoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

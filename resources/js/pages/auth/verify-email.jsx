@@ -3,8 +3,9 @@ import { Form, Head } from '@inertiajs/react';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { logout } from '@/routes/tenant';
-import { send } from '@/routes/verification';
+//rota errada temporária
+import { create } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
+import { destroy } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
 
 export default function VerifyEmail({ status }) {
   return (
@@ -18,7 +19,7 @@ export default function VerifyEmail({ status }) {
         </div>
       )}
 
-      <Form {...send.form()} className="space-y-6 text-center">
+      <Form {...create.form()} className="space-y-6 text-center">
         {({ processing }) => (
           <>
             <Button disabled={processing} variant="secondary">
@@ -26,7 +27,7 @@ export default function VerifyEmail({ status }) {
               Reenviar email de verificação
             </Button>
 
-            <TextLink href={logout()} className="mx-auto block text-sm">
+            <TextLink href={destroy().url} className="mx-auto block text-sm">
               Sair
             </TextLink>
           </>

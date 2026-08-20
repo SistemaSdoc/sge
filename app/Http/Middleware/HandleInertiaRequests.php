@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Services\Menu\SidebarMenuService;
+use App\Services\Tenant\Menu\SidebarMenuService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 

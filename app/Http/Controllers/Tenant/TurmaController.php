@@ -9,7 +9,7 @@ use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
-use App\Services\AnoLectivo\AnoLectivoResolverService;
+use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;

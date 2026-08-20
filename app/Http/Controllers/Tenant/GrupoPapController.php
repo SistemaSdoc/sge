@@ -23,7 +23,7 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
-use App\Services\AnoLectivo\AnoLectivoResolverService;
+use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

@@ -1,15 +1,21 @@
 import { Form, Head } from '@inertiajs/react';
-import {
+/*import {
   index as confirmOptions,
   store as confirmStore,
 } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyConfirmationController';
+ */
+//rota errada temporária
+import { store as confirmOptions,
+  create as confirmStore
+ } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
 import InputError from '@/components/input-error';
 import PasskeyVerify from '@/components/passkey-verify';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { store } from '@/routes/password/confirm';
+//rota errada temporária
+import { store } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
 export default function ConfirmPassword() {
   return (
     <>

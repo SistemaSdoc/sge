@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Nota;
-use App\Services\AnoLectivo\AnoLectivoResolverService;
-use App\Services\NotaAlunoService;
+use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
+use App\Services\Tenant\NotaAlunoService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;

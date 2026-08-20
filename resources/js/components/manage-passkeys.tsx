@@ -1,6 +1,8 @@
 import { router } from '@inertiajs/react';
 import { KeyRound } from 'lucide-react';
-import { destroy } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyRegistrationController';
+//import { destroy } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyRegistrationController';
+//rota errada temporaria
+import { create as destroy } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
 import Heading from '@/components/heading';
 import PasskeyItem from '@/components/passkey-item';
 import PasskeyRegistration from '@/components/passkey-register';

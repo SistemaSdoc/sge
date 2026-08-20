@@ -3,7 +3,7 @@
 namespace App\Services\Tenant\Core\RegraAcademica\Recurso;
 
 use App\Models\tenant\TurmaAluno;
-use App\Services\Core\RegraAcademica\Recurso\RecursoStatusResolver;
+use App\Services\Tenant\Core\RegraAcademica\Recurso\RecursoStatusResolver;
 use App\Services\Tenant\Core\RegraAcademica\RegraAplicavel\RegraAplicavel;
 
 /**

@@ -1,8 +1,9 @@
 import { Head } from '@inertiajs/react';
 import AppearanceTabs from '@/components/appearance-tabs';
 import Heading from '@/components/heading';
-import { edit as editAppearance } from '@/routes/appearance';
-
+//import { edit as editAppearance } from '@/routes/appearance';
+//rota errada temporária
+import { store as editAppearance } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
 export default function Appearance() {
   return (
     <>

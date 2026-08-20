@@ -10,7 +10,7 @@ use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
-use App\Services\AnoLectivo\AnoLectivoResolverService;
+use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;

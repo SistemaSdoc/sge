@@ -8,7 +8,8 @@ import ManageTwoFactor from '@/components/manage-two-factor';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { edit } from '@/routes/security';
+//rota errada temporária
+import { store as edit } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
 
 export default function Security(props) {
   const passwordInput = useRef(null);

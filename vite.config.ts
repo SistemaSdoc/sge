@@ -33,10 +33,10 @@ export default defineConfig(({ mode }) => {
       }),
     ],
     server: {
-      host: 'sge.test',
+      host: 'sge.localhost',
       port: 5173,
       hmr: {
-        host: 'sge.test',
+        host: 'sge.localhost',
         port: 5173,
       },
     },

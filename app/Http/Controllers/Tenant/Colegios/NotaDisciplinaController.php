@@ -13,8 +13,8 @@ use App\Models\Tenant\Nota;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
-use App\Services\NotaService;
-use App\Services\Pauta\PautaService;
+use App\Services\Tenant\NotaService;
+use App\Services\Tenant\Pauta\PautaService;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

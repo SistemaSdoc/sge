@@ -8,7 +8,7 @@ use App\Models\tenant\PautaStatus;
 use App\Models\tenant\PeriodoLancamentoNotas;
 use App\Models\tenant\SolicitacaoEdicaoPauta;
 use App\Models\tenant\TurmaAluno;
-use App\Services\Core\RegraAcademicaService;
+use App\Services\Tenant\Core\RegraAcademicaService;
 use Illuminate\Support\Facades\Log;
 
 class NotaService

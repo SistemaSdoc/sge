@@ -21,7 +21,11 @@ import { Spinner } from '@/components/ui/spinner';
 import { useAppearance } from '@/hooks/use-appearance';
 import { useClipboard } from '@/hooks/use-clipboard';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
-import { confirm } from '@/routes/two-factor';
+//import { confirm } from '@/routes/two-factor';
+
+
+//rota errada temporaria
+import { create as confirm } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
 
 function GridScanIcon() {
   return (

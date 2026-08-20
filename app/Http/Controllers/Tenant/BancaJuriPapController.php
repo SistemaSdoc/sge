@@ -11,7 +11,7 @@ use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
-use App\Model\Tenant\Instituicao;
+use App\Models\tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use Inertia\Inertia;

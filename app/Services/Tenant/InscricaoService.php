@@ -4,10 +4,10 @@ namespace App\Services\Tenant;
 
 use App\Models\tenant\Aluno;
 use App\Models\tenant\Candidato;
-use App\Models\tenant\tenant\Inscricao;
+use App\Models\tenant\Inscricao;
 use App\Models\tenant\Instituicao;
 use App\Models\tenant\User;
-use App\Services\AnoLectivo\AnoLectivoResolverService;
+use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;

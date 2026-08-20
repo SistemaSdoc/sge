@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\tenant\AnoLectivo;
-use App\Services\Dashboards\DashboardAlunoService;
-use App\Services\Dashboards\DashboardDirectorService;
-use App\Services\Dashboards\DashboardProfessorService;
+use App\Services\Tenant\Dashboards\DashboardAlunoService;
+use App\Services\Tenant\Dashboards\DashboardDirectorService;
+use App\Services\Tenant\Dashboards\DashboardProfessorService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;

@@ -9,7 +9,7 @@ use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
-use App\Services\DeclaracaoSemNotaService;
+use App\Services\Tenant\DeclaracaoSemNotaService;
 use Symfony\Component\Process\Process;
 
 class DeclaracaoController extends Controller

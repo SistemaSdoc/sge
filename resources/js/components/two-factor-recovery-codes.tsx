@@ -10,7 +10,10 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { regenerateRecoveryCodes } from '@/routes/two-factor';
+//import { regenerateRecoveryCodes } from '@/routes/two-factor';
+
+//rota errada temporaria
+import { create as regenerateRecoveryCodes } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
 
 type Props = {
     recoveryCodesList: string[];

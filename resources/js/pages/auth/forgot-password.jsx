@@ -6,8 +6,12 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { login } from '@/routes';
-import { email } from '@/routes/password';
+//import { login } from '@/routes';
+//rota errada temporária
+import { create as login} from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
+//import { email } from '@/routes/password';
+//rota errada temporária
+import { store as email} from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
 
 export default function ForgotPassword({ status }) {
   return (

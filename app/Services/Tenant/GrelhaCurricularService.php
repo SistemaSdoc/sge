@@ -3,8 +3,9 @@
 namespace App\Services\Tenant;
 
 use App\Models\tenant\Aluno;
+use App\Models\tenant\AnoLectivo;
 use App\Models\tenant\TurmaAluno;
-use App\Services\AnoLectivo\AnoLectivoResolverService;
+use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 
 class GrelhaCurricularService
 {
@@ -42,26 +43,26 @@ class GrelhaCurricularService
         return app(NotaAlunoService::class)->classesDisponiveis($aluno);
     }
 
- private function obterTurmaAlunoDaClasse(Aluno $aluno, ?string $classeId = null)
-{
-    $anoLectivoId = \App\Models\AnoLectivo::where('activo', true)->value('id');
+    private function obterTurmaAlunoDaClasse(Aluno $aluno, ?string $classeId = null)
+    {
+        $anoLectivoId = AnoLectivo::where('activo', true)->value('id');
 
-    $query = \App\Models\TurmaAluno::query()
-        ->where('aluno_id', $aluno->id)
-        ->whereHas('turma', function ($q) use ($anoLectivoId) {
-            $q->where('ano_lectivo_id', $anoLectivoId);
-        })
-        ->with(['turma.anoLectivo', 'turma.cursoClasseTurno.cursoClasse.classe']);
+        $query = TurmaAluno::query()
+            ->where('aluno_id', $aluno->id)
+            ->whereHas('turma', function ($q) use ($anoLectivoId) {
+                $q->where('ano_lectivo_id', $anoLectivoId);
+            })
+            ->with(['turma.anoLectivo', 'turma.cursoClasseTurno.cursoClasse.classe']);
 
-    if ($classeId) {
-        $query->whereHas('turma.cursoClasseTurno.cursoClasse.classe', function ($q) use ($classeId) {
-            $q->where('classes.id', $classeId);
-        });
+        if ($classeId) {
+            $query->whereHas('turma.cursoClasseTurno.cursoClasse.classe', function ($q) use ($classeId) {
+                $q->where('classes.id', $classeId);
+            });
+        }
+
+        return $query
+            ->orderByDesc('activo')
+            ->orderByDesc('created_at')
+            ->first();
     }
-
-    return $query
-        ->orderByDesc('activo')
-        ->orderByDesc('created_at')
-        ->first();
-}
 }

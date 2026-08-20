@@ -11,8 +11,8 @@ use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
-use App\Services\AnoLectivo\AnoLectivoResolverService;
-use App\Services\InscricaoService;
+use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
+use App\Services\Tenant\InscricaoService;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 

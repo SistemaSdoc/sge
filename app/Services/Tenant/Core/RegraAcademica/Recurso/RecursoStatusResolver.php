@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Core\RegraAcademica\Recurso;
+namespace App\Services\Tenant\Core\RegraAcademica\Recurso;
 
 use App\Models\tenant\Nota;
 use App\Models\tenant\TurmaAluno;

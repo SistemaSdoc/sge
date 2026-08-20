@@ -3,7 +3,7 @@
 namespace App\Services\Tenant;
 
 use App\Models\tenant\TurmaAluno;
-use App\Services\Core\RegraAcademicaService;
+use App\Services\Tenant\Core\RegraAcademicaService;
 
 class AprovacaoService
 {

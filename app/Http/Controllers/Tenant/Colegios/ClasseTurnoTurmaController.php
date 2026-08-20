@@ -16,7 +16,7 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
-use App\Services\Pauta\PautaService;
+use App\Services\Tenant\Pauta\PautaService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;

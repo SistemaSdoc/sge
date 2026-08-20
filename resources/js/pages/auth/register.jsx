@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { login } from '@/routes';
-import { store } from '@/routes/register';
+// rotas erradas temporárias
+import { create } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
+import { store } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
 
 export default function Register({ passwordRules }) {
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -121,7 +122,7 @@ export default function Register({ passwordRules }) {
 
             <div className="text-center text-sm text-muted-foreground">
               Já tem uma conta?{' '}
-              <TextLink href={login().url} tabIndex={6}>
+              <TextLink href={create().url} tabIndex={6}>
                 Entrar
               </TextLink>
             </div>

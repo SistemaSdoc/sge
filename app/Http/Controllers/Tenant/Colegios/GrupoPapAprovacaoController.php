@@ -10,7 +10,7 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
-use App\Services\AprovacaoTemaService;
+use App\Services\Tenant\AprovacaoTemaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

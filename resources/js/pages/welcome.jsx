@@ -1,8 +1,10 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { login } from '@/routes';
-import { register } from '@/routes';
-import { index as dashboardIndex } from '@/routes/dashboard';
-
+//import { login } from '@/routes';
+//import { register } from '@/routes';
+import { index as dashboardIndex } from '@/actions/App/Http/Controllers/Tenant/DashboardController';
+// rota errada temporaria
+import { create as register } from '@/actions/App/Http/Controllers/Central/Auth/RegisteredController';
+import { create as login } from '@/actions/App/Http/Controllers/Central/Auth/RegisteredController';
 
 export default function Welcome() {
   const { auth } = usePage().props;

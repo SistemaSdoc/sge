@@ -7,7 +7,7 @@ use App\Models\tenant\Aluno;
 use App\Models\tenant\PautaStatus;
 use App\Models\tenant\Turma;
 use App\Models\tenant\TurmaAluno;
-use App\Services\AnoLectivo\AnoLectivoResolverService;
+use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Database\Eloquent\Collection;
 
 class NotaAlunoService
