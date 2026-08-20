@@ -291,7 +291,7 @@ final class SidebarMenuService
                 new MenuItem(
                     key: 'itens-pagaveis',
                     title: 'Emolumentos Escolares',
-                    href: route('itens-pagaveis.index'),
+                    href: route('tenant.dashboard.itens-pagaveis.index'),
                     icon: 'ReceiptText',
                     can: fn() => Auth::user()?->hasPermissionTo('itemspagaveis.viewAny')
                     && Auth::user()?->instituicao?->tipo === 'colegio',
@@ -300,7 +300,7 @@ final class SidebarMenuService
                 new MenuItem(
                     key: 'pagamentos',
                     title: 'Pagamentos',
-                    href: route('pagamentos.index'),
+                    href: route('tenant.dashboard.pagamentos.index'),
                     icon: 'CreditCard',
                     can: fn() => Auth::user()?->hasPermissionTo('pagamentos.viewAny')
                     && Auth::user()?->instituicao?->tipo === 'colegio',
