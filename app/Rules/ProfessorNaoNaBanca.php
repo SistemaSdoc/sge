@@ -2,9 +2,9 @@
 
 namespace App\Rules;
 
-use App\Models\BancaJuriPap;
-use App\Models\GrupoPap;
-use App\Models\Professor;
+use App\Models\Tenant\BancaJuriPap;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\Professor;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Translation\PotentiallyTranslatedString;

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Professor\StoreProfessoresRequest;
-use App\Http\Requests\Professor\UpdateProfessoresRequest;
+use App\Http\Requests\Tenant\Professor\StoreProfessoresRequest;
+use App\Http\Requests\Tenant\Professor\UpdateProfessoresRequest;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;

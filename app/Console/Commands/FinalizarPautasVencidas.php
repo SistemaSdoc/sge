@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Models\PautaStatus;
-use App\Models\PeriodoLancamentoNotas;
-use App\Models\TurmaDisciplinaProfessor;
+use App\Models\Tenant\PautaStatus;
+use App\Models\Tenant\PeriodoLancamentoNotas;
+use App\Models\Tenant\TurmaDisciplinaProfessor;
 use Illuminate\Console\Command;
 
 class FinalizarPautasVencidas extends Command

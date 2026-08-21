@@ -15,7 +15,6 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable([
-    'instituicao_id',
     'nome',
     'email',
     'bi',

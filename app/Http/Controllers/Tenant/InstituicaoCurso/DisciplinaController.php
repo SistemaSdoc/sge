@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Tenant\InstituicaoCurso;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\InstituicaoCurso\StoreDisciplinaRequest;
-use App\Http\Requests\InstituicaoCurso\UpdateDisciplinaRequest;
-use App\Http\Resources\DisciplinaResource;
+use App\Http\Requests\Tenant\InstituicaoCurso\StoreDisciplinaRequest;
+use App\Http\Requests\Tenant\InstituicaoCurso\UpdateDisciplinaRequest;
+use App\Http\Resources\Tenant\DisciplinaResource;
 use App\Models\Tenant\CursoClasseDisciplina;
 use App\Models\Tenant\CursoDisciplina;
 use App\Models\Tenant\Disciplina;

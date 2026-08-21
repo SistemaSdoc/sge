@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\GrupoPap\ShowResource;
+use App\Http\Resources\Tenant\GrupoPap\ShowResource;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -26,7 +26,7 @@ class GrupoPapTemaController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        //$this->authorize('create', [GrupoPap::class, $grupoPap]);
+        // $this->authorize('create', [GrupoPap::class, $grupoPap]);
         $this->authorize('definirTema', $grupoPap);
 
         $anoLectivoId = $turma->ano_lectivo_id;
@@ -76,9 +76,9 @@ class GrupoPapTemaController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Proposta do grupo PAP criada com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Proposta do grupo PAP criada com sucesso!',
+        ]);
     }
 
     /**
@@ -141,8 +141,8 @@ class GrupoPapTemaController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Proposta do grupo PAP actualizada com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Proposta do grupo PAP actualizada com sucesso!',
+        ]);
     }
 }

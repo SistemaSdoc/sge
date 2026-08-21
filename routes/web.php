@@ -3,6 +3,7 @@
 use App\Http\Controllers\Central\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Central\Auth\RegisteredController;
 use App\Http\Controllers\Central\DashboardController;
+use App\Http\Controllers\Central\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,6 +22,10 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->middleware('auth:web')
             ->name('central.dashboard');
+
+        Route::middleware('auth:web')->group(function () {
+            Route::resource('users', UserController::class);
+        });
 
         Route::get('register', [RegisteredController::class, 'create'])
             ->middleware('guest:web')

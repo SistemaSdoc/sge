@@ -2,9 +2,9 @@
 
 namespace App\Rules;
 
-use App\Models\Aluno;
-use App\Models\ElementoGrupoPap;
-use App\Models\GrupoPap;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\ElementoGrupoPap;
+use App\Models\Tenant\GrupoPap;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 

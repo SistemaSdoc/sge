@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Models\User;
+use App\Models\Tenant\User;
 use Illuminate\Auth\Events\Registered;
 
 class RegisteredListener

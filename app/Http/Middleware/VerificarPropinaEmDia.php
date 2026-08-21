@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Notifications\PropinaEmAtrasoNotification;
-use App\Services\VerificadorPropinaService;
+use App\Services\Tenant\VerificadorPropinaService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

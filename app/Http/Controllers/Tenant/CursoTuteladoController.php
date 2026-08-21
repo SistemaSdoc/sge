@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCursoTuteladoRequest;
-use App\Http\Resources\CursoTutelado\CursoTuteladoResourceEdit;
-use App\Http\Resources\CursoTutelado\CursoTuteladoResourceShow;
+use App\Http\Requests\Tenant\StoreCursoTuteladoRequest;
+use App\Http\Resources\Tenant\CursoTutelado\CursoTuteladoResourceEdit;
+use App\Http\Resources\Tenant\CursoTutelado\CursoTuteladoResourceShow;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\Curso;
@@ -58,40 +58,40 @@ class CursoTuteladoController extends Controller
 
     public function create(Instituicao $instituicao)
     {
-          Gate::authorize('create', CursoTutelado::class);
+        Gate::authorize('create', CursoTutelado::class);
 
-    $classes = Classe::select('id', 'nome')
-        ->orderBy('nome')
-        ->get();
+        $classes = Classe::select('id', 'nome')
+            ->orderBy('nome')
+            ->get();
 
-    $niveisEnsino = NivelEnsino::select('id', 'nome')
-        ->orderBy('nome')
-        ->get();
+        $niveisEnsino = NivelEnsino::select('id', 'nome')
+            ->orderBy('nome')
+            ->get();
 
-    $cursosJaAssociadosQuery = InstituicaoCurso::query();
+        $cursosJaAssociadosQuery = InstituicaoCurso::query();
 
-    if ($instituicao->tipo === 'instituto') {
-        // Instituto: esconde cursos já associados a qualquer colégio
-        $cursosJaAssociadosQuery->whereHas('instituicao', fn ($q) => $q->where('tipo', 'colegio'));
-    } else {
-        // Colégio: esconde só os cursos já associados a este próprio colégio
-        // (cursos de institutos continuam a aparecer)
-        $cursosJaAssociadosQuery->where('instituicao_id', $instituicao->id);
-    }
+        if ($instituicao->tipo === 'instituto') {
+            // Instituto: esconde cursos já associados a qualquer colégio
+            $cursosJaAssociadosQuery->whereHas('instituicao', fn ($q) => $q->where('tipo', 'colegio'));
+        } else {
+            // Colégio: esconde só os cursos já associados a este próprio colégio
+            // (cursos de institutos continuam a aparecer)
+            $cursosJaAssociadosQuery->where('instituicao_id', $instituicao->id);
+        }
 
-    $cursosJaAssociados = $cursosJaAssociadosQuery->pluck('curso_id');
+        $cursosJaAssociados = $cursosJaAssociadosQuery->pluck('curso_id');
 
-    $cursos = Curso::select('id', 'nome')
-        ->whereNotIn('id', $cursosJaAssociados)
-        ->orderBy('nome')
-        ->get();
+        $cursos = Curso::select('id', 'nome')
+            ->whereNotIn('id', $cursosJaAssociados)
+            ->orderBy('nome')
+            ->get();
 
-    return Inertia::render('tenant/cursos-tutelados/create', [
-        'instituicao' => $instituicao->only('id'),
-        'classes' => $classes,
-        'cursos' => $cursos,
-        'niveisEnsino' => $niveisEnsino,
-    ]);
+        return Inertia::render('tenant/cursos-tutelados/create', [
+            'instituicao' => $instituicao->only('id'),
+            'classes' => $classes,
+            'cursos' => $cursos,
+            'niveisEnsino' => $niveisEnsino,
+        ]);
     }
 
     public function store(StoreCursoTuteladoRequest $request, Instituicao $instituicao)

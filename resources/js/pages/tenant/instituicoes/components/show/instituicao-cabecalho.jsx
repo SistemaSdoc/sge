@@ -12,7 +12,7 @@ import {
 import { edit } from '@/actions/App/Http/Controllers/Tenant/InstituicaoController';
 import { edit as editarPrazosLancamentoNotas } from '@/actions/App/Http/Controllers/Tenant/PeriodoLancamentoNotasController';
 
-export function InstituicaoCabecalho({ data, storageUrl, can = {} }) {
+export function InstituicaoCabecalho({ data, can = {} }) {
   const canEdit = Boolean(can?.edit || can?.edit_instituicao);
   const canGerirPrazos = Boolean(can?.gerir_prazos);
 
@@ -21,7 +21,7 @@ export function InstituicaoCabecalho({ data, storageUrl, can = {} }) {
       <div className="relative flex h-56 w-full items-end overflow-hidden bg-muted">
         {data.logo ? (
           <img
-            src={`${storageUrl}/${data.logo}`}
+            src={data.logo_url}
             alt={`Logo ${data.nome}`}
             sizes="(max-width: 768px) 100vw, 1000px"
             loading="lazy"

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Tenant\Settings;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Settings\ProfileDeleteRequest;
-use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Http\Requests\Tenant\Settings\ProfileDeleteRequest;
+use App\Http\Requests\Tenant\Settings\ProfileUpdateRequest;
 use App\Models\Tenant\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;

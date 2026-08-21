@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\InstituicoesRequest;
+use App\Http\Requests\Tenant\InstituicoesRequest;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use Illuminate\Support\Facades\Auth;
@@ -103,10 +103,10 @@ class InstituicaoController extends Controller
                 'telefone' => $instituicao->telefone,
                 'endereco' => $instituicao->endereco,
                 'logo' => $instituicao->logo,
+                'logo_url' => $instituicao->logo_url,
                 'descricao' => $instituicao->descricao,
             ],
             'cursos' => $cursos,
-            'storageUrl' => asset('storage'),
         ]);
     }
 
@@ -117,6 +117,7 @@ class InstituicaoController extends Controller
                 'update_instituicao' => Auth::guard('tenant')->user()->can('update', $instituicao),
             ],
             'instituicao' => $instituicao,
+            'logoUrl' => $instituicao->logo_url,
         ]);
     }
 

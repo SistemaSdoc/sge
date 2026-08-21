@@ -2,127 +2,96 @@
 
 namespace App\Http\Controllers\Central;
 
-use App\Ai\Agents\ResumoDirector;
-use App\Ai\Agents\Teste;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UserRequest;
-use App\Imports\UsersImport;
-use App\Models\Central\Instituicao;
-use App\Models\Central\Role;
+use App\Http\Requests\Central\UserRequest;
 use App\Models\Central\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Maatwebsite\Excel\Facades\Excel;
+use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    public function importarForm(Request $request)
-    {
-        return view('importar');
-    }
-
-    public function importar(Request $request)
-    {
-        $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
-        ]);
-
-        $import = new UsersImport;
-
-        Excel::import($import, $request->file('file'), null, \Maatwebsite\Excel\Excel::XLSX);
-
-        return redirect()->back();
-    }
-
     public function index()
     {
-        // Carrega usuários com instituição e roles (para mostrar na listagem)
-        $users = User::paginate(10);
+        $users = User::query()
+            ->with('roles:id,name')
+            ->latest()
+            ->paginate(10);
 
-        $reponses = (new Teste)->prompt('Analisa estes dados e de a tua opinião sobre eles. Stelvio é full stack developer e usa laravel + nextjs para desenvolvimento web.');
+        $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->get(['id', 'name']);
 
-        $resumo = (new ResumoDirector)->prompt('dsfdsfsfsf');
-
-        return response()->json($users);
+        return Inertia::render('tenant/users/index', [
+            'users' => $users,
+            'roles' => $roles,
+        ]);
     }
 
     public function create()
     {
-        $instituicoes = Instituicao::all();
-        $roles = Role::all();
+        $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->get(['id', 'name']);
 
-        return response()->json(
-            [
-                'instituicoes' => $instituicoes,
-                'roles' => $roles,
-            ],
-            status: 202
-        );
-
+        return Inertia::render('tenant/users/create', [
+            'roles' => $roles,
+        ]);
     }
 
     public function store(UserRequest $request)
     {
-        $request->validated();
+        $data = $request->validated();
+        $roles = $data['roles'] ?? [];
+        unset($data['roles']);
+        $data['password'] = Hash::make($data['password']);
 
-        $user = User::create([
-            'nome' => $request->nome,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'instituicao_id' => $request->instituicao_id,
-        ]);
+        $user = User::create($data);
+        $user->syncRoles($roles);
+        $user->load('roles:id,name');
 
-        // Atribui roles
-        if ($request->roles) {
-            $user->roles()->sync($request->roles);
-        }
-
-        return response()->json($user, status: 201);
+        return redirect()->route('users.index');
     }
 
     public function edit(User $user)
     {
-        $instituicoes = Instituicao::all();
-        $roles = Role::all();
+        $user->load('roles:id,name');
+        $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->get(['id', 'name']);
 
-        return response()->json(
-            [
-                'user' => $user,
-                'instituicoes' => $instituicoes,
-                'roles' => $roles,
-            ],
-            status: 200
-        );
+        return Inertia::render('tenant/users/edit', [
+            'user' => $user,
+            'roles' => $roles,
+        ]);
+    }
+
+    public function show(User $user)
+    {
+        $user->load('roles:id,name');
+
+        return Inertia::render('tenant/users/show', [
+            'user' => $user,
+        ]);
     }
 
     public function update(UserRequest $request, User $user)
     {
-        $request->validated();
-        $user->update([
-            'nome' => $request->nome,
-            'email' => $request->email,
-            'instituicao_id' => $request->instituicao_id,
-        ]);
+        $data = $request->validated();
+        $roles = $data['roles'] ?? [];
+        unset($data['roles']);
 
-        if ($request->password) {
-            $user->password = Hash::make($request->password);
-            $user->save();
+        if (filled($data['password'] ?? null)) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
         }
 
-        // Atualiza roles
-        $user->roles()->sync($request->roles ?? []);
+        $user->update($data);
+        $user->syncRoles($roles);
+        $user->load('roles:id,name');
 
-        return response()->json($user, status: 200);
+        return redirect()->route('users.index');
     }
 
     public function destroy(User $user)
     {
-        $user->roles()->detach();
         $user->delete();
 
-        return response()->json(
-            ['message' => 'Usuário removido com sucesso!'],
-            status: 200
-        );
+        return redirect()->route('users.index');
     }
 }

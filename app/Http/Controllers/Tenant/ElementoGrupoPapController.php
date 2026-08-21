@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ElementosGrupoPap\ActualizarNotaRequest;
-use App\Http\Requests\ElementosGrupoPap\StoreRequest;
+use App\Http\Requests\Tenant\ElementosGrupoPap\ActualizarNotaRequest;
+use App\Http\Requests\Tenant\ElementosGrupoPap\StoreRequest;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Tenant\Colegios;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AlunoTurmaResource;
-use App\Http\Resources\ClasseTurnoDisciplinaResource;
-use App\Http\Resources\GrupoPapIndexResource;
-use App\Http\Resources\Turma\TurmaShowResource;
+use App\Http\Resources\Tenant\AlunoTurmaResource;
+use App\Http\Resources\Tenant\ClasseTurnoDisciplinaResource;
+use App\Http\Resources\Tenant\GrupoPapIndexResource;
+use App\Http\Resources\Tenant\Turma\TurmaShowResource;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ClasseTurnoDisciplina;

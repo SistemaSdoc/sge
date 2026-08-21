@@ -2,8 +2,8 @@
 
 namespace App\Rules;
 
-use App\Models\CursoTutelado;
-use App\Models\CursoTuteladoProfessor;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\CursoTuteladoProfessor;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Translation\PotentiallyTranslatedString;

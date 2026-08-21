@@ -3,7 +3,6 @@
 namespace App\Services\Tenant;
 
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\TurmaAluno;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 
@@ -23,19 +22,22 @@ class GrelhaCurricularService
 
         return $turma->cursoClasseTurno
             ->classeTurnoDisciplinas()
+            ->where('ano_lectivo_id', $turma->ano_lectivo_id)
             ->with([
                 'disciplina:id,nome,sigla',
-                'turmaDisciplinaProfessores' => fn ($q) => $q
+                'turmaDisciplinaProfessores' => fn ($query) => $query
                     ->where('turma_id', $turma->id)
                     ->with('professor.user:id,nome'),
             ])
             ->get()
-            ->map(fn ($ctd) => [
-                'sigla' => $ctd->disciplina->sigla,
-                'disciplina' => $ctd->disciplina->nome,
-                'professor' => $ctd->turmaDisciplinaProfessores->first()?->professor?->user?->nome
+            ->filter(fn ($classeTurnoDisciplina) => $classeTurnoDisciplina->disciplina)
+            ->map(fn ($classeTurnoDisciplina) => [
+                'sigla' => $classeTurnoDisciplina->disciplina->sigla,
+                'disciplina' => $classeTurnoDisciplina->disciplina->nome,
+                'professor' => $classeTurnoDisciplina->turmaDisciplinaProfessores->first()?->professor?->user?->nome
                     ?? 'Sem professor',
-            ]);
+            ])
+            ->values();
     }
 
     public function classesDisponiveis(Aluno $aluno): array
@@ -45,13 +47,8 @@ class GrelhaCurricularService
 
     private function obterTurmaAlunoDaClasse(Aluno $aluno, ?string $classeId = null)
     {
-        $anoLectivoId = AnoLectivo::where('activo', true)->value('id');
-
         $query = TurmaAluno::query()
             ->where('aluno_id', $aluno->id)
-            ->whereHas('turma', function ($q) use ($anoLectivoId) {
-                $q->where('ano_lectivo_id', $anoLectivoId);
-            })
             ->with(['turma.anoLectivo', 'turma.cursoClasseTurno.cursoClasse.classe']);
 
         if ($classeId) {

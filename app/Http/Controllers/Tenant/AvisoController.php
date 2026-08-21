@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AvisoRequest;
+use App\Http\Requests\Tenant\AvisoRequest;
 use App\Models\Tenant\Aviso;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\User;

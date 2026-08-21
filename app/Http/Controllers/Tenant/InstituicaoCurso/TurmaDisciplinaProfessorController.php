@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenant\InstituicaoCurso;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\InstituicaoCurso\StoreProfessorRequest;
+use App\Http\Requests\Tenant\InstituicaoCurso\StoreProfessorRequest;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoClasse;

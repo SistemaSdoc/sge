@@ -557,10 +557,10 @@ Route::middleware([
             |--------------------------------------------------------------------------
             */
 
-            Route::inertia('horarios', 'horarios/index')
+            Route::inertia('horarios', 'tenant/horarios/index')
                 ->name('horarios');
 
-            Route::inertia('propinas/bloqueio', 'propinas/bloqueio')
+            Route::inertia('propinas/bloqueio', 'tenant/propinas/bloqueio')
                 ->name('propinas.divida');
 
             /*

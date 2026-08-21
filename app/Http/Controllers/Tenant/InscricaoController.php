@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Inscricao\StoreInscricaoRequest;
-use App\Http\Requests\UpdateInscricaoRequest;
-use App\Http\Resources\Inscricao\InscricaoResource;
-use App\Http\Resources\Inscricao\InscricaoShowResource;
+use App\Http\Requests\Tenant\Inscricao\StoreInscricaoRequest;
+use App\Http\Requests\Tenant\UpdateInscricaoRequest;
+use App\Http\Resources\Tenant\Inscricao\InscricaoResource;
+use App\Http\Resources\Tenant\Inscricao\InscricaoShowResource;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\Inscricao;

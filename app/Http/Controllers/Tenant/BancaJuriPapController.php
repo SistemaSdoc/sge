@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\BancaJuriPap\StoreRequest;
-use App\Http\Requests\BancaJuriPap\UpdateRequest;
+use App\Http\Requests\Tenant\BancaJuriPap\StoreRequest;
+use App\Http\Requests\Tenant\BancaJuriPap\UpdateRequest;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\CursoClasse;

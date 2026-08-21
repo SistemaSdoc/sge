@@ -29,6 +29,11 @@ class Instituicao extends Model
 
     protected $primaryKey = 'id';
 
+    public function getLogoUrlAttribute(): ?string
+    {
+        return $this->logo ? tenant_asset($this->logo) : null;
+    }
+
     public function getStatusTextoAttribute()
     {
         return $this->status == 1 ? 'Activo' : 'Inactivo';

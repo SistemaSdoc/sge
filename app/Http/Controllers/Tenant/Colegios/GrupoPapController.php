@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Tenant\Colegios;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\GrupoPap\DefinirDataDefesaRequest;
-use App\Http\Requests\GrupoPap\StoreRequest;
-use App\Http\Resources\GrupoPap\BancaResource;
-use App\Http\Resources\GrupoPap\ElementoResource;
-use App\Http\Resources\GrupoPap\IndexResource;
-use App\Http\Resources\GrupoPap\ShowResource;
+use App\Http\Requests\Tenant\GrupoPap\DefinirDataDefesaRequest;
+use App\Http\Requests\Tenant\GrupoPap\StoreRequest;
+use App\Http\Resources\Tenant\GrupoPap\BancaResource;
+use App\Http\Resources\Tenant\GrupoPap\ElementoResource;
+use App\Http\Resources\Tenant\GrupoPap\IndexResource;
+use App\Http\Resources\Tenant\GrupoPap\ShowResource;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\CursoClasse;

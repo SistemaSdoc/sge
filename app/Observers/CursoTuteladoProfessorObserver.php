@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Models\CursoTuteladoProfessor;
+use App\Models\Tenant\CursoTuteladoProfessor;
 use Spatie\Permission\PermissionRegistrar;
 
 class CursoTuteladoProfessorObserver

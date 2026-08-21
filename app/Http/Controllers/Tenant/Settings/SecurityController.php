@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Tenant\Settings;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Settings\PasswordUpdateRequest;
-use App\Http\Requests\Settings\TwoFactorAuthenticationRequest;
+use App\Http\Requests\Tenant\Settings\PasswordUpdateRequest;
+use App\Http\Requests\Tenant\Settings\TwoFactorAuthenticationRequest;
 use App\Models\Tenant\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;

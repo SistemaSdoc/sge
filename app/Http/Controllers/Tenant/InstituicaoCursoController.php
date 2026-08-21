@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreInstituicaoCursoRequest;
+use App\Http\Requests\Tenant\StoreInstituicaoCursoRequest;
 use App\Models\Tenant\Curso;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;

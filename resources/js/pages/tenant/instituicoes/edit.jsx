@@ -2,7 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { InstituicaoForm } from './components/instituicao-form';
 import { update } from '@/actions/App/Http/Controllers/Tenant/InstituicaoController';
 
-export default function Edit({ can = {}, instituicao }) {
+export default function Edit({ can = {}, instituicao, logoUrl }) {
   const { put, data, setData, processing, errors } = useForm({
     nome: instituicao.nome,
     sigla: instituicao.sigla,
@@ -22,7 +22,7 @@ export default function Edit({ can = {}, instituicao }) {
       processing={processing}
       can={can}
       submitLabel="Actualizar"
-      logoUrl={instituicao.logo ? `/storage/${instituicao.logo}` : null}
+      logoUrl={logoUrl}
       submitFn={(e) => {
         e.preventDefault();
         put(update(instituicao.id).url, {

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenant\Colegios;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ElementosGrupoPap\ActualizarNotaRequest;
+use App\Http\Requests\Tenant\ElementosGrupoPap\ActualizarNotaRequest;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;

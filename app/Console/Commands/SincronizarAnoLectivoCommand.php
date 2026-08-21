@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Services\AnoLectivoConsistencyService;
+use App\Services\Tenant\AnoLectivoConsistencyService;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Pagamento\StorePagamentoRequest;
-use App\Http\Requests\Pagamento\UpdatePagamentoRequest;
+use App\Http\Requests\Tenant\Pagamento\StorePagamentoRequest;
+use App\Http\Requests\Tenant\Pagamento\UpdatePagamentoRequest;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ItemPagavel;
@@ -437,7 +437,7 @@ class PagamentoController extends Controller
             $this->resolverNotificacoesSePropinaEmDia($request->input('aluno_id'));
         });
 
-        return redirect()->route('pagamentos.index')->with('success', 'Pagamento registado com sucesso.');
+        return redirect()->route('tenant.dashboard.pagamentos.index')->with('success', 'Pagamento registado com sucesso.');
     }
 
     /**

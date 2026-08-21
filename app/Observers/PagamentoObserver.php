@@ -2,13 +2,12 @@
 
 namespace App\Observers;
 
-use App\Models\Pagamento;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Tenant\Pagamento;
 
 class PagamentoObserver
 {
     public function created(Pagamento $pagamento)
     {
-         // $pagamento->gerarRecibo();
+        // $pagamento->gerarRecibo();
     }
 }

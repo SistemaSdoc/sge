@@ -167,7 +167,7 @@ final class SidebarMenuService
                 new MenuItem(
                     key: 'horarios',
                     title: 'Horários',
-                    href: '/dashboard/horarios',
+                    href: route('tenant.dashboard.horarios'),
                     icon: 'CalendarClock',
                     can: fn () => $gate->allows('horarios.viewAny')
                 ),

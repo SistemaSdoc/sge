@@ -2,8 +2,8 @@
 
 namespace App\Notifications;
 
-use App\Models\Aluno;
-use App\Models\Instituicao;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Instituicao;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Tenant\InstituicaoCurso;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\InstituicaoCurso\StoreTurmaRequest;
-use App\Http\Requests\InstituicaoCurso\UpdateTurmaRequest;
-use App\Http\Resources\TurmaResource;
+use App\Http\Requests\Tenant\InstituicaoCurso\StoreTurmaRequest;
+use App\Http\Requests\Tenant\InstituicaoCurso\UpdateTurmaRequest;
+use App\Http\Resources\Tenant\TurmaResource;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -35,9 +35,9 @@ class TurmaController extends Controller // implements HasMiddleware
 
     public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
-         /** @var User $user */
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
-        
+
         $query = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
             fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)

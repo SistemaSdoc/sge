@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Classe\StoreClasseRequest;
-use App\Http\Requests\Classe\UpdateClasseRequest;
+use App\Http\Requests\Tenant\Classe\StoreClasseRequest;
+use App\Http\Requests\Tenant\Classe\UpdateClasseRequest;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\User;
 use Illuminate\Support\Facades\Auth;
