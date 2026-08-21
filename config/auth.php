@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\central\User as CentralUser;
-use App\Models\tenant\User as TenantUser;
+use App\Models\Central\User as CentralUser;
+use App\Models\Tenant\User as TenantUser;
 
 return [
 

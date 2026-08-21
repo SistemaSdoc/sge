@@ -24,7 +24,7 @@ class FolhaAprovacaoController extends Controller
         ])->findOrFail($id);
 
         // Usuário logado
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
 
         $instituicao = $user->instituicao->nome ?? 'Instituição não definida';
 

@@ -92,7 +92,7 @@ class RegraAvaliacaoController extends Controller
             'ano_lectivo_id' => AnoLectivo::activo()?->id,
         ]);
 
-        return redirect()->route('regras-avaliacao.index');
+        return redirect()->route('tenant.dashboard.regras-avaliacao.index');
     }
 
     /**
@@ -143,7 +143,7 @@ class RegraAvaliacaoController extends Controller
 
         $regraAvaliacao->update($request->validated());
 
-        return redirect()->route('regras-avaliacao.index');
+        return redirect()->route('tenant.dashboard.regras-avaliacao.index');
     }
 
     /**
@@ -154,6 +154,6 @@ class RegraAvaliacaoController extends Controller
         $this->authorize('delete', $regraAvaliacao);
         $regraAvaliacao->delete();
 
-        return redirect()->route('regras-avaliacao.index');
+        return redirect()->route('tenant.dashboard.regras-avaliacao.index');
     }
 }

@@ -24,7 +24,7 @@ class TurmaController extends Controller
 
         Redirect::setIntendedUrl(request()->fullUrl());
 
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
         $professor = $user?->professor;
         $instituicaoId = $user->instituicao_id;
 

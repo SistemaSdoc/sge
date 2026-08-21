@@ -41,8 +41,8 @@ class InscricaoController extends Controller
     {
         $this->authorize('viewAny', Inscricao::class);
 
-        $user = Auth::user();
-        $instituicaoId = Auth::user()?->instituicaoFiltro();
+        $user = Auth::guard('tenant')->user();
+        $instituicaoId = Auth::guard('tenant')->user()?->instituicaoFiltro();
         $contexto = $this->resolveContextoInstituicao();
 
         $anoLectivoId = filled(request('ano_lectivo_id'))
@@ -91,7 +91,7 @@ class InscricaoController extends Controller
     {
         $this->authorize('create', Inscricao::class);
 
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
         $instituicaoId = $user->instituicao_id;
         $contexto = $this->resolveContextoInstituicao();
 
@@ -165,7 +165,7 @@ class InscricaoController extends Controller
 
         $this->inscricaoService->criar($request->validated(), $instituicao);
 
-        return redirect()->route('inscricoes.index', [
+        return redirect()->route('tenant.dashboard.inscricoes.index', [
             'ano_lectivo_id' => $request->validated('ano_lectivo_id') ?? $request->input('ano_lectivo_id'),
         ]);
     }
@@ -197,7 +197,7 @@ class InscricaoController extends Controller
 
         $this->inscricaoService->atualizarNotaTeste($inscricao, $request->validated('nota_teste'));
 
-        return redirect()->route('inscricoes.index');
+        return redirect()->route('tenant.dashboard.inscricoes.index');
     }
 
     // Cancelar Matrícula de um aluno
@@ -207,7 +207,7 @@ class InscricaoController extends Controller
 
         $this->inscricaoService->cancelar($inscricao);
 
-        return redirect()->route('inscricoes.index');
+        return redirect()->route('tenant.dashboard.inscricoes.index');
     }
 
     public function reativar(Inscricao $inscricao)
@@ -216,6 +216,6 @@ class InscricaoController extends Controller
 
         $this->inscricaoService->reativar($inscricao);
 
-        return redirect()->route('inscricoes.index');
+        return redirect()->route('tenant.dashboard.inscricoes.index');
     }
 }

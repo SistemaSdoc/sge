@@ -122,7 +122,7 @@ class BancaJuriPapController extends Controller
             'funcao' => $request->funcao,
         ]);
 
-        return to_route('pap.show', [
+        return to_route('tenant.dashboard.pap.show', [
             'instituicao' => $instituicao->id,
             'colegio' => $colegio,
             'cursoTutelado' => $cursoTutelado->id,
@@ -246,7 +246,7 @@ class BancaJuriPapController extends Controller
             ])
         );
 
-        return to_route('pap.show', [
+        return to_route('tenant.dashboard.pap.show', [
             'instituicao' => $instituicao->id,
             'colegio' => $colegio,
             'cursoTutelado' => $cursoTutelado->id,
@@ -277,7 +277,7 @@ class BancaJuriPapController extends Controller
 
         $bancaJuriPap->delete();
 
-        return to_route('pap.show', [
+        return to_route('tenant.dashboard.pap.show', [
             'instituicao' => $instituicao->id,
             'colegio' => $colegio,
             'cursoTutelado' => $cursoTutelado->id,

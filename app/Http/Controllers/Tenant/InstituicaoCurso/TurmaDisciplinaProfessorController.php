@@ -116,7 +116,7 @@ class TurmaDisciplinaProfessorController extends Controller
 
         $anoLectivoParam = $anoLectivoId ? ['ano_lectivo_id' => $anoLectivoId] : [];
 
-        return to_route('turmas.show', [
+        return to_route('tenant.dashboard.turmas.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

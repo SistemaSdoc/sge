@@ -75,7 +75,7 @@ public function index(Request $request)
     {
         $this->authorize('create', ItemPagavel::class);
 
-        $instituicao = Auth::user()->instituicao_id; // ← Pega da autenticação
+        $instituicao = Auth::guard('tenant')->user()->instituicao_id; // ← Pega da autenticação
 
         return Inertia::render('tenant/itens-pagaveis/create', [
             'cursosClasse' => CursoClasse::query()
@@ -98,7 +98,7 @@ public function index(Request $request)
             'instituicao_id' => $request->user()->instituicao_id,
         ]);
 
-        return redirect()->route('itens-pagaveis.index')->with('success', 'Item pagável criado com sucesso.');
+        return redirect()->route('tenant.dashboard.itens-pagaveis.index')->with('success', 'Item pagável criado com sucesso.');
     }
 
 public function edit(ItemPagavel $itemPagavel)
@@ -171,7 +171,7 @@ public function edit(ItemPagavel $itemPagavel)
             'item_depois' => $itemPagavel->fresh()?->getAttributes(),
         ]);
 
-        return redirect()->route('itens-pagaveis.index')->with('success', 'Item pagável actualizado com sucesso.');
+        return redirect()->route('tenant.dashboard.itens-pagaveis.index')->with('success', 'Item pagável actualizado com sucesso.');
     }
 
     public function destroy(ItemPagavel $itemPagavel)
@@ -184,6 +184,6 @@ public function edit(ItemPagavel $itemPagavel)
 
         $itemPagavel->delete();
 
-        return redirect()->route('itens-pagaveis.index')->with('success', 'Item pagável removido com sucesso.');
+        return redirect()->route('tenant.dashboard.itens-pagaveis.index')->with('success', 'Item pagável removido com sucesso.');
     }
 }

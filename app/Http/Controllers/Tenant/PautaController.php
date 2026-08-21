@@ -26,7 +26,7 @@ class PautaController extends Controller
     {
         $this->authorize('pauta.viewAny', CursoTutelado::class);
 
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
         $instituicaoId = $user?->instituicao_id;
         $isProfessor = $user->hasRole('Professor');
         $professorId = $user->professor?->id;
@@ -83,7 +83,7 @@ class PautaController extends Controller
 
         $cursoTutelado->load('instituicaoCurso.curso:id,nome');
 
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
         $isProfessor = $user->hasRole('Professor');
         $professorId = $user->professor?->id;
 

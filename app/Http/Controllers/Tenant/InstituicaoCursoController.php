@@ -110,7 +110,7 @@ class InstituicaoCursoController extends Controller // implements HasMiddleware
         $instituicaoCurso->cursoTutelado()->delete();
         $instituicaoCurso->delete();
 
-        return to_route('instituicoes.show', $instituicao)->with('toast', [
+        return to_route('tenant.dashboard.instituicoes.show', $instituicao)->with('toast', [
             'type' => 'success',
             'message' => 'Curso removido com sucesso.',
         ]);

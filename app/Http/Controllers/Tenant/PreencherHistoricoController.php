@@ -189,7 +189,7 @@ class PreencherHistoricoController extends Controller
             // o modal fecha via onSuccess antes da navegação acontecer
             return redirect()
                 ->to(
-                    route('preencher-historico.create', ['aluno' => $aluno->id])
+                    route('tenant.dashboard.preencher-historico.create', ['aluno' => $aluno->id])
                     .'?turma_aluno_id='.$turmaAluno->id
                 )
                 ->with('success', 'Histórico criado. Procede ao lançamento de notas.');

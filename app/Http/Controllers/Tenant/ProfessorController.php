@@ -20,7 +20,7 @@ class ProfessorController extends Controller
     {
         $this->authorize('viewAny', Professor::class);
 
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
         $instituicaoId = $user?->instituicaoFiltro();
 
         $professores = Professor::select(['id', 'user_id', 'especialidade', 'nivel_academico', 'created_at'])
@@ -72,7 +72,7 @@ class ProfessorController extends Controller
             'nivel_academico' => $request->nivel_academico,
         ]);
 
-        return to_route('professores.index')->with('toast', [
+        return to_route('tenant.dashboard.professores.index')->with('toast', [
             'type' => 'success',
             'message' => 'Professor criado com sucesso.',
         ]);
@@ -149,7 +149,7 @@ class ProfessorController extends Controller
             'nivel_academico' => $request->nivel_academico,
         ]);
 
-        return to_route('professores.index')->with('toast', [
+        return to_route('tenant.dashboard.professores.index')->with('toast', [
             'type' => 'success',
             'message' => 'Professor atualizado com sucesso.',
         ]);
@@ -161,7 +161,7 @@ class ProfessorController extends Controller
 
         $professor->delete($professor->id);
 
-        return to_route('professores.index')->with('toast', [
+        return to_route('tenant.dashboard.professores.index')->with('toast', [
             'type' => 'success',
             'message' => 'Professor removido com sucesso.',
         ]);

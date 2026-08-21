@@ -75,7 +75,7 @@ class PropinaController extends Controller
 
         Propina::create($data + ['estado' => 'pendente']);
 
-        return redirect()->route('propinas.index')->with('success', 'Propina criada com sucesso.');
+        return redirect()->route('tenant.dashboard.propinas.index')->with('success', 'Propina criada com sucesso.');
     }
 
     /**
@@ -147,7 +147,7 @@ class PropinaController extends Controller
 
         $propina->update($data);
 
-        return redirect()->route('propinas.index')->with('success', 'Propina actualizada com sucesso.');
+        return redirect()->route('tenant.dashboard.propinas.index')->with('success', 'Propina actualizada com sucesso.');
     }
 
     public function destroy(Propina $propina)
@@ -160,6 +160,6 @@ class PropinaController extends Controller
 
         $propina->delete();
 
-        return redirect()->route('propinas.index')->with('success', 'Propina removida com sucesso.');
+        return redirect()->route('tenant.dashboard.propinas.index')->with('success', 'Propina removida com sucesso.');
     }
 }

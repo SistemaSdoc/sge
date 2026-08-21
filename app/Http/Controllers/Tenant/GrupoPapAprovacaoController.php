@@ -22,7 +22,7 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function pendentes()
     {
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
 
         // O utilizador precisa estar associado a um professor
         if (! $user->professor) {
@@ -146,7 +146,7 @@ class GrupoPapAprovacaoController extends Controller
 
         $resultado = $this->service->aprovar(
             $grupoPap,
-            Auth::user(),
+            Auth::guard('tenant')->user(),
             $validated['comentario'] ?? null
         );
 
@@ -189,7 +189,7 @@ class GrupoPapAprovacaoController extends Controller
         // Executar reprovação
         $resultado = $this->service->reprovar(
             $grupoPap,
-            Auth::user(),
+            Auth::guard('tenant')->user(),
             $validated['motivo']
         );
 
@@ -250,7 +250,7 @@ class GrupoPapAprovacaoController extends Controller
         // Executar solicitação de melhoria
         $resultado = $this->service->solicitarMelhoria(
             $grupoPap,
-            Auth::user(),
+            Auth::guard('tenant')->user(),
             $validated['recomendacao']
         );
 
@@ -285,7 +285,7 @@ class GrupoPapAprovacaoController extends Controller
             'objectivos' => 'nullable|string|max:2000',
         ]);
 
-        $resultado = $this->service->reenviar($grupoPap, Auth::user(), $validated);
+        $resultado = $this->service->reenviar($grupoPap, Auth::guard('tenant')->user(), $validated);
 
         if (! $resultado) {
             return back()->withErrors(['grupo' => 'Erro ao reenviar o tema.']);
@@ -299,7 +299,7 @@ class GrupoPapAprovacaoController extends Controller
         $cursoTutelado = $cursoClasse->cursoTutelado;
 
         return redirect()
-            ->route('pap.show', [
+            ->route('tenant.dashboard.pap.show', [
                 'instituicao' => $cursoTutelado->instituicaoCurso->instituicao_id,
                 'cursoTutelado' => $cursoTutelado->id,
                 'cursoClasse' => $cursoClasse->id,
@@ -317,7 +317,7 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function melhorias()
     {
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
 
         $temas = GrupoPap::query()
             ->where('status_aprovacao', 'melhoria-solicitada')

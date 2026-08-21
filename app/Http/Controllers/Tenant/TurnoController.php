@@ -61,7 +61,7 @@ class TurnoController extends Controller
             'nome' => $request->nome,
         ]);
 
-        return to_route('turnos.index')->with('toast', [
+        return to_route('tenant.dashboard.turnos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Turno criado com sucesso!',
         ]);
@@ -95,7 +95,7 @@ class TurnoController extends Controller
             'nome' => $request->nome,
         ]);
 
-        return to_route('tenant/turnos.index')->with('toast', [
+        return to_route('tenant.dashboard.turnos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Turno atualizado com sucesso!',
         ]);
@@ -105,7 +105,7 @@ class TurnoController extends Controller
     {
         $turno->delete();
 
-        return to_route('tenant/turnos.index')->with('toast', [
+        return to_route('tenant.dashboard.turnos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Turno excluído com sucesso!',
         ]);

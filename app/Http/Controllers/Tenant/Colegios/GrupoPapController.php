@@ -97,7 +97,7 @@ class GrupoPapController extends Controller
             collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
         );
 
-        return to_route('pap.show', [
+        return to_route('tenant.dashboard.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
@@ -273,7 +273,7 @@ class GrupoPapController extends Controller
             'local_defesa' => $request->local_defesa,
         ]);
 
-        return to_route('pap.show', [
+        return to_route('tenant.dashboard.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

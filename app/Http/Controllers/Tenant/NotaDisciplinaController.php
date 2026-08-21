@@ -54,13 +54,13 @@ class NotaDisciplinaController extends Controller
         // Gate::authorize('view', $tdp);
         $periodosLancados = $this->notaService->periodosLancados($tdp->id);
         $periodosDisponiveis = $this->notaService->periodosDisponiveis($tdp->id);
-        $podeLancarNotas = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+        $podeLancarNotas = Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector'])
             || !(
                 $periodosLancados[1]
                 && $periodosLancados[2]
                 && $periodosLancados[3]
             );
-        $todosDisponiveis = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+        $todosDisponiveis = Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector'])
             || (
                 $periodosLancados[1]
                 && $periodosLancados[2]
@@ -93,8 +93,8 @@ class NotaDisciplinaController extends Controller
             ->orderBy('candidatos.nome')
             ->paginate(20, ['*'], 'page_alunos');
 
-        $professorDono = Auth::user()->professor?->id === $tdp->professor_id;
-        $podeVerRascunho = $professorDono || Auth::user()->hasAnyRole(['Director', 'Subdirector']);
+        $professorDono = Auth::guard('tenant')->user()->professor?->id === $tdp->professor_id;
+        $podeVerRascunho = $professorDono || Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector']);
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/index', [
             'instituicao' => $instituicao->id,
@@ -104,9 +104,9 @@ class NotaDisciplinaController extends Controller
             'turma' => $turma->id,
             'tdp' => $tdp->id,
             'can' => [
-                'create' => Auth::user()->can('create', [Nota::class, $tdp]),
-                'export' => Auth::user()->can('export', [Nota::class, $tdp]),
-                'overrideLockedPeriods' => Auth::user()->hasAnyRole(['Director', 'Subdirector']),
+                'create' => Auth::guard('tenant')->user()->can('create', [Nota::class, $tdp]),
+                'export' => Auth::guard('tenant')->user()->can('export', [Nota::class, $tdp]),
+                'overrideLockedPeriods' => Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector']),
             ],
             'disciplina' => [
                 'id' => $classeTurnoDisciplina->id,
@@ -164,7 +164,8 @@ class NotaDisciplinaController extends Controller
         ClasseTurnoDisciplina $classeTurnoDisciplina,
         Request $request
     ) {
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
+
         $anoLectivoId = $request->input('ano_lectivo_id') ?? $turma->ano_lectivo_id;
 
         $tdp = $this->resolveTurmaDisciplinaProfessor($turma, $classeTurnoDisciplina, $anoLectivoId);
@@ -190,8 +191,8 @@ class NotaDisciplinaController extends Controller
                 return back()->with('warning', 'Ainda não existe uma associação de professor para esta disciplina neste ano lectivo.');
             }
 
-            $professorDono = Auth::user()->professor?->id === $tdp->professor_id;
-            $podeVerRascunho = $professorDono || Auth::user()->hasAnyRole(['Director', 'Subdirector']);
+            $professorDono = Auth::guard('tenant')->user()->professor?->id === $tdp->professor_id;
+            $podeVerRascunho = $professorDono || Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector']);
 
             Log::info('Gate::authorize view');
             Gate::authorize('view', $tdp);
@@ -207,7 +208,7 @@ class NotaDisciplinaController extends Controller
             Log::info('periodosDisponiveis', $periodosDisponiveis);
 
             Log::info('Calculando podeLancarNotas');
-            $podeLancarNotas = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+            $podeLancarNotas = Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector'])
                 || !(
                     $periodosLancados[1]
                     && $periodosLancados[2]
@@ -216,7 +217,7 @@ class NotaDisciplinaController extends Controller
             Log::info('podeLancarNotas', ['value' => $podeLancarNotas]);
 
             Log::info('Calculando todosDisponiveis');
-            $todosDisponiveis = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+            $todosDisponiveis = Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector'])
                 || (
                     $periodosLancados[1]
                     && $periodosLancados[2]
@@ -263,10 +264,10 @@ class NotaDisciplinaController extends Controller
 
             Log::info('Verificando permissions can');
             $can = [
-                'create' => Auth::user()->can('create', [Nota::class, $tdp]),
-                'overrideLockedPeriods' => Auth::user()->hasAnyRole(['Director', 'Subdirector']),
-                'finalizar' => Auth::user()->can('pautas.finalizar'),
-                'solicitarEdicao' => Auth::user()->can('pautas.solicitarEdicao'),
+                'create' => Auth::guard('tenant')->user()->can('create', [Nota::class, $tdp]),
+                'overrideLockedPeriods' => Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector']),
+                'finalizar' => Auth::guard('tenant')->user()->can('pautas.finalizar'),
+                'solicitarEdicao' => Auth::guard('tenant')->user()->can('pautas.solicitarEdicao'),
             ];
             Log::info('Permissions verificadas', $can);
 
@@ -524,7 +525,7 @@ class NotaDisciplinaController extends Controller
 
         $tdp = TurmaDisciplinaProfessor::findOrFail($validated['tdp_id']);
         $periodo = (int) $validated['periodo'];
-        $isDirector = Auth::user()->hasAnyRole(['Director', 'Subdirector']);
+        $isDirector = Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector']);
 
         Gate::authorize('view', $tdp);
         Gate::authorize('create', [Nota::class, $tdp]);
@@ -601,7 +602,7 @@ class NotaDisciplinaController extends Controller
 
     //     $tdp = TurmaDisciplinaProfessor::findOrFail($validated['tdp_id']);
     //     $periodo = (int) $validated['periodo'];
-    //     $isDirector = Auth::user()->hasAnyRole(['Director', 'Subdirector']);
+    //     $isDirector = Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector']);
 
     //     $verificacao = $this->notaService->podeSalvarOuFinalizar(
     //         $tdp->id,

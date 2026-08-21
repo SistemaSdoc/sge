@@ -40,7 +40,7 @@ class ProfileController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Profile updated.')]);
 
-        return to_route('profile.edit')
+        return to_route('tenant.dashboard.profile.edit')
             ->with('toast', [
                 'type' => 'success',
                 'message' => __('Profile updated.'),

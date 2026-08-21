@@ -24,7 +24,7 @@ class NotaAlunoController extends Controller
     {
         Gate::authorize('viewAny', Nota::class);
 
-        $aluno = Auth::user()->aluno;
+        $aluno = Auth::guard('tenant')->user()->aluno;
         $classes = $this->notaAlunoService->classesDisponiveis($aluno);
         $classeId = request('classe_id') ?? collect($classes)->first()['id'] ?? null;
 

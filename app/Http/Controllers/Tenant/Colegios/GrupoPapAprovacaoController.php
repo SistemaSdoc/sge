@@ -48,15 +48,15 @@ class GrupoPapAprovacaoController extends Controller
         return inertia('tenant/pap/PendentesAprovacao', [
             'temasPendentes' => $temasPendentes,
 
-            'rotaAprovar' => route('colegio.grupo-pap-aprovacao.aprovar', [
+            'rotaAprovar' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.aprovar', [
                 'instituicao' => $instituicao->id,
                 'grupoPap' => ':id',
             ]),
-            'rotaReprovar' => route('colegio.grupo-pap-aprovacao.reprovar', [
+            'rotaReprovar' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.reprovar', [
                 'instituicao' => $instituicao->id,
                 'grupoPap' => ':id',
             ]),
-            'rotaMelhoria' => route('colegio.grupo-pap-aprovacao.solicitar-melhoria', [
+            'rotaMelhoria' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.solicitar-melhoria', [
                 'instituicao' => $instituicao->id,
                 'grupoPap' => ':id',
             ]),
@@ -371,7 +371,7 @@ class GrupoPapAprovacaoController extends Controller
         return inertia('tenant/pap/TemasMelhoria', [
             'temas' => $temas,
 
-            'rotaEditar' => route('colegio.grupo-pap-aprovacao.editar', [
+            'rotaEditar' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.editar', [
                 'instituicao' => $instituicao->id,
                 'grupoPap' => ':id',
             ]),
@@ -396,11 +396,11 @@ class GrupoPapAprovacaoController extends Controller
         return inertia('tenant/pap/EditarTemaMelhoria', [
             'grupoPap' => $grupoPap,
 
-            'rotaAtualizar' => route('colegio.grupo-pap-aprovacao.atualizar', [
+            'rotaAtualizar' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.atualizar', [
                 'instituicao' => $instituicao->id,
                 'grupoPap' => $grupoPap->id,
             ]),
-            'rotaReenviar' => route('colegio.grupo-pap-aprovacao.reenviar', [
+            'rotaReenviar' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.reenviar', [
                 'instituicao' => $instituicao->id,
                 'grupoPap' => $grupoPap->id,
             ]),
