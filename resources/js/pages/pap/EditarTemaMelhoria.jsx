@@ -25,6 +25,20 @@ const STATUS_CONFIG = {
     descricao: 'Faça as alterações solicitadas pela instituição tutora antes de reenviar.',
     botaoReenviar: 'Corrigir e Reenviar',
   },
+  'melhoria-solicitada-tutor': {
+    label: 'Melhoria Solicitada',
+    variant: 'outline',
+    titulo: 'Corrigir Tema PAP',
+    descricao: 'Faça as alterações solicitadas pelo professor tutor antes de reenviar.',
+    botaoReenviar: 'Corrigir e Reenviar',
+  },
+  'melhoria-solicitada-coordenacao': {
+    label: 'Melhoria Solicitada',
+    variant: 'outline',
+    titulo: 'Corrigir Tema PAP',
+    descricao: 'Faça as alterações solicitadas pela coordenação antes de reenviar.',
+    botaoReenviar: 'Corrigir e Reenviar',
+  },
 };
 
 export default function EditarTemaMelhoria({
@@ -33,8 +47,8 @@ export default function EditarTemaMelhoria({
   rotaAtualizar,
   rotaReenviar,
 }) {
-  const config =
-    STATUS_CONFIG[grupoPap.status_aprovacao] ?? STATUS_CONFIG['melhoria-solicitada'];
+  const statusKey = String(grupoPap?.status_aprovacao || '').toLowerCase();
+  const config = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG['melhoria-solicitada'];
 
   const [tema, setTema] = useState(grupoPap?.tema_grupo || '');
   const [nomeGrupo, setNomeGrupo] = useState(grupoPap?.nome_grupo || '');

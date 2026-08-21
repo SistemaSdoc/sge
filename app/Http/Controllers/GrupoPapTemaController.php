@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\GrupoPap\ShowResource;
+use App\Http\Resources\GrupoPap\TemaCreateResource;
 use App\Models\CursoClasse;
 use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\GrupoPap;
 use App\Models\Instituicao;
+use App\Models\Professor;
 use App\Models\Turma;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -30,6 +32,11 @@ class GrupoPapTemaController extends Controller
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
+        $professores = Professor::whereHas('cursosTutelados', function ($q) use ($cursoTutelado) {
+            $q->where('curso_tutelado_id', $cursoTutelado->id)
+                ->where('tipo', 'principal');
+        })->with('user:id,nome')->get();
+
         return Inertia::render('cursos-tutelados/classes/turnos/turmas/pap/tema/create', [
             'instituicao' => $instituicao->only('id', 'nome'),
             'cursoTutelado' => $cursoTutelado->only('id'),
@@ -38,6 +45,9 @@ class GrupoPapTemaController extends Controller
             'turma' => $turma->only('id', 'nome'),
             'anoLectivoId' => $anoLectivoId,
             'grupoPap' => $grupoPap->only('id'),
+            'form' => new TemaCreateResource((object) [
+                'professores' => $professores,
+            ]),
         ]);
     }
 
@@ -58,6 +68,7 @@ class GrupoPapTemaController extends Controller
         $validated = $request->validate([
             'tema_grupo' => 'required|string|max:255',
             'problema' => 'nullable|string|max:1000',
+            'professor_tutor_id' => 'nullable|exists:professores,id',
             'objectivos' => 'nullable|string|max:1000',
             'estudo_caso' => 'nullable|string|max:1000',
         ]);
@@ -74,6 +85,7 @@ class GrupoPapTemaController extends Controller
             'cursoClasseTurno' => $cursoClasseTurno->id,
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
+
         ])->with('toast', [
                     'type' => 'success',
                     'message' => 'Proposta do grupo PAP criada com sucesso!',

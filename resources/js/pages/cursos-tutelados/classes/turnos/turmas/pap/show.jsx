@@ -336,19 +336,22 @@ export default function Show({
       {/* Banner de ação — reprovado ou melhoria solicitada */}
       {
         can?.corrigirTema &&
-        ['reprovado', 'melhoria-solicitada'].includes(
-          grupoPap.status_aprovacao,
-        ) && (
+        [
+          'reprovado',
+          'melhoria-solicitada',
+          'melhoria-solicitada-tutor',
+          'melhoria-solicitada-coordenacao',
+        ].includes((grupoPap.status_aprovacao || '').toLowerCase()) && (
           <Alert
             variant={
-              grupoPap.status_aprovacao === 'reprovado'
+              (grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
                 ? 'destructive'
                 : 'default'
             }
           >
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>
-              {grupoPap.status_aprovacao === 'reprovado'
+              {(grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
                 ? 'Tema reprovado'
                 : 'Melhoria solicitada'}
             </AlertTitle>
@@ -359,7 +362,7 @@ export default function Show({
               <Button
                 size="sm"
                 variant={
-                  grupoPap.status_aprovacao === 'reprovado'
+                  (grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
                     ? 'destructive'
                     : 'default'
                 }
@@ -367,7 +370,7 @@ export default function Show({
                   router.visit(editarTema.url({ grupoPap: grupoPap.id }))
                 }
               >
-                {grupoPap.status_aprovacao === 'reprovado'
+                {(grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
                   ? 'Enviar Novo Tema'
                   : 'Corrigir Tema'}
               </Button>

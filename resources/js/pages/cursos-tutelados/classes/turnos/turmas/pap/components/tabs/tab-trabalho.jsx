@@ -239,6 +239,7 @@ function VersaoCard({ versao, canDownload, downloadUrl, visualizarUrl, params })
 function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
   const [comentario, setComentario] = useState('');
   const [ficheiro, setFicheiro] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
 
   const MODAL_CONFIG = {
     aprovarTutor: {
@@ -282,10 +283,17 @@ function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
 
   const pedeFicheiro = ['correcaoTutor', 'correcaoCoordenacao'].includes(action);
 
+  const comentarioError = config.obrigatorio && submitted && comentario.trim().length < 10
+    ? comentario.trim().length === 0
+      ? 'Este campo é obrigatório.'
+      : 'Este campo deve conter pelo menos 10 caracteres.'
+    : null;
+
   const handleClose = () => {
     if (loading) return;
     setComentario('');
     setFicheiro(null);
+    setSubmitted(false);
     onClose();
   };
 
@@ -339,6 +347,9 @@ function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
                   : 'Adiciona um comentário opcional...'
               }
             />
+            {comentarioError && (
+              <p className="text-xs text-red-500">{comentarioError}</p>
+            )}
           </div>
         </div>
 
@@ -348,8 +359,12 @@ function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
           </Button>
           <Button
             variant={config.confirmVariant ?? 'default'}
-            onClick={() => onConfirmar(comentario, ficheiro)}   // <-- passa ficheiro
-            disabled={loading || (config.obrigatorio && !comentario.trim())}
+            onClick={() => {
+              setSubmitted(true);
+              if (config.obrigatorio && comentario.trim().length < 10) return;
+              onConfirmar(comentario, ficheiro);
+            }}
+            disabled={loading}
           >
             {loading ? 'A processar...' : config.confirmLabel}
           </Button>
@@ -617,7 +632,7 @@ export function TabTrabalho({ params, grupoPap, trabalho, can }) {
           {/* ── Área de decisão — Coordenação ─────────────────────────── */}
           {trabalho.status === 'em_analise_coordenacao' &&
             (can?.aprovarComoCoordenacao || can?.solicitarCorrecaoComoCoordenacao) && (
-              <div className="rounded-lg border p-4 space-y-3">
+              <div className="border p-4 space-y-3">
                 <p className="text-sm text-muted-foreground">
                   Analisa o trabalho e toma uma decisão.
                 </p>

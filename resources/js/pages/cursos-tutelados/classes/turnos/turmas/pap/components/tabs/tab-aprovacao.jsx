@@ -20,7 +20,7 @@ const STATUS = {
     badgeClass: 'bg-muted text-muted-foreground border-transparent',
   },
   submetido: {
-    label: 'Aguarda tutor',
+    label: 'Em análise — Tutor',
     icon: Clock,
     badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
   },
@@ -39,10 +39,15 @@ const STATUS = {
     icon: XCircle,
     badgeClass: 'bg-red-50 text-red-700 border-red-200',
   },
-  'melhoria-solicitada': {
-    label: 'Melhoria Solicitada',
+  'melhoria-solicitada-tutor': {
+    label: 'Correção solicitada — Tutor',
     icon: AlertCircle,
     badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
+  },
+  'melhoria-solicitada-coordenacao': {
+    label: 'Correção solicitada — Coordenação',
+    icon: AlertCircle,
+    badgeClass: 'bg-orange-50 text-orange-700 border-orange-200',
   },
 };
 
@@ -165,7 +170,7 @@ export function TabAprovacao({ params, grupoPap, can }) {
     }
 
     // Finalizado
-    if (isFinalizado) {
+    /* if (isFinalizado) {
       return (
         <div className="flex items-center gap-2 rounded-md bg-muted/40 px-4 py-3">
           <StatusIcon className="size-4 shrink-0 text-muted-foreground" />
@@ -174,14 +179,14 @@ export function TabAprovacao({ params, grupoPap, can }) {
           </p>
         </div>
       );
-    }
+    }*/
 
     // Pendente / melhoria-solicitada / reprovado — botões da coordenação
     return (
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
+        {/* <p className="text-sm text-muted-foreground">
           Decida sobre a aprovação, reprovação ou solicite melhorias.
-        </p>
+        </p> */}
         {(can?.aprovar || can?.reprovar || can?.solicitarMelhoria) && (
           <div className="flex flex-wrap justify-end gap-2">
             {can?.solicitarMelhoria && (

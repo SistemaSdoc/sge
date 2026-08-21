@@ -38,7 +38,9 @@ class GrupoPap extends Model
     const APROVACAO_PENDENTE = 'pendente';
     const APROVACAO_APROVADO = 'aprovado';
     const APROVACAO_REPROVADO = 'reprovado';
-    const APROVACAO_MELHORIA = 'melhoria-solicitada';
+    const APROVACAO_MELHORIA_TUTOR = 'melhoria-solicitada-tutor';
+    const APROVACAO_MELHORIA_COORDENACAO = 'melhoria-solicitada-coordenacao';
+
     protected function casts(): array
     {
         return [
@@ -133,7 +135,10 @@ class GrupoPap extends Model
 
     public function scopeMelhoriaSolicitada($query)
     {
-        return $query->where('status_aprovacao', 'melhoria-solicitada');
+        return $query->whereIn('status_aprovacao', [
+            'melhoria-solicitada-tutor',
+            'melhoria-solicitada-coordenacao',
+        ]);
     }
 
     /*public function podeSerAprovado(): bool
@@ -144,18 +149,32 @@ class GrupoPap extends Model
 
     public function podeSerReenviado(): bool
     {
-        return in_array($this->status_aprovacao, ['reprovado', 'melhoria-solicitada']);
-        //return $this->status_aprovacao === 'melhoria-solicitada';
+        return in_array($this->status_aprovacao, [
+            'reprovado',
+            'melhoria-solicitada',
+            'melhoria-solicitada-tutor',
+            'melhoria-solicitada-coordenacao',
+        ]);
     }
 
     public function podeSerEditado(): bool
     {
-        return in_array($this->status_aprovacao, ['reprovado', 'melhoria-solicitada']);
+        return in_array($this->status_aprovacao, [
+            'reprovado',
+            'melhoria-solicitada',
+            'melhoria-solicitada-tutor',
+            'melhoria-solicitada-coordenacao',
+        ]);
     }
 
     public function podeDefinirTema(): bool
     {
-        return in_array($this->status_aprovacao, ['rascunho', 'melhoria-solicitada']);
+        return in_array($this->status_aprovacao, [
+            'rascunho',
+            'melhoria-solicitada',
+            'melhoria-solicitada-tutor',
+            'melhoria-solicitada-coordenacao',
+        ]);
     }
 
     public function podeSermitidoAoTutor(): bool

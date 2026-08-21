@@ -114,7 +114,7 @@ export function TabAprovacao({ params, grupoPap, can }) {
       );
     }
 
-    if (statusAtual === 'aprovado') {
+    /* if (statusAtual === 'aprovado') {
       return (
         <div className="flex items-center gap-2 rounded-md bg-muted/40 px-4 py-3">
           <StatusIcon className="size-4 shrink-0 text-muted-foreground" />
@@ -123,13 +123,13 @@ export function TabAprovacao({ params, grupoPap, can }) {
           </p>
         </div>
       );
-    }
+    }*/
 
     return (
       <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
+        {/* <p className="text-sm text-muted-foreground">
           Decida sobre a aprovação, reprovação ou solicite melhorias.
-        </p>
+        </p> */}
         {(can?.aprovar || can?.reprovar || can?.solicitarMelhoria) && (
           <div className="flex flex-wrap justify-end gap-2">
             {can?.solicitarMelhoria && (

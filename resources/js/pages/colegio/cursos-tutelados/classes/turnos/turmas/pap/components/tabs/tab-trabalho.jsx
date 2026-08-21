@@ -547,7 +547,7 @@ export function TabTrabalho({ params, grupoPap, trabalho, can }) {
 
           {/* ── Área de submissão — aluno ──────────────────────────────── */}
           {podeSubmeter && (
-            <div className="space-y-3 rounded-lg border p-4">
+            <div className="space-y-3 border p-4">
               <p className="text-sm font-medium">
                 {trabalho.status === 'pendente_entrega'
                   ? 'Submete o trabalho em formato PDF'

@@ -5,6 +5,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -19,6 +20,13 @@ export default function ModalDecisaoAprovacao({
   onConfirmar,
   loading,
 }) {
+
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (open) setSubmitted(false);
+  }, [open, action]);
+  
   const MODAL_CONFIG = {
     aprovar: {
       titulo: 'Aprovar Tema PAP',
@@ -63,7 +71,14 @@ export default function ModalDecisaoAprovacao({
   };
 
   const config = MODAL_CONFIG[action] ?? {};
-  const podeConfirmar = !config.obrigatorio || comentario.trim().length >= 10;
+  const comentarioError = config.obrigatorio && submitted
+    ? comentario.trim().length === 0
+      ? 'Este campo é obrigatório.'
+      : comentario.trim().length < 10
+        ? 'Este campo deve conter pelo menos 10 caracteres.'
+        : null
+    : null;
+  const podeConfirmar = !config.obrigatorio || !comentarioError;
 
   const handleClose = () => {
     if (loading) return;
@@ -79,7 +94,7 @@ export default function ModalDecisaoAprovacao({
 
         <div className="space-y-4 py-2">
           {/* Resumo do tema */}
-          <div className="rounded-md border bg-muted/40 px-4 py-3 space-y-1 text-sm">
+          <div className="border bg-muted/40 px-4 py-3 space-y-1 text-sm">
             <p><span className="font-medium">Tema: </span>{tema?.tema_grupo}</p>
             <p><span className="font-medium">Problema: </span>{tema?.problema}</p>
             <p><span className="font-medium">Objectivos: </span>{tema?.objectivos}</p>
@@ -101,10 +116,8 @@ export default function ModalDecisaoAprovacao({
               placeholder={config.placeholder}
               disabled={loading}
             />
-            {config.obrigatorio && comentario.trim().length < 10 && comentario.length > 0 && (
-              <p className="text-xs text-red-500">
-                Este campo deve conter pelo menos 10 caracteres.
-              </p>
+            {config.obrigatorio && comentarioError && (
+              <p className="text-xs text-red-500">{comentarioError}</p>
             )}
           </div>
         </div>
@@ -115,8 +128,12 @@ export default function ModalDecisaoAprovacao({
           </Button>
           <Button
             variant={config.confirmVariant ?? 'default'}
-            onClick={onConfirmar}
-            disabled={loading || !podeConfirmar}
+            onClick={() => {
+              setSubmitted(true);
+              if (!podeConfirmar) return;
+              onConfirmar();
+            }}
+            disabled={loading}
           >
             {loading ? 'A processar...' : config.confirmLabel}
           </Button>

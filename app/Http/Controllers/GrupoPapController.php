@@ -152,7 +152,7 @@ class GrupoPapController extends Controller
 
         $grupo = GrupoPap::create([
             'turma_id' => $turma->id,
-            'professor_tutor_id' => $request->professor_tutor_id,
+            // 'professor_tutor_id' => $request->professor_tutor_id,
             'nome_grupo' => $request->nome_grupo,
             'status_aprovacao' => GrupoPap::APROVACAO_RASCUNHO,
             'tema_grupo' => $request->tema_grupo,
@@ -246,18 +246,22 @@ class GrupoPapController extends Controller
                         'id' => $f->id,
                         'tipo' => $f->tipo,
                         'comentario' => $f->comentario,
-                        'utilizador' => PapHelper::nomeAprovador(
-                            $f->utilizador,
-                            $instituicaoTutoraModel,
-                            $nomeCurso,
-                        ),
+                        'utilizador' => in_array($f->tipo, ['correcao_coordenacao', 'aprovacao_coordenacao', 'reprovacao_coordenacao'])
+                            ? PapHelper::nomeAprovador($f->utilizador, $instituicaoTutoraModel, $nomeCurso)
+                            : $f->utilizador?->nome,
                         'created_at' => $f->created_at?->toIso8601String(),
-                        'tem_ficheiro_correcao' => !is_null($f->caminho_ficheiro_correcao),  // <-- novo
-                        'nome_original_correcao' => $f->nome_original_correcao,               // <-- novo
+                        'tem_ficheiro_correcao' => !is_null($f->caminho_ficheiro_correcao),
+                        'nome_original_correcao' => $f->nome_original_correcao,
                     ]),
                 ]),
             ] : null,
             'historico' => $grupoPap->historicoAprovacao->map(function ($item) use ($instituicaoTutoraModel, $nomeCurso) {
+                $estadosDaCoordenacao = [
+                    'aprovado',
+                    'reprovado',
+                    'melhoria-solicitada-coordenacao',
+                ];
+
                 return [
                     'id' => $item->id,
                     'estado_anterior' => $item->estado_anterior,
@@ -268,11 +272,9 @@ class GrupoPapController extends Controller
                     'objectivos' => $item->objectivos,
                     'created_at' => $item->created_at?->toIso8601String(),
                     'utilizador' => [
-                        'nome' => PapHelper::nomeAprovador(
-                            $item->utilizador,
-                            $instituicaoTutoraModel,
-                            $nomeCurso,
-                        ),
+                        'nome' => in_array($item->estado_novo, $estadosDaCoordenacao)
+                            ? PapHelper::nomeAprovador($item->utilizador, $instituicaoTutoraModel, $nomeCurso)
+                            : $item->utilizador?->nome,
                     ],
                 ];
             })->values(),

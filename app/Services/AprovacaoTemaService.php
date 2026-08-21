@@ -104,7 +104,7 @@ class AprovacaoTemaService
         return $this->alterarEstado(
             $grupoPap,
             $user,
-            'melhoria-solicitada',
+            GrupoPap::APROVACAO_MELHORIA_COORDENACAO,
             $recomendacao
         );
     }

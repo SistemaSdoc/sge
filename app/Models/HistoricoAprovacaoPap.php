@@ -18,6 +18,8 @@ class HistoricoAprovacaoPap extends Model
         'grupo_pap_id',
         'utilizador_id',
         'tema',
+        'problema',      
+        'objectivos',    
         'estado_anterior',
         'estado_novo',
         'comentario',

@@ -106,3 +106,15 @@ test('grupo pap show exposes granular permissions for elements and banca actions
         ->where('can.banca.delete', true)
     );
 });
+
+test('grupo pap marks theme correction as allowed for both improvement states', function () {
+    expect(GrupoPap::make([
+        'status_aprovacao' => GrupoPap::APROVACAO_MELHORIA_TUTOR,
+    ])->podeSerEditado())->toBeTrue()
+        ->and(GrupoPap::make([
+            'status_aprovacao' => GrupoPap::APROVACAO_MELHORIA_COORDENACAO,
+        ])->podeSerEditado())->toBeTrue()
+        ->and(GrupoPap::make([
+            'status_aprovacao' => GrupoPap::APROVACAO_MELHORIA_COORDENACAO,
+        ])->podeDefinirTema())->toBeTrue();
+});
