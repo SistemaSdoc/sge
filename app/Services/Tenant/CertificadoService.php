@@ -3,11 +3,11 @@
 namespace App\Services\Tenant;
 
 use App\Helpers\BrowsershotHelper;
-use App\Models\tenant\Aluno;
-use App\Models\tenant\Turma;
-use App\Models\tenant\TurmaAluno;
-use App\Models\tenant\TurmaDisciplinaProfessor;
-use App\Models\tenant\ElementoGrupoPap;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaAluno;
+use App\Models\Tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\ElementoGrupoPap;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
 use Spatie\Browsershot\Browsershot;

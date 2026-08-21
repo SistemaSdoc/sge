@@ -2,10 +2,10 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\tenant\Aluno;
-use App\Models\tenant\Turma;
-use App\Models\tenant\TurmaAluno;
-use App\Models\tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaAluno;
+use App\Models\Tenant\TurmaDisciplinaProfessor;
 use Carbon\Carbon;
 use ZipArchive;
 

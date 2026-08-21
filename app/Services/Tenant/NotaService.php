@@ -2,12 +2,12 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\tenant\AnoLectivo;
-use App\Models\tenant\Nota;
-use App\Models\tenant\PautaStatus;
-use App\Models\tenant\PeriodoLancamentoNotas;
-use App\Models\tenant\SolicitacaoEdicaoPauta;
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\Nota;
+use App\Models\Tenant\PautaStatus;
+use App\Models\Tenant\PeriodoLancamentoNotas;
+use App\Models\Tenant\SolicitacaoEdicaoPauta;
+use App\Models\Tenant\TurmaAluno;
 use App\Services\Tenant\Core\RegraAcademicaService;
 use Illuminate\Support\Facades\Log;
 

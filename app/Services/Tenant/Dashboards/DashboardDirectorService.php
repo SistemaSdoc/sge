@@ -2,12 +2,12 @@
 
 namespace App\Services\Tenant\Dashboards;
 
-use App\Models\tenant\Aluno;
-use App\Models\tenant\Aviso;
-use App\Models\tenant\GrupoPap;
-use App\Models\tenant\Inscricao;
-use App\Models\tenant\Professor;
-use App\Models\tenant\Turma;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Aviso;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\Inscricao;
+use App\Models\Tenant\Professor;
+use App\Models\Tenant\Turma;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 

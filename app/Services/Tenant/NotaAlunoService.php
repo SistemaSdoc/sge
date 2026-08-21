@@ -3,10 +3,10 @@
 namespace App\Services\Tenant;
 
 use App\Helpers\ArredondamentoHelper;
-use App\Models\tenant\Aluno;
-use App\Models\tenant\PautaStatus;
-use App\Models\tenant\Turma;
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\PautaStatus;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaAluno;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Database\Eloquent\Collection;
 

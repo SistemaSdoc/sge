@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant\Core\RegraAcademica\Recurso;
 
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\TurmaAluno;
 
 /**
  * Carrega as relações necessárias para a fase de recurso.

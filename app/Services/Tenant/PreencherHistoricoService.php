@@ -2,13 +2,13 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\tenant\Aluno;
-use App\Models\tenant\CursoClasseRecord;
-use App\Models\tenant\CursoClasseTurno;
-use App\Models\tenant\PautaStatus;
-use App\Models\tenant\Turma;
-use App\Models\tenant\TurmaAluno;
-use App\Models\tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\CursoClasseRecord;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\PautaStatus;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaAluno;
+use App\Models\Tenant\TurmaDisciplinaProfessor;
 use Illuminate\Support\Collection;
 
 class PreencherHistoricoService

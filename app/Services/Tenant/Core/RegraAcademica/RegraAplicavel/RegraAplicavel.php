@@ -2,8 +2,8 @@
 
 namespace App\Services\Tenant\Core\RegraAcademica\RegraAplicavel;
 
-use App\Models\tenant\RegraAvaliacao;
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\RegraAvaliacao;
+use App\Models\Tenant\TurmaAluno;
 
 /**
  * Entry point para resolver a regra de avaliação aplicável ao aluno.

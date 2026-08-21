@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\TurmaAluno;
 use App\Services\Tenant\Core\RegraAcademicaService;
 
 class AprovacaoService

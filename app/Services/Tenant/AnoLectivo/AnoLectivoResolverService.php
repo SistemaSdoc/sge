@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant\AnoLectivo;
 
-use App\Models\tenant\AnoLectivo;
+use App\Models\Tenant\AnoLectivo;
 
 /**
  * Resolver para o ano lectivo

@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\tenant\User;
+use App\Models\Tenant\User;
 use App\Notifications\PropinaEmAtrasoNotification;
 use Illuminate\Support\Facades\Log;
 

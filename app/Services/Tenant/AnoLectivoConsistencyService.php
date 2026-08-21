@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\tenant\AnoLectivo;
+use App\Models\Tenant\AnoLectivo;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 

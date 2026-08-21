@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant\Core\RegraAcademica\Contexto;
 
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\TurmaAluno;
 
 /**
  * Carrega as relações necessárias para o contexto académico do aluno.

@@ -2,9 +2,9 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\tenant\Aluno;
-use App\Models\tenant\AnoLectivo;
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\TurmaAluno;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 
 class GrelhaCurricularService

@@ -2,8 +2,8 @@
 
 namespace App\Services\Tenant\Core\RegraAcademica\Recurso;
 
-use App\Models\tenant\Nota;
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\Nota;
+use App\Models\Tenant\TurmaAluno;
 use App\Services\Tenant\Core\RegraAcademica\RegraAplicavel\RegraAplicavel;
 use Illuminate\Support\Collection;
 

@@ -2,10 +2,10 @@
 
 namespace App\Services\Tenant\Dashboards;
 
-use App\Models\tenant\Aluno;
+use App\Models\Tenant\Aluno;
 use App\Models\tenant\Aviso;
-use App\Models\tenant\GrupoPap;
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\TurmaAluno;
 use App\Traits\DashboardHelpers;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;

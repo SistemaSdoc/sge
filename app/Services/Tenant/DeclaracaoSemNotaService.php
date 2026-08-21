@@ -2,13 +2,13 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\tenant\Aluno;
-use App\Models\tenant\CursoClasse;
-use App\Models\tenant\CursoClasseTurno;
-use App\Models\tenant\CursoTutelado;
-use App\Models\tenant\Instituicao;
-use App\Models\tenant\Turma;
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaAluno;
 use Carbon\Carbon;
 use ZipArchive;
 

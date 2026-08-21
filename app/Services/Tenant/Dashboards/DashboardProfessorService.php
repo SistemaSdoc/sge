@@ -2,9 +2,9 @@
 
 namespace App\Services\Tenant\Dashboards;
 
-use App\Models\tenant\Aviso;
-use App\Models\tenant\Professor;
-use App\Models\tenant\User;
+use App\Models\Tenant\Aviso;
+use App\Models\Tenant\Professor;
+use App\Models\Tenant\User;
 use App\Traits\DashboardHelpers;
 use Illuminate\Support\Facades\Auth;
 

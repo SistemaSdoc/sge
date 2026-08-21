@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant\Core\RegraAcademica\Contexto;
 
-use App\Models\tenant\CursoClasse;
+use App\Models\Tenant\CursoClasse;
 use Illuminate\Support\Collection;
 
 /**

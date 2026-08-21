@@ -2,9 +2,9 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\tenant\Aluno;
-use App\Models\tenant\ItemPagavel;
-use App\Models\tenant\PagamentoItem;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\ItemPagavel;
+use App\Models\Tenant\PagamentoItem;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;

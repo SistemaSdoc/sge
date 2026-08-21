@@ -2,11 +2,11 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\tenant\CursoTutelado;
-use App\Models\tenant\GrupoPap;
-use App\Models\tenant\HistoricoAprovacaoPap;
-use App\Models\tenant\Professor;
-use App\Models\tenant\User;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\HistoricoAprovacaoPap;
+use App\Models\Tenant\Professor;
+use App\Models\Tenant\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 

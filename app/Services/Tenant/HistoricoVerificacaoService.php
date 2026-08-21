@@ -2,8 +2,8 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\tenant\Aluno;
-use App\Models\tenant\CursoClasse;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\CursoClasse;
 
 class HistoricoVerificacaoService
 {

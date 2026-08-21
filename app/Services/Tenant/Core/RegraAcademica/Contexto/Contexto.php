@@ -2,8 +2,8 @@
 
 namespace App\Services\Tenant\Core\RegraAcademica\Contexto;
 
-use App\Models\tenant\CandidatoTurmaAluno;
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\CandidatoTurmaAluno;
+use App\Models\Tenant\TurmaAluno;
 
 /**
  * Carrega o contexto académico necessário para avaliar o aluno.
