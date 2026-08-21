@@ -126,7 +126,7 @@ class DashboardProfessorService
     public function obterAvisos(Professor $professor, ?int $limite = 10)
     {
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
         $instituicaoId = $user?->instituicaoFiltro();
 
         // Avisos ativos para professores

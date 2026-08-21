@@ -3,7 +3,7 @@
 namespace App\Services\Tenant\Dashboards;
 
 use App\Models\Tenant\Aluno;
-use App\Models\tenant\Aviso;
+use App\Models\Tenant\Aviso;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\TurmaAluno;
 use App\Traits\DashboardHelpers;
@@ -148,7 +148,7 @@ class DashboardAlunoService
      */
     public function obterAvisos(Aluno $aluno, ?int $limite = 10)
     {
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
         #$instituicaoId = $user?->instituicaoFiltro();
         $instituicaoId = $user?->instituicao_id;
         $today = Carbon::today();

@@ -2,8 +2,8 @@
 
 namespace App\Services\Tenant\Pauta\Concerns;
 
-use App\Models\tenant\Turma;
-use App\Models\tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaDisciplinaProfessor;
 use Illuminate\Support\Collection;
 
 trait CarregaDisciplinas

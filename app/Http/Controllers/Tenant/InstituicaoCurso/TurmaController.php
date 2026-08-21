@@ -13,9 +13,11 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TurmaController extends Controller // implements HasMiddleware
@@ -33,7 +35,9 @@ class TurmaController extends Controller // implements HasMiddleware
 
     public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
-        $user = auth()->user();
+         /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        
         $query = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
             fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)

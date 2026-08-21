@@ -7,6 +7,7 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
+use App\Models\Tenant\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -18,7 +19,11 @@ class CursoTuteladoProfessorController extends Controller
      */
     public function index(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
-        $instituicaoId = Auth::user()?->instituicaoFiltro();
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
+        $instituicaoId = $user?->instituicaoFiltro();
+        
         $professores = $cursoTutelado->professores()
             ->with(['user'])
             ->paginate(5);
@@ -88,7 +93,7 @@ class CursoTuteladoProfessorController extends Controller
             ]
         );
 
-        return to_route('cursos-tutelados.show', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ]);

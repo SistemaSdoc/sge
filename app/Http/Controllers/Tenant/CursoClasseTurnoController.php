@@ -67,7 +67,7 @@ class CursoClasseTurnoController extends Controller
             }
         }
 
-        return to_route('cursos-tutelados.classes.show', [
+        return to_route('tenant.dashboard.cursos-tutelados.classes.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

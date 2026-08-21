@@ -165,7 +165,6 @@ class NotaDisciplinaController extends Controller
         Request $request
     ) {
         $user = Auth::guard('tenant')->user();
-
         $anoLectivoId = $request->input('ano_lectivo_id') ?? $turma->ano_lectivo_id;
 
         $tdp = $this->resolveTurmaDisciplinaProfessor($turma, $classeTurnoDisciplina, $anoLectivoId);

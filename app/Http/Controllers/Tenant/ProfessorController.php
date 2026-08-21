@@ -59,7 +59,7 @@ class ProfessorController extends Controller
             'bi' => $request->bi,
             'telefone' => $request->telefone,
             'password' => Hash::make('123456'),
-            'instituicao_id' => Auth::user()->instituicao_id,
+            'instituicao_id' => Auth::guard('tenant')->user()->instituicao_id,
         ]);
 
         $role = Role::where('name', 'Professor')->firstOrFail();

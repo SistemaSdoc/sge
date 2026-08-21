@@ -96,7 +96,7 @@ class ConfirmacaoMatriculaService
                     'turma' => $turmaActual?->nome,
                     'status' => $status,
                     'can' => [
-                        'confirmar_matricula' => Auth::user()?->can('confirmar', $turmaAluno),
+                        'confirmar_matricula' => Auth::guard('tenant')->user()?->can('confirmar', $turmaAluno),
                     ],
                 ];
             });
@@ -180,7 +180,7 @@ class ConfirmacaoMatriculaService
                 'turma_nova_id' => $turmaNova->id,
                 'status' => 'confirmada',
                 'data_confirmacao' => now(),
-                'confirmado_por' => Auth::id(),
+                'confirmado_por' => Auth::guard('tenant')->id(),
             ]);
             Log::info('✓ ConfirmacaoMatricula criada (ID: '.$confirmacao->id.')');
 

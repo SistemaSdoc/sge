@@ -11,6 +11,7 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Services\Tenant\NotaService;
@@ -37,6 +38,9 @@ class NotaDisciplinaController extends Controller
         Turma $turma,
         ClasseTurnoDisciplina $classeTurnoDisciplina
     ) {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
 
         /*
         |--------------------------------------------------------------------------
@@ -61,7 +65,7 @@ class NotaDisciplinaController extends Controller
             ->firstOrFail();
         $periodosLancados = $this->notaService->periodosLancados($tdp->id);
         $periodosDisponiveis = $this->notaService->periodosDisponiveis($tdp->id);
-        $todosDisponiveis = Auth::user()->hasAnyRole(['Director', 'Subdirector'])
+        $todosDisponiveis = $user->hasAnyRole(['Director', 'Subdirector'])
             || (
                 $periodosLancados[1]
                 && $periodosLancados[2]
@@ -202,17 +206,17 @@ class NotaDisciplinaController extends Controller
                 */
 
                 'can' => [
-                    'create' => Auth::user()->can(
+                    'create' => $user->can(
                         'create',
                         [Nota::class, $tdp]
                     ),
 
-                    'export' => Auth::user()->can(
+                    'export' => $user->can(
                         'export',
                         [Nota::class, $tdp]
                     ),
 
-                    'overrideLockedPeriods' => Auth::user()->hasAnyRole(
+                    'overrideLockedPeriods' => $user->hasAnyRole(
                         ['Director', 'Subdirector']
                     ),
                 ],

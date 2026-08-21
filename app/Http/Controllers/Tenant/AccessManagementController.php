@@ -20,8 +20,11 @@ class AccessManagementController extends Controller
     {
         Gate::authorize('acessos.viewAny');
 
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         $users = User::with('roles', 'permissions')
-            ->where('instituicao_id', Auth::user()->instituicaoFiltro())
+            ->where('instituicao_id', $user->instituicao_id)
             ->paginate(10)
             ->through(fn (User $u) => [
                 'id' => $u->id,

@@ -56,7 +56,7 @@ class PropinaController extends Controller
         $this->authorize('create', Propina::class);
 
         return Inertia::render('tenant/Propina/Create', [
-            'itensPagaveis' => ItemPagavel::where('instituicao_id', auth()->user()->instituicao_id)->get(['id', 'nome', 'tipo', 'valor_padrao']),
+            'itensPagaveis' => ItemPagavel::where('instituicao_id', Auth::guard('tenant')->user()->instituicao_id)->get(['id', 'nome', 'tipo', 'valor_padrao']),
         ]);
     }
 

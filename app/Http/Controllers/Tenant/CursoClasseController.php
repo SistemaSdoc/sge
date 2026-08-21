@@ -10,6 +10,7 @@ use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +30,9 @@ class CursoClasseController extends Controller
         CursoClasse $cursoClasse
     ) {
         $this->authorize('view', $cursoClasse);
+
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
 
         Redirect::setIntendedUrl(request()->fullUrl());
 
@@ -50,14 +54,14 @@ class CursoClasseController extends Controller
             ->withCount('alunosActivos')
             ->orderBy('nome')
             ->paginate(7, ['*'], 'page_turmas')
-            ->through(function (Turma $turma) {
+            ->through(function (Turma $turma) use ($user) {
                 return [
                     'id' => $turma->id,
                     'nome' => $turma->nome,
                     'alunos_activos_count' => $turma->alunosActivos()->count(),
                     'can' => [
-                        'view' => Auth::user()->can('view', $turma),
-                        'edit' => Auth::user()->can('update', $turma),
+                        'view' => $user->can('view', $turma),
+                        'edit' => $user->can('update', $turma),
                     ],
                 ];
             })
@@ -79,19 +83,19 @@ class CursoClasseController extends Controller
         // Formatar permissions
         $permissions = [
             'curso' => [
-                'view' => Auth::user()->can('view', $cursoTutelado),
+                'view' => $user->can('view', $cursoTutelado),
             ],
             'classe' => [
-                'view' => Auth::user()->can('view', $cursoClasse),
+                'view' => $user->can('view', $cursoClasse),
             ],
             'turno' => [
-                'create' => Auth::user()->can('create', CursoClasseTurno::class),
+                'create' => $user->can('create', CursoClasseTurno::class),
             ],
             'disciplina' => [
-                'create' => Auth::user()->can('create', ClasseTurnoDisciplina::class),
+                'create' => $user->can('create', ClasseTurnoDisciplina::class),
             ],
             'turma' => [
-                'create' => Auth::user()->can('create', Turma::class),
+                'create' => $user->can('create', Turma::class),
             ],
         ];
 

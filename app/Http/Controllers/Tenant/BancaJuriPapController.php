@@ -11,7 +11,7 @@ use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
-use App\Models\tenant\Instituicao;
+use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use Inertia\Inertia;
@@ -82,7 +82,7 @@ class BancaJuriPapController extends Controller
             'funcao' => $request->funcao,
         ]);
 
-        return to_route('pap.show', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
@@ -157,7 +157,7 @@ class BancaJuriPapController extends Controller
 
         $bancaJuriPap->update($request->only(['professor_id', 'funcao']));
 
-        return to_route('pap.show', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.index', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
@@ -185,7 +185,7 @@ class BancaJuriPapController extends Controller
         $this->authorize('delete', $bancaJuriPap);
         $bancaJuriPap->delete();
 
-        return to_route('pap.show', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

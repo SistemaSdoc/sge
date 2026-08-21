@@ -30,7 +30,7 @@ class AlunoController extends Controller
             : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
 
         $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
             ->doAnoLectivo($anoLectivoId)
@@ -122,7 +122,7 @@ class AlunoController extends Controller
         Gate::authorize('view', $aluno);
 
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
 
         // Calcular pendentes ANTES do load() que polui as relações em memória
         $historicoService = app(PreencherHistoricoService::class);
@@ -308,7 +308,7 @@ class AlunoController extends Controller
             }
         }
 
-        return to_route('alunos.index')->with('toast', [
+        return to_route('tenant.dashboard.alunos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Aluno atualizado com sucesso!',
         ]);
@@ -320,7 +320,7 @@ class AlunoController extends Controller
 
         $aluno->delete();
 
-        return to_route('alunos.index')->with('toast', [
+        return to_route('tenant.dashboard.alunos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Aluno removido com sucesso!',
         ]);

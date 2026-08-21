@@ -77,7 +77,7 @@ class GrupoPapAprovacaoController extends Controller
 
             HistoricoAprovacaoPap::create([
                 'grupo_pap_id' => $grupoPap->id,
-                'utilizador_id' => Auth::id(),
+                'utilizador_id' => Auth::guard('tenant')->id(),
                 'estado_anterior' => GrupoPap::APROVACAO_SUBMETIDO,
                 'estado_novo' => GrupoPap::APROVACAO_PENDENTE,
                 'tema' => $grupoPap->tema_grupo,
@@ -112,7 +112,7 @@ class GrupoPapAprovacaoController extends Controller
 
             HistoricoAprovacaoPap::create([
                 'grupo_pap_id' => $grupoPap->id,
-                'utilizador_id' => Auth::id(),
+                'utilizador_id' => Auth::guard('tenant')->id(),
                 'estado_anterior' => GrupoPap::APROVACAO_SUBMETIDO,
                 'estado_novo' => GrupoPap::APROVACAO_MELHORIA,
                 'tema' => $grupoPap->tema_grupo,

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Classe\StoreClasseRequest;
 use App\Http\Requests\Classe\UpdateClasseRequest;
 use App\Models\Tenant\Classe;
+use App\Models\Tenant\User;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -23,18 +24,21 @@ class ClasseController extends Controller
      */
     public function index()
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         $classes = Classe::select(['id', 'nome', 'nivel_ensino', 'created_at'])
             ->orderBy('nome', 'asc')
             ->paginate(10)
-            ->through(function ($classe) {
+            ->through(function ($classe) use ($user) {
                 return [
                     'id' => $classe->id,
                     'nome' => $classe->nome,
                     'nivel_ensino' => $classe->nivel_ensino,
                     'can' => [
-                        'view_classe' => Auth::user()->can('view', $classe),
-                        'edit_classe' => Auth::user()->can('update', $classe),
-                        'delete_classe' => Auth::user()->can('delete', $classe),
+                        'view_classe' => $user->can('view', $classe),
+                        'edit_classe' => $user->can('update', $classe),
+                        'delete_classe' => $user->can('delete', $classe),
                     ],
                 ];
             });
@@ -42,7 +46,7 @@ class ClasseController extends Controller
         return Inertia::render('tenant/classes/index', [
             'classes' => $classes,
             'can' => [
-                'create_classe' => Auth::user()->can('create', Classe::class),
+                'create_classe' => $user->can('create', Classe::class),
             ],
         ]);
     }
@@ -52,9 +56,12 @@ class ClasseController extends Controller
      */
     public function create()
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         return Inertia::render('tenant/classes/create', [
             'can' => [
-                'create_classe' => Auth::user()->can('create', Classe::class),
+                'create_classe' => $user->can('create', Classe::class),
             ],
         ]);
     }
@@ -66,7 +73,7 @@ class ClasseController extends Controller
     {
         Classe::create($request->validated());
 
-        return to_route('classes.index')->with('toast', [
+        return to_route('tenant.dashboard.classes.index')->with('toast', [
             'type' => 'success',
             'message' => 'Classe criada com sucesso.',
         ]);
@@ -77,12 +84,15 @@ class ClasseController extends Controller
      */
     public function show(Classe $classe)
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         return Inertia::render('tenant/classes/show', [
             'classe' => $classe,
             'can' => [
-                'view_classe' => Auth::user()->can('view', $classe),
-                'edit_classe' => Auth::user()->can('update', $classe),
-                'delete_classe' => Auth::user()->can('delete', $classe),
+                'view_classe' => $user->can('view', $classe),
+                'edit_classe' => $user->can('update', $classe),
+                'delete_classe' => $user->can('delete', $classe),
             ],
         ]);
     }
@@ -92,10 +102,13 @@ class ClasseController extends Controller
      */
     public function edit(Classe $classe)
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         return Inertia::render('tenant/classes/edit', [
             'classe' => $classe,
             'can' => [
-                'edit_classe' => Auth::user()->can('update', $classe),
+                'edit_classe' => $user->can('update', $classe),
             ],
         ]);
     }
@@ -107,7 +120,7 @@ class ClasseController extends Controller
     {
         $classe->update($request->validated());
 
-        return to_route('classes.index')->with('toast', [
+        return to_route('tenant.dashboard.classes.index')->with('toast', [
             'type' => 'success',
             'message' => 'Classe actualizada com sucesso.',
         ]);
@@ -120,7 +133,7 @@ class ClasseController extends Controller
     {
         $classe->delete();
 
-        return to_route('classes.index')->with('toast', [
+        return to_route('tenant.dashboard.classes.index')->with('toast', [
             'type' => 'success',
             'message' => 'Classe removida com sucesso.',
         ]);

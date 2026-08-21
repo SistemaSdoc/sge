@@ -161,7 +161,7 @@ class InscricaoController extends Controller
     {
         $this->authorize('create', Inscricao::class);
 
-        $instituicao = Instituicao::findOrFail(Auth::user()->instituicao_id);
+        $instituicao = Instituicao::findOrFail(Auth::guard('tenant')->user()->instituicao_id);
 
         $this->inscricaoService->criar($request->validated(), $instituicao);
 

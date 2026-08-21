@@ -2,8 +2,8 @@
 
 namespace App\Services\Tenant\Pauta\Generators;
 
-use App\Models\tenant\Turma;
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaAluno;
 use App\Services\Tenant\Core\RegraAcademicaService as CoreRegraAcademicaService;
 use App\Services\Tenant\Pauta\Concerns\CarregaDisciplinas;
 use App\Services\Tenant\Pauta\Concerns\ResolveSituacaoNota;

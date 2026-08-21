@@ -75,7 +75,7 @@ class ElementoGrupoPapController extends Controller
             collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
         );
 
-        return to_route('pap.show', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

@@ -8,6 +8,7 @@ use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -22,6 +23,9 @@ class CursoClasseController extends Controller
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse
     ) {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         // Garantir que o CursoClasse pertence ao Curso Tutelado
         abort_unless(
             $cursoClasse->curso_tutelado_id === $cursoTutelado->id,
@@ -103,8 +107,8 @@ class CursoClasseController extends Controller
                         'nome' => $turma->nome,
                         'alunos_activos_count' => $turma->alunos_activos_count,
                         'can' => [
-                            'view' => Auth::user()->can('view', $turma),
-                            'edit' => Auth::user()->can('update', $turma),
+                            'view' => $user->can('view', $turma),
+                            'edit' => $user->can('update', $turma),
                         ],
                     ]
                 ),

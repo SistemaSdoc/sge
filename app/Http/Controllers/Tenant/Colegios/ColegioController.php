@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Tenant\Colegios;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant\User;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -70,6 +72,9 @@ class ColegioController extends Controller
      */
     public function show(string $instituicao, string $colegio)
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         $instituicao = Instituicao::findOrFail($instituicao);
         $colegio = Instituicao::findOrFail($colegio);
 
@@ -103,7 +108,7 @@ class ColegioController extends Controller
                 'nome' => $colegio->nome,
             ],
             'can' => [
-                'gerir_prazos' => auth()->user()->can('pautas.gerirPrazos'),
+                'gerir_prazos' => $user->can('pautas.gerirPrazos'),
             ],
             'cursos' => $cursos,
         ]);

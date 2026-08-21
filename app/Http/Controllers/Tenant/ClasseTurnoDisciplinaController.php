@@ -91,7 +91,7 @@ class ClasseTurnoDisciplinaController extends Controller
             ]);
         }
 
-        return redirect()->intended(route('cursos-tutelados.classes.show', [
+        return redirect()->intended(route('tenant.dashboard.cursos-tutelados.classes.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
@@ -178,7 +178,7 @@ class ClasseTurnoDisciplinaController extends Controller
             ? ['ano_lectivo_id' => $classeTurnoDisciplina->ano_lectivo_id]
             : [];
 
-        return to_route('cursos-tutelados.classes.show', [
+        return to_route('tenant.dashboard.cursos-tutelados.classes.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

@@ -2,10 +2,10 @@
 
 namespace App\Services\Tenant\Pauta\Generators;
 
-use App\Models\tenant\Nota;
-use App\Models\tenant\Turma;
-use App\Models\tenant\TurmaAluno;
-use App\Models\tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\Nota;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaAluno;
+use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Services\Tenant\Pauta\Concerns\CarregaDisciplinas;
 use App\Services\Tenant\Pauta\Concerns\ResolveSituacaoNota;
 use Illuminate\Support\Collection;

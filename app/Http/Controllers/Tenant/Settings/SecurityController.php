@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Tenant\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\PasswordUpdateRequest;
 use App\Http\Requests\Settings\TwoFactorAuthenticationRequest;
+use App\Models\Tenant\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,7 +20,8 @@ class SecurityController extends Controller
      */
     public function edit(TwoFactorAuthenticationRequest $request): Response
     {
-        $user = $request->user();
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
 
         $props = [
             'hasPassword' => ! is_null($user->password),
@@ -58,7 +61,9 @@ class SecurityController extends Controller
      */
     public function update(PasswordUpdateRequest $request): RedirectResponse
     {
-        $request->user()->update([
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        $user->update([
             'password' => $request->password,
         ]);
 

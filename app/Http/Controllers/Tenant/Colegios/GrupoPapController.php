@@ -27,7 +27,7 @@ class GrupoPapController extends Controller
     {
         $this->authorize('viewAny', GrupoPap::class);
 
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
         $instituicaoId = $user ? $user->instituicaoFiltro() : null;
 
         // Filtro ano lectivo
@@ -118,7 +118,7 @@ class GrupoPapController extends Controller
     ) {
         $this->authorize('view', $grupoPap);
 
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
 
         // Buscar o colégio tutelado
         $colegioModel = Instituicao::findOrFail($colegio);

@@ -14,6 +14,7 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\NivelEnsino;
+use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +30,9 @@ class CursoTuteladoController extends Controller
 
     public function index(Instituicao $instituicao)
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         $cursos = $instituicao->instituicaoCursos()
             ->with(['curso:id,nome', 'cursoTutelado.instituicaoTutora:id,nome'])
             ->paginate(10)
@@ -37,9 +41,9 @@ class CursoTuteladoController extends Controller
                 'nome' => $instituicaoCurso->curso->nome,
                 'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,
                 'can' => [
-                    'view' => Auth::user()->can('view', $instituicaoCurso->cursoTutelado),
-                    'update' => Auth::user()->can('update', $instituicaoCurso->cursoTutelado),
-                    'delete' => Auth::user()->can('delete', $instituicaoCurso->cursoTutelado),
+                    'view' => $user->can('view', $instituicaoCurso->cursoTutelado),
+                    'update' => $user->can('update', $instituicaoCurso->cursoTutelado),
+                    'delete' => $user->can('delete', $instituicaoCurso->cursoTutelado),
                 ],
             ]);
 
@@ -47,7 +51,7 @@ class CursoTuteladoController extends Controller
             'cursos' => $cursos,
             'instituicao' => $instituicao->only('id'),
             'can' => [
-                'create_curso' => Auth::user()->can('create', CursoTutelado::class),
+                'create_curso' => $user->can('create', CursoTutelado::class),
             ],
         ]);
     }
@@ -140,7 +144,7 @@ class CursoTuteladoController extends Controller
             );
         });
 
-        return to_route('cursos-tutelados.index', $instituicao)->with('toast', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.index', $instituicao)->with('toast', [
             'type' => 'success',
             'message' => 'Curso criado com sucesso!',
         ]);
@@ -149,6 +153,9 @@ class CursoTuteladoController extends Controller
     public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
         Gate::authorize('view', $cursoTutelado);
+
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
 
         $anoLectivoId = filled(request('ano_lectivo_id'))
             ? request('ano_lectivo_id')
@@ -185,7 +192,7 @@ class CursoTuteladoController extends Controller
                 ->get(),
             'can' => [
                 'instituicao' => [
-                    'view' => Auth::user()->can('view', $instituicao),
+                    'view' => $user->can('view', $instituicao),
                 ],
             ],
         ]);
@@ -262,7 +269,7 @@ class CursoTuteladoController extends Controller
             $cursoTutelado->classes()->sync($validated['classes']);
         });
 
-        return to_route('cursos-tutelados.index', $instituicao)->with('toast', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.index', $instituicao)->with('toast', [
             'type' => 'success',
             'message' => 'Curso tutelado atualizado com sucesso!',
         ]);
@@ -312,7 +319,7 @@ class CursoTuteladoController extends Controller
 
         $cursoTutelado->save();
 
-        return redirect()->route('cursos-tutelados.show', [
+        return redirect()->route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ])->with('toast', [

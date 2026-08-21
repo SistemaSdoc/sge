@@ -7,6 +7,7 @@ use App\Http\Requests\Curso\CursoStoreRequest;
 use App\Http\Requests\Curso\CursoUpdateRequest;
 use App\Models\Tenant\Curso;
 use App\Models\Tenant\InstituicaoCurso;
+use App\Models\Tenant\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -22,17 +23,20 @@ class CursosController extends Controller
 
     public function index()
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         $cursos = Curso::select(['id', 'nome', 'created_at'])
             ->orderBy('nome', 'asc')
             ->paginate(10)
-            ->through(function ($curso) {
+            ->through(function ($curso) use ($user) {
                 return [
                     'id' => $curso->id,
                     'nome' => $curso->nome,
                     'can' => [
-                        'view_curso' => Auth::user()->can('view', $curso),
-                        'edit_curso' => Auth::user()->can('update', $curso),
-                        'delete_curso' => Auth::user()->can('delete', $curso),
+                        'view_curso' => $user->can('view', $curso),
+                        'edit_curso' => $user->can('update', $curso),
+                        'delete_curso' => $user->can('delete', $curso),
                     ],
                 ];
             });
@@ -40,16 +44,19 @@ class CursosController extends Controller
         return Inertia::render('tenant/cursos/index', [
             'cursos' => $cursos,
             'can' => [
-                'create_curso' => Auth::user()->can('create', Curso::class),
+                'create_curso' => $user->can('create', Curso::class),
             ],
         ]);
     }
 
     public function create()
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         return Inertia::render('tenant/cursos/create', [
             'can' => [
-                'create_curso' => Auth::user()->can('create', Curso::class),
+                'create_curso' => $user->can('create', Curso::class),
             ],
         ]);
     }
@@ -65,7 +72,7 @@ class CursosController extends Controller
             'status' => 1,
         ]);
 
-        return to_route('cursos.index')->with('toast', [
+        return to_route('tenant.dashboard.cursos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Curso criado com sucesso!',
         ]);
@@ -73,22 +80,28 @@ class CursosController extends Controller
 
     public function show(Curso $curso)
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         return Inertia::render('tenant/cursos/show', [
             'curso' => $curso,
             'can' => [
-                'update_curso' => Auth::user()->can('update', $curso),
-                'delete_curso' => Auth::user()->can('delete', $curso),
-                'view_curso' => Auth::user()->can('view', $curso),
+                'update_curso' => $user->can('update', $curso),
+                'delete_curso' => $user->can('delete', $curso),
+                'view_curso' => $user->can('view', $curso),
             ],
         ]);
     }
 
     public function edit(Curso $curso)
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         return Inertia::render('tenant/cursos/edit', [
             'curso' => $curso,
             'can' => [
-                'update_curso' => Auth::user()->can('update', $curso),
+                'update_curso' => $user->can('update', $curso),
             ],
         ]);
     }
@@ -105,7 +118,7 @@ class CursosController extends Controller
 
         $curso->update($request->all());
 
-        return to_route('cursos.index')->with('toast', [
+        return to_route('tenant.dashboard.cursos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Curso atualizado com sucesso!',
         ]);
@@ -115,7 +128,7 @@ class CursosController extends Controller
     {
         $curso->delete();
 
-        return to_route('cursos.index')->with('toast', [
+        return to_route('tenant.dashboard.cursos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Curso excluído com sucesso!',
         ]);

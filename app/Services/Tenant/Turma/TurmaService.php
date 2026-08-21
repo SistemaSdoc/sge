@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant\Turma;
 
-use App\Models\tenant\Turma;
+use App\Models\Tenant\Turma;
 use Illuminate\Validation\ValidationException;
 
 class TurmaService

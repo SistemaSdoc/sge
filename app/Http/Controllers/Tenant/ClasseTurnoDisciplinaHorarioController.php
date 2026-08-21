@@ -46,7 +46,7 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
         ClasseTurnoDisciplinaHorario::insert($horarios);
 
         // Preservar filtro de ano_lectivo
-        $url = url()->previous() ?? route('dashboard');
+        $url = url()->previous() ?? route('tenant.dashboard');
 
         if ($anoLectivoId = request('ano_lectivo_id')) {
             $separator = str_contains($url, '?') ? '&' : '?';

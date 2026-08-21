@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\User;
 use App\Services\Tenant\Dashboards\DashboardAlunoService;
 use App\Services\Tenant\Dashboards\DashboardDirectorService;
 use App\Services\Tenant\Dashboards\DashboardProfessorService;
@@ -28,7 +29,7 @@ class DashboardController extends Controller
      */
     public function index(): Response|RedirectResponse
     {
-
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
         $anoLectivoId = AnoLectivo::activo()?->id;

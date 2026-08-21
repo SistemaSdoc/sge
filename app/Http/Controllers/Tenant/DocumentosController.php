@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\ItemPagavel;
+use App\Models\Tenant\User;
 use App\Services\Tenant\CertificadoService;
 use App\Services\Tenant\DeclaracaoComNotaService;
 use App\Services\Tenant\DeclaracaoSemNotaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Symfony\Component\Process\Process;
 
@@ -18,13 +20,15 @@ class DocumentosController extends Controller
         private DeclaracaoSemNotaService $declaracaoService,
         private DeclaracaoComNotaService $declaracaoComNotaService,
         private CertificadoService $certificadoService,
-    ) {
-    }
+    ) {}
 
     // ── Listagem ──────────────────────────────────────────────────────────
     public function index()
     {
-        $documentos = ItemPagavel::where('instituicao_id', auth()->user()->instituicao_id)
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
+        $documentos = ItemPagavel::where('instituicao_id', $user->instituicao_id)
             ->where('tipo', 'documento')
             ->where('ativo', 1)
             ->get(['id', 'nome', 'curso_classe_id', 'valor']);
@@ -37,6 +41,9 @@ class DocumentosController extends Controller
     // ── Pesquisar Aluno ───────────────────────────────────────────────────
     public function pesquisarAluno(Request $request)
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         $q = trim($request->query('q', ''));
 
         if (strlen($q) < 3) {
@@ -44,13 +51,13 @@ class DocumentosController extends Controller
         }
 
         $alunos = Aluno::query()
-            ->where('instituicao_id', auth()->user()->instituicao_id)
+            ->where('instituicao_id', $user->instituicao_id)
             ->where(function ($query) use ($q) {
                 $query->where('matricula', 'like', "%{$q}%")
                     ->orWhere('numero_processo', 'like', "%{$q}%")
                     ->orWhereHas(
                         'inscricao.candidato',
-                        fn($q2) => $q2->where('nome', 'like', "%{$q}%")
+                        fn ($q2) => $q2->where('nome', 'like', "%{$q}%")
                     );
             })
             ->with([
@@ -68,7 +75,7 @@ class DocumentosController extends Controller
         $resultado = $alunos->map(function ($aluno) {
             $nomeAluno = $aluno->inscricao?->candidato?->nome;
 
-            if (!$nomeAluno) {
+            if (! $nomeAluno) {
                 return null;
             }
 
@@ -124,6 +131,9 @@ class DocumentosController extends Controller
     // ─── Exportar PDF ─────────────────────────────────────────────────────────
     public function exportar(Request $request)
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         $request->validate([
             'item_pagavel_id' => 'required|uuid|exists:itens_pagaveis,id',
             'aluno_id' => 'required|uuid|exists:alunos,id',
@@ -134,7 +144,7 @@ class DocumentosController extends Controller
         // Verificar que o documento pertence à instituição do utilizador
         $item = ItemPagavel::where('id', $request->item_pagavel_id)
             ->where('tipo', 'documento')
-            ->where('instituicao_id', auth()->user()->instituicao_id)
+            ->where('instituicao_id', $user->instituicao_id)
             ->firstOrFail();
 
         // Resolver aluno com tudo o que os services precisam
@@ -151,11 +161,9 @@ class DocumentosController extends Controller
         $turma = $aluno->turmaActual()
             ->when(
                 $request->classe_id,
-                fn($q) =>
-                $q->whereHas(
+                fn ($q) => $q->whereHas(
                     'cursoClasseTurno.cursoClasse',
-                    fn($q2) =>
-                    $q2->where('id', $request->classe_id)
+                    fn ($q2) => $q2->where('id', $request->classe_id)
                 )
             )
             ->with([
@@ -166,15 +174,13 @@ class DocumentosController extends Controller
             ])
             ->first();
 
-        if (!$turma) {
+        if (! $turma) {
             $turma = $aluno->turmas()
                 ->when(
                     $request->classe_id,
-                    fn($q) =>
-                    $q->whereHas(
+                    fn ($q) => $q->whereHas(
                         'cursoClasseTurno.cursoClasse',
-                        fn($q2) =>
-                        $q2->where('id', $request->classe_id)
+                        fn ($q2) => $q2->where('id', $request->classe_id)
                     )
                 )
                 ->with([
@@ -186,7 +192,7 @@ class DocumentosController extends Controller
                 ->first();
         }
 
-        if (!$turma) {
+        if (! $turma) {
             abort(422, 'Aluno sem turma associada para emitir este documento.');
         }
 
@@ -197,7 +203,7 @@ class DocumentosController extends Controller
         if (str_contains($nome, 'certificado')) {
             $classeNome = $turma->cursoClasseTurno->cursoClasse->classe->nome ?? '';
 
-            if (!str_contains($classeNome, '13ª')) {
+            if (! str_contains($classeNome, '13ª')) {
                 abort(response()->json(['message' => 'O certificado só pode ser emitido para alunos da 13ª classe.']));
             }
 
@@ -207,7 +213,7 @@ class DocumentosController extends Controller
                 ->header('Content-Type', 'application/pdf')
                 ->header(
                     'Content-Disposition',
-                    'attachment; filename="Certificado_' . str_replace(' ', '_', $candidato->nome) . '.pdf"'
+                    'attachment; filename="Certificado_'.str_replace(' ', '_', $candidato->nome).'.pdf"'
                 );
         }
 
@@ -243,8 +249,8 @@ class DocumentosController extends Controller
             $process->setTimeout(30);
             $process->run();
 
-            $pdf = $outDir . '/' . pathinfo($docx, PATHINFO_FILENAME) . '.pdf';
-            $nomeFicheiro = 'Declaracao_Sem_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf';
+            $pdf = $outDir.'/'.pathinfo($docx, PATHINFO_FILENAME).'.pdf';
+            $nomeFicheiro = 'Declaracao_Sem_Notas_'.str_replace(' ', '_', $candidato->nome).'.pdf';
 
             return response()
                 ->download($pdf, $nomeFicheiro, ['Content-Type' => 'application/pdf'])
@@ -278,8 +284,8 @@ class DocumentosController extends Controller
             $process->setTimeout(30);
             $process->run();
 
-            $pdf = $outDir . '/' . pathinfo($docx, PATHINFO_FILENAME) . '.pdf';
-            $nomeFicheiro = 'Declaracao_Com_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf';
+            $pdf = $outDir.'/'.pathinfo($docx, PATHINFO_FILENAME).'.pdf';
+            $nomeFicheiro = 'Declaracao_Com_Notas_'.str_replace(' ', '_', $candidato->nome).'.pdf';
 
             return response()
                 ->download($pdf, $nomeFicheiro, ['Content-Type' => 'application/pdf'])

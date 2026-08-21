@@ -46,7 +46,7 @@ class ClasseTurnoTurmaController extends Controller
             'turma' => $turma?->id,
         ]);
 
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
 
         $anoLectivoId = request('ano_lectivo_id')
             ?? AnoLectivo::where('activo', 1)->first()?->id;

@@ -122,7 +122,7 @@ class ConfirmacaoMatriculaController extends Controller
                 $turma,
             );
 
-            return to_route('confirmar-matriculas.index', [
+            return to_route('tenant.dashboard.confirmar-matriculas.index', [
                 'instituicao' => $instituicao->id,
                 'cursoTutelado' => $cursoTutelado->id,
                 'cursoClasse' => $cursoClasse->id,

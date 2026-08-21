@@ -31,16 +31,16 @@ class InstituicaoController extends Controller
                     'sigla' => $instituicao->sigla,
                     'tipo' => $instituicao->tipo,
                     'can' => [
-                        'view_instituicao' => Auth::user()->can('view', $instituicao),
-                        'edit_instituicao' => Auth::user()->can('update', $instituicao),
-                        'delete_instituicao' => Auth::user()->can('delete', $instituicao),
+                        'view_instituicao' => Auth::guard('tenant')->user()->can('view', $instituicao),
+                        'edit_instituicao' => Auth::guard('tenant')->user()->can('update', $instituicao),
+                        'delete_instituicao' => Auth::guard('tenant')->user()->can('delete', $instituicao),
                     ],
                 ];
             });
 
         return Inertia::render('tenant/instituicoes/index', [
             'can' => [
-                'create_instituicao' => Auth::user()->can('create', Instituicao::class),
+                'create_instituicao' => Auth::guard('tenant')->user()->can('create', Instituicao::class),
             ],
             'instituicoes' => $instituicoes,
         ]);
@@ -50,7 +50,7 @@ class InstituicaoController extends Controller
     {
         return Inertia::render('tenant/instituicoes/create', [
             'can' => [
-                'create_instituicao' => Auth::user()->can('create', Instituicao::class),
+                'create_instituicao' => Auth::guard('tenant')->user()->can('create', Instituicao::class),
             ],
         ]);
     }
@@ -114,7 +114,7 @@ class InstituicaoController extends Controller
     {
         return Inertia::render('tenant/instituicoes/edit', [
             'can' => [
-                'update_instituicao' => Auth::user()->can('update', $instituicao),
+                'update_instituicao' => Auth::guard('tenant')->user()->can('update', $instituicao),
             ],
             'instituicao' => $instituicao,
         ]);

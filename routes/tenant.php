@@ -242,7 +242,7 @@ Route::middleware([
 
             Route::resource('classes', ClasseControllerGeral::class)->parameters(['classes' => 'classe']);
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes', [CursoClasseController::class, 'show'])
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}', [CursoClasseController::class, 'show'])
                 ->name('cursos-tutelados.classes.show');
 
             Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes-turnos', [CursoClasseController::class, 'index'])

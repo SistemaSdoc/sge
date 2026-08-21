@@ -101,7 +101,7 @@ class PagamentoController extends Controller
             'pagamentos' => $pagamentos,
             'turmas' => $turmas,
             'can' => [
-                'create' => Auth::user()->can('create', Pagamento::class),
+                'create' => Auth::guard('tenant')->user()->can('create', Pagamento::class),
             ],
             'filtros' => $request->only(['aluno_id', 'data_inicio', 'data_fim']),
             'statusFiltro' => $statusFiltro,

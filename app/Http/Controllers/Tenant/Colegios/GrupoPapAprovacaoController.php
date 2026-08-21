@@ -27,7 +27,7 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function pendentes(Instituicao $instituicao)
     {
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
 
         // O utilizador precisa estar associado a um professor
         if (! $user->professor) {
@@ -90,7 +90,7 @@ class GrupoPapAprovacaoController extends Controller
 
         $resultado = $this->service->aprovar(
             $grupoPap,
-            Auth::user(),
+            Auth::guard('tenant')->user(),
             $validated['comentario'] ?? null
         );
 
@@ -131,7 +131,7 @@ class GrupoPapAprovacaoController extends Controller
 
             HistoricoAprovacaoPap::create([
                 'grupo_pap_id' => $grupoPap->id,
-                'utilizador_id' => Auth::id(),
+                'utilizador_id' => Auth::guard('tenant')->id(),
                 'estado_anterior' => GrupoPap::APROVACAO_SUBMETIDO,
                 'estado_novo' => GrupoPap::APROVACAO_PENDENTE,
                 'tema' => $grupoPap->tema_grupo,
@@ -171,7 +171,7 @@ class GrupoPapAprovacaoController extends Controller
 
             HistoricoAprovacaoPap::create([
                 'grupo_pap_id' => $grupoPap->id,
-                'utilizador_id' => Auth::id(),
+                'utilizador_id' => Auth::guard('tenant')->id(),
                 'estado_anterior' => GrupoPap::APROVACAO_SUBMETIDO,
                 'estado_novo' => GrupoPap::APROVACAO_MELHORIA,
                 'tema' => $grupoPap->tema_grupo,
@@ -219,7 +219,7 @@ class GrupoPapAprovacaoController extends Controller
         // Executar reprovação
         $resultado = $this->service->reprovar(
             $grupoPap,
-            Auth::user(),
+            Auth::guard('tenant')->user(),
             $validated['motivo']
         );
 
@@ -294,7 +294,7 @@ class GrupoPapAprovacaoController extends Controller
         // Executar solicitação de melhoria
         $resultado = $this->service->solicitarMelhoria(
             $grupoPap,
-            Auth::user(),
+            Auth::guard('tenant')->user(),
             $validated['recomendacao']
         );
 
@@ -329,7 +329,7 @@ class GrupoPapAprovacaoController extends Controller
 
         $resultado = $this->service->reenviar(
             $grupoPap,
-            Auth::user(),
+            Auth::guard('tenant')->user(),
             $dados
         );
 
@@ -349,7 +349,7 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function melhorias(Instituicao $instituicao)
     {
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
 
         $temas = GrupoPap::query()
             ->where('status_aprovacao', 'melhoria-solicitada')

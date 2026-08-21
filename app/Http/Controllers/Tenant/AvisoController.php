@@ -20,7 +20,7 @@ class AvisoController extends Controller
         $this->authorize('viewAny', Aviso::class);
 
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
 
         $instituicaoId = $user?->instituicaoFiltro();
 
@@ -62,7 +62,7 @@ class AvisoController extends Controller
         $this->authorize('create', Aviso::class);
 
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
 
         $aviso = Aviso::create([
             'titulo' => $request->titulo,
@@ -74,7 +74,7 @@ class AvisoController extends Controller
             'destinatario' => $request->destinatario,
         ]);
 
-        return to_route('avisos.index')->with('toast', [
+        return to_route('tenant.dashboard.avisos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Aviso criado com sucesso!',
         ]);
@@ -116,7 +116,7 @@ class AvisoController extends Controller
 
         $aviso->update($request->only('titulo', 'descricao', 'tipo', 'data', 'ativo', 'destinatario'));
 
-        return to_route('avisos.index')->with('toast', [
+        return to_route('tenant.dashboard.avisos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Aviso actualizado com sucesso!',
         ]);
@@ -130,7 +130,7 @@ class AvisoController extends Controller
 
         $aviso->delete();
 
-        return to_route('avisos.index')->with('toast', [
+        return to_route('tenant.dashboard.avisos.index')->with('toast', [
             'type' => 'success',
             'message' => 'Aviso removido com sucesso!',
         ]);
@@ -140,7 +140,7 @@ class AvisoController extends Controller
     public function indexAluno()
     {
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
         $instituicaoId = $user?->instituicaoFiltro();
         $today = Carbon::today();
 
@@ -198,7 +198,7 @@ class AvisoController extends Controller
     public function indexProfessor()
     {
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::guard('tenant')->user();
         $instituicaoId = $user?->instituicaoFiltro();
 
         // Avisos ativos para professores

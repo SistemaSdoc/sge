@@ -4,14 +4,19 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivoConsistencyService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class AnoLectivoController extends Controller
 {
     public function index(Request $request)
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         // $this->authorize('viewAny', AnoLectivo::class);
 
         $anosLectivos = AnoLectivo::query()
@@ -25,8 +30,8 @@ class AnoLectivoController extends Controller
                 'estado' => $ano->estado,       // accessor: planeado | a_decorrer | encerrado
                 'activo' => $ano->activo,       // accessor: planeado | a_decorrer | encerrado
                 'can' => [
-                    'update' => $request->user()->can('update', $ano) ?? true,
-                    'delete' => $request->user()->can('delete', $ano) ?? true,
+                    'update' => $user->can('update', $ano) ?? true,
+                    'delete' => $user->can('delete', $ano) ?? true,
                 ],
             ]);
 
@@ -63,7 +68,7 @@ class AnoLectivoController extends Controller
 
         app(AnoLectivoConsistencyService::class)->sincronizar();
 
-        return redirect()->route('anos-lectivos.index')->with('success', 'Ano lectivo actualizado com sucesso.');
+        return redirect()->route('tenant.dashboard.anos-lectivos.index')->with('success', 'Ano lectivo actualizado com sucesso.');
     }
 
     public function destroy(AnoLectivo $anoLectivo)
@@ -76,6 +81,6 @@ class AnoLectivoController extends Controller
 
         $anoLectivo->delete();
 
-        return redirect()->route('anos-lectivos.index')->with('success', 'Ano lectivo removido com sucesso.');
+        return redirect()->route('tenant.dashboard.anos-lectivos.index')->with('success', 'Ano lectivo removido com sucesso.');
     }
 }

@@ -89,7 +89,7 @@ class SolicitacaoEdicaoPautaController extends Controller
             'turma_disciplina_professor_id' => $validated['tdp_id'],
             'periodo' => $validated['periodo'],
             'tipo' => $validated['tipo'],
-            'professor_user_id' => Auth::id(),
+            'professor_user_id' => Auth::guard('tenant')->id(),
             'motivo' => $validated['motivo'],
             'status' => 'pendente',
         ]);
@@ -110,7 +110,7 @@ class SolicitacaoEdicaoPautaController extends Controller
 
         $solicitacao->update([
             'status' => $validated['decisao'],
-            'decidido_por' => Auth::id(),
+            'decidido_por' => Auth::guard('tenant')->id(),
             'decidido_em' => now(),
             'observacao' => $validated['observacao'] ?? null,
             'prazo_edicao_ate' => $validated['prazo_edicao_ate'] ?? null,
@@ -164,7 +164,7 @@ class SolicitacaoEdicaoPautaController extends Controller
 
     //     $solicitacao->update([
     //         'status' => $validated['decisao'],
-    //         'decidido_por' => Auth::id(),
+    //         'decidido_por' => Auth::guard('tenant')->id(),
     //         'decidido_em' => now(),
     //         'observacao' => $validated['observacao'],
     //     ]);

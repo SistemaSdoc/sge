@@ -27,9 +27,9 @@ class TurnoController extends Controller
                     'id' => $turno->id,
                     'nome' => $turno->nome,
                     'can' => [
-                        'view_turno' => Auth::user()->can('view', $turno),
-                        'edit_turno' => Auth::user()->can('update', $turno),
-                        'delete_turno' => Auth::user()->can('delete', $turno),
+                        'view_turno' => Auth::guard('tenant')->user()->can('view', $turno),
+                        'edit_turno' => Auth::guard('tenant')->user()->can('update', $turno),
+                        'delete_turno' => Auth::guard('tenant')->user()->can('delete', $turno),
                     ],
                 ];
             });
@@ -37,7 +37,7 @@ class TurnoController extends Controller
         return Inertia::render('tenant/turnos/index', [
             'turnos' => $turnos,
             'can' => [
-                'create_turno' => Auth::user()->can('create', Turno::class),
+                'create_turno' => Auth::guard('tenant')->user()->can('create', Turno::class),
             ],
         ]);
     }
@@ -46,7 +46,7 @@ class TurnoController extends Controller
     {
         return Inertia::render('tenant/turnos/create', [
             'can' => [
-                'create_turno' => Auth::user()->can('create', Turno::class),
+                'create_turno' => Auth::guard('tenant')->user()->can('create', Turno::class),
             ],
         ]);
     }
@@ -72,9 +72,9 @@ class TurnoController extends Controller
         return Inertia::render('tenant/turnos/show', [
             'turno' => $turno,
             'can' => [
-                'view_turno' => Auth::user()->can('view', $turno),
-                'edit_turno' => Auth::user()->can('update', $turno),
-                'delete_turno' => Auth::user()->can('delete', $turno),
+                'view_turno' => Auth::guard('tenant')->user()->can('view', $turno),
+                'edit_turno' => Auth::guard('tenant')->user()->can('update', $turno),
+                'delete_turno' => Auth::guard('tenant')->user()->can('delete', $turno),
             ],
         ]);
     }
@@ -84,7 +84,7 @@ class TurnoController extends Controller
         return Inertia::render('tenant/turnos/edit', [
             'turno' => $turno,
             'can' => [
-                'edit_turno' => Auth::user()->can('update', $turno),
+                'edit_turno' => Auth::guard('tenant')->user()->can('update', $turno),
             ],
         ]);
     }

@@ -88,7 +88,7 @@ class RegraAvaliacaoController extends Controller
 
         RegraAvaliacao::create([
             ...$request->validated(),
-            'instituicao_id' => Auth::user()->instituicao_id,
+            'instituicao_id' => Auth::guard('tenant')->user()->instituicao_id,
             'ano_lectivo_id' => AnoLectivo::activo()?->id,
         ]);
 

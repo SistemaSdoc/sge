@@ -91,7 +91,7 @@ class PreencherHistoricoController extends Controller
             ],
             'disciplinas' => $disciplinas->values(),
             'can' => [
-                'lancar' => Auth::user()->can('update', $aluno),
+                'lancar' => Auth::guard('tenant')->user()->can('update', $aluno),
             ],
         ]);
     }
@@ -178,7 +178,7 @@ class PreencherHistoricoController extends Controller
         ]);
 
         try {
-            $instituicaoId = Auth::user()?->instituicao_id;
+            $instituicaoId = Auth::guard('tenant')->user()?->instituicao_id;
             $turmaAluno = $this->service->criarTurmaAlunoHistorico(
                 $aluno,
                 $validated['turma_id'],
