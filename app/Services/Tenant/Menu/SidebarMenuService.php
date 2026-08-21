@@ -2,7 +2,6 @@
 
 namespace App\Services\Tenant\Menu;
 
-use App\Http\Controllers\AccessManagementController;
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\AvisoController;
@@ -43,6 +42,8 @@ final class SidebarMenuService
 {
     public function build(): array
     {
+        $user = Auth::guard('tenant')->user();
+
         $groups = [
 
             new MenuGroup('Plataforma', [
@@ -59,24 +60,22 @@ final class SidebarMenuService
                     title: 'Instituições',
                     href: action([InstituicaoController::class, 'index']),
                     icon: 'Building2',
-                    can: fn() => Gate::allows('viewAny', Instituicao::class),
+                    can: fn () => Gate::allows('viewAny', Instituicao::class),
                 ),
 
                 new MenuItem(
                     key: 'minha-instituicao',
                     title: 'Minha Instituição',
-                    href: (function () {
-                        $id = Auth::user()?->instituicao_id;
+                    href: (function () use ($user) {
+                        $id = $user?->instituicao_id;
 
                         return $id
                             ? action([InstituicaoController::class, 'show'], ['instituicao' => $id])
                             : '#';
                     })(),
                     icon: 'Building2',
-                    can: function () {
-                        $user = Auth::user();
-
-                        if (!$user?->instituicao_id) {
+                    can: function () use ($user) {
+                        if (! $user?->instituicao_id) {
                             return false;
                         }
 
@@ -89,17 +88,15 @@ final class SidebarMenuService
                 new MenuItem(
                     key: 'meus-cursos',
                     title: 'Meus Cursos',
-                    href: (function () {
-                        $id = Auth::user()?->instituicao_id;
+                    href: (function () use ($user) {
+                        $id = $user?->instituicao_id;
 
                         return $id
                             ? action([CursoTuteladoController::class, 'index'], ['instituicao' => $id])
                             : '#';
                     })(),
                     icon: 'Building2',
-                    can: function () {
-                        $user = Auth::user();
-
+                    can: function () use ($user) {
                         if (! $user?->instituicao_id) {
                             return false;
                         }
@@ -139,7 +136,7 @@ final class SidebarMenuService
                     title: 'Turmas',
                     href: action([TurmaController::class, 'index']),
                     icon: 'Users',
-                    can: fn() => Gate::allows('viewAny', Turma::class),
+                    can: fn () => Gate::allows('viewAny', Turma::class),
                 ),
 
                 new MenuItem(
@@ -147,7 +144,7 @@ final class SidebarMenuService
                     title: 'Pautas',
                     href: action([PautaController::class, 'indexCursos']),
                     icon: 'FileText',
-                    can: fn() => Gate::allows('pauta.viewAny')
+                    can: fn () => Gate::allows('pauta.viewAny')
                 ),
 
                 new MenuItem(
@@ -155,7 +152,7 @@ final class SidebarMenuService
                     title: 'Grelha Curricular',
                     href: action([GrelhaCurricularController::class, 'index']),
                     icon: 'LayoutList',
-                    can: fn() => Gate::allows('grelha-curricular.viewAny'),
+                    can: fn () => Gate::allows('grelha-curricular.viewAny'),
                 ),
 
                 new MenuItem(
@@ -163,7 +160,7 @@ final class SidebarMenuService
                     title: 'Minhas Notas',
                     href: action([NotaAlunoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn() => Gate::allows('viewAny', Nota::class)
+                    can: fn () => Gate::allows('viewAny', Nota::class)
                 ),
 
                 new MenuItem(
@@ -171,7 +168,7 @@ final class SidebarMenuService
                     title: 'Horários',
                     href: '/dashboard/horarios',
                     icon: 'CalendarClock',
-                    can: fn() => Gate::allows('horarios.viewAny')
+                    can: fn () => Gate::allows('horarios.viewAny')
                 ),
 
                 new MenuItem(
@@ -179,7 +176,7 @@ final class SidebarMenuService
                     title: 'Grupos PAP',
                     href: action([GrupoPapController::class, 'index']),
                     icon: 'Users',
-                    can: fn() => Gate::allows('viewAny', GrupoPap::class),
+                    can: fn () => Gate::allows('viewAny', GrupoPap::class),
                 ),
 
                 new MenuItem(
@@ -187,7 +184,7 @@ final class SidebarMenuService
                     title: 'Regras de Avaliação',
                     href: action([RegraAvaliacaoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn() => Gate::allows('viewAny', RegraAvaliacao::class),
+                    can: fn () => Gate::allows('viewAny', RegraAvaliacao::class),
                 ),
 
                 new MenuItem(
@@ -195,7 +192,7 @@ final class SidebarMenuService
                     title: 'Anos Lectivos',
                     href: action([AnoLectivoController::class, 'index']),
                     icon: 'CalendarClock',
-                    can: fn() => Gate::allows('viewAny', AnoLectivo::class)
+                    can: fn () => Gate::allows('viewAny', AnoLectivo::class)
                 ),
 
                 new MenuItem(
@@ -203,7 +200,7 @@ final class SidebarMenuService
                     title: 'Solicitações de Lançamentos',
                     href: action([SolicitacaoEdicaoPautaController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn() => Gate::allows('viewAny', SolicitacaoEdicaoPauta::class)
+                    can: fn () => Gate::allows('viewAny', SolicitacaoEdicaoPauta::class)
                 ),
 
                 new MenuItem(
@@ -211,7 +208,6 @@ final class SidebarMenuService
                     title: 'Documentos Escolares',
                     href: action([DocumentosController::class, 'index']),
                     icon: 'FileTextIcon',
-                    //can: fn() => Gate::allows(Documentos::class)
                 ),
             ]),
 
@@ -221,7 +217,7 @@ final class SidebarMenuService
                     title: 'Matrículas',
                     href: action([InscricaoController::class, 'index']),
                     icon: 'ClipboardList',
-                    can: fn() => Gate::allows('viewAny', Inscricao::class)
+                    can: fn () => Gate::allows('viewAny', Inscricao::class)
                 ),
             ]),
 
@@ -231,7 +227,7 @@ final class SidebarMenuService
                     title: 'Professores',
                     href: action([ProfessorController::class, 'index']),
                     icon: 'Users',
-                    can: fn() => Gate::allows('viewAny', Professor::class),
+                    can: fn () => Gate::allows('viewAny', Professor::class),
                 ),
 
                 new MenuItem(
@@ -239,52 +235,25 @@ final class SidebarMenuService
                     title: 'Alunos',
                     href: action([AlunoController::class, 'index']),
                     icon: 'GraduationCap',
-                    can: fn() => Gate::allows('viewAny', Aluno::class),
+                    can: fn () => Gate::allows('viewAny', Aluno::class),
                 ),
-
-                /* new MenuItem(
-                     key: 'acessos',
-                     title: 'Gerir Acessos',
-                     href: action([AccessManagementController::class, 'index']),
-                     icon: 'ShieldCheck',
-                     can: fn () => Gate::allows('acessos.viewAny')
-                 ),*/
             ]),
 
             new MenuGroup('Gestão de Colégios', [
                 new MenuItem(
                     key: 'colegios',
                     title: 'Colégios Tutelados',
-                    href: (function () {
-                        $id = Auth::user()?->instituicao_id;
+                    href: (function () use ($user) {
+                        $id = $user?->instituicao_id;
 
                         return $id
                             ? action([ColegioController::class, 'index'], ['instituicao' => $id])
                             : '#';
                     })(),
                     icon: 'Building2',
-                    can: fn() => Auth::user()?->hasPermissionTo('colegios.viewAny')
-                    && Auth::user()?->instituicao?->tipo === 'instituto',
+                    can: fn () => $user?->hasPermissionTo('colegios.viewAny')
+                    && $user?->instituicao?->tipo === 'instituto',
                 ),
-
-                /*new MenuItem(
-                    key: 'pautas-colegios',
-                    title: 'Pautas',
-                    href: '#',
-                    icon: 'Sheet',
-                    can: fn() => Auth::user()?->hasPermissionTo('colegios.viewAny')
-                    && Auth::user()?->instituicao?->tipo === 'instituto',
-                ),
-
-                new MenuItem(
-                    key: 'grupos-pap-colegios',
-                    title: 'Grupos PAP',
-                    href: '#',
-                    icon: 'Users',
-                    can: fn() => Auth::user()?->hasPermissionTo('colegios.viewAny')
-                    && Auth::user()?->instituicao?->tipo === 'instituto'
-                    && Auth::user()?->hasPermissionTo('grupopap.viewAny'),
-                ),*/
             ]),
 
             new MenuGroup('Pagamentos', [
@@ -293,8 +262,8 @@ final class SidebarMenuService
                     title: 'Emolumentos Escolares',
                     href: route('tenant.dashboard.itens-pagaveis.index'),
                     icon: 'ReceiptText',
-                    can: fn() => Auth::user()?->hasPermissionTo('itemspagaveis.viewAny')
-                    && Auth::user()?->instituicao?->tipo === 'colegio',
+                    can: fn () => $user?->hasPermissionTo('itemspagaveis.viewAny')
+                    && $user?->instituicao?->tipo === 'colegio',
                 ),
 
                 new MenuItem(
@@ -302,8 +271,8 @@ final class SidebarMenuService
                     title: 'Pagamentos',
                     href: route('tenant.dashboard.pagamentos.index'),
                     icon: 'CreditCard',
-                    can: fn() => Auth::user()?->hasPermissionTo('pagamentos.viewAny')
-                    && Auth::user()?->instituicao?->tipo === 'colegio',
+                    can: fn () => $user?->hasPermissionTo('pagamentos.viewAny')
+                    && $user?->instituicao?->tipo === 'colegio',
                 ),
             ]),
 
@@ -313,13 +282,13 @@ final class SidebarMenuService
                     title: 'Avisos',
                     href: action([AvisoController::class, 'index']),
                     icon: 'Bell',
-                    can: fn() => Gate::allows('viewAny', Aviso::class),
+                    can: fn () => Gate::allows('viewAny', Aviso::class),
                 ),
             ]),
         ];
 
         return array_values(array_filter(
-            array_map(fn(MenuGroup $group) => $group->toArray(), $groups),
+            array_map(fn (MenuGroup $group) => $group->toArray(), $groups),
         ));
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Services\Central\Auth;
 
 use App\Models\central\Tenant;
+use App\Models\tenant\Instituicao;
 use App\Models\tenant\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -63,7 +64,7 @@ class RegisterService
         return $tenant->run(function () use ($data, $tenant) {
             $user = $this->createTenantUser($data);
 
-            return tenancy()->impersonate($tenant, $user->id, '/dashboard', 'web');
+            return tenancy()->impersonate($tenant, $user->id, '/dashboard', 'tenant');
         });
     }
 
@@ -72,10 +73,22 @@ class RegisterService
      */
     private function createTenantUser(array $data): User
     {
+        $instituicao = Instituicao::create([
+            'nome' => $data['tenant_name'],
+            'sigla' => strtoupper(substr($data['tenant_name'], 0, 3)),
+            'tipo' => 'instituto',
+            'email' => "director@{$data['domain']}.ao", // ← Director da instituição
+            'telefone' => '923000000',
+            'provincia' => 'Luanda',
+            'endereco' => 'A definir',
+            'descricao' => 'Instituição educativa',
+        ]);
+
         $user = User::create([
             'nome' => $data['nome'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'instituicao_id' => $instituicao->id,
         ]);
 
         $user->assignRole('Director');

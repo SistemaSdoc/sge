@@ -24,10 +24,21 @@ class InstituicaoPolicy
      * Requer a permission 'instituicoes.view' e que o utilizador
      * pertença à mesma instituição que está a tentar aceder.
      */
-    public function view(User $user, Instituicao $instituicao): bool
-    {
-        return $user->can('instituicoes.view') && $user->instituicao_id === $instituicao->id;
-    }
+public function view(User $user, Instituicao $instituicao): bool
+{
+    $hasPermission = $user->can('instituicoes.view');
+    $sameInstitution = $user->instituicao_id === $instituicao->id;
+    
+    dd([
+        'user' => $user->id,
+        'instituicao' => $instituicao->id,
+        'hasPermission' => $hasPermission,
+        'sameInstitution' => $sameInstitution,
+        'result' => $hasPermission && $sameInstitution,
+    ]);
+    
+    return $hasPermission && $sameInstitution;
+}
 
     /**
      * Determina se o utilizador pode criar instituições.

@@ -36,7 +36,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $user = $request->user()?->load('roles.permissions');
+        $user = $request->user('tenant')?->load('roles.permissions');
 
         return [
             ...parent::share($request),
@@ -50,7 +50,7 @@ class HandleInertiaRequests extends Middleware
                     // 'role' => $user->roles->first()?->nome,
                 ] : null,
             ],
-            'sidebar' => fn () => $request->user() ? app(SidebarMenuService::class)->build() : [],
+            'sidebar' => fn () => $request->user('tenant') ? app(SidebarMenuService::class)->build() : [],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

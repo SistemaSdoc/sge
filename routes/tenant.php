@@ -204,7 +204,7 @@ Route::middleware([
 
             Route::resource('instituicoes.cursos-tutelados', CursoTuteladoController::class)
                 ->parameters([
-                    'instituicao' => 'instituicao',
+                    'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                 ]);
 
@@ -227,7 +227,7 @@ Route::middleware([
 
             Route::resource('instituicoes.cursos-tutelados.professores', CursoTuteladoProfessorController::class)
                 ->parameters([
-                    'instituicao' => 'instituicao',
+                    'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                     'professores' => 'professor',
                 ]);
@@ -273,7 +273,7 @@ Route::middleware([
 
             Route::resource('instituicoes.cursos-tutelados.classes.turnos.disciplinas', ClasseTurnoDisciplinaController::class)
                 ->parameters([
-                    'instituicao' => 'instituicao',
+                    'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                     'classes' => 'cursoClasse',
                     'turnos' => 'cursoClasseTurno',
@@ -288,7 +288,7 @@ Route::middleware([
 
             Route::resource('instituicoes.cursos-tutelados.classes.turnos.turmas', ClasseTurnoTurmaController::class)
                 ->parameters([
-                    'instituicao' => 'instituicao',
+                    'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                     'classes' => 'cursoClasse',
                     'turnos' => 'cursoClasseTurno',
@@ -303,7 +303,7 @@ Route::middleware([
 
             Route::resource('instituicoes.cursos-tutelados.classes.turnos.turmas.disciplinas', ClasseTurnoDisciplinaController::class)
                 ->parameters([
-                    'instituicao' => 'instituicao',
+                    'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                     'classes' => 'cursoClasse',
                     'turnos' => 'cursoClasseTurno',
@@ -313,7 +313,7 @@ Route::middleware([
 
             Route::resource('instituicoes.cursos-tutelados.classes.turnos.turmas.disciplinas.notas', NotaDisciplinaController::class)
                 ->parameters([
-                    'instituicao' => 'instituicao',
+                    'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                     'classes' => 'cursoClasse',
                     'turnos' => 'cursoClasseTurno',
@@ -369,7 +369,7 @@ Route::middleware([
 
             Route::resource('instituicoes.cursos-tutelados.classes.turnos.turmas.pap', GrupoPapController::class)
                 ->parameters([
-                    'instituicao' => 'instituicao',
+                    'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                     'classes' => 'cursoClasse',
                     'turnos' => 'cursoClasseTurno',
@@ -388,7 +388,7 @@ Route::middleware([
 
             Route::resource('instituicoes.cursos-tutelados.classes.turnos.turmas.pap.tema', GrupoPapTemaController::class)
                 ->parameters([
-                    'instituicao' => 'instituicao',
+                    'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                     'classes' => 'cursoClasse',
                     'turnos' => 'cursoClasseTurno',
@@ -404,7 +404,7 @@ Route::middleware([
 
             Route::resource('instituicoes.cursos-tutelados.classes.turnos.turmas.pap.elementos', ElementoGrupoPapController::class)
                 ->parameters([
-                    'instituicao' => 'instituicao',
+                    'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                     'classes' => 'cursoClasse',
                     'turnos' => 'cursoClasseTurno',
@@ -427,7 +427,7 @@ Route::middleware([
 
             Route::resource('instituicoes.cursos-tutelados.classes.turnos.turmas.pap.banca', BancaJuriPapController::class)
                 ->parameters([
-                    'instituicao' => 'instituicao',
+                    'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                     'classes' => 'cursoClasse',
                     'turnos' => 'cursoClasseTurno',
