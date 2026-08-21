@@ -70,6 +70,10 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->group(function () {
 
                 Route::resource('tenants', TenantController::class);
+
+                Route::post('tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
+                    ->name('tenants.toggle-status');
+
                 Route::resource('users', UserController::class);
             });
 

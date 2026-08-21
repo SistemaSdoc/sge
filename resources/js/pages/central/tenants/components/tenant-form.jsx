@@ -54,9 +54,7 @@ export function TenantForm({
                 {/* Nome & Email do User */}
                 <div className="grid grid-cols-1 gap-4 pt-6 mt-6 border-t md:grid-cols-2">
                   <Field>
-                    <FieldLabel htmlFor="user_nome">
-                      Nome do usuário
-                    </FieldLabel>
+                    <FieldLabel htmlFor="user_nome">Nome do usuário</FieldLabel>
                     <Input
                       id="user_nome"
                       type="text"
@@ -85,7 +83,7 @@ export function TenantForm({
                     )}
                   </Field>
                 </div>
-                
+
                 {/* Nome & Sigla */}
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Field>

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckTenantStatus
@@ -18,7 +19,9 @@ class CheckTenantStatus
         $tenant = tenancy()->tenant;
 
         if (! $tenant || ! $tenant->status->canAccess()) {
-            abort(403, 'Acesso negado. Instituição inactiva ou suspensa.');
+            return Inertia::render('tenant/access-denied', [
+                'status' => $tenant?->status->value,
+            ])->toResponse($request)->setStatusCode(403);
         }
 
         return $next($request);

@@ -34,6 +34,7 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Central/TenantController';
 import TablePagination from '@/components/table-pagination';
+import { StatusBadge } from './status-badge';
 
 export function TenantTable({
   tenants,
@@ -41,11 +42,12 @@ export function TenantTable({
   deleteFn,
   pagination = {},
   onPageChange,
+  handleToggleStatus,
 }) {
   const isEmpty = tenants?.length === 0;
 
   const hasActionColumn = tenants.some(
-    (tenants) => tenants.can?.edit || tenants.can?.delete,
+    (tenants) => tenants.can?.edit || tenants.can?.delete || true,
   );
 
   return (
@@ -89,12 +91,10 @@ export function TenantTable({
               <TableHeader>
                 <TableRow className="bg-muted/72">
                   <TableHead className="px-4">Nome</TableHead>
-                  <TableHead className="px-4">Sigla</TableHead>
-                  <TableHead className="px-4">Domínio</TableHead>
-
-                  {hasActionColumn && (
-                    <TableHead className="px-4 text-right">Acções</TableHead>
-                  )}
+                  <TableHead className="px-4 text-center">Sigla</TableHead>
+                  <TableHead className="px-4 text-center">Domínio</TableHead>
+                  <TableHead className="px-4 text-center">Status</TableHead>
+                  <TableHead className="px-4 text-right">Acções</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -102,72 +102,74 @@ export function TenantTable({
                 {tenants.map((tenant) => (
                   <TableRow
                     key={tenant.id}
-                    className={
-                      tenant.can?.view ? 'hover:cursor-pointer' : 'opacity-70'
-                    }
                     onClick={() => {
-                      if (tenant.can?.view) {
-                        router.visit(show(tenant.id).url);
-                      }
+                      router.visit(show(tenant.id).url);
                     }}
                   >
                     <TableCell className="px-4 font-medium">
                       {tenant.instituicao?.nome ?? tenant.id}
                     </TableCell>
-                    <TableCell className="px-4">
+
+                    <TableCell className="px-4 text-center ">
                       {tenant.instituicao?.sigla ?? '—'}
                     </TableCell>
-                    <TableCell className="px-4">
+
+                    <TableCell className="px-4 text-center">
                       {tenant.domains?.[0]?.domain ?? '—'}
                     </TableCell>
 
-                    {hasActionColumn && (
-                      <TableCell className="px-4 text-right">
-                        {(tenant.can?.edit || tenant.can?.delete) && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8"
-                              >
-                                <MoreHorizontalIcon />
-                                <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
+                    <TableCell className="px-4 text-center">
+                      <StatusBadge status={tenant.status} variant="badge" />
+                    </TableCell>
 
-                            <DropdownMenuContent align="end">
-                              {tenant.can?.edit && (
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    router.visit(edit(tenant.id).url);
-                                  }}
-                                >
-                                  Editar
-                                </DropdownMenuItem>
-                              )}
+                    <TableCell className="px-4 text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                          >
+                            <MoreHorizontalIcon />
+                            <span className="sr-only">Open menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
 
-                              {tenant.can?.edit && tenant.can?.delete && (
-                                <DropdownMenuSeparator />
-                              )}
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.visit(edit(tenant.id).url);
+                            }}
+                          >
+                            Editar
+                          </DropdownMenuItem>
 
-                              {tenant.can?.delete && (
-                                <DropdownMenuItem
-                                  variant="destructive"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    deleteFn(tenant.id);
-                                  }}
-                                >
-                                  Remover
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
-                      </TableCell>
-                    )}
+                          <DropdownMenuSeparator />
+
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleStatus(tenant, e);
+                            }}
+                          >
+                            Alterar status
+                          </DropdownMenuItem>
+
+                          <DropdownMenuSeparator />
+
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteFn(tenant.id);
+                            }}
+                          >
+                            Remover
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

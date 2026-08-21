@@ -149,4 +149,15 @@ class TenantService
 
         return $tenant->fresh();
     }
+
+    /**
+     * Get all available tenant statuses.
+     */
+    public function getAvailableStatuses(): array
+    {
+        return array_map(fn (TenantStatus $status) => [
+            'value' => $status->value,
+            'label' => $status->label(),
+        ], TenantStatus::cases());
+    }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Central;
 
-use App\Enums\TenantStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Central\Tenant\StoreTenantRequest;
 use App\Http\Requests\Central\Tenant\UpdateTenantRequest;
@@ -28,6 +27,7 @@ class TenantController extends Controller
 
         return Inertia::render('central/tenants/index', [
             'tenants' => $tenantsPagineted,
+            'statuses' => $this->tenantService->getAvailableStatuses(),
         ]);
     }
 
@@ -106,10 +106,12 @@ class TenantController extends Controller
 
     public function toggleStatus(Tenant $tenant)
     {
-        $tenant = $this->tenantService->toggleStatus($tenant);
+        $validated = request()->validate([
+            'status' => ['required', 'string', 'in:active,trial,pending,suspended,inactive,archived'],
+        ]);
 
-        $status = $tenant->status === TenantStatus::ACTIVE ? 'activated' : 'deactivated';
+        $tenant->update(['status' => $validated['status']]);
 
-        return back()->with('success', "Tenant {$status} successfully.");
+        return back()->with('success', 'Status alterado com sucesso!');
     }
 }

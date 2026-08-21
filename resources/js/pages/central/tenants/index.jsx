@@ -5,9 +5,29 @@ import {
   destroy,
 } from '@/actions/App/Http/Controllers/Central/TenantController';
 import { useDialog } from '@/hooks/use-dialog';
+import { AlterarStatusDialog } from './components/alterar-status-dialog';
 
 export default function Index({ tenants, can }) {
-  const { deleteConfirm } = useDialog();
+  const { deleteConfirm, openForm, closeDialog } = useDialog();
+
+  const handleToggleStatus = (tenant, e) => {
+    e.stopPropagation();
+
+    openForm({
+      title: `Alterar Status - ${tenant.instituicao?.nome || tenant.id}`,
+      description:
+        'Selecione uma opcão abaixo para alterar o status do cliente.',
+      size: 'md',
+      content: (
+        <AlterarStatusDialog
+          tenant={tenant}
+          status={tenant.status}
+          onCancel={() => closeDialog()}
+          onSuccess={() => closeDialog()}
+        />
+      ),
+    });
+  };
 
   const handleDelete = (tenantId) => {
     deleteConfirm({
@@ -36,6 +56,7 @@ export default function Index({ tenants, can }) {
         deleteFn={handleDelete}
         pagination={tenants.meta}
         onPageChange={handlePageChange}
+        handleToggleStatus={handleToggleStatus}
       />
     </>
   );

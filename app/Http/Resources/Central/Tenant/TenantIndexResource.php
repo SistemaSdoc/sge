@@ -17,6 +17,7 @@ class TenantIndexResource extends JsonResource
         return [
             'id' => $this->id,
             'domains' => $this->domains,
+            'status' => $this->status,
             'instituicao' => $this->instituicao?->only([
                 'id',
                 'nome',
