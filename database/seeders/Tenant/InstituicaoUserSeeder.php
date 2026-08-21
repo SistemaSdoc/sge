@@ -2,8 +2,8 @@
 
 namespace Database\Seeders\Tenant;
 
-use App\Models\tenant\Instituicao;
-use App\Models\tenant\User;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;

@@ -3,10 +3,11 @@
 namespace App\Providers;
 
 use App\Listeners\RegisteredListener;
-use App\Models\tenant\CursoTuteladoProfessor;
+use App\Models\Tenant\CursoTuteladoProfessor;
+use App\Models\Tenant\Pagamento;
 use App\Observers\CursoTuteladoProfessorObserver;
-use App\Policies\Tenant\AcessManagementPolicy;
 use App\Observers\PagamentoObserver;
+use App\Policies\Tenant\AcessManagementPolicy;
 use App\Policies\Tenant\ColegioPolicy;
 use App\Policies\Tenant\ConfirmacaoMatriculaPolicy;
 use App\Policies\Tenant\GrelhaCurricularPolicy;
@@ -14,7 +15,6 @@ use App\Policies\Tenant\HorarioPolicy;
 use App\Policies\Tenant\PagamentoPolicy;
 use App\Policies\Tenant\PautaPolicy;
 use Carbon\CarbonImmutable;
-use App\Models\tenant\Pagamento;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -40,6 +40,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // Registar listener para atribuir role padrão a novos utilizadores
         Event::listen(Registered::class, RegisteredListener::class);
+
+        // Define o caminho padrão para localizar as policies
+        Gate::guessPolicyNamesUsing(function (string $modelClass): string {
+            return 'App\\Policies\\Tenant\\'.class_basename($modelClass).'Policy';
+        });
 
         Gate::define('pauta.viewAny', [PautaPolicy::class, 'viewAny']);
         Gate::define('pauta.view', [PautaPolicy::class, 'view']);

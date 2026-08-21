@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\SolicitacaoEdicaoPauta;
-use App\Models\tenant\User;
+use App\Models\Tenant\SolicitacaoEdicaoPauta;
+use App\Models\Tenant\User;
 
 class SolicitacaoEdicaoPautaPolicy
 {

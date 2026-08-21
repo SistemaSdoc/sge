@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\Aluno;
-use App\Models\tenant\User;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\User;
 
 class AlunoPolicy
 {

@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\Pagamento;
-use App\Models\tenant\User;
+use App\Models\Tenant\Pagamento;
+use App\Models\Tenant\User;
 
 class PagamentoPolicy
 {

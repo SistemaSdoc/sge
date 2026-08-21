@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\TurmaDisciplinaProfessor;
-use App\Models\tenant\User;
+use App\Models\Tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\User;
 
 class TurmaDisciplinaProfessorPolicy
 {

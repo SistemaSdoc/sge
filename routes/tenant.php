@@ -100,9 +100,11 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('tenant.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->middleware('auth:tenant')
+        ->name('tenant.dashboard');
 
-    Route::middleware(['auth', 'verified', 'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno'])
+    Route::middleware(['auth:tenant', 'verified', 'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno'])
         ->prefix('dashboard')
         ->name('tenant.dashboard.')
         ->group(function () {

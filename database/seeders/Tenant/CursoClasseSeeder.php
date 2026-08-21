@@ -2,9 +2,9 @@
 
 namespace Database\Seeders\Tenant;
 
-use App\Models\tenant\Classe;
-use App\Models\tenant\CursoTutelado;
-use App\Models\tenant\NivelEnsino;
+use App\Models\Tenant\Classe;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\NivelEnsino;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;

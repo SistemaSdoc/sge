@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\Inscricao;
-use App\Models\tenant\User;
+use App\Models\Tenant\Inscricao;
+use App\Models\Tenant\User;
 
 class InscricaoPolicy
 {

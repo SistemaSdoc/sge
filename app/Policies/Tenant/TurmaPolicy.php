@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\Turma;
-use App\Models\tenant\User;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
 
 class TurmaPolicy
 {

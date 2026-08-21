@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\ElementoGrupoPap;
-use App\Models\tenant\User;
+use App\Models\Tenant\ElementoGrupoPap;
+use App\Models\Tenant\User;
 
 class ElementoGrupoPapPolicy
 {

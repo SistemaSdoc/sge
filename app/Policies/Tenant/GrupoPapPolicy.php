@@ -2,9 +2,9 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\CursoTuteladoProfessor;
-use App\Models\tenant\GrupoPap;
-use App\Models\tenant\User;
+use App\Models\Tenant\CursoTuteladoProfessor;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\User;
 
 class GrupoPapPolicy
 {

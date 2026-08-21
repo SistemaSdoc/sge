@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\Aviso;
-use App\Models\tenant\User;
+use App\Models\Tenant\Aviso;
+use App\Models\Tenant\User;
 
 class AvisoPolicy
 {

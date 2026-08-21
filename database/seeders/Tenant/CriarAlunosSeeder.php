@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Tenant;
 
-use App\Models\tenant\Aluno;
-use App\Models\tenant\Candidato;
-use App\Models\tenant\Inscricao;
-use App\Models\tenant\TurmaAluno;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Candidato;
+use App\Models\Tenant\Inscricao;
+use App\Models\Tenant\TurmaAluno;
 use Illuminate\Database\Seeder;
 
 class CriarAlunosSeeder extends Seeder

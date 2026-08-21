@@ -2,10 +2,10 @@
 
 namespace Database\Seeders\Tenant;
 
-use App\Models\tenant\AnoLectivo;
-use App\Models\tenant\Candidato;
-use App\Models\tenant\CursoClasseTurno;
-use App\Models\tenant\Inscricao;
+use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\Candidato;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\Inscricao;
 use Illuminate\Database\Seeder;
 
 class InscricaoSeeder extends Seeder

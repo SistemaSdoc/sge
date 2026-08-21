@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\RegraAvaliacao;
-use App\Models\tenant\User;
+use App\Models\Tenant\RegraAvaliacao;
+use App\Models\Tenant\User;
 
 class RegraAvaliacaoPolicy
 {

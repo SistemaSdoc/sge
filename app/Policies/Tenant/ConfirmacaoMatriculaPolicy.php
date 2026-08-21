@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\TurmaAluno;
-use App\Models\tenant\User;
+use App\Models\Tenant\TurmaAluno;
+use App\Models\Tenant\User;
 
 class ConfirmacaoMatriculaPolicy
 {

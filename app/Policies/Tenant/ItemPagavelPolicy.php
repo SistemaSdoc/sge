@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\ItemPagavel;
-use App\Models\tenant\User;
+use App\Models\Tenant\ItemPagavel;
+use App\Models\Tenant\User;
 
 class ItemPagavelPolicy
 {

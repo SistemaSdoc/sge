@@ -2,7 +2,7 @@
 
 namespace Database\Seeders\Tenant;
 
-use App\Models\tenant\Turno;
+use App\Models\Tenant\Turno;
 use Illuminate\Database\Seeder;
 
 class TurnoSeeder extends Seeder

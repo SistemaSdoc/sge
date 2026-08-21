@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\ClasseTurnoDisciplinaHorario;
-use App\Models\tenant\User;
+use App\Models\Tenant\ClasseTurnoDisciplinaHorario;
+use App\Models\Tenant\User;
 
 class ClasseTurnoDisciplinaHorarioPolicy
 {

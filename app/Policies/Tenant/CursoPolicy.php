@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\Curso;
-use App\Models\tenant\User;
+use App\Models\Tenant\Curso;
+use App\Models\Tenant\User;
 
 class CursoPolicy
 {

@@ -2,9 +2,9 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\BancaJuriPap;
-use App\Models\tenant\GrupoPap;
-use App\Models\tenant\User;
+use App\Models\Tenant\BancaJuriPap;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\User;
 
 class BancaJuriPapPolicy
 {

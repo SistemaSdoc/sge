@@ -2,9 +2,9 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\CursoTutelado;
-use App\Models\tenant\Turma;
-use App\Models\tenant\User;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
 
 class PautaPolicy
 {

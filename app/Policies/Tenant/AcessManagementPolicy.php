@@ -2,7 +2,7 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\User;
+use App\Models\Tenant\User;
 
 class AcessManagementPolicy
 {

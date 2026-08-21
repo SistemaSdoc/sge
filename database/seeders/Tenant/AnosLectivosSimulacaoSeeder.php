@@ -2,7 +2,7 @@
 
 namespace Database\Seeders\Tenant;
 
-use App\Models\tenant\AnoLectivo;
+use App\Models\Tenant\AnoLectivo;
 use Illuminate\Database\Seeder;
 
 class AnosLectivosSimulacaoSeeder extends Seeder

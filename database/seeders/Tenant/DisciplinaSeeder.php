@@ -2,7 +2,7 @@
 
 namespace Database\Seeders\Tenant;
 
-use App\Models\tenant\Disciplina;
+use App\Models\Tenant\Disciplina;
 use Illuminate\Database\Seeder;
 
 class DisciplinaSeeder extends Seeder

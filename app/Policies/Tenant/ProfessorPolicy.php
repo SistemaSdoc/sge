@@ -2,8 +2,8 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\tenant\Professor;
-use App\Models\tenant\User;
+use App\Models\Tenant\Professor;
+use App\Models\Tenant\User;
 
 class ProfessorPolicy
 {
