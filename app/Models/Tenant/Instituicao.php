@@ -2,10 +2,12 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\Central\Tenant;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -19,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'status',
     'logo',
     'descricao',
+    'tenant_id',
 ])]
 
 class Instituicao extends Model
@@ -32,6 +35,11 @@ class Instituicao extends Model
     public function getLogoUrlAttribute(): ?string
     {
         return $this->logo ? tenant_asset($this->logo) : null;
+    }
+
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class, 'tenant_id', 'id');
     }
 
     public function getStatusTextoAttribute()

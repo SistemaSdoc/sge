@@ -16,12 +16,11 @@ class SuperAdminSeeder extends Seeder
     {
         $superAdmin = User::create([
             'id' => (string) Str::uuid7(),
-            'nome' => 'Super Admin',
-            'email' => 'super@sge.ao',
+            'nome' => 'SDOCA',
+            'email' => 'sdoca@gmail.com',
             'email_verified_at' => now(),
-            'password' => Hash::make('password'),
+            'password' => Hash::make('12345678'),
             'telefone' => '900000000',
-            'instituicao_id' => null,
         ]);
 
         $superAdmin->assignRole('SuperAdmin');

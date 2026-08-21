@@ -2,7 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Services\Tenant\Menu\SidebarMenuService;
+use App\Services\Central\Menu\SidebarMenuService as CentralSidebarMenu;
+use App\Services\Tenant\Menu\SidebarMenuService as TenantSidebarMenu;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -36,7 +37,11 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $user = $request->user('tenant')?->load('roles.permissions');
+        $isTenant = tenancy()->initialized;
+
+        $guard = $isTenant ? 'tenant' : 'web';
+
+        $user = $request->user($guard)?->load('roles.permissions');
 
         return [
             ...parent::share($request),
@@ -47,10 +52,11 @@ class HandleInertiaRequests extends Middleware
                     'nome' => $user->nome,
                     'email' => $user->email,
                     'avatar' => $user->avatar,
-                    // 'role' => $user->roles->first()?->nome,
                 ] : null,
             ],
-            'sidebar' => fn () => $request->user('tenant') ? app(SidebarMenuService::class)->build() : [],
+            'sidebar' => fn () => $isTenant
+                ? app(TenantSidebarMenu::class)->build()
+                : app(CentralSidebarMenu::class)->build(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

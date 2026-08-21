@@ -15,7 +15,7 @@ class TenantDatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
 
             // TABELAS BASE
-            InstituicaoSeeder::class,
+            //InstituicaoSeeder::class,
             AnosLectivosSimulacaoSeeder::class,
             // AnoLectivoSeeder::class,
             // CursoSeeder::class,
@@ -34,7 +34,7 @@ class TenantDatabaseSeeder extends Seeder
             // TurmaSeeder::class,
 
             // USUÁRIOS
-            InstituicaoUserSeeder::class,
+            //InstituicaoUserSeeder::class,
         ]);
     }
 }

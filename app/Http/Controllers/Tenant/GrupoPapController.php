@@ -14,6 +14,7 @@ use App\Http\Resources\Tenant\GrupoPap\IndexResource;
 use App\Http\Resources\Tenant\GrupoPap\ShowResource;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -21,9 +22,10 @@ use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
-use App\Models\Tenant\Tenant\BancaJuriPap;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -37,7 +39,9 @@ class GrupoPapController extends Controller
     {
         $this->authorize('viewAny', GrupoPap::class);
 
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
         $instituicaoId = $user ? $user->instituicaoFiltro() : null;
 
         // Filtro ano lectivo
@@ -186,7 +190,9 @@ class GrupoPapController extends Controller
     ) {
         $this->authorize('view', $grupoPap);
 
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
         $anoLectivoId = $turma->ano_lectivo_id; // ← NOVO
 
         $grupoPap->load([

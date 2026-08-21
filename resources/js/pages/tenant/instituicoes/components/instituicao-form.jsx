@@ -1,5 +1,3 @@
-'use client';
-
 import { Loader2 } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
@@ -52,7 +50,7 @@ export function InstituicaoForm({
   }, [data.logo]);
 
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
+    <div className="w-full max-w-sm px-6 py-6 mx-auto md:max-w-md lg:max-w-195">
       <form onSubmit={submitFn}>
         <Card className="overflow-visible">
           <CardHeader className="border-b">
@@ -112,7 +110,7 @@ export function InstituicaoForm({
                   <Field>
                     <FieldLabel htmlFor="telefone">Telefone</FieldLabel>
                     <div className="flex">
-                      <span className="flex items-center justify-center border border-r-0 px-3 py-1 text-xs text-muted-foreground">
+                      <span className="flex items-center justify-center px-3 py-1 text-xs border border-r-0 text-muted-foreground">
                         +244
                       </span>
 
@@ -175,7 +173,7 @@ export function InstituicaoForm({
                       <img
                         src={previewUrl}
                         alt="Preview do logo"
-                        className="mt-1 h-24 w-auto rounded border border-muted"
+                        className="w-auto h-24 mt-1 border rounded border-muted"
                       />
                     </div>
                   ) : logoUrl && !data.logo ? (
@@ -186,7 +184,7 @@ export function InstituicaoForm({
                       <img
                         src={logoUrl}
                         alt="Logo atual"
-                        className="mt-1 h-24 w-auto rounded border border-muted"
+                        className="w-auto h-24 mt-1 border rounded border-muted"
                       />
                     </div>
                   ) : null}

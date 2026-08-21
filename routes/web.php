@@ -3,6 +3,7 @@
 use App\Http\Controllers\Central\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Central\Auth\RegisteredController;
 use App\Http\Controllers\Central\DashboardController;
+use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,16 +18,18 @@ use Illuminate\Support\Facades\Route;
 
 foreach (config('tenancy.central_domains') as $domain) {
     Route::domain($domain)->group(function () {
-        Route::inertia('/', 'tenant/welcome/index')->name('home');
+        /*
+        |--------------------------------------------------------------------------
+        | Welcome Page
+        |--------------------------------------------------------------------------
+        */
+        Route::inertia('/', 'central/welcome/index')->name('home');
 
-        Route::get('/dashboard', [DashboardController::class, 'index'])
-            ->middleware('auth:web')
-            ->name('central.dashboard');
-
-        Route::middleware('auth:web')->group(function () {
-            Route::resource('users', UserController::class);
-        });
-
+        /*
+        |--------------------------------------------------------------------------
+        | Rotas de Autenticação Central
+        |--------------------------------------------------------------------------
+        */
         Route::get('register', [RegisteredController::class, 'create'])
             ->middleware('guest:web')
             ->name('central.register');
@@ -47,5 +50,28 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
             ->middleware('auth:web')
             ->name('central.logout');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Rotas Internas do central (Dashboard Routes)
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/dashboard', [DashboardController::class, 'index'])
+            ->middleware('auth:web')
+            ->name('central.dashboard');
+
+        Route::middleware([
+            'auth:web',
+            'verified',
+            'role:SuperAdmin',
+        ])
+            ->prefix('dashboard')
+            ->name('central.dashboard.')
+            ->group(function () {
+
+                Route::resource('tenants', TenantController::class);
+                Route::resource('users', UserController::class);
+            });
+
     });
 }

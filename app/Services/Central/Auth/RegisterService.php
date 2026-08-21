@@ -42,7 +42,7 @@ class RegisterService
     {
         return Tenant::create([
             'id' => $subdomain,
-            'name' => $name,
+            // ✅ Sem 'name' — vai ficar no JSON data
         ]);
     }
 
@@ -62,28 +62,40 @@ class RegisterService
     private function createImpersonationToken(Tenant $tenant, array $data)
     {
         return $tenant->run(function () use ($data, $tenant) {
-            $user = $this->createTenantUser($data);
+            $instituicao = $this->createTenantInstitution($data);
+
+            // ✅ Guardar instituicao_id no tenant (central)
+            $tenant->update(['instituicao_id' => $instituicao->id]);
+
+            $user = $this->createTenantUser($data, $instituicao);
 
             return tenancy()->impersonate($tenant, $user->id, '/dashboard', 'tenant');
         });
     }
 
     /**
-     * Create the institution owner user within tenant context.
+     * Create the institution within tenant context.
      */
-    private function createTenantUser(array $data): User
+    private function createTenantInstitution(array $data): Instituicao
     {
-        $instituicao = Instituicao::create([
+        return Instituicao::create([
             'nome' => $data['tenant_name'],
             'sigla' => strtoupper(substr($data['tenant_name'], 0, 3)),
             'tipo' => 'instituto',
-            'email' => "director@{$data['domain']}.ao", // ← Director da instituição
+            'email' => "director@{$data['domain']}.ao",
             'telefone' => '923000000',
             'provincia' => 'Luanda',
             'endereco' => 'A definir',
             'descricao' => 'Instituição educativa',
+            'status' => 1,
         ]);
+    }
 
+    /**
+     * Create the institution owner user within tenant context.
+     */
+    private function createTenantUser(array $data, Instituicao $instituicao): User
+    {
         $user = User::create([
             'nome' => $data['nome'],
             'email' => $data['email'],

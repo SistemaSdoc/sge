@@ -13,10 +13,8 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('instituicao_id')->nullable();
             $table->string('nome');
             $table->string('email')->unique();
-            $table->string('bi')->unique()->nullable();
             $table->string('telefone')->nullable();
             $table->string('avatar')->nullable();
             $table->string('google_id')->unique()->nullable();
@@ -41,35 +39,15 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
-
-        Schema::create('candidatos', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('user_id')->nullable();
-            $table->foreign('user_id')->references('id')->on('users')->nullOnDelete();
-            $table->string('nome');
-            $table->string('bi')->unique();
-            $table->enum('genero', ['M', 'F'])->nullable();
-            $table->string('nacionalidade')->nullable();
-            $table->string('naturalidade')->nullable();
-            $table->string('filiacao')->nullable();
-            $table->date('data_nascimento')->nullable();
-            $table->string('numero_estudante')->unique();
-            $table->string('telefone')->nullable();
-            $table->string('email')->unique()->nullable();
-            $table->string('municipio')->nullable();
-            $table->string('morada')->nullable();
-            $table->timestamps();
-        });
     }
 
     /**
      * Reverse the migrations.
-     */ /* */
+     */
     public function down(): void
     {
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
-        Schema::dropIfExists('candidatos');
     }
 };

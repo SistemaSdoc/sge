@@ -39,6 +39,7 @@ class User extends Authenticatable implements PasskeyUser
 
     // Propriedade que o Laravel usa
     protected $guard = 'web';
+
     // Propriedade que o Spatie usa
     protected $guard_name = 'web';
 
@@ -49,58 +50,5 @@ class User extends Authenticatable implements PasskeyUser
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
-    }
-
-    public function professor()
-    {
-        return $this->hasOne(Professor::class);
-    }
-
-    public function aluno()
-    {
-        return $this->hasOne(Aluno::class);
-    }
-
-    public function candidato()
-    {
-        return $this->hasOne(Candidato::class);
-    }
-
-    public function isSuperAdmin(): bool
-    {
-        return $this->hasRole('SuperAdmin'); // usa o método do Spatie
-    }
-
-    public function isDirector(): bool
-    {
-        return $this->hasRole('Director'); // usa o método do Spatie
-    }
-
-    /**
-     * Retorna a rota de redirecionamento baseada no role do utilizador
-     */
-    public function roleRedirectPath(): string
-    {
-        // Se é candidato ou aluno, redireciona para portal
-        if ($this->hasRole('Candidato')) {
-            return '/portal';
-        }
-
-        // Qualquer outro role (admin, director, etc.) vai para dashboard
-        return '/dashboard';
-    }
-
-    public function instituicaoFiltro(): ?string
-    {
-        if ($this->isSuperAdmin()) {
-            return null;
-        }
-
-        return $this->instituicao_id;
-    }
-
-    public function instituicao()
-    {
-        return $this->belongsTo(Instituicao::class, 'instituicao_id');
     }
 }

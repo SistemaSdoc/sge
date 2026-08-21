@@ -104,7 +104,11 @@ Route::middleware([
         ->middleware('auth:tenant')
         ->name('tenant.dashboard');
 
-    Route::middleware(['auth:tenant', 'verified', 'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno'])
+    Route::middleware([
+        'auth:tenant',
+        'verified',
+        'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno',
+    ])
         ->prefix('dashboard')
         ->name('tenant.dashboard.')
         ->group(function () {
