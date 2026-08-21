@@ -15,10 +15,13 @@ export default function Create({ roles }) {
 
   return (
     <>
-      <Head title="Adicionar Utilizador" />
+      <Head title="Adicionar Usuário" />
       <UserForm
-        title="Adicionar Utilizador"
+        title="Adicionar usuário"
+        description="Preencha os dados abaixo para adicionar um novo usuário"
         roles={roles}
+        submitLabel="Adicionar"
+        processingLabel="Adicionando"
         data={data}
         setData={setData}
         errors={errors}

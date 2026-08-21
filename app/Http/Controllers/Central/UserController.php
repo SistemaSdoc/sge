@@ -20,7 +20,7 @@ class UserController extends Controller
 
         $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->get(['id', 'name']);
 
-        return Inertia::render('tenant/users/index', [
+        return Inertia::render('central/users/index', [
             'users' => $users,
             'roles' => $roles,
         ]);
@@ -30,7 +30,7 @@ class UserController extends Controller
     {
         $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->get(['id', 'name']);
 
-        return Inertia::render('tenant/users/create', [
+        return Inertia::render('central/users/create', [
             'roles' => $roles,
         ]);
     }
@@ -46,15 +46,14 @@ class UserController extends Controller
         $user->syncRoles($roles);
         $user->load('roles:id,name');
 
-        return redirect()->route('users.index');
+        return redirect()->route('central.dashboard.users.index');
     }
-
     public function edit(User $user)
     {
         $user->load('roles:id,name');
         $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->get(['id', 'name']);
 
-        return Inertia::render('tenant/users/edit', [
+        return Inertia::render('central/users/edit', [
             'user' => $user,
             'roles' => $roles,
         ]);
@@ -64,7 +63,7 @@ class UserController extends Controller
     {
         $user->load('roles:id,name');
 
-        return Inertia::render('tenant/users/show', [
+        return Inertia::render('central/users/show', [
             'user' => $user,
         ]);
     }
@@ -85,13 +84,13 @@ class UserController extends Controller
         $user->syncRoles($roles);
         $user->load('roles:id,name');
 
-        return redirect()->route('users.index');
+        return redirect()->route('central.dashboard.users.index');
     }
 
     public function destroy(User $user)
     {
         $user->delete();
 
-        return redirect()->route('users.index');
+        return redirect()->route('central.dashboard.users.index');
     }
 }

@@ -1,5 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Spinner } from '@/components/spinner';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Field,
   FieldError,
@@ -8,11 +15,21 @@ import {
   FieldSet,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { MultiSelect } from '@/components/ui/multi-select'; // ajusta ao teu componente
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export function UserForm({
   title,
-  submitLabel = 'Guardar',
+  description,
+  submitLabel = 'Adicionar',
+  processingLabel,
   data,
   setData,
   errors,
@@ -26,6 +43,7 @@ export function UserForm({
         <Card>
           <CardHeader className="border-b">
             <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
           </CardHeader>
 
           <CardContent>
@@ -43,29 +61,17 @@ export function UserForm({
                   {errors.nome && <FieldError>{errors.nome}</FieldError>}
                 </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="email@exemplo.com"
-                    value={data.email}
-                    onChange={(e) => setData('email', e.target.value)}
-                  />
-                  {errors.email && <FieldError>{errors.email}</FieldError>}
-                </Field>
-
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Field>
-                    <FieldLabel htmlFor="bi">Nº BI</FieldLabel>
+                    <FieldLabel htmlFor="email">Email</FieldLabel>
                     <Input
-                      id="bi"
-                      type="text"
-                      placeholder="000000000LA000"
-                      value={data.bi}
-                      onChange={(e) => setData('bi', e.target.value)}
+                      id="email"
+                      type="email"
+                      placeholder="email@exemplo.com"
+                      value={data.email}
+                      onChange={(e) => setData('email', e.target.value)}
                     />
-                    {errors.bi && <FieldError>{errors.bi}</FieldError>}
+                    {errors.email && <FieldError>{errors.email}</FieldError>}
                   </Field>
 
                   <Field>
@@ -77,7 +83,9 @@ export function UserForm({
                       value={data.telefone}
                       onChange={(e) => setData('telefone', e.target.value)}
                     />
-                    {errors.telefone && <FieldError>{errors.telefone}</FieldError>}
+                    {errors.telefone && (
+                      <FieldError>{errors.telefone}</FieldError>
+                    )}
                   </Field>
                 </div>
 
@@ -85,9 +93,7 @@ export function UserForm({
                   <FieldLabel htmlFor="password">
                     Password{' '}
                     {data.id && (
-                      <span className="font-normal text-muted-foreground">
-                        (deixa em branco para manter)
-                      </span>
+                      <span className="font-normal text-muted-foreground"></span>
                     )}
                   </FieldLabel>
                   <Input
@@ -97,46 +103,44 @@ export function UserForm({
                     value={data.password}
                     onChange={(e) => setData('password', e.target.value)}
                   />
-                  {errors.password && <FieldError>{errors.password}</FieldError>}
+                  {errors.password && (
+                    <FieldError>{errors.password}</FieldError>
+                  )}
                 </Field>
 
                 {roles.length > 0 && (
                   <Field>
-                    <FieldLabel>Perfis</FieldLabel>
-                    <div className="flex flex-wrap gap-2">
-                      {roles.map((role) => {
-                        const selected = (data.roles ?? []).includes(role.id);
-                        return (
-                          <button
-                            key={role.id}
-                            type="button"
-                            onClick={() => {
-                              const current = data.roles ?? [];
-                              setData(
-                                'roles',
-                                selected
-                                  ? current.filter((id) => id !== role.id)
-                                  : [...current, role.id],
-                              );
-                            }}
-                            className={[
-                              'rounded-full border px-3 py-1 text-sm transition-colors',
-                              selected
-                                ? 'border-primary bg-primary text-primary-foreground'
-                                : 'border-input bg-background text-muted-foreground hover:bg-muted',
-                            ].join(' ')}
-                          >
-                            {role.name}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    <FieldLabel htmlFor="role">Perfil</FieldLabel>
+                    <Select
+                      value={String(data.roles?.[0] ?? '')}
+                      onValueChange={(val) => setData('roles', [Number(val)])}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Seleccionar perfil" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Perfis</SelectLabel>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={String(role.id)}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                     {errors.roles && <FieldError>{errors.roles}</FieldError>}
                   </Field>
                 )}
 
                 <Button type="submit" className="w-full" disabled={processing}>
-                  {processing ? 'A guardar...' : submitLabel}
+                  {processing ? (
+                    <>
+                      <Spinner className="size-4" /> {processingLabel}{' '}
+                    </>
+                  ) : (
+                    submitLabel
+                  )}
                 </Button>
               </FieldSet>
             </FieldGroup>

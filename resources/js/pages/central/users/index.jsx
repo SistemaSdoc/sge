@@ -13,7 +13,7 @@ export default function Index({ users, can }) {
     deleteConfirm({
       title: 'Tens a certeza?',
       description:
-        'Esta acção é irreversível. O utilizador será eliminado permanentemente.',
+        'Esta acção é irreversível. O usuário será eliminado permanentemente.',
       confirmLabel: 'Eliminar',
       confirmFn: () => router.delete(destroy(userId).url),
     });
@@ -28,7 +28,7 @@ export default function Index({ users, can }) {
 
   return (
     <div className="mx-auto w-full max-w-7xl p-6">
-      <Head title="Utilizadores" />
+      <Head title="Usuários" />
       <UserTable
         can={can}
         users={users.data}

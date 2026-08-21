@@ -15,10 +15,13 @@ export default function Edit({ user, roles }) {
 
   return (
     <>
-      <Head title="Editar Utilizador" />
+      <Head title="Editar Usuário" />
+
       <UserForm
-        title="Editar Utilizador"
+        title="Editar Usuário"
+        description="Altere os dados do usuário e salve alterações"
         submitLabel="Actualizar"
+        processingLabel="Actualizando"
         roles={roles}
         data={{ ...data, id: user.id }}
         setData={setData}

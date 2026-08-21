@@ -3,6 +3,7 @@
 namespace App\Services\Central\Menu;
 
 use App\Http\Controllers\Central\TenantController;
+use App\Http\Controllers\Central\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
@@ -38,7 +39,7 @@ final class SidebarMenuService
                 new MenuItem(
                     key: 'users',
                     title: 'Usuários',
-                    href: '#',
+                    href: action([UserController::class, 'index']),
                     icon: 'Users',
                     can: true,
                 ),

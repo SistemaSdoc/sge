@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { ClasseForm } from './components/classe-form';
+//import { ClasseForm } from './components/classe-form';
 import { update } from '@/actions/App/Http/Controllers/Tenant/ClasseController';
 
 export default function Edit({ can = {}, classe }) {

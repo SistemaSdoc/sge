@@ -33,26 +33,22 @@ import {
 
 export default function UserTable({
   users,
-  can,
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
-  const hasAnyAction = users.some((u) => u.can?.update || u.can?.delete);
   const isEmpty = !users || users.length === 0;
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
       <CardHeader className="border-b">
-        <CardTitle>Utilizadores</CardTitle>
-        <CardDescription>Lista de utilizadores registados</CardDescription>
-        {can?.create && (
-          <CardAction>
-            <Button asChild>
-              <Link href={create().url}>Adicionar</Link>
-            </Button>
-          </CardAction>
-        )}
+        <CardTitle>Usuários</CardTitle>
+        <CardDescription>Lista de usuários registados</CardDescription>
+        <CardAction>
+          <Button asChild>
+            <Link href={create().url}>Adicionar</Link>
+          </Button>
+        </CardAction>
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -61,16 +57,12 @@ export default function UserTable({
             variant="table"
             icon={UsersIcon}
             title="Nenhum utilizador registado"
-            description="Comece adicionando o primeiro utilizador"
-            action={
-              can?.create
-                ? {
-                    label: 'Adicionar utilizador',
-                    href: create().url,
-                    variant: 'outline',
-                  }
-                : undefined
-            }
+            description="Comece adicionando o primeiro usuário"
+            action={{
+              label: 'Adicionar usuário',
+              href: create().url,
+              variant: 'outline',
+            }}
           />
         ) : (
           <Table>
@@ -80,16 +72,16 @@ export default function UserTable({
                 <TableHead className="px-4">Email</TableHead>
                 <TableHead className="px-4">Telefone</TableHead>
                 <TableHead className="px-4">Perfis</TableHead>
-                {hasAnyAction && (
-                  <TableHead className="px-4 text-right">Acções</TableHead>
-                )}
+                <TableHead className="px-4 text-right">Acções</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
               {users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="px-4 font-medium">{user.nome}</TableCell>
+                  <TableCell className="px-4 font-medium">
+                    {user.nome}
+                  </TableCell>
                   <TableCell className="px-4">{user.email}</TableCell>
                   <TableCell className="px-4">{user.telefone ?? '—'}</TableCell>
                   <TableCell className="px-4">
@@ -109,42 +101,36 @@ export default function UserTable({
                     </div>
                   </TableCell>
 
-                  {hasAnyAction && (
                     <TableCell className="px-4 text-right">
-                      {(user.can?.update || user.can?.delete) && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="size-8">
-                              <MoreHorizontalIcon />
-                              <span className="sr-only">Abrir menu</span>
-                            </Button>
-                          </DropdownMenuTrigger>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                          >
+                            <MoreHorizontalIcon />
+                            <span className="sr-only">Abrir menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
 
-                          <DropdownMenuContent align="end">
-                            {user.can?.update && (
-                              <DropdownMenuItem
-                                onClick={() => router.visit(edit(user.id).url)}
-                              >
-                                Editar
-                              </DropdownMenuItem>
-                            )}
-                            {user.can?.update && user.can?.delete && (
-                              <DropdownMenuSeparator />
-                            )}
-                            {user.can?.delete && (
-                              <DropdownMenuItem
-                                variant="destructive"
-                                onClick={() => deleteFn(user.id)}
-                              >
-                                Remover
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => router.visit(edit(user.id).url)}
+                          >
+                            Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => deleteFn(user.id)}
+                          >
+                            Remover
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
-                  )}
-                </TableRow>
+                  </TableRow>
               ))}
             </TableBody>
           </Table>
