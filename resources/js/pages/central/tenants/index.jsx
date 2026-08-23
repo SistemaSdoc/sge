@@ -16,12 +16,12 @@ export default function Index({ tenants, can }) {
     openForm({
       title: `Alterar Status - ${tenant.instituicao?.nome || tenant.id}`,
       description:
-        'Selecione uma opcão abaixo para alterar o status do cliente.',
-      size: 'md',
+        'Selecione uma opcão abaixo para alterar o status desta instituição.',
+      size: 'sm',
       content: (
         <AlterarStatusDialog
           tenant={tenant}
-          status={tenant.status}
+          availableTransitions={tenant.availableTransitions || {}}
           onCancel={() => closeDialog()}
           onSuccess={() => closeDialog()}
         />
@@ -33,7 +33,7 @@ export default function Index({ tenants, can }) {
     deleteConfirm({
       title: 'Tens a certeza?',
       description:
-        'Esta acção é irreversível. O tenant será eliminado permanentemente.',
+        'Esta acção é irreversível. A instituição será eliminada permanentemente.',
       confirmLabel: 'Eliminar',
       confirmFn: () => router.delete(destroy(tenantId).url),
     });
@@ -48,7 +48,7 @@ export default function Index({ tenants, can }) {
 
   return (
     <>
-      <Head title="Clientes" />
+      <Head title="Instituições" />
 
       <TenantTable
         can={can}

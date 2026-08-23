@@ -51,11 +51,11 @@ export function TenantTable({
   );
 
   return (
-    <div className="w-full p-6 mx-auto max-w-7xl">
+    <div className="mx-auto w-full max-w-7xl p-6">
       <Card className="gap-0">
         <CardHeader className="border-b">
-          <CardTitle>Clientes</CardTitle>
-          <CardDescription>Lista de clientes cadastrados</CardDescription>
+          <CardTitle>Instituições</CardTitle>
+          <CardDescription>Lista de instituições cadastradas</CardDescription>
           <CardAction>
             {/*{can.create && (
               <Button asChild>
@@ -64,7 +64,7 @@ export function TenantTable({
             )}*/}
 
             <Button asChild>
-              <Link href={create().url}>Adicionar</Link>
+              <Link href={create().url}>Adicionar Instituição</Link>
             </Button>
           </CardAction>
         </CardHeader>
@@ -74,12 +74,12 @@ export function TenantTable({
             <EmptyState
               variant="table"
               icon={LayersIcon}
-              title="Nenhuma cliente cadastrado"
-              description="Clique no botão abaixo para cadastrar um novo cliente"
+              title="Nenhuma instituição cadastrada"
+              description="Clique no botão abaixo para cadastrar uma nova instituição"
               action={
                 can.create
                   ? {
-                      label: 'Adicionar Cliente',
+                      label: 'Adicionar Instituição',
                       href: create().url,
                       variant: 'outline',
                     }
@@ -91,7 +91,6 @@ export function TenantTable({
               <TableHeader>
                 <TableRow className="bg-muted/72">
                   <TableHead className="px-4">Nome</TableHead>
-                  <TableHead className="px-4 text-center">Sigla</TableHead>
                   <TableHead className="px-4 text-center">Domínio</TableHead>
                   <TableHead className="px-4 text-center">Status</TableHead>
                   <TableHead className="px-4 text-right">Acções</TableHead>
@@ -102,16 +101,13 @@ export function TenantTable({
                 {tenants.map((tenant) => (
                   <TableRow
                     key={tenant.id}
+                    className="hover:cursor-pointer"
                     onClick={() => {
                       router.visit(show(tenant.id).url);
                     }}
                   >
                     <TableCell className="px-4 font-medium">
                       {tenant.instituicao?.nome ?? tenant.id}
-                    </TableCell>
-
-                    <TableCell className="px-4 text-center ">
-                      {tenant.instituicao?.sigla ?? '—'}
                     </TableCell>
 
                     <TableCell className="px-4 text-center">

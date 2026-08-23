@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class StoreTenantRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Verifica se o utilizador tem permissão para criar tenants.
      */
     public function authorize(): bool
     {
@@ -21,7 +21,7 @@ class StoreTenantRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Regras de validação para criação de tenant.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
@@ -32,13 +32,41 @@ class StoreTenantRequest extends FormRequest
             'nome' => ['required', 'string', 'max:255'],
             'sigla' => ['required', 'string', 'max:10'],
             'tipo' => ['required', 'string', 'in:colegio,instituto'],
-            'email' => ['required', 'email'],
-            'telefone' => ['nullable', 'string'],
-            'provincia' => ['nullable', 'string'],
-            'endereco' => ['nullable', 'string'],
-            'status' => ['required', 'string', 'in:active,trial,pending,suspended,inactive,archived'],
             'user_nome' => ['required', 'string', 'max:255'],
             'user_email' => ['required', 'email'],
+        ];
+    }
+
+    /**
+     * Mensagens de erro personalizadas.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'domain.required' => 'O subdomínio é obrigatório.',
+            'domain.string' => 'O subdomínio pode conter apenas letras, números e hífens.',
+            'domain.unique' => 'Este subdomínio já está a ser utilizado.',
+
+            'nome.required' => 'O nome da instituição é obrigatório.',
+            'nome.string' => 'O nome da instituição pode conter apenas letras e números.',
+            'nome.max' => 'O nome não pode ter mais de 255 caracteres.',
+
+            'sigla.required' => 'A sigla é obrigatória.',
+            'sigla.string' => 'A sigla pode conter apenas letras.',
+            'sigla.max' => 'A sigla não pode ter mais de 10 caracteres.',
+
+            'tipo.required' => 'O tipo de instituição é obrigatório.',
+            'tipo.string' => 'O tipo de instituição é inválido.',
+            'tipo.in' => 'Escolha entre "Colégio" ou "Instituto".',
+
+            'user_nome.required' => 'O nome do administrador é obrigatório.',
+            'user_nome.string' => 'O nome do administrador pode conter apenas letras e espaços.',
+            'user_nome.max' => 'O nome do administrador não pode ter mais de 255 caracteres.',
+
+            'user_email.required' => 'O email do administrador é obrigatório.',
+            'user_email.email' => 'Introduza um email válido (ex: admin@escola.ao).',
         ];
     }
 }

@@ -32,6 +32,11 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return $this->hasOne(Instituicao::class, 'tenant_id', 'id');
     }
 
+    public function pendingData(): HasOne
+    {
+        return $this->hasOne(PendingTenantData::class, 'tenant_id', 'id');
+    }
+
     public function isActive(): bool
     {
         return $this->status === TenantStatus::ACTIVE;

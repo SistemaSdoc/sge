@@ -8,7 +8,6 @@ enum TenantStatus: string
     case TRIAL = 'trial';
     case PENDING = 'pending';
     case SUSPENDED = 'suspended';
-    case INACTIVE = 'inactive';
     case ARCHIVED = 'archived';
 
     public function label(): string
@@ -18,7 +17,6 @@ enum TenantStatus: string
             self::TRIAL => 'Período de Teste',
             self::PENDING => 'Pendente de Verificação',
             self::SUSPENDED => 'Suspenso',
-            self::INACTIVE => 'Inactivo',
             self::ARCHIVED => 'Arquivado',
         };
     }

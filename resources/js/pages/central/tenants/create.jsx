@@ -4,27 +4,24 @@ import { store } from '@/actions/App/Http/Controllers/Central/TenantController';
 
 export default function Create({ can = {} }) {
   const { post, data, setData, processing, errors } = useForm({
-    tenant_id: '',
-    domain: '',
     nome: '',
     sigla: '',
-    tipo: 'colegio',
-    email: '',
-    telefone: '',
-    provincia: '',
-    endereco: '',
-    status: true,
+    domain: '',
+    tipo: '',
     user_nome: '',
     user_email: '',
   });
 
   return (
     <TenantForm
-      title="Criar Nova Instituição"
+      title="Adicionar nova instituição"
+      description="Preencha os campos abaixo para cadastrar uma nova instituição."
       data={data}
       setData={setData}
       errors={errors}
       processing={processing}
+      processingLabel="Adicionando Instituição"
+      submitLabel="Adicionar Instituição"
       can={can}
       submitFn={(e) => {
         e.preventDefault();

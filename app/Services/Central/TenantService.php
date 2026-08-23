@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace App\Services\Central;
 
 use App\Enums\TenantStatus;
+use App\Events\TenantActivated;
+use App\Models\Central\PendingTenantData;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class TenantService
 {
     /**
-     * List tenants with the institution stored in each tenant database.
+     * Lista tenants com as instituições carregadas.
      */
     public function getTenantsWithInstituicoes(LengthAwarePaginator $tenants): LengthAwarePaginator
     {
@@ -24,7 +27,7 @@ class TenantService
     }
 
     /**
-     * Get the institution referenced by the tenant central record.
+     * Obtém a instituição de um tenant.
      */
     public function getInstituicao(Tenant $tenant): ?Instituicao
     {
@@ -32,130 +35,233 @@ class TenantService
             return null;
         }
 
-        return $tenant->run(fn (): ?Instituicao => Instituicao::query()->find($tenant->instituicao_id));
+        return $tenant->run(fn(): ?Instituicao => Instituicao::query()->find($tenant->instituicao_id));
+    }
+
+
+    /**
+     * Obtém o usuário administrador de um tenant.
+     */
+    public function getTenantAdminUser(Tenant $tenant): ?User
+    {
+        if (! $tenant->admin_user_id) {
+            return null;
+        }
+
+        return $tenant->run(fn(): ?User => User::query()->find($tenant->admin_user_id));
     }
 
     /**
-     * Create and associate the institution inside the tenant database.
+     * Cria um novo tenant com domínio (status PENDENTE, sem BD).
      *
-     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $data Com chave 'domain'
      */
-    public function createInstituicao(Tenant $tenant, array $data): Instituicao
+    public function createTenant(array $data): Tenant
     {
-        $instituicao = $tenant->run(function () use ($data, $tenant): Instituicao {
-            $instituicao = Instituicao::create([
+        return DB::transaction(function () use ($data) {
+            $subdomain = $data['domain'];
+            $baseDomain = env('APP_DOMAIN', 'localhost');
+            $domain = "{$subdomain}.{$baseDomain}";
+
+            $tenant = Tenant::create([
+                'id' => $subdomain,
+                'status' => TenantStatus::PENDING,
+            ]);
+
+            $tenant->domains()->create([
+                'domain' => $domain,
+            ]);
+
+            return $tenant->load('domains');
+        });
+    }
+
+    /**
+     * Guarda dados da instituição temporariamente até o tenant ser activado.
+     *
+     * @param  array<string, mixed>  $data Dados da instituição e admin
+     */
+    public function savePendingTenantData(Tenant $tenant, array $data): void
+    {
+        DB::transaction(function () use ($tenant, $data) {
+            PendingTenantData::create([
+                'tenant_id' => $tenant->id,
                 'nome' => $data['nome'],
                 'sigla' => $data['sigla'],
                 'tipo' => $data['tipo'],
-                'email' => $data['email'],
-                'telefone' => $data['telefone'] ?? null,
-                'provincia' => $data['provincia'] ?? null,
-                'endereco' => $data['endereco'] ?? null,
-                'status' => $data['status'] ?? true,
-                'tenant_id' => $tenant->id,
+                'status' => true,
+                'user_nome' => $data['user_nome'],
+                'user_email' => $data['user_email'],
             ]);
-
-            $user = User::create([
-                'nome' => $data['user_nome'],
-                'email' => $data['user_email'],
-                'password' => Hash::make('12345678'),
-                'instituicao_id' => $instituicao->id,
-            ]);
-
-            $user->assignRole('Director');
-
-            return $instituicao;
         });
-
-        $tenant->update(['instituicao_id' => $instituicao->id]);
-
-        return $instituicao;
     }
 
     /**
-     * Update the institution associated with a tenant.
+     * Actualiza a instituição de um tenant.
      *
-     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $data Campos a actualizar
      */
     public function updateInstituicao(Tenant $tenant, array $data): void
     {
         $instituicao = $this->getInstituicao($tenant);
 
         if ($instituicao) {
-            $tenant->run(fn () => $instituicao->update($data));
+            $tenant->run(fn() => $instituicao->update($data));
         }
     }
 
     /**
-     * Create a new tenant with domain.
+     * Actualiza registo central do tenant.
      *
-     * @param  array<string, mixed>  $data
-     */
-    public function createTenant(array $data): Tenant
-    {
-        $subdomain = $data['domain'];
-        $baseDomain = env('APP_DOMAIN', 'localhost');
-        $domain = "{$subdomain}.{$baseDomain}";
-
-        $tenant = Tenant::create([
-            'id' => $subdomain,
-        ]);
-
-        $tenant->domains()->create([
-            'domain' => $domain,
-        ]);
-
-        return $tenant->load('domains');
-    }
-
-    /**
-     * Update an existing tenant.
-     *
-     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $data Com chave 'domain'
      */
     public function updateTenant(Tenant $tenant, array $data): Tenant
     {
-        if (isset($data['domain']) && $data['domain'] !== $tenant->domains->first()?->domain) {
-            $tenant->domains()->delete();
+        return DB::transaction(function () use ($tenant, $data) {
+            if (isset($data['domain']) && $data['domain'] !== $tenant->domains->first()?->domain) {
+                $tenant->domains()->delete();
 
-            $tenant->domains()->create([
-                'domain' => $data['domain'],
-            ]);
-        }
+                $tenant->domains()->create([
+                    'domain' => $data['domain'],
+                ]);
+            }
 
-        return $tenant->fresh()->load('domains');
+            return $tenant->fresh()->load('domains');
+        });
     }
 
     /**
-     * Delete a tenant and its associated resources.
+     * Elimina um tenant e recursos associados.
+     *
+     * @throws \Exception
      */
     public function deleteTenant(Tenant $tenant): bool
     {
-        $tenant->domains()->delete();
+        return DB::transaction(function () use ($tenant) {
+            PendingTenantData::where('tenant_id', $tenant->id)->delete();
 
-        return $tenant->delete();
+            // Apaga domínios
+            $tenant->domains()->delete();
+
+            // Apaga tenant
+            return $tenant->delete();
+        });
     }
 
     /**
-     * Toggle the status of a tenant between ACTIVE and INACTIVE.
+     * Faz transição de status do tenant (PENDING para TRIAL, TRIAL para ACTIVE, etc).
+     *
+     * @throws \Exception
      */
-    public function toggleStatus(Tenant $tenant): Tenant
+    public function transitionStatus(Tenant $tenant, string $newStatus): void
     {
-        $newStatus = $tenant->status === TenantStatus::ACTIVE
-            ? TenantStatus::INACTIVE
-            : TenantStatus::ACTIVE;
+        DB::transaction(function () use ($tenant, $newStatus) {
+            $oldStatus = $tenant->status->value;
 
-        $tenant->update(['status' => $newStatus]);
+            match ([$oldStatus, $newStatus]) {
+                // PENDING para TRIAL ou PENDING para ACTIVE
+                ['pending', 'trial'], ['pending', 'active'] => $this->activateTenant($tenant, $newStatus),
 
-        return $tenant->fresh();
+                // TRIAL para ACTIVE
+                ['trial', 'active'] => $this->convertTrialToActive($tenant),
+
+                // TRIAL para SUSPENDED
+                ['trial', 'suspended'] => $this->suspendTenant($tenant),
+
+                // ACTIVE para SUSPENDED
+                ['active', 'suspended'] => $this->suspendTenant($tenant),
+
+                // SUSPENDED para ACTIVE
+                ['suspended', 'active'] => $this->reactivateTenant($tenant),
+
+                default => null,
+            };
+        });
     }
 
     /**
-     * Get all available tenant statuses.
+     * Activa tenant e dispara event para jobs (BD, migrações, seed, instituição).
+     *
+     * @throws ModelNotFoundException
+     */
+    private function activateTenant(Tenant $tenant, string $status): void
+    {
+        $tenant->update([
+            'status' => $status,
+            'trial_ends_at' => $status === 'trial' ? now()->addDays(14) : null,
+        ]);
+
+        TenantActivated::dispatch($tenant);
+    }
+
+    /**
+     * Converte tenant de TRIAL para ACTIVE.
+     */
+    private function convertTrialToActive(Tenant $tenant): void
+    {
+        $tenant->update([
+            'status' => TenantStatus::ACTIVE,
+            'trial_ends_at' => null,
+        ]);
+    }
+
+    /**
+     * Suspende um tenant (bloqueia acesso a funcionalidades).
+     */
+    private function suspendTenant(Tenant $tenant): void
+    {
+        $tenant->update([
+            'status' => TenantStatus::SUSPENDED,
+            'suspended_at' => now(),
+        ]);
+    }
+
+    /**
+     * Reactiva um tenant suspenso.
+     */
+    private function reactivateTenant(Tenant $tenant): void
+    {
+        $tenant->update([
+            'status' => TenantStatus::ACTIVE,
+            'suspended_at' => null,
+            'trial_ends_at' => null,
+        ]);
+    }
+
+    /**
+     * Retorna transições de status válidas para o tenant actual.
+     *
+     * @return array<string, string>
+     */
+    public function getAvailableStatusTransitions(Tenant $tenant): array
+    {
+        return match ($tenant->status->value) {
+            'pending' => [
+                'active' => 'Activar',
+                'trial' => 'Activar Período de Teste (14 dias)',
+            ],
+            'trial' => [
+                'active' => 'Activar',
+                'suspended' => 'Cancelar Teste',
+            ],
+            'active' => [
+                'suspended' => 'Suspender',
+            ],
+            'suspended' => [
+                'active' => 'Reactivar',
+            ],
+            'archived' => [],
+        };
+    }
+
+    /**
+     * Retorna lista de todos os statuses disponíveis.
+     *
+     * @return array<int, array<string, string>>
      */
     public function getAvailableStatuses(): array
     {
-        return array_map(fn (TenantStatus $status) => [
+        return array_map(fn(TenantStatus $status) => [
             'value' => $status->value,
             'label' => $status->label(),
         ], TenantStatus::cases());

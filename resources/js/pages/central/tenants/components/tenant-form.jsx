@@ -1,8 +1,11 @@
-'use client';
-
-import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Field,
   FieldError,
@@ -20,17 +23,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ButtonGroup } from '@/components/ui/button-group';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@/components/ui/input-group';
+import { Spinner } from '@/components/spinner';
+import { ArrowUpLeft } from 'lucide-react';
 
 export function TenantForm({
   title,
+  description,
   data,
   setData,
   errors,
   processing,
   submitFn,
-  submitLabel = 'Guardar',
+  submitLabel = 'Adicionar',
+  processingLabel = 'Processando...',
   can = {},
 }) {
   const canSubmit = Boolean(can.create ?? true);
@@ -41,49 +51,17 @@ export function TenantForm({
   ];
 
   return (
-    <div className="w-full max-w-sm px-6 py-6 mx-auto md:max-w-md lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-2xl">
       <form onSubmit={submitFn}>
         <Card className="overflow-visible">
           <CardHeader className="border-b">
             <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
           </CardHeader>
 
           <CardContent>
             <FieldGroup>
               <FieldSet>
-                {/* Nome & Email do User */}
-                <div className="grid grid-cols-1 gap-4 pt-6 mt-6 border-t md:grid-cols-2">
-                  <Field>
-                    <FieldLabel htmlFor="user_nome">Nome do usuário</FieldLabel>
-                    <Input
-                      id="user_nome"
-                      type="text"
-                      placeholder="Ex.: João Silva"
-                      value={data.user_nome}
-                      onChange={(e) => setData('user_nome', e.target.value)}
-                    />
-                    {errors.user_nome && (
-                      <FieldError>{errors.user_nome}</FieldError>
-                    )}
-                  </Field>
-
-                  <Field>
-                    <FieldLabel htmlFor="user_email">
-                      Email do usuário
-                    </FieldLabel>
-                    <Input
-                      id="user_email"
-                      type="email"
-                      placeholder="Ex.: director@escola.ao"
-                      value={data.user_email}
-                      onChange={(e) => setData('user_email', e.target.value)}
-                    />
-                    {errors.user_email && (
-                      <FieldError>{errors.user_email}</FieldError>
-                    )}
-                  </Field>
-                </div>
-
                 {/* Nome & Sigla */}
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Field>
@@ -113,8 +91,7 @@ export function TenantForm({
                     {errors.sigla && <FieldError>{errors.sigla}</FieldError>}
                   </Field>
                 </div>
-
-                {/* Tipo & Email */}
+                {/* Tipo & Subdomínio */}
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Field>
                     <FieldLabel htmlFor="tipo">Tipo</FieldLabel>
@@ -140,105 +117,66 @@ export function TenantForm({
                   </Field>
 
                   <Field>
-                    <FieldLabel htmlFor="email">E-mail</FieldLabel>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Ex.: director@escola.ao"
-                      value={data.email}
-                      onChange={(e) => setData('email', e.target.value)}
-                    />
-                    {errors.email && <FieldError>{errors.email}</FieldError>}
+                    <FieldLabel htmlFor="domain">Subdomínio</FieldLabel>
+                    <InputGroup className="max-w-xs">
+                      <InputGroupAddon className="font-normal text-foreground">
+                        https://
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        id="domain"
+                        type="text"
+                        value={data.domain}
+                        placeholder="Ex.: imcl"
+                        onChange={(e) => setData('domain', e.target.value)}
+                      />
+                      <InputGroupAddon
+                        align="inline-end"
+                        className="font-normal text-foreground"
+                      >
+                        .sge.localhost
+                      </InputGroupAddon>
+                    </InputGroup>
+
+                    {errors.domain && <FieldError>{errors.domain}</FieldError>}
                   </Field>
                 </div>
 
-                {/* Telefone & Província */}
+                {/* Nome & Email do User */}
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Field>
-                    <FieldLabel htmlFor="telefone">Telefone</FieldLabel>
-                    <div className="flex">
-                      <span className="flex items-center justify-center px-3 py-1 text-xs border border-r-0 text-muted-foreground">
-                        +244
-                      </span>
-                      <Input
-                        id="telefone"
-                        type="tel"
-                        placeholder="Ex.: 923000000"
-                        value={data.telefone}
-                        onChange={(e) => setData('telefone', e.target.value)}
-                      />
-                    </div>
-                    {errors.telefone && (
-                      <FieldError>{errors.telefone}</FieldError>
+                    <FieldLabel htmlFor="user_nome">
+                      Nome do usuário (Director)
+                    </FieldLabel>
+                    <Input
+                      id="user_nome"
+                      type="text"
+                      placeholder="Ex.: João Silva"
+                      value={data.user_nome}
+                      onChange={(e) => setData('user_nome', e.target.value)}
+                    />
+                    {errors.user_nome && (
+                      <FieldError>{errors.user_nome}</FieldError>
                     )}
                   </Field>
 
                   <Field>
-                    <FieldLabel htmlFor="provincia">Província</FieldLabel>
+                    <FieldLabel htmlFor="user_email">
+                      Email do usuário (Director)
+                    </FieldLabel>
                     <Input
-                      id="provincia"
-                      type="text"
-                      placeholder="Ex.: Luanda"
-                      value={data.provincia}
-                      onChange={(e) => setData('provincia', e.target.value)}
+                      id="user_email"
+                      type="email"
+                      placeholder="Ex.: email@example.com"
+                      value={data.user_email}
+                      onChange={(e) => setData('user_email', e.target.value)}
                     />
-                    {errors.provincia && (
-                      <FieldError>{errors.provincia}</FieldError>
+                    {errors.user_email && (
+                      <FieldError>{errors.user_email}</FieldError>
                     )}
                   </Field>
                 </div>
 
-                {/* Endereço */}
-                <Field>
-                  <FieldLabel htmlFor="endereco">Endereço</FieldLabel>
-                  <Input
-                    id="endereco"
-                    type="text"
-                    placeholder="Ex.: Rua da Escola, nº 123"
-                    value={data.endereco}
-                    onChange={(e) => setData('endereco', e.target.value)}
-                  />
-                  {errors.endereco && (
-                    <FieldError>{errors.endereco}</FieldError>
-                  )}
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="domain">Subdomínio</FieldLabel>
-                  <ButtonGroup>
-                    <Button variant="outline">http://</Button>
-                    <Input
-                      id="domain"
-                      type="text"
-                      placeholder="Ex.: escola-001.sge.ao"
-                      value={data.domain}
-                      onChange={(e) => setData('domain', e.target.value)}
-                    />
-                    <Button variant="outline">.sge.localhost</Button>
-                  </ButtonGroup>
-
-                  {errors.domain && <FieldError>{errors.domain}</FieldError>}
-                </Field>
-
-                {/* Status */}
-                <Field>
-                  <div className="flex items-center gap-3">
-                    <Checkbox
-                      id="status"
-                      checked={data.status}
-                      onCheckedChange={(checked) => setData('status', checked)}
-                    />
-                    <FieldLabel
-                      htmlFor="status"
-                      className="mb-0 cursor-pointer"
-                    >
-                      Ativo
-                    </FieldLabel>
-                  </div>
-                  {errors.status && <FieldError>{errors.status}</FieldError>}
-                </Field>
-
-                {/* Submit Button */}
+                {/* Submit & Back Button */}
                 <Field>
                   <Button
                     type="submit"
@@ -247,11 +185,23 @@ export function TenantForm({
                   >
                     {processing ? (
                       <>
-                        <Loader2 className="animate-spin" /> {submitLabel}...
+                        <Spinner />
+                        {processingLabel}
                       </>
                     ) : (
                       <>{submitLabel}</>
                     )}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    disabled={processing}
+                    variant={'outline'}
+                    className="w-full"
+                    onClick={() => window.history.back()}
+                  >
+                    <ArrowUpLeft />
+                    Voltar a lista de Instituições
                   </Button>
                 </Field>
               </FieldSet>

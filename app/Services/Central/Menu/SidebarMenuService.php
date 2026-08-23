@@ -28,7 +28,7 @@ final class SidebarMenuService
 
                 new MenuItem(
                     key: 'tenants',
-                    title: 'Clientes',
+                    title: 'Instituições',
                     href: action([TenantController::class, 'index']),
                     icon: 'Building2',
                     can: true,
@@ -47,7 +47,7 @@ final class SidebarMenuService
         ];
 
         return array_values(array_filter(
-            array_map(fn (MenuGroup $group) => $group->toArray(), $groups),
+            array_map(fn(MenuGroup $group) => $group->toArray(), $groups),
         ));
     }
 }
