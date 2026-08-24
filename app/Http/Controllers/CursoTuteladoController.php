@@ -249,6 +249,7 @@ public function uploadCriteriosPap(Request $request, Instituicao $instituicao, C
     $request->validate([
         'criterios_pap' => [($cursoTutelado->criterios_pap_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
         'manual_pt'     => [($cursoTutelado->manual_pt_path     ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
+        'estrutura_trabalho_pap' => [($cursoTutelado->estrutura_trabalho_pap_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
     ]);
 
     if ($request->hasFile('criterios_pap')) {
@@ -265,6 +266,14 @@ public function uploadCriteriosPap(Request $request, Instituicao $instituicao, C
         }
         $cursoTutelado->manual_pt_path = $request->file('manual_pt')
             ->store("cursos-tutelados/{$cursoTutelado->id}/manual-pt", 'public');
+    }
+
+       if ($request->hasFile('estrutura_trabalho_pap')) {
+        if ($cursoTutelado->estrutura_trabalho_pap_path) {
+            Storage::disk('public')->delete($cursoTutelado->estrutura_trabalho_pap_path);
+        }
+        $cursoTutelado->estrutura_trabalho_pap_path = $request->file('estrutura_trabalho_pap')
+            ->store("cursos-tutelados/{$cursoTutelado->id}/estrutura-trabalho-pap", 'public');
     }
 
     $cursoTutelado->save();

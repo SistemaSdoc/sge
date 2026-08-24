@@ -35,29 +35,34 @@ import {
 } from '@/components/ui/dialog';
 import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/CursoTuteladoController';
 
-export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUrl, manualPtUrl, can }) {
+export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUrl, manualPtUrl, estruturaTrabalhoPapUrl, can }) {
   const criteriosId = useId();
   const manualId = useId();
+  const estruturaTrabalhoPapId = useId();
   const [modalAberto, setModalAberto] = useState(false);
   const [ficheiroCriterios, setFicheiroCriterios] = useState(null);
   const [ficheiroManual, setFicheiroManual] = useState(null);
+  const [ficheiroEstruturaTrabalhoPap, setFicheiroEstruturaTrabalhoPap] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   const faltaCriterios = !criteriosPapUrl;
   const faltaManual = !manualPtUrl;
-  const algumDocumento = !!(criteriosPapUrl || manualPtUrl);
-  const todosCarregados = !!(criteriosPapUrl && manualPtUrl);
+  const faltaEstruturaTrabalhoPap = !estruturaTrabalhoPapUrl;
+  const algumDocumento = !!(criteriosPapUrl || manualPtUrl || estruturaTrabalhoPapUrl);
+  const todosCarregados = !!(criteriosPapUrl && manualPtUrl && estruturaTrabalhoPapUrl);
 
   // Botão válido se os ficheiros em falta estiverem seleccionados, e pelo menos um seleccionado
   const uploadValido =
     (!faltaCriterios || ficheiroCriterios) &&
     (!faltaManual || ficheiroManual) &&
-    !!(ficheiroCriterios || ficheiroManual);
+    (!faltaEstruturaTrabalhoPap || ficheiroEstruturaTrabalhoPap) &&
+    !!(ficheiroCriterios || ficheiroManual || ficheiroEstruturaTrabalhoPap);
 
   const handleFecharModal = () => {
     setModalAberto(false);
     setFicheiroCriterios(null);
     setFicheiroManual(null);
+    setFicheiroEstruturaTrabalhoPap(null);
   };
 
   const handleUpload = () => {
@@ -66,6 +71,7 @@ export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUr
     const payload = {};
     if (ficheiroCriterios) payload.criterios_pap = ficheiroCriterios;
     if (ficheiroManual) payload.manual_pt = ficheiroManual;
+    if (ficheiroEstruturaTrabalhoPap) payload.estrutura_trabalho_pap = ficheiroEstruturaTrabalhoPap;
 
     setUploading(true);
     router.post(
@@ -87,6 +93,7 @@ export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUr
   const documentos = [
     { label: 'Critérios PAP.pdf', url: criteriosPapUrl },
     { label: 'Manual PT.pdf', url: manualPtUrl },
+    { label: 'Estrutura do Trabalho PAP.pdf', url: estruturaTrabalhoPapUrl },
   ];
 
   return (
@@ -197,6 +204,19 @@ export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUr
                 type="file"
                 accept=".pdf"
                 onChange={(e) => setFicheiroManual(e.target.files?.[0] ?? null)}
+                className="text-muted-foreground file:border-input file:text-foreground p-0 pr-3 italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:bg-transparent file:px-3 file:text-sm file:font-medium file:not-italic"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor={estruturaTrabalhoPapId}>
+                Estrutura do Trabalho PAP (PDF){!faltaEstruturaTrabalhoPap && <span className="text-muted-foreground font-normal"> — opcional</span>}
+              </Label>
+              <Input
+                id={estruturaTrabalhoPapId}
+                type="file"
+                accept=".pdf"
+                onChange={(e) => setFicheiroEstruturaTrabalhoPap(e.target.files?.[0] ?? null)}
                 className="text-muted-foreground file:border-input file:text-foreground p-0 pr-3 italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:bg-transparent file:px-3 file:text-sm file:font-medium file:not-italic"
               />
             </div>

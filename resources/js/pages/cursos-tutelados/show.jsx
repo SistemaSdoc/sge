@@ -306,6 +306,7 @@ export default function Show({
             cursoTuteladoId={cursoTuteladoId}
             criteriosPapUrl={cursoTutelado.criterios_pap_url}
             manualPtUrl={cursoTutelado.manual_pt_url}
+            estruturaTrabalhoPapUrl={cursoTutelado.estrutura_trabalho_pap_url}
             can={cursoTutelado.can}
           />
         </TabsContent>

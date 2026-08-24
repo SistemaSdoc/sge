@@ -259,6 +259,22 @@ export default function Show({
             </div>
           )}
 
+             {grupoPap?.estrutura_trabalho_pap_url && (
+            <div>
+              <p className="text-sm text-muted-foreground">Estrutura do Trabalho PAP</p>
+
+              <a
+                href={grupoPap.estrutura_trabalho_pap_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 font-medium text-primary hover:underline"
+              >
+                <FileText className="size-4" />
+                Ver documento
+              </a>
+            </div>
+          )}
+
         </CardContent>
       </Card>
 

@@ -104,12 +104,16 @@ class CursoTuteladoResourceShow extends JsonResource
             'manual_pt_url' => $this->manual_pt_path
                 ? Storage::url($this->manual_pt_path)
                 : null,
+            'estrutura_trabalho_pap_url' => $this->estrutura_trabalho_pap_path
+                ? Storage::url($this->estrutura_trabalho_pap_path)
+                : null,
             'can' => [
                 'update' => $request->user()?->can('update', $this->resource) ?? false,
                 'delete' => $request->user()?->can('delete', $this->resource) ?? false,
                 'attachProfessor' => $request->user()?->can('update', $this->resource) ?? false,
                 'uploadCriteriosPap' => $request->user()->can('update', $this->resource),
                 'uploadManualPt' => $request->user()->can('update', $this->resource),
+                'uploadEstruturaTrabalhoPap' => $request->user()->can('update', $this->resource),
             ],
         ];
     }
