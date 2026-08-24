@@ -51,6 +51,10 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->middleware('auth:web')
             ->name('central.logout');
 
+        Route::get('register/pending', fn() => inertia('central/auth/register-pending'))
+            ->middleware('guest:web')
+            ->name('central.register.pending');
+
         /*
         |--------------------------------------------------------------------------
         | Rotas Internas do central (Dashboard Routes)

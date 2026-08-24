@@ -7,7 +7,6 @@ use App\Concerns\ProfileValidationRules;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Central\Auth\RegisterStoreRequest;
 use App\Services\Central\Auth\RegisterService;
-use Inertia\Inertia;
 
 class RegisteredController extends Controller
 {
@@ -15,9 +14,6 @@ class RegisteredController extends Controller
 
     public function __construct(private RegisterService $service) {}
 
-    /**
-     * Display the institution registration view.
-     */
     public function create()
     {
         return inertia('central/auth/register', [
@@ -25,13 +21,10 @@ class RegisteredController extends Controller
         ]);
     }
 
-    /**
-     * Handle an incoming institution registration request.
-     */
     public function store(RegisterStoreRequest $request)
     {
-        $redirectUrl = $this->service->register($request->validated());
+        $this->service->register($request->validated());
 
-        return Inertia::location($redirectUrl);
+        return redirect()->route('central.register.pending');
     }
 }
