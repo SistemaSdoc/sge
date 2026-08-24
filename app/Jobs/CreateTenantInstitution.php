@@ -102,6 +102,8 @@ class CreateTenantInstitution implements ShouldQueue
                     nomeUser: $user->nome,
                     email: $user->email,
                     subdomain: $this->tenant->id,
+                    url: 'http://' . $this->tenant->id . '.' . env('APP_DOMAIN', 'localhost'),
+                    sigla: $pending->sigla,
                 ));
 
                 $this->tenant->update([

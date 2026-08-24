@@ -18,6 +18,8 @@ class TenantPendenteNotification extends Notification
         public string $nomeInstituicao,
         public string $nomeUser,
         public string $subdomain,
+        public string $url,
+        public string $sigla
     ) {
     }
 
@@ -43,6 +45,9 @@ class TenantPendenteNotification extends Notification
                 'nomeInstituicao' => $this->nomeInstituicao,
                 'nomeUser' => $this->nomeUser,
                 'subdomain' => $this->subdomain,
+                'url' => $this->url,
+                'sigla' => $this->sigla,
+
             ]);
     }
 

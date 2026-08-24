@@ -19,6 +19,9 @@ class TenantActivadoNotification extends Notification
         public string $nomeUser,
         public string $email,
         public string $subdomain,
+        public string $url,
+        public string $sigla
+
     ) {
     }
 
@@ -44,7 +47,10 @@ class TenantActivadoNotification extends Notification
                 'nomeInstituicao' => $this->nomeInstituicao,
                 'nomeUser' => $this->nomeUser,
                 'email' => $this->email,
+                'sigla' => $this->sigla,
                 'subdomain' => $this->subdomain,
+                'url' => $this->url,
+
             ]);
     }
 

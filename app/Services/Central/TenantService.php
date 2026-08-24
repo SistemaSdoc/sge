@@ -80,6 +80,8 @@ class TenantService
                         nomeInstituicao: $data['nome'],
                         nomeUser: $data['user_nome'],
                         subdomain: $data['domain'],
+                        url: 'http://' . $tenant->id . '.' . env('APP_DOMAIN', 'localhost'),
+                        sigla: $data['sigla'],
                     ));
 
             return $tenant->load('domains');
