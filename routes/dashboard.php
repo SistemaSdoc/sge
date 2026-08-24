@@ -18,6 +18,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeclaracaoController;
 use App\Http\Controllers\DisciplinaController as DisciplinaControllerGeral;
 use App\Http\Controllers\ElementoGrupoPapController;
+use App\Http\Controllers\FichaMatriculaController;
 use App\Http\Controllers\FinalistaController;
 use App\Http\Controllers\FolhaAprovacaoController;
 use App\Http\Controllers\GrelhaCurricularController;
@@ -66,6 +67,8 @@ Route::resource('classes', ClasseControllerGeral::class)->parameters(['classes' 
 Route::resource('turnos', TurnoController::class);
 Route::resource('disciplinas', DisciplinaControllerGeral::class);
 Route::resource('alunos', AlunoController::class);
+Route::get('alunos/{aluno}/ficha-matricula', [FichaMatriculaController::class, 'pdf'])
+    ->name('alunos.ficha-matricula');
 Route::prefix('turmas/{aluno}')->name('turmas.')->group(function () {
     Route::get('turmas-disponiveis', [TurmaController::class, 'getTurmasDisponiveis'])
         ->name('turmas-disponiveis');

@@ -99,14 +99,15 @@ export function Header({
         <div>
           <p className="text-sm text-muted-foreground">Total de alunos</p>
           <p className="font-bold">
-            {alunos?.total ?? turma.alunos?.length ?? 0}
+            {alunos?.meta?.total ?? alunos?.data?.length ?? 0}
           </p>
         </div>
 
         <div>
           <p className="text-sm text-muted-foreground">Total de disciplinas</p>
           <p className="font-bold">
-            {disciplinas?.total ??
+            {disciplinas?.meta?.total ??
+              disciplinas?.data?.length ??
               turma.curso_classe_turno?.classe_turno_disciplinas?.length ??
               0}
           </p>

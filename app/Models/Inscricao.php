@@ -35,4 +35,10 @@ class Inscricao extends Model
     {
         return $this->belongsTo(AnoLectivo::class);
     }
+
+    // app/Models/Inscricao.php
+public function aluno()
+{
+    return $this->hasOne(\App\Models\Aluno::class);
+}
 }

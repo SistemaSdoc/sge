@@ -124,7 +124,7 @@ class AlunoController extends Controller
         $user = Auth::user();
 
         $aluno->load([
-            'inscricao.candidato:id,nome,bi,email,telefone,nacionalidade,naturalidade,morada,filiacao,data_nascimento',
+            'inscricao.candidato:id,nome,bi,email,telefone,genero,nacionalidade,naturalidade,morada,filiacao,data_nascimento',
             'inscricao.cursoClasseTurno.turno:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
@@ -196,6 +196,7 @@ class AlunoController extends Controller
                     'ano_lectivo' => $aluno->turmas->first()?->anoLectivo?->nome,
                 ],
                 'can' => [
+                    'view' => $user->can('view', $aluno),
                     'update' => $user->can('update', $aluno),
                     'delete' => $user->can('delete', $aluno),
                 ],
@@ -212,7 +213,6 @@ class AlunoController extends Controller
     {
         Gate::authorize('update', $aluno);
 
-        // Usar a mesma lógica de fallback
         $anoLectivoId = $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         $aluno->load([
@@ -224,7 +224,6 @@ class AlunoController extends Controller
                 ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
         ]);
 
-        // Filtrar turmas pelo ano lectivo correto
         $turmas = Turma::where('curso_classe_turno_id', $aluno->inscricao->curso_classe_turno_id)
             ->where('ano_lectivo_id', $anoLectivoId)
             ->with('cursoClasseTurno.cursoClasse.classe:id,nome')
@@ -270,21 +269,18 @@ class AlunoController extends Controller
         if ($dados['turma_id'] ?? null) {
             $turmaAtual = $aluno->turmas()->wherePivot('activo', true)->first();
 
-            // Só actualiza se for uma turma diferente da actual
             if (! $turmaAtual || $turmaAtual->id !== (int) $dados['turma_id']) {
                 $turma = Turma::findOrFail($dados['turma_id']);
 
-                // Desactiva a turma anterior (se existir)
                 if ($turmaAtual) {
                     $aluno->turmas()->updateExistingPivot($turmaAtual->id, [
                         'activo' => false,
                     ]);
                 }
 
-                // Activa/associa a nova turma
                 $aluno->turmas()->syncWithoutDetaching([
                     $dados['turma_id'] => [
-                        'activo' => true,  // Só isto
+                        'activo' => true,
                     ],
                 ]);
             }
