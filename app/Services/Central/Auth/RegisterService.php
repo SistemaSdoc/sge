@@ -7,17 +7,21 @@ use Illuminate\Validation\ValidationException;
 
 class RegisterService
 {
-    public function __construct(private TenantService $tenantService) {}
+    public function __construct(private TenantService $tenantService)
+    {
+    }
 
     /**
      * Register a new institution with its owner.
      *
      * @throws ValidationException
      */
-    public function register(array $data): void
+    public function register(array $data): \App\Models\Central\Tenant
     {
         $tenant = $this->tenantService->createTenant($data);
 
         $this->tenantService->savePendingTenantData($tenant, $data);
+
+        return $tenant;
     }
 }
