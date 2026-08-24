@@ -1,7 +1,8 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Lock } from 'lucide-react';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { logout } from '@/routes/tenant';
 import {
   Empty,
   EmptyContent,
@@ -42,6 +43,10 @@ const STATUS_MESSAGES = {
 export default function AccessDenied({ status }) {
   const messageConfig = STATUS_MESSAGES[status] || STATUS_MESSAGES.inactive;
 
+  const handleLogout = () => {
+    router.flushAll();
+  };
+
   return (
     <div className="flex flex-col items-center justify-center gap-3 px-4 py-16 text-center sm:gap-4 sm:p-6 sm:py-24">
       <Head title="Acesso Negado" />
@@ -51,7 +56,7 @@ export default function AccessDenied({ status }) {
             <Lock className="text-destructive" />
           </EmptyMedia>
           <EmptyTitle>{messageConfig.title}</EmptyTitle>
-          <div className="flex justify-center mb-2">
+          <div className="mb-2 flex justify-center">
             <StatusBadge status={status} />
           </div>
           <EmptyDescription>{messageConfig.description}</EmptyDescription>
@@ -59,10 +64,18 @@ export default function AccessDenied({ status }) {
         <EmptyContent>
           <EmptyDescription>
             <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
-              <Button variant="outline" className="group">
-                <ArrowLeft className="transition-all duration-150 size-4 group-hover:-translate-x-1" />
-                <Link href="/login">Voltar ao Login</Link>
+              <Button variant="outline" className="group" asChild>
+                <Link
+                  href={logout()}
+                  method="post"
+                  as="button"
+                  onClick={handleLogout}
+                >
+                  <ArrowLeft className="size-4 transition-all duration-150 group-hover:-translate-x-1" />
+                  Terminar sessão
+                </Link>
               </Button>
+
               <Button variant="default">
                 <a href="mailto:suporte@ludus.ao">{messageConfig.action}</a>
               </Button>

@@ -23,7 +23,7 @@ class CheckTenantStatus
                 'status' => $tenant?->status->value,
             ])->toResponse($request)->setStatusCode(403);
         }
-
+ 
         return $next($request);
     }
 }

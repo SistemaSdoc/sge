@@ -63,7 +63,7 @@ Route::middleware([
     'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
-    CheckTenantStatus::class,
+    //CheckTenantStatus::class,
 ])->group(function () {
     /*
     |--------------------------------------------------------------------------
@@ -103,7 +103,7 @@ Route::middleware([
     */
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware('auth:tenant')
+        ->middleware(['auth:tenant', 'tenant.status'])
         ->name('tenant.dashboard');
 
     Route::middleware([
