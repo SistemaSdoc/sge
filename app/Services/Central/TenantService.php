@@ -10,9 +10,11 @@ use App\Models\Central\PendingTenantData;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
+use App\Notifications\TenantPendenteNotification;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class TenantService
 {
@@ -31,7 +33,7 @@ class TenantService
      */
     public function getInstituicao(Tenant $tenant): ?Instituicao
     {
-        if (! $tenant->instituicao_id) {
+        if (!$tenant->instituicao_id) {
             return null;
         }
 
@@ -44,7 +46,7 @@ class TenantService
      */
     public function getTenantAdminUser(Tenant $tenant): ?User
     {
-        if (! $tenant->admin_user_id) {
+        if (!$tenant->admin_user_id) {
             return null;
         }
 
@@ -71,6 +73,14 @@ class TenantService
             $tenant->domains()->create([
                 'domain' => $domain,
             ]);
+
+            Notification::route('mail', [
+                $data['user_email'] => $data['user_nome'],
+            ])->notify(new TenantPendenteNotification(
+                        nomeInstituicao: $data['nome'],
+                        nomeUser: $data['user_nome'],
+                        subdomain: $data['domain'],
+                    ));
 
             return $tenant->load('domains');
         });

@@ -7,6 +7,7 @@ use App\Models\Central\Tenant;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
 use App\Services\Central\TenantCreateProgressService;
+use App\Notifications\TenantActivadoNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,9 @@ class CreateTenantInstitution implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(private Tenant $tenant) {}
+    public function __construct(private Tenant $tenant)
+    {
+    }
 
     /**
      * Executa a criação da instituição e utilizador do tenant.
@@ -29,7 +32,7 @@ class CreateTenantInstitution implements ShouldQueue
 
             $pending = PendingTenantData::where('tenant_id', $this->tenant->id)->first();
 
-            if (! $pending) {
+            if (!$pending) {
                 Log::info("Sem dados pendentes para tenant: {$this->tenant->id}");
 
                 return;
@@ -93,6 +96,13 @@ class CreateTenantInstitution implements ShouldQueue
                 Log::info("Utilizador criado: {$user->id}");
 
                 $user->assignRole('Director');
+
+                $user->notify(new TenantActivadoNotification(
+                    nomeInstituicao: $instituicao->nome,
+                    nomeUser: $user->nome,
+                    email: $user->email,
+                    subdomain: $this->tenant->id,
+                ));
 
                 $this->tenant->update([
                     'instituicao_id' => $instituicao->id,
