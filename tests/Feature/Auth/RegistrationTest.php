@@ -23,3 +23,19 @@ test('new users can register', function () {
     $this->assertAuthenticated();
     $response->assertRedirect(route('dashboard', absolute: false));
 });
+
+test('central register accepts the current form field names', function () {
+    $response = $this->post(route('central.register.store'), [
+        'nome' => 'Escola Secundária de Luanda',
+        'sigla' => 'ESL',
+        'tipo' => 'colegio',
+        'domain' => 'escola',
+        'user_nome' => 'João da Silva',
+        'user_email' => 'joao@escola.com',
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
+    ]);
+
+    $response->assertSessionHasNoErrors();
+    $response->assertRedirect();
+});

@@ -21,7 +21,7 @@ class RegisterService
         $baseDomain = env('APP_DOMAIN', 'localhost');
         $domain = "{$subdomain}.{$baseDomain}";
 
-        $tenant = $this->createTenant($subdomain, $data['tenant_name']);
+        $tenant = $this->createTenant($subdomain, $data['nome']);
 
         try {
             $this->createTenantDomain($tenant, $domain);
@@ -30,7 +30,7 @@ class RegisterService
 
             return $this->buildRedirectUrl($domain, $token->token);
         } catch (\Throwable $e) {
-            $tenant->delete();
+            // $tenant->delete();
             throw $e;
         }
     }
@@ -79,10 +79,10 @@ class RegisterService
     private function createTenantInstitution(array $data): Instituicao
     {
         return Instituicao::create([
-            'nome' => $data['tenant_name'],
-            'sigla' => strtoupper(substr($data['tenant_name'], 0, 3)),
-            'tipo' => 'instituto',
-            'email' => "director@{$data['domain']}.ao",
+            'nome' => $data['nome'],
+            'sigla' => $data['sigla'],
+            'tipo' => $data['tipo'],
+            'email' => $data['user_email'],
             'telefone' => '923000000',
             'provincia' => 'Luanda',
             'endereco' => 'A definir',
@@ -97,8 +97,8 @@ class RegisterService
     private function createTenantUser(array $data, Instituicao $instituicao): User
     {
         $user = User::create([
-            'nome' => $data['nome'],
-            'email' => $data['email'],
+            'nome' => $data['user_nome'],
+            'email' => $data['user_email'],
             'password' => Hash::make($data['password']),
             'instituicao_id' => $instituicao->id,
         ]);

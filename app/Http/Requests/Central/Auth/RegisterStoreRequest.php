@@ -9,6 +9,15 @@ use Illuminate\Validation\Rules\Password;
 
 class RegisterStoreRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'tenant_name' => $this->input('tenant_name', $this->input('nome')),
+            'nome' => $this->input('nome', $this->input('user_nome')),
+            'email' => $this->input('email', $this->input('user_email')),
+        ]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */

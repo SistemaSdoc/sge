@@ -1,142 +1,221 @@
-import { Form, Head } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 import { useState } from 'react';
-import { GoogleButton } from '@/components/google-button';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from '@/components/ui/field';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from '@/components/ui/input-group';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes/central';
-import { store } from '@/routes/central/register';
 
 export default function Register({ passwordRules }) {
+  const { data, setData, post, processing, errors } = useForm({
+    nome: '',
+    sigla: '',
+    tipo: '',
+    domain: '',
+    user_nome: '',
+    user_email: '',
+    password: '',
+    password_confirmation: '',
+  });
+
+  const tipoOptions = [
+    { value: 'colegio', label: 'Colégio' },
+    { value: 'instituto', label: 'Instituto' },
+  ];
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    post('/register');
+  }
+
   return (
     <>
       <Head title="Register" />
 
-      <Form
-        action="/register"
-        method="post"
-        resetOnSuccess={['password', 'password_confirmation']}
-        disableWhileProcessing
-        className="flex flex-col gap-2"
-      >
-        {({ processing, errors }) => (
-          <>
-            <div className="grid gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="nome">Nome</Label>
+      <form onSubmit={handleSubmit} className="flex w-full max-w-2xl flex-col gap-6">
+        <FieldGroup>
+          <FieldSet>
+            {/* Nome & Sigla */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Field>
+                <FieldLabel htmlFor="nome">Nome da Instituição</FieldLabel>
                 <Input
                   id="nome"
                   type="text"
                   required
                   autoFocus
-                  tabIndex={1}
-                  autoComplete="nome"
-                  name="nome"
-                  placeholder="Nome completo"
+                  placeholder="Ex.: Escola Secundária de Luanda"
+                  value={data.nome}
+                  onChange={(e) => setData('nome', e.target.value)}
                 />
-                <InputError message={errors.nome} className="mt-2" />
-              </div>
+                {errors.nome && <FieldError>{errors.nome}</FieldError>}
+              </Field>
 
-              <div className="grid gap-2">
-                <Label htmlFor="email">Endereço de Email</Label>
+              <Field>
+                <FieldLabel htmlFor="sigla">Sigla</FieldLabel>
                 <Input
-                  id="email"
+                  id="sigla"
+                  type="text"
+                  required
+                  placeholder="Ex.: ESL"
+                  value={data.sigla}
+                  onChange={(e) => setData('sigla', e.target.value.toUpperCase())}
+                  maxLength="10"
+                />
+                {errors.sigla && <FieldError>{errors.sigla}</FieldError>}
+              </Field>
+            </div>
+
+            {/* Tipo & Subdomínio */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Field>
+                <FieldLabel htmlFor="tipo">Tipo da Instituição</FieldLabel>
+                <Select
+                  value={data.tipo}
+                  onValueChange={(value) => setData('tipo', value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Tipo de instituição</SelectLabel>
+                      {tipoOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {errors.tipo && <FieldError>{errors.tipo}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="domain">Subdomínio</FieldLabel>
+                <InputGroup>
+                  <InputGroupAddon className="font-normal text-foreground">
+                    https://
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    id="domain"
+                    type="text"
+                    required
+                    placeholder="Ex.: imcl"
+                    value={data.domain}
+                    onChange={(e) => setData('domain', e.target.value)}
+                  />
+                  <InputGroupAddon align="inline-end" className="font-normal text-foreground">
+                    .sge.localhost
+                  </InputGroupAddon>
+                </InputGroup>
+                {errors.domain && <FieldError>{errors.domain}</FieldError>}
+              </Field>
+            </div>
+
+            {/* Nome & Email do Diretor */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Field>
+                <FieldLabel htmlFor="user_nome">Nome do Utilizador (Diretor)</FieldLabel>
+                <Input
+                  id="user_nome"
+                  type="text"
+                  required
+                  placeholder="Ex.: João da Silva"
+                  value={data.user_nome}
+                  onChange={(e) => setData('user_nome', e.target.value)}
+                />
+                {errors.user_nome && <FieldError>{errors.user_nome}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor="user_email">Email do Utilizador (Diretor)</FieldLabel>
+                <Input
+                  id="user_email"
                   type="email"
                   required
-                  tabIndex={2}
-                  autoComplete="email"
-                  name="email"
                   placeholder="email@exemplo.com"
+                  value={data.user_email}
+                  onChange={(e) => setData('user_email', e.target.value)}
                 />
-                <InputError message={errors.email} />
-              </div>
+                {errors.user_email && <FieldError>{errors.user_email}</FieldError>}
+              </Field>
+            </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="password">Senha</Label>
+            {/* Senha */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Field>
+                <FieldLabel htmlFor="password">Senha</FieldLabel>
                 <PasswordInput
                   id="password"
                   required
-                  tabIndex={3}
                   autoComplete="new-password"
-                  name="password"
                   placeholder="Senha"
+                  value={data.password}
+                  onChange={(e) => setData('password', e.target.value)}
                   passwordrules={passwordRules}
                 />
-                <InputError message={errors.password} />
-              </div>
+                {errors.password && <FieldError>{errors.password}</FieldError>}
+              </Field>
 
-              <div className="grid gap-2">
-                <Label htmlFor="password_confirmation">Confirmar senha</Label>
+              <Field>
+                <FieldLabel htmlFor="password_confirmation">Confirmar Senha</FieldLabel>
                 <PasswordInput
                   id="password_confirmation"
                   required
-                  tabIndex={4}
                   autoComplete="new-password"
-                  name="password_confirmation"
                   placeholder="Confirmar senha"
+                  value={data.password_confirmation}
+                  onChange={(e) => setData('password_confirmation', e.target.value)}
                   passwordrules={passwordRules}
                 />
-                <InputError message={errors.password_confirmation} />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                  <Label htmlFor="tenant_name">Nome da instituição</Label>
-                  <Input
-                    id="tenant_name"
-                    required
-                    tabIndex={4}
-                    autoComplete="tenant_name"
-                    name="tenant_name"
-                    placeholder="Nome da instituição"
-                  />
-                  <InputError message={errors.tenant_name} />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="domain">Domínio</Label>
-                  <Input
-                    id="domain"
-                    required
-                    tabIndex={4}
-                    autoComplete="domain"
-                    name="domain"
-                    placeholder="sdoca"
-                  />
-                  <InputError message={errors.domain} />
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="mt-2 w-full"
-                tabIndex={5}
-                data-test="register-user-button"
-              >
-                {processing && <Spinner />}
-                Criar conta
-              </Button>
+                {errors.password_confirmation && (
+                  <FieldError>{errors.password_confirmation}</FieldError>
+                )}
+              </Field>
             </div>
 
-            <div className="text-center text-sm text-muted-foreground">
-              Já tem uma conta?{' '}
-              <TextLink href={login().url} tabIndex={6}>
-                Entrar
-              </TextLink>
-            </div>
-          </>
-        )}
-      </Form>
+            <Button type="submit" className="w-full" disabled={processing}>
+              {processing && <Spinner />}
+              Criar conta
+            </Button>
+          </FieldSet>
+        </FieldGroup>
+
+        <div className="text-center text-sm text-muted-foreground">
+          Já tem uma conta?{' '}
+          <TextLink href={login().url}>Entrar</TextLink>
+        </div>
+      </form>
     </>
   );
 }
 
 Register.layout = {
   title: 'Criar uma conta',
-  description:
-    'Insira seus dados abaixo para criar sua conta ou continue com Google',
+  description: 'Insira seus dados abaixo para criar sua conta',
 };
