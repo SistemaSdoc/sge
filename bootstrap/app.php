@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\TenantDatabaseNotExistException;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\VerificarPropinaEmDia;
@@ -11,11 +12,12 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Stancl\Tenancy\Exceptions\TenantDatabaseDoesNotExistException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__ . '/../routes/web.php',
-        commands: __DIR__ . '/../routes/console.php',
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -42,11 +44,12 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn(Request $request) => $request->is('api/*'),
+            fn (Request $request) => $request->is('api/*'),
         );
 
-        $exceptions->render(function (\Stancl\Tenancy\Exceptions\TenantDatabaseDoesNotExistException $e, $request) {
-            $tenantException = new \App\Exceptions\TenantDatabaseNotExistException($e->getMessage(), $e->getCode(), $e);
+        $exceptions->render(function (TenantDatabaseDoesNotExistException $e, $request) {
+            $tenantException = new TenantDatabaseNotExistException($e->getMessage(), $e->getCode(), $e);
+
             return $tenantException->render($request);
         });
     })->create();

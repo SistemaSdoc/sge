@@ -4,9 +4,9 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Http\Request;
-use Inertia\Response;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class TenantDatabaseNotExistException extends Exception
 {

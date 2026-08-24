@@ -7,12 +7,16 @@ use App\Http\Requests\Central\Tenant\StoreTenantRequest;
 use App\Http\Requests\Central\Tenant\UpdateTenantRequest;
 use App\Http\Resources\Central\Tenant\TenantIndexResource;
 use App\Models\Central\Tenant;
+use App\Services\Central\TenantCreateProgressService;
 use App\Services\Central\TenantService;
 use Inertia\Inertia;
 
 class TenantController extends Controller
 {
-    public function __construct(private TenantService $tenantService) {}
+    public function __construct(
+        private TenantService $tenantService,
+        private TenantCreateProgressService $progressService
+    ) {}
 
     /**
      * Lista todos os tenants paginados com instituições.
@@ -46,7 +50,6 @@ class TenantController extends Controller
         $validated = $request->validated();
 
         $tenant = $this->tenantService->createTenant($validated);
-
         $this->tenantService->savePendingTenantData($tenant, $validated);
 
         return redirect()->route('central.dashboard.tenants.index');
@@ -95,10 +98,10 @@ class TenantController extends Controller
         $validated = $request->validated();
 
         $this->tenantService->updateInstituicao($tenant, $validated);
-
         $this->tenantService->updateTenant($tenant, $validated);
 
-        return redirect()->route('central.dashboard.tenants.show', $tenant)->with('success', 'Tenant actualizado!');
+        return redirect()->route('central.dashboard.tenants.show', $tenant)
+            ->with('success', 'Tenant actualizado!');
     }
 
     /**
@@ -108,11 +111,12 @@ class TenantController extends Controller
     {
         $this->tenantService->deleteTenant($tenant);
 
-        return redirect()->route('central.dashboard.tenants.index')->with('success', 'Tenant eliminado!');
+        return redirect()->route('central.dashboard.tenants.index')
+            ->with('success', 'Tenant eliminado!');
     }
 
     /**
-     * Altera o status de um tenant e inicia o progresso
+     * Altera o status de um tenant e inicia o progresso.
      */
     public function toggleStatus(Tenant $tenant)
     {
@@ -121,66 +125,31 @@ class TenantController extends Controller
         ]);
 
         try {
-            // Se está a ativar (mudar para active ou trial), inicializa o progresso
-            if ($validated['status'] === 'active' || $validated['status'] === 'trial') {
-                cache()->put(
-                    "progresso_tenant_{$tenant->id}",
-                    [
-                        'etapa' => 'iniciando',
-                        'mensagem' => 'A iniciar criação do tenant...',
-                        'percentagem' => 0,
-                        'status' => 'em_progresso',
-                    ],
-                    now()->addHour()
-                );
+            if ($this->isActivationStatus($validated['status'])) {
+                $this->progressService->initialize($tenant);
             }
 
-            // Dispara a transição de status
             $this->tenantService->transitionStatus($tenant, $validated['status']);
 
             return back()->with('success', 'Tenant a ser ativado...');
         } catch (\Exception $e) {
-            return back()->with('error', 'Erro ao alterar status: ' . $e->getMessage());
+            return back()->with('error', 'Erro ao alterar status: '.$e->getMessage());
         }
     }
 
     /**
-     * Stream de status do progresso do tenant (SSE)
+     * Stream de status do progresso da criação do tenant (SSE).
      */
     public function statusStream(Tenant $tenant)
     {
-        return response()->stream(
-            function () use ($tenant) {
-                $tempoMaximo = 300; // 5 minutos
-                $tempoInicio = time();
+        return $this->progressService->streamProgress($tenant);
+    }
 
-                // Loop que fica aberto enquanto o tenant está a ser criado
-                while (time() - $tempoInicio < $tempoMaximo) {
-                    // Lê o progresso do cache
-                    $progresso = cache()->get("progresso_tenant_{$tenant->id}");
-
-                    if ($progresso) {
-                        // Envia para o frontend em formato SSE
-                        echo "data: " . json_encode($progresso) . "\n\n";
-
-                        // Se terminou (com sucesso ou erro), fecha a ligação
-                        if ($progresso['status'] === 'concluido' || $progresso['status'] === 'erro') {
-                            break;
-                        }
-                    }
-
-                    ob_flush();
-                    flush();
-                    sleep(0.5); // Aguarda 500ms antes de verificar de novo
-                }
-            },
-            200,
-            [
-                'Content-Type' => 'text/event-stream',
-                'Cache-Control' => 'no-cache',
-                'Connection' => 'keep-alive',
-                'X-Accel-Buffering' => 'no',
-            ]
-        );
+    /**
+     * Verifica se é um status de ativação.
+     */
+    private function isActivationStatus(string $status): bool
+    {
+        return in_array($status, ['active', 'trial']);
     }
 }

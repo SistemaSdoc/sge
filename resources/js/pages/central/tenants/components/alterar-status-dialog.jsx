@@ -18,20 +18,17 @@ import {
 import { toggleStatus } from '@/actions/App/Http/Controllers/Central/TenantController';
 import { Spinner } from '@/components/spinner';
 import { getStatusConfig } from '../helpers/status-badge-config';
-import TenantProvisioning from './tenant-provisioning';
-import { useState } from 'react';
 
 export function AlterarStatusDialog({
   tenant,
   availableTransitions = {},
   onCancel,
   onSuccess,
+  onProvisioningStart,
 }) {
   const { data, setData, post, processing, errors } = useForm({
     status: '',
   });
-
-  const [showProvisioning, setShowProvisioning] = useState(false);
 
   const handleStatusChange = (value) => {
     setData('status', value);
@@ -40,16 +37,12 @@ export function AlterarStatusDialog({
   const handleConfirm = () => {
     if (!data.status) return;
 
-    // Se está a ativar (active ou trial), mostra o progresso
-    if (data.status === 'active' || data.status === 'trial') {
-      setShowProvisioning(true);
-    }
-
     post(toggleStatus(tenant.id).url, {
       data: { status: data.status },
       onSuccess: () => {
-        // Se não foi ativação, fecha logo
-        if (data.status !== 'active' && data.status !== 'trial') {
+        if (data.status === 'active' || data.status === 'trial') {
+          onProvisioningStart();
+        } else {
           onSuccess();
         }
       },
@@ -73,7 +66,7 @@ export function AlterarStatusDialog({
               <Select
                 value={data.status}
                 onValueChange={handleStatusChange}
-                disabled={processing || !hasTransitions || showProvisioning}
+                disabled={processing || !hasTransitions}
               >
                 <SelectTrigger id="status">
                   <SelectValue placeholder="Selecione uma opção" />
@@ -109,33 +102,16 @@ export function AlterarStatusDialog({
 
         {/* Botões */}
         <div className="flex justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            disabled={processing || showProvisioning}
-          >
+          <Button variant="outline" onClick={onCancel} disabled={processing}>
             Cancelar
           </Button>
 
-          <Button
-            onClick={handleConfirm}
-            disabled={processing || !data.status || showProvisioning}
-          >
+          <Button onClick={handleConfirm} disabled={processing || !data.status}>
             {processing && <Spinner className="mr-2 size-4 animate-spin" />}
             Alterar Status
           </Button>
         </div>
       </div>
-
-      {/* Modal de progresso */}
-      <TenantProvisioning
-        tenantId={tenant.id}
-        isOpen={showProvisioning}
-        onClose={() => {
-          setShowProvisioning(false);
-          onSuccess();
-        }}
-      />
     </>
   );
 }

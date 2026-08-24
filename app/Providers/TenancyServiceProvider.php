@@ -6,6 +6,8 @@ namespace App\Providers;
 
 use App\Events\TenantActivated;
 use App\Jobs\CreateTenantInstitution;
+use App\Listeners\ActualizarProgressaoTenant;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -43,10 +45,10 @@ class TenancyServiceProvider extends ServiceProvider
                     Jobs\CreateDatabase::class,
                     Jobs\MigrateDatabase::class,
                     Jobs\SeedDatabase::class,
-                    CreateTenantInstitution::class, 
+                    CreateTenantInstitution::class,
                 ])->send(function (TenantActivated $event) {
                     return $event->tenant;
-                })->shouldBeQueued(false),
+                })->shouldBeQueued(true),
             ],
 
             // Domain events
@@ -60,9 +62,15 @@ class TenancyServiceProvider extends ServiceProvider
             Events\DomainDeleted::class => [],
 
             // Database events
-            Events\DatabaseCreated::class => [],
-            Events\DatabaseMigrated::class => [],
-            Events\DatabaseSeeded::class => [],
+            Events\DatabaseCreated::class => [
+                ActualizarProgressaoTenant::class,
+            ],
+            Events\DatabaseMigrated::class => [
+                ActualizarProgressaoTenant::class,
+            ],
+            Events\DatabaseSeeded::class => [
+                ActualizarProgressaoTenant::class,
+            ],
             Events\DatabaseRolledBack::class => [],
             Events\DatabaseDeleted::class => [],
 
@@ -142,7 +150,7 @@ class TenancyServiceProvider extends ServiceProvider
         ];
 
         foreach (array_reverse($tenancyMiddleware) as $middleware) {
-            $this->app[\Illuminate\Contracts\Http\Kernel::class]->prependToMiddlewarePriority($middleware);
+            $this->app[Kernel::class]->prependToMiddlewarePriority($middleware);
         }
     }
 }
