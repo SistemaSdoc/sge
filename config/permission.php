@@ -214,6 +214,9 @@ return [
          * file. Using 'default' here means to use the `default` set in cache.php.
          */
 
-        'store' => 'default',
+        // Permissions exist in both central (web) and tenant (tenant) databases.
+        // Keep this cache process-local so tenant context cannot overwrite the
+        // central permission catalogue through the same cache key.
+        'store' => 'array',
     ],
 ];

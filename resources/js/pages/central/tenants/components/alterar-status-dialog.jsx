@@ -24,12 +24,10 @@ export function AlterarStatusDialog({
   availableTransitions = {},
   onCancel,
   onSuccess,
-  onProvisioningStart,
 }) {
   const { data, setData, post, processing, errors } = useForm({
     status: '',
   });
-
   const handleStatusChange = (value) => {
     setData('status', value);
   };
@@ -39,13 +37,7 @@ export function AlterarStatusDialog({
 
     post(toggleStatus(tenant.id).url, {
       data: { status: data.status },
-      onSuccess: () => {
-        if (data.status === 'active' || data.status === 'trial') {
-          onProvisioningStart();
-        } else {
-          onSuccess();
-        }
-      },
+      onSuccess,
     });
   };
 

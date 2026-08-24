@@ -7,15 +7,13 @@ use App\Http\Requests\Central\Tenant\StoreTenantRequest;
 use App\Http\Requests\Central\Tenant\UpdateTenantRequest;
 use App\Http\Resources\Central\Tenant\TenantIndexResource;
 use App\Models\Central\Tenant;
-use App\Services\Central\TenantCreateProgressService;
 use App\Services\Central\TenantService;
 use Inertia\Inertia;
 
 class TenantController extends Controller
 {
     public function __construct(
-        private TenantService $tenantService,
-        private TenantCreateProgressService $progressService
+        private TenantService $tenantService
     ) {}
 
     /**
@@ -125,31 +123,11 @@ class TenantController extends Controller
         ]);
 
         try {
-            if ($this->isActivationStatus($validated['status'])) {
-                $this->progressService->initialize($tenant);
-            }
-
             $this->tenantService->transitionStatus($tenant, $validated['status']);
 
             return back()->with('success', 'Tenant a ser ativado...');
         } catch (\Exception $e) {
             return back()->with('error', 'Erro ao alterar status: '.$e->getMessage());
         }
-    }
-
-    /**
-     * Stream de status do progresso da criação do tenant (SSE).
-     */
-    public function statusStream(Tenant $tenant)
-    {
-        return $this->progressService->streamProgress($tenant);
-    }
-
-    /**
-     * Verifica se é um status de ativação.
-     */
-    private function isActivationStatus(string $status): bool
-    {
-        return in_array($status, ['active', 'trial']);
     }
 }

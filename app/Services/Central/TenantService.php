@@ -37,9 +37,8 @@ class TenantService
             return null;
         }
 
-        return $tenant->run(fn(): ?Instituicao => Instituicao::query()->find($tenant->instituicao_id));
+        return $tenant->run(fn (): ?Instituicao => Instituicao::query()->find($tenant->instituicao_id));
     }
-
 
     /**
      * Obtém o usuário administrador de um tenant.
@@ -50,13 +49,13 @@ class TenantService
             return null;
         }
 
-        return $tenant->run(fn(): ?User => User::query()->find($tenant->admin_user_id));
+        return $tenant->run(fn (): ?User => User::query()->find($tenant->admin_user_id));
     }
 
     /**
      * Cria um novo tenant com domínio (status PENDENTE, sem BD).
      *
-     * @param  array<string, mixed>  $data Com chave 'domain'
+     * @param  array<string, mixed>  $data  Com chave 'domain'
      */
     public function createTenant(array $data): Tenant
     {
@@ -91,7 +90,7 @@ class TenantService
     /**
      * Guarda dados da instituição temporariamente até o tenant ser activado.
      *
-     * @param  array<string, mixed>  $data Dados da instituição e admin
+     * @param  array<string, mixed>  $data  Dados da instituição e admin
      */
     public function savePendingTenantData(Tenant $tenant, array $data): void
     {
@@ -111,21 +110,21 @@ class TenantService
     /**
      * Actualiza a instituição de um tenant.
      *
-     * @param  array<string, mixed>  $data Campos a actualizar
+     * @param  array<string, mixed>  $data  Campos a actualizar
      */
     public function updateInstituicao(Tenant $tenant, array $data): void
     {
         $instituicao = $this->getInstituicao($tenant);
 
         if ($instituicao) {
-            $tenant->run(fn() => $instituicao->update($data));
+            $tenant->run(fn () => $instituicao->update($data));
         }
     }
 
     /**
      * Actualiza registo central do tenant.
      *
-     * @param  array<string, mixed>  $data Com chave 'domain'
+     * @param  array<string, mixed>  $data  Com chave 'domain'
      */
     public function updateTenant(Tenant $tenant, array $data): Tenant
     {
@@ -273,7 +272,7 @@ class TenantService
      */
     public function getAvailableStatuses(): array
     {
-        return array_map(fn(TenantStatus $status) => [
+        return array_map(fn (TenantStatus $status) => [
             'value' => $status->value,
             'label' => $status->label(),
         ], TenantStatus::cases());

@@ -74,9 +74,6 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::post('tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
                     ->name('tenants.toggle-status');
 
-                Route::get('tenants/{tenant}/status-stream', [TenantController::class, 'statusStream'])
-                    ->name('tenants.status-stream');
-
                 Route::resource('users', UserController::class);
             });
     });

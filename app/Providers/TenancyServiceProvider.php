@@ -6,7 +6,7 @@ namespace App\Providers;
 
 use App\Events\TenantActivated;
 use App\Jobs\CreateTenantInstitution;
-use App\Listeners\ActualizarProgressaoTenant;
+use App\Listeners\ResetPermissionCache;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
@@ -48,7 +48,7 @@ class TenancyServiceProvider extends ServiceProvider
                     CreateTenantInstitution::class,
                 ])->send(function (TenantActivated $event) {
                     return $event->tenant;
-                })->shouldBeQueued(true),
+                })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
             ],
 
             // Domain events
@@ -62,15 +62,9 @@ class TenancyServiceProvider extends ServiceProvider
             Events\DomainDeleted::class => [],
 
             // Database events
-            Events\DatabaseCreated::class => [
-                ActualizarProgressaoTenant::class,
-            ],
-            Events\DatabaseMigrated::class => [
-                ActualizarProgressaoTenant::class,
-            ],
-            Events\DatabaseSeeded::class => [
-                ActualizarProgressaoTenant::class,
-            ],
+            Events\DatabaseCreated::class => [],
+            Events\DatabaseMigrated::class => [],
+            Events\DatabaseSeeded::class => [],
             Events\DatabaseRolledBack::class => [],
             Events\DatabaseDeleted::class => [],
 
@@ -78,11 +72,13 @@ class TenancyServiceProvider extends ServiceProvider
             Events\InitializingTenancy::class => [],
             Events\TenancyInitialized::class => [
                 Listeners\BootstrapTenancy::class,
+                ResetPermissionCache::class,
             ],
 
             Events\EndingTenancy::class => [],
             Events\TenancyEnded::class => [
                 Listeners\RevertToCentralContext::class,
+                ResetPermissionCache::class,
             ],
 
             Events\BootstrappingTenancy::class => [],

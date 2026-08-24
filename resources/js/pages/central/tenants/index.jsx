@@ -1,5 +1,4 @@
 import { Head, router } from '@inertiajs/react';
-import { useState } from 'react';
 import { TenantTable } from './components/tenant-table';
 import {
   index,
@@ -7,11 +6,9 @@ import {
 } from '@/actions/App/Http/Controllers/Central/TenantController';
 import { useDialog } from '@/hooks/use-dialog';
 import { AlterarStatusDialog } from './components/alterar-status-dialog';
-import TenantProvisioning from './components/tenant-provisioning';
 
 export default function Index({ tenants, can }) {
   const { deleteConfirm, openForm, closeDialog } = useDialog();
-  const [provisioningTenantId, setProvisioningTenantId] = useState(null);
 
   const handleToggleStatus = (tenant, e) => {
     e.stopPropagation();
@@ -27,10 +24,6 @@ export default function Index({ tenants, can }) {
           availableTransitions={tenant.availableTransitions || {}}
           onCancel={() => closeDialog()}
           onSuccess={() => closeDialog()}
-          onProvisioningStart={() => {
-            setProvisioningTenantId(tenant.id);
-            closeDialog();
-          }}
         />
       ),
     });
@@ -64,12 +57,6 @@ export default function Index({ tenants, can }) {
         pagination={tenants.meta}
         onPageChange={handlePageChange}
         handleToggleStatus={handleToggleStatus}
-      />
-
-      <TenantProvisioning
-        tenantId={provisioningTenantId}
-        isOpen={Boolean(provisioningTenantId)}
-        onClose={() => setProvisioningTenantId(null)}
       />
     </>
   );
