@@ -1,11 +1,14 @@
 <?php
-
+/*
 namespace App\Exports;
 
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class PautaFinalExport implements WithMultipleSheets
 {
+    use Exportable;
+
     public function __construct(
         protected array $disciplinas,
         protected array $alunos,
@@ -38,4 +41,4 @@ class PautaFinalExport implements WithMultipleSheets
             ),
         ];
     }
-}
+}*/

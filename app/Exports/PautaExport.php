@@ -1,39 +1,28 @@
 <?php
-
+/*
 namespace App\Exports;
 
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class PautaExport implements WithMultipleSheets
 {
+    use Exportable;
+
     protected array $disciplinas;
-
     protected array $alunos;
-
     protected string $curso;
-
     protected string $turma;
-
     protected string $anoLetivo;
-
     protected string $instituicao;
-
     protected string $sala;
-
     protected string $classe;
-
     protected string $periodo;
-
     protected ?string $areaFormacao;
-
     protected ?string $director;
-
     protected ?string $logoPath;
-
     protected ?string $coordenadorTurma;
-
     protected ?string $coordenadorCurso;
-
     protected ?string $subdirectorPedagogico;
 
     public function __construct(
@@ -92,4 +81,4 @@ class PautaExport implements WithMultipleSheets
             ),
         ];
     }
-}
+}*/

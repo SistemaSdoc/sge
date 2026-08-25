@@ -10,6 +10,18 @@ class InstituicoesRequest extends FormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
+
+    protected function prepareForValidation(): void
+{
+    \Log::info('DEBUG Instituicao Request', [
+        'method' => $this->method(),
+        'all' => $this->all(),
+        'files' => $this->allFiles(),
+        'content_length_header' => $this->header('Content-Length'),
+        'content_type' => $this->header('Content-Type'),
+        'raw_body_length' => strlen($this->getContent()),
+    ]);
+}
     public function authorize(): bool
     {
         return true;
