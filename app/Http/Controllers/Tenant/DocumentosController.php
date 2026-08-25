@@ -21,11 +21,12 @@ class DocumentosController extends Controller
         private DeclaracaoSemNotaService $declaracaoService,
         private DeclaracaoComNotaService $declaracaoComNotaService,
         private CertificadoService $certificadoService,
-    ) {}
+    ) {
+    }
 
     private function emitirCertificado(Aluno $aluno, Turma $turma, $candidato, string $classeNome): mixed
     {
-        if (! str_contains($classeNome, '13ª')) {
+        if (!str_contains($classeNome, '13ª')) {
             abort(response()->json(['message' => 'O certificado só pode ser emitido para alunos da 13ª classe.']));
         }
 
@@ -45,7 +46,7 @@ class DocumentosController extends Controller
 
         return response($pdf)
             ->header('Content-Type', 'application/pdf')
-            ->header('Content-Disposition', 'attachment; filename="Certificado_'.str_replace(' ', '_', $candidato->nome).'.pdf"');
+            ->header('Content-Disposition', 'attachment; filename="Certificado_' . str_replace(' ', '_', $candidato->nome) . '.pdf"');
     }
 
     private function emitirDeclaracaoSemNotas(Aluno $aluno, Turma $turma, $candidato, string $classeNome, ?string $efeito): mixed
@@ -63,7 +64,7 @@ class DocumentosController extends Controller
         $pdf = $this->converterParaPdf($docx);
 
         return response()
-            ->download($pdf, 'Declaracao_Sem_Notas_'.str_replace(' ', '_', $candidato->nome).'.pdf', ['Content-Type' => 'application/pdf'])
+            ->download($pdf, 'Declaracao_Sem_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf', ['Content-Type' => 'application/pdf'])
             ->deleteFileAfterSend(true);
     }
 
@@ -89,7 +90,7 @@ class DocumentosController extends Controller
         $pdf = $this->converterParaPdf($docx);
 
         return response()
-            ->download($pdf, 'Declaracao_Com_Notas_'.str_replace(' ', '_', $candidato->nome).'.pdf', ['Content-Type' => 'application/pdf'])
+            ->download($pdf, 'Declaracao_Com_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf', ['Content-Type' => 'application/pdf'])
             ->deleteFileAfterSend(true);
     }
 
@@ -108,10 +109,100 @@ class DocumentosController extends Controller
         $process->setTimeout(30);
         $process->run();
 
-        return $outDir.'/'.pathinfo($docx, PATHINFO_FILENAME).'.pdf';
+        return $outDir . '/' . pathinfo($docx, PATHINFO_FILENAME) . '.pdf';
     }
 
+    // private function emitirCertificado(Aluno $aluno, Turma $turma, $candidato, string $classeNome): mixed
+    // {
+    //     if (!str_contains($classeNome, '13ª')) {
+    //         abort(response()->json(['message' => 'O certificado só pode ser emitido para alunos da 13ª classe.']));
+    //     }
+
+    //     // Verifica se tem notas
+    //     $dados = $this->declaracaoComNotaService->calcularDados($aluno, $turma);
+    //     $todasDisciplinas = array_merge(
+    //         $dados['notas']['sociocultural'] ?? [],
+    //         $dados['notas']['cientifica'] ?? [],
+    //         $dados['notas']['tecnica'] ?? [],
+    //     );
+
+    //     if (empty($todasDisciplinas)) {
+    //         abort(response()->json(['message' => 'O aluno não tem notas lançadas para gerar o certificado.']));
+    //     }
+
+    //     $pdf = $this->certificadoService->gerarPdf($aluno, $turma);
+
+    //     return response($pdf)
+    //         ->header('Content-Type', 'application/pdf')
+    //         ->header('Content-Disposition', 'attachment; filename="Certificado_' . str_replace(' ', '_', $candidato->nome) . '.pdf"');
+    // }
+
+    // private function emitirDeclaracaoSemNotas(Aluno $aluno, Turma $turma, $candidato, string $classeNome, ?string $efeito): mixed
+    // {
+    //     if (str_contains($classeNome, '13ª')) {
+    //         abort(response()->json(['message' => 'A declaração sem notas não pode ser emitida para alunos da 13ª classe.']));
+    //     }
+
+    //     $cct = $turma->cursoClasseTurno;
+    //     $cc = $cct->cursoClasse;
+    //     $ct = $cc->cursoTutelado;
+    //     $inst = $ct->instituicaoCurso->instituicao;
+
+    //     $docx = $this->declaracaoService->gerar($inst, $ct, $cc, $cct, $turma, $aluno, $efeito);
+    //     $pdf = $this->converterParaPdf($docx);
+
+    //     return response()
+    //         ->download($pdf, 'Declaracao_Sem_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf', ['Content-Type' => 'application/pdf'])
+    //         ->deleteFileAfterSend(true);
+    // }
+
+    // private function emitirDeclaracaoComNotas(Aluno $aluno, Turma $turma, $candidato, string $classeNome, ?string $efeito): mixed
+    // {
+    //     if (str_contains($classeNome, '13ª')) {
+    //         abort(response()->json(['message' => 'A declaração com notas não pode ser emitida para alunos da 13ª classe.']));
+    //     }
+
+    //     // Verifica se tem notas
+    //     $dados = $this->declaracaoComNotaService->calcularDados($aluno, $turma);
+    //     $todasDisciplinas = array_merge(
+    //         $dados['notas']['sociocultural'] ?? [],
+    //         $dados['notas']['cientifica'] ?? [],
+    //         $dados['notas']['tecnica'] ?? [],
+    //     );
+
+    //     if (empty($todasDisciplinas)) {
+    //         abort(response()->json(['message' => 'O aluno não tem notas lançadas para gerar a declaração com notas.']));
+    //     }
+
+    //     $docx = $this->declaracaoComNotaService->gerar($aluno, $turma, $efeito);
+    //     $pdf = $this->converterParaPdf($docx);
+
+    //     return response()
+    //         ->download($pdf, 'Declaracao_Com_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf', ['Content-Type' => 'application/pdf'])
+    //         ->deleteFileAfterSend(true);
+    // }
+
+    // private function converterParaPdf(string $docx): string
+    // {
+    //     $outDir = sys_get_temp_dir();
+    //     $process = new Process([
+    //         '/usr/bin/soffice',
+    //         '--headless',
+    //         '--convert-to',
+    //         'pdf',
+    //         '--outdir',
+    //         $outDir,
+    //         $docx,
+    //     ]);
+    //     $process->setTimeout(30);
+    //     $process->run();
+
+    //     return $outDir . '/' . pathinfo($docx, PATHINFO_FILENAME) . '.pdf';
+    // }
+
     // ── Listagem ──────────────────────────────────────────────────────────
+
+    
     public function index()
     {
         /** @var User $user */
@@ -122,7 +213,7 @@ class DocumentosController extends Controller
             ->where('ativo', 1)
             ->with('documento') // ← adiciona
             ->get(['id', 'nome', 'curso_classe_id', 'valor'])
-            ->map(fn ($item) => [
+            ->map(fn($item) => [
                 'id' => $item->id,
                 'nome' => $item->nome,
                 'subtipo' => $item->documento?->subtipo,
@@ -157,7 +248,7 @@ class DocumentosController extends Controller
                     ->orWhere('numero_processo', 'like', "%{$q}%")
                     ->orWhereHas(
                         'inscricao.candidato',
-                        fn ($q2) => $q2->where('nome', 'like', "%{$q}%")
+                        fn($q2) => $q2->where('nome', 'like', "%{$q}%")
                     );
             })
             ->with([
@@ -175,7 +266,7 @@ class DocumentosController extends Controller
         $resultado = $alunos->map(function ($aluno) {
             $nomeAluno = $aluno->inscricao?->candidato?->nome;
 
-            if (! $nomeAluno) {
+            if (!$nomeAluno) {
                 return null;
             }
 
@@ -249,7 +340,7 @@ class DocumentosController extends Controller
         $item->load('documento');
         $documento = $item->documento;
 
-        if (! $documento) {
+        if (!$documento) {
             abort(422, 'Este documento não tem subtipo configurado.');
         }
 
@@ -269,9 +360,9 @@ class DocumentosController extends Controller
         $turma = $aluno->turmaActual()
             ->when(
                 $request->classe_id,
-                fn ($q) => $q->whereHas(
+                fn($q) => $q->whereHas(
                     'cursoClasseTurno.cursoClasse',
-                    fn ($q2) => $q2->where('id', $request->classe_id)
+                    fn($q2) => $q2->where('id', $request->classe_id)
                 )
             )
             ->with([
@@ -282,13 +373,13 @@ class DocumentosController extends Controller
             ])
             ->first();
 
-        if (! $turma) {
+        if (!$turma) {
             $turma = $aluno->turmas()
                 ->when(
                     $request->classe_id,
-                    fn ($q) => $q->whereHas(
+                    fn($q) => $q->whereHas(
                         'cursoClasseTurno.cursoClasse',
-                        fn ($q2) => $q2->where('id', $request->classe_id)
+                        fn($q2) => $q2->where('id', $request->classe_id)
                     )
                 )
                 ->with([
@@ -300,7 +391,7 @@ class DocumentosController extends Controller
                 ->first();
         }
 
-        if (! $turma) {
+        if (!$turma) {
             abort(422, 'Aluno sem turma associada para emitir este documento.');
         }
 
@@ -310,7 +401,7 @@ class DocumentosController extends Controller
         $item->load('documento');
         $documento = $item->documento;
 
-        if (! $documento) {
+        if (!$documento) {
             abort(422, 'Este documento não tem subtipo configurado.');
         }
 

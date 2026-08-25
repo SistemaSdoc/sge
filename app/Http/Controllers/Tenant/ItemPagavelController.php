@@ -87,9 +87,9 @@ class ItemPagavelController extends Controller
                     $q->where('instituicao_id', $instituicao);
                 })
                 ->get()
-                ->map(fn (CursoClasse $cc) => [
+                ->map(fn(CursoClasse $cc) => [
                     'id' => $cc->id,
-                    'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome.' — '.$cc->classe->nome,
+                    'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome . ' — ' . $cc->classe->nome,
                 ]),
             'instituicaoTipo' => auth()->user()->instituicao?->tipo, // 'colegio' ou 'instituto'
         ]);
@@ -117,8 +117,8 @@ class ItemPagavelController extends Controller
 
         return redirect()->route('tenant.dashboard.itens-pagaveis.index')->with('success', 'Item pagável criado com sucesso.');
 
-    }
 
+    }
     public function edit(ItemPagavel $itemPagavel)
     {
         $itemPagavel->load('documento');
@@ -126,9 +126,9 @@ class ItemPagavelController extends Controller
         $cursosClasse = CursoClasse::query()
             ->with(['classe:id,nome', 'cursoTutelado.instituicaoCurso.curso:id,nome'])
             ->get()
-            ->map(fn (CursoClasse $cc) => [
+            ->map(fn(CursoClasse $cc) => [
                 'id' => $cc->id,
-                'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome.' — '.$cc->classe->nome,
+                'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome . ' — ' . $cc->classe->nome,
             ]);
 
         Log::debug('[ItemPagavelController@edit] cursosClasse carregados', [
