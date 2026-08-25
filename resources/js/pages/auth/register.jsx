@@ -120,12 +120,12 @@ export default function Register({ passwordRules }) {
               </Button>
             </div>
 
-            <div className="text-center text-sm text-muted-foreground">
+            {/* <div className="text-center text-sm text-muted-foreground">
               Já tem uma conta?{' '}
               <TextLink href={create().url} tabIndex={6}>
                 Entrar
               </TextLink>
-            </div>
+            </div> */}
           </>
         )}
       </Form>

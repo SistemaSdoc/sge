@@ -41,7 +41,7 @@ export default function NavigationMenu() {
           className="h-9 px-3 text-sm sm:h-10 sm:px-4"
         >
           <Link href={create().url} prefetch>
-            Login
+            Registro
           </Link>
         </Button>
       </div>

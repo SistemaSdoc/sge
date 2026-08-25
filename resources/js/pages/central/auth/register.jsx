@@ -206,10 +206,10 @@ export default function Register({ passwordRules }) {
           </FieldSet>
         </FieldGroup>
 
-        <div className="text-center text-sm text-muted-foreground">
+        {/* <div className="text-center text-sm text-muted-foreground">
           Já tem uma conta?{' '}
           <TextLink href={login().url}>Entrar</TextLink>
-        </div>
+        </div> */}
       </form>
     </>
   );
