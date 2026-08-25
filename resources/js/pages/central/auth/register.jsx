@@ -58,7 +58,7 @@ export default function Register({ passwordRules }) {
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col w-full max-w-2xl gap-6"
+        className="flex w-full max-w-2xl flex-col gap-6"
       >
         <FieldGroup>
           <FieldSet>

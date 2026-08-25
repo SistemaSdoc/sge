@@ -16,6 +16,8 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 
     protected $casts = [
         'status' => TenantStatus::class,
+        'provisioning_started_at' => 'datetime',
+        'provisioning_finished_at' => 'datetime',
     ];
 
     public static function getCustomColumns(): array
@@ -23,7 +25,13 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return [
             ...parent::getCustomColumns(),
             'instituicao_id',
+            'admin_user_id',
             'status',
+            'provisioning_target_status',
+            'provisioning_attempts',
+            'provisioning_error',
+            'provisioning_started_at',
+            'provisioning_finished_at',
         ];
     }
 

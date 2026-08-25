@@ -109,7 +109,7 @@ Route::middleware([
         'auth:tenant',
         'verified',
         'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno',
-        'tenant.status'
+        CheckTenantStatus::class,
     ])
         ->prefix('dashboard')
         ->name('tenant.dashboard.')

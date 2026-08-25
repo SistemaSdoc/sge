@@ -5,6 +5,7 @@ use App\Http\Middleware\CheckTenantStatus;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\VerificarPropinaEmDia;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,8 +18,8 @@ use Stancl\Tenancy\Exceptions\TenantDatabaseDoesNotExistException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__ . '/../routes/web.php',
-        commands: __DIR__ . '/../routes/console.php',
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
@@ -46,11 +47,26 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn(Request $request) => $request->is('api/*'),
+            fn (Request $request) => $request->is('api/*'),
         );
 
         $exceptions->render(function (TenantDatabaseDoesNotExistException $e, $request) {
             $tenantException = new TenantDatabaseNotExistException($e->getMessage(), $e->getCode(), $e);
+
+            return $tenantException->render($request);
+        });
+
+        $exceptions->render(function (QueryException $e, $request) {
+            $isTenantDatabaseNotReady = tenancy()->initialized
+                && $e->getConnectionName() === 'tenant'
+                && tenancy()->tenant?->status?->value === 'provisioning'
+                && in_array($e->getCode(), ['42S02', '42P01'], true);
+
+            if (! $isTenantDatabaseNotReady) {
+                return null;
+            }
+
+            $tenantException = new TenantDatabaseNotExistException($e->getMessage(), (int) $e->getCode(), $e);
 
             return $tenantException->render($request);
         });

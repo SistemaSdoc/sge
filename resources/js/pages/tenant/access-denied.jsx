@@ -56,7 +56,7 @@ export default function AccessDenied({ status }) {
             <Lock className="text-destructive" />
           </EmptyMedia>
           <EmptyTitle>{messageConfig.title}</EmptyTitle>
-          <div className="flex justify-center mb-2">
+          <div className="mb-2 flex justify-center">
             <StatusBadge status={status} />
           </div>
           <EmptyDescription>{messageConfig.description}</EmptyDescription>
@@ -71,7 +71,7 @@ export default function AccessDenied({ status }) {
                   as="button"
                   onClick={handleLogout}
                 >
-                  <ArrowLeft className="transition-all duration-150 size-4 group-hover:-translate-x-1" />
+                  <ArrowLeft className="size-4 transition-all duration-150 group-hover:-translate-x-1" />
                   Terminar sessão
                 </Link>
               </Button>

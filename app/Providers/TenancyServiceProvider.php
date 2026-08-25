@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Events\TenantActivated;
-use App\Jobs\CreateTenantInstitution;
+use App\Jobs\ProvisionTenantJob;
 use App\Listeners\ResetPermissionCache;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\Facades\Event;
@@ -41,14 +41,9 @@ class TenancyServiceProvider extends ServiceProvider
                 })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
             ],
             TenantActivated::class => [
-                JobPipeline::make([
-                    \App\Jobs\CreateOrReuseTenantDatabase::class,
-                    Jobs\MigrateDatabase::class,
-                    \App\Jobs\SeedTenantIfNew::class,
-                    CreateTenantInstitution::class,
-                ])->send(function (TenantActivated $event) {
-                    return $event->tenant;
-                })->shouldBeQueued(false), // `false` by default, but you probably want to make this `true` for production.
+                function (TenantActivated $event): void {
+                    ProvisionTenantJob::dispatch($event->tenant)->afterCommit();
+                },
             ],
 
             // Domain events

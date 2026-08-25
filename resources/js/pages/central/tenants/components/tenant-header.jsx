@@ -37,7 +37,7 @@ export function Header({ can, tenant }) {
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbPage className="line-clamp-1 text-sm font-semibold text-secondary">
-                    {tenant.instituicao.nome}
+                    {tenant.instituicao?.nome ?? tenant.id}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
@@ -85,14 +85,15 @@ export function Header({ can, tenant }) {
             </span>
           </div>
           <span className="block text-sm font-medium">
-            {tenant?.instituicao.user?.nome}
+            {tenant?.instituicao?.user?.nome ?? 'Instituição em configuração'}
           </span>
           <p className="mt-1 flex text-xs text-muted-foreground">
             <a
-              href={`mailto:${tenant?.instituicao.user?.email}`}
+              href={`mailto:${tenant?.instituicao?.user?.email ?? ''}`}
               className="transition-colors hover:text-foreground"
             >
-              {tenant?.instituicao.user?.email}
+              {tenant?.instituicao?.user?.email ??
+                'Dados ainda não disponíveis'}
             </a>
             <ArrowUpRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
           </p>

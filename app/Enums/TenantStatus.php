@@ -7,6 +7,8 @@ enum TenantStatus: string
     case ACTIVE = 'active';
     case TRIAL = 'trial';
     case PENDING = 'pending';
+    case PROVISIONING = 'provisioning';
+    case FAILED = 'failed';
     case SUSPENDED = 'suspended';
     case ARCHIVED = 'archived';
 
@@ -16,6 +18,8 @@ enum TenantStatus: string
             self::ACTIVE => 'Activo',
             self::TRIAL => 'Período de Teste',
             self::PENDING => 'Pendente de Verificação',
+            self::PROVISIONING => 'A configurar',
+            self::FAILED => 'Falha na configuração',
             self::SUSPENDED => 'Suspenso',
             self::ARCHIVED => 'Arquivado',
         };
@@ -29,5 +33,10 @@ enum TenantStatus: string
     public function isRestricted(): bool
     {
         return $this === self::TRIAL;
+    }
+
+    public function isProvisioning(): bool
+    {
+        return $this === self::PROVISIONING;
     }
 }

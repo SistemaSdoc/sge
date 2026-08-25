@@ -2,8 +2,8 @@ import { ChartContainer } from '@/components/ui/chart';
 import { Pie, PieChart } from 'recharts';
 
 const chartConfig = {
-  diretores: { label: 'Diretores', color: 'var(--color-info)' },
-  subdiretores: { label: 'Subdiretores', color: 'var(--chart-1)' },
+  diretores: { label: 'Directores', color: 'var(--color-info)' },
+  subdiretores: { label: 'Subdirectores', color: 'var(--chart-1)' },
   professores: { label: 'Professores', color: 'var(--color-warning)' },
   alunos: { label: 'Alunos', color: 'var(--color-success)' },
 };

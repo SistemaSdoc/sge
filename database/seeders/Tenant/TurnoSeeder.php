@@ -12,14 +12,8 @@ class TurnoSeeder extends Seeder
      */
     public function run(): void
     {
-        Turno::create([
-            'nome' => 'Manhã',
-        ]);
-        Turno::create([
-            'nome' => 'Tarde',
-        ]);
-        Turno::create([
-            'nome' => 'Noite',
-        ]);
+        Turno::firstOrCreate(['nome' => 'Manhã']);
+        Turno::firstOrCreate(['nome' => 'Tarde']);
+        Turno::firstOrCreate(['nome' => 'Noite']);
     }
 }

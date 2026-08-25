@@ -38,7 +38,7 @@ class CreateTenantInstitution implements ShouldQueue
             $this->createInstitutionAndUser($pending);
 
             Log::info("CreateTenantInstitution concluído para tenant: {$this->tenant->id}");
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("Erro em CreateTenantInstitution: {$e->getMessage()}");
             throw $e;
         }
@@ -47,61 +47,66 @@ class CreateTenantInstitution implements ShouldQueue
     /**
      * Cria a instituição e o utilizador admin do tenant.
      */
-   private function createInstitutionAndUser(PendingTenantData $pending): void
-{
-    DB::transaction(function () use ($pending) {
-        $this->tenant->run(function () use ($pending) {
-            Log::info("A criar instituição para tenant: {$this->tenant->id}");
+    private function createInstitutionAndUser(PendingTenantData $pending): void
+    {
+        DB::transaction(function () use ($pending) {
+            $this->tenant->run(function () use ($pending) {
+                Log::info("A criar instituição para tenant: {$this->tenant->id}");
 
-            $instituicao = Instituicao::firstOrCreate(
-                ['sigla' => $pending->sigla],
-                [
-                    'nome'      => $pending->nome,
-                    'tipo'      => $pending->tipo,
-                    'status'    => $pending->status,
-                    'tenant_id' => $this->tenant->id,
-                ]
-            );
+                $instituicao = Instituicao::firstOrCreate(
+                    ['tenant_id' => $this->tenant->id],
+                    [
+                        'nome' => $pending->nome,
+                        'sigla' => $pending->sigla,
+                        'tipo' => $pending->tipo,
+                        'status' => $pending->status,
+                    ],
+                );
 
-            Log::info("Instituição: {$instituicao->id}");
+                Log::info("Instituição: {$instituicao->id}");
 
-            $user = User::firstOrCreate(
-                ['email' => $pending->user_email],
-                [
-                    'nome'          => $pending->user_nome,
-                    'password'      => Hash::make('12345678'),
+                $user = User::firstOrCreate(
+                    ['email' => $pending->user_email],
+                    [
+                        'nome' => $pending->user_nome,
+                        'password' => Hash::make('12345678'),
+                        'instituicao_id' => $instituicao->id,
+                    ],
+                );
+
+                $userCreated = $user->wasRecentlyCreated;
+
+                if ($user->instituicao_id !== $instituicao->id) {
+                    $user->update(['instituicao_id' => $instituicao->id]);
+                }
+
+                Log::info("Utilizador: {$user->id}");
+
+                if (! $user->hasRole('Director')) {
+                    $user->assignRole('Director');
+                }
+
+                if ($userCreated) {
+                    $user->notify(new TenantActivadoNotification(
+                        nomeInstituicao: $instituicao->nome,
+                        nomeUser: $user->nome,
+                        email: $user->email,
+                        subdomain: $this->tenant->id,
+                        url: 'http://'.$this->tenant->id.'.'.env('APP_DOMAIN', 'localhost'),
+                        sigla: $pending->sigla,
+                    ));
+                }
+
+                $this->tenant->update([
                     'instituicao_id' => $instituicao->id,
-                ]
-            );
+                    'admin_user_id' => $user->id,
+                ]);
 
-            Log::info("Utilizador: {$user->id}");
+                Log::info('Tenant atualizado com instituição e utilizador');
+            });
 
-            if (! $user->hasRole('Director')) {
-                $user->assignRole('Director');
-            }
-
-            // Só notifica se acabou de ser criado
-            if ($user->wasRecentlyCreated) {
-                $user->notify(new TenantActivadoNotification(
-                    nomeInstituicao: $instituicao->nome,
-                    nomeUser: $user->nome,
-                    email: $user->email,
-                    subdomain: $this->tenant->id,
-                    url: 'http://'.$this->tenant->id.'.'.env('APP_DOMAIN', 'localhost'),
-                    sigla: $pending->sigla,
-                ));
-            }
-
-            $this->tenant->update([
-                'instituicao_id' => $instituicao->id,
-                'admin_user_id'  => $user->id,
-            ]);
-
-            Log::info('Tenant atualizado com instituição e utilizador');
+            $pending->delete();
+            Log::info('Dados pendentes deletados');
         });
-
-        $pending->delete();
-        Log::info('Dados pendentes deletados');
-    });
-}
+    }
 }

@@ -114,7 +114,10 @@ class ClasseSeeder extends Seeder
         ];
 
         foreach ($classes as $classe) {
-            Classe::create($classe);
+            Classe::updateOrCreate(
+                ['nome' => $classe['nome']],
+                $classe,
+            );
         }
     }
 }

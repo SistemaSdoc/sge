@@ -24,13 +24,15 @@ class AnosLectivosSimulacaoSeeder extends Seeder
         ];
 
         foreach ($anos as $ano) {
-            AnoLectivo::create([
-                'nome' => $ano['nome'],
-                'data_inicio' => $agora->copy()->addMinutes($ano['offset']),
-                'data_fim' => $agora->copy()->addMinutes($ano['offset'] + $ano['duracao'])->setSecond(59),
-                'estado' => $ano['offset'] === 0 ? 'em_curso' : 'planeado',
-                'activo' => $ano['offset'] === 0,
-            ]);
+            AnoLectivo::updateOrCreate(
+                ['nome' => $ano['nome']],
+                [
+                    'data_inicio' => $agora->copy()->addMinutes($ano['offset']),
+                    'data_fim' => $agora->copy()->addMinutes($ano['offset'] + $ano['duracao'])->setSecond(59),
+                    'estado' => $ano['offset'] === 0 ? 'em_curso' : 'planeado',
+                    'activo' => $ano['offset'] === 0,
+                ],
+            );
 
             $inicio = $agora->copy()->addMinutes($ano['offset'])->format('H:i');
             $fim = $agora->copy()->addMinutes($ano['offset'] + $ano['duracao'])->format('H:i d/m');

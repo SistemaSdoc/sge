@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Central;
 
+use App\Enums\TenantStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Central\Tenant\StoreTenantRequest;
 use App\Http\Requests\Central\Tenant\UpdateTenantRequest;
@@ -48,8 +49,7 @@ class TenantController extends Controller
     {
         $validated = $request->validated();
 
-        $tenant = $this->tenantService->createTenant($validated);
-        $this->tenantService->savePendingTenantData($tenant, $validated);
+        $this->tenantService->createTenant($validated);
 
         return redirect()->route('central.dashboard.tenants.index');
     }
@@ -60,15 +60,46 @@ class TenantController extends Controller
     public function show(Tenant $tenant)
     {
         $tenant->load('domains');
+
+        if ($tenant->status === TenantStatus::FAILED) {
+            return Inertia::render('central/tenants/provisioning-failed', [
+                'tenant' => [
+                    'id' => $tenant->id,
+                    'domain' => $tenant->domains?->first()?->domain,
+                    'status' => $tenant->status->value,
+                    'target_status' => $tenant->provisioning_target_status,
+                    'attempts' => $tenant->provisioning_attempts,
+                    'error' => $tenant->provisioning_error,
+                ],
+            ]);
+        }
+
+        if ($tenant->status === TenantStatus::PENDING) {
+            return Inertia::render('central/tenants/pending', [
+                'tenant' => [
+                    'id' => $tenant->id,
+                    'domain' => $tenant->domains?->first()?->domain,
+                    'status' => $tenant->status->value,
+                    'availableTransitions' => $this->tenantService->getAvailableStatusTransitions($tenant),
+                ],
+            ]);
+        }
+
+        if ($tenant->status === TenantStatus::PROVISIONING) {
+            $response = Inertia::render('central/tenants/provisioning', [
+                'tenant' => [
+                    'id' => $tenant->id,
+                ],
+            ])->toResponse(request());
+            $response->headers->set('X-Tenant-Status', TenantStatus::PROVISIONING->value);
+
+            return $response;
+        }
+
         $instituicao = $this->tenantService->getInstituicao($tenant);
         $adminUser = $this->tenantService->getTenantAdminUser($tenant);
 
-        // Executar dentro do contexto do tenant
-        $metrics = $tenant->run(function () {
-            $metricsService = new TenantMetricsService;
-
-            return $metricsService->getMetrics();
-        });
+        $metrics = $this->getTenantMetrics($tenant);
 
         return Inertia::render('central/tenants/show', [
             'tenant' => [
@@ -165,11 +196,13 @@ class TenantController extends Controller
         $instituicao = $this->tenantService->getInstituicao($tenant);
         $adminUser = $this->tenantService->getTenantAdminUser($tenant);
 
-        $metrics = $tenant->run(function () {
-            $metricsService = new TenantMetricsService;
+        $metrics = $tenant->status === TenantStatus::PROVISIONING || $tenant->status === TenantStatus::PENDING
+            ? []
+            : $tenant->run(function () {
+                $metricsService = new TenantMetricsService;
 
-            return $metricsService->getAllTablesBySize();
-        });
+                return $metricsService->getAllTablesBySize();
+            });
 
         return Inertia::render('central/tenants/database/details/table-size-details', [
             'tenant' => [
@@ -201,11 +234,13 @@ class TenantController extends Controller
         $instituicao = $this->tenantService->getInstituicao($tenant);
         $adminUser = $this->tenantService->getTenantAdminUser($tenant);
 
-        $metrics = $tenant->run(function () {
-            $metricsService = new TenantMetricsService;
+        $metrics = $tenant->status === TenantStatus::PROVISIONING || $tenant->status === TenantStatus::PENDING
+            ? []
+            : $tenant->run(function () {
+                $metricsService = new TenantMetricsService;
 
-            return $metricsService->getAllTablesByRecords();
-        });
+                return $metricsService->getAllTablesByRecords();
+            });
 
         return Inertia::render('central/tenants/database/details/table-records-details', [
             'tenant' => [
@@ -224,5 +259,18 @@ class TenantController extends Controller
             ],
             'metrics' => $metrics,
         ]);
+    }
+
+    private function getTenantMetrics(Tenant $tenant): array
+    {
+        if (in_array($tenant->status, [TenantStatus::PENDING, TenantStatus::PROVISIONING], true)) {
+            return [];
+        }
+
+        return $tenant->run(function (): array {
+            $metricsService = new TenantMetricsService;
+
+            return $metricsService->getMetrics();
+        });
     }
 }

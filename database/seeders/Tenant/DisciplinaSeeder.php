@@ -12,109 +12,109 @@ class DisciplinaSeeder extends Seeder
      */
     public function run(): void
     {
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'L.Inglesa'], [
             'nome' => 'Inglês',
             'componente' => 'sociocultural',
             'sigla' => 'L.Inglesa',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'MAT'], [
             'nome' => 'Matemática',
             'componente' => 'cientifica',
             'sigla' => 'MAT',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'TIC'], [
             'nome' => 'Tecnologias de Informação e Comunicação',
             'componente' => 'tecnica',
             'sigla' => 'TIC',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'TLP'], [
             'nome' => 'Técnicas e Linguagem de programação',
             'componente' => 'tecnica',
             'sigla' => 'TLP',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'BD'], [
             'nome' => 'Base de Dados',
             'componente' => 'cientifica',
             'sigla' => 'BD',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'L.Portuguesa'], [
             'nome' => 'Lingua Portuguesa',
             'componente' => 'sociocultural',
             'sigla' => 'L.Portuguesa',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'OAE'], [
             'nome' => 'Organização e Administração de Empresas',
             'componente' => 'tecnica',
             'sigla' => 'OAE',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'FAI'], [
             'nome' => 'Formação de Atitudes Integradoras',
             'componente' => 'sociocultural',
             'sigla' => 'FAI',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'ND'], [
             'nome' => 'Nocões de Direito',
             'componente' => 'cientifica',
             'sigla' => 'ND',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'RC'], [
             'nome' => 'Redes de Computadores',
             'componente' => 'tecnica',
             'sigla' => 'RC',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'IAG'], [
             'nome' => 'Informática Aplicada à Gestão',
             'componente' => 'tecnica',
             'sigla' => 'IAG',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'Ed.Fisica'], [
             'nome' => 'Educação Física',
             'componente' => 'sociocultural',
             'sigla' => 'Ed.Fisica',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'SI'], [
             'nome' => 'Sistemas de Informação',
             'componente' => 'tecnica',
             'sigla' => 'SI',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'EMPREEN'], [
             'nome' => 'Empreendedorismo',
             'componente' => 'tecnica',
             'sigla' => 'EMPREEN',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'PT'], [
             'nome' => 'Projeto Tecnológico',
             'componente' => 'tecnica',
             'sigla' => 'PT',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'IMEI'], [
             'nome' => 'Instalação e Manutenção de Equipamentos Informáticos',
             'componente' => 'tecnica',
             'sigla' => 'IMEI',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'PAP'], [
             'nome' => 'Prova de Aptidão Profissional',
             'componente' => 'tecnica',
             'sigla' => 'PAP',
         ]);
 
-        Disciplina::create([
+        Disciplina::updateOrCreate(['sigla' => 'ECS'], [
             'nome' => 'Estágio Curricular Supervisionado',
             'componente' => 'tecnica',
             'sigla' => 'ECS',

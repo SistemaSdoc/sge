@@ -2,9 +2,8 @@
 
 namespace Database\Seeders\Tenant;
 
+use App\Models\Tenant\NivelEnsino;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class NiveisEnsinoSeeder extends Seeder
 {
@@ -29,14 +28,13 @@ class NiveisEnsinoSeeder extends Seeder
         ];
 
         foreach ($niveis as $nivel) {
-            DB::table('niveis_ensino')->insert([
-                'id' => (string) Str::uuid7(),
-                'nome' => $nivel['nome'],
-                'ordem' => $nivel['ordem'],
-                'activo' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            NivelEnsino::updateOrCreate(
+                ['nome' => $nivel['nome']],
+                [
+                    'ordem' => $nivel['ordem'],
+                    'activo' => true,
+                ],
+            );
         }
     }
 }

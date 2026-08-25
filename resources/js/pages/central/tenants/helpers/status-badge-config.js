@@ -21,6 +21,20 @@ export const STATUS_CONFIG = {
     bg: 'bg-amber-50 dark:bg-amber-950/40',
     pulse: true,
   },
+  provisioning: {
+    label: 'A configurar',
+    dot: 'bg-orange-500',
+    text: 'text-orange-700 dark:text-orange-400',
+    bg: 'bg-orange-50 dark:bg-orange-950/40',
+    pulse: true,
+  },
+  failed: {
+    label: 'Falha na configuração',
+    dot: 'bg-red-500',
+    text: 'text-red-700 dark:text-red-400',
+    bg: 'bg-red-50 dark:bg-red-950/40',
+    pulse: false,
+  },
   suspended: {
     label: 'Suspenso',
     dot: 'bg-red-500',

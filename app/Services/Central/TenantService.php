@@ -12,9 +12,12 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
 use App\Notifications\TenantPendenteNotification;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Stancl\Tenancy\Exceptions\TenantDatabaseDoesNotExistException;
 
 class TenantService
 {
@@ -37,7 +40,20 @@ class TenantService
             return null;
         }
 
-        return $tenant->run(fn (): ?Instituicao => Instituicao::query()->find($tenant->instituicao_id));
+        try {
+            return $tenant->run(fn (): ?Instituicao => Instituicao::query()->find($tenant->instituicao_id));
+        } catch (TenantDatabaseDoesNotExistException|QueryException $exception) {
+            if (! $this->isMissingTenantDatabase($exception)) {
+                throw $exception;
+            }
+
+            Log::warning('Tenant database unavailable while reading institution.', [
+                'tenant_id' => $tenant->getTenantKey(),
+                'exception' => $exception,
+            ]);
+
+            return null;
+        }
     }
 
     /**
@@ -49,17 +65,40 @@ class TenantService
             return null;
         }
 
-        return $tenant->run(fn (): ?User => User::query()->find($tenant->admin_user_id));
+        try {
+            return $tenant->run(fn (): ?User => User::query()->find($tenant->admin_user_id));
+        } catch (TenantDatabaseDoesNotExistException|QueryException $exception) {
+            if (! $this->isMissingTenantDatabase($exception)) {
+                throw $exception;
+            }
+
+            Log::warning('Tenant database unavailable while reading administrator.', [
+                'tenant_id' => $tenant->getTenantKey(),
+                'exception' => $exception,
+            ]);
+
+            return null;
+        }
+    }
+
+    private function isMissingTenantDatabase(TenantDatabaseDoesNotExistException|QueryException $exception): bool
+    {
+        if ($exception instanceof TenantDatabaseDoesNotExistException) {
+            return true;
+        }
+
+        return $exception->getConnectionName() === 'tenant'
+            && in_array($exception->getCode(), ['42S02', '42P01'], true);
     }
 
     /**
-     * Cria um novo tenant com domínio (status PENDENTE, sem BD).
+     * Cria um novo tenant com domínio e dados pendentes.
      *
      * @param  array<string, mixed>  $data  Com chave 'domain'
      */
     public function createTenant(array $data): Tenant
     {
-        return DB::transaction(function () use ($data) {
+        $tenant = DB::transaction(function () use ($data): Tenant {
             $subdomain = $data['domain'];
             $baseDomain = env('APP_DOMAIN', 'localhost');
             $domain = "{$subdomain}.{$baseDomain}";
@@ -73,18 +112,30 @@ class TenantService
                 'domain' => $domain,
             ]);
 
-            Notification::route('mail', [
-                $data['user_email'] => $data['user_nome'],
-            ])->notify(new TenantPendenteNotification(
-                nomeInstituicao: $data['nome'],
-                nomeUser: $data['user_nome'],
-                subdomain: $data['domain'],
-                url: 'http://'.$tenant->id.'.'.env('APP_DOMAIN', 'localhost'),
-                sigla: $data['sigla'],
-            ));
+            PendingTenantData::create([
+                'tenant_id' => $tenant->id,
+                'nome' => $data['nome'],
+                'sigla' => $data['sigla'],
+                'tipo' => $data['tipo'],
+                'status' => true,
+                'user_nome' => $data['user_nome'],
+                'user_email' => $data['user_email'],
+            ]);
 
             return $tenant->load('domains');
         });
+
+        Notification::route('mail', [
+            $data['user_email'] => $data['user_nome'],
+        ])->notify(new TenantPendenteNotification(
+            nomeInstituicao: $data['nome'],
+            nomeUser: $data['user_nome'],
+            subdomain: $data['domain'],
+            url: 'http://'.$tenant->id.'.'.env('APP_DOMAIN', 'localhost'),
+            sigla: $data['sigla'],
+        ));
+
+        return $tenant;
     }
 
     /**
@@ -167,11 +218,15 @@ class TenantService
     public function transitionStatus(Tenant $tenant, string $newStatus): void
     {
         DB::transaction(function () use ($tenant, $newStatus) {
+            $tenant = Tenant::query()->whereKey($tenant->getKey())->lockForUpdate()->firstOrFail();
             $oldStatus = $tenant->status->value;
 
             match ([$oldStatus, $newStatus]) {
                 // PENDING para TRIAL ou PENDING para ACTIVE
                 ['pending', 'trial'], ['pending', 'active'] => $this->activateTenant($tenant, $newStatus),
+
+                // FAILED para TRIAL ou FAILED para ACTIVE (retry do provisionamento)
+                ['failed', 'trial'], ['failed', 'active'] => $this->activateTenant($tenant, $newStatus),
 
                 // TRIAL para ACTIVE
                 ['trial', 'active'] => $this->convertTrialToActive($tenant),
@@ -185,7 +240,7 @@ class TenantService
                 // SUSPENDED para ACTIVE
                 ['suspended', 'active'] => $this->reactivateTenant($tenant),
 
-                default => null,
+                default => throw new \LogicException("Transição de status inválida: {$oldStatus} para {$newStatus}."),
             };
         });
     }
@@ -198,8 +253,12 @@ class TenantService
     private function activateTenant(Tenant $tenant, string $status): void
     {
         $tenant->update([
-            'status' => $status,
-            'trial_ends_at' => $status === 'trial' ? now()->addDays(14) : null,
+            'status' => TenantStatus::PROVISIONING,
+            'provisioning_target_status' => $status,
+            'provisioning_attempts' => $tenant->provisioning_attempts + 1,
+            'provisioning_error' => null,
+            'provisioning_started_at' => now(),
+            'provisioning_finished_at' => null,
         ]);
 
         TenantActivated::dispatch($tenant);
@@ -260,6 +319,11 @@ class TenantService
             ],
             'suspended' => [
                 'active' => 'Reactivar',
+            ],
+            'provisioning' => [],
+            'failed' => [
+                'active' => 'Tentar activar novamente',
+                'trial' => 'Tentar activar em período de teste',
             ],
             'archived' => [],
         };
