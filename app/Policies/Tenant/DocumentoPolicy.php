@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Policies;
+namespace App\Policies\Tenant;
 
-use App\Models\Documento;
-use App\Models\User;
+use App\Models\Tenant\User;
+use App\Models\Tenant\Documento;
 
 class DocumentoPolicy
 {

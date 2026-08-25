@@ -7,6 +7,7 @@ use App\Http\Requests\Tenant\ItemPagavel\StoreItemPagavelRequest;
 use App\Http\Requests\Tenant\ItemPagavel\UpdateItemPagavelRequest;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\ItemPagavel;
+use App\Models\Tenant\Documento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -46,6 +47,7 @@ class ItemPagavelController extends Controller
                 'frequencia' => $item->frequencia,
                 'multa_dias_tolerancia' => $item->multa_dias_tolerancia,
                 'multa_valor' => $item->multa_valor,
+                'tipo' => $item->tipo,
                 'ativo' => $item->ativo,
                 'curso_classe' => $item->cursoClasse?->classe?->nome, // <- nome vem de classe, não de cursoClasse
                 'can' => [
@@ -77,38 +79,47 @@ class ItemPagavelController extends Controller
 
         $instituicao = Auth::guard('tenant')->user()->instituicao_id; // ← Pega da autenticação
 
+
         return Inertia::render('tenant/itens-pagaveis/create', [
+            // No create() e edit()
             'cursosClasse' => CursoClasse::query()
                 ->with(['classe:id,nome', 'cursoTutelado.instituicaoCurso.curso:id,nome'])
                 ->whereHas('cursoTutelado.instituicaoCurso', function ($q) use ($instituicao) {
-                    $q->where('instituicao_id', $instituicao); // ← Filtra
+                    $q->where('instituicao_id', $instituicao);
                 })
                 ->get()
                 ->map(fn(CursoClasse $cc) => [
                     'id' => $cc->id,
                     'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome . ' — ' . $cc->classe->nome,
                 ]),
+            'instituicaoTipo' => auth()->user()->instituicao?->tipo, // 'colegio' ou 'instituto'
         ]);
     }
 
     public function store(StoreItemPagavelRequest $request)
     {
+        $isInstituto = auth()->user()->instituicao?->tipo === 'instituto';
+
         $item = ItemPagavel::create([
             ...$request->validated(),
             'instituicao_id' => $request->user()->instituicao_id,
+            'tipo' => $isInstituto ? 'documento' : $request->input('tipo'),
+            'valor' => $isInstituto ? 0 : $request->input('valor'),
+            'frequencia' => $isInstituto ? 'unico' : $request->input('frequencia'),
         ]);
-        
+
         if ($item->tipo === 'documento' && $request->filled('subtipo')) {
-            \App\Models\Documento::create([
+            Documento::create([
                 'item_pagavel_id' => $item->id,
                 'instituicao_id' => $request->user()->instituicao_id,
                 'subtipo' => $request->input('subtipo'),
             ]);
         }
 
-                return redirect()->route('tenant.dashboard.itens-pagaveis.index')->with('success', 'Item pagável criado com sucesso.');
+        return redirect()->route('tenant.dashboard.itens-pagaveis.index')->with('success', 'Item pagável criado com sucesso.');
 
     }
+
     public function edit(ItemPagavel $itemPagavel)
     {
         $itemPagavel->load('documento');
@@ -143,6 +154,7 @@ class ItemPagavelController extends Controller
                 'ativo' => (bool) $itemPagavel->ativo,
             ],
             'cursosClasse' => $cursosClasse,
+            'instituicaoTipo' => auth()->user()->instituicao?->tipo, // 'colegio' ou 'instituto'
         ]);
     }
 

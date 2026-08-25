@@ -23,9 +23,15 @@ class StoreItemPagavelRequest extends FormRequest
      */
     public function rules(): array
     { {
+            $isInstituto = auth()->user()->instituicao?->tipo === 'instituto';
+
+
             return [
-                'nome' => ['required', 'string', 'max:100'],
-                'tipo' => ['required', Rule::in(['financeiro', 'documento'])],
+                'nome' => ['required', 'string', 'max:255'],
+                'tipo' => $isInstituto ? ['nullable'] : ['required', Rule::in(['financeiro', 'documento'])],
+                'valor' => $isInstituto ? ['nullable'] : ['required', 'numeric', 'min:0', 'max:9999999.99'],
+                'frequencia' => $isInstituto ? ['nullable'] : ['required', Rule::in(['mensal', 'anual', 'unico'])],
+
                 'subtipo' => [
                     Rule::requiredIf($this->input('tipo') === 'documento'),
                     'nullable',
@@ -35,8 +41,6 @@ class StoreItemPagavelRequest extends FormRequest
                         ->where('instituicao_id', auth()->user()->instituicao_id),
                 ],
                 'descricao' => ['nullable', 'string', 'max:255'],
-                'valor' => ['required', 'numeric', 'min:0', 'max:9999999.99'],
-                'frequencia' => ['required', Rule::in(['mensal', 'anual', 'unico'])],
                 'curso_classe_id' => ['nullable', 'uuid', 'exists:curso_classe,id'],
                 'ativo' => ['boolean'],
             ];

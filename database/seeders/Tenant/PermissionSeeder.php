@@ -186,6 +186,13 @@ class PermissionSeeder extends Seeder
             'itemspagaveis.update',
             'itemspagaveis.delete',
 
+
+            // Documentos
+            'documentos.viewAny',
+            'documentos.view',
+            'documentos.emitir',
+            'documentos.exportar',
+
             'coordenador.view-curso',
             'coordenador.update-curso',
             'coordenador.manage-professores',

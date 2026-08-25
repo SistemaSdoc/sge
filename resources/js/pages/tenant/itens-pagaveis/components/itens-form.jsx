@@ -22,18 +22,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const frequencias = [
+const FREQUENCIAS = [
   { label: 'Mensal', value: 'mensal' },
   { label: 'Anual', value: 'anual' },
   { label: 'Único', value: 'unico' },
 ];
 
-const tipo = [
-  { label: 'Financeiro', value: 'financeiro' },
-  { label: 'Documento', value: 'documento' },
-];
-
-const subtipoLabels = {
+const SUBTIPO_LABELS = {
   declaracao_sem_notas: 'Declaração Sem Notas',
   declaracao_com_notas: 'Declaração Com Notas',
   certificado: 'Certificado',
@@ -48,8 +43,9 @@ export function ItensForm({
   processing,
   cursosClasse = [],
   submitFn,
+  instituicaoTipo = 'colegio',
 }) {
-  const selectValue = data.curso_classe_id || 'todos';
+  const isColegio = instituicaoTipo === 'colegio';
   const temMulta = data.multa_dias_tolerancia || data.multa_valor;
 
   return (
@@ -63,6 +59,7 @@ export function ItensForm({
           <CardContent>
             <FieldGroup>
               <FieldSet>
+                {/* Nome */}
                 <Field data-invalid={Boolean(errors?.nome)}>
                   <FieldLabel htmlFor="nome">Nome</FieldLabel>
                   <Input
@@ -71,115 +68,120 @@ export function ItensForm({
                     placeholder="Nome do emolumento (ex.: Propina para a 10ª classe)"
                     value={data.nome ?? ''}
                     onChange={(e) => setData('nome', e.target.value)}
-                    aria-invalid={Boolean(errors?.nome)}
                   />
                   {errors?.nome && <FieldError>{errors.nome}</FieldError>}
                 </Field>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Field data-invalid={Boolean(errors?.valor)}>
-                    <FieldLabel htmlFor="valor">Valor</FieldLabel>
-                    <Input
-                      id="valor"
-                      type="number"
-                      min="0"
-                      placeholder="0,00"
-                      value={data.valor ?? ''}
-                      onChange={(e) => setData('valor', e.target.value)}
-                      aria-invalid={Boolean(errors?.valor)}
-                    />
-                    {errors?.valor && <FieldError>{errors.valor}</FieldError>}
-                  </Field>
+                {/* Valor e Frequência — só colégios */}
+                {isColegio && (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field data-invalid={Boolean(errors?.valor)}>
+                      <FieldLabel htmlFor="valor">Valor</FieldLabel>
+                      <Input
+                        id="valor"
+                        type="number"
+                        min="0"
+                        placeholder="0,00"
+                        value={data.valor ?? ''}
+                        onChange={(e) => setData('valor', e.target.value)}
+                      />
+                      {errors?.valor && <FieldError>{errors.valor}</FieldError>}
+                    </Field>
 
-                  <Field data-invalid={Boolean(errors?.frequencia)}>
-                    <FieldLabel>Frequência de pagamento</FieldLabel>
-                    <ToggleGroup
-                      type="single"
-                      variant="outline"
-                      value={data.frequencia ?? 'mensal'}
-                      onValueChange={(val) => val && setData('frequencia', val)}
-                      className="flex w-full!"
-                    >
-                      {frequencias.map((f) => (
-                        <ToggleGroupItem key={f.value} value={f.value}>
-                          {f.label}
-                        </ToggleGroupItem>
-                      ))}
-                    </ToggleGroup>
-                    {errors?.frequencia && (
-                      <FieldError>{errors.frequencia}</FieldError>
-                    )}
-                  </Field>
-                </div>
+                    <Field data-invalid={Boolean(errors?.frequencia)}>
+                      <FieldLabel>Frequência de pagamento</FieldLabel>
+                      <ToggleGroup
+                        type="single"
+                        variant="outline"
+                        value={data.frequencia ?? 'mensal'}
+                        onValueChange={(val) =>
+                          val && setData('frequencia', val)
+                        }
+                        className="flex w-full!"
+                      >
+                        {FREQUENCIAS.map((f) => (
+                          <ToggleGroupItem key={f.value} value={f.value}>
+                            {f.label}
+                          </ToggleGroupItem>
+                        ))}
+                      </ToggleGroup>
+                      {errors?.frequencia && (
+                        <FieldError>{errors.frequencia}</FieldError>
+                      )}
+                    </Field>
+                  </div>
+                )}
 
-                <Field>
+                {/* Tipo — colégios escolhem; institutos ficam fixos em 'documento' */}
+                <Field data-invalid={Boolean(errors?.tipo)}>
                   <FieldLabel>Tipo</FieldLabel>
                   <Select
-                    value={data.tipo ?? 'financeiro'}
+                    value={
+                      isColegio ? (data.tipo ?? 'financeiro') : 'documento'
+                    }
                     onValueChange={(val) => setData('tipo', val)}
                     disabled={processing}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione um Tipo" />
+                      <SelectValue placeholder="Selecione um tipo" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         <SelectLabel>Tipos</SelectLabel>
-                        <SelectItem value="financeiro">Financeiro</SelectItem>
+                        {isColegio && (
+                          <SelectItem value="financeiro">Financeiro</SelectItem>
+                        )}
                         <SelectItem value="documento">Documento</SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  {errors.tipo && <FieldError>{errors.tipo}</FieldError>}
+                  {errors?.tipo && <FieldError>{errors.tipo}</FieldError>}
                 </Field>
 
+                {/* Subtipo — só quando tipo === 'documento' */}
                 {data.tipo === 'documento' && (
-                  <Field>
+                  <Field data-invalid={Boolean(errors?.subtipo)}>
                     <FieldLabel htmlFor="subtipo">
                       Subtipo <span className="text-red-500">*</span>
                     </FieldLabel>
                     <Select
                       value={data.subtipo ?? ''}
-                      onValueChange={(v) => {
-                        setData('subtipo', v);
-                        if (!data.nome) {
-                          setData('nome', subtipoLabels[v]);
-                        }
+                      onValueChange={(val) => {
+                        setData('subtipo', val);
+                        if (!data.nome) setData('nome', SUBTIPO_LABELS[val]);
                       }}
-                    > 
+                    >
                       <SelectTrigger id="subtipo">
                         <SelectValue placeholder="Seleccione o subtipo..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="declaracao_sem_notas">
-                          Declaração Sem Notas
-                        </SelectItem>
-                        <SelectItem value="declaracao_com_notas">
-                          Declaração Com Notas
-                        </SelectItem>
-                        <SelectItem value="certificado">Certificado</SelectItem>
+                        {Object.entries(SUBTIPO_LABELS).map(
+                          ([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ),
+                        )}
                       </SelectContent>
                     </Select>
-                    {errors.subtipo && (
+                    {errors?.subtipo && (
                       <FieldError>{errors.subtipo}</FieldError>
                     )}
                   </Field>
                 )}
 
+                {/* Curso / Classe */}
                 <Field data-invalid={Boolean(errors?.curso_classe_id)}>
                   <FieldLabel htmlFor="curso_classe_id">
                     Aplicar a Curso / Classe
                   </FieldLabel>
                   <Select
-                    value={selectValue}
-                    onValueChange={(val) => {
-                      setData('curso_classe_id', val === 'todos' ? '' : val);
-                    }}
+                    value={data.curso_classe_id || 'todos'}
+                    onValueChange={(val) =>
+                      setData('curso_classe_id', val === 'todos' ? '' : val)
+                    }
                   >
-                    <SelectTrigger
-                      id="curso_classe_id"
-                      aria-invalid={Boolean(errors?.curso_classe_id)}
-                    >
+                    <SelectTrigger id="curso_classe_id">
                       <SelectValue placeholder="Aplica-se a toda a instituição" />
                     </SelectTrigger>
                     <SelectContent>
@@ -198,6 +200,7 @@ export function ItensForm({
                   )}
                 </Field>
 
+                {/* Descrição */}
                 <Field data-invalid={Boolean(errors?.descricao)}>
                   <FieldLabel htmlFor="descricao">Descrição</FieldLabel>
                   <Textarea
@@ -205,94 +208,100 @@ export function ItensForm({
                     placeholder="Opcional"
                     value={data.descricao ?? ''}
                     onChange={(e) => setData('descricao', e.target.value)}
-                    aria-invalid={Boolean(errors?.descricao)}
                   />
                   {errors?.descricao && (
                     <FieldError>{errors.descricao}</FieldError>
                   )}
                 </Field>
 
-                <Field className="flex flex-row items-center justify-between">
-                  <FieldLabel htmlFor="ativo" className="cursor-pointer">
-                    Bloquear Estudantes se não pagarem este emolumento?
-                  </FieldLabel>
-                  <Switch
-                    id="ativo"
-                    size="sm"
-                    checked={Boolean(data.ativo)}
-                    onCheckedChange={(val) => setData('ativo', val)}
-                  />
-                </Field>
-
-                <div className="rounded-lg border p-4">
-                  <p className="text-sm font-medium">Multa por atraso</p>
-                  <p className="mb-3 text-xs text-muted-foreground">
-                    Opcional. Deixa os dois campos vazios se este emolumento não
-                    tiver multa. Só se aplica a itens de frequência mensal (ex:
-                    propina).
-                  </p>
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <Field
-                      data-invalid={Boolean(errors?.multa_dias_tolerancia)}
-                    >
-                      <FieldLabel htmlFor="multa_dias_tolerancia">
-                        Dias de tolerância (a partir do início do mês)
+                {/* Bloquear e Multa — só colégios */}
+                {isColegio && (
+                  <>
+                    <Field className="flex flex-row items-center justify-between">
+                      <FieldLabel htmlFor="ativo" className="cursor-pointer">
+                        Bloquear estudantes se não pagarem este emolumento?
                       </FieldLabel>
-                      <Input
-                        id="multa_dias_tolerancia"
-                        type="number"
-                        min="1"
-                        max="31"
-                        placeholder="Ex.: 10"
-                        value={data.multa_dias_tolerancia ?? ''}
-                        onChange={(e) =>
-                          setData('multa_dias_tolerancia', e.target.value)
-                        }
-                        aria-invalid={Boolean(errors?.multa_dias_tolerancia)}
+                      <Switch
+                        id="ativo"
+                        size="sm"
+                        checked={Boolean(data.ativo)}
+                        onCheckedChange={(val) => setData('ativo', val)}
                       />
-                      <FieldDescription>
-                        Ex.: 10 = pode pagar até ao dia 10 sem multa; a partir
-                        do dia 11, aplica-se.
-                      </FieldDescription>
-                      {errors?.multa_dias_tolerancia && (
-                        <FieldError>{errors.multa_dias_tolerancia}</FieldError>
-                      )}
                     </Field>
 
-                    <Field data-invalid={Boolean(errors?.multa_valor)}>
-                      <FieldLabel htmlFor="multa_valor">
-                        Valor da multa (Kz)
-                      </FieldLabel>
-                      <Input
-                        id="multa_valor"
-                        type="number"
-                        min="0"
-                        placeholder="Ex.: 2500"
-                        value={data.multa_valor ?? ''}
-                        onChange={(e) => setData('multa_valor', e.target.value)}
-                        aria-invalid={Boolean(errors?.multa_valor)}
-                      />
-                      {errors?.multa_valor && (
-                        <FieldError>{errors.multa_valor}</FieldError>
-                      )}
-                    </Field>
-                  </div>
+                    <div className="rounded-lg border p-4">
+                      <p className="text-sm font-medium">Multa por atraso</p>
+                      <p className="mb-3 text-xs text-muted-foreground">
+                        Opcional. Deixa os dois campos vazios se não houver
+                        multa. Só se aplica a itens de frequência mensal (ex.:
+                        propina).
+                      </p>
 
-                  {temMulta && (
-                    <p className="mt-3 text-xs text-muted-foreground">
-                      Resumo: após o dia {data.multa_dias_tolerancia || '—'} do
-                      mês, soma-se{' '}
-                      {data.multa_valor
-                        ? `${Number(data.multa_valor).toLocaleString('pt')} Kz`
-                        : '—'}{' '}
-                      ao valor da propina em atraso.
-                    </p>
-                  )}
-                </div>
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <Field
+                          data-invalid={Boolean(errors?.multa_dias_tolerancia)}
+                        >
+                          <FieldLabel htmlFor="multa_dias_tolerancia">
+                            Dias de tolerância (a partir do início do mês)
+                          </FieldLabel>
+                          <Input
+                            id="multa_dias_tolerancia"
+                            type="number"
+                            min="1"
+                            max="31"
+                            placeholder="Ex.: 10"
+                            value={data.multa_dias_tolerancia ?? ''}
+                            onChange={(e) =>
+                              setData('multa_dias_tolerancia', e.target.value)
+                            }
+                          />
+                          <FieldDescription>
+                            Ex.: 10 = pode pagar até ao dia 10 sem multa; a
+                            partir do dia 11, aplica-se.
+                          </FieldDescription>
+                          {errors?.multa_dias_tolerancia && (
+                            <FieldError>
+                              {errors.multa_dias_tolerancia}
+                            </FieldError>
+                          )}
+                        </Field>
+
+                        <Field data-invalid={Boolean(errors?.multa_valor)}>
+                          <FieldLabel htmlFor="multa_valor">
+                            Valor da multa (Kz)
+                          </FieldLabel>
+                          <Input
+                            id="multa_valor"
+                            type="number"
+                            min="0"
+                            placeholder="Ex.: 2500"
+                            value={data.multa_valor ?? ''}
+                            onChange={(e) =>
+                              setData('multa_valor', e.target.value)
+                            }
+                          />
+                          {errors?.multa_valor && (
+                            <FieldError>{errors.multa_valor}</FieldError>
+                          )}
+                        </Field>
+                      </div>
+
+                      {temMulta && (
+                        <p className="mt-3 text-xs text-muted-foreground">
+                          Resumo: após o dia {data.multa_dias_tolerancia || '—'}{' '}
+                          do mês, soma-se{' '}
+                          {data.multa_valor
+                            ? `${Number(data.multa_valor).toLocaleString('pt')} Kz`
+                            : '—'}{' '}
+                          ao valor da propina em atraso.
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
 
                 <Button type="submit" disabled={processing}>
-                  {processing ? 'Criando...' : submitLabel}
+                  {processing ? 'A guardar...' : submitLabel}
                 </Button>
               </FieldSet>
             </FieldGroup>

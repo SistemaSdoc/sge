@@ -177,6 +177,12 @@ class RolePermissionSeeder extends Seeder
                 'itemspagaveis.update',
                 'itemspagaveis.delete',
 
+                // Documentos
+                'documentos.viewAny',
+                'documentos.view',
+                'documentos.emitir',
+                'documentos.exportar',
+
                 // Confirmação de Matrícula
                 'confirmacoes.viewAny',
                 'confirmacoes.confirmar',
@@ -318,6 +324,12 @@ class RolePermissionSeeder extends Seeder
                 'itemspagaveis.create',
                 'itemspagaveis.update',
                 'itemspagaveis.delete',
+
+                // Documentos
+                'documentos.viewAny',
+                'documentos.view',
+                'documentos.emitir',
+                'documentos.exportar',
 
                 // Mini-pauta
                 'notas.export',

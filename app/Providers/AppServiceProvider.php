@@ -16,6 +16,8 @@ use App\Policies\Tenant\HorarioPolicy;
 use App\Policies\Tenant\ItemPagavelPolicy;
 use App\Policies\Tenant\PagamentoPolicy;
 use App\Policies\Tenant\PautaPolicy;
+use App\Models\Tenant\Documento;
+use App\Policies\Tenant\DocumentoPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Date;

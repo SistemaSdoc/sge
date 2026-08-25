@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Tenant;
 
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\ItemPagavel;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 
