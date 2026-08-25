@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aluno;
+use App\Models\Documento;
 use App\Models\ItemPagavel;
+use App\Models\Turma;
 use App\Services\CertificadoService;
 use App\Services\DeclaracaoComNotaService;
 use App\Services\DeclaracaoSemNotaService;
@@ -20,16 +22,118 @@ class DocumentosController extends Controller
     ) {
     }
 
+    private function emitirCertificado(Aluno $aluno, Turma $turma, $candidato, string $classeNome): mixed
+    {
+        if (!str_contains($classeNome, '13ª')) {
+            abort(response()->json(['message' => 'O certificado só pode ser emitido para alunos da 13ª classe.']));
+        }
+
+        // Verifica se tem notas
+        $dados = $this->declaracaoComNotaService->calcularDados($aluno, $turma);
+        $todasDisciplinas = array_merge(
+            $dados['notas']['sociocultural'] ?? [],
+            $dados['notas']['cientifica'] ?? [],
+            $dados['notas']['tecnica'] ?? [],
+        );
+
+        if (empty($todasDisciplinas)) {
+            abort(response()->json(['message' => 'O aluno não tem notas lançadas para gerar o certificado.']));
+        }
+
+        $pdf = $this->certificadoService->gerarPdf($aluno, $turma);
+
+        return response($pdf)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'attachment; filename="Certificado_' . str_replace(' ', '_', $candidato->nome) . '.pdf"');
+    }
+
+    private function emitirDeclaracaoSemNotas(Aluno $aluno, Turma $turma, $candidato, string $classeNome, ?string $efeito): mixed
+    {
+        if (str_contains($classeNome, '13ª')) {
+            abort(response()->json(['message' => 'A declaração sem notas não pode ser emitida para alunos da 13ª classe.']));
+        }
+
+        $cct = $turma->cursoClasseTurno;
+        $cc = $cct->cursoClasse;
+        $ct = $cc->cursoTutelado;
+        $inst = $ct->instituicaoCurso->instituicao;
+
+        $docx = $this->declaracaoService->gerar($inst, $ct, $cc, $cct, $turma, $aluno, $efeito);
+        $pdf = $this->converterParaPdf($docx);
+
+        return response()
+            ->download($pdf, 'Declaracao_Sem_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf', ['Content-Type' => 'application/pdf'])
+            ->deleteFileAfterSend(true);
+    }
+
+    private function emitirDeclaracaoComNotas(Aluno $aluno, Turma $turma, $candidato, string $classeNome, ?string $efeito): mixed
+    {
+        if (str_contains($classeNome, '13ª')) {
+            abort(response()->json(['message' => 'A declaração com notas não pode ser emitida para alunos da 13ª classe.']));
+        }
+
+        // Verifica se tem notas
+        $dados = $this->declaracaoComNotaService->calcularDados($aluno, $turma);
+        $todasDisciplinas = array_merge(
+            $dados['notas']['sociocultural'] ?? [],
+            $dados['notas']['cientifica'] ?? [],
+            $dados['notas']['tecnica'] ?? [],
+        );
+
+        if (empty($todasDisciplinas)) {
+            abort(response()->json(['message' => 'O aluno não tem notas lançadas para gerar a declaração com notas.']));
+        }
+
+        $docx = $this->declaracaoComNotaService->gerar($aluno, $turma, $efeito);
+        $pdf = $this->converterParaPdf($docx);
+
+        return response()
+            ->download($pdf, 'Declaracao_Com_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf', ['Content-Type' => 'application/pdf'])
+            ->deleteFileAfterSend(true);
+    }
+
+    private function converterParaPdf(string $docx): string
+    {
+        $outDir = sys_get_temp_dir();
+        $process = new Process([
+            '/usr/bin/soffice',
+            '--headless',
+            '--convert-to',
+            'pdf',
+            '--outdir',
+            $outDir,
+            $docx,
+        ]);
+        $process->setTimeout(30);
+        $process->run();
+
+        return $outDir . '/' . pathinfo($docx, PATHINFO_FILENAME) . '.pdf';
+    }
+
     // ── Listagem ──────────────────────────────────────────────────────────
     public function index()
     {
+        //$this->authorize('viewAny', ItemPagavel::class);
+        $this->authorize('viewAny', Documento::class);
+
         $documentos = ItemPagavel::where('instituicao_id', auth()->user()->instituicao_id)
             ->where('tipo', 'documento')
             ->where('ativo', 1)
-            ->get(['id', 'nome', 'curso_classe_id', 'valor']);
+            ->with('documento') // ← adiciona
+            ->get(['id', 'nome', 'curso_classe_id', 'valor'])
+            ->map(fn($item) => [
+                'id' => $item->id,
+                'nome' => $item->nome,
+                'subtipo' => $item->documento?->subtipo,
+                'valor' => $item->valor,
+                'curso_classe_id' => $item->curso_classe_id,
+            ]);
 
         return Inertia::render('documentos/index', [
             'documentos' => $documentos,
+            'can' => [
+                'emitir' => auth()->user()->can('documentos.emitir'),
+            ],
         ]);
     }
 
@@ -130,11 +234,19 @@ class DocumentosController extends Controller
             'efeito' => 'nullable|string|max:255',
         ]);
 
-        // Verificar que o documento pertence à instituição do utilizador
         $item = ItemPagavel::where('id', $request->item_pagavel_id)
             ->where('tipo', 'documento')
             ->where('instituicao_id', auth()->user()->instituicao_id)
             ->firstOrFail();
+        // exportar — carrega o documento associado e autoriza com ele
+        $item->load('documento');
+        $documento = $item->documento;
+
+        if (!$documento) {
+            abort(422, 'Este documento não tem subtipo configurado.');
+        }
+
+        $this->authorize('exportar', $documento);
 
         // Resolver aluno com tudo o que os services precisam
         $aluno = Aluno::where('id', $request->aluno_id)
@@ -192,99 +304,22 @@ class DocumentosController extends Controller
         $nome = strtolower($item->nome);
         $candidato = $aluno->inscricao->candidato;
 
-        // ── Certificado ───────────────────────────────────────────────────────
-        if (str_contains($nome, 'certificado')) {
-            $classeNome = $turma->cursoClasseTurno->cursoClasse->classe->nome ?? '';
+        $item->load('documento');
+        $documento = $item->documento;
 
-            if (!str_contains($classeNome, '13ª')) {
-                abort(response()->json(['message' => 'O certificado só pode ser emitido para alunos da 13ª classe.']));
-            }
-
-            $pdf = $this->certificadoService->gerarPdf($aluno, $turma);
-
-            return response($pdf)
-                ->header('Content-Type', 'application/pdf')
-                ->header(
-                    'Content-Disposition',
-                    'attachment; filename="Certificado_' . str_replace(' ', '_', $candidato->nome) . '.pdf"'
-                );
+        if (!$documento) {
+            abort(422, 'Este documento não tem subtipo configurado.');
         }
 
-        // ── Declaração sem notas ─────────────────────────────────────────────
-        if (
-            str_contains($nome, 'declaração sem notas')
-            || str_contains($nome, 'declaracao sem notas')
-        ) {
-            $classeNome = $turma->cursoClasseTurno->cursoClasse->classe->nome ?? '';
+        $classeNome = $turma->cursoClasseTurno->cursoClasse->classe->nome ?? '';
+        $efeito = $request->input('efeito');
+        $candidato = $aluno->inscricao->candidato;
 
-            if (str_contains($classeNome, '13ª')) {
-                abort(response()->json(['message' => 'A declaração sem notas não pode ser emitida para alunos da 13ª classe.']));
-            }
-
-            $cct = $turma->cursoClasseTurno;
-            $cc = $cct->cursoClasse;
-            $ct = $cc->cursoTutelado;
-            $inst = $ct->instituicaoCurso->instituicao;
-
-            $efeito = $request->input('efeito');
-            $docx = $this->declaracaoService->gerar($inst, $ct, $cc, $cct, $turma, $aluno, $efeito);
-
-            $outDir = sys_get_temp_dir();
-            $process = new Process([
-                '/usr/bin/soffice',
-                '--headless',
-                '--convert-to',
-                'pdf',
-                '--outdir',
-                $outDir,
-                $docx,
-            ]);
-            $process->setTimeout(30);
-            $process->run();
-
-            $pdf = $outDir . '/' . pathinfo($docx, PATHINFO_FILENAME) . '.pdf';
-            $nomeFicheiro = 'Declaracao_Sem_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf';
-
-            return response()
-                ->download($pdf, $nomeFicheiro, ['Content-Type' => 'application/pdf'])
-                ->deleteFileAfterSend(true);
-        }
-
-        // ── Declaração com notas por classe ───────────────────────────────────
-        if (
-            str_contains($nome, 'declaração com notas')
-            || str_contains($nome, 'declaracao com notas')
-        ) {
-            $classeNome = $turma->cursoClasseTurno->cursoClasse->classe->nome ?? '';
-
-            if (str_contains($classeNome, '13ª')) {
-                abort(response()->json(['message' => 'A declaração com notas não pode ser emitida para alunos da 13ª classe.']));
-            }
-
-            $efeito = $request->input('efeito');
-            $docx = $this->declaracaoComNotaService->gerar($aluno, $turma, $efeito);
-
-            $outDir = sys_get_temp_dir();
-            $process = new Process([
-                '/usr/bin/soffice',
-                '--headless',
-                '--convert-to',
-                'pdf',
-                '--outdir',
-                $outDir,
-                $docx,
-            ]);
-            $process->setTimeout(30);
-            $process->run();
-
-            $pdf = $outDir . '/' . pathinfo($docx, PATHINFO_FILENAME) . '.pdf';
-            $nomeFicheiro = 'Declaracao_Com_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf';
-
-            return response()
-                ->download($pdf, $nomeFicheiro, ['Content-Type' => 'application/pdf'])
-                ->deleteFileAfterSend(true);
-        }
-
-        abort(422, 'Tipo de documento não reconhecido.');
+        return match ($documento->subtipo) {
+            'certificado' => $this->emitirCertificado($aluno, $turma, $candidato, $classeNome),
+            'declaracao_sem_notas' => $this->emitirDeclaracaoSemNotas($aluno, $turma, $candidato, $classeNome, $efeito),
+            'declaracao_com_notas' => $this->emitirDeclaracaoComNotas($aluno, $turma, $candidato, $classeNome, $efeito),
+            default => abort(422, 'Tipo não reconhecido.'),
+        };
     }
 }

@@ -4,10 +4,13 @@ namespace App\Providers;
 
 use App\Listeners\RegisteredListener;
 use App\Models\CursoTuteladoProfessor;
+use App\Models\Documento;
+use App\Models\ItemPagavel;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Policies\AcessManagementPolicy;
 use App\Policies\ColegioPolicy;
 use App\Policies\ConfirmacaoMatriculaPolicy;
+use App\Policies\DocumentoPolicy;
 use App\Policies\GrelhaCurricularPolicy;
 use App\Policies\HorarioPolicy;
 use App\Policies\PagamentoPolicy;
@@ -36,7 +39,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Registar listener para atribuir role padrão a novos utilizadores
         Event::listen(Registered::class, RegisteredListener::class);
 
         Gate::define('pauta.viewAny', [PautaPolicy::class, 'viewAny']);
@@ -47,13 +49,12 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('acessos.create', [AcessManagementPolicy::class, 'create']);
         Gate::define('horarios.viewAny', [HorarioPolicy::class, 'viewAny']);
 
+        Gate::policy(ItemPagavel::class, \App\Policies\ItemPagavelPolicy::class);
+
+        Gate::policy(Documento::class, DocumentoPolicy::class);
+
         Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);
-        // Gate::define('pagamentos.view', [PagamentoPolicy::class, 'viewAny']);
-        // Gate::define('pagamentos.gerir', [PagamentoPolicy::class, 'create']);
 
-        // $this->configureDefaults();
-
-        // SuperAdmin tem acesso a tudo automaticamente
         Gate::before(function ($user, $ability) {
             return $user->hasRole('SuperAdmin') ? true : null;
         });
@@ -62,7 +63,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('confirmacao-matricula.view', [ConfirmacaoMatriculaPolicy::class, 'view']);
         Gate::define('confirmacao-matricula.create', [ConfirmacaoMatriculaPolicy::class, 'create']);
 
-        // Registrar observadores de modelos
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
     }
 
@@ -78,7 +78,7 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Password::defaults(
-            fn (): ?Password => app()->isProduction()
+            fn(): ?Password => app()->isProduction()
             ? Password::min(12)
                 ->mixedCase()
                 ->letters()

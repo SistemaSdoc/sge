@@ -29,6 +29,11 @@ class PreencherHistoricoService
         $cursoClasseActual = $inscricao?->cursoClasseTurno?->cursoClasse;
         $ordemActual = $cursoClasseActual?->classe?->ordem
             ?? $aluno->turmaActual()->first()?->cursoClasseTurno?->cursoClasse?->classe?->ordem;
+
+        if ($ordemActual === null) {
+            return [];
+        }
+
         $cursoTuteladoId = $cursoClasseActual?->curso_tutelado_id;
 
         $classes = collect();
@@ -40,15 +45,16 @@ class PreencherHistoricoService
                 ->where('curso_tutelado_id', $cursoTuteladoId)
                 ->when(
                     $ordemActual !== null,
-                    fn ($q) => $q->whereHas('classe', fn ($q2) => $q2->where('ordem', '<', $ordemActual))
+                    fn($q) => $q->whereHas('classe', fn($q2) => $q2->where('ordem', '<', $ordemActual))
                 )
                 ->get();
         }
 
+
         // Fallback: busca por turmas que o aluno já frequentou
         // (cobre colégios e casos sem tutela directa)
         if ($classes->isEmpty()) {
-            $classes = $this->obterClassesPorTurmaAluno($aluno);
+            $classes = $this->obterClassesPorTurmaAluno($aluno, $ordemActual);
         }
 
         // Fallback adicional: busca pela instituição do aluno directamente
@@ -60,17 +66,17 @@ class PreencherHistoricoService
                     ?->cursoClasse
                     ?->cursoTutelado
                     ?->instituicaoCurso
-                    ?->instituicao_id;
+                        ?->instituicao_id;
 
             if ($instituicaoId) {
                 $classes = CursoClasseRecord::with('classe')
                     ->whereHas('cursoTutelado', function ($q) use ($instituicaoId) {
                         $q->where('instituicao_tutora_id', $instituicaoId)
-                            ->orWhereHas('instituicaoCurso', fn ($q2) => $q2->where('instituicao_id', $instituicaoId));
+                            ->orWhereHas('instituicaoCurso', fn($q2) => $q2->where('instituicao_id', $instituicaoId));
                     })
                     ->when(
                         $ordemActual !== null,
-                        fn ($q) => $q->whereHas('classe', fn ($q2) => $q2->where('ordem', '<', $ordemActual))
+                        fn($q) => $q->whereHas('classe', fn($q2) => $q2->where('ordem', '<', $ordemActual))
                     )
                     ->get();
             }
@@ -91,10 +97,10 @@ class PreencherHistoricoService
 
         foreach ($classes as $cc) {
             $ta = $turmaAlunos->first(
-                fn ($x) => $x->turma?->cursoClasseTurno?->curso_classe_id === $cc->id
+                fn($x) => $x->turma?->cursoClasseTurno?->curso_classe_id === $cc->id
             );
 
-            if (! $ta) {
+            if (!$ta) {
                 // Nunca iniciou — mostra botão "Lançar Notas"
                 $resultado[] = [
                     'curso_classe_id' => $cc->id,
@@ -129,14 +135,14 @@ class PreencherHistoricoService
         return collect($resultado)->sortBy('ordem')->values()->toArray();
     }
 
-    private function obterClassesPorTurmaAluno(Aluno $aluno): Collection
+    private function obterClassesPorTurmaAluno(Aluno $aluno, ?int $ordemActual = null): Collection
     {
         $turmaAlunos = TurmaAluno::where('aluno_id', $aluno->id)
             ->with('turma.cursoClasseTurno.cursoClasse.classe')
             ->get();
 
         $cursoClasseIds = $turmaAlunos
-            ->map(fn ($ta) => $ta->turma?->cursoClasseTurno?->curso_classe_id)
+            ->map(fn($ta) => $ta->turma?->cursoClasseTurno?->curso_classe_id)
             ->filter()
             ->unique()
             ->values();
@@ -147,6 +153,10 @@ class PreencherHistoricoService
 
         return CursoClasseRecord::with('classe')
             ->whereIn('id', $cursoClasseIds)
+            ->when(
+                $ordemActual !== null,
+                fn($q) => $q->whereHas('classe', fn($q2) => $q2->where('ordem', '<', $ordemActual))
+            )
             ->get();
     }
 
@@ -196,7 +206,7 @@ class PreencherHistoricoService
             ->with('turno')
             ->distinct()
             ->get()
-            ->map(fn ($cct) => [
+            ->map(fn($cct) => [
                 'id' => $cct->id,
                 'turno_id' => $cct->turno->id,
                 'turno_nome' => $cct->turno->nome,
@@ -217,10 +227,10 @@ class PreencherHistoricoService
             ->where('ano_lectivo_id', $anoLectivoId)
             ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado', function ($q) use ($instituicaoId) {
                 $q->where('instituicao_tutora_id', $instituicaoId)
-                    ->orWhereHas('instituicaoCurso', fn ($q2) => $q2->where('instituicao_id', $instituicaoId));
+                    ->orWhereHas('instituicaoCurso', fn($q2) => $q2->where('instituicao_id', $instituicaoId));
             })
             ->get()
-            ->map(fn ($t) => [
+            ->map(fn($t) => [
                 'id' => $t->id,
                 'nome' => $t->nome,
                 'max_alunos' => $t->max_alunos,
@@ -246,7 +256,7 @@ class PreencherHistoricoService
         $pertence = $cursoTutelado->instituicao_tutora_id === $instituicaoId
             || $cursoTutelado->instituicaoCurso?->instituicao_id === $instituicaoId;
 
-        if (! $pertence) {
+        if (!$pertence) {
             throw new \Exception('Turma não pertence à sua instituição.');
         }
 

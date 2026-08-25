@@ -32,6 +32,12 @@ const tipo = [
   { label: 'Documento', value: 'documento' },
 ];
 
+const subtipoLabels = {
+  declaracao_sem_notas: 'Declaração Sem Notas',
+  declaracao_com_notas: 'Declaração Com Notas',
+  certificado: 'Certificado',
+};
+
 export function ItensForm({
   title,
   submitLabel = 'Guardar',
@@ -164,6 +170,39 @@ export function ItensForm({
                   </Select>
                   {errors.tipo && <FieldError>{errors.tipo}</FieldError>}
                 </Field>
+
+                {data.tipo === 'documento' && (
+                  <Field>
+                    <FieldLabel htmlFor="subtipo">
+                      Subtipo <span className="text-red-500">*</span>
+                    </FieldLabel>
+                    <Select
+                      value={data.subtipo ?? ''}
+                      onValueChange={(v) => {
+                        setData('subtipo', v);
+                        if (!data.nome) {
+                          setData('nome', subtipoLabels[v]);
+                        }
+                      }}
+                    > 
+                      <SelectTrigger id="subtipo">
+                        <SelectValue placeholder="Seleccione o subtipo..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="declaracao_sem_notas">
+                          Declaração Sem Notas
+                        </SelectItem>
+                        <SelectItem value="declaracao_com_notas">
+                          Declaração Com Notas
+                        </SelectItem>
+                        <SelectItem value="certificado">Certificado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.subtipo && (
+                      <FieldError>{errors.subtipo}</FieldError>
+                    )}
+                  </Field>
+                )}
 
                 <Field data-invalid={Boolean(errors?.curso_classe_id)}>
                   <FieldLabel htmlFor="curso_classe_id">

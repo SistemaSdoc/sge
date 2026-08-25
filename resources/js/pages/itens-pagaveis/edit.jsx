@@ -6,13 +6,17 @@ import { update } from '@/actions/App/Http/Controllers/ItemPagavelController';
 export default function Edit({ itemPagavel, cursosClasse = [] }) {
   // Inicializa com valores vazios
   const { put, data, setData, processing, errors } = useForm({
-    nome: '',
-    tipo: '',
-    descricao: '',
-    valor: '',
-    frequencia: 'mensal',
-    curso_classe_id: '',
-    ativo: true,
+    nome: itemPagavel.nome ?? '',
+    tipo: itemPagavel.tipo ?? '',
+    subtipo: itemPagavel.subtipo ?? '',
+    descricao: itemPagavel.descricao ?? '',
+    valor: itemPagavel.valor ?? '',
+    frequencia: itemPagavel.frequencia ?? 'mensal',
+    curso_classe_id:
+      itemPagavel.curso_classe_id != null
+        ? String(itemPagavel.curso_classe_id)
+        : '',
+    ativo: itemPagavel.ativo ?? true,
   });
 
   //  ESSENCIAL: sincroniza quando itemPagavel for carregado
@@ -21,13 +25,14 @@ export default function Edit({ itemPagavel, cursosClasse = [] }) {
       setData({
         nome: itemPagavel.nome ?? '',
         tipo: itemPagavel.tipo ?? '',
+        subtipo: itemPagavel.subtipo ?? '', // ← adiciona
         descricao: itemPagavel.descricao ?? '',
         valor: itemPagavel.valor ?? '',
         frequencia: itemPagavel.frequencia ?? 'mensal',
-        //  CONVERTE PARA STRING – O SELECT SÓ FUNCIONA COM STRINGS
-        curso_classe_id: itemPagavel.curso_classe_id != null
-          ? String(itemPagavel.curso_classe_id)
-          : '',
+        curso_classe_id:
+          itemPagavel.curso_classe_id != null
+            ? String(itemPagavel.curso_classe_id)
+            : '',
         ativo: itemPagavel.ativo ?? true,
       });
     }
@@ -35,8 +40,15 @@ export default function Edit({ itemPagavel, cursosClasse = [] }) {
 
   //  Logs para diagnóstico (remove depois)
   console.log('[Edit] itemPagavel:', itemPagavel);
-  console.log('[Edit] cursosClasse IDs:', cursosClasse.map(c => String(c.id)));
-  console.log('[Edit] data.curso_classe_id (tipo):', typeof data.curso_classe_id, data.curso_classe_id);
+  console.log(
+    '[Edit] cursosClasse IDs:',
+    cursosClasse.map((c) => String(c.id)),
+  );
+  console.log(
+    '[Edit] data.curso_classe_id (tipo):',
+    typeof data.curso_classe_id,
+    data.curso_classe_id,
+  );
 
   return (
     <ItensForm

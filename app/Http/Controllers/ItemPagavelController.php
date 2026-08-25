@@ -97,54 +97,48 @@ class ItemPagavelController extends Controller
                     $q->where('instituicao_id', $instituicao); // ← Filtra
                 })
                 ->get()
-                ->map(fn (CursoClasse $cc) => [
+                ->map(fn(CursoClasse $cc) => [
                     'id' => $cc->id,
-                    'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome.' — '.$cc->classe->nome,
+                    'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome . ' — ' . $cc->classe->nome,
                 ]),
         ]);
     }
 
     public function store(StoreItemPagavelRequest $request)
     {
-        ItemPagavel::create([
+        $item = ItemPagavel::create([
             ...$request->validated(),
             'instituicao_id' => $request->user()->instituicao_id,
         ]);
 
-        return redirect()->route('itens-pagaveis.index')->with('success', 'Item pagável criado com sucesso.');
-    }
+        if ($item->tipo === 'documento' && $request->filled('subtipo')) {
+            \App\Models\Documento::create([
+                'item_pagavel_id' => $item->id,
+                'instituicao_id' => $request->user()->instituicao_id,
+                'subtipo' => $request->input('subtipo'),
+            ]);
+        }
 
+        return redirect()->route('itens-pagaveis.index')->with('success', 'Item criado com sucesso.');
+    }
     public function edit(ItemPagavel $itemPagavel)
     {
-        Log::debug('[ItemPagavelController@edit] INICIO', [
-            'item_id' => $itemPagavel->id,
-            'item_atributos' => $itemPagavel->getAttributes(),
-        ]);
+        $itemPagavel->load('documento');
 
         $cursosClasse = CursoClasse::query()
             ->with(['classe:id,nome', 'cursoTutelado.instituicaoCurso.curso:id,nome'])
             ->get()
-            ->map(fn (CursoClasse $cc) => [
+            ->map(fn(CursoClasse $cc) => [
                 'id' => $cc->id,
-                'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome.' — '.$cc->classe->nome,
+                'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome . ' — ' . $cc->classe->nome,
             ]);
-
-        Log::debug('[ItemPagavelController@edit] cursosClasse carregados', [
-            'total' => $cursosClasse->count(),
-            'cursosClasse' => $cursosClasse->toArray(),
-        ]);
-
-        $props = [
-            'itemPagavel' => $itemPagavel,
-            'cursosClasse' => $cursosClasse,
-        ];
-
-        Log::debug('[ItemPagavelController@edit] props enviadas ao Inertia::render', $props);
 
         return Inertia::render('itens-pagaveis/edit', [
             'itemPagavel' => [
                 'id' => $itemPagavel->id,
                 'nome' => $itemPagavel->nome,
+                'tipo' => $itemPagavel->tipo,
+                'subtipo' => $itemPagavel->documento?->subtipo,
                 'descricao' => $itemPagavel->descricao,
                 'valor' => $itemPagavel->valor,
                 'frequencia' => $itemPagavel->frequencia,
@@ -153,43 +147,25 @@ class ItemPagavelController extends Controller
                     : null,
                 'ativo' => (bool) $itemPagavel->ativo,
             ],
-            'cursosClasse' => $cursosClasse, // já mapeado com id e nome
+            'cursosClasse' => $cursosClasse,
         ]);
     }
 
     public function update(UpdateItemPagavelRequest $request, ItemPagavel $itemPagavel)
     {
-        Log::debug('[ItemPagavelController@update] INICIO', [
-            'item_id' => $itemPagavel->id,
-            'item_antes' => $itemPagavel->getAttributes(),
-            'request_all' => $request->all(),
-        ]);
+        $itemPagavel->update($request->validated());
 
-        $validado = $request->validated();
-
-        Log::debug('[ItemPagavelController@update] dados validados (validated())', [
-            'item_id' => $itemPagavel->id,
-            'validado' => $validado,
-        ]);
-
-        if (empty($validado)) {
-            Log::warning('[ItemPagavelController@update] validated() veio VAZIO — provavelmente rules() da FormRequest não batem com os campos enviados', [
-                'item_id' => $itemPagavel->id,
-                'campos_recebidos' => array_keys($request->all()),
-            ]);
+        if ($itemPagavel->tipo === 'documento' && $request->filled('subtipo')) {
+            $itemPagavel->documento()->updateOrCreate(
+                ['item_pagavel_id' => $itemPagavel->id],
+                [
+                    'instituicao_id' => $request->user()->instituicao_id,
+                    'subtipo' => $request->input('subtipo'),
+                ]
+            );
         }
 
-        $resultado = $itemPagavel->update($validado);
-
-        Log::debug('[ItemPagavelController@update] resultado do update()', [
-            'item_id' => $itemPagavel->id,
-            'update_retornou' => $resultado,
-            'wasChanged' => $itemPagavel->wasChanged(),
-            'changes' => $itemPagavel->getChanges(),
-            'item_depois' => $itemPagavel->fresh()?->getAttributes(),
-        ]);
-
-        return redirect()->route('itens-pagaveis.index')->with('success', 'Item pagável actualizado com sucesso.');
+        return redirect()->route('itens-pagaveis.index')->with('success', 'Item actualizado com sucesso.');
     }
 
     public function destroy(ItemPagavel $itemPagavel)
