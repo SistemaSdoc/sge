@@ -42,9 +42,9 @@ class TenancyServiceProvider extends ServiceProvider
             ],
             TenantActivated::class => [
                 JobPipeline::make([
-                    Jobs\CreateDatabase::class,
+                    \App\Jobs\CreateOrReuseTenantDatabase::class,
                     Jobs\MigrateDatabase::class,
-                    Jobs\SeedDatabase::class,
+                    \App\Jobs\SeedTenantIfNew::class,
                     CreateTenantInstitution::class,
                 ])->send(function (TenantActivated $event) {
                     return $event->tenant;

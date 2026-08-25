@@ -63,7 +63,6 @@ Route::middleware([
     'web',
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
-    //CheckTenantStatus::class,
 ])->group(function () {
     /*
     |--------------------------------------------------------------------------
@@ -110,6 +109,7 @@ Route::middleware([
         'auth:tenant',
         'verified',
         'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno',
+        'tenant.status'
     ])
         ->prefix('dashboard')
         ->name('tenant.dashboard.')

@@ -23,7 +23,7 @@ enum TenantStatus: string
 
     public function canAccess(): bool
     {
-        return in_array($this, [self::ACTIVE, self::TRIAL, self::PENDING]);
+        return in_array($this, [self::ACTIVE, self::TRIAL]);
     }
 
     public function isRestricted(): bool

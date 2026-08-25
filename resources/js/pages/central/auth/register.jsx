@@ -63,8 +63,8 @@ export default function Register({ passwordRules }) {
         <FieldGroup>
           <FieldSet>
             {/* Nome & Sigla */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Field>
+
+             <Field>
                 <FieldLabel htmlFor="nome">Nome da Instituição</FieldLabel>
                 <Input
                   id="nome"
@@ -77,24 +77,7 @@ export default function Register({ passwordRules }) {
                 />
                 {errors.nome && <FieldError>{errors.nome}</FieldError>}
               </Field>
-
-              <Field>
-                <FieldLabel htmlFor="sigla">Sigla</FieldLabel>
-                <Input
-                  id="sigla"
-                  type="text"
-                  required
-                  placeholder="Ex.: ESL"
-                  value={data.sigla}
-                  onChange={(e) =>
-                    setData('sigla', e.target.value.toUpperCase())
-                  }
-                  maxLength="10"
-                />
-                {errors.sigla && <FieldError>{errors.sigla}</FieldError>}
-              </Field>
-            </div>
-
+          
             {/* Tipo & Subdomínio */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Field>
@@ -120,7 +103,24 @@ export default function Register({ passwordRules }) {
                 {errors.tipo && <FieldError>{errors.tipo}</FieldError>}
               </Field>
 
-              <Field>
+               <Field>
+                <FieldLabel htmlFor="sigla">Sigla</FieldLabel>
+                <Input
+                  id="sigla"
+                  type="text"
+                  required
+                  placeholder="Ex.: ESL"
+                  value={data.sigla}
+                  onChange={(e) => setData('sigla', e.target.value.toUpperCase())}
+                  maxLength="10"
+                />
+                {errors.sigla && <FieldError>{errors.sigla}</FieldError>}
+              </Field>
+
+              
+            </div>
+
+            <Field>
                 <FieldLabel htmlFor="domain">Subdomínio</FieldLabel>
                 <InputGroup>
                   <InputGroupAddon className="font-normal text-foreground">
@@ -143,10 +143,9 @@ export default function Register({ passwordRules }) {
                 </InputGroup>
                 {errors.domain && <FieldError>{errors.domain}</FieldError>}
               </Field>
-            </div>
 
             {/* Nome & Email do Diretor */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            
               <Field>
                 <FieldLabel htmlFor="user_nome">
                   Nome do Utilizador (Diretor)
@@ -180,7 +179,6 @@ export default function Register({ passwordRules }) {
                   <FieldError>{errors.user_email}</FieldError>
                 )}
               </Field>
-            </div>
 
             {/* Senha */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
+use App\Models\Tenant\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -22,6 +23,9 @@ class SolicitacaoEdicaoPautaController extends Controller
 
         $this->authorize('viewAny', SolicitacaoEdicaoPauta::class);
 
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         abort_unless($request->user()->hasAnyRole(['Director', 'Subdirector']), 403);
 
         $solicitacoes = SolicitacaoEdicaoPauta::with([
@@ -32,7 +36,7 @@ class SolicitacaoEdicaoPautaController extends Controller
             ->where('status', 'pendente')
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn ($s) => [
+            ->map(fn($s) => [
                 'id' => $s->id,
                 'tipo' => $s->tipo,
                 'periodo' => $s->periodo,
@@ -48,7 +52,9 @@ class SolicitacaoEdicaoPautaController extends Controller
 
         return Inertia::render('tenant/pautas/solicitacoes/index', [
             'solicitacoes' => $solicitacoes,
-            '',
+            'instituicao' => [
+                'id' => $user->instituicao->id
+            ],
         ]);
     }
 
@@ -150,7 +156,9 @@ class SolicitacaoEdicaoPautaController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create() {}
+    public function create()
+    {
+    }
 
     // Director decide
     // public function decidir(Request $request, SolicitacaoEdicaoPauta $solicitacao)

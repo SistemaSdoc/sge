@@ -1,12 +1,13 @@
-import { router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { edit } from '@/actions/App/Http/Controllers/Tenant/PeriodoLancamentoNotasController';
 
 export default function SolicitacoesIndex() {
-  const { solicitacoes } = usePage().props;
+  const { solicitacoes, instituicao } = usePage().props;
   const [prazos, setPrazos] = useState({});
 
   const decidir = (id, decisao) => {
@@ -22,9 +23,15 @@ export default function SolicitacoesIndex() {
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-4 p-6">
-      <h1 className="text-xl font-semibold">
-        Solicitações de Lançamento de Notas
-      </h1>
+      <div className='flex justify-between'>
+        <h1 className="text-xl font-semibold">Solicitações de Lançamento de Notas</h1>
+
+        <Button asChild>
+          <Link href={edit({instituicao: instituicao.id}).url}>
+            Definir prazos de lançamentos
+          </Link>
+        </Button>
+      </div>
 
       {solicitacoes.length === 0 && (
         <p className="text-sm text-muted-foreground">
