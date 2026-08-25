@@ -120,7 +120,7 @@ export default function Show({
               <h1 className="text-2xl font-semibold md:text-3xl">
                 {grupoPap?.nome_grupo}
               </h1>
-              <h2 className="text-2xl font-semibold md:text-1xl">
+              <h2 className="md:text-1xl text-2xl font-semibold">
                 Tema: {grupoPap?.tema_grupo}
               </h2>
               <p className="text-sm opacity-90">{colegio?.nome}</p>
@@ -198,18 +198,16 @@ export default function Show({
               Local & Data de defesa
             </p>
             <p className="font-medium">
-              {grupoPap?.local_defesa
-                ? `${grupoPap.local_defesa} / `
-                : ''}
+              {grupoPap?.local_defesa ? `${grupoPap.local_defesa} / ` : ''}
               {grupoPap?.data_defesa
                 ? new Date(grupoPap.data_defesa).toLocaleString('pt-PT', {
-                  weekday: 'short',
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
                 : 'Por definir...'}
             </p>
           </div>
@@ -283,7 +281,9 @@ export default function Show({
                 value={data.hora_defesa}
                 onChange={(e) => setData('hora_defesa', e.target.value)}
               />
-              {errors.hora_defesa && <FieldError>{errors.hora_defesa}</FieldError>}
+              {errors.hora_defesa && (
+                <FieldError>{errors.hora_defesa}</FieldError>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -321,43 +321,43 @@ export default function Show({
       {['reprovado', 'melhoria-solicitada'].includes(
         grupoPap.status_aprovacao,
       ) && (
-          <Alert
-            variant={
-              grupoPap.status_aprovacao === 'reprovado'
-                ? 'destructive'
-                : 'default'
-            }
-          >
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>
-              {grupoPap.status_aprovacao === 'reprovado'
-                ? 'Tema reprovado'
-                : 'Melhoria solicitada'}
-            </AlertTitle>
-            <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-sm">
-                {grupoPap.comentario_aprovacao ?? 'Sem comentário adicional.'}
-              </span>
-              {can?.corrigirTema && (
-                <Button
-                  size="sm"
-                  variant={
-                    grupoPap.status_aprovacao === 'reprovado'
-                      ? 'destructive'
-                      : 'default'
-                  }
-                  onClick={() =>
-                    router.visit(editarTema.url({ grupoPap: grupoPap.id }))
-                  }
-                >
-                  {grupoPap.status_aprovacao === 'reprovado'
-                    ? 'Enviar Novo Tema'
-                    : 'Corrigir Tema'}
-                </Button>
-              )}
-            </AlertDescription>
-          </Alert>
-        )}
+        <Alert
+          variant={
+            grupoPap.status_aprovacao === 'reprovado'
+              ? 'destructive'
+              : 'default'
+          }
+        >
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>
+            {grupoPap.status_aprovacao === 'reprovado'
+              ? 'Tema reprovado'
+              : 'Melhoria solicitada'}
+          </AlertTitle>
+          <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <span className="text-sm">
+              {grupoPap.comentario_aprovacao ?? 'Sem comentário adicional.'}
+            </span>
+            {can?.corrigirTema && (
+              <Button
+                size="sm"
+                variant={
+                  grupoPap.status_aprovacao === 'reprovado'
+                    ? 'destructive'
+                    : 'default'
+                }
+                onClick={() =>
+                  router.visit(editarTema.url({ grupoPap: grupoPap.id }))
+                }
+              >
+                {grupoPap.status_aprovacao === 'reprovado'
+                  ? 'Enviar Novo Tema'
+                  : 'Corrigir Tema'}
+              </Button>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Tabs defaultValue="integrantes-grupo" className="w-full">
         <TabsList>

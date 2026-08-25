@@ -72,7 +72,7 @@ export default function Show({ professor, cursos, turmas }) {
         </div>
       </Card>
 
-      <CursosTable cursos={cursos}/>
+      <CursosTable cursos={cursos} />
     </div>
   );
 }

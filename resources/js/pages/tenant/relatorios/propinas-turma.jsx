@@ -75,7 +75,7 @@ export default function RelatorioPropinasTurma({
               <p className="text-xs text-muted-foreground">Reguralizado(s)</p>
             </div>
             <div className="py-3">
-              <p className="text-2xl font-bold  ">
+              <p className="text-2xl font-bold">
                 {formatCurrency(resumo.multa_total_geral)}
               </p>
               <p className="text-xs text-muted-foreground">Total em multas</p>
@@ -129,10 +129,13 @@ export default function RelatorioPropinasTurma({
                     <TableCell className="px-4 text-sm text-muted-foreground">
                       <div className="flex flex-wrap gap-1">
                         {linha.meses.map((m, i) => (
-                          <span key={i} className="inline-flex items-center gap-1">
+                          <span
+                            key={i}
+                            className="inline-flex items-center gap-1"
+                          >
                             {m.label}
                             {m.com_multa && (
-                              <AlertCircleIcon className="size-3  " />
+                              <AlertCircleIcon className="size-3" />
                             )}
                             {i < linha.meses.length - 1 && ','}
                           </span>
@@ -141,7 +144,7 @@ export default function RelatorioPropinasTurma({
                     </TableCell>
                     <TableCell className="px-4 text-right">
                       {linha.multa_total > 0 ? (
-                        <span className="font-medium  ">
+                        <span className="font-medium">
                           {formatCurrency(linha.multa_total)}
                         </span>
                       ) : (
@@ -192,7 +195,10 @@ export default function RelatorioPropinasTurma({
                       {aluno.nome}
                     </TableCell>
                     <TableCell className="px-4 text-right">
-                      <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-100 text-green-700 hover:bg-green-100"
+                      >
                         Regularizada
                       </Badge>
                     </TableCell>

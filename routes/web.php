@@ -78,6 +78,12 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::post('tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
                     ->name('tenants.toggle-status');
 
+                Route::get('tenants/{tenant}/tables/size', [TenantController::class, 'showTablesSize'])
+                    ->name('tenants.tables.size');
+
+                Route::get('tenants/{tenant}/tables/records', [TenantController::class, 'showTablesRecords'])
+                    ->name('tenants.tables.records');
+
                 Route::resource('users', UserController::class);
             });
     });

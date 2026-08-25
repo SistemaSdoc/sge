@@ -33,7 +33,7 @@ class TenantService
      */
     public function getInstituicao(Tenant $tenant): ?Instituicao
     {
-        if (!$tenant->instituicao_id) {
+        if (! $tenant->instituicao_id) {
             return null;
         }
 
@@ -45,7 +45,7 @@ class TenantService
      */
     public function getTenantAdminUser(Tenant $tenant): ?User
     {
-        if (!$tenant->admin_user_id) {
+        if (! $tenant->admin_user_id) {
             return null;
         }
 
@@ -76,12 +76,12 @@ class TenantService
             Notification::route('mail', [
                 $data['user_email'] => $data['user_nome'],
             ])->notify(new TenantPendenteNotification(
-                        nomeInstituicao: $data['nome'],
-                        nomeUser: $data['user_nome'],
-                        subdomain: $data['domain'],
-                        url: 'http://' . $tenant->id . '.' . env('APP_DOMAIN', 'localhost'),
-                        sigla: $data['sigla'],
-                    ));
+                nomeInstituicao: $data['nome'],
+                nomeUser: $data['user_nome'],
+                subdomain: $data['domain'],
+                url: 'http://'.$tenant->id.'.'.env('APP_DOMAIN', 'localhost'),
+                sigla: $data['sigla'],
+            ));
 
             return $tenant->load('domains');
         });

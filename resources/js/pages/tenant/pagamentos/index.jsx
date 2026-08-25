@@ -71,8 +71,7 @@ export default function Index({
 
   const handleExportarRecibo = (pagamentoId) => {
     window.location.href = exportarRecibo(pagamentoId).url;
-};
-
+  };
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
@@ -114,7 +113,6 @@ export default function Index({
           <DownloadIcon className="mr-1.5 size-4" />
           Baixar PDF
         </Button>
-
       </div>
 
       {statusFiltro && alunosPorStatus ? (
@@ -127,8 +125,8 @@ export default function Index({
           can={can}
           pagamentos={pagamentos?.data ?? []}
           deleteFn={handleDelete}
-          verReciboFn={handleVerRecibo} 
-          exportarReciboFn={handleExportarRecibo} 
+          verReciboFn={handleVerRecibo}
+          exportarReciboFn={handleExportarRecibo}
           pagination={{
             current_page: pagamentos.current_page,
             last_page: pagamentos.last_page,

@@ -50,9 +50,9 @@ export default function LancamentosHistoricoTable({
       inicial[d.tdp_id] = {};
       Object.entries(d.notas ?? {}).forEach(([per, nota]) => {
         inicial[d.tdp_id][per] = {
-          mac:    nota.mac    ?? '',
-          npp:    nota.nota_prova_professor  ?? '',
-          npt:    nota.nota_prova_trimestral ?? '',
+          mac: nota.mac ?? '',
+          npp: nota.nota_prova_professor ?? '',
+          npt: nota.nota_prova_trimestral ?? '',
           faltas: nota.faltas ?? '',
         };
       });
@@ -88,16 +88,18 @@ export default function LancamentosHistoricoTable({
     if (todosAbertos) {
       setExpandidos({});
     } else {
-      setExpandidos(Object.fromEntries(disciplinas.map((d) => [d.tdp_id, true])));
+      setExpandidos(
+        Object.fromEntries(disciplinas.map((d) => [d.tdp_id, true])),
+      );
     }
   };
 
   // verifica se há pelo menos uma nota preenchida
   const temNotasPreenchidas = () => {
     return disciplinas.some((d) => {
-      const mac    = getNota(d.tdp_id, 'mac');
-      const npp    = getNota(d.tdp_id, 'npp');
-      const npt    = getNota(d.tdp_id, 'npt');
+      const mac = getNota(d.tdp_id, 'mac');
+      const npp = getNota(d.tdp_id, 'npp');
+      const npt = getNota(d.tdp_id, 'npt');
       const faltas = getNota(d.tdp_id, 'faltas');
       return mac !== '' || npp !== '' || npt !== '' || faltas !== '';
     });
@@ -108,15 +110,15 @@ export default function LancamentosHistoricoTable({
     const notas = {};
     disciplinas.forEach((d) => {
       notas[d.tdp_id] = {
-        mac:    getNota(d.tdp_id, 'mac'),
-        npp:    getNota(d.tdp_id, 'npp'),
-        npt:    getNota(d.tdp_id, 'npt'),
+        mac: getNota(d.tdp_id, 'mac'),
+        npp: getNota(d.tdp_id, 'npp'),
+        npt: getNota(d.tdp_id, 'npt'),
         faltas: getNota(d.tdp_id, 'faltas'),
       };
     });
     return {
       turma_aluno_id: turmaAluno.id,
-      periodo:        parseInt(periodo),
+      periodo: parseInt(periodo),
       notas,
     };
   };
@@ -132,15 +134,19 @@ export default function LancamentosHistoricoTable({
             <CardTitle>Lançamento de Histórico Académico</CardTitle>
             <CardDescription>
               Aluno: <strong>{aluno?.nome}</strong>
-              {aluno?.matricula ? ` (${aluno.matricula})` : ''}{' '}
-              &nbsp;|&nbsp; Classe: <strong>{turma?.classe}</strong>
+              {aluno?.matricula ? ` (${aluno.matricula})` : ''} &nbsp;|&nbsp;
+              Classe: <strong>{turma?.classe}</strong>
               &nbsp;|&nbsp; Turma: <strong>{turma?.nome}</strong>
               &nbsp;|&nbsp; Turno: <strong>{turma?.turno}</strong>
               &nbsp;|&nbsp; Ano: <strong>{turma?.ano_lectivo}</strong>
             </CardDescription>
           </div>
           <CardAction>
-            <Button variant="outline" size="sm" onClick={() => window.history.back()}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.history.back()}
+            >
               <ArrowLeft className="mr-1 size-4" />
               Voltar
             </Button>
@@ -162,7 +168,12 @@ export default function LancamentosHistoricoTable({
           </div>
 
           <CardAction className="flex items-center gap-3">
-            <Button type="button" variant="ghost" size="sm" onClick={toggleTodos}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={toggleTodos}
+            >
               {todosAbertos ? (
                 <>
                   <LockKeyhole className="mr-1 size-4" />
@@ -195,16 +206,24 @@ export default function LancamentosHistoricoTable({
                   disabled={isPending}
                   onClick={() => onSubmit('guardar', recolherDados())}
                 >
-                  {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+                  {isPending && (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  )}
                   Guardar rascunho
                 </Button>
                 <Button
                   type="button"
                   disabled={isPending || !temNotasPreenchidas()}
-                  title={!temNotasPreenchidas() ? 'Preencha pelo menos uma nota antes de finalizar' : ''}
+                  title={
+                    !temNotasPreenchidas()
+                      ? 'Preencha pelo menos uma nota antes de finalizar'
+                      : ''
+                  }
                   onClick={() => onSubmit('finalizar', recolherDados())}
                 >
-                  {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
+                  {isPending && (
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                  )}
                   Finalizar trimestre
                 </Button>
               </>
@@ -230,11 +249,11 @@ export default function LancamentosHistoricoTable({
 
             <TableBody>
               {disciplinas.map((disciplina, index) => {
-                const mac    = getNota(disciplina.tdp_id, 'mac');
-                const npp    = getNota(disciplina.tdp_id, 'npp');
-                const npt    = getNota(disciplina.tdp_id, 'npt');
+                const mac = getNota(disciplina.tdp_id, 'mac');
+                const npp = getNota(disciplina.tdp_id, 'npp');
+                const npt = getNota(disciplina.tdp_id, 'npt');
                 const faltas = getNota(disciplina.tdp_id, 'faltas');
-                const mt     = mediaTrimestral(mac, npp, npt);
+                const mt = mediaTrimestral(mac, npp, npt);
                 const situacao = verificarSituacao(mt, Number(faltas));
                 const aberto = Boolean(expandidos[disciplina.tdp_id]);
 
@@ -252,10 +271,14 @@ export default function LancamentosHistoricoTable({
                     <TableCell>
                       {aberto ? (
                         <Input
-                          type="number" min={0} max={20}
+                          type="number"
+                          min={0}
+                          max={20}
                           value={mac}
                           disabled={isPending || !can?.lancar}
-                          onChange={(e) => setNota(disciplina.tdp_id, 'mac', e.target.value)}
+                          onChange={(e) =>
+                            setNota(disciplina.tdp_id, 'mac', e.target.value)
+                          }
                           className="text-center"
                         />
                       ) : (
@@ -269,10 +292,14 @@ export default function LancamentosHistoricoTable({
                     <TableCell>
                       {aberto ? (
                         <Input
-                          type="number" min={0} max={20}
+                          type="number"
+                          min={0}
+                          max={20}
                           value={npp}
                           disabled={isPending || !can?.lancar}
-                          onChange={(e) => setNota(disciplina.tdp_id, 'npp', e.target.value)}
+                          onChange={(e) =>
+                            setNota(disciplina.tdp_id, 'npp', e.target.value)
+                          }
                           className="text-center"
                         />
                       ) : (
@@ -286,10 +313,14 @@ export default function LancamentosHistoricoTable({
                     <TableCell>
                       {aberto ? (
                         <Input
-                          type="number" min={0} max={20}
+                          type="number"
+                          min={0}
+                          max={20}
                           value={npt}
                           disabled={isPending || !can?.lancar}
-                          onChange={(e) => setNota(disciplina.tdp_id, 'npt', e.target.value)}
+                          onChange={(e) =>
+                            setNota(disciplina.tdp_id, 'npt', e.target.value)
+                          }
                           className="text-center"
                         />
                       ) : (
@@ -308,10 +339,13 @@ export default function LancamentosHistoricoTable({
                     <TableCell>
                       {aberto ? (
                         <Input
-                          type="number" min={0}
+                          type="number"
+                          min={0}
                           value={faltas}
                           disabled={isPending || !can?.lancar}
-                          onChange={(e) => setNota(disciplina.tdp_id, 'faltas', e.target.value)}
+                          onChange={(e) =>
+                            setNota(disciplina.tdp_id, 'faltas', e.target.value)
+                          }
                           className="text-center"
                         />
                       ) : (
@@ -341,10 +375,14 @@ export default function LancamentosHistoricoTable({
                     {/* Resultado */}
                     <TableCell className="px-4 text-end">
                       {situacao === 'APTO' && (
-                        <Badge className="bg-green-50 text-green-500">APTO</Badge>
+                        <Badge className="bg-green-50 text-green-500">
+                          APTO
+                        </Badge>
                       )}
                       {situacao === 'N/APTO' && (
-                        <Badge className="bg-red-50 text-red-500">NÃO APTO</Badge>
+                        <Badge className="bg-red-50 text-red-500">
+                          NÃO APTO
+                        </Badge>
                       )}
                       {situacao === null && (
                         <span className="text-sm text-muted-foreground">-</span>

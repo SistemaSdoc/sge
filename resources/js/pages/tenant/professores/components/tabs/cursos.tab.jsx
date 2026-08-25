@@ -77,7 +77,7 @@ export function CursosTable({ cursos }) {
                     {curso.nome}
                   </TableCell>
 
-                   {/*<TableCell className="px-4 font-medium">
+                  {/*<TableCell className="px-4 font-medium">
                     {curso.telefone}
                   </TableCell>*/}
 

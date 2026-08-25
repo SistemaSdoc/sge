@@ -90,11 +90,15 @@ export function TabIntegrantes({
             icon={UsersIcon}
             title="Nenhum integrante no grupo"
             description="Comece adicionando os primeiros membros do grupo PAP"
-            action={canCreateIntegrante ? {
-              label: 'Adicionar Integrante',
-              href: adicionarElemento.url(params),
-              variant: 'outline',
-            } : undefined}
+            action={
+              canCreateIntegrante
+                ? {
+                    label: 'Adicionar Integrante',
+                    href: adicionarElemento.url(params),
+                    variant: 'outline',
+                  }
+                : undefined
+            }
           />
         ) : (
           <Table>
@@ -133,7 +137,11 @@ export function TabIntegrantes({
                           max="20"
                           step="0.5"
                           className="w-20"
-                          defaultValue={el.nota_individual != null ? Number(el.nota_individual) : ''}
+                          defaultValue={
+                            el.nota_individual != null
+                              ? Number(el.nota_individual)
+                              : ''
+                          }
                           onChange={(e) =>
                             setNotas((prev) => ({
                               ...prev,
@@ -167,7 +175,11 @@ export function TabIntegrantes({
                     >
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="size-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                          >
                             <MoreHorizontalIcon />
                           </Button>
                         </DropdownMenuTrigger>
@@ -176,7 +188,10 @@ export function TabIntegrantes({
                           {canAtualizarNota && (
                             <DropdownMenuItem
                               onClick={() =>
-                                setEditando((prev) => ({ ...prev, [el.id]: true }))
+                                setEditando((prev) => ({
+                                  ...prev,
+                                  [el.id]: true,
+                                }))
                               }
                             >
                               Editar nota
@@ -201,7 +216,10 @@ export function TabIntegrantes({
           </Table>
         )}
       </CardContent>
-      <TablePagination pagination={pagination?.meta} onPageChange={onPageChange} />
+      <TablePagination
+        pagination={pagination?.meta}
+        onPageChange={onPageChange}
+      />
     </Card>
   );
 }

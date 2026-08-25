@@ -56,7 +56,10 @@ export default function Register({ passwordRules }) {
     <>
       <Head title="Register" />
 
-      <form onSubmit={handleSubmit} className="flex w-full max-w-2xl flex-col gap-6">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col w-full max-w-2xl gap-6"
+      >
         <FieldGroup>
           <FieldSet>
             {/* Nome & Sigla */}
@@ -83,7 +86,9 @@ export default function Register({ passwordRules }) {
                   required
                   placeholder="Ex.: ESL"
                   value={data.sigla}
-                  onChange={(e) => setData('sigla', e.target.value.toUpperCase())}
+                  onChange={(e) =>
+                    setData('sigla', e.target.value.toUpperCase())
+                  }
                   maxLength="10"
                 />
                 {errors.sigla && <FieldError>{errors.sigla}</FieldError>}
@@ -129,7 +134,10 @@ export default function Register({ passwordRules }) {
                     value={data.domain}
                     onChange={(e) => setData('domain', e.target.value)}
                   />
-                  <InputGroupAddon align="inline-end" className="font-normal text-foreground">
+                  <InputGroupAddon
+                    align="inline-end"
+                    className="font-normal text-foreground"
+                  >
                     .sge.localhost
                   </InputGroupAddon>
                 </InputGroup>
@@ -140,7 +148,9 @@ export default function Register({ passwordRules }) {
             {/* Nome & Email do Diretor */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Field>
-                <FieldLabel htmlFor="user_nome">Nome do Utilizador (Diretor)</FieldLabel>
+                <FieldLabel htmlFor="user_nome">
+                  Nome do Utilizador (Diretor)
+                </FieldLabel>
                 <Input
                   id="user_nome"
                   type="text"
@@ -149,11 +159,15 @@ export default function Register({ passwordRules }) {
                   value={data.user_nome}
                   onChange={(e) => setData('user_nome', e.target.value)}
                 />
-                {errors.user_nome && <FieldError>{errors.user_nome}</FieldError>}
+                {errors.user_nome && (
+                  <FieldError>{errors.user_nome}</FieldError>
+                )}
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="user_email">Email do Utilizador (Diretor)</FieldLabel>
+                <FieldLabel htmlFor="user_email">
+                  Email do Utilizador (Diretor)
+                </FieldLabel>
                 <Input
                   id="user_email"
                   type="email"
@@ -162,7 +176,9 @@ export default function Register({ passwordRules }) {
                   value={data.user_email}
                   onChange={(e) => setData('user_email', e.target.value)}
                 />
-                {errors.user_email && <FieldError>{errors.user_email}</FieldError>}
+                {errors.user_email && (
+                  <FieldError>{errors.user_email}</FieldError>
+                )}
               </Field>
             </div>
 
@@ -183,14 +199,18 @@ export default function Register({ passwordRules }) {
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="password_confirmation">Confirmar Senha</FieldLabel>
+                <FieldLabel htmlFor="password_confirmation">
+                  Confirmar Senha
+                </FieldLabel>
                 <PasswordInput
                   id="password_confirmation"
                   required
                   autoComplete="new-password"
                   placeholder="Confirmar senha"
                   value={data.password_confirmation}
-                  onChange={(e) => setData('password_confirmation', e.target.value)}
+                  onChange={(e) =>
+                    setData('password_confirmation', e.target.value)
+                  }
                   passwordrules={passwordRules}
                 />
                 {errors.password_confirmation && (
@@ -206,7 +226,7 @@ export default function Register({ passwordRules }) {
           </FieldSet>
         </FieldGroup>
 
-        {/* <div className="text-center text-sm text-muted-foreground">
+        {/* <div className="text-sm text-center text-muted-foreground">
           Já tem uma conta?{' '}
           <TextLink href={login().url}>Entrar</TextLink>
         </div> */}

@@ -4,10 +4,7 @@ import { InstituicaoCursos } from './components/show/instituicao-cursos';
 export default function Show({ can, instituicao, cursos }) {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
-      <InstituicaoCabecalho
-        data={instituicao}
-        can={can}
-      />
+      <InstituicaoCabecalho data={instituicao} can={can} />
 
       <InstituicaoCursos
         cursos={cursos}

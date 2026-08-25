@@ -6,40 +6,40 @@ import type { FlashToast } from '@/types/ui';
 let flashListenerInstalled = false;
 
 export function useFlashToast(): void {
-    const lastToastRef = useRef<string | null>(null);
+  const lastToastRef = useRef<string | null>(null);
 
-    useEffect(() => {
-        if (flashListenerInstalled) {
-            return;
-        }
+  useEffect(() => {
+    if (flashListenerInstalled) {
+      return;
+    }
 
-        flashListenerInstalled = true;
+    flashListenerInstalled = true;
 
-        const removeListener = router.on('flash', (event) => {
-            const flash = (event as CustomEvent).detail?.flash;
-            const data = flash?.toast as FlashToast | undefined;
+    const removeListener = router.on('flash', (event) => {
+      const flash = (event as CustomEvent).detail?.flash;
+      const data = flash?.toast as FlashToast | undefined;
 
-            if (!data) {
-                return;
-            }
+      if (!data) {
+        return;
+      }
 
-            const toastKey = `${data.type}:${data.message}`;
+      const toastKey = `${data.type}:${data.message}`;
 
-            if (toastKey === lastToastRef.current) {
-                return;
-            }
+      if (toastKey === lastToastRef.current) {
+        return;
+      }
 
-            lastToastRef.current = toastKey;
-            setTimeout(() => {
-                lastToastRef.current = null;
-            }, 500);
+      lastToastRef.current = toastKey;
+      setTimeout(() => {
+        lastToastRef.current = null;
+      }, 500);
 
-            toast[data.type](data.message);
-        });
+      toast[data.type](data.message);
+    });
 
-        return () => {
-            removeListener();
-            flashListenerInstalled = false;
-        };
-    }, []);
+    return () => {
+      removeListener();
+      flashListenerInstalled = false;
+    };
+  }, []);
 }

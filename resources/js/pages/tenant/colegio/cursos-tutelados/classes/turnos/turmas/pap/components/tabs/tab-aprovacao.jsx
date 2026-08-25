@@ -14,12 +14,36 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapAprovacaoController';
 
 const STATUS = {
-  rascunho: { label: 'Rascunho', icon: Clock, badgeClass: 'bg-muted text-muted-foreground border-transparent' },
-  submetido: { label: 'Aguarda tutor', icon: Clock, badgeClass: 'bg-blue-50 text-blue-700 border-blue-200' },
-  pendente: { label: 'Pendente', icon: AlertCircle, badgeClass: 'bg-muted text-muted-foreground border-transparent' },
-  aprovado: { label: 'Aprovado', icon: CheckCircle, badgeClass: 'bg-green-50 text-green-700 border-green-200' },
-  reprovado: { label: 'Reprovado', icon: XCircle, badgeClass: 'bg-red-50 text-red-700 border-red-200' },
-  'melhoria-solicitada': { label: 'Melhoria Solicitada', icon: AlertCircle, badgeClass: 'bg-amber-50 text-amber-700 border-amber-200' },
+  rascunho: {
+    label: 'Rascunho',
+    icon: Clock,
+    badgeClass: 'bg-muted text-muted-foreground border-transparent',
+  },
+  submetido: {
+    label: 'Aguarda tutor',
+    icon: Clock,
+    badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
+  },
+  pendente: {
+    label: 'Pendente',
+    icon: AlertCircle,
+    badgeClass: 'bg-muted text-muted-foreground border-transparent',
+  },
+  aprovado: {
+    label: 'Aprovado',
+    icon: CheckCircle,
+    badgeClass: 'bg-green-50 text-green-700 border-green-200',
+  },
+  reprovado: {
+    label: 'Reprovado',
+    icon: XCircle,
+    badgeClass: 'bg-red-50 text-red-700 border-red-200',
+  },
+  'melhoria-solicitada': {
+    label: 'Melhoria Solicitada',
+    icon: AlertCircle,
+    badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
+  },
 };
 
 const getStatus = (status) => STATUS[status?.toLowerCase()] || STATUS.pendente;
@@ -30,10 +54,16 @@ export function TabAprovacao({ params, grupoPap, can }) {
   const [comentario, setComentario] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const abrir = (tipo) => { setAction(tipo); setComentario(''); setOpen(true); };
+  const abrir = (tipo) => {
+    setAction(tipo);
+    setComentario('');
+    setOpen(true);
+  };
   const fechar = () => {
     if (loading) return;
-    setOpen(false); setAction(null); setComentario('');
+    setOpen(false);
+    setAction(null);
+    setComentario('');
   };
 
   const confirmar = () => {
@@ -46,7 +76,11 @@ export function TabAprovacao({ params, grupoPap, can }) {
         { comentario: comentario || null },
         {
           preserveScroll: true,
-          onSuccess: () => { setLoading(false); fechar(); router.reload(); },
+          onSuccess: () => {
+            setLoading(false);
+            fechar();
+            router.reload();
+          },
           onError: () => setLoading(false),
         },
       );
@@ -59,7 +93,11 @@ export function TabAprovacao({ params, grupoPap, can }) {
         { recomendacao: comentario },
         {
           preserveScroll: true,
-          onSuccess: () => { setLoading(false); fechar(); router.reload(); },
+          onSuccess: () => {
+            setLoading(false);
+            fechar();
+            router.reload();
+          },
           onError: () => setLoading(false),
         },
       );
@@ -67,18 +105,26 @@ export function TabAprovacao({ params, grupoPap, can }) {
     }
 
     const rota =
-      action === 'aprovar' ? aprovar
-        : action === 'reprovar' ? reprovar
+      action === 'aprovar'
+        ? aprovar
+        : action === 'reprovar'
+          ? reprovar
           : solicitarMelhoria;
 
     const body =
-      action === 'aprovar' ? { comentario: comentario || null }
-        : action === 'reprovar' ? { motivo: comentario }
+      action === 'aprovar'
+        ? { comentario: comentario || null }
+        : action === 'reprovar'
+          ? { motivo: comentario }
           : { recomendacao: comentario };
 
     router.post(rota.url(params), body, {
       preserveScroll: true,
-      onSuccess: () => { setLoading(false); fechar(); router.reload(); },
+      onSuccess: () => {
+        setLoading(false);
+        fechar();
+        router.reload();
+      },
       onError: () => setLoading(false),
     });
   };
@@ -89,7 +135,11 @@ export function TabAprovacao({ params, grupoPap, can }) {
 
   const renderAreaDecisao = () => {
     if (statusAtual === 'rascunho') {
-      return <p className="text-sm text-muted-foreground">Os alunos ainda não submeteram o tema.</p>;
+      return (
+        <p className="text-sm text-muted-foreground">
+          Os alunos ainda não submeteram o tema.
+        </p>
+      );
     }
 
     if (statusAtual === 'submetido') {
@@ -102,7 +152,11 @@ export function TabAprovacao({ params, grupoPap, can }) {
           </p>
           {can?.aprovarComoTutor && (
             <div className="flex flex-wrap justify-end gap-2">
-              <Button variant="outline" onClick={() => abrir('melhoriaComoTutor')} disabled={loading}>
+              <Button
+                variant="outline"
+                onClick={() => abrir('melhoriaComoTutor')}
+                disabled={loading}
+              >
                 <AlertCircle className="size-4" /> Solicitar Melhoria
               </Button>
               <Button onClick={() => abrir('aprovarTutor')} disabled={loading}>
@@ -133,12 +187,20 @@ export function TabAprovacao({ params, grupoPap, can }) {
         {(can?.aprovar || can?.reprovar || can?.solicitarMelhoria) && (
           <div className="flex flex-wrap justify-end gap-2">
             {can?.solicitarMelhoria && (
-              <Button variant="outline" onClick={() => abrir('melhoria')} disabled={loading}>
+              <Button
+                variant="outline"
+                onClick={() => abrir('melhoria')}
+                disabled={loading}
+              >
                 <AlertCircle className="size-4" /> Solicitar Melhoria
               </Button>
             )}
             {can?.reprovar && (
-              <Button variant="destructive" onClick={() => abrir('reprovar')} disabled={loading}>
+              <Button
+                variant="destructive"
+                onClick={() => abrir('reprovar')}
+                disabled={loading}
+              >
                 <XCircle className="size-4" /> Reprovar
               </Button>
             )}
@@ -159,7 +221,10 @@ export function TabAprovacao({ params, grupoPap, can }) {
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <CardTitle>Aprovação do Tema</CardTitle>
-            <Badge variant="outline" className={`gap-1.5 text-xs font-normal ${config.badgeClass}`}>
+            <Badge
+              variant="outline"
+              className={`gap-1.5 text-xs font-normal ${config.badgeClass}`}
+            >
               <StatusIcon className="size-3.5" />
               {config.label}
             </Badge>
@@ -168,12 +233,52 @@ export function TabAprovacao({ params, grupoPap, can }) {
 
         <CardContent className="space-y-6 pt-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div><p className="text-xs font-medium text-muted-foreground uppercase">Grupo</p><p className="mt-1 text-sm font-medium">{grupoPap.nome_grupo}</p></div>
-            <div><p className="text-xs font-medium text-muted-foreground uppercase">Tema</p><p className="mt-1 text-sm font-medium">{grupoPap.tema_grupo ?? '—'}</p></div>
-            <div><p className="text-xs font-medium text-muted-foreground uppercase">Turma</p><p className="mt-1 text-sm font-medium">{grupoPap.turma?.nome ?? '—'}</p></div>
-            <div><p className="text-xs font-medium text-muted-foreground uppercase">Problema</p><p className="mt-1 text-sm font-medium">{grupoPap.problema ?? '—'}</p></div>
-            <div><p className="text-xs font-medium text-muted-foreground uppercase">Professor Tutor</p><p className="mt-1 text-sm font-medium">{grupoPap.professor?.nome ?? '—'}</p></div>
-            <div><p className="text-xs font-medium text-muted-foreground uppercase">Objectivos</p><p className="mt-1 text-sm font-medium">{grupoPap.objectivos ?? '—'}</p></div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Grupo
+              </p>
+              <p className="mt-1 text-sm font-medium">{grupoPap.nome_grupo}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Tema
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {grupoPap.tema_grupo ?? '—'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Turma
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {grupoPap.turma?.nome ?? '—'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Problema
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {grupoPap.problema ?? '—'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Professor Tutor
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {grupoPap.professor?.nome ?? '—'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Objectivos
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {grupoPap.objectivos ?? '—'}
+              </p>
+            </div>
           </div>
 
           <div className="border-t" />

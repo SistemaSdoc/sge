@@ -168,8 +168,12 @@ export default function Show() {
         <TabsTrigger value="alunos">Alunos</TabsTrigger>
         <TabsTrigger value="avaliacoes">Avaliações</TabsTrigger>
       </TabsList>
-      <TabsContent value="alunos"><TabAlunos /></TabsContent>
-      <TabsContent value="avaliacoes"><TabAvaliacoes /></TabsContent>
+      <TabsContent value="alunos">
+        <TabAlunos />
+      </TabsContent>
+      <TabsContent value="avaliacoes">
+        <TabAvaliacoes />
+      </TabsContent>
     </Tabs>
   );
 }
@@ -332,14 +336,14 @@ pages/cursos-tutelados/
 
 ## 📊 Checkliste para Nova Adição
 
-- [ ]  Criei a pasta `components/` (se não existir)
-- [ ]  Criei o arquivo com nome em **kebab-case**: `novo-componente.jsx`
-- [ ]  Exportei o componente com nome em **PascalCase**: `export function NovoComponente()`
-- [ ]  O import na página é curto: `import { NovoComponente } from './components/novo-componente'`
-- [ ]  Não uso paths com `../../../components/`
-- [ ]  Se é uma aba, está em `components/tabs/`
-- [ ]  Se é um formulário, está em `components/forms/` (se houver muitos) ou diretamente em `components/`
-- [ ]  Segui o padrão do PAP como referência
+- [ ] Criei a pasta `components/` (se não existir)
+- [ ] Criei o arquivo com nome em **kebab-case**: `novo-componente.jsx`
+- [ ] Exportei o componente com nome em **PascalCase**: `export function NovoComponente()`
+- [ ] O import na página é curto: `import { NovoComponente } from './components/novo-componente'`
+- [ ] Não uso paths com `../../../components/`
+- [ ] Se é uma aba, está em `components/tabs/`
+- [ ] Se é um formulário, está em `components/forms/` (se houver muitos) ou diretamente em `components/`
+- [ ] Segui o padrão do PAP como referência
 
 ---
 
@@ -391,4 +395,4 @@ Se encontrar algo desorganizado ou tiver dúvidas sobre onde colocar um novo com
 2. Siga o padrão do PAP como referência
 3. Coloque em `./components/` da página que o usa
 
-**Última regra:** *"Se posso alcançar o componente com `./components/`, está no lugar certo!"*
+**Última regra:** _"Se posso alcançar o componente com `./components/`, está no lugar certo!"_

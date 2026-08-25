@@ -112,29 +112,29 @@ export function ConfirmacaoTable({
                       <TableCell className="px-4 font-medium">
                         <ResultadoBadge resultado={aluno.status} />
                       </TableCell>
-                        <TableCell className="px-4 text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="size-8"
-                              >
-                                <MoreHorizontalIcon />
-                                <span className="sr-only">Abrir menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-auto">
-                              <DropdownMenuItem
-                                onClick={(e) => {
-                                    onConfirmar(aluno, e);
-                                }}
-                              >
-                                Confirmar matrícula
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
+                      <TableCell className="px-4 text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8"
+                            >
+                              <MoreHorizontalIcon />
+                              <span className="sr-only">Abrir menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-auto">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                onConfirmar(aluno, e);
+                              }}
+                            >
+                              Confirmar matrícula
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

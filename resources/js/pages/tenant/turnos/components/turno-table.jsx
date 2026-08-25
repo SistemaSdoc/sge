@@ -39,7 +39,7 @@ export function TurnoTable({
   onPageChange,
   deleteFn,
 }) {
-  const lista = Array.isArray(turnos) ? turnos : turnos?.data ?? [];
+  const lista = Array.isArray(turnos) ? turnos : (turnos?.data ?? []);
   const isEmpty = lista.length === 0;
   const hasActionColumn = lista.some(
     (turno) => turno.can?.edit_turno || turno.can?.delete_turno,
@@ -91,7 +91,11 @@ export function TurnoTable({
                 {lista.map((turno) => (
                   <TableRow
                     key={turno.id}
-                    className={turno.can?.view_turno ? 'hover:cursor-pointer' : 'opacity-70'}
+                    className={
+                      turno.can?.view_turno
+                        ? 'hover:cursor-pointer'
+                        : 'opacity-70'
+                    }
                     onClick={() => {
                       if (turno.can?.view_turno) {
                         router.visit(show(turno.id).url);
@@ -128,9 +132,10 @@ export function TurnoTable({
                                 </DropdownMenuItem>
                               )}
 
-                              {turno.can?.edit_turno && turno.can?.delete_turno && (
-                                <DropdownMenuSeparator />
-                              )}
+                              {turno.can?.edit_turno &&
+                                turno.can?.delete_turno && (
+                                  <DropdownMenuSeparator />
+                                )}
 
                               {turno.can?.delete_turno && (
                                 <DropdownMenuItem

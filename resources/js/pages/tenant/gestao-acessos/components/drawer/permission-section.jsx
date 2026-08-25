@@ -46,7 +46,7 @@ export function PermissionSection({
         <span className="text-[10px] font-semibold text-muted-foreground">
           Extras
         </span>
-        
+
         <MultiSelectorField
           items={items}
           value={directPermissions.map((p) => ({ value: p, label: p }))}

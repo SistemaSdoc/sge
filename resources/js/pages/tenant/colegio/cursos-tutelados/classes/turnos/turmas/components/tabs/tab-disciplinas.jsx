@@ -36,7 +36,6 @@ export function TabDisciplinas({
   const isEmpty = disciplinas.length === 0;
   const canCreate = Boolean(can.create);
 
-
   return (
     <Card className="gap-0">
       <CardHeader className="border-b">
@@ -51,7 +50,6 @@ export function TabDisciplinas({
             icon={BookIcon}
             title="Nenhuma disciplina nesta turma"
             description="Comece adicionando disciplinas"
-            
           />
         ) : (
           <Table>
@@ -96,8 +94,6 @@ export function TabDisciplinas({
                         <Minus size={15} className="text-muted-foreground" />
                       )}
                     </TableCell>
-
-                   
                   </TableRow>
                 );
               })}

@@ -104,10 +104,8 @@ export default function GrupoPapForm({
                     <FieldError>{errors.professor_tutor_id}</FieldError>
                   )}
                 </Field>
-
               </div>
 
-            
               <Field>
                 <Button type="submit" disabled={processing}>
                   {processing ? (
@@ -123,6 +121,6 @@ export default function GrupoPapForm({
           </FieldGroup>
         </CardContent>
       </Card>
-    </div >
+    </div>
   );
 }

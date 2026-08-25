@@ -2,6 +2,7 @@ import { Form } from '@inertiajs/react';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { Check, Copy, ScanLine } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { create as confirm } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
 import AlertError from '@/components/alert-error';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -23,9 +24,7 @@ import { useClipboard } from '@/hooks/use-clipboard';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 //import { confirm } from '@/routes/two-factor';
 
-
 //rota errada temporaria
-import { create as confirm } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
 
 function GridScanIcon() {
   return (
@@ -263,7 +262,8 @@ export default function TwoFactorSetupModal({
     if (showVerificationStep) {
       return {
         title: 'Verificar código de autenticação',
-        description: 'Digite o código de 6 dígitos do seu aplicativo autenticador',
+        description:
+          'Digite o código de 6 dígitos do seu aplicativo autenticador',
         buttonText: 'Continuar',
       };
     }

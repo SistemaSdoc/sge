@@ -97,7 +97,7 @@ export default function Login({ status, canResetPassword }) {
               </Button>
             </div>
 
-           {/* <div className="text-center text-sm text-muted-foreground">
+            {/* <div className="text-center text-sm text-muted-foreground">
               Não tem uma conta?{' '}
               <TextLink href={register()} tabIndex={5}>
                 Criar

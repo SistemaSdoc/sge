@@ -2,7 +2,7 @@ export default function PautaRow({ nome, classe, media, situacao }) {
   const isAprovado = situacao === 'Aprovado';
 
   return (
-    <div className="border-border/10 flex flex-col gap-2 border-b py-3.5 text-[13px] sm:grid sm:grid-cols-[2fr_1fr_1fr_1fr] sm:items-center sm:gap-3">
+    <div className="flex flex-col gap-2 border-b border-border/10 py-3.5 text-[13px] sm:grid sm:grid-cols-[2fr_1fr_1fr_1fr] sm:items-center sm:gap-3">
       <span className="font-medium sm:font-normal">{nome}</span>
       <span className="text-muted-foreground sm:text-inherit">{classe}</span>
       <span className="text-muted-foreground sm:text-inherit">{media}</span>

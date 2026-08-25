@@ -15,7 +15,8 @@ export default function Edit({
     media_minima_aprovacao: regraAvaliacao.media_minima_aprovacao.toString(),
     frequencia_minima: regraAvaliacao.frequencia_minima.toString(),
     nota_minima_recurso: regraAvaliacao.nota_minima_recurso?.toString() || '10',
-    max_disciplinas_negativas: regraAvaliacao.max_disciplinas_negativas?.toString() || '',
+    max_disciplinas_negativas:
+      regraAvaliacao.max_disciplinas_negativas?.toString() || '',
     permite_recurso: regraAvaliacao.permite_recurso,
     activo: regraAvaliacao.activo,
   });

@@ -48,7 +48,6 @@ export function TabGruposPAP({
       </CardHeader>
 
       <CardContent className="p-0!">
-
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/72">
@@ -63,21 +62,21 @@ export function TabGruposPAP({
               <TableRow
                 key={grupo.id}
                 className="hover:cursor-pointer"
-                onClick={() => router.visit(
-                  show({
-                    instituicao: instituicaoId,
-                    colegio: colegioId,
-                    cursoTutelado: cursoTuteladoId,
-                    cursoClasse: cursoClasseId,
-                    cursoClasseTurno: cursoClasseTurnoId,
-                    turma: turma.id,
-                    grupoPap: grupo.id,
-                  }).url
-                )}
+                onClick={() =>
+                  router.visit(
+                    show({
+                      instituicao: instituicaoId,
+                      colegio: colegioId,
+                      cursoTutelado: cursoTuteladoId,
+                      cursoClasse: cursoClasseId,
+                      cursoClasseTurno: cursoClasseTurnoId,
+                      turma: turma.id,
+                      grupoPap: grupo.id,
+                    }).url,
+                  )
+                }
               >
-                <TableCell className="px-4 font-medium">
-                  {grupo.nome}
-                </TableCell>
+                <TableCell className="px-4 font-medium">{grupo.nome}</TableCell>
                 <TableCell>{grupo.tema}</TableCell>
                 <TableCell>{grupo.status}</TableCell>
                 <TableCell>

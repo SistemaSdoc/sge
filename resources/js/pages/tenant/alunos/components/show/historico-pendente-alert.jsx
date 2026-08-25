@@ -10,9 +10,13 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 
-export function HistoricoPendenteAlert({ aluno, pendentes = [], abrirSelecaoFn }) {
-  const nomes    = pendentes.map((p) => p.classe).join(', ');
-  const emCurso  = pendentes.filter((p) => p.em_curso);   // pode haver vários
+export function HistoricoPendenteAlert({
+  aluno,
+  pendentes = [],
+  abrirSelecaoFn,
+}) {
+  const nomes = pendentes.map((p) => p.classe).join(', ');
+  const emCurso = pendentes.filter((p) => p.em_curso); // pode haver vários
   const semTurma = pendentes.filter((p) => !p.em_curso);
 
   return (
@@ -40,7 +44,8 @@ export function HistoricoPendenteAlert({ aluno, pendentes = [], abrirSelecaoFn }
               )
             }
           >
-            {pendente.tem_notas ? 'Continuar' : 'Lançar Notas'} — {pendente.classe}
+            {pendente.tem_notas ? 'Continuar' : 'Lançar Notas'} —{' '}
+            {pendente.classe}
           </Button>
         ))}
 

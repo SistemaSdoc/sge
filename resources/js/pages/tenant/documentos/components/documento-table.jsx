@@ -29,7 +29,9 @@ export function DocumentoTable({ documentos, classes = [] }) {
   const [documentoActivo, setDocumentoActivo] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const lista = Array.isArray(documentos) ? documentos : documentos?.data ?? [];
+  const lista = Array.isArray(documentos)
+    ? documentos
+    : (documentos?.data ?? []);
   const filtrados = lista.filter((documento) =>
     documento?.nome?.toLowerCase().includes(search.toLowerCase()),
   );
@@ -87,7 +89,9 @@ export function DocumentoTable({ documentos, classes = [] }) {
                 {filtrados.map((documento) => (
                   <TableRow key={documento.id}>
                     <TableCell className="px-4 font-medium">
-                      <div className="flex items-center gap-2">{documento.nome}</div>
+                      <div className="flex items-center gap-2">
+                        {documento.nome}
+                      </div>
                     </TableCell>
 
                     <TableCell className="px-4 font-medium">

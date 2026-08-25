@@ -7,7 +7,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { index, marcarLida, marcarTodasLidas } from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
+import {
+  index,
+  marcarLida,
+  marcarTodasLidas,
+} from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
 
 const INTERVALO_POLLING = 30000; // 30s
 
@@ -44,7 +48,8 @@ export default function NotificacoesSino() {
     await fetch(marcarTodasLidas().url, {
       method: 'POST',
       headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+          ?.content,
       },
     });
     carregar();
@@ -58,7 +63,7 @@ export default function NotificacoesSino() {
           {naoLidas > 0 && (
             <Badge
               variant="destructive"
-              className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full p-0 text-[10px]"
+              className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full p-0 text-[10px]"
             >
               {naoLidas > 9 ? '9+' : naoLidas}
             </Badge>
@@ -91,7 +96,9 @@ export default function NotificacoesSino() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-medium">{n.titulo}</p>
-                  {!n.lida && <span className="mt-1 size-2 shrink-0 rounded-full bg-destructive" />}
+                  {!n.lida && (
+                    <span className="mt-1 size-2 shrink-0 rounded-full bg-destructive" />
+                  )}
                 </div>
 
                 <p className="text-xs text-muted-foreground">{n.mensagem}</p>
@@ -99,7 +106,11 @@ export default function NotificacoesSino() {
                 {n.tipo === 'propina_atraso' && n.meses?.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {n.meses.map((mes, i) => (
-                      <Badge key={i} variant="destructive" className="font-normal">
+                      <Badge
+                        key={i}
+                        variant="destructive"
+                        className="font-normal"
+                      >
                         {mes}
                       </Badge>
                     ))}
@@ -113,12 +124,14 @@ export default function NotificacoesSino() {
                 )}
 
                 {n.tipo === 'propina_atraso' && (
-                  <p className="mt-1 text-[10px] italic text-muted-foreground">
+                  <p className="mt-1 text-[10px] text-muted-foreground italic">
                     Resolve-se automaticamente após o pagamento
                   </p>
                 )}
 
-                <p className="mt-1 text-[10px] text-muted-foreground">{n.criada_em}</p>
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  {n.criada_em}
+                </p>
               </div>
             ))
           )}

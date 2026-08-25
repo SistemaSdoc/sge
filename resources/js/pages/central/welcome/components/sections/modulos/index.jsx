@@ -71,7 +71,7 @@ export default function Modulos() {
     (m, i, arr) => arr.findIndex((x) => x.title === m.title) === i,
   );
   return (
-    <section id="modulos" className="border-b border-border py-22.5 ">
+    <section id="modulos" className="border-b border-border py-22.5">
       <div className="mb-15 flex flex-wrap items-end justify-between gap-10 px-12">
         <h2 className="reveal max-w-140 font-display text-[clamp(28px,3.4vw,44px)] font-semibold tracking-[-0.01em]">
           Cada módulo resolve aspectos reais das instituições escolares.

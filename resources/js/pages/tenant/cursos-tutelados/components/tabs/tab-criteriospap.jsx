@@ -36,7 +36,7 @@ import {
 import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 
 export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, can }) {
-  console.log('url recebida: ', criteriosPapUrl)
+  console.log('url recebida: ', criteriosPapUrl);
   const criteriosId = useId();
   const manualId = useId();
   const [modalAberto, setModalAberto] = useState(false);
@@ -85,7 +85,7 @@ export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, can }) {
           router.reload({ only: ['cursoTutelado'] });
         },
         onError: () => {
-          console.log('chegou no sucess')
+          console.log('chegou no sucess');
 
           setUploading(false);
         },

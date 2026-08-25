@@ -29,7 +29,7 @@ export function RecursoPautaHeader({ disciplinas }) {
         ))}
 
         {/* Header - Resultado */}
-         <TableHead className="sticky right-0 z-20 bg-muted px-4 text-end">
+        <TableHead className="sticky right-0 z-20 bg-muted px-4 text-end">
           <span className="absolute top-0 left-0 h-full w-[0.5px] border-l" />
           Resultado
         </TableHead>

@@ -57,10 +57,10 @@
                     </tbody>
                   </table>
                   <p style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-                    Ola, <strong>{{ $nomeUser }}</strong>!
+                    Olá, <strong>{{ $nomeUser }}</strong>!
                   </p>
                   <p style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-                    O pedido de registo da instituicao
+                    O pedido de registo da instituição
                     <!-- -->
                     <strong>{{ $nomeInstituicao }}
                       <!-- -->
@@ -70,10 +70,10 @@
                     </strong>
                     <!-- -->foi recebido com sucesso e encontra-se
                     <!-- -->
-                    <strong>pendente de aprovacao</strong>.
+                    <strong>pendente de aprovação</strong>.
                   </p>
                   <p style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-                    A nossa equipa ira analisar o pedido em breve. Recebera um
+                    A nossa equipa irá analisar o pedido em breve. Receberá um
                     email assim que a sua conta for activada.
                   </p>
                   <hr

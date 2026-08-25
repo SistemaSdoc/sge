@@ -188,12 +188,15 @@ export function ItensForm({
                 <div className="rounded-lg border p-4">
                   <p className="text-sm font-medium">Multa por atraso</p>
                   <p className="mb-3 text-xs text-muted-foreground">
-                    Opcional. Deixa os dois campos vazios se este emolumento não tiver multa.
-                    Só se aplica a itens de frequência mensal (ex: propina).
+                    Opcional. Deixa os dois campos vazios se este emolumento não
+                    tiver multa. Só se aplica a itens de frequência mensal (ex:
+                    propina).
                   </p>
 
                   <div className="grid gap-4 md:grid-cols-2">
-                    <Field data-invalid={Boolean(errors?.multa_dias_tolerancia)}>
+                    <Field
+                      data-invalid={Boolean(errors?.multa_dias_tolerancia)}
+                    >
                       <FieldLabel htmlFor="multa_dias_tolerancia">
                         Dias de tolerância (a partir do início do mês)
                       </FieldLabel>
@@ -204,11 +207,14 @@ export function ItensForm({
                         max="31"
                         placeholder="Ex.: 10"
                         value={data.multa_dias_tolerancia ?? ''}
-                        onChange={(e) => setData('multa_dias_tolerancia', e.target.value)}
+                        onChange={(e) =>
+                          setData('multa_dias_tolerancia', e.target.value)
+                        }
                         aria-invalid={Boolean(errors?.multa_dias_tolerancia)}
                       />
                       <FieldDescription>
-                        Ex.: 10 = pode pagar até ao dia 10 sem multa; a partir do dia 11, aplica-se.
+                        Ex.: 10 = pode pagar até ao dia 10 sem multa; a partir
+                        do dia 11, aplica-se.
                       </FieldDescription>
                       {errors?.multa_dias_tolerancia && (
                         <FieldError>{errors.multa_dias_tolerancia}</FieldError>
@@ -216,7 +222,9 @@ export function ItensForm({
                     </Field>
 
                     <Field data-invalid={Boolean(errors?.multa_valor)}>
-                      <FieldLabel htmlFor="multa_valor">Valor da multa (Kz)</FieldLabel>
+                      <FieldLabel htmlFor="multa_valor">
+                        Valor da multa (Kz)
+                      </FieldLabel>
                       <Input
                         id="multa_valor"
                         type="number"
@@ -234,8 +242,11 @@ export function ItensForm({
 
                   {temMulta && (
                     <p className="mt-3 text-xs text-muted-foreground">
-                      Resumo: após o dia {data.multa_dias_tolerancia || '—'} do mês, soma-se{' '}
-                      {data.multa_valor ? `${Number(data.multa_valor).toLocaleString('pt')} Kz` : '—'}{' '}
+                      Resumo: após o dia {data.multa_dias_tolerancia || '—'} do
+                      mês, soma-se{' '}
+                      {data.multa_valor
+                        ? `${Number(data.multa_valor).toLocaleString('pt')} Kz`
+                        : '—'}{' '}
                       ao valor da propina em atraso.
                     </p>
                   )}

@@ -1,7 +1,10 @@
 import { useDialog } from '@/hooks/use-dialog';
 import { Head, router } from '@inertiajs/react';
 import AnoLectivoTable from './components/ano-lectivo-table';
-import { index, destroy } from '@/actions/App/Http/Controllers/Tenant/AvisoController';
+import {
+  index,
+  destroy,
+} from '@/actions/App/Http/Controllers/Tenant/AvisoController';
 
 export default function Index({ anosLectivos = {}, can }) {
   const handlePageChange = (page) => {

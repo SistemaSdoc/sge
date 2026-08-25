@@ -1,14 +1,17 @@
-import MultipleSelector from "@/components/ui/multiselect"
+import MultipleSelector from '@/components/ui/multiselect';
 
 export default function MultiSelectorField({
   items = [],
   value = [],
   onChange,
-  placeholder = "Selecione...",
-  isLoading = false
+  placeholder = 'Selecione...',
+  isLoading = false,
 }) {
-
-  const resolvedPlaceholder = isLoading ? "A carregar..." : !items.length ? "Nenhuma opção disponível" : placeholder
+  const resolvedPlaceholder = isLoading
+    ? 'A carregar...'
+    : !items.length
+      ? 'Nenhuma opção disponível'
+      : placeholder;
 
   return (
     <MultipleSelector
@@ -20,5 +23,5 @@ export default function MultiSelectorField({
       hidePlaceholderWhenSelected
       onChange={(val) => onChange(val)}
     />
-  )
+  );
 }

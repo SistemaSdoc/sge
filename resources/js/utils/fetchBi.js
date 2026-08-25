@@ -21,12 +21,28 @@ function normalizeBiPayload(payload) {
     source?.bi?.data ??
     source?.result ??
     source?.response ??
-    source ?? {};
+    source ??
+    {};
 
   return {
     bi: getValueFromSource(data, ['bi', 'numero_bi', 'numeroBi', 'bilhete']),
-    nome: getValueFromSource(data, ['nome', 'nome_contribuinte', 'nome_completo', 'nomeCompleto', 'full_name', 'name']),
-    telefone: getValueFromSource(data, ['telefone', 'telefone1', 'telemovel', 'celular', 'contacto', 'numero_contacto', 'numeroContacto']),
+    nome: getValueFromSource(data, [
+      'nome',
+      'nome_contribuinte',
+      'nome_completo',
+      'nomeCompleto',
+      'full_name',
+      'name',
+    ]),
+    telefone: getValueFromSource(data, [
+      'telefone',
+      'telefone1',
+      'telemovel',
+      'celular',
+      'contacto',
+      'numero_contacto',
+      'numeroContacto',
+    ]),
     email: getValueFromSource(data, ['email', 'email_personal', 'mail']),
     morada:
       getValueFromSource(data, [
@@ -67,6 +83,7 @@ export async function fetchBi(bi, { signal } = {}) {
     const message = text || `Erro na resposta (${response.status})`;
     const err = new Error(message);
     err.status = response.status;
+
     throw err;
   }
 
@@ -77,6 +94,7 @@ export async function fetchBi(bi, { signal } = {}) {
     payload = await response.json();
   } else {
     const text = await response.text();
+
     try {
       payload = JSON.parse(text);
     } catch {

@@ -1,6 +1,9 @@
 import { router, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { index, show } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import {
+  index,
+  show,
+} from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import {
   Card,
   CardAction,
@@ -68,9 +71,9 @@ export function GrupoPapCards({ params, grupos = [], deleteGrupoFn, can }) {
                             e.stopPropagation();
                             deleteGrupoFn(grupo.id);
                           }}
-                      >
-                        Remover
-                      </DropdownMenuItem>
+                        >
+                          Remover
+                        </DropdownMenuItem>
                       )}
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -134,11 +137,15 @@ export function GrupoPapCards({ params, grupos = [], deleteGrupoFn, can }) {
           icon={Users2}
           title="Nenhum Grupo PAP definido"
           variant="compact"
-          action={can?.create ? {
-            label: 'Criar Grupo PAP',
-            href: index.url(params),
-            variant: 'outline',
-          } : undefined}
+          action={
+            can?.create
+              ? {
+                  label: 'Criar Grupo PAP',
+                  href: index.url(params),
+                  variant: 'outline',
+                }
+              : undefined
+          }
         />
       )}
     </div>

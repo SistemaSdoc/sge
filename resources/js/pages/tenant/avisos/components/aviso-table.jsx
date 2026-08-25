@@ -51,7 +51,9 @@ export default function avisoTable({
   pagination = {},
   onPageChange,
 }) {
-  const hasAnyAction = avisos.some((aviso) => aviso.can.update || aviso.can.delete);
+  const hasAnyAction = avisos.some(
+    (aviso) => aviso.can.update || aviso.can.delete,
+  );
   const isEmpty = !avisos || avisos.length === 0;
 
   return (
@@ -78,10 +80,10 @@ export default function avisoTable({
             action={
               can?.create
                 ? {
-                  label: 'Adicionar aviso',
-                  href: create().url,
-                  variant: 'outline',
-                }
+                    label: 'Adicionar aviso',
+                    href: create().url,
+                    variant: 'outline',
+                  }
                 : undefined
             }
           />
@@ -101,10 +103,7 @@ export default function avisoTable({
             </TableHeader>
             <TableBody>
               {avisos.map((aviso) => (
-                <TableRow
-                  key={aviso.id}
-                  
-                >
+                <TableRow key={aviso.id}>
                   <TableCell className="px-4 font-medium">
                     {aviso.titulo}
                   </TableCell>
@@ -130,7 +129,11 @@ export default function avisoTable({
                       {(aviso.can.update || aviso.can.delete) && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="size-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8"
+                            >
                               <MoreHorizontalIcon />
                               <span className="sr-only">Open menu</span>
                             </Button>
@@ -174,7 +177,6 @@ export default function avisoTable({
           </Table>
         )}
       </CardContent>
-
 
       <TablePagination pagination={pagination} onPageChange={onPageChange} />
     </Card>

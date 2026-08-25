@@ -2,7 +2,11 @@ import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-import { create, index, store } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
+import {
+  create,
+  index,
+  store,
+} from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
 
 import InscricaoForm from './components/inscricao-form';
 

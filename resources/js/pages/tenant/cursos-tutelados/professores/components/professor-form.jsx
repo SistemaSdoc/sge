@@ -1,8 +1,22 @@
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from '@/components/ui/field';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from '@/components/ui/field';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 
 export default function ProfessorForm({
@@ -55,7 +69,9 @@ export default function ProfessorForm({
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                {errors?.professor_id && <FieldError>{errors.professor_id}</FieldError>}
+                {errors?.professor_id && (
+                  <FieldError>{errors.professor_id}</FieldError>
+                )}
               </Field>
 
               <Field>
@@ -86,7 +102,9 @@ export default function ProfessorForm({
                   )}
                 </Button>
               </Field>
-              {errors?.coordenador && <FieldError>{errors.coordenador}</FieldError>}
+              {errors?.coordenador && (
+                <FieldError>{errors.coordenador}</FieldError>
+              )}
             </FieldSet>
           </FieldGroup>
         </CardContent>

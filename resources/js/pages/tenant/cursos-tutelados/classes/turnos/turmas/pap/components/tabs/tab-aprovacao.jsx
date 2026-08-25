@@ -78,7 +78,11 @@ export function TabAprovacao({ params, grupoPap, can }) {
         { comentario: comentario || null },
         {
           preserveScroll: true,
-          onSuccess: () => { setLoading(false); fechar(); router.reload(); },
+          onSuccess: () => {
+            setLoading(false);
+            fechar();
+            router.reload();
+          },
           onError: () => setLoading(false),
         },
       );
@@ -91,7 +95,11 @@ export function TabAprovacao({ params, grupoPap, can }) {
         { recomendacao: comentario },
         {
           preserveScroll: true,
-          onSuccess: () => { setLoading(false); fechar(); router.reload(); },
+          onSuccess: () => {
+            setLoading(false);
+            fechar();
+            router.reload();
+          },
           onError: () => setLoading(false),
         },
       );
@@ -114,7 +122,11 @@ export function TabAprovacao({ params, grupoPap, can }) {
           : { recomendacao: comentario },
       {
         preserveScroll: true,
-        onSuccess: () => { setLoading(false); fechar(); router.reload(); },
+        onSuccess: () => {
+          setLoading(false);
+          fechar();
+          router.reload();
+        },
         onError: () => setLoading(false),
       },
     );
@@ -185,13 +197,21 @@ export function TabAprovacao({ params, grupoPap, can }) {
         {(can?.aprovar || can?.reprovar || can?.solicitarMelhoria) && (
           <div className="flex flex-wrap justify-end gap-2">
             {can?.solicitarMelhoria && (
-              <Button variant="outline" onClick={() => abrir('melhoria')} disabled={loading}>
+              <Button
+                variant="outline"
+                onClick={() => abrir('melhoria')}
+                disabled={loading}
+              >
                 <AlertCircle className="size-4" />
                 Solicitar Melhoria
               </Button>
             )}
             {can?.reprovar && (
-              <Button variant="destructive" onClick={() => abrir('reprovar')} disabled={loading}>
+              <Button
+                variant="destructive"
+                onClick={() => abrir('reprovar')}
+                disabled={loading}
+              >
                 <XCircle className="size-4" />
                 Reprovar
               </Button>
@@ -214,7 +234,10 @@ export function TabAprovacao({ params, grupoPap, can }) {
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <CardTitle>Aprovação do Tema</CardTitle>
-            <Badge variant="outline" className={`gap-1.5 text-xs font-normal ${config.badgeClass}`}>
+            <Badge
+              variant="outline"
+              className={`gap-1.5 text-xs font-normal ${config.badgeClass}`}
+            >
               <StatusIcon className="size-3.5" />
               {config.label}
             </Badge>
@@ -223,28 +246,50 @@ export function TabAprovacao({ params, grupoPap, can }) {
         <CardContent className="space-y-6 pt-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">Grupo</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Grupo
+              </p>
               <p className="mt-1 text-sm font-medium">{grupoPap.nome_grupo}</p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">Tema</p>
-              <p className="mt-1 text-sm font-medium">{grupoPap.tema_grupo ?? '—'}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Tema
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {grupoPap.tema_grupo ?? '—'}
+              </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">Turma</p>
-              <p className="mt-1 text-sm font-medium">{grupoPap.turma?.nome ?? '—'}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Turma
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {grupoPap.turma?.nome ?? '—'}
+              </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">Problema</p>
-              <p className="mt-1 text-sm font-medium">{grupoPap.problema ?? '—'}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Problema
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {grupoPap.problema ?? '—'}
+              </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">Professor Tutor</p>
-              <p className="mt-1 text-sm font-medium">{grupoPap.professor?.nome ?? '—'}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Professor Tutor
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {grupoPap.professor?.nome ?? '—'}
+              </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">Objectivos</p>
-              <p className="mt-1 text-sm font-medium">{grupoPap.objectivos ?? '—'}</p>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Objectivos
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {grupoPap.objectivos ?? '—'}
+              </p>
             </div>
           </div>
 

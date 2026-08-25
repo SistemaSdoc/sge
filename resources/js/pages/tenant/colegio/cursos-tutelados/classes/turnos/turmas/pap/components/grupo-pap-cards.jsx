@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontalIcon, ArrowUpRightIcon, Users2 } from 'lucide-react';
 
-export function GrupoPapCards({ params, grupos = [], }) {
+export function GrupoPapCards({ params, grupos = [] }) {
   return (
     <div className="space-y-4">
       {grupos.length > 0 ? (
@@ -57,7 +57,6 @@ export function GrupoPapCards({ params, grupos = [], }) {
                       >
                         Ver grupo
                       </DropdownMenuItem>
-                      
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </CardAction>

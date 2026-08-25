@@ -39,7 +39,9 @@ export default function InscricaoForm({
   anoLectivoActual,
 }) {
   const classes = cursoSelecionado?.classes ?? [];
-  const classeSelecionada = classes?.find((cl) => String(cl.id) === String(classeId));
+  const classeSelecionada = classes?.find(
+    (cl) => String(cl.id) === String(classeId),
+  );
   const temTurnos = classeSelecionada?.turnos?.length > 0;
   const turmas = turnoSelecionado?.turmas ?? [];
   const temTurmas = turmas.length > 0;
@@ -148,18 +150,19 @@ export default function InscricaoForm({
                 </Field>
               </div>
 
-
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <Field>
-                    <FieldLabel>Município</FieldLabel>
-                    <Input
-                      name="municipio"
-                      disabled={processing}
-                      placeholder="Ex.: Belas"
-                    />
-                    {errors.municipio && <FieldError>{errors.municipio}</FieldError>}
-                  </Field>
-                  </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Field>
+                  <FieldLabel>Município</FieldLabel>
+                  <Input
+                    name="municipio"
+                    disabled={processing}
+                    placeholder="Ex.: Belas"
+                  />
+                  {errors.municipio && (
+                    <FieldError>{errors.municipio}</FieldError>
+                  )}
+                </Field>
+              </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field>
@@ -295,7 +298,11 @@ export default function InscricaoForm({
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue
-                        placeholder={!cursoId ? 'Selecione um curso primeiro' : 'Selecione uma classe'}
+                        placeholder={
+                          !cursoId
+                            ? 'Selecione um curso primeiro'
+                            : 'Selecione uma classe'
+                        }
                       />
                     </SelectTrigger>
                     <SelectContent>

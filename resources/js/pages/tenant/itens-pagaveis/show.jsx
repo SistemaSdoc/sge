@@ -1,11 +1,19 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeftIcon } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 import { index } from '@/actions/App/Http/Controllers/Tenant/ItemPagavelController';
 
 const formatCurrency = (value) => {
   const amount = Number(value ?? 0);
-  return Number.isNaN(amount) ? '—' : `${amount.toLocaleString('pt-MZ', { minimumFractionDigits: 2 })} MZN`;
+  return Number.isNaN(amount)
+    ? '—'
+    : `${amount.toLocaleString('pt-MZ', { minimumFractionDigits: 2 })} MZN`;
 };
 
 export default function Show({ itemPagavel }) {
@@ -39,7 +47,9 @@ export default function Show({ itemPagavel }) {
 
             <div>
               <p className="text-sm text-muted-foreground">Valor padrão</p>
-              <p className="font-medium">{formatCurrency(itemPagavel?.valor_padrao)}</p>
+              <p className="font-medium">
+                {formatCurrency(itemPagavel?.valor_padrao)}
+              </p>
             </div>
           </CardContent>
         </Card>

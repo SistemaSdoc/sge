@@ -24,6 +24,7 @@ use Spatie\Permission\Traits\HasRoles;
     'google_id',
     'facebook_id',
     'avatar',
+    'last_login_at'
 ])]
 
 #[Hidden([

@@ -92,7 +92,9 @@ export function ProfessorForm({
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Field>
-                    <FieldLabel htmlFor="especialidade">Especialidade</FieldLabel>
+                    <FieldLabel htmlFor="especialidade">
+                      Especialidade
+                    </FieldLabel>
                     <Input
                       id="especialidade"
                       type="text"
@@ -101,20 +103,28 @@ export function ProfessorForm({
                       value={data.especialidade}
                       onChange={(e) => setData('especialidade', e.target.value)}
                     />
-                    {errors?.especialidade && <FieldError>{errors.especialidade}</FieldError>}
+                    {errors?.especialidade && (
+                      <FieldError>{errors.especialidade}</FieldError>
+                    )}
                   </Field>
 
                   <Field>
-                    <FieldLabel htmlFor="nivel_academico">Nível Académico</FieldLabel>
+                    <FieldLabel htmlFor="nivel_academico">
+                      Nível Académico
+                    </FieldLabel>
                     <Input
                       id="nivel_academico"
                       type="text"
                       disabled={processing}
                       placeholder="Ex.: Licenciatura"
                       value={data.nivel_academico}
-                      onChange={(e) => setData('nivel_academico', e.target.value)}
+                      onChange={(e) =>
+                        setData('nivel_academico', e.target.value)
+                      }
                     />
-                    {errors?.nivel_academico && <FieldError>{errors.nivel_academico}</FieldError>}
+                    {errors?.nivel_academico && (
+                      <FieldError>{errors.nivel_academico}</FieldError>
+                    )}
                   </Field>
                 </div>
 

@@ -34,7 +34,7 @@ export type SaldoInfo = {
  * Ex: { [itemPagavelId]: { "1": { pago: 6000, esperado: 12000, saldo: 6000, status: 'parcial' }, ... } }
  *
  * Ausência de uma entrada para um mes/item = nunca houve nenhuma parcela (pendente).
- */ 
+ */
 
 export type PaidRecord = Record<string, Record<string, SaldoInfo>>;
 export type CartEntry = {

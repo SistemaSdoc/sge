@@ -15,4 +15,3 @@ export interface InstituicaoEdit extends Instituicao {
 export type InstituicaoShow = InstituicaoEdit;
 
 export type InstituicaoCreate = Omit<InstituicaoEdit, 'id'>;
-

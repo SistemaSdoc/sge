@@ -74,7 +74,6 @@ export function TabIntegrantes({
       </CardHeader>
 
       <CardContent className="p-0!">
-
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/72">
@@ -111,7 +110,11 @@ export function TabIntegrantes({
                         max="20"
                         step="0.5"
                         className="w-20"
-                        defaultValue={el.nota_individual != null ? Number(el.nota_individual) : ''}
+                        defaultValue={
+                          el.nota_individual != null
+                            ? Number(el.nota_individual)
+                            : ''
+                        }
                         onChange={(e) =>
                           setNotas((prev) => ({
                             ...prev,
@@ -154,7 +157,10 @@ export function TabIntegrantes({
                         {canAtualizarNota && (
                           <DropdownMenuItem
                             onClick={() =>
-                              setEditando((prev) => ({ ...prev, [el.id]: true }))
+                              setEditando((prev) => ({
+                                ...prev,
+                                [el.id]: true,
+                              }))
                             }
                           >
                             Editar nota
@@ -169,7 +175,10 @@ export function TabIntegrantes({
           </TableBody>
         </Table>
       </CardContent>
-      <TablePagination pagination={pagination?.meta} onPageChange={onPageChange} />
+      <TablePagination
+        pagination={pagination?.meta}
+        onPageChange={onPageChange}
+      />
     </Card>
   );
 }

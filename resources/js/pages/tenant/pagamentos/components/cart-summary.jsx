@@ -48,8 +48,14 @@ export function CartSummary({
 
         // Subtotal = soma dos valores totais (base + multa) de cada mês
         const subtotal = detalhesPorMes.reduce((soma, d) => soma + d.valor, 0);
-        const multaTotal = detalhesPorMes.reduce((soma, d) => soma + d.multa, 0);
-        const baseTotal = detalhesPorMes.reduce((soma, d) => soma + d.valorBase, 0);
+        const multaTotal = detalhesPorMes.reduce(
+          (soma, d) => soma + d.multa,
+          0,
+        );
+        const baseTotal = detalhesPorMes.reduce(
+          (soma, d) => soma + d.valorBase,
+          0,
+        );
 
         return { entry, item, subtotal, multaTotal, baseTotal, detalhesPorMes };
       }
@@ -102,53 +108,65 @@ export function CartSummary({
             </EmptyHeader>
           </Empty>
         ) : (
-          lines.map(({ entry, item, subtotal, multaTotal, baseTotal, detalhesPorMes }) => (
-            <div key={item.id} className="flex flex-col gap-1">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-medium">{item.nome}</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm tabular-nums">
-                    {formatMoney(subtotal)}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => onRemove(item.id)}
-                    aria-label={`Remover ${item.nome}`}
-                  >
-                    <XIcon />
-                  </Button>
+          lines.map(
+            ({
+              entry,
+              item,
+              subtotal,
+              multaTotal,
+              baseTotal,
+              detalhesPorMes,
+            }) => (
+              <div key={item.id} className="flex flex-col gap-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium">{item.nome}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm tabular-nums">
+                      {formatMoney(subtotal)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => onRemove(item.id)}
+                      aria-label={`Remover ${item.nome}`}
+                    >
+                      <XIcon />
+                    </Button>
+                  </div>
                 </div>
+
+                {/* Detalhamento por mês (só para mensais) */}
+                {item.frequencia === 'mensal' && detalhesPorMes.length > 0 && (
+                  <div className="ml-2 space-y-0.5 text-xs text-muted-foreground">
+                    {detalhesPorMes.map((d) => (
+                      <div key={d.mes} className="flex items-center gap-2">
+                        <span className="w-8 font-medium">
+                          {MONTH_LABELS[d.mes - 1]}
+                        </span>
+                        <span>Base: {formatMoney(d.valorBase)}</span>
+                        {d.multa > 0 && (
+                          <>
+                            <span className=" ">
+                              + Multa: {formatMoney(d.multa)}
+                            </span>
+                            <span>= {formatMoney(d.valor)}</span>
+                          </>
+                        )}
+                        {d.multa === 0 && <span>= {formatMoney(d.valor)}</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Para itens não-mensais, mostra apenas o valor */}
+                {item.frequencia !== 'mensal' && (
+                  <div className="ml-2 text-xs text-muted-foreground">
+                    Valor: {formatMoney(item.valor)}
+                  </div>
+                )}
               </div>
-
-              {/* Detalhamento por mês (só para mensais) */}
-              {item.frequencia === 'mensal' && detalhesPorMes.length > 0 && (
-                <div className="ml-2 space-y-0.5 text-xs text-muted-foreground">
-                  {detalhesPorMes.map((d) => (
-                    <div key={d.mes} className="flex items-center gap-2">
-                      <span className="w-8 font-medium">{MONTH_LABELS[d.mes - 1]}</span>
-                      <span>Base: {formatMoney(d.valorBase)}</span>
-                      {d.multa > 0 && (
-                        <>
-                          <span className=" ">+ Multa: {formatMoney(d.multa)}</span>
-                          <span>= {formatMoney(d.valor)}</span>
-                        </>
-                      )}
-                      {d.multa === 0 && <span>= {formatMoney(d.valor)}</span>}
-                    </div>
-                  ))}
-               
-                </div>
-              )}
-
-              {/* Para itens não-mensais, mostra apenas o valor */}
-              {item.frequencia !== 'mensal' && (
-                <div className="ml-2 text-xs text-muted-foreground">
-                  Valor: {formatMoney(item.valor)}
-                </div>
-              )}
-            </div>
-          ))
+            ),
+          )
         )}
 
         <Separator />
@@ -160,9 +178,11 @@ export function CartSummary({
             <span className="tabular-nums">{formatMoney(baseTotalGeral)}</span>
           </div>
           {multaTotalGeral > 0 && (
-            <div className="flex items-center justify-between  ">
+            <div className="flex items-center justify-between">
               <span>Multa</span>
-              <span className="tabular-nums">{formatMoney(multaTotalGeral)}</span>
+              <span className="tabular-nums">
+                {formatMoney(multaTotalGeral)}
+              </span>
             </div>
           )}
           <div className="flex items-center justify-between border-t pt-1 text-base font-bold">

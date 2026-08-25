@@ -8,7 +8,7 @@ import {
 import { ArrowRight } from 'lucide-react';
 import { router } from '@inertiajs/react';
 
-export function ResumoCardItem({ }) {
+export function ResumoCardItem({}) {
   return (
     <Card className="group cursor-pointer">
       <CardHeader className="p-4">
@@ -16,9 +16,7 @@ export function ResumoCardItem({ }) {
 
         <CardTitle className="text-2xl font-semibold">13</CardTitle>
 
-        <CardAction>
-         
-        </CardAction>
+        <CardAction></CardAction>
       </CardHeader>
     </Card>
   );

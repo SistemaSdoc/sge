@@ -34,7 +34,6 @@ export function Header({
               {turma?.nome} — {turma.classe.nome}
             </p>
           </div>
-
         </div>
       </div>
 

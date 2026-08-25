@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Listeners\RegisteredListener;
+use App\Listeners\UpdateLastLoginAt;
 use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Pagamento;
 use App\Observers\CursoTuteladoProfessorObserver;
@@ -15,7 +15,7 @@ use App\Policies\Tenant\HorarioPolicy;
 use App\Policies\Tenant\PagamentoPolicy;
 use App\Policies\Tenant\PautaPolicy;
 use Carbon\CarbonImmutable;
-use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Registar listener para atribuir role padrão a novos utilizadores
-        Event::listen(Registered::class, RegisteredListener::class);
+        Event::listen(Login::class, UpdateLastLoginAt::class);
 
         // Define o caminho padrão para localizar as policies
         Gate::guessPolicyNamesUsing(function (string $modelClass): string {

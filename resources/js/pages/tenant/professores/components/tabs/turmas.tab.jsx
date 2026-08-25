@@ -79,7 +79,7 @@ export function TurmasTab({ turmas }) {
                       <Minus size={15} className="text-muted-foreground" />
                     )}
                   </TableCell>
-                 
+
                   <TableCell className="px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

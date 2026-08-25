@@ -8,5 +8,7 @@ export default function Index({ gruposPap = [], can }) {
     });
   };
 
-  return <GrupoPapCards grupos={gruposPap} deleteGrupoFn={deleteGrupoFn} can={can} />;
+  return (
+    <GrupoPapCards grupos={gruposPap} deleteGrupoFn={deleteGrupoFn} can={can} />
+  );
 }

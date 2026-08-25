@@ -38,7 +38,10 @@ export function EditarAcessoDrawer({ usuario, roles, allPermissions }) {
   }
 
   function removerPermissao(p) {
-    setData('directPermissions', data.directPermissions.filter((d) => d !== p));
+    setData(
+      'directPermissions',
+      data.directPermissions.filter((d) => d !== p),
+    );
   }
 
   // Permissões disponíveis para adicionar — exclui as já directas e herdadas
@@ -50,22 +53,26 @@ export function EditarAcessoDrawer({ usuario, roles, allPermissions }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex h-full flex-col">
-
       {/* Header fixo */}
       <div className="flex items-center gap-3 border-b px-4 pb-3">
         <Avatar>
-          <AvatarImage src={usuario.avatar} alt={usuario.nome} className="grayscale" />
+          <AvatarImage
+            src={usuario.avatar}
+            alt={usuario.nome}
+            className="grayscale"
+          />
           <AvatarFallback>{getInitials(usuario.nome)}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
           <span className="text-sm font-medium">{usuario.nome}</span>
-          <span className="text-[10px] text-muted-foreground">{usuario.email}</span>
+          <span className="text-[10px] text-muted-foreground">
+            {usuario.email}
+          </span>
         </div>
       </div>
 
       {/* Conteúdo com scroll */}
       <div className="flex-1 space-y-6 overflow-y-auto px-4 py-4">
-
         {/* Papéis */}
         <div>
           <div className="mb-2 border-l-2 border-orange-500 pl-2">
@@ -159,7 +166,6 @@ export function EditarAcessoDrawer({ usuario, roles, allPermissions }) {
             />
           </div>
         </div>
-
       </div>
 
       {/* Footer fixo */}
@@ -168,7 +174,6 @@ export function EditarAcessoDrawer({ usuario, roles, allPermissions }) {
           {processing ? 'A guardar...' : 'Guardar alterações'}
         </Button>
       </div>
-
     </form>
   );
 }

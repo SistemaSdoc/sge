@@ -40,12 +40,13 @@ export function CartItem({
   const isDisabled = disabled || alreadyPaid;
 
   // Meses seleccionados que têm multa aplicável, segundo o backend.
-  const mesesComMulta = isMonthly && valorDoMes
-    ? selectedMonths.filter((mes) => {
-        const info = valorDoMes(mes);
-        return info && Number(info.multa) > 0;
-      })
-    : [];
+  const mesesComMulta =
+    isMonthly && valorDoMes
+      ? selectedMonths.filter((mes) => {
+          const info = valorDoMes(mes);
+          return info && Number(info.multa) > 0;
+        })
+      : [];
 
   return (
     <Item variant="outline" className={cn(isDisabled && 'opacity-60')}>
@@ -77,8 +78,7 @@ export function CartItem({
           )}
 
           {isMonthly && item.multa_dias_tolerancia && item.multa_valor && (
-            <Badge variant="outline" className="gap-1 p-1 text-[10px]  ">
-           
+            <Badge variant="outline" className="gap-1 p-1 text-[10px]">
               Multa após dia {item.multa_dias_tolerancia}
             </Badge>
           )}
@@ -123,7 +123,7 @@ export function CartItem({
                   className={cn(
                     'min-w-11',
                     isPaid && 'line-through',
-                    temMulta && 'border-destructive/50  ',
+                    temMulta && 'border-destructive/50',
                   )}
                 >
                   {label}
@@ -134,9 +134,8 @@ export function CartItem({
           </ToggleGroup>
 
           {mesesComMulta.length > 0 && (
-            <p className="flex items-center gap-1 text-xs  ">
-            
-               Mês com multa por atraso incluída no valor
+            <p className="flex items-center gap-1 text-xs">
+              Mês com multa por atraso incluída no valor
             </p>
           )}
         </ItemFooter>

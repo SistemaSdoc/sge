@@ -95,7 +95,7 @@ export function ClasseTable({
                 <TableRow className="bg-muted/72">
                   <TableHead className="px-4">Nome</TableHead>
                   <TableHead className="px-4">Nível de Ensino</TableHead>
-                
+
                   {hasActionColumn && (
                     <TableHead className="px-4 text-right">Acções</TableHead>
                   )}
@@ -124,8 +124,6 @@ export function ClasseTable({
                     <TableCell className="px-4">
                       {classe.nivel_ensino}
                     </TableCell>
-
-            
 
                     {hasActionColumn && (
                       <TableCell className="px-4 text-right">

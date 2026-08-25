@@ -17,7 +17,12 @@ export default function Create() {
         instituicao: instituicaoId,
         cursoTutelado: cursoTuteladoId,
       })}
-      transform={(data) => ({ ...data, professor_id: professorId, tipo, coordenador, })}
+      transform={(data) => ({
+        ...data,
+        professor_id: professorId,
+        tipo,
+        coordenador,
+      })}
       onSuccess={() =>
         router.visit(
           show({

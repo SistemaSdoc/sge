@@ -25,7 +25,10 @@ import { MoreHorizontalIcon, Minus, Users2Icon } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
 import { EmptyState } from '@/components/empty-state';
 import { show as showProfessor } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
-import { create as adicionarJurado, edit } from '@/actions/App/Http/Controllers/Tenant/BancaJuriPapController';
+import {
+  create as adicionarJurado,
+  edit,
+} from '@/actions/App/Http/Controllers/Tenant/BancaJuriPapController';
 import TablePagination from '@/components/table-pagination';
 
 export function TabBanca({
@@ -63,11 +66,15 @@ export function TabBanca({
             icon={Users2Icon}
             title="Nenhum membro da banca"
             description="Comece adicionando os jurados para a defesa do grupo PAP"
-            action={can?.banca?.create ? {
-              label: 'Adicionar juri',
-              href: adicionarJurado.url(params),
-              variant: 'outline',
-            } : undefined}
+            action={
+              can?.banca?.create
+                ? {
+                    label: 'Adicionar juri',
+                    href: adicionarJurado.url(params),
+                    variant: 'outline',
+                  }
+                : undefined
+            }
           />
         ) : (
           <Table>
@@ -87,7 +94,9 @@ export function TabBanca({
                   key={j.id}
                   className="hover:cursor-pointer"
                   onClick={() =>
-                    router.visit(showProfessor.url({ professor: j.professor_id }))
+                    router.visit(
+                      showProfessor.url({ professor: j.professor_id }),
+                    )
                   }
                 >
                   <TableCell className="px-4 font-medium">{j.nome}</TableCell>
@@ -107,7 +116,11 @@ export function TabBanca({
                     >
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="size-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                          >
                             <MoreHorizontalIcon />
                           </Button>
                         </DropdownMenuTrigger>
@@ -115,10 +128,14 @@ export function TabBanca({
                         <DropdownMenuContent align="end">
                           {canAtualizarBanca && (
                             <DropdownMenuItem
-                              onClick={() => router.visit(edit.url({
-                                ...params,
-                                bancaJuriPap: j.id,
-                              }))}
+                              onClick={() =>
+                                router.visit(
+                                  edit.url({
+                                    ...params,
+                                    bancaJuriPap: j.id,
+                                  }),
+                                )
+                              }
                             >
                               Editar
                             </DropdownMenuItem>
@@ -142,7 +159,10 @@ export function TabBanca({
           </Table>
         )}
       </CardContent>
-      <TablePagination pagination={pagination.meta} onPageChange={onPageChange} />
+      <TablePagination
+        pagination={pagination.meta}
+        onPageChange={onPageChange}
+      />
     </Card>
   );
 }

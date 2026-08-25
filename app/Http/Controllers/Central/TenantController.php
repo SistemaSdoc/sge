@@ -7,6 +7,7 @@ use App\Http\Requests\Central\Tenant\StoreTenantRequest;
 use App\Http\Requests\Central\Tenant\UpdateTenantRequest;
 use App\Http\Resources\Central\Tenant\TenantIndexResource;
 use App\Models\Central\Tenant;
+use App\Services\Central\TenantMetricsService;
 use App\Services\Central\TenantService;
 use Inertia\Inertia;
 
@@ -58,11 +59,33 @@ class TenantController extends Controller
      */
     public function show(Tenant $tenant)
     {
+        $tenant->load('domains');
         $instituicao = $this->tenantService->getInstituicao($tenant);
+        $adminUser = $this->tenantService->getTenantAdminUser($tenant);
+
+        // Executar dentro do contexto do tenant
+        $metrics = $tenant->run(function () {
+            $metricsService = new TenantMetricsService;
+
+            return $metricsService->getMetrics();
+        });
 
         return Inertia::render('central/tenants/show', [
-            'tenant' => $tenant->load('domains'),
-            'instituicao' => $instituicao,
+            'tenant' => [
+                'id' => $tenant->id,
+                'status' => $tenant->status,
+                'domain' => $tenant->domains?->first()?->domain,
+                'instituicao' => [
+                    'nome' => $instituicao?->nome,
+                    'sigla' => $instituicao?->sigla,
+                    'tipo' => $instituicao?->tipo,
+                    'user' => [
+                        'nome' => $adminUser?->nome,
+                        'email' => $adminUser?->email,
+                    ],
+                ],
+            ],
+            'metrics' => $metrics,
         ]);
     }
 
@@ -129,5 +152,77 @@ class TenantController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Erro ao alterar status: '.$e->getMessage());
         }
+    }
+
+    /**
+     * Exibe página com a lista de todas as tabelas da base de dados do tenant
+     *
+     * Ordenadas por tamanho.
+     */
+    public function showTablesSize(Tenant $tenant)
+    {
+        $tenant->load('domains');
+        $instituicao = $this->tenantService->getInstituicao($tenant);
+        $adminUser = $this->tenantService->getTenantAdminUser($tenant);
+
+        $metrics = $tenant->run(function () {
+            $metricsService = new TenantMetricsService;
+
+            return $metricsService->getAllTablesBySize();
+        });
+
+        return Inertia::render('central/tenants/database/details/table-size-details', [
+            'tenant' => [
+                'id' => $tenant->id,
+                'status' => $tenant->status,
+                'domain' => $tenant->domains?->first()?->domain,
+                'instituicao' => [
+                    'nome' => $instituicao?->nome,
+                    'sigla' => $instituicao?->sigla,
+                    'tipo' => $instituicao?->tipo,
+                    'user' => [
+                        'nome' => $adminUser?->nome,
+                        'email' => $adminUser?->email,
+                    ],
+                ],
+            ],
+            'metrics' => $metrics,
+        ]);
+    }
+
+    /**
+     * Exibe página com a lista de todas as tabelas da base de dados do tenant
+     *
+     * Ordenadas por número de registos.
+     */
+    public function showTablesRecords(Tenant $tenant)
+    {
+        $tenant->load('domains');
+        $instituicao = $this->tenantService->getInstituicao($tenant);
+        $adminUser = $this->tenantService->getTenantAdminUser($tenant);
+
+        $metrics = $tenant->run(function () {
+            $metricsService = new TenantMetricsService;
+
+            return $metricsService->getAllTablesByRecords();
+        });
+
+        return Inertia::render('central/tenants/database/details/table-records-details', [
+            'tenant' => [
+                'id' => $tenant->id,
+                'status' => $tenant->status,
+                'domain' => $tenant->domains?->first()?->domain,
+                'instituicao' => [
+                    'nome' => $instituicao?->nome,
+                    'sigla' => $instituicao?->sigla,
+                    'tipo' => $instituicao?->tipo,
+                    'user' => [
+                        'nome' => $adminUser?->nome,
+                        'email' => $adminUser?->email,
+                    ],
+                ],
+            ],
+            'metrics' => $metrics,
+        ]);
     }
 }

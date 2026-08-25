@@ -8,10 +8,7 @@ export default function Create({ aluno, turmaAluno, turma, can }) {
 
   const handleSubmit = (accao, formData) => {
     form.transform(() => ({ ...formData, accao }));
-    form.post(
-      store({ aluno: aluno.id }).url,
-      { preserveScroll: true },
-    );
+    form.post(store({ aluno: aluno.id }).url, { preserveScroll: true });
   };
 
   return (

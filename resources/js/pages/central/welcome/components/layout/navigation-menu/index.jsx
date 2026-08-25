@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Link } from '@inertiajs/react';
-import {create} from '@/actions/App/Http/Controllers/Central/Auth/RegisteredController'
+import { create } from '@/actions/App/Http/Controllers/Central/Auth/RegisteredController';
 
 export default function NavigationMenu() {
   return (

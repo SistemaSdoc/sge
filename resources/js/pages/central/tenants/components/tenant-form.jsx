@@ -201,7 +201,7 @@ export function TenantForm({
                     onClick={() => window.history.back()}
                   >
                     <ArrowUpLeft />
-                    Voltar a lista de Instituições
+                    Voltar
                   </Button>
                 </Field>
               </FieldSet>

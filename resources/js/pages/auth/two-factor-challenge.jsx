@@ -13,10 +13,9 @@ import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 //rota errado temporária
 import { store } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
 
-
 export default function TwoFactorChallenge() {
-  const [showRecoveryInput, setShowRecoveryInput] = useState<boolean>(false);
-  const [code, setCode] = useState<string>('');
+  const [showRecoveryInput, setShowRecoveryInput] = useState < boolean > false;
+  const [code, setCode] = useState < string > '';
 
   const authConfigContent = useMemo(() => {
     if (showRecoveryInput) {

@@ -30,10 +30,8 @@ export function NavFooter({
                 asChild
                 className="text-neutral-600 hover:text-neutral-800 dark:text-neutral-300 dark:hover:text-neutral-100"
               >
-                <Link
-                  href={toUrl(item.href)}
-                >
-                  {item.icon && <item.icon className="w-5 h-5" />}
+                <Link href={toUrl(item.href)}>
+                  {item.icon && <item.icon className="h-5 w-5" />}
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>

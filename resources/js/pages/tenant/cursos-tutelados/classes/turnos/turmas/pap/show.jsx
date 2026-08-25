@@ -155,8 +155,12 @@ export default function Show({
                 )}
 
                 {can?.definirTema && (
-                  <DropdownMenuItem onClick={() => router.visit(createTema.url(params))}>
-                    {grupoPap.status_aprovacao === 'rascunho' ? 'Definir Tema' : 'Corrigir Tema'}
+                  <DropdownMenuItem
+                    onClick={() => router.visit(createTema.url(params))}
+                  >
+                    {grupoPap.status_aprovacao === 'rascunho'
+                      ? 'Definir Tema'
+                      : 'Corrigir Tema'}
                   </DropdownMenuItem>
                 )}
 
@@ -214,13 +218,13 @@ export default function Show({
               {grupoPap?.local_defesa ? `${grupoPap.local_defesa} / ` : ''}
               {grupoPap?.data_defesa
                 ? new Date(grupoPap.data_defesa).toLocaleString('pt-PT', {
-                  weekday: 'short',
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
+                    weekday: 'short',
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
                 : 'Por definir...'}
             </p>
           </div>
@@ -256,7 +260,6 @@ export default function Show({
               </a>
             </div>
           )}
-
         </CardContent>
       </Card>
 
@@ -333,8 +336,7 @@ export default function Show({
       </Dialog>
 
       {/* Banner de ação — reprovado ou melhoria solicitada */}
-      {
-        can?.corrigirTema &&
+      {can?.corrigirTema &&
         ['reprovado', 'melhoria-solicitada'].includes(
           grupoPap.status_aprovacao,
         ) && (
@@ -372,8 +374,7 @@ export default function Show({
               </Button>
             </AlertDescription>
           </Alert>
-        )
-      }
+        )}
 
       {/* Tabs */}
       <Tabs defaultValue="integrantes-grupo" className="w-full">
@@ -434,6 +435,6 @@ export default function Show({
           />
         </TabsContent>
       </Tabs>
-    </div >
+    </div>
   );
 }

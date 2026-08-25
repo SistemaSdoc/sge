@@ -14,18 +14,24 @@ import { useDrawerStore } from '@/stores/drawer.store';
  * Deve ser montado uma única vez no AppLayout.
  */
 export function AppDrawer() {
-  const { open, title, description, content, className, closeDrawer } = useDrawerStore();
+  const { open, title, description, content, className, closeDrawer } =
+    useDrawerStore();
 
   return (
     <Drawer open={open} direction="right" onOpenChange={closeDrawer}>
-      <DrawerContent className="w-105" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DrawerContent
+        className="w-105"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
         <DrawerHeader>
           <DrawerTitle>{title}</DrawerTitle>
           {description && <DrawerDescription>{description}</DrawerDescription>}
         </DrawerHeader>
 
         {/* Formulário ou conteúdo passado pelo openDrawer */}
-        <div className={cn('flex-1 overflow-y-auto p-4', className)}>{content}</div>
+        <div className={cn('flex-1 overflow-y-auto p-4', className)}>
+          {content}
+        </div>
       </DrawerContent>
     </Drawer>
   );

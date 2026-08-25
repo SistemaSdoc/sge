@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -19,7 +14,10 @@ const TITULOS = {
   pendentes: 'Alunos pendentes (1 ou mais meses em atraso)',
 };
 
-export default function AlunosPorStatusPropina({ statusFiltro, alunosPorStatus }) {
+export default function AlunosPorStatusPropina({
+  statusFiltro,
+  alunosPorStatus,
+}) {
   const classes = Object.keys(alunosPorStatus ?? {});
 
   if (classes.length === 0) {
@@ -34,7 +32,9 @@ export default function AlunosPorStatusPropina({ statusFiltro, alunosPorStatus }
 
   return (
     <div className="space-y-8">
-      <h2 className="text-lg font-semibold">{TITULOS[statusFiltro] ?? 'Alunos'}</h2>
+      <h2 className="text-lg font-semibold">
+        {TITULOS[statusFiltro] ?? 'Alunos'}
+      </h2>
 
       {classes.map((classeNome) => {
         const turmas = alunosPorStatus[classeNome];
@@ -44,17 +44,17 @@ export default function AlunosPorStatusPropina({ statusFiltro, alunosPorStatus }
             <CardHeader className="border-b bg-muted/30">
               <CardTitle className="text-base">{classeNome}</CardTitle>
             </CardHeader>
-            <CardContent className="p-0! space-y-4 py-4">
+            <CardContent className="space-y-4 p-0! py-4">
               {Object.keys(turmas).map((turmaNome, index) => (
                 <div
                   key={turmaNome}
                   className={
                     index > 0
-                      ? 'mt-6 rounded-lg border mx-4'
-                      : 'rounded-lg border mx-4'
+                      ? 'mx-4 mt-6 rounded-lg border'
+                      : 'mx-4 rounded-lg border'
                   }
                 >
-                  <div className="bg-muted/50 px-4 py-2.5 text-sm font-medium rounded-t-lg">
+                  <div className="rounded-t-lg bg-muted/50 px-4 py-2.5 text-sm font-medium">
                     Turma: {turmaNome}
                   </div>
                   <Table>

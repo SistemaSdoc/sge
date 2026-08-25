@@ -2,7 +2,10 @@ import { Form } from '@inertiajs/react';
 import { ShieldCheck } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 //rota errada temporaria
-import { create as disable, store as enable } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
+import {
+  create as disable,
+  store as enable,
+} from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
 import Heading from '@/components/heading';
 import TwoFactorRecoveryCodes from '@/components/two-factor-recovery-codes';
 import TwoFactorSetupModal from '@/components/two-factor-setup-modal';

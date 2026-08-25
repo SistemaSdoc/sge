@@ -61,7 +61,10 @@ function periodoLabel(frequencia, mes, ano) {
 export default function Show({ pagamento }) {
   const itens = pagamento.itens.data;
   const temAlgumaMulta = itens.some((item) => Number(item.multa) > 0);
-  const multaTotalPagina = itens.reduce((soma, item) => soma + Number(item.multa ?? 0), 0);
+  const multaTotalPagina = itens.reduce(
+    (soma, item) => soma + Number(item.multa ?? 0),
+    0,
+  );
 
   function handlePageChange(page) {
     router.reload({
@@ -135,7 +138,6 @@ export default function Show({ pagamento }) {
                       <TableCell className="px-4 text-right">
                         {Number(item.multa) > 0 ? (
                           <span className="inline-flex items-center gap-1 font-medium">
-                         
                             {formatCurrency(item.multa)}
                           </span>
                         ) : (
@@ -151,7 +153,6 @@ export default function Show({ pagamento }) {
               </TableBody>
 
               <TableFooter>
-          
                 <TableRow>
                   <TableCell colSpan={temAlgumaMulta ? 3 : 3} className="px-4">
                     Total
@@ -208,16 +209,14 @@ export default function Show({ pagamento }) {
 
             <Separator />
 
-                  {temAlgumaMulta && (
-
-                    <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">  Total em multas</span>
-              <span className="text-lg font-bold tabular-nums">
-              {formatCurrency(multaTotalPagina)}
-              </span>
-            </div>
-
-                )}
+            {temAlgumaMulta && (
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground"> Total em multas</span>
+                <span className="text-lg font-bold tabular-nums">
+                  {formatCurrency(multaTotalPagina)}
+                </span>
+              </div>
+            )}
 
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Total</span>

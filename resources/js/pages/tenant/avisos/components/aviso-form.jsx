@@ -91,29 +91,28 @@ export function AvisoForm({
                 </div> */}
 
                 <FieldSet>
-                  
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {/* Tipo */}
                     <Field className="">
                       <FieldLabel htmlFor="tipo">Tipo</FieldLabel>
-                          <ToggleGroup
-                            variant="outline"
-                            type="single"
-                            value={data.tipo}
-                            onValueChange={(value) => setData('tipo', value)}
-                            className="w-full"
+                      <ToggleGroup
+                        variant="outline"
+                        type="single"
+                        value={data.tipo}
+                        onValueChange={(value) => setData('tipo', value)}
+                        className="w-full"
+                      >
+                        {tipos.map((t) => (
+                          <ToggleGroupItem
+                            key={t.value}
+                            value={t.value}
+                            aria-label={t.label}
+                            className="flex-1"
                           >
-                            {tipos.map((t) => (
-                              <ToggleGroupItem
-                                key={t.value}
-                                value={t.value}
-                                aria-label={t.label}
-                                className="flex-1"
-                              >
-                                {t.label}
-                              </ToggleGroupItem>
-                            ))}
-                          </ToggleGroup>
+                            {t.label}
+                          </ToggleGroupItem>
+                        ))}
+                      </ToggleGroup>
 
                       {errors?.tipo && (
                         <FieldError>{errors.tipo?.message}</FieldError>
@@ -126,24 +125,26 @@ export function AvisoForm({
                         Destinatário
                       </FieldLabel>
 
-                          <ToggleGroup
-                            type="single"
-                            variant="outline"
-                            value={data.destinatario}
-                            onValueChange={(value) => setData('destinatario', value)}
-                            className="w-full"
+                      <ToggleGroup
+                        type="single"
+                        variant="outline"
+                        value={data.destinatario}
+                        onValueChange={(value) =>
+                          setData('destinatario', value)
+                        }
+                        className="w-full"
+                      >
+                        {destinatarios.map((d) => (
+                          <ToggleGroupItem
+                            key={d.value}
+                            value={d.value}
+                            aria-label={d.label}
+                            className="flex-1"
                           >
-                            {destinatarios.map((d) => (
-                              <ToggleGroupItem
-                                key={d.value}
-                                value={d.value}
-                                aria-label={d.label}
-                                className="flex-1"
-                              >
-                                {d.label}
-                              </ToggleGroupItem>
-                            ))}
-                          </ToggleGroup>
+                            {d.label}
+                          </ToggleGroupItem>
+                        ))}
+                      </ToggleGroup>
 
                       {errors?.destinatario && (
                         <FieldError>{errors.destinatario?.message}</FieldError>

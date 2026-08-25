@@ -13,7 +13,7 @@ import { EmptyState } from '@/components/empty-state';
 
 export function GrupoPapCards({ grupos = [] }) {
   return (
-    <div className="space-y-4 p-6 mx-auto w-full max-w-7xl">
+    <div className="mx-auto w-full max-w-7xl space-y-4 p-6">
       {grupos.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {grupos.map((grupo) => (
@@ -78,7 +78,9 @@ export function GrupoPapCards({ grupos = [] }) {
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs text-muted-foreground">Turma</p>
-                    <p className="text-xs font-medium">{grupo.turma?.nome ?? '—'}</p>
+                    <p className="text-xs font-medium">
+                      {grupo.turma?.nome ?? '—'}
+                    </p>
                   </div>
                 </div>
               </CardContent>

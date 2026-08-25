@@ -16,37 +16,56 @@ export default function SolicitacoesIndex() {
         decisao,
         prazo_edicao_ate: prazos[id] ?? null,
       },
-      { preserveScroll: true }
+      { preserveScroll: true },
     );
   };
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-4 p-6">
-      <h1 className="text-xl font-semibold">Solicitações de Lançamento de Notas</h1>
+      <h1 className="text-xl font-semibold">
+        Solicitações de Lançamento de Notas
+      </h1>
 
       {solicitacoes.length === 0 && (
-        <p className="text-sm text-muted-foreground">Nenhuma solicitação pendente.</p>
+        <p className="text-sm text-muted-foreground">
+          Nenhuma solicitação pendente.
+        </p>
       )}
 
       {solicitacoes.map((s) => (
         <Card key={s.id}>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">{s.disciplina} — {s.turma}</CardTitle>
+              <CardTitle className="text-base">
+                {s.disciplina} — {s.turma}
+              </CardTitle>
               <Badge className="bg-yellow-50 text-yellow-700">
-                {s.tipo === 'reabertura_edicao' ? 'Reabertura de edição' : 'Extensão de prazo'}
+                {s.tipo === 'reabertura_edicao'
+                  ? 'Reabertura de edição'
+                  : 'Extensão de prazo'}
               </Badge>
             </div>
           </CardHeader>
 
           <CardContent className="space-y-3">
-            <p className="text-sm"><span className="text-muted-foreground">Professor:</span> {s.professor}</p>
-            <p className="text-sm"><span className="text-muted-foreground">Período:</span> {s.periodo}º Trimestre</p>
-            <p className="text-sm"><span className="text-muted-foreground">Motivo:</span> {s.motivo}</p>
+            <p className="text-sm">
+              <span className="text-muted-foreground">Professor:</span>{' '}
+              {s.professor}
+            </p>
+            <p className="text-sm">
+              <span className="text-muted-foreground">Período:</span>{' '}
+              {s.periodo}º Trimestre
+            </p>
+            <p className="text-sm">
+              <span className="text-muted-foreground">Motivo:</span> {s.motivo}
+            </p>
             <p className="text-xs text-muted-foreground">{s.created_at}</p>
 
             {s.tipo === 'extensao_prazo' && (
-              <a href={s.link_prazos} className="text-xs text-blue-600 underline">
+              <a
+                href={s.link_prazos}
+                className="text-xs text-blue-600 underline"
+              >
                 Ver/ajustar prazos de lançamento
               </a>
             )}

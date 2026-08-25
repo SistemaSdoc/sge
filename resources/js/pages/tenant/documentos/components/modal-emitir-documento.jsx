@@ -121,11 +121,14 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
     setLoading(true);
 
     try {
-      const res = await fetch(`/dashboard/documentos/exportar?${params.toString()}`, {
-        method: 'GET',
-        credentials: 'same-origin',
-        headers: { Accept: '*/*' },
-      });
+      const res = await fetch(
+        `/dashboard/documentos/exportar?${params.toString()}`,
+        {
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: { Accept: '*/*' },
+        },
+      );
 
       const contentType = res.headers.get('content-type') || '';
 
@@ -217,8 +220,9 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
                 </Button>
               </div>
               <FieldDescription>
-                Escreva pelo menos 3 caracteres e prima <strong>Enter</strong> ou
-                clique em <Search className="inline h-3 w-3" /> para pesquisar.
+                Escreva pelo menos 3 caracteres e prima <strong>Enter</strong>{' '}
+                ou clique em <Search className="inline h-3 w-3" /> para
+                pesquisar.
               </FieldDescription>
             </Field>
           </FieldGroup>
@@ -280,12 +284,15 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
                           key={c.curso_classe_id ?? c.id}
                           value={String(c.curso_classe_id ?? c.id)}
                         >
-                          {(c.curso ? `${c.curso} · ` : '') + (c.classe ?? c.nome)}
+                          {(c.curso ? `${c.curso} · ` : '') +
+                            (c.classe ?? c.nome)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <FieldDescription>Escolha a classe do documento</FieldDescription>
+                  <FieldDescription>
+                    Escolha a classe do documento
+                  </FieldDescription>
                 </Field>
 
                 <Field>

@@ -10,30 +10,30 @@ import { useState } from 'react';
  * @param {string|null} tdpId - ID do TurmaDisciplinaProfessor activo.
  */
 export function useNotasLocais(tdpId) {
-    // { [tdpId]: { [turmaAlunoId-periodo]: { mac, npp, npt, faltas } } }
-    const [notasLocais, setNotasLocais] = useState({});
+  // { [tdpId]: { [turmaAlunoId-periodo]: { mac, npp, npt, faltas } } }
+  const [notasLocais, setNotasLocais] = useState({});
 
-    /**
-     * Obtém o valor local de um campo para um aluno num período específico.
-     * Retorna null se não houver valor local (deve usar o valor do servidor).
-     */
-    const getValor = (turmaAlunoId, periodo, campo) =>
-        notasLocais[tdpId]?.[`${turmaAlunoId}-${periodo}`]?.[campo] ?? null;
+  /**
+   * Obtém o valor local de um campo para um aluno num período específico.
+   * Retorna null se não houver valor local (deve usar o valor do servidor).
+   */
+  const getValor = (turmaAlunoId, periodo, campo) =>
+    notasLocais[tdpId]?.[`${turmaAlunoId}-${periodo}`]?.[campo] ?? null;
 
-    /**
-     * Define o valor local de um campo para um aluno num período específico.
-     */
-    const setValor = (turmaAlunoId, periodo, campo, valor) =>
-        setNotasLocais((prev) => ({
-            ...prev,
-            [tdpId]: {
-                ...prev[tdpId],
-                [`${turmaAlunoId}-${periodo}`]: {
-                    ...prev[tdpId]?.[`${turmaAlunoId}-${periodo}`],
-                    [campo]: valor,
-                },
-            },
-        }));
+  /**
+   * Define o valor local de um campo para um aluno num período específico.
+   */
+  const setValor = (turmaAlunoId, periodo, campo, valor) =>
+    setNotasLocais((prev) => ({
+      ...prev,
+      [tdpId]: {
+        ...prev[tdpId],
+        [`${turmaAlunoId}-${periodo}`]: {
+          ...prev[tdpId]?.[`${turmaAlunoId}-${periodo}`],
+          [campo]: valor,
+        },
+      },
+    }));
 
-    return { getValor, setValor };
+  return { getValor, setValor };
 }

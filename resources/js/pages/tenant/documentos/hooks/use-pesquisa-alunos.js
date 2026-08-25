@@ -49,7 +49,6 @@ export function usePesquisaAlunos() {
       setResultados(lista);
       setNotFound(lista.length === 0);
 
-
       setResultados(lista);
       setNotFound(lista.length === 0);
     } catch {

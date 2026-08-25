@@ -45,7 +45,7 @@ export default function Page() {
       <Empty className="gap-6 p-0">
         <EmptyHeader className="max-w-xl gap-4">
           <EmptyMedia variant="icon">
-              <Sparkles aria-hidden="true" />
+            <Sparkles aria-hidden="true" />
           </EmptyMedia>
           <EmptyTitle>{current.title}</EmptyTitle>
           <EmptyDescription>{current.description}</EmptyDescription>

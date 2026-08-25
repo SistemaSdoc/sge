@@ -22,7 +22,7 @@ export function ActionFeedItem({ item }) {
 
       <ItemContent className="min-w-0 flex-1">
         <ItemTitle className="text-sm">{item.title}</ItemTitle>
-        
+
         {item.description && (
           <ItemDescription className="text-xs">
             {item.description}

@@ -16,13 +16,12 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
-import { show  } from '@/actions/App/Http/Controllers/Tenant/Colegios/CursoClasseController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/Colegios/CursoClasseController';
 
-export default function Show({ cursoTutelado, colegio  }) {
+export default function Show({ cursoTutelado, colegio }) {
   const instituicaoId = cursoTutelado.instituicao.id;
   const cursoTuteladoId = cursoTutelado.id;
   const cursoId = cursoTutelado.curso.id;
-
 
   const handlePageChange = (param) => (page) => {
     router.visit(
@@ -46,9 +45,7 @@ export default function Show({ cursoTutelado, colegio  }) {
               <p className="text-sm font-bold opacity-90">
                 {cursoTutelado.instituicao.nome}
               </p>
-
             </div>
-
           </div>
         </div>
 
@@ -130,7 +127,6 @@ export default function Show({ cursoTutelado, colegio  }) {
           </CardContent>
         </Card>
       </div>
-
     </div>
   );
 }

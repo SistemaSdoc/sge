@@ -3,7 +3,7 @@
  */
 export const getStatusVariant = (status) => {
   const normalized = status?.toLowerCase?.();
-  
+
   switch (normalized) {
     case 'apto':
       return 'success';

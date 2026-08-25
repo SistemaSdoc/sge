@@ -1,6 +1,10 @@
 import { router, usePage } from '@inertiajs/react';
 import { InscricaoTable } from './components/inscricao-table';
-import {  update, destroy, reativar } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
+import {
+  update,
+  destroy,
+  reativar,
+} from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
 
 import { useDialog } from '@/hooks/use-dialog';
 
@@ -31,17 +35,17 @@ export default function Index() {
 
   const { confirm } = useDialog();
 
-const handleReativarInscricao = (id) => {
-  confirm({
-    title: 'Reativar inscrição',
-    description: 'Esta inscrição voltará ao estado anterior.',
-    confirmLabel: 'Reativar',
-    confirmFn: () =>
-      router.patch(reativar.url(id), {
-        preserveScroll: true,
-      }),
-  });
-};
+  const handleReativarInscricao = (id) => {
+    confirm({
+      title: 'Reativar inscrição',
+      description: 'Esta inscrição voltará ao estado anterior.',
+      confirmLabel: 'Reativar',
+      confirmFn: () =>
+        router.patch(reativar.url(id), {
+          preserveScroll: true,
+        }),
+    });
+  };
 
   const handleCancelarInscricao = (id) => {
     confirm({

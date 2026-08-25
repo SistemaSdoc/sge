@@ -9,7 +9,7 @@ export default function TenantCard({
   return (
     <div
       id={id}
-      className="border-border bg-card absolute inset-0 flex flex-col justify-between border p-5"
+      className="absolute inset-0 flex flex-col justify-between border border-border bg-card p-5"
       style={style}
     >
       <div className="flex items-center justify-between">
@@ -22,7 +22,7 @@ export default function TenantCard({
         {bars.map((h, i) => (
           <div
             key={i}
-            className="bg-muted/30 flex-1"
+            className="flex-1 bg-muted/30"
             style={{ height: `${h}%` }}
           ></div>
         ))}

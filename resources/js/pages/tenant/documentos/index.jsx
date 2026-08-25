@@ -8,10 +8,7 @@ export default function Index() {
     <div className="mx-auto w-full max-w-7xl p-6">
       <Head title="Documentos" />
 
-      <DocumentoTable
-        documentos={documentos ?? []}
-        classes={classes ?? []}
-      />
+      <DocumentoTable documentos={documentos ?? []} classes={classes ?? []} />
     </div>
   );
 }

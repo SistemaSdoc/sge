@@ -75,7 +75,7 @@ function getPeriodosLiberados(periodos = []) {
 
 function PeriodoFields({ periodo, data, setData, errors }) {
   return (
-    <FieldSet >
+    <FieldSet>
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">
           {periodo.periodo}º Trimestre

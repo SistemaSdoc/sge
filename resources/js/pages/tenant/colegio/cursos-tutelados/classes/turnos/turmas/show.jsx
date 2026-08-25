@@ -110,7 +110,6 @@ export default function Show({
             />
           </TabsContent>
         )}
-
       </Tabs>
     </div>
   );

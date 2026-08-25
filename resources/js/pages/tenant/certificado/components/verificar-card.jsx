@@ -1,4 +1,3 @@
-
 import {
   Card,
   CardAction,
@@ -6,18 +5,17 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
-} from "@/components/ui/card";
+  CardTitle,
+} from '@/components/ui/card';
 
-import { Badge } from "@/components/ui/badge";
-import { BadgeCheck } from "lucide-react";
+import { Badge } from '@/components/ui/badge';
+import { BadgeCheck } from 'lucide-react';
 
 export default function VerificarCard({ certificado }) {
-
   if (!certificado) {
     return (
-      <div className="w-full max-w-xl mx-auto space-y-6">
-        <div className="flex justify-center flex-col items-center gap-2">
+      <div className="mx-auto w-full max-w-xl space-y-6">
+        <div className="flex flex-col items-center justify-center gap-2">
           <h1 className="text-lg text-muted-foreground">Carregando...</h1>
         </div>
       </div>
@@ -32,17 +30,15 @@ export default function VerificarCard({ certificado }) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-
+    <div className="mx-auto max-w-2xl space-y-6">
       {/* CABEÇALHO INSTITUCIONAL */}
-      <div className="text-center space-y-1">
-
+      <div className="space-y-1 text-center">
         {/* Insígnia */}
-        <div className="flex justify-center mb-1">
+        <div className="mb-1 flex justify-center">
           <img
             src="/Emblem_of_Angola.svg.png"
             alt="Insígnia da República de Angola"
-            className="w-[60px] h-[60px] object-contain"
+            className="h-[60px] w-[60px] object-contain"
           />
         </div>
 
@@ -52,22 +48,16 @@ export default function VerificarCard({ certificado }) {
         </p> */}
 
         {/* Ministério */}
-        <p className="text-xs uppercase text-wide">
-          Ministério da Educação
-        </p>
+        <p className="text-wide text-xs uppercase">Ministério da Educação</p>
 
         {/* Instituição */}
-        <p className="text-sm font-medium">
-          {certificado.instituicao}
-        </p>
+        <p className="text-sm font-medium">{certificado.instituicao}</p>
 
         {/* Curso */}
-        <p className="text-xs text-muted-foreground">
-          {certificado.curso}
-        </p>
+        <p className="text-xs text-muted-foreground">{certificado.curso}</p>
 
         {/* Linha separadora */}
-        <div className="w-24 h-[1px] bg-gray-300 mx-auto my-2"></div>
+        <div className="mx-auto my-2 h-[1px] w-24 bg-gray-300"></div>
 
         {/* Título */}
         <h1 className="text-base font-semibold">
@@ -76,16 +66,16 @@ export default function VerificarCard({ certificado }) {
       </div>
 
       {/* STATUS */}
-      <div className="text-center space-y-2">
+      <div className="space-y-2 text-center">
         <BadgeCheck size={50} className="mx-auto text-green-600" />
 
-        <h2 className="font-semibold text-lg text-green-600">
+        <h2 className="text-lg font-semibold text-green-600">
           Documento Autêntico
         </h2>
 
-        <p className="text-sm text-muted-foreground max-w-md mx-auto">
-          Este certificado foi validado com sucesso no sistema oficial
-          de gestão escolar.
+        <p className="mx-auto max-w-md text-sm text-muted-foreground">
+          Este certificado foi validado com sucesso no sistema oficial de gestão
+          escolar.
         </p>
       </div>
 
@@ -96,7 +86,7 @@ export default function VerificarCard({ certificado }) {
         </CardHeader>
 
         <CardContent className="flex items-center gap-4">
-          <div className="border rounded-full w-20 h-20 flex items-center justify-center text-muted-foreground">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full border text-muted-foreground">
             IMG
           </div>
 
@@ -120,14 +110,18 @@ export default function VerificarCard({ certificado }) {
 
         <CardContent className="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <span className="text-muted-foreground">Ano de conclusão do curso</span>
+            <span className="text-muted-foreground">
+              Ano de conclusão do curso
+            </span>
             <p>{certificado.ano_defesa}</p>
           </div>
 
           <div>
             <h3 className="text-muted-foreground">Resultado</h3>
             <span className="text-sm">
-              <Badge className={getBadgeStyle(certificado.resultado_final)}>{certificado.resultado_final}</Badge>
+              <Badge className={getBadgeStyle(certificado.resultado_final)}>
+                {certificado.resultado_final}
+              </Badge>
             </span>
           </div>
 
@@ -138,12 +132,10 @@ export default function VerificarCard({ certificado }) {
         </CardContent>
       </Card>
 
-
-
       {/* RODAPÉ */}
       <div className="text-center text-xs text-muted-foreground">
         Sistema de Gestão Escolar • Documento verificado digitalmente
       </div>
-    </div >
+    </div>
   );
 }

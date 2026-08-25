@@ -29,7 +29,6 @@ export function RecursoPautaBody({ alunos, disciplinas }) {
               <Fragment key={disciplina.id}>
                 <TableCell className="border-r px-4 text-center">
                   <span className={corNota(nota?.mf)}>{nota?.mf ?? '—'}</span>
-                  
                 </TableCell>
               </Fragment>
             );

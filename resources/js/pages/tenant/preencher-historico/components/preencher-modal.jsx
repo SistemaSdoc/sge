@@ -243,10 +243,7 @@ export default function Preencher({
           Cancelar
         </Button>
 
-        <Button
-          onClick={handleSubmit}
-          disabled={!data.turma_id || processing}
-        >
+        <Button onClick={handleSubmit} disabled={!data.turma_id || processing}>
           {processing && <Loader2 className="mr-2 size-4 animate-spin" />}
           Confirmar
         </Button>

@@ -75,8 +75,8 @@ export function ProfessorTable({
               <TableRow className="bg-muted/72">
                 <TableHead className="px-4">Nome</TableHead>
                 <TableHead className="px-4">Telefone</TableHead>
-                 <TableHead className="px-4">Especialidade</TableHead>
-                 <TableHead className="px-4">Nível Académico</TableHead>
+                <TableHead className="px-4">Especialidade</TableHead>
+                <TableHead className="px-4">Nível Académico</TableHead>
                 <TableHead className="px-4 text-right">Acções</TableHead>
               </TableRow>
             </TableHeader>
@@ -97,12 +97,12 @@ export function ProfessorTable({
                   </TableCell>
 
                   <TableCell className="px-4">
-                  {professor.especialidade || '-'}
-                </TableCell>
+                    {professor.especialidade || '-'}
+                  </TableCell>
 
-                <TableCell className="px-4">
-                  {professor.nivel_academico || '-'}
-                </TableCell>
+                  <TableCell className="px-4">
+                    {professor.nivel_academico || '-'}
+                  </TableCell>
                   <TableCell className="px-4 text-right">
                     <div className="flex justify-end gap-2">
                       <Button

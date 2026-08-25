@@ -18,6 +18,10 @@ export function formatStatusInscricao(status) {
   }
 
   if (status === 'cancelado') {
-    return <Badge className="bg-destructive-foreground/5 text-destructive">Cancelado</Badge>;
+    return (
+      <Badge className="bg-destructive-foreground/5 text-destructive">
+        Cancelado
+      </Badge>
+    );
   }
 }

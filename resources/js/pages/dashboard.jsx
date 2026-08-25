@@ -2,7 +2,6 @@ import { Head } from '@inertiajs/react';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { index } from '@/actions/App/Http/Controllers/Tenant/DashboardController';
 
-
 export default function Dashboard() {
   return (
     <>
