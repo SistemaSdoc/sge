@@ -6,15 +6,17 @@ import { update } from '@/actions/App/Http/Controllers/Tenant/ItemPagavelControl
 export default function Edit({ itemPagavel, cursosClasse = [] }) {
   // Inicializa com valores vazios
   const { put, data, setData, processing, errors } = useForm({
-    nome: '',
-    tipo: '',
-    descricao: '',
-    valor: '',
-    frequencia: 'mensal',
-    curso_classe_id: '',
-    ativo: true,
-    multa_dias_tolerancia: '',
-    multa_valor: '',
+    nome: itemPagavel.nome ?? '',
+    tipo: itemPagavel.tipo ?? '',
+    subtipo: itemPagavel.subtipo ?? '',
+    descricao: itemPagavel.descricao ?? '',
+    valor: itemPagavel.valor ?? '',
+    frequencia: itemPagavel.frequencia ?? 'mensal',
+    curso_classe_id:
+      itemPagavel.curso_classe_id != null
+        ? String(itemPagavel.curso_classe_id)
+        : '',
+    ativo: itemPagavel.ativo ?? true,
   });
 
   //  ESSENCIAL: sincroniza quando itemPagavel for carregado
@@ -25,10 +27,10 @@ export default function Edit({ itemPagavel, cursosClasse = [] }) {
         multa_valor: '',
         nome: itemPagavel.nome ?? '',
         tipo: itemPagavel.tipo ?? '',
+        subtipo: itemPagavel.subtipo ?? '', // ← adiciona
         descricao: itemPagavel.descricao ?? '',
         valor: itemPagavel.valor ?? '',
         frequencia: itemPagavel.frequencia ?? 'mensal',
-        //  CONVERTE PARA STRING – O SELECT SÓ FUNCIONA COM STRINGS
         curso_classe_id:
           itemPagavel.curso_classe_id != null
             ? String(itemPagavel.curso_classe_id)

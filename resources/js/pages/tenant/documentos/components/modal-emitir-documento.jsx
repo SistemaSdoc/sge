@@ -1,17 +1,25 @@
-import { AlertCircle, Download, Loader2, Search, X } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { AlertCircle, Download, Loader2, X } from 'lucide-react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from '@/components/ui/field';
@@ -26,30 +34,6 @@ import {
 
 import { usePesquisaAlunos } from '../hooks/use-pesquisa-alunos';
 
-function AlunoItem({ aluno, seleccionado, onSeleccionar }) {
-  const activo = seleccionado?.id === aluno.id;
-
-  return (
-    <button
-      type="button"
-      onClick={() => onSeleccionar(activo ? null : aluno)}
-      className={[
-        'flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors',
-        activo
-          ? 'border-blue-300 bg-blue-50 ring-1 ring-blue-200'
-          : 'border-slate-200 bg-white hover:border-blue-200 hover:bg-blue-50/40',
-      ].join(' ')}
-    >
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-medium text-slate-800">{aluno.nome}</p>
-        <p className="truncate text-xs text-slate-500">
-          {aluno.curso} · {aluno.classe} · {aluno.matricula}
-        </p>
-      </div>
-    </button>
-  );
-}
-
 export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
   const [query, setQuery] = useState('');
   const [alunoSeleccionado, setAlunoSeleccionado] = useState(null);
@@ -58,16 +42,13 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
   const [erro, setErro] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const inputRef = useRef(null);
   const { resultados, searching, notFound, queryActual, pesquisar, limpar } =
     usePesquisaAlunos();
 
   const nomeDocumento = (documento?.nome ?? '').trim().toLowerCase();
   const requerSelectClasse =
-    nomeDocumento.includes('declaração com notas') ||
-    nomeDocumento.includes('declaracao com notas') ||
-    nomeDocumento.includes('declaração sem notas') ||
-    nomeDocumento.includes('declaracao sem notas');
+    documento?.subtipo === 'declaracao_sem_notas' ||
+    documento?.subtipo === 'declaracao_com_notas';
 
   function handleClose() {
     setQuery('');
@@ -82,19 +63,16 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
     setAlunoSeleccionado(aluno);
     setErro(null);
     setClasseId('');
-  }
-
-  function handleLimparPesquisa() {
     setQuery('');
-    setAlunoSeleccionado(null);
     limpar();
-    inputRef.current?.focus();
   }
 
-  function handleKeyDown(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      pesquisar(query);
+  function handleCommandInput(value) {
+    setQuery(value);
+    if (value.trim().length >= 3) {
+      pesquisar(value);
+    } else if (!value) {
+      limpar();
     }
   }
 
@@ -157,114 +135,93 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{documento.nome}</DialogTitle>
-          <DialogDescription>
-            Pesquise o aluno pelo número de processo ou nome e prima{' '}
-            <kbd className="rounded border border-slate-200 bg-slate-100 px-1 py-0.5 font-mono text-xs">
-              Enter
-            </kbd>{' '}
-            para procurar.
-          </DialogDescription>
+      <DialogContent className="gap-0 p-0 sm:max-w-md sm:rounded-none">
+        {/* Cabeçalho */}
+        <DialogHeader className="border-b px-6 py-4">
+          <DialogTitle className="">{documento.nome}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 px-6 py-5">
           {/* Pesquisa */}
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="pesquisa">
+              <FieldLabel>
                 Aluno <span className="text-red-500">*</span>
               </FieldLabel>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  {searching ? (
-                    <Loader2 className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
-                  ) : (
-                    <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  )}
-                  <Input
-                    id="pesquisa"
-                    ref={inputRef}
-                    placeholder="Nº de processo ou nome…"
-                    className="pr-8 pl-9"
-                    value={query}
-                    onChange={(e) => {
-                      setQuery(e.target.value);
-                      if (!e.target.value) handleLimparPesquisa();
-                    }}
-                    onKeyDown={handleKeyDown}
-                    autoComplete="off"
-                  />
-                  {query && (
-                    <button
-                      type="button"
-                      onClick={handleLimparPesquisa}
-                      className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  )}
+
+              {/* Aluno seleccionado — mostra em vez do Command */}
+              {alunoSeleccionado ? (
+                <div className="flex items-center justify-between border border-slate-200 bg-slate-50 px-3 py-2.5">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-slate-800">
+                      {alunoSeleccionado.nome}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {alunoSeleccionado.curso} · {alunoSeleccionado.classe} ·{' '}
+                      {alunoSeleccionado.matricula}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAlunoSeleccionado(null)}
+                    className="ml-3 shrink-0 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => pesquisar(query)}
-                  disabled={searching || query.trim().length < 3}
-                >
-                  {searching ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="h-4 w-4" />
+              ) : (
+                <Command className="rounded-none border border-slate-200">
+                  <CommandInput
+                    placeholder="Nº de processo ou nome…"
+                    value={query}
+                    onValueChange={handleCommandInput}
+                  />
+                  {query.trim().length >= 3 && (
+                    <CommandList className="max-h-48 overflow-y-auto">
+                      {searching && (
+                        <div className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" />A
+                          pesquisar…
+                        </div>
+                      )}
+                      {!searching && notFound && (
+                        <CommandEmpty>
+                          Nenhum resultado para "{queryActual}".
+                        </CommandEmpty>
+                      )}
+                      {!searching && resultados.length > 0 && (
+                        <CommandGroup
+                          heading={
+                            resultados.length === 1
+                              ? '1 aluno encontrado'
+                              : `${resultados.length} alunos encontrados`
+                          }
+                        >
+                          {resultados.map((aluno) => (
+                            <CommandItem
+                              key={aluno.id}
+                              value={`${aluno.nome} ${aluno.matricula}`}
+                              onSelect={() => handleSeleccionarAluno(aluno)}
+                            >
+                              <div className="min-w-0 flex-1">
+                                <p className="truncate text-sm font-medium">
+                                  {aluno.nome}
+                                </p>
+                                <p className="truncate text-xs text-muted-foreground">
+                                  {aluno.curso} · {aluno.classe} ·{' '}
+                                  {aluno.matricula}
+                                </p>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      )}
+                    </CommandList>
                   )}
-                </Button>
-              </div>
-              <FieldDescription>
-                Escreva pelo menos 3 caracteres e prima <strong>Enter</strong>{' '}
-                ou clique em <Search className="inline h-3 w-3" /> para
-                pesquisar.
-              </FieldDescription>
+                </Command>
+              )}
             </Field>
           </FieldGroup>
-
-          {/* Resultados */}
-          {resultados.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                {resultados.length === 1
-                  ? '1 aluno encontrado'
-                  : `${resultados.length} alunos encontrados`}{' '}
-                — seleccione um
-              </p>
-              <div className="max-h-48 space-y-1.5 overflow-y-auto pr-0.5">
-                {resultados.map((aluno) => (
-                  <AlunoItem
-                    key={aluno.id}
-                    aluno={aluno}
-                    seleccionado={alunoSeleccionado}
-                    onSeleccionar={handleSeleccionarAluno}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Não encontrado */}
-          {notFound && queryActual && (
-            <div className="flex items-center gap-2.5 rounded-lg border border-orange-100 bg-orange-50 px-4 py-3">
-              <AlertCircle className="h-4 w-4 shrink-0 text-orange-500" />
-              <div>
-                <p className="text-sm font-medium text-orange-800">
-                  Nenhum aluno encontrado
-                </p>
-                <p className="text-xs text-orange-600">
-                  Não foi encontrado nenhum aluno para{' '}
-                  <span className="font-medium">"{queryActual}"</span>.
-                  Verifique o número de processo ou o nome.
-                </p>
-              </div>
-            </div>
-          )}
 
           {/* Classe + Efeito */}
           {requerSelectClasse && alunoSeleccionado && (
@@ -276,7 +233,7 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
                   </FieldLabel>
                   <Select value={classeId} onValueChange={setClasseId}>
                     <SelectTrigger id="classe">
-                      <SelectValue placeholder="Seleccione a classe…" />
+                      <SelectValue placeholder="Seleccione…" />
                     </SelectTrigger>
                     <SelectContent>
                       {(alunoSeleccionado.classes ?? classes ?? []).map((c) => (
@@ -290,9 +247,6 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FieldDescription>
-                    Escolha a classe do documento
-                  </FieldDescription>
                 </Field>
 
                 <Field>
@@ -303,7 +257,6 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
                     value={efeito}
                     onChange={(e) => setEfeito(e.target.value)}
                   />
-                  <FieldDescription>Opcional</FieldDescription>
                 </Field>
               </div>
             </FieldGroup>
@@ -311,30 +264,29 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
 
           {/* Erro */}
           {erro && (
-            <div className="flex items-center gap-2.5 rounded-lg border border-red-100 bg-red-50 px-4 py-3">
-              <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
+            <div className="flex items-start gap-2.5 border border-red-100 bg-red-50 px-4 py-3">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
               <p className="text-sm text-red-700">{erro}</p>
             </div>
           )}
+        </div>
 
-          {/* Botões */}
-          <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={handleClose} disabled={loading}>
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={loading || !alunoSeleccionado}
-              className="gap-2"
-            >
-              {loading ? (
-                <Loader2 className="mr-2 size-4 animate-spin" />
-              ) : (
-                <Download className="mr-2 size-4" />
-              )}
-              Exportar PDF
-            </Button>
-          </div>
+        {/* Rodapé */}
+        <div className="flex justify-end gap-3 px-6 py-4">
+          <Button variant="outline" onClick={handleClose} disabled={loading}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={loading || !alunoSeleccionado}
+          >
+            {loading ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 size-4" />
+            )}
+            Exportar PDF
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

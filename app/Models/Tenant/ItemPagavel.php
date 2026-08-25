@@ -40,6 +40,11 @@ class ItemPagavel extends Model
         return $this->belongsTo(Instituicao::class);
     }
 
+    public function documento()
+    {
+        return $this->hasOne(Documento::class);
+    }
+
     public function cursoClasse(): BelongsTo
     {
         return $this->belongsTo(CursoClasse::class, 'curso_classe_id');

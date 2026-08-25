@@ -209,6 +209,7 @@ final class SidebarMenuService
                     title: 'Documentos Escolares',
                     href: action([DocumentosController::class, 'index']),
                     icon: 'FileTextIcon',
+                    can: fn() => Auth::user()?->hasPermissionTo('documentos.viewAny'),
                 ),
             ]),
 
