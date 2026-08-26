@@ -51,10 +51,6 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->middleware('auth:web')
             ->name('central.logout');
 
-        Route::get('register/pending', fn() => inertia('central/auth/register-pending'))
-            ->middleware('guest:web')
-            ->name('central.register.pending');
-
         /*
         |--------------------------------------------------------------------------
         | Rotas Internas do central (Dashboard Routes)
@@ -77,6 +73,9 @@ foreach (config('tenancy.central_domains') as $domain) {
 
                 Route::post('tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
                     ->name('tenants.toggle-status');
+
+                Route::post('tenants/{tenant}/recreate-database', [TenantController::class, 'recreateDatabase'])
+                    ->name('tenants.recreate-database');
 
                 Route::get('tenants/{tenant}/tables/size', [TenantController::class, 'showTablesSize'])
                     ->name('tenants.tables.size');

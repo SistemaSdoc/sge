@@ -3,6 +3,7 @@ import { TenantTable } from './components/tenant-table';
 import {
   index,
   destroy,
+  recreateDatabase,
 } from '@/actions/App/Http/Controllers/Central/TenantController';
 import { useDialog } from '@/hooks/use-dialog';
 import { AlterarStatusDialog } from './components/alterar-status-dialog';
@@ -39,6 +40,16 @@ export default function Index({ tenants, can }) {
     });
   };
 
+  const handleRecreateDatabase = (tenant) => {
+    deleteConfirm({
+      title: 'Recriar base de dados?',
+      description:
+        'Esta acção apaga todos os dados deste tenant e recria a base de dados. Esta operação não pode ser desfeita.',
+      confirmLabel: 'Recriar base',
+      confirmFn: () => router.post(recreateDatabase(tenant.id).url),
+    });
+  };
+
   const handlePageChange = (page) => {
     router.visit(index().url, {
       data: { page },
@@ -57,6 +68,7 @@ export default function Index({ tenants, can }) {
         pagination={tenants.meta}
         onPageChange={handlePageChange}
         handleToggleStatus={handleToggleStatus}
+        recreateDatabaseFn={handleRecreateDatabase}
       />
     </>
   );

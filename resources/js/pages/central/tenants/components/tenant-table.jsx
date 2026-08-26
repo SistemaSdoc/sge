@@ -43,6 +43,7 @@ export function TenantTable({
   pagination = {},
   onPageChange,
   handleToggleStatus,
+  recreateDatabaseFn,
 }) {
   const isEmpty = tenants?.length === 0;
 
@@ -142,6 +143,22 @@ export function TenantTable({
                           </DropdownMenuItem>
 
                           <DropdownMenuSeparator />
+
+                          {tenant.status !== 'pending' &&
+                            tenant.status !== 'provisioning' && (
+                              <>
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    recreateDatabaseFn(tenant);
+                                  }}
+                                >
+                                  Recriar base de dados
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator />
+                              </>
+                            )}
 
                           <DropdownMenuItem
                             onClick={(e) => {

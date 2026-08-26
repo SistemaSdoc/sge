@@ -6,6 +6,7 @@ namespace App\Services\Central;
 
 use App\Enums\TenantStatus;
 use App\Events\TenantActivated;
+use App\Jobs\ProvisionTenantJob;
 use App\Models\Central\PendingTenantData;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Instituicao;
@@ -243,6 +244,63 @@ class TenantService
                 default => throw new \LogicException("Transição de status inválida: {$oldStatus} para {$newStatus}."),
             };
         });
+    }
+
+    /**
+     * Apaga e recria a base de dados de um tenant mediante acção explícita.
+     */
+    public function recreateTenantDatabase(Tenant $tenant): void
+    {
+        DB::transaction(function () use ($tenant): void {
+            $tenant = Tenant::query()->whereKey($tenant->getKey())->lockForUpdate()->firstOrFail();
+            if (! in_array($tenant->status, [TenantStatus::ACTIVE, TenantStatus::TRIAL, TenantStatus::FAILED], true)) {
+                throw new \LogicException('Só é possível recriar a base de um tenant activo, em teste ou falhado.');
+            }
+
+            $this->preserveTenantProvisioningData($tenant);
+
+            $targetStatus = $tenant->status === TenantStatus::FAILED
+                ? ($tenant->provisioning_target_status ?? TenantStatus::ACTIVE->value)
+                : $tenant->status->value;
+
+            $tenant->update([
+                'status' => TenantStatus::PROVISIONING,
+                'provisioning_target_status' => $targetStatus,
+                'provisioning_attempts' => $tenant->provisioning_attempts + 1,
+                'provisioning_error' => null,
+                'provisioning_started_at' => now(),
+                'provisioning_finished_at' => null,
+            ]);
+
+            ProvisionTenantJob::dispatch($tenant, recreateDatabase: true)->afterCommit();
+        });
+    }
+
+    /**
+     * Preserva os dados mínimos necessários para recriar a instituição e o administrador.
+     */
+    private function preserveTenantProvisioningData(Tenant $tenant): void
+    {
+        if (PendingTenantData::where('tenant_id', $tenant->id)->exists()) {
+            return;
+        }
+
+        $instituicao = $this->getInstituicao($tenant);
+        $adminUser = $this->getTenantAdminUser($tenant);
+
+        if (! $instituicao || ! $adminUser) {
+            throw new \LogicException('Não foi possível preservar os dados da instituição antes de recriar a base.');
+        }
+
+        PendingTenantData::create([
+            'tenant_id' => $tenant->id,
+            'nome' => $instituicao->nome,
+            'sigla' => $instituicao->sigla,
+            'tipo' => $instituicao->tipo,
+            'status' => $instituicao->status,
+            'user_nome' => $adminUser->nome,
+            'user_email' => $adminUser->email,
+        ]);
     }
 
     /**

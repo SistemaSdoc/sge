@@ -27,13 +27,26 @@ class ProvisionTenantJob implements ShouldBeUnique, ShouldQueue
 
     public int $uniqueFor = 3600;
 
-    public function __construct(public Tenant $tenant) {}
+    public function __construct(
+        public Tenant $tenant,
+        public bool $recreateDatabase = false,
+    ) {}
 
     public function handle(DatabaseManager $databaseManager): void
     {
         $tenantDatabaseManager = $this->tenant->database()->manager();
 
-        if (! $tenantDatabaseManager->databaseExists($this->tenant->database()->getName())) {
+        $databaseExists = $tenantDatabaseManager->databaseExists($this->tenant->database()->getName());
+
+        if ($this->recreateDatabase && $databaseExists) {
+            if (! $tenantDatabaseManager->deleteDatabase($this->tenant)) {
+                throw new \RuntimeException('Não foi possível apagar a base de dados do tenant.');
+            }
+
+            $databaseExists = false;
+        }
+
+        if (! $databaseExists) {
             $databaseCreated = app()->call([new CreateDatabase($this->tenant), 'handle'], [
                 'databaseManager' => $databaseManager,
             ]);

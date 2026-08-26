@@ -186,6 +186,20 @@ class TenantController extends Controller
     }
 
     /**
+     * Recria a base de dados de um tenant.
+     */
+    public function recreateDatabase(Tenant $tenant)
+    {
+        try {
+            $this->tenantService->recreateTenantDatabase($tenant);
+
+            return back()->with('success', 'A base de dados será recriada...');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erro ao recriar a base de dados: '.$e->getMessage());
+        }
+    }
+
+    /**
      * Exibe página com a lista de todas as tabelas da base de dados do tenant
      *
      * Ordenadas por tamanho.
