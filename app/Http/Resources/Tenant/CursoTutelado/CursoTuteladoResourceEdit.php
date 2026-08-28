@@ -16,10 +16,14 @@ class CursoTuteladoResourceEdit extends JsonResource
                 'nome' => $this->instituicaoCurso->curso->nome,
                 'duracao_anos' => $this->instituicaoCurso->duracao_anos,
             ],
-            'instituicao_tutora' => [
+            'tipo_tutela' => $this->tipo_tutela ?? 'propria',
+            'tenant_tutor_id' => $this->curso_tutelado_shared_id
+                ? $this->cursoTuteladoShared?->tenant_tutor_id
+                : null,
+            'instituicao_tutora' => $this->instituicaoTutora ? [
                 'id' => $this->instituicaoTutora->id,
                 'nome' => $this->instituicaoTutora->nome,
-            ],
+            ] : null,
             'classes' => $this->classes->pluck('id'),
         ];
     }

@@ -33,6 +33,7 @@ export function CursoForm({
   classes,
   cursos,
   niveisEnsino,
+  tenantsTutores,
   data,
   setData,
   errors,
@@ -104,6 +105,38 @@ export function CursoForm({
                       onChange={(e) => setData('nome', e.target.value)}
                     />
                     {errors.nome && <FieldError>{errors.nome}</FieldError>}
+                  </Field>
+                )}
+
+                {instituicao.tipo === 'colegio' && (
+                  <Field>
+                    <FieldLabel>Instituição tutora</FieldLabel>
+                    <Select
+                      value={data.tenant_tutor_id || ''}
+                      onValueChange={(value) =>
+                        setData('tenant_tutor_id', value)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Seleccione o instituto tutor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Institutos</SelectLabel>
+                          <SelectItem value="propria">
+                            Tutela própria
+                          </SelectItem>
+                          {tenantsTutores?.map((tenant) => (
+                            <SelectItem key={tenant.id} value={tenant.id}>
+                              {tenant.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    {errors.tenant_tutor_id && (
+                      <FieldError>{errors.tenant_tutor_id}</FieldError>
+                    )}
                   </Field>
                 )}
 

@@ -114,7 +114,7 @@ class RelatorioPropinaController extends Controller
                     ->map(fn ($p) => [
                         'mes' => $p['mes'],
                         'ano' => $p['ano'],
-                        'label' => self::MESES[$p['mes']] . '/' . $p['ano'],
+                        'label' => self::MESES[$p['mes']].'/'.$p['ano'],
                         'valor_base' => $p['valor_base'] ?? $p['valor'],
                         'multa' => $p['multa'] ?? 0,
                         'valor' => $p['valor'],

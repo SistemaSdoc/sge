@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 #[Fillable([
     'professor_id',
+    'professor_externo_id',
+    'professor_externo_tenant_id',
     'grupo_pap_id',
     'funcao',
 ])]

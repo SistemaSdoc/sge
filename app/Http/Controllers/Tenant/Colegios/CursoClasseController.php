@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Tenant\Colegios;
 
 use App\Http\Controllers\Controller;
+use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -17,14 +20,46 @@ class CursoClasseController extends Controller
     /**
      * Display the specified resource (Show page via Inertia).
      */
-    public function show(
-        Instituicao $instituicao,
-        string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse
-    ) {
+    public function show(string $colegio, string $cursoTutelado, string $cursoClasse)
+    {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+        $instituicao = Instituicao::findOrFail($user->instituicao_id);
+        $shared = CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
+            ->where('curso_tutelado_tutelado_id', $cursoTutelado)
+            ->where('status', 'activo')
+            ->firstOrFail();
+        $tenantTutelado = Tenant::query()->findOrFail($shared->tenant_tutelado_id);
+
+        return $tenantTutelado->run(function () use ($instituicao, $colegio, $cursoTutelado, $cursoClasse, $user) {
+            $colegioModel = Instituicao::findOrFail($colegio);
+            $cursoTuteladoModel = CursoTutelado::query()
+                ->whereKey($cursoTutelado)
+                ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->id))
+                ->firstOrFail();
+            $cursoClasseModel = CursoClasse::query()
+                ->whereKey($cursoClasse)
+                ->where('curso_tutelado_id', $cursoTuteladoModel->id)
+                ->firstOrFail();
+
+            return $this->showFromTenant(
+                $instituicao,
+                $colegioModel,
+                $cursoTuteladoModel,
+                $cursoClasseModel,
+                $user,
+            );
+        });
+    }
+
+    private function showFromTenant(
+        Instituicao $instituicao,
+        Instituicao $colegio,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        User $user,
+    ) {
 
         // Garantir que o CursoClasse pertence ao Curso Tutelado
         abort_unless(
@@ -65,7 +100,7 @@ class CursoClasseController extends Controller
             ],
 
             'colegio' => [
-                'id' => $colegio,
+                'id' => $colegio->id,
             ],
 
             'cursoTutelado' => [
@@ -79,8 +114,8 @@ class CursoClasseController extends Controller
                     'nome' => $cursoTutelado->instituicaoCurso->instituicao->nome,
                 ],
                 'instituicao_tutora' => [
-                    'id' => $cursoTutelado->instituicaoTutora->id,
-                    'nome' => $cursoTutelado->instituicaoTutora->nome,
+                    'id' => $instituicao->id,
+                    'nome' => $instituicao->nome,
                 ],
             ],
 
@@ -107,8 +142,8 @@ class CursoClasseController extends Controller
                         'nome' => $turma->nome,
                         'alunos_activos_count' => $turma->alunos_activos_count,
                         'can' => [
-                            'view' => $user->can('view', $turma),
-                            'edit' => $user->can('update', $turma),
+                            'view' => true,
+                            'edit' => false,
                         ],
                     ]
                 ),
@@ -116,6 +151,14 @@ class CursoClasseController extends Controller
 
             'anosLectivos' => AnoLectivo::all(),
             'anoLectivoActual' => $anoLectivoId,
+        ]);
+    }
+
+    private function emptyPaginator(string $pageName): LengthAwarePaginator
+    {
+        return new LengthAwarePaginator([], 0, 5, 1, [
+            'path' => request()->url(),
+            'pageName' => $pageName,
         ]);
     }
 }

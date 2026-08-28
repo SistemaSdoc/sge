@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Tenant;
 
-
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
@@ -13,7 +12,6 @@ use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-
 
 class ExportarPautaController extends Controller
 {
@@ -120,8 +118,8 @@ class ExportarPautaController extends Controller
             );
         }*/
 
-       $sufixo = $isTrimestral ? "_{$periodo}trim" : '_final';
-       $filename = 'pauta_'.str($turma->nome)->slug().$sufixo.'.csv';
+        $sufixo = $isTrimestral ? "_{$periodo}trim" : '_final';
+        $filename = 'pauta_'.str($turma->nome)->slug().$sufixo.'.csv';
 
         return $this->exportarComoCSV($alunos, $disciplinas, $filename);
     }
@@ -258,33 +256,33 @@ class ExportarPautaController extends Controller
     }
 
     private function exportarComoCSV($alunos, $disciplinas, $filename)
-{
-    $response = new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($alunos, $disciplinas) {
-        $handle = fopen('php://output', 'w');
-        
-        $headers = ['Nº', 'Nome'];
-        foreach ($disciplinas as $d) {
-            $headers[] = $d['sigla'] ?? mb_substr($d['nome'], 0, 4);
-        }
-        $headers[] = 'Resultado';
-        fputcsv($handle, $headers);
-        
-        foreach ($alunos as $aluno) {
-            $row = [$aluno['numero'], $aluno['nome']];
+    {
+        $response = new StreamedResponse(function () use ($alunos, $disciplinas) {
+            $handle = fopen('php://output', 'w');
+
+            $headers = ['Nº', 'Nome'];
             foreach ($disciplinas as $d) {
-                $nota = $aluno['notas'][$d['nome']]['media'] ?? '';
-                $row[] = $nota;
+                $headers[] = $d['sigla'] ?? mb_substr($d['nome'], 0, 4);
             }
-            $row[] = $aluno['resultado'];
-            fputcsv($handle, $row);
-        }
-        
-        fclose($handle);
-    });
-    
-    $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
-    $response->headers->set('Content-Disposition', 'attachment; filename="'.$filename.'.csv"');
-    
-    return $response;
-}
+            $headers[] = 'Resultado';
+            fputcsv($handle, $headers);
+
+            foreach ($alunos as $aluno) {
+                $row = [$aluno['numero'], $aluno['nome']];
+                foreach ($disciplinas as $d) {
+                    $nota = $aluno['notas'][$d['nome']]['media'] ?? '';
+                    $row[] = $nota;
+                }
+                $row[] = $aluno['resultado'];
+                fputcsv($handle, $row);
+            }
+
+            fclose($handle);
+        });
+
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="'.$filename.'.csv"');
+
+        return $response;
+    }
 }

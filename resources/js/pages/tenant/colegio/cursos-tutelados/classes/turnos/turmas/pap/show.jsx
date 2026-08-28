@@ -26,7 +26,7 @@ import { Label } from '@/components/ui/label';
 import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/BancaJuriPapController';
 import { destroy as destroyIntegrante } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
 import { edit } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
-import { definirData } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { definirData } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapController';
 import { actualizarNota } from '@/actions/App/Http/Controllers/Tenant/Colegios/ElementoGrupoPapController';
 import { FieldError } from '@/components/ui/field';
 import { usePagination } from '@/hooks/use-pagination';
@@ -57,7 +57,7 @@ export default function Show({
 
   const params = {
     instituicao: instituicao.id, // ← para os controllers da instituição (ElementoGrupoPap, etc.)
-    colegio: instituicao.id, // ← para os controllers do colégio (BancaJuriPap, etc.)
+    colegio: colegio.id, // ← para os controllers do colégio (BancaJuriPap, etc.)
     cursoTutelado: cursoTutelado.id,
     cursoClasse: cursoClasse.id,
     cursoClasseTurno: cursoClasseTurno.id,

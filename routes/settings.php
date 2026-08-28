@@ -5,7 +5,7 @@ use App\Http\Controllers\Tenant\Settings\SecurityController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
-    Route::redirect('settings', '/settings/profile');
+    Route::redirect('settings', '/settings/profile')->name('settings');
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');

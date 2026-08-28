@@ -2,11 +2,11 @@
 
 namespace App\Services\Auth;
 
-use App\Models\Role;
-use App\Models\User;
+use App\Models\Central\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
+use Spatie\Permission\Models\Role;
 
 class FacebookAuthService
 {

@@ -36,7 +36,7 @@ class SolicitacaoEdicaoPautaController extends Controller
             ->where('status', 'pendente')
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn($s) => [
+            ->map(fn ($s) => [
                 'id' => $s->id,
                 'tipo' => $s->tipo,
                 'periodo' => $s->periodo,
@@ -53,7 +53,7 @@ class SolicitacaoEdicaoPautaController extends Controller
         return Inertia::render('tenant/pautas/solicitacoes/index', [
             'solicitacoes' => $solicitacoes,
             'instituicao' => [
-                'id' => $user->instituicao->id
+                'id' => $user->instituicao->id,
             ],
         ]);
     }
@@ -156,9 +156,7 @@ class SolicitacaoEdicaoPautaController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-    }
+    public function create() {}
 
     // Director decide
     // public function decidir(Request $request, SolicitacaoEdicaoPauta $solicitacao)

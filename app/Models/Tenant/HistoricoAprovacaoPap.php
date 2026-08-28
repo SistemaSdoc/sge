@@ -17,6 +17,9 @@ class HistoricoAprovacaoPap extends Model
     protected $fillable = [
         'grupo_pap_id',
         'utilizador_id',
+        'utilizador_externo_id',
+        'utilizador_externo_tenant_id',
+        'utilizador_nome',
         'tema',
         'estado_anterior',
         'estado_novo',

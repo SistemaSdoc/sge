@@ -9,14 +9,16 @@ use App\Http\Resources\Tenant\GrupoPap\BancaResource;
 use App\Http\Resources\Tenant\GrupoPap\ElementoResource;
 use App\Http\Resources\Tenant\GrupoPap\IndexResource;
 use App\Http\Resources\Tenant\GrupoPap\ShowResource;
+use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\AnoLectivo;
-use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -97,8 +99,8 @@ class GrupoPapController extends Controller
             collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
         );
 
-        return to_route('tenant.dashboard.pap.show', [
-            'instituicao' => $instituicao->id,
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', [
+            'colegio' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
             'cursoClasseTurno' => $cursoClasseTurno->id,
@@ -108,21 +110,126 @@ class GrupoPapController extends Controller
     }
 
     public function show(
-        Instituicao $instituicao,
         string $colegio,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap
+    ) {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        $instituicao = Instituicao::findOrFail($user->instituicao_id);
+        abort_unless($user->can('grupopap.view'), 403);
+        $shared = CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
+            ->where('curso_tutelado_tutelado_id', $cursoTutelado)
+            ->where('status', 'activo')
+            ->firstOrFail();
+        $tenantTutelado = Tenant::query()->findOrFail($shared->tenant_tutelado_id);
+
+        return $tenantTutelado->run(function () use ($user, $instituicao, $colegio, $cursoTutelado, $cursoClasse, $cursoClasseTurno, $turma, $grupoPap) {
+            $colegioModel = Instituicao::findOrFail($colegio);
+            $cursoTuteladoModel = CursoTutelado::query()
+                ->whereKey($cursoTutelado)
+                ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->id))
+                ->firstOrFail();
+            $cursoClasseModel = CursoClasse::query()
+                ->whereKey($cursoClasse)
+                ->where('curso_tutelado_id', $cursoTuteladoModel->id)
+                ->firstOrFail();
+            $cursoClasseTurnoModel = CursoClasseTurno::query()
+                ->whereKey($cursoClasseTurno)
+                ->where('curso_classe_id', $cursoClasseModel->id)
+                ->firstOrFail();
+            $turmaModel = Turma::query()
+                ->whereKey($turma)
+                ->where('curso_classe_turno_id', $cursoClasseTurnoModel->id)
+                ->firstOrFail();
+            $grupoPapModel = GrupoPap::query()
+                ->whereKey($grupoPap)
+                ->where('turma_id', $turmaModel->id)
+                ->firstOrFail();
+
+            return $this->showFromTenant(
+                $instituicao,
+                $colegioModel,
+                $cursoTuteladoModel,
+                $cursoClasseModel,
+                $cursoClasseTurnoModel,
+                $turmaModel,
+                $grupoPapModel,
+                $user,
+            );
+        });
+    }
+
+    public function definirData(
+        DefinirDataDefesaRequest $request,
+        string $colegio,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
+    ) {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        abort_unless($user->can('grupopap.definirData'), 403);
+
+        $shared = CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
+            ->where('curso_tutelado_tutelado_id', $cursoTutelado)
+            ->where('status', 'activo')
+            ->firstOrFail();
+
+        Tenant::query()->findOrFail($shared->tenant_tutelado_id)->run(function () use ($colegio, $cursoTutelado, $cursoClasse, $cursoClasseTurno, $turma, $grupoPap, $request): void {
+            $colegioModel = Instituicao::findOrFail($colegio);
+            $cursoTuteladoModel = CursoTutelado::query()
+                ->whereKey($cursoTutelado)
+                ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->id))
+                ->firstOrFail();
+            $cursoClasseModel = CursoClasse::query()
+                ->whereKey($cursoClasse)
+                ->where('curso_tutelado_id', $cursoTuteladoModel->id)
+                ->firstOrFail();
+            $cursoClasseTurnoModel = CursoClasseTurno::query()
+                ->whereKey($cursoClasseTurno)
+                ->where('curso_classe_id', $cursoClasseModel->id)
+                ->firstOrFail();
+            $turmaModel = Turma::query()
+                ->whereKey($turma)
+                ->where('curso_classe_turno_id', $cursoClasseTurnoModel->id)
+                ->firstOrFail();
+            $grupoPapModel = GrupoPap::query()
+                ->whereKey($grupoPap)
+                ->where('turma_id', $turmaModel->id)
+                ->firstOrFail();
+
+            abort_unless($grupoPapModel->status_aprovacao === GrupoPap::APROVACAO_APROVADO, 422);
+
+            $grupoPapModel->update([
+                'data_defesa' => $request->data_defesa.' '.$request->hora_defesa.':00',
+                'local_defesa' => $request->local_defesa,
+            ]);
+        });
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => 'Data e local da defesa definidos com sucesso!',
+        ]);
+    }
+
+    private function showFromTenant(
+        Instituicao $instituicao,
+        Instituicao $colegioModel,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
-        GrupoPap $grupoPap
+        GrupoPap $grupoPap,
+        User $user,
     ) {
-        $this->authorize('view', $grupoPap);
-
-        $user = Auth::guard('tenant')->user();
-
-        // Buscar o colégio tutelado
-        $colegioModel = Instituicao::findOrFail($colegio);
-
         // Ano lectivo da turma
         $anoLectivoId = $turma->ano_lectivo_id;
 
@@ -225,64 +332,37 @@ class GrupoPapController extends Controller
 
                 // Permissões
                 'can' => [
-                    'update' => $user?->can('update', $grupoPap),
-                    'definirData' => $user?->can('definirData', $grupoPap),
-                    'delete' => $user?->can('delete', $grupoPap),
-                    'corrigirTema' => $user?->can('corrigirTema', $grupoPap),
-                    'aprovar' => $user?->can('aprovar', $grupoPap),           // ← adicionar
-                    'reprovar' => $user?->can('reprovar', $grupoPap),          // ← adicionar
-                    'aprovarComoTutor' => $user?->can('aprovarComoTutor', $grupoPap), // ← falta
-                    'solicitarMelhoriaComoTutor' => $user?->can('solicitarMelhoriaComoTutor', $grupoPap), // ← falta
-                    'solicitarMelhoria' => $user?->can('solicitarMelhoria', $grupoPap), // ← adicionar
+                    'update' => false,
+                    'definirData' => $user?->can('grupopap.definirData')
+                        && $grupoPap->status_aprovacao === GrupoPap::APROVACAO_APROVADO,
+                    'delete' => false,
+                    'corrigirTema' => false,
+                    'aprovar' => $user?->can('grupopap.aprovar') && $grupoPap->podeSerAprovado(),
+                    'reprovar' => $user?->can('grupopap.reprovar') && $grupoPap->podeSerAprovado(),
+                    'aprovarComoTutor' => false,
+                    'solicitarMelhoriaComoTutor' => false,
+                    'solicitarMelhoria' => $user?->can('grupopap.solicitarMelhoria')
+                        && $grupoPap->podeSerAprovado(),
 
                     'elementos' => [
-                        'create' => $user?->can('elementogrupopap.create'),
+                        'create' => false,
                         'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
-                            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
                             && ! is_null($grupoPap->data_defesa)
                             && ! $grupoPap->data_defesa->isFuture()
                             && $grupoPap->jurados()->exists(),
-                        'delete' => $user?->can('elementogrupopap.delete'),
+                        'delete' => false,
                     ],
 
-                    'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id,
+                    'verBanca' => $user?->can('bancajuripap.view'),
 
                     'banca' => [
-                        'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap]),
+                        'create' => $user?->can('bancajuripap.create')
+                            && ! is_null($grupoPap->data_defesa),
                         'update' => $user?->can('bancajuripap.update'),
                         'delete' => $user?->can('bancajuripap.delete'),
                     ],
                 ],
             ]
         );
-    }
-
-    public function definirData(
-        DefinirDataDefesaRequest $request,
-        Instituicao $instituicao,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
-    ) {
-        $this->authorize('definirData', $grupoPap);
-
-        $grupoPap->update([
-            'data_defesa' => $request->data_defesa.' '.$request->hora_defesa.':00',
-            'local_defesa' => $request->local_defesa,
-        ]);
-
-        return to_route('tenant.dashboard.pap.show', [
-            'instituicao' => $instituicao->id,
-            'cursoTutelado' => $cursoTutelado->id,
-            'cursoClasse' => $cursoClasse->id,
-            'cursoClasseTurno' => $cursoClasseTurno->id,
-            'turma' => $turma->id,
-            'grupoPap' => $grupoPap->id,
-        ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Data e local da defesa definidos com sucesso!',
-        ]);
     }
 }

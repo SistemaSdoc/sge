@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\Central\CursoTuteladoShared;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable([
     'instituicao_curso_id',
     'instituicao_tutora_id',
+    'tipo_tutela',
+    'curso_tutelado_shared_id',
     'criterios_pap_path',
     'manual_pt_path',
 ])]
@@ -27,6 +30,11 @@ class CursoTutelado extends Model
     public function instituicaoTutora()
     {
         return $this->belongsTo(Instituicao::class, 'instituicao_tutora_id');
+    }
+
+    public function cursoTuteladoShared()
+    {
+        return $this->belongsTo(CursoTuteladoShared::class, 'curso_tutelado_shared_id');
     }
 
     public function cursoClasses()

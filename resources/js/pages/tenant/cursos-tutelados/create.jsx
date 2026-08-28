@@ -2,13 +2,20 @@ import { useForm } from '@inertiajs/react';
 import { store } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import { CursoForm } from './components/forms/create.form';
 
-export default function Create({ instituicao, classes, cursos, niveisEnsino }) {
+export default function Create({
+  instituicao,
+  classes,
+  cursos,
+  niveisEnsino,
+  tenantsTutores,
+}) {
   const { post, data, setData, processing, errors } = useForm({
     curso_id: '',
     nivel_ensino_id: '',
     classe_ids: [],
     nome: '',
     duracao_anos: '',
+    tenant_tutor_id: '',
   });
 
   const handleSubmit = (e) => {
@@ -26,6 +33,7 @@ export default function Create({ instituicao, classes, cursos, niveisEnsino }) {
         classes={classes}
         cursos={cursos}
         niveisEnsino={niveisEnsino}
+        tenantsTutores={tenantsTutores}
         data={data}
         setData={setData}
         errors={errors}

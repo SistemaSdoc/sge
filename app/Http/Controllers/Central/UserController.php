@@ -11,6 +11,9 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    /**
+     * Display a listing of the users.
+     */
     public function index()
     {
         $users = User::query()
@@ -26,6 +29,9 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Show the form for creating a new user.
+     */
     public function create()
     {
         $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->get(['id', 'name']);
@@ -35,6 +41,9 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Store a newly created user in storage.
+     */
     public function store(UserRequest $request)
     {
         $data = $request->validated();
@@ -48,9 +57,14 @@ class UserController extends Controller
 
         return redirect()->route('central.dashboard.users.index');
     }
+
+    /**
+     * Show the form for editing the specified user.
+     */
     public function edit(User $user)
     {
         $user->load('roles:id,name');
+
         $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->get(['id', 'name']);
 
         return Inertia::render('central/users/edit', [
@@ -59,6 +73,9 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Display the specified user.
+     */
     public function show(User $user)
     {
         $user->load('roles:id,name');
@@ -68,6 +85,9 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Update the specified user in storage.
+     */
     public function update(UserRequest $request, User $user)
     {
         $data = $request->validated();
@@ -87,6 +107,9 @@ class UserController extends Controller
         return redirect()->route('central.dashboard.users.index');
     }
 
+    /**
+     * Remove the specified user from storage.
+     */
     public function destroy(User $user)
     {
         $user->delete();

@@ -10,6 +10,9 @@ use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
+    /**
+     * Display the dashboard view.
+     */
     public function index()
     {
         $tenants = Tenant::with('domains')
@@ -24,9 +27,9 @@ class DashboardController extends Controller
                 'pendentes' => Tenant::where('status', TenantStatus::PENDING)->count(),
                 'totalUtilizadores' => User::count(),
             ],
-            'tenants' => $tenants->map(fn($t) => [
+            'tenants' => $tenants->map(fn ($t) => [
                 'id' => $t->id,
-                'nome' => $t->id, // usa o id como nome por agora
+                'nome' => $t->id,
                 'tipo' => '—',
                 'estado' => $t->status->value,
                 'estadoLabel' => $t->status->label(),

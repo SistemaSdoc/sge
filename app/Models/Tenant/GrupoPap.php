@@ -3,16 +3,22 @@
 namespace App\Models\Tenant;
 
 use App\Traits\HasUuid;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
 #[Fillable([
     'professor_tutor_id',
+    'professor_tutor_externo_id',
+    'professor_tutor_externo_tenant_id',
     'turma_id',
     'nome_grupo',
     'tema_grupo',
     'status_aprovacao',
     'aprovado_por_id',
+    'aprovado_por_externo_id',
+    'aprovado_por_externo_tenant_id',
+    'aprovado_por_nome',
     'data_aprovacao',
     'comentario_aprovacao',
     'estudo_caso',
@@ -23,6 +29,7 @@ use Illuminate\Database\Eloquent\Model;
     'nota_final',
     'data_defesa',
     'local_defesa',
+    'encerrado_em',
 ])]
 
 class GrupoPap extends Model
@@ -34,18 +41,37 @@ class GrupoPap extends Model
     protected $primaryKey = 'id';
 
     const APROVACAO_RASCUNHO = 'rascunho';
+
     const APROVACAO_SUBMETIDO = 'submetido';
+
     const APROVACAO_PENDENTE = 'pendente';
+
     const APROVACAO_APROVADO = 'aprovado';
+
     const APROVACAO_REPROVADO = 'reprovado';
+
     const APROVACAO_MELHORIA = 'melhoria-solicitada';
+
     protected function casts(): array
     {
         return [
             'data_defesa' => 'datetime',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'encerrado_em' => 'datetime',
         ];
+    }
+
+    public function tutelaEncerrada(): bool
+    {
+        return $this->encerrado_em !== null || $this->status_aprovacao === 'arquivado';
+    }
+
+    public function assertTutelaActiva(): void
+    {
+        if ($this->tutelaEncerrada()) {
+            throw new AuthorizationException('Este grupo PAP pertence a uma tutela encerrada.');
+        }
     }
 
     public function professor()
@@ -76,11 +102,11 @@ class GrupoPap extends Model
     public function instituicao()
     {
         return $this->turma
-            ->cursoClasseTurno
-            ->cursoClasse
-            ->cursoTutelado
-            ->instituicaoCurso
-            ->instituicao;
+            ?->cursoClasseTurno
+            ?->cursoClasse
+            ?->cursoTutelado
+            ?->instituicaoCurso
+            ?->instituicao;
     }
 
     // para pegar a instituicao tutora do curso tutelado  (tutela externa)
@@ -135,34 +161,37 @@ class GrupoPap extends Model
 
     public function podeSerReenviado(): bool
     {
-        return in_array($this->status_aprovacao, ['reprovado', 'melhoria-solicitada']);
+        return ! $this->tutelaEncerrada()
+            && in_array($this->status_aprovacao, ['reprovado', 'melhoria-solicitada']);
         // return $this->status_aprovacao === 'melhoria-solicitada';
     }
 
     public function podeSerEditado(): bool
     {
-        return in_array($this->status_aprovacao, ['reprovado', 'melhoria-solicitada']);
+        return ! $this->tutelaEncerrada()
+            && in_array($this->status_aprovacao, ['reprovado', 'melhoria-solicitada']);
     }
 
     public function podeDefinirTema(): bool
     {
-        return in_array($this->status_aprovacao, ['rascunho', 'melhoria-solicitada']);
+        return ! $this->tutelaEncerrada()
+            && in_array($this->status_aprovacao, ['rascunho', 'melhoria-solicitada']);
     }
 
     public function podeSermitidoAoTutor(): bool
     {
-        return $this->status_aprovacao === 'rascunho' && !is_null($this->tema_grupo);
+        return ! $this->tutelaEncerrada()
+            && $this->status_aprovacao === 'rascunho'
+            && ! is_null($this->tema_grupo);
     }
 
     public function podeSerAprovadoPeloTutor(): bool
     {
-        return $this->status_aprovacao === 'submetido';
+        return ! $this->tutelaEncerrada() && $this->status_aprovacao === 'submetido';
     }
 
     public function podeSerAprovado(): bool  // pela coordenação
     {
-        return $this->status_aprovacao === 'pendente';
+        return ! $this->tutelaEncerrada() && $this->status_aprovacao === 'pendente';
     }
-
-
 }

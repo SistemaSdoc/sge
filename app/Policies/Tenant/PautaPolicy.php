@@ -2,6 +2,7 @@
 
 namespace App\Policies\Tenant;
 
+use App\Models\Central\CursoTuteladoShared;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
@@ -21,57 +22,75 @@ class PautaPolicy
     /**
      * Pode aceder à lista de turmas de um curso tutelado específico?
      *
-     * Requer 'pautas.viewAny', pertencer à mesma instituição (tutora ou
-     * dona do curso), e Professor tem adicionalmente de estar associado
+     * Requer 'pautas.viewAny', ser a instituição que oferece o curso ou
+     * o tenant tutor activo, e Professor tem adicionalmente de estar associado
      * ao curso tutelado via curso_tutelado_professor.
      */
     public function viewAnyCurso(User $user, CursoTutelado $cursoTutelado): bool
     {
-        /* if (! $user->can('pautas.viewAny')) {
-             return false;
-         }
+        if (! $user->can('pautas.viewAny') || $user->instituicao_id === null) {
+            return false;
+        }
 
-         if (! $this->pertenceAInstituicaoCurso($user, $cursoTutelado)) {
-             return false;
-         }
+        if (! $this->pertenceAInstituicaoCurso($user, $cursoTutelado)) {
+            return false;
+        }
 
-         if ($user->hasRole('Professor')) {
-             return $this->professorAssociadoAoCurso($user, $cursoTutelado);
-         }*/
-
-        return true;
+        return ! $user->hasRole('Professor')
+            || $this->professorAssociadoAoCurso($user, $cursoTutelado);
     }
 
     /**
      * Determina se o utilizador pode ver a pauta de uma turma específica.
      *
-     * Requer 'pautas.view' e pertencer à mesma instituição.
+     * Requer 'pautas.view' e pertencer à instituição que oferece o curso ou
+     * ao tenant tutor activo.
      * Professor adicionalmente tem de lecionar nessa turma
      * (via turma_disciplina_professor).
      */
     public function view(User $user, Turma $turma): bool
     {
-        /* if (! $user->can('pautas.view')) {
-             return false;
-         }
+        if (! $user->can('pautas.view') || $user->instituicao_id === null) {
+            return false;
+        }
 
-         if (! $this->pertenceAInstituicao($user, $turma)) {
-             return false;
-         }
+        if (! $this->pertenceAInstituicao($user, $turma)
+            && ! $this->isTutorDoCurso($user, $turma)) {
+            return false;
+        }
 
-         if ($user->hasRole('Professor')) {
-             return $this->isProfessorDaTurma($user, $turma);
-         }*/
-
-        return true;
+        return ! $user->hasRole('Professor') || $this->isProfessorDaTurma($user, $turma);
     }
 
     private function pertenceAInstituicaoCurso(User $user, CursoTutelado $cursoTutelado): bool
     {
         $cursoTutelado->loadMissing('instituicaoCurso');
 
-        return $cursoTutelado->instituicao_tutora_id === $user->instituicao_id
-            || $cursoTutelado->instituicaoCurso?->instituicao_id === $user->instituicao_id;
+        if ($cursoTutelado->instituicaoCurso?->instituicao_id === $user->instituicao_id) {
+            return true;
+        }
+
+        if ($cursoTutelado->instituicao_tutora_id === $user->instituicao_id) {
+            return true;
+        }
+
+        return $this->isTutorDoCurso($user, $cursoTutelado);
+    }
+
+    private function isTutorDoCurso(User $user, CursoTutelado|Turma $resource): bool
+    {
+        $cursoTutelado = $resource instanceof Turma
+            ? $resource->cursoClasseTurno?->cursoClasse?->cursoTutelado
+            : $resource;
+
+        $sharedId = $cursoTutelado?->curso_tutelado_shared_id;
+
+        return $sharedId !== null
+            && CursoTuteladoShared::query()
+                ->whereKey($sharedId)
+                ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
+                ->where('status', 'activo')
+                ->exists();
     }
 
     private function professorAssociadoAoCurso(User $user, CursoTutelado $cursoTutelado): bool

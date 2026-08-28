@@ -68,13 +68,15 @@ class AprovacaoTemaService
     public function aprovar(
         GrupoPap $grupoPap,
         User $user,
-        ?string $comentario = null
+        ?string $comentario = null,
+        ?string $actorTenantId = null,
     ): bool {
         return $this->alterarEstado(
             $grupoPap,
             $user,
             'aprovado',
-            $comentario
+            $comentario,
+            $actorTenantId,
         );
     }
 
@@ -84,13 +86,15 @@ class AprovacaoTemaService
     public function reprovar(
         GrupoPap $grupoPap,
         User $user,
-        string $motivo
+        string $motivo,
+        ?string $actorTenantId = null,
     ): bool {
         return $this->alterarEstado(
             $grupoPap,
             $user,
             'reprovado',
-            $motivo
+            $motivo,
+            $actorTenantId,
         );
     }
 
@@ -100,13 +104,15 @@ class AprovacaoTemaService
     public function solicitarMelhoria(
         GrupoPap $grupoPap,
         User $user,
-        string $recomendacao
+        string $recomendacao,
+        ?string $actorTenantId = null,
     ): bool {
         return $this->alterarEstado(
             $grupoPap,
             $user,
             'melhoria-solicitada',
-            $recomendacao
+            $recomendacao,
+            $actorTenantId,
         );
     }
 
@@ -118,22 +124,30 @@ class AprovacaoTemaService
         GrupoPap $grupoPap,
         User $user,
         string $novoEstado,
-        ?string $comentario = null
+        ?string $comentario = null,
+        ?string $actorTenantId = null,
     ): bool {
+
+        $grupoPap->assertTutelaActiva();
 
         // Só pode ser analisado se estiver pendente
         if (! $grupoPap->podeSerAprovado()) {
             return false;
         }
 
-        return DB::transaction(function () use ($grupoPap, $user, $novoEstado, $comentario) {
+        return DB::transaction(function () use ($grupoPap, $user, $novoEstado, $comentario, $actorTenantId) {
 
             $estadoAnterior = $grupoPap->status_aprovacao;
+            $isExternalActor = $actorTenantId !== null
+                && $actorTenantId !== (string) tenancy()->tenant->getTenantKey();
 
             // Atualizar estado atual do grupo
             $grupoPap->update([
                 'status_aprovacao' => $novoEstado,
-                'aprovado_por_id' => $user->id,
+                'aprovado_por_id' => $isExternalActor ? null : $user->id,
+                'aprovado_por_externo_id' => $isExternalActor ? $user->id : null,
+                'aprovado_por_externo_tenant_id' => $isExternalActor ? $actorTenantId : null,
+                'aprovado_por_nome' => $isExternalActor ? $user->nome : null,
                 'data_aprovacao' => now(),
                 'comentario_aprovacao' => $comentario,
                 ...($novoEstado === 'aprovado' ? ['status' => 'em-andamento'] : []),
@@ -142,7 +156,10 @@ class AprovacaoTemaService
             // Registar histórico da decisão
             HistoricoAprovacaoPap::create([
                 'grupo_pap_id' => $grupoPap->id,
-                'utilizador_id' => $user->id,
+                'utilizador_id' => $isExternalActor ? null : $user->id,
+                'utilizador_externo_id' => $isExternalActor ? $user->id : null,
+                'utilizador_externo_tenant_id' => $isExternalActor ? $actorTenantId : null,
+                'utilizador_nome' => $isExternalActor ? $user->nome : null,
                 'estado_anterior' => $estadoAnterior,
                 'tema' => $grupoPap->tema_grupo,
                 'problema' => $grupoPap->problema,
@@ -166,6 +183,8 @@ class AprovacaoTemaService
         User $user,
         array $dados
     ): bool {
+
+        $grupoPap->assertTutelaActiva();
 
         // Só pode reenviar se uma melhoria tiver sido solicitada
         if (! $grupoPap->podeSerReenviado()) {

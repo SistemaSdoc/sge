@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Tenant\Colegios;
 
 use App\Http\Controllers\Controller;
+use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -10,22 +12,32 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
 use App\Services\Tenant\AprovacaoTemaService;
+use App\Services\Tenant\CrossTenantAccessService;
+use App\Services\Tenant\CursoTuteladoSharedService;
+use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * IMPORTANTE: a permissão do tutor é validada antes de Tenant::run().
+ * Dentro do tenant do colégio, a autorização local não representa o tutor.
+ */
 class GrupoPapAprovacaoController extends Controller
 {
     public function __construct(
-        private AprovacaoTemaService $service
+        private AprovacaoTemaService $service,
+        private CursoTuteladoSharedService $sharedService,
+        private CrossTenantAccessService $crossTenantAccessService,
     ) {}
 
     /**
      * Listar temas PAP pendentes de aprovação
      * para o coordenador do curso.
      */
-    public function pendentes(Instituicao $instituicao)
+    public function pendentes(Instituicao $colegio)
     {
         $user = Auth::guard('tenant')->user();
 
@@ -49,15 +61,15 @@ class GrupoPapAprovacaoController extends Controller
             'temasPendentes' => $temasPendentes,
 
             'rotaAprovar' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.aprovar', [
-                'instituicao' => $instituicao->id,
+                'colegio' => $colegio->id,
                 'grupoPap' => ':id',
             ]),
             'rotaReprovar' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.reprovar', [
-                'instituicao' => $instituicao->id,
+                'colegio' => $colegio->id,
                 'grupoPap' => ':id',
             ]),
             'rotaMelhoria' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.solicitar-melhoria', [
-                'instituicao' => $instituicao->id,
+                'colegio' => $colegio->id,
                 'grupoPap' => ':id',
             ]),
         ]);
@@ -69,29 +81,36 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function aprovar(
         Request $request,
-        Instituicao $instituicao,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap
     ) {
-        // Verificar se pode ser aprovado
-        if (! $grupoPap->podeSerAprovado()) {
-            return back()->withErrors([
-                'grupo' => 'Este tema já foi finalizado e não pode ser alterado.',
-            ])->with('status', 'erro');
-        }
+        $user = Auth::guard('tenant')->user();
+        abort_unless($user->can('grupopap.aprovar'), 403);
 
         $validated = $request->validate([
             'comentario' => ['nullable', 'string', 'max:2000'],
         ]);
+        $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
 
-        $resultado = $this->service->aprovar(
+        $resultado = $this->withExternalGrupo(
+            $colegio,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
             $grupoPap,
-            Auth::guard('tenant')->user(),
-            $validated['comentario'] ?? null
+            $user,
+            fn (GrupoPap $grupo, string $actorTenantId) => $this->service->aprovar(
+                $grupo,
+                $user,
+                $validated['comentario'] ?? null,
+                $actorTenantId,
+            ),
+            $tenantTutorId,
         );
 
         if (! $resultado) {
@@ -106,7 +125,6 @@ class GrupoPapAprovacaoController extends Controller
             'Tema aprovado com sucesso.'
         );
     }
-
 
     public function aprovarTutor(
         Request $request,
@@ -192,19 +210,15 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function reprovar(
         Request $request,
-        Instituicao $instituicao,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap
     ) {
-        // Verificar autorização
-        /* $this->authorize(
-             'reprovarTema',
-             $grupoPap
-         );*/
+        $user = Auth::guard('tenant')->user();
+        abort_unless($user->can('grupopap.reprovar'), 403);
 
         // O motivo da reprovação é obrigatório
         $validated = $request->validate([
@@ -215,12 +229,24 @@ class GrupoPapAprovacaoController extends Controller
                 'max:2000',
             ],
         ]);
+        $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
 
         // Executar reprovação
-        $resultado = $this->service->reprovar(
+        $resultado = $this->withExternalGrupo(
+            $colegio,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
             $grupoPap,
-            Auth::guard('tenant')->user(),
-            $validated['motivo']
+            $user,
+            fn (GrupoPap $grupo, string $actorTenantId) => $this->service->reprovar(
+                $grupo,
+                $user,
+                $validated['motivo'],
+                $actorTenantId,
+            ),
+            $tenantTutorId,
         );
 
         // Verificar se o tema pode ser reprovado
@@ -243,17 +269,15 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        // Verificar autorização se necessário
-        // $this->authorize('editarTema', $grupoPap);
+        $this->authorize('corrigirTema', $grupoPap);
 
-        // Validar dados (ajusta conforme necessário)
         $validated = $request->validate([
-            'tema' => 'required|string|max:500',
-            'descricao' => 'nullable|string|max:2000',
-            // ... outros campos ...
+            'nome_grupo' => ['required', 'string', 'max:255'],
+            'tema_grupo' => ['required', 'string', 'max:255'],
+            'problema' => ['nullable', 'string', 'max:2000'],
+            'objectivos' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        // Atualizar o grupo PAP
         $grupoPap->update($validated);
 
         return back()->with(
@@ -267,19 +291,15 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function solicitarMelhoria(
         Request $request,
-        Instituicao $instituicao,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap
     ) {
-        // Verificar autorização
-        /* $this->authorize(
-             'solicitarMelhoriaTema',
-             $grupoPap
-         );*/
+        $user = Auth::guard('tenant')->user();
+        abort_unless($user->can('grupopap.solicitarMelhoria'), 403);
 
         // A recomendação é obrigatória
         $validated = $request->validate([
@@ -290,12 +310,24 @@ class GrupoPapAprovacaoController extends Controller
                 'max:2000',
             ],
         ]);
+        $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
 
         // Executar solicitação de melhoria
-        $resultado = $this->service->solicitarMelhoria(
+        $resultado = $this->withExternalGrupo(
+            $colegio,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
             $grupoPap,
-            Auth::guard('tenant')->user(),
-            $validated['recomendacao']
+            $user,
+            fn (GrupoPap $grupo, string $actorTenantId) => $this->service->solicitarMelhoria(
+                $grupo,
+                $user,
+                $validated['recomendacao'],
+                $actorTenantId,
+            ),
+            $tenantTutorId,
         );
 
         // Verificar se a operação foi realizada
@@ -308,6 +340,63 @@ class GrupoPapAprovacaoController extends Controller
         return back()->with(
             'success',
             'Recomendação de melhoria enviada com sucesso.'
+        );
+    }
+
+    private function withExternalGrupo(
+        string $colegio,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
+        User $user,
+        Closure $operation,
+        string $tenantTutorId,
+    ): mixed {
+        $vinculo = CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', $tenantTutorId)
+            ->where('curso_tutelado_tutelado_id', $cursoTutelado)
+            ->where('status', 'activo')
+            ->firstOrFail();
+
+        $tenantColega = Tenant::query()->findOrFail($vinculo->tenant_tutelado_id);
+
+        $this->crossTenantAccessService->validarAcessoAoGrupoPap(
+            $user,
+            $tenantColega,
+            $grupoPap,
+            (string) $vinculo->getKey(),
+        );
+
+        return $this->sharedService->executarNoTenantTutelado(
+            $cursoTutelado,
+            $tenantTutorId,
+            function () use ($colegio, $cursoTutelado, $cursoClasse, $cursoClasseTurno, $turma, $grupoPap, $operation, $tenantTutorId): mixed {
+                $colegioModel = Instituicao::findOrFail($colegio);
+                $cursoTuteladoModel = CursoTutelado::query()
+                    ->whereKey($cursoTutelado)
+                    ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->id))
+                    ->firstOrFail();
+                $cursoClasseModel = CursoClasse::query()
+                    ->whereKey($cursoClasse)
+                    ->where('curso_tutelado_id', $cursoTuteladoModel->id)
+                    ->firstOrFail();
+                $cursoClasseTurnoModel = CursoClasseTurno::query()
+                    ->whereKey($cursoClasseTurno)
+                    ->where('curso_classe_id', $cursoClasseModel->id)
+                    ->firstOrFail();
+                $turmaModel = Turma::query()
+                    ->whereKey($turma)
+                    ->where('curso_classe_turno_id', $cursoClasseTurnoModel->id)
+                    ->firstOrFail();
+                $grupoPapModel = GrupoPap::query()
+                    ->whereKey($grupoPap)
+                    ->where('turma_id', $turmaModel->id)
+                    ->firstOrFail();
+
+                return $operation($grupoPapModel, $tenantTutorId);
+            },
         );
     }
 
@@ -350,16 +439,17 @@ class GrupoPapAprovacaoController extends Controller
     public function melhorias(Instituicao $instituicao)
     {
         $user = Auth::guard('tenant')->user();
+        abort_unless($user->instituicao_id === $instituicao->id, 403);
 
         $temas = GrupoPap::query()
             ->where('status_aprovacao', 'melhoria-solicitada')
             ->whereHas(
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-                function ($query) {
-                    // Aqui deve ser aplicada a regra
-                    // para garantir que o grupo pertence
-                    // ao colégio do utilizador.
-                }
+                fn ($query) => $query->whereHas(
+                    'instituicaoCurso',
+                    fn ($instituicaoCursoQuery) => $instituicaoCursoQuery
+                        ->where('instituicao_id', $instituicao->id)
+                )
             )
             ->with([
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',

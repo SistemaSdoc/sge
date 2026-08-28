@@ -3,60 +3,60 @@
 namespace App\Http\Controllers\Tenant\Colegios;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenant\User;
-use App\Models\Tenant\CursoTutelado;
+use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Tenant\User;
+use App\Services\Central\TenantService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ColegioController extends Controller
 {
+    public function __construct(private readonly TenantService $tenantService) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request, Instituicao $instituicao)
     {
-        // $this->authorize('tutelar', $instituicao);
+        $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
+        $shared = CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', $tenantTutorId)
+            ->where('status', 'activo')
+            ->get();
 
-        // 1. Buscar IDs dos cursos tutelados desta instituição tutora
-        $cursoTuteladoIds = CursoTutelado::where('instituicao_tutora_id', $instituicao->id)
-            ->pluck('instituicao_curso_id');
+        $colegios = $shared
+            ->groupBy('tenant_tutelado_id')
+            ->map(function ($vinculos, string $tenantTuteladoId): array {
+                $tenant = Tenant::query()->find($tenantTuteladoId);
+                $colegio = $tenant ? $this->tenantService->getInstituicao($tenant) : null;
 
-        // 2. Buscar IDs das instituições (colégios) que têm esses cursos
-        $instituicaoIds = InstituicaoCurso::whereIn('id', $cursoTuteladoIds)
-            ->distinct()
-            ->pluck('instituicao_id');
+                return [
+                    'id' => $colegio?->id ?? $tenantTuteladoId,
+                    'nome' => $colegio?->nome ?? $tenantTuteladoId,
+                    'tipo' => $colegio?->tipo,
+                    'tenant_id' => $tenantTuteladoId,
+                    'total_cursos' => $vinculos->count(),
+                    'cursos' => [],
+                ];
+            })
+            ->filter(fn (array $colegio): bool => $colegio['tipo'] === 'colegio')
+            ->sortBy('nome')
+            ->values();
 
-        // 3. Paginar os colégios
-        $colegios = Instituicao::whereIn('id', $instituicaoIds)
-            ->where('tipo', 'colegio')
-            ->select('id', 'nome', 'tipo')
-            ->orderBy('nome')
-            ->paginate(5);
-
-        // 4. Carregar os cursos tutelados de cada colégio
-        $colegiosComCursos = $colegios->getCollection()->map(function ($colegio) use ($instituicao) {
-            $cursos = InstituicaoCurso::where('instituicao_id', $colegio->id)
-                ->whereHas('cursoTutelado', fn ($q) => $q->where('instituicao_tutora_id', $instituicao->id))
-                ->with(['curso:id,nome', 'cursoTutelado:id,instituicao_curso_id'])
-                ->get();
-
-            return [
-                'id' => $colegio->id,
-                'nome' => $colegio->nome,
-                'tipo' => $colegio->tipo,
-                'total_cursos' => $cursos->count(),
-                'cursos' => $cursos->map(fn ($ic) => [
-                    'id' => $ic->cursoTutelado->id,
-                    'nome' => $ic->curso->nome,
-                    'curso_tutelado_id' => $ic->cursoTutelado->id,
-                ])->toArray(),
-            ];
-        });
-
-        $colegios->setCollection($colegiosComCursos);
+        $perPage = 5;
+        $currentPage = (int) $request->input('page', 1);
+        $colegios = new LengthAwarePaginator(
+            $colegios->forPage($currentPage, $perPage)->values(),
+            $colegios->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()],
+        );
 
         return Inertia::render('tenant/colegio/index', [
             'instituicao' => [
@@ -70,33 +70,49 @@ class ColegioController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $instituicao, string $colegio)
+    public function show(Request $request, string $colegio)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
-        $instituicao = Instituicao::findOrFail($instituicao);
-        $colegio = Instituicao::findOrFail($colegio);
+        $instituicao = Instituicao::findOrFail($user->instituicao_id);
+        $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
+        $tenantTutelado = Tenant::query()
+            ->where('instituicao_id', $colegio)
+            ->firstOrFail();
+        $sharedIds = CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', $tenantTutorId)
+            ->where('tenant_tutelado_id', $tenantTutelado->getTenantKey())
+            ->where('status', 'activo')
+            ->pluck('id');
 
-        $cursos = InstituicaoCurso::where('instituicao_id', $colegio->id)
-            ->whereHas('cursoTutelado', function ($query) use ($instituicao) {
-                $query->where('instituicao_tutora_id', $instituicao->id);
-            })
-            ->with([
-                'curso:id,nome',
-                'cursoTutelado:id,instituicao_curso_id',
-            ])
-            ->paginate(10);
+        $colegioData = $tenantTutelado->run(function () use ($colegio, $sharedIds): array {
+            $colegio = Instituicao::findOrFail($colegio);
+            $cursos = InstituicaoCurso::where('instituicao_id', $colegio->id)
+                ->whereHas('cursoTutelado', fn ($query) => $query->whereIn('curso_tutelado_shared_id', $sharedIds))
+                ->with(['curso:id,nome', 'cursoTutelado:id,instituicao_curso_id'])
+                ->get()
+                ->map(fn ($ic): array => [
+                    'id' => $ic->cursoTutelado->id,
+                    'nome' => $ic->curso->nome,
+                    'curso_tutelado_id' => $ic->cursoTutelado->id,
+                ])
+                ->values();
 
-        $cursosFormatados = $cursos->getCollection()->map(
-            fn ($ic) => [
-                'id' => $ic->cursoTutelado->id,
-                'nome' => $ic->curso->nome,
-                'curso_tutelado_id' => $ic->cursoTutelado->id,
-            ]
+            return [
+                'id' => $colegio->id,
+                'nome' => $colegio->nome,
+                'cursos' => $cursos,
+            ];
+        });
+
+        $cursos = new LengthAwarePaginator(
+            $colegioData['cursos'],
+            $colegioData['cursos']->count(),
+            10,
+            (int) $request->input('page', 1),
+            ['path' => $request->url(), 'query' => $request->query()],
         );
-
-        $cursos->setCollection($cursosFormatados);
 
         return Inertia::render('tenant/colegio/show', [
             'instituicao' => [
@@ -104,8 +120,8 @@ class ColegioController extends Controller
                 'nome' => $instituicao->nome,
             ],
             'colegio' => [
-                'id' => $colegio->id,
-                'nome' => $colegio->nome,
+                'id' => $colegioData['id'],
+                'nome' => $colegioData['nome'],
             ],
             'can' => [
                 'gerir_prazos' => $user->can('pautas.gerirPrazos'),

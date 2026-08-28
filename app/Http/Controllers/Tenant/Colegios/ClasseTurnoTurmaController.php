@@ -7,6 +7,8 @@ use App\Http\Resources\Tenant\AlunoTurmaResource;
 use App\Http\Resources\Tenant\ClasseTurnoDisciplinaResource;
 use App\Http\Resources\Tenant\GrupoPapIndexResource;
 use App\Http\Resources\Tenant\Turma\TurmaShowResource;
+use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ClasseTurnoDisciplina;
@@ -16,9 +18,10 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
 use App\Services\Tenant\Pauta\PautaService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class ClasseTurnoTurmaController extends Controller
@@ -28,16 +31,64 @@ class ClasseTurnoTurmaController extends Controller
     ) {}
 
     public function show(
-        Instituicao $instituicao,
         string $colegio,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma
+    ) {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        $instituicao = Instituicao::findOrFail($user->instituicao_id);
+        $shared = CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
+            ->where('curso_tutelado_tutelado_id', $cursoTutelado)
+            ->where('status', 'activo')
+            ->firstOrFail();
+        $tenantTutelado = Tenant::query()->findOrFail($shared->tenant_tutelado_id);
+
+        return $tenantTutelado->run(function () use ($instituicao, $colegio, $cursoTutelado, $cursoClasse, $cursoClasseTurno, $turma, $user) {
+            $colegioModel = Instituicao::findOrFail($colegio);
+            $cursoTuteladoModel = CursoTutelado::query()
+                ->whereKey($cursoTutelado)
+                ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->id))
+                ->firstOrFail();
+            $cursoClasseModel = CursoClasse::query()
+                ->whereKey($cursoClasse)
+                ->where('curso_tutelado_id', $cursoTuteladoModel->id)
+                ->firstOrFail();
+            $cursoClasseTurnoModel = CursoClasseTurno::query()
+                ->whereKey($cursoClasseTurno)
+                ->where('curso_classe_id', $cursoClasseModel->id)
+                ->firstOrFail();
+            $turmaModel = Turma::query()
+                ->whereKey($turma)
+                ->where('curso_classe_turno_id', $cursoClasseTurnoModel->id)
+                ->firstOrFail();
+
+            return $this->showFromTenant(
+                $instituicao,
+                $colegioModel,
+                $cursoTuteladoModel,
+                $cursoClasseModel,
+                $cursoClasseTurnoModel,
+                $turmaModel,
+                $user,
+            );
+        });
+    }
+
+    private function showFromTenant(
+        Instituicao $instituicao,
+        Instituicao $colegio,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno,
-        Turma $turma
+        Turma $turma,
+        User $user,
     ) {
-        Gate::authorize('view', $turma);
 
-        \Log::info('ClasseTurnoTurma::show', [
+        Log::info('ClasseTurnoTurma::show', [
             'instituicao' => $instituicao?->id,
             'colegio' => $colegio,
             'cursoTutelado' => $cursoTutelado?->id,
@@ -45,8 +96,6 @@ class ClasseTurnoTurmaController extends Controller
             'cursoClasseTurno' => $cursoClasseTurno?->id,
             'turma' => $turma?->id,
         ]);
-
-        $user = Auth::guard('tenant')->user();
 
         $anoLectivoId = request('ano_lectivo_id')
             ?? AnoLectivo::where('activo', 1)->first()?->id;
@@ -195,7 +244,7 @@ class ClasseTurnoTurmaController extends Controller
                 ],
 
                 'colegio' => [
-                    'id' => $colegio,
+                    'id' => $colegio->id,
                 ],
 
                 /*
@@ -240,13 +289,9 @@ class ClasseTurnoTurmaController extends Controller
                     */
 
                     'instituicao_tutora' => [
-                        'id' => $cursoTutelado
-                            ->instituicaoTutora
-                            ->id,
+                        'id' => $instituicao->id,
 
-                        'nome' => $cursoTutelado
-                            ->instituicaoTutora
-                            ->nome,
+                        'nome' => $instituicao->nome,
                     ],
                 ],
 

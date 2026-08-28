@@ -3,7 +3,11 @@ import { useEffect } from 'react';
 import { ItensForm } from './components/itens-form';
 import { update } from '@/actions/App/Http/Controllers/Tenant/ItemPagavelController';
 
-export default function Edit({ itemPagavel, cursosClasse = [], instituicaoTipo }) {
+export default function Edit({
+  itemPagavel,
+  cursosClasse = [],
+  instituicaoTipo,
+}) {
   // Inicializa com valores vazios
   const { put, data, setData, processing, errors } = useForm({
     nome: itemPagavel.nome ?? '',

@@ -4,10 +4,10 @@ namespace App\Services\Tenant;
 
 use App\Helpers\BrowsershotHelper;
 use App\Models\Tenant\Aluno;
+use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
-use App\Models\Tenant\ElementoGrupoPap;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
 use Spatie\Browsershot\Browsershot;
@@ -29,18 +29,24 @@ class CertificadoService
 
         foreach ($tdps as $tdp) {
             $disciplina = $tdp->classeTurnoDisciplina?->disciplina;
-            if (! $disciplina) continue;
+            if (! $disciplina) {
+                continue;
+            }
 
             $turmaAluno = TurmaAluno::where('turma_id', $tdp->turma_id)
                 ->where('aluno_id', $aluno->id)
                 ->first();
-            if (! $turmaAluno) continue;
+            if (! $turmaAluno) {
+                continue;
+            }
 
             $nota = $turmaAluno->notas()
                 ->where('turma_disciplina_professor_id', $tdp->id)
                 ->whereNotNull('media_final')
                 ->first();
-            if (! $nota) continue;
+            if (! $nota) {
+                continue;
+            }
 
             $mediaArredondada = round((float) $nota->media_final * 2) / 2;
             $id = $disciplina->id;
@@ -49,17 +55,17 @@ class CertificadoService
                 $porDisciplina[$id] = [
                     'disciplina' => $disciplina->nome,
                     'componente' => $disciplina->componente ?? 'tecnica',
-                    'medias'     => [],
+                    'medias' => [],
                 ];
             }
 
             $porDisciplina[$id]['medias'][] = $mediaArredondada;
         }
 
-        $notas           = [];
-        $somaMedias      = 0;
+        $notas = [];
+        $somaMedias = 0;
         $totalDisciplinas = 0;
-        $notaEcs         = null;
+        $notaEcs = null;
 
         foreach ($porDisciplina as $item) {
             $mediaFinal = round(
@@ -67,7 +73,7 @@ class CertificadoService
             ) / 2;
 
             $componente = $item['componente'];
-            $nomeDisc   = strtolower($item['disciplina']);
+            $nomeDisc = strtolower($item['disciplina']);
 
             if (str_contains($nomeDisc, 'estágio')) {
                 $notaEcs = $mediaFinal;
@@ -75,9 +81,9 @@ class CertificadoService
 
             if (! in_array($nomeDisc, $nomesPapEcs)) {
                 $notas[$componente][] = [
-                    'disciplina'  => $item['disciplina'],
+                    'disciplina' => $item['disciplina'],
                     'media_final' => $mediaFinal,
-                    'extenso'     => $this->numeroParaExtenso($mediaFinal),
+                    'extenso' => $this->numeroParaExtenso($mediaFinal),
                 ];
                 $somaMedias += $mediaFinal;
                 $totalDisciplinas++;
@@ -107,14 +113,14 @@ class CertificadoService
         }
 
         return [
-            'notas'                       => $notas,
-            'media_pc'                    => $mediaPC,
-            'media_pc_extenso'            => $this->numeroParaExtenso($mediaPC),
-            'nota_pap'                    => $notaPap,
-            'nota_pap_extenso'            => $this->numeroParaExtenso($notaPap),
-            'nota_ecs'                    => $notaEcs,
-            'nota_ecs_extenso'            => $this->numeroParaExtenso($notaEcs),
-            'classificacao_final'         => $classificacaoFinal,
+            'notas' => $notas,
+            'media_pc' => $mediaPC,
+            'media_pc_extenso' => $this->numeroParaExtenso($mediaPC),
+            'nota_pap' => $notaPap,
+            'nota_pap_extenso' => $this->numeroParaExtenso($notaPap),
+            'nota_ecs' => $notaEcs,
+            'nota_ecs_extenso' => $this->numeroParaExtenso($notaEcs),
+            'classificacao_final' => $classificacaoFinal,
             'classificacao_final_extenso' => $this->numeroParaExtenso($classificacaoFinal),
         ];
     }
@@ -129,21 +135,21 @@ class CertificadoService
         ]);
 
         $instituicaoCurso = $aluno->inscricao->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso;
-        $candidato        = $aluno->inscricao->candidato;
-        $calc             = $this->calcular($aluno, $turma);
+        $candidato = $aluno->inscricao->candidato;
+        $calc = $this->calcular($aluno, $turma);
 
-        $url    = url('/certificados/' . $aluno->id . '/verificar');
+        $url = url('/certificados/'.$aluno->id.'/verificar');
         $result = (new Builder(writer: new PngWriter, data: $url, size: 120, margin: 10))->build();
         $qrcode = base64_encode($result->getString());
 
         $dados = array_merge($calc, [
             'instituicao' => $instituicaoCurso->instituicao,
-            'curso'       => $instituicaoCurso->curso,
-            'turma'       => $turma,
-            'candidato'   => $candidato,
-            'aluno'       => $aluno,
-            'ano_letivo'  => date('Y') . '/' . (date('Y') + 1),
-            'qrcode'      => $qrcode,
+            'curso' => $instituicaoCurso->curso,
+            'turma' => $turma,
+            'candidato' => $candidato,
+            'aluno' => $aluno,
+            'ano_letivo' => date('Y').'/'.(date('Y') + 1),
+            'qrcode' => $qrcode,
         ]);
 
         $html = view('certificados.certificado', $dados)->render();
@@ -169,10 +175,12 @@ class CertificadoService
     // ─── Helper ───────────────────────────────────────────────────────────────
     private function numeroParaExtenso(?float $numero): string
     {
-        if ($numero === null) return '—';
+        if ($numero === null) {
+            return '—';
+        }
 
         $chave = (int) round($numero);
-        $mapa  = [
+        $mapa = [
             0 => 'Zero', 1 => 'Um', 2 => 'Dois', 3 => 'Três',
             4 => 'Quatro', 5 => 'Cinco', 6 => 'Seis', 7 => 'Sete',
             8 => 'Oito', 9 => 'Nove', 10 => 'Dez', 11 => 'Onze',
@@ -181,6 +189,6 @@ class CertificadoService
             19 => 'Dezanove', 20 => 'Vinte',
         ];
 
-        return ($mapa[$chave] ?? (string) $chave) . ' Valores';
+        return ($mapa[$chave] ?? (string) $chave).' Valores';
     }
 }

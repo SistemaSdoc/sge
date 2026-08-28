@@ -27,7 +27,7 @@ class RolePermissionSeeder extends Seeder
                 'users.create',
                 'users.update',
                 'users.delete',
-        ]
+            ],
         ];
 
         foreach ($mapa as $roleName => $permissions) {

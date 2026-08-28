@@ -7,7 +7,6 @@ use App\Http\Requests\Central\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use Stancl\Tenancy\Features\UserImpersonation;
 
 class AuthenticatedSessionController extends Controller
 {

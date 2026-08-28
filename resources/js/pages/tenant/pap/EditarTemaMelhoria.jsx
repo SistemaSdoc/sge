@@ -110,6 +110,10 @@ export default function EditarTemaMelhoria({
         </CardHeader>
 
         <CardContent className="space-y-5">
+          {errors.grupo && (
+            <p className="text-sm text-red-500">{errors.grupo}</p>
+          )}
+
           <div className="space-y-2">
             <label className="text-sm font-medium">Nome do Grupo</label>
             <Input

@@ -31,9 +31,13 @@ export function TenantTable({ tenants = [] }) {
               onClick={() => router.visit(`/dashboard/tenants/${t.id}`)}
             >
               <td className="py-3 font-medium">{t.nome}</td>
-              <td className="py-3 capitalize text-muted-foreground">{t.tipo}</td>
+              <td className="py-3 text-muted-foreground capitalize">
+                {t.tipo}
+              </td>
               <td className="py-3">
-                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${estadoBadge[t.estado] ?? ''}`}>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${estadoBadge[t.estado] ?? ''}`}
+                >
                   {t.estadoLabel}
                 </span>
               </td>

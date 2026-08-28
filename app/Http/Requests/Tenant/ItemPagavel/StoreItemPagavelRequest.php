@@ -22,29 +22,27 @@ class StoreItemPagavelRequest extends FormRequest
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
-    { {
-            $isInstituto = auth()->user()->instituicao?->tipo === 'instituto';
+    {
+        $isInstituto = auth()->user()->instituicao?->tipo === 'instituto';
 
+        return [
+            'nome' => ['required', 'string', 'max:255'],
+            'tipo' => $isInstituto ? ['nullable'] : ['required', Rule::in(['financeiro', 'documento'])],
+            'valor' => $isInstituto ? ['nullable'] : ['required', 'numeric', 'min:0', 'max:9999999.99'],
+            'frequencia' => $isInstituto ? ['nullable'] : ['required', Rule::in(['mensal', 'anual', 'unico'])],
 
-            return [
-                'nome' => ['required', 'string', 'max:255'],
-                'tipo' => $isInstituto ? ['nullable'] : ['required', Rule::in(['financeiro', 'documento'])],
-                'valor' => $isInstituto ? ['nullable'] : ['required', 'numeric', 'min:0', 'max:9999999.99'],
-                'frequencia' => $isInstituto ? ['nullable'] : ['required', Rule::in(['mensal', 'anual', 'unico'])],
-
-                'subtipo' => [
-                    Rule::requiredIf($this->input('tipo') === 'documento'),
-                    'nullable',
-                    Rule::in(['declaracao_sem_notas', 'declaracao_com_notas', 'certificado']),
-                    // Único por instituição — não pode ter dois documentos com o mesmo subtipo
-                    Rule::unique('documentos', 'subtipo')
-                        ->where('instituicao_id', auth()->user()->instituicao_id),
-                ],
-                'descricao' => ['nullable', 'string', 'max:255'],
-                'curso_classe_id' => ['nullable', 'uuid', 'exists:curso_classe,id'],
-                'ativo' => ['boolean'],
-            ];
-        }
+            'subtipo' => [
+                Rule::requiredIf($this->input('tipo') === 'documento'),
+                'nullable',
+                Rule::in(['declaracao_sem_notas', 'declaracao_com_notas', 'certificado']),
+                // Único por instituição — não pode ter dois documentos com o mesmo subtipo
+                Rule::unique('documentos', 'subtipo')
+                    ->where('instituicao_id', auth()->user()->instituicao_id),
+            ],
+            'descricao' => ['nullable', 'string', 'max:255'],
+            'curso_classe_id' => ['nullable', 'uuid', 'exists:curso_classe,id'],
+            'ativo' => ['boolean'],
+        ];
 
     }
 

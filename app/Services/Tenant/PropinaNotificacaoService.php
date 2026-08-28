@@ -51,6 +51,7 @@ class PropinaNotificacaoService
                 'assinatura' => $assinatura,
                 'notificacao_existente_id' => $ultima->id,
             ]);
+
             return;
         }
 
@@ -82,6 +83,7 @@ class PropinaNotificacaoService
                 'user_id' => $user->id,
                 'meses_restantes' => count($pendencias),
             ]);
+
             return;
         }
 

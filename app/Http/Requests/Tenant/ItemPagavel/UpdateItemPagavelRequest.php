@@ -18,7 +18,7 @@ class UpdateItemPagavelRequest extends FormRequest
         return [
             'nome' => 'sometimes|required|string|max:255',
             'descricao' => 'nullable|string',
-            //'curso_classe_id' => 'sometimes|exists:curso_classe,id',
+            // 'curso_classe_id' => 'sometimes|exists:curso_classe,id',
             'tipo' => ['required', Rule::in(['financeiro', 'documento'])],
             'subtipo' => [
                 Rule::requiredIf($this->input('tipo') === 'documento'),

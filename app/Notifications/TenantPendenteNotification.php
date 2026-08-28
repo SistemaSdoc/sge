@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -20,8 +19,7 @@ class TenantPendenteNotification extends Notification
         public string $subdomain,
         public string $url,
         public string $sigla
-    ) {
-    }
+    ) {}
 
     /**
      * Get the notification's delivery channels.
@@ -36,7 +34,6 @@ class TenantPendenteNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
-
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)

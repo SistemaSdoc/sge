@@ -2,13 +2,13 @@
 
 namespace App\Services\Auth;
 
-use App\Models\Role;
-use App\Models\User;
+use App\Models\Central\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\InvalidStateException;
+use Spatie\Permission\Models\Role;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class GoogleAuthService

@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\ItemPagavel\StoreItemPagavelRequest;
 use App\Http\Requests\Tenant\ItemPagavel\UpdateItemPagavelRequest;
 use App\Models\Tenant\CursoClasse;
-use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Documento;
+use App\Models\Tenant\ItemPagavel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -79,7 +79,6 @@ class ItemPagavelController extends Controller
 
         $instituicao = Auth::guard('tenant')->user()->instituicao_id; // ← Pega da autenticação
 
-
         return Inertia::render('tenant/itens-pagaveis/create', [
             // No create() e edit()
             'cursosClasse' => CursoClasse::query()
@@ -88,9 +87,9 @@ class ItemPagavelController extends Controller
                     $q->where('instituicao_id', $instituicao);
                 })
                 ->get()
-                ->map(fn(CursoClasse $cc) => [
+                ->map(fn (CursoClasse $cc) => [
                     'id' => $cc->id,
-                    'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome . ' — ' . $cc->classe->nome,
+                    'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome.' — '.$cc->classe->nome,
                 ]),
             'instituicaoTipo' => auth()->user()->instituicao?->tipo, // 'colegio' ou 'instituto'
         ]);
@@ -127,9 +126,9 @@ class ItemPagavelController extends Controller
         $cursosClasse = CursoClasse::query()
             ->with(['classe:id,nome', 'cursoTutelado.instituicaoCurso.curso:id,nome'])
             ->get()
-            ->map(fn(CursoClasse $cc) => [
+            ->map(fn (CursoClasse $cc) => [
                 'id' => $cc->id,
-                'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome . ' — ' . $cc->classe->nome,
+                'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome.' — '.$cc->classe->nome,
             ]);
 
         Log::debug('[ItemPagavelController@edit] cursosClasse carregados', [

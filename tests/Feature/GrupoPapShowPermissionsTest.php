@@ -1,16 +1,16 @@
 <?php
 
-use App\Models\Classe;
-use App\Models\Curso;
-use App\Models\CursoClasse;
-use App\Models\CursoClasseTurno;
-use App\Models\CursoTutelado;
-use App\Models\GrupoPap;
-use App\Models\Instituicao;
-use App\Models\InstituicaoCurso;
-use App\Models\Turma;
-use App\Models\Turno;
-use App\Models\User;
+use App\Models\Tenant\Classe;
+use App\Models\Tenant\Curso;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\Turno;
+use App\Models\Tenant\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -87,8 +87,8 @@ test('grupo pap show exposes granular permissions for elements and banca actions
         'bancajuripap.delete',
     ]);
 
-    $response = $this->actingAs($user)->get(route('pap.show', [
-        'instituicao' => $instituicao->id,
+    $response = $this->actingAs($user, 'tenant')->get(route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', [
+        'colegio' => $instituicao->id,
         'cursoTutelado' => $cursoTutelado->id,
         'cursoClasse' => $cursoClasse->id,
         'cursoClasseTurno' => $cursoClasseTurno->id,

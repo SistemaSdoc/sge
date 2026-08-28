@@ -29,7 +29,7 @@ return new class extends Migration
                 'pendente',
                 'aprovado',
                 'reprovado',
-                'melhoria-solicitada'
+                'melhoria-solicitada',
             ])->default('rascunho');
 
             $table->uuid('aprovado_por_id')->nullable();

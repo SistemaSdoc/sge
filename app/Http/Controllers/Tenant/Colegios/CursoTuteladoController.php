@@ -3,38 +3,63 @@
 namespace App\Http\Controllers\Tenant\Colegios;
 
 use App\Http\Controllers\Controller;
+use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CursoTuteladoController extends Controller
 {
-    public function show(
-        string $instituicao,
-        string $colegio,
-        string $cursoTutelado
+    public function show(Request $request, string $colegio, string $cursoTutelado)
+    {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        $instituicaoTutor = Instituicao::findOrFail($user->instituicao_id);
+        $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
+        $shared = CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', $tenantTutorId)
+            ->where('tenant_tutelado_id', function ($query) use ($colegio): void {
+                $query->select('id')
+                    ->from('tenants')
+                    ->where('instituicao_id', $colegio)
+                    ->limit(1);
+            })
+            ->where('curso_tutelado_tutelado_id', $cursoTutelado)
+            ->where('status', 'activo')
+            ->firstOrFail();
+
+        $tenantTutelado = Tenant::query()->findOrFail($shared->tenant_tutelado_id);
+
+        return $tenantTutelado->run(function () use ($instituicaoTutor, $colegio, $cursoTutelado) {
+            return $this->showFromTenant(
+                $instituicaoTutor,
+                Instituicao::findOrFail($colegio),
+                $cursoTutelado,
+            );
+        });
+    }
+
+    private function showFromTenant(
+        Instituicao $instituicao,
+        Instituicao $colegio,
+        string $cursoTuteladoId
     ) {
-        // Instituto tutor
-        $instituicao = Instituicao::findOrFail($instituicao);
-
-        // Colégio tutelado
-        $colegio = Instituicao::findOrFail($colegio);
-
         // Buscar o curso tutelado garantindo que:
         // - pertence ao colégio
         // - é tutelado pelo instituto
-        $cursoTutelado = CursoTutelado::where('id', $cursoTutelado)
-            ->where('instituicao_tutora_id', $instituicao->id)
+        $cursoTutelado = CursoTutelado::whereKey($cursoTuteladoId)
             ->whereHas('instituicaoCurso', function ($query) use ($colegio) {
                 $query->where('instituicao_id', $colegio->id);
             })
             ->with([
                 'instituicaoCurso.curso:id,nome,descricao',
                 'instituicaoCurso.instituicao:id,nome',
-                'instituicaoTutora:id,nome',
-
                 'cursoClasses.classe:id,nome',
 
                 'cursoClasses.turnos.turno:id,nome',
@@ -80,8 +105,8 @@ class CursoTuteladoController extends Controller
                 ],
 
                 'instituicao_tutora' => [
-                    'id' => $cursoTutelado->instituicaoTutora->id,
-                    'nome' => $cursoTutelado->instituicaoTutora->nome,
+                    'id' => $instituicao->id,
+                    'nome' => $instituicao->nome,
                 ],
 
                 'classes' => $cursoTutelado->cursoClasses->map(

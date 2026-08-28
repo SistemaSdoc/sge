@@ -64,20 +64,20 @@ export default function Register({ passwordRules }) {
           <FieldSet>
             {/* Nome & Sigla */}
 
-             <Field>
-                <FieldLabel htmlFor="nome">Nome da Instituição</FieldLabel>
-                <Input
-                  id="nome"
-                  type="text"
-                  required
-                  autoFocus
-                  placeholder="Ex.: Escola Secundária de Luanda"
-                  value={data.nome}
-                  onChange={(e) => setData('nome', e.target.value)}
-                />
-                {errors.nome && <FieldError>{errors.nome}</FieldError>}
-              </Field>
-          
+            <Field>
+              <FieldLabel htmlFor="nome">Nome da Instituição</FieldLabel>
+              <Input
+                id="nome"
+                type="text"
+                required
+                autoFocus
+                placeholder="Ex.: Escola Secundária de Luanda"
+                value={data.nome}
+                onChange={(e) => setData('nome', e.target.value)}
+              />
+              {errors.nome && <FieldError>{errors.nome}</FieldError>}
+            </Field>
+
             {/* Tipo & Subdomínio */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Field>
@@ -103,7 +103,7 @@ export default function Register({ passwordRules }) {
                 {errors.tipo && <FieldError>{errors.tipo}</FieldError>}
               </Field>
 
-               <Field>
+              <Field>
                 <FieldLabel htmlFor="sigla">Sigla</FieldLabel>
                 <Input
                   id="sigla"
@@ -111,74 +111,72 @@ export default function Register({ passwordRules }) {
                   required
                   placeholder="Ex.: ESL"
                   value={data.sigla}
-                  onChange={(e) => setData('sigla', e.target.value.toUpperCase())}
+                  onChange={(e) =>
+                    setData('sigla', e.target.value.toUpperCase())
+                  }
                   maxLength="10"
                 />
                 {errors.sigla && <FieldError>{errors.sigla}</FieldError>}
               </Field>
-
-              
             </div>
 
             <Field>
-                <FieldLabel htmlFor="domain">Subdomínio</FieldLabel>
-                <InputGroup>
-                  <InputGroupAddon className="font-normal text-foreground">
-                    https://
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    id="domain"
-                    type="text"
-                    required
-                    placeholder="Ex.: imcl"
-                    value={data.domain}
-                    onChange={(e) => setData('domain', e.target.value)}
-                  />
-                  <InputGroupAddon
-                    align="inline-end"
-                    className="font-normal text-foreground"
-                  >
-                    .sge.localhost
-                  </InputGroupAddon>
-                </InputGroup>
-                {errors.domain && <FieldError>{errors.domain}</FieldError>}
-              </Field>
-
-            {/* Nome & Email do Diretor */}
-            
-              <Field>
-                <FieldLabel htmlFor="user_nome">
-                  Nome do Utilizador (Diretor)
-                </FieldLabel>
-                <Input
-                  id="user_nome"
+              <FieldLabel htmlFor="domain">Subdomínio</FieldLabel>
+              <InputGroup>
+                <InputGroupAddon className="font-normal text-foreground">
+                  https://
+                </InputGroupAddon>
+                <InputGroupInput
+                  id="domain"
                   type="text"
                   required
-                  placeholder="Ex.: João da Silva"
-                  value={data.user_nome}
-                  onChange={(e) => setData('user_nome', e.target.value)}
+                  placeholder="Ex.: imcl"
+                  value={data.domain}
+                  onChange={(e) => setData('domain', e.target.value)}
                 />
-                {errors.user_nome && (
-                  <FieldError>{errors.user_nome}</FieldError>
-                )}
-              </Field>
+                <InputGroupAddon
+                  align="inline-end"
+                  className="font-normal text-foreground"
+                >
+                  .sge.localhost
+                </InputGroupAddon>
+              </InputGroup>
+              {errors.domain && <FieldError>{errors.domain}</FieldError>}
+            </Field>
 
-              <Field>
-                <FieldLabel htmlFor="user_email">
-                  Email do Utilizador (Diretor)
-                </FieldLabel>
-                <Input
-                  id="user_email"
-                  type="email"
-                  required
-                  placeholder="email@exemplo.com"
-                  value={data.user_email}
-                  onChange={(e) => setData('user_email', e.target.value)}
-                />
-                {errors.user_email && (
-                  <FieldError>{errors.user_email}</FieldError>
-                )}
-              </Field>
+            {/* Nome & Email do Diretor */}
+
+            <Field>
+              <FieldLabel htmlFor="user_nome">
+                Nome do Utilizador (Diretor)
+              </FieldLabel>
+              <Input
+                id="user_nome"
+                type="text"
+                required
+                placeholder="Ex.: João da Silva"
+                value={data.user_nome}
+                onChange={(e) => setData('user_nome', e.target.value)}
+              />
+              {errors.user_nome && <FieldError>{errors.user_nome}</FieldError>}
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="user_email">
+                Email do Utilizador (Diretor)
+              </FieldLabel>
+              <Input
+                id="user_email"
+                type="email"
+                required
+                placeholder="email@exemplo.com"
+                value={data.user_email}
+                onChange={(e) => setData('user_email', e.target.value)}
+              />
+              {errors.user_email && (
+                <FieldError>{errors.user_email}</FieldError>
+              )}
+            </Field>
 
             {/* Senha */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

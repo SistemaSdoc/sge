@@ -77,9 +77,14 @@ class CursoTuteladoResourceShow extends JsonResource
                 'id' => $this->instituicaoCurso->instituicao->id,
                 'nome' => $this->instituicaoCurso->instituicao->nome,
             ],
-            'instituicao_tutora' => [
+            'tipo_tutela' => $this->tipo_tutela ?? 'propria',
+            'instituicao_tutora' => $this->instituicaoTutora ? [
                 'id' => $this->instituicaoTutora->id,
                 'nome' => $this->instituicaoTutora->nome,
+            ] : [
+                'id' => $this->cursoTuteladoShared?->tenant_tutor_id,
+                'nome' => $this->cursoTuteladoShared?->tenant_tutor_nome
+                    ?? 'Instituição tutora externa',
             ],
 
             'contadores' => [

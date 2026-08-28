@@ -13,12 +13,10 @@ class RegisteredController extends Controller
 {
     use PasswordValidationRules, ProfileValidationRules;
 
-    public function __construct(private RegisterService $service)
-    {
-    }
+    public function __construct(private RegisterService $service) {}
 
     /**
-     * Renderiza a tela de registro de um novo usuário.
+     * Display the register view.
      */
     public function create()
     {
@@ -28,13 +26,13 @@ class RegisteredController extends Controller
     }
 
     /**
-     * Método responsável por registrar um novo usuário no sistema.
+     * Handle an incoming registration request.
      */
     public function store(RegisterStoreRequest $request)
     {
         $tenant = $this->service->register($request->validated());
 
-        $domain = 'http://' . $tenant->domains->first()->domain;
+        $domain = 'http://'.$tenant->domains->first()->domain;
 
         return Inertia::location($domain);
     }

@@ -2,50 +2,48 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\CursoTutelado\CreateCursoTutelado;
+use App\Actions\Tenant\CursoTutelado\DeleteCursoTutelado;
+use App\Actions\Tenant\CursoTutelado\UpdateCursoTutelado;
+use App\Actions\Tenant\CursoTutelado\UploadCursoTuteladoDocumentos;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenant\StoreCursoTuteladoRequest;
+use App\Http\Requests\Tenant\CursoTutelado\StoreCursoTuteladoRequest;
+use App\Http\Requests\Tenant\CursoTutelado\UpdateCursoTuteladoRequest;
+use App\Http\Requests\Tenant\CursoTutelado\UploadCursoTuteladoDocumentosRequest;
 use App\Http\Resources\Tenant\CursoTutelado\CursoTuteladoResourceEdit;
 use App\Http\Resources\Tenant\CursoTutelado\CursoTuteladoResourceShow;
-use App\Models\Tenant\AnoLectivo;
-use App\Models\Tenant\Classe;
-use App\Models\Tenant\Curso;
-use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
-use App\Models\Tenant\InstituicaoCurso;
-use App\Models\Tenant\NivelEnsino;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
-use Illuminate\Http\Request;
+use App\Services\Tenant\CursoTuteladoViewService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
+/**
+ * Orquestra as operações e respostas HTTP dos cursos tutelados.
+ */
 class CursoTuteladoController extends Controller
 {
-    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
+    public function __construct(
+        private readonly AnoLectivoResolverService $anoLectivoResolverService,
+        private readonly CursoTuteladoViewService $cursoTuteladoViewService,
+        private readonly CreateCursoTutelado $createCursoTutelado,
+        private readonly UpdateCursoTutelado $updateCursoTutelado,
+        private readonly DeleteCursoTutelado $deleteCursoTutelado,
+        private readonly UploadCursoTuteladoDocumentos $uploadCursoTuteladoDocumentos,
+    ) {}
 
+    /**
+     * Apresenta os cursos tutelados de uma instituição.
+     */
     public function index(Instituicao $instituicao)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
-        $cursos = $instituicao->instituicaoCursos()
-            ->with(['curso:id,nome', 'cursoTutelado.instituicaoTutora:id,nome'])
-            ->paginate(10)
-            ->through(fn ($instituicaoCurso) => [
-                'id' => $instituicaoCurso->cursoTutelado->id,
-                'nome' => $instituicaoCurso->curso->nome,
-                'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,
-                'can' => [
-                    'view' => $user->can('view', $instituicaoCurso->cursoTutelado),
-                    'update' => $user->can('update', $instituicaoCurso->cursoTutelado),
-                    'delete' => $user->can('delete', $instituicaoCurso->cursoTutelado),
-                ],
-            ]);
+        $cursos = $this->cursoTuteladoViewService->index($instituicao, $user);
 
         return Inertia::render('tenant/cursos-tutelados/index', [
             'cursos' => $cursos,
@@ -56,93 +54,33 @@ class CursoTuteladoController extends Controller
         ]);
     }
 
+    /**
+     * Apresenta o formulário de criação de um curso tutelado.
+     */
     public function create(Instituicao $instituicao)
     {
         Gate::authorize('create', CursoTutelado::class);
 
-        $classes = Classe::select('id', 'nome')
-            ->orderBy('nome')
-            ->get();
-
-        $niveisEnsino = NivelEnsino::select('id', 'nome')
-            ->orderBy('nome')
-            ->get();
-
-        $cursosJaAssociadosQuery = InstituicaoCurso::query();
-
-        if ($instituicao->tipo === 'instituto') {
-            // Instituto: esconde cursos já associados a qualquer colégio
-            $cursosJaAssociadosQuery->whereHas('instituicao', fn ($q) => $q->where('tipo', 'colegio'));
-        } else {
-            // Colégio: esconde só os cursos já associados a este próprio colégio
-            // (cursos de institutos continuam a aparecer)
-            $cursosJaAssociadosQuery->where('instituicao_id', $instituicao->id);
-        }
-
-        $cursosJaAssociados = $cursosJaAssociadosQuery->pluck('curso_id');
-
-        $cursos = Curso::select('id', 'nome')
-            ->whereNotIn('id', $cursosJaAssociados)
-            ->orderBy('nome')
-            ->get();
+        $options = $this->cursoTuteladoViewService->createOptions($instituicao);
 
         return Inertia::render('tenant/cursos-tutelados/create', [
-            'instituicao' => $instituicao->only('id'),
-            'classes' => $classes,
-            'cursos' => $cursos,
-            'niveisEnsino' => $niveisEnsino,
+            'instituicao' => $instituicao->only('id', 'nome', 'tipo'),
+            ...$options,
         ]);
     }
 
-    public function store(StoreCursoTuteladoRequest $request, Instituicao $instituicao)
-    {
+    /**
+     * Cria um curso tutelado e redirecciona para a listagem.
+     */
+    public function store(
+        StoreCursoTuteladoRequest $request,
+        Instituicao $instituicao
+    ) {
         Gate::authorize('create', CursoTutelado::class);
 
         $validated = $request->validated();
 
-        // Obter ou criar curso
-        $curso = isset($validated['curso_id'])
-            ? Curso::findOrFail($validated['curso_id'])
-            : Curso::firstOrCreate(
-                ['nome' => $validated['nome']],
-                ['duracao_anos' => $validated['duracao_anos']]
-            );
-
-        // Verificar duplicado antes de entrar na transação
-        if (
-            InstituicaoCurso::where('instituicao_id', $instituicao->id)
-                ->where('curso_id', $curso->id)
-                ->exists()
-        ) {
-            return back()->withErrors([
-                'curso_id' => 'Esta instituição já tem este curso associado.',
-            ]);
-        }
-
-        DB::transaction(function () use ($instituicao, $curso, $validated) {
-            $instituicaoCurso = InstituicaoCurso::create([
-                'curso_id' => $curso->id,
-                'instituicao_id' => $instituicao->id,
-                'duracao_anos' => $validated['duracao_anos'] ?? $curso->duracao_anos,
-            ]);
-
-            $cursoTutelado = $instituicaoCurso->cursoTutelado()->create([
-                'instituicao_tutora_id' => $instituicao->id,
-            ]);
-
-            // Insert bulk — uma única query independentemente do nº de classes
-            $now = now();
-            CursoClasse::insert(
-                collect($validated['classe_ids'])->map(fn ($classeId) => [
-                    'id' => (string) Str::uuid7(),
-                    'curso_tutelado_id' => $cursoTutelado->id,
-                    'classe_id' => $classeId,
-                    'nivel_ensino_id' => $validated['nivel_ensino_id'],
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ])->all()
-            );
-        });
+        $this->createCursoTutelado->handle($instituicao, $validated);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.index', $instituicao)->with('toast', [
             'type' => 'success',
@@ -150,8 +88,13 @@ class CursoTuteladoController extends Controller
         ]);
     }
 
-    public function show(Instituicao $instituicao, CursoTutelado $cursoTutelado)
-    {
+    /**
+     * Apresenta o detalhe de um curso tutelado.
+     */
+    public function show(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado
+    ) {
         Gate::authorize('view', $cursoTutelado);
 
         /** @var User $user */
@@ -161,23 +104,7 @@ class CursoTuteladoController extends Controller
             ? request('ano_lectivo_id')
             : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
-        $cursoTutelado->load([
-            'instituicaoCurso.curso:id,nome,descricao',
-            'instituicaoCurso.instituicao:id,nome',
-            'instituicaoTutora:id,nome',
-            'cursoClasses.classe:id,nome',
-            'cursoClasses.turnos.turno:id,nome',
-            'cursoClasses.turnos' => function ($query) use ($anoLectivoId) {
-                $query->with([
-                    'turmas' => fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId),
-                    'turmas.cursoClasseTurno.turno:id,nome',
-                    'turmas.cursoClasseTurno.cursoClasse.classe:id,nome',
-                    'classeTurnoDisciplinas.professores',
-                    'classeTurnoDisciplinas',
-                ]);
-            },
-            'professores.user:id,nome',
-        ]);
+        $this->cursoTuteladoViewService->prepareShow($cursoTutelado, $anoLectivoId);
 
         return Inertia::render('tenant/cursos-tutelados/show', [
             'instituicao' => [
@@ -186,10 +113,7 @@ class CursoTuteladoController extends Controller
             ],
             'cursoTutelado' => (new CursoTuteladoResourceShow($cursoTutelado))->resolve(),
             'anoLectivoId' => $anoLectivoId,
-            'anosLectivos' => AnoLectivo::query()
-                ->select('id', 'nome')
-                ->orderByDesc('data_inicio')
-                ->get(),
+            'anosLectivos' => $this->cursoTuteladoViewService->academicYears(),
             'can' => [
                 'instituicao' => [
                     'view' => $user->can('view', $instituicao),
@@ -198,41 +122,18 @@ class CursoTuteladoController extends Controller
         ]);
     }
 
-    public function edit(Instituicao $instituicao, CursoTutelado $cursoTutelado)
-    {
+    /**
+     * Apresenta o formulário de edição de um curso tutelado.
+     */
+    public function edit(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado
+    ) {
         Gate::authorize('update', $cursoTutelado);
 
-        $cursoTutelado->load([
-            'instituicaoCurso.curso:id,nome',
-            'instituicaoCurso',
-            'instituicaoTutora:id,nome',
-            'classes:id',
-        ]);
+        $this->cursoTuteladoViewService->prepareEdit($cursoTutelado);
 
-        $classes = Classe::select('id', 'nome')
-            ->orderBy('nome')
-            ->get();
-
-        // Só faz sentido para colégios — institutos não passam tutela
-        $instituicoes = collect();
-
-        if ($instituicao->tipo === 'colegio') {
-            $cursoId = $cursoTutelado->instituicaoCurso->curso_id;
-
-            $instituicoes = Instituicao::select('id', 'nome')
-                ->where(function ($q) use ($cursoId) {
-                    // Institutos que têm o curso
-                    $q->where('tipo', 'instituto')
-                        ->whereHas('instituicaoCursos', fn ($q) => $q->where('curso_id', $cursoId));
-                })
-                ->orWhere('id', $cursoTutelado->instituicao_tutora_id) // Garante que a tutora actual aparece sempre
-                ->orderBy('nome')
-                ->get();
-        } else {
-            $instituicoes = Instituicao::select('id', 'nome')
-                ->where('id', $cursoTutelado->instituicao_tutora_id)
-                ->get();
-        }
+        $options = $this->cursoTuteladoViewService->editOptions($instituicao);
 
         return Inertia::render('tenant/cursos-tutelados/edit', [
             'instituicao' => [
@@ -241,33 +142,21 @@ class CursoTuteladoController extends Controller
                 'tipo' => $instituicao->tipo,
             ],
             'cursoTutelado' => (new CursoTuteladoResourceEdit($cursoTutelado))->resolve(),
-            'classes' => $classes,
-            'instituicoes' => $instituicoes,
+            ...$options,
         ]);
     }
 
-    public function update(Instituicao $instituicao, CursoTutelado $cursoTutelado)
-    {
+    /**
+     * Actualiza um curso tutelado e a sua tutela.
+     */
+    public function update(
+        UpdateCursoTuteladoRequest $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado
+    ) {
         Gate::authorize('update', $cursoTutelado);
 
-        $validated = request()->validate([
-            'instituicao_tutora_id' => ['required', 'string', 'exists:instituicoes,id'],
-            'duracao_anos' => ['required', 'integer', 'min:1', 'max:10'],
-            'classes' => ['required', 'array', 'min:1'],
-            'classes.*' => ['string', 'exists:classes,id'],
-        ]);
-
-        DB::transaction(function () use ($validated, $cursoTutelado) {
-            $cursoTutelado->update([
-                'instituicao_tutora_id' => $validated['instituicao_tutora_id'],
-            ]);
-
-            $cursoTutelado->instituicaoCurso->update([
-                'duracao_anos' => $validated['duracao_anos'],
-            ]);
-
-            $cursoTutelado->classes()->sync($validated['classes']);
-        });
+        $this->updateCursoTutelado->handle($instituicao, $cursoTutelado, $request->validated());
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.index', $instituicao)->with('toast', [
             'type' => 'success',
@@ -275,49 +164,31 @@ class CursoTuteladoController extends Controller
         ]);
     }
 
-    public function destroy(Instituicao $instituicao, CursoTutelado $cursoTutelado)
-    {
+    /**
+     * Remove um curso tutelado sem turmas associadas.
+     */
+    public function destroy(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado
+    ) {
         Gate::authorize('update', $cursoTutelado);
 
-        $temTurmas = $cursoTutelado->cursoClasses
-            ->flatMap(fn ($cc) => $cc->turnos)
-            ->isNotEmpty();
-
-        if ($temTurmas) {
-            abort(422, 'Não é possível remover um curso que tem turmas associadas.');
-        }
-
-        $cursoTutelado->delete();
+        $this->deleteCursoTutelado->handle($cursoTutelado);
 
         return response()->noContent();
     }
 
-    public function uploadCriteriosPap(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
-    {
+    /**
+     * Guarda os critérios PAP e o manual de PT do curso tutelado.
+     */
+    public function uploadCriteriosPap(
+        UploadCursoTuteladoDocumentosRequest $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado
+    ) {
         Gate::authorize('update', $cursoTutelado);
 
-        $request->validate([
-            'criterios_pap' => [($cursoTutelado->criterios_pap_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
-            'manual_pt' => [($cursoTutelado->manual_pt_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
-        ]);
-
-        if ($request->hasFile('criterios_pap')) {
-            if ($cursoTutelado->criterios_pap_path) {
-                Storage::disk('public')->delete($cursoTutelado->criterios_pap_path);
-            }
-            $cursoTutelado->criterios_pap_path = $request->file('criterios_pap')
-                ->store("cursos-tutelados/{$cursoTutelado->id}/criterios-pap", 'public');
-        }
-
-        if ($request->hasFile('manual_pt')) {
-            if ($cursoTutelado->manual_pt_path) {
-                Storage::disk('public')->delete($cursoTutelado->manual_pt_path);
-            }
-            $cursoTutelado->manual_pt_path = $request->file('manual_pt')
-                ->store("cursos-tutelados/{$cursoTutelado->id}/manual-pt", 'public');
-        }
-
-        $cursoTutelado->save();
+        $this->uploadCursoTuteladoDocumentos->handle($cursoTutelado, $request->validated());
 
         return redirect()->route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
             'instituicao' => $instituicao->id,

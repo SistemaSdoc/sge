@@ -21,8 +21,9 @@ import {
 
 export function CursoForm({
   title,
+  instituicao,
   classes,
-  instituicoes,
+  tenantsTutores,
   data,
   setData,
   errors,
@@ -40,34 +41,42 @@ export function CursoForm({
           <CardContent>
             <FieldGroup>
               <FieldSet>
-                <Field>
-                  <FieldLabel htmlFor="instituicao_tutora_id">
-                    Instituição Tutora
-                  </FieldLabel>
-                  <Select
-                    value={data.instituicao_tutora_id || ''}
-                    onValueChange={(value) =>
-                      setData('instituicao_tutora_id', value)
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione a instituição tutora" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Instituições</SelectLabel>
-                        {instituicoes?.map((inst) => (
-                          <SelectItem key={inst.id} value={inst.id}>
-                            {inst.nome}
+                {instituicao.tipo === 'colegio' && (
+                  <Field>
+                    <FieldLabel htmlFor="tenant_tutor_id">
+                      Instituição Tutora
+                    </FieldLabel>
+                    <Select
+                      value={data.tenant_tutor_id || 'propria'}
+                      onValueChange={(value) =>
+                        setData(
+                          'tenant_tutor_id',
+                          value === 'propria' ? '' : value,
+                        )
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione a instituição tutora" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Tutela curricular</SelectLabel>
+                          <SelectItem value="propria">
+                            Tutela própria
                           </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  {errors.instituicao_tutora_id && (
-                    <FieldError>{errors.instituicao_tutora_id}</FieldError>
-                  )}
-                </Field>
+                          {tenantsTutores?.map((tenant) => (
+                            <SelectItem key={tenant.id} value={tenant.id}>
+                              {tenant.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    {errors.tenant_tutor_id && (
+                      <FieldError>{errors.tenant_tutor_id}</FieldError>
+                    )}
+                  </Field>
+                )}
 
                 <Field>
                   <FieldLabel htmlFor="classes">Classes</FieldLabel>

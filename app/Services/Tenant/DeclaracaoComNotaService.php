@@ -22,7 +22,7 @@ class DeclaracaoComNotaService
     {
         return $turma->anoLectivo?->nome
             ?? $aluno->inscricao?->anoLectivo?->nome
-            ?? date('Y') . '/' . (date('Y') + 1);
+            ?? date('Y').'/'.(date('Y') + 1);
     }
 
     public function gerar(Aluno $aluno, Turma $turma, ?string $efeito = null): string
@@ -63,8 +63,7 @@ class DeclaracaoComNotaService
 
         $numeroDeclaracao = TurmaAluno::whereHas(
             'turma',
-            fn($q) =>
-            $q->where('ano_lectivo_id', $anoLectivo->id)
+            fn ($q) => $q->where('ano_lectivo_id', $anoLectivo->id)
         )->where('created_at', '<=', $turmaAluno->created_at)
             ->count();
 
@@ -82,13 +81,13 @@ class DeclaracaoComNotaService
         // ── Substituições simples (mesmo padrão do DeclaracaoSemNotaService) ──
         $substituicoes = [
             'nome da instituição ou colégio' => mb_strtoupper($instituicao->nome, 'UTF-8'),
-            'declaracao_numero' => 'Nº' . str_pad($numeroDeclaracao, 3, '0', STR_PAD_LEFT) . '/SP/' . now()->year,
+            'declaracao_numero' => 'Nº'.str_pad($numeroDeclaracao, 3, '0', STR_PAD_LEFT).'/SP/'.now()->year,
             'resultadofinal' => $resultado ?? 'Não Apto',
             'RSLTFINAL' => $resultado,
             '[finalidade do doc.]' => $efeito ?? 'de frequência e aproveitamento escolar',
             'ex João Silva' => mb_strtoupper($candidato->nome, 'UTF-8'),
             '[Nome dos encarregados]' => $candidato->filiacao ?? '_______________',
-            'Curriculum Diúrno' => 'Curriculum ' . $curriculum,
+            'Curriculum Diúrno' => 'Curriculum '.$curriculum,
             '[Instituto/Colégio]' => $tipo,
             '[2025/26]' => $anoLectivo->nome,
             '[10ª]' => $classe->nome,
@@ -97,7 +96,7 @@ class DeclaracaoComNotaService
             '[informática]' => $curso->area ?? $curso->nome,
             '[número do aluno da turma]' => (string) ($turmaAluno?->numero_na_turma ?? '___'),
             '[número de processo]' => $candidato->numero_estudante,
-            '[classe_tabela]' => $classe->nome . ' Classe',
+            '[classe_tabela]' => $classe->nome.' Classe',
             '[media_final]' => $dados['classificacao_final'] !== null
                 ? number_format($dados['classificacao_final'], 1)
                 : '—',
@@ -106,10 +105,10 @@ class DeclaracaoComNotaService
             '[subdirector]' => $instituicao->subdirector ?? '_______________',
         ];
 
-        $tmp = tempnam(sys_get_temp_dir(), 'decl_cn_') . '.docx';
+        $tmp = tempnam(sys_get_temp_dir(), 'decl_cn_').'.docx';
         copy($this->template, $tmp);
 
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         $zip->open($tmp);
         $xml = $zip->getFromName('word/document.xml');
 
@@ -155,7 +154,7 @@ class DeclaracaoComNotaService
                     'disciplina' => '—',
                     'media_final' => null,
                     'extenso' => '—',
-                ]
+                ],
             ];
         }
 
@@ -265,7 +264,7 @@ XML;
             ->where('turma_id', $turma->id)
             ->first();
 
-        if (!$turmaAluno) {
+        if (! $turmaAluno) {
             return [
                 'notas' => [],
                 'media_pc' => null,
@@ -285,21 +284,24 @@ XML;
 
         foreach ($tdps as $tdp) {
             $disciplina = $tdp->classeTurnoDisciplina?->disciplina;
-            if (!$disciplina)
+            if (! $disciplina) {
                 continue;
+            }
 
             $nota = $turmaAluno->notas()
                 ->where('turma_disciplina_professor_id', $tdp->id)
                 ->where('periodo', 3)
                 ->first();
 
-            if (!$nota || $nota->media_final === null)
+            if (! $nota || $nota->media_final === null) {
                 continue;
+            }
 
             $mediaFinal = round((float) $nota->media_final * 2) / 2;
             $componente = strtolower($disciplina->componente ?? 'tecnica');
-            if (!isset($notasPorComponente[$componente]))
+            if (! isset($notasPorComponente[$componente])) {
                 $componente = 'tecnica';
+            }
 
             $notasPorComponente[$componente][] = [
                 'disciplina' => $disciplina->nome,
@@ -326,8 +328,9 @@ XML;
 
     private function numeroParaExtenso(?float $numero): string
     {
-        if ($numero === null)
+        if ($numero === null) {
             return '—';
+        }
 
         $valor = (int) round($numero);
         $mapa = [

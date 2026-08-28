@@ -25,7 +25,7 @@ class DeclaracaoSemNotaService
     {
         return $turma->anoLectivo?->nome
             ?? $aluno->inscricao?->anoLectivo?->nome
-            ?? date('Y') . '/' . (date('Y') + 1);
+            ?? date('Y').'/'.(date('Y') + 1);
     }
 
     public function gerar(
@@ -66,8 +66,7 @@ class DeclaracaoSemNotaService
 
         $numeroDeclaracao = TurmaAluno::whereHas(
             'turma',
-            fn($q) =>
-            $q->where('ano_lectivo_id', $anoLectivo->id)
+            fn ($q) => $q->where('ano_lectivo_id', $anoLectivo->id)
         )->where('created_at', '<=', $turmaAluno->created_at)
             ->count();
 
@@ -75,15 +74,15 @@ class DeclaracaoSemNotaService
 
         $substituicoes = [
             'nome da instituição ou colégio' => mb_strtoupper($instituicao->nome, 'UTF-8'),
-            'declaracao_numero' => 'Nº' . str_pad($numeroDeclaracao, 3, '0', STR_PAD_LEFT) . '/SP/' . now()->year,
-            '[finalidade do doc.]' => 'de ' . ($efeito ?? 'de frequência e aproveitamento escolar'),
+            'declaracao_numero' => 'Nº'.str_pad($numeroDeclaracao, 3, '0', STR_PAD_LEFT).'/SP/'.now()->year,
+            '[finalidade do doc.]' => 'de '.($efeito ?? 'de frequência e aproveitamento escolar'),
             'ex João Silva' => mb_strtoupper($candidato->nome, 'UTF-8'),
             '[Nome dos encarregados]' => $candidato->filiacao ?? '_______________',
             '[Instituto/Colégio]' => $tipo,
             '[2025/26]' => $anoLectivo->nome,
             '[10ª]' => $classe->nome,
             '[nome do curso]' => $curso->nome,
-            'Curriculum Diúrno' => 'Curriculum ' . $curriculum,
+            'Curriculum Diúrno' => 'Curriculum '.$curriculum,
             '[turma]' => $turma->nome,
             '[informática]' => $curso->area ?? $curso->nome,
             '[número do aluno da turma]' => (string) ($turmaAluno?->numero_na_turma ?? '___'),
@@ -94,7 +93,7 @@ class DeclaracaoSemNotaService
             '[Nome do director]' => $instituicao->subdirector ?? '_______________',
         ];
 
-        $tmp = tempnam(sys_get_temp_dir(), 'decl_') . '.docx';
+        $tmp = tempnam(sys_get_temp_dir(), 'decl_').'.docx';
         copy($this->template, $tmp);
 
         $zip = new ZipArchive;

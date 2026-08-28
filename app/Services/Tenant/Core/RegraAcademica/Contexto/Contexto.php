@@ -2,7 +2,6 @@
 
 namespace App\Services\Tenant\Core\RegraAcademica\Contexto;
 
-use App\Models\Tenant\CandidatoTurmaAluno;
 use App\Models\Tenant\TurmaAluno;
 
 /**

@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\Curso;
-use App\Models\CursoTutelado;
-use App\Models\Instituicao;
-use App\Models\InstituicaoCurso;
-use App\Models\Professor;
-use App\Models\User;
+use App\Models\Tenant\Curso;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
+use App\Models\Tenant\Professor;
+use App\Models\Tenant\User;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;

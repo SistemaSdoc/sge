@@ -8,8 +8,9 @@ use App\Models\Inscricao;
 use App\Models\Turma;
 use App\Services\DeclaracaoComNotaService;
 use App\Services\DeclaracaoSemNotaService;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class);
+uses(TestCase::class);
 
 it('usa o ano lectivo da turma seleccionada na declaração sem notas', function () {
     $anoTurma = new AnoLectivo(['nome' => '2024/25']);
@@ -23,7 +24,7 @@ it('usa o ano lectivo da turma seleccionada na declaração sem notas', function
     $inscricao->setRelation('anoLectivo', $anoInscricao);
     $aluno->setRelation('inscricao', $inscricao);
 
-    $service = new DeclaracaoSemNotaService();
+    $service = new DeclaracaoSemNotaService;
 
     expect($service->obterAnoLectivoNome($aluno, $turma))->toBe('2024/25');
 });
@@ -47,7 +48,7 @@ it('usa o ano lectivo da turma seleccionada na declaração com notas', function
     $inscricao->setRelation('cursoClasseTurno', $cct);
     $aluno->setRelation('inscricao', $inscricao);
 
-    $service = new DeclaracaoComNotaService();
+    $service = new DeclaracaoComNotaService;
 
     expect($service->obterAnoLectivoNome($aluno, $turma))->toBe('2023/24');
 });

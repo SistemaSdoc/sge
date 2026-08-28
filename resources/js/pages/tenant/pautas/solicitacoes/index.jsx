@@ -23,11 +23,13 @@ export default function SolicitacoesIndex() {
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-4 p-6">
-      <div className='flex justify-between'>
-        <h1 className="text-xl font-semibold">Solicitações de Lançamento de Notas</h1>
+      <div className="flex justify-between">
+        <h1 className="text-xl font-semibold">
+          Solicitações de Lançamento de Notas
+        </h1>
 
         <Button asChild>
-          <Link href={edit({instituicao: instituicao.id}).url}>
+          <Link href={edit({ instituicao: instituicao.id }).url}>
             Definir prazos de lançamentos
           </Link>
         </Button>

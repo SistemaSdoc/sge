@@ -275,7 +275,9 @@ class GrupoPapAprovacaoController extends Controller
     public function reenviar(Request $request, GrupoPap $grupoPap)
     {
         if (! $grupoPap->podeSerReenviado()) {
-            return back()->withErrors(['grupo' => 'Este tema não pode ser reenviado neste momento.']);
+            return back()->withErrors([
+                'grupo' => 'Este tema não pode ser reenviado neste momento. Estado actual: '.$grupoPap->status_aprovacao.'.',
+            ]);
         }
 
         $validated = $request->validate([
@@ -299,7 +301,7 @@ class GrupoPapAprovacaoController extends Controller
         $cursoTutelado = $cursoClasse->cursoTutelado;
 
         return redirect()
-            ->route('tenant.dashboard.pap.show', [
+            ->route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
                 'instituicao' => $cursoTutelado->instituicaoCurso->instituicao_id,
                 'cursoTutelado' => $cursoTutelado->id,
                 'cursoClasse' => $cursoClasse->id,
@@ -365,13 +367,13 @@ class GrupoPapAprovacaoController extends Controller
             'grupoPap' => $grupoPap,
 
             'rotaAtualizar' => route(
-                'grupo-pap-aprovacao.atualizar',
-                ':id'
+                'tenant.dashboard.grupo-pap-aprovacao.atualizar',
+                ['grupoPap' => $grupoPap->id]
             ),
 
             'rotaReenviar' => route(
-                'grupo-pap-aprovacao.reenviar',
-                ':id'
+                'tenant.dashboard.grupo-pap-aprovacao.reenviar',
+                ['grupoPap' => $grupoPap->id]
             ),
         ]);
     }

@@ -23,7 +23,7 @@ class CursoTuteladoProfessorController extends Controller
         $user = Auth::guard('tenant')->user();
 
         $instituicaoId = $user?->instituicaoFiltro();
-        
+
         $professores = $cursoTutelado->professores()
             ->with(['user'])
             ->paginate(5);

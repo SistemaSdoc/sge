@@ -22,15 +22,22 @@ Route::prefix('colegios')->group(function () {
         Route::get('/', [ColegioController::class, 'show'])
             ->name('colegios.show');
 
+        Route::get('grupo-pap-aprovacao/pendentes', [GrupoPapAprovacaoController::class, 'pendentes'])
+            ->name('colegio.grupo-pap-aprovacao.pendentes');
+
         Route::prefix('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}')
             ->group(function () {
 
                 Route::put('/elementos/{elementoGrupoPap}/nota', [ElementoGrupoPapController::class, 'actualizarNota'])
+                    ->middleware('cross.tenant')
                     ->name('colegios.cursos.classes.turnos.turmas.pap.elementos.actualizarNota');
 
                 // Show do grupo PAP
                 Route::get('/', [GrupoPapController::class, 'show'])
                     ->name('colegios.cursos.classes.turnos.turmas.pap.show');
+
+                Route::put('/data-defesa', [GrupoPapController::class, 'definirData'])
+                    ->name('colegios.cursos.classes.turnos.turmas.pap.definir-data');
 
                 // Aprovação — dentro do aninhamento completo
                 Route::post('/aprovar', [GrupoPapAprovacaoController::class, 'aprovar'])
@@ -54,14 +61,7 @@ Route::prefix('colegios')->group(function () {
                 // Banca
                 Route::resource('banca', BancaJuriPapController::class)
                     ->parameters(['banca' => 'bancaJuriPap'])
-                    ->only(['create', 'store', 'edit', 'update', 'destroy']);
-
-                Route::post('/reenviar', [GrupoPapAprovacaoController::class, 'reenviar'])
-                    ->name('colegio.grupo-pap-aprovacao.reenviar');
-
-                // Banca
-                Route::resource('banca', BancaJuriPapController::class)
-                    ->parameters(['banca' => 'bancaJuriPap'])
+                    ->middleware('cross.tenant')
                     ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
             });

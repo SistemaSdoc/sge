@@ -6,11 +6,11 @@ export default function Edit({
   instituicao,
   cursoTutelado,
   classes,
-  instituicoes,
+  tenantsTutores,
 }) {
   const { data, setData, put, processing, errors } = useForm({
     duracao_anos: cursoTutelado?.curso?.duracao_anos ?? '',
-    instituicao_tutora_id: cursoTutelado?.instituicao_tutora?.id ?? '',
+    tenant_tutor_id: cursoTutelado?.tenant_tutor_id ?? '',
     classes: Array.isArray(cursoTutelado?.classes) ? cursoTutelado.classes : [],
   });
 
@@ -30,8 +30,9 @@ export default function Edit({
     <div className="mx-auto w-full max-w-5xl px-4 py-6">
       <CursoForm
         title="Editar curso tutelado"
+        instituicao={instituicao}
         classes={classes}
-        instituicoes={instituicoes}
+        tenantsTutores={tenantsTutores}
         data={data}
         setData={setData}
         errors={errors}

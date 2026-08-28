@@ -82,6 +82,31 @@ class TenantService
         }
     }
 
+    /**
+     * Lista tenants disponíveis para tutela externa.
+     *
+     * @return array<int, array{id: string, nome: string}>
+     */
+    public function getAvailableTutors(string $currentTenantId): array
+    {
+        return Tenant::query()
+            ->where('id', '!=', $currentTenantId)
+            ->whereIn('status', [TenantStatus::ACTIVE, TenantStatus::TRIAL])
+            ->get()
+            ->map(function (Tenant $tenant): array {
+                $instituicao = $this->getInstituicao($tenant);
+
+                return [
+                    'id' => (string) $tenant->getTenantKey(),
+                    'nome' => $instituicao?->nome ?? (string) $tenant->getTenantKey(),
+                    'tipo' => $instituicao?->tipo,
+                ];
+            })
+            ->filter(fn (array $tenant): bool => $tenant['tipo'] === 'instituto')
+            ->values()
+            ->all();
+    }
+
     private function isMissingTenantDatabase(TenantDatabaseDoesNotExistException|QueryException $exception): bool
     {
         if ($exception instanceof TenantDatabaseDoesNotExistException) {

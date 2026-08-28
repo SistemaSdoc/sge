@@ -30,9 +30,9 @@ class UserRequest extends FormRequest
             'password' => $this->isMethod('post')
                 ? ['required', 'string', 'min:6']
                 : ['nullable', 'string', 'min:6'],
-            //'instituicao_id' => ['nullable', 'uuid'],
-            //'bi' => ['nullable', 'string', 'max:255', Rule::unique('users')->ignore($userId)],
-            'telefone' => ['nullable', 'string', 'max:255', Rule::unique('users')->ignore($userId),],
+            // 'instituicao_id' => ['nullable', 'uuid'],
+            // 'bi' => ['nullable', 'string', 'max:255', Rule::unique('users')->ignore($userId)],
+            'telefone' => ['nullable', 'string', 'max:255', Rule::unique('users')->ignore($userId)],
             'roles' => ['required', 'array'],
             'roles.*' => ['integer', 'exists:roles,id'],
         ];

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Tenant\Colegios;
 
 use App\Helpers\ArredondamentoHelper;
 use App\Http\Controllers\Controller;
+use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
@@ -11,9 +13,9 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\Turma;
-use App\Models\Tenant\User;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\User;
 use App\Services\Tenant\NotaService;
 use App\Services\Tenant\Pauta\PautaService;
 use Illuminate\Support\Facades\Auth;
@@ -30,17 +32,47 @@ class NotaDisciplinaController extends Controller
      * Lista as notas dos alunos de uma turma numa disciplina.
      */
     public function index(
-        Instituicao $instituicao,
         string $colegio,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $classeTurnoDisciplina
+    ) {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        $instituicao = Instituicao::findOrFail($user->instituicao_id);
+        $shared = CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
+            ->where('curso_tutelado_tutelado_id', $cursoTutelado)
+            ->where('status', 'activo')
+            ->firstOrFail();
+        $tenantTutelado = Tenant::query()->findOrFail($shared->tenant_tutelado_id);
+
+        return $tenantTutelado->run(function () use ($instituicao, $colegio, $cursoTutelado, $cursoClasse, $cursoClasseTurno, $turma, $classeTurnoDisciplina, $user) {
+            return $this->indexFromTenant(
+                $instituicao,
+                Instituicao::findOrFail($colegio),
+                CursoTutelado::findOrFail($cursoTutelado),
+                CursoClasse::findOrFail($cursoClasse),
+                CursoClasseTurno::findOrFail($cursoClasseTurno),
+                Turma::findOrFail($turma),
+                ClasseTurnoDisciplina::findOrFail($classeTurnoDisciplina),
+                $user,
+            );
+        });
+    }
+
+    private function indexFromTenant(
+        Instituicao $instituicao,
+        Instituicao $colegio,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma,
-        ClasseTurnoDisciplina $classeTurnoDisciplina
+        ClasseTurnoDisciplina $classeTurnoDisciplina,
+        User $user,
     ) {
-        /** @var User $user */
-        $user = Auth::guard('tenant')->user();
-
 
         /*
         |--------------------------------------------------------------------------

@@ -2,7 +2,6 @@
 
 namespace App\Models\Tenant;
 
-use App\Models\Tenant\Documento;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
@@ -24,15 +23,15 @@ class ItemPagavel extends Model
         'valor',
         'tipo',
         'frequencia',
-    'multa_dias_tolerancia',
-    'multa_valor',
+        'multa_dias_tolerancia',
+        'multa_valor',
         'ativo',
     ];
 
     protected $casts = [
         'valor' => 'decimal:2',
-    'multa_valor' => 'decimal:2',
-    'multa_dias_tolerancia' => 'integer',
+        'multa_valor' => 'decimal:2',
+        'multa_dias_tolerancia' => 'integer',
         'ativo' => 'boolean',
     ];
 

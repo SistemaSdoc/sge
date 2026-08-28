@@ -47,7 +47,7 @@ final class SidebarMenuService
         ];
 
         return array_values(array_filter(
-            array_map(fn(MenuGroup $group) => $group->toArray(), $groups),
+            array_map(fn (MenuGroup $group) => $group->toArray(), $groups),
         ));
     }
 }

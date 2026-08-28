@@ -40,8 +40,7 @@ class ElementoGrupoPapController extends Controller
             $grupoPap->update(['status' => 'concluido']);
         }
 
-        return to_route('tenant.dashboard.pap.show', [
-            'instituicao' => $instituicao->id,
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', [
             'colegio' => $colegio,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

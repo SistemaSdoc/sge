@@ -186,7 +186,6 @@ class PermissionSeeder extends Seeder
             'itemspagaveis.update',
             'itemspagaveis.delete',
 
-
             // Documentos
             'documentos.viewAny',
             'documentos.view',

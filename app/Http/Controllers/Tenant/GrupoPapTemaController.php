@@ -68,7 +68,7 @@ class GrupoPapTemaController extends Controller
             'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
         ]);
 
-        return to_route('tenant.dashboard.pap.show', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
@@ -133,7 +133,7 @@ class GrupoPapTemaController extends Controller
             'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO, // ← também aqui
         ]);
 
-        return to_route('tenant.dashboard.pap.show', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

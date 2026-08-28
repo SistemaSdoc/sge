@@ -12,7 +12,7 @@ class ReciboController extends Controller
     {
         $this->authorize('view', $pagamento);
 
-        if (!$pagamento->recibo_path || !Storage::disk('local')->exists($pagamento->recibo_path)) {
+        if (! $pagamento->recibo_path || ! Storage::disk('local')->exists($pagamento->recibo_path)) {
             $pagamento->gerarRecibo(forcar: true);
         }
 
@@ -20,16 +20,16 @@ class ReciboController extends Controller
     }
 
     public function exportar(Pagamento $pagamento)
-{
-    $this->authorize('view', $pagamento);
+    {
+        $this->authorize('view', $pagamento);
 
-    if (!$pagamento->recibo_path || !Storage::disk('local')->exists($pagamento->recibo_path)) {
-        $pagamento->gerarRecibo(forcar: true);
+        if (! $pagamento->recibo_path || ! Storage::disk('local')->exists($pagamento->recibo_path)) {
+            $pagamento->gerarRecibo(forcar: true);
+        }
+
+        return response()->download(
+            Storage::disk('local')->path($pagamento->recibo_path),
+            "recibo-{$pagamento->numero_recibo}.pdf"
+        );
     }
-
-    return response()->download(
-        Storage::disk('local')->path($pagamento->recibo_path),
-        "recibo-{$pagamento->numero_recibo}.pdf"
-    );
-}
 }

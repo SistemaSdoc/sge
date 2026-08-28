@@ -219,9 +219,6 @@ Route::middleware([
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/criterios-pap', [CursoTuteladoController::class, 'uploadCriteriosPap'])
                 ->name('instituicoes.cursos-tutelados.criterios-pap');
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta', [CursoTuteladoController::class, 'pauta'])
-                ->name('instituicoes.cursos-tutelados.turmas.pauta');
-
             Route::get('cursos/{curso}/instituicoes-tutoras', [CursosController::class, 'instituicoesTutoras'])
                 ->name('cursos.instituicoes-tutoras');
 
@@ -250,9 +247,6 @@ Route::middleware([
 
             Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}', [CursoClasseController::class, 'show'])
                 ->name('cursos-tutelados.classes.show');
-
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes-turnos', [CursoClasseController::class, 'index'])
-                ->name('cursos-tutelados.classes-turnos.index');
 
             /*
             |--------------------------------------------------------------------------

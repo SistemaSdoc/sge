@@ -27,7 +27,7 @@ import {
 import { ArrowLeftIcon, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import { show as showCurso } from '@/actions/App/Http/Controllers/Tenant/Colegios/CursoTuteladoController';
-import { show as showTurma } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
+import { show as showTurma } from '@/actions/App/Http/Controllers/Tenant/Colegios/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
 import { useRef, useState } from 'react';
 import {
@@ -230,7 +230,6 @@ export default function Show({
                             if (turma.can?.view) {
                               router.visit(
                                 showTurma({
-                                  instituicao: instituicaoId,
                                   colegio: colegio.id,
                                   cursoTutelado: cursoId,
                                   cursoClasse: classeId,
