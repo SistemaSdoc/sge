@@ -19,10 +19,10 @@ import {
 
 const STATUS = {
   pendente: {
-    label: 'Pendente',
+    label: 'Em análise — Coordenação',
     icon: Clock,
-    badgeClass: 'bg-muted text-muted-foreground border-transparent',
-    barClass: 'bg-muted-foreground',
+    badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
+    barClass: 'bg-purple-500',
   },
   aprovado: {
     label: 'Aprovado',
@@ -36,13 +36,19 @@ const STATUS = {
     badgeClass: 'bg-red-50 text-red-700 border-red-200',
     barClass: 'bg-red-500',
   },
-  'melhoria-solicitada': {
-    label: 'Melhoria Solicitada',
+  'melhoria-solicitada-tutor': {
+    label: 'Correção solicitada — Tutor',
     icon: AlertCircle,
     badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
     barClass: 'bg-amber-500',
   },
-  'tema-submetido': {
+  'melhoria-solicitada-coordenacao': {
+    label: 'Correção solicitada — Coordenação',
+    icon: AlertCircle,
+    badgeClass: 'bg-orange-50 text-orange-700 border-orange-200',
+    barClass: 'bg-orange-500',
+  },
+  submetido: {
     label: 'Reenviado',
     icon: RefreshCw,
     badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -55,15 +61,15 @@ const getStatus = (s) => STATUS[s] || STATUS.pendente;
 const formatDate = (d) =>
   d
     ? new Date(d).toLocaleDateString('pt-PT', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      }) +
-      ' · ' +
-      new Date(d).toLocaleTimeString('pt-PT', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }) +
+    ' · ' +
+    new Date(d).toLocaleTimeString('pt-PT', {
+      hour: '2-digit',
+      minute: '2-digit',
+    })
     : null;
 
 export function TabHistorico({ historico = [] }) {
@@ -92,6 +98,7 @@ export function TabHistorico({ historico = [] }) {
 
               return (
                 <div key={item.id} className="px-6 py-4">
+
                   <div className="flex items-start justify-between gap-4">
                     <Badge
                       variant="outline"
@@ -117,25 +124,12 @@ export function TabHistorico({ historico = [] }) {
                     )}
 
                     {item.tema && (
-                      <div className="flex items-start gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs">
+                      <div className="flex items-start gap-2 border bg-muted/30 px-3 py-2 text-xs">
                         <FileText className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
                         <div className="space-y-1">
-                          <p>
-                            <span className="font-medium">Tema:</span>{' '}
-                            {item.tema}
-                          </p>
-                          {item.problema && (
-                            <p>
-                              <span className="font-medium">Problema:</span>{' '}
-                              {item.problema}
-                            </p>
-                          )}
-                          {item.objectivos && (
-                            <p>
-                              <span className="font-medium">Objectivos:</span>{' '}
-                              {item.objectivos}
-                            </p>
-                          )}
+                          <p><span className="font-medium">Tema:</span> {item.tema}</p>
+                          {item.problema && <p><span className="font-medium">Problema:</span>    {item.problema}</p>}
+                          {item.objectivos && <p><span className="font-medium">Objectivos:</span>  {item.objectivos}</p>}
                         </div>
                       </div>
                     )}

@@ -1,129 +1,144 @@
-import { Button } from '@/components/ui/button';
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 export default function ModalDecisaoAprovacao({
   open,
   onClose,
   tema,
-  problema,
-  objectivos,
   action,
   comentario,
   onComentarioChange,
   onConfirmar,
   loading,
 }) {
-  const comentarioObrigatorio = action === 'reprovar' || action === 'melhoria';
-  const podeConfirmar = action === 'aprovar' || comentario.trim().length >= 10;
 
-  const getTitle = () => {
-    switch (action) {
-      case 'aprovar':
-        return 'Aprovar Tema PAP';
-      case 'reprovar':
-        return 'Reprovar Tema PAP';
-      case 'melhoria':
-        return 'Solicitar Melhoria';
-      default:
-        return '';
-    }
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (open) setSubmitted(false);
+  }, [open, action]);
+  
+  const MODAL_CONFIG = {
+    aprovar: {
+      titulo: 'Aprovar Tema PAP',
+      descricao: 'O tema será aprovado e o grupo poderá avançar para a próxima fase da PAP.',
+      obrigatorio: false,
+      confirmLabel: 'Aprovar',
+      confirmVariant: 'default',
+      placeholder: 'Comentário opcional...',
+    },
+    reprovar: {
+      titulo: 'Reprovar Tema PAP',
+      descricao: 'Informe o motivo pelo qual o tema não foi aprovado.',
+      obrigatorio: true,
+      confirmLabel: 'Reprovar',
+      confirmVariant: 'destructive',
+      placeholder: 'Informe o motivo da reprovação...',
+    },
+    melhoria: {
+      titulo: 'Solicitar Melhoria',
+      descricao: 'Informe as alterações que o grupo deverá realizar antes de reenviar o tema.',
+      obrigatorio: true,
+      confirmLabel: 'Solicitar Melhoria',
+      confirmVariant: 'outline',
+      placeholder: 'Informe as recomendações de melhoria...',
+    },
+    aprovarTutor: {
+      titulo: 'Enviar para a coordenação',
+      descricao: 'O tema será enviado para análise da coordenação do curso.',
+      obrigatorio: false,
+      confirmLabel: 'Enviar para coordenação',
+      confirmVariant: 'default',
+      placeholder: 'Comentário opcional...',
+    },
+    melhoriaComoTutor: {
+      titulo: 'Solicitar Melhoria',
+      descricao: 'Informe as alterações que o grupo deverá realizar antes de reenviar o tema.',
+      obrigatorio: true,
+      confirmLabel: 'Solicitar Melhoria',
+      confirmVariant: 'outline',
+      placeholder: 'Informe as recomendações de melhoria...',
+    },
   };
 
-  const getPlaceholder = () => {
-    switch (action) {
-      case 'aprovar':
-        return 'Comentários adicionais (opcional)...';
-      case 'reprovar':
-        return 'Informe o motivo da reprovação...';
-      case 'melhoria':
-        return 'Informe as recomendações de melhoria...';
-      default:
-        return '';
-    }
-  };
+  const config = MODAL_CONFIG[action] ?? {};
+  const comentarioError = config.obrigatorio && submitted
+    ? comentario.trim().length === 0
+      ? 'Este campo é obrigatório.'
+      : comentario.trim().length < 10
+        ? 'Este campo deve conter pelo menos 10 caracteres.'
+        : null
+    : null;
+  const podeConfirmar = !config.obrigatorio || !comentarioError;
 
-  const getDescricao = () => {
-    switch (action) {
-      case 'aprovar':
-        return 'O tema será aprovado e o grupo poderá avançar para a próxima fase da PAP.';
-      case 'reprovar':
-        return 'Informe o motivo pelo qual o tema não foi aprovado.';
-      case 'melhoria':
-        return 'Informe as alterações que o grupo deverá realizar antes de reenviar o tema.';
-      default:
-        return '';
-    }
+  const handleClose = () => {
+    if (loading) return;
+    onClose();
   };
 
   return (
-    <AlertDialog
-      open={open}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) onClose();
-      }}
-    >
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{getTitle()}</AlertDialogTitle>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{config.titulo}</DialogTitle>
+        </DialogHeader>
 
-          <AlertDialogDescription>
-            <span className="font-semibold text-foreground">Tema: </span>
-            {tema?.tema_grupo}
-          </AlertDialogDescription>
+        <div className="space-y-4 py-2">
+          {/* Resumo do tema */}
+          <div className="border bg-muted/40 px-4 py-3 space-y-1 text-sm">
+            <p><span className="font-medium">Tema: </span>{tema?.tema_grupo}</p>
+            <p><span className="font-medium">Problema: </span>{tema?.problema}</p>
+            <p><span className="font-medium">Objectivos: </span>{tema?.objectivos}</p>
+          </div>
 
-          <AlertDialogDescription>
-            <span className="font-semibold text-foreground">Problema: </span>
-            {tema?.problema}
-          </AlertDialogDescription>
+          {/* Descrição da acção */}
+          <p className="text-sm text-muted-foreground">{config.descricao}</p>
 
-          <AlertDialogDescription>
-            <span className="font-semibold text-foreground">Objectivos: </span>
-            {tema?.objectivos}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        {/* Informação */}
-        <div className="rounded-md bg-gray-50 p-3 text-sm">
-          <p>{getDescricao()}</p>
+          {/* Comentário */}
+          <div className="space-y-1.5">
+            <Label htmlFor="comentario-aprovacao">
+              Comentário{config.obrigatorio ? ' *' : ' (opcional)'}
+            </Label>
+            <Textarea
+              id="comentario-aprovacao"
+              rows={4}
+              value={comentario}
+              onChange={(e) => onComentarioChange(e.target.value)}
+              placeholder={config.placeholder}
+              disabled={loading}
+            />
+            {config.obrigatorio && comentarioError && (
+              <p className="text-xs text-red-500">{comentarioError}</p>
+            )}
+          </div>
         </div>
 
-        {/* Campo de comentário */}
-        <Textarea
-          placeholder={getPlaceholder()}
-          value={comentario}
-          onChange={(e) => onComentarioChange(e.target.value)}
-          disabled={loading}
-          className="min-h-28"
-        />
-
-        {/* Mensagem de validação */}
-        {comentarioObrigatorio && comentario.trim().length < 10 && (
-          <p className="text-sm text-red-500">
-            Este campo deve conter pelo menos 10 caracteres.
-          </p>
-        )}
-
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading}>Cancelar</AlertDialogCancel>
-
-          <Button
-            disabled={loading || !podeConfirmar}
-            onClick={onConfirmar}
-            variant={action === 'reprovar' ? 'destructive' : 'default'}
-          >
-            {loading ? 'Processando...' : 'Confirmar'}
+        <DialogFooter>
+          <Button variant="outline" onClick={handleClose} disabled={loading}>
+            Cancelar
           </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          <Button
+            variant={config.confirmVariant ?? 'default'}
+            onClick={() => {
+              setSubmitted(true);
+              if (!podeConfirmar) return;
+              onConfirmar();
+            }}
+            disabled={loading}
+          >
+            {loading ? 'A processar...' : config.confirmLabel}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
