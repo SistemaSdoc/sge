@@ -217,6 +217,99 @@ class GrupoPapPolicy
             && $grupoPap->professor_tutor_id === $user->professor?->id;
     }
 
+    // ── Trabalho PAP ─────────────────────────────────────────────────────────────
+
+    /**
+     * Qualquer integrante do grupo pode submeter o trabalho,
+     * desde que o trabalho esteja num estado que aceite submissão.
+     */
+    public function submeterTrabalho(User $user, GrupoPap $grupoPap): bool
+    {
+        $trabalho = $grupoPap->trabalhoPap;
+
+        if (!$trabalho || !$trabalho->podeSerSubmetido()) {
+            return false;
+        }
+
+        return $grupoPap->elementos()
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->exists();
+    }
+
+    /**
+     * Só o professor tutor do grupo pode aprovar como tutor.
+     */
+    public function aprovarTrabalhoComoTutor(User $user, GrupoPap $grupoPap): bool
+    {
+        $trabalho = $grupoPap->trabalhoPap;
+
+        return $trabalho?->podeSerAnalisadoPeloTutor()
+            && $grupoPap->professor_tutor_id === $user->professor?->id;
+    }
+
+    /**
+     * Só o professor tutor do grupo pode solicitar correção como tutor.
+     */
+    public function solicitarCorrecaoTrabalhoComoTutor(User $user, GrupoPap $grupoPap): bool
+    {
+        $trabalho = $grupoPap->trabalhoPap;
+
+        return $trabalho?->podeSerAnalisadoPeloTutor()
+            && $grupoPap->professor_tutor_id === $user->professor?->id;
+    }
+
+    /**
+     * Coordenação da instituição tutora aprova definitivamente.
+     */
+    public function aprovarTrabalhoComoCoordenacao(User $user, GrupoPap $grupoPap): bool
+    {
+        $trabalho = $grupoPap->trabalhoPap;
+
+        return $trabalho?->podeSerAnalisadoPelaCoordenacao()
+            && $user->can('grupopap.aprovar')
+            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
+    }
+
+    /**
+     * Coordenação da instituição tutora solicita correção.
+     */
+    public function solicitarCorrecaoTrabalhoComoCoordenacao(User $user, GrupoPap $grupoPap): bool
+    {
+        $trabalho = $grupoPap->trabalhoPap;
+
+        return $trabalho?->podeSerAnalisadoPelaCoordenacao()
+            && $user->can('grupopap.aprovar')
+            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
+    }
+
+    /**
+     * Download disponível para tutor, coordenação da tutora, e membros do grupo.
+     */
+    public function downloadVersaoTrabalho(User $user, GrupoPap $grupoPap): bool
+    {
+        if (!$grupoPap->trabalhoPap) {
+            return false;
+        }
+        
+        // Membros do grupo
+        $ehIntegrante = $grupoPap->elementos()
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->exists();
+
+        if ($ehIntegrante) {
+            return true;
+        }
+
+        // Tutor do grupo
+        if ($grupoPap->professor_tutor_id === $user->professor?->id) {
+            return true;
+        }
+
+        // Coordenação da instituição tutora
+        return $user->can('grupopap.aprovar')
+            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
+    }
+
     /**
      * Determina se o utilizador pode apagar um grupo PAP.
      *

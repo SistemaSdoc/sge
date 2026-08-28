@@ -105,7 +105,7 @@ class AprovacaoTemaService
         return $this->alterarEstado(
             $grupoPap,
             $user,
-            'melhoria-solicitada',
+            GrupoPap::APROVACAO_MELHORIA_COORDENACAO,
             $recomendacao
         );
     }
@@ -138,6 +138,10 @@ class AprovacaoTemaService
                 'comentario_aprovacao' => $comentario,
                 ...($novoEstado === 'aprovado' ? ['status' => 'em-andamento'] : []),
             ]);
+
+            if ($novoEstado === 'aprovado') {
+                app(TrabalhoPapService::class)->inicializar($grupoPap);
+            }
 
             // Registar histórico da decisão
             HistoricoAprovacaoPap::create([

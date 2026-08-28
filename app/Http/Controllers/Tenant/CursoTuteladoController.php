@@ -296,10 +296,11 @@ class CursoTuteladoController extends Controller
     {
         Gate::authorize('update', $cursoTutelado);
 
-        $request->validate([
-            'criterios_pap' => [($cursoTutelado->criterios_pap_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
-            'manual_pt' => [($cursoTutelado->manual_pt_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
-        ]);
+    $request->validate([
+        'criterios_pap' => [($cursoTutelado->criterios_pap_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
+        'manual_pt'     => [($cursoTutelado->manual_pt_path     ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
+        'estrutura_trabalho_pap' => [($cursoTutelado->estrutura_trabalho_pap_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
+    ]);
 
         if ($request->hasFile('criterios_pap')) {
             if ($cursoTutelado->criterios_pap_path) {
@@ -327,4 +328,23 @@ class CursoTuteladoController extends Controller
             'message' => 'Documentos actualizados com sucesso.',
         ]);
     }
+
+       if ($request->hasFile('estrutura_trabalho_pap')) {
+        if ($cursoTutelado->estrutura_trabalho_pap_path) {
+            Storage::disk('public')->delete($cursoTutelado->estrutura_trabalho_pap_path);
+        }
+        $cursoTutelado->estrutura_trabalho_pap_path = $request->file('estrutura_trabalho_pap')
+            ->store("cursos-tutelados/{$cursoTutelado->id}/estrutura-trabalho-pap", 'public');
+    }
+
+    $cursoTutelado->save();
+
+    return redirect()->route('cursos-tutelados.show', [
+        'instituicao'    => $instituicao->id,
+        'cursoTutelado'  => $cursoTutelado->id,
+    ])->with('toast', [
+        'type'    => 'success',
+        'message' => 'Documentos actualizados com sucesso.',
+    ]);
+}
 }

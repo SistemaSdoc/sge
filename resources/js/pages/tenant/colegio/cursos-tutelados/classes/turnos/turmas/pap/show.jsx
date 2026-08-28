@@ -35,6 +35,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { editar as editarTema } from '@/actions/App/Http/Controllers/Tenant/GrupoPapAprovacaoController'; // ajustar o import real
 import { TabAprovacao } from './components/tabs/tab-aprovacao';
+import { TabTrabalho } from './components/tabs/tab-trabalho';
 
 export default function Show({
   instituicao,
@@ -44,6 +45,7 @@ export default function Show({
   cursoClasseTurno,
   turma,
   grupoPap,
+  trabalho,
   historico,
   banca,
   elementos,
@@ -220,7 +222,7 @@ export default function Show({
                 href={grupoPap.criterios_pap_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                className="flex items-center gap-1.5 font-medium text-primary hover:underline"
               >
                 <FileText className="size-4" />
                 Ver documento
@@ -236,7 +238,23 @@ export default function Show({
                 href={grupoPap.manual_pt_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                className="flex items-center gap-1.5 font-medium text-primary hover:underline"
+              >
+                <FileText className="size-4" />
+                Ver documento
+              </a>
+            </div>
+          )}
+
+          {grupoPap?.estrutura_trabalho_pap_url && (
+            <div>
+              <p className="text-sm text-muted-foreground">Estrutura do Trabalho PAP</p>
+
+              <a
+                href={grupoPap.estrutura_trabalho_pap_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 font-medium text-primary hover:underline"
               >
                 <FileText className="size-4" />
                 Ver documento
@@ -318,46 +336,49 @@ export default function Show({
         </DialogContent>
       </Dialog>
       {/* Banner de ação — reprovado ou melhoria solicitada */}
-      {['reprovado', 'melhoria-solicitada'].includes(
-        grupoPap.status_aprovacao,
-      ) && (
-        <Alert
-          variant={
-            grupoPap.status_aprovacao === 'reprovado'
-              ? 'destructive'
-              : 'default'
-          }
-        >
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>
-            {grupoPap.status_aprovacao === 'reprovado'
-              ? 'Tema reprovado'
-              : 'Melhoria solicitada'}
-          </AlertTitle>
-          <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <span className="text-sm">
-              {grupoPap.comentario_aprovacao ?? 'Sem comentário adicional.'}
-            </span>
-            {can?.corrigirTema && (
-              <Button
-                size="sm"
-                variant={
-                  grupoPap.status_aprovacao === 'reprovado'
-                    ? 'destructive'
-                    : 'default'
-                }
-                onClick={() =>
-                  router.visit(editarTema.url({ grupoPap: grupoPap.id }))
-                }
-              >
-                {grupoPap.status_aprovacao === 'reprovado'
-                  ? 'Enviar Novo Tema'
-                  : 'Corrigir Tema'}
-              </Button>
-            )}
-          </AlertDescription>
-        </Alert>
-      )}
+      {[
+        'reprovado',
+        'melhoria-solicitada',
+        'melhoria-solicitada-tutor',
+        'melhoria-solicitada-coordenacao',
+      ].includes((grupoPap.status_aprovacao || '').toLowerCase()) && (
+          <Alert
+            variant={
+              (grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
+                ? 'destructive'
+                : 'default'
+            }
+          >
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>
+              {(grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
+                ? 'Tema reprovado'
+                : 'Melhoria solicitada'}
+            </AlertTitle>
+            <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-sm">
+                {grupoPap.comentario_aprovacao ?? 'Sem comentário adicional.'}
+              </span>
+              {can?.corrigirTema && (
+                <Button
+                  size="sm"
+                  variant={
+                    (grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
+                      ? 'destructive'
+                      : 'default'
+                  }
+                  onClick={() =>
+                    router.visit(editarTema.url({ grupoPap: grupoPap.id }))
+                  }
+                >
+                  {(grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
+                    ? 'Enviar Novo Tema'
+                    : 'Corrigir Tema'}
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
 
       <Tabs defaultValue="integrantes-grupo" className="w-full">
         <TabsList>
@@ -369,7 +390,14 @@ export default function Show({
               Integrantes da banca
             </TabsTrigger>
           )}
-          <TabsTrigger value="aprovacao">Aprovação do tema</TabsTrigger>
+          {grupoPap.status_aprovacao !== 'rascunho' && (
+            <TabsTrigger value="aprovacao">Aprovação do tema</TabsTrigger>
+          )}
+
+          {/* ← NOVO */}
+          {grupoPap.status_aprovacao === 'aprovado' && (
+            <TabsTrigger value="trabalho">Trabalho PAP</TabsTrigger>
+          )}
 
           <TabsTrigger value="historico">Histórico</TabsTrigger>
         </TabsList>
@@ -401,6 +429,18 @@ export default function Show({
         <TabsContent value="aprovacao">
           <TabAprovacao params={params} grupoPap={grupoPap} can={can} />
         </TabsContent>
+
+        {/* ← NOVO */}
+        {grupoPap.status_aprovacao === 'aprovado' && (
+          <TabsContent value="trabalho">
+            <TabTrabalho
+              params={params}
+              grupoPap={grupoPap}
+              trabalho={trabalho}
+              can={can}
+            />
+          </TabsContent>
+        )}
 
         <TabsContent value="historico">
           <TabHistorico

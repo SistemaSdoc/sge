@@ -49,10 +49,10 @@ export default function Create() {
           title="Criar grupo PAP"
           errors={errors}
           processing={processing}
-          professores={form.professores}
+          //professores={form.professores}
           alunos={form.alunos}
-          professorTutorId={professorTutorId}
-          setProfessorTutorId={setProfessorTutorId}
+          //professorTutorId={professorTutorId}
+          //setProfessorTutorId={setProfessorTutorId}
           alunoIds={alunoIds}
           setAlunoIds={setAlunoIds}
         />

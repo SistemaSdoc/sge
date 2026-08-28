@@ -165,7 +165,7 @@ class GrupoPapAprovacaoController extends Controller
 
         DB::transaction(function () use ($grupoPap, $validated) {
             $grupoPap->update([
-                'status_aprovacao' => GrupoPap::APROVACAO_MELHORIA,
+                'status_aprovacao' => GrupoPap::APROVACAO_MELHORIA_TUTOR,
                 'comentario_aprovacao' => $validated['recomendacao'],
             ]);
 
@@ -173,7 +173,7 @@ class GrupoPapAprovacaoController extends Controller
                 'grupo_pap_id' => $grupoPap->id,
                 'utilizador_id' => Auth::guard('tenant')->id(),
                 'estado_anterior' => GrupoPap::APROVACAO_SUBMETIDO,
-                'estado_novo' => GrupoPap::APROVACAO_MELHORIA,
+                'estado_novo' => GrupoPap::APROVACAO_MELHORIA_TUTOR,
                 'tema' => $grupoPap->tema_grupo,
                 'problema' => $grupoPap->problema,
                 'objectivos' => $grupoPap->objectivos,
@@ -352,7 +352,10 @@ class GrupoPapAprovacaoController extends Controller
         $user = Auth::guard('tenant')->user();
 
         $temas = GrupoPap::query()
-            ->where('status_aprovacao', 'melhoria-solicitada')
+            ->whereIn('status_aprovacao', [
+                GrupoPap::APROVACAO_MELHORIA_TUTOR,
+                GrupoPap::APROVACAO_MELHORIA_COORDENACAO,
+            ])
             ->whereHas(
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
                 function ($query) {

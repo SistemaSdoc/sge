@@ -42,6 +42,7 @@ use App\Http\Controllers\ReciboController;
 use App\Http\Controllers\RegraAvaliacaoController;
 use App\Http\Controllers\RelatorioPropinaController;
 use App\Http\Controllers\SolicitacaoEdicaoPautaController;
+use App\Http\Controllers\TrabalhoPapController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\UserController;
@@ -185,6 +186,32 @@ Route::prefix('instituicoes/{instituicao}')->group(function () {
                     Route::resource('pap/{grupoPap}/banca', BancaJuriPapController::class)
                         ->parameters(['banca' => 'bancaJuriPap'])
                         ->only(['create', 'store', 'edit', 'update', 'destroy']);
+
+                    // routas para o trabalho PAP aprovação pdf
+                    Route::prefix('pap/{grupoPap}/trabalho')
+                        ->name('pap.trabalho.')
+                        ->group(function () {
+                        Route::get('/', [TrabalhoPapController::class, 'show'])
+                            ->name('show');
+                        Route::post('/submeter', [TrabalhoPapController::class, 'submeter'])
+                            ->name('submeter');
+                        Route::post('/tutor/aprovar', [TrabalhoPapController::class, 'aprovarComoTutor'])
+                            ->name('tutor.aprovar');
+                        Route::post('/tutor/correcao', [TrabalhoPapController::class, 'solicitarCorrecaoComoTutor'])
+                            ->name('tutor.correcao');
+                        Route::post('/coordenacao/aprovar', [TrabalhoPapController::class, 'aprovarComoCoordenacao'])
+                            ->name('coordenacao.aprovar');
+                        Route::post('/coordenacao/correcao', [TrabalhoPapController::class, 'solicitarCorrecaoComoCoordenacao'])
+                            ->name('coordenacao.correcao');
+                        Route::get('/versao/{numeroVersao}/download', [TrabalhoPapController::class, 'download'])
+                            ->name('versao.download')
+                            ->whereNumber('numeroVersao');
+                        Route::get('/versao/{numeroVersao}/visualizar', [TrabalhoPapController::class, 'visualizar'])  // ← também move esta para dentro
+                            ->name('versao.visualizar')
+                            ->whereNumber('numeroVersao');
+                        Route::get('/correcao/{feedbackId}/download', [TrabalhoPapController::class, 'downloadCorrecao'])  // ← nova
+                            ->name('correcao.download');
+                    });
 
                     Route::get('pap/{grupoPap}/folha-aprovacao', [FolhaAprovacaoController::class, 'folhaAprovacao']);
 

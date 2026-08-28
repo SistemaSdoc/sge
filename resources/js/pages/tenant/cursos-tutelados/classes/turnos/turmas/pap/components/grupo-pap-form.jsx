@@ -79,7 +79,7 @@ export default function GrupoPapForm({
                     ))}
                 </Field>
 
-                <Field>
+              {/* <Field>
                   <FieldLabel>Professor tutor</FieldLabel>
                   <Select
                     value={professorTutorId || undefined}
@@ -103,7 +103,8 @@ export default function GrupoPapForm({
                   {errors.professor_tutor_id && (
                     <FieldError>{errors.professor_tutor_id}</FieldError>
                   )}
-                </Field>
+                </Field>*/} 
+
               </div>
 
               <Field>

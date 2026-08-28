@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import InfoGrupoBox from './components/InfoGrupoBox';
@@ -14,16 +15,28 @@ const STATUS_CONFIG = {
     label: 'Reprovado',
     variant: 'destructive',
     titulo: 'Enviar Novo Tema PAP',
-    descricao:
-      'O tema anterior foi reprovado. Defina um novo tema e reenvie para análise.',
+    descricao: 'O tema anterior foi reprovado. Defina um novo tema e reenvie para análise.',
     botaoReenviar: 'Enviar Novo Tema',
   },
   'melhoria-solicitada': {
     label: 'Melhoria Solicitada',
     variant: 'outline',
     titulo: 'Corrigir Tema PAP',
-    descricao:
-      'Faça as alterações solicitadas pela instituição tutora antes de reenviar.',
+    descricao: 'Faça as alterações solicitadas pela instituição tutora antes de reenviar.',
+    botaoReenviar: 'Corrigir e Reenviar',
+  },
+  'melhoria-solicitada-tutor': {
+    label: 'Melhoria Solicitada',
+    variant: 'outline',
+    titulo: 'Corrigir Tema PAP',
+    descricao: 'Faça as alterações solicitadas pelo professor tutor antes de reenviar.',
+    botaoReenviar: 'Corrigir e Reenviar',
+  },
+  'melhoria-solicitada-coordenacao': {
+    label: 'Melhoria Solicitada',
+    variant: 'outline',
+    titulo: 'Corrigir Tema PAP',
+    descricao: 'Faça as alterações solicitadas pela coordenação antes de reenviar.',
     botaoReenviar: 'Corrigir e Reenviar',
   },
 };
@@ -34,9 +47,8 @@ export default function EditarTemaMelhoria({
   rotaAtualizar,
   rotaReenviar,
 }) {
-  const config =
-    STATUS_CONFIG[grupoPap.status_aprovacao] ??
-    STATUS_CONFIG['melhoria-solicitada'];
+  const statusKey = String(grupoPap?.status_aprovacao || '').toLowerCase();
+  const config = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG['melhoria-solicitada'];
 
   const [tema, setTema] = useState(grupoPap?.tema_grupo || '');
   const [nomeGrupo, setNomeGrupo] = useState(grupoPap?.nome_grupo || '');
@@ -47,35 +59,28 @@ export default function EditarTemaMelhoria({
 
   const atualizar = () => {
     setLoading(true);
-
     router.put(
       rotaAtualizar.replace(':id', grupoPap.id),
-      { nome_grupo: nomeGrupo, tema_grupo: tema, problema, objectivos }, // envia os valores actuais do form
-      {
-        onError: setErrors,
-        onFinish: () => setLoading(false),
-      },
+      { nome_grupo: nomeGrupo, tema_grupo: tema, problema, objectivos },
+      { onError: setErrors, onFinish: () => setLoading(false) },
     );
   };
 
   const reenviar = () => {
     setLoading(true);
-
     router.put(
       rotaReenviar.replace(':id', grupoPap.id),
-      { nome_grupo: nomeGrupo, tema_grupo: tema, problema, objectivos }, // envia os valores actuais do form
-      {
-        onError: setErrors,
-        onFinish: () => setLoading(false),
-      },
+      { nome_grupo: nomeGrupo, tema_grupo: tema, problema, objectivos },
+      { onError: setErrors, onFinish: () => setLoading(false) },
     );
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 p-6">
+    <div className="mx-auto max-w-4xl space-y-6">
+      {/* Cabeçalho */}
       <div>
-        <h1 className="text-3xl font-bold">{config.titulo}</h1>
-        <p className="mt-1 text-gray-600">{config.descricao}</p>
+        <h1 className="text-2xl font-semibold tracking-tight">{config.titulo}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{config.descricao}</p>
       </div>
 
       <InfoGrupoBox
@@ -85,13 +90,10 @@ export default function EditarTemaMelhoria({
         statusBadge={{ label: config.label, variant: config.variant }}
       />
 
-      {/* Feed completo do histórico, mais recente primeiro */}
+      {/* Histórico */}
       {historico.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-medium text-gray-600">
-            Histórico de análise
-          </h2>
-
+          <p className="text-sm font-medium text-muted-foreground">Histórico de análise</p>
           {historico.map((item) => (
             <RecomendacaoBox
               key={item.id}
@@ -104,67 +106,71 @@ export default function EditarTemaMelhoria({
         </div>
       )}
 
-      <Card>
-        <CardHeader>
+      {/* Formulário */}
+      <Card className="gap-0">
+        <CardHeader className="border-b">
           <CardTitle>{config.titulo}</CardTitle>
         </CardHeader>
 
-        <CardContent className="space-y-5">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Nome do Grupo</label>
+        <CardContent className="space-y-5 pt-6">
+          <div className="space-y-1.5">
+            <Label htmlFor="nome-grupo">Nome do Grupo</Label>
             <Input
+              id="nome-grupo"
               value={nomeGrupo}
               onChange={(e) => setNomeGrupo(e.target.value)}
               disabled={loading}
             />
             {errors.nome_grupo && (
-              <p className="text-sm text-red-500">{errors.nome_grupo}</p>
+              <p className="text-xs text-red-500">{errors.nome_grupo}</p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Tema do Grupo</label>
+          <div className="space-y-1.5">
+            <Label htmlFor="tema-grupo">Tema do Grupo</Label>
             <Input
+              id="tema-grupo"
               value={tema}
               onChange={(e) => setTema(e.target.value)}
               disabled={loading}
             />
             {errors.tema_grupo && (
-              <p className="text-sm text-red-500">{errors.tema_grupo}</p>
+              <p className="text-xs text-red-500">{errors.tema_grupo}</p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Problema</label>
+          <div className="space-y-1.5">
+            <Label htmlFor="problema">Problema</Label>
             <Textarea
+              id="problema"
               value={problema}
               onChange={(e) => setProblema(e.target.value)}
               disabled={loading}
               className="min-h-32"
             />
             {errors.problema && (
-              <p className="text-sm text-red-500">{errors.problema}</p>
+              <p className="text-xs text-red-500">{errors.problema}</p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Objectivos</label>
+          <div className="space-y-1.5">
+            <Label htmlFor="objectivos">Objectivos</Label>
             <Textarea
+              id="objectivos"
               value={objectivos}
               onChange={(e) => setObjectivos(e.target.value)}
               disabled={loading}
               className="min-h-32"
             />
             {errors.objectivos && (
-              <p className="text-sm text-red-500">{errors.objectivos}</p>
+              <p className="text-xs text-red-500">{errors.objectivos}</p>
             )}
           </div>
 
-          <div className="flex flex-wrap justify-end gap-3">
+          <div className="flex flex-wrap justify-end gap-3 border-t pt-4">
             <Button variant="outline" onClick={atualizar} disabled={loading}>
               {loading ? 'A guardar...' : 'Guardar Alterações'}
             </Button>
-
             <Button onClick={reenviar} disabled={loading}>
               {loading ? 'A processar...' : config.botaoReenviar}
             </Button>
