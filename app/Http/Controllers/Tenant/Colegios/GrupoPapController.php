@@ -9,6 +9,7 @@ use App\Http\Resources\Tenant\GrupoPap\BancaResource;
 use App\Http\Resources\Tenant\GrupoPap\ElementoResource;
 use App\Http\Resources\Tenant\GrupoPap\IndexResource;
 use App\Http\Resources\Tenant\GrupoPap\ShowResource;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\CursoClasse;
@@ -17,6 +18,8 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
+use App\Services\Tenant\TenantInstituicaoService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -108,153 +111,184 @@ class GrupoPapController extends Controller
     }
 
     public function show(
-        Instituicao $instituicao,
+        Request $request,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
+        TenantInstituicaoService $tenantInstituicaoService
     ) {
-        $this->authorize('view', $grupoPap);
+        $instituicao = Instituicao::findOrFail($request->query('instituicao'));
+        $colegioData = $tenantInstituicaoService->listarTodas()->firstWhere('id', $colegio);
 
-        $user = Auth::guard('tenant')->user();
+        if (! $colegioData) {
+            abort(404, 'Instituição tutelada não encontrada.');
+        }
 
-        // Buscar o colégio tutelado
-        $colegioModel = Instituicao::findOrFail($colegio);
+        $tenantAtual = tenancy()->tenant;
+        $tenantTutelado = Tenant::find($colegioData['tenant_id']);
 
-        // Ano lectivo da turma
-        $anoLectivoId = $turma->ano_lectivo_id;
+        if (! $tenantTutelado) {
+            abort(404, 'Tenant tutelado não encontrado.');
+        }
 
-        // Buscar dados da instituição tutora e do curso tutelado
-        $instituicaoTutoraModel = $grupoPap->instituicaoTutora();
-        $instituicaoTutoraId = $instituicaoTutoraModel?->id;
-        $siglaInstituto = $instituicaoTutoraModel?->sigla;
-        $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
+        tenancy()->initialize($tenantTutelado);
 
-        // Carregar dados do grupo PAP
-        $grupoPap->load([
-            'professor.user:id,nome,email',
-            'historicoAprovacao.utilizador:id,nome,instituicao_id',
-        ]);
+        try {
+            $cursoTutelado = CursoTutelado::findOrFail($cursoTutelado);
+            $cursoClasse = CursoClasse::findOrFail($cursoClasse);
+            $cursoClasseTurno = CursoClasseTurno::findOrFail($cursoClasseTurno);
+            $turma = Turma::findOrFail($turma);
+            $grupoPap = GrupoPap::findOrFail($grupoPap);
 
-        $cursoTutelado->load(['instituicaoCurso.curso']);
+            $this->authorize('view', $grupoPap);
 
-        // Buscar banca
-        $banca = $grupoPap->jurados()
-            ->with('professor.user:id,nome,email')
-            ->paginate(10, ['*'], 'page_banca');
+            $user = Auth::guard('tenant')->user();
 
-        // Buscar elementos do grupo
-        $elementos = $grupoPap->elementos()
-            ->with([
-                'aluno.inscricao.candidato:id,nome,email',
-                'aluno:id,matricula,inscricao_id',
-            ])
-            ->paginate(10, ['*'], 'page_elementos');
+            // Buscar o colégio tutelado
+            $colegioModel = Instituicao::findOrFail($colegio);
 
-        return Inertia::render(
-            'tenant/colegio/cursos-tutelados/classes/turnos/turmas/pap/show',
-            [
-                // Instituição tutora
-                'instituicao' => [
-                    'id' => $instituicao->id,
-                    'nome' => $instituicao->nome,
-                    'sigla' => $instituicao->sigla,
-                ],
+            // Ano lectivo da turma
+            $anoLectivoId = $turma->ano_lectivo_id;
 
-                // Colégio tutelado
-                'colegio' => [
-                    'id' => $colegioModel->id,
-                    'nome' => $colegioModel->nome,
-                ],
+            // Buscar dados da instituição tutora e do curso tutelado
+            $instituicaoTutoraModel = $grupoPap->instituicaoTutora();
+            $instituicaoTutoraId = $instituicaoTutoraModel?->id;
+            $siglaInstituto = $instituicaoTutoraModel?->sigla;
+            $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
 
-                // Curso tutelado
-                'cursoTutelado' => [
-                    'id' => $cursoTutelado->id,
-                    'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
-                ],
+            // Carregar dados do grupo PAP
+            $grupoPap->load([
+                'professor.user:id,nome,email',
+                'historicoAprovacao.utilizador:id,nome,instituicao_id',
+            ]);
 
-                // Classe
-                'cursoClasse' => [
-                    'id' => $cursoClasse->id,
-                ],
+            $cursoTutelado->load(['instituicaoCurso.curso']);
 
-                // Turno
-                'cursoClasseTurno' => [
-                    'id' => $cursoClasseTurno->id,
-                ],
+            // Buscar banca
+            $banca = $grupoPap->jurados()
+                ->with('professor.user:id,nome,email')
+                ->paginate(10, ['*'], 'page_banca');
 
-                // Turma
-                'turma' => [
-                    'id' => $turma->id,
-                    'nome' => $turma->nome,
-                ],
+            // Buscar elementos do grupo
+            $elementos = $grupoPap->elementos()
+                ->with([
+                    'aluno.inscricao.candidato:id,nome,email',
+                    'aluno:id,matricula,inscricao_id',
+                ])
+                ->paginate(10, ['*'], 'page_elementos');
 
-                // Ano lectivo
-                'anoLectivoId' => $anoLectivoId,
-                'anosLectivos' => AnoLectivo::all(),
+            return Inertia::render(
+                'tenant/colegio/cursos-tutelados/classes/turnos/turmas/pap/show',
+                [
+                    // Instituição tutora
+                    'instituicao' => [
+                        'id' => $instituicao->id,
+                        'nome' => $instituicao->nome,
+                        'sigla' => $instituicao->sigla,
+                    ],
 
-                // Dados do PAP
-                'grupoPap' => new ShowResource($grupoPap),
-                'historico' => $grupoPap->historicoAprovacao->map(function ($item) use ($instituicaoTutoraId, $nomeCurso, $siglaInstituto) {
-                    $ehTutora = $item->utilizador?->instituicao_id === $instituicaoTutoraId;
+                    // Colégio tutelado
+                    'colegio' => [
+                        'id' => $colegioModel->id,
+                        'nome' => $colegioModel->nome,
+                    ],
 
-                    return [
-                        'id' => $item->id,
-                        'estado_anterior' => $item->estado_anterior,
-                        'estado_novo' => $item->estado_novo,
-                        'comentario' => $item->comentario,
-                        'tema' => $item->tema,
-                        'created_at' => $item->created_at?->toIso8601String(),
-                        'utilizador' => [
-                            'nome' => $ehTutora
-                                ? "Grupo disciplinar do curso de {$nomeCurso} do {$siglaInstituto}"
-                                : ($item->utilizador?->nome ?? '—'),
+                    // Curso tutelado
+                    'cursoTutelado' => [
+                        'id' => $cursoTutelado->id,
+                        'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
+                    ],
+
+                    // Classe
+                    'cursoClasse' => [
+                        'id' => $cursoClasse->id,
+                    ],
+
+                    // Turno
+                    'cursoClasseTurno' => [
+                        'id' => $cursoClasseTurno->id,
+                    ],
+
+                    // Turma
+                    'turma' => [
+                        'id' => $turma->id,
+                        'nome' => $turma->nome,
+                    ],
+
+                    // Ano lectivo
+                    'anoLectivoId' => $anoLectivoId,
+                    'anosLectivos' => AnoLectivo::all(),
+
+                    // Dados do PAP
+                    'grupoPap' => new ShowResource($grupoPap),
+                    'historico' => $grupoPap->historicoAprovacao->map(function ($item) use ($instituicaoTutoraId, $nomeCurso, $siglaInstituto) {
+                        $ehTutora = $item->utilizador?->instituicao_id === $instituicaoTutoraId;
+
+                        return [
+                            'id' => $item->id,
+                            'estado_anterior' => $item->estado_anterior,
+                            'estado_novo' => $item->estado_novo,
+                            'comentario' => $item->comentario,
+                            'tema' => $item->tema,
+                            'created_at' => $item->created_at?->toIso8601String(),
+                            'utilizador' => [
+                                'nome' => $ehTutora
+                                    ? "Grupo disciplinar do curso de {$nomeCurso} do {$siglaInstituto}"
+                                    : ($item->utilizador?->nome ?? '—'),
+                            ],
+                        ];
+                    })->values(),
+
+                    'criterios_pap_url' => $cursoTutelado->criterios_pap_path
+                        ? Storage::url($cursoTutelado->criterios_pap_path)
+                        : null,
+
+                    'banca' => BancaResource::collection($banca),
+
+                    'elementos' => ElementoResource::collection($elementos),
+
+                    // Permissões
+                    'can' => [
+                        'update' => $user?->can('update', $grupoPap),
+                        'definirData' => $user?->can('definirData', $grupoPap),
+                        'delete' => $user?->can('delete', $grupoPap),
+                        'corrigirTema' => $user?->can('corrigirTema', $grupoPap),
+                        'aprovar' => $user?->can('aprovar', $grupoPap),           // ← adicionar
+                        'reprovar' => $user?->can('reprovar', $grupoPap),          // ← adicionar
+                        'aprovarComoTutor' => $user?->can('aprovarComoTutor', $grupoPap), // ← falta
+                        'solicitarMelhoriaComoTutor' => $user?->can('solicitarMelhoriaComoTutor', $grupoPap), // ← falta
+                        'solicitarMelhoria' => $user?->can('solicitarMelhoria', $grupoPap), // ← adicionar
+
+                        'elementos' => [
+                            'create' => $user?->can('elementogrupopap.create'),
+                            'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
+                                && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
+                                && ! is_null($grupoPap->data_defesa)
+                                && ! $grupoPap->data_defesa->isFuture()
+                                && $grupoPap->jurados()->exists(),
+                            'delete' => $user?->can('elementogrupopap.delete'),
                         ],
-                    ];
-                })->values(),
 
-                'criterios_pap_url' => $cursoTutelado->criterios_pap_path
-                    ? Storage::url($cursoTutelado->criterios_pap_path)
-                    : null,
+                        'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id,
 
-                'banca' => BancaResource::collection($banca),
-
-                'elementos' => ElementoResource::collection($elementos),
-
-                // Permissões
-                'can' => [
-                    'update' => $user?->can('update', $grupoPap),
-                    'definirData' => $user?->can('definirData', $grupoPap),
-                    'delete' => $user?->can('delete', $grupoPap),
-                    'corrigirTema' => $user?->can('corrigirTema', $grupoPap),
-                    'aprovar' => $user?->can('aprovar', $grupoPap),           // ← adicionar
-                    'reprovar' => $user?->can('reprovar', $grupoPap),          // ← adicionar
-                    'aprovarComoTutor' => $user?->can('aprovarComoTutor', $grupoPap), // ← falta
-                    'solicitarMelhoriaComoTutor' => $user?->can('solicitarMelhoriaComoTutor', $grupoPap), // ← falta
-                    'solicitarMelhoria' => $user?->can('solicitarMelhoria', $grupoPap), // ← adicionar
-
-                    'elementos' => [
-                        'create' => $user?->can('elementogrupopap.create'),
-                        'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
-                            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
-                            && ! is_null($grupoPap->data_defesa)
-                            && ! $grupoPap->data_defesa->isFuture()
-                            && $grupoPap->jurados()->exists(),
-                        'delete' => $user?->can('elementogrupopap.delete'),
+                        'banca' => [
+                            'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap]),
+                            'update' => $user?->can('bancajuripap.update'),
+                            'delete' => $user?->can('bancajuripap.delete'),
+                        ],
                     ],
-
-                    'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id,
-
-                    'banca' => [
-                        'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap]),
-                        'update' => $user?->can('bancajuripap.update'),
-                        'delete' => $user?->can('bancajuripap.delete'),
-                    ],
-                ],
-            ]
-        );
+                ]
+            );
+        } finally {
+            if ($tenantAtual) {
+                tenancy()->initialize($tenantAtual);
+            } else {
+                tenancy()->end();
+            }
+        }
     }
 
     public function definirData(

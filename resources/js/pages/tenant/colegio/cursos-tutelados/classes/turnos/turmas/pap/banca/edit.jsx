@@ -1,12 +1,13 @@
 import { Form, useForm } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
-import { update } from '@/actions/App/Http/Controllers/Tenant/BancaJuriPapController';
-import { show } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { update } from '@/actions/App/Http/Controllers/Tenant/Colegios/BancaJuriPapController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapController';
 import { CreateForm } from './components/create.form';
 
 export default function Edit() {
   const {
     instituicao,
+    colegio,
     cursoTutelado,
     cursoClasse,
     cursoClasseTurno,
@@ -25,7 +26,7 @@ export default function Edit() {
   return (
     <Form
       {...update.form({
-        instituicao: instituicao.id,
+        colegio: colegio.id,
         cursoTutelado: cursoTutelado.id,
         cursoClasse: cursoClasse.id,
         cursoClasseTurno: cursoClasseTurno.id,
@@ -41,7 +42,7 @@ export default function Edit() {
       onSuccess={() =>
         router.visit(
           show.url({
-            instituicao: instituicao.id,
+            colegio: colegio.id,
             cursoTutelado: cursoTutelado.id,
             cursoClasse: cursoClasse.id,
             cursoClasseTurno: cursoClasseTurno.id,

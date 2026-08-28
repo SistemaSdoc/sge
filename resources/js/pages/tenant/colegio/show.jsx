@@ -75,13 +75,14 @@ export default function Show({
                   key={curso.id}
                   className="cursor-pointer hover:bg-muted/50"
                   onClick={() =>
-                    router.visit(
-                      show({
-                        instituicao: instituicao.id,
+                      router.visit(show({
                         colegio: colegio.id,
                         cursoTutelado: curso.curso_tutelado_id,
-                      }).url,
-                    )
+                      }, {
+                        query: {
+                          instituicao: instituicao.id,
+                        },
+                      }).url)
                   }
                 >
                   <TableCell className="px-4 font-medium">

@@ -18,8 +18,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { show } from '@/actions/App/Http/Controllers/Tenant/Colegios/CursoClasseController';
 
-export default function Show({ cursoTutelado, colegio }) {
-  const instituicaoId = cursoTutelado.instituicao.id;
+export default function Show({ cursoTutelado, colegio, instituicao }) {
+  const instituicaoId = instituicao.id;
   const cursoTuteladoId = cursoTutelado.id;
   const cursoId = cursoTutelado.curso.id;
 
@@ -73,10 +73,13 @@ export default function Show({ cursoTutelado, colegio }) {
                         <Link
                           href={
                             show({
-                              instituicao: instituicaoId,
                               colegio: colegio.id,
                               cursoTutelado: cursoTuteladoId,
                               cursoClasse: c.id,
+                            }, {
+                              query: {
+                                instituicao: instituicaoId,
+                              },
                             }).url
                           }
                           className="inline-block"

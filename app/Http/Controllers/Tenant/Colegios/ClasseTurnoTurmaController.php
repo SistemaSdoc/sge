@@ -7,6 +7,7 @@ use App\Http\Resources\Tenant\AlunoTurmaResource;
 use App\Http\Resources\Tenant\ClasseTurnoDisciplinaResource;
 use App\Http\Resources\Tenant\GrupoPapIndexResource;
 use App\Http\Resources\Tenant\Turma\TurmaShowResource;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ClasseTurnoDisciplina;
@@ -17,6 +18,8 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Services\Tenant\Pauta\PautaService;
+use App\Services\Tenant\TenantInstituicaoService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -28,336 +31,366 @@ class ClasseTurnoTurmaController extends Controller
     ) {}
 
     public function show(
-        Instituicao $instituicao,
+        Request $request,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        TenantInstituicaoService $tenantInstituicaoService
     ) {
-        Gate::authorize('view', $turma);
+        $instituicao = Instituicao::findOrFail($request->query('instituicao'));
+        $colegioData = $tenantInstituicaoService->listarTodas()->firstWhere('id', $colegio);
 
-        \Log::info('ClasseTurnoTurma::show', [
-            'instituicao' => $instituicao?->id,
-            'colegio' => $colegio,
-            'cursoTutelado' => $cursoTutelado?->id,
-            'cursoClasse' => $cursoClasse?->id,
-            'cursoClasseTurno' => $cursoClasseTurno?->id,
-            'turma' => $turma?->id,
-        ]);
-
-        $user = Auth::guard('tenant')->user();
-
-        $anoLectivoId = request('ano_lectivo_id')
-            ?? AnoLectivo::where('activo', 1)->first()?->id;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validar a hierarquia da tutela
-        |--------------------------------------------------------------------------
-        |
-        | Instituto tutor
-        |      ↓
-        | Curso Tutelado
-        |      ↓
-        | Curso Classe
-        |      ↓
-        | Curso Classe Turno
-        |      ↓
-        | Turma
-        |
-        */
-
-        /*
-        |--------------------------------------------------------------------------
-        | Carregar dados da turma
-        |--------------------------------------------------------------------------
-        */
-
-        $turma->load([
-            'cursoClasseTurno.cursoClasse.classe:id,nome',
-            'cursoClasseTurno.turno:id,nome',
-            'anoLectivo:id,nome',
-            'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Alunos da turma
-        |--------------------------------------------------------------------------
-        */
-
-        $alunos = $turma->alunos()
-            ->wherePivot('activo', true)
-            ->with([
-                'inscricao.candidato:id,nome',
-                'user:id,email,telefone',
-            ])
-            ->paginate(
-                10,
-                ['*'],
-                'page_alunos'
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Disciplinas da turma
-        |--------------------------------------------------------------------------
-        */
-
-        $disciplinasQuery = $turma->cursoClasseTurno
-            ->classeTurnoDisciplinas()
-            ->with([
-                'disciplina:id,nome,sigla',
-
-                'turmaDisciplinaProfessores' => function ($q) use ($turma) {
-                    $q->where('turma_id', $turma->id);
-                },
-
-                'turmaDisciplinaProfessores.professor.user:id,nome',
-
-                'horarios',
-            ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Restringir disciplinas para professores
-        |--------------------------------------------------------------------------
-        */
-
-        if ($user->hasRole('Professor')) {
-
-            $professorId = $user->professor?->id;
-
-            if (! $professorId) {
-                $disciplinasQuery->whereRaw('0 = 1');
-            }
+        if (! $colegioData) {
+            abort(404, 'Instituição tutelada não encontrada.');
         }
 
-        $disciplinas = $disciplinasQuery
-            ->paginate(
-                5,
-                ['*'],
-                'page_disciplinas'
-            );
+        $tenantAtual = tenancy()->tenant;
+        $tenantTutelado = Tenant::find($colegioData['tenant_id']);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Grupos PAP
-        |--------------------------------------------------------------------------
-        */
+        if (! $tenantTutelado) {
+            abort(404, 'Tenant tutelado não encontrado.');
+        }
 
-        $grupos = $turma->gruposPap()
-            ->select(
-                'id',
-                'turma_id',
-                'nome_grupo',
-                'tema_grupo',
-                'status',
-                'nota_final'
-            )
-            ->paginate(
-                5,
-                ['*'],
-                'page_grupos'
-            );
+        tenancy()->initialize($tenantTutelado);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Pauta
-        |--------------------------------------------------------------------------
-        */
+        try {
+            $cursoTutelado = CursoTutelado::findOrFail($cursoTutelado);
+            $cursoClasse = CursoClasse::findOrFail($cursoClasse);
+            $cursoClasseTurno = CursoClasseTurno::findOrFail($cursoClasseTurno);
+            $turma = Turma::findOrFail($turma);
 
-        $pautaRecurso = $this->pautaService
-            ->gerarPauta($turma, 4, 5);
-        $podeLancarRecurso = $user->hasAnyRole(['Director', 'Subdirector'])
-            || collect($pautaRecurso['alunos'] ?? [])
-                ->contains(fn ($aluno) => is_null($aluno['nota_recurso'] ?? null));
+            Gate::authorize('view', $turma);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Retornar página
-        |--------------------------------------------------------------------------
-        */
+            \Log::info('ClasseTurnoTurma::show', [
+                'instituicao' => $instituicao?->id,
+                'colegio' => $colegio,
+                'cursoTutelado' => $cursoTutelado?->id,
+                'cursoClasse' => $cursoClasse?->id,
+                'cursoClasseTurno' => $cursoClasseTurno?->id,
+                'turma' => $turma?->id,
+            ]);
 
-        return Inertia::render(
-            'tenant/colegio/cursos-tutelados/classes/turnos/turmas/show',
-            [
-                /*
-                |--------------------------------------------------------------------------
-                | Instituto tutor
-                |--------------------------------------------------------------------------
-                */
+            $user = Auth::guard('tenant')->user();
 
-                'instituicao' => [
-                    'id' => $instituicao->id,
-                    'nome' => $instituicao->nome,
-                ],
+            $anoLectivoId = request('ano_lectivo_id')
+                ?? AnoLectivo::where('activo', 1)->first()?->id;
 
-                'colegio' => [
-                    'id' => $colegio,
-                ],
+            /*
+            |--------------------------------------------------------------------------
+            | Validar a hierarquia da tutela
+            |--------------------------------------------------------------------------
+            |
+            | Instituto tutor
+            |      ↓
+            | Curso Tutelado
+            |      ↓
+            | Curso Classe
+            |      ↓
+            | Curso Classe Turno
+            |      ↓
+            | Turma
+            |
+            */
 
-                /*
-                |--------------------------------------------------------------------------
-                | Curso tutelado
-                |--------------------------------------------------------------------------
-                */
+            /*
+            |--------------------------------------------------------------------------
+            | Carregar dados da turma
+            |--------------------------------------------------------------------------
+            */
 
-                'cursoTutelado' => [
-                    'id' => $cursoTutelado->id,
+            $turma->load([
+                'cursoClasseTurno.cursoClasse.classe:id,nome',
+                'cursoClasseTurno.turno:id,nome',
+                'anoLectivo:id,nome',
+                'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
+            ]);
 
-                    'curso' => [
-                        'id' => $cursoTutelado
-                            ->instituicaoCurso
-                            ->curso
-                            ->id,
+            /*
+            |--------------------------------------------------------------------------
+            | Alunos da turma
+            |--------------------------------------------------------------------------
+            */
 
-                        'nome' => $cursoTutelado
-                            ->instituicaoCurso
-                            ->curso
-                            ->nome,
-                    ],
+            $alunos = $turma->alunos()
+                ->wherePivot('activo', true)
+                ->with([
+                    'inscricao.candidato:id,nome',
+                    'user:id,email,telefone',
+                ])
+                ->paginate(
+                    10,
+                    ['*'],
+                    'page_alunos'
+                );
 
+            /*
+            |--------------------------------------------------------------------------
+            | Disciplinas da turma
+            |--------------------------------------------------------------------------
+            */
+
+            $disciplinasQuery = $turma->cursoClasseTurno
+                ->classeTurnoDisciplinas()
+                ->with([
+                    'disciplina:id,nome,sigla',
+
+                    'turmaDisciplinaProfessores' => function ($q) use ($turma) {
+                        $q->where('turma_id', $turma->id);
+                    },
+
+                    'turmaDisciplinaProfessores.professor.user:id,nome',
+
+                    'horarios',
+                ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Restringir disciplinas para professores
+            |--------------------------------------------------------------------------
+            */
+
+            if ($user->hasRole('Professor')) {
+
+                $professorId = $user->professor?->id;
+
+                if (! $professorId) {
+                    $disciplinasQuery->whereRaw('0 = 1');
+                }
+            }
+
+            $disciplinas = $disciplinasQuery
+                ->paginate(
+                    5,
+                    ['*'],
+                    'page_disciplinas'
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Grupos PAP
+            |--------------------------------------------------------------------------
+            */
+
+            $grupos = $turma->gruposPap()
+                ->select(
+                    'id',
+                    'turma_id',
+                    'nome_grupo',
+                    'tema_grupo',
+                    'status',
+                    'nota_final'
+                )
+                ->paginate(
+                    5,
+                    ['*'],
+                    'page_grupos'
+                );
+
+            /*
+            |--------------------------------------------------------------------------
+            | Pauta
+            |--------------------------------------------------------------------------
+            */
+
+            $pautaRecurso = $this->pautaService
+                ->gerarPauta($turma, 4, 5);
+            $podeLancarRecurso = $user->hasAnyRole(['Director', 'Subdirector'])
+                || collect($pautaRecurso['alunos'] ?? [])
+                    ->contains(fn ($aluno) => is_null($aluno['nota_recurso'] ?? null));
+
+            /*
+            |--------------------------------------------------------------------------
+            | Retornar página
+            |--------------------------------------------------------------------------
+            */
+
+            return Inertia::render(
+                'tenant/colegio/cursos-tutelados/classes/turnos/turmas/show',
+                [
                     /*
-                    | Colégio onde o curso é ministrado
+                    |--------------------------------------------------------------------------
+                    | Instituto tutor
+                    |--------------------------------------------------------------------------
                     */
+
+                    'instituicao' => [
+                        'id' => $instituicao->id,
+                        'nome' => $instituicao->nome,
+                    ],
 
                     'colegio' => [
-                        'id' => $cursoTutelado
-                            ->instituicaoCurso
-                            ->instituicao
-                            ->id,
-
-                        'nome' => $cursoTutelado
-                            ->instituicaoCurso
-                            ->instituicao
-                            ->nome,
+                        'id' => $colegio,
                     ],
 
                     /*
-                    | Instituto que tutela
+                    |--------------------------------------------------------------------------
+                    | Curso tutelado
+                    |--------------------------------------------------------------------------
                     */
 
-                    'instituicao_tutora' => [
-                        'id' => $cursoTutelado
-                            ->instituicaoTutora
-                            ->id,
+                    'cursoTutelado' => [
+                        'id' => $cursoTutelado->id,
 
-                        'nome' => $cursoTutelado
-                            ->instituicaoTutora
-                            ->nome,
-                    ],
-                ],
+                        'curso' => [
+                            'id' => $cursoTutelado
+                                ->instituicaoCurso
+                                ->curso
+                                ->id,
 
-                /*
-                |--------------------------------------------------------------------------
-                | Curso Classe
-                |--------------------------------------------------------------------------
-                */
+                            'nome' => $cursoTutelado
+                                ->instituicaoCurso
+                                ->curso
+                                ->nome,
+                        ],
 
-                'cursoClasse' => [
-                    'id' => $cursoClasse->id,
+                        /*
+                        | Colégio onde o curso é ministrado
+                        */
 
-                    'classe' => [
-                        'id' => $cursoClasse
-                            ->classe
-                            ->id,
+                        'colegio' => [
+                            'id' => $cursoTutelado
+                                ->instituicaoCurso
+                                ->instituicao
+                                ->id,
 
-                        'nome' => $cursoClasse
-                            ->classe
-                            ->nome,
-                    ],
-                ],
+                            'nome' => $cursoTutelado
+                                ->instituicaoCurso
+                                ->instituicao
+                                ->nome,
+                        ],
 
-                /*
-                |--------------------------------------------------------------------------
-                | Turno
-                |--------------------------------------------------------------------------
-                */
+                        /*
+                        | Instituto que tutela
+                        */
 
-                'cursoClasseTurno' => [
-                    'id' => $cursoClasseTurno->id,
+                        'instituicao_tutora' => [
+                            'id' => $cursoTutelado
+                                ->instituicaoTutora
+                                ->id,
 
-                    'turno' => [
-                        'id' => $cursoClasseTurno
-                            ->turno
-                            ->id,
-
-                        'nome' => $cursoClasseTurno
-                            ->turno
-                            ->nome,
-                    ],
-                ],
-
-                /*
-                |--------------------------------------------------------------------------
-                | Turma
-                |--------------------------------------------------------------------------
-                */
-
-                'turma' => new TurmaShowResource($turma),
-
-                /*
-                |--------------------------------------------------------------------------
-                | Ano lectivo
-                |--------------------------------------------------------------------------
-                */
-
-                'anoLectivoId' => $anoLectivoId,
-
-                'anosLectivos' => AnoLectivo::all(),
-
-                /*
-                |--------------------------------------------------------------------------
-                | Permissões
-                |--------------------------------------------------------------------------
-                */
-
-                'can' => [
-                    'alunos' => [
-                        'create' => $user->can(
-                            'create',
-                            Aluno::class
-                        ),
+                            'nome' => $cursoTutelado
+                                ->instituicaoTutora
+                                ->nome,
+                        ],
                     ],
 
-                    'disciplinas' => [
-                        'create' => $user->can(
-                            'create',
-                            ClasseTurnoDisciplina::class
-                        ),
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Curso Classe
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'cursoClasse' => [
+                        'id' => $cursoClasse->id,
+
+                        'classe' => [
+                            'id' => $cursoClasse
+                                ->classe
+                                ->id,
+
+                            'nome' => $cursoClasse
+                                ->classe
+                                ->nome,
+                        ],
                     ],
 
-                    'grupos' => [
-                        'create' => $user->can(
-                            'create',
-                            GrupoPap::class
-                        ),
-                    ],
-                ],
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Turno
+                    |--------------------------------------------------------------------------
+                    */
 
-                /*
+                    'cursoClasseTurno' => [
+                        'id' => $cursoClasseTurno->id,
+
+                        'turno' => [
+                            'id' => $cursoClasseTurno
+                                ->turno
+                                ->id,
+
+                            'nome' => $cursoClasseTurno
+                                ->turno
+                                ->nome,
+                        ],
+                    ],
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Turma
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'turma' => new TurmaShowResource($turma),
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Ano lectivo
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'anoLectivoId' => $anoLectivoId,
+
+                    'anosLectivos' => AnoLectivo::all(),
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Permissões
+                    |--------------------------------------------------------------------------
+                    */
+
+                    'can' => [
+                        'alunos' => [
+                            'create' => $user->can(
+                                'create',
+                                Aluno::class
+                            ),
+                        ],
+
+                        'disciplinas' => [
+                            'create' => $user->can(
+                                'create',
+                                ClasseTurnoDisciplina::class
+                            ),
+                        ],
+
+                        'grupos' => [
+                            'create' => $user->can(
+                                'create',
+                                GrupoPap::class
+                            ),
+                        ],
+                    ],
+
+                    /*
                 |--------------------------------------------------------------------------
                 | Dados
                 |--------------------------------------------------------------------------
                 */
 
-                'alunos' => AlunoTurmaResource::collection(
-                    $alunos
-                ),
+                    'alunos' => AlunoTurmaResource::collection(
+                        $alunos
+                    ),
 
-                'disciplinas' => ClasseTurnoDisciplinaResource::collection(
-                    $disciplinas
-                ),
+                    'disciplinas' => ClasseTurnoDisciplinaResource::collection(
+                        $disciplinas
+                    ),
 
-                'pautaRecurso' => $pautaRecurso,
-                'pode_lancar_recurso' => $podeLancarRecurso,
+                    'pautaRecurso' => $pautaRecurso,
+                    'pode_lancar_recurso' => $podeLancarRecurso,
 
-                'grupos' => GrupoPapIndexResource::collection(
-                    $grupos
-                ),
-            ]
-        );
+                    'grupos' => GrupoPapIndexResource::collection(
+                        $grupos
+                    ),
+                ]
+            );
+        } finally {
+            if ($tenantAtual) {
+                tenancy()->initialize($tenantAtual);
+            } else {
+                tenancy()->end();
+            }
+        }
     }
 }

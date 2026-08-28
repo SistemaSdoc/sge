@@ -48,7 +48,7 @@ const STATUS = {
 
 const getStatus = (status) => STATUS[status?.toLowerCase()] || STATUS.pendente;
 
-export function TabAprovacao({ params, grupoPap, can }) {
+export function TabAprovacao({ params, grupoPap, can, routeOptions }) {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState(null);
   const [comentario, setComentario] = useState('');
@@ -72,7 +72,7 @@ export function TabAprovacao({ params, grupoPap, can }) {
 
     if (action === 'aprovarTutor') {
       router.post(
-        aprovarTutor.url(params),
+        aprovarTutor.url(params, routeOptions),
         { comentario: comentario || null },
         {
           preserveScroll: true,
@@ -89,7 +89,7 @@ export function TabAprovacao({ params, grupoPap, can }) {
 
     if (action === 'melhoriaComoTutor') {
       router.post(
-        solicitarMelhoriaComoTutor.url(params),
+        solicitarMelhoriaComoTutor.url(params, routeOptions),
         { recomendacao: comentario },
         {
           preserveScroll: true,
@@ -118,7 +118,7 @@ export function TabAprovacao({ params, grupoPap, can }) {
           ? { motivo: comentario }
           : { recomendacao: comentario };
 
-    router.post(rota.url(params), body, {
+    router.post(rota.url(params, routeOptions), body, {
       preserveScroll: true,
       onSuccess: () => {
         setLoading(false);

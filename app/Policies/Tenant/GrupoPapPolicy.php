@@ -2,6 +2,7 @@
 
 namespace App\Policies\Tenant;
 
+use App\Models\Central\Tutela;
 use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\User;
@@ -41,7 +42,7 @@ class GrupoPapPolicy
 
                 if ($ehCoordenador) {
                     return $grupoPap->instituicao()?->id === $user->instituicao_id
-                        || $grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
+                        || $this->isTutorInstitution($user, $grupoPap);
                 }
             }
 
@@ -63,8 +64,30 @@ class GrupoPapPolicy
         return $user->hasPermissionTo('grupopap.view')
             && (
                 $grupoPap->instituicao()?->id === $user->instituicao_id
-                || $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
+                || $this->isTutorInstitution($user, $grupoPap)
             );
+    }
+
+    private function isTutorInstitution(User $user, GrupoPap $grupoPap): bool
+    {
+        $instituicaoTuteladaId = $grupoPap->instituicao()?->id;
+        $cursoId = $grupoPap->turma
+            ?->cursoClasseTurno
+            ?->cursoClasse
+            ?->cursoTutelado
+            ?->instituicaoCurso
+            ?->curso_id;
+
+        if (! $instituicaoTuteladaId || ! $cursoId || ! $user->instituicao_id) {
+            return false;
+        }
+
+        return Tutela::query()
+            ->where('instituicao_tutelada_id', $instituicaoTuteladaId)
+            ->where('curso_id', $cursoId)
+            ->where('instituicao_tutora_id', $user->instituicao_id)
+            ->where('ativo', true)
+            ->exists();
     }
 
     /**
@@ -119,7 +142,7 @@ class GrupoPapPolicy
 
         // Apenas membros do grupo podem corrigir o tema
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
             ->exists();
     }
 
@@ -181,17 +204,17 @@ class GrupoPapPolicy
      */
     public function definirTema(User $user, GrupoPap $grupoPap): bool
     {
-        if (!$grupoPap->podeDefinirTema()) {
+        if (! $grupoPap->podeDefinirTema()) {
             return false;
         }
 
-        if (!$user->can('grupopap.definirTema')) {
+        if (! $user->can('grupopap.definirTema')) {
             return false;
         }
 
         // Só membros do grupo
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
             ->exists();
     }
 
@@ -225,7 +248,7 @@ class GrupoPapPolicy
     public function delete(User $user, GrupoPap $grupoPap): bool
     {
         return $user->can('grupopap.delete')
-            && $grupoPap->instituicao()->id === $user->instituicao_id;
+            && $grupoPap->instituicao()?->id === $user->instituicao_id;
     }
 
     /**

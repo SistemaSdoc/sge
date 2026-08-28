@@ -27,7 +27,7 @@ import {
 import { ArrowLeftIcon, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import { show as showCurso } from '@/actions/App/Http/Controllers/Tenant/Colegios/CursoTuteladoController';
-import { show as showTurma } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
+import { show as showTurma } from '@/actions/App/Http/Controllers/Tenant/Colegios/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
 import { useRef, useState } from 'react';
 import {
@@ -68,6 +68,7 @@ export default function Show({
     router.get(
       window.location.pathname,
       {
+        instituicao: instituicaoId,
         turno: turnoId,
         ano_lectivo_id: anoLectivoSelecionado,
         page_turmas: 1,
@@ -85,8 +86,9 @@ export default function Show({
 
   const handlePageChange = (param) => (page) => {
     router.get(
-      '',
+      window.location.pathname,
       {
+        instituicao: instituicaoId,
         turno: selectedTurnoId,
         ano_lectivo_id: anoLectivoSelecionado,
         [param]: page,
@@ -101,6 +103,7 @@ export default function Show({
     router.get(
       window.location.pathname,
       {
+        instituicao: instituicaoId,
         turno: selectedTurnoId,
         ano_lectivo_id: value,
         page_turmas: 1,
@@ -135,12 +138,15 @@ export default function Show({
                   onClick={() =>
                     router.visit(
                       showCurso({
-                        instituicao: instituicaoId,
                         colegio: colegio.id,
                         cursoTutelado: cursoId,
                       }).url,
                     )
                   }
+                                }, {
+                                  query: {
+                                    instituicao: instituicaoId,
+                                  },
                 >
                   <ArrowLeftIcon strokeWidth={1.5} /> Voltar ao curso
                 </DropdownMenuItem>
@@ -230,12 +236,15 @@ export default function Show({
                             if (turma.can?.view) {
                               router.visit(
                                 showTurma({
-                                  instituicao: instituicaoId,
                                   colegio: colegio.id,
                                   cursoTutelado: cursoId,
                                   cursoClasse: classeId,
                                   cursoClasseTurno: selectedTurnoId,
                                   turma: turma.id,
+                                }, {
+                                  query: {
+                                    instituicao: instituicaoId,
+                                  },
                                 }).url,
                               );
                             }

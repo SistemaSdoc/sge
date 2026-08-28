@@ -16,6 +16,9 @@ class DatabaseSeeder extends Seeder
 
             // USUÁRIOS
             SuperAdminSeeder::class,
+
+            // TUTELAS ENTRE TENANTS
+            TutelaSeeder::class,
         ]);
     }
 }

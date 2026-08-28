@@ -38,6 +38,7 @@ export function TabBanca({
   onPageChange,
   removerJuradoFn,
   can,
+  routeOptions,
 }) {
   const jurados = pagination?.data ?? [];
   const isEmpty = jurados.length === 0;
@@ -53,7 +54,7 @@ export function TabBanca({
         {canCreateBanca && (
           <CardAction>
             <Button asChild>
-              <Link href={adicionarJurado.url(params)}>Adicionar</Link>
+              <Link href={adicionarJurado.url(params, routeOptions)}>Adicionar</Link>
             </Button>
           </CardAction>
         )}
@@ -70,7 +71,7 @@ export function TabBanca({
               canCreateBanca
                 ? {
                     label: 'Adicionar juri',
-                    href: adicionarJurado.url(params),
+                    href: adicionarJurado.url(params, routeOptions),
                     variant: 'outline',
                   }
                 : undefined
@@ -130,10 +131,13 @@ export function TabBanca({
                             <DropdownMenuItem
                               onClick={() =>
                                 router.visit(
-                                  edit.url({
-                                    ...params,
-                                    bancaJuriPap: j.id,
-                                  }),
+                                  edit.url(
+                                    {
+                                      ...params,
+                                      bancaJuriPap: j.id,
+                                    },
+                                    routeOptions,
+                                  ),
                                 )
                               }
                             >

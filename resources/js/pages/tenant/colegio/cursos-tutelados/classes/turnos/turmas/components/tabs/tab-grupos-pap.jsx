@@ -72,6 +72,8 @@ export function TabGruposPAP({
                       cursoClasseTurno: cursoClasseTurnoId,
                       turma: turma.id,
                       grupoPap: grupo.id,
+                    }, {
+                      query: { instituicao: instituicaoId },
                     }).url,
                   )
                 }

@@ -56,8 +56,11 @@ export function ColegioTable({
                   onClick={() =>
                     router.visit(
                       show({
-                        instituicao: instituicao.id,
                         colegio: colegio.id,
+                      }, {
+                        query: {
+                          instituicao: instituicao.id,
+                        },
                       }).url,
                     )
                   }

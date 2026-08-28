@@ -34,11 +34,17 @@ class GrupoPap extends Model
     protected $primaryKey = 'id';
 
     const APROVACAO_RASCUNHO = 'rascunho';
+
     const APROVACAO_SUBMETIDO = 'submetido';
+
     const APROVACAO_PENDENTE = 'pendente';
+
     const APROVACAO_APROVADO = 'aprovado';
+
     const APROVACAO_REPROVADO = 'reprovado';
+
     const APROVACAO_MELHORIA = 'melhoria-solicitada';
+
     protected function casts(): array
     {
         return [
@@ -76,11 +82,11 @@ class GrupoPap extends Model
     public function instituicao()
     {
         return $this->turma
-            ->cursoClasseTurno
-            ->cursoClasse
-            ->cursoTutelado
-            ->instituicaoCurso
-            ->instituicao;
+            ?->cursoClasseTurno
+            ?->cursoClasse
+            ?->cursoTutelado
+            ?->instituicaoCurso
+            ?->instituicao;
     }
 
     // para pegar a instituicao tutora do curso tutelado  (tutela externa)
@@ -91,6 +97,15 @@ class GrupoPap extends Model
             ?->cursoClasse
             ?->cursoTutelado
             ?->instituicaoTutora;
+    }
+
+    public function instituicaoTutoraId(): ?string
+    {
+        return $this->turma
+            ?->cursoClasseTurno
+            ?->cursoClasse
+            ?->cursoTutelado
+            ?->instituicao_tutora_id;
     }
 
     public function historicoAprovacao()
@@ -151,7 +166,7 @@ class GrupoPap extends Model
 
     public function podeSermitidoAoTutor(): bool
     {
-        return $this->status_aprovacao === 'rascunho' && !is_null($this->tema_grupo);
+        return $this->status_aprovacao === 'rascunho' && ! is_null($this->tema_grupo);
     }
 
     public function podeSerAprovadoPeloTutor(): bool
@@ -163,6 +178,4 @@ class GrupoPap extends Model
     {
         return $this->status_aprovacao === 'pendente';
     }
-
-
 }

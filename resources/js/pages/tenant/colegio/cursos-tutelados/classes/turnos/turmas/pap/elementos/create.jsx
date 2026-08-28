@@ -8,6 +8,7 @@ import { CreateForm } from './components/create.form';
 export default function Create() {
   const {
     instituicao,
+    colegio,
     cursoTutelado,
     cursoClasse,
     cursoClasseTurno,

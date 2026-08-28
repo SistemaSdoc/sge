@@ -23,8 +23,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/BancaJuriPapController';
-import { destroy as destroyIntegrante } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
+import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/Colegios/BancaJuriPapController';
 import { edit } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import { definirData } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import { actualizarNota } from '@/actions/App/Http/Controllers/Tenant/Colegios/ElementoGrupoPapController';
@@ -57,13 +56,14 @@ export default function Show({
 
   const params = {
     instituicao: instituicao.id, // ← para os controllers da instituição (ElementoGrupoPap, etc.)
-    colegio: instituicao.id, // ← para os controllers do colégio (BancaJuriPap, etc.)
+    colegio: colegio.id,
     cursoTutelado: cursoTutelado.id,
     cursoClasse: cursoClasse.id,
     cursoClasseTurno: cursoClasseTurno.id,
     turma: turma.id,
     grupoPap: grupoPap.id,
   };
+  const routeOptions = { query: { instituicao: instituicao.id } };
 
   const { data, setData, put, processing, errors, reset, setError } = useForm({
     data_defesa: grupoPap?.data_defesa
@@ -73,14 +73,17 @@ export default function Show({
   });
 
   const removerJuradoFn = (bancaJuriPap) => {
-    router.delete(destroyJurado.url({ ...params, bancaJuriPap }), {
+    router.delete(destroyJurado.url({ ...params, bancaJuriPap }, routeOptions), {
       onSuccess: () => router.reload(),
     });
   };
 
   const actualizarNotaFn = (payload, options = {}) => {
     router.put(
-      actualizarNota.url({ ...params, elementoGrupoPap: payload.elementoId }),
+      actualizarNota.url(
+        { ...params, elementoGrupoPap: payload.elementoId },
+        routeOptions,
+      ),
       payload.data,
       {
         onSuccess: () => {
@@ -102,7 +105,7 @@ export default function Show({
       return;
     }
 
-    put(definirData.url(params), {
+    put(definirData.url(params, routeOptions), {
       onSuccess: () => {
         setDialogDataAberto(false);
         router.reload();
@@ -141,7 +144,7 @@ export default function Show({
                 <DropdownMenuContent align="end" className="w-full max-w-2xl">
                   {can?.update && (
                     <DropdownMenuItem
-                      onClick={() => router.visit(edit.url(params))}
+                      onClick={() => router.visit(edit.url(params, routeOptions))}
                     >
                       Editar
                     </DropdownMenuItem>
@@ -347,7 +350,9 @@ export default function Show({
                     : 'default'
                 }
                 onClick={() =>
-                  router.visit(editarTema.url({ grupoPap: grupoPap.id }))
+                  router.visit(
+                    editarTema.url({ grupoPap: grupoPap.id }, routeOptions),
+                  )
                 }
               >
                 {grupoPap.status_aprovacao === 'reprovado'
@@ -390,6 +395,7 @@ export default function Show({
           <TabsContent value="integrantes-banca">
             <TabBanca
               params={params}
+              routeOptions={routeOptions}
               grupoPap={grupoPap}
               removerJuradoFn={removerJuradoFn}
               pagination={banca}
@@ -399,7 +405,12 @@ export default function Show({
           </TabsContent>
         )}
         <TabsContent value="aprovacao">
-          <TabAprovacao params={params} grupoPap={grupoPap} can={can} />
+          <TabAprovacao
+            params={params}
+            grupoPap={grupoPap}
+            can={can}
+            routeOptions={routeOptions}
+          />
         </TabsContent>
 
         <TabsContent value="historico">

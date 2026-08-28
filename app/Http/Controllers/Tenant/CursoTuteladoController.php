@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\StoreCursoTuteladoRequest;
 use App\Http\Resources\Tenant\CursoTutelado\CursoTuteladoResourceEdit;
 use App\Http\Resources\Tenant\CursoTutelado\CursoTuteladoResourceShow;
+use App\Models\Central\Tenant;
+use App\Models\Central\Tutela;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\Curso;
@@ -16,36 +18,97 @@ use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\NivelEnsino;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
+use App\Services\Tenant\TenantInstituicaoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class CursoTuteladoController extends Controller
 {
     public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
-    public function index(Instituicao $instituicao)
+    public function index(Instituicao $instituicao, TenantInstituicaoService $tenantInstituicaoService)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+        $instituicoes = $tenantInstituicaoService->listarTodas()->keyBy('id');
+        $tutelasRecebidas = Tutela::query()
+            ->where('instituicao_tutelada_id', $instituicao->id)
+            ->where('ativo', true)
+            ->get(['instituicao_tutora_id', 'curso_id'])
+            ->keyBy('curso_id');
 
         $cursos = $instituicao->instituicaoCursos()
             ->with(['curso:id,nome', 'cursoTutelado.instituicaoTutora:id,nome'])
             ->paginate(10)
-            ->through(fn ($instituicaoCurso) => [
-                'id' => $instituicaoCurso->cursoTutelado->id,
-                'nome' => $instituicaoCurso->curso->nome,
-                'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,
-                'can' => [
-                    'view' => $user->can('view', $instituicaoCurso->cursoTutelado),
-                    'update' => $user->can('update', $instituicaoCurso->cursoTutelado),
-                    'delete' => $user->can('delete', $instituicaoCurso->cursoTutelado),
-                ],
-            ]);
+            ->through(function ($instituicaoCurso) use ($user, $instituicoes, $tutelasRecebidas) {
+                $tutela = $tutelasRecebidas->get($instituicaoCurso->curso_id);
+
+                return [
+                    'id' => $instituicaoCurso->cursoTutelado->id,
+                    'nome' => $instituicaoCurso->curso->nome,
+                    'instituicao_tutora' => $tutela
+                        ? $instituicoes->get($tutela->instituicao_tutora_id)['nome'] ?? null
+                        : $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,
+                    'can' => [
+                        'view' => $user->can('view', $instituicaoCurso->cursoTutelado),
+                        'update' => $user->can('update', $instituicaoCurso->cursoTutelado),
+                        'delete' => $user->can('delete', $instituicaoCurso->cursoTutelado),
+                    ],
+                ];
+            });
+
+        $tenantAtual = tenancy()->tenant;
+        $cursosTutelados = Tutela::query()
+            ->where('instituicao_tutora_id', $instituicao->id)
+            ->where('ativo', true)
+            ->get(['instituicao_tutelada_id', 'curso_id'])
+            ->map(function (Tutela $tutela) use ($instituicoes, $tenantAtual, $instituicao) {
+                $instituicaoTutelada = $instituicoes->get($tutela->instituicao_tutelada_id);
+
+                if (! $instituicaoTutelada || ! $tenantAtual) {
+                    return null;
+                }
+
+                $tenantTutelado = Tenant::find($instituicaoTutelada['tenant_id']);
+
+                if (! $tenantTutelado) {
+                    return null;
+                }
+
+                tenancy()->initialize($tenantTutelado);
+
+                try {
+                    $curso = DB::table('cursos')
+                        ->join('instituicao_curso', 'cursos.id', '=', 'instituicao_curso.curso_id')
+                        ->where('instituicao_curso.instituicao_id', $tutela->instituicao_tutelada_id)
+                        ->where('cursos.id', $tutela->curso_id)
+                        ->first(['cursos.id', 'cursos.nome']);
+                } finally {
+                    tenancy()->initialize($tenantAtual);
+                }
+
+                return $curso ? [
+                    'id' => $curso->id,
+                    'nome' => $curso->nome,
+                    'instituicao_tutora' => $instituicoes->get($instituicao->id)['nome'] ?? null,
+                    'is_tutela_remota' => true,
+                    'can' => [
+                        'view' => false,
+                        'update' => false,
+                        'delete' => false,
+                    ],
+                ] : null;
+            })
+            ->filter()
+            ->values();
+
+        $cursos->setCollection($cursos->getCollection()->concat($cursosTutelados));
 
         return Inertia::render('tenant/cursos-tutelados/index', [
             'cursos' => $cursos,
@@ -198,8 +261,11 @@ class CursoTuteladoController extends Controller
         ]);
     }
 
-    public function edit(Instituicao $instituicao, CursoTutelado $cursoTutelado)
-    {
+    public function edit(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        TenantInstituicaoService $tenantInstituicaoService
+    ) {
         Gate::authorize('update', $cursoTutelado);
 
         $cursoTutelado->load([
@@ -214,24 +280,35 @@ class CursoTuteladoController extends Controller
             ->get();
 
         // Só faz sentido para colégios — institutos não passam tutela
-        $instituicoes = collect();
+        // $instituicoes = collect();
+
+        $instituicoes = $tenantInstituicaoService->listarTodas();
 
         if ($instituicao->tipo === 'colegio') {
-            $cursoId = $cursoTutelado->instituicaoCurso->curso_id;
-
-            $instituicoes = Instituicao::select('id', 'nome')
-                ->where(function ($q) use ($cursoId) {
-                    // Institutos que têm o curso
-                    $q->where('tipo', 'instituto')
-                        ->whereHas('instituicaoCursos', fn ($q) => $q->where('curso_id', $cursoId));
-                })
-                ->orWhere('id', $cursoTutelado->instituicao_tutora_id) // Garante que a tutora actual aparece sempre
-                ->orderBy('nome')
-                ->get();
+            $instituicoes = $instituicoes->sortBy('nome')->values();
         } else {
             $instituicoes = Instituicao::select('id', 'nome')
                 ->where('id', $cursoTutelado->instituicao_tutora_id)
                 ->get();
+        }
+
+        $cursoTuteladoData = (new CursoTuteladoResourceEdit($cursoTutelado))->resolve();
+        $tutelaCentral = Tutela::query()
+            ->where('instituicao_tutelada_id', $instituicao->id)
+            ->where('curso_id', $cursoTutelado->instituicaoCurso->curso_id)
+            ->where('ativo', true)
+            ->latest('updated_at')
+            ->first();
+
+        if ($tutelaCentral) {
+            $instituicaoTutora = $instituicoes->firstWhere('id', $tutelaCentral->instituicao_tutora_id);
+
+            if ($instituicaoTutora) {
+                $cursoTuteladoData['instituicao_tutora'] = [
+                    'id' => $instituicaoTutora['id'],
+                    'nome' => $instituicaoTutora['nome'],
+                ];
+            }
         }
 
         return Inertia::render('tenant/cursos-tutelados/edit', [
@@ -240,27 +317,61 @@ class CursoTuteladoController extends Controller
                 'nome' => $instituicao->nome,
                 'tipo' => $instituicao->tipo,
             ],
-            'cursoTutelado' => (new CursoTuteladoResourceEdit($cursoTutelado))->resolve(),
+            'cursoTutelado' => $cursoTuteladoData,
             'classes' => $classes,
             'instituicoes' => $instituicoes,
         ]);
     }
 
-    public function update(Instituicao $instituicao, CursoTutelado $cursoTutelado)
-    {
+    public function update(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        TenantInstituicaoService $tenantInstituicaoService
+    ) {
         Gate::authorize('update', $cursoTutelado);
 
         $validated = request()->validate([
-            'instituicao_tutora_id' => ['required', 'string', 'exists:instituicoes,id'],
+            'instituicao_tutora_id' => [
+                'required',
+                'string',
+                Rule::in($tenantInstituicaoService->listarTodas()->pluck('id')->all()),
+            ],
             'duracao_anos' => ['required', 'integer', 'min:1', 'max:10'],
             'classes' => ['required', 'array', 'min:1'],
             'classes.*' => ['string', 'exists:classes,id'],
         ]);
 
-        DB::transaction(function () use ($validated, $cursoTutelado) {
-            $cursoTutelado->update([
-                'instituicao_tutora_id' => $validated['instituicao_tutora_id'],
-            ]);
+        $cursoTutelado->loadMissing('instituicaoCurso');
+        $instituicoes = $tenantInstituicaoService->listarTodas();
+        $instituicaoTutora = $instituicoes->firstWhere('id', $validated['instituicao_tutora_id']);
+
+        if (! $instituicaoTutora) {
+            abort(422, 'A instituição tutora seleccionada não existe.');
+        }
+
+        DB::transaction(function () use ($validated, $cursoTutelado, $instituicao, $instituicaoTutora) {
+            if ($instituicaoTutora['tenant_id'] === tenant()->getTenantKey()) {
+                $cursoTutelado->update([
+                    'instituicao_tutora_id' => $validated['instituicao_tutora_id'],
+                ]);
+
+                Tutela::query()
+                    ->where('instituicao_tutelada_id', $instituicao->id)
+                    ->where('curso_id', $cursoTutelado->instituicaoCurso->curso_id)
+                    ->delete();
+            } else {
+                Tutela::query()
+                    ->where('instituicao_tutelada_id', $instituicao->id)
+                    ->where('curso_id', $cursoTutelado->instituicaoCurso->curso_id)
+                    ->delete();
+
+                Tutela::query()->create([
+                    'instituicao_tutora_id' => $instituicaoTutora['id'],
+                    'instituicao_tutelada_id' => $instituicao->id,
+                    'curso_id' => $cursoTutelado->instituicaoCurso->curso_id,
+                    'ativo' => true,
+                ]);
+            }
 
             $cursoTutelado->instituicaoCurso->update([
                 'duracao_anos' => $validated['duracao_anos'],
