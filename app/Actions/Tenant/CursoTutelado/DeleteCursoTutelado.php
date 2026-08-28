@@ -24,7 +24,7 @@ class DeleteCursoTutelado
 
         DB::transaction(function () use ($cursoTutelado): void {
             $this->sharedService->encerrar($cursoTutelado);
-            
+
             $cursoTutelado->delete();
         });
     }

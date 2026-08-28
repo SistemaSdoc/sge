@@ -112,9 +112,12 @@ export function CursoForm({
                   <Field>
                     <FieldLabel>Instituição tutora</FieldLabel>
                     <Select
-                      value={data.tenant_tutor_id || ''}
+                      value={data.tenant_tutor_id || 'propria'}
                       onValueChange={(value) =>
-                        setData('tenant_tutor_id', value)
+                        setData(
+                          'tenant_tutor_id',
+                          value === 'propria' ? '' : value,
+                        )
                       }
                     >
                       <SelectTrigger className="w-full">

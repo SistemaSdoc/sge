@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Models\Central\CursoTuteladoShared;
 use App\Notifications\PropinaEmAtrasoNotification;
 use App\Services\Tenant\VerificadorPropinaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class NotificacaoController extends Controller
 {
@@ -40,10 +43,59 @@ class NotificacaoController extends Controller
             'total' => $notificacoes->count(),
         ]);
 
-        return response()->json([
+        $payload = [
             'notificacoes' => $notificacoes,
             'nao_lidas' => $user->unreadNotifications()->count(),
+        ];
+
+        if ($request->expectsJson()) {
+            return response()->json($payload);
+        }
+
+        return Inertia::render('tenant/notificacoes/index', [
+            'notificacoes' => $user->notifications()->latest()->paginate(20)->through(
+                fn ($notification): array => $this->serializar($notification)
+            ),
+            'naoLidas' => $payload['nao_lidas'],
         ]);
+    }
+
+    public function show(Request $request, string $notification)
+    {
+        $item = $request->user()->notifications()->findOrFail($notification);
+
+        return $this->renderShow($item);
+    }
+
+    public function showTutela(Request $request, string $shared)
+    {
+        $item = $request->user()->notifications()
+            ->get()
+            ->first(fn ($notification): bool => ($notification->data['tipo'] ?? null) === 'solicitacao_tutela'
+                && ($notification->data['curso_tutelado_shared_id'] ?? null) === $shared);
+
+        abort_unless($item, 404);
+
+        return $this->renderShow($item);
+    }
+
+    private function renderShow(object $item)
+    {
+        $item->markAsRead();
+
+        return Inertia::render('tenant/notificacoes/show', [
+            'notificacao' => $this->serializar($item, true),
+        ]);
+    }
+
+    public function aprovarTutela(Request $request, string $notification)
+    {
+        return $this->decidirTutela($request, $notification, 'activo');
+    }
+
+    public function rejeitarTutela(Request $request, string $notification)
+    {
+        return $this->decidirTutela($request, $notification, 'rejeitado');
     }
 
     /**
@@ -102,5 +154,52 @@ class NotificacaoController extends Controller
         Log::debug('NotificacaoController@marcarTodasLidas', ['user_id' => $request->user()->id]);
 
         return response()->noContent();
+    }
+
+    private function serializar(object $notification, bool $detalhada = false): array
+    {
+        $data = $notification->data;
+
+        if (($data['tipo'] ?? null) === 'solicitacao_tutela' && ! empty($data['curso_tutelado_shared_id'])) {
+            $centralConnection = config('tenancy.database.central_connection', config('database.default'));
+            $data['status'] = CursoTuteladoShared::on($centralConnection)
+                ->whereKey($data['curso_tutelado_shared_id'])
+                ->value('status');
+        }
+
+        return [
+            'id' => $notification->id,
+            'tipo' => $notification->data['tipo'] ?? null,
+            'titulo' => $notification->data['titulo'] ?? '',
+            'mensagem' => $notification->data['mensagem'] ?? '',
+            'dados' => $detalhada ? $data : [],
+            'lida' => $notification->read_at !== null,
+            'criada_em' => $notification->created_at->diffForHumans(),
+            'criada_em_iso' => $notification->created_at->toISOString(),
+        ];
+    }
+
+    private function decidirTutela(Request $request, string $notification, string $status)
+    {
+        $item = $request->user()->notifications()->findOrFail($notification);
+        abort_unless(($item->data['tipo'] ?? null) === 'solicitacao_tutela', 404);
+
+        $sharedId = $item->data['curso_tutelado_shared_id'] ?? null;
+        $centralConnection = config('tenancy.database.central_connection', config('database.default'));
+        $shared = CursoTuteladoShared::on($centralConnection)->findOrFail($sharedId);
+
+        abort_unless($shared->tenant_tutor_id === (string) tenancy()->tenant->getTenantKey(), 403);
+        abort_if($shared->status !== 'pendente', 422, 'Esta solicitação já foi decidida.');
+
+        $shared->update(['status' => $status]);
+        $item->markAsRead();
+
+        return Redirect::route('tenant.dashboard.notificacoes.show', $item->id)
+            ->with('toast', [
+                'type' => 'success',
+                'message' => $status === 'activo'
+                    ? 'Tutela aprovada com sucesso.'
+                    : 'Solicitação de tutela rejeitada.',
+            ]);
     }
 }

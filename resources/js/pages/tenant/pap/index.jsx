@@ -1,24 +1,52 @@
 import { GrupoPapCards } from './components/grupo-pap-cards';
 import { Head, router } from '@inertiajs/react';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { useState, useMemo } from 'react';
+import { Header } from './components/header';
 
-export default function GrupoPapIndex({
+export default function Index({
+  instituicao,
+  instituicoes = [],
+  cursosTutelados,
   gruposPap = [],
   anosLectivos = [],
   anoLectivoId,
 }) {
+  const [filtroInstituicao, setFiltroInstituicao] = useState(
+    instituicao?.id ?? 'todas',
+  );
+  const [filtroCurso, setFiltroCurso] = useState('todos');
+
+  const grupos = gruposPap.data ?? [];
+
+  const cursos = useMemo(() => {
+    const map = new Map();
+    cursosTutelados?.forEach((curso) => {
+      if (
+        filtroInstituicao === 'todas' ||
+        curso.instituicao_id === filtroInstituicao
+      ) {
+        map.set(curso.id, curso);
+      }
+    });
+    return Array.from(map.values());
+  }, [cursosTutelados, filtroInstituicao]);
+
+  const gruposFiltrados = useMemo(() => {
+    return grupos.filter((g) => {
+      const passaInstituicao =
+        filtroInstituicao === 'todas' ||
+        g.instituicao?.id === filtroInstituicao;
+      const passaCurso =
+        filtroCurso === 'todos' || g.cursoTutelado?.id === filtroCurso;
+      return passaInstituicao && passaCurso;
+    });
+  }, [grupos, filtroInstituicao, filtroCurso]);
+
   const handleAnoLectivoChange = (value) => {
     router.visit(window.location.pathname, {
       data: { ano_lectivo_id: value },
       preserveScroll: true,
+      preserveState: true,
     });
   };
 
@@ -27,34 +55,23 @@ export default function GrupoPapIndex({
       <Head title="Grupos Pap" />
 
       <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
-        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <h1 className="text-xl font-bold">Grupos PAP</h1>
-            <p className="text-muted-foreground">
-              Selecione um grupo para visualizar os detalhes e gerir
-            </p>
-          </div>
-          <Select
-            value={anoLectivoId ?? ''}
-            onValueChange={handleAnoLectivoChange}
-          >
-            <SelectTrigger id="ano-lectivo" className="w-48">
-              <SelectValue placeholder="Selecione o ano lectivo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Anos Lectivos</SelectLabel>
-                {anosLectivos?.map((ano) => (
-                  <SelectItem key={ano.id} value={ano.id}>
-                    {ano.nome}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+        <Header
+          instituicao={instituicao}
+          instituicoes={instituicoes}
+          cursosTutelados={cursos}
+          filtroInstituicao={filtroInstituicao}
+          onInstituicaoChange={(value) => {
+            setFiltroInstituicao(value);
+            setFiltroCurso('todos');
+          }}
+          filtroCurso={filtroCurso}
+          onCursoChange={setFiltroCurso}
+          anosLectivos={anosLectivos}
+          anoLectivoId={anoLectivoId}
+          onAnoLectivoChange={handleAnoLectivoChange}
+        />
 
-        <GrupoPapCards grupos={gruposPap.data ?? []} deleteFn={() => {}} />
+        <GrupoPapCards grupos={gruposFiltrados} />
       </div>
     </>
   );

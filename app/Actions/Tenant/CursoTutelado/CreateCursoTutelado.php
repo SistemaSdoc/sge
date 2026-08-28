@@ -25,13 +25,21 @@ class CreateCursoTutelado
      */
     public function handle(Instituicao $instituicao, array $validated): CursoTutelado
     {
-        return DB::transaction(function () use ($instituicao, $validated): CursoTutelado {
+        $tenantTutorId = $validated['tenant_tutor_id'] ?? null;
+        $tenantTutorNome = $tenantTutorId
+            ? $this->sharedService->validarTutelaExterna($instituicao, $tenantTutorId)
+            : null;
+
+        return DB::connection('tenant')->transaction(function () use ($instituicao, $validated, $tenantTutorId, $tenantTutorNome): CursoTutelado {
             $curso = isset($validated['curso_id'])
-                ? Curso::findOrFail($validated['curso_id'])
-                : Curso::firstOrCreate(
+                ? Curso::on('tenant')->findOrFail($validated['curso_id'])
+                : Curso::on('tenant')->firstOrCreate(
                     ['nome' => $validated['nome']],
                     ['duracao_anos' => $validated['duracao_anos']]
                 );
+
+            $curso->setConnection('tenant');
+            $instituicao->setConnection('tenant');
 
             if (Instituicao::query()
                 ->findOrFail($instituicao->getKey())
@@ -43,12 +51,6 @@ class CreateCursoTutelado
                 ]);
             }
 
-            $tenantTutorId = $validated['tenant_tutor_id'] ?? null;
-
-            $tenantTutorNome = $tenantTutorId
-                ? $this->sharedService->validarTutelaExterna($instituicao, $tenantTutorId)
-                : null;
-
             $instituicaoCurso = $instituicao->instituicaoCursos()->create([
                 'curso_id' => $curso->getKey(),
                 'duracao_anos' => $validated['duracao_anos'] ?? $curso->duracao_anos,
@@ -58,10 +60,6 @@ class CreateCursoTutelado
                 'instituicao_tutora_id' => $tenantTutorId ? null : $instituicao->getKey(),
                 'tipo_tutela' => $tenantTutorId ? 'externa' : 'propria',
             ]);
-
-            if ($tenantTutorId) {
-                $this->sharedService->publicarEAssociar($cursoTutelado, $tenantTutorId, $tenantTutorNome);
-            }
 
             $now = now();
 
@@ -75,6 +73,10 @@ class CreateCursoTutelado
                     'updated_at' => $now,
                 ])->all()
             );
+
+            if ($tenantTutorId) {
+                $this->sharedService->publicarEAssociar($cursoTutelado, $tenantTutorId, $tenantTutorNome);
+            }
 
             return $cursoTutelado->refresh();
         });

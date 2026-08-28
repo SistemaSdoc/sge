@@ -18,6 +18,7 @@ use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Services\Tenant\CrossTenantAccessService;
+use App\Services\Tenant\CursoTuteladoSharedService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
@@ -185,4 +186,52 @@ test('aprovacao externa grava o actor no historico do colegio', function (): voi
         ->and($historico->utilizador_externo_id)->toBe($this->tutor->id)
         ->and($historico->utilizador_externo_tenant_id)->toBe($this->tenantTutor->id)
         ->and($historico->utilizador_nome)->toBe($this->tutor->nome);
+});
+
+test('solicitacao de tutela grava a notificacao no tenant tutor', function (): void {
+    $tenantTutorAdmin = $this->tenantTutor->run(function (): User {
+        $instituicao = Instituicao::create(['nome' => 'Instituto Tutor', 'tipo' => 'instituto']);
+
+        return User::create([
+            'nome' => 'Administrador Tutor',
+            'email' => 'sem-email',
+            'instituicao_id' => $instituicao->id,
+        ]);
+    });
+    $this->tenantTutor->update(['admin_user_id' => $tenantTutorAdmin->id]);
+
+    $colegioInstituicaoId = $this->tenantColegio->run(function (): string {
+        $instituicao = Instituicao::create(['nome' => 'Colégio Tutelado', 'tipo' => 'colegio']);
+        $curso = Curso::create(['nome' => 'Contabilidade', 'duracao_anos' => 4]);
+        $instituicaoCurso = InstituicaoCurso::create([
+            'instituicao_id' => $instituicao->id,
+            'curso_id' => $curso->id,
+            'duracao_anos' => 4,
+        ]);
+
+        $instituicaoCurso->cursoTutelado()->create([
+            'tipo_tutela' => 'externa',
+        ]);
+
+        return $instituicao->id;
+    });
+    $this->tenantColegio->update(['instituicao_id' => $colegioInstituicaoId]);
+
+    $cursoTutelado = $this->tenantColegio->run(
+        fn (): CursoTutelado => CursoTutelado::latest()->firstOrFail()
+    );
+
+    tenancy()->initialize($this->tenantColegio);
+
+    app(CursoTuteladoSharedService::class)->publicarEAssociar(
+        $cursoTutelado,
+        $this->tenantTutor->id,
+        'Instituto Tutor',
+    );
+
+    $notificationCount = $this->tenantTutor->run(
+        fn (): int => User::findOrFail($tenantTutorAdmin->id)->notifications()->count()
+    );
+
+    expect($notificationCount)->toBe(1);
 });

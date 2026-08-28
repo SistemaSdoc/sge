@@ -26,7 +26,7 @@ class UpdateCursoTutelado
 
             if ($tenantTutorId) {
                 $tenantTutorNome = $this->sharedService->validarTutelaExterna($instituicao, $tenantTutorId);
-                
+
                 $this->sharedService->publicarEAssociar($cursoTutelado, $tenantTutorId, $tenantTutorNome);
             } else {
                 $this->sharedService->tornarPropria($cursoTutelado, $instituicao->getKey());

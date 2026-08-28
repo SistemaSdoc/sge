@@ -11,10 +11,10 @@ export function useDrawer() {
    * Abre o drawer com um formulário ou conteúdo arbitrário.
    * O conteúdo é responsável pelo seu próprio submit e por chamar closeDrawer no sucesso.
    *
-   * @param {object} options
-   * @param {string} options.title        - Título do drawer
-   * @param {string} options.description  - Descrição opcional
-   * @param {ReactNode} options.content   - Formulário ou JSX a renderizar
+   * @param {{ title?: string, description?: string, content?: import('react').ReactNode, className?: string, closeOnOutsideClick?: boolean }} options
+   * @param {string} options.title - Título do drawer
+   * @param {string} options.description - Descrição opcional
+   * @param {import('react').ReactNode} options.content - Formulário ou conteúdo a renderizar
    */
   const openForm = (options) => openDrawer({ ...options });
 

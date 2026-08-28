@@ -8,6 +8,8 @@ use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\User;
+use App\Notifications\SolicitacaoTutelaNotification;
 use App\Services\Central\TenantService;
 use Closure;
 use Illuminate\Support\Facades\DB;
@@ -99,7 +101,7 @@ class CursoTuteladoSharedService
                 'tenant_tutor_nome' => $tenantTutorNome ?? $tenantTutorId,
                 'curso_nome' => $curso?->nome ?? 'Curso sem nome',
                 'duracao_anos' => $cursoTutelado->instituicaoCurso?->duracao_anos ?? $curso?->duracao_anos ?? 1,
-                'status' => 'activo',
+                'status' => 'pendente',
             ];
 
             if ($shared) {
@@ -122,7 +124,7 @@ class CursoTuteladoSharedService
     ): CursoTuteladoShared {
         $centralConnection = config('tenancy.database.central_connection', config('database.default'));
 
-        return DB::connection($centralConnection)->transaction(function () use ($cursoTutelado, $tenantTutorId, $tenantTutorNome): CursoTuteladoShared {
+        $shared = DB::connection($centralConnection)->transaction(function () use ($cursoTutelado, $tenantTutorId, $tenantTutorNome): CursoTuteladoShared {
             $shared = $this->publicar($cursoTutelado, $tenantTutorId, $tenantTutorNome);
 
             DB::connection('tenant')->transaction(function () use ($cursoTutelado, $shared): void {
@@ -135,6 +137,10 @@ class CursoTuteladoSharedService
 
             return $shared;
         });
+
+        $this->notificarSolicitacao($shared);
+
+        return $shared;
     }
 
     public function remover(CursoTutelado $cursoTutelado): void
@@ -198,5 +204,46 @@ class CursoTuteladoSharedService
                     ]);
             });
         });
+    }
+
+    private function notificarSolicitacao(CursoTuteladoShared $shared): void
+    {
+        $tenantTutor = Tenant::query()->find($shared->tenant_tutor_id);
+        $tenantTutelado = Tenant::query()->find($shared->tenant_tutelado_id);
+
+        if (! $tenantTutor || ! $tenantTutelado) {
+            return;
+        }
+
+        $instituicaoTutelada = $this->tenantService->getInstituicao($tenantTutelado);
+
+        if (! $instituicaoTutelada || ! $tenantTutor->admin_user_id) {
+            return;
+        }
+
+        $tenantTutor->run(function () use ($tenantTutor, $instituicaoTutelada, $shared): void {
+            $admin = User::query()->find($tenantTutor->admin_user_id);
+
+            if (! $admin) {
+                return;
+            }
+
+            $admin->notify(new SolicitacaoTutelaNotification(
+                instituicaoTutelada: $instituicaoTutelada->nome,
+                cursoNome: $shared->curso_nome,
+                sharedId: $shared->getKey(),
+                url: $this->tenantNotificationUrl($tenantTutor, $shared->getKey()),
+            ));
+        });
+    }
+
+    private function tenantNotificationUrl(Tenant $tenant, string $sharedId): string
+    {
+        $domain = $tenant->domains()->first()?->domain;
+        $scheme = parse_url((string) config('app.url'), PHP_URL_SCHEME) ?: 'http';
+
+        return $domain
+            ? "{$scheme}://{$domain}/dashboard/notificacoes/tutela/{$sharedId}"
+            : url("/dashboard/notificacoes/tutela/{$sharedId}");
     }
 }

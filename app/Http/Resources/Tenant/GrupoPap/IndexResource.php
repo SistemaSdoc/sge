@@ -18,6 +18,7 @@ class IndexResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'cross_tenant' => (bool) ($this->cross_tenant ?? false),
             'nome_grupo' => $this->nome_grupo,
             'tema_grupo' => $this->tema_grupo,
             'estudo_caso' => $this->estudo_caso,

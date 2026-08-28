@@ -14,6 +14,16 @@ use Illuminate\Validation\Validator;
 class StoreCursoTuteladoRequest extends FormRequest
 {
     /**
+     * Normaliza valores antigos do formulário para o contrato da API.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->input('tenant_tutor_id') === 'propria') {
+            $this->merge(['tenant_tutor_id' => '']);
+        }
+    }
+
+    /**
      * A autorização final é feita pela policy do controller.
      */
     public function authorize(): bool
@@ -53,6 +63,12 @@ class StoreCursoTuteladoRequest extends FormRequest
     {
         $validator->after(function (Validator $validator): void {
             $tenantTutorId = $this->input('tenant_tutor_id');
+
+            if ($tenantTutorId === 'propria') {
+                $tenantTutorId = '';
+                $this->merge(['tenant_tutor_id' => '']);
+            }
+
             $currentTenant = Tenant::query()->find((string) tenancy()->tenant->getTenantKey());
             $instituicao = $currentTenant
                 ? app(TenantService::class)->getInstituicao($currentTenant)

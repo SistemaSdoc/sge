@@ -14,16 +14,15 @@ export default function Edit({
     classes: Array.isArray(cursoTutelado?.classes) ? cursoTutelado.classes : [],
   });
 
+  const parms = {
+    instituicao,
+    cursoTutelado,
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    put(
-      update({
-        instituicao: instituicao.id,
-        cursoTutelado: cursoTutelado.id,
-      }).url,
-      { preserveScroll: true },
-    );
+    put(update(parms).url, { preserveScroll: true });
   };
 
   return (
