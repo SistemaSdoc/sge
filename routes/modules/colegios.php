@@ -73,7 +73,7 @@ Route::prefix('colegios')->group(function () {
                             ->name('submeter');
                         Route::post('/tutor/aprovar', [TrabalhoPapController::class, 'aprovarComoTutor'])
                             ->name('tutor.aprovar');
-                        Route::post('/tutor/correcao', [ControllersTrabalhoPapController::class, 'solicitarCorrecaoComoTutor'])
+                        Route::post('/tutor/correcao', [TrabalhoPapController::class, 'solicitarCorrecaoComoTutor'])
                             ->name('tutor.correcao');
                         Route::post('/coordenacao/aprovar', [TrabalhoPapController::class, 'aprovarComoCoordenacao'])
                             ->name('coordenacao.aprovar');

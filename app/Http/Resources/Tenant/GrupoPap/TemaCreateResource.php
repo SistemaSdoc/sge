@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\GrupoPap;
+namespace App\Http\Resources\Tenant\GrupoPap;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;

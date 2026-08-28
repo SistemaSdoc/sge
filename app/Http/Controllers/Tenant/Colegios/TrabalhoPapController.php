@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Colegios;
+namespace App\Http\Controllers\Tenant\Colegios;
 
 use App\Http\Controllers\Controller;
-use App\Models\CursoClasse;
-use App\Models\CursoClasseTurno;
-use App\Models\CursoTutelado;
-use App\Models\GrupoPap;
-use App\Models\Instituicao;
-use App\Models\Turma;
-use App\Services\TrabalhoPapService;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\Turma;
+use App\Services\Tenant\TrabalhoPapService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;

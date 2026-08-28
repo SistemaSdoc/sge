@@ -26,7 +26,9 @@ use Inertia\Inertia;
 
 class CursoTuteladoController extends Controller
 {
-    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
+    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService)
+    {
+    }
 
     public function index(Instituicao $instituicao)
     {
@@ -36,7 +38,7 @@ class CursoTuteladoController extends Controller
         $cursos = $instituicao->instituicaoCursos()
             ->with(['curso:id,nome', 'cursoTutelado.instituicaoTutora:id,nome'])
             ->paginate(10)
-            ->through(fn ($instituicaoCurso) => [
+            ->through(fn($instituicaoCurso) => [
                 'id' => $instituicaoCurso->cursoTutelado->id,
                 'nome' => $instituicaoCurso->curso->nome,
                 'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,
@@ -72,7 +74,7 @@ class CursoTuteladoController extends Controller
 
         if ($instituicao->tipo === 'instituto') {
             // Instituto: esconde cursos já associados a qualquer colégio
-            $cursosJaAssociadosQuery->whereHas('instituicao', fn ($q) => $q->where('tipo', 'colegio'));
+            $cursosJaAssociadosQuery->whereHas('instituicao', fn($q) => $q->where('tipo', 'colegio'));
         } else {
             // Colégio: esconde só os cursos já associados a este próprio colégio
             // (cursos de institutos continuam a aparecer)
@@ -133,7 +135,7 @@ class CursoTuteladoController extends Controller
             // Insert bulk — uma única query independentemente do nº de classes
             $now = now();
             CursoClasse::insert(
-                collect($validated['classe_ids'])->map(fn ($classeId) => [
+                collect($validated['classe_ids'])->map(fn($classeId) => [
                     'id' => (string) Str::uuid7(),
                     'curso_tutelado_id' => $cursoTutelado->id,
                     'classe_id' => $classeId,
@@ -169,7 +171,7 @@ class CursoTuteladoController extends Controller
             'cursoClasses.turnos.turno:id,nome',
             'cursoClasses.turnos' => function ($query) use ($anoLectivoId) {
                 $query->with([
-                    'turmas' => fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId),
+                    'turmas' => fn($q) => $q->where('ano_lectivo_id', $anoLectivoId),
                     'turmas.cursoClasseTurno.turno:id,nome',
                     'turmas.cursoClasseTurno.cursoClasse.classe:id,nome',
                     'classeTurnoDisciplinas.professores',
@@ -223,7 +225,7 @@ class CursoTuteladoController extends Controller
                 ->where(function ($q) use ($cursoId) {
                     // Institutos que têm o curso
                     $q->where('tipo', 'instituto')
-                        ->whereHas('instituicaoCursos', fn ($q) => $q->where('curso_id', $cursoId));
+                        ->whereHas('instituicaoCursos', fn($q) => $q->where('curso_id', $cursoId));
                 })
                 ->orWhere('id', $cursoTutelado->instituicao_tutora_id) // Garante que a tutora actual aparece sempre
                 ->orderBy('nome')
@@ -280,7 +282,7 @@ class CursoTuteladoController extends Controller
         Gate::authorize('update', $cursoTutelado);
 
         $temTurmas = $cursoTutelado->cursoClasses
-            ->flatMap(fn ($cc) => $cc->turnos)
+            ->flatMap(fn($cc) => $cc->turnos)
             ->isNotEmpty();
 
         if ($temTurmas) {
@@ -296,11 +298,11 @@ class CursoTuteladoController extends Controller
     {
         Gate::authorize('update', $cursoTutelado);
 
-    $request->validate([
-        'criterios_pap' => [($cursoTutelado->criterios_pap_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
-        'manual_pt'     => [($cursoTutelado->manual_pt_path     ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
-        'estrutura_trabalho_pap' => [($cursoTutelado->estrutura_trabalho_pap_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
-    ]);
+        $request->validate([
+            'criterios_pap' => [($cursoTutelado->criterios_pap_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
+            'manual_pt' => [($cursoTutelado->manual_pt_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
+            'estrutura_trabalho_pap' => [($cursoTutelado->estrutura_trabalho_pap_path ? 'nullable' : 'required'), 'file', 'mimes:pdf', 'max:10240'],
+        ]);
 
         if ($request->hasFile('criterios_pap')) {
             if ($cursoTutelado->criterios_pap_path) {
@@ -318,33 +320,22 @@ class CursoTuteladoController extends Controller
                 ->store("cursos-tutelados/{$cursoTutelado->id}/manual-pt", 'public');
         }
 
+        if ($request->hasFile('estrutura_trabalho_pap')) {
+            if ($cursoTutelado->estrutura_trabalho_pap_path) {
+                Storage::disk('public')->delete($cursoTutelado->estrutura_trabalho_pap_path);
+            }
+            $cursoTutelado->estrutura_trabalho_pap_path = $request->file('estrutura_trabalho_pap')
+                ->store("cursos-tutelados/{$cursoTutelado->id}/estrutura-trabalho-pap", 'public');
+        }
+
         $cursoTutelado->save();
 
         return redirect()->route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Documentos actualizados com sucesso.',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Documentos actualizados com sucesso.',
+                ]);
     }
-
-       if ($request->hasFile('estrutura_trabalho_pap')) {
-        if ($cursoTutelado->estrutura_trabalho_pap_path) {
-            Storage::disk('public')->delete($cursoTutelado->estrutura_trabalho_pap_path);
-        }
-        $cursoTutelado->estrutura_trabalho_pap_path = $request->file('estrutura_trabalho_pap')
-            ->store("cursos-tutelados/{$cursoTutelado->id}/estrutura-trabalho-pap", 'public');
-    }
-
-    $cursoTutelado->save();
-
-    return redirect()->route('cursos-tutelados.show', [
-        'instituicao'    => $instituicao->id,
-        'cursoTutelado'  => $cursoTutelado->id,
-    ])->with('toast', [
-        'type'    => 'success',
-        'message' => 'Documentos actualizados com sucesso.',
-    ]);
-}
 }

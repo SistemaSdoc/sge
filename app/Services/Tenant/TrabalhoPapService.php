@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Tenant;
 
-use App\Models\GrupoPap;
-use App\Models\TrabalhoPap;
-use App\Models\TrabalhoPapFeedback;
-use App\Models\TrabalhoPapVersao;
-use App\Models\User;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\TrabalhoPap;
+use App\Models\Tenant\TrabalhoPapFeedback;
+use App\Models\Tenant\TrabalhoPapVersao;
+use App\Models\Tenant\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;

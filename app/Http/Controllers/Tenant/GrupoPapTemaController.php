@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Tenant\GrupoPap\ShowResource;
-use App\Http\Resources\GrupoPap\TemaCreateResource;
+use App\Http\Resources\Tenant\GrupoPap\TemaCreateResource;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -79,7 +79,7 @@ class GrupoPapTemaController extends Controller
             'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
         ]);
 
-        return to_route('tenant.dashboard.pap.show', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

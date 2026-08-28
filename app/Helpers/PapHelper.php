@@ -2,8 +2,8 @@
 
 namespace App\Helpers;
 
-use App\Models\Instituicao;
-use App\Models\User;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\User;
 
 class PapHelper
 {

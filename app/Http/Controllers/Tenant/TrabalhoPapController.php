@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Tenant;
 
-use App\Models\GrupoPap;
-use App\Models\Instituicao;
-use App\Models\CursoTutelado;
-use App\Models\CursoClasse;
-use App\Models\CursoClasseTurno;
-use App\Models\Turma;
-use App\Models\TrabalhoPap;
-use App\Services\TrabalhoPapService;
+use App\Http\Controllers\Controller;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\TrabalhoPap;
+use App\Services\Tenant\TrabalhoPapService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -227,7 +228,7 @@ class TrabalhoPapController extends Controller
             $request->file('ficheiro'),
         );
 
-        return redirect()->route('pap.show', [
+        return redirect()->route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao,
             'cursoTutelado' => $cursoTutelado,
             'cursoClasse' => $cursoClasse,
@@ -305,7 +306,7 @@ class TrabalhoPapController extends Controller
             $request->file('ficheiro'),
         );
 
-        return redirect()->route('pap.show', [
+        return redirect()->route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

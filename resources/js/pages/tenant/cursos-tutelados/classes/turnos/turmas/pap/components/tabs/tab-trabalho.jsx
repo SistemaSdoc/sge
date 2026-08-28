@@ -35,7 +35,7 @@ import {
   download,
   visualizar,
   downloadCorrecao,
-} from '@/actions/App/Http/Controllers/TrabalhoPapController';
+} from '@/actions/App/Http/Controllers/Tenant/TrabalhoPapController';
 
 // ── Configuração de status ───────────────────────────────────────────────────
 

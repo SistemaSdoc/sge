@@ -35,7 +35,7 @@ import {
 } from '@/components/ui/dialog';
 import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 
-export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUrl, manualPtUrl, estruturaTrabalhoPapUrl, can }) {
+export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, estruturaTrabalhoPapUrl, can }) {
   const criteriosId = useId();
   const manualId = useId();
   const estruturaTrabalhoPapId = useId();
@@ -84,14 +84,11 @@ export function TabCriteriosPap({ instituicaoId, cursoTuteladoId, criteriosPapUr
         forceFormData: true,
         preserveScroll: true,
         onSuccess: () => {
-          console.log('chegou no sucess');
           setUploading(false);
           handleFecharModal();
           router.reload({ only: ['cursoTutelado'] });
         },
         onError: () => {
-          console.log('chegou no sucess');
-
           setUploading(false);
         },
       },

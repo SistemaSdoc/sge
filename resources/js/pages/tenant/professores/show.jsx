@@ -51,9 +51,7 @@ export default function Show({ professor, cursos, turmas }) {
               )}
             </p>
           </div>
-        </CardContent>
-
-        <div>
+          <div>
           <p className="text-sm text-muted-foreground">Especialidade</p>
           <p className="font-medium">
             {professor?.especialidade || (
@@ -70,6 +68,8 @@ export default function Show({ professor, cursos, turmas }) {
             )}
           </p>
         </div>
+
+        </CardContent>
       </Card>
 
       <CursosTable cursos={cursos} />
