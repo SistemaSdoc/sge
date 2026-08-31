@@ -24,6 +24,7 @@ use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FolhaAprovacaoController;
 use App\Http\Controllers\Tenant\GrelhaCurricularController;
 use App\Http\Controllers\Tenant\GrupoPapAprovacaoController;
+use App\Http\Controllers\Tenant\GrupoPapCascataController;
 use App\Http\Controllers\Tenant\GrupoPapController;
 use App\Http\Controllers\Tenant\GrupoPapTemaController;
 use App\Http\Controllers\Tenant\InscricaoController;
@@ -381,6 +382,22 @@ Route::middleware([
 
             Route::put('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/data-defesa', [GrupoPapController::class, 'definirData'])
                 ->name('turma.pap.definir-data');
+
+            Route::prefix('instituicoes/{instituicao}/pap')->group(function () {
+                Route::get('create', [GrupoPapController::class, 'createIndependente'])
+                    ->name('tenant.dashboard.instituicoes.pap.create');
+                Route::post('/', [GrupoPapController::class, 'storeIndependente'])
+                    ->name('tenant.dashboard.instituicoes.pap.store');
+
+                Route::get('classes', [GrupoPapCascataController::class, 'classes'])
+                    ->name('tenant.dashboard.instituicoes.pap.classes');
+                Route::get('turnos', [GrupoPapCascataController::class, 'turnos'])
+                    ->name('tenant.dashboard.instituicoes.pap.turnos');
+                Route::get('turmas', [GrupoPapCascataController::class, 'turmas'])
+                    ->name('tenant.dashboard.instituicoes.pap.turmas');
+                Route::get('form-options', [GrupoPapCascataController::class, 'formOptions'])
+                    ->name('tenant.dashboard.instituicoes.pap.form-options');
+            });
 
             /*
             |--------------------------------------------------------------------------

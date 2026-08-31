@@ -27,7 +27,6 @@ class UpdateCursoTutelado
             $cursoTutelado->instituicaoCurso()->update([
                 'duracao_anos' => $validated['duracao_anos'],
             ]);
-
             $cursoTutelado->classes()->sync($validated['classes']);
         });
 

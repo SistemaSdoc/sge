@@ -11,6 +11,7 @@ use App\Http\Requests\Tenant\GrupoPap\ActualizarTemaRequest;
 use App\Http\Requests\Tenant\GrupoPap\DefinirDataDefesaRequest;
 use App\Http\Requests\Tenant\GrupoPap\StoreRequest;
 use App\Http\Requests\Tenant\GrupoPap\UpdateRequest;
+use App\Http\Requests\Tenant\StoreIndependenteRequest;
 use App\Http\Resources\Tenant\GrupoPap\BancaResource;
 use App\Http\Resources\Tenant\GrupoPap\CreateResource;
 use App\Http\Resources\Tenant\GrupoPap\EditResource;
@@ -40,7 +41,8 @@ class GrupoPapController extends Controller
         private readonly UpdateGrupoPap $updateGrupoPap,
         private readonly DeleteGrupoPap $deleteGrupoPap,
         private readonly DefinirDataDefesa $definirDataDefesa
-    ) {}
+    ) {
+    }
 
     /**
      * Lista os grupos PAP acessíveis ao utilizador.
@@ -56,7 +58,11 @@ class GrupoPapController extends Controller
             ? request('ano_lectivo_id')
             : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
-        $grupos = $this->grupoPapViewService->index($user, $anoLectivoId);
+        $instituicaoIdFiltro = request('instituicao_id') ?: $user->instituicao_id;
+        $cursoTuteladoIdFiltro = request('curso_tutelado_id') ?: null;
+
+        $grupos = $this->grupoPapViewService->index($user, $anoLectivoId, $instituicaoIdFiltro, $cursoTuteladoIdFiltro);
+
 
         $grupos->getCollection()->transform(function ($grupo) use ($user) {
             $grupo->can = [
@@ -70,7 +76,7 @@ class GrupoPapController extends Controller
             return $grupo;
         });
 
-        $cursosTutelados = $this->grupoPapViewService->tutoredCourses($user);
+        $cursosTutelados = $this->grupoPapViewService->tutoredCourses($user, $instituicaoIdFiltro);
         $instituicoes = $this->grupoPapViewService->papInstitutions($user);
 
         return Inertia::render('tenant/pap/index', [
@@ -202,14 +208,14 @@ class GrupoPapController extends Controller
                     'create' => $user?->can('elementogrupopap.create'),
                     'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
                         && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
-                        && ! is_null($grupoPap->data_defesa)
-                        && ! $grupoPap->data_defesa->isFuture()
+                        && !is_null($grupoPap->data_defesa)
+                        && !$grupoPap->data_defesa->isFuture()
                         && $grupoPap->jurados()->exists(),
                     'delete' => $user?->can('elementogrupopap.delete'),
                 ],
                 // 'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id,
                 'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
-                    && ! $user->hasRole('Aluno'),
+                    && !$user->hasRole('Aluno'),
                 'banca' => [
                     'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap]),
                     'update' => $user?->can('bancajuripap.update'),
@@ -279,9 +285,9 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Grupo PAP actualizado com sucesso!',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Grupo PAP actualizado com sucesso!',
+                ]);
     }
 
     /**
@@ -320,9 +326,9 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Data e local da defesa definidos com sucesso!',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Data e local da defesa definidos com sucesso!',
+                ]);
     }
 
     /**
@@ -381,8 +387,56 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Tema corrigido. Aguarda revisão do professor tutor.',
+                    'type' => 'success',
+                    'message' => 'Tema corrigido. Aguarda revisão do professor tutor.',
+                ]);
+    }
+
+
+    /**
+     * Formulário de criação de grupo PAP sem turma pré-seleccionada.
+     */
+    public function createIndependente(Instituicao $instituicao)
+    {
+        $this->authorize('create', GrupoPap::class);
+
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
+        return Inertia::render('tenant/pap/create', [
+            'instituicao' => $instituicao->only('id', 'nome'),
+            'cursosTutelados' => $this->grupoPapViewService->tutoredCourses($user)
+                ->map(fn(array $curso): array => [
+                    'id' => $curso['id'],
+                    'nome' => $curso['nome'],
+                ])
+                ->values(),
+            'classes' => [],
+            'turnos' => [],
+            'turmas' => [],
+            'professores' => [],
+            'alunos' => [],
+            'can' => [
+                'create' => $user->can('create', GrupoPap::class),
+            ],
         ]);
     }
+
+    /**
+     * Cria um grupo PAP indicando explicitamente a turma no payload.
+     */
+    public function storeIndependente(StoreIndependenteRequest $request, Instituicao $instituicao)
+    {
+        $this->authorize('create', GrupoPap::class);
+
+        $validated = $request->validated();
+        $turma = Turma::with('cursoClasseTurno.cursoClasse')->findOrFail($validated['turma_id']);
+
+        $grupo = $this->createGrupoPap->handle($turma, $validated);
+
+        return to_route('tenant.dashboard.grupos-pap.index', [
+            'ano_lectivo_id' => $turma->ano_lectivo_id,
+        ])->with('toast', ['type' => 'success', 'message' => 'Grupo PAP criado com sucesso!']);
+    }
+
 }

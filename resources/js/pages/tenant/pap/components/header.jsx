@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -23,6 +24,11 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 
+import { createIndependente } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+
+const normalizeFilterValue = (value) =>
+  value === null || value === undefined || value === '' ? '' : String(value);
+
 export function Header({
   instituicao,
   instituicoes = [],
@@ -34,9 +40,10 @@ export function Header({
   anosLectivos = [],
   anoLectivoId,
   onAnoLectivoChange,
+  onAddGrupo
 }) {
   const instituicaoSeleccionada =
-    instituicoes.find((item) => item.id === filtroInstituicao) ?? instituicao;
+    instituicoes.find((item) => normalizeFilterValue(item.id) === normalizeFilterValue(filtroInstituicao)) ?? instituicao;
 
   return (
     <Card className="gap-0! overflow-visible pb-0">
@@ -68,7 +75,11 @@ export function Header({
         </CardDescription>
 
         <CardAction>
-          <Button size={'sm'}>Adicionar grupo</Button>
+          <CardAction>
+            <Button size="sm" className="w-full sm:w-auto" onClick={onAddGrupo}>
+              Adicionar grupo
+            </Button>
+          </CardAction>
         </CardAction>
       </CardHeader>
 
@@ -77,26 +88,32 @@ export function Header({
         <h1 className="text-sm font-semibold whitespace-nowrap">Filtros</h1>
 
         <div className="flex w-full flex-col justify-end gap-2 sm:w-auto sm:flex-row">
-          <Select value={filtroInstituicao} onValueChange={onInstituicaoChange}>
+          <Select
+            value={normalizeFilterValue(filtroInstituicao)}
+            onValueChange={onInstituicaoChange}
+          >
             <SelectTrigger className="w-full sm:w-56">
               <SelectValue placeholder="Instituição" />
             </SelectTrigger>
             <SelectContent>
               {instituicoes.map((item) => (
-                <SelectItem key={item.id} value={item.id}>
+                <SelectItem key={item.id} value={String(item.id)}>
                   {item.nome}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={anoLectivoId ?? ''} onValueChange={onAnoLectivoChange}>
+          <Select
+            value={normalizeFilterValue(anoLectivoId)}
+            onValueChange={onAnoLectivoChange}
+          >
             <SelectTrigger className="w-full sm:w-44">
               <SelectValue placeholder="Ano lectivo" />
             </SelectTrigger>
             <SelectContent>
               {anosLectivos.map((ano) => (
-                <SelectItem key={ano.id} value={ano.id}>
+                <SelectItem key={ano.id} value={String(ano.id)}>
                   {ano.nome}
                 </SelectItem>
               ))}
@@ -116,33 +133,28 @@ export function Header({
           >
             {cursosTutelados.map((curso, index) => {
               const isLastItem = index === cursosTutelados.length - 1;
-              const total = cursosTutelados.length;
-
-              // Quantas colunas cabem numa linha (estimativa baseada no container ~1000px)
-              const colsPerRow = Math.min(total, 4);
-              const isAloneInRow = isLastItem && total % colsPerRow !== 0;
+              const cursoValue = normalizeFilterValue(curso.id);
+              const isSelected = normalizeFilterValue(filtroCurso) === cursoValue;
 
               return (
                 <button
                   type="button"
                   key={curso.id}
                   onClick={() => onCursoChange(curso.id)}
-                  aria-pressed={filtroCurso === curso.id}
+                  aria-pressed={isSelected}
                   className="text-left"
                   style={isAloneInRow ? { gridColumn: '1 / -1' } : {}}
                 >
                   <div
-                    className={`h-full cursor-pointer border-r border-b border-foreground/10 px-3 py-3 text-card-foreground transition-colors hover:bg-accent hover:text-secondary active:bg-accent sm:px-4 sm:py-4 ${
-                      filtroCurso === curso.id
-                        ? 'bg-accent text-secondary'
-                        : 'bg-card'
-                    }`}
+                    className={`h-full cursor-pointer border-b border-foreground/10 px-3 py-3 text-card-foreground transition-colors hover:bg-accent hover:text-secondary active:bg-accent sm:px-4 sm:py-4 ${
+                      isSelected ? 'bg-accent text-secondary' : 'bg-card'
+                    } ${!isLastItem ? 'border-r' : ''}`}
                   >
                     <h3 className="mb-0.5 text-xs font-medium sm:mb-1 sm:text-sm">
                       {curso.nome}
                     </h3>
                     <p className="text-xs text-muted-foreground">
-                      {filtroCurso === curso.id
+                      {isSelected
                         ? 'A visualizar os grupos deste curso'
                         : 'Clique para ver os grupos deste curso'}
                     </p>

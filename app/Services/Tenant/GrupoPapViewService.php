@@ -6,6 +6,8 @@ use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
@@ -13,7 +15,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection as SupportCollection;
 
@@ -24,12 +26,16 @@ class GrupoPapViewService
 {
     public function index(
         User $user,
-        ?string $anoLectivoId
+        ?string $anoLectivoId,
+        ?string $instituicaoIdFiltro = null,
+        ?string $cursoTuteladoIdFiltro = null,
     ): LengthAwarePaginator {
+        $instituicaoIdPadrao = $instituicaoIdFiltro ?? $user->instituicao_id;
         $anoLectivoNome = $anoLectivoId
             ? AnoLectivo::query()->whereKey($anoLectivoId)->value('nome')
             : null;
-        $groups = $this->groupsForTenant($user, $anoLectivoId);
+
+        $groups = $this->groupsForTenant($user, $anoLectivoId, null, null, $instituicaoIdPadrao, $cursoTuteladoIdFiltro);
         $currentTenantId = (string) tenancy()->tenant->getTenantKey();
 
         if ($this->isTutorInstitution($user)) {
@@ -37,15 +43,23 @@ class GrupoPapViewService
                 ->where('tenant_tutor_id', $currentTenantId)
                 ->where('status', 'activo')
                 ->get()
-                ->each(function (CursoTuteladoShared $shared) use (&$groups, $anoLectivoId, $anoLectivoNome, $user): void {
+                ->each(function (CursoTuteladoShared $shared) use (&$groups, $anoLectivoId, $anoLectivoNome, $user, $instituicaoIdFiltro, $cursoTuteladoIdFiltro, $instituicaoIdPadrao): void {
                     $tenant = Tenant::query()->find($shared->tenant_tutelado_id);
 
-                    if (! $tenant) {
+                    if (!$tenant) {
+                        return;
+                    }
+
+                    if ($instituicaoIdFiltro === null && $tenant->instituicao_id !== $instituicaoIdPadrao) {
+                        return;
+                    }
+
+                    if ($instituicaoIdFiltro && $tenant->instituicao_id !== $instituicaoIdFiltro) {
                         return;
                     }
 
                     $remoteGroups = $tenant->run(
-                        fn (): SupportCollection => $this->groupsForTenant($user, $anoLectivoId, (string) $shared->getKey(), $anoLectivoNome)
+                        fn(): SupportCollection => $this->groupsForTenant($user, $anoLectivoId, (string) $shared->getKey(), $anoLectivoNome, $instituicaoIdFiltro ?? $instituicaoIdPadrao, $cursoTuteladoIdFiltro)
                     )->each(function (GrupoPap $grupoPap): void {
                         $grupoPap->setAttribute('cross_tenant', true);
                     });
@@ -67,16 +81,18 @@ class GrupoPapViewService
         );
     }
 
-    /**
-     * Obtém grupos PAP de um tenant, aplicando os filtros locais.
-     */
     private function groupsForTenant(
         User $user,
         ?string $anoLectivoId,
         ?string $sharedId = null,
-        ?string $anoLectivoNome = null
+        ?string $anoLectivoNome = null,
+        ?string $instituicaoIdFiltro = null,
+        ?string $cursoTuteladoIdFiltro = null,
     ): SupportCollection {
-        $instituicaoId = $sharedId === null ? $user->instituicaoFiltro() : null;
+        // Para tenant local: usa o filtro explícito se vier, senão usa o da instituição do user
+        $instituicaoId = $sharedId === null
+            ? ($instituicaoIdFiltro ?? $user->instituicaoFiltro())
+            : null;
 
         return GrupoPap::query()
             ->with([
@@ -87,36 +103,38 @@ class GrupoPapViewService
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
                 'elementos.aluno.inscricao.candidato:id,nome',
             ])
-            ->when($instituicaoId, fn ($query) => $query->whereHas(
+            ->when($instituicaoId, fn($query) => $query->whereHas(
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                fn ($institutionQuery) => $institutionQuery->where('instituicao_id', $instituicaoId)
+                fn($q) => $q->where('instituicao_id', $instituicaoId)
             ))
-            ->when($sharedId === null && $anoLectivoId, fn ($query) => $query->whereHas(
+            ->when($sharedId === null && $anoLectivoId, fn($query) => $query->whereHas(
                 'turma',
-                fn ($turmaQuery) => $turmaQuery->where('ano_lectivo_id', $anoLectivoId)
+                fn($q) => $q->where('ano_lectivo_id', $anoLectivoId)
             ))
-            ->when($sharedId !== null && $anoLectivoNome, fn ($query) => $query->whereHas(
+            ->when($sharedId !== null && $anoLectivoNome, fn($query) => $query->whereHas(
                 'turma.anoLectivo',
-                fn ($anoQuery) => $anoQuery->where('nome', $anoLectivoNome)
+                fn($q) => $q->where('nome', $anoLectivoNome)
             ))
-            ->when($user->hasRole('Aluno'), fn ($query) => $query->whereHas(
+            ->when($user->hasRole('Aluno'), fn($query) => $query->whereHas(
                 'alunos',
-                fn ($alunosQuery) => $alunosQuery->where('aluno_id', $user->aluno?->id)
+                fn($q) => $q->where('aluno_id', $user->aluno?->id)
             ))
             ->when(
-                $user->hasRole('Professor') && ! $user->hasPermissionTo('grupopap.viewAny'),
-                fn ($query) => $query->where(function ($professorQuery) use ($user): void {
+                $user->hasRole('Professor') && !$user->hasPermissionTo('grupopap.viewAny'),
+                fn($query) => $query->where(function ($q) use ($user): void {
                     $professorId = $user->professor?->id;
-                    $professorQuery->whereHas('turma.professores', fn ($query) => $query->where('professores.id', $professorId))
-                        ->orWhereHas('jurados', fn ($query) => $query->where('professor_id', $professorId))
+                    $q->whereHas('turma.professores', fn($q) => $q->where('professores.id', $professorId))
+                        ->orWhereHas('jurados', fn($q) => $q->where('professor_id', $professorId))
                         ->orWhere('professor_tutor_id', $professorId);
                 })
             )
-            ->when($sharedId !== null, fn ($query) => $query->whereHas(
+            ->when($sharedId !== null, fn($query) => $query->whereHas(
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-                fn ($courseQuery) => $courseQuery
-                    ->where('tipo_tutela', 'externa')
-                    ->where('curso_tutelado_shared_id', $sharedId)
+                fn($q) => $q->where('tipo_tutela', 'externa')->where('curso_tutelado_shared_id', $sharedId)
+            ))
+            ->when($cursoTuteladoIdFiltro, fn($query) => $query->whereHas(
+                'turma.cursoClasseTurno.cursoClasse',
+                fn($q) => $q->where('curso_tutelado_id', $cursoTuteladoIdFiltro)
             ))
             ->latest()
             ->get();
@@ -127,28 +145,38 @@ class GrupoPapViewService
      *
      * @return SupportCollection<int, array{id: string, nome: string, instituicao_id: string}>
      */
-    public function tutoredCourses(User $user): SupportCollection
+    public function tutoredCourses(User $user, ?string $instituicaoIdFiltro = null): SupportCollection
     {
-        $courses = CursoTutelado::query()
-            ->whereHas(
-                'instituicaoCurso',
-                fn ($query) => $query->where('instituicao_id', $user->instituicao_id)
-            )
-            ->with([
-                'instituicaoCurso.curso:id,nome',
-            ])
-            ->orderBy('id')
-            ->get()
-            ->map(fn (CursoTutelado $cursoTutelado): array => [
-                'id' => (string) $cursoTutelado->getKey(),
-                'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome ?? 'Curso sem nome',
-                'instituicao_id' => (string) $user->instituicao_id,
-            ])
-            ->values()
-            ->toBase();
+        $instituicaoIdLocal = (string) $user->instituicao_id;
+        $instituicaoAtiva = $instituicaoIdFiltro ?? $instituicaoIdLocal;
 
-        if (! $this->isTutorInstitution($user)) {
+        $courses = collect();
+
+        if (!$instituicaoIdFiltro || $instituicaoIdFiltro === $instituicaoIdLocal) {
+            $courses = CursoTutelado::query()
+                ->whereHas(
+                    'instituicaoCurso',
+                    fn($query) => $query->where('instituicao_id', $instituicaoIdLocal)
+                )
+                ->with(['instituicaoCurso.curso:id,nome'])
+                ->orderBy('id')
+                ->get()
+                ->toBase()
+                ->map(fn(CursoTutelado $ct): array => [
+                    'id' => (string) $ct->getKey(),
+                    'nome' => $ct->instituicaoCurso?->curso?->nome ?? 'Curso sem nome',
+                    'instituicao_id' => $instituicaoIdLocal,
+                ]);
+        }
+
+        if (!$this->isTutorInstitution($user)) {
             return $courses;
+        }
+
+        if ($instituicaoIdFiltro === null) {
+            return $courses
+                ->unique(fn(array $c): string => $c['instituicao_id'] . '-' . $c['id'])
+                ->values();
         }
 
         $currentTenantId = (string) tenancy()->tenant->getTenantKey();
@@ -157,32 +185,71 @@ class GrupoPapViewService
             ->where('tenant_tutor_id', $currentTenantId)
             ->where('status', 'activo')
             ->get()
-            ->each(function (CursoTuteladoShared $shared) use (&$courses): void {
+            ->each(function (CursoTuteladoShared $shared) use (&$courses, $instituicaoIdFiltro): void {
                 $tenant = Tenant::query()->find($shared->tenant_tutelado_id);
 
-                if (! $tenant) {
+                if (!$tenant) {
                     return;
                 }
 
-                $remoteCourses = $tenant->run(function () use ($shared): SupportCollection {
+                if ((string) $tenant->instituicao_id !== $instituicaoIdFiltro) {
+                    return;
+                }
+
+                $remoteCourses = $tenant->run(function () use ($shared, $tenant): SupportCollection {
                     return CursoTutelado::query()
                         ->whereKey($shared->curso_tutelado_tutelado_id)
                         ->with('instituicaoCurso.curso:id,nome')
                         ->get()
-                        ->map(fn (CursoTutelado $cursoTutelado): array => [
-                            'id' => (string) $cursoTutelado->getKey(),
-                            'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome ?? $shared->curso_nome,
-                            'instituicao_id' => (string) $cursoTutelado->instituicaoCurso?->instituicao_id,
-                        ])
-                        ->values()
-                        ->toBase();
+                        ->map(fn(CursoTutelado $ct): array => [
+                            'id' => (string) $ct->getKey(),
+                            'nome' => $ct->instituicaoCurso?->curso?->nome ?? $shared->curso_nome,
+                            'instituicao_id' => (string) $tenant->instituicao_id,
+                        ]);
                 });
 
                 $courses = $courses->merge($remoteCourses->all());
             });
 
-        return $courses->unique(fn (array $course): string => $course['instituicao_id'].'-'.$course['id'])->values();
+        return $courses
+            ->unique(fn(array $c): string => $c['instituicao_id'] . '-' . $c['id'])
+            ->values();
     }
+
+    public function classesByCurso(int $cursoTuteladoId)
+    {
+        return CursoClasse::query()
+            ->where('curso_tutelado_id', $cursoTuteladoId)
+            ->whereHas('classe', fn($q) => $q->where('nome', '13ª'))
+            ->with('classe:id,nome')
+            ->orderBy('id')
+            ->get()
+            ->map(fn(CursoClasse $cc) => [
+                'id' => $cc->id,
+                'nome' => $cc->classe?->nome ?? $cc->nome,
+            ]);
+    }
+
+    public function turnosByClasse(int $cursoClasseId)
+    {
+        return CursoClasseTurno::query()
+            ->where('curso_classe_id', $cursoClasseId)
+            ->with('turno:id,nome')
+            ->get()
+            ->map(fn($cct) => [
+                'id' => $cct->id,
+                'nome' => $cct->turno->nome,
+            ]);
+    }
+
+    public function turmasByTurno(int $cursoClasseTurnoId)
+    {
+        return Turma::query()
+            ->where('curso_classe_turno_id', $cursoClasseTurnoId)
+            ->orderBy('nome')
+            ->get(['id', 'nome']);
+    }
+
 
     /**
      * Lista as instituições disponíveis para filtrar os grupos PAP.
@@ -196,12 +263,12 @@ class GrupoPapViewService
         $institutions = Instituicao::query()
             ->whereKey($user->instituicao_id)
             ->get(['id', 'nome'])
-            ->map(fn (Instituicao $instituicao): array => [
+            ->map(fn(Instituicao $instituicao): array => [
                 'id' => (string) $instituicao->getKey(),
                 'nome' => $instituicao->nome,
             ]);
 
-        if (! $this->isTutorInstitution($user)) {
+        if (!$this->isTutorInstitution($user)) {
             return $institutions;
         }
 
@@ -213,7 +280,7 @@ class GrupoPapViewService
             ->get()
             ->map(function (CursoTuteladoShared $shared): ?array {
                 $tenant = Tenant::query()->find($shared->tenant_tutelado_id);
-                $instituicao = $tenant ? $tenant->run(fn (): ?Instituicao => Instituicao::query()->find($tenant->instituicao_id)) : null;
+                $instituicao = $tenant ? $tenant->run(fn(): ?Instituicao => Instituicao::query()->find($tenant->instituicao_id)) : null;
 
                 return $instituicao ? [
                     'id' => (string) $instituicao->getKey(),
@@ -240,7 +307,7 @@ class GrupoPapViewService
     ): array {
         return [
             'professores' => Professor::query()
-                ->whereHas('cursosTutelados', fn ($query) => $query
+                ->whereHas('cursosTutelados', fn($query) => $query
                     ->where('curso_tutelado_id', $cursoTutelado->getKey())
                     ->where('tipo', 'principal'))
                 ->with('user:id,nome')
@@ -261,7 +328,7 @@ class GrupoPapViewService
     ): array {
         return [
             'professores' => Professor::query()
-                ->whereHas('cursosTutelados', fn ($query) => $query
+                ->whereHas('cursosTutelados', fn($query) => $query
                     ->where('curso_tutelado_id', $cursoTutelado->getKey())
                     ->where('tipo', 'principal'))
                 ->with('user:id,nome')
@@ -269,11 +336,12 @@ class GrupoPapViewService
             'alunos' => $turma->alunos()
                 ->where(function ($query) use ($grupoPap): void {
                     $query->whereDoesntHave('grupoPap')
-                        ->orWhereHas('grupoPap', fn ($grupoQuery) => $grupoQuery->whereKey($grupoPap->getKey()));
+                        ->orWhereHas('grupoPap', fn($grupoQuery) => $grupoQuery->whereKey($grupoPap->getKey()));
                 })
                 ->with('inscricao.candidato:id,nome')
                 ->get()
-                ->map(fn (Aluno $aluno): array => [
+                ->toBase()
+                ->map(fn(Aluno $aluno): array => [
                     'id' => $aluno->id,
                     'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
                 ]),
@@ -281,20 +349,21 @@ class GrupoPapViewService
     }
 
     /**
-     * @return Collection<int, Aluno>
+     * @return SupportCollection<int, array{id: string, nome: string}>
      */
-    private function availableStudents(Turma $turma): Collection
+    private function availableStudents(Turma $turma): SupportCollection
     {
         $alunosEmGrupo = ElementoGrupoPap::query()->pluck('aluno_id');
 
         return Aluno::query()
             ->whereNotIn('id', $alunosEmGrupo)
-            ->whereHas('turmas', fn ($query) => $query
+            ->whereHas('turmas', fn($query) => $query
                 ->where('turmas.id', $turma->getKey())
                 ->where('turma_aluno.activo', true))
             ->with('inscricao.candidato:id,nome')
             ->get()
-            ->map(fn (Aluno $aluno): array => [
+            ->toBase()
+            ->map(fn(Aluno $aluno): array => [
                 'id' => $aluno->id,
                 'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
             ]);
