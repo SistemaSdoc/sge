@@ -1,8 +1,8 @@
 <?php
-/*
+
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -13,9 +13,8 @@ use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class PautaSheetExport implements FromArray, WithEvents, WithTitle
+class PautaSheetExport implements Export, WithEvents, WithTitle
 {
-    use Exportable;
 
     protected array $disciplinas;
 
@@ -434,4 +433,4 @@ class PautaSheetExport implements FromArray, WithEvents, WithTitle
 
         return round($valor, 0, PHP_ROUND_HALF_UP);
     }
-}*/
+}
