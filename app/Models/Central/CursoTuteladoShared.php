@@ -2,10 +2,14 @@
 
 namespace App\Models\Central;
 
+use App\Enums\TutelaStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
+/**
+ * Vínculo de tutela externa partilhado entre a base central e os tenants.
+ */
 class CursoTuteladoShared extends Model
 {
     use CentralConnection, HasUuids;
@@ -21,4 +25,11 @@ class CursoTuteladoShared extends Model
         'duracao_anos',
         'status',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => TutelaStatus::class,
+        ];
+    }
 }

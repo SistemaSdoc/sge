@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Enums\TutelaStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Central\CursoTuteladoShared;
 use App\Notifications\PropinaEmAtrasoNotification;
@@ -90,12 +91,12 @@ class NotificacaoController extends Controller
 
     public function aprovarTutela(Request $request, string $notification)
     {
-        return $this->decidirTutela($request, $notification, 'activo');
+        return $this->decidirTutela($request, $notification, TutelaStatus::ACTIVO);
     }
 
     public function rejeitarTutela(Request $request, string $notification)
     {
-        return $this->decidirTutela($request, $notification, 'rejeitado');
+        return $this->decidirTutela($request, $notification, TutelaStatus::REJEITADO);
     }
 
     /**
@@ -179,7 +180,7 @@ class NotificacaoController extends Controller
         ];
     }
 
-    private function decidirTutela(Request $request, string $notification, string $status)
+    private function decidirTutela(Request $request, string $notification, TutelaStatus $status)
     {
         $item = $request->user()->notifications()->findOrFail($notification);
         abort_unless(($item->data['tipo'] ?? null) === 'solicitacao_tutela', 404);
@@ -189,7 +190,7 @@ class NotificacaoController extends Controller
         $shared = CursoTuteladoShared::on($centralConnection)->findOrFail($sharedId);
 
         abort_unless($shared->tenant_tutor_id === (string) tenancy()->tenant->getTenantKey(), 403);
-        abort_if($shared->status !== 'pendente', 422, 'Esta solicitação já foi decidida.');
+        abort_if($shared->status !== TutelaStatus::PENDENTE, 422, 'Esta solicitação já foi decidida.');
 
         $shared->update(['status' => $status]);
         $item->markAsRead();
@@ -197,7 +198,7 @@ class NotificacaoController extends Controller
         return Redirect::route('tenant.dashboard.notificacoes.show', $item->id)
             ->with('toast', [
                 'type' => 'success',
-                'message' => $status === 'activo'
+                'message' => $status === TutelaStatus::ACTIVO
                     ? 'Tutela aprovada com sucesso.'
                     : 'Solicitação de tutela rejeitada.',
             ]);

@@ -3,7 +3,7 @@
 namespace App\Actions\Tenant\CursoTutelado;
 
 use App\Models\Tenant\CursoTutelado;
-use App\Services\Tenant\CursoTuteladoSharedService;
+use App\Services\Tenant\Tutela\TutelaService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
  */
 class DeleteCursoTutelado
 {
-    public function __construct(private readonly CursoTuteladoSharedService $sharedService) {}
+    public function __construct(private readonly TutelaService $tutelaService) {}
 
     /**
      * Encerra a tutela e remove o curso sem turmas associadas.
@@ -22,9 +22,9 @@ class DeleteCursoTutelado
             abort(422, 'Não é possível remover um curso que tem turmas associadas.');
         }
 
-        DB::transaction(function () use ($cursoTutelado): void {
-            $this->sharedService->encerrar($cursoTutelado);
+        $this->tutelaService->encerrarTutela($cursoTutelado);
 
+        DB::transaction(function () use ($cursoTutelado): void {
             $cursoTutelado->delete();
         });
     }

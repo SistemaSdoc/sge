@@ -143,7 +143,9 @@ class GrupoPapViewService
                 'id' => (string) $cursoTutelado->getKey(),
                 'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome ?? 'Curso sem nome',
                 'instituicao_id' => (string) $user->instituicao_id,
-            ]);
+            ])
+            ->values()
+            ->toBase();
 
         if (! $this->isTutorInstitution($user)) {
             return $courses;
@@ -171,10 +173,12 @@ class GrupoPapViewService
                             'id' => (string) $cursoTutelado->getKey(),
                             'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome ?? $shared->curso_nome,
                             'instituicao_id' => (string) $cursoTutelado->instituicaoCurso?->instituicao_id,
-                        ]);
+                        ])
+                        ->values()
+                        ->toBase();
                 });
 
-                $courses = $courses->merge($remoteCourses);
+                $courses = $courses->merge($remoteCourses->all());
             });
 
         return $courses->unique(fn (array $course): string => $course['instituicao_id'].'-'.$course['id'])->values();

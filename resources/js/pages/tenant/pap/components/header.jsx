@@ -111,12 +111,16 @@ export function Header({
           <div
             className="-mb-px grid"
             style={{
-              gridTemplateColumns:
-                'repeat(auto-fit, minmax(min(100%, 150px), 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
             }}
           >
             {cursosTutelados.map((curso, index) => {
               const isLastItem = index === cursosTutelados.length - 1;
+              const total = cursosTutelados.length;
+
+              // Quantas colunas cabem numa linha (estimativa baseada no container ~1000px)
+              const colsPerRow = Math.min(total, 4);
+              const isAloneInRow = isLastItem && total % colsPerRow !== 0;
 
               return (
                 <button
@@ -125,13 +129,14 @@ export function Header({
                   onClick={() => onCursoChange(curso.id)}
                   aria-pressed={filtroCurso === curso.id}
                   className="text-left"
+                  style={isAloneInRow ? { gridColumn: '1 / -1' } : {}}
                 >
                   <div
-                    className={`h-full cursor-pointer border-b border-foreground/10 px-3 py-3 text-card-foreground transition-colors hover:bg-accent hover:text-secondary active:bg-accent sm:px-4 sm:py-4 ${
+                    className={`h-full cursor-pointer border-r border-b border-foreground/10 px-3 py-3 text-card-foreground transition-colors hover:bg-accent hover:text-secondary active:bg-accent sm:px-4 sm:py-4 ${
                       filtroCurso === curso.id
                         ? 'bg-accent text-secondary'
                         : 'bg-card'
-                    } ${!isLastItem ? 'border-r' : ''}`}
+                    }`}
                   >
                     <h3 className="mb-0.5 text-xs font-medium sm:mb-1 sm:text-sm">
                       {curso.nome}
@@ -148,9 +153,8 @@ export function Header({
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center bg-card p-6 text-center">
-            <Minus size={20} className="mb-2 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              Sem cursos cadastrados
+            <p className="text-xs text-muted-foreground">
+              Nenhum curso disponível para a instituição selecionada.
             </p>
           </div>
         )}

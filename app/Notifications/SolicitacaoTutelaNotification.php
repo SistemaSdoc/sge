@@ -2,17 +2,26 @@
 
 namespace App\Notifications;
 
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SolicitacaoTutelaNotification extends Notification
+/**
+ * Notifica o administrador tutor sobre uma nova solicitação.
+ */
+class SolicitacaoTutelaNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(
         public string $instituicaoTutelada,
         public string $cursoNome,
         public string $sharedId,
         public string $url = '',
-    ) {}
+    ) {
+        $this->afterCommit();
+    }
 
     /**
      * @return array<int, string>
@@ -45,12 +54,17 @@ class SolicitacaoTutelaNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        // 🔥 NÃO USAR url() helper aqui!
+        // Se $url não foi passado, usa um fallback seguro
+        $defaultUrl = config('app.url').'/dashboard';
+        $finalUrl = $this->url ?: $defaultUrl;
+
         return (new MailMessage)
             ->subject('Nova solicitação de tutela')
             ->markdown('mail.solicitacao-tutela-notification', [
                 'nomeInstituicao' => $this->instituicaoTutelada,
                 'nomeCurso' => $this->cursoNome,
-                'url' => $this->url ?: url('/dashboard'),
+                'url' => $finalUrl,  // ← Já construída, sem chamar url()
             ]);
     }
 }

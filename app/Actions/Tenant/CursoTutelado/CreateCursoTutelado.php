@@ -6,7 +6,7 @@ use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
-use App\Services\Tenant\CursoTuteladoSharedService;
+use App\Services\Tenant\Tutela\TutelaService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -16,7 +16,7 @@ use Illuminate\Validation\ValidationException;
  */
 class CreateCursoTutelado
 {
-    public function __construct(private readonly CursoTuteladoSharedService $sharedService) {}
+    public function __construct(private readonly TutelaService $tutelaService) {}
 
     /**
      * Cria o curso local e publica a tutela externa, quando aplicável.
@@ -26,11 +26,11 @@ class CreateCursoTutelado
     public function handle(Instituicao $instituicao, array $validated): CursoTutelado
     {
         $tenantTutorId = $validated['tenant_tutor_id'] ?? null;
-        $tenantTutorNome = $tenantTutorId
-            ? $this->sharedService->validarTutelaExterna($instituicao, $tenantTutorId)
+        $instituicaoTutora = $tenantTutorId
+            ? $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId)
             : null;
 
-        return DB::connection('tenant')->transaction(function () use ($instituicao, $validated, $tenantTutorId, $tenantTutorNome): CursoTutelado {
+        $cursoTutelado = DB::connection('tenant')->transaction(function () use ($instituicao, $validated, $tenantTutorId): CursoTutelado {
             $curso = isset($validated['curso_id'])
                 ? Curso::on('tenant')->findOrFail($validated['curso_id'])
                 : Curso::on('tenant')->firstOrCreate(
@@ -74,11 +74,13 @@ class CreateCursoTutelado
                 ])->all()
             );
 
-            if ($tenantTutorId) {
-                $this->sharedService->publicarEAssociar($cursoTutelado, $tenantTutorId, $tenantTutorNome);
-            }
-
-            return $cursoTutelado->refresh();
+            return $cursoTutelado;
         });
+
+        if ($tenantTutorId) {
+            $this->tutelaService->publicarEAssociarCurso($cursoTutelado, $instituicaoTutora);
+        }
+
+        return $cursoTutelado->refresh();
     }
 }

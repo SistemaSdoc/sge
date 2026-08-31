@@ -539,17 +539,17 @@ Route::middleware([
 
             /*
             |--------------------------------------------------------------------------
-            | Notas do Aluno (Visualização com permissão de propina)
+            | Notas e Grelha Curricular do Aluno
             |--------------------------------------------------------------------------
             */
 
-            Route::middleware('propina.em.dia')->group(function () {
-                Route::get('minhas-notas', [NotaAlunoController::class, 'index'])
-                    ->name('notas.aluno.index');
+            Route::get('minhas-notas', [NotaAlunoController::class, 'index'])
+                ->middleware('propina.em.dia')
+                ->name('notas.aluno.index');
 
-                Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])
-                    ->name('grelha-curricular.index');
-            });
+            Route::get('grelha-curricular', [GrelhaCurricularController::class, 'index'])
+                ->middleware('propina.em.dia')
+                ->name('grelha-curricular.index');
 
             /*
             |--------------------------------------------------------------------------

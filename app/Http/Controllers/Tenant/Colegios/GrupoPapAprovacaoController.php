@@ -15,7 +15,7 @@ use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Services\Tenant\CrossTenantAccessService;
-use App\Services\Tenant\CursoTuteladoSharedService;
+use App\Services\Tenant\Tutela\TutelaService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,7 +29,7 @@ class GrupoPapAprovacaoController extends Controller
 {
     public function __construct(
         private AprovacaoTemaService $service,
-        private CursoTuteladoSharedService $sharedService,
+        private TutelaService $tutelaService,
         private CrossTenantAccessService $crossTenantAccessService,
     ) {}
 
@@ -369,7 +369,7 @@ class GrupoPapAprovacaoController extends Controller
             (string) $vinculo->getKey(),
         );
 
-        return $this->sharedService->executarNoTenantTutelado(
+        return $this->tutelaService->executarNoTenantTutelado(
             $cursoTutelado,
             $tenantTutorId,
             function () use ($colegio, $cursoTutelado, $cursoClasse, $cursoClasseTurno, $turma, $grupoPap, $operation, $tenantTutorId): mixed {

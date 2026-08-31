@@ -4,7 +4,7 @@ namespace App\Actions\Tenant\CursoTutelado;
 
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
-use App\Services\Tenant\CursoTuteladoSharedService;
+use App\Services\Tenant\Tutela\TutelaService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
  */
 class UpdateCursoTutelado
 {
-    public function __construct(private readonly CursoTuteladoSharedService $sharedService) {}
+    public function __construct(private readonly TutelaService $tutelaService) {}
 
     /**
      * Aplica a nova duração, classes e instituição tutora.
@@ -21,22 +21,24 @@ class UpdateCursoTutelado
      */
     public function handle(Instituicao $instituicao, CursoTutelado $cursoTutelado, array $validated): void
     {
-        DB::transaction(function () use ($instituicao, $cursoTutelado, $validated): void {
-            $tenantTutorId = $validated['tenant_tutor_id'] ?? null;
+        $tenantTutorId = $validated['tenant_tutor_id'] ?? null;
 
-            if ($tenantTutorId) {
-                $tenantTutorNome = $this->sharedService->validarTutelaExterna($instituicao, $tenantTutorId);
-
-                $this->sharedService->publicarEAssociar($cursoTutelado, $tenantTutorId, $tenantTutorNome);
-            } else {
-                $this->sharedService->tornarPropria($cursoTutelado, $instituicao->getKey());
-            }
-
+        DB::transaction(function () use ($cursoTutelado, $validated): void {
             $cursoTutelado->instituicaoCurso()->update([
                 'duracao_anos' => $validated['duracao_anos'],
             ]);
 
             $cursoTutelado->classes()->sync($validated['classes']);
         });
+
+        if ($tenantTutorId) {
+            $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
+
+            $this->tutelaService->publicarEAssociarCurso($cursoTutelado, $instituicaoTutora);
+
+            return;
+        }
+
+        $this->tutelaService->converterParaTutelaPropria($cursoTutelado, $instituicao->getKey());
     }
 }

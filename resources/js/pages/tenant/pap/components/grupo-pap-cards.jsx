@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowUpRightIcon, Users2 } from 'lucide-react';
+import { ArrowUpRightIcon, Users2, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 
 const MAX_ELEMENTOS_VISIVEIS = 2;
@@ -56,9 +56,9 @@ export function GrupoPapCards({ grupos = [] }) {
   if (grupos.length === 0) {
     return (
       <EmptyState
-        icon={Users2}
-        title="Nenhum grupo PAP encontrado"
-        description="Tente ajustar os filtros ou selecione outro ano lectivo."
+        icon={UsersIcon}
+        title="Nenhum grupo cadastrado"
+        description="Tente ajustar os filtros acima."
         variant="compact"
       />
     );
