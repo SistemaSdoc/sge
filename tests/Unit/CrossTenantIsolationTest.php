@@ -29,6 +29,9 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 uses(TestCase::class);
@@ -162,6 +165,56 @@ test('tutor consegue validar acesso ao colegio com vinculo activo', function ():
 
     expect($tenant->id)->toBe($this->tenantColegio->id)
         ->and($this->vinculo->fresh()->status)->toBe(TutelaStatus::ACTIVO);
+});
+
+test('curso externo pendente bloqueia operacoes de gestao e rejeitado permite reconfiguracao', function (): void {
+    tenancy()->initialize($this->tenantColegio);
+
+    $instituicaoColegio = Instituicao::create([
+        'nome' => 'Colégio em Espera',
+        'tipo' => 'colegio',
+        'status' => 1,
+    ]);
+    $instituicaoTutora = Instituicao::create([
+        'nome' => 'Instituto da Tutela',
+        'tipo' => 'instituto',
+        'status' => 1,
+    ]);
+    $curso = Curso::create(['nome' => 'Curso em Espera', 'duracao_anos' => 4]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicaoColegio->id,
+        'duracao_anos' => 4,
+    ]);
+
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicaoTutora->id,
+        'tipo_tutela' => 'externa',
+        'curso_tutelado_shared_id' => $this->vinculo->id,
+    ]);
+
+    $user = User::create([
+        'nome' => 'Secretária do Colégio',
+        'email' => 'secretaria-espera@example.test',
+        'password' => 'password',
+        'instituicao_id' => $instituicaoColegio->id,
+    ]);
+
+    $permissionView = Permission::create(['name' => 'curso-tutelado.view', 'guard_name' => 'tenant']);
+    $permissionUpdate = Permission::create(['name' => 'curso-tutelado.update', 'guard_name' => 'tenant']);
+    $role = Role::create(['name' => 'Secretaria', 'guard_name' => 'tenant']);
+    $role->givePermissionTo([$permissionView, $permissionUpdate]);
+    $user->assignRole($role);
+
+    $this->vinculo->update(['status' => TutelaStatus::PENDENTE]);
+
+    expect(Gate::forUser($user)->allows('view', $cursoTutelado))->toBeTrue()
+        ->and(Gate::forUser($user)->allows('update', $cursoTutelado))->toBeFalse();
+
+    $this->vinculo->update(['status' => TutelaStatus::REJEITADO]);
+
+    expect(Gate::forUser($user)->allows('update', $cursoTutelado))->toBeTrue();
 });
 
 test('nao permite associar um vinculo a partir do tenant errado', function (): void {

@@ -30,11 +30,13 @@ class TutelaTenantService
         Closure $operation
     ): mixed {
         $centralConnection = $this->centralConnection();
+
         $shared = CursoTuteladoShared::on($centralConnection)
             ->where('tenant_tutor_id', $tenantTutorId)
             ->where('curso_tutelado_tutelado_id', $cursoTuteladoId)
             ->where('status', TutelaStatus::ACTIVO)
             ->firstOrFail();
+
         $tenantTutelado = Tenant::on($centralConnection)->findOrFail($shared->tenant_tutelado_id);
 
         return $tenantTutelado->run($operation);
@@ -118,7 +120,10 @@ class TutelaTenantService
             'tipo_tutela_anterior' => $cursoTutelado->tipo_tutela,
         ]);
 
-        $tenant->run(function () use ($cursoTutelado, $instituicaoId): void {
+        $tenant->run(function () use (
+            $cursoTutelado,
+            $instituicaoId
+        ): void {
             Instituicao::query()->findOrFail($instituicaoId);
 
             $cursoTutelado->forceFill([

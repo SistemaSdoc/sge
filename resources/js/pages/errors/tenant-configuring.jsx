@@ -1,3 +1,4 @@
+import { Spinner } from '@/components/spinner';
 import {
   Empty,
   EmptyDescription,
@@ -46,7 +47,7 @@ export default function Page() {
       <Empty className="gap-6 p-0">
         <EmptyHeader className="max-w-xl gap-4">
           <EmptyMedia variant="icon">
-            <LoaderCircle className="animate-spin" aria-hidden="true" />
+            <Spinner />
           </EmptyMedia>
           <EmptyTitle>Configurando o seu espaço</EmptyTitle>
           <EmptyDescription>

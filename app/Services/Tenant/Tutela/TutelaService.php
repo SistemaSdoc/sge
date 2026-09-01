@@ -25,8 +25,7 @@ class TutelaService
         private readonly TutelaCentralService $centralService,
         private readonly TutelaTenantService $tenantService,
         private readonly TutelaNotificationService $notificationService,
-    ) {
-    }
+    ) {}
 
     /**
      * Valida se o colégio pode solicitar tutela externa a um instituto.
@@ -54,7 +53,11 @@ class TutelaService
         string $tenantTutorId,
         Closure $operation
     ): mixed {
-        return $this->tenantService->executarNoTenantTutelado($cursoTuteladoId, $tenantTutorId, $operation);
+        return $this->tenantService->executarNoTenantTutelado(
+            $cursoTuteladoId,
+            $tenantTutorId,
+            $operation
+        );
     }
 
     public function tutorAtual(CursoTutelado $cursoTutelado): ?string
@@ -78,7 +81,10 @@ class TutelaService
             'tenant_tutor_id' => (string) $instituicaoTutora->tenant->getTenantKey(),
         ]);
 
-        $shared = $this->centralService->criarOuActualizarVinculo($cursoTutelado, $instituicaoTutora);
+        $shared = $this->centralService->criarOuActualizarVinculo(
+            $cursoTutelado,
+            $instituicaoTutora
+        );
 
         try {
             $this->tenantService->associarTutelaExterna($cursoTutelado, $shared);
@@ -152,7 +158,11 @@ class TutelaService
         ]);
 
         $this->centralService->encerrarTutela($cursoTutelado);
-        $this->tenantService->converterParaTutelaPropria($cursoTutelado, $instituicaoId);
+
+        $this->tenantService->converterParaTutelaPropria(
+            $cursoTutelado,
+            $instituicaoId
+        );
 
         Log::info('Conversão para tutela própria completada', [
             'curso_tutelado_id' => $cursoTutelado->id,
@@ -172,6 +182,7 @@ class TutelaService
         ]);
 
         $this->centralService->encerrarTutela($cursoTutelado);
+
         $this->tenantService->arquivarGruposPap($cursoTutelado);
 
         Log::info('Encerramento de tutela completado', [

@@ -2,6 +2,8 @@
 
 namespace App\Policies\Tenant;
 
+use App\Enums\TutelaStatus;
+use App\Models\Central\CursoTuteladoShared;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\User;
 
@@ -59,49 +61,70 @@ class CursoTuteladoPolicy
      */
     public function update(User $user, CursoTutelado $cursoTutelado): bool
     {
-        // Coordenador pode atualizar seu curso
-        if ($user->hasPermissionTo('coordenador.update-curso')) {
-            return $cursoTutelado->professores()
-                ->where('professor_id', optional($user->professor)->id)
-                ->where('coordenador', true)
-                ->exists();
-        }
-
-        // Lógica existente para Director/Subdirector
         if (! $user->can('curso-tutelado.update')) {
             return false;
         }
 
         $cursoTutelado->loadMissing('instituicaoCurso');
-        $instituicaoOferta = $cursoTutelado->instituicaoCurso?->instituicao_id;
-        $instituicaoTutora = $cursoTutelado->instituicao_tutora_id;
 
-        return $user->instituicao_id === $instituicaoOferta
-            || $user->instituicao_id === $instituicaoTutora;
+        if ($this->externalTutelaPendingOrClosed($cursoTutelado)) {
+            return false;
+        }
+
+        $instituicaoOferta = (string) ($cursoTutelado->instituicaoCurso?->instituicao_id ?? '');
+        $instituicaoTutora = (string) ($cursoTutelado->instituicao_tutora_id ?? '');
+        $instituicaoUser = (string) ($user->instituicao_id ?? '');
+
+        return $instituicaoUser === $instituicaoOferta
+            || $instituicaoUser === $instituicaoTutora;
     }
 
     public function manageProfessores(User $user, CursoTutelado $cursoTutelado): bool
     {
-        if ($user->hasPermissionTo('coordenador.manage-professores')) {
-            return $cursoTutelado->professores()
-                ->where('professor_id', optional($user->professor)->id)
-                ->where('coordenador', true)
-                ->exists();
+        if (! $user->can('curso-tutelado.update')) {
+            return false;
         }
 
-        return $user->hasPermissionTo('curso-tutelado.update');
+        if ($this->externalTutelaPendingOrClosed($cursoTutelado)) {
+            return false;
+        }
+
+        return true;
     }
 
     public function manageTurmas(User $user, CursoTutelado $cursoTutelado): bool
     {
-        if ($user->hasPermissionTo('coordenador.manage-turmas')) {
-            return $cursoTutelado->professores()
-                ->where('professor_id', optional($user->professor)->id)
-                ->where('coordenador', true)
-                ->exists();
+        if (! $user->can('curso-tutelado.update')) {
+            return false;
         }
 
-        return $user->hasPermissionTo('curso-tutelado.update');
+        if ($this->externalTutelaPendingOrClosed($cursoTutelado)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function externalTutelaPendingOrClosed(CursoTutelado $cursoTutelado): bool
+    {
+        if (! $cursoTutelado->curso_tutelado_shared_id) {
+            return false;
+        }
+
+        $status = CursoTuteladoShared::query()
+            ->whereKey($cursoTutelado->curso_tutelado_shared_id)
+            ->value('status');
+
+        if ($status === null) {
+            return false;
+        }
+
+        $statusValue = $status instanceof \BackedEnum ? $status->value : (string) $status;
+
+        return in_array($statusValue, [
+            TutelaStatus::PENDENTE->value,
+            TutelaStatus::ENCERRADO->value,
+        ], true);
     }
 
     /**

@@ -63,7 +63,7 @@ export default function Page() {
           </Button>
 
           <p className="pt-5 text-xs text-muted-foreground">
-            acme.stanclay.app
+            {/** acme.stanclay.app */}
           </p>
         </EmptyContent>
       </Empty>

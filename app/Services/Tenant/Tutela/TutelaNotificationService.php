@@ -59,7 +59,11 @@ class TutelaNotificationService
             return;
         }
 
-        $tenantTutor->run(function () use ($tenantTutor, $instituicaoTutelada, $shared): void {
+        $tenantTutor->run(function () use (
+            $tenantTutor,
+            $instituicaoTutelada,
+            $shared
+        ): void {
             $admin = User::query()->find($tenantTutor->admin_user_id);
 
             if (! $admin) {
