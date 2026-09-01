@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Http\Controllers\ProgressaoController;
 use App\Models\AnoLectivo;
 use App\Services\AprovacaoService;
+use Illuminate\Support\Facades\App;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -17,7 +18,7 @@ class ProgressaoControllerTest extends TestCase
         $method = new \ReflectionMethod($controller, 'resolveAnoLectivoValue');
         $method->setAccessible(true);
 
-        $anoLectivo = new AnoLectivo;
+        $anoLectivo = new AnoLectivo();
         $anoLectivo->forceFill([
             'data_inicio' => '2025-01-01',
             'data_fim' => '2025-12-31',

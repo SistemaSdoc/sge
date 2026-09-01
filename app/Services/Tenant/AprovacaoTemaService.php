@@ -7,11 +7,14 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\User;
+use App\Traits\NotificaGrupoPap;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class AprovacaoTemaService
 {
+    use NotificaGrupoPap;
+
     /**
      * Buscar temas PAP pendentes dos cursos
      * tutelados onde o professor é coordenador.
@@ -21,7 +24,7 @@ class AprovacaoTemaService
         $professor = Professor::find($professorId);
         $instituicaoId = $professor->user->instituicao_id ?? null;
 
-        if (! $instituicaoId) {
+        if (!$instituicaoId) {
             return collect();
         }
 
@@ -65,64 +68,34 @@ class AprovacaoTemaService
     /**
      * Aprovar tema PAP
      */
-    public function aprovar(
-        GrupoPap $grupoPap,
-        User $user,
-        ?string $comentario = null
-    ): bool {
-        return $this->alterarEstado(
-            $grupoPap,
-            $user,
-            'aprovado',
-            $comentario
-        );
+    public function aprovar(GrupoPap $grupoPap, User $user, ?string $comentario = null): bool
+    {
+        return $this->alterarEstado($grupoPap, $user, 'aprovado', $comentario);
     }
 
     /**
      * Reprovar tema PAP
      */
-    public function reprovar(
-        GrupoPap $grupoPap,
-        User $user,
-        string $motivo
-    ): bool {
-        return $this->alterarEstado(
-            $grupoPap,
-            $user,
-            'reprovado',
-            $motivo
-        );
+    public function reprovar(GrupoPap $grupoPap, User $user, string $motivo): bool
+    {
+        return $this->alterarEstado($grupoPap, $user, 'reprovado', $motivo);
     }
 
     /**
      * Solicitar melhoria no tema PAP
      */
-    public function solicitarMelhoria(
-        GrupoPap $grupoPap,
-        User $user,
-        string $recomendacao
-    ): bool {
-        return $this->alterarEstado(
-            $grupoPap,
-            $user,
-            GrupoPap::APROVACAO_MELHORIA_COORDENACAO,
-            $recomendacao
-        );
+    public function solicitarMelhoria(GrupoPap $grupoPap, User $user, string $recomendacao): bool
+    {
+        return $this->alterarEstado($grupoPap, $user, GrupoPap::APROVACAO_MELHORIA_COORDENACAO, $recomendacao);
     }
 
     /**
      * Alterar estado do tema PAP
      * e criar registo no histórico.
      */
-    private function alterarEstado(
-        GrupoPap $grupoPap,
-        User $user,
-        string $novoEstado,
-        ?string $comentario = null
-    ): bool {
-
-        // Só pode ser analisado se estiver pendente
-        if (! $grupoPap->podeSerAprovado()) {
+    private function alterarEstado(GrupoPap $grupoPap, User $user, string $novoEstado, ?string $comentario = null): bool
+    {
+        if (!$grupoPap->podeSerAprovado()) {
             return false;
         }
 
@@ -130,7 +103,6 @@ class AprovacaoTemaService
 
             $estadoAnterior = $grupoPap->status_aprovacao;
 
-            // Atualizar estado atual do grupo
             $grupoPap->update([
                 'status_aprovacao' => $novoEstado,
                 'aprovado_por_id' => $user->id,
@@ -143,7 +115,6 @@ class AprovacaoTemaService
                 app(TrabalhoPapService::class)->inicializar($grupoPap);
             }
 
-            // Registar histórico da decisão
             HistoricoAprovacaoPap::create([
                 'grupo_pap_id' => $grupoPap->id,
                 'utilizador_id' => $user->id,
@@ -155,6 +126,17 @@ class AprovacaoTemaService
                 'comentario' => $comentario,
             ]);
 
+            // ── Notificações ──────────────────────────────────────
+            $grupoPap->refresh(); // garante data_aprovacao e comentario_aprovacao frescos
+
+            match ($novoEstado) {
+                'aprovado' => $this->notificarTemaAprovado($grupoPap),
+                'reprovado' => $this->notificarTemaReprovado($grupoPap),
+                GrupoPap::APROVACAO_MELHORIA_COORDENACAO => $this->notificarMelhoriasSolicitadas($grupoPap, 'coordenacao'),
+                default => null,
+            };
+            // ──────────────────────────────────────────────────────
+
             return true;
         });
     }
@@ -165,14 +147,9 @@ class AprovacaoTemaService
      * O colégio corrige o tema e envia novamente
      * para análise da instituição tutora.
      */
-    public function reenviar(
-        GrupoPap $grupoPap,
-        User $user,
-        array $dados
-    ): bool {
-
-        // Só pode reenviar se uma melhoria tiver sido solicitada
-        if (! $grupoPap->podeSerReenviado()) {
+    public function reenviar(GrupoPap $grupoPap, User $user, array $dados): bool
+    {
+        if (!$grupoPap->podeSerReenviado()) {
             return false;
         }
 
@@ -180,7 +157,6 @@ class AprovacaoTemaService
 
             $estadoAnterior = $grupoPap->status_aprovacao;
 
-            // Voltar o tema para análise
             $grupoPap->update([
                 'nome_grupo' => $dados['nome_grupo'],
                 'tema_grupo' => $dados['tema_grupo'],
@@ -191,7 +167,6 @@ class AprovacaoTemaService
                 'data_aprovacao' => null,
             ]);
 
-            // Registar o reenvio no histórico
             HistoricoAprovacaoPap::create([
                 'grupo_pap_id' => $grupoPap->id,
                 'utilizador_id' => $user->id,
@@ -203,7 +178,15 @@ class AprovacaoTemaService
                 'comentario' => 'Tema corrigido e reenviado para revisão do professor tutor.',
             ]);
 
+            // ── Notificações ──────────────────────────────────────
+            $tutor = $grupoPap->professor?->user;
+            if ($tutor) {
+                $tutor->notify(new \App\Notifications\Pap\TemaSubmetidoAoTutorNotification($grupoPap));
+            }
+            // ──────────────────────────────────────────────────────
+
             return true;
         });
     }
+
 }

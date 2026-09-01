@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\PeriodoLancamentoNotas;
+use App\Traits\NotificaProfessor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -15,6 +16,7 @@ use Inertia\Response;
 
 class PeriodoLancamentoNotasController extends Controller
 {
+    use NotificaProfessor;
     public function edit(Request $request, Instituicao $instituicao): Response
     {
         abort_unless($request->user()->can('pautas.gerirPrazos'), 403);
@@ -28,7 +30,7 @@ class PeriodoLancamentoNotasController extends Controller
             ->get()
             ->keyBy('periodo');
 
-        $periodos = collect([1, 2, 3])->map(fn (int $periodo) => [
+        $periodos = collect([1, 2, 3])->map(fn(int $periodo) => [
             'periodo' => $periodo,
             'data_inicio' => $periodosExistentes->get($periodo)?->data_inicio?->format('Y-m-d\TH:i') ?? '',
             'data_limite' => $periodosExistentes->get($periodo)?->data_limite?->format('Y-m-d\TH:i') ?? '',
@@ -37,7 +39,7 @@ class PeriodoLancamentoNotasController extends Controller
         ]);
 
         $periodoInicial = $periodos->first(
-            fn (array $periodo) => ! $periodo['tem_prazo']
+            fn(array $periodo) => !$periodo['tem_prazo']
         )['periodo'] ?? 1;
 
         return Inertia::render('tenant/pautas/prazos-lancamento-notas/edit', [
@@ -79,9 +81,9 @@ class PeriodoLancamentoNotasController extends Controller
         if (
             $periodo > 1
             && (
-                ! $periodoAnterior
-                || ! $periodoAnterior->data_inicio
-                || ! $periodoAnterior->data_limite
+                !$periodoAnterior
+                || !$periodoAnterior->data_inicio
+                || !$periodoAnterior->data_limite
             )
         ) {
             throw ValidationException::withMessages([
@@ -98,7 +100,7 @@ class PeriodoLancamentoNotasController extends Controller
             ]);
         }
 
-        PeriodoLancamentoNotas::updateOrCreate(
+        $periodo = PeriodoLancamentoNotas::updateOrCreate(
             [
                 'instituicao_id' => $instituicao->id,
                 'ano_lectivo_id' => $anoLectivo->id,
@@ -109,6 +111,8 @@ class PeriodoLancamentoNotasController extends Controller
                 'data_limite' => $limite,
             ]
         );
+
+        $this->notificarPrazoLancamentoNotas($periodo);
 
         return back()->with('success', 'Prazo de lançamento guardado com sucesso.');
     }

@@ -14,6 +14,7 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
+use App\Notifications\Pap\JuradoAdicionadoBancaNotification;
 use Inertia\Inertia;
 
 class BancaJuriPapController extends Controller
@@ -39,11 +40,11 @@ class BancaJuriPapController extends Controller
             ->whereNotIn('id', $juradosNaBanca)
             ->whereHas(
                 'cursosTutelados',
-                fn ($q) => $q
+                fn($q) => $q
                     ->where('curso_tutelado_id', $cursoTutelado->id)
                     ->where('tipo', 'principal')
             )->get()
-            ->map(fn ($professor) => [
+            ->map(fn($professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ])->values();
@@ -76,11 +77,19 @@ class BancaJuriPapController extends Controller
     ) {
         $this->authorize('create', [BancaJuriPap::class, $grupoPap]);
 
-        BancaJuriPap::create([
+        $banca = BancaJuriPap::create([
             'grupo_pap_id' => $grupoPap->id,
             'professor_id' => $request->professor_id,
             'funcao' => $request->funcao,
         ]);
+
+        // ── Notificação ───────────────────────────────────────
+        $grupoPap->load('turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao');
+        $jurado = $banca->professor?->user;
+        if ($jurado) {
+            $jurado->notify(new JuradoAdicionadoBancaNotification($grupoPap, $banca));
+        }
+        // ─
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
@@ -116,11 +125,11 @@ class BancaJuriPapController extends Controller
             ->whereNotIn('id', $juradosNaBanca)
             ->whereHas(
                 'cursosTutelados',
-                fn ($q) => $q
+                fn($q) => $q
                     ->where('curso_tutelado_id', $cursoTutelado->id)
                     ->where('tipo', 'principal')
             )->get()
-            ->map(fn ($professor) => [
+            ->map(fn($professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ])->values();
@@ -165,9 +174,9 @@ class BancaJuriPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Membro da banca actualizado com sucesso!',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Membro da banca actualizado com sucesso!',
+                ]);
     }
 
     /**

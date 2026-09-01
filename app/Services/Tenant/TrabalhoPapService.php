@@ -8,11 +8,14 @@ use App\Models\Tenant\TrabalhoPapFeedback;
 use App\Models\Tenant\TrabalhoPapVersao;
 use App\Models\Tenant\User;
 use Illuminate\Http\UploadedFile;
+use App\Traits\NotificaGrupoPap;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class TrabalhoPapService
 {
+    use NotificaGrupoPap;
+
     /**
      * Cria o registo do trabalho quando o tema é aprovado.
      * Chamado pelo AprovacaoTemaService.
@@ -29,12 +32,8 @@ class TrabalhoPapService
      * Aluno submete um novo PDF.
      * Cria uma nova versão e avança o status para em_analise_tutor.
      */
-    public function submeter(
-        TrabalhoPap $trabalho,
-        User $user,
-        UploadedFile $ficheiro
-    ): TrabalhoPapVersao {
-
+    public function submeter(TrabalhoPap $trabalho, User $user, UploadedFile $ficheiro): TrabalhoPapVersao
+    {
         if (!$trabalho->podeSerSubmetido()) {
             throw new \RuntimeException('O trabalho não pode ser submetido neste momento.');
         }
@@ -58,69 +57,77 @@ class TrabalhoPapService
                 'status_quando_submetido' => $trabalho->status,
             ]);
 
-            $trabalho->update([
-                'status' => TrabalhoPap::STATUS_EM_ANALISE_TUTOR,
-            ]);
+            $trabalho->update(['status' => TrabalhoPap::STATUS_EM_ANALISE_TUTOR]);
+
+            // ── Notificações ──────────────────────────────────────
+            // ── Notificações ──────────────────────────────────────
+            $grupoPap = $trabalho->grupoPap->load('professor.user');
+            $tutor = $grupoPap->professor?->user;
+            $revisores = collect($tutor ? [$tutor] : []);
+            $this->notificarTrabalhoSubmetido($grupoPap, $revisores);
+            // ──────────────────────────────────────────────────────
+            // ──────────────────────────────────────────────────────
 
             return $versao;
         });
     }
-
     /**
      * Tutor aprova o trabalho e envia para a coordenação.
      */
-    public function aprovarComoTutor(
-        TrabalhoPap $trabalho,
-        User $user,
-        ?string $comentario = null
-    ): TrabalhoPapFeedback {
-
+    public function aprovarComoTutor(TrabalhoPap $trabalho, User $user, ?string $comentario = null): TrabalhoPapFeedback
+    {
         if (!$trabalho->podeSerAnalisadoPeloTutor()) {
             throw new \RuntimeException('O trabalho não está em análise do tutor.');
         }
 
-        return $this->registarFeedback(
+        $feedback = $this->registarFeedback(
             $trabalho,
             $user,
             TrabalhoPapFeedback::TIPO_APROVACAO_TUTOR,
             TrabalhoPap::STATUS_EM_ANALISE_COORDENACAO,
             $comentario
         );
+
+        // ── Notificações ─────────────────────────────────────────
+        // Avisa a coordenação que o trabalho chegou para análise
+        $grupoPap = $trabalho->grupoPap;
+        $coordenadores = $this->resolverCoordenadores($grupoPap);
+        $this->notificarTrabalhoSubmetido($grupoPap, $coordenadores);
+        // ──────────────────────────────────────────────────────────
+
+        return $feedback;
     }
 
     /**
      * Tutor solicita correção ao aluno.
      */
-    public function solicitarCorrecaoComoTutor(
-        TrabalhoPap $trabalho,
-        User $user,
-        string $comentario,
-        ?UploadedFile $ficheiroCorrecao = null   // <-- novo
-    ): TrabalhoPapFeedback {
-
+    public function solicitarCorrecaoComoTutor(TrabalhoPap $trabalho, User $user, string $comentario, ?UploadedFile $ficheiroCorrecao = null): TrabalhoPapFeedback
+    {
         if (!$trabalho->podeSerAnalisadoPeloTutor()) {
             throw new \RuntimeException('O trabalho não está em análise do tutor.');
         }
 
-        return $this->registarFeedback(
+        $feedback = $this->registarFeedback(
             $trabalho,
             $user,
             TrabalhoPapFeedback::TIPO_CORRECAO_TUTOR,
             TrabalhoPap::STATUS_CORRECAO_TUTOR,
             $comentario,
-            $ficheiroCorrecao,   // <-- novo
+            $ficheiroCorrecao
         );
+
+        // ── Notificações ──────────────────────────────────────────
+        $this->notificarCorrecaoSolicitada($trabalho->grupoPap, $comentario, 'tutor');
+        // ──────────────────────────────────────────────────────────
+
+        return $feedback;
     }
 
     /**
      * Coordenação aprova o trabalho definitivamente.
      */
-    public function aprovarComoCoordenacao(
-        TrabalhoPap $trabalho,
-        User $user,
-        ?string $comentario = null
-    ): TrabalhoPapFeedback {
-
+    public function aprovarComoCoordenacao(TrabalhoPap $trabalho, User $user, ?string $comentario = null): TrabalhoPapFeedback
+    {
         if (!$trabalho->podeSerAnalisadoPelaCoordenacao()) {
             throw new \RuntimeException('O trabalho não está em análise da coordenação.');
         }
@@ -135,11 +142,14 @@ class TrabalhoPapService
                 $comentario
             );
 
-            // Regista quem aprovou e quando
             $trabalho->update([
                 'aprovado_por_id' => $user->id,
                 'data_aprovacao' => now(),
             ]);
+
+            // ── Notificações ──────────────────────────────────────
+            $this->notificarTrabalhoAprovado($trabalho->grupoPap);
+            // ──────────────────────────────────────────────────────
 
             return $feedback;
         });
@@ -150,25 +160,26 @@ class TrabalhoPapService
      * O trabalho volta para pendente_entrega — o aluno
      * submete novamente e passa obrigatoriamente pelo tutor.
      */
-    public function solicitarCorrecaoComoCoordenacao(
-        TrabalhoPap $trabalho,
-        User $user,
-        string $comentario,
-        ?UploadedFile $ficheiroCorrecao = null   // <-- novo
-    ): TrabalhoPapFeedback {
-
+    public function solicitarCorrecaoComoCoordenacao(TrabalhoPap $trabalho, User $user, string $comentario, ?UploadedFile $ficheiroCorrecao = null): TrabalhoPapFeedback
+    {
         if (!$trabalho->podeSerAnalisadoPelaCoordenacao()) {
             throw new \RuntimeException('O trabalho não está em análise da coordenação.');
         }
 
-        return $this->registarFeedback(
+        $feedback = $this->registarFeedback(
             $trabalho,
             $user,
             TrabalhoPapFeedback::TIPO_CORRECAO_COORDENACAO,
             TrabalhoPap::STATUS_CORRECAO_COORDENACAO,
             $comentario,
-            $ficheiroCorrecao,   // <-- novo
+            $ficheiroCorrecao
         );
+
+        // ── Notificações ──────────────────────────────────────────
+        $this->notificarCorrecaoSolicitada($trabalho->grupoPap, $comentario, 'coordenacao');
+        // ──────────────────────────────────────────────────────────
+
+        return $feedback;
     }
 
     /**
@@ -222,5 +233,27 @@ class TrabalhoPapService
                 'estado_novo' => $novoStatus,
             ]);
         });
+    }
+
+    /**
+     * Resolve os utilizadores coordenadores do curso tutelado do grupo.
+     */
+    private function resolverCoordenadores(GrupoPap $grupoPap): \Illuminate\Support\Collection
+    {
+        $cursoTutelado = $grupoPap->turma
+            ?->cursoClasseTurno
+            ?->cursoClasse
+                ?->cursoTutelado;
+
+        if (!$cursoTutelado) {
+            return collect();
+        }
+
+        return $cursoTutelado->professores()
+            ->where('coordenador', 1)
+            ->with('user')
+            ->get()
+            ->map->user
+            ->filter();
     }
 }

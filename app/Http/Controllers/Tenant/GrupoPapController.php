@@ -25,6 +25,9 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\GrupoCriadoNotification;
+use Illuminate\Support\Facades\Notification;
+use App\Traits\NotificaGrupoPap;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,6 +35,7 @@ use Inertia\Inertia;
 
 class GrupoPapController extends Controller
 {
+    use NotificaGrupoPap;
     public function __construct(
         private readonly AnoLectivoResolverService $anoLectivoResolverService
     ) {}
@@ -170,6 +174,10 @@ class GrupoPapController extends Controller
         $grupo->elementos()->createMany(
             collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
         );
+
+        // Enviar notificação aos alunos informando do grupo criado
+        $alunosUsers = $grupo->alunos->map->user->filter();
+        Notification::send($alunosUsers, new GrupoCriadoNotification($grupo));
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
@@ -440,6 +448,9 @@ class GrupoPapController extends Controller
             'data_defesa' => $request->data_defesa.' '.$request->hora_defesa.':00',
             'local_defesa' => $request->local_defesa,
         ]);
+
+        // Notificar alunos e jurados sobre a data da defesa
+        $this->notificarDataDefesaDefinida($grupoPap);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,

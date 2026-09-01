@@ -9,6 +9,7 @@ use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use App\Traits\NotificaProfessor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -16,6 +17,7 @@ use Spatie\Permission\Models\Role;
 
 class ProfessorController extends Controller
 {
+    use NotificaProfessor;
     public function index()
     {
         $this->authorize('viewAny', Professor::class);
@@ -27,9 +29,9 @@ class ProfessorController extends Controller
             ->with(['user:id,nome,telefone'])
             ->when(
                 $instituicaoId,
-                fn ($q) => $q->whereHas(
+                fn($q) => $q->whereHas(
                     'user',
-                    fn ($q) => $q->where('instituicao_id', $instituicaoId)
+                    fn($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
             ->orderBy('created_at', 'asc')
@@ -72,6 +74,8 @@ class ProfessorController extends Controller
             'nivel_academico' => $request->nivel_academico,
         ]);
 
+        $this->notificarProfessorCriado($user, '123456');
+
         return to_route('tenant.dashboard.professores.index')->with('toast', [
             'type' => 'success',
             'message' => 'Professor criado com sucesso.',
@@ -94,7 +98,7 @@ class ProfessorController extends Controller
 
         $cursos = $professor->cursosTutelados->map(function ($ct) {
             $curso = $ct->instituicaoCurso?->curso;
-            if (! $curso) {
+            if (!$curso) {
                 return null;
             }
 
@@ -102,10 +106,10 @@ class ProfessorController extends Controller
         })->filter()->unique('id')->values();
 
         $turmas = Turma::with('cursoClasseTurno.cursoClasse.classe:id,nome')
-            ->whereHas('turmaDisciplinaProfessor', fn ($q) => $q->where('professor_id', $professor->id))
+            ->whereHas('turmaDisciplinaProfessor', fn($q) => $q->where('professor_id', $professor->id))
             ->where('ano_lectivo_id', $anoLectivoId)   // ← direto na turma
             ->get()
-            ->map(fn ($turma) => [
+            ->map(fn($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,

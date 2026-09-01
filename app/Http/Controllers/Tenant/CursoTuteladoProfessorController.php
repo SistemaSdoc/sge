@@ -8,12 +8,14 @@ use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\User;
+use App\Traits\NotificaProfessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CursoTuteladoProfessorController extends Controller
 {
+    use NotificaProfessor;
     /**
      * Display a listing of the resource.
      */
@@ -23,13 +25,13 @@ class CursoTuteladoProfessorController extends Controller
         $user = Auth::guard('tenant')->user();
 
         $instituicaoId = $user?->instituicaoFiltro();
-        
+
         $professores = $cursoTutelado->professores()
             ->with(['user'])
             ->paginate(5);
 
         return response()->json(
-            $professores->through(fn ($prof) => [
+            $professores->through(fn($prof) => [
                 'id' => $prof->id,
                 'nome' => $prof->user?->nome,
                 'email' => $prof->user?->email,
@@ -42,7 +44,7 @@ class CursoTuteladoProfessorController extends Controller
     public function create(Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
         $professores = Professor::with('user:id,nome')
-            ->whereHas('user', fn ($q) => $q->where('instituicao_id', $instituicao->id))
+            ->whereHas('user', fn($q) => $q->where('instituicao_id', $instituicao->id))
             ->orderBy('id')
             ->get();
 
@@ -93,6 +95,9 @@ class CursoTuteladoProfessorController extends Controller
             ]
         );
 
+        $professor = Professor::find($request->professor_id);
+        $this->notificarProfessorAdicionadoAoCurso($professor, $cursoTutelado);
+
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
@@ -104,7 +109,9 @@ class CursoTuteladoProfessorController extends Controller
         //
     }
 
-    public function edit($id) {}
+    public function edit($id)
+    {
+    }
 
     public function update(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, $professore)
     {

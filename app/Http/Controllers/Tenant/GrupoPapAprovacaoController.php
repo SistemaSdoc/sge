@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
 use App\Services\Tenant\AprovacaoTemaService;
+use App\Traits\NotificaGrupoPap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class GrupoPapAprovacaoController extends Controller
 {
+    use NotificaGrupoPap;
     public function __construct(
         private AprovacaoTemaService $service
     ) {
@@ -55,7 +57,6 @@ class GrupoPapAprovacaoController extends Controller
 
     public function aprovarTutor(Request $request, GrupoPap $grupoPap)
     {
-
         $this->authorize('aprovarComoTutor', $grupoPap);
 
         $validated = $request->validate([
@@ -78,6 +79,21 @@ class GrupoPapAprovacaoController extends Controller
                 'comentario' => $validated['comentario'] ?? 'Aprovado pelo professor tutor.',
             ]);
         });
+
+        // ── Notificações ──────────────────────────────────────
+        $coordenadores = $grupoPap->turma
+            ->cursoClasseTurno
+            ->cursoClasse
+            ->cursoTutelado
+            ->professores()
+            ->where('coordenador', 1)
+            ->with('user')
+            ->get()
+            ->map->user
+            ->filter();
+
+        $this->notificarTemaValidadoPeloTutor($grupoPap, $coordenadores);
+        // ──────────────────────────────────────────────────────
 
         return back()->with('toast', [
             'type' => 'success',
@@ -113,6 +129,9 @@ class GrupoPapAprovacaoController extends Controller
                 'comentario' => $validated['recomendacao'],
             ]);
         });
+
+        $grupoPap->load('alunos.user');
+        $this->notificarMelhoriasSolicitadas($grupoPap, 'tutor');
 
         return back()->with('toast', [
             'type' => 'warning',

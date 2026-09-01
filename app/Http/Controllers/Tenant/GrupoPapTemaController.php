@@ -14,6 +14,8 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\Pap\TemaDefinidoNotification;
 
 class GrupoPapTemaController extends Controller
 {
@@ -78,6 +80,15 @@ class GrupoPapTemaController extends Controller
             ...$validated,
             'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
         ]);
+
+        // Notificar tutor e elementos do grupo sobre o tema definido
+        $alunosUsers = $grupoPap->alunos->map->user->filter();
+        $tutorUser = $grupoPap->professor?->user;
+        $destinatarios = $alunosUsers;
+        if ($tutorUser) {
+            $destinatarios = $destinatarios->push($tutorUser)->unique('id');
+        }
+        Notification::send($destinatarios, new TemaDefinidoNotification($grupoPap));
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
@@ -144,6 +155,15 @@ class GrupoPapTemaController extends Controller
             ...$validated,
             'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO, // ← também aqui
         ]);
+
+        // Notificar tutor e elementos do grupo sobre a actualização do tema
+        $alunosUsers = $grupoPap->alunos->map->user->filter();
+        $tutorUser = $grupoPap->professor?->user;
+        $destinatarios = $alunosUsers;
+        if ($tutorUser) {
+            $destinatarios = $destinatarios->push($tutorUser)->unique('id');
+        }
+        Notification::send($destinatarios, new TemaDefinidoNotification($grupoPap));
 
         return to_route('tenant.dashboard.pap.show', [
             'instituicao' => $instituicao->id,

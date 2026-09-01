@@ -13,10 +13,12 @@ use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
+use App\Traits\NotificaGrupoPap;
 use Inertia\Inertia;
 
 class ElementoGrupoPapController extends Controller
 {
+    use NotificaGrupoPap;
     /**
      * Mostra o formulário para adicionar um novo elemento a um grupo da PAP.
      */
@@ -150,6 +152,10 @@ class ElementoGrupoPapController extends Controller
         if ($todosComNota) {
             $grupoPap->update(['status' => 'concluido']);
         }
+
+        // ── Notificação ───────────────────────────────────────
+        $this->notificarNotaAtribuida($grupoPap, $elementoGrupoPap);
+        // ─────────────────────────────────────────────────────
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,

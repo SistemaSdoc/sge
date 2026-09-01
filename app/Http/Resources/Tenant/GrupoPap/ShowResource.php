@@ -112,7 +112,7 @@ class ShowResource extends JsonResource
                     $cursoId = $cursoTutelado->instituicaoCurso?->curso_id;
                     $tutorId = $cursoTutelado->instituicao_tutora_id;
 
-                    $path = \App\Models\CursoTutelado::query()
+                    $path = \App\Models\Tenant\CursoTutelado::query()
                         ->where('instituicao_tutora_id', $tutorId)
                         ->whereHas(
                             'instituicaoCurso',
