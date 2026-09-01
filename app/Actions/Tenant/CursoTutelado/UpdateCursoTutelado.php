@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\DB;
  */
 class UpdateCursoTutelado
 {
-    public function __construct(private readonly TutelaService $tutelaService) {}
+    public function __construct(private readonly TutelaService $tutelaService)
+    {
+    }
 
     /**
      * Aplica a nova duração, classes e instituição tutora.
@@ -21,23 +23,26 @@ class UpdateCursoTutelado
      */
     public function handle(Instituicao $instituicao, CursoTutelado $cursoTutelado, array $validated): void
     {
-        $tenantTutorId = $validated['tenant_tutor_id'] ?? null;
+        DB::transaction(function () use ($instituicao, $cursoTutelado, $validated): void {
+            $tenantTutorId = $validated['tenant_tutor_id'] ?? null;
+            $tutorAtualId = $cursoTutelado->tipo_tutela === 'externa'
+                ? $this->tutelaService->tutorAtual($cursoTutelado)
+                : null;
 
-        DB::transaction(function () use ($cursoTutelado, $validated): void {
+            if ($tenantTutorId) {
+                if ($tenantTutorId !== $tutorAtualId) {
+                    $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
+                    $this->tutelaService->publicarEAssociarCurso($cursoTutelado, $instituicaoTutora);
+                }
+            } elseif ($cursoTutelado->tipo_tutela === 'externa') {
+                $this->tutelaService->converterParaTutelaPropria($cursoTutelado, $instituicao->getKey());
+            }
+
             $cursoTutelado->instituicaoCurso()->update([
                 'duracao_anos' => $validated['duracao_anos'],
             ]);
+
             $cursoTutelado->classes()->sync($validated['classes']);
         });
-
-        if ($tenantTutorId) {
-            $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
-
-            $this->tutelaService->publicarEAssociarCurso($cursoTutelado, $instituicaoTutora);
-
-            return;
-        }
-
-        $this->tutelaService->converterParaTutelaPropria($cursoTutelado, $instituicao->getKey());
     }
 }

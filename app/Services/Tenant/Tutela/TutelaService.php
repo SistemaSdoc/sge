@@ -25,7 +25,8 @@ class TutelaService
         private readonly TutelaCentralService $centralService,
         private readonly TutelaTenantService $tenantService,
         private readonly TutelaNotificationService $notificationService,
-    ) {}
+    ) {
+    }
 
     /**
      * Valida se o colégio pode solicitar tutela externa a um instituto.
@@ -54,6 +55,11 @@ class TutelaService
         Closure $operation
     ): mixed {
         return $this->tenantService->executarNoTenantTutelado($cursoTuteladoId, $tenantTutorId, $operation);
+    }
+
+    public function tutorAtual(CursoTutelado $cursoTutelado): ?string
+    {
+        return $this->centralService->tutorAtual($cursoTutelado);
     }
 
     /**

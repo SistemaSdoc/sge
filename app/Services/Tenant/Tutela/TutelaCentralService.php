@@ -16,6 +16,20 @@ use Illuminate\Support\Str;
 class TutelaCentralService
 {
     /**
+     * Se não for editado nada, manter a tutela actual.
+     */
+    public function tutorAtual(CursoTutelado $cursoTutelado): ?string
+    {
+        if (!$cursoTutelado->curso_tutelado_shared_id) {
+            return null;
+        }
+
+        return CursoTuteladoShared::on($this->centralConnection())
+            ->whereKey($cursoTutelado->curso_tutelado_shared_id)
+            ->value('tenant_tutor_id');
+    }
+
+    /**
      * Cria ou actualiza um vínculo de tutela na base central.
      *
      * A transação usa exclusivamente a conexão central. Um vínculo existente
@@ -43,14 +57,7 @@ class TutelaCentralService
             abort(422, 'A instituição tutora deve ser diferente da instituição tutelada.');
         }
 
-        return DB::connection($centralConnection)->transaction(function () use (
-            $cursoTutelado,
-            $tenantTutorId,
-            $tenantTuteladoId,
-            $instituicaoTutora,
-            $curso,
-            $centralConnection,
-        ): CursoTuteladoShared {
+        return DB::connection($centralConnection)->transaction(function () use ($cursoTutelado, $tenantTutorId, $tenantTuteladoId, $instituicaoTutora, $curso, $centralConnection, ): CursoTuteladoShared {
             $shared = $this->findExisting(
                 $cursoTutelado,
                 $tenantTutorId,
@@ -104,7 +111,7 @@ class TutelaCentralService
      */
     public function removerVinculo(CursoTutelado $cursoTutelado): void
     {
-        if (! $cursoTutelado->curso_tutelado_shared_id) {
+        if (!$cursoTutelado->curso_tutelado_shared_id) {
             Log::debug('Vínculo não encontrado; remoção ignorada', [
                 'curso_tutelado_id' => $cursoTutelado->id,
             ]);
@@ -138,7 +145,7 @@ class TutelaCentralService
      */
     public function encerrarTutela(CursoTutelado $cursoTutelado): void
     {
-        if (! $cursoTutelado->curso_tutelado_shared_id) {
+        if (!$cursoTutelado->curso_tutelado_shared_id) {
             Log::debug('Vínculo não encontrado; encerramento ignorado', [
                 'curso_tutelado_id' => $cursoTutelado->id,
             ]);

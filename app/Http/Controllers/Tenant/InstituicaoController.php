@@ -74,12 +74,18 @@ class InstituicaoController extends Controller
     public function show(Instituicao $instituicao)
     {
         $cursos = $instituicao->instituicaoCursos()
-            ->with(['curso:id,nome', 'cursoTutelado.instituicaoTutora:id,nome'])
+            ->with([
+                'curso:id,nome',
+                'cursoTutelado.instituicaoTutora:id,nome',
+                'cursoTutelado.cursoTuteladoShared:id,tenant_tutor_nome,tenant_tutor_id',
+            ])
             ->paginate(5)
-            ->through(fn ($instituicaoCurso) => [
+            ->through(fn($instituicaoCurso) => [
                 'id' => $instituicaoCurso->cursoTutelado->id,
                 'nome' => $instituicaoCurso->curso->nome,
-                'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome,
+                'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome
+                    ?? $instituicaoCurso->cursoTutelado?->cursoTuteladoShared?->tenant_tutor_nome
+                    ?? $instituicaoCurso->cursoTutelado?->cursoTuteladoShared?->tenant_tutor_id,
                 'can' => [
                     'view' => Auth::guard('tenant')->user()->can('view', $instituicaoCurso->cursoTutelado),
                     'update' => Auth::guard('tenant')->user()->can('update', $instituicaoCurso->cursoTutelado),
