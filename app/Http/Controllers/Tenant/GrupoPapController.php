@@ -28,15 +28,19 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
-use App\Services\Tenant\GrupoPapViewService;
+use App\Services\Tenant\GrupoPap\GrupoPapService;
+use App\Services\Tenant\GrupoPap\GrupoPapViewService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+
 
 class GrupoPapController extends Controller
 {
     public function __construct(
         private readonly AnoLectivoResolverService $anoLectivoResolverService,
         private readonly GrupoPapViewService $grupoPapViewService,
+        private readonly GrupoPapService $cascataService,   /* ← novo */
         private readonly CreateGrupoPap $createGrupoPap,
         private readonly UpdateGrupoPap $updateGrupoPap,
         private readonly DeleteGrupoPap $deleteGrupoPap,
@@ -392,6 +396,45 @@ class GrupoPapController extends Controller
                 ]);
     }
 
+    /* ------------------------------------------------------------------ */
+    /*  Endpoints auxiliares do formulário independente           */
+    /* ------------------------------------------------------------------ */
+
+    /** Devolve as classes de 13.º ano para o curso tutelado seleccionado. */
+    public function classes(Request $request, Instituicao $instituicao)
+    {
+        return response()->json(
+            $this->cascataService->classes((string) $request->input('curso_tutelado_id'))
+        );
+    }
+
+    /** Devolve os turnos para a classe seleccionada. */
+    public function turnos(Request $request, Instituicao $instituicao)
+    {
+        return response()->json(
+            $this->cascataService->turnos((string) $request->input('curso_classe_id'))
+        );
+    }
+
+    /** Devolve as turmas para o turno seleccionado. */
+    public function turmas(Request $request, Instituicao $instituicao)
+    {
+        return response()->json(
+            $this->cascataService->turmas((string) $request->input('curso_classe_turno_id'))
+        );
+    }
+
+    /** Devolve professores e alunos disponíveis para o grupo PAP a criar. */
+    public function formOptions(Request $request, Instituicao $instituicao)
+    {
+        return response()->json(
+            $this->cascataService->formOptions(
+                (string) $request->input('curso_tutelado_id'),
+                (string) $request->input('turma_id'),
+            )
+        );
+    }
+
 
     /**
      * Formulário de criação de grupo PAP sem turma pré-seleccionada.
@@ -425,6 +468,10 @@ class GrupoPapController extends Controller
     /**
      * Cria um grupo PAP indicando explicitamente a turma no payload.
      */
+    /**
+     * Cria um grupo PAP a partir do formulário independente (sem turma na URL).
+     * Resolve a turma pelo payload e delega na mesma action do fluxo normal.
+     */
     public function storeIndependente(StoreIndependenteRequest $request, Instituicao $instituicao)
     {
         $this->authorize('create', GrupoPap::class);
@@ -432,7 +479,7 @@ class GrupoPapController extends Controller
         $validated = $request->validated();
         $turma = Turma::with('cursoClasseTurno.cursoClasse')->findOrFail($validated['turma_id']);
 
-        $grupo = $this->createGrupoPap->handle($turma, $validated);
+        $this->createGrupoPap->handle($turma, $validated);
 
         return to_route('tenant.dashboard.grupos-pap.index', [
             'ano_lectivo_id' => $turma->ano_lectivo_id,

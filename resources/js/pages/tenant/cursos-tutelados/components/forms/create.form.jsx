@@ -41,7 +41,6 @@ export function CursoForm({
   onSubmit,
 }) {
   const [modo, setModo] = useState('existente');
-  const isNovoCurso = modo === 'novo';
 
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
@@ -58,18 +57,13 @@ export function CursoForm({
           <CardContent>
             <FieldGroup>
               <FieldSet>
-                <Field>
+                {/* <Field>
                   <FieldLabel htmlFor="curso_id">Curso</FieldLabel>
                   <Select
-                    value={isNovoCurso ? 'novo' : data.curso_id}
+                    value={data.curso_id}
                     onValueChange={(value) => {
-                      if (value === 'novo') {
-                        setModo('novo');
-                        setData('curso_id', '');
-                      } else {
-                        setModo('existente');
-                        setData('curso_id', String(value));
-                      }
+                      setModo('existente');
+                      setData('curso_id', String(value));
                     }}
                   >
                     <SelectTrigger className="w-full">
@@ -83,30 +77,25 @@ export function CursoForm({
                             {curso.nome}
                           </SelectItem>
                         ))}
-                        <SelectItem value="novo">
-                          <Plus className="size-3!" /> Novo curso
-                        </SelectItem>
                       </SelectGroup>
                     </SelectContent>
                   </Select>
                   {errors.curso_id && (
                     <FieldError>{errors.curso_id}</FieldError>
                   )}
-                </Field>
+                </Field> */}
 
-                {isNovoCurso && (
-                  <Field>
-                    <FieldLabel htmlFor="nome">Nome</FieldLabel>
-                    <Input
-                      id="nome"
-                      type="text"
-                      placeholder="Ex.: Informática de gestão"
-                      value={data.nome}
-                      onChange={(e) => setData('nome', e.target.value)}
-                    />
-                    {errors.nome && <FieldError>{errors.nome}</FieldError>}
-                  </Field>
-                )}
+                <Field>
+                  <FieldLabel htmlFor="nome">Nome</FieldLabel>
+                  <Input
+                    id="nome"
+                    type="text"
+                    placeholder="Ex.: Informática de gestão"
+                    value={data.nome}
+                    onChange={(e) => setData('nome', e.target.value)}
+                  />
+                  {errors.nome && <FieldError>{errors.nome}</FieldError>}
+                </Field>
 
                 {instituicao.tipo === 'colegio' && (
                   <Field>
@@ -192,23 +181,19 @@ export function CursoForm({
                   )}
                 </Field>
 
-                {isNovoCurso && (
-                  <Field>
-                    <FieldLabel htmlFor="duracao_anos">
-                      Duração (anos)
-                    </FieldLabel>
-                    <Input
-                      id="duracao_anos"
-                      type="number"
-                      placeholder="Ex.: 3"
-                      value={data.duracao_anos}
-                      onChange={(e) => setData('duracao_anos', e.target.value)}
-                    />
-                    {errors.duracao_anos && (
-                      <FieldError>{errors.duracao_anos}</FieldError>
-                    )}
-                  </Field>
-                )}
+                <Field>
+                  <FieldLabel htmlFor="duracao_anos">Duração (anos)</FieldLabel>
+                  <Input
+                    id="duracao_anos"
+                    type="number"
+                    placeholder="Ex.: 3"
+                    value={data.duracao_anos}
+                    onChange={(e) => setData('duracao_anos', e.target.value)}
+                  />
+                  {errors.duracao_anos && (
+                    <FieldError>{errors.duracao_anos}</FieldError>
+                  )}
+                </Field>
 
                 <Field>
                   <Button type="submit" disabled={processing}>

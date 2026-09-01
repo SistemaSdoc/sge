@@ -16,7 +16,7 @@ import {
   turnos as turnosRoute,
   turmas as turmasRoute,
   formOptions as formOptionsRoute,
-} from '@/actions/App/Http/Controllers/Tenant/GrupoPapCascataController';
+} from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 
 const normalizeFilterValue = (value) =>
   value === null || value === undefined || value === '' ? '' : String(value);

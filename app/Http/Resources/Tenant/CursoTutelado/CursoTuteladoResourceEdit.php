@@ -16,6 +16,13 @@ class CursoTuteladoResourceEdit extends JsonResource
                 'nome' => $this->instituicaoCurso->curso->nome,
                 'duracao_anos' => $this->instituicaoCurso->duracao_anos,
             ],
+            'nivel_ensino_id' => (string) ($this->cursoClasses->first()?->nivel_ensino_id
+                ?? $this->cursoClasses->first()?->nivelEnsino?->id
+                ?? ''),
+            'nivel_ensino' => $this->cursoClasses->first()?->nivelEnsino ? [
+                'id' => (string) $this->cursoClasses->first()->nivelEnsino->id,
+                'nome' => $this->cursoClasses->first()->nivelEnsino->nome,
+            ] : null,
             'tipo_tutela' => $this->tipo_tutela ?? 'propria',
             'tenant_tutor_id' => $this->curso_tutelado_shared_id
                 ? $this->cursoTuteladoShared?->tenant_tutor_id

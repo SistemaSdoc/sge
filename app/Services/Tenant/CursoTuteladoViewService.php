@@ -115,6 +115,7 @@ class CursoTuteladoViewService
             'instituicaoCurso',
             'instituicaoTutora:id,nome',
             'cursoTuteladoShared:id,tenant_tutor_id,tenant_tutor_nome,curso_nome,status',
+            'cursoClasses.nivelEnsino:id,nome',
             'classes:id',
         ]);
     }
@@ -128,6 +129,7 @@ class CursoTuteladoViewService
     {
         return [
             'classes' => Classe::query()->select('id', 'nome')->orderBy('nome')->get(),
+            'niveisEnsino' => NivelEnsino::query()->select('id', 'nome')->orderBy('nome')->get(),
             'tenantsTutores' => $instituicao->tipo === 'colegio'
                 ? $this->tenantService->getAvailableTutors((string) tenancy()->tenant->getTenantKey())
                 : [],

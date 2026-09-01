@@ -29,6 +29,7 @@ export function CursoForm({
   errors,
   processing,
   onSubmit,
+  niveisEnsino,
 }) {
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
@@ -41,6 +42,18 @@ export function CursoForm({
           <CardContent>
             <FieldGroup>
               <FieldSet>
+                <Field>
+                  <FieldLabel htmlFor="nome">Nome</FieldLabel>
+                  <Input
+                    id="nome"
+                    type="text"
+                    placeholder="Ex.: Informática de gestão"
+                    value={data.nome}
+                    onChange={(e) => setData('nome', e.target.value)}
+                  />
+                  {errors.nome && <FieldError>{errors.nome}</FieldError>}
+                </Field>
+
                 {instituicao.tipo === 'colegio' && (
                   <Field>
                     <FieldLabel htmlFor="tenant_tutor_id">
@@ -77,6 +90,31 @@ export function CursoForm({
                     )}
                   </Field>
                 )}
+
+                <Field>
+                  <FieldLabel>Nível de Ensino</FieldLabel>
+                  <Select
+                    value={data.nivel_ensino_id || ''} // evita undefined/null
+                    onValueChange={(value) => setData('nivel_ensino_id', value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione o nível de ensino" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Níveis de Ensino</SelectLabel>
+                        {niveisEnsino?.map((nivel) => (
+                          <SelectItem key={nivel.id} value={String(nivel.id)}>
+                            {nivel.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  {errors.nivel_ensino_id && (
+                    <FieldError>{errors.nivel_ensino_id}</FieldError>
+                  )}
+                </Field>
 
                 <Field>
                   <FieldLabel htmlFor="classes">Classes</FieldLabel>

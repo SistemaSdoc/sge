@@ -385,19 +385,22 @@ Route::middleware([
 
             Route::prefix('instituicoes/{instituicao}/pap')->group(function () {
                 Route::get('create', [GrupoPapController::class, 'createIndependente'])
-                    ->name('tenant.dashboard.instituicoes.pap.create');
+                    ->name('grupos-pap.create');
                 Route::post('/', [GrupoPapController::class, 'storeIndependente'])
-                    ->name('tenant.dashboard.instituicoes.pap.store');
+                    ->name('grupos-pap.store');
 
-                Route::get('classes', [GrupoPapCascataController::class, 'classes'])
-                    ->name('tenant.dashboard.instituicoes.pap.classes');
-                Route::get('turnos', [GrupoPapCascataController::class, 'turnos'])
-                    ->name('tenant.dashboard.instituicoes.pap.turnos');
-                Route::get('turmas', [GrupoPapCascataController::class, 'turmas'])
-                    ->name('tenant.dashboard.instituicoes.pap.turmas');
-                Route::get('form-options', [GrupoPapCascataController::class, 'formOptions'])
-                    ->name('tenant.dashboard.instituicoes.pap.form-options');
+                /* Cascata — auxiliares do formulário independente */
+                Route::get('classes', [GrupoPapController::class, 'classes'])
+                    ->name('grupos-pap.classes');
+                Route::get('turnos', [GrupoPapController::class, 'turnos'])
+                    ->name('grupos-pap.turnos');
+                Route::get('turmas', [GrupoPapController::class, 'turmas'])
+                    ->name('grupos-pap.turmas');
+                Route::get('form-options', [GrupoPapController::class, 'formOptions'])
+                    ->name('grupos-pap.form-options');
             });
+
+
 
             /*
             |--------------------------------------------------------------------------

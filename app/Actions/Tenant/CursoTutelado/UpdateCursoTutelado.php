@@ -38,11 +38,26 @@ class UpdateCursoTutelado
                 $this->tutelaService->converterParaTutelaPropria($cursoTutelado, $instituicao->getKey());
             }
 
+            $curso = $cursoTutelado->instituicaoCurso->curso;
+
+            $curso->update([
+                'nome' => $validated['nome'],
+                'duracao_anos' => $validated['duracao_anos'],
+            ]);
+
             $cursoTutelado->instituicaoCurso()->update([
                 'duracao_anos' => $validated['duracao_anos'],
             ]);
 
-            $cursoTutelado->classes()->sync($validated['classes']);
+            $cursoTutelado->classes()->sync(
+                collect($validated['classes'])
+                    ->mapWithKeys(fn (string $classeId): array => [
+                        $classeId => [
+                            'nivel_ensino_id' => $validated['nivel_ensino_id'],
+                        ],
+                    ])
+                    ->all()
+            );
         });
     }
 }

@@ -6,9 +6,12 @@ export default function Edit({
   instituicao,
   cursoTutelado,
   classes,
+  niveisEnsino,
   tenantsTutores,
 }) {
   const { data, setData, put, processing, errors } = useForm({
+    nome: cursoTutelado.curso.nome,
+    nivel_ensino_id: cursoTutelado?.nivel_ensino_id ?? '',
     duracao_anos: cursoTutelado?.curso?.duracao_anos ?? '',
     tenant_tutor_id: cursoTutelado?.tenant_tutor_id ?? '',
     classes: Array.isArray(cursoTutelado?.classes) ? cursoTutelado.classes : [],
@@ -31,6 +34,7 @@ export default function Edit({
         title="Editar curso tutelado"
         instituicao={instituicao}
         classes={classes}
+        niveisEnsino={niveisEnsino}
         tenantsTutores={tenantsTutores}
         data={data}
         setData={setData}

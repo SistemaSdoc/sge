@@ -51,6 +51,7 @@ class CursoTutelado extends Model
             'classe_id'
         )
             ->using(CursoClasse::class)
+            ->withPivot('nivel_ensino_id')
             ->withTimestamps();
     }
 

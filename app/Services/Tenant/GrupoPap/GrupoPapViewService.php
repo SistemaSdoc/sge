@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Tenant;
+namespace App\Services\Tenant\GrupoPap;
 
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;

@@ -41,15 +41,15 @@ class CreateCursoTutelado
             $curso->setConnection('tenant');
             $instituicao->setConnection('tenant');
 
-            if (Instituicao::query()
-                ->findOrFail($instituicao->getKey())
-                ->instituicaoCursos()
-                ->where('curso_id', $curso->getKey())
-                ->exists()) {
-                throw ValidationException::withMessages([
-                    'curso_id' => 'Esta instituição já tem este curso associado.',
-                ]);
-            }
+            // if (Instituicao::query()
+            //     ->findOrFail($instituicao->getKey())
+            //     ->instituicaoCursos()
+            //     ->where('curso_id', $curso->getKey())
+            //     ->exists()) {
+            //     throw ValidationException::withMessages([
+            //         'curso_id' => 'Esta instituição já tem este curso associado.',
+            //     ]);
+            // }
 
             $instituicaoCurso = $instituicao->instituicaoCursos()->create([
                 'curso_id' => $curso->getKey(),
