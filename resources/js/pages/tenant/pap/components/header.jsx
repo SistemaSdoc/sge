@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { useRef, useState, useEffect } from 'react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Minus } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -23,8 +22,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-
-import { createIndependente } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 
 const normalizeFilterValue = (value) =>
   value === null || value === undefined || value === '' ? '' : String(value);
@@ -40,10 +37,14 @@ export function Header({
   anosLectivos = [],
   anoLectivoId,
   onAnoLectivoChange,
-  onAddGrupo
+  onAddGrupo,
 }) {
   const instituicaoSeleccionada =
-    instituicoes.find((item) => normalizeFilterValue(item.id) === normalizeFilterValue(filtroInstituicao)) ?? instituicao;
+    instituicoes.find(
+      (item) =>
+        normalizeFilterValue(item.id) ===
+        normalizeFilterValue(filtroInstituicao),
+    ) ?? instituicao;
 
   return (
     <Card className="gap-0! overflow-visible pb-0">
@@ -75,11 +76,9 @@ export function Header({
         </CardDescription>
 
         <CardAction>
-          <CardAction>
-            <Button size="sm" className="w-full sm:w-auto" onClick={onAddGrupo}>
-              Adicionar grupo
-            </Button>
-          </CardAction>
+          <Button size="sm" className="w-full sm:w-auto" onClick={onAddGrupo}>
+            Adicionar grupo
+          </Button>
         </CardAction>
       </CardHeader>
 
@@ -123,18 +122,13 @@ export function Header({
       </div>
 
       {/* Cursos tutelados */}
-      <div className="overflow-x-auto border-t border-foreground/10 sm:overflow-visible">
+      <div className="border-t border-foreground/10">
         {cursosTutelados.length > 0 ? (
-          <div
-            className="-mb-px grid"
-            style={{
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            }}
-          >
-            {cursosTutelados.map((curso, index) => {
-              const isLastItem = index === cursosTutelados.length - 1;
+          <div className="-mb-px flex flex-wrap divide-x divide-foreground/10">
+            {cursosTutelados.map((curso) => {
               const cursoValue = normalizeFilterValue(curso.id);
-              const isSelected = normalizeFilterValue(filtroCurso) === cursoValue;
+              const isSelected =
+                normalizeFilterValue(filtroCurso) === cursoValue;
 
               return (
                 <button
@@ -142,13 +136,13 @@ export function Header({
                   key={curso.id}
                   onClick={() => onCursoChange(curso.id)}
                   aria-pressed={isSelected}
-                  className="text-left"
-                  style={isAloneInRow ? { gridColumn: '1 / -1' } : {}}
+                  className="text-left outline-none focus:outline-none"
+                  style={{ flexBasis: '220px', flexGrow: 1 }}
                 >
                   <div
                     className={`h-full cursor-pointer border-b border-foreground/10 px-3 py-3 text-card-foreground transition-colors hover:bg-accent hover:text-secondary active:bg-accent sm:px-4 sm:py-4 ${
                       isSelected ? 'bg-accent text-secondary' : 'bg-card'
-                    } ${!isLastItem ? 'border-r' : ''}`}
+                    }`}
                   >
                     <h3 className="mb-0.5 text-xs font-medium sm:mb-1 sm:text-sm">
                       {curso.nome}
