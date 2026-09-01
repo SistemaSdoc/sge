@@ -1,15 +1,15 @@
 <?php
 
-use App\Models\AnoLectivo;
-use App\Models\Classe;
-use App\Models\Curso;
-use App\Models\CursoClasse;
-use App\Models\CursoClasseTurno;
-use App\Models\CursoTutelado;
-use App\Models\Instituicao;
-use App\Models\InstituicaoCurso;
-use App\Models\Turno;
-use App\Services\InscricaoService;
+use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\Classe;
+use App\Models\Tenant\Curso;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
+use App\Models\Tenant\Turno;
+use App\Services\Tenant\InscricaoService;
 
 uses()->group('inscricao');
 

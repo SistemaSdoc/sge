@@ -266,6 +266,11 @@ test('tutora consegue exportar pauta de curso remoto atraves do shared activo', 
     ]);
 
     tenancy()->initialize($this->tenantTutor);
+
+    Permission::create(['name' => 'pautas.view', 'guard_name' => 'tenant']);
+    $role = Role::create(['name' => 'Tutor', 'guard_name' => 'tenant']);
+    $role->givePermissionTo('pautas.view');
+    $this->tutor->assignRole($role);
     $this->actingAs($this->tutor, 'tenant');
 
     $response = app(ExportarPautaController::class)->exportarExcel(
@@ -480,6 +485,70 @@ test('solicitacao de tutela grava a notificacao no tenant tutor', function (): v
     );
 
     expect($notificationCount)->toBe(1);
+});
+
+test('fluxo end-to-end de tutela publica, aprova e converte para propria', function (): void {
+    $instituicaoTutor = $this->tenantTutor->run(function (): Instituicao {
+        return Instituicao::create([
+            'nome' => 'Instituto Tutor Flow',
+            'tipo' => 'instituto',
+            'status' => 1,
+        ]);
+    });
+    $adminTutor = $this->tenantTutor->run(function () use ($instituicaoTutor): User {
+        return User::create([
+            'nome' => 'Administrador Tutor Flow',
+            'email' => 'admin-flow@example.test',
+            'password' => 'password',
+            'instituicao_id' => $instituicaoTutor->id,
+        ]);
+    });
+    $this->tenantTutor->update([
+        'instituicao_id' => $instituicaoTutor->id,
+        'admin_user_id' => $adminTutor->id,
+    ]);
+
+    $instituicaoColegio = $this->tenantColegio->run(function (): Instituicao {
+        return Instituicao::create([
+            'nome' => 'Colégio Flow',
+            'tipo' => 'colegio',
+            'status' => 1,
+        ]);
+    });
+    $this->tenantColegio->update(['instituicao_id' => $instituicaoColegio->id]);
+
+    tenancy()->initialize($this->tenantColegio);
+
+    $classe = Classe::create(['nome' => '12A', 'nivel_ensino' => 'medio']);
+    $nivel = NivelEnsino::create(['nome' => 'Médio']);
+
+    $cursoTutelado = app(CreateCursoTutelado::class)->handle($instituicaoColegio, [
+        'nome' => 'Curso Flow',
+        'duracao_anos' => 4,
+        'nivel_ensino_id' => $nivel->id,
+        'classe_ids' => [$classe->id],
+        'tenant_tutor_id' => $this->tenantTutor->id,
+    ]);
+
+    $shared = CursoTuteladoShared::on(config('tenancy.database.central_connection', config('database.default')))
+        ->findOrFail($cursoTutelado->curso_tutelado_shared_id);
+
+    expect($cursoTutelado->tipo_tutela)->toBe('externa')
+        ->and($cursoTutelado->curso_tutelado_shared_id)->not->toBeNull()
+        ->and($shared->status)->toBe(TutelaStatus::PENDENTE)
+        ->and($this->tenantTutor->run(fn (): int => User::findOrFail($adminTutor->id)->notifications()->count()))->toBe(1);
+
+    $shared->update(['status' => TutelaStatus::ACTIVO]);
+
+    app(UpdateCursoTutelado::class)->handle($instituicaoColegio, $cursoTutelado->fresh(), [
+        'duracao_anos' => 4,
+        'classes' => [$classe->id],
+        'tenant_tutor_id' => null,
+    ]);
+
+    expect($cursoTutelado->fresh()->tipo_tutela)->toBe('propria')
+        ->and($cursoTutelado->fresh()->instituicao_tutora_id)->toBe($instituicaoColegio->id)
+        ->and($cursoTutelado->fresh()->curso_tutelado_shared_id)->toBeNull();
 });
 
 test('lista cursos tutelados de instituto tutor mescla cursos locais e remotos sem quebrar merge', function (): void {

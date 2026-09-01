@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Instituicao;
-use App\Models\User;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('instituicao show returns an Inertia page', function () {

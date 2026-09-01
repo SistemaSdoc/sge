@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\AnoLectivo;
-use App\Services\AnoLectivoConsistencyService;
+use App\Models\Tenant\AnoLectivo;
+use App\Services\Tenant\AnoLectivoConsistencyService;
 
 it('marca apenas o ano lectivo actual como activo com base nas datas', function () {
     AnoLectivo::create([

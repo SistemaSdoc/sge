@@ -1,19 +1,19 @@
 <?php
 
-use App\Models\Classe;
-use App\Models\ClasseTurnoDisciplina;
-use App\Models\Curso;
-use App\Models\CursoClasse;
-use App\Models\CursoClasseTurno;
-use App\Models\CursoTutelado;
-use App\Models\Disciplina;
-use App\Models\Instituicao;
-use App\Models\InstituicaoCurso;
-use App\Models\Professor;
-use App\Models\Turma;
-use App\Models\TurmaDisciplinaProfessor;
-use App\Models\Turno;
-use App\Models\User;
+use App\Models\Tenant\Classe;
+use App\Models\Tenant\ClasseTurnoDisciplina;
+use App\Models\Tenant\Curso;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Disciplina;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
+use App\Models\Tenant\Professor;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\Turno;
+use App\Models\Tenant\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
 use Spatie\Permission\Models\Permission;

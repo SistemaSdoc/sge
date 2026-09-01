@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\AnoLectivo;
-use App\Models\Instituicao;
-use App\Models\PautaStatus;
-use App\Models\PeriodoLancamentoNotas;
-use App\Services\Core\RegraAcademicaService;
-use App\Services\NotaService;
+use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\PautaStatus;
+use App\Models\Tenant\PeriodoLancamentoNotas;
+use App\Services\Tenant\Core\RegraAcademicaService;
+use App\Services\Tenant\NotaService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\PagamentoController;
+use App\Http\Controllers\Tenant\PagamentoController;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 

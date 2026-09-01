@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Role;
-use App\Models\User;
+use App\Models\Tenant\Role;
+use App\Models\Tenant\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('guests are redirected to the login page', function () {

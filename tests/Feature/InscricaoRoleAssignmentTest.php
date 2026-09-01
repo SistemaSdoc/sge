@@ -1,18 +1,18 @@
 <?php
 
-use App\Models\AnoLectivo;
-use App\Models\Candidato;
-use App\Models\Classe;
-use App\Models\Curso;
-use App\Models\CursoClasse;
-use App\Models\CursoClasseTurno;
-use App\Models\CursoTutelado;
-use App\Models\Inscricao;
-use App\Models\Instituicao;
-use App\Models\InstituicaoCurso;
-use App\Models\Turno;
-use App\Models\User;
-use App\Services\InscricaoService;
+use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\Candidato;
+use App\Models\Tenant\Classe;
+use App\Models\Tenant\Curso;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Inscricao;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
+use App\Models\Tenant\Turno;
+use App\Models\Tenant\User;
+use App\Services\Tenant\InscricaoService;
 use Spatie\Permission\Models\Role;
 
 uses()->group('inscricao');

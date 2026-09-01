@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\ItemPagavel;
-use App\Models\Pagamento;
-use App\Models\User;
+use App\Models\Tenant\ItemPagavel;
+use App\Models\Tenant\Pagamento;
+use App\Models\Tenant\User;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;

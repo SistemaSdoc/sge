@@ -1,24 +1,24 @@
 <?php
 
-use App\Models\Aluno;
-use App\Models\AnoLectivo;
-use App\Models\Classe;
-use App\Models\ClasseTurnoDisciplina;
-use App\Models\Curso;
-use App\Models\CursoClasse;
-use App\Models\CursoClasseTurno;
-use App\Models\CursoTutelado;
-use App\Models\Disciplina;
-use App\Models\Inscricao;
-use App\Models\Instituicao;
-use App\Models\InstituicaoCurso;
-use App\Models\Professor;
-use App\Models\Turma;
-use App\Models\TurmaAluno;
-use App\Models\TurmaDisciplinaProfessor;
-use App\Models\Turno;
-use App\Models\User;
-use App\Services\ConfirmacaoMatriculaService;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\Classe;
+use App\Models\Tenant\ClasseTurnoDisciplina;
+use App\Models\Tenant\Curso;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Disciplina;
+use App\Models\Tenant\Inscricao;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
+use App\Models\Tenant\Professor;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaAluno;
+use App\Models\Tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\Turno;
+use App\Models\Tenant\User;
+use App\Services\Tenant\ConfirmacaoMatriculaService;
 
 it('returns incompleto when there are missing final grades on the confirmation list', function () {
     $instituicao = Instituicao::create([

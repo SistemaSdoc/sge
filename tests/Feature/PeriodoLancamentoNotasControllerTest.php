@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\AnoLectivo;
-use App\Models\Instituicao;
-use App\Models\PeriodoLancamentoNotas;
-use App\Models\User;
+use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\PeriodoLancamentoNotas;
+use App\Models\Tenant\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Permission;
