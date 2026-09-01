@@ -2,6 +2,7 @@
 
 namespace App\Actions\Tenant\CursoTutelado;
 
+use App\Enums\TutelaStatus;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Services\Tenant\Tutela\TutelaService;
@@ -12,9 +13,7 @@ use Illuminate\Support\Facades\DB;
  */
 class UpdateCursoTutelado
 {
-    public function __construct(private readonly TutelaService $tutelaService)
-    {
-    }
+    public function __construct(private readonly TutelaService $tutelaService) {}
 
     /**
      * Aplica a nova duração, classes e instituição tutora.
@@ -28,9 +27,19 @@ class UpdateCursoTutelado
             $tutorAtualId = $cursoTutelado->tipo_tutela === 'externa'
                 ? $this->tutelaService->tutorAtual($cursoTutelado)
                 : null;
+            $statusAtual = $cursoTutelado->cursoTuteladoShared?->status;
+            $statusAtualValor = $statusAtual instanceof \BackedEnum ? $statusAtual->value : $statusAtual;
+            $deveReabrirTutela = $tenantTutorId !== null
+                && (
+                    $tenantTutorId !== $tutorAtualId
+                    || in_array($statusAtualValor, [
+                        TutelaStatus::REJEITADO->value,
+                        TutelaStatus::ENCERRADO->value,
+                    ], true)
+                );
 
             if ($tenantTutorId) {
-                if ($tenantTutorId !== $tutorAtualId) {
+                if ($deveReabrirTutela) {
                     $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
                     $this->tutelaService->publicarEAssociarCurso($cursoTutelado, $instituicaoTutora);
                 }

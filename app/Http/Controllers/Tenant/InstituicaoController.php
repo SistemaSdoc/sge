@@ -80,7 +80,7 @@ class InstituicaoController extends Controller
                 'cursoTutelado.cursoTuteladoShared:id,tenant_tutor_nome,tenant_tutor_id',
             ])
             ->paginate(5)
-            ->through(fn($instituicaoCurso) => [
+            ->through(fn ($instituicaoCurso) => [
                 'id' => $instituicaoCurso->cursoTutelado->id,
                 'nome' => $instituicaoCurso->curso->nome,
                 'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome

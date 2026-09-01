@@ -30,12 +30,15 @@ class CursoTuteladoViewService
             ->with([
                 'curso:id,nome',
                 'cursoTutelado.instituicaoTutora:id,nome',
-                'cursoTutelado.cursoTuteladoShared:id,tenant_tutor_nome,tenant_tutor_id',
+                'cursoTutelado.cursoTuteladoShared:id,status,tenant_tutor_nome,tenant_tutor_id',
             ])
             ->paginate(10)
             ->through(fn ($instituicaoCurso): array => [
                 'id' => $instituicaoCurso->cursoTutelado->id,
                 'nome' => $instituicaoCurso->curso->nome,
+                'status' => $instituicaoCurso->cursoTutelado?->cursoTuteladoShared?->status?->value
+                    ?? $instituicaoCurso->cursoTutelado?->cursoTuteladoShared?->status
+                    ?? ($instituicaoCurso->cursoTutelado?->tipo_tutela === 'propria' ? 'activo' : null),
                 'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome
                     ?? $instituicaoCurso->cursoTutelado?->cursoTuteladoShared?->tenant_tutor_nome
                     ?? $instituicaoCurso->cursoTutelado?->cursoTuteladoShared?->tenant_tutor_id,

@@ -20,10 +20,16 @@ class ClasseTurnoDisciplinaPolicy
      */
     public function view(User $user, ClasseTurnoDisciplina $classeTurnoDisciplina): bool
     {
-        /*return $user->can('classeturnodisciplina.view')
-            && $classeTurnoDisciplina->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;*/
+        if (! $user->can('classeturnodisciplina.view')) {
+            return false;
+        }
 
-        return true;
+        $cursoTutelado = $classeTurnoDisciplina->cursoClasseTurno
+            ->cursoClasse
+            ->cursoTutelado;
+
+        return $cursoTutelado
+            && $cursoTutelado->instituicaoCurso?->instituicao_id === $user->instituicao_id;
     }
 
     /**
@@ -39,8 +45,24 @@ class ClasseTurnoDisciplinaPolicy
      */
     public function update(User $user, ClasseTurnoDisciplina $classeTurnoDisciplina): bool
     {
-        return $user->can('classeturnodisciplina.update')
-            && $classeTurnoDisciplina->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;
+        $cursoTutelado = $classeTurnoDisciplina->cursoClasseTurno
+            ->cursoClasse
+            ->cursoTutelado;
+
+        if (! $user->can('classeturnodisciplina.update')
+            || ! $cursoTutelado
+            || $cursoTutelado->curso_tutelado_shared_id === null) {
+            return false;
+        }
+
+        $status = $cursoTutelado->cursoTuteladoShared?->status;
+        $statusValue = $status instanceof \BackedEnum ? $status->value : (string) $status;
+
+        if (in_array($statusValue, ['pendente', 'encerrado'], true)) {
+            return false;
+        }
+
+        return $cursoTutelado->instituicaoCurso?->instituicao_id === $user->instituicao_id;
     }
 
     /**
@@ -48,8 +70,8 @@ class ClasseTurnoDisciplinaPolicy
      */
     public function delete(User $user, ClasseTurnoDisciplina $classeTurnoDisciplina): bool
     {
-        return $user->can('classeturnodisciplina.delete')
-            && $classeTurnoDisciplina->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;
+        return $this->update($user, $classeTurnoDisciplina)
+            && $user->can('classeturnodisciplina.delete');
     }
 
     /**

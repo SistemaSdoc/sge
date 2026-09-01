@@ -29,7 +29,9 @@ class PautaController extends Controller
     {
         $this->authorize('pauta.viewAny', CursoTutelado::class);
 
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
         $instituicaoId = $user?->instituicao_id;
         $isProfessor = $user->hasRole('Professor');
         $professorId = $user->professor?->id;
@@ -112,8 +114,12 @@ class PautaController extends Controller
     /**
      * Mostra a lista de turmas de um curso tutelado
      */
-    public function indexTurmas(string $cursoTutelado, bool $resolveShared = true, bool $remoteTutor = false, ?User $authorizedUser = null)
-    {
+    public function indexTurmas(string $cursoTutelado,
+        bool $resolveShared = true,
+        bool $remoteTutor = false,
+        ?User $authorizedUser = null
+    ) {
+        /** @var User $user */
         $user = $authorizedUser ?? Auth::guard('tenant')->user();
 
         if ($resolveShared) {
@@ -132,6 +138,7 @@ class PautaController extends Controller
         }
 
         $cursoTutelado = CursoTutelado::findOrFail($cursoTutelado);
+
         if (! $remoteTutor) {
             $this->authorize('pauta.viewAnyCurso', $cursoTutelado);
         }
@@ -189,8 +196,15 @@ class PautaController extends Controller
     /**
      * Mostra a pauta da turma
      */
-    public function pauta(string $cursoTutelado, string $turma, Request $request, bool $resolveShared = true, bool $remoteTutor = false, ?User $authorizedUser = null)
-    {
+    public function pauta(
+        string $cursoTutelado,
+        string $turma,
+        Request $request,
+        bool $resolveShared = true,
+        bool $remoteTutor = false,
+        ?User $authorizedUser = null
+    ) {
+        /** @var User $user */
         $user = $authorizedUser ?? Auth::guard('tenant')->user();
 
         if ($resolveShared) {
@@ -203,8 +217,14 @@ class PautaController extends Controller
             if ($shared) {
                 abort_unless($user->can('pautas.view'), 403);
 
-                return Tenant::findOrFail($shared->tenant_tutelado_id)
-                    ->run(fn () => $this->pauta($cursoTutelado, $turma, $request, false, true, $user));
+                return Tenant::findOrFail($shared->tenant_tutelado_id)->run(fn () => $this->pauta(
+                    $cursoTutelado,
+                    $turma,
+                    $request,
+                    false,
+                    true,
+                    $user
+                ));
             }
         }
 

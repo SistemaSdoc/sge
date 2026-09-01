@@ -9,6 +9,7 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turno;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class CursoClasseTurnoController extends Controller
@@ -18,6 +19,7 @@ class CursoClasseTurnoController extends Controller
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse
     ) {
+        Gate::authorize('update', $cursoTutelado);
         $this->authorize('create', CursoClasseTurno::class);
 
         abort_if($cursoClasse->curso_tutelado_id !== $cursoTutelado->id, 404);
@@ -46,6 +48,7 @@ class CursoClasseTurnoController extends Controller
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse
     ) {
+        Gate::authorize('update', $cursoTutelado);
         $this->authorize('create', CursoClasseTurno::class);
 
         abort_if($cursoClasse->curso_tutelado_id !== $cursoTutelado->id, 404);

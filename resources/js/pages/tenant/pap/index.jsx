@@ -42,21 +42,21 @@ export default function Index({
     normalizeFilterValue(anoLectivoId),
   );
 
-  const instituicaoSeleccionada =
-    normalizeFilterValue(filtroInstituicao || instituicao?.id || '');
-  const anoLectivoSeleccionado =
-    normalizeFilterValue(filtroAnoLectivo || anoLectivoId || '');
+  const instituicaoSeleccionada = normalizeFilterValue(
+    filtroInstituicao || instituicao?.id || '',
+  );
+  const anoLectivoSeleccionado = normalizeFilterValue(
+    filtroAnoLectivo || anoLectivoId || '',
+  );
 
   useEffect(() => {
-    setFiltroInstituicao((prev) =>
-      prev || normalizeFilterValue(instituicao?.id ?? ''),
+    setFiltroInstituicao(
+      (prev) => prev || normalizeFilterValue(instituicao?.id ?? ''),
     );
   }, [instituicao?.id]);
 
   useEffect(() => {
-    setFiltroAnoLectivo((prev) =>
-      prev || normalizeFilterValue(anoLectivoId),
-    );
+    setFiltroAnoLectivo((prev) => prev || normalizeFilterValue(anoLectivoId));
   }, [anoLectivoId]);
 
   const [data, setData] = useState({
@@ -232,7 +232,8 @@ export default function Index({
     setFiltroCurso(null);
     router.visit(window.location.pathname, {
       data: {
-        instituicao_id: nextInstituicaoId || normalizeFilterValue(instituicao?.id),
+        instituicao_id:
+          nextInstituicaoId || normalizeFilterValue(instituicao?.id),
         ano_lectivo_id: normalizeFilterValue(filtroAnoLectivo),
         curso_tutelado_id: null,
       },

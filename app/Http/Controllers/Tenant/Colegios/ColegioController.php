@@ -90,11 +90,13 @@ class ColegioController extends Controller
             $colegio = Instituicao::findOrFail($colegio);
             $cursos = InstituicaoCurso::where('instituicao_id', $colegio->id)
                 ->whereHas('cursoTutelado', fn ($query) => $query->whereIn('curso_tutelado_shared_id', $sharedIds))
-                ->with(['curso:id,nome', 'cursoTutelado:id,instituicao_curso_id'])
+                ->with(['curso:id,nome', 'cursoTutelado:id,instituicao_curso_id,curso_tutelado_shared_id', 'cursoTutelado.cursoTuteladoShared:id,status'])
                 ->get()
                 ->map(fn ($ic): array => [
                     'id' => $ic->cursoTutelado->id,
                     'nome' => $ic->curso->nome,
+                    'status' => $ic->cursoTutelado?->cursoTuteladoShared?->status?->value
+                        ?? $ic->cursoTutelado?->cursoTuteladoShared?->status,
                     'curso_tutelado_id' => $ic->cursoTutelado->id,
                 ])
                 ->values();

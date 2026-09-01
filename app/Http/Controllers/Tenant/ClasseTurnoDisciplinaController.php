@@ -15,6 +15,7 @@ use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ClasseTurnoDisciplinaController extends Controller
@@ -27,6 +28,7 @@ class ClasseTurnoDisciplinaController extends Controller
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno
     ) {
+        Gate::authorize('update', $cursoTutelado);
         $this->authorize('create', ClasseTurnoDisciplina::class);
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/disciplinas/create', [
@@ -54,6 +56,7 @@ class ClasseTurnoDisciplinaController extends Controller
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno
     ) {
+        Gate::authorize('update', $cursoTutelado);
         $this->authorize('create', ClasseTurnoDisciplina::class);
 
         $request->validate([

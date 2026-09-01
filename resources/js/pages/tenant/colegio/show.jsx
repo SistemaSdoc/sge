@@ -17,10 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Minus } from 'lucide-react';
 
 import { show } from '@/actions/App/Http/Controllers/Tenant/Colegios/CursoTuteladoController';
 import { edit as editarPrazosLancamentoNotas } from '@/actions/App/Http/Controllers/Tenant/PeriodoLancamentoNotasController';
 import TablePagination from '@/components/table-pagination';
+import { TutelaStatusBadge } from '../cursos-tutelados/components/tutela-status-badge';
 
 export default function Show({
   instituicao,
@@ -30,9 +32,7 @@ export default function Show({
   pagination = {},
   onPageChange,
 }) {
-  console.log('Props recebidas:', { instituicao, colegio, cursos, pagination });
   const lista = cursos?.data ?? [];
-  console.log('Props recebidas:', { instituicao, colegio, cursos, pagination });
 
   const handlePageChange = (page) => {
     router.get(
@@ -67,6 +67,7 @@ export default function Show({
             <TableHeader>
               <TableRow className="bg-muted/72">
                 <TableHead className="px-4">Nome do Curso</TableHead>
+                <TableHead className="text-center">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -86,6 +87,14 @@ export default function Show({
                 >
                   <TableCell className="px-4 font-medium">
                     {curso.nome}
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    {curso.status ? (
+                      <TutelaStatusBadge status={curso.status} />
+                    ) : (
+                      <Minus size={15} className="text-muted-foreground" />
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

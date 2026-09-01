@@ -88,7 +88,9 @@ class GrupoPapAprovacaoController extends Controller
         string $turma,
         string $grupoPap
     ) {
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
         abort_unless($user->can('grupopap.aprovar'), 403);
 
         $validated = $request->validate([
@@ -217,7 +219,9 @@ class GrupoPapAprovacaoController extends Controller
         string $turma,
         string $grupoPap
     ) {
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
         abort_unless($user->can('grupopap.reprovar'), 403);
 
         // O motivo da reprovação é obrigatório
@@ -298,7 +302,9 @@ class GrupoPapAprovacaoController extends Controller
         string $turma,
         string $grupoPap
     ) {
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
         abort_unless($user->can('grupopap.solicitarMelhoria'), 403);
 
         // A recomendação é obrigatória

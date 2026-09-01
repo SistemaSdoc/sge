@@ -29,7 +29,9 @@ class GrupoPapController extends Controller
     {
         $this->authorize('viewAny', GrupoPap::class);
 
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
         $instituicaoId = $user ? $user->instituicaoFiltro() : null;
 
         // Filtro ano lectivo

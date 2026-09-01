@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoClasse;
@@ -152,8 +153,8 @@ test('grupo pap independente exige professor titular do curso do grupo', functio
     $user->givePermissionTo('grupopap.create');
 
     $professor = Professor::create(['user_id' => $user->id, 'especialidade' => 'Matemática']);
-    $aluno = 
-        \App\Models\Tenant\Aluno::create([
+    $aluno =
+        Aluno::create([
             'user_id' => User::factory()->create(['instituicao_id' => $instituicao->id])->id,
             'inscricao_id' => null,
             'instituicao_id' => $instituicao->id,

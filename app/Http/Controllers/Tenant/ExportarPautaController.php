@@ -3,26 +3,52 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenant\CursoClasse;
-use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoTutelado;
-use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportarPautaController extends Controller
 {
     public function exportarExcel(
-        Instituicao $instituicao,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        Request $request
+        string $cursoTutelado,
+        string $turma,
+        Request $request,
+        bool $resolveShared = true,
+        bool $remoteTutor = false,
+        ?User $authorizedUser = null,
     ) {
+        /** @var User $user */
+        $user = $authorizedUser ?? Auth::guard('tenant')->user();
+
+        if ($resolveShared) {
+            $shared = CursoTuteladoShared::query()
+                ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
+                ->where('curso_tutelado_tutelado_id', $cursoTutelado)
+                ->where('status', 'activo')
+                ->first();
+
+            if ($shared) {
+                abort_unless($user?->can('pautas.view'), 403);
+
+                return Tenant::findOrFail($shared->tenant_tutelado_id)
+                    ->run(fn () => $this->exportarExcel($cursoTutelado, $turma, $request, false, true, $user));
+            }
+        }
+
+        $cursoTutelado = CursoTutelado::findOrFail($cursoTutelado);
+        $turma = Turma::findOrFail($turma);
+
+        if (! $remoteTutor) {
+            $this->authorize('pauta.view', $turma);
+        }
+
         $periodo = $request->query('periodo'); // '1', '2', '3' ou null (final)
         $isTrimestral = in_array($periodo, ['1', '2', '3'], true);
 

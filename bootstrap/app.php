@@ -2,7 +2,6 @@
 
 use App\Exceptions\TenantDatabaseNotExistException;
 use App\Http\Middleware\CheckTenantStatus;
-use App\Http\Middleware\DebugNotFoundRequests;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\ValidateCrossTenantAccess;

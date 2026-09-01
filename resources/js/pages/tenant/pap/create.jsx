@@ -1,5 +1,8 @@
 import { useForm, router } from '@inertiajs/react';
-import { createIndependente, storeIndependente } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import {
+  createIndependente,
+  storeIndependente,
+} from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import GrupoPapForm from './components/grupo-pap-form';
 
 export default function CreateIndependente({

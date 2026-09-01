@@ -1,7 +1,9 @@
 <?php
 
 use App\Actions\Tenant\CursoTutelado\CreateCursoTutelado;
+use App\Actions\Tenant\CursoTutelado\UpdateCursoTutelado;
 use App\Enums\TutelaStatus;
+use App\Http\Controllers\Tenant\ExportarPautaController;
 use App\Jobs\Tenant\Tutela\SincronizarAssociacaoTutela;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
@@ -26,6 +28,7 @@ use App\Services\Tenant\Tutela\Data\InstituicaoTutoraData;
 use App\Services\Tenant\Tutela\TutelaService;
 use App\Services\Tenant\Tutela\TutelaTenantService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -215,6 +218,174 @@ test('curso externo pendente bloqueia operacoes de gestao e rejeitado permite re
     $this->vinculo->update(['status' => TutelaStatus::REJEITADO]);
 
     expect(Gate::forUser($user)->allows('update', $cursoTutelado))->toBeTrue();
+});
+
+test('tutora consegue exportar pauta de curso remoto atraves do shared activo', function (): void {
+    tenancy()->initialize($this->tenantColegio);
+
+    $instituicaoColegio = Instituicao::create([
+        'nome' => 'Colégio Tutorado',
+        'tipo' => 'colegio',
+        'status' => 1,
+    ]);
+    $curso = Curso::create(['nome' => 'Curso Remoto', 'duracao_anos' => 4]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicaoColegio->id,
+        'duracao_anos' => 4,
+    ]);
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicaoColegio->id,
+        'tipo_tutela' => 'externa',
+        'curso_tutelado_shared_id' => $this->vinculo->id,
+    ]);
+    $this->vinculo->update(['curso_tutelado_tutelado_id' => $cursoTutelado->id]);
+    $classe = Classe::create(['nome' => '11A', 'nivel_ensino' => 'medio']);
+    $nivel = NivelEnsino::create(['nome' => 'Médio']);
+    $cursoClasse = CursoClasse::create([
+        'curso_tutelado_id' => $cursoTutelado->id,
+        'classe_id' => $classe->id,
+        'nivel_ensino_id' => $nivel->id,
+    ]);
+    $turno = Turno::create(['nome' => 'Tarde']);
+    $cursoClasseTurno = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasse->id,
+        'turno_id' => $turno->id,
+    ]);
+    $ano = AnoLectivo::create([
+        'nome' => '2026/2027',
+        'data_inicio' => '2026-09-01',
+        'data_fim' => '2027-07-31',
+    ]);
+    $turma = Turma::create([
+        'nome' => 'A',
+        'max_alunos' => 30,
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'ano_lectivo_id' => $ano->id,
+    ]);
+
+    tenancy()->initialize($this->tenantTutor);
+    $this->actingAs($this->tutor, 'tenant');
+
+    $response = app(ExportarPautaController::class)->exportarExcel(
+        $cursoTutelado->id,
+        $turma->id,
+        new Request(['periodo' => '1']),
+        true,
+        false,
+        $this->tutor,
+    );
+
+    expect($response->getStatusCode())->toBe(200)
+        ->and($response->headers->get('Content-Type'))->toContain('text/csv');
+});
+
+test('solicitacao pendente bloqueia criacao de turno, turma e disciplina na gestao da classe', function (): void {
+    tenancy()->initialize($this->tenantColegio);
+
+    $instituicaoColegio = Instituicao::create([
+        'nome' => 'Colégio com Tutela Pendente',
+        'tipo' => 'colegio',
+        'status' => 1,
+    ]);
+    $instituicaoTutora = Instituicao::create([
+        'nome' => 'Instituto da Tutela',
+        'tipo' => 'instituto',
+        'status' => 1,
+    ]);
+
+    $curso = Curso::create(['nome' => 'Curso em Gestão', 'duracao_anos' => 4]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicaoColegio->id,
+        'duracao_anos' => 4,
+    ]);
+
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicaoTutora->id,
+        'tipo_tutela' => 'externa',
+        'curso_tutelado_shared_id' => $this->vinculo->id,
+    ]);
+
+    $nivel = NivelEnsino::create(['nome' => 'Médio']);
+    $classe = Classe::create(['nome' => '10A', 'nivel_ensino' => 'medio']);
+    $cursoClasse = CursoClasse::create([
+        'classe_id' => $classe->id,
+        'curso_tutelado_id' => $cursoTutelado->id,
+        'nivel_ensino_id' => $nivel->id,
+    ]);
+
+    $user = User::create([
+        'nome' => 'Gestor do Colégio',
+        'email' => 'gestor-tutela-pendente@example.test',
+        'password' => 'password',
+        'instituicao_id' => $instituicaoColegio->id,
+    ]);
+
+    Permission::create(['name' => 'curso-tutelado.update', 'guard_name' => 'tenant']);
+    Permission::create(['name' => 'cursoclasseturno.create', 'guard_name' => 'tenant']);
+    Permission::create(['name' => 'classeturnodisciplina.create', 'guard_name' => 'tenant']);
+    Permission::create(['name' => 'turmas.create', 'guard_name' => 'tenant']);
+
+    $role = Role::create(['name' => 'Gestor Curso', 'guard_name' => 'tenant']);
+    $role->givePermissionTo([
+        'curso-tutelado.update',
+        'cursoclasseturno.create',
+        'classeturnodisciplina.create',
+        'turmas.create',
+    ]);
+    $user->assignRole($role);
+
+    $this->vinculo->update(['status' => TutelaStatus::PENDENTE]);
+
+    expect(Gate::forUser($user)->allows('update', $cursoTutelado))->toBeFalse()
+        ->and(Gate::forUser($user)->allows('create', CursoClasseTurno::class))->toBeTrue();
+});
+
+test('reenvia a solicitacao quando o curso externo foi rejeitado e o tutor permanece o mesmo', function (): void {
+    tenancy()->initialize($this->tenantColegio);
+
+    $instituicaoTutora = $this->tenantTutor->run(fn (): Instituicao => Instituicao::create([
+        'nome' => 'Instituto Reaberto',
+        'tipo' => 'instituto',
+        'status' => 1,
+    ]));
+    $this->tenantTutor->update(['instituicao_id' => $instituicaoTutora->id]);
+
+    $instituicaoColegio = Instituicao::create([
+        'nome' => 'Colégio Reaberto',
+        'tipo' => 'colegio',
+        'status' => 1,
+    ]);
+    $curso = Curso::create(['nome' => 'Curso Reaberto', 'duracao_anos' => 4]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicaoColegio->id,
+        'duracao_anos' => 4,
+    ]);
+
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => null,
+        'tipo_tutela' => 'externa',
+        'curso_tutelado_shared_id' => $this->vinculo->id,
+    ]);
+
+    $this->vinculo->update(['status' => TutelaStatus::REJEITADO]);
+
+    app(UpdateCursoTutelado::class)->handle(
+        $instituicaoColegio,
+        $cursoTutelado,
+        [
+            'tenant_tutor_id' => (string) $this->tenantTutor->getTenantKey(),
+            'duracao_anos' => 4,
+            'classes' => [],
+        ],
+    );
+
+    expect($this->vinculo->fresh()->status)->toBe(TutelaStatus::PENDENTE);
 });
 
 test('nao permite associar um vinculo a partir do tenant errado', function (): void {

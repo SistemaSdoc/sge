@@ -84,18 +84,22 @@ class CursoClasseController extends Controller
         $permissions = [
             'curso' => [
                 'view' => $user->can('view', $cursoTutelado),
+                'update' => $user->can('update', $cursoTutelado),
             ],
             'classe' => [
                 'view' => $user->can('view', $cursoClasse),
             ],
             'turno' => [
-                'create' => $user->can('create', CursoClasseTurno::class),
+                'create' => $user->can('update', $cursoTutelado)
+                    && $user->can('create', CursoClasseTurno::class),
             ],
             'disciplina' => [
-                'create' => $user->can('create', ClasseTurnoDisciplina::class),
+                'create' => $user->can('update', $cursoTutelado)
+                    && $user->can('create', ClasseTurnoDisciplina::class),
             ],
             'turma' => [
-                'create' => $user->can('create', Turma::class),
+                'create' => $user->can('update', $cursoTutelado)
+                    && $user->can('create', Turma::class),
             ],
         ];
 

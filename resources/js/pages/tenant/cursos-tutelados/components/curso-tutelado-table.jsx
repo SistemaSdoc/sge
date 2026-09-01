@@ -29,6 +29,7 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import TablePagination from '@/components/table-pagination';
 import { ButtonGroup } from '@/components/ui/button-group';
+import { TutelaStatusBadge } from './tutela-status-badge';
 
 export function CursosTuteladosTable({
   data,
@@ -115,7 +116,8 @@ export function CursosTuteladosTable({
                 <TableHeader>
                   <TableRow className="bg-muted/72">
                     <TableHead className="px-4">Nome</TableHead>
-                    <TableHead>Tutelado por</TableHead>
+                    <TableHead className="text-center">Tutelado por</TableHead>
+                    <TableHead className="text-center">Status</TableHead>
                     <TableHead className="px-4 text-right">Acções</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -141,13 +143,23 @@ export function CursosTuteladosTable({
                       <TableCell className="px-4 font-medium">
                         {curso.nome}
                       </TableCell>
-                      <TableCell>
+
+                      <TableCell className="text-center">
                         {curso.instituicao_tutora ? (
                           curso.instituicao_tutora
                         ) : (
                           <Minus size={15} className="text-muted-foreground" />
                         )}
                       </TableCell>
+
+                      <TableCell className="text-center">
+                        {curso.status ? (
+                          <TutelaStatusBadge status={curso.status} />
+                        ) : (
+                          '__'
+                        )}
+                      </TableCell>
+
                       <TableCell className="px-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           {/* Botão Editar */}

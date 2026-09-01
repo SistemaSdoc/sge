@@ -94,6 +94,8 @@ class ClasseTurnoTurmaController extends Controller
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno
     ) {
+        Gate::authorize('update', $cursoTutelado);
+
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
@@ -131,6 +133,7 @@ class ClasseTurnoTurmaController extends Controller
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno
     ) {
+        Gate::authorize('update', $cursoTutelado);
         Gate::authorize('create', Turma::class);
 
         $request->validate([

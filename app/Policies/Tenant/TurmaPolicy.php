@@ -88,7 +88,22 @@ class TurmaPolicy
      */
     public function update(User $user, Turma $turma): bool
     {
-        return $user->can('turmas.update') && $this->pertenceAInstituicao($user, $turma);
+        if (! $user->can('turmas.update') || ! $this->pertenceAInstituicao($user, $turma)) {
+            return false;
+        }
+
+        $cursoTutelado = $turma->cursoClasseTurno
+            ?->cursoClasse
+            ?->cursoTutelado;
+
+        if (! $cursoTutelado || $cursoTutelado->curso_tutelado_shared_id === null) {
+            return true;
+        }
+
+        $status = $cursoTutelado->cursoTuteladoShared?->status;
+        $statusValue = $status instanceof \BackedEnum ? $status->value : (string) $status;
+
+        return ! in_array($statusValue, ['pendente', 'encerrado'], true);
     }
 
     /**
@@ -98,7 +113,7 @@ class TurmaPolicy
      */
     public function delete(User $user, Turma $turma): bool
     {
-        return $user->can('turmas.delete') && $this->pertenceAInstituicao($user, $turma);
+        return $this->update($user, $turma) && $user->can('turmas.delete');
     }
 
     /**
