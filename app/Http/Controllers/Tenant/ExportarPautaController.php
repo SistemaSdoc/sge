@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Exports\PautaExport;
+use App\Exports\PautaFinalExport;
 use App\Models\Central\CursoTuteladoShared;
-use App\Models\Central\Tenant;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Models\Tenant\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Concerns\Export;
 
 class ExportarPautaController extends Controller
 {
@@ -107,7 +110,7 @@ class ExportarPautaController extends Controller
             ->toArray();
 
         // ── Exportar ───────────────────────────────────────────────────
-        /*if ($isTrimestral) {
+        if ($isTrimestral) {
             $export = new PautaExport(
                 disciplinas: $disciplinas->map(fn ($d) => [
                     'nome' => $d['nome'],
@@ -142,12 +145,12 @@ class ExportarPautaController extends Controller
                 director: 'Novais José, PhD',
                 logoPath: public_path('images/insignia_angola.png'),
             );
-        }*/
+        }
 
         $sufixo = $isTrimestral ? "_{$periodo}trim" : '_final';
-        $filename = 'pauta_'.str($turma->nome)->slug().$sufixo.'.csv';
+        $filename = 'pauta_'.str($turma->nome)->slug().$sufixo.'.xlsx';
 
-        return $this->exportarComoCSV($alunos, $disciplinas, $filename);
+        return Excel::download($export, $filename);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -279,36 +282,5 @@ class ExportarPautaController extends Controller
             $lancadas->contains(fn ($n) => $n['situacao_anual'] === 'N/APTO') => 'N/TRANSITA',
             default => 'TRANSITA',
         };
-    }
-
-    private function exportarComoCSV($alunos, $disciplinas, $filename)
-    {
-        $response = new StreamedResponse(function () use ($alunos, $disciplinas) {
-            $handle = fopen('php://output', 'w');
-
-            $headers = ['Nº', 'Nome'];
-            foreach ($disciplinas as $d) {
-                $headers[] = $d['sigla'] ?? mb_substr($d['nome'], 0, 4);
-            }
-            $headers[] = 'Resultado';
-            fputcsv($handle, $headers);
-
-            foreach ($alunos as $aluno) {
-                $row = [$aluno['numero'], $aluno['nome']];
-                foreach ($disciplinas as $d) {
-                    $nota = $aluno['notas'][$d['nome']]['media'] ?? '';
-                    $row[] = $nota;
-                }
-                $row[] = $aluno['resultado'];
-                fputcsv($handle, $row);
-            }
-
-            fclose($handle);
-        });
-
-        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
-        $response->headers->set('Content-Disposition', 'attachment; filename="'.$filename.'.csv"');
-
-        return $response;
     }
 }
