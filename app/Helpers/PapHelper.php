@@ -17,7 +17,7 @@ class PapHelper
         Instituicao $instituicaoTutora,
         string $nomeCurso,
     ): string {
-        if (!$utilizador) {
+        if (! $utilizador) {
             return '—';
         }
 

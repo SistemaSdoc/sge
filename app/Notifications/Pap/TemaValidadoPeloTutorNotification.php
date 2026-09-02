@@ -11,9 +11,7 @@ class TemaValidadoPeloTutorNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(public GrupoPap $grupoPap)
-    {
-    }
+    public function __construct(public GrupoPap $grupoPap) {}
 
     public function via(object $notifiable): array
     {

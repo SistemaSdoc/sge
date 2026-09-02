@@ -42,10 +42,10 @@ use App\Http\Controllers\Tenant\ReciboController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
 use App\Http\Controllers\Tenant\RelatorioPropinaController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
+use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
-use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Middleware\CheckTenantStatus;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -666,9 +666,10 @@ Route::middleware([
       |--------------------------------------------------------------------------
       */
     Route::get('/storage/{path}', function (string $path) {
-        if (!Storage::disk('public')->exists($path)) {
+        if (! Storage::disk('public')->exists($path)) {
             abort(404);
         }
+
         return Storage::disk('public')->response($path);
     })->where('path', '.*')->name('tenant.storage');
 });

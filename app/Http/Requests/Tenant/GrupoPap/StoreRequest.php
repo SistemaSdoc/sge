@@ -45,8 +45,8 @@ class StoreRequest extends FormRequest
     public function messages(): array
     {
         return [
-            //'professor_tutor_id.required' => 'Selecione um professor tutor.',
-            //'professor_tutor_id.exists' => 'O professor selecionado não existe.',
+            // 'professor_tutor_id.required' => 'Selecione um professor tutor.',
+            // 'professor_tutor_id.exists' => 'O professor selecionado não existe.',
             'nome_grupo.required' => 'O nome do grupo é obrigatório.',
             'tema_grupo.required' => 'O tema do grupo é obrigatório.',
             'alunos.required' => 'Seleciona pelo menos um aluno.',

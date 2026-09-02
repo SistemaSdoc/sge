@@ -49,7 +49,9 @@ class GrupoPap extends Model
     const APROVACAO_APROVADO = 'aprovado';
 
     const APROVACAO_REPROVADO = 'reprovado';
+
     const APROVACAO_MELHORIA_TUTOR = 'melhoria-solicitada-tutor';
+
     const APROVACAO_MELHORIA_COORDENACAO = 'melhoria-solicitada-coordenacao';
 
     protected function casts(): array

@@ -38,7 +38,7 @@ class TrabalhoPapController extends Controller
 
         $trabalho = $grupoPap->trabalhoPap;
 
-        if (!$trabalho || !$trabalho->podeSerSubmetido()) {
+        if (! $trabalho || ! $trabalho->podeSerSubmetido()) {
             return back()->withErrors(['ficheiro' => 'O trabalho não pode ser submetido neste momento.']);
         }
 
@@ -68,7 +68,7 @@ class TrabalhoPapController extends Controller
 
         $trabalho = $grupoPap->trabalhoPap;
 
-        if (!$trabalho || !$trabalho->podeSerAnalisadoPeloTutor()) {
+        if (! $trabalho || ! $trabalho->podeSerAnalisadoPeloTutor()) {
             return back()->withErrors(['trabalho' => 'O trabalho não está disponível para análise do tutor.']);
         }
 
@@ -99,7 +99,7 @@ class TrabalhoPapController extends Controller
 
         $trabalho = $grupoPap->trabalhoPap;
 
-        if (!$trabalho || !$trabalho->podeSerAnalisadoPeloTutor()) {
+        if (! $trabalho || ! $trabalho->podeSerAnalisadoPeloTutor()) {
             return back()->withErrors(['trabalho' => 'O trabalho não está disponível para análise do tutor.']);
         }
 
@@ -131,7 +131,7 @@ class TrabalhoPapController extends Controller
 
         $trabalho = $grupoPap->trabalhoPap;
 
-        if (!$trabalho || !$trabalho->podeSerAnalisadoPelaCoordenacao()) {
+        if (! $trabalho || ! $trabalho->podeSerAnalisadoPelaCoordenacao()) {
             return back()->withErrors(['trabalho' => 'O trabalho não está disponível para análise da coordenação.']);
         }
 
@@ -162,7 +162,7 @@ class TrabalhoPapController extends Controller
 
         $trabalho = $grupoPap->trabalhoPap;
 
-        if (!$trabalho || !$trabalho->podeSerAnalisadoPelaCoordenacao()) {
+        if (! $trabalho || ! $trabalho->podeSerAnalisadoPelaCoordenacao()) {
             return back()->withErrors(['trabalho' => 'O trabalho não está disponível para análise da coordenação.']);
         }
 
@@ -192,7 +192,7 @@ class TrabalhoPapController extends Controller
             ->where('numero_versao', $numeroVersao)
             ->firstOrFail();
 
-        if (!Storage::disk('private')->exists($versao->caminho_ficheiro)) {
+        if (! Storage::disk('private')->exists($versao->caminho_ficheiro)) {
             abort(404, 'Ficheiro não encontrado.');
         }
 
@@ -215,7 +215,7 @@ class TrabalhoPapController extends Controller
             ->where('numero_versao', $numeroVersao)
             ->firstOrFail();
 
-        if (!Storage::disk('private')->exists($versao->caminho_ficheiro)) {
+        if (! Storage::disk('private')->exists($versao->caminho_ficheiro)) {
             abort(404, 'Ficheiro não encontrado.');
         }
 
@@ -224,7 +224,7 @@ class TrabalhoPapController extends Controller
             200,
             [
                 'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="' . $versao->nome_original . '"',
+                'Content-Disposition' => 'inline; filename="'.$versao->nome_original.'"',
             ]
         );
     }
@@ -243,8 +243,8 @@ class TrabalhoPapController extends Controller
 
         $feedback = $grupoPap->trabalhoPap?->feedbacks()->findOrFail($feedbackId);
 
-        if (!$feedback->caminho_ficheiro_correcao ||
-            !Storage::disk('private')->exists($feedback->caminho_ficheiro_correcao)) {
+        if (! $feedback->caminho_ficheiro_correcao ||
+            ! Storage::disk('private')->exists($feedback->caminho_ficheiro_correcao)) {
             abort(404, 'Ficheiro de correção não encontrado.');
         }
 

@@ -65,7 +65,7 @@ Route::prefix('colegios')->group(function () {
                     ->middleware('cross.tenant')
                     ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
-                    // Trabalho PAP
+                // Trabalho PAP
                 Route::prefix('trabalho')
                     ->name('colegios.pap.trabalho.')
                     ->group(function () {

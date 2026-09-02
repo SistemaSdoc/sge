@@ -239,7 +239,7 @@ class GrupoPapController extends Controller
 
         // Buscar o colégio tutelado
         $colegioModel = Instituicao::findOrFail($colegio);
-        
+
         $anoLectivoId = $turma->ano_lectivo_id;
 
         $instituicaoTutoraModel = $grupoPap->instituicaoTutora();
@@ -307,14 +307,14 @@ class GrupoPapController extends Controller
                             $nomeCurso,
                         )
                         : null,
-                    'versoes' => $trabalho->versoes->map(fn($v) => [
+                    'versoes' => $trabalho->versoes->map(fn ($v) => [
                         'id' => $v->id,
                         'numero_versao' => $v->numero_versao,
                         'nome_original' => $v->nome_original,
                         'status_quando_submetido' => $v->status_quando_submetido,
                         'submetido_por' => $v->submetidoPor?->nome,
                         'created_at' => $v->created_at?->toIso8601String(),
-                        'feedbacks' => $v->feedbacks->map(fn($f) => [
+                        'feedbacks' => $v->feedbacks->map(fn ($f) => [
                             'id' => $f->id,
                             'tipo' => $f->tipo,
                             'comentario' => $f->comentario,
@@ -324,7 +324,7 @@ class GrupoPapController extends Controller
                                 $nomeCurso,
                             ),
                             'created_at' => $f->created_at?->toIso8601String(),
-                            'tem_ficheiro_correcao' => !is_null($f->caminho_ficheiro_correcao),
+                            'tem_ficheiro_correcao' => ! is_null($f->caminho_ficheiro_correcao),
                             'nome_original_correcao' => $f->nome_original_correcao,
                         ]),
                     ]),

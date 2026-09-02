@@ -12,10 +12,10 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Notification;
 use App\Notifications\Pap\TemaDefinidoNotification;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
+use Inertia\Inertia;
 
 class GrupoPapTemaController extends Controller
 {

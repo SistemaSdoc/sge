@@ -29,38 +29,38 @@ class NotaAtribuidaNotification extends Notification
             ->view('mail.pap.nota-atribuida', [
                 'nomeGrupo' => $this->grupoPap->nome_grupo,
                 'temaGrupo' => $this->grupoPap->tema_grupo,
-                'nota'      => $this->elemento->nota_individual,
-                'url'       => $this->urlGrupo(),
+                'nota' => $this->elemento->nota_individual,
+                'url' => $this->urlGrupo(),
             ]);
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'         => 'nota_atribuida',
-            'titulo'       => 'Nota PAP atribuída',
-            'mensagem'     => "A tua nota individual do PAP foi atribuída: {$this->elemento->nota_individual} valores.",
+            'tipo' => 'nota_atribuida',
+            'titulo' => 'Nota PAP atribuída',
+            'mensagem' => "A tua nota individual do PAP foi atribuída: {$this->elemento->nota_individual} valores.",
             'grupo_pap_id' => $this->grupoPap->id,
-            'nota'         => $this->elemento->nota_individual,
-            'url'          => $this->urlGrupo(),
+            'nota' => $this->elemento->nota_individual,
+            'url' => $this->urlGrupo(),
         ];
     }
 
     private function urlGrupo(): string
     {
-        $turma         = $this->grupoPap->turma;
-        $turno         = $turma->cursoClasseTurno;
-        $classe        = $turno->cursoClasse;
+        $turma = $this->grupoPap->turma;
+        $turno = $turma->cursoClasseTurno;
+        $classe = $turno->cursoClasse;
         $cursoTutelado = $classe->cursoTutelado;
-        $instituicao   = $cursoTutelado->instituicaoCurso->instituicao;
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
         return route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
-            'instituicao'      => $instituicao->id,
-            'cursoTutelado'    => $cursoTutelado->id,
-            'cursoClasse'      => $classe->id,
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $classe->id,
             'cursoClasseTurno' => $turno->id,
-            'turma'            => $turma->id,
-            'grupoPap'         => $this->grupoPap->id,
+            'turma' => $turma->id,
+            'grupoPap' => $this->grupoPap->id,
         ]);
     }
 }

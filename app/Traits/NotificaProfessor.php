@@ -2,16 +2,16 @@
 
 namespace App\Traits;
 
-use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\ClasseTurnoDisciplina;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
-use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Notifications\Professor\PrazoLancamentoNotasDefinidoNotification;
-use App\Notifications\Professor\ProfessorCriadoNotification;
 use App\Notifications\Professor\ProfessorAdicionadoAoCursoNotification;
 use App\Notifications\Professor\ProfessorAtribuidoADisciplinaNotification;
+use App\Notifications\Professor\ProfessorCriadoNotification;
 use Illuminate\Support\Facades\Notification;
 
 trait NotificaProfessor

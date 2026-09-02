@@ -2,18 +2,18 @@
 
 namespace App\Traits;
 
-use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\ElementoGrupoPap;
-use App\Notifications\Pap\TemaSubmetidoAoTutorNotification;
-use App\Notifications\Pap\TemaValidadoPeloTutorNotification;
+use App\Models\Tenant\GrupoPap;
+use App\Notifications\Pap\CorrecaoSolicitadaNotification;
+use App\Notifications\Pap\DataDefesaDefinidaNotification;
+use App\Notifications\Pap\MelhoriasSolicitadasNotification;
+use App\Notifications\Pap\NotaAtribuidaNotification;
 use App\Notifications\Pap\TemaAprovadoNotification;
 use App\Notifications\Pap\TemaReprovadoNotification;
-use App\Notifications\Pap\MelhoriasSolicitadasNotification;
-use App\Notifications\Pap\DataDefesaDefinidaNotification;
-use App\Notifications\Pap\TrabalhoSubmetidoNotification;
-use App\Notifications\Pap\CorrecaoSolicitadaNotification;
-use App\Notifications\Pap\NotaAtribuidaNotification;
+use App\Notifications\Pap\TemaSubmetidoAoTutorNotification;
+use App\Notifications\Pap\TemaValidadoPeloTutorNotification;
 use App\Notifications\Pap\TrabalhoAprovadoNotification;
+use App\Notifications\Pap\TrabalhoSubmetidoNotification;
 use Illuminate\Support\Facades\Notification;
 
 trait NotificaGrupoPap

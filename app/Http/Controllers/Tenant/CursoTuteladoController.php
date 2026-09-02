@@ -194,8 +194,8 @@ class CursoTuteladoController extends Controller
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Documentos actualizados com sucesso.',
-                ]);
+            'type' => 'success',
+            'message' => 'Documentos actualizados com sucesso.',
+        ]);
     }
 }

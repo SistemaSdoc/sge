@@ -18,19 +18,24 @@ class TrabalhoPap extends Model
 
     protected $table = 'trabalho_pap';
 
-    const STATUS_PENDENTE_ENTREGA        = 'pendente_entrega';
-    const STATUS_EM_ANALISE_TUTOR        = 'em_analise_tutor';
-    const STATUS_CORRECAO_TUTOR          = 'correcao_tutor';
-    const STATUS_EM_ANALISE_COORDENACAO  = 'em_analise_coordenacao';
-    const STATUS_CORRECAO_COORDENACAO    = 'correcao_coordenacao';
-    const STATUS_APROVADO                = 'aprovado';
+    const STATUS_PENDENTE_ENTREGA = 'pendente_entrega';
+
+    const STATUS_EM_ANALISE_TUTOR = 'em_analise_tutor';
+
+    const STATUS_CORRECAO_TUTOR = 'correcao_tutor';
+
+    const STATUS_EM_ANALISE_COORDENACAO = 'em_analise_coordenacao';
+
+    const STATUS_CORRECAO_COORDENACAO = 'correcao_coordenacao';
+
+    const STATUS_APROVADO = 'aprovado';
 
     protected function casts(): array
     {
         return [
             'data_aprovacao' => 'datetime',
-            'created_at'     => 'datetime',
-            'updated_at'     => 'datetime',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 

@@ -3,13 +3,13 @@
 namespace App\Traits;
 
 use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Pagamento;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
-use App\Models\Tenant\Pagamento;
-use App\Notifications\Aluno\PropinaEmAtrasoNotification;
-use App\Notifications\Aluno\PagamentoRegistadoNotification;
 use App\Notifications\Aluno\AlunoCriadoNotification;
 use App\Notifications\Aluno\AlunoTransferidoTurmaNotification;
+use App\Notifications\Aluno\PagamentoRegistadoNotification;
+use App\Notifications\Aluno\PropinaEmAtrasoNotification;
 
 trait NotificaAluno
 {

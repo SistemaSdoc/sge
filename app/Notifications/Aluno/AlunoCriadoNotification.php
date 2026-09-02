@@ -26,18 +26,18 @@ class AlunoCriadoNotification extends Notification
         return (new MailMessage)
             ->subject('Conta de Aluno criada')
             ->view('mail.aluno.aluno-criado', [
-                'nome'     => $this->user->nome,
-                'email'    => $this->user->email,
+                'nome' => $this->user->nome,
+                'email' => $this->user->email,
                 'password' => $this->passwordPlain,
-                'url'      => route('tenant.login'),
+                'url' => route('tenant.login'),
             ]);
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'     => 'aluno_criado',
-            'titulo'   => 'Conta criada com sucesso',
+            'tipo' => 'aluno_criado',
+            'titulo' => 'Conta criada com sucesso',
             'mensagem' => 'A sua conta de aluno foi criada. Verifique o email para as suas credenciais.',
         ];
     }

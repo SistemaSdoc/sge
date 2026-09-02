@@ -23,10 +23,13 @@ class TrabalhoPapFeedback extends Model
 
     protected $table = 'trabalho_pap_feedbacks';
 
-    const TIPO_CORRECAO_TUTOR          = 'correcao_tutor';
-    const TIPO_APROVACAO_TUTOR         = 'aprovacao_tutor';
-    const TIPO_CORRECAO_COORDENACAO    = 'correcao_coordenacao';
-    const TIPO_APROVACAO_COORDENACAO   = 'aprovacao_coordenacao';
+    const TIPO_CORRECAO_TUTOR = 'correcao_tutor';
+
+    const TIPO_APROVACAO_TUTOR = 'aprovacao_tutor';
+
+    const TIPO_CORRECAO_COORDENACAO = 'correcao_coordenacao';
+
+    const TIPO_APROVACAO_COORDENACAO = 'aprovacao_coordenacao';
 
     protected function casts(): array
     {

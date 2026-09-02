@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Pagamento\StorePagamentoRequest;
 use App\Http\Requests\Tenant\Pagamento\UpdatePagamentoRequest;
 use App\Models\Tenant\Aluno;
-use App\Traits\NotificaAluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
@@ -14,6 +13,7 @@ use App\Models\Tenant\PagamentoItem;
 use App\Models\Tenant\Turma;
 use App\Services\Tenant\PropinaNotificacaoService;
 use App\Services\Tenant\VerificadorPropinaService;
+use App\Traits\NotificaAluno;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,11 +23,11 @@ use Inertia\Inertia;
 class PagamentoController extends Controller
 {
     use NotificaAluno;
+
     public function __construct(
         private readonly VerificadorPropinaService $verificador,
         private readonly PropinaNotificacaoService $notificador,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request)
     {
@@ -87,9 +87,9 @@ class PagamentoController extends Controller
             })
             ->with(['cursoClasseTurno.cursoClasse.classe'])
             ->get()
-            ->map(fn(Turma $t) => [
+            ->map(fn (Turma $t) => [
                 'id' => $t->id,
-                'nome' => $t->nome . ' — ' . ($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
+                'nome' => $t->nome.' — '.($t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? ''),
             ]);
 
         $statusFiltro = $request->input('status_propina'); // 'pagos' | 'nao_pagos' | 'pendentes'
@@ -122,7 +122,7 @@ class PagamentoController extends Controller
 
         $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
             ->doAnoLectivo($anoLectivoId)
-            ->whereHas('user', fn($q) => $q->where('instituicao_id', $request->user()->instituicao_id))
+            ->whereHas('user', fn ($q) => $q->where('instituicao_id', $request->user()->instituicao_id))
             ->with([
                 // FIX: 'instituicao_id' precisa de ser seleccionado aqui.
                 // Sem ele, $aluno->user->instituicao_id vinha null dentro do
@@ -133,7 +133,7 @@ class PagamentoController extends Controller
                 'inscricao.candidato:id,nome',
                 'inscricao.cursoClasseTurno.turno:id,nome',
                 'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
-                'turmas' => fn($q) => $q->wherePivot('activo', true)
+                'turmas' => fn ($q) => $q->wherePivot('activo', true)
                     ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
             ])
             ->get()
@@ -152,10 +152,10 @@ class PagamentoController extends Controller
 
             return match ($status) {
                 'pagos' => $emDia,
-                'nao_pagos' => !$emDia,
+                'nao_pagos' => ! $emDia,
                 // "pendentes" = em atraso de 1 ou mais meses (mesma condição de nao_pagos,
                 // mantido separado caso queiras diferenciar limiares no futuro)
-                'pendentes' => !$emDia && $mesesEmAtraso >= 1,
+                'pendentes' => ! $emDia && $mesesEmAtraso >= 1,
                 default => true,
             };
         });
@@ -167,12 +167,12 @@ class PagamentoController extends Controller
 
         // Agrupar por Classe -> Turma, mantendo nome, curso, turno
         $agrupado = $filtrados
-            ->groupBy(fn(Aluno $aluno) => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome ?? 'Sem classe')
+            ->groupBy(fn (Aluno $aluno) => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome ?? 'Sem classe')
             ->map(function ($alunosDaClasse) {
                 return $alunosDaClasse
-                    ->groupBy(fn(Aluno $aluno) => $aluno->turmas->first()?->nome ?? 'Sem turma')
+                    ->groupBy(fn (Aluno $aluno) => $aluno->turmas->first()?->nome ?? 'Sem turma')
                     ->map(function ($alunosDaTurma) {
-                        return $alunosDaTurma->map(fn(Aluno $aluno) => [
+                        return $alunosDaTurma->map(fn (Aluno $aluno) => [
                             'id' => $aluno->id,
                             'nome' => $aluno->inscricao?->candidato?->nome ?? $aluno->user?->nome,
                             'curso' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
@@ -286,11 +286,11 @@ class PagamentoController extends Controller
         ]);
 
         $alunos = Aluno::query()
-            ->whereHas('user', fn($q) => $q->where('instituicao_id', $instituicaoId))
+            ->whereHas('user', fn ($q) => $q->where('instituicao_id', $instituicaoId))
             ->with('user:id,nome')
             ->activos()
             ->get(['id', 'user_id'])
-            ->map(fn(Aluno $a) => [
+            ->map(fn (Aluno $a) => [
                 'id' => $a->id,
                 'nome' => $a->user->nome,
             ]);
@@ -308,9 +308,9 @@ class PagamentoController extends Controller
             $pendencias = $this->verificador->pendenciasDoAluno($aluno);
 
             $pendenciasComMulta = collect($pendencias)
-                ->filter(fn($p) => $p['mes'] !== null) // só mensais têm multa
+                ->filter(fn ($p) => $p['mes'] !== null) // só mensais têm multa
                 ->groupBy('item_pagavel_id')
-                ->map(fn($porItem) => $porItem->map(fn($p) => [
+                ->map(fn ($porItem) => $porItem->map(fn ($p) => [
                     'mes' => $p['mes'],
                     'ano' => $p['ano'],
                     'valor_base' => $p['valor_base'],
@@ -340,10 +340,10 @@ class PagamentoController extends Controller
             ->whereHas('pagamento')
             ->get()
             ->groupBy('item_pagavel_id')
-            ->map(fn($linhas) => $linhas
+            ->map(fn ($linhas) => $linhas
                 ->pluck('mes')
-                ->filter(fn($mes) => $mes !== null)
-                ->map(fn($mes) => (int) $mes)
+                ->filter(fn ($mes) => $mes !== null)
+                ->map(fn ($mes) => (int) $mes)
                 ->values()
                 ->unique()
                 ->values()
@@ -463,7 +463,7 @@ class PagamentoController extends Controller
 
         $aluno = Aluno::with('user')->find($alunoId);
 
-        if (!$aluno || !$aluno->user) {
+        if (! $aluno || ! $aluno->user) {
             Log::debug('PagamentoController@resolverNotificacoesSePropinaEmDia - aluno ou user não encontrado', [
                 'aluno_id' => $alunoId,
             ]);
@@ -596,7 +596,7 @@ class PagamentoController extends Controller
 
         $aluno = Aluno::with('user')->find($alunoId);
 
-        if (!$aluno || !$aluno->user) {
+        if (! $aluno || ! $aluno->user) {
             Log::debug('PagamentoController@notificarSePropinaVoltouEmAtraso - aluno ou user não encontrado', [
                 'aluno_id' => $alunoId,
             ]);

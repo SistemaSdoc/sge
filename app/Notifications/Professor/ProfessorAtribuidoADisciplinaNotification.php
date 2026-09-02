@@ -29,17 +29,17 @@ class ProfessorAtribuidoADisciplinaNotification extends Notification
         return (new MailMessage)
             ->subject('Atribuído a uma disciplina')
             ->view('mail.professor.atribuido-a-disciplina', [
-                'nome'          => $this->professor->user->nome,
+                'nome' => $this->professor->user->nome,
                 'nomeDisciplina' => $this->classeTurnoDisciplina->disciplina?->nome,
-                'nomeTurma'     => $this->turma->nome,
+                'nomeTurma' => $this->turma->nome,
             ]);
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'     => 'professor_atribuido_disciplina',
-            'titulo'   => 'Atribuído a uma disciplina',
+            'tipo' => 'professor_atribuido_disciplina',
+            'titulo' => 'Atribuído a uma disciplina',
             'mensagem' => "Foi atribuído à disciplina \"{$this->classeTurnoDisciplina->disciplina?->nome}\" na turma \"{$this->turma->nome}\".",
         ];
     }

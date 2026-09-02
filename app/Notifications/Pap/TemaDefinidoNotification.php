@@ -45,19 +45,19 @@ class TemaDefinidoNotification extends Notification
 
     private function urlGrupo(): string
     {
-        $turma         = $this->grupoPap->turma;
-        $turno         = $turma->cursoClasseTurno;
-        $classe        = $turno->cursoClasse;
+        $turma = $this->grupoPap->turma;
+        $turno = $turma->cursoClasseTurno;
+        $classe = $turno->cursoClasse;
         $cursoTutelado = $classe->cursoTutelado;
-        $instituicao   = $cursoTutelado->instituicaoCurso->instituicao;
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
         return route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
-            'instituicao'      => $instituicao->id,
-            'cursoTutelado'    => $cursoTutelado->id,
-            'cursoClasse'      => $classe->id,
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $classe->id,
             'cursoClasseTurno' => $turno->id,
-            'turma'            => $turma->id,
-            'grupoPap'         => $this->grupoPap->id,
+            'turma' => $turma->id,
+            'grupoPap' => $this->grupoPap->id,
         ]);
     }
 }

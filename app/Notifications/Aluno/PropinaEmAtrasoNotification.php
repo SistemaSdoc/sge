@@ -27,20 +27,20 @@ class PropinaEmAtrasoNotification extends Notification
         return (new MailMessage)
             ->subject('Propina em atraso')
             ->view('mail.aluno.propina-em-atraso', [
-                'nome'        => $notifiable->nome,
-                'totalMeses'  => $this->totalMeses,
-                'valorTotal'  => number_format($this->valorTotal, 2, ',', '.'),
-                'meses'       => $this->meses,
+                'nome' => $notifiable->nome,
+                'totalMeses' => $this->totalMeses,
+                'valorTotal' => number_format($this->valorTotal, 2, ',', '.'),
+                'meses' => $this->meses,
             ]);
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'       => 'propina_atraso',
-            'titulo'     => "Propina em atraso ({$this->totalMeses} mês(es))",
-            'mensagem'   => "Tens {$this->totalMeses} mês(es) de propina em atraso, no total de ".number_format($this->valorTotal, 2, ',', '.').' AOA.',
-            'meses'      => $this->meses,
+            'tipo' => 'propina_atraso',
+            'titulo' => "Propina em atraso ({$this->totalMeses} mês(es))",
+            'mensagem' => "Tens {$this->totalMeses} mês(es) de propina em atraso, no total de ".number_format($this->valorTotal, 2, ',', '.').' AOA.',
+            'meses' => $this->meses,
             'valor_total' => $this->valorTotal,
             'assinatura' => $this->assinatura,
         ];

@@ -21,6 +21,7 @@ use Inertia\Inertia;
 class TurmaDisciplinaProfessorController extends Controller
 {
     use NotificaProfessor;
+
     public function create(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
@@ -39,7 +40,7 @@ class TurmaDisciplinaProfessorController extends Controller
         $professores = $cursoTutelado->professores()
             ->with('user:id,nome')
             ->get()
-            ->map(fn(Professor $professor) => [
+            ->map(fn (Professor $professor) => [
                 'id' => $professor->id,
                 'nome' => $professor->user?->nome ?? 'Sem nome',
             ]);
@@ -85,7 +86,7 @@ class TurmaDisciplinaProfessorController extends Controller
             ->where('turma_id', $turma->id)
             ->exists();
 
-        if ($jaExisteNaTurma && !$request->boolean('force')) {
+        if ($jaExisteNaTurma && ! $request->boolean('force')) {
             return back()->withErrors([
                 'message' => 'Já existe um professor atribuído a esta disciplina nesta turma. Deseja substituí-lo?',
                 'requires_confirmation' => true,

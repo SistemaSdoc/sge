@@ -27,16 +27,16 @@ class ProfessorAdicionadoAoCursoNotification extends Notification
         return (new MailMessage)
             ->subject('Adicionado a um curso')
             ->view('mail.professor.adicionado-ao-curso', [
-                'nome'       => $this->professor->user->nome,
-                'nomeCurso'  => $this->cursoTutelado->instituicaoCurso?->curso?->nome,
+                'nome' => $this->professor->user->nome,
+                'nomeCurso' => $this->cursoTutelado->instituicaoCurso?->curso?->nome,
             ]);
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'     => 'professor_adicionado_curso',
-            'titulo'   => 'Adicionado a um curso',
+            'tipo' => 'professor_adicionado_curso',
+            'titulo' => 'Adicionado a um curso',
             'mensagem' => "Foi adicionado ao curso \"{$this->cursoTutelado->instituicaoCurso?->curso?->nome}\".",
         ];
     }

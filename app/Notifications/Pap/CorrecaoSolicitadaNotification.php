@@ -15,8 +15,7 @@ class CorrecaoSolicitadaNotification extends Notification
         public GrupoPap $grupoPap,
         public string $comentario,
         public string $solicitadoPor = 'tutor' // 'tutor' | 'coordenacao'
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

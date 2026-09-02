@@ -20,11 +20,11 @@ class TrabalhoSubmetidoNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'         => 'trabalho_submetido',
-            'titulo'       => 'Novo trabalho submetido',
-            'mensagem'     => "O grupo \"{$this->grupoPap->nome_grupo}\" submeteu uma nova versão do trabalho PAP para revisão.",
+            'tipo' => 'trabalho_submetido',
+            'titulo' => 'Novo trabalho submetido',
+            'mensagem' => "O grupo \"{$this->grupoPap->nome_grupo}\" submeteu uma nova versão do trabalho PAP para revisão.",
             'grupo_pap_id' => $this->grupoPap->id,
-            'url'          => "/grupos-pap/{$this->grupoPap->id}",
+            'url' => "/grupos-pap/{$this->grupoPap->id}",
         ];
     }
 }

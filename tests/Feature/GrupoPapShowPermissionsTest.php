@@ -12,7 +12,9 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\JuradoSelecionadoNotification;
 use App\Notifications\Pap\MelhoriasSolicitadasNotification;
+use App\Services\Tenant\AprovacaoTemaService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -202,7 +204,7 @@ test('solicitar melhoria notifies both students and the tutor by email and datab
 
     $coordenador = User::factory()->create(['instituicao_id' => $instituicao->id]);
 
-    app(\App\Services\Tenant\AprovacaoTemaService::class)->solicitarMelhoria($grupoPap, $coordenador, 'Precisa de mais clareza no objetivo.');
+    app(AprovacaoTemaService::class)->solicitarMelhoria($grupoPap, $coordenador, 'Precisa de mais clareza no objetivo.');
 
     Notification::assertSentTo($alunoUser, MelhoriasSolicitadasNotification::class, function ($notification) {
         return $notification->solicitadoPor === 'coordenacao';
@@ -300,7 +302,7 @@ test('quando um professor e selecionado para a banca recebe notificacao de atrib
         'funcao' => 'Presidente',
     ]);
 
-    Notification::assertSentTo($juradoUser, \App\Notifications\Pap\JuradoSelecionadoNotification::class, function ($notification) use ($grupoPap) {
+    Notification::assertSentTo($juradoUser, JuradoSelecionadoNotification::class, function ($notification) use ($grupoPap) {
         return $notification->grupoPap->id === $grupoPap->id && $notification->funcao === 'Presidente';
     });
 });

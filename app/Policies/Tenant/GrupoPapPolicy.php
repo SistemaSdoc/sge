@@ -227,12 +227,12 @@ class GrupoPapPolicy
     {
         $trabalho = $grupoPap->trabalhoPap;
 
-        if (!$trabalho || !$trabalho->podeSerSubmetido()) {
+        if (! $trabalho || ! $trabalho->podeSerSubmetido()) {
             return false;
         }
 
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
             ->exists();
     }
 
@@ -287,13 +287,13 @@ class GrupoPapPolicy
      */
     public function downloadVersaoTrabalho(User $user, GrupoPap $grupoPap): bool
     {
-        if (!$grupoPap->trabalhoPap) {
+        if (! $grupoPap->trabalhoPap) {
             return false;
         }
-        
+
         // Membros do grupo
         $ehIntegrante = $grupoPap->elementos()
-            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
             ->exists();
 
         if ($ehIntegrante) {

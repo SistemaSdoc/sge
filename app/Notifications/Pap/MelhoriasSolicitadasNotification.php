@@ -14,8 +14,7 @@ class MelhoriasSolicitadasNotification extends Notification
     public function __construct(
         public GrupoPap $grupoPap,
         public string $solicitadoPor // 'tutor' | 'coordenacao'
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

@@ -101,23 +101,23 @@ class ShowResource extends JsonResource
                 $cursoTutelado = $this->turma
                     ?->cursoClasseTurno
                     ?->cursoClasse
-                        ?->cursoTutelado;
+                    ?->cursoTutelado;
 
-                if (!$cursoTutelado)
+                if (! $cursoTutelado) {
                     return null;
+                }
 
                 $path = $cursoTutelado->estrutura_trabalho_pap_path;
 
-                if (!$path) {
+                if (! $path) {
                     $cursoId = $cursoTutelado->instituicaoCurso?->curso_id;
                     $tutorId = $cursoTutelado->instituicao_tutora_id;
 
-                    $path = \App\Models\Tenant\CursoTutelado::query()
+                    $path = CursoTutelado::query()
                         ->where('instituicao_tutora_id', $tutorId)
                         ->whereHas(
                             'instituicaoCurso',
-                            fn($q) =>
-                            $q->where('curso_id', $cursoId)
+                            fn ($q) => $q->where('curso_id', $cursoId)
                                 ->where('instituicao_id', $tutorId)
                         )
                         ->value('estrutura_trabalho_pap_path');

@@ -13,8 +13,7 @@ class PrazoLancamentoNotasDefinidoNotification extends Notification
 
     public function __construct(
         public PeriodoLancamentoNotas $periodo
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

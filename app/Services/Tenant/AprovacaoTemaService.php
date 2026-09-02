@@ -7,6 +7,7 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\TemaSubmetidoAoTutorNotification;
 use App\Traits\NotificaGrupoPap;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,7 @@ class AprovacaoTemaService
         $professor = Professor::find($professorId);
         $instituicaoId = $professor->user->instituicao_id ?? null;
 
-        if (!$instituicaoId) {
+        if (! $instituicaoId) {
             return collect();
         }
 
@@ -95,7 +96,7 @@ class AprovacaoTemaService
      */
     private function alterarEstado(GrupoPap $grupoPap, User $user, string $novoEstado, ?string $comentario = null): bool
     {
-        if (!$grupoPap->podeSerAprovado()) {
+        if (! $grupoPap->podeSerAprovado()) {
             return false;
         }
 
@@ -157,7 +158,7 @@ class AprovacaoTemaService
      */
     public function reenviar(GrupoPap $grupoPap, User $user, array $dados): bool
     {
-        if (!$grupoPap->podeSerReenviado()) {
+        if (! $grupoPap->podeSerReenviado()) {
             return false;
         }
 
@@ -189,12 +190,11 @@ class AprovacaoTemaService
             // ── Notificações ──────────────────────────────────────
             $tutor = $grupoPap->professor?->user;
             if ($tutor) {
-                $tutor->notify(new \App\Notifications\Pap\TemaSubmetidoAoTutorNotification($grupoPap));
+                $tutor->notify(new TemaSubmetidoAoTutorNotification($grupoPap));
             }
             // ──────────────────────────────────────────────────────
 
             return true;
         });
     }
-
 }
