@@ -6,6 +6,7 @@ use App\Models\Tenant\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Storage;
 
 class AlunoCriadoNotification extends Notification
 {
@@ -14,7 +15,8 @@ class AlunoCriadoNotification extends Notification
     public function __construct(
         public User $user,
         public string $passwordPlain = '12345678'
-    ) {}
+    ) {
+    }
 
     public function via(object $notifiable): array
     {
@@ -30,6 +32,15 @@ class AlunoCriadoNotification extends Notification
                 'email' => $this->user->email,
                 'password' => $this->passwordPlain,
                 'url' => route('tenant.login'),
+                'instituicao' => $this->user->instituicao,
+                'artigoInstituicao' => match ($this->user->instituicao->tipo) {
+                    'instituto' => 'ao',
+                    'colegio' => 'ao',
+                    default => 'à',
+                },
+                'logoUrl' => $this->user->instituicao->logo
+                    ? Storage::url($this->user->instituicao->logo)
+                    : null,
             ]);
     }
 

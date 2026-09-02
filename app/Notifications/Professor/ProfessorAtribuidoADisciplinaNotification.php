@@ -17,7 +17,8 @@ class ProfessorAtribuidoADisciplinaNotification extends Notification
         public Professor $professor,
         public Turma $turma,
         public ClasseTurnoDisciplina $classeTurnoDisciplina
-    ) {}
+    ) {
+    }
 
     public function via(object $notifiable): array
     {
@@ -26,12 +27,19 @@ class ProfessorAtribuidoADisciplinaNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $instituicao = $this->professor->user->instituicao;
+
         return (new MailMessage)
             ->subject('Atribuído a uma disciplina')
             ->view('mail.professor.atribuido-a-disciplina', [
                 'nome' => $this->professor->user->nome,
                 'nomeDisciplina' => $this->classeTurnoDisciplina->disciplina?->nome,
                 'nomeTurma' => $this->turma->nome,
+                'instituicao' => $instituicao,
+                'artigoInstituicao' => match ($instituicao->tipo) {
+                    'instituto', 'colegio' => 'ao',
+                    default => 'à',
+                },
             ]);
     }
 

@@ -1,70 +1,212 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html dir="ltr" lang="pt">
+<!DOCTYPE html>
+<html lang="pt">
+
 <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-    <meta name="x-apple-disable-message-reformatting" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="x-apple-disable-message-reformatting">
+
+    <title>Transferência de turma</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f1f3f4;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            font-size: 14px;
+            color: #202124;
+            padding: 24px 0;
+        }
+
+        .email-wrapper {
+            max-width: 480px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+
+        .header {
+            text-align: center;
+            padding: 32px 40px 24px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 400;
+            color: #202124;
+            line-height: 1.4;
+        }
+
+        .header .account-badge {
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 20px;
+            padding: 6px 12px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #202124;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #e8eaed;
+            margin: 0 40px;
+        }
+
+        .section-label {
+            padding: 0 24px 12px;
+            font-size: 13px;
+            color: #202124;
+        }
+
+        .credential-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 24px;
+        }
+
+        .credential-item .item-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f1f3f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #5f6368;
+        }
+
+        .credential-item .item-text .label {
+            font-size: 14px;
+            color: #202124;
+            word-break: break-word;
+        }
+
+        .credential-item .item-text .sublabel {
+            font-size: 12px;
+            color: #5f6368;
+            margin-top: 2px;
+        }
+
+        .security-note {
+            margin: 20px 24px;
+            background: #e8f0fe;
+            border: 1px solid #c5d4f5;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+
+        .security-note .text .title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 4px;
+        }
+
+        .security-note .text p {
+            font-size: 12px;
+            color: #5f6368;
+            line-height: 1.5;
+        }
+
+        .footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e8eaed;
+            text-align: center;
+        }
+
+        .footer p {
+            font-size: 11px;
+            color: #5f6368;
+            line-height: 1.6;
+        }
+
+        .footer .company {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #80868b;
+        }
+
+        @media only screen and (max-width: 520px) {
+            body {
+                padding: 0;
+            }
+
+            .email-wrapper {
+                width: 100%;
+                border-radius: 0;
+            }
+        }
+    </style>
 </head>
-<body style="background-color:rgb(255,255,255);margin:0;padding:0">
-    <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" align="center">
-        <tbody>
-            <tr>
-                <td style='margin:auto;background-color:rgb(255,255,255);padding:0 0.5rem;font-family:ui-sans-serif,system-ui,sans-serif'>
-                    <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
-                        style="max-width:30rem;margin:40px auto;border-radius:0.25rem;border:1px solid rgb(234,234,234);padding:20px">
-                        <tbody>
-                            <tr style="width:100%">
-                                <td>
-                                    <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0"
-                                        role="presentation" style="margin-top:32px;text-align:center">
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    <h1 style="margin:20px 0;text-align:center;font-size:24px;font-weight:400;color:rgb(0,0,0)">
-                                                        Transferência de turma
-                                                    </h1>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
 
-                                    <p style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin:16px 0">
-                                        Olá, <strong>{{ $nome }}</strong>!
-                                    </p>
+<body>
 
-                                    <p style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin:16px 0">
-                                        Foi transferido para a seguinte turma:
-                                    </p>
+    <div class="email-wrapper">
 
-                                    <hr style="width:100%;border:none;border-top:1px solid #eaeaea;margin:26px 0" />
+        <div class="header">
+            <h1>Transferência de turma</h1>
+            <div class="account-badge">
+                <span>{{ $nome }}</span>
+            </div>
+        </div>
 
-                                    <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0"
-                                        role="presentation"
-                                        style="border-radius:0.25rem;background-color:rgb(244,244,245);padding:12px 16px">
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    <p style="font-size:13px;line-height:24px;margin:0;color:rgb(102,102,102)">Turma</p>
-                                                    <p style="font-size:14px;line-height:24px;margin:0;font-weight:600;color:rgb(0,0,0)">
-                                                        {{ $nomeTurma }}
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+        <hr class="divider">
 
-                                    <hr style="width:100%;border:none;border-top:1px solid #eaeaea;margin:26px 0" />
+        <br>
+        <p style="padding: 0 24px; font-size: 14px; line-height: 1.6; color: #202124;">
+            Olá, <strong>{{ $nome }}</strong>!
+        </p>
 
-                                    <p style="font-size:12px;line-height:24px;color:rgb(102,102,102);margin:16px 0">
-                                        Este email foi gerado automaticamente. Por favor, não responda directamente a esta mensagem.
-                                    </p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+        <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
+            A sua transferência de turma {{ $artigoInstituicao }} <strong>{{ $instituicao->nome }}</strong> foi
+            processada com sucesso.
+        </p>
+
+        <p class="section-label">Detalhes da transferência</p>
+
+        <div class="credential-item">
+            <div class="item-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                </svg>
+            </div>
+            <div class="item-text">
+                <div class="label">{{ $nomeTurma }}</div>
+                <div class="sublabel">Nova turma</div>
+            </div>
+        </div>
+
+        <div class="security-note">
+            <div class="text">
+                <div class="title">Informação</div>
+                <p>Se tiver alguma dúvida sobre esta transferência, contacte a secretaria da instituição.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                Este email foi enviado automaticamente pela plataforma
+                {{ $instituicao->nome }}.
+                Por favor, não responda directamente a esta mensagem.
+            </p>
+            <p class="company">
+                © {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.
+            </p>
+        </div>
+
+    </div>
+
 </body>
+
 </html>

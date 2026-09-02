@@ -22,6 +22,8 @@ class PrazoLancamentoNotasDefinidoNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $instituicao = $notifiable->instituicao;
+
         return (new MailMessage)
             ->subject("Prazo de lançamento de notas — {$this->periodo->periodo}º Trimestre")
             ->view('mail.professor.prazo-lancamento-notas', [
@@ -29,6 +31,11 @@ class PrazoLancamentoNotasDefinidoNotification extends Notification
                 'periodo' => $this->periodo->periodo,
                 'dataInicio' => $this->periodo->data_inicio->format('d/m/Y H:i'),
                 'dataLimite' => $this->periodo->data_limite->format('d/m/Y H:i'),
+                'instituicao' => $instituicao,
+                'artigoInstituicao' => match ($instituicao->tipo) {
+                    'instituto', 'colegio' => 'ao',
+                    default => 'à',
+                },
             ]);
     }
 
