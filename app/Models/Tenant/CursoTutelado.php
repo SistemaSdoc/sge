@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
     'curso_tutelado_shared_id',
     'criterios_pap_path',
     'manual_pt_path',
+    'estrutura_trabalho_pap_path',
 ])]
 
 class CursoTutelado extends Model

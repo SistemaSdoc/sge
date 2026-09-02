@@ -27,15 +27,20 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\GrupoCriadoNotification;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\GrupoPap\GrupoPapService;
 use App\Services\Tenant\GrupoPap\GrupoPapViewService;
+use App\Traits\NotificaGrupoPap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
 class GrupoPapController extends Controller
 {
+    use NotificaGrupoPap;
+
     public function __construct(
         private readonly AnoLectivoResolverService $anoLectivoResolverService,
         private readonly GrupoPapViewService $grupoPapViewService,
@@ -141,6 +146,10 @@ class GrupoPapController extends Controller
 
         $grupo = $this->createGrupoPap->handle($turma, $request->validated());
 
+        // Enviar notificação aos alunos informando do grupo criado
+        $alunosUsers = $grupo->alunos->map->user->filter();
+        Notification::send($alunosUsers, new GrupoCriadoNotification($grupo));
+
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
@@ -193,6 +202,11 @@ class GrupoPapController extends Controller
                 $nomeCurso,
                 $siglaInstituto,
             ),
+            'trabalho' => $this->grupoPapViewService->workDetails(
+                $grupoPap,
+                $instituicaoTutoraModel,
+                $nomeCurso,
+            ),
             'banca' => BancaResource::collection($detalhes['banca']),
             'elementos' => ElementoResource::collection($detalhes['elementos']),
             'can' => [
@@ -205,6 +219,14 @@ class GrupoPapController extends Controller
                 'solicitarMelhoria' => $user?->can('solicitarMelhoria', $grupoPap),
                 'definirTema' => $user->can('definirTema', $grupoPap),
                 'aprovarComoTutor' => $user?->can('aprovarComoTutor', $grupoPap),
+                // trabalho
+                'submeter' => $user?->can('submeterTrabalho', $grupoPap),
+                'aprovarTrabalhoComoTutor' => $user?->can('aprovarTrabalhoComoTutor', $grupoPap),
+                'solicitarCorrecaoComoTutor' => $user?->can('solicitarCorrecaoTrabalhoComoTutor', $grupoPap),
+                'aprovarComoCoordenacao' => $user?->can('aprovarTrabalhoComoCoordenacao', $grupoPap),
+                'solicitarCorrecaoComoCoordenacao' => $user?->can('solicitarCorrecaoTrabalhoComoCoordenacao', $grupoPap),
+                'downloadVersao' => $user?->can('downloadVersaoTrabalho', $grupoPap),
+
                 'elementos' => [
                     'create' => $user?->can('elementogrupopap.create'),
                     'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
@@ -318,6 +340,9 @@ class GrupoPapController extends Controller
         $this->authorize('definirData', $grupoPap);
 
         $this->definirDataDefesa->handle($grupoPap, $request->validated());
+
+        // Notificar alunos e jurados sobre a data da defesa
+        $this->notificarDataDefesaDefinida($grupoPap);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,

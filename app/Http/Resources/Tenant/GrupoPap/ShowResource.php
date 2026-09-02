@@ -97,6 +97,34 @@ class ShowResource extends JsonResource
 
                 return $path ? Storage::url($path) : null;
             })(),
+            'estrutura_trabalho_pap_url' => (function () {
+                $cursoTutelado = $this->turma
+                    ?->cursoClasseTurno
+                    ?->cursoClasse
+                        ?->cursoTutelado;
+
+                if (!$cursoTutelado)
+                    return null;
+
+                $path = $cursoTutelado->estrutura_trabalho_pap_path;
+
+                if (!$path) {
+                    $cursoId = $cursoTutelado->instituicaoCurso?->curso_id;
+                    $tutorId = $cursoTutelado->instituicao_tutora_id;
+
+                    $path = \App\Models\Tenant\CursoTutelado::query()
+                        ->where('instituicao_tutora_id', $tutorId)
+                        ->whereHas(
+                            'instituicaoCurso',
+                            fn($q) =>
+                            $q->where('curso_id', $cursoId)
+                                ->where('instituicao_id', $tutorId)
+                        )
+                        ->value('estrutura_trabalho_pap_path');
+                }
+
+                return $path ? Storage::url($path) : null;
+            })(),
             'aprovado_por' => $this->aprovadoPor ? [
                 'id' => $this->aprovadoPor->id,
                 'nome' => $this->aprovadoPor->nome ?? null,

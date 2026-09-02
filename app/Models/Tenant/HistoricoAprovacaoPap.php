@@ -21,6 +21,8 @@ class HistoricoAprovacaoPap extends Model
         'utilizador_externo_tenant_id',
         'utilizador_nome',
         'tema',
+        'problema',      
+        'objectivos',    
         'estado_anterior',
         'estado_novo',
         'comentario',

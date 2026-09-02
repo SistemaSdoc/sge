@@ -49,8 +49,8 @@ class GrupoPap extends Model
     const APROVACAO_APROVADO = 'aprovado';
 
     const APROVACAO_REPROVADO = 'reprovado';
-
-    const APROVACAO_MELHORIA = 'melhoria-solicitada';
+    const APROVACAO_MELHORIA_TUTOR = 'melhoria-solicitada-tutor';
+    const APROVACAO_MELHORIA_COORDENACAO = 'melhoria-solicitada-coordenacao';
 
     protected function casts(): array
     {
@@ -77,6 +77,11 @@ class GrupoPap extends Model
     public function professor()
     {
         return $this->belongsTo(Professor::class, 'professor_tutor_id');
+    }
+
+    public function trabalhoPap()
+    {
+        return $this->hasOne(TrabalhoPap::class, 'grupo_pap_id');
     }
 
     public function jurados()
@@ -150,7 +155,10 @@ class GrupoPap extends Model
 
     public function scopeMelhoriaSolicitada($query)
     {
-        return $query->where('status_aprovacao', 'melhoria-solicitada');
+        return $query->whereIn('status_aprovacao', [
+            'melhoria-solicitada-tutor',
+            'melhoria-solicitada-coordenacao',
+        ]);
     }
 
     /*public function podeSerAprovado(): bool
@@ -161,21 +169,32 @@ class GrupoPap extends Model
 
     public function podeSerReenviado(): bool
     {
-        return ! $this->tutelaEncerrada()
-            && in_array($this->status_aprovacao, ['reprovado', 'melhoria-solicitada']);
-        // return $this->status_aprovacao === 'melhoria-solicitada';
+        return in_array($this->status_aprovacao, [
+            'reprovado',
+            'melhoria-solicitada',
+            'melhoria-solicitada-tutor',
+            'melhoria-solicitada-coordenacao',
+        ]);
     }
 
     public function podeSerEditado(): bool
     {
-        return ! $this->tutelaEncerrada()
-            && in_array($this->status_aprovacao, ['reprovado', 'melhoria-solicitada']);
+        return in_array($this->status_aprovacao, [
+            'reprovado',
+            'melhoria-solicitada',
+            'melhoria-solicitada-tutor',
+            'melhoria-solicitada-coordenacao',
+        ]);
     }
 
     public function podeDefinirTema(): bool
     {
-        return ! $this->tutelaEncerrada()
-            && in_array($this->status_aprovacao, ['rascunho', 'melhoria-solicitada']);
+        return in_array($this->status_aprovacao, [
+            'rascunho',
+            'melhoria-solicitada',
+            'melhoria-solicitada-tutor',
+            'melhoria-solicitada-coordenacao',
+        ]);
     }
 
     public function podeSermitidoAoTutor(): bool

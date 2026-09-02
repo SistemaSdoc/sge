@@ -45,8 +45,10 @@ use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
+use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Middleware\CheckTenantStatus;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
@@ -440,6 +442,41 @@ Route::middleware([
 
             /*
             |--------------------------------------------------------------------------
+            | Trabalho PAP (Submissão e Aprovação)
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho', [TrabalhoPapController::class, 'show'])
+                ->name('pap.trabalho.show');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/submeter', [TrabalhoPapController::class, 'submeter'])
+                ->name('pap.trabalho.submeter');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/tutor/aprovar', [TrabalhoPapController::class, 'aprovarComoTutor'])
+                ->name('pap.trabalho.tutor.aprovar');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/tutor/correcao', [TrabalhoPapController::class, 'solicitarCorrecaoComoTutor'])
+                ->name('pap.trabalho.tutor.correcao');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/coordenacao/aprovar', [TrabalhoPapController::class, 'aprovarComoCoordenacao'])
+                ->name('pap.trabalho.coordenacao.aprovar');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/coordenacao/correcao', [TrabalhoPapController::class, 'solicitarCorrecaoComoCoordenacao'])
+                ->name('pap.trabalho.coordenacao.correcao');
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/versao/{numeroVersao}/download', [TrabalhoPapController::class, 'download'])
+                ->name('pap.trabalho.versao.download')
+                ->whereNumber('numeroVersao');
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/versao/{numeroVersao}/visualizar', [TrabalhoPapController::class, 'visualizar'])
+                ->name('pap.trabalho.versao.visualizar')
+                ->whereNumber('numeroVersao');
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/correcao/{feedbackId}/download', [TrabalhoPapController::class, 'downloadCorrecao'])
+                ->name('pap.trabalho.correcao.download');
+
+            /*
+            |--------------------------------------------------------------------------
             | Banca de Júri do PAP
             |--------------------------------------------------------------------------
             */
@@ -622,4 +659,16 @@ Route::middleware([
             Route::match(['GET', 'POST'], 'documentos/exportar', [DocumentosController::class, 'exportar'])
                 ->name('documentos.exportar');
         });
+
+    /*
+      |--------------------------------------------------------------------------
+      | Routas para acessar os documentos do curso tutelado
+      |--------------------------------------------------------------------------
+      */
+    Route::get('/storage/{path}', function (string $path) {
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+        return Storage::disk('public')->response($path);
+    })->where('path', '.*')->name('tenant.storage');
 });

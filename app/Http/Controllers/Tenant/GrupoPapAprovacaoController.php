@@ -6,15 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
 use App\Services\Tenant\AprovacaoTemaService;
+use App\Traits\NotificaGrupoPap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class GrupoPapAprovacaoController extends Controller
 {
+    use NotificaGrupoPap;
     public function __construct(
         private AprovacaoTemaService $service
-    ) {}
+    ) {
+    }
 
     /**
      * Listar temas PAP pendentes de aprovação
@@ -25,7 +28,7 @@ class GrupoPapAprovacaoController extends Controller
         $user = Auth::guard('tenant')->user();
 
         // O utilizador precisa estar associado a um professor
-        if (! $user->professor) {
+        if (!$user->professor) {
             return inertia('tenant/pap/PendentesAprovacao', [
                 'temasPendentes' => [],
                 'rotaAprovar' => null,
@@ -44,26 +47,16 @@ class GrupoPapAprovacaoController extends Controller
             'temasPendentes' => $temasPendentes,
 
             // Rotas para o frontend
-            'rotaAprovar' => route(
-                'grupo-pap-aprovacao.aprovar',
-                ':id'
-            ),
+            'rotaAprovar' => route('tenant.dashboard.grupo-pap-aprovacao.aprovar', ':id'),
 
-            'rotaReprovar' => route(
-                'grupo-pap-aprovacao.reprovar',
-                ':id'
-            ),
+            'rotaReprovar' => route('tenant.dashboard.grupo-pap-aprovacao.reprovar', ':id'),
 
-            'rotaMelhoria' => route(
-                'grupo-pap-aprovacao.solicitar-melhoria',
-                ':id'
-            ),
+            'rotaMelhoria' => route('tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria', ':id'),
         ]);
     }
 
     public function aprovarTutor(Request $request, GrupoPap $grupoPap)
     {
-
         $this->authorize('aprovarComoTutor', $grupoPap);
 
         $validated = $request->validate([
@@ -87,6 +80,21 @@ class GrupoPapAprovacaoController extends Controller
             ]);
         });
 
+        // ── Notificações ──────────────────────────────────────
+        $coordenadores = $grupoPap->turma
+            ->cursoClasseTurno
+            ->cursoClasse
+            ->cursoTutelado
+            ->professores()
+            ->where('coordenador', 1)
+            ->with('user')
+            ->get()
+            ->map->user
+            ->filter();
+
+        $this->notificarTemaValidadoPeloTutor($grupoPap, $coordenadores);
+        // ──────────────────────────────────────────────────────
+
         return back()->with('toast', [
             'type' => 'success',
             'message' => 'Tema enviado para a coordenação.',
@@ -106,7 +114,7 @@ class GrupoPapAprovacaoController extends Controller
 
         DB::transaction(function () use ($grupoPap, $validated) {
             $grupoPap->update([
-                'status_aprovacao' => GrupoPap::APROVACAO_MELHORIA,
+                'status_aprovacao' => GrupoPap::APROVACAO_MELHORIA_TUTOR,
                 'comentario_aprovacao' => $validated['recomendacao'],
             ]);
 
@@ -114,13 +122,16 @@ class GrupoPapAprovacaoController extends Controller
                 'grupo_pap_id' => $grupoPap->id,
                 'utilizador_id' => Auth::guard('tenant')->id(),
                 'estado_anterior' => GrupoPap::APROVACAO_SUBMETIDO,
-                'estado_novo' => GrupoPap::APROVACAO_MELHORIA,
+                'estado_novo' => GrupoPap::APROVACAO_MELHORIA_TUTOR,
                 'tema' => $grupoPap->tema_grupo,
                 'problema' => $grupoPap->problema,
                 'objectivos' => $grupoPap->objectivos,
                 'comentario' => $validated['recomendacao'],
             ]);
         });
+
+        $grupoPap->load('alunos.user');
+        $this->notificarMelhoriasSolicitadas($grupoPap, 'tutor');
 
         return back()->with('toast', [
             'type' => 'warning',
@@ -134,7 +145,7 @@ class GrupoPapAprovacaoController extends Controller
     public function aprovar(Request $request, GrupoPap $grupoPap)
     {
         // Verificar se pode ser aprovado
-        if (! $grupoPap->podeSerAprovado()) {
+        if (!$grupoPap->podeSerAprovado()) {
             return back()->withErrors([
                 'grupo' => 'Este tema já foi finalizado e não pode ser alterado.',
             ])->with('status', 'erro');
@@ -150,7 +161,7 @@ class GrupoPapAprovacaoController extends Controller
             $validated['comentario'] ?? null
         );
 
-        if (! $resultado) {
+        if (!$resultado) {
             return back()->withErrors([
                 'grupo' => 'Erro ao aprovar o tema.',
             ]);
@@ -194,7 +205,7 @@ class GrupoPapAprovacaoController extends Controller
         );
 
         // Verificar se o tema pode ser reprovado
-        if (! $resultado) {
+        if (!$resultado) {
             return back()->withErrors([
                 'grupo' => 'Este tema não pode ser reprovado neste momento.',
             ]);
@@ -255,7 +266,7 @@ class GrupoPapAprovacaoController extends Controller
         );
 
         // Verificar se a operação foi realizada
-        if (! $resultado) {
+        if (!$resultado) {
             return back()->withErrors([
                 'grupo' => 'Não é possível solicitar melhoria neste momento.',
             ]);
@@ -274,10 +285,8 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function reenviar(Request $request, GrupoPap $grupoPap)
     {
-        if (! $grupoPap->podeSerReenviado()) {
-            return back()->withErrors([
-                'grupo' => 'Este tema não pode ser reenviado neste momento. Estado actual: '.$grupoPap->status_aprovacao.'.',
-            ]);
+        if (!$grupoPap->podeSerReenviado()) {
+            return back()->withErrors(['grupo' => 'Este tema não pode ser reenviado neste momento.']);
         }
 
         $validated = $request->validate([
@@ -289,7 +298,7 @@ class GrupoPapAprovacaoController extends Controller
 
         $resultado = $this->service->reenviar($grupoPap, Auth::guard('tenant')->user(), $validated);
 
-        if (! $resultado) {
+        if (!$resultado) {
             return back()->withErrors(['grupo' => 'Erro ao reenviar o tema.']);
         }
 
@@ -322,7 +331,10 @@ class GrupoPapAprovacaoController extends Controller
         $user = Auth::guard('tenant')->user();
 
         $temas = GrupoPap::query()
-            ->where('status_aprovacao', 'melhoria-solicitada')
+            ->whereIn('status_aprovacao', [
+                GrupoPap::APROVACAO_MELHORIA_TUTOR,
+                GrupoPap::APROVACAO_MELHORIA_COORDENACAO,
+            ])
             ->whereHas(
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
                 function ($query) {
@@ -341,10 +353,7 @@ class GrupoPapAprovacaoController extends Controller
         return inertia('tenant/pap/TemasMelhoria', [
             'temas' => $temas,
 
-            'rotaEditar' => route(
-                'grupo-pap-aprovacao.editar',
-                ':id'
-            ),
+            'rotaEditar' => route('tenant.dashboard.grupo-pap-aprovacao.editar', ':id'),
         ]);
     }
 
@@ -366,15 +375,9 @@ class GrupoPapAprovacaoController extends Controller
         return inertia('tenant/pap/EditarTemaMelhoria', [
             'grupoPap' => $grupoPap,
 
-            'rotaAtualizar' => route(
-                'tenant.dashboard.grupo-pap-aprovacao.atualizar',
-                ['grupoPap' => $grupoPap->id]
-            ),
+            'rotaAtualizar' => route('tenant.dashboard.grupo-pap-aprovacao.atualizar', ':id'),
 
-            'rotaReenviar' => route(
-                'tenant.dashboard.grupo-pap-aprovacao.reenviar',
-                ['grupoPap' => $grupoPap->id]
-            ),
+            'rotaReenviar' => route('tenant.dashboard.grupo-pap-aprovacao.reenviar', ':id'),
         ]);
     }
 

@@ -1,6 +1,7 @@
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from 'react';
 import {
   Field,
   FieldError,
@@ -10,8 +11,18 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-export function TemaForm({ title, errors, processing, grupoPap }) {
+export function TemaForm({ title, errors, processing, grupoPap, professores = [], }) {
+  const [professorTutorId, setProfessorTutorId] = useState(undefined);
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
       <Card className="overflow-visible">
@@ -22,6 +33,34 @@ export function TemaForm({ title, errors, processing, grupoPap }) {
         <CardContent>
           <FieldGroup>
             <FieldSet>
+
+              <Field>
+                <FieldLabel>Professor tutor</FieldLabel>
+                <input type="hidden" name="professor_tutor_id" value={professorTutorId} />
+                <Select
+                  value={professorTutorId || undefined}
+                  onValueChange={setProfessorTutorId}
+                  disabled={processing}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o professor tutor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Professores</SelectLabel>
+                      {professores.map((p) => (
+                        <SelectItem key={p.id} value={String(p.id)}>
+                          {p.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {errors.professor_tutor_id && (
+                  <FieldError>{errors.professor_tutor_id}</FieldError>
+                )}
+              </Field>
+
               <Field>
                 <FieldLabel>Tema</FieldLabel>
                 <Input

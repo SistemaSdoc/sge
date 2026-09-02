@@ -2,6 +2,7 @@
 
 namespace App\Services\Tenant\GrupoPap;
 
+use App\Helpers\PapHelper;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Aluno;
@@ -385,6 +386,61 @@ class GrupoPapViewService
             'elementos' => $grupoPap->elementos()
                 ->with('aluno.inscricao.candidato:id,nome,email', 'aluno:id,matricula,inscricao_id')
                 ->paginate(10, ['*'], 'page_elementos'),
+        ];
+    }
+
+    /**
+     * Prepara o trabalho PAP, as suas versões e os feedbacks para a página do grupo.
+     */
+    public function workDetails(
+        GrupoPap $grupoPap,
+        ?Instituicao $instituicaoTutora,
+        ?string $nomeCurso,
+    ): ?array {
+        $trabalho = $grupoPap->trabalhoPap()->with([
+            'versoes.submetidoPor:id,nome',
+            'versoes.feedbacks.utilizador:id,nome,instituicao_id',
+            'aprovadoPor:id,nome,instituicao_id',
+        ])->first();
+
+        if (! $trabalho) {
+            return null;
+        }
+
+        return [
+            'id' => $trabalho->id,
+            'status' => $trabalho->status,
+            'data_aprovacao' => $trabalho->data_aprovacao?->toIso8601String(),
+            'aprovado_por' => $trabalho->aprovadoPor
+                ? ($instituicaoTutora && $nomeCurso
+                    ? PapHelper::nomeAprovador($trabalho->aprovadoPor, $instituicaoTutora, $nomeCurso)
+                    : $trabalho->aprovadoPor->nome)
+                : null,
+            'versoes' => $trabalho->versoes->map(fn ($versao): array => [
+                'id' => $versao->id,
+                'numero_versao' => $versao->numero_versao,
+                'nome_original' => $versao->nome_original,
+                'status_quando_submetido' => $versao->status_quando_submetido,
+                'submetido_por' => $versao->submetidoPor?->nome,
+                'created_at' => $versao->created_at?->toIso8601String(),
+                'feedbacks' => $versao->feedbacks->map(fn ($feedback): array => [
+                    'id' => $feedback->id,
+                    'tipo' => $feedback->tipo,
+                    'comentario' => $feedback->comentario,
+                    'utilizador' => in_array($feedback->tipo, [
+                        'correcao_coordenacao',
+                        'aprovacao_coordenacao',
+                        'reprovacao_coordenacao',
+                    ], true)
+                        ? ($instituicaoTutora && $nomeCurso
+                            ? PapHelper::nomeAprovador($feedback->utilizador, $instituicaoTutora, $nomeCurso)
+                            : $feedback->utilizador?->nome)
+                        : $feedback->utilizador?->nome,
+                    'created_at' => $feedback->created_at?->toIso8601String(),
+                    'tem_ficheiro_correcao' => $feedback->caminho_ficheiro_correcao !== null,
+                    'nome_original_correcao' => $feedback->nome_original_correcao,
+                ])->values(),
+            ])->values(),
         ];
     }
 

@@ -7,6 +7,7 @@ use App\Models\Tenant\Candidato;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
+use App\Traits\NotificaAluno;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -16,6 +17,7 @@ use Spatie\Permission\Models\Role;
 
 class InscricaoService
 {
+    use NotificaAluno;
     public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
     /**
@@ -147,6 +149,10 @@ class InscricaoService
             'ano_lectivo_id' => $inscricao->ano_lectivo_id,
             'matricula' => $this->gerarMatriculaUnica(),
         ]);
+
+         if ($user->wasRecentlyCreated) {
+            $this->notificarAlunoCriado($user, '12345678');
+        }
 
         if ($turmaId) {
             $aluno->turmas()->syncWithoutDetaching([

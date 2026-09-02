@@ -3,7 +3,8 @@
 namespace App\Services\Tenant;
 
 use App\Models\Tenant\User;
-use App\Notifications\PropinaEmAtrasoNotification;
+//use App\Notifications\PropinaEmAtrasoNotification;
+use App\Notifications\Aluno\PropinaEmAtrasoNotification;
 use Illuminate\Support\Facades\Log;
 
 class PropinaNotificacaoService
@@ -62,7 +63,7 @@ class PropinaNotificacaoService
             ->all();
 
         $user->notify(new PropinaEmAtrasoNotification($totalPendencias, $valorTotal, $meses, $assinatura));
-
+        
         Log::info('[PropinaNotificacaoService] notificação criada', [
             'user_id' => $user->id,
             'total_pendencias' => $totalPendencias,

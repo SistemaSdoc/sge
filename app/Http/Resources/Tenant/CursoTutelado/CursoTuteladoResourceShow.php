@@ -19,9 +19,9 @@ class CursoTuteladoResourceShow extends JsonResource
 
         // [ADICIONADO] collection de turmas extraída para variável reutilizável
         $turmasCollection = $this->cursoClasses
-            ->flatMap(fn ($cc) => $cc->turnos)
-            ->flatMap(fn ($cct) => $cct->turmas)
-            ->map(fn ($turma) => [
+            ->flatMap(fn($cc) => $cc->turnos)
+            ->flatMap(fn($cct) => $cct->turmas)
+            ->map(fn($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'max_alunos' => $turma->max_alunos,
@@ -37,7 +37,7 @@ class CursoTuteladoResourceShow extends JsonResource
             ]);
 
         // [ADICIONADO] collection de professores extraída para variável reutilizável
-        $professoresCollection = $this->professores->map(fn ($prof) => [
+        $professoresCollection = $this->professores->map(fn($prof) => [
             'id' => $prof->id,
             'vinculo_id' => $prof->pivot->id,
             'nome' => $prof->user?->nome,
@@ -91,23 +91,26 @@ class CursoTuteladoResourceShow extends JsonResource
                 'turmas' => $turmasCollection->count(),
                 'professores' => $professoresCollection->count(),
                 'disciplinas' => $this->cursoClasses
-                    ->flatMap(fn ($cc) => $cc->turnos)
-                    ->flatMap(fn ($cct) => $cct->classeTurnoDisciplinas)
+                    ->flatMap(fn($cc) => $cc->turnos)
+                    ->flatMap(fn($cct) => $cct->classeTurnoDisciplinas)
                     ->count(),
             ],
 
-            'classes' => $this->cursoClasses->map(fn ($cc) => [ // [ALTERADO] voltou ao map directo sem paginação
+            'classes' => $this->cursoClasses->map(fn($cc) => [ // [ALTERADO] voltou ao map directo sem paginação
                 'id' => $cc->id,
                 'nome' => $cc->classe->nome,
-                'turnos' => $cc->turnos->map(fn ($cct) => $cct->turno->nome),
+                'turnos' => $cc->turnos->map(fn($cct) => $cct->turno->nome),
             ]),
             'professores' => $professores->toArray(),
             'turmas' => $turmas->toArray(),
             'criterios_pap_url' => $this->criterios_pap_path
-                ? Storage::url($this->criterios_pap_path)
+                ? $request->getSchemeAndHttpHost() . '/storage/' . $this->criterios_pap_path
                 : null,
             'manual_pt_url' => $this->manual_pt_path
-                ? Storage::url($this->manual_pt_path)
+                ? $request->getSchemeAndHttpHost() . '/storage/' . $this->manual_pt_path
+                : null,
+            'estrutura_trabalho_pap_url' => $this->estrutura_trabalho_pap_path
+                ? $request->getSchemeAndHttpHost() . '/storage/' . $this->estrutura_trabalho_pap_path
                 : null,
             'can' => [
                 'update' => $request->user()?->can('update', $this->resource) ?? false,
@@ -115,6 +118,7 @@ class CursoTuteladoResourceShow extends JsonResource
                 'attachProfessor' => $request->user()?->can('update', $this->resource) ?? false,
                 'uploadCriteriosPap' => $request->user()->can('update', $this->resource),
                 'uploadManualPt' => $request->user()->can('update', $this->resource),
+                'uploadEstruturaTrabalhoPap' => $request->user()->can('update', $this->resource),
             ],
         ];
     }

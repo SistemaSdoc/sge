@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('turma_id');
             $table->foreign('turma_id')->references('id')->on('turmas');
-            $table->uuid('professor_tutor_id');
+            $table->uuid('professor_tutor_id')->nullable();
             $table->foreign('professor_tutor_id')->references('id')->on('professores');
             $table->string('nome_grupo');
             $table->string('tema_grupo')->nullable();
@@ -29,7 +29,8 @@ return new class extends Migration
                 'pendente',
                 'aprovado',
                 'reprovado',
-                'melhoria-solicitada',
+                'melhoria-solicitada-tutor',
+                'melhoria-solicitada-coordenacao',
             ])->default('rascunho');
 
             $table->uuid('aprovado_por_id')->nullable();

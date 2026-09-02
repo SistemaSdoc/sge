@@ -9,6 +9,7 @@ use App\Http\Controllers\Tenant\Colegios\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\Colegios\GrupoPapAprovacaoController;
 use App\Http\Controllers\Tenant\Colegios\GrupoPapController;
 use App\Http\Controllers\Tenant\Colegios\NotaDisciplinaController;
+use App\Http\Controllers\Tenant\Colegios\TrabalhoPapController;
 use Illuminate\Support\Facades\Route;
 
 // colegios.php
@@ -64,6 +65,29 @@ Route::prefix('colegios')->group(function () {
                     ->middleware('cross.tenant')
                     ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
+                    // Trabalho PAP
+                Route::prefix('trabalho')
+                    ->name('colegios.pap.trabalho.')
+                    ->group(function () {
+                        Route::post('/submeter', [TrabalhoPapController::class, 'submeter'])
+                            ->name('submeter');
+                        Route::post('/tutor/aprovar', [TrabalhoPapController::class, 'aprovarComoTutor'])
+                            ->name('tutor.aprovar');
+                        Route::post('/tutor/correcao', [TrabalhoPapController::class, 'solicitarCorrecaoComoTutor'])
+                            ->name('tutor.correcao');
+                        Route::post('/coordenacao/aprovar', [TrabalhoPapController::class, 'aprovarComoCoordenacao'])
+                            ->name('coordenacao.aprovar');
+                        Route::post('/coordenacao/correcao', [TrabalhoPapController::class, 'solicitarCorrecaoComoCoordenacao'])
+                            ->name('coordenacao.correcao');
+                        Route::get('/versao/{numeroVersao}/download', [TrabalhoPapController::class, 'download'])
+                            ->name('versao.download')
+                            ->whereNumber('numeroVersao');
+                        Route::get('/versao/{numeroVersao}/visualizar', [TrabalhoPapController::class, 'visualizar'])
+                            ->name('versao.visualizar')
+                            ->whereNumber('numeroVersao');
+                        Route::get('/correcao/{feedbackId}/download', [TrabalhoPapController::class, 'downloadCorrecao'])
+                            ->name('correcao.download');
+                    });
             });
 
         // Outras rotas sem grupoPap
