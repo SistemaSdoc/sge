@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="x-apple-disable-message-reformatting">
 
-    <title>Convocação para banca de júri</title>
+    <title>Trabalho submetido</title>
 
     <style>
         * {
@@ -32,7 +32,6 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
         }
 
-        /* ---- Header ---- */
         .header {
             text-align: center;
             padding: 32px 40px 24px;
@@ -45,14 +44,18 @@
             margin-bottom: 20px;
         }
 
-        /* ---- Divider ---- */
         .divider {
             border: none;
             border-top: 1px solid #e8eaed;
             margin: 0 40px;
         }
 
-        /* ---- Info Card ---- */
+        .section-label {
+            padding: 0 24px 12px;
+            font-size: 13px;
+            color: #5f6368;
+        }
+
         .info-card {
             margin: 0 24px;
             background: #f8f9fa;
@@ -61,27 +64,6 @@
             padding: 14px 16px;
         }
 
-        .info-card .card-row {
-            margin-bottom: 12px;
-        }
-
-        .info-card .card-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .info-card .card-label {
-            font-size: 12px;
-            color: #5f6368;
-            margin-bottom: 2px;
-        }
-
-        .info-card .card-value {
-            font-size: 14px;
-            font-weight: 500;
-            color: #202124;
-        }
-
-        /* ---- CTA ---- */
         .cta-wrapper {
             text-align: center;
             padding: 8px 24px 24px;
@@ -99,7 +81,6 @@
             letter-spacing: 0.25px;
         }
 
-        /* ---- Link ---- */
         .access-link {
             padding: 0 24px 20px;
             font-size: 13px;
@@ -113,7 +94,6 @@
             text-decoration: none;
         }
 
-        /* ---- Footer ---- */
         .footer {
             padding: 16px 24px;
             border-top: 1px solid #e8eaed;
@@ -152,9 +132,7 @@
         {{-- Header --}}
         <div class="header">
 
-            {{-- @if (!empty($logoUrl))
-            <img class="logo" src="{{ $logoUrl }}" alt="{{ $instituicao->nome }}">
-            @endif --}}
+            {{-- Optionally include logo here --}}
 
         </div>
 
@@ -163,48 +141,19 @@
         {{-- Greeting --}}
         <br>
         <p style="padding: 0 24px; font-size: 14px; line-height: 1.6; color: #202124;">
-            Olá, <strong>{{ $nome }}</strong>!
+            Olá!
         </p>
 
         <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
-            Foi convocado como <strong>{{ $funcao }}</strong> na banca de júri do grupo abaixo.
+            O grupo <strong>{{ $nomeGrupo }}</strong> submeteu uma nova versão do trabalho PAP para revisão
+            {{ $artigoInstituicao }} <strong>{{ $instituicao->nome }}</strong>.
         </p>
-
-        {{-- Detalhes da banca --}}
-        <div class="info-card">
-
-            <div class="card-row">
-                <div class="card-label">Grupo</div>
-                <div class="card-value">{{ $nomeGrupo }}</div>
-            </div>
-
-            <div class="card-row">
-                <div class="card-label">Tema</div>
-                <div class="card-value">{{ $temaGrupo }}</div>
-            </div>
-
-            <div class="card-row">
-                <div class="card-label">Função na banca</div>
-                <div class="card-value">{{ $funcao }}</div>
-            </div>
-
-            <div class="card-row">
-                <div class="card-label">Data e hora</div>
-                <div class="card-value">{{ $dataDefesa }}</div>
-            </div>
-
-            <div class="card-row">
-                <div class="card-label">Local</div>
-                <div class="card-value">{{ $localDefesa }}</div>
-            </div>
-
-        </div>
 
         {{-- CTA --}}
         <div class="cta-wrapper" style="margin-top: 24px;">
 
             <a href="{{ $url }}" class="cta-button" target="_blank">
-                Ver grupo PAP
+                Ver trabalho PAP
             </a>
 
         </div>

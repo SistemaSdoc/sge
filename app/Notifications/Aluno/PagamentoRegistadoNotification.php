@@ -14,7 +14,8 @@ class PagamentoRegistadoNotification extends Notification
 
     public function __construct(
         public Pagamento $pagamento,
-    ) {}
+    ) {
+    }
 
     public function via(object $notifiable): array
     {
@@ -23,26 +24,32 @@ class PagamentoRegistadoNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        // Gera o recibo se ainda não existir
         $this->pagamento->gerarRecibo();
+
+        $instituicao = $notifiable->instituicao;
 
         $mail = (new MailMessage)
             ->subject('Pagamento registado com sucesso')
             ->view('mail.aluno.pagamento-registado', [
-                'nome'          => $notifiable->nome,
-                'valorTotal'    => number_format($this->pagamento->valor_total, 2, ',', '.'),
+                'nome' => $notifiable->nome,
+                'valorTotal' => number_format($this->pagamento->valor_total, 2, ',', '.'),
                 'dataPagamento' => $this->pagamento->data_pagamento->format('d/m/Y'),
-                'metodo'        => $this->pagamento->metodo,
-                'referencia'    => $this->pagamento->referencia,
-                'numeroRecibo'  => $this->pagamento->numero_recibo,
+                'metodo' => $this->pagamento->metodo,
+                'referencia' => $this->pagamento->referencia,
+                'numeroRecibo' => $this->pagamento->numero_recibo,
+                'instituicao' => $instituicao,
+                'artigoInstituicao' => match ($instituicao->tipo) {
+                    'instituto' => 'ao',
+                    'colegio' => 'ao',
+                    default => 'à',
+                },
             ]);
 
-        // Anexa o recibo PDF se existir
         if ($this->pagamento->recibo_path && Storage::disk('local')->exists($this->pagamento->recibo_path)) {
             $mail->attach(
                 Storage::disk('local')->path($this->pagamento->recibo_path),
                 [
-                    'as'   => "recibo-{$this->pagamento->numero_recibo}.pdf",
+                    'as' => "recibo-{$this->pagamento->numero_recibo}.pdf",
                     'mime' => 'application/pdf',
                 ]
             );
@@ -54,13 +61,13 @@ class PagamentoRegistadoNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'           => 'pagamento_registado',
-            'titulo'         => 'Pagamento registado',
-            'mensagem'       => 'O seu pagamento de '.number_format($this->pagamento->valor_total, 2, ',', '.').' AOA foi registado com sucesso.',
-            'pagamento_id'   => $this->pagamento->id,
-            'valor_total'    => $this->pagamento->valor_total,
+            'tipo' => 'pagamento_registado',
+            'titulo' => 'Pagamento registado',
+            'mensagem' => 'O seu pagamento de ' . number_format($this->pagamento->valor_total, 2, ',', '.') . ' AOA foi registado com sucesso.',
+            'pagamento_id' => $this->pagamento->id,
+            'valor_total' => $this->pagamento->valor_total,
             'data_pagamento' => $this->pagamento->data_pagamento->format('d/m/Y'),
-            'numero_recibo'  => $this->pagamento->numero_recibo,
+            'numero_recibo' => $this->pagamento->numero_recibo,
         ];
     }
 }

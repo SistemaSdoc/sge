@@ -87,6 +87,14 @@ trait NotificaGrupoPap
     protected function notificarCorrecaoSolicitada(GrupoPap $grupoPap, string $comentario, string $solicitadoPor = 'tutor'): void
     {
         $utilizadores = $grupoPap->alunos->map->user->filter();
+
+        if ($solicitadoPor === 'coordenacao') {
+            $tutor = $grupoPap->professor?->user;
+            if ($tutor) {
+                $utilizadores = $utilizadores->push($tutor)->unique('id');
+            }
+        }
+
         Notification::send($utilizadores, new CorrecaoSolicitadaNotification($grupoPap, $comentario, $solicitadoPor));
     }
 

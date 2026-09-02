@@ -1,249 +1,260 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<html dir="ltr" lang="pt">
+<!DOCTYPE html>
+<html lang="pt">
 
 <head>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-    <meta name="x-apple-disable-message-reformatting" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="x-apple-disable-message-reformatting">
+
+    <title>Melhorias solicitadas no tema PAP</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f1f3f4;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            font-size: 14px;
+            color: #202124;
+            padding: 24px 0;
+        }
+
+        .email-wrapper {
+            max-width: 480px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+
+        /* ---- Header ---- */
+        .header {
+            text-align: center;
+            padding: 32px 40px 24px;
+        }
+
+        .header img.logo {
+            width: 75px;
+            height: 24px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        /* ---- Divider ---- */
+        .divider {
+            border: none;
+            border-top: 1px solid #e8eaed;
+            margin: 0 40px;
+        }
+
+        /* ---- Info Card ---- */
+        .info-card {
+            margin: 0 24px;
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+
+        .info-card .card-row {
+            margin-bottom: 12px;
+        }
+
+        .info-card .card-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-card .card-label {
+            font-size: 12px;
+            color: #5f6368;
+            margin-bottom: 2px;
+        }
+
+        .info-card .card-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #202124;
+        }
+
+        /* ---- Feedback Box ---- */
+        .feedback-box {
+            margin: 20px 24px 0;
+            background: #fef9e7;
+            border-left: 3px solid #f29900;
+            border-radius: 4px;
+            padding: 14px 16px;
+        }
+
+        .feedback-box .feedback-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 6px;
+        }
+
+        .feedback-box p {
+            font-size: 13px;
+            color: #202124;
+            line-height: 1.5;
+        }
+
+        /* ---- CTA ---- */
+        .cta-wrapper {
+            text-align: center;
+            padding: 8px 24px 24px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #1a73e8;
+            color: #ffffff !important;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 10px 24px;
+            border-radius: 4px;
+            letter-spacing: 0.25px;
+        }
+
+        /* ---- Link ---- */
+        .access-link {
+            padding: 0 24px 20px;
+            font-size: 13px;
+            color: #202124;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+
+        .access-link a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+
+        /* ---- Footer ---- */
+        .footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e8eaed;
+            text-align: center;
+        }
+
+        .footer p {
+            font-size: 11px;
+            color: #5f6368;
+            line-height: 1.6;
+        }
+
+        .footer .company {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #80868b;
+        }
+
+        @media only screen and (max-width: 520px) {
+            body {
+                padding: 0;
+            }
+
+            .email-wrapper {
+                width: 100%;
+                border-radius: 0;
+            }
+        }
+    </style>
 </head>
 
-<body
-    style="background-color:rgb(255,255,255);margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-right:0;padding-left:0">
+<body>
 
-```
-<!-- Preheader -->
-<div
-    style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0"
-    data-skip-in-text="true">
-    Foram solicitadas melhorias no tema do vosso grupo PAP.
-</div>
+    <div class="email-wrapper">
 
-<!-- Body -->
-<table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" align="center">
-    <tbody>
-        <tr>
-            <td
-                style='margin-right:auto;margin-left:auto;margin-bottom:auto;margin-top:auto;background-color:rgb(255,255,255);padding-right:0.5rem;padding-left:0.5rem;font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"'>
+        {{-- Header --}}
+        <div class="header">
 
-                <table
-                    align="center"
-                    width="100%"
-                    border="0"
-                    cellpadding="0"
-                    cellspacing="0"
-                    role="presentation"
-                    style="max-width:30rem;margin-right:auto;margin-left:auto;margin-bottom:40px;margin-top:40px;border-radius:0.25rem;border-style:solid;border-width:1px;border-color:rgb(234,234,234);padding:20px">
+            {{-- @if (!empty($logoUrl))
+            <img class="logo" src="{{ $logoUrl }}" alt="{{ $instituicao->nome }}">
+            @endif --}}
 
-                    <tbody>
-                        <tr style="width:100%">
-                            <td>
+        </div>
 
-                                <!-- Título -->
-                                <table
-                                    align="center"
-                                    width="100%"
-                                    border="0"
-                                    cellpadding="0"
-                                    cellspacing="0"
-                                    role="presentation"
-                                    style="margin-top:32px;text-align:center">
+        <hr class="divider">
 
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <h1
-                                                    style="margin-right:0;margin-left:0;margin-bottom:20px;margin-top:20px;padding:0;text-align:center;font-size:24px;font-weight:400;color:rgb(0,0,0)">
-                                                    Melhorias solicitadas no tema PAP
-                                                </h1>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+        {{-- Greeting --}}
+        <br>
+        <p style="padding: 0 24px; font-size: 14px; line-height: 1.6; color: #202124;">
+            Olá!
+        </p>
 
-                                <!-- Saudação -->
-                                <p
-                                    style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-                                    Olá,
-                                </p>
+        <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
+            O <strong>{{ $solicitadoPor }}</strong> solicitou melhorias no tema do vosso grupo PAP.
+            Por favor, revejam o feedback, façam as alterações necessárias e reenviem o tema para aprovação.
+        </p>
 
-                                <!-- Mensagem principal -->
-                                <p
-                                    style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-                                    O <strong>{{ $solicitadoPor }}</strong> solicitou melhorias no tema do vosso
-                                    grupo PAP.
-                                </p>
+        {{-- Grupo e tema --}}
+        <div class="info-card">
 
-                                <!-- Separador -->
-                                <hr
-                                    style="width:100%;border:none;border-top:1px solid #eaeaea;margin-right:0;margin-left:0;margin-bottom:26px;margin-top:26px;border-style:solid;border-width:1px;border-color:rgb(234,234,234)" />
+            <div class="card-row">
+                <div class="card-label">Grupo</div>
+                <div class="card-value">{{ $nomeGrupo }}</div>
+            </div>
 
-                                <!-- Informações do grupo -->
-                                <table
-                                    align="center"
-                                    width="100%"
-                                    border="0"
-                                    cellpadding="0"
-                                    cellspacing="0"
-                                    role="presentation"
-                                    style="border-radius:0.25rem;background-color:rgb(244,244,245);padding:12px 16px">
+            <div class="card-row">
+                <div class="card-label">Tema</div>
+                <div class="card-value">{{ $temaGrupo }}</div>
+            </div>
 
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <p
-                                                    style="font-size:13px;line-height:24px;margin-top:0;margin-bottom:0;color:rgb(102,102,102)">
-                                                    Grupo
-                                                </p>
+        </div>
 
-                                                <p
-                                                    style="font-size:14px;line-height:24px;margin-top:0;margin-bottom:0;font-weight:600;color:rgb(0,0,0)">
-                                                    {{ $nomeGrupo }}
-                                                </p>
-                                            </td>
-                                        </tr>
+        {{-- Feedback --}}
+        @if (!empty($comentario))
+            <div class="feedback-box">
+                <div class="feedback-label">Feedback</div>
+                <p>{{ $comentario }}</p>
+            </div>
+        @endif
 
-                                        <tr>
-                                            <td style="padding-top:8px">
-                                                <p
-                                                    style="font-size:13px;line-height:24px;margin-top:0;margin-bottom:0;color:rgb(102,102,102)">
-                                                    Tema
-                                                </p>
+        {{-- CTA --}}
+        <div class="cta-wrapper" style="margin-top: 24px;">
 
-                                                <p
-                                                    style="font-size:14px;line-height:24px;margin-top:0;margin-bottom:0;font-weight:600;color:rgb(0,0,0)">
-                                                    {{ $temaGrupo }}
-                                                </p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+            <a href="{{ $url }}" class="cta-button" target="_blank">
+                Ver grupo PAP
+            </a>
 
-                                <!-- Feedback -->
-                                @if($comentario)
+        </div>
 
-                                <p
-                                    style="font-size:14px;line-height:24px;font-weight:600;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-                                    Feedback:
-                                </p>
+        {{-- Access Link --}}
+        <p class="access-link">
 
-                                <table
-                                    align="center"
-                                    width="100%"
-                                    border="0"
-                                    cellpadding="0"
-                                    cellspacing="0"
-                                    role="presentation"
-                                    style="border-radius:0.25rem;background-color:rgb(254,249,236);border-left:3px solid rgb(217,119,6);padding:12px 16px">
+            Se o botão acima não funcionar, copie e cole o seguinte endereço
+            no seu navegador:
 
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <p
-                                                    style="font-size:14px;line-height:24px;margin-top:0;margin-bottom:0;color:rgb(0,0,0)">
-                                                    {{ $comentario }}
-                                                </p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+            <br><br>
 
-                                @endif
+            <a href="{{ $url }}" target="_blank">
+                {{ $url }}
+            </a>
 
-                                <!-- Instrução -->
-                                <p
-                                    style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-                                    Por favor, revejam o feedback, façam as alterações necessárias e reenviem o
-                                    tema para aprovação.
-                                </p>
+        </p>
 
-                                <!-- Separador -->
-                                <hr
-                                    style="width:100%;border:none;border-top:1px solid #eaeaea;margin-right:0;margin-left:0;margin-bottom:26px;margin-top:26px;border-style:solid;border-width:1px;border-color:rgb(234,234,234)" />
+        {{-- Footer --}}
+        <div class="footer">
 
-                                <!-- Botão -->
-                                <table
-                                    align="center"
-                                    width="100%"
-                                    border="0"
-                                    cellpadding="0"
-                                    cellspacing="0"
-                                    role="presentation"
-                                    style="margin-top:32px;margin-bottom:32px;text-align:center">
+            <p>
+                Este email foi enviado automaticamente pela plataforma
+                {{ config('app.name') }}.
+                Por favor, não responda directamente a esta mensagem.
+            </p>
 
-                                    <tbody>
-                                        <tr>
-                                            <td>
+            <p class="company">
+                © {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.
+            </p>
 
-                                                <a
-                                                    href="{{ $url }}"
-                                                    style="line-height:100%;text-decoration:none;display:inline-block;max-width:100%;mso-padding-alt:0px;border-radius:0.25rem;background-color:rgb(0,0,0);padding-right:20px;padding-left:20px;padding-bottom:12px;padding-top:12px;text-align:center;font-size:12px;font-weight:600;color:rgb(255,255,255);text-decoration-line:none"
-                                                    target="_blank">
+        </div>
 
-                                                    <span>
-                                                        <!--[if mso]>
-                                                        <i style="mso-font-width:500%;mso-text-raise:18" hidden>
-                                                            &#8202;&#8202;
-                                                        </i>
-                                                        <![endif]-->
-                                                    </span>
-
-                                                    <span
-                                                        style="max-width:100%;display:inline-block;line-height:120%;mso-padding-alt:0px;mso-text-raise:9px">
-                                                        Ver grupo PAP
-                                                    </span>
-
-                                                    <span>
-                                                        <!--[if mso]>
-                                                        <i style="mso-font-width:500%" hidden>
-                                                            &#8202;&#8202;&#8203;
-                                                        </i>
-                                                        <![endif]-->
-                                                    </span>
-
-                                                </a>
-
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                                <!-- Link alternativo -->
-                                <p
-                                    style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-
-                                    ou copie e cole este link no seu navegador:
-
-                                    <a
-                                        href="{{ $url }}"
-                                        style="color:rgb(21,93,252);text-decoration-line:none"
-                                        target="_blank">
-                                        {{ $url }}
-                                    </a>
-
-                                </p>
-
-                                <!-- Separador -->
-                                <hr
-                                    style="width:100%;border:none;border-top:1px solid #eaeaea;margin-right:0;margin-left:0;margin-bottom:26px;margin-top:26px;border-style:solid;border-width:1px;border-color:rgb(234,234,234)" />
-
-                                <!-- Rodapé -->
-                                <p
-                                    style="font-size:12px;line-height:24px;color:rgb(102,102,102);margin-top:16px;margin-bottom:16px">
-                                    Este email foi gerado automaticamente. Por favor, não responda directamente a
-                                    esta mensagem.
-                                </p>
-
-                            </td>
-                        </tr>
-                    </tbody>
-
-                </table>
-
-            </td>
-        </tr>
-    </tbody>
-</table>
-```
+    </div>
 
 </body>
 

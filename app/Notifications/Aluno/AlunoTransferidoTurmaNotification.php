@@ -15,7 +15,8 @@ class AlunoTransferidoTurmaNotification extends Notification
     public function __construct(
         public Aluno $aluno,
         public Turma $turma
-    ) {}
+    ) {
+    }
 
     public function via(object $notifiable): array
     {
@@ -24,19 +25,26 @@ class AlunoTransferidoTurmaNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $instituicao = $notifiable->instituicao;
+
         return (new MailMessage)
             ->subject('Transferência de turma')
             ->view('mail.aluno.transferido-turma', [
-                'nome'      => $this->aluno->inscricao?->candidato?->nome,
+                'nome' => $this->aluno->inscricao?->candidato?->nome,
                 'nomeTurma' => $this->turma->nome,
+                'instituicao' => $instituicao,
+                'artigoInstituicao' => match ($instituicao->tipo) {
+                    'instituto', 'colegio' => 'ao',
+                    default => 'à',
+                },
             ]);
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'     => 'aluno_transferido_turma',
-            'titulo'   => 'Transferência de turma',
+            'tipo' => 'aluno_transferido_turma',
+            'titulo' => 'Transferência de turma',
             'mensagem' => "Foi transferido para a turma \"{$this->turma->nome}\".",
         ];
     }

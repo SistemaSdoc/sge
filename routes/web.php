@@ -25,6 +25,18 @@ foreach (config('tenancy.central_domains') as $domain) {
         */
         Route::inertia('/', 'central/welcome/index')->name('home');
 
+        Route::get('/test-email', function () {
+            return new \App\Mail\AccountNotificationMail(
+                userName: 'Joaquim Chiaca Ronildo',
+                userEmail: 'ronildojoaquimchiaca87@gmail.com',
+                featureName: 'Iniciar sessão com Google',
+                actionAt: now()->toIso8601String(),
+                ctaUrl: url('/'),
+                ctaLabel: 'Aceder à sua Conta',
+            );
+        });
+        ;
+
         /*
         |--------------------------------------------------------------------------
         | Rotas de Autenticação Central
