@@ -24,7 +24,6 @@ use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FolhaAprovacaoController;
 use App\Http\Controllers\Tenant\GrelhaCurricularController;
 use App\Http\Controllers\Tenant\GrupoPapAprovacaoController;
-use App\Http\Controllers\Tenant\GrupoPapCascataController;
 use App\Http\Controllers\Tenant\GrupoPapController;
 use App\Http\Controllers\Tenant\GrupoPapTemaController;
 use App\Http\Controllers\Tenant\InscricaoController;
@@ -399,8 +398,6 @@ Route::middleware([
                 Route::get('form-options', [GrupoPapController::class, 'formOptions'])
                     ->name('grupos-pap.form-options');
             });
-
-
 
             /*
             |--------------------------------------------------------------------------

@@ -6,40 +6,40 @@ use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
-use App\Services\Tenant\GrupoPap\GrupoPapViewService;
+use Illuminate\Support\Collection;
 
 class GrupoPapService
 {
-
     /**
      * Devolve as classes de 13.º ano do curso tutelado indicado.
      * Usa distinct na query para evitar duplicados, sem depender de uniqueBy.
      */
-    public function classes(string $cursoTuteladoId): \Illuminate\Support\Collection
+    public function classes(string $cursoTuteladoId): Collection
     {
         return CursoClasse::query()
             ->where('curso_tutelado_id', $cursoTuteladoId)
-            ->whereHas('classe', fn($q) => $q->where('nome', 'LIKE', '13%'))
+            ->whereHas('classe', fn ($q) => $q->where('nome', 'LIKE', '13%'))
             ->with('classe:id,nome')
             ->orderBy('id')
             ->get()
-            ->map(fn($cc) => [
+            ->map(fn ($cc) => [
                 'id' => $cc->id,        /* ← id do CursoClasse, não da Classe */
                 'nome' => $cc->classe?->nome ?? 'Classe',
             ])
             ->unique('nome')              /* ← agrupa pelo nome para não repetir "13ª" */
             ->values();
     }
+
     /**
      * Devolve os turnos disponíveis para a classe indicada.
      */
-    public function turnos(string $cursoClasseId): \Illuminate\Support\Collection
+    public function turnos(string $cursoClasseId): Collection
     {
         return CursoClasseTurno::query()
             ->where('curso_classe_id', $cursoClasseId)
             ->with('turno:id,nome')
             ->get()
-            ->map(fn($cct) => [
+            ->map(fn ($cct) => [
                 'id' => $cct->id,
                 'nome' => $cct->turno->nome,
             ])
@@ -49,7 +49,7 @@ class GrupoPapService
     /**
      * Devolve as turmas do turno indicado, ordenadas por nome.
      */
-    public function turmas(string $cursoClasseTurnoId): \Illuminate\Support\Collection
+    public function turmas(string $cursoClasseTurnoId): Collection
     {
         return Turma::query()
             ->where('curso_classe_turno_id', $cursoClasseTurnoId)
@@ -67,14 +67,14 @@ class GrupoPapService
         $cursoTutelado = CursoTutelado::query()->find($cursoTuteladoId);
         $turma = Turma::query()->find($turmaId);
 
-        if (!$cursoTutelado || !$turma) {
+        if (! $cursoTutelado || ! $turma) {
             return ['professores' => [], 'alunos' => []];
         }
 
         $classeNome = $turma->cursoClasseTurno?->cursoClasse?->classe?->nome ?? '';
 
         /* Só turmas de 13.º ano podem ter grupo PAP */
-        if (!str_contains(strtolower($classeNome), '13')) {
+        if (! str_contains(strtolower($classeNome), '13')) {
             return ['professores' => [], 'alunos' => []];
         }
 
@@ -82,7 +82,7 @@ class GrupoPapService
 
         return [
             'professores' => $options['professores']
-                ->map(fn($p) => [
+                ->map(fn ($p) => [
                     'id' => $p->id,
                     'nome' => $p->user?->nome ?? 'Sem nome',
                 ])

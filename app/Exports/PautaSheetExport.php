@@ -11,11 +11,9 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PautaSheetExport implements Export, WithEvents, WithTitle
 {
-
     protected array $disciplinas;
 
     protected array $alunos;

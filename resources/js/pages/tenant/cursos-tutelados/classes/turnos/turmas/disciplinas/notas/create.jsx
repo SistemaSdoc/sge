@@ -50,7 +50,7 @@ export default function Create({
     return (
       <div className="flex justify-center py-20">
         <span className="text-sm text-muted-foreground">
-          Sem dados disponíveis.
+          Esta turma ainda não tem alunos.
         </span>
       </div>
     );
@@ -61,6 +61,7 @@ export default function Create({
       <Header can={can} turma={turma} params={params} />
 
       <LancamentosTable
+        params={params}
         data={data}
         isPending={form.processing}
         errors={form.errors}

@@ -34,7 +34,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-
 class GrupoPapController extends Controller
 {
     public function __construct(
@@ -395,7 +394,7 @@ class GrupoPapController extends Controller
     }
 
     /* ------------------------------------------------------------------ */
-    /*  Endpoints auxiliares do formulário independente           */
+    /*  Endpoints auxiliares do formulário independente */
     /* ------------------------------------------------------------------ */
 
     /** Devolve as classes de 13.º ano para o curso tutelado seleccionado. */
@@ -432,7 +431,6 @@ class GrupoPapController extends Controller
             )
         );
     }
-
 
     /**
      * Formulário de criação de grupo PAP sem turma pré-seleccionada.

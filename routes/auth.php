@@ -21,6 +21,8 @@ Route::prefix('auth')->name('auth.')->group(function () {
         ->name('facebook.callback');
 });
 
+/*
+//por terminar...
 Route::prefix('password-confirmation')->name('password-confirmation-google.')
     ->middleware(['auth'])->group(function () {
         Route::get('google/redirect', [PasswordConfirmationGoogleController::class, 'redirect'])
@@ -28,4 +30,20 @@ Route::prefix('password-confirmation')->name('password-confirmation-google.')
 
         Route::get('google/callback', [PasswordConfirmationGoogleController::class, 'callback'])
             ->name('callback');
-    });
+    });*/
+
+/*Route::get('google/redirect', [GoogleAuthController::class, 'redirect'])
+->middleware('guest:tenant')
+->name('tenant.google.redirect');
+
+    Route::get('google/callback', [GoogleAuthController::class, 'callback'])
+->middleware('guest:tenant')
+->name('tenant.google.callback');
+
+    Route::get('facebook/redirect', [FacebookAuthController::class, 'redirect'])
+->middleware('guest:tenant')
+->name('tenant.facebook.redirect');
+
+    Route::get('facebook/callback', [FacebookAuthController::class, 'callback'])
+->middleware('guest:tenant')
+->name('tenant.facebook.callback');*/

@@ -31,6 +31,7 @@ import {
   LockKeyhole,
   LockKeyholeOpen,
   Clock,
+  Search,
 } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { mediaTrimestral } from '@/utils/media-trimestral';
@@ -46,17 +47,14 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from '@inertiajs/react';
+import { ButtonGroup } from '@/components/ui/button-group';
+import { exportarDisciplina } from '@/actions/App/Http/Controllers/Tenant/ExportarMiniPautaController';
 
 export default function LancamentosTable({
   data,
   isPending,
   errors = {},
-  instituicaoId,
-  cursoId,
-  classeId,
-  turnoId,
-  turmaId,
-  disciplinaId,
+  params,
   periodosLancados = {},
   periodosDisponiveis = {},
   pagination = {},
@@ -138,9 +136,11 @@ export default function LancamentosTable({
     });
   }, [periodo, statusPeriodo]);
 
+  // DEPOIS
   useEffect(() => {
     const prazo = autorizacaoAte?.[periodo];
-    if (!prazo) {
+    if (!prazo || podeOverride) {
+      // ← director não precisa de ver
       setTempoRestante(null);
       return;
     }
@@ -160,7 +160,7 @@ export default function LancamentosTable({
     calcular();
     const interval = setInterval(calcular, 1000);
     return () => clearInterval(interval);
-  }, [periodo, autorizacaoAte]);
+  }, [periodo, autorizacaoAte, podeOverride]);
 
   // ── 7. FUNÇÕES ──────────────────────────────────────────────────
   const toggleTodos = () => {
@@ -320,23 +320,27 @@ export default function LancamentosTable({
                 )}
               </Button>
             )}
-            <Select value={periodo} onValueChange={setPeriodo}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Trimestre" />
-              </SelectTrigger>
-
+            <Select>
               <SelectContent>
                 <SelectItem value="1">1º Trimestre</SelectItem>
-                <SelectItem value="2" disabled={!periodosDisponiveis?.[2]}>
+                <SelectItem
+                  value="2"
+                  disabled={!podeOverride && !periodosDisponiveis?.[2]}
+                >
                   2º Trimestre
                 </SelectItem>
-                <SelectItem value="3" disabled={!periodosDisponiveis?.[3]}>
+                <SelectItem
+                  value="3"
+                  disabled={!podeOverride && !periodosDisponiveis?.[3]}
+                >
                   3º Trimestre
                 </SelectItem>
               </SelectContent>
             </Select>
             <input type="hidden" name="tdp_id" value={data?.tdp_id ?? ''} />
+
             <input type="hidden" name="periodo" value={parseInt(periodo)} />
+
             {podeGuardar && (
               <Button
                 type="button"
@@ -347,6 +351,7 @@ export default function LancamentosTable({
                 Guardar rascunho
               </Button>
             )}
+
             {podeFinalizar && (
               <Button
                 type="button"
@@ -366,6 +371,7 @@ export default function LancamentosTable({
                 Solicitar edição ao director
               </Button>
             )}
+
             {podeSolicitarEdicao && temSolicitacaoPendente?.[periodo] && (
               <Badge className="bg-yellow-50 px-3 py-1 text-yellow-700">
                 Solicitação pendente
@@ -373,6 +379,39 @@ export default function LancamentosTable({
             )}
           </CardAction>
         </CardHeader>
+
+        {/* Filtros */}
+        <div className="border-b bg-muted/30 px-4 py-3">
+          <div className="flex justify-end gap-3">
+            <Select value={periodo} onValueChange={setPeriodo}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Trimestre" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="1">1º Trimestre</SelectItem>
+                <SelectItem value="2" disabled={!periodosDisponiveis?.[2]}>
+                  2º Trimestre
+                </SelectItem>
+                <SelectItem value="3" disabled={!periodosDisponiveis?.[3]}>
+                  3º Trimestre
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            {can?.notas?.exportar && (
+              <Button variant={'outline'}>
+                <a
+                  href={exportarDisciplina(params).url + `?periodo=${periodo}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Exportar Mini-Pauta
+                </a>
+              </Button>
+            )}
+          </div>
+        </div>
 
         <CardContent className="p-0!">
           {isEmpty ? (

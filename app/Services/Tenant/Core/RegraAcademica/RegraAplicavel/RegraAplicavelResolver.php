@@ -15,9 +15,17 @@ class RegraAplicavelResolver
      */
     public function resolve(TurmaAluno $turmaAluno, ?string $classeId = null): ?RegraAvaliacao
     {
-        $instituicaoId = $turmaAluno->turma
-            ->cursoClasseTurno->cursoClasse->cursoTutelado
-            ->instituicao_tutora_id;
+        $cursoTutelado = $turmaAluno->turma
+            ->cursoClasseTurno
+            ->cursoClasse
+            ->cursoTutelado;
+
+        $instituicaoId = $cursoTutelado?->instituicao_tutora_id
+            ?? $cursoTutelado?->instituicaoCurso?->instituicao_id;
+
+        if (blank($instituicaoId)) {
+            return null;
+        }
 
         $anoLectivoId = $turmaAluno->turma->ano_lectivo_id;
 

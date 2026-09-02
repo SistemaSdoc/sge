@@ -15,6 +15,7 @@ use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
+use App\Models\Tenant\User;
 use App\Services\Tenant\NotaService;
 use App\Services\Tenant\Pauta\PautaService;
 use Illuminate\Http\Request;
@@ -163,6 +164,7 @@ class NotaDisciplinaController extends Controller
         ClasseTurnoDisciplina $classeTurnoDisciplina,
         Request $request
     ) {
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
         $anoLectivoId = $request->input('ano_lectivo_id') ?? $turma->ano_lectivo_id;
 
@@ -170,194 +172,6 @@ class NotaDisciplinaController extends Controller
 
         if (! $tdp) {
             return back()->with('warning', 'Ainda não existe uma associação de professor para esta disciplina neste ano lectivo.');
-
-            Log::info('Chamando resolveTurmaDisciplinaProfessor', [
-                'turma_id' => $turma->id,
-                'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
-                'ano_lectivo_id' => $anoLectivoId,
-            ]);
-
-            $tdp = $this->resolveTurmaDisciplinaProfessor($turma, $classeTurnoDisciplina, $anoLectivoId);
-            Log::info('resolveTurmaDisciplinaProfessor retornou', ['tdp_id' => $tdp?->id, 'tdp_null' => is_null($tdp)]);
-
-            if (! $tdp) {
-                Log::warning('TurmaDisciplinaProfessor não encontrado para notas', [
-                    'turma_id' => $turma->id,
-                    'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
-                    'ano_lectivo_id' => $anoLectivoId,
-                ]);
-
-                return back()->with('warning', 'Ainda não existe uma associação de professor para esta disciplina neste ano lectivo.');
-            }
-
-            $professorDono = Auth::guard('tenant')->user()->professor?->id === $tdp->professor_id;
-            $podeVerRascunho = $professorDono || Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector']);
-
-            Log::info('Gate::authorize view');
-            Gate::authorize('view', $tdp);
-            Log::info('Gate::authorize create');
-            Gate::authorize('create', [Nota::class, $tdp]);
-
-            Log::info('Buscando periodosLancados');
-            $periodosLancados = $this->notaService->periodosLancados($tdp->id);
-            Log::info('periodosLancados', $periodosLancados);
-
-            Log::info('Buscando periodosDisponiveis');
-            $periodosDisponiveis = $this->notaService->periodosDisponiveis($tdp->id);
-            Log::info('periodosDisponiveis', $periodosDisponiveis);
-
-            Log::info('Calculando podeLancarNotas');
-            $podeLancarNotas = Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector'])
-                || ! (
-                    $periodosLancados[1]
-                    && $periodosLancados[2]
-                    && $periodosLancados[3]
-                );
-            Log::info('podeLancarNotas', ['value' => $podeLancarNotas]);
-
-            Log::info('Calculando todosDisponiveis');
-            $todosDisponiveis = Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector'])
-                || (
-                    $periodosLancados[1]
-                    && $periodosLancados[2]
-                    && $periodosLancados[3]
-                );
-            Log::info('todosDisponiveis', ['value' => $todosDisponiveis]);
-
-            Log::info('Buscando turmaAlunos');
-            $turmaAlunos = TurmaAluno::query()
-                ->select('turma_aluno.*')
-                ->join('alunos', 'alunos.id', '=', 'turma_aluno.aluno_id')
-                ->join('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
-                ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
-                ->with([
-                    'aluno.inscricao.candidato:id,nome',
-                    'notas' => fn ($q) => $q->where('turma_disciplina_professor_id', $tdp->id),
-                ])
-                ->where('turma_aluno.turma_id', $turma->id)
-                ->where(function ($q) {
-                    $q->where(function ($q) {
-                        $q->where('turma_aluno.situacao', 'activo')
-                            ->where('turma_aluno.activo', true);
-                    })->orWhere('turma_aluno.situacao', 'concluido');
-                })
-                ->orderBy('candidatos.nome')
-                ->paginate(20, ['*'], 'page_alunos');
-            Log::info('turmaAlunos buscados', ['total' => $turmaAlunos->total()]);
-
-            Log::info('Mapeando alunos para o frontend');
-            $alunosMapeados = $turmaAlunos->getCollection()->map(fn ($ta) => [
-                'turma_aluno_id' => $ta->id,
-                'aluno_id' => $ta->aluno->id,
-                'nome' => $ta->aluno->inscricao?->candidato?->nome,
-                'notas' => $ta->notas
-                    ->filter(fn ($nota) => $nota->turma_disciplina_professor_id === $tdp->id)
-                    ->map(fn ($n) => [
-                        ...$this->formatarNota($n),
-                        'is_rascunho' => ($pautaStatus[$n->periodo]->status ?? 'rascunho') === 'rascunho',
-                    ])
-                    ->keyBy('periodo'),
-            ]);
-
-            Log::info('Alunos mapeados com sucesso', ['count' => $alunosMapeados->count()]);
-
-            Log::info('Verificando permissions can');
-            $can = [
-                'create' => Auth::guard('tenant')->user()->can('create', [Nota::class, $tdp]),
-                'overrideLockedPeriods' => Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector']),
-                'finalizar' => Auth::guard('tenant')->user()->can('pautas.finalizar'),
-                'solicitarEdicao' => Auth::guard('tenant')->user()->can('pautas.solicitarEdicao'),
-            ];
-            Log::info('Permissions verificadas', $can);
-
-            Log::info('Buscando getPautaStatus');
-            $pautaStatus = [
-                1 => $this->notaService->getPautaStatus($tdp->id, 1),
-                2 => $this->notaService->getPautaStatus($tdp->id, 2),
-                3 => $this->notaService->getPautaStatus($tdp->id, 3),
-            ];
-            Log::info('pautaStatus', $pautaStatus);
-
-            Log::info('Buscando dentroDoPrazo');
-            try {
-                $dentroDoPrazo = [
-                    1 => $this->notaService->dentroDoPrazo($instituicao->id, 1),
-                    2 => $this->notaService->dentroDoPrazo($instituicao->id, 2),
-                    3 => $this->notaService->dentroDoPrazo($instituicao->id, 3),
-                ];
-                Log::info('dentroDoPrazo', $dentroDoPrazo);
-            } catch (\Exception $e) {
-                Log::error('Erro em dentroDoPrazo', [
-                    'message' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => $e->getTraceAsString(),
-                ]);
-                throw $e;
-            }
-
-            Log::info('Renderizando Inertia');
-            try {
-                return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
-                    'instituicao' => $instituicao->id,
-                    'cursoTutelado' => $cursoTutelado->id,
-                    'cursoClasse' => $cursoClasse->id,
-                    'cursoClasseTurno' => $cursoClasseTurno->id,
-                    'turma' => $turma->id,
-                    'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
-
-                    'can' => $can,
-                    'data' => [
-                        'tdp_id' => $tdp->id,
-                        'disciplina' => [
-                            'id' => $classeTurnoDisciplina->id,
-                            'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
-                            'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
-                        ],
-                        'alunos' => [
-                            'data' => $alunosMapeados,
-                            'current_page' => $turmaAlunos->currentPage(),
-                            'last_page' => $turmaAlunos->lastPage(),
-                        ],
-                        'periodos_lancados' => $periodosLancados,
-                        'periodos_disponiveis' => $periodosDisponiveis,
-                        'pode_lancar_notas' => $podeLancarNotas,
-                        'todos_disponiveis' => $todosDisponiveis,
-                        'pauta_status' => $pautaStatus,
-                        'dentro_do_prazo' => $dentroDoPrazo,
-                        'autorizacao_ate' => [   // ← adicionar isto
-                            1 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
-                                ->where('periodo', 1)->where('status', 'aprovada')
-                                ->whereNull('usada_em')->where('prazo_edicao_ate', '>', now())
-                                ->first()?->prazo_edicao_ate?->toISOString(),
-                            2 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
-                                ->where('periodo', 2)->where('status', 'aprovada')
-                                ->whereNull('usada_em')->where('prazo_edicao_ate', '>', now())
-                                ->first()?->prazo_edicao_ate?->toISOString(),
-                            3 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
-                                ->where('periodo', 3)->where('status', 'aprovada')
-                                ->whereNull('usada_em')->where('prazo_edicao_ate', '>', now())
-                                ->first()?->prazo_edicao_ate?->toISOString(),
-                        ],
-                        'tem_solicitacao_pendente' => [
-                            1 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
-                                ->where('periodo', 1)->where('status', 'pendente')->exists(),
-                            2 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
-                                ->where('periodo', 2)->where('status', 'pendente')->exists(),
-                            3 => SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdp->id)
-                                ->where('periodo', 3)->where('status', 'pendente')->exists(),
-                        ],
-                    ],
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Erro ao renderizar Inertia', [
-                    'message' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => $e->getTraceAsString(),
-                ]);
-                throw $e;
-            }
         }
 
         Gate::authorize('view', $tdp);
@@ -445,6 +259,7 @@ class NotaDisciplinaController extends Controller
                 'overrideLockedPeriods' => $isDirecao,
                 'finalizar' => $user->can('pautas.finalizar'),
                 'solicitarEdicao' => $user->can('pautas.solicitarEdicao'),
+                'exportar' => $user->can('export', [Nota::class, $tdp]),
             ],
         ];
 
@@ -521,10 +336,14 @@ class NotaDisciplinaController extends Controller
         ]);
 
         $tdp = TurmaDisciplinaProfessor::findOrFail($validated['tdp_id']);
+
         $periodo = (int) $validated['periodo'];
+
+        /** @var User $user */
         $isDirector = Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector']);
 
         Gate::authorize('view', $tdp);
+
         Gate::authorize('create', [Nota::class, $tdp]);
 
         if (! $this->notaService->periodoPodeSerLancado($tdp->id, $periodo)) {

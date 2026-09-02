@@ -42,7 +42,7 @@ class StoreCursoTuteladoRequest extends FormRequest
 
         $rules = [
             // 'curso_id' => ['nullable', 'uuid', 'exists:cursos,id'],
-            'nome' => ['nullable', 'string', 'min:2', 'max:255', 'unique:cursos,nome,' . $id],
+            'nome' => ['nullable', 'string', 'min:2', 'max:255', 'unique:cursos,nome,'.$id],
             'duracao_anos' => ['nullable', 'integer', 'min:1', 'max:10'],
             'nivel_ensino_id' => ['required', 'uuid', 'exists:niveis_ensino,id'],
             'classe_ids' => ['required', 'array', 'min:1'],
@@ -82,14 +82,14 @@ class StoreCursoTuteladoRequest extends FormRequest
                 return;
             }
 
-            if (!$tenantTutorId) {
+            if (! $tenantTutorId) {
                 return;
             }
 
             $tenant = Tenant::query()->find($tenantTutorId);
             $currentTenantId = (string) tenancy()->tenant->getTenantKey();
 
-            if (!$tenant || !in_array($tenant->status, [TenantStatus::ACTIVE, TenantStatus::TRIAL], true)) {
+            if (! $tenant || ! in_array($tenant->status, [TenantStatus::ACTIVE, TenantStatus::TRIAL], true)) {
                 $validator->errors()->add('tenant_tutor_id', 'A instituição tutora não está disponível.');
             }
 
@@ -115,7 +115,7 @@ class StoreCursoTuteladoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            //'curso_id.uuid' => 'O curso seleccionado é inválido.',
+            // 'curso_id.uuid' => 'O curso seleccionado é inválido.',
             'nome.unique' => 'Já existe um curso com este nome.',
             'nome.required' => 'O nome do curso é obrigatório.',
             'nome.min' => 'O nome do curso deve ter pelo menos 2 caracteres.',
