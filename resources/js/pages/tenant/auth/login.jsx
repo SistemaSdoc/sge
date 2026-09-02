@@ -11,25 +11,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { store as LoginWithEmailAndPassword } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
-import { redirect as LoginWithGoogle } from '@/actions/App/Http/Controllers/Tenant/Auth/GoogleAuthController';
+//import { redirect as LoginWithGoogle } from '@/actions/App/Http/Controllers/Tenant/Auth/GoogleAuthController';
 
 export default function Login({ status, canResetPassword }) {
-  const [googleLoading, setGoogleLoading] = useState(false);
+  /*const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleGoogleConfirmation = () => {
     setGoogleLoading(true);
     window.location.href = LoginWithGoogle().url;
-  };
+  };*/
 
   return (
     <>
       <Head title="Login" />
 
       <div className="flex flex-col gap-2">
-        <GoogleButton
+        {/*<GoogleButton
           isLoading={googleLoading}
           onClick={handleGoogleConfirmation}
-        />
+        />*/}
         <PasskeyVerify /*separator="Ou continue com email e senha"*/ />
       </div>
 
