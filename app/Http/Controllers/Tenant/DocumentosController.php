@@ -21,7 +21,8 @@ class DocumentosController extends Controller
         private DeclaracaoSemNotaService $declaracaoService,
         private DeclaracaoComNotaService $declaracaoComNotaService,
         private CertificadoService $certificadoService,
-    ) {}
+    ) {
+    }
 
     private function emitirCertificado(Aluno $aluno, Turma $turma, $candidato, string $classeNome): mixed
     {
@@ -29,13 +30,10 @@ class DocumentosController extends Controller
             abort(response()->json(['message' => 'O certificado só pode ser emitido para alunos da 13ª classe.']));
         }
 
-        // Verifica se tem notas
-        $dados = $this->declaracaoComNotaService->calcularDados($aluno, $turma);
-        $todasDisciplinas = array_merge(
-            $dados['notas']['sociocultural'] ?? [],
-            $dados['notas']['cientifica'] ?? [],
-            $dados['notas']['tecnica'] ?? [],
-        );
+        // Usa o CertificadoService (agrega todas as turmas do aluno)
+        $calc = $this->certificadoService->calcular($aluno, $turma);
+
+        $todasDisciplinas = array_merge(...array_values($calc['notas']));
 
         if (empty($todasDisciplinas)) {
             abort(response()->json(['message' => 'O aluno não tem notas lançadas para gerar o certificado.']));
@@ -157,7 +155,7 @@ class DocumentosController extends Controller
                     ->orWhere('numero_processo', 'like', "%{$q}%")
                     ->orWhereHas(
                         'inscricao.candidato',
-                        fn ($q2) => $q2->where('nome', 'like', "%{$q}%")
+                        fn($q2) => $q2->where('nome', 'like', "%{$q}%")
                     );
             })
             ->with([
@@ -175,7 +173,7 @@ class DocumentosController extends Controller
         $resultado = $alunos->map(function ($aluno) {
             $nomeAluno = $aluno->inscricao?->candidato?->nome;
 
-            if (! $nomeAluno) {
+            if (!$nomeAluno) {
                 return null;
             }
 
@@ -269,9 +267,9 @@ class DocumentosController extends Controller
         $turma = $aluno->turmaActual()
             ->when(
                 $request->classe_id,
-                fn ($q) => $q->whereHas(
+                fn($q) => $q->whereHas(
                     'cursoClasseTurno.cursoClasse',
-                    fn ($q2) => $q2->where('id', $request->classe_id)
+                    fn($q2) => $q2->where('id', $request->classe_id)
                 )
             )
             ->with([
@@ -282,13 +280,13 @@ class DocumentosController extends Controller
             ])
             ->first();
 
-        if (! $turma) {
+        if (!$turma) {
             $turma = $aluno->turmas()
                 ->when(
                     $request->classe_id,
-                    fn ($q) => $q->whereHas(
+                    fn($q) => $q->whereHas(
                         'cursoClasseTurno.cursoClasse',
-                        fn ($q2) => $q2->where('id', $request->classe_id)
+                        fn($q2) => $q2->where('id', $request->classe_id)
                     )
                 )
                 ->with([
@@ -300,7 +298,7 @@ class DocumentosController extends Controller
                 ->first();
         }
 
-        if (! $turma) {
+        if (!$turma) {
             abort(422, 'Aluno sem turma associada para emitir este documento.');
         }
 
