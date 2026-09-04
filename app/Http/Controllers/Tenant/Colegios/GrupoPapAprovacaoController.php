@@ -16,6 +16,7 @@ use App\Models\Tenant\User;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Services\Tenant\CrossTenantAccessService;
 use App\Services\Tenant\Tutela\TutelaService;
+use App\Traits\NotificaGrupoPap;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,8 @@ use Illuminate\Support\Facades\DB;
  */
 class GrupoPapAprovacaoController extends Controller
 {
+    use NotificaGrupoPap;
+
     public function __construct(
         private AprovacaoTemaService $service,
         private TutelaService $tutelaService,
@@ -39,7 +42,10 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function pendentes(Instituicao $colegio)
     {
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
+        abort_unless($user->can('grupopap.aprovar'), 403);
 
         // O utilizador precisa estar associado a um professor
         if (! $user->professor) {
@@ -160,6 +166,10 @@ class GrupoPapAprovacaoController extends Controller
                 'comentario' => $validated['comentario'] ?? 'Aprovado pelo professor tutor.',
             ]);
         });
+
+        $this->notificarTemaValidadoPeloTutor(
+            $grupoPap->loadMissing('turma.cursoClasseTurno.cursoClasse.cursoTutelado'),
+        );
 
         return back()->with('toast', [
             'type' => 'success',

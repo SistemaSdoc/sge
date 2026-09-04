@@ -19,7 +19,7 @@ class CreateGrupoPap
         return DB::transaction(function () use ($turma, $validated): GrupoPap {
             $grupoPap = GrupoPap::create([
                 'turma_id' => $turma->getKey(),
-                'professor_tutor_id' => $validated['professor_tutor_id'],
+                'professor_tutor_id' => $validated['professor_tutor_id'] ?? null,
                 'nome_grupo' => $validated['nome_grupo'],
                 'status_aprovacao' => GrupoPap::APROVACAO_RASCUNHO,
                 'tema_grupo' => $validated['tema_grupo'] ?? null,

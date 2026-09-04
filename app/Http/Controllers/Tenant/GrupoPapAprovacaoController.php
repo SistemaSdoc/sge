@@ -81,18 +81,7 @@ class GrupoPapAprovacaoController extends Controller
         });
 
         // ── Notificações ──────────────────────────────────────
-        $coordenadores = $grupoPap->turma
-            ->cursoClasseTurno
-            ->cursoClasse
-            ->cursoTutelado
-            ->professores()
-            ->where('coordenador', 1)
-            ->with('user')
-            ->get()
-            ->map->user
-            ->filter();
-
-        $this->notificarTemaValidadoPeloTutor($grupoPap, $coordenadores);
+        $this->notificarTemaValidadoPeloTutor($grupoPap);
         // ──────────────────────────────────────────────────────
 
         return back()->with('toast', [
@@ -144,6 +133,8 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function aprovar(Request $request, GrupoPap $grupoPap)
     {
+        $this->authorize('aprovar', $grupoPap);
+
         // Verificar se pode ser aprovado
         if (! $grupoPap->podeSerAprovado()) {
             return back()->withErrors([
@@ -181,11 +172,7 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        // Verificar autorização
-        /* $this->authorize(
-             'reprovarTema',
-             $grupoPap
-         );*/
+        $this->authorize('reprovar', $grupoPap);
 
         // O motivo da reprovação é obrigatório
         $validated = $request->validate([
@@ -242,11 +229,7 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        // Verificar autorização
-        /* $this->authorize(
-             'solicitarMelhoriaTema',
-             $grupoPap
-         );*/
+        $this->authorize('solicitarMelhoria', $grupoPap);
 
         // A recomendação é obrigatória
         $validated = $request->validate([

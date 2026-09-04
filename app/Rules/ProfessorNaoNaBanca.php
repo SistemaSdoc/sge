@@ -12,21 +12,32 @@ use Illuminate\Translation\PotentiallyTranslatedString;
 class ProfessorNaoNaBanca implements ValidationRule
 {
     public function __construct(
-        protected GrupoPap $grupoPap,
-        protected ?BancaJuriPap $bancaJuriPap = null,
-    ) {}
+        GrupoPap|string $grupoPap,
+        BancaJuriPap|string|null $bancaJuriPap = null,
+    ) {
+        $this->grupoPapId = $grupoPap instanceof GrupoPap
+            ? (string) $grupoPap->getKey()
+            : $grupoPap;
+        $this->bancaJuriPapId = $bancaJuriPap instanceof BancaJuriPap
+            ? (string) $bancaJuriPap->getKey()
+            : $bancaJuriPap;
+    }
+
+    protected string $grupoPapId;
+
+    protected ?string $bancaJuriPapId;
 
     /**
      * @param  Closure(string, ?string=): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $query = BancaJuriPap::where('grupo_pap_id', $this->grupoPap->id)
+        $query = BancaJuriPap::where('grupo_pap_id', $this->grupoPapId)
             ->where('professor_id', $value);
 
         // No update, excluir o próprio registo da verificação
-        if ($this->bancaJuriPap) {
-            $query->where('id', '!=', $this->bancaJuriPap->id);
+        if ($this->bancaJuriPapId !== null) {
+            $query->where('id', '!=', $this->bancaJuriPapId);
         }
 
         if ($query->exists()) {

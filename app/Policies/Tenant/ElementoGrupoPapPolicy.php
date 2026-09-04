@@ -3,10 +3,19 @@
 namespace App\Policies\Tenant;
 
 use App\Models\Tenant\ElementoGrupoPap;
+use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\User;
 
 class ElementoGrupoPapPolicy
 {
+    private function pertenceAoGrupoOuTutela(User $user, GrupoPap $grupoPap): bool
+    {
+        $instituicaoId = $user->instituicao_id;
+
+        return $instituicaoId !== null
+            && $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicao_tutora_id === $instituicaoId;
+    }
+
     /**
      * Determine whether the user can view any models.
      */
@@ -21,7 +30,7 @@ class ElementoGrupoPapPolicy
     public function view(User $user, ElementoGrupoPap $elementoGrupoPap): bool
     {
         return $user->can('elementogrupopap.view')
-            && $elementoGrupoPap->grupoPap->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;
+            && $this->pertenceAoGrupoOuTutela($user, $elementoGrupoPap->grupoPap);
     }
 
     /**
@@ -38,7 +47,7 @@ class ElementoGrupoPapPolicy
     public function update(User $user, ElementoGrupoPap $elementoGrupoPap): bool
     {
         return $user->can('elementogrupopap.update')
-            && $elementoGrupoPap->grupoPap->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;
+            && $this->pertenceAoGrupoOuTutela($user, $elementoGrupoPap->grupoPap);
     }
 
     public function atualizarNota(User $user, ElementoGrupoPap $elementoGrupoPap): bool
@@ -56,7 +65,7 @@ class ElementoGrupoPapPolicy
         }
 
         return $user->can('elementogrupopap.atualizarNota')
-            && $elementoGrupoPap->grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
+            && $this->pertenceAoGrupoOuTutela($user, $grupoPap);
     }
 
     /**
@@ -65,7 +74,7 @@ class ElementoGrupoPapPolicy
     public function delete(User $user, ElementoGrupoPap $elementoGrupoPap): bool
     {
         return $user->can('elementogrupopap.delete')
-            && $elementoGrupoPap->grupoPap->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;
+            && $this->pertenceAoGrupoOuTutela($user, $elementoGrupoPap->grupoPap);
     }
 
     /**

@@ -49,6 +49,7 @@ export default function Show({
   banca,
   elementos,
   can,
+  errors: pageErrors = {},
 }) {
   const [notas, setNotas] = useState({});
   const [dialogDataAberto, setDialogDataAberto] = useState(false);
@@ -463,6 +464,7 @@ export default function Show({
               grupoPap={grupoPap}
               trabalho={trabalho}
               can={can}
+              errors={pageErrors}
             />
           </TabsContent>
         )}

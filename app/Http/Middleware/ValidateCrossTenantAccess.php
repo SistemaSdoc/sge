@@ -48,6 +48,24 @@ class ValidateCrossTenantAccess
             (string) $cursoTuteladoSharedId,
         );
 
+        $request->attributes->set('cross_tenant_tutor', $tutor);
+        $request->attributes->set(
+            'cross_tenant_can_create_banca',
+            $tutor->can('bancajuripap.create'),
+        );
+        $request->attributes->set(
+            'cross_tenant_can_delete_banca',
+            $tutor->can('bancajuripap.delete'),
+        );
+        $request->attributes->set(
+            'cross_tenant_can_update_banca',
+            $tutor->can('bancajuripap.update'),
+        );
+        $request->attributes->set(
+            'cross_tenant_can_update_nota',
+            $tutor->can('elementogrupopap.atualizarNota'),
+        );
+
         return $tenantColega->run(fn (): Response => $next($request));
     }
 }

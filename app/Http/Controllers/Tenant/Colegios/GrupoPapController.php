@@ -233,16 +233,12 @@ class GrupoPapController extends Controller
         GrupoPap $grupoPap,
         User $user,
     ) {
-        $this->authorize('view', $grupoPap);
-
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
-
-        // Buscar o colégio tutelado
-        $colegioModel = Instituicao::findOrFail($colegio);
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
-        $instituicaoTutoraModel = $grupoPap->instituicaoTutora();
+        $instituicaoTutoraModel = $instituicao;
         $instituicaoTutoraId = $instituicaoTutoraModel?->id;
         $siglaInstituto = $instituicaoTutoraModel?->sigla;
         $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
@@ -260,6 +256,13 @@ class GrupoPapController extends Controller
             'versoes.feedbacks.utilizador:id,nome,instituicao_id', // ← instituicao_id
             'aprovadoPor:id,nome,instituicao_id',                  // ← instituicao_id
         ])->first();
+
+        $canManageTheme = $user?->can('grupopap.aprovar')
+            && $grupoPap->podeSerAprovado();
+        $canDefineDefenseDate = $user?->can('grupopap.definirData')
+            && $grupoPap->status_aprovacao === GrupoPap::APROVACAO_APROVADO;
+        $canManageWorkAsCoordination = $user?->can('grupopap.aprovar')
+            && $trabalho?->podeSerAnalisadoPelaCoordenacao();
 
         $banca = $grupoPap->jurados()
             ->with('professor.user:id,nome,email')
@@ -306,7 +309,7 @@ class GrupoPapController extends Controller
                             $instituicaoTutoraModel,
                             $nomeCurso,
                         )
-                        : null,
+                        : $trabalho->aprovado_por_nome,
                     'versoes' => $trabalho->versoes->map(fn ($v) => [
                         'id' => $v->id,
                         'numero_versao' => $v->numero_versao,
@@ -318,11 +321,13 @@ class GrupoPapController extends Controller
                             'id' => $f->id,
                             'tipo' => $f->tipo,
                             'comentario' => $f->comentario,
-                            'utilizador' => PapHelper::nomeAprovador(
-                                $f->utilizador,
-                                $instituicaoTutoraModel,
-                                $nomeCurso,
-                            ),
+                            'utilizador' => $f->utilizador
+                                ? PapHelper::nomeAprovador(
+                                    $f->utilizador,
+                                    $instituicaoTutoraModel,
+                                    $nomeCurso,
+                                )
+                                : $f->utilizador_nome,
                             'created_at' => $f->created_at?->toIso8601String(),
                             'tem_ficheiro_correcao' => ! is_null($f->caminho_ficheiro_correcao),
                             'nome_original_correcao' => $f->nome_original_correcao,
@@ -357,22 +362,22 @@ class GrupoPapController extends Controller
 
                 'can' => [
                     'update' => $user?->can('update', $grupoPap),
-                    'definirData' => $user?->can('definirData', $grupoPap),
+                    'definirData' => $canDefineDefenseDate,
                     'delete' => $user?->can('delete', $grupoPap),
                     'corrigirTema' => $user?->can('corrigirTema', $grupoPap),
-                    'aprovar' => $user?->can('aprovar', $grupoPap),
-                    'reprovar' => $user?->can('reprovar', $grupoPap),
-                    'solicitarMelhoria' => $user?->can('solicitarMelhoria', $grupoPap),
-                    'aprovarComoTutor' => $user?->can('aprovarComoTutor', $grupoPap),
-                    'solicitarMelhoriaComoTutor' => $user?->can('solicitarMelhoriaComoTutor', $grupoPap),
+                    'aprovar' => $canManageTheme,
+                    'reprovar' => $canManageTheme,
+                    'solicitarMelhoria' => $canManageTheme,
+                    'aprovarComoTutor' => false,
+                    'solicitarMelhoriaComoTutor' => false,
 
                     // ← NOVO: can do trabalho
                     'submeter' => $user?->can('submeterTrabalho', $grupoPap),
-                    'aprovarTrabalhoComoTutor' => $user?->can('aprovarTrabalhoComoTutor', $grupoPap),
-                    'solicitarCorrecaoComoTutor' => $user?->can('solicitarCorrecaoTrabalhoComoTutor', $grupoPap),
-                    'aprovarComoCoordenacao' => $user?->can('aprovarTrabalhoComoCoordenacao', $grupoPap),
-                    'solicitarCorrecaoComoCoordenacao' => $user?->can('solicitarCorrecaoTrabalhoComoCoordenacao', $grupoPap),
-                    'downloadVersao' => $user?->can('downloadVersaoTrabalho', $grupoPap),
+                    'aprovarTrabalhoComoTutor' => false,
+                    'solicitarCorrecaoComoTutor' => false,
+                    'aprovarComoCoordenacao' => $canManageWorkAsCoordination,
+                    'solicitarCorrecaoComoCoordenacao' => $canManageWorkAsCoordination,
+                    'downloadVersao' => $canManageWorkAsCoordination,
 
                     'elementos' => [
                         'create' => false,
@@ -382,12 +387,15 @@ class GrupoPapController extends Controller
                             && $grupoPap->jurados()->exists(),
                         'delete' => false,
                     ],
-                    'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id,
+                    'verBanca' => $instituicaoTutoraModel?->id === $user->instituicao_id,
                     'banca' => [
                         'create' => $user?->can('bancajuripap.create')
-                            && ! is_null($grupoPap->data_defesa),
-                        'update' => $user?->can('bancajuripap.update'),
-                        'delete' => $user?->can('bancajuripap.delete'),
+                            && ! is_null($grupoPap->data_defesa)
+                            && $instituicaoTutoraModel?->id === $user->instituicao_id,
+                        'update' => $user?->can('bancajuripap.update')
+                            && $instituicaoTutoraModel?->id === $user->instituicao_id,
+                        'delete' => $user?->can('bancajuripap.delete')
+                            && $instituicaoTutoraModel?->id === $user->instituicao_id,
                     ],
                 ],
             ]

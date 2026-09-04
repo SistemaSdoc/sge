@@ -375,7 +375,7 @@ function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
 }
 // ── TabTrabalho ──────────────────────────────────────────────────────────────
 
-export function TabTrabalho({ params, grupoPap, trabalho, can }) {
+export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
   const [ficheiro, setFicheiro] = useState(null);
   const [loadingSubmissao, setLoadingSubmissao] = useState(false);
   const [modalAberto, setModalAberto] = useState(false);
@@ -587,6 +587,11 @@ export function TabTrabalho({ params, grupoPap, trabalho, can }) {
                 {ficheiro && (
                   <p className="text-xs text-muted-foreground">
                     {ficheiro.name} ({(ficheiro.size / 1024 / 1024).toFixed(2)} MB)
+                  </p>
+                )}
+                {errors.ficheiro && (
+                  <p className="text-sm text-destructive">
+                    {errors.ficheiro}
                   </p>
                 )}
               </div>

@@ -2,6 +2,8 @@
 
 namespace App\Services\Tenant;
 
+use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
@@ -29,7 +31,9 @@ class AprovacaoTemaService
             return collect();
         }
 
-        // ✅ BUSCAR CURSOS TUTELADOS ONDE O PROFESSOR É COORDENADOR
+        $currentTenantId = (string) tenancy()->tenant->getTenantKey();
+
+        // Os cursos locais mantêm a resolução histórica da coordenação.
         $cursosTutelados = CursoTutelado::query()
             ->where('instituicao_tutora_id', $instituicaoId)
             ->whereHas(
@@ -41,21 +45,40 @@ class AprovacaoTemaService
             )
             ->pluck('id');
 
-        if ($cursosTutelados->isEmpty()) {
+        $temasPendentes = $this->temasPendentesDosCursos($cursosTutelados);
+
+        CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', $currentTenantId)
+            ->where('status', 'activo')
+            ->get()
+            ->each(function (CursoTuteladoShared $shared) use (&$temasPendentes): void {
+                $tenantTutelado = Tenant::query()->find($shared->tenant_tutelado_id);
+
+                if (! $tenantTutelado) {
+                    return;
+                }
+
+                $temasPendentes = $temasPendentes->merge($tenantTutelado->run(
+                    fn (): Collection => $this->temasPendentesDosCursos(
+                        collect([$shared->curso_tutelado_tutelado_id])
+                    )
+                ));
+            });
+
+        return $temasPendentes->sortByDesc('created_at')->values();
+    }
+
+    private function temasPendentesDosCursos(Collection $cursoTuteladoIds): Collection
+    {
+        if ($cursoTuteladoIds->isEmpty()) {
             return collect();
         }
 
-        // Buscar grupos PAP pendentes desses cursos
         return GrupoPap::query()
             ->where('status_aprovacao', 'pendente')
             ->whereHas(
                 'turma.cursoClasseTurno.cursoClasse',
-                function ($query) use ($cursosTutelados) {
-                    $query->whereIn(
-                        'curso_tutelado_id',
-                        $cursosTutelados
-                    );
-                }
+                fn ($query) => $query->whereIn('curso_tutelado_id', $cursoTuteladoIds)
             )
             ->with([
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
@@ -69,42 +92,92 @@ class AprovacaoTemaService
     /**
      * Aprovar tema PAP
      */
-    public function aprovar(GrupoPap $grupoPap, User $user, ?string $comentario = null): bool
-    {
-        return $this->alterarEstado($grupoPap, $user, 'aprovado', $comentario);
+    public function aprovar(
+        GrupoPap $grupoPap,
+        User $user,
+        ?string $comentario = null,
+        ?string $actorTenantId = null,
+    ): bool {
+        return $this->alterarEstado(
+            $grupoPap,
+            $user,
+            'aprovado',
+            $comentario,
+            $actorTenantId
+        );
     }
 
     /**
      * Reprovar tema PAP
      */
-    public function reprovar(GrupoPap $grupoPap, User $user, string $motivo): bool
-    {
-        return $this->alterarEstado($grupoPap, $user, 'reprovado', $motivo);
+    public function reprovar(
+        GrupoPap $grupoPap,
+        User $user,
+        string $motivo,
+        ?string $actorTenantId = null,
+    ): bool {
+        return $this->alterarEstado(
+            $grupoPap,
+            $user,
+            'reprovado',
+            $motivo,
+            $actorTenantId
+        );
     }
 
     /**
      * Solicitar melhoria no tema PAP
      */
-    public function solicitarMelhoria(GrupoPap $grupoPap, User $user, string $recomendacao): bool
-    {
-        return $this->alterarEstado($grupoPap, $user, GrupoPap::APROVACAO_MELHORIA_COORDENACAO, $recomendacao);
+    public function solicitarMelhoria(
+        GrupoPap $grupoPap,
+        User $user,
+        string $recomendacao,
+        ?string $actorTenantId = null,
+    ): bool {
+        return $this->alterarEstado(
+            $grupoPap,
+            $user,
+            GrupoPap::APROVACAO_MELHORIA_COORDENACAO,
+            $recomendacao,
+            $actorTenantId,
+        );
     }
 
     /**
      * Alterar estado do tema PAP
      * e criar registo no histórico.
      */
-    private function alterarEstado(GrupoPap $grupoPap, User $user, string $novoEstado, ?string $comentario = null): bool
-    {
+    private function alterarEstado(
+        GrupoPap $grupoPap,
+        User $user,
+        string $novoEstado,
+        ?string $comentario = null,
+        ?string $actorTenantId = null,
+    ): bool {
         if (! $grupoPap->podeSerAprovado()) {
             return false;
         }
 
-        return DB::transaction(function () use ($grupoPap, $user, $novoEstado, $comentario, $actorTenantId) {
+        $currentTenantId = tenancy()->tenant?->getTenantKey();
+
+        if ($currentTenantId === null) {
+            throw new \LogicException('Não é possível aprovar um tema sem um tenant activo.');
+        }
+
+        $actorTenantId ??= (string) $currentTenantId;
+
+        return DB::transaction(function () use (
+            $grupoPap,
+            $user,
+            $novoEstado,
+            $comentario,
+            $actorTenantId,
+            $currentTenantId
+        ) {
 
             $estadoAnterior = $grupoPap->status_aprovacao;
             $isExternalActor = $actorTenantId !== null
-                && $actorTenantId !== (string) tenancy()->tenant->getTenantKey();
+                && $actorTenantId !== (string) $currentTenantId;
 
             $grupoPap->update([
                 'status_aprovacao' => $novoEstado,
@@ -156,13 +229,20 @@ class AprovacaoTemaService
      * O colégio corrige o tema e envia novamente
      * para análise da instituição tutora.
      */
-    public function reenviar(GrupoPap $grupoPap, User $user, array $dados): bool
-    {
+    public function reenviar(
+        GrupoPap $grupoPap,
+        User $user,
+        array $dados
+    ): bool {
         if (! $grupoPap->podeSerReenviado()) {
             return false;
         }
 
-        return DB::transaction(function () use ($grupoPap, $user, $dados) {
+        return DB::transaction(function () use (
+            $grupoPap,
+            $user,
+            $dados
+        ) {
 
             $estadoAnterior = $grupoPap->status_aprovacao;
 

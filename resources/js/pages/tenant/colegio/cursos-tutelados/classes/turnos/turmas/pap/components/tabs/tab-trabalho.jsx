@@ -35,7 +35,7 @@ import {
   download,
   visualizar,
   downloadCorrecao,
-} from '@/actions/App/Http/Controllers/Colegios/TrabalhoPapController';
+} from '@/actions/App/Http/Controllers/Tenant/Colegios/TrabalhoPapController';
 
 // ── Configuração de status ───────────────────────────────────────────────────
 
@@ -360,7 +360,7 @@ function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
 }
 // ── TabTrabalho ──────────────────────────────────────────────────────────────
 
-export function TabTrabalho({ params, grupoPap, trabalho, can }) {
+export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
   const [ficheiro, setFicheiro] = useState(null);
   const [loadingSubmissao, setLoadingSubmissao] = useState(false);
   const [modalAberto, setModalAberto] = useState(false);
@@ -564,6 +564,13 @@ export function TabTrabalho({ params, grupoPap, trabalho, can }) {
                 {ficheiro && (
                   <p className="text-xs text-muted-foreground">
                     {ficheiro.name} ({(ficheiro.size / 1024 / 1024).toFixed(2)} MB)
+                  </p>
+                )}
+                {errors.ficheiro && (
+                  <p className="text-sm text-destructive">
+                    {errors.ficheiro === 'validation.uploaded'
+                      ? 'O servidor não conseguiu receber este ficheiro. Tente novamente ou contacte o administrador.'
+                      : errors.ficheiro}
                   </p>
                 )}
               </div>

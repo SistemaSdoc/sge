@@ -13,16 +13,27 @@ use App\Notifications\Aluno\PropinaEmAtrasoNotification;
 
 trait NotificaAluno
 {
-    protected function notificarAlunoCriado(User $user, string $passwordPlain): void
-    {
-        $user->notify(new AlunoCriadoNotification($user, $passwordPlain));
+    protected function notificarAlunoCriado(
+        User $user,
+        string $passwordPlain
+    ): void {
+        $user->notify(new AlunoCriadoNotification(
+            $user,
+            $passwordPlain
+        ));
     }
 
-    protected function notificarAlunoTransferidoTurma(Aluno $aluno, Turma $turma): void
-    {
+    protected function notificarAlunoTransferidoTurma(
+        Aluno $aluno,
+        Turma $turma
+    ): void {
         $user = $aluno->user;
+
         if ($user) {
-            $user->notify(new AlunoTransferidoTurmaNotification($aluno, $turma));
+            $user->notify(new AlunoTransferidoTurmaNotification(
+                $aluno,
+                $turma
+            ));
         }
     }
 
@@ -33,11 +44,18 @@ trait NotificaAluno
         array $meses,
         string $assinatura
     ): void {
-        $user->notify(new PropinaEmAtrasoNotification($totalMeses, $valorTotal, $meses, $assinatura));
+        $user->notify(new PropinaEmAtrasoNotification(
+            $totalMeses,
+            $valorTotal,
+            $meses,
+            $assinatura
+        ));
     }
 
-    protected function notificarPagamentoRegistado(User $user, Pagamento $pagamento): void
-    {
+    protected function notificarPagamentoRegistado(
+        User $user,
+        Pagamento $pagamento
+    ): void {
         $user->notify(new PagamentoRegistadoNotification($pagamento));
     }
 }

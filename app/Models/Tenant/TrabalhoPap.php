@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Model;
     'grupo_pap_id',
     'status',
     'aprovado_por_id',
+    'aprovado_por_externo_id',
+    'aprovado_por_externo_tenant_id',
+    'aprovado_por_nome',
     'data_aprovacao',
 ])]
 class TrabalhoPap extends Model

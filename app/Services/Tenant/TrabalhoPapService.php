@@ -9,8 +9,8 @@ use App\Models\Tenant\TrabalhoPapVersao;
 use App\Models\Tenant\User;
 use App\Traits\NotificaGrupoPap;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class TrabalhoPapService
 {
@@ -42,10 +42,10 @@ class TrabalhoPapService
 
             $numeroVersao = $trabalho->versoes()->max('numero_versao') + 1;
 
-            $caminho = $ficheiro->storeAs(
+            $caminho = $this->guardarUpload(
+                $ficheiro,
                 "trabalhos_pap/{$trabalho->grupo_pap_id}",
                 "v{$numeroVersao}_{$ficheiro->getClientOriginalName()}",
-                'private'
             );
 
             $versao = TrabalhoPapVersao::create([
@@ -92,8 +92,7 @@ class TrabalhoPapService
         // ── Notificações ─────────────────────────────────────────
         // Avisa a coordenação que o trabalho chegou para análise
         $grupoPap = $trabalho->grupoPap;
-        $coordenadores = $this->resolverCoordenadores($grupoPap);
-        $this->notificarTrabalhoSubmetido($grupoPap, $coordenadores);
+        $this->notificarTrabalhoAosCoordenadores($grupoPap);
         // ──────────────────────────────────────────────────────────
 
         return $feedback;
@@ -127,24 +126,32 @@ class TrabalhoPapService
     /**
      * Coordenação aprova o trabalho definitivamente.
      */
-    public function aprovarComoCoordenacao(TrabalhoPap $trabalho, User $user, ?string $comentario = null): TrabalhoPapFeedback
+    public function aprovarComoCoordenacao(TrabalhoPap $trabalho, User $user, ?string $comentario = null, ?string $actorTenantId = null): TrabalhoPapFeedback
     {
         if (! $trabalho->podeSerAnalisadoPelaCoordenacao()) {
             throw new \RuntimeException('O trabalho não está em análise da coordenação.');
         }
 
-        return DB::transaction(function () use ($trabalho, $user, $comentario) {
+        return DB::transaction(function () use ($trabalho, $user, $comentario, $actorTenantId) {
 
             $feedback = $this->registarFeedback(
                 $trabalho,
                 $user,
                 TrabalhoPapFeedback::TIPO_APROVACAO_COORDENACAO,
                 TrabalhoPap::STATUS_APROVADO,
-                $comentario
+                $comentario,
+                null,
+                $actorTenantId,
             );
 
+            $isExternalActor = $actorTenantId !== null
+                && $actorTenantId !== (string) tenancy()->tenant->getTenantKey();
+
             $trabalho->update([
-                'aprovado_por_id' => $user->id,
+                'aprovado_por_id' => $isExternalActor ? null : $user->id,
+                'aprovado_por_externo_id' => $isExternalActor ? $user->id : null,
+                'aprovado_por_externo_tenant_id' => $isExternalActor ? $actorTenantId : null,
+                'aprovado_por_nome' => $isExternalActor ? $user->nome : null,
                 'data_aprovacao' => now(),
             ]);
 
@@ -161,7 +168,7 @@ class TrabalhoPapService
      * O trabalho volta para pendente_entrega — o aluno
      * submete novamente e passa obrigatoriamente pelo tutor.
      */
-    public function solicitarCorrecaoComoCoordenacao(TrabalhoPap $trabalho, User $user, string $comentario, ?UploadedFile $ficheiroCorrecao = null): TrabalhoPapFeedback
+    public function solicitarCorrecaoComoCoordenacao(TrabalhoPap $trabalho, User $user, string $comentario, ?UploadedFile $ficheiroCorrecao = null, ?string $actorTenantId = null): TrabalhoPapFeedback
     {
         if (! $trabalho->podeSerAnalisadoPelaCoordenacao()) {
             throw new \RuntimeException('O trabalho não está em análise da coordenação.');
@@ -173,7 +180,8 @@ class TrabalhoPapService
             TrabalhoPapFeedback::TIPO_CORRECAO_COORDENACAO,
             TrabalhoPap::STATUS_CORRECAO_COORDENACAO,
             $comentario,
-            $ficheiroCorrecao
+            $ficheiroCorrecao,
+            $actorTenantId,
         );
 
         // ── Notificações ──────────────────────────────────────────
@@ -193,10 +201,11 @@ class TrabalhoPapService
         string $tipo,
         string $novoStatus,
         ?string $comentario,
-        ?UploadedFile $ficheiroCorrecao = null   // <-- novo
+        ?UploadedFile $ficheiroCorrecao = null,
+        ?string $actorTenantId = null,
     ): TrabalhoPapFeedback {
 
-        return DB::transaction(function () use ($trabalho, $user, $tipo, $novoStatus, $comentario, $ficheiroCorrecao) {
+        return DB::transaction(function () use ($trabalho, $user, $tipo, $novoStatus, $comentario, $ficheiroCorrecao, $actorTenantId) {
 
             $estadoAnterior = $trabalho->status;
             $versaoAtual = $trabalho->versaoAtual;
@@ -214,18 +223,24 @@ class TrabalhoPapService
                     default => 'correcao',
                 };
 
-                $caminhoCorrecao = $ficheiroCorrecao->storeAs(
+                $caminhoCorrecao = $this->guardarUpload(
+                    $ficheiroCorrecao,
                     "trabalhos_pap/{$trabalho->grupo_pap_id}/correcoes",
                     "{$prefixo}_v{$versaoAtual?->numero_versao}_{$ficheiroCorrecao->getClientOriginalName()}",
-                    'private'
                 );
                 $nomeOriginalCorrecao = $ficheiroCorrecao->getClientOriginalName();
             }
 
+            $isExternalActor = $actorTenantId !== null
+                && $actorTenantId !== (string) tenancy()->tenant->getTenantKey();
+
             return TrabalhoPapFeedback::create([
                 'trabalho_pap_id' => $trabalho->id,
                 'versao_id' => $versaoAtual?->id,
-                'utilizador_id' => $user->id,
+                'utilizador_id' => $isExternalActor ? null : $user->id,
+                'utilizador_externo_id' => $isExternalActor ? $user->id : null,
+                'utilizador_externo_tenant_id' => $isExternalActor ? $actorTenantId : null,
+                'utilizador_nome' => $isExternalActor ? $user->nome : null,
                 'tipo' => $tipo,
                 'comentario' => $comentario,
                 'caminho_ficheiro_correcao' => $caminhoCorrecao,
@@ -236,25 +251,16 @@ class TrabalhoPapService
         });
     }
 
-    /**
-     * Resolve os utilizadores coordenadores do curso tutelado do grupo.
-     */
-    private function resolverCoordenadores(GrupoPap $grupoPap): Collection
+    private function guardarUpload(UploadedFile $ficheiro, string $directorio, string $nome): string
     {
-        $cursoTutelado = $grupoPap->turma
-            ?->cursoClasseTurno
-            ?->cursoClasse
-            ?->cursoTutelado;
+        $caminho = trim($directorio, '/').'/'.basename($nome);
+        $disco = Storage::disk('private');
+        $disco->makeDirectory(dirname($caminho));
 
-        if (! $cursoTutelado) {
-            return collect();
+        if (! copy($ficheiro->getRealPath(), $disco->path($caminho))) {
+            throw new \RuntimeException('Não foi possível guardar o ficheiro do trabalho PAP.');
         }
 
-        return $cursoTutelado->professores()
-            ->where('coordenador', 1)
-            ->with('user')
-            ->get()
-            ->map->user
-            ->filter();
+        return $caminho;
     }
 }

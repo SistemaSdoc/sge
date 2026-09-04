@@ -179,15 +179,15 @@ class CursoTuteladoController extends Controller
     }
 
     /**
-     * Guarda os critérios PAP e o manual de PT do curso tutelado.
+     * Guarda os documentos PAP do curso tutelado.
      */
     public function uploadCriteriosPap(
         UploadCursoTuteladoDocumentosRequest $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado
     ) {
+        // dd($request->validated());
         Gate::authorize('update', $cursoTutelado);
-
         $this->uploadCursoTuteladoDocumentos->handle($cursoTutelado, $request->validated());
 
         return redirect()->route('tenant.dashboard.instituicoes.cursos-tutelados.show', [

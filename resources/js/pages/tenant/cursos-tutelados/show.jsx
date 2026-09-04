@@ -32,6 +32,7 @@ export default function Show({
   anoLectivoId,
   anosLectivos = [],
   can,
+  errors = {},
 }) {
   const { deleteConfirm } = useDialog();
 
@@ -147,6 +148,7 @@ export default function Show({
             manualPtUrl={cursoTutelado.manual_pt_url}
             estruturaTrabalhoPapUrl={cursoTutelado.estrutura_trabalho_pap_url}
             can={cursoTutelado.can}
+            errors={errors}
           />
         </TabsContent>
       </Tabs>

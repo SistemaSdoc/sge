@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/BancaJuriPapController';
+import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/Colegios/BancaJuriPapController';
 import { destroy as destroyIntegrante } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
 import { edit } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import { definirData } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapController';
@@ -50,6 +50,7 @@ export default function Show({
   banca,
   elementos,
   can,
+  errors: pageErrors = {},
 }) {
   const [notas, setNotas] = useState({});
   const [dialogDataAberto, setDialogDataAberto] = useState(false);
@@ -438,6 +439,7 @@ export default function Show({
               grupoPap={grupoPap}
               trabalho={trabalho}
               can={can}
+              errors={pageErrors}
             />
           </TabsContent>
         )}

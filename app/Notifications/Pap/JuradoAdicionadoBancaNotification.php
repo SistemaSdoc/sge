@@ -27,6 +27,7 @@ class JuradoAdicionadoBancaNotification extends Notification
         return (new MailMessage)
             ->subject('Convocação para banca de júri PAP')
             ->view('mail.pap.jurado-adicionado-banca', [
+                'nome' => $notifiable->nome,
                 'nomeGrupo' => $this->grupoPap->nome_grupo,
                 'temaGrupo' => $this->grupoPap->tema_grupo,
                 'funcao' => $this->bancaJuriPap->funcao,

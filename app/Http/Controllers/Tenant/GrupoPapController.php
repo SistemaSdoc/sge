@@ -148,6 +148,7 @@ class GrupoPapController extends Controller
 
         // Enviar notificação aos alunos informando do grupo criado
         $alunosUsers = $grupo->alunos->map->user->filter();
+
         Notification::send($alunosUsers, new GrupoCriadoNotification($grupo));
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
@@ -230,19 +231,21 @@ class GrupoPapController extends Controller
                 'elementos' => [
                     'create' => $user?->can('elementogrupopap.create'),
                     'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
-                        && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
+                        && $instituicaoTutoraModel?->id === $user->instituicao_id
                         && ! is_null($grupoPap->data_defesa)
                         && ! $grupoPap->data_defesa->isFuture()
                         && $grupoPap->jurados()->exists(),
                     'delete' => $user?->can('elementogrupopap.delete'),
                 ],
-                // 'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id,
-                'verBanca' => $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
+                'verBanca' => $instituicaoTutoraModel?->id === $user->instituicao_id
                     && ! $user->hasRole('Aluno'),
                 'banca' => [
-                    'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap]),
-                    'update' => $user?->can('bancajuripap.update'),
-                    'delete' => $user?->can('bancajuripap.delete'),
+                    'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap])
+                        && $instituicaoTutoraModel?->id === $user->instituicao_id,
+                    'update' => $user?->can('bancajuripap.update')
+                        && $instituicaoTutoraModel?->id === $user->instituicao_id,
+                    'delete' => $user?->can('bancajuripap.delete')
+                        && $instituicaoTutoraModel?->id === $user->instituicao_id,
                 ],
             ],
         ]);

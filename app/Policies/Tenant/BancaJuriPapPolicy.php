@@ -8,6 +8,14 @@ use App\Models\Tenant\User;
 
 class BancaJuriPapPolicy
 {
+    private function pertenceAoGrupoOuTutela(User $user, GrupoPap $grupoPap): bool
+    {
+        $instituicaoId = $user->instituicao_id;
+
+        return $instituicaoId !== null
+            && $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicao_tutora_id === $instituicaoId;
+    }
+
     /**
      * Determine whether the user can view any models.
      */
@@ -22,7 +30,7 @@ class BancaJuriPapPolicy
     public function view(User $user, BancaJuriPap $bancaJuriPap): bool
     {
         return $user->can('bancajuripap.view')
-            && $bancaJuriPap->grupoPap->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;
+            && $this->pertenceAoGrupoOuTutela($user, $bancaJuriPap->grupoPap);
     }
 
     /**
@@ -36,7 +44,7 @@ class BancaJuriPapPolicy
         }
 
         return $user->can('bancajuripap.create')
-            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
+            && $this->pertenceAoGrupoOuTutela($user, $grupoPap);
     }
 
     /**
@@ -45,7 +53,7 @@ class BancaJuriPapPolicy
     public function update(User $user, BancaJuriPap $bancaJuriPap): bool
     {
         return $user->can('bancajuripap.update')
-            && $bancaJuriPap->grupoPap->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;
+            && $this->pertenceAoGrupoOuTutela($user, $bancaJuriPap->grupoPap);
     }
 
     /**
@@ -54,7 +62,7 @@ class BancaJuriPapPolicy
     public function delete(User $user, BancaJuriPap $bancaJuriPap): bool
     {
         return $user->can('bancajuripap.delete')
-            && $bancaJuriPap->grupoPap->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;
+            && $this->pertenceAoGrupoOuTutela($user, $bancaJuriPap->grupoPap);
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
 use App\Services\Tenant\TrabalhoPapService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,8 @@ class TrabalhoPapController extends Controller
     ) {
         $this->authorize('view', $grupoPap);
 
-        $user = Auth::user();
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
 
         $trabalho = $grupoPap->trabalhoPap()->with([
             'versoes.submetidoPor:id,nome',
@@ -140,6 +142,8 @@ class TrabalhoPapController extends Controller
 
         $request->validate([
             'ficheiro' => ['required', 'file', 'mimes:pdf', 'max:20480'], // 20MB
+        ], [
+            'ficheiro.uploaded' => 'O servidor não conseguiu receber o trabalho. Tente novamente.',
         ]);
 
         $trabalho = $grupoPap->trabalhoPap;

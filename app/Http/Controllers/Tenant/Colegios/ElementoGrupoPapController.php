@@ -4,13 +4,8 @@ namespace App\Http\Controllers\Tenant\Colegios;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\ElementosGrupoPap\ActualizarNotaRequest;
-use App\Models\Tenant\CursoClasse;
-use App\Models\Tenant\CursoClasseTurno;
-use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
-use App\Models\Tenant\Instituicao;
-use App\Models\Tenant\Turma;
 
 class ElementoGrupoPapController extends Controller
 {
@@ -19,34 +14,48 @@ class ElementoGrupoPapController extends Controller
      */
     public function actualizarNota(
         ActualizarNotaRequest $request,
-        Instituicao $instituicao,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
-        ElementoGrupoPap $elementoGrupoPap
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
+        string $elementoGrupoPap,
     ) {
-        $this->authorize('atualizarNota', $elementoGrupoPap);
+        abort_unless($request->attributes->get('cross_tenant_can_update_nota') === true, 403);
 
-        $elementoGrupoPap->update(['nota_individual' => $request->nota_individual]);
+        $grupo = GrupoPap::query()->whereKey($grupoPap)->whereHas(
+            'turma.cursoClasseTurno.cursoClasse',
+            fn ($query) => $query->where('curso_tutelado_id', $cursoTutelado),
+        )->firstOrFail();
+        abort_unless(
+            ! is_null($grupo->data_defesa)
+                && ! $grupo->data_defesa->isFuture()
+                && $grupo->jurados()->exists(),
+            403,
+        );
+        $elemento = ElementoGrupoPap::query()
+            ->whereKey($elementoGrupoPap)
+            ->where('grupo_pap_id', $grupo->id)
+            ->firstOrFail();
 
-        $todosComNota = $grupoPap->elementos()
+        $elemento->update(['nota_individual' => $request->nota_individual]);
+
+        $todosComNota = $grupo->elementos()
             ->whereNull('nota_individual')
             ->doesntExist();
 
         if ($todosComNota) {
-            $grupoPap->update(['status' => 'concluido']);
+            $grupo->update(['status' => 'concluido']);
         }
 
         return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', [
             'colegio' => $colegio,
-            'cursoTutelado' => $cursoTutelado->id,
-            'cursoClasse' => $cursoClasse->id,
-            'cursoClasseTurno' => $cursoClasseTurno->id,
-            'turma' => $turma->id,
-            'grupoPap' => $grupoPap->id,
+            'cursoTutelado' => $cursoTutelado,
+            'cursoClasse' => $cursoClasse,
+            'cursoClasseTurno' => $cursoClasseTurno,
+            'turma' => $turma,
+            'grupoPap' => $grupoPap,
         ]);
     }
 }

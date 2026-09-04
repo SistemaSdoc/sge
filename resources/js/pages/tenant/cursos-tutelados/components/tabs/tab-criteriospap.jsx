@@ -35,7 +35,7 @@ import {
 } from '@/components/ui/dialog';
 import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 
-export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, estruturaTrabalhoPapUrl, can }) {
+export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, estruturaTrabalhoPapUrl, can, errors = {} }) {
   const criteriosId = useId();
   const manualId = useId();
   const estruturaTrabalhoPapId = useId();
@@ -228,6 +228,13 @@ export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, estrutur
                 }
                 className="p-0 pr-3 text-muted-foreground italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:border-input file:bg-transparent file:px-3 file:text-sm file:font-medium file:text-foreground file:not-italic"
               />
+              {errors.criterios_pap && (
+                <p className="text-sm text-destructive">
+                  {errors.criterios_pap === 'validation.uploaded'
+                    ? 'O servidor não conseguiu receber este ficheiro. Tente novamente ou contacte o administrador.'
+                    : errors.criterios_pap}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -247,6 +254,13 @@ export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, estrutur
                 onChange={(e) => setFicheiroManual(e.target.files?.[0] ?? null)}
                 className="p-0 pr-3 text-muted-foreground italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:border-input file:bg-transparent file:px-3 file:text-sm file:font-medium file:text-foreground file:not-italic"
               />
+              {errors.manual_pt && (
+                <p className="text-sm text-destructive">
+                  {errors.manual_pt === 'validation.uploaded'
+                    ? 'O servidor não conseguiu receber este ficheiro. Tente novamente ou contacte o administrador.'
+                    : errors.manual_pt}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -260,6 +274,13 @@ export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, estrutur
                 onChange={(e) => setFicheiroEstruturaTrabalhoPap(e.target.files?.[0] ?? null)}
                 className="text-muted-foreground file:border-input file:text-foreground p-0 pr-3 italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:bg-transparent file:px-3 file:text-sm file:font-medium file:not-italic"
               />
+              {errors.estrutura_trabalho_pap && (
+                <p className="text-sm text-destructive">
+                  {errors.estrutura_trabalho_pap === 'validation.uploaded'
+                    ? 'O servidor não conseguiu receber este ficheiro. Tente novamente ou contacte o administrador.'
+                    : errors.estrutura_trabalho_pap}
+                </p>
+              )}
             </div>
           </div>
 

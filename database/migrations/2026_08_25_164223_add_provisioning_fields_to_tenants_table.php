@@ -12,11 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tenants', function (Blueprint $table): void {
-            $table->string('provisioning_target_status')->nullable()->after('status');
-            $table->unsignedInteger('provisioning_attempts')->default(0)->after('provisioning_target_status');
-            $table->text('provisioning_error')->nullable()->after('provisioning_attempts');
-            $table->dateTime('provisioning_started_at')->nullable()->after('provisioning_error');
-            $table->dateTime('provisioning_finished_at')->nullable()->after('provisioning_started_at');
+            $table->string('provisioning_target_status')
+                ->nullable()
+                ->after('status');
+            $table->unsignedInteger('provisioning_attempts')
+                ->default(0)
+                ->after('provisioning_target_status');
+            $table->text('provisioning_error')
+                ->nullable()
+                ->after('provisioning_attempts');
+            $table->dateTime('provisioning_started_at')
+                ->nullable()
+                ->after('provisioning_error');
+            $table->dateTime('provisioning_finished_at')
+                ->nullable()
+                ->after('provisioning_started_at');
         });
     }
 
