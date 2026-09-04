@@ -1,5 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Clock3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Field,
@@ -30,6 +32,7 @@ export function CursoForm({
   processing,
   onSubmit,
   niveisEnsino,
+  tutelaPendente,
 }) {
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
@@ -40,6 +43,17 @@ export function CursoForm({
           </CardHeader>
 
           <CardContent>
+            {tutelaPendente && (
+              <Alert className="mb-4">
+                <Clock3 />
+                <AlertTitle>Troca de tutela pendente</AlertTitle>
+                <AlertDescription>
+                  Proposta para {tutelaPendente.tenant_tutor_nome}. A
+                  instituição actual permanece activa até à conclusão das
+                  aprovações.
+                </AlertDescription>
+              </Alert>
+            )}
             <FieldGroup>
               <FieldSet>
                 <Field>

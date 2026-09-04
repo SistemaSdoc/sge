@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources\Tenant\CursoTutelado;
 
+use App\Enums\TutelaStatus;
+use App\Models\Central\CursoTuteladoShared;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -66,6 +68,26 @@ class CursoTuteladoResourceShow extends JsonResource
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
+        $sharedAtivo = $this->curso_tutelado_shared_id
+            ? CursoTuteladoShared::on(config('tenancy.database.central_connection', config('database.default')))
+                ->where('curso_tutelado_tutelado_id', $this->getKey())
+                ->where('status', TutelaStatus::ACTIVO)
+                ->latest('updated_at')
+                ->first()
+            : null;
+
+        $sharedPendente = CursoTuteladoShared::on(config('tenancy.database.central_connection', config('database.default')))
+            ->where('curso_tutelado_tutelado_id', $this->getKey())
+            ->whereIn('status', [
+                TutelaStatus::PENDENTE,
+                TutelaStatus::PENDENTE_TROCA,
+            ])
+            ->latest()
+            ->first();
+        $sharedExibido = $sharedPendente?->status === TutelaStatus::PENDENTE
+            ? $sharedPendente
+            : $sharedAtivo;
+
         return [
             'id' => $this->id,
             'curso' => [
@@ -78,14 +100,19 @@ class CursoTuteladoResourceShow extends JsonResource
                 'nome' => $this->instituicaoCurso->instituicao->nome,
             ],
             'tipo_tutela' => $this->tipo_tutela ?? 'propria',
-            'instituicao_tutora' => $this->instituicaoTutora ? [
-                'id' => $this->instituicaoTutora->id,
-                'nome' => $this->instituicaoTutora->nome,
-            ] : [
-                'id' => $this->cursoTuteladoShared?->tenant_tutor_id,
-                'nome' => $this->cursoTuteladoShared?->tenant_tutor_nome
-                    ?? 'Instituição tutora externa',
-            ],
+            'instituicao_tutora' => $sharedExibido
+                ? [
+                    'id' => $sharedExibido->tenant_tutor_id,
+                    'nome' => $sharedExibido->tenant_tutor_nome,
+                ]
+                : ($this->instituicaoTutora ? [
+                    'id' => $this->instituicaoTutora->id,
+                    'nome' => $this->instituicaoTutora->nome,
+                ] : [
+                    'id' => $this->cursoTuteladoShared?->tenant_tutor_id,
+                    'nome' => $this->cursoTuteladoShared?->tenant_tutor_nome
+                        ?? 'Instituição tutora externa',
+                ]),
 
             'contadores' => [
                 'turmas' => $turmasCollection->count(),

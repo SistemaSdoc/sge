@@ -24,7 +24,6 @@ use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FolhaAprovacaoController;
 use App\Http\Controllers\Tenant\GrelhaCurricularController;
 use App\Http\Controllers\Tenant\GrupoPapAprovacaoController;
-use App\Http\Controllers\Tenant\GrupoPapCascataController;
 use App\Http\Controllers\Tenant\GrupoPapController;
 use App\Http\Controllers\Tenant\GrupoPapTemaController;
 use App\Http\Controllers\Tenant\InscricaoController;
@@ -400,8 +399,6 @@ Route::middleware([
                     ->name('grupos-pap.form-options');
             });
 
-
-
             /*
             |--------------------------------------------------------------------------
             | Temas do PAP
@@ -539,6 +536,9 @@ Route::middleware([
             Route::get('notificacoes', [NotificacaoController::class, 'index'])
                 ->name('notificacoes.index');
 
+            Route::get('notificacoes/ler-todas', [NotificacaoController::class, 'marcarTodasLidas'])
+                ->name('notificacoes.ler-todas');
+
             Route::get('notificacoes/tutela/{shared}', [NotificacaoController::class, 'showTutela'])
                 ->name('notificacoes.tutela.show');
 
@@ -553,9 +553,6 @@ Route::middleware([
 
             Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
                 ->name('notificacoes.ler');
-
-            Route::post('notificacoes/ler-todas', [NotificacaoController::class, 'marcarTodasLidas'])
-                ->name('notificacoes.ler-todas');
 
             /*
             |--------------------------------------------------------------------------

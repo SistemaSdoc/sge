@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Enums\TutelaStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\InstituicoesRequest;
+use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -77,21 +81,63 @@ class InstituicaoController extends Controller
             ->with([
                 'curso:id,nome',
                 'cursoTutelado.instituicaoTutora:id,nome',
-                'cursoTutelado.cursoTuteladoShared:id,tenant_tutor_nome,tenant_tutor_id',
+                'cursoTutelado.cursoTuteladoShared:id,status,tenant_tutor_nome,tenant_tutor_id',
             ])
             ->paginate(5)
-            ->through(fn ($instituicaoCurso) => [
-                'id' => $instituicaoCurso->cursoTutelado->id,
-                'nome' => $instituicaoCurso->curso->nome,
-                'instituicao_tutora' => $instituicaoCurso->cursoTutelado?->instituicaoTutora?->nome
-                    ?? $instituicaoCurso->cursoTutelado?->cursoTuteladoShared?->tenant_tutor_nome
-                    ?? $instituicaoCurso->cursoTutelado?->cursoTuteladoShared?->tenant_tutor_id,
-                'can' => [
-                    'view' => Auth::guard('tenant')->user()->can('view', $instituicaoCurso->cursoTutelado),
-                    'update' => Auth::guard('tenant')->user()->can('update', $instituicaoCurso->cursoTutelado),
-                    'delete' => Auth::guard('tenant')->user()->can('delete', $instituicaoCurso->cursoTutelado),
-                ],
-            ]);
+            ->through(function ($instituicaoCurso) {
+                $cursoTutelado = $instituicaoCurso->cursoTutelado;
+                $sharedAtivo = $cursoTutelado
+                    ? CursoTuteladoShared::on(config('tenancy.database.central_connection', config('database.default')))
+                        ->where('curso_tutelado_tutelado_id', $cursoTutelado->getKey())
+                        ->where('status', TutelaStatus::ACTIVO)
+                        ->latest('updated_at')
+                        ->first()
+                    : null;
+                $sharedPendente = $cursoTutelado
+                    ? CursoTuteladoShared::on(config('tenancy.database.central_connection', config('database.default')))
+                        ->where('curso_tutelado_tutelado_id', $cursoTutelado->getKey())
+                        ->whereIn('status', [TutelaStatus::PENDENTE, TutelaStatus::PENDENTE_TROCA])
+                        ->latest()
+                        ->first()
+                    : null;
+                $conversaoPendente = $cursoTutelado && $sharedAtivo
+                    ? User::query()->find(
+                        Tenant::query()->find($sharedAtivo->tenant_tutelado_id)?->admin_user_id
+                    )?->notifications()
+                        ->whereIn('data->tipo', ['conversao_tutela_propria', 'conversao_tutela_propria_pendente'])
+                        ->where('data->curso_tutelado_shared_id', (string) $sharedAtivo->getKey())
+                        ->where('data->status', 'pendente')
+                        ->exists()
+                    : false;
+                $sharedExibido = $sharedPendente?->status === TutelaStatus::PENDENTE
+                    ? $sharedPendente
+                    : $sharedAtivo;
+                $nomeTutor = $sharedExibido?->tenant_tutor_nome
+                    ?? $cursoTutelado?->instituicaoTutora?->nome
+                    ?? $cursoTutelado?->cursoTuteladoShared?->tenant_tutor_nome;
+
+                return [
+                    'id' => $cursoTutelado->id,
+                    'nome' => $instituicaoCurso->curso->nome,
+                    'instituicao_tutora' => $nomeTutor
+                        ?? $sharedExibido?->tenant_tutor_id
+                        ?? $cursoTutelado?->instituicaoTutora?->id
+                        ?? $cursoTutelado?->cursoTuteladoShared?->tenant_tutor_id,
+                    'status' => $conversaoPendente
+                        ? TutelaStatus::PENDENTE->value
+                        : ($sharedPendente?->status?->value
+                            ?? $sharedAtivo?->status?->value
+                            ?? ($cursoTutelado?->tipo_tutela === 'propria' ? TutelaStatus::ACTIVO->value : null)),
+                    'instituicao_tutora_pendente' => $sharedPendente?->status === TutelaStatus::PENDENTE_TROCA
+                        ? $sharedPendente->tenant_tutor_nome
+                        : null,
+                    'can' => [
+                        'view' => Auth::guard('tenant')->user()->can('view', $cursoTutelado),
+                        'update' => Auth::guard('tenant')->user()->can('update', $cursoTutelado),
+                        'delete' => Auth::guard('tenant')->user()->can('delete', $cursoTutelado),
+                    ],
+                ];
+            });
 
         return Inertia::render('tenant/instituicoes/show', [
             'can' => [

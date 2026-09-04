@@ -40,7 +40,7 @@ class ColegioController extends Controller
                     'nome' => $colegio?->nome ?? $tenantTuteladoId,
                     'tipo' => $colegio?->tipo,
                     'tenant_id' => $tenantTuteladoId,
-                    'total_cursos' => $vinculos->count(),
+                    'total_cursos' => $vinculos->unique('curso_tutelado_tutelado_id')->count(),
                     'cursos' => [],
                 ];
             })
@@ -80,23 +80,25 @@ class ColegioController extends Controller
         $tenantTutelado = Tenant::query()
             ->where('instituicao_id', $colegio)
             ->firstOrFail();
-        $sharedIds = CursoTuteladoShared::query()
+        $shared = CursoTuteladoShared::query()
             ->where('tenant_tutor_id', $tenantTutorId)
             ->where('tenant_tutelado_id', $tenantTutelado->getTenantKey())
             ->where('status', 'activo')
-            ->pluck('id');
+            ->get(['id', 'curso_tutelado_tutelado_id', 'status']);
+        $sharedCursoIds = $shared->pluck('curso_tutelado_tutelado_id');
+        $sharedPorCurso = $shared->keyBy('curso_tutelado_tutelado_id');
 
-        $colegioData = $tenantTutelado->run(function () use ($colegio, $sharedIds): array {
+        $colegioData = $tenantTutelado->run(function () use ($colegio, $sharedCursoIds, $sharedPorCurso): array {
             $colegio = Instituicao::findOrFail($colegio);
             $cursos = InstituicaoCurso::where('instituicao_id', $colegio->id)
-                ->whereHas('cursoTutelado', fn ($query) => $query->whereIn('curso_tutelado_shared_id', $sharedIds))
+                ->whereHas('cursoTutelado', fn ($query) => $query->whereIn('id', $sharedCursoIds))
                 ->with(['curso:id,nome', 'cursoTutelado:id,instituicao_curso_id,curso_tutelado_shared_id', 'cursoTutelado.cursoTuteladoShared:id,status'])
                 ->get()
                 ->map(fn ($ic): array => [
                     'id' => $ic->cursoTutelado->id,
                     'nome' => $ic->curso->nome,
-                    'status' => $ic->cursoTutelado?->cursoTuteladoShared?->status?->value
-                        ?? $ic->cursoTutelado?->cursoTuteladoShared?->status,
+                    'status' => $sharedPorCurso[(string) $ic->cursoTutelado->id]?->status?->value
+                        ?? $sharedPorCurso[(string) $ic->cursoTutelado->id]?->status,
                     'curso_tutelado_id' => $ic->cursoTutelado->id,
                 ])
                 ->values();

@@ -17,17 +17,18 @@
               <tr>
                 <td>
                   <h1 style="margin:20px 0;text-align:center;font-size:24px;font-weight:400;color:#000">
-                    Nova solicitação de tutela
+                    Troca de tutela rejeitada
                   </h1>
                   <p style="font-size:14px;line-height:24px;color:#000;margin:16px 0">
                     Olá!
                   </p>
                   <p style="font-size:14px;line-height:24px;color:#000;margin:16px 0">
-                    O <strong>{{ $nomeInstituicao }}</strong> solicitou a tutela do curso
-                    <strong>{{ $nomeCurso }}</strong>.
+                    O <strong>{{ $nomeInstituicaoRejeitou }}</strong> rejeitou o pedido para transferir a tutela do curso
+                    <strong>{{ $nomeCurso }}</strong> para o
+                    <strong>{{ $nomeInstituicaoProposta }}</strong>.
                   </p>
                   <p style="font-size:14px;line-height:24px;color:#000;margin:16px 0">
-                    Entre na plataforma para analisar e responder a esta solicitação.
+                    A instituição tutora actual permanece responsável pelo curso. Consulte a plataforma para ver os detalhes.
                   </p>
                   <hr style="width:100%;border:none;border-top:1px solid #eaeaea;margin:26px 0">
                   <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
@@ -37,15 +38,12 @@
                         <td>
                           <a href="{{ $url }}" target="_blank"
                             style="display:inline-block;border-radius:0.25rem;background-color:#000;padding:12px 20px;text-align:center;font-size:12px;font-weight:600;color:#fff;text-decoration:none">
-                            Ver solicitação
+                            Ver detalhes
                           </a>
                         </td>
                       </tr>
                     </tbody>
                   </table>
-                  <p style="font-size:12px;line-height:24px;color:#666;margin:16px 0">
-                    Se não reconhece esta solicitação, ignore este email ou contacte o suporte.
-                  </p>
                 </td>
               </tr>
             </tbody>

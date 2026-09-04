@@ -17,17 +17,18 @@
               <tr>
                 <td>
                   <h1 style="margin:20px 0;text-align:center;font-size:24px;font-weight:400;color:#000">
-                    Nova solicitação de tutela
+                    Solicitação de troca de tutela
                   </h1>
                   <p style="font-size:14px;line-height:24px;color:#000;margin:16px 0">
                     Olá!
                   </p>
                   <p style="font-size:14px;line-height:24px;color:#000;margin:16px 0">
-                    O <strong>{{ $nomeInstituicao }}</strong> solicitou a tutela do curso
-                    <strong>{{ $nomeCurso }}</strong>.
+                    O <strong>{{ $nomeInstituicaoSolicitante }}</strong> solicitou a troca de tutela do curso
+                    <strong>{{ $nomeCurso }}</strong> para o
+                    <strong>{{ $nomeInstituicaoNova }}</strong>.
                   </p>
                   <p style="font-size:14px;line-height:24px;color:#000;margin:16px 0">
-                    Entre na plataforma para analisar e responder a esta solicitação.
+                    A sua instituição é a tutora actual do curso. Entre na plataforma para aprovar ou rejeitar esta troca.
                   </p>
                   <hr style="width:100%;border:none;border-top:1px solid #eaeaea;margin:26px 0">
                   <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
@@ -37,7 +38,7 @@
                         <td>
                           <a href="{{ $url }}" target="_blank"
                             style="display:inline-block;border-radius:0.25rem;background-color:#000;padding:12px 20px;text-align:center;font-size:12px;font-weight:600;color:#fff;text-decoration:none">
-                            Ver solicitação
+                            Analisar solicitação
                           </a>
                         </td>
                       </tr>
