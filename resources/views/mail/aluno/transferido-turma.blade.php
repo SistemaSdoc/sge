@@ -197,7 +197,7 @@
         <div class="footer">
             <p>
                 Este email foi enviado automaticamente pela plataforma
-                {{ $instituicao->nome }}.
+                {{ config('app.name') }}.
                 Por favor, não responda directamente a esta mensagem.
             </p>
             <p class="company">
