@@ -145,11 +145,22 @@ export function CursosTuteladosTable({
                       </TableCell>
 
                       <TableCell className="text-center">
-                        {curso.instituicao_tutora ? (
-                          curso.instituicao_tutora
-                        ) : (
-                          <Minus size={15} className="text-muted-foreground" />
-                        )}
+                        <div className="flex flex-col items-center gap-1">
+                          <span>
+                            {curso.instituicao_tutora || (
+                              <Minus
+                                size={15}
+                                className="text-muted-foreground"
+                              />
+                            )}
+                          </span>
+                          {curso.instituicao_tutora_pendente && (
+                            <span className="rounded border border-muted-foreground/25 px-2 py-0.5 text-xs text-muted-foreground">
+                              Troca pendente:{' '}
+                              {curso.instituicao_tutora_pendente}
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
 
                       <TableCell className="text-center">

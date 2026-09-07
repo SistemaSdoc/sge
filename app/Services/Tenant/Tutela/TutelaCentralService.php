@@ -20,13 +20,22 @@ class TutelaCentralService
      */
     public function tutorAtual(CursoTutelado $cursoTutelado): ?string
     {
-        if (! $cursoTutelado->curso_tutelado_shared_id) {
-            return null;
+        $sharedActivo = CursoTuteladoShared::on($this->centralConnection())
+            ->where('curso_tutelado_tutelado_id', $cursoTutelado->getKey())
+            ->where('tenant_tutelado_id', (string) tenancy()->tenant->getTenantKey())
+            ->where('status', TutelaStatus::ACTIVO)
+            ->latest('updated_at')
+            ->first();
+
+        if ($sharedActivo) {
+            return $sharedActivo->tenant_tutor_id;
         }
 
-        return CursoTuteladoShared::on($this->centralConnection())
-            ->whereKey($cursoTutelado->curso_tutelado_shared_id)
-            ->value('tenant_tutor_id');
+        return $cursoTutelado->curso_tutelado_shared_id
+            ? CursoTuteladoShared::on($this->centralConnection())
+                ->whereKey($cursoTutelado->curso_tutelado_shared_id)
+                ->value('tenant_tutor_id')
+            : null;
     }
 
     /**
@@ -37,7 +46,8 @@ class TutelaCentralService
      */
     public function criarOuActualizarVinculo(
         CursoTutelado $cursoTutelado,
-        InstituicaoTutoraData $instituicaoTutora
+        InstituicaoTutoraData $instituicaoTutora,
+        TutelaStatus $status = TutelaStatus::PENDENTE,
     ): CursoTuteladoShared {
         $cursoTutelado->loadMissing('instituicaoCurso.curso');
 
@@ -58,14 +68,7 @@ class TutelaCentralService
         }
 
         return DB::connection($centralConnection)
-            ->transaction(function () use (
-                $cursoTutelado,
-                $tenantTutorId,
-                $tenantTuteladoId,
-                $instituicaoTutora,
-                $curso,
-                $centralConnection,
-            ): CursoTuteladoShared {
+            ->transaction(function () use ($cursoTutelado, $tenantTutorId, $tenantTuteladoId, $instituicaoTutora, $curso, $centralConnection, $status): CursoTuteladoShared {
                 $shared = $this->findExisting(
                     $cursoTutelado,
                     $tenantTutorId,
@@ -80,7 +83,7 @@ class TutelaCentralService
                     'tenant_tutor_nome' => $instituicaoTutora->instituicao->nome,
                     'curso_nome' => $curso?->nome ?? 'Curso sem nome',
                     'duracao_anos' => $cursoTutelado->instituicaoCurso?->duracao_anos ?? $curso?->duracao_anos ?? 1,
-                    'status' => TutelaStatus::PENDENTE,
+                    'status' => $status,
                 ];
 
                 if ($shared) {
@@ -89,7 +92,7 @@ class TutelaCentralService
                         'tenant_tutor_id' => $tenantTutorId,
                         'tenant_tutelado_id' => $tenantTuteladoId,
                         'status_anterior' => $shared->status->value,
-                        'status_novo' => TutelaStatus::PENDENTE->value,
+                        'status_novo' => $status->value,
                     ]);
 
                     $shared->update($attributes);
@@ -104,7 +107,7 @@ class TutelaCentralService
                     'tenant_tutor_id' => $tenantTutorId,
                     'tenant_tutelado_id' => $tenantTuteladoId,
                     'curso_tutelado_id' => $cursoTutelado->id,
-                    'status' => TutelaStatus::PENDENTE->value,
+                    'status' => $status->value,
                 ]);
 
                 return CursoTuteladoShared::on($centralConnection)->create([
@@ -132,10 +135,7 @@ class TutelaCentralService
         $centralConnection = $this->centralConnection();
 
         DB::connection($centralConnection)
-            ->transaction(function () use (
-                $cursoTutelado,
-                $centralConnection
-            ): void {
+            ->transaction(function () use ($cursoTutelado, $centralConnection): void {
                 Log::info('Removendo vínculo da central', [
                     'shared_id' => $cursoTutelado->curso_tutelado_shared_id,
                     'curso_tutelado_id' => $cursoTutelado->id,
@@ -170,10 +170,7 @@ class TutelaCentralService
         $centralConnection = $this->centralConnection();
 
         DB::connection($centralConnection)
-            ->transaction(function () use (
-                $cursoTutelado,
-                $centralConnection
-            ): void {
+            ->transaction(function () use ($cursoTutelado, $centralConnection): void {
                 Log::info('Encerrando vínculo na central', [
                     'shared_id' => $cursoTutelado->curso_tutelado_shared_id,
                     'curso_tutelado_id' => $cursoTutelado->id,
@@ -190,6 +187,23 @@ class TutelaCentralService
             });
     }
 
+    public function aprovarTrocaTutela(CursoTuteladoShared $sharedPendente): void
+    {
+        $centralConnection = $this->centralConnection();
+
+        DB::connection($centralConnection)->transaction(function () use ($sharedPendente, $centralConnection): void {
+            // Encerra todos os outros vínculos activos do mesmo curso
+            CursoTuteladoShared::on($centralConnection)
+                ->where('curso_tutelado_tutelado_id', $sharedPendente->curso_tutelado_tutelado_id)
+                ->where('id', '!=', $sharedPendente->id)
+                ->where('status', TutelaStatus::ACTIVO)
+                ->update(['status' => TutelaStatus::ENCERRADO]);
+
+            // Promove o pendente a activo
+            $sharedPendente->update(['status' => TutelaStatus::ACTIVO]);
+        });
+    }
+
     /**
      * Localiza o vínculo actual e bloqueia-o durante a transação central.
      *
@@ -202,15 +216,9 @@ class TutelaCentralService
         string $tenantTuteladoId,
         string $centralConnection,
     ): ?CursoTuteladoShared {
-        if ($cursoTutelado->curso_tutelado_shared_id) {
-            return CursoTuteladoShared::on($centralConnection)
-                ->lockForUpdate()
-                ->find($cursoTutelado->curso_tutelado_shared_id);
-        }
-
         return CursoTuteladoShared::on($centralConnection)
-            ->where('tenant_tutor_id', $tenantTutorId)
             ->where('tenant_tutelado_id', $tenantTuteladoId)
+            ->where('tenant_tutor_id', $tenantTutorId)
             ->where('curso_tutelado_tutelado_id', $cursoTutelado->getKey())
             ->lockForUpdate()
             ->first();

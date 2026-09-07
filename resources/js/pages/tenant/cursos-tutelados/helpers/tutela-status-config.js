@@ -13,6 +13,13 @@ export const TUTELA_STATUS_CONFIG = {
     bg: 'bg-amber-50 dark:bg-amber-950/40',
     pulse: true,
   },
+  pendente_troca: {
+    label: 'Pendente de aprovação da troca',
+    dot: 'bg-sky-500',
+    text: 'text-sky-700 dark:text-sky-400',
+    bg: 'bg-sky-50 dark:bg-sky-950/40',
+    pulse: true,
+  },
   rejeitado: {
     label: 'Rejeitado',
     dot: 'bg-orange-500',

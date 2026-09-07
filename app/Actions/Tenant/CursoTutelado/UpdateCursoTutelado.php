@@ -3,6 +3,7 @@
 namespace App\Actions\Tenant\CursoTutelado;
 
 use App\Enums\TutelaStatus;
+use App\Models\Central\CursoTuteladoShared;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Services\Tenant\Tutela\TutelaService;
@@ -27,24 +28,56 @@ class UpdateCursoTutelado
             $tutorAtualId = $cursoTutelado->tipo_tutela === 'externa'
                 ? $this->tutelaService->tutorAtual($cursoTutelado)
                 : null;
-            $statusAtual = $cursoTutelado->cursoTuteladoShared?->status;
-            $statusAtualValor = $statusAtual instanceof \BackedEnum ? $statusAtual->value : $statusAtual;
-            $deveReabrirTutela = $tenantTutorId !== null
-                && (
-                    $tenantTutorId !== $tutorAtualId
-                    || in_array($statusAtualValor, [
-                        TutelaStatus::REJEITADO->value,
-                        TutelaStatus::ENCERRADO->value,
-                    ], true)
+            $houveMudancaDeTutor = $tenantTutorId !== null && $tenantTutorId !== $tutorAtualId;
+
+            if ($houveMudancaDeTutor) {
+                $haTutelaExternaAtual = $cursoTutelado->tipo_tutela === 'externa' && $tutorAtualId !== null;
+
+                if ($haTutelaExternaAtual) {
+                    $sharedAnteriorId = CursoTuteladoShared::on(
+                        config('tenancy.database.central_connection', config('database.default'))
+                    )
+                        ->where('curso_tutelado_tutelado_id', $cursoTutelado->getKey())
+                        ->where('tenant_tutor_id', $tutorAtualId)
+                        ->where('status', TutelaStatus::ACTIVO)
+                        ->latest('updated_at')
+                        ->value('id');
+                    $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
+                    $sharedProposto = $this->tutelaService->publicarSemAssociarCurso($cursoTutelado, $instituicaoTutora);
+                    $this->tutelaService->notificarTrocaTutela($cursoTutelado->fresh(), $tutorAtualId, $sharedAnteriorId, $sharedProposto);
+                    $this->tutelaService->notificarTrocaPendente(
+                        $sharedProposto,
+                        $tutorAtualId,
+                    );
+
+                    return;
+                }
+
+                $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
+                $this->tutelaService->publicarEAssociarCurso($cursoTutelado, $instituicaoTutora);
+            } elseif ($tenantTutorId === null && $cursoTutelado->tipo_tutela === 'externa') {
+                $sharedActualId = CursoTuteladoShared::on(
+                    config('tenancy.database.central_connection', config('database.default'))
+                )
+                    ->where('curso_tutelado_tutelado_id', $cursoTutelado->getKey())
+                    ->where('tenant_tutor_id', $tutorAtualId)
+                    ->where('status', TutelaStatus::ACTIVO)
+                    ->latest('updated_at')
+                    ->value('id');
+                $this->tutelaService->notificarConversaoTutelaPropria(
+                    $cursoTutelado,
+                    (string) $tutorAtualId,
+                    (string) $sharedActualId,
+                );
+                $this->tutelaService->notificarResultadoConversaoTutelaPropria(
+                    CursoTuteladoShared::on(
+                        config('tenancy.database.central_connection', config('database.default'))
+                    )->findOrFail($sharedActualId),
+                    (string) $tutorAtualId,
+                    'pendente',
                 );
 
-            if ($tenantTutorId) {
-                if ($deveReabrirTutela) {
-                    $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
-                    $this->tutelaService->publicarEAssociarCurso($cursoTutelado, $instituicaoTutora);
-                }
-            } elseif ($cursoTutelado->tipo_tutela === 'externa') {
-                $this->tutelaService->converterParaTutelaPropria($cursoTutelado, $instituicao->getKey());
+                return;
             }
 
             $curso = $cursoTutelado->instituicaoCurso->curso;

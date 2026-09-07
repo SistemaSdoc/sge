@@ -4,6 +4,7 @@ use App\Actions\Tenant\CursoTutelado\CreateCursoTutelado;
 use App\Actions\Tenant\CursoTutelado\UpdateCursoTutelado;
 use App\Enums\TutelaStatus;
 use App\Http\Controllers\Tenant\ExportarPautaController;
+use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Jobs\Tenant\Tutela\SincronizarAssociacaoTutela;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
@@ -23,6 +24,7 @@ use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Services\Tenant\CrossTenantAccessService;
+use App\Services\Tenant\CursoTuteladoViewService;
 use App\Services\Tenant\GrupoPapViewService;
 use App\Services\Tenant\Tutela\Data\InstituicaoTutoraData;
 use App\Services\Tenant\Tutela\TutelaService;
@@ -218,6 +220,76 @@ test('curso externo pendente bloqueia operacoes de gestao e rejeitado permite re
     $this->vinculo->update(['status' => TutelaStatus::REJEITADO]);
 
     expect(Gate::forUser($user)->allows('update', $cursoTutelado))->toBeTrue();
+});
+
+test('lista de cursos resolve para o tutor activo anterior mesmo quando o shared local aponta para um rejeitado', function (): void {
+    tenancy()->initialize($this->tenantColegio);
+
+    $instituicaoColegio = Instituicao::create([
+        'nome' => 'Colégio com tutor antigo',
+        'tipo' => 'colegio',
+        'status' => 1,
+    ]);
+    $instituicaoAntiga = Instituicao::create([
+        'nome' => 'Instituto Antigo',
+        'tipo' => 'instituto',
+        'status' => 1,
+    ]);
+    $instituicaoNova = Instituicao::create([
+        'nome' => 'Instituto Novo',
+        'tipo' => 'instituto',
+        'status' => 1,
+    ]);
+    $curso = Curso::create(['nome' => 'Curso com troca rejeitada', 'duracao_anos' => 4]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicaoColegio->id,
+        'duracao_anos' => 4,
+    ]);
+
+    $tenantNovo = createTenantForIsolationTest('tenant-novo-tutor');
+
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicaoNova->id,
+        'tipo_tutela' => 'externa',
+    ]);
+
+    $sharedAntigo = CursoTuteladoShared::create([
+        'tenant_tutor_id' => $this->tenantTutor->id,
+        'tenant_tutelado_id' => $this->tenantColegio->id,
+        'curso_tutelado_tutelado_id' => $cursoTutelado->id,
+        'tenant_tutor_nome' => 'Instituto Antigo',
+        'curso_nome' => 'Curso com troca rejeitada',
+        'duracao_anos' => 4,
+        'status' => TutelaStatus::ACTIVO,
+    ]);
+
+    $sharedNovo = CursoTuteladoShared::create([
+        'tenant_tutor_id' => $tenantNovo->id,
+        'tenant_tutelado_id' => $this->tenantColegio->id,
+        'curso_tutelado_tutelado_id' => $cursoTutelado->id,
+        'tenant_tutor_nome' => 'Instituto Novo',
+        'curso_nome' => 'Curso com troca rejeitada',
+        'duracao_anos' => 4,
+        'status' => TutelaStatus::REJEITADO,
+    ]);
+
+    $cursoTutelado->forceFill([
+        'curso_tutelado_shared_id' => $sharedNovo->id,
+    ])->save();
+
+    $user = User::create([
+        'nome' => 'Diretor',
+        'email' => 'diretor@example.test',
+        'password' => 'password',
+        'instituicao_id' => $instituicaoColegio->id,
+    ]);
+
+    $resultado = app(CursoTuteladoViewService::class)->index($instituicaoColegio, $user);
+
+    expect($resultado->items())->toHaveCount(1)
+        ->and($resultado->items()[0]['instituicao_tutora'])->toBe('Instituto Antigo');
 });
 
 test('tutora consegue exportar pauta de curso remoto atraves do shared activo', function (): void {
@@ -485,6 +557,252 @@ test('solicitacao de tutela grava a notificacao no tenant tutor', function (): v
     );
 
     expect($notificationCount)->toBe(1);
+});
+
+test('troca de tutela notifica o tutor antigo primeiro e depois o novo apos aprovacao', function (): void {
+    $instituicaoTutorAntigo = $this->tenantTutor->run(function (): Instituicao {
+        return Instituicao::create([
+            'nome' => 'Instituto Tutor Antigo',
+            'tipo' => 'instituto',
+            'status' => 1,
+        ]);
+    });
+    $adminTutorAntigo = $this->tenantTutor->run(function () use ($instituicaoTutorAntigo): User {
+        return User::create([
+            'nome' => 'Administrador Antigo',
+            'email' => 'admin-antigo@example.test',
+            'password' => 'password',
+            'instituicao_id' => $instituicaoTutorAntigo->id,
+        ]);
+    });
+    $this->tenantTutor->update([
+        'instituicao_id' => $instituicaoTutorAntigo->id,
+        'admin_user_id' => $adminTutorAntigo->id,
+    ]);
+
+    $tenantNovoTutor = createTenantForIsolationTest('tenant-tutor-novo-test');
+    $instituicaoTutorNovo = $tenantNovoTutor->run(function (): Instituicao {
+        return Instituicao::create([
+            'nome' => 'Instituto Tutor Novo',
+            'tipo' => 'instituto',
+            'status' => 1,
+        ]);
+    });
+    $adminTutorNovo = $tenantNovoTutor->run(function () use ($instituicaoTutorNovo): User {
+        return User::create([
+            'nome' => 'Administrador Novo',
+            'email' => 'admin-novo@example.test',
+            'password' => 'password',
+            'instituicao_id' => $instituicaoTutorNovo->id,
+        ]);
+    });
+    $tenantNovoTutor->update([
+        'instituicao_id' => $instituicaoTutorNovo->id,
+        'admin_user_id' => $adminTutorNovo->id,
+    ]);
+
+    $instituicaoColegio = $this->tenantColegio->run(function (): Instituicao {
+        return Instituicao::create([
+            'nome' => 'Colégio Flow',
+            'tipo' => 'colegio',
+            'status' => 1,
+        ]);
+    });
+    $this->tenantColegio->update(['instituicao_id' => $instituicaoColegio->id]);
+
+    tenancy()->initialize($this->tenantColegio);
+
+    $classe = Classe::create(['nome' => '12A', 'nivel_ensino' => 'medio']);
+    $nivel = NivelEnsino::create(['nome' => 'Médio']);
+
+    $cursoTutelado = app(CreateCursoTutelado::class)->handle($instituicaoColegio, [
+        'nome' => 'Curso Troca',
+        'duracao_anos' => 4,
+        'nivel_ensino_id' => $nivel->id,
+        'classe_ids' => [$classe->id],
+        'tenant_tutor_id' => $this->tenantTutor->id,
+    ]);
+
+    $sharedInicial = $cursoTutelado->fresh()->cursoTuteladoShared;
+    $sharedInicial->update(['status' => TutelaStatus::ACTIVO]);
+
+    app(UpdateCursoTutelado::class)->handle($instituicaoColegio, $cursoTutelado->fresh(), [
+        'nome' => 'Curso Troca',
+        'duracao_anos' => 4,
+        'classes' => [$classe->id],
+        'nivel_ensino_id' => $nivel->id,
+        'tenant_tutor_id' => $tenantNovoTutor->id,
+    ]);
+
+    $sharedTroca = $cursoTutelado->fresh()->cursoTuteladoShared;
+
+    expect($sharedTroca->status)->toBe(TutelaStatus::PENDENTE)
+        ->and($this->tenantTutor->run(fn (): int => User::findOrFail($adminTutorAntigo->id)->notifications()->where('data->tipo', 'troca_tutela')->count()))->toBe(1)
+        ->and($tenantNovoTutor->run(fn (): int => User::findOrFail($adminTutorNovo->id)->notifications()->where('data->tipo', 'solicitacao_tutela')->count()))->toBe(0);
+
+    $notificationOld = $this->tenantTutor->run(fn () => User::findOrFail($adminTutorAntigo->id)->notifications()->where('data->tipo', 'troca_tutela')->first());
+
+    $request = new Request;
+    $request->setUser($this->tenantTutor->run(fn () => User::findOrFail($adminTutorAntigo->id)));
+
+    app(NotificacaoController::class)->aprovarTutela($request, $notificationOld->id);
+
+    expect($sharedTroca->fresh()->status)->toBe(TutelaStatus::ACTIVO)
+        ->and($tenantNovoTutor->run(fn (): int => User::findOrFail($adminTutorNovo->id)->notifications()->where('data->tipo', 'solicitacao_tutela')->count()))->toBe(1);
+});
+
+test('edicao de tutela propria para externa envia solicitacao ao instituto escolhido', function (): void {
+    $instituicaoTutor = $this->tenantTutor->run(function (): Instituicao {
+        return Instituicao::create([
+            'nome' => 'Instituto Tutor Editar',
+            'tipo' => 'instituto',
+            'status' => 1,
+        ]);
+    });
+    $adminTutor = $this->tenantTutor->run(function () use ($instituicaoTutor): User {
+        return User::create([
+            'nome' => 'Administrador Tutor Editar',
+            'email' => 'admin-editar@example.test',
+            'password' => 'password',
+            'instituicao_id' => $instituicaoTutor->id,
+        ]);
+    });
+    $this->tenantTutor->update([
+        'instituicao_id' => $instituicaoTutor->id,
+        'admin_user_id' => $adminTutor->id,
+    ]);
+
+    $instituicaoColegio = $this->tenantColegio->run(function (): Instituicao {
+        return Instituicao::create([
+            'nome' => 'Colégio Editar',
+            'tipo' => 'colegio',
+            'status' => 1,
+        ]);
+    });
+    $this->tenantColegio->update(['instituicao_id' => $instituicaoColegio->id]);
+
+    tenancy()->initialize($this->tenantColegio);
+
+    $classe = Classe::create(['nome' => '11A', 'nivel_ensino' => 'medio']);
+    $nivel = NivelEnsino::create(['nome' => 'Médio']);
+
+    $cursoTutelado = app(CreateCursoTutelado::class)->handle($instituicaoColegio, [
+        'nome' => 'Curso Editar Propria',
+        'duracao_anos' => 4,
+        'nivel_ensino_id' => $nivel->id,
+        'classe_ids' => [$classe->id],
+        'tenant_tutor_id' => null,
+    ]);
+
+    expect($cursoTutelado->tipo_tutela)->toBe('propria')
+        ->and($cursoTutelado->curso_tutelado_shared_id)->toBeNull();
+
+    app(UpdateCursoTutelado::class)->handle($instituicaoColegio, $cursoTutelado->fresh(), [
+        'nome' => 'Curso Editar Propria',
+        'duracao_anos' => 4,
+        'classes' => [$classe->id],
+        'nivel_ensino_id' => $nivel->id,
+        'tenant_tutor_id' => $this->tenantTutor->id,
+    ]);
+
+    $cursoAtualizado = $cursoTutelado->fresh();
+    $shared = $cursoAtualizado->cursoTuteladoShared;
+
+    expect($cursoAtualizado->tipo_tutela)->toBe('externa')
+        ->and($shared)->not->toBeNull()
+        ->and($shared->status)->toBe(TutelaStatus::PENDENTE)
+        ->and($this->tenantTutor->run(fn (): int => User::findOrFail($adminTutor->id)->notifications()->where('data->tipo', 'solicitacao_tutela')->count()))->toBe(1);
+});
+
+test('rejeicao de troca de tutela marca pedido como rejeitado e restaura tutor anterior', function (): void {
+    $instituicaoTutorAntigo = $this->tenantTutor->run(function (): Instituicao {
+        return Instituicao::create([
+            'nome' => 'Instituto Tutor Antigo Rejeicao',
+            'tipo' => 'instituto',
+            'status' => 1,
+        ]);
+    });
+    $adminTutorAntigo = $this->tenantTutor->run(function () use ($instituicaoTutorAntigo): User {
+        return User::create([
+            'nome' => 'Administrador Antigo Rejeicao',
+            'email' => 'admin-antigo-rejeicao@example.test',
+            'password' => 'password',
+            'instituicao_id' => $instituicaoTutorAntigo->id,
+        ]);
+    });
+    $this->tenantTutor->update([
+        'instituicao_id' => $instituicaoTutorAntigo->id,
+        'admin_user_id' => $adminTutorAntigo->id,
+    ]);
+
+    $tenantNovoTutor = createTenantForIsolationTest('tenant-tutor-novo-rejeicao-test');
+    $instituicaoTutorNovo = $tenantNovoTutor->run(function (): Instituicao {
+        return Instituicao::create([
+            'nome' => 'Instituto Tutor Novo Rejeicao',
+            'tipo' => 'instituto',
+            'status' => 1,
+        ]);
+    });
+    $adminTutorNovo = $tenantNovoTutor->run(function () use ($instituicaoTutorNovo): User {
+        return User::create([
+            'nome' => 'Administrador Novo Rejeicao',
+            'email' => 'admin-novo-rejeicao@example.test',
+            'password' => 'password',
+            'instituicao_id' => $instituicaoTutorNovo->id,
+        ]);
+    });
+    $tenantNovoTutor->update([
+        'instituicao_id' => $instituicaoTutorNovo->id,
+        'admin_user_id' => $adminTutorNovo->id,
+    ]);
+
+    $instituicaoColegio = $this->tenantColegio->run(function (): Instituicao {
+        return Instituicao::create([
+            'nome' => 'Colégio Rejeição',
+            'tipo' => 'colegio',
+            'status' => 1,
+        ]);
+    });
+    $this->tenantColegio->update(['instituicao_id' => $instituicaoColegio->id]);
+
+    tenancy()->initialize($this->tenantColegio);
+
+    $classe = Classe::create(['nome' => '12B', 'nivel_ensino' => 'medio']);
+    $nivel = NivelEnsino::create(['nome' => 'Médio']);
+
+    $cursoTutelado = app(CreateCursoTutelado::class)->handle($instituicaoColegio, [
+        'nome' => 'Curso Rejeicao',
+        'duracao_anos' => 4,
+        'nivel_ensino_id' => $nivel->id,
+        'classe_ids' => [$classe->id],
+        'tenant_tutor_id' => $this->tenantTutor->id,
+    ]);
+
+    $sharedInicial = $cursoTutelado->fresh()->cursoTuteladoShared;
+    $sharedInicial->update(['status' => TutelaStatus::ACTIVO]);
+
+    app(UpdateCursoTutelado::class)->handle($instituicaoColegio, $cursoTutelado->fresh(), [
+        'nome' => 'Curso Rejeicao',
+        'duracao_anos' => 4,
+        'classes' => [$classe->id],
+        'nivel_ensino_id' => $nivel->id,
+        'tenant_tutor_id' => $tenantNovoTutor->id,
+    ]);
+
+    $sharedTroca = $cursoTutelado->fresh()->cursoTuteladoShared;
+    expect($sharedTroca->status)->toBe(TutelaStatus::PENDENTE)
+        ->and($sharedTroca->tenant_tutor_id)->toBe($tenantNovoTutor->id);
+
+    $notificationOld = $this->tenantTutor->run(fn () => User::findOrFail($adminTutorAntigo->id)->notifications()->where('data->tipo', 'troca_tutela')->first());
+
+    $request = new Request;
+    $request->setUser($this->tenantTutor->run(fn () => User::findOrFail($adminTutorAntigo->id)));
+
+    app(NotificacaoController::class)->rejeitarTutela($request, $notificationOld->id);
+
+    expect($sharedTroca->fresh()->status)->toBe(TutelaStatus::REJEITADO)
+        ->and($sharedTroca->fresh()->tenant_tutor_id)->toBe($this->tenantTutor->id)
+        ->and($cursoTutelado->fresh()->tipo_tutela)->toBe('externa');
 });
 
 test('fluxo end-to-end de tutela publica, aprova e converte para propria', function (): void {

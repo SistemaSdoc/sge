@@ -8,19 +8,20 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Notifica o administrador tutor sobre uma nova solicitação.
+ * Notifica o instituto actual para aprovar a troca de tutela.
  */
-class SolicitacaoTutelaNotification extends Notification implements ShouldQueue
+class TrocaTutelaNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public function __construct(
+        public string $instituicaoNova,
         public string $instituicaoTutelada,
         public string $cursoNome,
         public string $sharedId,
-        public string $url = '',
-        public bool $trocaTutelaFinal = false,
+        public string $tenantTutorAnteriorId,
         public ?string $cursoTuteladoSharedAnteriorId = null,
+        public string $url = '',
     ) {
         $this->afterCommit();
     }
@@ -44,36 +45,32 @@ class SolicitacaoTutelaNotification extends Notification implements ShouldQueue
      */
     public function toDatabase(object $notifiable): array
     {
-        $data = [
-            'tipo' => 'solicitacao_tutela',
-            'titulo' => 'Nova solicitação de tutela',
-            'mensagem' => "O {$this->instituicaoTutelada} solicita tutela para o curso {$this->cursoNome}.",
+        return [
+            'tipo' => 'troca_tutela',
+            'titulo' => 'Solicitação para troca de tutela',
+            'mensagem' => "O {$this->instituicaoTutelada} solicitou trocar a tutela do curso {$this->cursoNome} para o instituto {$this->instituicaoNova}. Aprove ou rejeite a troca.",
             'curso_nome' => $this->cursoNome,
+            'instituicao_nova' => $this->instituicaoNova,
             'instituicao_tutelada' => $this->instituicaoTutelada,
             'curso_tutelado_shared_id' => $this->sharedId,
+            'curso_tutelado_shared_anterior_id' => $this->cursoTuteladoSharedAnteriorId,
+            'tenant_tutor_anterior_id' => $this->tenantTutorAnteriorId,
+            'status' => 'pendente',
         ];
-
-        if ($this->trocaTutelaFinal) {
-            $data['troca_tutela_final'] = true;
-            $data['curso_tutelado_shared_anterior_id'] = $this->cursoTuteladoSharedAnteriorId;
-        }
-
-        return $data;
     }
 
     public function toMail(object $notifiable): MailMessage
     {
-        // NÃO USAR url() helper aqui!
-        // Se $url não foi passado, usa um fallback seguro
         $defaultUrl = config('app.url').'/dashboard';
         $finalUrl = $this->url ?: $defaultUrl;
 
         return (new MailMessage)
-            ->subject('Nova solicitação de tutela')
-            ->markdown('mail.solicitacao-tutela-notification', [
-                'nomeInstituicao' => $this->instituicaoTutelada,
+            ->subject('Solicitação para troca de tutela')
+            ->markdown('mail.solicitacao-troca-tutela-notification', [
+                'nomeInstituicaoSolicitante' => $this->instituicaoTutelada,
+                'nomeInstituicaoNova' => $this->instituicaoNova,
                 'nomeCurso' => $this->cursoNome,
-                'url' => $finalUrl,  // ← Já construída, sem chamar url()
+                'url' => $finalUrl,
             ]);
     }
 }

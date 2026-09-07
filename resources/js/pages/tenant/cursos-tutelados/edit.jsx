@@ -41,6 +41,7 @@ export default function Edit({
         errors={errors}
         processing={processing}
         onSubmit={handleSubmit}
+        tutelaPendente={cursoTutelado?.tutela_pendente}
       />
     </div>
   );

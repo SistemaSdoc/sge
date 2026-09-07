@@ -40,6 +40,7 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import TablePagination from '@/components/table-pagination';
+import { TutelaStatusBadge } from '../../../cursos-tutelados/components/tutela-status-badge';
 
 export function TabContentCursos({
   data,
@@ -91,6 +92,7 @@ export function TabContentCursos({
               <TableRow className="bg-muted/72">
                 <TableHead className="px-4">Nome</TableHead>
                 <TableHead>Tutelado por</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead className="px-4 text-right">Acções</TableHead>
               </TableRow>
             </TableHeader>
@@ -117,10 +119,24 @@ export function TabContentCursos({
                     {curso.nome}
                   </TableCell>
                   <TableCell>
-                    {curso.instituicao_tutora ? (
-                      curso.instituicao_tutora
+                    <div className="flex flex-col gap-1">
+                      <span>
+                        {curso.instituicao_tutora || (
+                          <Minus size={15} className="text-muted-foreground" />
+                        )}
+                      </span>
+                      {curso.instituicao_tutora_pendente && (
+                        <span className="w-fit rounded border border-muted-foreground/25 px-2 py-0.5 text-xs text-muted-foreground">
+                          Troca pendente: {curso.instituicao_tutora_pendente}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {curso.status ? (
+                      <TutelaStatusBadge status={curso.status} />
                     ) : (
-                      <Minus size={15} className="text-muted-foreground" />
+                      '__'
                     )}
                   </TableCell>
                   <TableCell className="px-4 text-right">
