@@ -27,6 +27,7 @@ const normalizeFilterValue = (value) =>
   value === null || value === undefined || value === '' ? '' : String(value);
 
 export function Header({
+  can = {},
   instituicao,
   instituicoes = [],
   cursosTutelados = [],
@@ -76,9 +77,11 @@ export function Header({
         </CardDescription>
 
         <CardAction>
-          <Button size="sm" className="w-full sm:w-auto" onClick={onAddGrupo}>
-            Adicionar grupo
-          </Button>
+          {can?.create && (
+            <Button size="sm" className="w-full sm:w-auto" onClick={onAddGrupo}>
+              Adicionar grupo
+            </Button>
+          )}
         </CardAction>
       </CardHeader>
 
@@ -87,22 +90,23 @@ export function Header({
         <h1 className="text-sm font-semibold whitespace-nowrap">Filtros</h1>
 
         <div className="flex w-full flex-col justify-end gap-2 sm:w-auto sm:flex-row">
-          <Select
-            value={normalizeFilterValue(filtroInstituicao)}
-            onValueChange={onInstituicaoChange}
-          >
-            <SelectTrigger className="w-full sm:w-56">
-              <SelectValue placeholder="Instituição" />
-            </SelectTrigger>
-            <SelectContent>
-              {instituicoes.map((item) => (
-                <SelectItem key={item.id} value={String(item.id)}>
-                  {item.nome}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
+          {can?.selecionarInstituicao && (
+            <Select
+              value={normalizeFilterValue(filtroInstituicao)}
+              onValueChange={onInstituicaoChange}
+            >
+              <SelectTrigger className="w-full sm:w-56">
+                <SelectValue placeholder="Instituição" />
+              </SelectTrigger>
+              <SelectContent>
+                {instituicoes.map((item) => (
+                  <SelectItem key={item.id} value={String(item.id)}>
+                    {item.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <Select
             value={normalizeFilterValue(anoLectivoId)}
             onValueChange={onAnoLectivoChange}

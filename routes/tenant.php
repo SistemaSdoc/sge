@@ -366,6 +366,7 @@ Route::middleware([
             */
 
             Route::get('pap', [GrupoPapController::class, 'index'])
+                ->middleware('propina.em.dia')
                 ->name('grupos-pap.index');
 
             Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/alunos-disponiveis', [GrupoPapController::class, 'alunosDisponiveis'])
@@ -666,7 +667,7 @@ Route::middleware([
       |--------------------------------------------------------------------------
       */
     Route::get('/storage/{path}', function (string $path) {
-        if (! Storage::disk('public')->exists($path)) {
+        if (!Storage::disk('public')->exists($path)) {
             abort(404);
         }
 

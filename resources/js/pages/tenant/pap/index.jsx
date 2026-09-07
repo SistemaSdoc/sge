@@ -91,6 +91,7 @@ export default function Index({
       <Head title="Grupos PAP" />
 
       <Header
+        can={can}
         instituicao={instituicao}
         instituicoes={instituicoes}
         cursosTutelados={cursosTutelados}
