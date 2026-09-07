@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\Pagamento\GerarRecibo;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Pagamento\StorePagamentoRequest;
 use App\Http\Requests\Tenant\Pagamento\UpdatePagamentoRequest;
@@ -27,6 +28,7 @@ class PagamentoController extends Controller
     public function __construct(
         private readonly VerificadorPropinaService $verificador,
         private readonly PropinaNotificacaoService $notificador,
+        private readonly GerarRecibo $gerarRecibo,
     ) {}
 
     public function index(Request $request)
@@ -359,7 +361,7 @@ class PagamentoController extends Controller
             'itens_count' => count($request->input('itens', [])),
         ]);
 
-        DB::transaction(function () use ($request) {
+        $pagamento = DB::transaction(function () use ($request): Pagamento {
             $valorTotal = 0;
             $linhasParaCriar = [];
 
@@ -437,14 +439,17 @@ class PagamentoController extends Controller
                 'itens_quantidade' => count($linhasParaCriar),
             ]);
 
-            $aluno = Aluno::with('user')->find($request->input('aluno_id'));
-            if ($aluno?->user) {
-                $this->notificarPagamentoRegistado($aluno->user, $pagamento);
-            }
-
-            $this->resolverNotificacoesSePropinaEmDia($request->input('aluno_id'));
-
+            return $pagamento;
         });
+
+        $this->gerarRecibo->handle($pagamento);
+
+        $aluno = Aluno::with('user')->find($request->input('aluno_id'));
+        if ($aluno?->user) {
+            $this->notificarPagamentoRegistado($aluno->user, $pagamento);
+        }
+
+        $this->resolverNotificacoesSePropinaEmDia($request->input('aluno_id'));
 
         return redirect()->route('tenant.dashboard.pagamentos.index')->with('success', 'Pagamento registado com sucesso.');
     }
