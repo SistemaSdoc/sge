@@ -30,13 +30,10 @@ class DocumentosController extends Controller
             abort(response()->json(['message' => 'O certificado só pode ser emitido para alunos da 13ª classe.']));
         }
 
-        // Verifica se tem notas
-        $dados = $this->declaracaoComNotaService->calcularDados($aluno, $turma);
-        $todasDisciplinas = array_merge(
-            $dados['notas']['sociocultural'] ?? [],
-            $dados['notas']['cientifica'] ?? [],
-            $dados['notas']['tecnica'] ?? [],
-        );
+        // Usa o CertificadoService (agrega todas as turmas do aluno)
+        $calc = $this->certificadoService->calcular($aluno, $turma);
+
+        $todasDisciplinas = array_merge(...array_values($calc['notas']));
 
         if (empty($todasDisciplinas)) {
             abort(response()->json(['message' => 'O aluno não tem notas lançadas para gerar o certificado.']));
