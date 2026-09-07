@@ -233,6 +233,7 @@ class DocumentosController extends Controller
         $user = Auth::guard('tenant')->user();
 
         $q = trim($request->query('q', ''));
+        $subtipo = $request->query('subtipo');
 
         if (strlen($q) < 3) {
             return response()->json([]);
@@ -240,6 +241,13 @@ class DocumentosController extends Controller
 
         $alunos = Aluno::query()
             ->where('instituicao_id', $user->instituicao_id)
+            ->when(
+                $subtipo === 'certificado',
+                fn ($query) => $query->whereHas(
+                    'turmaActual.cursoClasseTurno.cursoClasse.classe',
+                    fn ($classeQuery) => $classeQuery->where('nome', 'like', '13%')
+                )
+            )
             ->where(function ($query) use ($q) {
                 $query->where('matricula', 'like', "%{$q}%")
                     ->orWhere('numero_processo', 'like', "%{$q}%")

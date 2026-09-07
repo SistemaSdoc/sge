@@ -6,7 +6,7 @@ export function usePesquisaAlunos() {
   const [notFound, setNotFound] = useState(false);
   const [queryActual, setQueryActual] = useState('');
 
-  async function pesquisar(query) {
+  async function pesquisar(query, subtipo = null) {
     const q = query.trim();
 
     setQueryActual(q);
@@ -20,15 +20,18 @@ export function usePesquisaAlunos() {
     setSearching(true);
 
     try {
-      const res = await fetch(
-        `/dashboard/documentos/pesquisar-aluno?q=${encodeURIComponent(q)}`,
-        {
+      const params = new URLSearchParams({ q });
+
+      if (subtipo) {
+        params.set('subtipo', subtipo);
+      }
+
+      const res = await fetch(`/dashboard/documentos/pesquisar-aluno?${params}`, {
           headers: {
             Accept: 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
           },
-        },
-      );
+      });
 
       if (!res.ok) {
         setResultados([]);
@@ -45,9 +48,6 @@ export function usePesquisaAlunos() {
         : data?.id
           ? [data]
           : [];
-
-      setResultados(lista);
-      setNotFound(lista.length === 0);
 
       setResultados(lista);
       setNotFound(lista.length === 0);

@@ -70,7 +70,7 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
   function handleCommandInput(value) {
     setQuery(value);
     if (value.trim().length >= 3) {
-      pesquisar(value);
+      pesquisar(value, documento?.subtipo);
     } else if (!value) {
       limpar();
     }

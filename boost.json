@@ -15,9 +15,6 @@
         "socialite-development",
         "wayfinder-development",
         "inertia-react-development",
-        "tailwindcss-development",
-        "laravel-patterns",
-        "laravel-security",
-        "laravel-specialist"
+        "tailwindcss-development"
     ]
 }
