@@ -367,6 +367,17 @@ class TutelaNotificationService
             $admin = User::query()->find($tenantTutelado->admin_user_id);
 
             if ($admin) {
+                $admin->notifications()
+                    ->whereIn('data->tipo', [
+                        'conversao_tutela_propria',
+                        'conversao_tutela_propria_pendente',
+                        'conversao_tutela_propria_resultado',
+                    ])
+                    ->where('data->curso_tutelado_shared_id', (string) $shared->getKey())
+                    ->where('data->status', 'pendente')
+                    ->get()
+                    ->each(fn ($notification): bool => (bool) $notification->delete());
+
                 $admin->notify(new ConversaoTutelaPropriaResultadoNotification(
                     instituicaoDecisora: $instituicaoDecisora->nome,
                     cursoNome: $shared->curso_nome,
