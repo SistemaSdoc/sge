@@ -68,7 +68,15 @@ class TutelaCentralService
         }
 
         return DB::connection($centralConnection)
-            ->transaction(function () use ($cursoTutelado, $tenantTutorId, $tenantTuteladoId, $instituicaoTutora, $curso, $centralConnection, $status): CursoTuteladoShared {
+            ->transaction(function () use (
+                $cursoTutelado,
+                $tenantTutorId,
+                $tenantTuteladoId,
+                $instituicaoTutora,
+                $curso,
+                $centralConnection,
+                $status
+            ): CursoTuteladoShared {
                 $shared = $this->findExisting(
                     $cursoTutelado,
                     $tenantTutorId,
@@ -135,7 +143,10 @@ class TutelaCentralService
         $centralConnection = $this->centralConnection();
 
         DB::connection($centralConnection)
-            ->transaction(function () use ($cursoTutelado, $centralConnection): void {
+            ->transaction(function () use (
+                $cursoTutelado,
+                $centralConnection
+            ): void {
                 Log::info('Removendo vínculo da central', [
                     'shared_id' => $cursoTutelado->curso_tutelado_shared_id,
                     'curso_tutelado_id' => $cursoTutelado->id,
@@ -170,7 +181,10 @@ class TutelaCentralService
         $centralConnection = $this->centralConnection();
 
         DB::connection($centralConnection)
-            ->transaction(function () use ($cursoTutelado, $centralConnection): void {
+            ->transaction(function () use (
+                $cursoTutelado,
+                $centralConnection
+            ): void {
                 Log::info('Encerrando vínculo na central', [
                     'shared_id' => $cursoTutelado->curso_tutelado_shared_id,
                     'curso_tutelado_id' => $cursoTutelado->id,
@@ -191,7 +205,10 @@ class TutelaCentralService
     {
         $centralConnection = $this->centralConnection();
 
-        DB::connection($centralConnection)->transaction(function () use ($sharedPendente, $centralConnection): void {
+        DB::connection($centralConnection)->transaction(function () use (
+            $sharedPendente,
+            $centralConnection
+        ): void {
             // Encerra todos os outros vínculos activos do mesmo curso
             CursoTuteladoShared::on($centralConnection)
                 ->where('curso_tutelado_tutelado_id', $sharedPendente->curso_tutelado_tutelado_id)

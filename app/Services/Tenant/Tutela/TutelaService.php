@@ -39,7 +39,10 @@ class TutelaService
         Instituicao $instituicaoTutelada,
         string $tenantTutorId
     ): InstituicaoTutoraData {
-        return $this->validator->validarTutelaExterna($instituicaoTutelada, $tenantTutorId);
+        return $this->validator->validarTutelaExterna(
+            $instituicaoTutelada, 
+            $tenantTutorId
+            );
     }
 
     /**
@@ -89,7 +92,10 @@ class TutelaService
         );
 
         try {
-            $this->tenantService->associarTutelaExterna($cursoTutelado, $shared);
+            $this->tenantService->associarTutelaExterna(
+                $cursoTutelado,
+                 $shared
+                 );
         } catch (Throwable $exception) {
             Log::error('Falha ao associar tutela no tenant tutelado.', [
                 'shared_id' => $shared->getKey(),

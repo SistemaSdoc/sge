@@ -149,7 +149,13 @@ class TutelaNotificationService
             return;
         }
 
-        $tenantAnterior->run(function () use ($tenantAnterior, $instituicaoNova, $instituicaoTutelada, $shared, $cursoTuteladoSharedAnteriorId): void {
+        $tenantAnterior->run(function () use (
+            $tenantAnterior,
+            $instituicaoNova,
+            $instituicaoTutelada,
+            $shared,
+            $cursoTuteladoSharedAnteriorId
+        ): void {
             $admin = User::query()->find($tenantAnterior->admin_user_id);
 
             if (! $admin) {
@@ -187,7 +193,11 @@ class TutelaNotificationService
             return;
         }
 
-        $tenantAtual->run(function () use ($shared, $tenantAtual, $sharedAnterior): void {
+        $tenantAtual->run(function () use (
+            $shared,
+            $tenantAtual,
+            $sharedAnterior
+        ): void {
             $admin = User::query()->find($tenantAtual->admin_user_id);
 
             if (! $admin) {
@@ -231,7 +241,12 @@ class TutelaNotificationService
             return;
         }
 
-        $tenantTutelado->run(function () use ($tenantTutelado, $instituicaoAnterior, $instituicaoAtual, $shared): void {
+        $tenantTutelado->run(function () use (
+            $tenantTutelado,
+            $instituicaoAnterior,
+            $instituicaoAtual,
+            $shared
+        ): void {
             $admin = User::query()->find($tenantTutelado->admin_user_id);
 
             if (! $admin) {
@@ -276,7 +291,14 @@ class TutelaNotificationService
             return;
         }
 
-        $tenantTutelado->run(function () use ($tenantTutelado, $instituicaoDecisora, $instituicaoProposta, $shared, $resultado, $fase): void {
+        $tenantTutelado->run(function () use (
+            $tenantTutelado,
+            $instituicaoDecisora,
+            $instituicaoProposta,
+            $shared,
+            $resultado,
+            $fase
+        ): void {
             $admin = User::query()->find($tenantTutelado->admin_user_id);
 
             if (! $admin) {
@@ -329,7 +351,12 @@ class TutelaNotificationService
             return;
         }
 
-        $tenantTutor->run(function () use ($tenantTutor, $instituicaoSolicitante, $instituicaoActual, $shared): void {
+        $tenantTutor->run(function () use (
+            $tenantTutor,
+            $instituicaoSolicitante,
+            $instituicaoActual,
+            $shared
+        ): void {
             $admin = User::query()->find($tenantTutor->admin_user_id);
 
             if ($admin) {
@@ -363,7 +390,12 @@ class TutelaNotificationService
             return;
         }
 
-        $tenantTutelado->run(function () use ($tenantTutelado, $instituicaoDecisora, $shared, $resultado): void {
+        $tenantTutelado->run(function () use (
+            $tenantTutelado,
+            $instituicaoDecisora,
+            $shared,
+            $resultado
+        ): void {
             $admin = User::query()->find($tenantTutelado->admin_user_id);
 
             if ($admin) {
