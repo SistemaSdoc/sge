@@ -199,7 +199,7 @@ class DocumentosController extends Controller
 
     // ── Listagem ──────────────────────────────────────────────────────────
 
-    
+
     public function index()
     {
         /** @var User $user */
@@ -235,7 +235,7 @@ class DocumentosController extends Controller
         $q = trim($request->query('q', ''));
         $subtipo = $request->query('subtipo');
 
-        if (strlen($q) < 3) {
+        if ($q === '') {
             return response()->json([]);
         }
 
@@ -243,9 +243,9 @@ class DocumentosController extends Controller
             ->where('instituicao_id', $user->instituicao_id)
             ->when(
                 $subtipo === 'certificado',
-                fn ($query) => $query->whereHas(
+                fn($query) => $query->whereHas(
                     'turmaActual.cursoClasseTurno.cursoClasse.classe',
-                    fn ($classeQuery) => $classeQuery->where('nome', 'like', '13%')
+                    fn($classeQuery) => $classeQuery->where('nome', 'like', '13%')
                 )
             )
             ->where(function ($query) use ($q) {

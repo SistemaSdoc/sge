@@ -1,5 +1,5 @@
 import { AlertCircle, Download, Loader2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/select';
 
 import { usePesquisaAlunos } from '../hooks/use-pesquisa-alunos';
+import { useDebounce } from '@uidotdev/usehooks';
 
 export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
   const [query, setQuery] = useState('');
@@ -41,7 +42,7 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
   const [efeito, setEfeito] = useState('');
   const [erro, setErro] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const debouncedQuery = useDebounce(query, 500); // ← adiciona
   const { resultados, searching, notFound, queryActual, pesquisar, limpar } =
     usePesquisaAlunos();
 
@@ -67,12 +68,23 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
     limpar();
   }
 
+  // substitui o handleCommandInput
   function handleCommandInput(value) {
     setQuery(value);
-    if (value.trim().length >= 3) {
-      pesquisar(value, documento?.subtipo);
-    } else if (!value) {
+  }
+
+  // adiciona este useEffect
+  useEffect(() => {
+    if (debouncedQuery.trim().length >= 1) {
+      pesquisar(debouncedQuery, documento?.subtipo);
+    } else {
       limpar();
+    }
+  }, [debouncedQuery]);
+
+  function handleKeyDown(e) {
+    if (e.key === 'Enter' && query.trim().length >= 1) {
+      pesquisar(query, documento?.subtipo);
     }
   }
 
@@ -175,8 +187,9 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
                     placeholder="Nº de processo ou nome…"
                     value={query}
                     onValueChange={handleCommandInput}
+                    onKeyDown={handleKeyDown} // ← adiciona isto
                   />
-                  {query.trim().length >= 3 && (
+                    {query.trim() && (
                     <CommandList className="max-h-48 overflow-y-auto">
                       {searching && (
                         <div className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">

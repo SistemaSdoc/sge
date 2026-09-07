@@ -13,7 +13,7 @@ export function usePesquisaAlunos() {
     setResultados([]);
     setNotFound(false);
 
-    if (q.length < 3) {
+    if (q.length < 1) {
       return;
     }
 
@@ -27,10 +27,10 @@ export function usePesquisaAlunos() {
       }
 
       const res = await fetch(`/dashboard/documentos/pesquisar-aluno?${params}`, {
-          headers: {
-            Accept: 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-          },
+        headers: {
+          Accept: 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
       });
 
       if (!res.ok) {
