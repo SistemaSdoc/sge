@@ -45,18 +45,9 @@ class GrupoPapPolicy
                 }
             }
 
-            $daFturma = $grupoPap->turma
-                ->professores()
-                ->where('professores.id', $professor?->id)
-                ->exists();
-
-            $ehJurado = $grupoPap->jurados()
-                ->where('professor_id', $professor?->id)
-                ->exists();
-
             $ehTutor = $grupoPap->professor_tutor_id === $professor?->id;
 
-            return ($daFturma || $ehJurado || $ehTutor)
+            return $ehTutor
                 && $grupoPap->instituicao()?->id === $user->instituicao_id;
         }
 
@@ -83,7 +74,7 @@ class GrupoPapPolicy
      */
     public function update(User $user, GrupoPap $grupoPap): bool
     {
-        if (! $user->hasRole('Professor')) {
+        if (!$user->hasRole('Professor')) {
             return $user->hasPermissionTo('grupopap.update')
                 && $grupoPap->instituicao()?->id === $user->instituicao_id;
         }
@@ -109,17 +100,17 @@ class GrupoPapPolicy
      */
     public function corrigirTema(User $user, GrupoPap $grupoPap): bool
     {
-        if (! $grupoPap->podeSerEditado()) {
+        if (!$grupoPap->podeSerEditado()) {
             return false;
         }
 
-        if (! $user->can('grupopap.corrigirTema')) {
+        if (!$user->can('grupopap.corrigirTema')) {
             return false;
         }
 
         // Apenas membros do grupo podem corrigir o tema
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
             ->exists();
     }
 
@@ -181,17 +172,17 @@ class GrupoPapPolicy
      */
     public function definirTema(User $user, GrupoPap $grupoPap): bool
     {
-        if (! $grupoPap->podeDefinirTema()) {
+        if (!$grupoPap->podeDefinirTema()) {
             return false;
         }
 
-        if (! $user->can('grupopap.definirTema')) {
+        if (!$user->can('grupopap.definirTema')) {
             return false;
         }
 
         // Só membros do grupo
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
             ->exists();
     }
 
@@ -227,12 +218,12 @@ class GrupoPapPolicy
     {
         $trabalho = $grupoPap->trabalhoPap;
 
-        if (! $trabalho || ! $trabalho->podeSerSubmetido()) {
+        if (!$trabalho || !$trabalho->podeSerSubmetido()) {
             return false;
         }
 
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
             ->exists();
     }
 
@@ -287,13 +278,13 @@ class GrupoPapPolicy
      */
     public function downloadVersaoTrabalho(User $user, GrupoPap $grupoPap): bool
     {
-        if (! $grupoPap->trabalhoPap) {
+        if (!$grupoPap->trabalhoPap) {
             return false;
         }
 
         // Membros do grupo
         $ehIntegrante = $grupoPap->elementos()
-            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
             ->exists();
 
         if ($ehIntegrante) {
@@ -335,5 +326,11 @@ class GrupoPapPolicy
     public function forceDelete(User $user, GrupoPap $grupoPap): bool
     {
         return false;
+    }
+
+    public function selecionarInstituicao(User $user): bool
+    {
+        return $user->can('grupopap.selecionarInstituicao')
+            && $user->instituicao_id !== null;
     }
 }

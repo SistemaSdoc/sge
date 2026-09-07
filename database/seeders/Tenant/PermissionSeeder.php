@@ -122,6 +122,7 @@ class PermissionSeeder extends Seeder
             'grupopap.delete',
             'grupopap.definirData',
             'grupopap.definirTema',
+            'grupopap.selecionarInstituicao',
 
             // Banca de Júri PAP
             'bancajuripap.viewAny',

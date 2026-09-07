@@ -5,7 +5,7 @@ import { ProximasAulas } from './components/proximas-aulas';
 import { AvisosEventos } from './components/avisos-eventos/index';
 import { usePage } from '@inertiajs/react';
 import { DashboardPanel } from '@/components/dashboard-panel';
-import NotificacoesSino from './components/notificacoes-sino';
+// import NotificacoesSino from './components/notificacoes-sino';
 
 export default function AlunoDashboard({ proximasAulas = [], avisos = [] }) {
   const { auth } = usePage().props;
@@ -21,7 +21,7 @@ export default function AlunoDashboard({ proximasAulas = [], avisos = [] }) {
           todayFormatted={todayFormatted}
         />
 
-        <NotificacoesSino />
+        {/* <NotificacoesSino /> */}
       </div>
 
       <DashboardSummary aulas={proximasAulas} />

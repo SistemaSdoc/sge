@@ -36,7 +36,7 @@ export default function EditProfessorModal({ vinculo, open, onClose, params }) {
     router.put(
       update({
         ...params,
-        professore: vinculo.vinculo_id,
+        professor: vinculo.vinculo_id,
       }).url,
       { tipo },
       {
