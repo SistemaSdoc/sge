@@ -171,7 +171,7 @@ export function TenantTable({
 
                           <DropdownMenuSeparator />
 
-                          <DropdownMenuItem
+                          {/* <DropdownMenuItem
                             variant="destructive"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -179,7 +179,8 @@ export function TenantTable({
                             }}
                           >
                             Remover
-                          </DropdownMenuItem>
+                          </DropdownMenuItem> */}
+                          
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
