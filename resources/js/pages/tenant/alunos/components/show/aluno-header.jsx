@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreHorizontalIcon, Minus, Pencil, Dot } from 'lucide-react';
+import { MoreHorizontalIcon, Minus, Pencil, Dot, Download } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,8 @@ function getInitials(nome = '') {
 }
 
 export function AlunoHeader({ aluno }) {
-  const hasAnyAction = aluno.can?.update || aluno.can?.delete;
+  const hasAnyAction =
+    aluno.can?.view || aluno.can?.update || aluno.can?.delete;
 
   return (
     <Card className="overflow-hidden pt-0!">
@@ -39,7 +40,7 @@ export function AlunoHeader({ aluno }) {
         <div className="absolute inset-0 bg-black/20" />
 
         {hasAnyAction && (
-          <div className="absolute top-4 right-4 z-10">
+          <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -95,6 +96,7 @@ export function AlunoHeader({ aluno }) {
           {aluno.nome}
         </h1>
 
+
         <div className="mt-2 flex flex-wrap items-center justify-center gap-x-1 gap-y-1 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <span className="">Curso:</span>{' '}
@@ -110,7 +112,12 @@ export function AlunoHeader({ aluno }) {
           </span>
 
           <span className="flex items-center gap-1">
-            Turma: {aluno.turma.nome || <Minus size={14} />}
+            Turma: {aluno.turma.nome || <Minus size={14} />} <Dot />
+          </span>
+
+          {/* Número de processo */}
+          <span className="flex items-center gap-1">
+            Nº Proc.: {aluno.numero_processo || <Minus size={14} />}
           </span>
         </div>
       </div>

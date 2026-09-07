@@ -21,6 +21,7 @@ use App\Http\Controllers\Tenant\DashboardController;
 use App\Http\Controllers\Tenant\DisciplinaController as DisciplinaControllerGeral;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
+use App\Http\Controllers\Tenant\FichaMatriculaController;
 use App\Http\Controllers\Tenant\FolhaAprovacaoController;
 use App\Http\Controllers\Tenant\GrelhaCurricularController;
 use App\Http\Controllers\Tenant\GrupoPapAprovacaoController;
@@ -140,6 +141,9 @@ Route::middleware([
 
             Route::get('alunos/{aluno}/turmas-disponiveis', [AlunoController::class, 'turmasDisponiveis'])
                 ->name('alunos.turmas-disponiveis');
+
+            Route::get('alunos/{aluno}/ficha-matricula', [FichaMatriculaController::class, 'pdf'])
+                ->name('alunos.ficha-matricula');
 
             /*
             |--------------------------------------------------------------------------
