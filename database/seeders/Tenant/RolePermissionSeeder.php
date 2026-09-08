@@ -118,6 +118,8 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.reprovar',
                 'grupopap.solicitarMelhoria',
                 'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
+
 
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
@@ -270,6 +272,7 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.delete',
                 'grupopap.definirData',
                 'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
 
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
@@ -409,6 +412,7 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.delete',
                 'grupopap.definirData',
                 'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
 
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
@@ -502,6 +506,7 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.definirData',
                 'grupopap.solicitarMelhoria',
                 'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
 
                 'elementogrupopap.viewAny',
                 'elementogrupopap.view',

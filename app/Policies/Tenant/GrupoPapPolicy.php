@@ -333,4 +333,10 @@ class GrupoPapPolicy
         return $user->can('grupopap.selecionarInstituicao')
             && $user->instituicao_id !== null;
     }
+
+    public function selecionarAnoLectivo(User $user): bool
+    {
+        return $user->can('grupopap.selecionarAnoLectivo')
+            && $user->instituicao_id !== null;
+    }
 }
