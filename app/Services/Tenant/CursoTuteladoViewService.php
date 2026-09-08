@@ -3,11 +3,11 @@
 namespace App\Services\Tenant;
 
 use App\Enums\TutelaStatus;
+use App\Models\Central\Curso;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Classe;
-use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
@@ -30,6 +30,7 @@ class CursoTuteladoViewService
     public function index(Instituicao $instituicao, User $user): LengthAwarePaginator
     {
         return $instituicao->instituicaoCursos()
+            ->has('cursoTutelado')
             ->with([
                 'curso:id,nome',
                 'cursoTutelado.instituicaoTutora:id,nome',
@@ -50,8 +51,8 @@ class CursoTuteladoViewService
                 $idTutor = $this->resolverIdTutor($cursoTutelado, $sharedExibido);
 
                 return [
-                    'id' => $cursoTutelado->id,
-                    'nome' => $instituicaoCurso->curso->nome,
+                    'id' => (string) $cursoTutelado->getKey(),
+                    'nome' => $instituicaoCurso->curso?->nome ?? 'Curso indisponível',
                     'status' => $conversaoPendente
                         ? TutelaStatus::PENDENTE->value
                         : ($sharedPendente?->status?->value
@@ -159,15 +160,11 @@ class CursoTuteladoViewService
 
         $niveisEnsino = NivelEnsino::query()->select('id', 'nome')->orderBy('nome')->get();
 
-        $cursosJaAssociados = InstituicaoCurso::query()
-            ->when(
-                $instituicao->tipo === 'instituto',
-                fn ($query) => $query->whereHas('instituicao', fn ($instituicaoQuery) => $instituicaoQuery->where('tipo', 'colegio')),
-                fn ($query) => $query->where('instituicao_id', $instituicao->getKey())
-            )
-            ->pluck('curso_id');
+        $cursosJaAssociados = $instituicao->instituicaoCursos()->pluck('curso_id');
+
         $cursos = Curso::query()
             ->select('id', 'nome')
+            ->where('status', 1)
             ->whereNotIn('id', $cursosJaAssociados)
             ->orderBy('nome')
             ->get();
@@ -180,6 +177,41 @@ class CursoTuteladoViewService
                 ? $this->tenantService->getAvailableTutors((string) tenancy()->tenant->getTenantKey())
                 : [],
         ];
+    }
+
+    /**
+     * Lista os cursos centrais oferecidos pelo instituto tutor seleccionado.
+     *
+     * @return array<int, array{id: string, nome: string}>
+     */
+    public function cursosDisponiveisParaTutor(string $tenantTutorId, Instituicao $instituicao): array
+    {
+        $tenantTutor = Tenant::query()->findOrFail($tenantTutorId);
+        $instituicaoTutora = $this->tenantService->getInstituicao($tenantTutor);
+
+        if (! $instituicaoTutora || $instituicaoTutora->tipo !== 'instituto') {
+            return [];
+        }
+
+        $cursoIds = $tenantTutor->run(
+            fn (): array => InstituicaoCurso::query()
+                ->where('instituicao_id', $instituicaoTutora->getKey())
+                ->pluck('curso_id')
+                ->map(fn ($id): string => (string) $id)
+                ->all()
+        );
+
+        return Curso::query()
+            ->whereIn('id', $cursoIds)
+            ->where('status', 1)
+            ->whereNotIn('id', $instituicao->instituicaoCursos()->pluck('curso_id'))
+            ->orderBy('nome')
+            ->get(['id', 'nome'])
+            ->map(fn (Curso $curso): array => [
+                'id' => (string) $curso->getKey(),
+                'nome' => $curso->nome,
+            ])
+            ->all();
     }
 
     /**
@@ -226,13 +258,18 @@ class CursoTuteladoViewService
      *
      * @return array{classes: mixed, tenantsTutores: array}
      */
-    public function editOptions(Instituicao $instituicao): array
+    public function editOptions(Instituicao $instituicao, CursoTutelado $cursoTutelado): array
     {
+        $cursoId = (string) $cursoTutelado->instituicaoCurso?->curso_id;
+
         return [
             'classes' => Classe::query()->select('id', 'nome')->orderBy('nome')->get(),
             'niveisEnsino' => NivelEnsino::query()->select('id', 'nome')->orderBy('nome')->get(),
             'tenantsTutores' => $instituicao->tipo === 'colegio'
-                ? $this->tenantService->getAvailableTutors((string) tenancy()->tenant->getTenantKey())
+                ? $this->tenantService->getAvailableTutors(
+                    (string) tenancy()->tenant->getTenantKey(),
+                    $cursoId,
+                )
                 : [],
         ];
     }

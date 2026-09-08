@@ -4,9 +4,11 @@ namespace App\Services\Tenant;
 
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
+use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Collection;
 
 class CrossTenantAccessService
 {
@@ -49,6 +51,72 @@ class CrossTenantAccessService
     }
 
     /**
+     * Devolve os vínculos activos dos cursos coordenados pelo professor.
+     *
+     * A coordenação é verificada no tenant tutor, onde o professor existe.
+     */
+    public function vinculosCoordenados(User $tutor): Collection
+    {
+        $this->validarTutorAutenticado($tutor);
+
+        $tenantTutorId = (string) tenancy()->tenant?->getTenantKey();
+        $instituicaoId = (string) $tutor->instituicao_id;
+        $professorId = $tutor->professor?->getKey();
+
+        if (! $tenantTutorId || ! $instituicaoId || ! $professorId) {
+            return collect();
+        }
+
+        $cursoIds = CursoTutelado::query()
+            ->where('tipo_tutela', 'propria')
+            ->whereHas(
+                'instituicaoCurso',
+                fn ($query) => $query
+                    ->where('instituicao_id', $instituicaoId)
+            )
+            ->whereHas(
+                'professores',
+                fn ($query) => $query
+                    ->where('professor_id', $professorId)
+                    ->where('coordenador', true)
+            )
+            ->with('instituicaoCurso:id,curso_id')
+            ->get()
+            ->pluck('instituicaoCurso.curso_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($cursoIds->isEmpty()) {
+            return collect();
+        }
+
+        return CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', $tenantTutorId)
+            ->where('status', 'activo')
+            ->whereIn('curso_id', $cursoIds)
+            ->get();
+    }
+
+    /**
+     * Devolve os vínculos que o utilizador pode consultar no painel PAP.
+     *
+     * O director do instituto tem visão institucional completa; professores
+     * ficam limitados aos cursos onde são coordenadores.
+     */
+    public function vinculosVisiveisNoPap(User $user): Collection
+    {
+        if ($user->hasRole('Director') && $user->instituicao?->tipo === 'instituto') {
+            return CursoTuteladoShared::query()
+                ->where('tenant_tutor_id', (string) tenancy()->tenant->getTenantKey())
+                ->where('status', 'activo')
+                ->get();
+        }
+
+        return $this->vinculosCoordenados($user);
+    }
+
+    /**
      * Valida que o grupo PAP existe no tenant tutelado e pertence ao vínculo.
      *
      * A autorização do tutor deve ser executada antes de entrar no tenant do
@@ -79,6 +147,8 @@ class CrossTenantAccessService
             throw new AuthorizationException('Tenant tutelado inválido.');
         }
 
+        $this->validarCoordenacaoDoCurso($tutor, $vinculo);
+
         $tenantColega->run(function () use ($grupoPapId, $vinculo): void {
             $grupo = GrupoPap::query()
                 ->with('turma.cursoClasseTurno.cursoClasse.cursoTutelado')
@@ -94,6 +164,35 @@ class CrossTenantAccessService
                 throw new AuthorizationException('O grupo não pertence ao curso tutelado.');
             }
         });
+    }
+
+    /**
+     * Garante que o actor coordena o mesmo curso central da tutela.
+     */
+    private function validarCoordenacaoDoCurso(User $tutor, CursoTuteladoShared $vinculo): void
+    {
+        if (! $vinculo->curso_id || ! $tutor->professor) {
+            throw new AuthorizationException('O professor não está associado ao curso tutor.');
+        }
+
+        $autorizado = CursoTutelado::query()
+            ->whereHas(
+                'instituicaoCurso',
+                fn ($query) => $query
+                    ->where('instituicao_id', $tutor->instituicao_id)
+                    ->where('curso_id', $vinculo->curso_id)
+            )
+            ->whereHas(
+                'professores',
+                fn ($query) => $query
+                    ->where('professor_id', $tutor->professor->getKey())
+                    ->where('coordenador', true)
+            )
+            ->exists();
+
+        if (! $autorizado) {
+            throw new AuthorizationException('O professor não coordena este curso.');
+        }
     }
 
     private function validarTutorAutenticado(User $tutor): void

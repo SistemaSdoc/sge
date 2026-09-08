@@ -7,7 +7,6 @@ use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\AvisoController;
 use App\Http\Controllers\Tenant\ClasseController;
 use App\Http\Controllers\Tenant\Colegios\ColegioController;
-use App\Http\Controllers\Tenant\CursosController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\GrelhaCurricularController;
@@ -25,7 +24,6 @@ use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Aviso;
 use App\Models\Tenant\Classe;
-use App\Models\Tenant\Curso;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
@@ -106,14 +104,6 @@ final class SidebarMenuService
 
                         return $instituicao && $gate->allows('view', $instituicao);
                     },
-                ),
-
-                new MenuItem(
-                    key: 'cursos',
-                    title: 'Cursos',
-                    href: action([CursosController::class, 'index']),
-                    icon: 'BookOpen',
-                    can: $gate->allows('viewAny', Curso::class)
                 ),
 
                 new MenuItem(

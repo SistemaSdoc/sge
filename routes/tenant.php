@@ -214,13 +214,14 @@ Route::middleware([
             |--------------------------------------------------------------------------
             */
 
-            Route::resource('cursos', CursosController::class);
-
             Route::resource('instituicoes.cursos-tutelados', CursoTuteladoController::class)
                 ->parameters([
                     'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                 ]);
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados-cursos-disponiveis', [CursoTuteladoController::class, 'cursosDisponiveis'])
+                ->name('instituicoes.cursos-tutelados.cursos-disponiveis');
 
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/criterios-pap', [CursoTuteladoController::class, 'uploadCriteriosPap'])
                 ->name('instituicoes.cursos-tutelados.criterios-pap');
@@ -671,7 +672,7 @@ Route::middleware([
       |--------------------------------------------------------------------------
       */
     Route::get('/storage/{path}', function (string $path) {
-        if (!Storage::disk('public')->exists($path)) {
+        if (! Storage::disk('public')->exists($path)) {
             abort(404);
         }
 

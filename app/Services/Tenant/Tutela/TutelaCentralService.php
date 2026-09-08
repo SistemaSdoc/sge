@@ -88,6 +88,7 @@ class TutelaCentralService
                     'tenant_tutor_id' => $tenantTutorId,
                     'tenant_tutelado_id' => $tenantTuteladoId,
                     'curso_tutelado_tutelado_id' => $cursoTutelado->getKey(),
+                    'curso_id' => $curso?->getKey(),
                     'tenant_tutor_nome' => $instituicaoTutora->instituicao->nome,
                     'curso_nome' => $curso?->nome ?? 'Curso sem nome',
                     'duracao_anos' => $cursoTutelado->instituicaoCurso?->duracao_anos ?? $curso?->duracao_anos ?? 1,
@@ -199,6 +200,21 @@ class TutelaCentralService
                     'shared_id' => $cursoTutelado->curso_tutelado_shared_id,
                 ]);
             });
+    }
+
+    /**
+     * Fecha um vínculo rejeitado que deixou de ser a tutela do curso.
+     */
+    public function encerrarVinculoRejeitado(CursoTutelado $cursoTutelado): void
+    {
+        if (! $cursoTutelado->curso_tutelado_shared_id) {
+            return;
+        }
+
+        CursoTuteladoShared::on($this->centralConnection())
+            ->whereKey($cursoTutelado->curso_tutelado_shared_id)
+            ->where('status', TutelaStatus::REJEITADO)
+            ->update(['status' => TutelaStatus::ENCERRADO]);
     }
 
     public function aprovarTrocaTutela(CursoTuteladoShared $sharedPendente): void

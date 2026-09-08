@@ -1,4 +1,3 @@
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Clock3 } from 'lucide-react';
@@ -56,18 +55,6 @@ export function CursoForm({
             )}
             <FieldGroup>
               <FieldSet>
-                <Field>
-                  <FieldLabel htmlFor="nome">Nome</FieldLabel>
-                  <Input
-                    id="nome"
-                    type="text"
-                    placeholder="Ex.: Informática de gestão"
-                    value={data.nome}
-                    onChange={(e) => setData('nome', e.target.value)}
-                  />
-                  {errors.nome && <FieldError>{errors.nome}</FieldError>}
-                </Field>
-
                 {instituicao.tipo === 'colegio' && (
                   <Field>
                     <FieldLabel htmlFor="tenant_tutor_id">
@@ -152,19 +139,6 @@ export function CursoForm({
                   {errors.classes && <FieldError>{errors.classes}</FieldError>}
                 </Field>
 
-                <Field>
-                  <FieldLabel htmlFor="duracao_anos">Duração (anos)</FieldLabel>
-                  <Input
-                    id="duracao_anos"
-                    type="number"
-                    placeholder="Ex.: 3"
-                    value={data.duracao_anos}
-                    onChange={(e) => setData('duracao_anos', e.target.value)}
-                  />
-                  {errors.duracao_anos && (
-                    <FieldError>{errors.duracao_anos}</FieldError>
-                  )}
-                </Field>
                 <Field>
                   <Button type="submit" disabled={processing}>
                     Guardar

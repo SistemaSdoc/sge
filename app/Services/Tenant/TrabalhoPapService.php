@@ -10,7 +10,7 @@ use App\Models\Tenant\User;
 use App\Traits\NotificaGrupoPap;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class TrabalhoPapService
 {
@@ -42,10 +42,21 @@ class TrabalhoPapService
 
             $numeroVersao = $trabalho->versoes()->max('numero_versao') + 1;
 
-            $caminho = $this->guardarUpload(
-                $ficheiro,
+            Log::debug('TrabalhoPapService::submeter upload recebido', [
+                'nome' => $ficheiro->getClientOriginalName(),
+                'tamanho' => $ficheiro->getSize(),
+                'erro' => $ficheiro->getError(),
+                'valido' => $ficheiro->isValid(),
+                'temporario' => $ficheiro->getRealPath(),
+                'temporario_legivel' => $ficheiro->isReadable(),
+                'private_root' => config('filesystems.disks.private.root'),
+                'private_root_escrevivel' => is_writable(config('filesystems.disks.private.root')),
+            ]);
+
+            $caminho = $ficheiro->storeAs(
                 "trabalhos_pap/{$trabalho->grupo_pap_id}",
                 "v{$numeroVersao}_{$ficheiro->getClientOriginalName()}",
+                'private'
             );
 
             $versao = TrabalhoPapVersao::create([
@@ -223,10 +234,10 @@ class TrabalhoPapService
                     default => 'correcao',
                 };
 
-                $caminhoCorrecao = $this->guardarUpload(
-                    $ficheiroCorrecao,
+                $caminhoCorrecao = $ficheiroCorrecao->storeAs(
                     "trabalhos_pap/{$trabalho->grupo_pap_id}/correcoes",
                     "{$prefixo}_v{$versaoAtual?->numero_versao}_{$ficheiroCorrecao->getClientOriginalName()}",
+                    'private'
                 );
                 $nomeOriginalCorrecao = $ficheiroCorrecao->getClientOriginalName();
             }
@@ -249,18 +260,5 @@ class TrabalhoPapService
                 'estado_novo' => $novoStatus,
             ]);
         });
-    }
-
-    private function guardarUpload(UploadedFile $ficheiro, string $directorio, string $nome): string
-    {
-        $caminho = trim($directorio, '/').'/'.basename($nome);
-        $disco = Storage::disk('private');
-        $disco->makeDirectory(dirname($caminho));
-
-        if (! copy($ficheiro->getRealPath(), $disco->path($caminho))) {
-            throw new \RuntimeException('Não foi possível guardar o ficheiro do trabalho PAP.');
-        }
-
-        return $caminho;
     }
 }

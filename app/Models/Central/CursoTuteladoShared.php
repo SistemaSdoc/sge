@@ -5,6 +5,7 @@ namespace App\Models\Central;
 use App\Enums\TutelaStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 /**
@@ -20,6 +21,7 @@ class CursoTuteladoShared extends Model
         'tenant_tutor_id',
         'tenant_tutelado_id',
         'curso_tutelado_tutelado_id',
+        'curso_id',
         'tenant_tutor_nome',
         'curso_nome',
         'duracao_anos',
@@ -31,5 +33,10 @@ class CursoTuteladoShared extends Model
         return [
             'status' => TutelaStatus::class,
         ];
+    }
+
+    public function curso(): BelongsTo
+    {
+        return $this->belongsTo(Curso::class)->withTrashed();
     }
 }

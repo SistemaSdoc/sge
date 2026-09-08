@@ -40,9 +40,9 @@ class TutelaService
         string $tenantTutorId
     ): InstituicaoTutoraData {
         return $this->validator->validarTutelaExterna(
-            $instituicaoTutelada, 
+            $instituicaoTutelada,
             $tenantTutorId
-            );
+        );
     }
 
     /**
@@ -94,8 +94,8 @@ class TutelaService
         try {
             $this->tenantService->associarTutelaExterna(
                 $cursoTutelado,
-                 $shared
-                 );
+                $shared
+            );
         } catch (Throwable $exception) {
             Log::error('Falha ao associar tutela no tenant tutelado.', [
                 'shared_id' => $shared->getKey(),
@@ -274,5 +274,10 @@ class TutelaService
         Log::info('Encerramento de tutela completado', [
             'curso_tutelado_id' => $cursoTutelado->id,
         ]);
+    }
+
+    public function encerrarVinculoRejeitado(CursoTutelado $cursoTutelado): void
+    {
+        $this->centralService->encerrarVinculoRejeitado($cursoTutelado);
     }
 }

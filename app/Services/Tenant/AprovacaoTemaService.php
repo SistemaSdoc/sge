@@ -7,7 +7,6 @@ use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
-use App\Models\Tenant\Professor;
 use App\Models\Tenant\User;
 use App\Notifications\Pap\TemaSubmetidoAoTutorNotification;
 use App\Traits\NotificaGrupoPap;
@@ -18,22 +17,23 @@ class AprovacaoTemaService
 {
     use NotificaGrupoPap;
 
+    public function __construct(private readonly CrossTenantAccessService $crossTenantAccessService) {}
+
     /**
      * Buscar temas PAP pendentes dos cursos
      * tutelados onde o professor é coordenador.
      */
-    public function temasPendentesParaCoordenador(string $professorId): Collection
+    public function temasPendentesParaCoordenador(User $user): Collection
     {
-        $professor = Professor::find($professorId);
-        $instituicaoId = $professor->user->instituicao_id ?? null;
+        $professor = $user->professor;
+        $professorId = $professor?->getKey();
+        $instituicaoId = $user->instituicao_id;
 
-        if (! $instituicaoId) {
+        if (! $professorId || ! $instituicaoId) {
             return collect();
         }
 
-        $currentTenantId = (string) tenancy()->tenant->getTenantKey();
-
-        // Os cursos locais mantêm a resolução histórica da coordenação.
+        // Inclui os cursos próprios da instituição e os cursos tutelados activos.
         $cursosTutelados = CursoTutelado::query()
             ->where('instituicao_tutora_id', $instituicaoId)
             ->whereHas(
@@ -47,10 +47,7 @@ class AprovacaoTemaService
 
         $temasPendentes = $this->temasPendentesDosCursos($cursosTutelados);
 
-        CursoTuteladoShared::query()
-            ->where('tenant_tutor_id', $currentTenantId)
-            ->where('status', 'activo')
-            ->get()
+        $this->crossTenantAccessService->vinculosCoordenados($user)
             ->each(function (CursoTuteladoShared $shared) use (&$temasPendentes): void {
                 $tenantTutelado = Tenant::query()->find($shared->tenant_tutelado_id);
 

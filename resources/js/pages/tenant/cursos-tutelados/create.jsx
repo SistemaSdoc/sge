@@ -13,8 +13,6 @@ export default function Create({
     curso_id: '',
     nivel_ensino_id: '',
     classe_ids: [],
-    nome: '',
-    duracao_anos: '',
     tenant_tutor_id: '',
   });
 

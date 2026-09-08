@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Tenant\CursoTutelado;
 
+use App\Models\Central\Tenant;
+use App\Services\Central\TenantService;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 /**
  * Valida a actualização de um curso tutelado.
@@ -18,31 +20,72 @@ class UpdateCursoTuteladoRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $tenantTutorId = $this->input('tenant_tutor_id');
+
+        $this->merge([
+            'tenant_tutor_id' => $tenantTutorId ?: null,
+        ]);
+    }
+
     /**
-     * Obtém as regras de duração, classes e tutela.
+     * Obtém as regras da associação local e da tutela.
      *
      * @return array<string, array<int, mixed>>
      */
     public function rules(): array
     {
-        $cursoTutelado = $this->route('cursoTutelado');
-        $cursoId = $cursoTutelado?->instituicaoCurso?->curso_id
-            ?? $this->input('curso_id');
-
         return [
-            'nome' => [
-                'required',
-                'string',
-                'min:2',
-                'max:255',
-                Rule::unique('cursos', 'nome')->ignore($cursoId),
-            ],
             'tenant_tutor_id' => ['nullable', 'string'],
-            'duracao_anos' => ['required', 'integer', 'min:1', 'max:10'],
             'nivel_ensino_id' => ['required', 'uuid', 'exists:niveis_ensino,id'],
             'classes' => ['required', 'array', 'min:1'],
             'classes.*' => ['string', 'exists:classes,id'],
         ];
+    }
+
+    /**
+     * Confirma que o instituto escolhido oferece o curso central associado.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $tenantTutorId = $this->input('tenant_tutor_id');
+
+            if (! $tenantTutorId) {
+                return;
+            }
+
+            $cursoId = $this->route('cursoTutelado')?->instituicaoCurso?->curso_id;
+            $currentTenantId = (string) tenancy()->tenant->getTenantKey();
+
+            if ((string) $tenantTutorId === $currentTenantId) {
+                $validator->errors()->add(
+                    'tenant_tutor_id',
+                    'A instituição tutora deve ser diferente da instituição actual.'
+                );
+
+                return;
+            }
+
+            if (! $cursoId || ! app(TenantService::class)->tutorOffersCourse((string) $tenantTutorId, (string) $cursoId)) {
+                $validator->errors()->add(
+                    'tenant_tutor_id',
+                    'A instituição seleccionada não lecciona este curso.'
+                );
+
+                return;
+            }
+
+            $tenant = Tenant::query()->find($tenantTutorId);
+
+            if (! $tenant) {
+                $validator->errors()->add(
+                    'tenant_tutor_id',
+                    'A instituição tutora seleccionada não está disponível.'
+                );
+            }
+        });
     }
 
     /**
@@ -53,14 +96,7 @@ class UpdateCursoTuteladoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nome.unique' => 'Já existe um curso com este nome.',
-            'nome.required' => 'O nome do curso é obrigatório.',
-            'nome.min' => 'O nome do curso deve ter pelo menos 2 caracteres.',
             'tenant_tutor_id.string' => 'A instituição tutora seleccionada é inválida.',
-            'duracao_anos.required' => 'A duração do curso é obrigatória.',
-            'duracao_anos.integer' => 'A duração do curso deve ser um número inteiro.',
-            'duracao_anos.min' => 'A duração do curso deve ser de pelo menos 1 ano.',
-            'duracao_anos.max' => 'A duração do curso não pode ultrapassar 10 anos.',
             'nivel_ensino_id.required' => 'Seleccione o nível de ensino.',
             'nivel_ensino_id.exists' => 'O nível de ensino seleccionado não existe.',
             'classes.required' => 'Seleccione pelo menos uma classe.',

@@ -83,7 +83,7 @@ trait NotificaGrupoPap
             $cursoTutor = CursoTutelado::query()
                 ->whereHas(
                     'instituicaoCurso.curso',
-                    fn ($query) => $query->where('nome', $shared->curso_nome)
+                    fn ($query) => $query->whereKey($shared->curso_id)
                 )
                 ->first();
 

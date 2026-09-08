@@ -6,6 +6,7 @@ use App\Enums\TenantStatus;
 use App\Models\Central\Tenant;
 use App\Services\Central\TenantService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 /**
@@ -38,22 +39,18 @@ class StoreCursoTuteladoRequest extends FormRequest
      */
     public function rules(): array
     {
-        $id = $this->cursos?->id;
-
         $rules = [
-            // 'curso_id' => ['nullable', 'uuid', 'exists:cursos,id'],
-            'nome' => ['nullable', 'string', 'min:2', 'max:255', 'unique:cursos,nome,'.$id],
-            'duracao_anos' => ['nullable', 'integer', 'min:1', 'max:10'],
+            'curso_id' => [
+                'required',
+                'uuid',
+                Rule::exists(config('tenancy.database.central_connection').'.cursos', 'id')
+                    ->where('status', 1),
+            ],
             'nivel_ensino_id' => ['required', 'uuid', 'exists:niveis_ensino,id'],
             'classe_ids' => ['required', 'array', 'min:1'],
             'classe_ids.*' => ['uuid', 'exists:classes,id'],
             'tenant_tutor_id' => ['nullable', 'string'],
         ];
-
-        // if (empty($this->curso_id)) {
-        //     $rules['nome'] = ['required', 'string', 'min:2', 'max:255'];
-        //     $rules['duracao_anos'] = ['required', 'integer', 'min:1', 'max:10'];
-        // }
 
         return $rules;
     }
@@ -116,11 +113,8 @@ class StoreCursoTuteladoRequest extends FormRequest
     {
         return [
             // 'curso_id.uuid' => 'O curso seleccionado é inválido.',
-            'nome.unique' => 'Já existe um curso com este nome.',
-            'nome.required' => 'O nome do curso é obrigatório.',
-            'nome.min' => 'O nome do curso deve ter pelo menos 2 caracteres.',
-            'duracao_anos.required' => 'A duração é obrigatória.',
-            'duracao_anos.min' => 'A duração deve ser pelo menos 1 ano.',
+            'curso_id.required' => 'Seleccione um curso do catálogo central.',
+            'curso_id.exists' => 'O curso seleccionado não está disponível.',
             'nivel_ensino_id.required' => 'Seleccione o nível de ensino.',
             'nivel_ensino_id.exists' => 'O nível de ensino seleccionado não existe.',
             'classe_ids.required' => 'Seleccione pelo menos uma classe.',

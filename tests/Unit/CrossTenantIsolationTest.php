@@ -14,6 +14,7 @@ use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
@@ -22,6 +23,7 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Services\Central\TenantService;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Services\Tenant\CrossTenantAccessService;
 use App\Services\Tenant\CursoTuteladoViewService;
@@ -109,7 +111,7 @@ function createPapFixtureForIsolationTest(Tenant $tenant, string $sharedId, stri
             'status_aprovacao' => $status,
         ]);
 
-        return compact('grupo', 'cursoTutelado', 'turma');
+        return compact('grupo', 'cursoTutelado', 'turma', 'curso');
     });
 }
 
@@ -170,6 +172,100 @@ test('tutor consegue validar acesso ao colegio com vinculo activo', function ():
 
     expect($tenant->id)->toBe($this->tenantColegio->id)
         ->and($this->vinculo->fresh()->status)->toBe(TutelaStatus::ACTIVO);
+});
+
+test('apenas o coordenador do curso central consegue operar no grupo remoto', function (): void {
+    $fixture = createPapFixtureForIsolationTest($this->tenantColegio, $this->vinculo->id);
+    $this->vinculo->update([
+        'curso_tutelado_tutelado_id' => $fixture['cursoTutelado']->id,
+        'curso_id' => $fixture['curso']->id,
+    ]);
+
+    $instituicaoTutora = $this->tenantTutor->run(function () use ($fixture): Instituicao {
+        $instituicao = Instituicao::create([
+            'nome' => 'Instituto Tutor',
+            'tipo' => 'instituto',
+        ]);
+        $curso = InstituicaoCurso::create([
+            'curso_id' => $fixture['curso']->id,
+            'instituicao_id' => $instituicao->id,
+            'duracao_anos' => 3,
+        ]);
+        $cursoTutelado = CursoTutelado::create([
+            'instituicao_curso_id' => $curso->id,
+            'instituicao_tutora_id' => $instituicao->id,
+            'tipo_tutela' => 'propria',
+        ]);
+        $professor = Professor::create([
+            'user_id' => $this->tutor->id,
+        ]);
+        CursoTuteladoProfessor::create([
+            'curso_tutelado_id' => $cursoTutelado->id,
+            'professor_id' => $professor->id,
+            'coordenador' => true,
+        ]);
+
+        return $instituicao;
+    });
+    $this->tenantTutor->update(['instituicao_id' => $instituicaoTutora->id]);
+    $this->tutor->update(['instituicao_id' => $instituicaoTutora->id]);
+
+    tenancy()->initialize($this->tenantTutor);
+    $this->actingAs($this->tutor, 'tenant');
+
+    expect(app(TenantService::class)->tutorOffersCourse(
+        $this->tenantTutor->id,
+        $fixture['curso']->id,
+    ))->toBeTrue();
+
+    app(CrossTenantAccessService::class)->validarAcessoAoGrupoPap(
+        $this->tutor,
+        $this->tenantColegio,
+        $fixture['grupo']->id,
+        $this->vinculo->id,
+    );
+
+    expect(true)->toBeTrue();
+
+    $outroProfessor = $this->tenantTutor->run(function () use ($instituicaoTutora): User {
+        $curso = Curso::create([
+            'nome' => 'Outro Curso',
+            'duracao_anos' => 3,
+        ]);
+        $instituicaoCurso = InstituicaoCurso::create([
+            'curso_id' => $curso->id,
+            'instituicao_id' => $instituicaoTutora->id,
+            'duracao_anos' => 3,
+        ]);
+        $cursoTutelado = CursoTutelado::create([
+            'instituicao_curso_id' => $instituicaoCurso->id,
+            'instituicao_tutora_id' => $instituicaoTutora->id,
+            'tipo_tutela' => 'propria',
+        ]);
+        $user = User::create([
+            'nome' => 'Outro Coordenador',
+            'email' => 'outro-coordenador@example.test',
+            'password' => 'password',
+            'instituicao_id' => $instituicaoTutora->id,
+        ]);
+        $professor = Professor::create(['user_id' => $user->id]);
+        CursoTuteladoProfessor::create([
+            'curso_tutelado_id' => $cursoTutelado->id,
+            'professor_id' => $professor->id,
+            'coordenador' => true,
+        ]);
+
+        return $user->refresh();
+    });
+
+    $this->actingAs($outroProfessor, 'tenant');
+
+    expect(fn (): mixed => app(CrossTenantAccessService::class)->validarAcessoAoGrupoPap(
+        $outroProfessor,
+        $this->tenantColegio,
+        $fixture['grupo']->id,
+        $this->vinculo->id,
+    ))->toThrow(AuthorizationException::class);
 });
 
 test('curso externo pendente bloqueia operacoes de gestao e rejeitado permite reconfiguracao', function (): void {
