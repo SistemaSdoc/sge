@@ -1,6 +1,12 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, usePage } from '@inertiajs/react';
+import {
+  update as centralUpdate,
+  edit as centralEdit,
+} from '@/actions/App/Http/Controllers/Central/Settings/SecurityController';
 import { useRef } from 'react';
-import SecurityController from '@/actions/App/Http/Controllers/Tenant/Settings/SecurityController';
+import SecurityController, {
+  edit as tenantEdit,
+} from '@/actions/App/Http/Controllers/Tenant/Settings/SecurityController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import ManagePasskeys from '@/components/manage-passkeys';
@@ -8,10 +14,23 @@ import ManageTwoFactor from '@/components/manage-two-factor';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-//rota errada temporária
-import { store as edit } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
+
+const currentSecurityEdit = () => {
+  if (typeof window === 'undefined') {
+    return tenantEdit();
+  }
+
+  const centralUrl = new URL(centralEdit().url, window.location.origin);
+
+  return centralUrl.host === window.location.host
+    ? centralEdit()
+    : tenantEdit();
+};
 
 export default function Security(props) {
+  const { isTenant } = usePage().props;
+  const securityUpdate = isTenant ? SecurityController.update : centralUpdate;
+  const securityEdit = isTenant ? tenantEdit : centralEdit;
   const passwordInput = useRef(null);
   const currentPasswordInput = useRef(null);
 
@@ -33,7 +52,7 @@ export default function Security(props) {
         />
 
         <Form
-          {...SecurityController.update.form()}
+          {...securityUpdate.form()}
           options={{
             preserveScroll: true,
           }}
@@ -137,7 +156,7 @@ Security.layout = {
   breadcrumbs: [
     {
       title: 'Configurações de segurança',
-      href: edit(),
+      href: currentSecurityEdit(),
     },
   ],
 };

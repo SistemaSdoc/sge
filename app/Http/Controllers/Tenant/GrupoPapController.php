@@ -49,8 +49,7 @@ class GrupoPapController extends Controller
         private readonly UpdateGrupoPap $updateGrupoPap,
         private readonly DeleteGrupoPap $deleteGrupoPap,
         private readonly DefinirDataDefesa $definirDataDefesa
-    ) {
-    }
+    ) {}
 
     /**
      * Lista os grupos PAP acessíveis ao utilizador.
@@ -98,7 +97,8 @@ class GrupoPapController extends Controller
             'anosLectivos' => AnoLectivo::all(),
             'can' => [
                 'create' => $user->can('create', GrupoPap::class),
-                'selecionarInstituicao' => $user->can('selecionarInstituicao', GrupoPap::class), // ← adicionar isto
+                'selecionarInstituicao' => $user->can('selecionarInstituicao', GrupoPap::class),
+                'selecionarAnoLectivo' => $user->can('selecionarAnoLectivo', GrupoPap::class),
             ],
         ]);
     }
@@ -234,13 +234,13 @@ class GrupoPapController extends Controller
                     'create' => $user?->can('elementogrupopap.create'),
                     'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
                         && $instituicaoTutoraModel?->id === $user->instituicao_id
-                        && !is_null($grupoPap->data_defesa)
-                        && !$grupoPap->data_defesa->isFuture()
+                        && ! is_null($grupoPap->data_defesa)
+                        && ! $grupoPap->data_defesa->isFuture()
                         && $grupoPap->jurados()->exists(),
                     'delete' => $user?->can('elementogrupopap.delete'),
                 ],
                 'verBanca' => $instituicaoTutoraModel?->id === $user->instituicao_id
-                    && !$user->hasRole('Aluno'),
+                    && ! $user->hasRole('Aluno'),
                 'banca' => [
                     'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap])
                         && $instituicaoTutoraModel?->id === $user->instituicao_id,
@@ -313,9 +313,9 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Grupo PAP actualizado com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Grupo PAP actualizado com sucesso!',
+        ]);
     }
 
     /**
@@ -357,9 +357,9 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Data e local da defesa definidos com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Data e local da defesa definidos com sucesso!',
+        ]);
     }
 
     /**
@@ -418,9 +418,9 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Tema corrigido. Aguarda revisão do professor tutor.',
-                ]);
+            'type' => 'success',
+            'message' => 'Tema corrigido. Aguarda revisão do professor tutor.',
+        ]);
     }
 
     /* ------------------------------------------------------------------ */
@@ -446,8 +446,15 @@ class GrupoPapController extends Controller
     /** Devolve as turmas para o turno seleccionado. */
     public function turmas(Request $request, Instituicao $instituicao)
     {
+        $anoLectivoId = filled($request->input('ano_lectivo_id'))
+            ? (string) $request->input('ano_lectivo_id')
+            : $this->anoLectivoResolverService->obterAnoLectivoDefault();
+
         return response()->json(
-            $this->cascataService->turmas((string) $request->input('curso_classe_turno_id'))
+            $this->cascataService->turmas(
+                (string) $request->input('curso_classe_turno_id'),
+                $anoLectivoId,
+            )
         );
     }
 
@@ -475,7 +482,7 @@ class GrupoPapController extends Controller
         return Inertia::render('tenant/pap/create', [
             'instituicao' => $instituicao->only('id', 'nome'),
             'cursosTutelados' => $this->grupoPapViewService->tutoredCourses($user)
-                ->map(fn(array $curso): array => [
+                ->map(fn (array $curso): array => [
                     'id' => $curso['id'],
                     'nome' => $curso['nome'],
                 ])

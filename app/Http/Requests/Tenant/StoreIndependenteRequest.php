@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests\Tenant;
 
-use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
-use App\Rules\ProfessorTitularDoCurso;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -26,20 +24,11 @@ class StoreIndependenteRequest extends FormRequest
      */
     public function rules(): array
     {
-        $cursoTutelado = $this->input('curso_tutelado_id')
-            ? CursoTutelado::find($this->input('curso_tutelado_id'))
-            : null;
-
         return [
             'curso_tutelado_id' => ['required', 'exists:curso_tutelado,id'],
             'curso_classe_id' => ['nullable', 'exists:curso_classe,id'],
             'curso_classe_turno_id' => ['nullable', 'exists:curso_classe_turno,id'],
             'turma_id' => ['required', 'exists:turmas,id'],
-            'professor_tutor_id' => [
-                'required',
-                'exists:professores,id',
-                $cursoTutelado ? new ProfessorTitularDoCurso($cursoTutelado) : null,
-            ],
             'nome_grupo' => 'required|string|max:255',
             'tema_grupo' => 'nullable|string|max:255',
             'problema' => 'nullable|string',
@@ -59,8 +48,6 @@ class StoreIndependenteRequest extends FormRequest
             'curso_tutelado_id.exists' => 'O curso selecionado não existe.',
             'turma_id.required' => 'Selecione uma turma.',
             'turma_id.exists' => 'A turma selecionada não existe.',
-            'professor_tutor_id.required' => 'Selecione um professor tutor.',
-            'professor_tutor_id.exists' => 'O professor selecionado não existe.',
             'nome_grupo.required' => 'O nome do grupo é obrigatório.',
             'alunos.required' => 'Seleciona pelo menos um aluno.',
             'alunos.min' => 'Seleciona pelo menos um aluno.',

@@ -37,7 +37,6 @@ export default function GrupoPapForm({
     curso_classe_turno_id: '',
     turma_id: '',
     nome_grupo: '',
-    professor_tutor_id: '',
     alunos: [],
   });
   const [classes, setClasses] = useState([]);
@@ -56,7 +55,6 @@ export default function GrupoPapForm({
       curso_classe_id: '',
       curso_classe_turno_id: '',
       turma_id: '',
-      professor_tutor_id: '',
       alunos: [],
       ...fields,
     }));
@@ -120,7 +118,6 @@ export default function GrupoPapForm({
     setData((prev) => ({
       ...prev,
       turma_id: value,
-      professor_tutor_id: '',
       alunos: [],
     }));
     setFormOptions({ professores: [], alunos: [] });
@@ -317,7 +314,7 @@ export default function GrupoPapForm({
                 ))}
             </Field>
 
-            <Field data-invalid={!!errors.professor_tutor_id}>
+            {/* <Field data-invalid={!!errors.professor_tutor_id}>
               <FieldLabel>Professor tutor</FieldLabel>
               <Select
                 value={data.professor_tutor_id || undefined}
@@ -348,7 +345,7 @@ export default function GrupoPapForm({
               {errors.professor_tutor_id && (
                 <FieldError>{errors.professor_tutor_id}</FieldError>
               )}
-            </Field>
+            </Field> */}
           </>
         )}
 

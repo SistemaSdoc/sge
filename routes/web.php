@@ -82,6 +82,8 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->name('central.dashboard.')
             ->group(function () {
 
+                require base_path('routes/central-settings.php');
+
                 Route::resource('tenants', TenantController::class);
 
                 Route::resource('cursos', CursoController::class)->withTrashed(['show']);

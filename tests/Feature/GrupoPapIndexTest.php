@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Tenant\Aluno;
+use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoClasse;
@@ -9,9 +10,11 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
+use App\Models\Tenant\NivelEnsino;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Services\Tenant\GrupoPap\GrupoPapService;
 use App\Services\Tenant\GrupoPapViewService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
@@ -101,7 +104,7 @@ test('grupo pap index returns accessible courses and filters groups by course', 
         ->and($gruposDoCursoA->first()->turma->cursoClasseTurno->cursoClasse->cursoTutelado->id)
         ->toBe($cursoA->id);
 });
-test('grupo pap independente exige professor titular do curso do grupo', function () {
+test('grupo pap independente pode ser criado sem professor tutor', function () {
     $instituicao = Instituicao::create([
         'nome' => 'Instituição Teste',
         'sigla' => 'IT',
@@ -152,7 +155,6 @@ test('grupo pap independente exige professor titular do curso do grupo', functio
     $user = User::factory()->create(['instituicao_id' => $instituicao->id]);
     $user->givePermissionTo('grupopap.create');
 
-    $professor = Professor::create(['user_id' => $user->id, 'especialidade' => 'Matemática']);
     $aluno =
         Aluno::create([
             'user_id' => User::factory()->create(['instituicao_id' => $instituicao->id])->id,
@@ -165,13 +167,12 @@ test('grupo pap independente exige professor titular do curso do grupo', functio
     $response = $this->actingAs($user, 'tenant')->post(route('tenant.dashboard.instituicoes.pap.store', ['instituicao' => $instituicao->id]), [
         'curso_tutelado_id' => $cursoTutelado->id,
         'turma_id' => $turma->id,
-        'professor_tutor_id' => $professor->id,
         'nome_grupo' => 'Grupo inválido',
         'alunos' => [$aluno->id],
     ]);
 
-    $response->assertSessionHasErrors('professor_tutor_id');
-    $this->assertDatabaseMissing('grupo_pap', [
+    $response->assertSessionHasNoErrors();
+    $this->assertDatabaseHas('grupo_pap', [
         'turma_id' => $turma->id,
         'nome_grupo' => 'Grupo inválido',
     ]);
@@ -181,4 +182,66 @@ test('example', function () {
     $response = $this->get('/');
 
     $response->assertStatus(200);
+});
+
+test('turmas are filtered by the selected academic year', function () {
+    $instituicao = Instituicao::create([
+        'nome' => 'Instituição Teste',
+        'sigla' => 'IT',
+        'tipo' => 'colegio',
+    ]);
+    $curso = Curso::create([
+        'nome' => 'Curso Teste',
+        'duracao_anos' => 1,
+        'status' => 1,
+    ]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicao->id,
+        'duracao_anos' => 1,
+    ]);
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+    ]);
+    $cursoClasse = CursoClasse::create([
+        'curso_tutelado_id' => $cursoTutelado->id,
+        'classe_id' => Classe::create(['nome' => '13ª', 'ordem' => 13])->id,
+        'nivel_ensino_id' => NivelEnsino::firstOrCreate(['nome' => 'Secundário'])->id,
+    ]);
+    $cursoClasseTurno = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasse->id,
+        'turno_id' => Turno::create(['nome' => 'Manhã'])->id,
+    ]);
+    $anoActual = AnoLectivo::create([
+        'nome' => 'Ano actual',
+        'data_inicio' => now()->subMonth(),
+        'data_fim' => now()->addMonths(9),
+        'activo' => true,
+        'estado' => 'em_curso',
+    ]);
+    $anoAnterior = AnoLectivo::create([
+        'nome' => 'Ano anterior',
+        'data_inicio' => now()->subYears(2),
+        'data_fim' => now()->subYear(),
+        'activo' => false,
+        'estado' => 'encerrado',
+    ]);
+
+    Turma::create([
+        'nome' => 'Turma actual',
+        'max_alunos' => 30,
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'ano_lectivo_id' => $anoActual->id,
+    ]);
+    Turma::create([
+        'nome' => 'Turma anterior',
+        'max_alunos' => 30,
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'ano_lectivo_id' => $anoAnterior->id,
+    ]);
+
+    $turmas = app(GrupoPapService::class)->turmas($cursoClasseTurno->id, $anoActual->id);
+
+    expect($turmas->pluck('nome')->all())->toBe(['Turma actual']);
 });
