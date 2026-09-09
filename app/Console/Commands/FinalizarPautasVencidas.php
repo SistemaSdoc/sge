@@ -1,11 +1,13 @@
 <?php
 
 namespace App\Console\Commands;
-
+use Stancl\Tenancy\Facades\Tenancy;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
 use Illuminate\Console\Command;
+use App\Models\Central\Tenant as CentralTenant;
+
 
 class FinalizarPautasVencidas extends Command
 {
@@ -13,45 +15,52 @@ class FinalizarPautasVencidas extends Command
 
     protected $description = 'Expira pautas em rascunho com prazo encerrado e notifica professores';
 
+    // FinalizarPautasVencidas.php
+
     public function handle(): void
     {
-        $agora = now();
+        CentralTenant::all()->each(function ($tenant) {
+            tenancy()->initialize($tenant);
 
-        // ── 1. Expirar pautas com prazo encerrado ──────────────────
-        PeriodoLancamentoNotas::where('data_limite', '<', $agora)
-            ->get()
+            $agora = now();
+            // ── 1. Expirar pautas com prazo encerrado ──────────────────
+            PeriodoLancamentoNotas::where('data_limite', '<', $agora)
+                ->get()
 
-            // Versão sem precisar da relação no PautaStatus
-            ->each(function (PeriodoLancamentoNotas $prazo) use ($agora) {
-                // Busca os TDP ids da instituição primeiro
-                $tdpIds = TurmaDisciplinaProfessor::whereHas(
-                    'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-                    fn ($q) => $q->where('instituicao_tutora_id', $prazo->instituicao_id)
-                )->pluck('id');
+                // Versão sem precisar da relação no PautaStatus
+                ->each(function (PeriodoLancamentoNotas $prazo) use ($agora) {
+                    // Busca os TDP ids da instituição primeiro
+                    $tdpIds = TurmaDisciplinaProfessor::whereHas(
+                        'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
+                        fn($q) => $q->where('instituicao_tutora_id', $prazo->instituicao_id)
+                    )->pluck('id');
 
-                PautaStatus::whereIn('turma_disciplina_professor_id', $tdpIds)
-                    ->where('periodo', $prazo->periodo)
-                    ->where('status', 'rascunho')
-                    ->each(function (PautaStatus $ps) use ($agora) {
-                        $ps->update([
-                            'status' => 'expirada',
-                            'finalizada_em' => $agora,
-                            'finalizada_automaticamente' => true,
-                        ]);
-                    });
-            });
+                    PautaStatus::whereIn('turma_disciplina_professor_id', $tdpIds)
+                        ->where('periodo', $prazo->periodo)
+                        ->where('status', 'rascunho')
+                        ->each(function (PautaStatus $ps) use ($agora) {
+                            $ps->update([
+                                'status' => 'expirada',
+                                'finalizada_em' => $agora,
+                                'finalizada_automaticamente' => true,
+                            ]);
+                        });
+                });
 
-        // ── 2. Notificar professores com prazo a expirar em breve ──
-        PeriodoLancamentoNotas::whereBetween('data_limite', [$agora, $agora->copy()->addHours(24)])
-            ->whereNull('notificado_em')
-            ->get()
-            ->each(function (PeriodoLancamentoNotas $prazo) use ($agora) {
-                // TODO: notificar professores com rascunhos abertos
-                // ...
+            // ── 2. Notificar professores com prazo a expirar em breve ──
+            PeriodoLancamentoNotas::whereBetween('data_limite', [$agora, $agora->copy()->addHours(24)])
+                ->whereNull('notificado_em')
+                ->get()
+                ->each(function (PeriodoLancamentoNotas $prazo) use ($agora) {
+                    // TODO: notificar professores com rascunhos abertos
+                    // ...
+    
+                    $prazo->update(['notificado_em' => $agora]);
+                });
 
-                $prazo->update(['notificado_em' => $agora]);
-            });
+            $this->info('Concluído: ' . $agora);
 
-        $this->info('Concluído: '.$agora);
+            tenancy()->end();
+        });
     }
 }

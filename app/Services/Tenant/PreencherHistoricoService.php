@@ -5,6 +5,7 @@ namespace App\Services\Tenant;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\CursoClasseRecord;
 use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\Nota;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
@@ -114,7 +115,7 @@ class PreencherHistoricoService
                 continue;
             }
 
-            $todasFinalizadas = $this->verificarSeTodasPautasFinalizadas($ta->turma->id);
+            $todasFinalizadas = $this->verificarSeTodasPautasFinalizadas($ta->turma->id, $ta->id);
 
             if ($todasFinalizadas) {
                 // Completo — oculta
@@ -155,7 +156,7 @@ class PreencherHistoricoService
             ->whereIn('id', $cursoClasseIds)
             ->when(
                 $ordemActual !== null,
-                fn ($q) => $q->whereHas('classe', fn ($q2) => $q2->where('ordem', '<', $ordemActual))
+                fn($q) => $q->whereHas('classe', fn($q2) => $q2->where('ordem', '<', $ordemActual))
             )
             ->get();
     }
@@ -169,7 +170,7 @@ class PreencherHistoricoService
      * - Para o período 2: TODAS as disciplinas têm pauta finalizada
      * - Para o período 3: TODAS as disciplinas têm pauta finalizada
      */
-    private function verificarSeTodasPautasFinalizadas(string $turmaId): bool
+    private function verificarSeTodasPautasFinalizadas(string $turmaId, string $turmaAlunoId): bool
     {
         $tdps = TurmaDisciplinaProfessor::where('turma_id', $turmaId)
             ->pluck('id');
@@ -180,16 +181,25 @@ class PreencherHistoricoService
 
         $numDisciplinas = $tdps->count();
 
-        // Verifica cada período (1, 2, 3)
         for ($periodo = 1; $periodo <= 3; $periodo++) {
-            $pautasFinalizadasNestePeriodo = PautaStatus::whereIn('turma_disciplina_professor_id', $tdps)
+            // 1. Pauta da turma finalizada neste período
+            $pautasFinalizadas = PautaStatus::whereIn('turma_disciplina_professor_id', $tdps)
                 ->where('periodo', $periodo)
                 ->where('status', 'finalizada')
                 ->count();
 
-            // Se não tem o mesmo número de pautas finalizadas que disciplinas,
-            // significa que faltam disciplinas neste período
-            if ($pautasFinalizadasNestePeriodo !== $numDisciplinas) {
+            if ($pautasFinalizadas !== $numDisciplinas) {
+                return false;
+            }
+
+            // 2. Aluno tem media_trimestral em todas as disciplinas deste período
+            $notasAluno = Nota::where('turma_aluno_id', $turmaAlunoId)
+                ->whereIn('turma_disciplina_professor_id', $tdps)
+                ->where('periodo', $periodo)
+                ->whereNotNull('media_trimestral')
+                ->count();
+
+            if ($notasAluno !== $numDisciplinas) {
                 return false;
             }
         }

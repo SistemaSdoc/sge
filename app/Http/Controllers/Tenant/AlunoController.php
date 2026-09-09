@@ -22,7 +22,9 @@ class AlunoController extends Controller
 {
     use NotificaAluno;
 
-    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
+    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService)
+    {
+    }
 
     public function index(VerificadorPropinaService $verificador)
     {
@@ -33,33 +35,34 @@ class AlunoController extends Controller
             : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         /** @var User $user */
-        $user = Auth::guard('tenant')->user();
+        $user = Auth::user();
 
         $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
             ->doAnoLectivo($anoLectivoId)
-            ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
+            ->whereHas('inscricao', fn($q) => $q->where('status', '!=', 'cancelado'))
             ->with([
                 'inscricao.candidato:id,nome,bi,email,telefone',
                 'inscricao.cursoClasseTurno.turno:id,nome',
-                'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
-                'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-                'turmas' => fn ($q) => $q->wherePivot('activo', true)
+                'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',     // inscricao. no início
+                'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome', // inscricao. no início (e typo corrigido)
+                'turmas' => fn($q) => $q->wherePivot('activo', true)
+                    ->where('turmas.ano_lectivo_id', $anoLectivoId)
                     ->with([
                         'cursoClasseTurno.cursoClasse.classe:id,nome',
                         'anoLectivo:id,nome',
                     ]),
             ])->when(
                 $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),
-                fn ($q) => $q->whereHas(
+                fn($q) => $q->whereHas(
                     'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
-                    fn ($q) => $q->where('instituicao_id', $user->instituicao_id)
+                    fn($q) => $q->where('instituicao_id', $user->instituicao_id)
                 )
             )
             ->when(
                 $user->hasRole('Professor'),
-                fn ($q) => $q->whereHas(
+                fn($q) => $q->whereHas(
                     'turmas',
-                    fn ($q) => $q->whereIn(
+                    fn($q) => $q->whereIn(
                         'turmas.id',
                         $user->professor->turmas()->pluck('turmas.id')
                     )
@@ -78,10 +81,13 @@ class AlunoController extends Controller
             return $aluno;
         });
 
+
         return Inertia::render('tenant/alunos/index', [
             'alunos' => $alunos->through(function ($aluno) use ($verificador) {
 
-                $status = $aluno->turmaActual()->first()
+                $turmaNoAno = $aluno->turmas->first(); // já vem filtrada pelo ano lectivo
+    
+                $status = $turmaNoAno
                     ? ($verificador->estaEmDia($aluno) ? 'pagou' : 'atrasado')
                     : 'sem_turma';
 
@@ -102,9 +108,9 @@ class AlunoController extends Controller
                     'curso' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
                     'instituicao' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
                     'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,
-                    'turma' => $aluno->turmas->first()?->nome ?? 'Sem turma',
-                    'classe' => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome,
-                    'ano_lectivo' => $aluno->turmas->first()?->anoLectivo?->nome,
+                    'turma' => $turmaNoAno?->nome ?? 'Sem turma',
+                    'classe' => $turmaNoAno?->cursoClasseTurno?->cursoClasse?->classe?->nome,
+                    'ano_lectivo' => $turmaNoAno?->anoLectivo?->nome,
                     'propina_status' => $status,
                     'can' => $aluno->can,
                 ];
@@ -119,6 +125,7 @@ class AlunoController extends Controller
             ],
         ]);
     }
+
 
     public function show(Aluno $aluno, Request $request)
     {
@@ -137,7 +144,7 @@ class AlunoController extends Controller
             'inscricao.cursoClasseTurno.turno:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-            'turmas' => fn ($q) => $q->wherePivot('activo', true)
+            'turmas' => fn($q) => $q->wherePivot('activo', true)
                 ->with([
                     'cursoClasseTurno.cursoClasse.classe:id,nome',
                     'anoLectivo:id,nome',
@@ -161,36 +168,36 @@ class AlunoController extends Controller
             ->orderBy('data_fim', 'desc')
             ->limit(5)
             ->get()
-            ->map(fn ($a) => [
+            ->map(fn($a) => [
                 'id' => $a->id,
                 'nome' => $a->nome,
             ])
             ->toArray();
 
         $turnos = Inertia::optional(
-            fn () => $request->filled('ano_lectivo_id') && $request->filled('curso_classe_id')
-            ? CursoClasseTurno::query()
-                ->where('curso_classe_id', $request->query('curso_classe_id'))
-                ->with('turno:id,nome')
-                ->get()
-                ->map(fn ($cct) => [
-                    'id' => $cct->id,
-                    'turno_nome' => $cct->turno?->nome,
-                ])
-            : []
+            fn() => $request->filled('ano_lectivo_id') && $request->filled('curso_classe_id')
+                ? CursoClasseTurno::query()
+                    ->where('curso_classe_id', $request->query('curso_classe_id'))
+                    ->with('turno:id,nome')
+                    ->get()
+                    ->map(fn($cct) => [
+                        'id' => $cct->id,
+                        'turno_nome' => $cct->turno?->nome,
+                    ])
+                : []
         );
 
         $turmasPorTurno = Inertia::optional(
-            fn () => $request->filled('ano_lectivo_id') && $request->filled('curso_classe_turno_id')
-            ? Turma::query()
-                ->where('ano_lectivo_id', $request->query('ano_lectivo_id'))
-                ->where('curso_classe_turno_id', $request->query('curso_classe_turno_id'))
-                ->get()
-                ->map(fn ($t) => [
-                    'id' => $t->id,
-                    'nome' => $t->nome,
-                ])
-            : []
+            fn() => $request->filled('ano_lectivo_id') && $request->filled('curso_classe_turno_id')
+                ? Turma::query()
+                    ->where('ano_lectivo_id', $request->query('ano_lectivo_id'))
+                    ->where('curso_classe_turno_id', $request->query('curso_classe_turno_id'))
+                    ->get()
+                    ->map(fn($t) => [
+                        'id' => $t->id,
+                        'nome' => $t->nome,
+                    ])
+                : []
         );
 
         return Inertia::render('tenant/alunos/show', [
@@ -241,7 +248,7 @@ class AlunoController extends Controller
             'inscricao.cursoClasseTurno.turno:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-            'turmas' => fn ($q) => $q->wherePivot('activo', true)
+            'turmas' => fn($q) => $q->wherePivot('activo', true)
                 ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
         ]);
 
@@ -260,7 +267,7 @@ class AlunoController extends Controller
                 'nome' => $aluno->inscricao?->candidato?->nome,
                 'bi' => $aluno->inscricao?->candidato?->bi,
             ],
-            'turmas' => $turmas->map(fn ($turma) => [
+            'turmas' => $turmas->map(fn($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -276,7 +283,7 @@ class AlunoController extends Controller
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
             'bi' => 'required|string|max:20',
-            'matricula' => 'nullable|string|max:255|unique:alunos,matricula,'.$aluno->id,
+            'matricula' => 'nullable|string|max:255|unique:alunos,matricula,' . $aluno->id,
             'turma_id' => 'nullable|exists:turmas,id',
         ]);
 
@@ -290,7 +297,7 @@ class AlunoController extends Controller
         if ($dados['turma_id'] ?? null) {
             $turmaAtual = $aluno->turmas()->wherePivot('activo', true)->first();
 
-            if (! $turmaAtual || $turmaAtual->id !== (int) $dados['turma_id']) {
+            if (!$turmaAtual || $turmaAtual->id !== (int) $dados['turma_id']) {
                 $turma = Turma::findOrFail($dados['turma_id']);
 
                 if ($turmaAtual) {
