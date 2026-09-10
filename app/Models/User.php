@@ -64,12 +64,37 @@ class User extends Authenticatable implements PasskeyUser
 
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole('SuperAdmin'); // usa o método do Spatie
+        return $this->hasRole('SuperAdmin');
     }
 
     public function isDirector(): bool
     {
-        return $this->hasRole('Director'); // usa o método do Spatie
+        return $this->hasRole('Director');
+    }
+
+    public function isSecretaria(): bool
+    {
+        return $this->hasRole('Secretaria');
+    }
+
+    /**
+     * Verifica se o usuário tem alguma das roles especificadas
+     */
+    public function hasAnyRole(array $roles): bool
+    {
+        // Verifica se o usuário está autenticado
+        if (! $this->exists) {
+            return false;
+        }
+
+        // Verifica se o usuário tem alguma das roles
+        foreach ($roles as $role) {
+            if ($this->hasRole($role)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

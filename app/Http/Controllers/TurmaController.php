@@ -21,11 +21,23 @@ class TurmaController extends Controller
 
         $user = Auth::user();
         $professor = $user?->professor;
-        $instituicaoId = $user->instituicao_id;
+
+        // 🔒 Fallback seguro para instituicao_id
+        $instituicaoId = $user?->instituicao_id ?? null;
+
+        // Se não houver instituição, retorna vazio (ou redireciona, conforme regra de negócio)
+        if (! $instituicaoId) {
+            return Inertia::render('turmas/index', [
+                'turmas' => ['data' => [], 'current_page' => 1, 'last_page' => 1],
+                'anosLectivos' => $this->getAnosLectivos(),
+                'anoLectivoActual' => $this->getAnoLectivoDefault(),
+                'can' => ['create_turma' => false],
+            ]);
+        }
 
         $anoLectivoId = filled(request('ano_lectivo_id'))
             ? request('ano_lectivo_id')
-            : $this->anoLectivoResolverService->obterAnoLectivoDefault();
+            : $this->getAnoLectivoDefault();
 
         $query = Turma::query()
             ->whereHas(
@@ -37,7 +49,14 @@ class TurmaController extends Controller
             $query->where('ano_lectivo_id', $anoLectivoId);
         }
 
-        if (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
+        // 🔒 Permissão para criar turma (com fallback)
+        $canCreateTurma = optional($user)->can('create', Turma::class) ?? false;
+
+        // 🔒 Verificações de role com fallback
+        $isSuperAdmin = optional($user)->isSuperAdmin() ?? false;
+        $isDirector = optional($user)->isDirector() ?? false;
+
+        if (! $isSuperAdmin && ! $isDirector) {
             if (! $professor) {
                 return Inertia::render('turmas/index', [
                     'turmas' => [
@@ -45,13 +64,10 @@ class TurmaController extends Controller
                         'current_page' => 1,
                         'last_page' => 1,
                     ],
-                    'anosLectivos' => AnoLectivo::query()
-                        ->select('id', 'nome')
-                        ->orderByDesc('data_inicio')
-                        ->get(),
+                    'anosLectivos' => $this->getAnosLectivos(),
                     'anoLectivoActual' => $anoLectivoId,
                     'can' => [
-                        'create_turma' => Auth::user()->can('create', Turma::class),
+                        'create_turma' => $canCreateTurma,
                     ],
                 ]);
             }
@@ -74,13 +90,10 @@ class TurmaController extends Controller
                 'current_page' => $turmas->currentPage(),
                 'last_page' => $turmas->lastPage(),
             ],
-            'anosLectivos' => AnoLectivo::query()
-                ->select('id', 'nome')
-                ->orderByDesc('data_inicio')
-                ->get(),
+            'anosLectivos' => $this->getAnosLectivos(),
             'anoLectivoActual' => $anoLectivoId,
             'can' => [
-                'create_turma' => Auth::user()->can('create', Turma::class),
+                'create_turma' => $canCreateTurma,
             ],
         ]);
     }
@@ -89,7 +102,7 @@ class TurmaController extends Controller
     {
         $this->authorize('update', $aluno);
 
-        $anoLectivoId = $this->obterAnoLectivoDefault();
+        $anoLectivoId = $this->getAnoLectivoDefault();
 
         $turmas = Turma::where('curso_classe_turno_id', $aluno->inscricao->curso_classe_turno_id)
             ->where('ano_lectivo_id', $anoLectivoId)
@@ -112,7 +125,7 @@ class TurmaController extends Controller
             'turma_id' => 'required|exists:turmas,id',
         ]);
 
-        $anoLectivoId = $this->obterAnoLectivoDefault();
+        $anoLectivoId = $this->getAnoLectivoDefault();
 
         $turma = Turma::where('id', $request->turma_id)
             ->where('curso_classe_turno_id', $aluno->inscricao->curso_classe_turno_id)
@@ -137,5 +150,20 @@ class TurmaController extends Controller
         }
 
         return back()->with('success', 'Turma atribuída com sucesso!');
+    }
+
+    // ========== MÉTODOS PRIVADOS DE APOIO ==========
+
+    private function getAnoLectivoDefault()
+    {
+        return $this->anoLectivoResolverService->obterAnoLectivoDefault();
+    }
+
+    private function getAnosLectivos()
+    {
+        return AnoLectivo::query()
+            ->select('id', 'nome')
+            ->orderByDesc('data_inicio')
+            ->get();
     }
 }

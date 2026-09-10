@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
     'inscricao_id',
     'instituicao_id', // ADICIONADO
     'matricula',
-    'numero_processo',  // ADICIONADO 
+    'numero_processo',  // ADICIONADO
     'situacao',
 ])]
 
@@ -170,6 +170,16 @@ class Aluno extends Model
     public function instituicao()
     {
         return $this->belongsTo(Instituicao::class);
+    }
+
+    /**
+     * Relação com as solicitações de documentos feitas pelo aluno.
+     * Retorna um hasMany para App\Models\SolicitacaoDocumento usando a
+     * foreign key padrão `aluno_id`.
+     */
+    public function solicitacoesDocumentos(): HasMany
+    {
+        return $this->hasMany(SolicitacaoDocumento::class);
     }
 
     public function turmas()

@@ -26,7 +26,6 @@ class UserController extends Controller
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
         ]);
 
-
         $import = new UsersImport;
 
         Excel::import($import, $request->file('file'), null, \Maatwebsite\Excel\Excel::XLSX);
@@ -39,9 +38,13 @@ class UserController extends Controller
         // Carrega usuários com instituição e roles (para mostrar na listagem)
         $users = User::paginate(10);
 
-        $reponses = (new Teste)->prompt('Analisa estes dados e de a tua opinião sobre eles. Stelvio é full stack developer e usa laravel + nextjs para desenvolvimento web.');
+        $reponses = class_exists(Teste::class)
+            ? (new Teste)->prompt('Analisa estes dados e de a tua opinião sobre eles. Stelvio é full stack developer e usa laravel + nextjs para desenvolvimento web.')
+            : '';
 
-        $resumo = (new ResumoDirector)->prompt('dsfdsfsfsf');
+        $resumo = class_exists(ResumoDirector::class)
+            ? (new ResumoDirector)->prompt('dsfdsfsfsf')
+            : '';
 
         return response()->json($users);
     }

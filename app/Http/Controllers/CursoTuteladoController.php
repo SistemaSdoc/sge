@@ -67,7 +67,8 @@ class CursoTuteladoController extends Controller
         // Verificar duplicado antes de entrar na transação
         if (InstituicaoCurso::where('instituicao_id', $instituicao->id)
             ->where('curso_id', $curso->id)
-            ->exists()) {
+            ->exists()
+        ) {
             return back()->withErrors([
                 'curso_id' => 'Esta instituição já tem este curso associado.',
             ]);
@@ -87,7 +88,7 @@ class CursoTuteladoController extends Controller
             // Insert bulk — uma única query independentemente do nº de classes
             $now = now();
             CursoClasse::insert(
-                collect($validated['classe_ids'])->map(fn ($classeId) => [
+                collect($validated['classe_ids'])->map(fn($classeId) => [
                     'id' => (string) Str::uuid7(),
                     'curso_tutelado_id' => $cursoTutelado->id,
                     'classe_id' => $classeId,
@@ -120,7 +121,7 @@ class CursoTuteladoController extends Controller
             'cursoClasses.turnos.turno:id,nome',
             'cursoClasses.turnos' => function ($query) use ($anoLectivoId) {
                 $query->with([
-                    'turmas' => fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId),
+                    'turmas' => fn($q) => $q->where('ano_lectivo_id', $anoLectivoId),
                     'turmas.cursoClasseTurno.turno:id,nome',
                     'turmas.cursoClasseTurno.cursoClasse.classe:id,nome',
                     'classeTurnoDisciplinas.professores',
@@ -167,7 +168,7 @@ class CursoTuteladoController extends Controller
                 ->where(function ($q) use ($cursoId) {
                     // Institutos que têm o curso
                     $q->where('tipo', 'instituto')
-                        ->whereHas('instituicaoCursos', fn ($q) => $q->where('curso_id', $cursoId));
+                        ->whereHas('instituicaoCursos', fn($q) => $q->where('curso_id', $cursoId));
                 })
                 ->orWhere('id', $cursoTutelado->instituicao_tutora_id) // Garante que a tutora actual aparece sempre
                 ->orderBy('nome')
@@ -199,6 +200,8 @@ class CursoTuteladoController extends Controller
             'duracao_anos' => ['required', 'integer', 'min:1', 'max:10'],
             'classes' => ['required', 'array', 'min:1'],
             'classes.*' => ['string', 'exists:classes,id'],
+            // 'nivel_ensino_id' agora é opcional
+            'nivel_ensino_id' => ['nullable', 'string', 'exists:niveis_ensino,id'],
         ]);
 
         DB::transaction(function () use ($validated, $cursoTutelado) {
@@ -210,7 +213,28 @@ class CursoTuteladoController extends Controller
                 'duracao_anos' => $validated['duracao_anos'],
             ]);
 
-            $cursoTutelado->classes()->sync($validated['classes']);
+            // Obtém o nivel_ensino_id: se foi enviado, usa-o; senão, busca da primeira classe
+            $nivelEnsinoId = $validated['nivel_ensino_id'] ?? null;
+
+            if (!$nivelEnsinoId && !empty($validated['classes'])) {
+                $primeiraClasse = Classe::find($validated['classes'][0]);
+                if ($primeiraClasse && $primeiraClasse->nivel_ensino_id) {
+                    $nivelEnsinoId = $primeiraClasse->nivel_ensino_id;
+                }
+            }
+
+            // Se ainda não tiver, podes definir um fallback (ex: o nivel_ensino da instituição ou um valor fixo)
+            if (!$nivelEnsinoId) {
+                // Fallback: tenta obter da instituição, ou usa um ID padrão (ajusta conforme necessário)
+                $nivelEnsinoId = NivelEnsino::first()?->id; // ou busca da instituição, etc.
+            }
+
+            // Sincroniza as classes com o nivel_ensino_id
+            $classes = collect($validated['classes'])->mapWithKeys(function ($classeId) use ($nivelEnsinoId) {
+                return [$classeId => ['nivel_ensino_id' => $nivelEnsinoId]];
+            })->toArray();
+
+            $cursoTutelado->classes()->sync($classes);
         });
 
         return to_route('instituicoes.show', $instituicao)->with('toast', [
@@ -224,7 +248,7 @@ class CursoTuteladoController extends Controller
         Gate::authorize('update', $cursoTutelado);
 
         $temTurmas = $cursoTutelado->cursoClasses
-            ->flatMap(fn ($cc) => $cc->turnos)
+            ->flatMap(fn($cc) => $cc->turnos)
             ->isNotEmpty();
 
         if ($temTurmas) {
