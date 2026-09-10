@@ -9,7 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up(): void 
     {
         Schema::create('notas', function (Blueprint $table) {
             $table->uuid('id')->primary();
@@ -40,7 +40,7 @@ return new class extends Migration
             ], 'unique_nota');
         });
     }
-
+ 
     /**
      * Reverse the migrations.
      */

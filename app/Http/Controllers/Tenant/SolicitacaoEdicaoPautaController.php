@@ -45,7 +45,7 @@ class SolicitacaoEdicaoPautaController extends Controller
                 'professor' => $s->professor->nome ?? '—',
                 'disciplina' => $s->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->nome ?? '—',
                 'turma' => $s->turmaDisciplinaProfessor->turma->nome ?? '—',
-                'link_prazos' => route('prazos-lancamento-notas.edit', [
+                'link_prazos' => route('tenant.dashboard.instituicoes.prazos-lancamento-notas.edit', [
                     'instituicao' => $s->turmaDisciplinaProfessor->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_tutora_id,
                 ]),
             ]);

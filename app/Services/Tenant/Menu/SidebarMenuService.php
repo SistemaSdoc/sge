@@ -21,6 +21,7 @@ use App\Http\Controllers\Tenant\RegraAvaliacaoController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
+use App\Http\Controllers\Tenant\RelatorioController;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Aviso;
@@ -284,6 +285,16 @@ final class SidebarMenuService
                     href: action([AvisoController::class, 'index']),
                     icon: 'Bell',
                     can: fn () => $gate->allows('viewAny', Aviso::class),
+                ),
+            ]),
+
+            new MenuGroup('Relatórios', [
+                new MenuItem(
+                    key: 'relatorios',
+                    title: 'Relatórios',
+                    href: route('tenant.dashboard.relatorios.index'),
+                    icon: 'BarChart3',
+                    can: true,
                 ),
             ]),
         ];
