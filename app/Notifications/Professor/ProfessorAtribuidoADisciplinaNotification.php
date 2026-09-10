@@ -17,8 +17,7 @@ class ProfessorAtribuidoADisciplinaNotification extends Notification
         public Professor $professor,
         public Turma $turma,
         public ClasseTurnoDisciplina $classeTurnoDisciplina
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

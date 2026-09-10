@@ -74,9 +74,7 @@ export default function PagamentosTable({
         <CardAction className="flex items-center gap-2">
           {can?.create && (
             <Button asChild>
-              <Link href={create().url}>
-                Adicionar Pagamento
-              </Link>
+              <Link href={create().url}>Adicionar Pagamento</Link>
             </Button>
           )}
         </CardAction>

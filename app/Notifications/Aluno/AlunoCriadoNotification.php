@@ -15,8 +15,7 @@ class AlunoCriadoNotification extends Notification
     public function __construct(
         public User $user,
         public string $passwordPlain = '12345678'
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

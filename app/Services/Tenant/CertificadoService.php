@@ -29,26 +29,29 @@ class CertificadoService
 
         foreach ($tdps as $tdp) {
             $disciplina = $tdp->classeTurnoDisciplina?->disciplina;
-            if (!$disciplina)
+            if (! $disciplina) {
                 continue;
+            }
 
             $turmaAluno = TurmaAluno::where('turma_id', $tdp->turma_id)
                 ->where('aluno_id', $aluno->id)
                 ->first();
-            if (!$turmaAluno)
+            if (! $turmaAluno) {
                 continue;
+            }
 
             $nota = $turmaAluno->notas()
                 ->where('turma_disciplina_professor_id', $tdp->id)
                 ->whereNotNull('media_final')
                 ->first();
-            if (!$nota)
+            if (! $nota) {
                 continue;
+            }
 
             $mediaArredondada = round((float) $nota->media_final * 2) / 2;
             $id = $disciplina->id;
 
-            if (!isset($porDisciplina[$id])) {
+            if (! isset($porDisciplina[$id])) {
                 $porDisciplina[$id] = [
                     'disciplina' => $disciplina->nome,
                     'componente' => $disciplina->componente ?? 'tecnica',
@@ -76,7 +79,7 @@ class CertificadoService
                 $notaEcs = $mediaFinal;
             }
 
-            if (!in_array($nomeDisc, $nomesPapEcs)) {
+            if (! in_array($nomeDisc, $nomesPapEcs)) {
                 $notas[$componente][] = [
                     'disciplina' => $item['disciplina'],
                     'media_final' => $mediaFinal,
@@ -93,7 +96,7 @@ class CertificadoService
 
         $elementoPap = ElementoGrupoPap::whereHas(
             'grupoPap',
-            fn($q) => $q->whereIn('turma_id', $turmasDoAluno)
+            fn ($q) => $q->whereIn('turma_id', $turmasDoAluno)
         )->where('aluno_id', $aluno->id)->first();
 
         $notaPap = $elementoPap?->nota_individual
@@ -135,7 +138,7 @@ class CertificadoService
         $candidato = $aluno->inscricao->candidato;
         $calc = $this->calcular($aluno, $turma);
 
-        $url = url('/certificados/' . $aluno->id . '/verificar');
+        $url = url('/certificados/'.$aluno->id.'/verificar');
         $result = (new Builder(writer: new PngWriter, data: $url, size: 120, margin: 10))->build();
         $qrcode = base64_encode($result->getString());
 
@@ -145,22 +148,22 @@ class CertificadoService
             'turma' => $turma,
             'candidato' => $candidato,
             'aluno' => $aluno,
-            'ano_letivo' => date('Y') . '/' . (date('Y') + 1),
+            'ano_letivo' => date('Y').'/'.(date('Y') + 1),
             'qrcode' => $qrcode,
         ]);
 
         $html = view('certificados.certificado', $dados)->render();
 
-        $homeDir = sys_get_temp_dir() . '/browsershot-home';
-        $userDataDir = sys_get_temp_dir() . '/browsershot-chrome';
+        $homeDir = sys_get_temp_dir().'/browsershot-home';
+        $userDataDir = sys_get_temp_dir().'/browsershot-chrome';
 
         foreach ([$homeDir, $userDataDir] as $dir) {
-            if (!is_dir($dir)) {
+            if (! is_dir($dir)) {
                 mkdir($dir, 0777, true);
             }
         }
 
-        putenv('HOME=' . $homeDir);
+        putenv('HOME='.$homeDir);
 
         return Browsershot::html($html)
             ->setChromePath(BrowsershotHelper::getChromePath())
@@ -186,8 +189,9 @@ class CertificadoService
     // ─── Helper ───────────────────────────────────────────────────────────────
     private function numeroParaExtenso(?float $numero): string
     {
-        if ($numero === null)
+        if ($numero === null) {
             return '—';
+        }
 
         $chave = (int) round($numero);
         $mapa = [

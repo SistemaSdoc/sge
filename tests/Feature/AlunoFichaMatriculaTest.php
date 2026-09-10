@@ -12,6 +12,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use Carbon\Carbon;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -101,4 +102,9 @@ it('allows an authorized user to download the aluno ficha matricula pdf', functi
 
     $response->assertStatus(200);
     $response->assertHeaderContains('content-type', 'pdf');
+
+    expect($candidato->fresh()->data_nascimento)
+        ->toBeInstanceOf(Carbon::class)
+        ->and($candidato->fresh()->data_nascimento->age)
+        ->toBe(16);
 });

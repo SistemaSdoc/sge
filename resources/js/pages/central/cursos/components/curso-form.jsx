@@ -116,10 +116,11 @@ export function CursoForm({
                   </Field>
                 </div>
 
-                <div className="flex flex-col gap-2 sm:flex-row">
+                <Field>
                   <Button type="submit" disabled={processing}>
                     Guardar curso
                   </Button>
+
                   <Button
                     type="button"
                     variant="outline"
@@ -129,7 +130,7 @@ export function CursoForm({
                     <ArrowUpLeft />
                     Voltar
                   </Button>
-                </div>
+                </Field>
               </FieldSet>
             </FieldGroup>
           </CardContent>

@@ -152,7 +152,7 @@
 
             <p class="texto-corrido">
                 Processo nº {{ $numero_processo ?: '_____' }},
-                idade {{ $idade ?: '___' }} anos,
+                idade {{ $idade ?? '___' }} anos,
                 Sexo {{ $sexo ?: '_______' }},
                 Nome {{ $nome ?: '_______________________' }},
                 Nascido(a) aos {{ $data_nascimento ?: '__/__/____' }}
@@ -196,7 +196,7 @@
 
             <p class="texto-corrido">
                 Processo nº {{ $numero_processo ?: '_____' }},
-                idade {{ $idade ?: '___' }} anos,
+                idade {{ $idade ?? '___' }} anos,
                 Sexo {{ $sexo ?: '_______' }},
                 Nome {{ $nome ?: '_______________________' }},
                 Classe {{ $classe ?: '_____' }},

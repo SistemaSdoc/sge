@@ -1,4 +1,4 @@
-import { useForm, router, usePage } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -15,37 +15,26 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Loader2 } from 'lucide-react';
-import {
-  index,
-  store,
-} from '@/actions/App/Http/Controllers/Tenant/ConfirmacaoMatriculaController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/ConfirmacaoMatriculaController';
 
 export function ConfirmarMatriculaModal({
   aluno,
   params,
+  anosLectivos = [],
+  anoLectivoProximo,
+  turmasPorAno = [],
   onCancel,
   onSuccess,
 }) {
-  // anosLectivos e turmasPorAno vêm como props do servidor
-  const { anosLectivos = [], turmasPorAno = [] } = usePage().props;
+  const anoLectivoId = String(
+    anoLectivoProximo?.id ?? anosLectivos[0]?.id ?? '',
+  );
 
   const { data, setData, post, processing, errors } = useForm({
     aluno_id: aluno.id,
-    ano_lectivo_id: '',
+    ano_lectivo_id: anoLectivoId,
     turma_nova_id: '',
   });
-
-  // Quando o ano muda, faz partial reload para buscar as turmas desse ano
-  const handleAnoChange = (anoId) => {
-    setData((prev) => ({ ...prev, ano_lectivo_id: anoId, turma_nova_id: '' }));
-
-    router.visit(index(params).url, {
-      data: { ano_id: anoId },
-      only: ['turmasPorAno'],
-      preserveState: true,
-      preserveScroll: true,
-    });
-  };
 
   const handleConfirm = () => {
     post(store(params).url, {
@@ -88,11 +77,7 @@ export function ConfirmarMatriculaModal({
             <FieldLabel htmlFor="ano-lectivo">
               Ano Lectivo <span className="text-red-500">*</span>
             </FieldLabel>
-            <Select
-              value={data.ano_lectivo_id}
-              onValueChange={handleAnoChange}
-              disabled={processing}
-            >
+            <Select value={data.ano_lectivo_id} disabled>
               <SelectTrigger id="ano-lectivo">
                 <SelectValue placeholder="Selecione um ano..." />
               </SelectTrigger>

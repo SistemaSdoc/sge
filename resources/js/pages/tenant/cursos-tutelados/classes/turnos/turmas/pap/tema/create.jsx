@@ -52,7 +52,6 @@ export default function Create() {
           professores={form.professores}
           professorTutorId={professorTutorId}
           setProfessorTutorId={setProfessorTutorId}
-
         />
       )}
     </Form>

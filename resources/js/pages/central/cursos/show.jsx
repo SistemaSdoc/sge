@@ -7,14 +7,17 @@ export default function Show({ curso }) {
   return (
     <>
       <Head title={curso.nome} />
+
       <div className="mx-auto w-full max-w-3xl p-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between border-b">
             <CardTitle>{curso.nome}</CardTitle>
+
             <Button asChild size="sm">
               <Link href={edit(curso.id).url}>Editar</Link>
             </Button>
           </CardHeader>
+
           <CardContent className="space-y-3 pt-6">
             <p>{curso.descricao || 'Sem descrição.'}</p>
             <p>Duração: {curso.duracao_anos} anos</p>

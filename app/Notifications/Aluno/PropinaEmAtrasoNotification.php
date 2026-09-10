@@ -15,8 +15,7 @@ class PropinaEmAtrasoNotification extends Notification
         public float $valorTotal,
         public array $meses,
         public string $assinatura,
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {
@@ -47,7 +46,7 @@ class PropinaEmAtrasoNotification extends Notification
         return [
             'tipo' => 'propina_atraso',
             'titulo' => "Propina em atraso ({$this->totalMeses} mês(es))",
-            'mensagem' => "Tens {$this->totalMeses} mês(es) de propina em atraso, no total de " . number_format($this->valorTotal, 2, ',', '.') . ' AOA.',
+            'mensagem' => "Tens {$this->totalMeses} mês(es) de propina em atraso, no total de ".number_format($this->valorTotal, 2, ',', '.').' AOA.',
             'meses' => $this->meses,
             'valor_total' => $this->valorTotal,
             'assinatura' => $this->assinatura,

@@ -6,7 +6,7 @@ export default function Create() {
   const { post, data, setData, processing, errors } = useForm({
     nome: '',
     descricao: '',
-    duracao_anos: 1,
+    duracao_anos: 4,
     status: 1,
   });
 
@@ -15,7 +15,7 @@ export default function Create() {
       <Head title="Adicionar curso" />
       <CursoForm
         title="Adicionar curso"
-        description="Crie um curso no catálogo central."
+        description="Preencha os campos abaixo para adicionar um novo curso ao catálogo central."
         data={data}
         setData={setData}
         errors={errors}

@@ -6,6 +6,7 @@ use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Documento;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
+use App\Models\Tenant\TurmaAluno;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Observers\PagamentoObserver;
 use App\Policies\Tenant\AcessManagementPolicy;
@@ -39,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Event::listen(Registered::class, RegisteredListener::class);
+        // Event::listen(Registered::class, RegisteredListener::class);
 
         Gate::define('pauta.viewAny', [PautaPolicy::class, 'viewAny']);
         Gate::define('pauta.view', [PautaPolicy::class, 'view']);
@@ -52,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(ItemPagavel::class, ItemPagavelPolicy::class);
 
         Gate::policy(Documento::class, DocumentoPolicy::class);
+        Gate::policy(TurmaAluno::class, ConfirmacaoMatriculaPolicy::class);
 
         Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);
 
@@ -79,7 +81,7 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Password::defaults(
-            fn(): ?Password => app()->isProduction()
+            fn (): ?Password => app()->isProduction()
             ? Password::min(12)
                 ->mixedCase()
                 ->letters()

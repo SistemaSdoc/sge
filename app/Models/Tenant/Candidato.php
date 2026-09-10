@@ -29,6 +29,13 @@ class Candidato extends Model
 
     protected $primaryKey = 'id';
 
+    protected function casts(): array
+    {
+        return [
+            'data_nascimento' => 'date',
+        ];
+    }
+
     public function inscricoes()
     {
         return $this->hasOne(Inscricao::class);

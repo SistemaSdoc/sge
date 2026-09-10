@@ -96,7 +96,6 @@ export function AlunoHeader({ aluno }) {
           {aluno.nome}
         </h1>
 
-
         <div className="mt-2 flex flex-wrap items-center justify-center gap-x-1 gap-y-1 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <span className="">Curso:</span>{' '}

@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
 import {
+  index,
   create,
   destroy,
   edit,
@@ -30,8 +31,8 @@ export default function Index({ cursos }) {
   const handleDelete = (curso) => {
     deleteConfirm({
       title: 'Tens a certeza?',
-      description: 'O curso será removido do catálogo central.',
-      confirmLabel: 'Remover',
+      description: 'O curso será arquivado do catálogo central.',
+      confirmLabel: 'Arquivar',
       confirmFn: () => router.delete(destroy(curso.id).url),
     });
   };
@@ -40,15 +41,22 @@ export default function Index({ cursos }) {
     router.post(restore(curso.id).url);
   };
 
+  const handlePageChange = (page) => {
+    router.visit(index().url, {
+      data: { page },
+      preserveScroll: true,
+    });
+  };
+
   return (
     <>
-      <Head title="Catálogo de cursos" />
+      <Head title="Cursos" />
       <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
-        <Card className='gap-0'>
+        <Card className="gap-0">
           <CardHeader className="border-b">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <CardTitle>Catálogo de cursos</CardTitle>
+                <CardTitle>Cursos</CardTitle>
                 <CardDescription>
                   Cursos disponíveis para associação às instituições.
                 </CardDescription>
@@ -58,6 +66,7 @@ export default function Index({ cursos }) {
               </Button>
             </div>
           </CardHeader>
+
           <CardContent className="p-0!">
             <Table>
               <TableHeader>
@@ -71,8 +80,12 @@ export default function Index({ cursos }) {
               <TableBody>
                 {cursos.data.map((curso) => (
                   <TableRow key={curso.id}>
-                    <TableCell className="px-4 font-medium">{curso.nome}</TableCell>
+                    <TableCell className="px-4 font-medium">
+                      {curso.nome}
+                    </TableCell>
+
                     <TableCell>{curso.duracao_anos} anos</TableCell>
+
                     <TableCell>
                       {curso.deleted_at
                         ? 'Arquivado'
@@ -80,6 +93,7 @@ export default function Index({ cursos }) {
                           ? 'Activo'
                           : 'Inactivo'}
                     </TableCell>
+
                     <TableCell className="px-4 text-right">
                       <div className="flex justify-end gap-2">
                         {!curso.deleted_at && (
@@ -87,6 +101,7 @@ export default function Index({ cursos }) {
                             <Button asChild variant="outline" size="xs">
                               <Link href={edit(curso.id).url}>Editar</Link>
                             </Button>
+
                             <Button
                               variant="destructive"
                               size="xs"
@@ -96,6 +111,7 @@ export default function Index({ cursos }) {
                             </Button>
                           </>
                         )}
+
                         {curso.deleted_at && (
                           <Button
                             variant="outline"
@@ -112,14 +128,10 @@ export default function Index({ cursos }) {
               </TableBody>
             </Table>
           </CardContent>
+
           <TablePagination
-            pagination={{
-              current_page: cursos.current_page,
-              last_page: cursos.last_page,
-            }}
-            onPageChange={(page) =>
-              router.get(cursos.path, { page }, { preserveScroll: true })
-            }
+            pagination={cursos}
+            onPageChange={handlePageChange}
           />
         </Card>
       </div>

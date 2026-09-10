@@ -25,13 +25,12 @@ class AccountNotificationMail extends Mailable
         public readonly string $logoUrl = '',
         public readonly string $illustrationUrl = '',
         public readonly string $companyAddress = '',
-    ) {
-    }
+    ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Acompanhe os dados da sua Conta ' . config('app.name'),
+            subject: 'Acompanhe os dados da sua Conta '.config('app.name'),
         );
     }
 

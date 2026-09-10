@@ -4,7 +4,6 @@ namespace App\Services\Tenant\Fichas;
 
 use App\Helpers\BrowsershotHelper;
 use App\Models\Tenant\Aluno;
-use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Spatie\Browsershot\Browsershot;
 
@@ -65,6 +64,7 @@ class FichaMatriculaPdfService
     private function montarDados(Aluno $aluno): array
     {
         $candidato = $aluno->inscricao?->candidato;
+        $dataNascimento = $candidato?->data_nascimento;
         [$nomePai, $nomeMae] = $this->separarFiliacao($candidato?->filiacao);
 
         return [
@@ -75,12 +75,8 @@ class FichaMatriculaPdfService
                 'F' => 'Feminino',
                 default => '',
             },
-            'idade' => $candidato?->data_nascimento
-                ? Carbon::parse($candidato->data_nascimento)->age
-                : '',
-            'data_nascimento' => $candidato?->data_nascimento
-                ? Carbon::parse($candidato->data_nascimento)->format('d/m/Y')
-                : '',
+            'idade' => $dataNascimento?->age ?? '',
+            'data_nascimento' => $dataNascimento?->format('d/m/Y') ?? '',
             'local_nascimento' => $candidato?->naturalidade ?? '',
             'numero_bi' => $candidato?->bi ?? '',
             'data_emissao_bi' => '',

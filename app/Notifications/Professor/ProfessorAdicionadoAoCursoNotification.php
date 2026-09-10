@@ -15,8 +15,7 @@ class ProfessorAdicionadoAoCursoNotification extends Notification
     public function __construct(
         public Professor $professor,
         public CursoTutelado $cursoTutelado
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

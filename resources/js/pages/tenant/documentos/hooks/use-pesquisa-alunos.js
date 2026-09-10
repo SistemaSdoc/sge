@@ -26,12 +26,15 @@ export function usePesquisaAlunos() {
         params.set('subtipo', subtipo);
       }
 
-      const res = await fetch(`/dashboard/documentos/pesquisar-aluno?${params}`, {
-        headers: {
-          Accept: 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
+      const res = await fetch(
+        `/dashboard/documentos/pesquisar-aluno?${params}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
         },
-      });
+      );
 
       if (!res.ok) {
         setResultados([]);

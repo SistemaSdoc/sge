@@ -35,21 +35,37 @@ import {
 } from '@/components/ui/dialog';
 import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 
-export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, estruturaTrabalhoPapUrl, can, errors = {} }) {
+export function TabCriteriosPap({
+  params,
+  criteriosPapUrl,
+  manualPtUrl,
+  estruturaTrabalhoPapUrl,
+  can,
+  errors = {},
+}) {
   const criteriosId = useId();
   const manualId = useId();
   const estruturaTrabalhoPapId = useId();
   const [modalAberto, setModalAberto] = useState(false);
   const [ficheiroCriterios, setFicheiroCriterios] = useState(null);
   const [ficheiroManual, setFicheiroManual] = useState(null);
-  const [ficheiroEstruturaTrabalhoPap, setFicheiroEstruturaTrabalhoPap] = useState(null);
+  const [ficheiroEstruturaTrabalhoPap, setFicheiroEstruturaTrabalhoPap] =
+    useState(null);
   const [uploading, setUploading] = useState(false);
 
   const faltaCriterios = !criteriosPapUrl;
   const faltaManual = !manualPtUrl;
   const faltaEstruturaTrabalhoPap = !estruturaTrabalhoPapUrl;
-  const algumDocumento = !!(criteriosPapUrl || manualPtUrl || estruturaTrabalhoPapUrl);
-  const todosCarregados = !!(criteriosPapUrl && manualPtUrl && estruturaTrabalhoPapUrl);
+  const algumDocumento = !!(
+    criteriosPapUrl ||
+    manualPtUrl ||
+    estruturaTrabalhoPapUrl
+  );
+  const todosCarregados = !!(
+    criteriosPapUrl &&
+    manualPtUrl &&
+    estruturaTrabalhoPapUrl
+  );
 
   // Botão válido se os ficheiros em falta estiverem seleccionados, e pelo menos um seleccionado
   const uploadValido =
@@ -71,7 +87,8 @@ export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, estrutur
     const payload = {};
     if (ficheiroCriterios) payload.criterios_pap = ficheiroCriterios;
     if (ficheiroManual) payload.manual_pt = ficheiroManual;
-    if (ficheiroEstruturaTrabalhoPap) payload.estrutura_trabalho_pap = ficheiroEstruturaTrabalhoPap;
+    if (ficheiroEstruturaTrabalhoPap)
+      payload.estrutura_trabalho_pap = ficheiroEstruturaTrabalhoPap;
 
     setUploading(true);
     router.post(
@@ -265,14 +282,22 @@ export function TabCriteriosPap({ params, criteriosPapUrl, manualPtUrl, estrutur
 
             <div className="space-y-2">
               <Label htmlFor={estruturaTrabalhoPapId}>
-                Estrutura do Trabalho PAP (PDF){!faltaEstruturaTrabalhoPap && <span className="text-muted-foreground font-normal"> — opcional</span>}
+                Estrutura do Trabalho PAP (PDF)
+                {!faltaEstruturaTrabalhoPap && (
+                  <span className="font-normal text-muted-foreground">
+                    {' '}
+                    — opcional
+                  </span>
+                )}
               </Label>
               <Input
                 id={estruturaTrabalhoPapId}
                 type="file"
                 accept=".pdf"
-                onChange={(e) => setFicheiroEstruturaTrabalhoPap(e.target.files?.[0] ?? null)}
-                className="text-muted-foreground file:border-input file:text-foreground p-0 pr-3 italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:bg-transparent file:px-3 file:text-sm file:font-medium file:not-italic"
+                onChange={(e) =>
+                  setFicheiroEstruturaTrabalhoPap(e.target.files?.[0] ?? null)
+                }
+                className="p-0 pr-3 text-muted-foreground italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:border-input file:bg-transparent file:px-3 file:text-sm file:font-medium file:text-foreground file:not-italic"
               />
               {errors.estrutura_trabalho_pap && (
                 <p className="text-sm text-destructive">

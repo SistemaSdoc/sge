@@ -120,7 +120,6 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
 
-
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
                 'bancajuripap.view',

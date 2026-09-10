@@ -49,7 +49,7 @@ export default function Show() {
             </p>
           </div>
         </div>
-        
+
         <CardContent className="grid grid-cols-1 gap-6 py-6 md:grid-cols-3">
           <div>
             <p className="text-sm text-muted-foreground">Ano Lectivo</p>
@@ -156,7 +156,7 @@ export default function Show() {
           </div>
 
           {inscricao?.aluno_id && (
-            <div className="md:col-span-3 mt-6 pt-4 border-t flex justify-end">
+            <div className="mt-6 flex justify-end border-t pt-4 md:col-span-3">
               <Button
                 type="button"
                 variant="default"

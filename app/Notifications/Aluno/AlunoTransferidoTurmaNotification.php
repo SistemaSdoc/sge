@@ -15,8 +15,7 @@ class AlunoTransferidoTurmaNotification extends Notification
     public function __construct(
         public Aluno $aluno,
         public Turma $turma
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

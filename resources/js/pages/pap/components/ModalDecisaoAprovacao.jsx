@@ -20,17 +20,17 @@ export default function ModalDecisaoAprovacao({
   onConfirmar,
   loading,
 }) {
-
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     if (open) setSubmitted(false);
   }, [open, action]);
-  
+
   const MODAL_CONFIG = {
     aprovar: {
       titulo: 'Aprovar Tema PAP',
-      descricao: 'O tema será aprovado e o grupo poderá avançar para a próxima fase da PAP.',
+      descricao:
+        'O tema será aprovado e o grupo poderá avançar para a próxima fase da PAP.',
       obrigatorio: false,
       confirmLabel: 'Aprovar',
       confirmVariant: 'default',
@@ -46,7 +46,8 @@ export default function ModalDecisaoAprovacao({
     },
     melhoria: {
       titulo: 'Solicitar Melhoria',
-      descricao: 'Informe as alterações que o grupo deverá realizar antes de reenviar o tema.',
+      descricao:
+        'Informe as alterações que o grupo deverá realizar antes de reenviar o tema.',
       obrigatorio: true,
       confirmLabel: 'Solicitar Melhoria',
       confirmVariant: 'outline',
@@ -62,7 +63,8 @@ export default function ModalDecisaoAprovacao({
     },
     melhoriaComoTutor: {
       titulo: 'Solicitar Melhoria',
-      descricao: 'Informe as alterações que o grupo deverá realizar antes de reenviar o tema.',
+      descricao:
+        'Informe as alterações que o grupo deverá realizar antes de reenviar o tema.',
       obrigatorio: true,
       confirmLabel: 'Solicitar Melhoria',
       confirmVariant: 'outline',
@@ -71,13 +73,14 @@ export default function ModalDecisaoAprovacao({
   };
 
   const config = MODAL_CONFIG[action] ?? {};
-  const comentarioError = config.obrigatorio && submitted
-    ? comentario.trim().length === 0
-      ? 'Este campo é obrigatório.'
-      : comentario.trim().length < 10
-        ? 'Este campo deve conter pelo menos 10 caracteres.'
-        : null
-    : null;
+  const comentarioError =
+    config.obrigatorio && submitted
+      ? comentario.trim().length === 0
+        ? 'Este campo é obrigatório.'
+        : comentario.trim().length < 10
+          ? 'Este campo deve conter pelo menos 10 caracteres.'
+          : null
+      : null;
   const podeConfirmar = !config.obrigatorio || !comentarioError;
 
   const handleClose = () => {
@@ -86,7 +89,12 @@ export default function ModalDecisaoAprovacao({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) handleClose();
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{config.titulo}</DialogTitle>
@@ -94,10 +102,19 @@ export default function ModalDecisaoAprovacao({
 
         <div className="space-y-4 py-2">
           {/* Resumo do tema */}
-          <div className="border bg-muted/40 px-4 py-3 space-y-1 text-sm">
-            <p><span className="font-medium">Tema: </span>{tema?.tema_grupo}</p>
-            <p><span className="font-medium">Problema: </span>{tema?.problema}</p>
-            <p><span className="font-medium">Objectivos: </span>{tema?.objectivos}</p>
+          <div className="space-y-1 border bg-muted/40 px-4 py-3 text-sm">
+            <p>
+              <span className="font-medium">Tema: </span>
+              {tema?.tema_grupo}
+            </p>
+            <p>
+              <span className="font-medium">Problema: </span>
+              {tema?.problema}
+            </p>
+            <p>
+              <span className="font-medium">Objectivos: </span>
+              {tema?.objectivos}
+            </p>
           </div>
 
           {/* Descrição da acção */}

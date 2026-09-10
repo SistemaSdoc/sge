@@ -1,13 +1,12 @@
 <?php
 
 namespace App\Console\Commands;
-use Stancl\Tenancy\Facades\Tenancy;
+
+use App\Models\Central\Tenant as CentralTenant;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
 use Illuminate\Console\Command;
-use App\Models\Central\Tenant as CentralTenant;
-
 
 class FinalizarPautasVencidas extends Command
 {
@@ -32,7 +31,7 @@ class FinalizarPautasVencidas extends Command
                     // Busca os TDP ids da instituição primeiro
                     $tdpIds = TurmaDisciplinaProfessor::whereHas(
                         'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-                        fn($q) => $q->where('instituicao_tutora_id', $prazo->instituicao_id)
+                        fn ($q) => $q->where('instituicao_tutora_id', $prazo->instituicao_id)
                     )->pluck('id');
 
                     PautaStatus::whereIn('turma_disciplina_professor_id', $tdpIds)
@@ -54,11 +53,11 @@ class FinalizarPautasVencidas extends Command
                 ->each(function (PeriodoLancamentoNotas $prazo) use ($agora) {
                     // TODO: notificar professores com rascunhos abertos
                     // ...
-    
+
                     $prazo->update(['notificado_em' => $agora]);
                 });
 
-            $this->info('Concluído: ' . $agora);
+            $this->info('Concluído: '.$agora);
 
             tenancy()->end();
         });

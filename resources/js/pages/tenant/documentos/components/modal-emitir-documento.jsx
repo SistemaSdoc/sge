@@ -189,7 +189,7 @@ export function ModalEmitirDocumento({ documento, classes, open, onClose }) {
                     onValueChange={handleCommandInput}
                     onKeyDown={handleKeyDown} // ← adiciona isto
                   />
-                    {query.trim() && (
+                  {query.trim() && (
                     <CommandList className="max-h-48 overflow-y-auto">
                       {searching && (
                         <div className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">

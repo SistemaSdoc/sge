@@ -94,17 +94,17 @@ class BrowsershotHelper
         $homes[] = '/root';
 
         foreach ($homes as $home) {
-            $nvmDir = $home . '/.nvm/versions/node';
-            if (!is_dir($nvmDir)) {
+            $nvmDir = $home.'/.nvm/versions/node';
+            if (! is_dir($nvmDir)) {
                 continue;
             }
 
             // Pega todas as versões instaladas e ordena da mais recente
-            $versions = glob($nvmDir . '/v*', GLOB_ONLYDIR) ?: [];
+            $versions = glob($nvmDir.'/v*', GLOB_ONLYDIR) ?: [];
             rsort($versions); // v24 antes de v20
 
             foreach ($versions as $version) {
-                $path = $version . '/bin/' . $binary;
+                $path = $version.'/bin/'.$binary;
                 if (file_exists($path)) {
                     $candidates[] = $path;
                 }
