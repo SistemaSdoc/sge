@@ -489,8 +489,10 @@ class GrupoPapViewService
                 'created_at' => $item->created_at?->toIso8601String(),
                 'utilizador' => [
                     'nome' => $ehTutora
-                        ? "Grupo disciplinar do curso de {$nomeCurso} do {$siglaInstituto}"
-                        : ($item->utilizador?->nome ?? '—'),
+                        ? (filled($nomeCurso)
+                            ? trim("Grupo disciplinar do curso de {$nomeCurso}".($siglaInstituto ? " do {$siglaInstituto}" : ''))
+                            : ($siglaInstituto ? "Grupo disciplinar do {$siglaInstituto}" : 'Grupo disciplinar'))
+                        : ($item->utilizador?->nome ?? $item->utilizador_nome ?? '—'),
                 ],
             ];
         })->values();

@@ -72,6 +72,12 @@ class ExportarPautaController extends Controller
         $nomeClasse = $turma->cursoClasseTurno?->cursoClasse?->classe?->nome ?? '';
         $nomeAnoLectivo = $turma->anoLectivo?->nome ?? date('Y').'/'.(date('Y') + 1);
 
+        $directorDaInstituicao = $instituicaoCurso?->instituicao
+            ?->users()
+            ->whereHas('roles', fn ($q) => $q->where('name', 'Director'))
+            ->first();
+        $nomeDirector = $directorDaInstituicao?->nome ?? $user?->nome ?? 'Director';
+
         // ── Disciplinas da turma ───────────────────────────────
         $tdps = TurmaDisciplinaProfessor::with('classeTurnoDisciplina.disciplina')
             ->where('turma_id', $turma->id)
@@ -123,8 +129,8 @@ class ExportarPautaController extends Controller
                 sala: $turma->sala ?? '',
                 classe: $nomeClasse,
                 periodo: (string) $periodo,
-                areaFormacao: 'INFORMÁTICA',
-                director: 'Novais José, Ph.D.',
+                areaFormacao: $nomeCurso,
+                director: $nomeDirector,
                 logoPath: public_path('images/insignia_angola.png'),
             );
         } else {
@@ -140,8 +146,8 @@ class ExportarPautaController extends Controller
                 instituicao: $nomeInstituicao,
                 sala: '',
                 classe: $nomeClasse,
-                areaFormacao: 'INFORMÁTICA',
-                director: 'Novais José, PhD',
+                areaFormacao: $nomeCurso,
+                director: $nomeDirector,
                 logoPath: public_path('images/insignia_angola.png'),
             );
         }

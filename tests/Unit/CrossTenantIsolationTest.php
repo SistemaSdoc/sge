@@ -35,6 +35,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Excel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\Models\Permission;
@@ -386,6 +387,93 @@ test('lista de cursos resolve para o tutor activo anterior mesmo quando o shared
 
     expect($resultado->items())->toHaveCount(1)
         ->and($resultado->items()[0]['instituicao_tutora'])->toBe('Instituto Antigo');
+});
+
+test('pauta final usa director real da instituicao e nome do curso como area de formacao', function (): void {
+    tenancy()->initialize($this->tenantColegio);
+
+    $instituicaoColegio = Instituicao::create([
+        'nome' => 'Colégio Tutorado',
+        'tipo' => 'colegio',
+        'status' => 1,
+    ]);
+
+    $curso = Curso::create(['nome' => 'Técnico de Informática', 'duracao_anos' => 4]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicaoColegio->id,
+        'duracao_anos' => 4,
+    ]);
+
+    $director = User::create([
+        'nome' => 'Ana Maria da Silva',
+        'email' => 'ana-diretora@example.test',
+        'password' => 'password',
+        'instituicao_id' => $instituicaoColegio->id,
+    ]);
+    $director->assignRole('Director');
+
+    $user = User::create([
+        'nome' => 'Secretária da Escola',
+        'email' => 'secretaria@example.test',
+        'password' => 'password',
+        'instituicao_id' => $instituicaoColegio->id,
+    ]);
+    $user->assignRole('Secretaria');
+
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicaoColegio->id,
+        'tipo_tutela' => 'externa',
+    ]);
+
+    $classe = Classe::create(['nome' => '11A', 'nivel_ensino' => 'medio']);
+    $nivel = NivelEnsino::create(['nome' => 'Médio']);
+    $cursoClasse = CursoClasse::create([
+        'curso_tutelado_id' => $cursoTutelado->id,
+        'classe_id' => $classe->id,
+        'nivel_ensino_id' => $nivel->id,
+    ]);
+    $turno = Turno::create(['nome' => 'Tarde']);
+    $cursoClasseTurno = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasse->id,
+        'turno_id' => $turno->id,
+    ]);
+    $ano = AnoLectivo::create([
+        'nome' => '2026/2027',
+        'data_inicio' => '2026-09-01',
+        'data_fim' => '2027-07-31',
+    ]);
+    $turma = Turma::create([
+        'nome' => 'A',
+        'max_alunos' => 30,
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'ano_lectivo_id' => $ano->id,
+    ]);
+
+    Excel::fake();
+
+    app(ExportarPautaController::class)->exportarExcel(
+        $cursoTutelado->id,
+        $turma->id,
+        new Request,
+        false,
+        false,
+        $user,
+    );
+
+    Excel::assertDownloaded('pauta_a_final.xlsx', function ($export) use ($curso, $director): bool {
+        $ref = new ReflectionClass($export);
+
+        $directorProperty = $ref->getProperty('director');
+        $directorProperty->setAccessible(true);
+
+        $areaProperty = $ref->getProperty('areaFormacao');
+        $areaProperty->setAccessible(true);
+
+        return $directorProperty->getValue($export) === $director->nome
+            && $areaProperty->getValue($export) === $curso->nome;
+    });
 });
 
 test('tutora consegue exportar pauta de curso remoto atraves do shared activo', function (): void {

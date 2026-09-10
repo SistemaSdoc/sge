@@ -285,16 +285,9 @@
         @if (!empty($email))
             <div class="credential-item">
 
-                <div class="item-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-                    </svg>
-                </div>
-
                 <div class="item-text">
-                    <div class="label">{{ $email }}</div>
-                    <div class="sublabel">Email de acesso</div>
+                    <div class="label">Email de acesso</div>
+                    <div class="sublabel">{{ $email }}</div>
                 </div>
 
             </div>
@@ -303,16 +296,9 @@
         @if (!empty($password))
             <div class="credential-item">
 
-                <div class="item-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6-5c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm5 17H7V10h10v10zm-5-3c.83 0 1.5-.67 1.5-1.5S12.83 14 12 14s-1.5.67-1.5 1.5S11.17 17 12 17z" />
-                    </svg>
-                </div>
-
                 <div class="item-text">
-                    <div class="label">{{ $password }}</div>
-                    <div class="sublabel">Password de acesso</div>
+                    <div class="label">Password de acesso</div>
+                    <div class="sublabel">{{ $password }}</div>
                 </div>
 
             </div>

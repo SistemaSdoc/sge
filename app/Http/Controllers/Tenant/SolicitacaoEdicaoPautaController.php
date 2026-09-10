@@ -7,6 +7,7 @@ use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\User;
+use App\Traits\NotificaProfessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -14,6 +15,7 @@ use Inertia\Inertia;
 
 class SolicitacaoEdicaoPautaController extends Controller
 {
+    use NotificaProfessor;
     /**
      * Display a listing of the resource.
      */
@@ -36,7 +38,7 @@ class SolicitacaoEdicaoPautaController extends Controller
             ->where('status', 'pendente')
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn ($s) => [
+            ->map(fn($s) => [
                 'id' => $s->id,
                 'tipo' => $s->tipo,
                 'periodo' => $s->periodo,
@@ -45,8 +47,9 @@ class SolicitacaoEdicaoPautaController extends Controller
                 'professor' => $s->professor->nome ?? '—',
                 'disciplina' => $s->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->nome ?? '—',
                 'turma' => $s->turmaDisciplinaProfessor->turma->nome ?? '—',
-                'link_prazos' => route('tenant.dashboard.pautas.solicitar-edicao', [
-                    'instituicao' => $s->turmaDisciplinaProfessor->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_tutora_id,
+                'link_prazos' => route('tenant.dashboard.instituicoes.prazos-lancamento-notas.edit', [
+                    'instituicao' => $s->turmaDisciplinaProfessor->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso?->instituicao_id
+                        ?? $s->turmaDisciplinaProfessor->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_tutora_id,
                 ]),
             ]);
 
@@ -91,7 +94,7 @@ class SolicitacaoEdicaoPautaController extends Controller
 
         abort_if($jaExiste, 422, 'Já tens um pedido pendente deste tipo para este período.');
 
-        SolicitacaoEdicaoPauta::create([
+        $solicitacao = SolicitacaoEdicaoPauta::create([
             'turma_disciplina_professor_id' => $validated['tdp_id'],
             'periodo' => $validated['periodo'],
             'tipo' => $validated['tipo'],
@@ -100,63 +103,75 @@ class SolicitacaoEdicaoPautaController extends Controller
             'status' => 'pendente',
         ]);
 
+        // Carregar relações necessárias antes de notificar
+        $solicitacao->load([
+            'professor',
+            'turmaDisciplinaProfessor.turma.cursoClasseTurno.cursoClasse.cursoTutelado',
+            'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
+        ]);
+
+        $this->notificarSolicitacaoEdicaoPauta($solicitacao);
+
         return back()->with('success', 'Pedido enviado ao director.');
     }
 
     // Decidir uma solicitação de edição de pauta (aprovada ou rejeitada)
-    public function decidir(Request $request, SolicitacaoEdicaoPauta $solicitacao)
-    {
-        abort_unless($request->user()->hasAnyRole(['Director', 'Subdirector']), 403);
+  public function decidir(Request $request, SolicitacaoEdicaoPauta $solicitacao)
+{
+    abort_unless($request->user()->hasAnyRole(['Director', 'Subdirector']), 403);
 
-        $validated = $request->validate([
-            'decisao' => 'required|in:aprovada,rejeitada',
-            'observacao' => 'nullable|string|max:500',
-            'prazo_edicao_ate' => 'required_if:decisao,aprovada|nullable|date|after:now',
-        ]);
+    $validated = $request->validate([
+        'decisao'          => 'required|in:aprovada,rejeitada',
+        'observacao'       => 'nullable|string|max:500',
+        'prazo_edicao_ate' => 'required_if:decisao,aprovada|nullable|date|after:now',
+    ]);
 
-        $solicitacao->update([
-            'status' => $validated['decisao'],
-            'decidido_por' => Auth::guard('tenant')->id(),
-            'decidido_em' => now(),
-            'observacao' => $validated['observacao'] ?? null,
-            'prazo_edicao_ate' => $validated['prazo_edicao_ate'] ?? null,
-        ]);
+    $solicitacao->update([
+        'status'           => $validated['decisao'],
+        'decidido_por'     => Auth::guard('tenant')->id(),
+        'decidido_em'      => now(),
+        'observacao'       => $validated['observacao'] ?? null,
+        'prazo_edicao_ate' => $validated['prazo_edicao_ate'] ?? null,
+    ]);
 
-        if ($validated['decisao'] === 'aprovada') {
-            // Reverter pauta para rascunho em ambos os casos
-            PautaStatus::where('turma_disciplina_professor_id', $solicitacao->turma_disciplina_professor_id)
+    $solicitacao->refresh();
+
+    // Notificar professor da decisão (aprovada ou rejeitada)
+    $this->notificarDecisaoEdicaoPauta($solicitacao);
+
+    if ($validated['decisao'] === 'aprovada') {
+        PautaStatus::where('turma_disciplina_professor_id', $solicitacao->turma_disciplina_professor_id)
+            ->where('periodo', $solicitacao->periodo)
+            ->whereIn('status', ['finalizada', 'expirada'])
+            ->update([
+                'status'                    => 'rascunho',
+                'finalizada_em'             => null,
+                'finalizada_automaticamente' => false,
+            ]);
+
+        if ($solicitacao->tipo === 'extensao_prazo') {
+            $instituicaoId = $solicitacao->turmaDisciplinaProfessor
+                ->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_tutora_id;
+
+            PeriodoLancamentoNotas::where('instituicao_id', $instituicaoId)
                 ->where('periodo', $solicitacao->periodo)
-                ->whereIn('status', ['finalizada', 'expirada'])
-                ->update([
-                    'status' => 'rascunho',
-                    'finalizada_em' => null,
-                    'finalizada_automaticamente' => false,
-                ]);
+                ->update(['data_limite' => $validated['prazo_edicao_ate']]);
 
-            if ($solicitacao->tipo === 'extensao_prazo') {
-                $instituicaoId = $solicitacao->turmaDisciplinaProfessor
-                    ->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_tutora_id;
-
-                // Actualizar data_limite do período com o prazo definido pelo director
-                PeriodoLancamentoNotas::where('instituicao_id', $instituicaoId)
-                    ->where('periodo', $solicitacao->periodo)
-                    ->update(['data_limite' => $validated['prazo_edicao_ate']]);
-
-                return back()->with('success', "Extensão aprovada até {$validated['prazo_edicao_ate']}. O professor já pode lançar.");
-            }
-
-            if ($solicitacao->tipo === 'reabertura_edicao') {
-                return back()->with('success', 'Reabertura aprovada. O professor pode editar até o prazo definido.');
-            }
+            return back()->with('success', "Extensão aprovada até {$validated['prazo_edicao_ate']}. O professor já pode lançar.");
         }
 
-        return back()->with('success', 'Decisão registada.');
+        return back()->with('success', 'Reabertura aprovada. O professor pode editar até o prazo definido.');
     }
+
+    return back()->with('success', 'Decisão registada.');
+}
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create() {}
+    public function create()
+    {
+    }
 
     // Director decide
     // public function decidir(Request $request, SolicitacaoEdicaoPauta $solicitacao)

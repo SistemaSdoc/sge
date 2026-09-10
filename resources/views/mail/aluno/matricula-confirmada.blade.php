@@ -5,7 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="x-apple-disable-message-reformatting">
-    <title>Prazo de lançamento de notas</title>
+
+    <title>Confirmação de matrícula</title>
+
     <style>
         * {
             margin: 0;
@@ -30,6 +32,12 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
         }
 
+        .divider {
+            border: none;
+            border-top: 1px solid #e8eaed;
+            margin: 0 40px;
+        }
+
         .header {
             text-align: center;
             padding: 32px 40px 24px;
@@ -42,7 +50,8 @@
             line-height: 1.4;
         }
 
-        .header .account-badge {
+        .account-badge {
+            display: inline-block;
             background: #f8f9fa;
             border: 1px solid #dadce0;
             border-radius: 20px;
@@ -50,12 +59,6 @@
             margin-top: 12px;
             font-size: 13px;
             color: #202124;
-        }
-
-        .divider {
-            border: none;
-            border-top: 1px solid #e8eaed;
-            margin: 0 40px;
         }
 
         .section-label {
@@ -71,7 +74,7 @@
             padding: 10px 24px;
         }
 
-        .credential-item .item-icon {
+        .item-icon {
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -83,41 +86,34 @@
             color: #5f6368;
         }
 
-        .credential-item .item-text .label {
+        .item-text .label {
             font-size: 14px;
             color: #202124;
             word-break: break-word;
         }
 
-        .credential-item .item-text .sublabel {
+        .item-text .sublabel {
             font-size: 12px;
             color: #5f6368;
             margin-top: 2px;
         }
 
-        .credential-item .item-text .label-warning {
-            font-size: 14px;
-            color: #e37400;
-            font-weight: 500;
-            word-break: break-word;
-        }
-
         .security-note {
             margin: 20px 24px;
-            background: #fef7e0;
-            border: 1px solid #fde68a;
+            background: #e8f0fe;
+            border: 1px solid #c5d4f5;
             border-radius: 8px;
             padding: 14px 16px;
         }
 
-        .security-note .text .title {
+        .security-note .title {
             font-size: 13px;
             font-weight: 500;
-            color: #e37400;
+            color: #202124;
             margin-bottom: 4px;
         }
 
-        .security-note .text p {
+        .security-note p {
             font-size: 12px;
             color: #5f6368;
             line-height: 1.5;
@@ -156,61 +152,70 @@
 
 <body>
     <div class="email-wrapper">
-
-      
         <hr class="divider">
 
-        <br>
         <p style="padding: 0 24px; font-size: 14px; line-height: 1.6; color: #202124;">
             Olá, <strong>{{ $nome }}</strong>!
         </p>
 
         <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
-            O prazo de lançamento de notas do <strong>{{ $periodo }}º trimestre</strong> {{ $artigoInstituicao }}
-            <strong>{{ $instituicao->nome }}</strong> foi definido.
-            Por favor, efectue o lançamento dentro do período indicado.
+            A sua matrícula {{ $artigoInstituicao }} <strong>{{ $instituicao->nome }}</strong> foi confirmada com
+            sucesso.
         </p>
 
-        <p class="section-label">Detalhes do prazo</p>
+        <p class="section-label">Detalhes da confirmação</p>
+
+        @if($curso)
+            <div class="credential-item">
+                <div class="item-text">
+                    <div class="label">Curso</div>
+                    <div class="sublabel">{{ $curso }}</div>
+                </div>
+            </div>
+        @endif
+
+        @if($classe)
+            <div class="credential-item">
+                <div class="item-text">
+                    <div class="label">Classe</div>
+                    <div class="sublabel">{{ $classe }}</div>
+                </div>
+            </div>
+        @endif
+
+        @if($turno)
+            <div class="credential-item">
+                <div class="item-text">
+                    <div class="label">Turno</div>
+                    <div class="sublabel">{{ $turno }}</div>
+                </div>
+            </div>
+        @endif
 
         <div class="credential-item">
-            
             <div class="item-text">
-                <div class="label">Trimestre</div>
-                <div class="sublabel">{{ $periodo }}º Trimestre</div>
+                <div class="label">Turma atribuída</div>
+                <div class="sublabel">{{ $nomeTurma }}</div>
             </div>
         </div>
-
-        <div class="credential-item">
-           
-            <div class="item-text">
-                <div class="label">Início</div>
-                <div class="sublabel">{{ $dataInicio }}</div>
-            </div>
-        </div>
-
-        <div class="credential-item">
-            
-            <div class="item-text">
-                <div class="label-warning">Data limite</div>
-                <div class="sublabel">{{ $dataLimite }}</div>
-            </div>
-        </div>
-
         <div class="security-note">
             <div class="text">
-                <div class="title">Atenção</div>
-                <p>O não lançamento das notas dentro do prazo definido pode impedir a geração de pautas e boletins para
-                    os alunos.</p>
+                <div class="title">Informação</div>
+                <p>Se tiver alguma dúvida sobre a sua matrícula ou a turma atribuída, contacte a secretaria da
+                    instituição.</p>
             </div>
         </div>
 
         <div class="footer">
-            <p>Este email foi enviado automaticamente pela plataforma {{ $instituicao->nome }}. Por favor, não responda
-                directamente a esta mensagem.</p>
-            <p class="company">© {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.</p>
+            <p>
+                Este email foi enviado automaticamente pela plataforma
+                {{ config('app.name') }}.
+                Por favor, não responda directamente a esta mensagem.
+            </p>
+            <p class="company">
+                © {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.
+            </p>
         </div>
-
     </div>
 </body>
 

@@ -177,7 +177,7 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
         $ws->getRowDimension(10)->setRowHeight(15);
 
         $classeNome = is_array($this->classe) ? ($this->classe['nome'] ?? '') : $this->classe;
-        $ws->setCellValue('B10', "{$classeNome}ª Classe");
+        $ws->setCellValue('B10', "{$classeNome} Classe");
         $ws->getStyle('B10')->applyFromArray([
             'font' => ['name' => 'Arial', 'size' => 11, 'bold' => true, 'color' => ['rgb' => self::COR_AZUL_TEXTO]],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],

@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\ElementosGrupoPap\ActualizarNotaRequest;
 use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
+use App\Traits\NotificaGrupoPap;
 
 class ElementoGrupoPapController extends Controller
 {
+    use NotificaGrupoPap;
+
     /**
      * Mostra o formulário para adicionar um novo elemento a um grupo da PAP.
      */
@@ -48,6 +51,8 @@ class ElementoGrupoPapController extends Controller
         if ($todosComNota) {
             $grupo->update(['status' => 'concluido']);
         }
+
+        $this->notificarNotaAtribuida($grupo, $elemento);
 
         return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', [
             'colegio' => $colegio,

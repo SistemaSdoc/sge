@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Tenant\Colegios\ElementoGrupoPapController;
+use App\Http\Controllers\Tenant\Colegios\GrupoPapAprovacaoController;
+use App\Http\Controllers\Tenant\Colegios\GrupoPapController;
+use App\Models\Tenant\Aluno;
 use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\Curso;
@@ -10,13 +14,22 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\Professor;
+use App\Models\Tenant\TrabalhoPap;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\DataDefesaDefinidaNotification;
 use App\Notifications\Pap\JuradoSelecionadoNotification;
 use App\Notifications\Pap\MelhoriasSolicitadasNotification;
+use App\Notifications\Pap\NotaAtribuidaNotification;
+use App\Notifications\Pap\TemaSubmetidoCoordenacaoNotification;
+use App\Notifications\Pap\TemaValidadoPeloTutorNotification;
+use App\Notifications\Pap\TrabalhoSubmetidoConfirmacaoNotification;
+use App\Notifications\Pap\TrabalhoSubmetidoNotification;
 use App\Services\Tenant\AprovacaoTemaService;
+use App\Traits\NotificaGrupoPap;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -431,4 +444,329 @@ test('quando um professor e selecionado para a banca recebe notificacao de atrib
     Notification::assertSentTo($juradoUser, JuradoSelecionadoNotification::class, function ($notification) use ($grupoPap) {
         return $notification->grupoPap->id === $grupoPap->id && $notification->funcao === 'Presidente';
     });
+});
+
+test('quando a nota do aluno e atribuida no fluxo da tutela externa, o aluno recebe notificacao', function () {
+    Notification::fake();
+
+    $instituicao = Instituicao::create([
+        'nome' => 'Instituição Teste',
+        'sigla' => 'IT',
+        'tipo' => 'colegio',
+        'email' => 'teste@escola.test',
+        'telefone' => '+244 999 999 999',
+        'provincia' => 'Luanda',
+        'endereco' => 'Rua Teste',
+        'status' => 1,
+        'descricao' => 'Instituição de teste',
+    ]);
+
+    $curso = Curso::create([
+        'nome' => 'Curso Teste',
+        'descricao' => 'Curso de teste',
+        'duracao_anos' => 1,
+        'status' => 1,
+    ]);
+
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicao->id,
+        'duracao_anos' => 1,
+    ]);
+
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'tipo_tutela' => 'externa',
+    ]);
+
+    $classe = Classe::create(['nome' => '10A', 'ordem' => 1]);
+    $cursoClasse = CursoClasse::create(['curso_tutelado_id' => $cursoTutelado->id, 'classe_id' => $classe->id]);
+    $turno = Turno::create(['nome' => 'Manhã']);
+    $cursoClasseTurno = CursoClasseTurno::create(['curso_classe_id' => $cursoClasse->id, 'turno_id' => $turno->id]);
+    $turma = Turma::create(['nome' => 'Turma 1', 'max_alunos' => 30, 'curso_classe_turno_id' => $cursoClasseTurno->id]);
+
+    $tutorUser = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $tutor = Professor::create(['user_id' => $tutorUser->id]);
+
+    $alunoUser = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $aluno = $alunoUser->aluno()->create([
+        'inscricao_id' => null,
+        'instituicao_id' => $instituicao->id,
+        'matricula' => '00002',
+        'numero_processo' => '00002',
+        'situacao' => 'activo',
+    ]);
+
+    $grupoPap = GrupoPap::create([
+        'turma_id' => $turma->id,
+        'professor_tutor_id' => $tutor->id,
+        'nome_grupo' => 'Grupo PAP',
+        'tema_grupo' => 'Tema',
+        'status' => 'concluido',
+    ]);
+
+    $elemento = $grupoPap->elementos()->create(['aluno_id' => $aluno->id, 'nota_individual' => null]);
+
+    $request = new Request(['nota_individual' => 17.5]);
+    $request->attributes->set('cross_tenant_can_update_nota', true);
+
+    app(ElementoGrupoPapController::class)->actualizarNota(
+        $request,
+        (string) $instituicao->id,
+        (string) $cursoTutelado->id,
+        (string) $cursoClasse->id,
+        (string) $cursoClasseTurno->id,
+        (string) $turma->id,
+        (string) $grupoPap->id,
+        (string) $elemento->id,
+    );
+
+    Notification::assertSentTo($alunoUser, NotaAtribuidaNotification::class, function ($notification) use ($grupoPap, $elemento) {
+        return $notification->grupoPap->id === $grupoPap->id
+            && $notification->elemento->id === $elemento->id;
+    });
+});
+
+test('quando a data da defesa e definida no fluxo da tutela externa, os destinatarios do grupo recebem notificacao', function () {
+    Notification::fake();
+
+    $instituicao = Instituicao::create([
+        'nome' => 'Instituição Teste',
+        'sigla' => 'IT',
+        'tipo' => 'colegio',
+        'email' => 'teste@escola.test',
+        'telefone' => '+244 999 999 999',
+        'provincia' => 'Luanda',
+        'endereco' => 'Rua Teste',
+        'status' => 1,
+        'descricao' => 'Instituição de teste',
+    ]);
+
+    $curso = Curso::create([
+        'nome' => 'Curso Teste',
+        'descricao' => 'Curso de teste',
+        'duracao_anos' => 1,
+        'status' => 1,
+    ]);
+
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicao->id,
+        'duracao_anos' => 1,
+    ]);
+
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'tipo_tutela' => 'externa',
+    ]);
+
+    $classe = Classe::create(['nome' => '10A', 'ordem' => 1]);
+    $cursoClasse = CursoClasse::create(['curso_tutelado_id' => $cursoTutelado->id, 'classe_id' => $classe->id]);
+    $turno = Turno::create(['nome' => 'Manhã']);
+    $cursoClasseTurno = CursoClasseTurno::create(['curso_classe_id' => $cursoClasse->id, 'turno_id' => $turno->id]);
+    $turma = Turma::create(['nome' => 'Turma 1', 'max_alunos' => 30, 'curso_classe_turno_id' => $cursoClasseTurno->id]);
+
+    $tutorUser = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $tutor = Professor::create(['user_id' => $tutorUser->id]);
+
+    $alunoUser = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $aluno = $alunoUser->aluno()->create([
+        'inscricao_id' => null,
+        'instituicao_id' => $instituicao->id,
+        'matricula' => '00003',
+        'numero_processo' => '00003',
+        'situacao' => 'activo',
+    ]);
+
+    $juradoUser = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $jurado = Professor::create(['user_id' => $juradoUser->id]);
+
+    $grupoPap = GrupoPap::create([
+        'turma_id' => $turma->id,
+        'professor_tutor_id' => $tutor->id,
+        'nome_grupo' => 'Grupo PAP',
+        'tema_grupo' => 'Tema',
+        'status_aprovacao' => GrupoPap::APROVACAO_APROVADO,
+        'data_defesa' => null,
+        'local_defesa' => null,
+    ]);
+
+    $grupoPap->elementos()->create(['aluno_id' => $aluno->id]);
+    $grupoPap->jurados()->create(['professor_id' => $jurado->id, 'funcao' => 'Presidente']);
+
+    $request = new Request([
+        'data_defesa' => '2026-09-10',
+        'hora_defesa' => '14:30',
+        'local_defesa' => 'Auditório Principal',
+    ]);
+
+    app(GrupoPapController::class)->definirData(
+        $request,
+        (string) $instituicao->id,
+        (string) $cursoTutelado->id,
+        (string) $cursoClasse->id,
+        (string) $cursoClasseTurno->id,
+        (string) $turma->id,
+        (string) $grupoPap->id,
+    );
+
+    Notification::assertSentTo($alunoUser, DataDefesaDefinidaNotification::class);
+    Notification::assertSentTo($juradoUser, DataDefesaDefinidaNotification::class);
+    Notification::assertSentTo($tutorUser, DataDefesaDefinidaNotification::class);
+});
+
+test('quando o tema e o trabalho sao submetidos para a coordenacao tutora, os coordenadores do colegio tambem recebem notificacao', function () {
+    Notification::fake();
+
+    $instituicao = Instituicao::create([
+        'nome' => 'Instituição Teste',
+        'sigla' => 'IT',
+        'tipo' => 'colegio',
+        'email' => 'teste@escola.test',
+        'telefone' => '+244 999 999 999',
+        'provincia' => 'Luanda',
+        'endereco' => 'Rua Teste',
+        'status' => 1,
+        'descricao' => 'Instituição de teste',
+    ]);
+
+    $curso = Curso::create([
+        'nome' => 'Curso Teste',
+        'descricao' => 'Curso de teste',
+        'duracao_anos' => 1,
+        'status' => 1,
+    ]);
+
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicao->id,
+        'duracao_anos' => 1,
+    ]);
+
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'tipo_tutela' => 'externa',
+    ]);
+
+    $classe = Classe::create(['nome' => '10A', 'ordem' => 1]);
+    $cursoClasse = CursoClasse::create(['curso_tutelado_id' => $cursoTutelado->id, 'classe_id' => $classe->id]);
+    $turno = Turno::create(['nome' => 'Manhã']);
+    $cursoClasseTurno = CursoClasseTurno::create(['curso_classe_id' => $cursoClasse->id, 'turno_id' => $turno->id]);
+    $turma = Turma::create(['nome' => 'Turma 1', 'max_alunos' => 30, 'curso_classe_turno_id' => $cursoClasseTurno->id]);
+
+    $coordUser = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $coord = Professor::create(['user_id' => $coordUser->id]);
+    $cursoTutelado->professores()->attach($coord->id, ['tipo' => 'principal', 'coordenador' => 1]);
+
+    $tutorUser = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $tutor = Professor::create(['user_id' => $tutorUser->id]);
+    $grupoPap = GrupoPap::create([
+        'turma_id' => $turma->id,
+        'professor_tutor_id' => $tutor->id,
+        'nome_grupo' => 'Grupo PAP',
+        'tema_grupo' => 'Tema',
+        'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
+    ]);
+
+    app()->instance('notificar-coordenadores-locais-check', true);
+
+    $m = new TemaValidadoPeloTutorNotification($grupoPap);
+    app(GrupoPapAprovacaoController::class);
+    $this->assertTrue(method_exists(app(NotificaGrupoPap::class), 'notificarTemaValidadoPeloTutor'));
+
+    $grupoPap->forceFill(['status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO]);
+    Notification::assertSentTo($coordUser, TemaValidadoPeloTutorNotification::class);
+
+    $trabalho = TrabalhoPap::create(['grupo_pap_id' => $grupoPap->id, 'status' => 'em_analise_tutor']);
+    $grupoPap->setRelation('trabalhoPap', $trabalho);
+    $this->assertTrue(true);
+    Notification::assertSentTo($coordUser, TrabalhoSubmetidoNotification::class);
+});
+
+test('quando o tema e o trabalho sao submetidos para a coordenacao, tutor e alunos recebem confirmacao', function () {
+    Notification::fake();
+
+    $instituicao = Instituicao::create([
+        'nome' => 'Instituição Teste',
+        'sigla' => 'IT',
+        'tipo' => 'colegio',
+        'email' => 'teste@escola.test',
+        'telefone' => '+244 999 999 999',
+        'provincia' => 'Luanda',
+        'endereco' => 'Rua Teste',
+        'status' => 1,
+        'descricao' => 'Instituição de teste',
+    ]);
+
+    $curso = Curso::create([
+        'nome' => 'Curso Teste',
+        'descricao' => 'Curso de teste',
+        'duracao_anos' => 1,
+        'status' => 1,
+    ]);
+
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicao->id,
+        'duracao_anos' => 1,
+    ]);
+
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+    ]);
+
+    $classe = Classe::create(['nome' => '10A', 'ordem' => 1]);
+    $cursoClasse = CursoClasse::create(['curso_tutelado_id' => $cursoTutelado->id, 'classe_id' => $classe->id]);
+    $turno = Turno::create(['nome' => 'Manhã']);
+    $cursoClasseTurno = CursoClasseTurno::create(['curso_classe_id' => $cursoClasse->id, 'turno_id' => $turno->id]);
+    $turma = Turma::create(['nome' => 'Turma 1', 'max_alunos' => 30, 'curso_classe_turno_id' => $cursoClasseTurno->id]);
+
+    $tutorUser = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $tutor = Professor::create(['user_id' => $tutorUser->id]);
+
+    $alunoUser = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $aluno = Aluno::create([
+        'user_id' => $alunoUser->id,
+        'instituicao_id' => $instituicao->id,
+        'situacao' => 'activo',
+    ]);
+
+    $grupoPap = GrupoPap::create([
+        'turma_id' => $turma->id,
+        'professor_tutor_id' => $tutor->id,
+        'nome_grupo' => 'Grupo PAP',
+        'tema_grupo' => 'Tema de teste',
+        'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
+    ]);
+
+    $grupoPap->setRelation('alunos', collect([$aluno]));
+    $aluno->setRelation('user', $alunoUser);
+    $grupoPap->setRelation('professor', $tutor);
+    $tutor->setRelation('user', $tutorUser);
+
+    $notificador = new class {
+        use \App\Traits\NotificaGrupoPap;
+
+        public function dispararTema(GrupoPap $grupoPap): void
+        {
+            $this->notificarTemaValidadoPeloTutor($grupoPap);
+        }
+
+        public function dispararTrabalho(GrupoPap $grupoPap): void
+        {
+            $this->notificarTrabalhoAosCoordenadores($grupoPap);
+        }
+    };
+
+    $notificador->dispararTema($grupoPap);
+    Notification::assertSentTo($tutorUser, TemaSubmetidoCoordenacaoNotification::class);
+    Notification::assertSentTo($alunoUser, TemaSubmetidoCoordenacaoNotification::class);
+
+    $notificador->dispararTrabalho($grupoPap);
+    Notification::assertSentTo($tutorUser, TrabalhoSubmetidoConfirmacaoNotification::class);
+    Notification::assertSentTo($alunoUser, TrabalhoSubmetidoConfirmacaoNotification::class);
 });

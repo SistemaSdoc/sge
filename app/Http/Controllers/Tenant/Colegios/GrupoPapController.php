@@ -20,12 +20,15 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use App\Traits\NotificaGrupoPap;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class GrupoPapController extends Controller
 {
+    use NotificaGrupoPap;
+
     public function index()
     {
         $this->authorize('viewAny', GrupoPap::class);
@@ -215,6 +218,8 @@ class GrupoPapController extends Controller
                 'data_defesa' => $request->data_defesa.' '.$request->hora_defesa.':00',
                 'local_defesa' => $request->local_defesa,
             ]);
+
+            $this->notificarDataDefesaDefinida($grupoPapModel->fresh());
         });
 
         return back()->with('toast', [
@@ -233,14 +238,12 @@ class GrupoPapController extends Controller
         GrupoPap $grupoPap,
         User $user,
     ) {
-        /** @var User $user */
-        $user = Auth::guard('tenant')->user();
+        // ← REMOVER esta linha que anulava o $user
+        // $user = Auth::guard('tenant')->user();
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
         $instituicaoTutoraModel = $instituicao;
-        $instituicaoTutoraId = $instituicaoTutoraModel?->id;
-        $siglaInstituto = $instituicaoTutoraModel?->sigla;
         $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
 
         $grupoPap->load([
@@ -250,11 +253,10 @@ class GrupoPapController extends Controller
 
         $cursoTutelado->load(['instituicaoCurso.curso']);
 
-        // ← NOVO: carregar trabalho tal como na auto tutela
         $trabalho = $grupoPap->trabalhoPap()->with([
             'versoes.submetidoPor:id,nome',
-            'versoes.feedbacks.utilizador:id,nome,instituicao_id', // ← instituicao_id
-            'aprovadoPor:id,nome,instituicao_id',                  // ← instituicao_id
+            'versoes.feedbacks.utilizador:id,nome,instituicao_id',
+            'aprovadoPor:id,nome,instituicao_id',
         ])->first();
 
         $canManageTheme = $user?->can('grupopap.aprovar')
@@ -298,18 +300,17 @@ class GrupoPapController extends Controller
                 'anosLectivos' => AnoLectivo::all(),
                 'grupoPap' => new ShowResource($grupoPap),
 
-                // ← NOVO: serialização idêntica à auto tutela
                 'trabalho' => $trabalho ? [
                     'id' => $trabalho->id,
                     'status' => $trabalho->status,
                     'data_aprovacao' => $trabalho->data_aprovacao?->toIso8601String(),
-                    'aprovado_por' => $trabalho->aprovadoPor
-                        ? PapHelper::nomeAprovador(
-                            $trabalho->aprovadoPor,
-                            $instituicaoTutoraModel,
-                            $nomeCurso,
-                        )
-                        : $trabalho->aprovado_por_nome,
+                    // ← aprovadoPor é null quando externo, usar actorTenantId para mostrar grupo
+                    'aprovado_por' => PapHelper::nomeAprovador(
+                        $trabalho->aprovadoPor,
+                        $instituicaoTutoraModel,
+                        $nomeCurso,
+                        $trabalho->aprovado_por_externo_tenant_id,
+                    ),
                     'versoes' => $trabalho->versoes->map(fn ($v) => [
                         'id' => $v->id,
                         'numero_versao' => $v->numero_versao,
@@ -321,13 +322,13 @@ class GrupoPapController extends Controller
                             'id' => $f->id,
                             'tipo' => $f->tipo,
                             'comentario' => $f->comentario,
-                            'utilizador' => $f->utilizador
-                                ? PapHelper::nomeAprovador(
-                                    $f->utilizador,
-                                    $instituicaoTutoraModel,
-                                    $nomeCurso,
-                                )
-                                : $f->utilizador_nome,
+                            // ← utilizador é null quando externo, usar actorTenantId
+                            'utilizador' => PapHelper::nomeAprovador(
+                                $f->utilizador,
+                                $instituicaoTutoraModel,
+                                $nomeCurso,
+                                $f->utilizador_externo_tenant_id,
+                            ),
                             'created_at' => $f->created_at?->toIso8601String(),
                             'tem_ficheiro_correcao' => ! is_null($f->caminho_ficheiro_correcao),
                             'nome_original_correcao' => $f->nome_original_correcao,
@@ -342,12 +343,16 @@ class GrupoPapController extends Controller
                         'estado_novo' => $item->estado_novo,
                         'comentario' => $item->comentario,
                         'tema' => $item->tema,
+                        'problema' => $item->problema,   // ← faltava
+                        'objectivos' => $item->objectivos, // ← faltava
                         'created_at' => $item->created_at?->toIso8601String(),
                         'utilizador' => [
+                            // ← mesmo padrão: utilizador null quando externo
                             'nome' => PapHelper::nomeAprovador(
                                 $item->utilizador,
                                 $instituicaoTutoraModel,
                                 $nomeCurso,
+                                $item->utilizador_externo_tenant_id ?? null,
                             ),
                         ],
                     ];
@@ -370,15 +375,12 @@ class GrupoPapController extends Controller
                     'solicitarMelhoria' => $canManageTheme,
                     'aprovarComoTutor' => false,
                     'solicitarMelhoriaComoTutor' => false,
-
-                    // ← NOVO: can do trabalho
                     'submeter' => $user?->can('submeterTrabalho', $grupoPap),
                     'aprovarTrabalhoComoTutor' => false,
                     'solicitarCorrecaoComoTutor' => false,
                     'aprovarComoCoordenacao' => $canManageWorkAsCoordination,
                     'solicitarCorrecaoComoCoordenacao' => $canManageWorkAsCoordination,
                     'downloadVersao' => $canManageWorkAsCoordination,
-
                     'elementos' => [
                         'create' => false,
                         'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="x-apple-disable-message-reformatting">
 
-    <title>Correcção solicitada no trabalho PAP</title>
+    <title>Tema submetido para coordenação</title>
 
     <style>
         * {
@@ -32,73 +32,52 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
         }
 
-        /* ---- Header ---- */
         .header {
             text-align: center;
             padding: 32px 40px 24px;
         }
 
-        .header img.logo {
-            width: 75px;
-            height: 24px;
-            object-fit: contain;
-            margin-bottom: 20px;
+        .header h1 {
+            font-size: 24px;
+            font-weight: 400;
+            color: #202124;
+            margin-bottom: 0;
         }
 
-        /* ---- Divider ---- */
         .divider {
             border: none;
             border-top: 1px solid #e8eaed;
             margin: 0 40px;
         }
 
-        /* ---- Info Card ---- */
         .info-card {
-            margin: 0 24px;
+            margin: 24px 24px 0;
             background: #f8f9fa;
             border: 1px solid #dadce0;
             border-radius: 8px;
             padding: 14px 16px;
         }
 
-        .info-card .card-label {
+        .card-item {
+            padding: 8px 0;
+        }
+
+        .card-label {
             font-size: 12px;
             color: #5f6368;
             margin-bottom: 4px;
         }
 
-        .info-card .card-value {
+        .card-value {
             font-size: 14px;
             font-weight: 500;
             color: #202124;
         }
 
-        /* ---- Feedback Box ---- */
-        .feedback-box {
-            margin: 20px 24px 0;
-            background: #fef9e7;
-            border-left: 3px solid #f29900;
-            border-radius: 4px;
-            padding: 14px 16px;
-        }
-
-        .feedback-box .feedback-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #202124;
-            margin-bottom: 6px;
-        }
-
-        .feedback-box p {
-            font-size: 13px;
-            color: #202124;
-            line-height: 1.5;
-        }
-
-        /* ---- CTA ---- */
         .cta-wrapper {
             text-align: center;
             padding: 8px 24px 24px;
+            margin-top: 24px;
         }
 
         .cta-button {
@@ -113,21 +92,6 @@
             letter-spacing: 0.25px;
         }
 
-        /* ---- Link ---- */
-        .access-link {
-            padding: 0 24px 20px;
-            font-size: 13px;
-            color: #202124;
-            line-height: 1.5;
-            word-break: break-all;
-        }
-
-        .access-link a {
-            color: #1a73e8;
-            text-decoration: none;
-        }
-
-        /* ---- Footer ---- */
         .footer {
             padding: 16px 24px;
             border-top: 1px solid #e8eaed;
@@ -160,57 +124,43 @@
 </head>
 
 <body>
-
     <div class="email-wrapper">
 
-        {{-- Header --}}
-        <div class="header">
+        <hr class="divider">
 
-            {{-- @if (!empty($logoUrl))
-            <img class="logo" src="{{ $logoUrl }}" alt="{{ $instituicao->nome }}">
-            @endif --}}
-
-        </div>
-
-        
-
-        {{-- Greeting --}}
-        <br>
         <p style="padding: 0 24px; font-size: 14px; line-height: 1.6; color: #202124;">
             Olá!
         </p>
 
         <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
-            O <strong>{{ $solicitadoPor }}</strong> solicitou uma correcção no trabalho do vosso grupo PAP.
-            Consulte as recomendações abaixo e reenvie o trabalho quando estiver corrigido.
+            O grupo <strong>{{ $nomeGrupo }}</strong> submeteu o tema <strong>{{ $temaGrupo }}</strong> para a coordenação.
+            O tema foi recebido com sucesso e encontra-se agora a aguardar revisão.
         </p>
 
-        {{-- Grupo --}}
         <div class="info-card">
-            <div class="card-label">Grupo</div>
-            <div class="card-value">{{ $nomeGrupo }}</div>
-        </div>
-
-        {{-- Feedback --}}
-        @if (!empty($comentario))
-            <div class="feedback-box">
-                <div class="feedback-label">Recomendações</div>
-                <p>{{ $comentario }}</p>
+            <div class="card-item">
+                <div class="card-label">Grupo</div>
+                <div class="card-value">{{ $nomeGrupo }}</div>
             </div>
-        @endif
 
-        {{-- CTA --}}
-        <div class="cta-wrapper" style="margin-top: 24px;">
+            <div class="card-item">
+                <div class="card-label">Tema</div>
+                <div class="card-value">{{ $temaGrupo }}</div>
+            </div>
 
-            <a href="{{ $url }}" class="cta-button" target="_blank">
-                Ver grupo PAP
-            </a>
-
+            <div class="card-item">
+                <div class="card-label">Turma</div>
+                <div class="card-value">{{ $turma }}</div>
+            </div>
         </div>
 
-        {{-- Footer --}}
-        <div class="footer">
+        <div class="cta-wrapper">
+            <a href="{{ $url }}" class="cta-button" target="_blank">
+                Ver detalhe
+            </a>
+        </div>
 
+        <div class="footer">
             <p>
                 Este email foi enviado automaticamente pela plataforma
                 {{ config('app.name') }}.
@@ -220,11 +170,8 @@
             <p class="company">
                 © {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.
             </p>
-
         </div>
-
     </div>
-
 </body>
 
 </html>
