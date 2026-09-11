@@ -34,7 +34,8 @@ class CursoTuteladoController extends Controller
         private readonly UpdateCursoTutelado $updateCursoTutelado,
         private readonly DeleteCursoTutelado $deleteCursoTutelado,
         private readonly UploadCursoTuteladoDocumentos $uploadCursoTuteladoDocumentos,
-    ) {}
+    ) {
+    }
 
     /**
      * Apresenta os cursos tutelados de uma instituição.
@@ -101,6 +102,21 @@ class CursoTuteladoController extends Controller
             ),
         ];
     }
+
+    /**
+     * Retorna os detalhes (nível de ensino e classes) de um curso no instituto tutor.
+     */
+    public function cursoDetalhes(Request $request, Instituicao $instituicao): array
+    {
+        return [
+            'data' => $this->cursoTuteladoViewService->detalhesCursoTutor(
+                (string) $request->query('tenant_tutor_id'),
+                (string) $request->query('curso_id'),
+                $instituicao,
+            ),
+        ];
+    }
+    
 
     /**
      * Apresenta o detalhe de um curso tutelado.
@@ -208,8 +224,8 @@ class CursoTuteladoController extends Controller
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Documentos actualizados com sucesso.',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Documentos actualizados com sucesso.',
+                ]);
     }
 }

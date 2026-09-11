@@ -66,6 +66,13 @@ class CursoTuteladoResourceEdit extends JsonResource
             ] : null,
 
             'classes' => $this->classes->pluck('id'),
+            'nivel_ensino_nome' => $this->cursoClasses->first()?->nivelEnsino?->nome,
+
+            'classes_detalhes' => $this->classes->map(fn($c) => [
+                'id' => (string) $c->id,
+                'nome' => $c->nome,
+            ])->values(),
+
         ];
     }
 }

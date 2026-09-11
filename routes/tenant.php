@@ -223,6 +223,9 @@ Route::middleware([
             Route::get('instituicoes/{instituicao}/cursos-tutelados-cursos-disponiveis', [CursoTuteladoController::class, 'cursosDisponiveis'])
                 ->name('instituicoes.cursos-tutelados.cursos-disponiveis');
 
+            Route::get('{instituicao}/cursos-tutelados/curso-detalhes', [CursoTuteladoController::class, 'cursoDetalhes'])
+                ->name('tenant.dashboard.instituicoes.cursos-tutelados.curso-detalhes');
+
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/criterios-pap', [CursoTuteladoController::class, 'uploadCriteriosPap'])
                 ->name('instituicoes.cursos-tutelados.criterios-pap');
 
@@ -672,7 +675,7 @@ Route::middleware([
       |--------------------------------------------------------------------------
       */
     Route::get('/storage/{path}', function (string $path) {
-        if (! Storage::disk('public')->exists($path)) {
+        if (!Storage::disk('public')->exists($path)) {
             abort(404);
         }
 
