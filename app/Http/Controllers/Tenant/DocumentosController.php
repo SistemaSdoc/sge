@@ -10,6 +10,7 @@ use App\Models\Tenant\User;
 use App\Services\Tenant\CertificadoService;
 use App\Services\Tenant\DeclaracaoComNotaService;
 use App\Services\Tenant\DeclaracaoSemNotaService;
+use App\Services\Tenant\DocumentoEmitidoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;

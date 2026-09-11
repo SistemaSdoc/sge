@@ -68,6 +68,8 @@ class RelatorioService
             ])
             ->values();
 
+        $documentosPorTipo = $this->documentosPorTipo();
+
         $porEspecialidade = Professor::get()
             ->groupBy(fn ($p) => $p->especialidade ?: 'Não definida')
             ->map(fn ($grupo, $especialidade) => [
@@ -104,8 +106,7 @@ class RelatorioService
 
                 'pagamentos_mensal' => $this->pagamentosMensal(),
 
-                // Sem model/tabela de Documentos ainda — array vazio até existir a fonte real.
-                'documentos_por_tipo' => [],
+                'documentos_por_tipo' => $documentosPorTipo,
             ],
 
             'kpis_extra' => [
@@ -115,9 +116,19 @@ class RelatorioService
                 // não estão implementados (mesma observação já deixada em dadosFinanceiro()).
                 'pagamentos_adimplencia' => null,
 
-                'documentos_pendentes' => null,
+                'documentos_emitidos' => collect($documentosPorTipo)->sum('valor'),
             ],
         ];
+    }
+
+    /**
+     * Total de documentos emitidos por tipo (últimos 30 dias), lido dos
+     * contadores em cache do DocumentoEmitidoService (sem tabela própria —
+     * ver limitações no ficheiro do serviço).
+     */
+    protected function documentosPorTipo(): array
+    {
+        return app(DocumentoEmitidoService::class)->contarTodosTipos(30);
     }
 
     /**
@@ -154,7 +165,7 @@ class RelatorioService
                 $q->where(function ($q2) use ($termo) {
                     $q2->where('matricula', 'like', "%{$termo}%")
                         ->orWhere('numero_processo', 'like', "%{$termo}%")
-                       ->orWhereHas('user', fn ($q3) => $q3->where('nome', 'like', "%{$termo}%"));
+                        ->orWhereHas('user', fn ($q3) => $q3->where('nome', 'like', "%{$termo}%"));
                 });
             })
             ->when($filtros['turma_id'] ?? null, function ($q, $turmaId) {
@@ -195,7 +206,8 @@ class RelatorioService
             ->with('user')
             ->withCount(['turmas', 'classeTurnoDisciplinas as disciplinas_count'])
             ->when($filtros['pesquisa'] ?? null, function ($q, $termo) {
-                 $q->whereHas('user', fn ($q2) => $q2->where('nome', 'like', "%{$termo}%")); })
+                $q->whereHas('user', fn ($q2) => $q2->where('nome', 'like', "%{$termo}%"));
+            })
             ->when($filtros['classe_id'] ?? null, function ($q, $classeId) {
                 $q->whereHas('classeTurnoDisciplinas', fn ($q2) => $q2->where('classe_id', $classeId));
             });
@@ -252,8 +264,23 @@ class RelatorioService
                     'nome' => $t->nome,
                     'classe' => $t->cursoClasseTurno?->cursoClasse?->classe?->nome,
                     'vagas' => $t->max_alunos,
+                    'vagas_disponiveis' => max(0, $t->max_alunos - $t->alunos_activos_count),
                     'ocupacao' => $t->max_alunos ? round($t->alunos_activos_count / $t->max_alunos * 100).'%' : '0%',
                 ]),
+
+            // Dados no formato label/valor para o KpiChartCard.jsx (MiniBarChart).
+            'graficos' => [
+    'turmas_ocupacao' => $totais->map(fn ($t) => [
+        'label' => $t->nome,
+        'valor' => $t->max_alunos ? round($t->alunos_activos_count / $t->max_alunos * 100) : 0,
+        'vagas_disponiveis' => max(0, $t->max_alunos - $t->alunos_activos_count),
+    ])->values(),
+
+                'turmas_ocupacao' => $totais->map(fn ($t) => [
+                    'label' => $t->nome,
+                    'valor' => $t->max_alunos ? round($t->alunos_activos_count / $t->max_alunos * 100) : 0,
+                ])->values(),
+            ],
         ];
     }
 
@@ -289,7 +316,7 @@ class RelatorioService
                 ->through(fn ($g) => [
                     'grupo' => $g->nome_grupo,
                     'tema' => $g->tema_grupo,
-                    'orientador' => $g->professor?->user?->name,
+                    'orientador' => $g->professor?->user?->nome,
                     'turma' => $g->turma?->nome,
                     'estado' => $g->status_aprovacao,
                     'nota' => $g->nota_final,
