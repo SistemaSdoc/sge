@@ -20,12 +20,18 @@ class AccessManagementController extends Controller
     {
         Gate::authorize('acessos.viewAny');
 
-        /** @var User $user */
-        $user = Auth::guard('tenant')->user();
+        $user = Auth::user();
+        // 🔒 Fallback seguro para instituicaoFiltro
+        $instituicaoId = optional($user)->instituicaoFiltro();
 
-        $users = User::with('roles', 'permissions')
-            ->where('instituicao_id', $user->instituicao_id)
-            ->paginate(10)
+        $query = User::with('roles', 'permissions');
+
+        // Aplica filtro apenas se o usuário não for SuperAdmin (instituicaoId não null)
+        if ($instituicaoId !== null) {
+            $query->where('instituicao_id', $instituicaoId);
+        }
+
+        $users = $query->paginate(10)
             ->through(fn (User $u) => [
                 'id' => $u->id,
                 'nome' => $u->nome,

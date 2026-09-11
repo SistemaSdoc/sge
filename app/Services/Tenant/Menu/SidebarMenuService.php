@@ -206,6 +206,44 @@ final class SidebarMenuService
                     href: action([DocumentosController::class, 'index']),
                     icon: 'FileTextIcon',
                     can: fn () => $gate->allows('documentos.viewAny')
+                    can: fn() => Gate::allows('viewAny', SolicitacaoEdicaoPauta::class)
+                ),
+
+                new MenuItem(
+                    key: 'solicitacoes-documentos-aluno',
+                    title: 'Solicitar Documentos',
+                    href: route('solicitacoes-documentos.index'),
+                    icon: 'FileTextIcon',
+                    can: fn() => Auth::user()?->hasRole('Aluno'),
+                ),
+
+                new MenuItem(
+                    key: 'solicitacoes-documentos-tutela',
+                    title: 'Solicitações de Documentos',
+                    href: route('solicitacoes-documentos.tutela.index'),
+                    icon: 'FileTextIcon',
+                    can: fn() => Auth::user()?->instituicao?->tipo === 'instituto'
+                        && Auth::user()?->hasAnyRole(['Director', 'Subdirector', 'Secretaria'])
+                        && Gate::allows('viewAny', SolicitacaoDocumento::class),
+                ),
+
+                new MenuItem(
+                    key: 'solicitacoes-documentos-colegio',
+                    title: 'Solicitar Documentos',
+                    href: route('solicitacoes-documentos.colegio.index'),
+                    icon: 'FileTextIcon',
+                    can: fn() => Auth::user()?->instituicao?->tipo === 'colegio'
+                        && Gate::allows('viewAny', SolicitacaoDocumento::class),
+                ),
+
+                new MenuItem(
+                    key: 'solicitacoes-documentos-emissao',
+                    title: 'Emissão de documentos',
+                    href: route('solicitacoes-documentos.emissao.index'),
+                    icon: 'FileTextIcon',
+                    can: fn() => Auth::user()?->instituicao?->tipo === 'colegio'
+                        && Auth::user()?->hasAnyRole(['Secretaria', 'Director'])
+                        && Gate::allows('viewAny', SolicitacaoDocumento::class),
                 ),
             ]),
 
@@ -295,7 +333,7 @@ final class SidebarMenuService
         ];
 
         return array_values(array_filter(
-            array_map(fn (MenuGroup $group) => $group->toArray(), $groups),
+            array_map(fn(MenuGroup $group) => $group->toArray(), $groups),
         ));
     }
 }

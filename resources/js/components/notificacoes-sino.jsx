@@ -84,7 +84,14 @@ export default function NotificacoesSino() {
   return (
     <Popover open={aberto} onOpenChange={setAberto}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <Button
+          type="button"
+          variant="secondary"
+          size="icon"
+          aria-label="Notificações"
+          title="Ver notificações"
+          className="relative shadow-none transition-all duration-200 hover:shadow-sm"
+        >
           <BellIcon className="size-5" />
           {naoLidas > 0 && (
             <Badge

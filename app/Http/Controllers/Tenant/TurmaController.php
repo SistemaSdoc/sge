@@ -26,11 +26,23 @@ class TurmaController extends Controller
 
         $user = Auth::guard('tenant')->user();
         $professor = $user?->professor;
-        $instituicaoId = $user->instituicao_id;
+
+        // 🔒 Fallback seguro para instituicao_id
+        $instituicaoId = $user?->instituicao_id ?? null;
+
+        // Se não houver instituição, retorna vazio (ou redireciona, conforme regra de negócio)
+        if (! $instituicaoId) {
+            return Inertia::render('turmas/index', [
+                'turmas' => ['data' => [], 'current_page' => 1, 'last_page' => 1],
+                'anosLectivos' => $this->getAnosLectivos(),
+                'anoLectivoActual' => $this->getAnoLectivoDefault(),
+                'can' => ['create_turma' => false],
+            ]);
+        }
 
         $anoLectivoId = filled(request('ano_lectivo_id'))
             ? request('ano_lectivo_id')
-            : $this->anoLectivoResolverService->obterAnoLectivoDefault();
+            : $this->getAnoLectivoDefault();
 
         $cursos = CursoTutelado::query()
             ->whereHas('instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicaoId))
@@ -61,7 +73,14 @@ class TurmaController extends Controller
             $query->where('ano_lectivo_id', $anoLectivoId);
         }
 
-        if (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
+        // 🔒 Permissão para criar turma (com fallback)
+        $canCreateTurma = optional($user)->can('create', Turma::class) ?? false;
+
+        // 🔒 Verificações de role com fallback
+        $isSuperAdmin = optional($user)->isSuperAdmin() ?? false;
+        $isDirector = optional($user)->isDirector() ?? false;
+
+        if (! $isSuperAdmin && ! $isDirector) {
             if (! $professor) {
                 return Inertia::render('tenant/turmas/index', [
                     'turmas' => [
@@ -69,10 +88,7 @@ class TurmaController extends Controller
                         'current_page' => 1,
                         'last_page' => 1,
                     ],
-                    'anosLectivos' => AnoLectivo::query()
-                        ->select('id', 'nome')
-                        ->orderByDesc('data_inicio')
-                        ->get(),
+                    'anosLectivos' => $this->getAnosLectivos(),
                     'anoLectivoActual' => $anoLectivoId,
                     'cursos' => $cursos,
                     'classes' => $cursoClasses,
@@ -102,10 +118,7 @@ class TurmaController extends Controller
                 'current_page' => $turmas->currentPage(),
                 'last_page' => $turmas->lastPage(),
             ],
-            'anosLectivos' => AnoLectivo::query()
-                ->select('id', 'nome')
-                ->orderByDesc('data_inicio')
-                ->get(),
+            'anosLectivos' => $this->getAnosLectivos(),
             'anoLectivoActual' => $anoLectivoId,
             'cursos' => $cursos,
             'classes' => $cursoClasses,

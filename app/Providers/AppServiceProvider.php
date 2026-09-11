@@ -9,6 +9,7 @@ use App\Models\Tenant\Pagamento;
 use App\Models\Tenant\TurmaAluno;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Observers\PagamentoObserver;
+use App\Policies\SolicitacaoDocumentoPolicy;
 use App\Policies\Tenant\AcessManagementPolicy;
 use App\Policies\Tenant\ColegioPolicy;
 use App\Policies\Tenant\ConfirmacaoMatriculaPolicy;
@@ -17,6 +18,8 @@ use App\Policies\Tenant\GrelhaCurricularPolicy;
 use App\Policies\Tenant\HorarioPolicy;
 use App\Policies\Tenant\ItemPagavelPolicy;
 use App\Policies\Tenant\PautaPolicy;
+use App\Services\Rupe\RupeGeneratorInterface;
+use App\Services\Rupe\RupeGeneratorManual;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -32,7 +35,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Registrar binding para o gerador de RUPE
+        $this->app->bind(
+            RupeGeneratorInterface::class,
+            RupeGeneratorManual::class
+        );
     }
 
     /**
@@ -42,12 +49,19 @@ class AppServiceProvider extends ServiceProvider
     {
         // Event::listen(Registered::class, RegisteredListener::class);
 
+        // ===== GATES DE PAUTA =====
         Gate::define('pauta.viewAny', [PautaPolicy::class, 'viewAny']);
         Gate::define('pauta.view', [PautaPolicy::class, 'view']);
         Gate::define('pauta.viewAnyCurso', [PautaPolicy::class, 'viewAnyCurso']);
+
+        // ===== GATES DE GRELHA CURRICULAR =====
         Gate::define('grelha-curricular.viewAny', [GrelhaCurricularPolicy::class, 'viewAny']);
+
+        // ===== GATES DE ACESSOS =====
         Gate::define('acessos.viewAny', [AcessManagementPolicy::class, 'viewAny']);
         Gate::define('acessos.create', [AcessManagementPolicy::class, 'create']);
+
+        // ===== GATES DE HORÁRIOS =====
         Gate::define('horarios.viewAny', [HorarioPolicy::class, 'viewAny']);
 
         Gate::policy(ItemPagavel::class, ItemPagavelPolicy::class);
@@ -57,6 +71,24 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);
 
+        // ===== GATES DE COLEGIOS =====
+        Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);
+
+        // ===== GATES DE CONFIRMAÇÃO DE MATRÍCULA =====
+        Gate::define('confirmacao-matricula.viewAny', [ConfirmacaoMatriculaPolicy::class, 'viewAny']);
+        Gate::define('confirmacao-matricula.view', [ConfirmacaoMatriculaPolicy::class, 'view']);
+        Gate::define('confirmacao-matricula.create', [ConfirmacaoMatriculaPolicy::class, 'create']);
+
+        // ===== GATES DE SOLICITAÇÃO DE DOCUMENTOS =====
+        Gate::define('decidir', [SolicitacaoDocumentoPolicy::class, 'decidir']);
+        Gate::define('marcarComoPago', [SolicitacaoDocumentoPolicy::class, 'marcarComoPago']);
+        Gate::define('marcarComoPronto', [SolicitacaoDocumentoPolicy::class, 'marcarComoPronto']);
+        Gate::define('marcarComoLevantado', [SolicitacaoDocumentoPolicy::class, 'marcarComoLevantado']);
+        Gate::define('view', [SolicitacaoDocumentoPolicy::class, 'view']);
+        Gate::define('viewAny', [SolicitacaoDocumentoPolicy::class, 'viewAny']);
+        Gate::define('emitir', [SolicitacaoDocumentoPolicy::class, 'emitir']);
+
+        // SuperAdmin tem acesso a tudo automaticamente
         Gate::before(function ($user, $ability) {
             return $user->hasRole('SuperAdmin') ? true : null;
         });
@@ -65,6 +97,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('confirmacao-matricula.view', [ConfirmacaoMatriculaPolicy::class, 'view']);
         Gate::define('confirmacao-matricula.create', [ConfirmacaoMatriculaPolicy::class, 'create']);
 
+        // ===== OBSERVADORES =====
+        // Registrar observadores de modelos
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
         Pagamento::observe(PagamentoObserver::class);
     }

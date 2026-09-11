@@ -172,6 +172,16 @@ class Aluno extends Model
         return $this->belongsTo(Instituicao::class);
     }
 
+    /**
+     * Relação com as solicitações de documentos feitas pelo aluno.
+     * Retorna um hasMany para App\Models\SolicitacaoDocumento usando a
+     * foreign key padrão `aluno_id`.
+     */
+    public function solicitacoesDocumentos(): HasMany
+    {
+        return $this->hasMany(SolicitacaoDocumento::class);
+    }
+
     public function turmas()
     {
         return $this->belongsToMany(Turma::class, 'turma_aluno', 'aluno_id', 'turma_id')
