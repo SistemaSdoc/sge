@@ -99,6 +99,12 @@ class TutelaTenantService
                 'curso_tutelado_id' => $cursoTutelado->id,
             ]);
         });
+
+        // Copia os documentos do tutor para o tutelado (se já existirem)
+        \App\Jobs\Tenant\Tutela\SincronizarDocumentosPapTutelados::dispatch(
+            tenantTutorId: $shared->tenant_tutor_id,
+            cursoId: $shared->curso_id,
+        )->afterCommit();
     }
 
     /**
@@ -120,10 +126,7 @@ class TutelaTenantService
             'tipo_tutela_anterior' => $cursoTutelado->tipo_tutela,
         ]);
 
-        $tenant->run(function () use (
-            $cursoTutelado,
-            $instituicaoId
-        ): void {
+        $tenant->run(function () use ($cursoTutelado, $instituicaoId): void {
             Instituicao::query()->findOrFail($instituicaoId);
 
             $cursoTutelado->forceFill([
@@ -155,7 +158,7 @@ class TutelaTenantService
             $updated = GrupoPap::query()
                 ->whereHas(
                     'turma.cursoClasseTurno.cursoClasse',
-                    fn ($query) => $query->whereKey($cursoTutelado->getKey())
+                    fn($query) => $query->whereKey($cursoTutelado->getKey())
                 )
                 ->where('status', '!=', 'concluido')
                 ->where('status_aprovacao', '!=', 'arquivado')
@@ -179,7 +182,7 @@ class TutelaTenantService
     {
         $tenant = tenancy()->tenant;
 
-        if (! $tenant instanceof Tenant) {
+        if (!$tenant instanceof Tenant) {
             throw new \LogicException('O tenancy deve estar inicializado para executar uma operação tenant.');
         }
 

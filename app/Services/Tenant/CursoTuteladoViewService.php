@@ -274,6 +274,7 @@ class CursoTuteladoViewService
             'instituicaoCurso.curso:id,nome,descricao',
             'instituicaoCurso.instituicao:id,nome',
             'instituicaoTutora:id,nome',
+            'cursoTuteladoShared',  
             'cursoClasses.classe:id,nome',
             'cursoClasses.turnos.turno:id,nome',
             'cursoClasses.turnos' => function ($query) use ($anoLectivoId): void {

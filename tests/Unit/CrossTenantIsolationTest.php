@@ -5,6 +5,7 @@ use App\Actions\Tenant\CursoTutelado\UpdateCursoTutelado;
 use App\Enums\TutelaStatus;
 use App\Http\Controllers\Tenant\ExportarPautaController;
 use App\Http\Controllers\Tenant\NotificacaoController;
+use App\Http\Resources\Tenant\GrupoPap\ShowResource;
 use App\Jobs\Tenant\Tutela\SincronizarAssociacaoTutela;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
@@ -173,6 +174,53 @@ test('tutor consegue validar acesso ao colegio com vinculo activo', function ():
 
     expect($tenant->id)->toBe($this->tenantColegio->id)
         ->and($this->vinculo->fresh()->status)->toBe(TutelaStatus::ACTIVO);
+});
+
+test('o colegio usa os documentos do curso tutelado da instituicao tutora quando o curso externo nao tem ficheiros locais', function (): void {
+    $fixture = createPapFixtureForIsolationTest($this->tenantColegio, $this->vinculo->id, 'aprovado');
+    $this->vinculo->update([
+        'curso_tutelado_tutelado_id' => $fixture['cursoTutelado']->id,
+        'curso_id' => $fixture['curso']->id,
+    ]);
+
+    $this->tenantTutor->run(function () use ($fixture): void {
+        $instituicaoTutora = Instituicao::create([
+            'nome' => 'Instituto Tutor PAP',
+            'tipo' => 'instituto',
+        ]);
+        $this->tenantTutor->forceFill(['instituicao_id' => $instituicaoTutora->id])->save();
+
+        $instituicaoCurso = InstituicaoCurso::create([
+            'curso_id' => $fixture['curso']->id,
+            'instituicao_id' => $instituicaoTutora->id,
+            'duracao_anos' => 3,
+        ]);
+
+        $cursoTuteladoTutor = CursoTutelado::create([
+            'instituicao_curso_id' => $instituicaoCurso->id,
+            'instituicao_tutora_id' => $instituicaoTutora->id,
+            'tipo_tutela' => 'propria',
+        ]);
+
+        Storage::disk('public')->put('pap/criterios-pap.pdf', 'conteudo-criterios');
+        Storage::disk('public')->put('pap/manual-pt.pdf', 'conteudo-manual');
+        Storage::disk('public')->put('pap/estrutura-trabalho-pap.pdf', 'conteudo-estrutura');
+
+        $cursoTuteladoTutor->update([
+            'criterios_pap_path' => 'pap/criterios-pap.pdf',
+            'manual_pt_path' => 'pap/manual-pt.pdf',
+            'estrutura_trabalho_pap_path' => 'pap/estrutura-trabalho-pap.pdf',
+        ]);
+    });
+
+    $this->tenantColegio->run(function () use ($fixture): void {
+        $resource = new ShowResource($fixture['grupo']);
+        $data = $resource->toArray(request());
+
+        expect($data['criterios_pap_url'])->not->toBeNull()
+            ->and($data['manual_pt_url'])->not->toBeNull()
+            ->and($data['estrutura_trabalho_pap_url'])->not->toBeNull();
+    });
 });
 
 test('apenas o coordenador do curso central consegue operar no grupo remoto', function (): void {

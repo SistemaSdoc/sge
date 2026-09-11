@@ -68,4 +68,62 @@ class CursoTutelado extends Model
             ->withPivot('id', 'tipo', 'coordenador')
             ->withTimestamps();
     }
+
+    /**
+     * Resolve os paths dos documentos PAP.
+     * Se tipo_tutela = externa, atravessa para o tenant tutor via shared.
+     */
+    public function resolverDocumentosPap(): array
+    {
+        $empty = [
+            'criterios_pap_path' => null,
+            'manual_pt_path' => null,
+            'estrutura_trabalho_pap_path' => null,
+        ];
+
+        // Tem documentos locais — usa-os directamente
+        if ($this->criterios_pap_path || $this->manual_pt_path || $this->estrutura_trabalho_pap_path) {
+            return [
+                'criterios_pap_path' => $this->criterios_pap_path,
+                'manual_pt_path' => $this->manual_pt_path,
+                'estrutura_trabalho_pap_path' => $this->estrutura_trabalho_pap_path,
+            ];
+        }
+
+        // Tutela externa — vai buscar ao tenant tutor
+        if ($this->tipo_tutela !== 'externa' || !$this->curso_tutelado_shared_id) {
+            return $empty;
+        }
+
+        // Usa a relação já carregada (eager) ou faz lazy load
+        $shared = $this->relationLoaded('cursoTuteladoShared')
+            ? $this->cursoTuteladoShared
+            : $this->cursoTuteladoShared()->first();
+
+        if (!$shared?->tenant_tutor_id || !$shared?->curso_id) {
+            return $empty;
+        }
+
+        $tenantTutor = \App\Models\Central\Tenant::find($shared->tenant_tutor_id);
+
+        if (!$tenantTutor) {
+            return $empty;
+        }
+
+        return $tenantTutor->run(function () use ($shared): array {
+            $tutor = CursoTutelado::query()
+                ->where('tipo_tutela', 'propria')
+                ->whereHas(
+                    'instituicaoCurso',
+                    fn($q) => $q->where('curso_id', $shared->curso_id)
+                )
+                ->first(['criterios_pap_path', 'manual_pt_path', 'estrutura_trabalho_pap_path']);
+
+            return [
+                'criterios_pap_path' => $tutor?->criterios_pap_path,
+                'manual_pt_path' => $tutor?->manual_pt_path,
+                'estrutura_trabalho_pap_path' => $tutor?->estrutura_trabalho_pap_path,
+            ];
+        });
+    }
 }
