@@ -6,6 +6,7 @@ use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Instituicao;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
@@ -84,7 +85,11 @@ class PropinaEmAtrasoNotification extends Notification implements ShouldQueue
         // Instituição (se não passada, tenta buscar da relação)
         $instituicao = $this->instituicao ?? ($aluno?->user?->instituicao ?? null);
         $instituicaoNome = $instituicao?->nome ?? config('app.name');
-        $instituicaoLogotipo = $instituicao?->logo ? Storage::url($instituicao->logo) : null;
+        /** @var FilesystemAdapter $publicDisk */
+        $publicDisk = Storage::disk('public');
+        $instituicaoLogotipo = $instituicao?->logo
+            ? $publicDisk->url($instituicao->logo)
+            : null;
 
         // Monta a lista de meses com valores (base + multa) se disponível
         $linhasPendencias = [];

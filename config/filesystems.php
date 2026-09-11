@@ -39,18 +39,17 @@ return [
         ],
 
         'public' => [
-            'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'driver' => 'scoped',
+            'disk' => 's3',
+            'prefix' => env('AWS_PUBLIC_PREFIX', 'public'),
             'visibility' => 'public',
-            'throw' => false,
-            'report' => false,
+            'throw' => true,
         ],
 
-        // ← adicionar isto
         'private' => [
-            'driver' => 'local',
-            'root' => storage_path('app/private'),
+            'driver' => 'scoped',
+            'disk' => 's3',
+            'prefix' => env('AWS_PRIVATE_PREFIX', 'private'),
             'visibility' => 'private',
             'throw' => true,
         ],
@@ -64,8 +63,7 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
-            'report' => false,
+            'throw' => true,
         ],
 
     ],

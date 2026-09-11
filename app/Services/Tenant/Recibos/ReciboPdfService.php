@@ -5,7 +5,7 @@ namespace App\Services\Tenant\Recibos;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Pagamento;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -22,19 +22,20 @@ class ReciboPdfService
             return false;
         }
 
-        $ficheiro = $disco->path($caminho);
-        if (! is_file($ficheiro) || ! is_readable($ficheiro)) {
+        $stream = $disco->readStream($caminho);
+        if (! is_resource($stream)) {
             return false;
         }
 
-        $conteudo = file_get_contents($ficheiro, false, null, 0, 5);
+        $conteudo = fread($stream, 5);
+        fclose($stream);
 
         return \is_string($conteudo) && str_starts_with($conteudo, '%PDF-');
     }
 
-    public function caminhoAbsoluto(string $caminho): string
+    public function conteudo(string $caminho): string
     {
-        return $this->disco()->path($caminho);
+        return $this->disco()->get($caminho);
     }
 
     public function gerar(Pagamento $pagamento, string $numeroRecibo): string
@@ -56,6 +57,7 @@ class ReciboPdfService
             'pagamento' => $pagamento,
             'instituicao' => $instituicao,
             'numeroRecibo' => $numeroRecibo,
+            'logoBase64' => $this->logoBase64($instituicao),
         ])->output();
 
         if (! str_starts_with($conteudo, '%PDF-')) {
@@ -65,11 +67,6 @@ class ReciboPdfService
         $caminho = "recibos/{$pagamento->instituicao_id}/{$numeroRecibo}.pdf";
         $temporario = "{$caminho}.tmp-".Str::uuid();
         $disco = $this->disco();
-        $diretorio = "recibos/{$pagamento->instituicao_id}";
-
-        if (! $disco->makeDirectory($diretorio)) {
-            throw new \RuntimeException("Não foi possível criar o diretório [{$diretorio}].");
-        }
 
         try {
             if (! $disco->put($temporario, $conteudo)) {
@@ -88,7 +85,27 @@ class ReciboPdfService
         return $caminho;
     }
 
-    private function disco(): FilesystemAdapter
+    private function logoBase64(Instituicao $instituicao): ?string
+    {
+        if (! $instituicao->logo || ! Storage::disk('public')->exists($instituicao->logo)) {
+            return null;
+        }
+
+        $extensao = strtolower(pathinfo($instituicao->logo, PATHINFO_EXTENSION));
+        $mime = match ($extensao) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'gif' => 'image/gif',
+            'webp' => 'image/webp',
+            default => null,
+        };
+
+        return $mime
+            ? "data:{$mime};base64,".base64_encode(Storage::disk('public')->get($instituicao->logo))
+            : null;
+    }
+
+    private function disco(): Filesystem
     {
         return Storage::disk('private');
     }

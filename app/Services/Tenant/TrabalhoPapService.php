@@ -53,9 +53,8 @@ class TrabalhoPapService
                 'private_root_escrevivel' => is_writable(config('filesystems.disks.private.root')),
             ]);
 
-            $caminho = $ficheiro->storeAs(
+            $caminho = $ficheiro->store(
                 "trabalhos_pap/{$trabalho->grupo_pap_id}",
-                "v{$numeroVersao}_{$ficheiro->getClientOriginalName()}",
                 'private'
             );
 
@@ -234,9 +233,8 @@ class TrabalhoPapService
                     default => 'correcao',
                 };
 
-                $caminhoCorrecao = $ficheiroCorrecao->storeAs(
-                    "trabalhos_pap/{$trabalho->grupo_pap_id}/correcoes",
-                    "{$prefixo}_v{$versaoAtual?->numero_versao}_{$ficheiroCorrecao->getClientOriginalName()}",
+                $caminhoCorrecao = $ficheiroCorrecao->store(
+                    "trabalhos_pap/{$trabalho->grupo_pap_id}/correcoes/{$prefixo}-v{$versaoAtual?->numero_versao}",
                     'private'
                 );
                 $nomeOriginalCorrecao = $ficheiroCorrecao->getClientOriginalName();

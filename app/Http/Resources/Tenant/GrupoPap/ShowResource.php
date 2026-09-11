@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Tenant\GrupoPap;
 
 use App\Models\Tenant\CursoTutelado;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -67,7 +68,7 @@ class ShowResource extends JsonResource
                         ->value('criterios_pap_path');
                 }
 
-                return $path ? Storage::url($path) : null;
+                return $path ? $this->publicStorageUrl($path) : null;
             })(),
             'manual_pt_url' => (function () {
                 $cursoTutelado = $this->turma
@@ -95,7 +96,7 @@ class ShowResource extends JsonResource
                         ->value('manual_pt_path');
                 }
 
-                return $path ? Storage::url($path) : null;
+                return $path ? $this->publicStorageUrl($path) : null;
             })(),
             'estrutura_trabalho_pap_url' => (function () {
                 $cursoTutelado = $this->turma
@@ -123,12 +124,20 @@ class ShowResource extends JsonResource
                         ->value('estrutura_trabalho_pap_path');
                 }
 
-                return $path ? Storage::url($path) : null;
+                return $path ? $this->publicStorageUrl($path) : null;
             })(),
             'aprovado_por' => $this->aprovadoPor ? [
                 'id' => $this->aprovadoPor->id,
                 'nome' => $this->aprovadoPor->nome ?? null,
             ] : null,
         ];
+    }
+
+    private function publicStorageUrl(string $path): string
+    {
+        /** @var FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+
+        return $disk->url($path);
     }
 }

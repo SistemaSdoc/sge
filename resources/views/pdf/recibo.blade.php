@@ -60,7 +60,7 @@
     {{-- Cabeçalho = identificação do colégio emissor, não pagador --}}
     <div class="header">
         @if($instituicao->logo ?? false)
-            <img src="{{ public_path('storage/' . $instituicao->logo) }}" style="max-height:70px;">
+            <img src="{{ $logoBase64 ?? '' }}" style="max-height:70px;">
         @endif
         <h1>{{ $instituicao->nome }}</h1>
         <p>{{ $instituicao->morada ?? '' }}</p>

@@ -4,9 +4,11 @@ namespace App\Http\Resources\Tenant\CursoTutelado;
 
 use App\Enums\TutelaStatus;
 use App\Models\Central\CursoTuteladoShared;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 
 class CursoTuteladoResourceShow extends JsonResource
 {
@@ -130,13 +132,13 @@ class CursoTuteladoResourceShow extends JsonResource
             'professores' => $professores->toArray(),
             'turmas' => $turmas->toArray(),
             'criterios_pap_url' => $this->criterios_pap_path
-                ? $request->getSchemeAndHttpHost().'/storage/'.$this->criterios_pap_path
+                ? $this->publicStorageUrl($this->criterios_pap_path)
                 : null,
             'manual_pt_url' => $this->manual_pt_path
-                ? $request->getSchemeAndHttpHost().'/storage/'.$this->manual_pt_path
+                ? $this->publicStorageUrl($this->manual_pt_path)
                 : null,
             'estrutura_trabalho_pap_url' => $this->estrutura_trabalho_pap_path
-                ? $request->getSchemeAndHttpHost().'/storage/'.$this->estrutura_trabalho_pap_path
+                ? $this->publicStorageUrl($this->estrutura_trabalho_pap_path)
                 : null,
             'can' => [
                 'update' => $request->user()?->can('update', $this->resource) ?? false,
@@ -147,5 +149,13 @@ class CursoTuteladoResourceShow extends JsonResource
                 'uploadEstruturaTrabalhoPap' => $request->user()->can('update', $this->resource),
             ],
         ];
+    }
+
+    private function publicStorageUrl(string $path): string
+    {
+        /** @var FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+
+        return $disk->url($path);
     }
 }
