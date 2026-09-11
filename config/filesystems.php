@@ -42,7 +42,7 @@ return [
             'driver' => 'scoped',
             'disk' => 's3',
             'prefix' => env('AWS_PUBLIC_PREFIX', 'public'),
-            'visibility' => 'public',
+            'visibility' => 'private',
             'throw' => true,
         ],
 

@@ -4,11 +4,9 @@ namespace App\Http\Resources\Tenant\CursoTutelado;
 
 use App\Enums\TutelaStatus;
 use App\Models\Central\CursoTuteladoShared;
-use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Storage;
 
 class CursoTuteladoResourceShow extends JsonResource
 {
@@ -153,9 +151,6 @@ class CursoTuteladoResourceShow extends JsonResource
 
     private function publicStorageUrl(string $path): string
     {
-        /** @var FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
-
-        return $disk->url($path);
+        return route('tenant.storage', ['path' => $path]);
     }
 }
