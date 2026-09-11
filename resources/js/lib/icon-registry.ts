@@ -1,5 +1,6 @@
 import {
   Bell,
+  BarChart3,
   BookOpen,
   Building2,
   ClipboardList,
@@ -23,6 +24,7 @@ import type { LucideIcon } from 'lucide-react';
 
 export const iconRegistry: Record<string, LucideIcon> = {
   Bell,
+  BarChart3,
   BookOpen,
   Building2,
   ClipboardList,

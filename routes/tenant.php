@@ -52,6 +52,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use App\Http\Controllers\Tenant\RelatorioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -358,6 +359,14 @@ Route::middleware([
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/professores', [TurmaDisciplinaProfessorController::class, 'store'])
                 ->name('turma.disciplinas.professores.store');
 
+
+                /*
+            |--------------------------------------------------------------------------
+            | Relatorio geral do tenant
+            |--------------------------------------------------------------------------
+            */
+            Route::get('/relatorios', [RelatorioController::class, 'index'])
+                 ->name('relatorios.index'); 
             /*
             |--------------------------------------------------------------------------
             | Horários de Disciplinas de Turmas
