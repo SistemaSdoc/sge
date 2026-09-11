@@ -19,9 +19,10 @@ import {
   solicitacaoDocumentoStatusLabels,
   solicitacaoDocumentoStatusClassNames,
 } from '@/utils/solicitacao-documento-status';
+import RequestHistoryDrawer from '@/components/RequestHistoryDrawer';
 
 export default function EmissaoSolicitacoesDocumentosPage() {
-  const { solicitacoes = [] } = usePage().props;
+  const { solicitacoes = [], ver = null } = usePage().props;
   const form = useForm({ numero_registro_tutora: '' });
   const [errors, setErrors] = useState([]);
 
@@ -43,11 +44,17 @@ export default function EmissaoSolicitacoesDocumentosPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Emissão de documentos</h1>
-        <p className="text-sm text-muted-foreground">
-          Valide o número de registo da tutela e emita os documentos aprovados.
-        </p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Emissão de documentos</h1>
+          <p className="text-sm text-muted-foreground">
+            Valide o número de registo da tutela e emita os documentos aprovados.
+          </p>
+        </div>
+
+        <div>
+        <RequestHistoryDrawer viewType="received" items={ver === 'historico' ? solicitacoes : undefined} />
+        </div>
       </div>
 
       <div className="space-y-4">

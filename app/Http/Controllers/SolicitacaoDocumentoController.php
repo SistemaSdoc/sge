@@ -16,8 +16,14 @@ class SolicitacaoDocumentoController extends Controller
 {
     /**
      * Página do aluno – lista as suas solicitações.
+     *
+     * Modo "Estado dos pedidos" (predefinido): mostra apenas pedidos em curso
+     * (exclui entregues e rejeitados).
+     *
+     * Modo "Histórico" (?ver=historico): mostra apenas pedidos com estado
+     * final (rejeitado / entregue).
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $user = Auth::user();
         $aluno = optional($user)->aluno;
@@ -29,11 +35,6 @@ class SolicitacaoDocumentoController extends Controller
 
         $classeAtual = $classeAtual ?? ($aluno?->turmaActual()->first()?->classe ?? null);
 
-        // Um curso só é "realmente tutelado" quando a instituição responsável
-        // é de facto do tipo 'instituto'. Por defeito, ao criar um curso
-        // tutelado, o sistema preenche instituicao_tutora_id com a própria
-        // instituição (o colégio) até alguém a editar manualmente — isso NÃO
-        // conta como tutela real e não deve liberar o pedido de certificado.
         $temTutelaInstituto = $cursoTuteladoAtual?->instituicaoTutora?->tipo === 'instituto';
         $podeCertificado = ($classeAtual?->emite_certificado ?? false) && $temTutelaInstituto;
 
@@ -43,8 +44,22 @@ class SolicitacaoDocumentoController extends Controller
             $tipos[] = config('documentos.certificado');
         }
 
-        $solicitacoes = $aluno
+        $modoHistorico = $request->query('ver') === 'historico';
+
+        $solicitacoesQuery = $aluno
             ? $aluno->solicitacoesDocumentos()
+            : null;
+
+        if ($solicitacoesQuery) {
+            if ($modoHistorico) {
+                $solicitacoesQuery->whereIn('status', ['rejeitado', 'entregue']);
+            } else {
+                $solicitacoesQuery->whereNotIn('status', ['entregue', 'rejeitado']);
+            }
+        }
+
+        $solicitacoes = $solicitacoesQuery
+            ? $solicitacoesQuery
                 ->orderByDesc('created_at')
                 ->get()
                 ->map(fn(SolicitacaoDocumento $solicitacao) => [
@@ -69,18 +84,34 @@ class SolicitacaoDocumentoController extends Controller
                     'can_marcar_pago' => $this->marcarComoPago($solicitacao),
                     'can_marcar_pronto' => $this->marcarComoPronto($solicitacao),
                     'can_marcar_levantado' => $this->marcarComoLevantadoPermission($solicitacao),
-                    'can_delete' => $this->deletePermission($solicitacao),
                 ])
             : [];
 
         $elegibilidade = new ElegibilidadeDocumentoService;
         $classesDisponiveis = $aluno ? $elegibilidade->classesDisponiveisParaDeclaracao($aluno) : [];
 
+        $bloqueiosTipo = [];
+        if ($aluno) {
+            foreach ($tipos as $tipoConfig) {
+                $tipoValor = $tipoConfig['value'] ?? $tipoConfig;
+                if (! is_string($tipoValor)) {
+                    continue;
+                }
+
+                $bloqueio = $this->verificarBloqueioSolicitacao($aluno, $tipoValor);
+                if ($bloqueio) {
+                    $bloqueiosTipo[$tipoValor] = $bloqueio;
+                }
+            }
+        }
+
         return Inertia::render('dashboards/aluno/solicitacoes-documentos/index', [
             'solicitacoes' => $solicitacoes,
             'tipos' => $tipos,
             'classes_disponiveis' => $classesDisponiveis,
             'pode_certificado' => $podeCertificado,
+            'bloqueios_tipo' => $bloqueiosTipo,
+            'ver' => $request->query('ver'),          // ← NOVO: 'historico' ou null
             'curso_atual' => $cursoAtual ? ['id' => $cursoAtual->id, 'nome' => $cursoAtual->nome] : null,
             'turma_atual' => $turmaAtual ? ['id' => $turmaAtual->id, 'nome' => $turmaAtual->nome] : null,
             'classe_atual' => $classeAtual ? ['id' => $classeAtual->id, 'nome' => $classeAtual->nome] : null,
@@ -101,6 +132,11 @@ class SolicitacaoDocumentoController extends Controller
             return back()->withErrors(['aluno' => 'Não foi possível identificar o aluno autenticado.']);
         }
 
+        $bloqueio = $this->verificarBloqueioSolicitacao($aluno, $validated['tipo_documento']);
+        if ($bloqueio) {
+            return back()->withErrors(['tipo_documento' => $bloqueio['mensagem']]);
+        }
+
         $turmaAtual = $aluno->turmaActual()->first() ?? $aluno->turmas()->orderByDesc('created_at')->first();
         $cursoTutelado = $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado;
         $cursoAtual = $cursoTutelado?->instituicaoCurso?->curso;
@@ -112,8 +148,6 @@ class SolicitacaoDocumentoController extends Controller
         $validated['classe_id'] ??= $classeAtual?->id;
         $validated['ano_lectivo_id'] ??= $anoLectivoAtual?->id;
 
-        // A tutora só é considerada "real" quando a instituição responsável
-        // pelo curso tutelado é de facto do tipo 'instituto'. Ver nota em index().
         $temTutelaInstitutoReal = $cursoTutelado?->instituicaoTutora?->tipo === 'instituto';
         $instituicaoTutoraCurso = $temTutelaInstitutoReal ? $cursoTutelado->instituicao_tutora_id : null;
 
@@ -130,10 +164,6 @@ class SolicitacaoDocumentoController extends Controller
         $instituicaoOrigem = $aluno->instituicao_id ?? $request->user()?->instituicao_id;
         $instituicaoEmissora = $validated['instituicao_emissora_id'] ?? $instituicaoOrigem;
 
-        // Para certificado usamos apenas a tutora real (instituto). Para os
-        // demais tipos, guarda a tutora do curso tutelado se existir (apenas
-        // como referência/relatório — não afeta quem decide o pedido), sem
-        // nunca cair por defeito na própria instituição de origem.
         $instituicaoTutora = $validated['tipo_documento'] === 'certificado'
             ? $instituicaoTutoraCurso
             : $cursoTutelado?->instituicao_tutora_id;
@@ -146,7 +176,7 @@ class SolicitacaoDocumentoController extends Controller
             'ano_lectivo_id' => $validated['ano_lectivo_id'] ?? null,
             'instituicao_origem_id' => $instituicaoOrigem,
             'instituicao_tutora_id' => $instituicaoTutora,
-            'instituicao_aprovadora_id' => null, // só será preenchido na aprovação
+            'instituicao_aprovadora_id' => null,
             'instituicao_emissora_id' => $instituicaoEmissora,
             'tipo_documento' => $validated['tipo_documento'],
             'motivo' => $validated['motivo'],
@@ -169,10 +199,11 @@ class SolicitacaoDocumentoController extends Controller
     }
 
     /**
-     * Página do colégio – lista solicitações cuja origem é o próprio colégio.
-     * Apenas utilizadores com instituição do tipo 'colegio' podem aceder.
+     * Página do colégio.
+     * - Predefinido: Estado dos pedidos (em curso)
+     * - ?ver=historico: Histórico (rejeitado + entregue)
      */
-    public function colegioIndex(): Response
+    public function colegioIndex(Request $request): Response
     {
         $user = Auth::user();
 
@@ -186,17 +217,24 @@ class SolicitacaoDocumentoController extends Controller
         }
 
         $instituicaoId = $instituicao->id;
+        $modoHistorico = $request->query('ver') === 'historico';
 
-        $solicitacoes = SolicitacaoDocumento::query()
-            ->where('instituicao_origem_id', $instituicaoId)
-            ->whereIn('status', ['pendente', 'aprovado', 'pago', 'pronto', 'entregue', 'rejeitado'])
+        $query = SolicitacaoDocumento::query()->where('instituicao_origem_id', $instituicaoId);
+
+        if ($modoHistorico) {
+            $query->whereIn('status', ['rejeitado', 'entregue']);
+        } else {
+            $query->whereNotIn('status', ['entregue', 'rejeitado']);
+        }
+
+        $solicitacoes = $query
             ->orderByDesc('created_at')
             ->get()
             ->map(fn(SolicitacaoDocumento $solicitacao) => [
                 'id' => $solicitacao->id,
                 'tipo_documento' => $solicitacao->tipo_documento,
                 'tipo_label' => $solicitacao->tipoLabel,
-                'numero_processo' => $solicitacao->numero_processo,
+                'numero_processo' => $solicitacao->aluno?->numero_processo ?? $solicitacao->numero_processo,
                 'motivo' => $solicitacao->motivo,
                 'observacoes' => $solicitacao->observacoes,
                 'status' => $solicitacao->status,
@@ -210,6 +248,7 @@ class SolicitacaoDocumentoController extends Controller
                 'encaminhado_para_tutela' => (bool) $solicitacao->data_aprovacao,
                 'encaminhado_em' => $solicitacao->data_aprovacao?->format('d/m/Y H:i'),
                 'aluno' => $solicitacao->aluno?->user?->nome,
+                'numero_estudante' => $solicitacao->aluno?->user?->numero_estudante,
                 'created_at' => $solicitacao->created_at?->format('d/m/Y H:i'),
                 'rupe_referencia' => $solicitacao->rupe_referencia,
                 'rupe_entidade' => $solicitacao->rupe_entidade,
@@ -223,6 +262,7 @@ class SolicitacaoDocumentoController extends Controller
 
         return Inertia::render('dashboards/colegio/solicitacoes-documentos/index', [
             'solicitacoes' => $solicitacoes,
+            'ver' => $request->query('ver'),          // ← NOVO
             'instituicao_id' => $instituicaoId,
         ]);
     }
@@ -250,11 +290,11 @@ class SolicitacaoDocumentoController extends Controller
     }
 
     /**
-     * Página da tutela – lista solicitações que a tutela tutela.
-     * Apenas utilizadores com instituição do tipo 'instituto' podem aceder.
-     * Distingue entre solicitações locais (origem = tutora) e tuteladas (origem != tutora).
+     * Página da tutela.
+     * - Predefinido: Estado dos pedidos (em curso)
+     * - ?ver=historico: Histórico (rejeitado + entregue)
      */
-    public function tutelaIndex(): Response
+    public function tutelaIndex(Request $request): Response
     {
         $user = Auth::user();
 
@@ -268,18 +308,32 @@ class SolicitacaoDocumentoController extends Controller
         }
 
         $instituicaoId = $instituicao->id;
+        $modoHistorico = $request->query('ver') === 'historico';
 
-        $solicitacoesLocais = SolicitacaoDocumento::query()
+        $queryLocais = SolicitacaoDocumento::query()
             ->where('instituicao_tutora_id', $instituicaoId)
-            ->where('instituicao_origem_id', $instituicaoId)
-            ->whereIn('status', ['pendente', 'aprovado', 'pago', 'pronto', 'entregue', 'rejeitado'])
+            ->where('instituicao_origem_id', $instituicaoId);
+
+        $queryTuteladas = SolicitacaoDocumento::query()
+            ->where('instituicao_tutora_id', $instituicaoId)
+            ->where('instituicao_origem_id', '!=', $instituicaoId);
+
+        if ($modoHistorico) {
+            $queryLocais->whereIn('status', ['rejeitado', 'entregue']);
+            $queryTuteladas->whereIn('status', ['rejeitado', 'entregue']);
+        } else {
+            $queryLocais->whereNotIn('status', ['entregue', 'rejeitado']);
+            $queryTuteladas->whereNotIn('status', ['entregue', 'rejeitado']);
+        }
+
+        $solicitacoesLocais = $queryLocais
             ->orderByDesc('created_at')
             ->get()
             ->map(fn(SolicitacaoDocumento $solicitacao) => [
                 'id' => $solicitacao->id,
                 'tipo_documento' => $solicitacao->tipo_documento,
                 'tipo_label' => $solicitacao->tipoLabel,
-                'numero_processo' => $solicitacao->numero_processo,
+                'numero_processo' => $solicitacao->aluno?->numero_processo ?? $solicitacao->numero_processo,
                 'motivo' => $solicitacao->motivo,
                 'observacoes' => $solicitacao->observacoes,
                 'status' => $solicitacao->status,
@@ -292,6 +346,7 @@ class SolicitacaoDocumentoController extends Controller
                 'data_levantamento' => $solicitacao->data_levantamento?->format('d/m/Y H:i'),
                 'encaminhado_para_tutela' => (bool) $solicitacao->data_aprovacao,
                 'aluno' => $solicitacao->aluno?->user?->nome,
+                'numero_estudante' => $solicitacao->aluno?->user?->numero_estudante,
                 'origem' => $solicitacao->instituicaoOrigem?->nome ?? 'Instituição',
                 'created_at' => $solicitacao->created_at?->format('d/m/Y H:i'),
                 'can_decidir' => $this->decidir($solicitacao),
@@ -301,17 +356,14 @@ class SolicitacaoDocumentoController extends Controller
                 'can_delete' => $this->deletePermission($solicitacao),
             ]);
 
-        $solicitacoesTuteladas = SolicitacaoDocumento::query()
-            ->where('instituicao_tutora_id', $instituicaoId)
-            ->where('instituicao_origem_id', '!=', $instituicaoId)
-            ->whereIn('status', ['pendente', 'aprovado', 'pago', 'pronto', 'entregue', 'rejeitado'])
+        $solicitacoesTuteladas = $queryTuteladas
             ->orderByDesc('created_at')
             ->get()
             ->map(fn(SolicitacaoDocumento $solicitacao) => [
                 'id' => $solicitacao->id,
                 'tipo_documento' => $solicitacao->tipo_documento,
                 'tipo_label' => $solicitacao->tipoLabel,
-                'numero_processo' => $solicitacao->numero_processo,
+                'numero_processo' => $solicitacao->aluno?->numero_processo ?? $solicitacao->numero_processo,
                 'motivo' => $solicitacao->motivo,
                 'observacoes' => $solicitacao->observacoes,
                 'status' => $solicitacao->status,
@@ -324,6 +376,7 @@ class SolicitacaoDocumentoController extends Controller
                 'data_levantamento' => $solicitacao->data_levantamento?->format('d/m/Y H:i'),
                 'encaminhado_para_tutela' => (bool) $solicitacao->data_aprovacao,
                 'aluno' => $solicitacao->aluno?->user?->nome,
+                'numero_estudante' => $solicitacao->aluno?->user?->numero_estudante,
                 'origem' => $solicitacao->instituicaoOrigem?->nome ?? 'Colégio',
                 'created_at' => $solicitacao->created_at?->format('d/m/Y H:i'),
                 'can_decidir' => $this->decidir($solicitacao),
@@ -336,9 +389,147 @@ class SolicitacaoDocumentoController extends Controller
         return Inertia::render('dashboards/tutela/solicitacoes-documentos/index', [
             'solicitacoes_locais' => $solicitacoesLocais,
             'solicitacoes_tuteladas' => $solicitacoesTuteladas,
+            'ver' => $request->query('ver'),          // ← NOVO
             'instituicao_id' => $instituicaoId,
         ]);
     }
+
+    /**
+     * Retorna o HISTÓRICO de solicitações para uso dinâmico via AJAX.
+     * (Mantém-se igual — devolve só rejeitado/entregue.)
+     */
+    public function history(Request $request)
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return response()->json(['message' => 'Não autorizado'], 401);
+        }
+
+        $estadosFinais = ['rejeitado', 'entregue'];
+
+        if ($user->hasRole('Aluno') || $user->hasRole('Candidato')) {
+            $aluno = $user->aluno;
+            if (! $aluno) {
+                return response()->json(['data' => []]);
+            }
+
+            $solicitacoes = $aluno->solicitacoesDocumentos()
+                ->whereIn('status', $estadosFinais)
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(fn(SolicitacaoDocumento $solicitacao) => [
+                    'id' => $solicitacao->id,
+                    'tipo_documento' => $solicitacao->tipo_documento,
+                    'tipo_label' => $solicitacao->tipoLabel,
+                    'motivo' => $solicitacao->motivo,
+                    'status' => $solicitacao->status,
+                    'observacoes' => $solicitacao->observacoes,
+                    'responsavel_instituicao_id' => $solicitacao->instituicaoResponsavelId(),
+                    'instituicao_tutora_id' => $solicitacao->instituicao_tutora_id,
+                    'estado_pagamento' => $solicitacao->estado_pagamento ?? 'pendente',
+                    'data_pagamento_confirmado' => $solicitacao->data_pagamento_confirmado?->format('d/m/Y H:i'),
+                    'data_emissao' => $solicitacao->data_emissao?->format('d/m/Y H:i'),
+                    'documento_gerado' => (bool) $solicitacao->data_emissao,
+                    'data_levantamento' => $solicitacao->data_levantamento?->format('d/m/Y H:i'),
+                    'created_at' => $solicitacao->created_at?->format('d/m/Y H:i'),
+                    'rupe_referencia' => $solicitacao->rupe_referencia,
+                    'rupe_entidade' => $solicitacao->rupe_entidade,
+                    'rupe_valor' => $solicitacao->rupe_valor,
+                    'can_decidir' => $this->decidir($solicitacao),
+                    'can_marcar_pago' => $this->marcarComoPago($solicitacao),
+                    'can_marcar_pronto' => $this->marcarComoPronto($solicitacao),
+                    'can_marcar_levantado' => $this->marcarComoLevantadoPermission($solicitacao),
+                ]);
+
+            return response()->json(['data' => $solicitacoes]);
+        }
+
+        $instituicao = $user?->instituicao;
+        if (! $instituicao) {
+            return response()->json(['data' => []]);
+        }
+
+        $instituicaoId = $instituicao->id;
+
+        if ($instituicao->tipo === 'colegio') {
+            $solicitacoes = SolicitacaoDocumento::query()
+                ->where('instituicao_origem_id', $instituicaoId)
+                ->whereIn('status', $estadosFinais)
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(fn(SolicitacaoDocumento $solicitacao) => [
+                    'id' => $solicitacao->id,
+                    'tipo_documento' => $solicitacao->tipo_documento,
+                    'tipo_label' => $solicitacao->tipoLabel,
+                    'numero_processo' => $solicitacao->aluno?->numero_processo ?? $solicitacao->numero_processo,
+                    'motivo' => $solicitacao->motivo,
+                    'observacoes' => $solicitacao->observacoes,
+                    'status' => $solicitacao->status,
+                    'responsavel_instituicao_id' => $solicitacao->instituicaoResponsavelId(),
+                    'instituicao_tutora_id' => $solicitacao->instituicao_tutora_id,
+                    'estado_pagamento' => $solicitacao->estado_pagamento ?? 'pendente',
+                    'data_pagamento_confirmado' => $solicitacao->data_pagamento_confirmado?->format('d/m/Y H:i'),
+                    'data_emissao' => $solicitacao->data_emissao?->format('d/m/Y H:i'),
+                    'documento_gerado' => (bool) $solicitacao->data_emissao,
+                    'data_levantamento' => $solicitacao->data_levantamento?->format('d/m/Y H:i'),
+                    'encaminhado_para_tutela' => (bool) $solicitacao->data_aprovacao,
+                    'encaminhado_em' => $solicitacao->data_aprovacao?->format('d/m/Y H:i'),
+                    'aluno' => $solicitacao->aluno?->user?->nome,
+                    'numero_estudante' => $solicitacao->aluno?->user?->numero_estudante,
+                    'created_at' => $solicitacao->created_at?->format('d/m/Y H:i'),
+                    'rupe_referencia' => $solicitacao->rupe_referencia,
+                    'rupe_entidade' => $solicitacao->rupe_entidade,
+                    'rupe_valor' => $solicitacao->rupe_valor,
+                    'can_decidir' => $this->decidir($solicitacao),
+                    'can_marcar_pago' => $this->marcarComoPago($solicitacao),
+                    'can_marcar_pronto' => $this->marcarComoPronto($solicitacao),
+                    'can_marcar_levantado' => $this->marcarComoLevantadoPermission($solicitacao),
+                    'can_delete' => $this->deletePermission($solicitacao),
+                ]);
+
+            return response()->json(['data' => $solicitacoes]);
+        }
+
+        if ($instituicao->tipo === 'instituto') {
+            $solicitacoes = SolicitacaoDocumento::query()
+                ->where('instituicao_tutora_id', $instituicaoId)
+                ->whereIn('status', $estadosFinais)
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(fn(SolicitacaoDocumento $solicitacao) => [
+                    'id' => $solicitacao->id,
+                    'tipo_documento' => $solicitacao->tipo_documento,
+                    'tipo_label' => $solicitacao->tipoLabel,
+                    'numero_processo' => $solicitacao->aluno?->numero_processo ?? $solicitacao->numero_processo,
+                    'motivo' => $solicitacao->motivo,
+                    'observacoes' => $solicitacao->observacoes,
+                    'status' => $solicitacao->status,
+                    'responsavel_instituicao_id' => $solicitacao->instituicaoResponsavelId(),
+                    'instituicao_tutora_id' => $solicitacao->instituicao_tutora_id,
+                    'estado_pagamento' => $solicitacao->estado_pagamento ?? 'pendente',
+                    'data_pagamento_confirmado' => $solicitacao->data_pagamento_confirmado?->format('d/m/Y H:i'),
+                    'data_emissao' => $solicitacao->data_emissao?->format('d/m/Y H:i'),
+                    'documento_gerado' => (bool) $solicitacao->data_emissao,
+                    'data_levantamento' => $solicitacao->data_levantamento?->format('d/m/Y H:i'),
+                    'encaminhado_para_tutela' => (bool) $solicitacao->data_aprovacao,
+                    'aluno' => $solicitacao->aluno?->user?->nome,
+                    'numero_estudante' => $solicitacao->aluno?->user?->numero_estudante,
+                    'origem' => $solicitacao->instituicaoOrigem?->nome ?? 'Instituição',
+                    'created_at' => $solicitacao->created_at?->format('d/m/Y H:i'),
+                    'can_decidir' => $this->decidir($solicitacao),
+                    'can_marcar_pago' => $this->marcarComoPago($solicitacao),
+                    'can_marcar_pronto' => $this->marcarComoPronto($solicitacao),
+                    'can_marcar_levantado' => $this->marcarComoLevantadoPermission($solicitacao),
+                    'can_delete' => $this->deletePermission($solicitacao),
+                ]);
+
+            return response()->json(['data' => $solicitacoes]);
+        }
+
+        return response()->json(['data' => []]);
+    }
+
     /**
      * Envia um pedido pendente para a tutela (apenas para colégios).
      */
@@ -354,17 +545,40 @@ class SolicitacaoDocumentoController extends Controller
             abort(422, 'Só é possível encaminhar pedidos pendentes.');
         }
 
-        // Regista o encaminhamento (não aprova automaticamente)
-        $solicitacao->status = 'pendente'; // mantém pendente
-        $solicitacao->instituicao_aprovadora_id = $user->instituicao_id; // quem encaminhou
-        $solicitacao->data_aprovacao = now(); // regista a data de encaminhamento
+        $solicitacao->status = 'pendente';
+        $solicitacao->instituicao_aprovadora_id = $user->instituicao_id;
+        $solicitacao->data_aprovacao = now();
         $solicitacao->save();
 
         return back()->with('success', 'Pedido de ' . $solicitacao->tipoLabel . ' encaminhado para a instituição tutora para análise.');
     }
 
     // -----------------------------------------------------------------------
-    // MÉTODOS DE AUTORIZAÇÃO (usados para verificar permissões no frontend)
+    // REGRAS DE BLOQUEIO
+    // -----------------------------------------------------------------------
+
+    private function verificarBloqueioSolicitacao($aluno, string $tipoDocumento): ?array
+    {
+        $emCurso = $aluno->solicitacoesDocumentos()
+            ->where('tipo_documento', $tipoDocumento)
+            ->whereNotIn('status', ['entregue', 'rejeitado'])
+            ->exists();
+
+        if ($emCurso) {
+            return [
+                'motivo' => 'em_curso',
+                'mensagem' => 'Já tem uma solicitação deste tipo de documento em curso. Aguarde a conclusão do processo (levantamento ou rejeição) antes de solicitar novamente.',
+                'disponivel_em' => null,
+            ];
+        }
+
+        // Removido: regra de prazo/cooldown configurável. Mantém-se apenas o bloqueio
+        // que impede nova solicitação do mesmo tipo enquanto existir uma em curso.
+        return null;
+    }
+
+    // -----------------------------------------------------------------------
+    // AUTORIZAÇÃO
     // -----------------------------------------------------------------------
 
     public function decidir(SolicitacaoDocumento $solicitacao): bool
@@ -429,38 +643,28 @@ class SolicitacaoDocumentoController extends Controller
     }
 
     public function deletePermission(SolicitacaoDocumento $solicitacao): bool
-{
-    $user = Auth::user();
-    if (! $user) return false;
+    {
+        $user = Auth::user();
+        if (! $user) return false;
 
-    $entregue = $solicitacao->status === SolicitacaoDocumento::STATUS_ENTREGUE
-        || (bool) $solicitacao->data_levantamento;
+        $entregue = $solicitacao->status === SolicitacaoDocumento::STATUS_ENTREGUE
+            || (bool) $solicitacao->data_levantamento;
 
-    if ($user->hasRole('SuperAdmin')) {
-        return true;
+        if ($user->hasRole('SuperAdmin')) {
+            return true;
+        }
+
+        if (! $user->instituicao_id || ! $user->hasAnyRole(['Director', 'Secretaria'])) {
+            return false;
+        }
+
+        return $entregue && $user->instituicao_id === $solicitacao->instituicaoResponsavelId();
     }
-
-    // Aluno só pode apagar o próprio pedido, e só depois de entregue
-    if ($user->hasRole('Aluno')) {
-        return $entregue
-            && $solicitacao->aluno
-            && $user->id === $solicitacao->aluno->user_id;
-    }
-
-    if (! $user->instituicao_id || ! $user->hasAnyRole(['Director', 'Secretaria'])) {
-        return false;
-    }
-
-    return $entregue && $user->instituicao_id === $solicitacao->instituicaoResponsavelId();
-}
 
     // -----------------------------------------------------------------------
-    // AÇÕES (processam as operações)
+    // AÇÕES
     // -----------------------------------------------------------------------
 
-    /**
-     * Processa a decisão de aprovação/rejeição (apenas Director/Secretaria).
-     */
     public function processarDecisao(Request $request, SolicitacaoDocumento $solicitacao): RedirectResponse
     {
         if (! $this->decidir($solicitacao)) {
@@ -485,9 +689,6 @@ class SolicitacaoDocumentoController extends Controller
         return back()->with('success', $mensagem);
     }
 
-    /**
-     * Marca a solicitação como paga (Director/Secretaria).
-     */
     public function marcarComoPagoAction(Request $request, SolicitacaoDocumento $solicitacao): RedirectResponse
     {
         if (! $this->marcarComoPago($solicitacao)) {
@@ -507,9 +708,6 @@ class SolicitacaoDocumentoController extends Controller
         return back()->with('success', 'Pagamento registado com sucesso.');
     }
 
-    /**
-     * Emite o documento (marca como pronto) – Director/Secretaria.
-     */
     public function emitir(Request $request, SolicitacaoDocumento $solicitacao): RedirectResponse
     {
         $validated = $request->validate([
@@ -520,7 +718,6 @@ class SolicitacaoDocumentoController extends Controller
             abort(403, 'Sem permissão para marcar como pronto.');
         }
 
-        // Verificações do fluxo
         if (! in_array($solicitacao->status, ['aprovado', 'pago'], true)) {
             abort(422, 'Só é possível emitir documentos aprovados e pagos.');
         }
@@ -547,12 +744,12 @@ class SolicitacaoDocumentoController extends Controller
 
         $solicitacao->emitir($validated['numero_registro_tutora']);
 
-        return back()->with('success', 'O ' . $solicitacao->tipoLabel . ' encontra-se pronto para levantamento. Dirija-se à secretaria para o levantar.');
+        return back()->with(
+            'success',
+            'A emissão do(a) ' . $solicitacao->tipoLabel . ' foi concluída com sucesso. O documento encontra-se disponível para levantamento na secretaria, pelo que se solicita ao requerente que se dirija às instalações para o efeito.'
+        );
     }
 
-    /**
-     * Marca o documento como levantado (Director/Secretaria).
-     */
     public function marcarComoLevantado(Request $request, SolicitacaoDocumento $solicitacao): RedirectResponse
     {
         if (! $this->marcarComoLevantadoPermission($solicitacao)) {
@@ -564,17 +761,17 @@ class SolicitacaoDocumentoController extends Controller
         }
 
         if ($solicitacao->data_levantamento || $solicitacao->status === 'entregue') {
-            return back()->with('info', 'Este ' . $solicitacao->tipoLabel . ' já foi levantado.');
+            return back()->with('info', 'O(A) ' . $solicitacao->tipoLabel . ' já se encontra registado(a) como levantado(a).');
         }
 
         $solicitacao->marcarComoLevantado(Auth::user());
 
-        return back()->with('success', 'Levantamento do ' . $solicitacao->tipoLabel . ' registado com sucesso.');
+        return back()->with(
+            'success',
+            'O levantamento do(a) ' . $solicitacao->tipoLabel . ' foi registado com sucesso. O processo considera-se, assim, concluído.'
+        );
     }
 
-    /**
-     * Elimina a solicitação (apenas após entregue e com permissão).
-     */
     public function destroy(SolicitacaoDocumento $solicitacao): RedirectResponse
     {
         if (! $this->deletePermission($solicitacao)) {
@@ -587,7 +784,7 @@ class SolicitacaoDocumentoController extends Controller
     }
 
     // -----------------------------------------------------------------------
-    // PÁGINAS DE EMISSÃO (não confundir com a ação emitir)
+    // PÁGINAS DE EMISSÃO
     // -----------------------------------------------------------------------
 
     public function emissaoDashboard(): Response
@@ -630,7 +827,7 @@ class SolicitacaoDocumentoController extends Controller
                 'id' => $solicitacao->id,
                 'tipo_documento' => $solicitacao->tipo_documento,
                 'tipo_label' => $solicitacao->tipoLabel,
-                'numero_processo' => $solicitacao->numero_processo,
+            'numero_processo' => $solicitacao->aluno?->numero_processo ?? $solicitacao->numero_processo,
                 'motivo' => $solicitacao->motivo,
                 'observacoes' => $solicitacao->observacoes,
                 'status' => $solicitacao->status,
@@ -642,6 +839,7 @@ class SolicitacaoDocumentoController extends Controller
                 'documento_gerado' => (bool) $solicitacao->data_emissao,
                 'data_levantamento' => $solicitacao->data_levantamento?->format('d/m/Y H:i'),
                 'aluno' => $solicitacao->aluno?->user?->nome,
+                'numero_estudante' => $solicitacao->aluno?->user?->numero_estudante,
                 'created_at' => $solicitacao->created_at?->format('d/m/Y H:i'),
                 'rupe_referencia' => $solicitacao->rupe_referencia,
                 'rupe_entidade' => $solicitacao->rupe_entidade,

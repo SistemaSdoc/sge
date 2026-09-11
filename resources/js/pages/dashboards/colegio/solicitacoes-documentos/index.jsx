@@ -12,19 +12,20 @@ import {
 import { Badge } from '@/components/ui/badge';
 import {
   enviarParaTutela,
-  processarDecisao,        // ✅ substitui decidir
+  processarDecisao,       
   emitir,
   marcarComoLevantado,
-  marcarComoPagoAction,     // ✅ substitui marcarComoPago
+  marcarComoPagoAction,    
 } from '@/actions/App/Http/Controllers/SolicitacaoDocumentoController';
 import {
   resolveSolicitacaoStatus,
   solicitacaoDocumentoStatusLabels,
   solicitacaoDocumentoStatusClassNames,
 } from '@/utils/solicitacao-documento-status';
+import RequestHistoryDrawer from '@/components/RequestHistoryDrawer';
 
 export default function ColegioSolicitacoesDocumentosPage() {
-  const { solicitacoes = [], auth = {} } = usePage().props;
+  const { solicitacoes = [], auth = {}, ver = null } = usePage().props;
   const [errors, setErrors] = useState([]);
 
   const handleEnviar = (solicitacaoId) => {
@@ -45,7 +46,7 @@ export default function ColegioSolicitacoesDocumentosPage() {
 
   const handleDecision = (solicitacaoId, decisao) => {
     router.post(
-      processarDecisao(solicitacaoId).url,   // ✅ agora usa processarDecisao
+      processarDecisao(solicitacaoId).url,  
       { decisao },
       {
         preserveScroll: true,
@@ -68,12 +69,18 @@ export default function ColegioSolicitacoesDocumentosPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Solicitar Documentos</h1>
-        <p className="text-sm text-muted-foreground">
-          Revise os pedidos do colégio: decida diretamente os documentos normais
-          e encaminhe apenas os certificados para a tutela.
-        </p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Solicitar Documentos</h1>
+          <p className="text-sm text-muted-foreground">
+            Revise os pedidos do colégio: decida diretamente os documentos normais
+            e encaminhe apenas os certificados para a tutela.
+          </p>
+        </div>
+
+        <div>
+        <RequestHistoryDrawer viewType="received" items={ver === 'historico' ? solicitacoes : undefined} />
+        </div>
       </div>
 
       <div className="space-y-4">

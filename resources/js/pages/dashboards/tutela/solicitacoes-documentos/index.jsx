@@ -21,9 +21,10 @@ import {
   solicitacaoDocumentoStatusLabels,
   solicitacaoDocumentoStatusClassNames,
 } from '@/utils/solicitacao-documento-status';
+import RequestHistoryDrawer from '@/components/RequestHistoryDrawer';
 
 export default function TutelaSolicitacoesDocumentosPage() {
-  const { solicitacoes_locais = [], solicitacoes_tuteladas = [], auth = {} } =
+  const { solicitacoes_locais = [], solicitacoes_tuteladas = [], auth = {}, ver = null } =
     usePage().props;
   const [errors, setErrors] = useState([]);
 
@@ -245,12 +246,18 @@ export default function TutelaSolicitacoesDocumentosPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Solicitações de Documentos</h1>
-        <p className="text-sm text-muted-foreground">
-          Acompanhe e decida os pedidos locais e os pedidos enviados pelas
-          instituições tuteladas.
-        </p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">Solicitações de Documentos</h1>
+          <p className="text-sm text-muted-foreground">
+            Acompanhe e decida os pedidos locais e os pedidos enviados pelas
+            instituições tuteladas.
+          </p>
+        </div>
+
+        <div>
+          <RequestHistoryDrawer viewType="received" items={ver === 'historico' ? [...solicitacoes_locais, ...solicitacoes_tuteladas] : undefined} />
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

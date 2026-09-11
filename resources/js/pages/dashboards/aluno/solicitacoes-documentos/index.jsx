@@ -15,10 +15,20 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { store } from '@/actions/App/Http/Controllers/SolicitacaoDocumentoController';
 import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   resolveSolicitacaoStatus,
   solicitacaoDocumentoStatusLabels,
   solicitacaoDocumentoStatusClassNames,
 } from '@/utils/solicitacao-documento-status';
+import RequestHistoryDrawer from '@/components/RequestHistoryDrawer';
 
 const getTipoLabel = (tipo) => {
   const map = {
@@ -41,6 +51,7 @@ export default function SolicitacoesDocumentosPage() {
     turma_atual = null,
     classe_atual = null,
     ano_lectivo_atual = null,
+    ver = null,
   } = usePage().props;
 
   const initialFormData = {
@@ -116,6 +127,10 @@ export default function SolicitacoesDocumentosPage() {
             Registe o pedido e acompanhe o estado do documento solicitado.
           </p>
         </div>
+
+        <div>
+          <RequestHistoryDrawer viewType="sent" items={ver === 'historico' ? solicitacoes : undefined} />
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
@@ -141,29 +156,34 @@ export default function SolicitacoesDocumentosPage() {
             <form className="space-y-5" onSubmit={submit}>
               <div className="space-y-2">
                 <Label htmlFor="tipo-documento">Tipo de documento</Label>
-                <select
-                  id="tipo-documento"
+                <Select
                   value={form.data.tipo_documento}
-                  onChange={(event) =>
-                    form.setData('tipo_documento', event.target.value)
-                  }
-                  className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none"
+                  onValueChange={(value) => form.setData('tipo_documento', value)}
+                  disabled={form.processing}
                 >
-                  <option value="" disabled>
-                    Seleccione o documento a solicitar
-                  </option>
-                  {tipos.map((tipo) => {
-                    if (tipo.value === 'certificado' && !pode_certificado) {
-                      return null;
-                    }
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o documento a solicitar" />
+                  </SelectTrigger>
 
-                    return (
-                      <option key={tipo.value} value={tipo.value}>
-                        {tipo.label}
-                      </option>
-                    );
-                  })}
-                </select>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Tipos de documento</SelectLabel>
+                      {/* optional empty item kept for placeholder semantics if desired */}
+                      {/* <SelectItem value="">Seleccione o documento a solicitar</SelectItem> */}
+                      {tipos.map((tipo) => {
+                        if (tipo.value === 'certificado' && !pode_certificado) {
+                          return null;
+                        }
+
+                        return (
+                          <SelectItem key={tipo.value} value={tipo.value}>
+                            {tipo.label}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="border bg-muted/30 p-3">
@@ -206,21 +226,27 @@ export default function SolicitacoesDocumentosPage() {
                   <Label htmlFor="classe-declaracao">
                     Classe para declaração
                   </Label>
-                  <select
-                    id="classe-declaracao"
-                    value={form.data.classe_id}
-                    onChange={(event) =>
-                      form.setData('classe_id', event.target.value)
-                    }
-                    className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none"
+                  <Select
+                    value={form.data.classe_id ?? ''}
+                    onValueChange={(value) => form.setData('classe_id', value)}
+                    disabled={form.processing}
                   >
-                    <option value="">Seleccionar classe</option>
-                    {classes_disponiveis.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.nome}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Seleccionar classe" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Classes disponíveis</SelectLabel>
+                        <SelectItem value="">Seleccionar classe</SelectItem>
+                        {classes_disponiveis.map((c) => (
+                          <SelectItem key={c.id} value={String(c.id)}>
+                            {c.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                   {form.errors.classe_id && (
                     <p className="text-xs text-red-600">
                       {form.errors.classe_id}

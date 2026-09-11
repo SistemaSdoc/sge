@@ -9,7 +9,9 @@ class SolicitacaoDocumentoPolicy
 {
     public function viewAny(User $user): bool
     {
-        return ! $user->hasRole('Aluno') && ! $user->hasRole('Candidato');
+        // Restringe explicitamente a visualização a perfis de gestão/secretaria
+        // e administradores — exclui Professores.
+        return $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'SuperAdmin']);
     }
 
     /**
