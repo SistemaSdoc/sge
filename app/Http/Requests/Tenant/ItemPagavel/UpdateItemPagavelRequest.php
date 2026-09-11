@@ -15,11 +15,15 @@ class UpdateItemPagavelRequest extends FormRequest
 
     public function rules(): array
     {
+        $isInstituto = auth()->user()->instituicao?->tipo === 'instituto';
+
         return [
             'nome' => 'sometimes|required|string|max:255',
-            'descricao' => 'nullable|string',
-            // 'curso_classe_id' => 'sometimes|exists:curso_classe,id',
-            'tipo' => ['required', Rule::in(['financeiro', 'documento'])],
+            'descricao' => 'nullable|string|max:255',
+            'curso_classe_id' => ['nullable', 'uuid', 'exists:curso_classe,id'], // ← estava comentado/ausente
+            'tipo' => $isInstituto
+                ? ['nullable']
+                : ['required', Rule::in(['financeiro', 'documento'])],
             'subtipo' => [
                 Rule::requiredIf($this->input('tipo') === 'documento'),
                 'nullable',
@@ -28,29 +32,29 @@ class UpdateItemPagavelRequest extends FormRequest
                     ->where('instituicao_id', auth()->user()->instituicao_id)
                     ->ignore($this->route('itemPagavel')?->documento?->id),
             ],
-            'valor' => 'sometimes|required|numeric|min:0',
-            'frequencia' => 'sometimes|required|in:unico,mensal,anual',
+            'valor' => $isInstituto ? ['nullable'] : 'sometimes|required|numeric|min:0',
+            'frequencia' => $isInstituto ? ['nullable'] : 'sometimes|required|in:unico,mensal,anual',
             'multa_dias_tolerancia' => 'nullable|integer|min:1|max:31',
             'multa_valor' => 'nullable|numeric|min:0',
             'ativo' => 'sometimes|boolean',
         ];
     }
 
-    public function withValidator(Validator $validator): void
-    {
-        $validator->after(function (Validator $validator) {
-            $item = $this->route('item_pagavel');
+    // public function withValidator(Validator $validator): void
+    // {
+    //     $validator->after(function (Validator $validator) {
+    //         $item = $this->route('itemPagavel'); // ← era 'item_pagavel', estava errado
 
-            if ($item && $item->exists && $this->input('frequencia') !== $item->frequencia) {
-                if ($item->periodosPagos()->exists()) {
-                    $validator->errors()->add(
-                        'frequencia',
-                        'Não é possível alterar a frequência de um item que já possui pagamentos registados.'
-                    );
-                }
-            }
-        });
-    }
+    //         if ($item && $item->exists && $this->input('frequencia') !== $item->frequencia) {
+    //             if ($item->periodosPagos()->exists()) {
+    //                 $validator->errors()->add(
+    //                     'frequencia',
+    //                     'Não é possível alterar a frequência de um item que já possui pagamentos registados.'
+    //                 );
+    //             }
+    //         }
+    //     });
+    // }
 
     public function messages(): array
     {

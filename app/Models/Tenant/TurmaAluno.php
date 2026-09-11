@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
     'ano_lectivo_id',
     'estado_matricula',
     'resultado_academico',
+    'is_historico',
 ])]
 class TurmaAluno extends Pivot
 {

@@ -122,19 +122,18 @@ class ItemPagavelController extends Controller
     public function edit(ItemPagavel $itemPagavel)
     {
         $itemPagavel->load('documento');
+        $instituicao = auth()->user()->instituicao_id; // ← igual ao create()
 
         $cursosClasse = CursoClasse::query()
             ->with(['classe:id,nome', 'cursoTutelado.instituicaoCurso.curso:id,nome'])
+            ->whereHas('cursoTutelado.instituicaoCurso', function ($q) use ($instituicao) {
+                $q->where('instituicao_id', $instituicao); // ← estava sem filtro
+            })
             ->get()
             ->map(fn (CursoClasse $cc) => [
                 'id' => $cc->id,
                 'nome' => $cc->cursoTutelado->instituicaoCurso->curso->nome.' — '.$cc->classe->nome,
             ]);
-
-        Log::debug('[ItemPagavelController@edit] cursosClasse carregados', [
-            'total' => $cursosClasse->count(),
-            'cursosClasse' => $cursosClasse->toArray(),
-        ]);
 
         return Inertia::render('tenant/itens-pagaveis/edit', [
             'itemPagavel' => [
@@ -153,14 +152,26 @@ class ItemPagavelController extends Controller
                 'ativo' => (bool) $itemPagavel->ativo,
             ],
             'cursosClasse' => $cursosClasse,
-            'instituicaoTipo' => auth()->user()->instituicao?->tipo, // 'colegio' ou 'instituto'
+            'instituicaoTipo' => auth()->user()->instituicao?->tipo,
         ]);
     }
 
     public function update(UpdateItemPagavelRequest $request, ItemPagavel $itemPagavel)
     {
-        $itemPagavel->update($request->validated());
+        $isInstituto = auth()->user()->instituicao?->tipo === 'instituto';
 
+        $validated = $request->validated();
+
+        // institutos: tipo/valor/frequencia são fixos, não vêm no payload
+        if ($isInstituto) {
+            $validated['tipo'] = 'documento';
+            $validated['valor'] = 0;
+            $validated['frequencia'] = 'unico';
+        }
+
+        $itemPagavel->update($validated);
+
+        // subtipo: usa o tipo já persistido
         if ($itemPagavel->tipo === 'documento' && $request->filled('subtipo')) {
             $itemPagavel->documento()->updateOrCreate(
                 ['item_pagavel_id' => $itemPagavel->id],
@@ -171,8 +182,10 @@ class ItemPagavelController extends Controller
             );
         }
 
-        return redirect()->route('tenant.dashboard.itens-pagaveis.index')->with('success', 'Item actualizado com sucesso.');
-    }
+        return redirect()
+            ->route('tenant.dashboard.itens-pagaveis.index')
+            ->with('success', 'Item actualizado com sucesso.');
+    } 
 
     public function destroy(ItemPagavel $itemPagavel)
     {

@@ -127,6 +127,10 @@ class AlunoController extends Controller
     {
         Gate::authorize('view', $aluno);
 
+        $anoLectivoId = filled(request('ano_lectivo_id'))
+            ? request('ano_lectivo_id')
+            : $this->anoLectivoResolverService->obterAnoLectivoDefault();
+
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
@@ -140,12 +144,29 @@ class AlunoController extends Controller
             'inscricao.cursoClasseTurno.turno:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-            'turmas' => fn ($q) => $q->wherePivot('activo', true)
+            'turmas' => fn($q) => $q->wherePivot('activo', true)
+                ->where('turmas.ano_lectivo_id', $anoLectivoId)
                 ->with([
                     'cursoClasseTurno.cursoClasse.classe:id,nome',
                     'anoLectivo:id,nome',
                 ]),
         ])->where('inscricao.status', '!=', 'cancelado');
+
+        $turmaNoAno = $aluno->turmas()
+            ->wherePivot('activo', true)
+            ->where('turmas.ano_lectivo_id', $anoLectivoId)
+            ->with(['cursoClasseTurno.cursoClasse.classe', 'anoLectivo'])
+            ->first();
+
+        // fallback: turma mais recente se não tiver no ano activo
+        if (!$turmaNoAno) {
+            $turmaNoAno = $aluno->turmas()
+                ->wherePivot('activo', true)
+                ->wherePivot('is_historico', false)
+                ->with(['cursoClasseTurno.cursoClasse.classe', 'anoLectivo'])
+                ->latest('turmas.created_at')
+                ->first();
+        }
 
         $historicoService = app(PreencherHistoricoService::class);
         $pendentes = $historicoService->obterClassesFaltando($aluno);
@@ -214,10 +235,10 @@ class AlunoController extends Controller
                 'instituicao' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
                 'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,
                 'turma' => [
-                    'id' => $aluno->turmas->first()?->id,
-                    'nome' => $aluno->turmas->first()?->nome,
-                    'classe' => $aluno->turmas->first()?->cursoClasseTurno?->cursoClasse?->classe?->nome,
-                    'ano_lectivo' => $aluno->turmas->first()?->anoLectivo?->nome,
+                    'id' => $turmaNoAno?->id,
+                    'nome' => $turmaNoAno?->nome,
+                    'classe' => $turmaNoAno?->cursoClasseTurno?->cursoClasse?->classe?->nome,
+                    'ano_lectivo' => $turmaNoAno?->anoLectivo?->nome,
                 ],
                 'can' => [
                     'view' => $user->can('view', $aluno),

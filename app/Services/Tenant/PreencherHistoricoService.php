@@ -116,6 +116,12 @@ class PreencherHistoricoService
 
             $todasFinalizadas = $this->verificarSeTodasPautasFinalizadas($ta->turma->id, $ta->id);
 
+            \Log::debug('[Historico] verificacao', [
+                'turma_id' => $ta->turma->id,
+                'ta_id' => $ta->id,
+                'todas_finalizadas' => $todasFinalizadas,
+            ]);
+
             if ($todasFinalizadas) {
                 // Completo — oculta
                 continue;
@@ -128,7 +134,8 @@ class PreencherHistoricoService
                 'ordem' => $cc->classe->ordem,
                 'turma_aluno_id' => $ta->id,
                 'em_curso' => true,
-                'tem_notas' => $ta->notas->isNotEmpty(),
+                'tem_notas' => $ta->notas->isNotEmpty(), // ← true se há rascunho
+
             ];
         }
 
@@ -180,26 +187,41 @@ class PreencherHistoricoService
 
         $numDisciplinas = $tdps->count();
 
+        $isHistorico = TurmaAluno::where('id', $turmaAlunoId)
+            ->value('is_historico');
+
         for ($periodo = 1; $periodo <= 3; $periodo++) {
-            // 1. Pauta da turma finalizada neste período
-            $pautasFinalizadas = PautaStatus::whereIn('turma_disciplina_professor_id', $tdps)
-                ->where('periodo', $periodo)
-                ->where('status', 'finalizada')
-                ->count();
+            if ($isHistorico) {
+                // Histórico: verifica notas não rascunho
+                $notasFinalizadas = Nota::where('turma_aluno_id', $turmaAlunoId)
+                    ->whereIn('turma_disciplina_professor_id', $tdps)
+                    ->where('periodo', $periodo)
+                    ->where('is_rascunho', false)
+                    ->count();
 
-            if ($pautasFinalizadas !== $numDisciplinas) {
-                return false;
-            }
+                if ($notasFinalizadas !== $numDisciplinas) {
+                    return false;
+                }
+            } else {
+                // Turma normal: lógica original
+                $pautasFinalizadas = PautaStatus::whereIn('turma_disciplina_professor_id', $tdps)
+                    ->where('periodo', $periodo)
+                    ->where('status', 'finalizada')
+                    ->count();
 
-            // 2. Aluno tem media_trimestral em todas as disciplinas deste período
-            $notasAluno = Nota::where('turma_aluno_id', $turmaAlunoId)
-                ->whereIn('turma_disciplina_professor_id', $tdps)
-                ->where('periodo', $periodo)
-                ->whereNotNull('media_trimestral')
-                ->count();
+                if ($pautasFinalizadas !== $numDisciplinas) {
+                    return false;
+                }
 
-            if ($notasAluno !== $numDisciplinas) {
-                return false;
+                $notasAluno = Nota::where('turma_aluno_id', $turmaAlunoId)
+                    ->whereIn('turma_disciplina_professor_id', $tdps)
+                    ->where('periodo', $periodo)
+                    ->whereNotNull('media_trimestral')
+                    ->count();
+
+                if ($notasAluno !== $numDisciplinas) {
+                    return false;
+                }
             }
         }
 
@@ -294,6 +316,7 @@ class PreencherHistoricoService
             'ano_lectivo_id' => $turma->ano_lectivo_id,
             'activo' => true,
             'situacao' => 'concluido',
+            'is_historico' => true,
         ]);
     }
 }
