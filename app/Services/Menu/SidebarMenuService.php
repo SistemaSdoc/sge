@@ -20,6 +20,9 @@ use App\Http\Controllers\RegraAvaliacaoController;
 use App\Http\Controllers\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
+use App\Http\Controllers\PrazoProvaController;
+use App\Http\Controllers\AvaliacaoProvaController;
+use App\Http\Controllers\SubmissaoProvaController;
 use App\Models\Aluno;
 use App\Models\AnoLectivo;
 use App\Models\Aviso;
@@ -191,6 +194,24 @@ final class SidebarMenuService
                 ),
             ]),
 
+            // ===== NOVO GRUPO: AVALIAÇÃO (Provas) =====
+            new MenuGroup('Avaliação', [
+                new MenuItem(
+                    key: 'prazos-provas',
+                    title: 'Prazos de Provas',
+                    href: action([PrazoProvaController::class, 'index']),
+                    icon: 'FileText',
+                    can: fn () =>  Gate::allows('prazo-prova.viewAny')
+                ),
+                new MenuItem(
+                    key: 'submeter-provas',
+                    title: 'Submeter Provas', 
+                    href: action([SubmissaoProvaController::class, 'index']),
+                    icon: 'FileText',
+                    can: fn () => Gate::allows('submissao-prova.create')
+                ),
+            ]),
+
             new MenuGroup('Usuários', [
                 new MenuItem(
                     key: 'professores',
@@ -207,14 +228,6 @@ final class SidebarMenuService
                     icon: 'GraduationCap',
                     can: fn () => Gate::allows('viewAny', Aluno::class),
                 ),
-
-                /* new MenuItem(
-                     key: 'acessos',
-                     title: 'Gerir Acessos',
-                     href: action([AccessManagementController::class, 'index']),
-                     icon: 'ShieldCheck',
-                     can: fn () => Gate::allows('acessos.viewAny')
-                 ),*/
             ]),
 
             new MenuGroup('Gestão de Colégios', [
@@ -232,25 +245,6 @@ final class SidebarMenuService
                     can: fn () => Auth::user()?->hasPermissionTo('colegios.viewAny')
                     && Auth::user()?->instituicao?->tipo === 'instituto',
                 ),
-
-                /*new MenuItem(
-                    key: 'pautas-colegios',
-                    title: 'Pautas',
-                    href: '#',
-                    icon: 'Sheet',
-                    can: fn() => Auth::user()?->hasPermissionTo('colegios.viewAny')
-                    && Auth::user()?->instituicao?->tipo === 'instituto',
-                ),
-
-                new MenuItem(
-                    key: 'grupos-pap-colegios',
-                    title: 'Grupos PAP',
-                    href: '#',
-                    icon: 'Users',
-                    can: fn() => Auth::user()?->hasPermissionTo('colegios.viewAny')
-                    && Auth::user()?->instituicao?->tipo === 'instituto'
-                    && Auth::user()?->hasPermissionTo('grupopap.viewAny'),
-                ),*/
             ]),
 
             new MenuGroup('Pagamentos', [

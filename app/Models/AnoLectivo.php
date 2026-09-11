@@ -68,4 +68,14 @@ class AnoLectivo extends Model
     {
         return $this->hasMany(Propina::class);
     }
+    
+public static function getAnoAtivo(): ?self
+{
+    return self::where('activo', true)->first() ?? self::latest('created_at')->first();
+}
+public static function getNomeAnoAtivo(): ?string
+{
+    return self::getAnoAtivo()?->nome;
+}
+
 }

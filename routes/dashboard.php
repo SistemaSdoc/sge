@@ -44,6 +44,10 @@ use App\Http\Controllers\TurmaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PrazoProvaController;
+use App\Http\Controllers\AvaliacaoProvaController;
+use App\Http\Controllers\SubmissaoProvaController;
+use App\Http\Controllers\ProfessorJustificativaController;
 
 // Dashboard routes (Admin, Director, Coordenador, Secretaria, Professor)
 // Todas estas rotas requerem autenticação e role de staff
@@ -246,6 +250,28 @@ Route::get('notificacoes', [NotificacaoController::class, 'index'])->name('notif
 Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])->name('notificacoes.ler');
 Route::post('notificacoes/ler-todas', [NotificacaoController::class, 'marcarTodasLidas'])->name('notificacoes.ler-todas');
 
+// ===== DIRETOR =====
+Route::prefix('diretor')->group(function () {
+    Route::resource('prazos', PrazoProvaController::class);
+    Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('diretor.prazos.prorrogar');
+    Route::post('prazos/{prazo}/fechar', [PrazoProvaController::class, 'fechar'])->name('diretor.prazos.fechar');
+    Route::get('prazos/{prazo}/status', [PrazoProvaController::class, 'status'])->name('diretor.prazos.status');
+    Route::patch('justificativas/{justificativa}/avaliar', [PrazoProvaController::class, 'avaliar'])->name('diretor.justificativas.avaliar');
+    Route::patch('submissoes/{submissao}/avaliar', [AvaliacaoProvaController::class, 'update'])->name('diretor.submissoes.avaliar');
+
+});
+
+// ===== PROFESSOR =====
+Route::prefix('professor')->group(function () {
+    Route::get('provas', [SubmissaoProvaController::class, 'index'])->name('professor.provas.index');
+    Route::get('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'create'])->name('professor.provas.submeter');
+    Route::post('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'store'])->name('professor.provas.store');
+    Route::get('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'create'])->name('professor.justificar.create');
+    Route::post('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'store'])->name('professor.justificar.store');
+    Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('professor.justificativas.index');
+    });
+
+
 Route::get('/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/turmas/{turma}/pauta', [CursoTuteladoController::class, 'pauta'])
     ->name('pauta');
 
@@ -335,3 +361,6 @@ Route::prefix('historico/{aluno}')
         Route::post('confirmar', [PreencherHistoricoController::class, 'confirmar'])
             ->name('confirmar');
     });
+
+
+

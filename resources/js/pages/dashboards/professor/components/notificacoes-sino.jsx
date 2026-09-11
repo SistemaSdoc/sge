@@ -3,23 +3,9 @@ import { BellIcon, CheckCheck, ExternalLink } from 'lucide-react';
 import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
-  index,
-  marcarLida,
-  marcarTodasLidas,
-} from '@/actions/App/Http/Controllers/NotificacaoController';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
-const INTERVALO_POLLING = 1990000; // 30s
-
-const formatCurrency = (value) => {
-  const amount = Number(value ?? 0);
-  return `${amount.toLocaleString('pt', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AOA`;
-};
+const INTERVALO_POLLING = 30000;
 
 export default function NotificacoesSino() {
   const [notificacoes, setNotificacoes] = useState([]);
@@ -28,14 +14,21 @@ export default function NotificacoesSino() {
 
   const carregar = useCallback(async () => {
     try {
-      const res = await fetch(index().url, {
+      const res = await fetch('/notificacoes', {
         headers: { Accept: 'application/json' },
+        credentials: 'same-origin',
       });
+
+      if (!res.ok) {
+        console.warn('Notificações indisponíveis', res.status);
+        return;
+      }
+
       const data = await res.json();
-      setNotificacoes(data.notificacoes || []);
-      setNaoLidas(data.nao_lidas || 0);
+      setNotificacoes(Array.isArray(data?.notificacoes) ? data.notificacoes : []);
+      setNaoLidas(Number(data?.nao_lidas) || 0);
     } catch (e) {
-      // silencioso
+      console.warn('Erro ao carregar notificações', e);
     }
   }, []);
 
@@ -46,7 +39,7 @@ export default function NotificacoesSino() {
   }, [carregar]);
 
   const handleMarcarLida = (id, url = null) => {
-    router.post(marcarLida(id).url, {}, {
+    router.post(`/notificacoes/${id}/ler`, {}, {
       preserveScroll: true,
       preserveState: true,
       onSuccess: () => {
@@ -59,19 +52,18 @@ export default function NotificacoesSino() {
     });
   };
 
-  const handleClickNotificacao = async (n) => {
-    if (!n.lida) {
-      await fetch(marcarLida(n.id).url, {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-          Accept: 'application/json',
-        },
-      });
-      carregar();
-    }
+  const handleMarcarTodasLidas = () => {
+    router.post('/notificacoes/ler-todas', {}, {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: carregar,
+    });
+  };
 
-    if (n.url) {
+  const handleClickNotificacao = (n) => {
+    if (!n.lida) {
+      handleMarcarLida(n.id, n.url);
+    } else if (n.url) {
       setAberto(false);
       router.visit(n.url);
     }
@@ -94,7 +86,6 @@ export default function NotificacoesSino() {
       </PopoverTrigger>
 
       <PopoverContent align="end" className="w-96 p-0">
-        {/* Cabeçalho */}
         <div className="flex items-center justify-between border-b p-3">
           <span className="text-sm font-medium">Notificações</span>
           {naoLidas > 0 && (
@@ -105,46 +96,51 @@ export default function NotificacoesSino() {
           )}
         </div>
 
-        {/* Lista */}
         <div className="max-h-96 overflow-y-auto">
           {notificacoes.length === 0 ? (
-            <p className="p-4 text-center text-sm text-muted-foreground">
-              Sem notificações.
-            </p>
+            <p className="p-4 text-center text-sm text-muted-foreground">Sem notificações.</p>
           ) : (
             notificacoes.map((n) => (
               <button
                 key={n.id}
                 type="button"
                 onClick={() => handleClickNotificacao(n)}
-                className={`w-full border-b p-3 text-left last:border-0 hover:bg-muted/50 transition-colors ${
-                  n.lida ? 'opacity-60' : ''
-                }`}
+                className={`w-full border-b p-3 text-left last:border-0 hover:bg-muted/50 transition-colors ${n.lida ? 'opacity-60' : ''}`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-medium">{n.titulo}</p>
-                  {!n.lida && (
-                    <span className="mt-1 size-2 shrink-0 rounded-full bg-destructive" />
-                  )}
+                  {!n.lida && <span className="mt-1 size-2 shrink-0 rounded-full bg-destructive" />}
                 </div>
-
                 <p className="text-xs text-muted-foreground">{n.mensagem}</p>
 
-                {/* 🔥 Estatísticas do prazo expirado (diretor) */}
                 {n.tipo === 'prazo_expirado' && n.stats && (
                   <div className="mt-2 grid grid-cols-2 gap-x-2 gap-y-0.5 text-xs">
                     <span className="text-muted-foreground">Total:</span>
                     <span className="font-medium">{n.stats.total}</span>
-                    <span className="text-muted-foreground">✅ Submeteram:</span>
+                    <span className="text-muted-foreground">Submeteram:</span>
                     <span className="font-medium text-green-600">{n.stats.submeteram}</span>
-                    <span className="text-muted-foreground">❌ Não submeteram:</span>
+                    <span className="text-muted-foreground">Não submeteram:</span>
                     <span className="font-medium text-red-600">{n.stats.nao_submeteram}</span>
-                    <span className="text-muted-foreground">📄 Justificaram:</span>
+                    <span className="text-muted-foreground">Justificaram:</span>
                     <span className="font-medium text-blue-600">{n.stats.justificaram}</span>
                   </div>
                 )}
 
-                {/* 🔥 Motivo da justificativa (diretor) */}
+                {n.tipo === 'submissao_avaliada' && n.parecer_diretor && (
+                  <div className="mt-2 p-2 bg-muted/40 rounded border border-border text-xs">
+                    <p className="font-medium text-muted-foreground">Parecer do diretor:</p>
+                    <p className="mt-0.5">{n.parecer_diretor}</p>
+                  </div>
+                )}
+
+                {n.tipo === 'nova_submissao' && (
+                  <div className="mt-2 space-y-0.5 text-[11px] text-muted-foreground">
+                    <p><strong>{n.professor_nome}</strong></p>
+                    <p>{n.disciplina || 'Todas'}{n.classe && ` • 🎓 ${n.classe}`}</p>
+                    <p>{n.turma} • v{n.versao}</p>
+                  </div>
+                )}
+
                 {n.tipo === 'justificativa_enviada' && n.motivo && (
                   <div className="mt-2 p-2 bg-muted/40 rounded border border-border text-xs">
                     <p className="font-medium text-muted-foreground">Motivo:</p>
@@ -152,7 +148,6 @@ export default function NotificacoesSino() {
                   </div>
                 )}
 
-                {/* 🔥 Parecer do diretor (professor) */}
                 {n.tipo === 'justificativa_avaliada' && n.parecer_diretor && (
                   <div className="mt-2 p-2 bg-muted/40 rounded border border-border text-xs">
                     <p className="font-medium text-muted-foreground">Parecer do diretor:</p>
@@ -160,30 +155,14 @@ export default function NotificacoesSino() {
                   </div>
                 )}
 
-                {/* Propinas em atraso */}
                 {n.tipo === 'propina_atraso' && n.meses?.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {n.meses.map((mes, i) => (
-                      <Badge key={i} variant="destructive" className="font-normal">
-                        {mes}
-                      </Badge>
+                      <Badge key={i} variant="destructive" className="font-normal">{mes}</Badge>
                     ))}
                   </div>
                 )}
 
-                {n.tipo === 'propina_atraso' && n.valor_total != null && (
-                  <p className="mt-1 text-xs font-medium">
-                    Total: {formatCurrency(n.valor_total)}
-                  </p>
-                )}
-
-                {n.tipo === 'propina_atraso' && (
-                  <p className="mt-1 text-[10px] italic text-muted-foreground">
-                    Resolve-se automaticamente após o pagamento
-                  </p>
-                )}
-
-                {/* Data + link */}
                 <div className="mt-1 flex items-center justify-between">
                   <p className="text-[10px] text-muted-foreground">{n.criada_em}</p>
                   {n.url && <ExternalLink className="size-3 text-muted-foreground" />}

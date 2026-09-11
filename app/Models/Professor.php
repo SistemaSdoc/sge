@@ -75,4 +75,9 @@ class Professor extends Model
             ->withPivot('tipo', 'coordenador')
             ->withTimestamps();
     }
+    
+    public function justificativas()
+{
+    return $this->hasMany(JustificativaNaoSubmissao::class);
+}
 }

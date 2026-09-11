@@ -26,6 +26,7 @@ export default function NotificacoesSino() {
   const [naoLidas, setNaoLidas] = useState(0);
   const [aberto, setAberto] = useState(false);
 
+  // Carrega notificações via fetch (JSON)
   const carregar = useCallback(async () => {
     try {
       const res = await fetch(index().url, {
@@ -45,6 +46,7 @@ export default function NotificacoesSino() {
     return () => clearInterval(intervalo);
   }, [carregar]);
 
+  //  Marcar UMA como lida (Inertia)
   const handleMarcarLida = (id, url = null) => {
     router.post(marcarLida(id).url, {}, {
       preserveScroll: true,
@@ -59,19 +61,22 @@ export default function NotificacoesSino() {
     });
   };
 
-  const handleClickNotificacao = async (n) => {
-    if (!n.lida) {
-      await fetch(marcarLida(n.id).url, {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-          Accept: 'application/json',
-        },
-      });
-      carregar();
-    }
+  //  Marcar TODAS como lidas (Inertia)
+  const handleMarcarTodasLidas = () => {
+    router.post(marcarTodasLidas().url, {}, {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: () => {
+        carregar();
+      },
+    });
+  };
 
-    if (n.url) {
+  //  Clique numa notificação
+  const handleClickNotificacao = (n) => {
+    if (!n.lida) {
+      handleMarcarLida(n.id, n.url);
+    } else if (n.url) {
       setAberto(false);
       router.visit(n.url);
     }
@@ -98,7 +103,12 @@ export default function NotificacoesSino() {
         <div className="flex items-center justify-between border-b p-3">
           <span className="text-sm font-medium">Notificações</span>
           {naoLidas > 0 && (
-            <Button variant="ghost" size="sm" onClick={handleMarcarTodasLidas} className="h-7 text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleMarcarTodasLidas}
+              className="h-7 text-xs"
+            >
               <CheckCheck className="mr-1 size-3" />
               Marcar todas
             </Button>
@@ -130,21 +140,51 @@ export default function NotificacoesSino() {
 
                 <p className="text-xs text-muted-foreground">{n.mensagem}</p>
 
-                {/* 🔥 Estatísticas do prazo expirado (diretor) */}
+                {/*  Estatísticas do prazo expirado (diretor) */}
                 {n.tipo === 'prazo_expirado' && n.stats && (
                   <div className="mt-2 grid grid-cols-2 gap-x-2 gap-y-0.5 text-xs">
                     <span className="text-muted-foreground">Total:</span>
                     <span className="font-medium">{n.stats.total}</span>
-                    <span className="text-muted-foreground">✅ Submeteram:</span>
+                    <span className="text-muted-foreground">Submeteram:</span>
                     <span className="font-medium text-green-600">{n.stats.submeteram}</span>
-                    <span className="text-muted-foreground">❌ Não submeteram:</span>
+                    <span className="text-muted-foreground"> Não submeteram:</span>
                     <span className="font-medium text-red-600">{n.stats.nao_submeteram}</span>
-                    <span className="text-muted-foreground">📄 Justificaram:</span>
+                    <span className="text-muted-foreground"> Justificaram:</span>
                     <span className="font-medium text-blue-600">{n.stats.justificaram}</span>
                   </div>
                 )}
 
-                {/* 🔥 Motivo da justificativa (diretor) */}
+                {/*  Parecer do diretor (submissão avaliada) */}
+                {n.tipo === 'submissao_avaliada' && n.parecer_diretor && (
+                  <div className="mt-2 p-2 bg-muted/40 rounded border border-border text-xs">
+                    <p className="font-medium text-muted-foreground">Parecer do diretor:</p>
+                    <p className="mt-0.5">{n.parecer_diretor}</p>
+                  </div>
+                )}
+
+                {/* Info extra da submissão */}
+                {n.tipo === 'submissao_avaliada' && n.turma && (
+                  <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <span> {n.disciplina || 'Todas'}</span>
+                    {n.classe && <span>• 🎓 {n.classe}</span>}
+                    <span>•  {n.turma}</span>
+                    <span>• v{n.versao}</span>
+                  </div>
+                )}
+
+                {/*  Nova submissão (diretor) */}
+                {n.tipo === 'nova_submissao' && (
+                  <div className="mt-2 space-y-0.5 text-[11px] text-muted-foreground">
+                    <p> <strong>{n.professor_nome}</strong></p>
+                    <p>
+                       {n.disciplina || 'Todas'}
+                      {n.classe && ` • 🎓 ${n.classe}`}
+                    </p>
+                    <p> {n.turma} • v{n.versao}</p>
+                  </div>
+                )}
+
+                {/*  Motivo da justificativa (diretor) */}
                 {n.tipo === 'justificativa_enviada' && n.motivo && (
                   <div className="mt-2 p-2 bg-muted/40 rounded border border-border text-xs">
                     <p className="font-medium text-muted-foreground">Motivo:</p>
@@ -152,7 +192,7 @@ export default function NotificacoesSino() {
                   </div>
                 )}
 
-                {/* 🔥 Parecer do diretor (professor) */}
+                {/*  Parecer do diretor (professor) */}
                 {n.tipo === 'justificativa_avaliada' && n.parecer_diretor && (
                   <div className="mt-2 p-2 bg-muted/40 rounded border border-border text-xs">
                     <p className="font-medium text-muted-foreground">Parecer do diretor:</p>
