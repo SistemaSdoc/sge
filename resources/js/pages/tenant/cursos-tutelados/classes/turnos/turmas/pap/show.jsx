@@ -264,9 +264,11 @@ export default function Show({
             </div>
           )}
 
-             {grupoPap?.estrutura_trabalho_pap_url && (
+          {grupoPap?.estrutura_trabalho_pap_url && (
             <div>
-              <p className="text-sm text-muted-foreground">Estrutura do Trabalho PAP</p>
+              <p className="text-sm text-muted-foreground">
+                Estrutura do Trabalho PAP
+              </p>
 
               <a
                 href={grupoPap.estrutura_trabalho_pap_url}
@@ -355,8 +357,7 @@ export default function Show({
       </Dialog>
 
       {/* Banner de ação — reprovado ou melhoria solicitada */}
-      {
-        can?.corrigirTema &&
+      {can?.corrigirTema &&
         [
           'reprovado',
           'melhoria-solicitada',
@@ -383,7 +384,8 @@ export default function Show({
               <Button
                 size="sm"
                 variant={
-                  (grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
+                  (grupoPap.status_aprovacao || '').toLowerCase() ===
+                  'reprovado'
                     ? 'destructive'
                     : 'default'
                 }

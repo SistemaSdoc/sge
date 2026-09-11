@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -25,7 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowUpLeft, Plus } from 'lucide-react';
+import { ArrowUpLeft } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { cursosDisponiveis as cursosDisponiveisUrl } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 
 export function CursoForm({
   title,
@@ -40,7 +40,59 @@ export function CursoForm({
   processing,
   onSubmit,
 }) {
-  const [modo, setModo] = useState('existente');
+  const [cursosDisponiveis, setCursosDisponiveis] = useState(cursos ?? []);
+  const [carregandoCursos, setCarregandoCursos] = useState(false);
+
+  useEffect(() => {
+    if (instituicao.tipo !== 'colegio' || !data.tenant_tutor_id) {
+      setCursosDisponiveis(cursos ?? []);
+      return;
+    }
+
+    const controller = new AbortController();
+    setCarregandoCursos(true);
+    fetch(
+      `${cursosDisponiveisUrl({ instituicao: instituicao.id }).url}?tenant_tutor_id=${encodeURIComponent(data.tenant_tutor_id)}`,
+      {
+        headers: { Accept: 'application/json' },
+        signal: controller.signal,
+      },
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Não foi possível carregar os cursos do instituto.');
+        }
+
+        return response.json();
+      })
+      .then((payload) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        const cursosDoTutor = payload.data ?? [];
+        setCursosDisponiveis(cursosDoTutor);
+
+        if (!cursosDoTutor.some((curso) => curso.id === data.curso_id)) {
+          setData('curso_id', '');
+        }
+      })
+      .catch((error) => {
+        if (error.name === 'AbortError') {
+          return;
+        }
+
+        setCursosDisponiveis([]);
+        setData('curso_id', '');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setCarregandoCursos(false);
+        }
+      });
+
+    return () => controller.abort();
+  }, [data.tenant_tutor_id, instituicao.id, instituicao.tipo]);
 
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
@@ -57,57 +109,18 @@ export function CursoForm({
           <CardContent>
             <FieldGroup>
               <FieldSet>
-                {/* <Field>
-                  <FieldLabel htmlFor="curso_id">Curso</FieldLabel>
-                  <Select
-                    value={data.curso_id}
-                    onValueChange={(value) => {
-                      setModo('existente');
-                      setData('curso_id', String(value));
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione o curso" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Cursos</SelectLabel>
-                        {cursos?.map((curso) => (
-                          <SelectItem key={curso.id} value={curso.id}>
-                            {curso.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  {errors.curso_id && (
-                    <FieldError>{errors.curso_id}</FieldError>
-                  )}
-                </Field> */}
-
-                <Field>
-                  <FieldLabel htmlFor="nome">Nome</FieldLabel>
-                  <Input
-                    id="nome"
-                    type="text"
-                    placeholder="Ex.: Informática de gestão"
-                    value={data.nome}
-                    onChange={(e) => setData('nome', e.target.value)}
-                  />
-                  {errors.nome && <FieldError>{errors.nome}</FieldError>}
-                </Field>
-
                 {instituicao.tipo === 'colegio' && (
                   <Field>
                     <FieldLabel>Instituição tutora</FieldLabel>
                     <Select
                       value={data.tenant_tutor_id || 'propria'}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
                         setData(
                           'tenant_tutor_id',
                           value === 'propria' ? '' : value,
-                        )
-                      }
+                        );
+                        setData('curso_id', '');
+                      }}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Seleccione o instituto tutor" />
@@ -131,6 +144,54 @@ export function CursoForm({
                     )}
                   </Field>
                 )}
+
+                <Field>
+                  <FieldLabel htmlFor="curso_id">Curso</FieldLabel>
+                  <Select
+                    value={data.curso_id}
+                    disabled={carregandoCursos}
+                    onValueChange={(value) => {
+                      setData('curso_id', String(value));
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue
+                        placeholder={
+                          carregandoCursos
+                            ? 'A carregar cursos...'
+                            : 'Selecione o curso'
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>
+                          {data.tenant_tutor_id
+                            ? 'Cursos do instituto tutor'
+                            : 'Cursos do catálogo central'}
+                        </SelectLabel>
+                        {cursosDisponiveis?.map((curso) => (
+                          <SelectItem key={curso.id} value={curso.id}>
+                            {curso.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  {carregandoCursos && (
+                    <p className="text-xs text-muted-foreground">
+                      A carregar cursos do instituto tutor...
+                    </p>
+                  )}
+                  {!carregandoCursos && cursosDisponiveis.length === 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      Nenhum curso disponível para esta tutela.
+                    </p>
+                  )}
+                  {errors.curso_id && (
+                    <FieldError>{errors.curso_id}</FieldError>
+                  )}
+                </Field>
 
                 <Field>
                   <FieldLabel>Nível de Ensino</FieldLabel>
@@ -178,20 +239,6 @@ export function CursoForm({
                   />
                   {errors.classe_ids && (
                     <FieldError>{errors.classe_ids}</FieldError>
-                  )}
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="duracao_anos">Duração (anos)</FieldLabel>
-                  <Input
-                    id="duracao_anos"
-                    type="number"
-                    placeholder="Ex.: 3"
-                    value={data.duracao_anos}
-                    onChange={(e) => setData('duracao_anos', e.target.value)}
-                  />
-                  {errors.duracao_anos && (
-                    <FieldError>{errors.duracao_anos}</FieldError>
                   )}
                 </Field>
 

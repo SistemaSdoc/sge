@@ -249,7 +249,9 @@ export default function Show({
 
           {grupoPap?.estrutura_trabalho_pap_url && (
             <div>
-              <p className="text-sm text-muted-foreground">Estrutura do Trabalho PAP</p>
+              <p className="text-sm text-muted-foreground">
+                Estrutura do Trabalho PAP
+              </p>
 
               <a
                 href={grupoPap.estrutura_trabalho_pap_url}
@@ -343,43 +345,44 @@ export default function Show({
         'melhoria-solicitada-tutor',
         'melhoria-solicitada-coordenacao',
       ].includes((grupoPap.status_aprovacao || '').toLowerCase()) && (
-          <Alert
-            variant={
-              (grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
-                ? 'destructive'
-                : 'default'
-            }
-          >
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>
-              {(grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
-                ? 'Tema reprovado'
-                : 'Melhoria solicitada'}
-            </AlertTitle>
-            <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-sm">
-                {grupoPap.comentario_aprovacao ?? 'Sem comentário adicional.'}
-              </span>
-              {can?.corrigirTema && (
-                <Button
-                  size="sm"
-                  variant={
-                    (grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
-                      ? 'destructive'
-                      : 'default'
-                  }
-                  onClick={() =>
-                    router.visit(editarTema.url({ grupoPap: grupoPap.id }))
-                  }
-                >
-                  {(grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
-                    ? 'Enviar Novo Tema'
-                    : 'Corrigir Tema'}
-                </Button>
-              )}
-            </AlertDescription>
-          </Alert>
-        )}
+        <Alert
+          variant={
+            (grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
+              ? 'destructive'
+              : 'default'
+          }
+        >
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>
+            {(grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
+              ? 'Tema reprovado'
+              : 'Melhoria solicitada'}
+          </AlertTitle>
+          <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <span className="text-sm">
+              {grupoPap.comentario_aprovacao ?? 'Sem comentário adicional.'}
+            </span>
+            {can?.corrigirTema && (
+              <Button
+                size="sm"
+                variant={
+                  (grupoPap.status_aprovacao || '').toLowerCase() ===
+                  'reprovado'
+                    ? 'destructive'
+                    : 'default'
+                }
+                onClick={() =>
+                  router.visit(editarTema.url({ grupoPap: grupoPap.id }))
+                }
+              >
+                {(grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
+                  ? 'Enviar Novo Tema'
+                  : 'Corrigir Tema'}
+              </Button>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Tabs defaultValue="integrantes-grupo" className="w-full">
         <TabsList>

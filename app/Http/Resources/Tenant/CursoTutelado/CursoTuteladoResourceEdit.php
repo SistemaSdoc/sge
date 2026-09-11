@@ -39,7 +39,7 @@ class CursoTuteladoResourceEdit extends JsonResource
             'curso_id' => $this->instituicaoCurso->curso_id,
             'curso' => [
                 'nome' => $this->instituicaoCurso->curso->nome,
-                'duracao_anos' => $this->instituicaoCurso->duracao_anos,
+                'duracao_anos' => $this->instituicaoCurso->curso->duracao_anos,
             ],
             'nivel_ensino_id' => (string) ($this->cursoClasses->first()?->nivel_ensino_id ?? ''),
             'nivel_ensino' => $this->cursoClasses->first()?->nivelEnsino ? [

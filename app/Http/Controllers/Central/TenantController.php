@@ -91,7 +91,7 @@ class TenantController extends Controller
                     'id' => $tenant->id,
                 ],
             ])->toResponse(request());
-            
+
             $response->headers->set('X-Tenant-Status', TenantStatus::PROVISIONING->value);
 
             return $response;

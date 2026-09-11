@@ -86,44 +86,46 @@ export function Header({
       </CardHeader>
 
       {/* Filtros */}
-      <div className="flex flex-col gap-3 overflow-hidden px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
-        <h1 className="text-sm font-semibold whitespace-nowrap">Filtros</h1>
+      {can?.selecionarAnoLectivo && (
+        <div className="flex flex-col gap-3 overflow-hidden px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
+          <h1 className="text-sm font-semibold whitespace-nowrap">Filtros</h1>
 
-        <div className="flex w-full flex-col justify-end gap-2 sm:w-auto sm:flex-row">
-          {can?.selecionarInstituicao && (
+          <div className="flex w-full flex-col justify-end gap-2 sm:w-auto sm:flex-row">
+            {can?.selecionarInstituicao && (
+              <Select
+                value={normalizeFilterValue(filtroInstituicao)}
+                onValueChange={onInstituicaoChange}
+              >
+                <SelectTrigger className="w-full sm:w-56">
+                  <SelectValue placeholder="Instituição" />
+                </SelectTrigger>
+                <SelectContent>
+                  {instituicoes.map((item) => (
+                    <SelectItem key={item.id} value={String(item.id)}>
+                      {item.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             <Select
-              value={normalizeFilterValue(filtroInstituicao)}
-              onValueChange={onInstituicaoChange}
+              value={normalizeFilterValue(anoLectivoId)}
+              onValueChange={onAnoLectivoChange}
             >
-              <SelectTrigger className="w-full sm:w-56">
-                <SelectValue placeholder="Instituição" />
+              <SelectTrigger className="w-full sm:w-44">
+                <SelectValue placeholder="Ano lectivo" />
               </SelectTrigger>
               <SelectContent>
-                {instituicoes.map((item) => (
-                  <SelectItem key={item.id} value={String(item.id)}>
-                    {item.nome}
+                {anosLectivos.map((ano) => (
+                  <SelectItem key={ano.id} value={String(ano.id)}>
+                    {ano.nome}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          )}
-          <Select
-            value={normalizeFilterValue(anoLectivoId)}
-            onValueChange={onAnoLectivoChange}
-          >
-            <SelectTrigger className="w-full sm:w-44">
-              <SelectValue placeholder="Ano lectivo" />
-            </SelectTrigger>
-            <SelectContent>
-              {anosLectivos.map((ano) => (
-                <SelectItem key={ano.id} value={String(ano.id)}>
-                  {ano.nome}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Cursos tutelados */}
       <div className="border-t border-foreground/10">

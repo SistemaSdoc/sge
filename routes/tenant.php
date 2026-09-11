@@ -21,6 +21,7 @@ use App\Http\Controllers\Tenant\DashboardController;
 use App\Http\Controllers\Tenant\DisciplinaController as DisciplinaControllerGeral;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
+use App\Http\Controllers\Tenant\FichaMatriculaController;
 use App\Http\Controllers\Tenant\FolhaAprovacaoController;
 use App\Http\Controllers\Tenant\GrelhaCurricularController;
 use App\Http\Controllers\Tenant\GrupoPapAprovacaoController;
@@ -142,6 +143,9 @@ Route::middleware([
             Route::get('alunos/{aluno}/turmas-disponiveis', [AlunoController::class, 'turmasDisponiveis'])
                 ->name('alunos.turmas-disponiveis');
 
+            Route::get('alunos/{aluno}/ficha-matricula', [FichaMatriculaController::class, 'pdf'])
+                ->name('alunos.ficha-matricula');
+
             /*
             |--------------------------------------------------------------------------
             | Pagamentos e Itens Pagáveis
@@ -211,13 +215,14 @@ Route::middleware([
             |--------------------------------------------------------------------------
             */
 
-            Route::resource('cursos', CursosController::class);
-
             Route::resource('instituicoes.cursos-tutelados', CursoTuteladoController::class)
                 ->parameters([
                     'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
                 ]);
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados-cursos-disponiveis', [CursoTuteladoController::class, 'cursosDisponiveis'])
+                ->name('instituicoes.cursos-tutelados.cursos-disponiveis');
 
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/criterios-pap', [CursoTuteladoController::class, 'uploadCriteriosPap'])
                 ->name('instituicoes.cursos-tutelados.criterios-pap');
@@ -676,7 +681,7 @@ Route::middleware([
       |--------------------------------------------------------------------------
       */
     Route::get('/storage/{path}', function (string $path) {
-        if (!Storage::disk('public')->exists($path)) {
+        if (! Storage::disk('public')->exists($path)) {
             abort(404);
         }
 

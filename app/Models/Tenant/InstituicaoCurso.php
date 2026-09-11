@@ -2,8 +2,10 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\Central\Curso;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 #[Fillable([
@@ -27,9 +29,9 @@ class InstituicaoCurso extends Pivot
         return $this->belongsTo(Instituicao::class);
     }
 
-    public function curso()
+    public function curso(): BelongsTo
     {
-        return $this->belongsTo(Curso::class);
+        return $this->belongsTo(Curso::class)->withTrashed();
     }
 
     public function cursoTutelado()

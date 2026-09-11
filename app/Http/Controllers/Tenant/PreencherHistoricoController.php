@@ -23,7 +23,8 @@ class PreencherHistoricoController extends Controller
         private readonly PreencherHistoricoService $service,
         private readonly NotaService $notaService,
         private readonly PautaService $pautaService,
-    ) {}
+    ) {
+    }
 
     /**
      * Mostra o formulário de lançamento do histórico académico de um aluno.
@@ -64,7 +65,7 @@ class PreencherHistoricoController extends Controller
                 'id' => $tdp->classeTurnoDisciplina->id,
                 'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
                 'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
-                'notas' => $notas->keyBy('periodo')->map(fn ($n) => $this->formatarNota($n)),
+                'notas' => $notas->keyBy('periodo')->map(fn($n) => $this->formatarNota($n)),
             ];
         });
 
@@ -135,7 +136,7 @@ class PreencherHistoricoController extends Controller
                 }
             }
 
-            if (! $temNotas) {
+            if (!$temNotas) {
                 return back()->withErrors(['error' => 'Deve preencher pelo menos uma nota antes de finalizar o trimestre.']);
             }
         }
@@ -148,6 +149,12 @@ class PreencherHistoricoController extends Controller
             );
         }
 
+        // Marca rascunho ou finalizado
+        Nota::where('turma_aluno_id', $turmaAluno->id)
+            ->where('periodo', $periodo)
+            ->update(['is_rascunho' => $validated['accao'] === 'guardar']);
+
+
         if ($validated['accao'] === 'finalizar') {
             $tdpIds = TurmaDisciplinaProfessor::where('turma_id', $turmaAluno->turma_id)
                 ->pluck('id');
@@ -159,10 +166,10 @@ class PreencherHistoricoController extends Controller
                 );
             }
 
-            return back()->with('success', 'Histórico do trimestre '.$periodo.' finalizado com sucesso.');
+            return back()->with('success', 'Histórico do trimestre ' . $periodo . ' finalizado com sucesso.');
         }
 
-        return back()->with('success', 'Rascunho do trimestre '.$periodo.' guardado.');
+        return back()->with('success', 'Rascunho do trimestre ' . $periodo . ' guardado.');
     }
 
     /**
@@ -190,7 +197,7 @@ class PreencherHistoricoController extends Controller
             return redirect()
                 ->to(
                     route('tenant.dashboard.preencher-historico.create', ['aluno' => $aluno->id])
-                    .'?turma_aluno_id='.$turmaAluno->id
+                    . '?turma_aluno_id=' . $turmaAluno->id
                 )
                 ->with('success', 'Histórico criado. Procede ao lançamento de notas.');
 

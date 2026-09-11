@@ -10,6 +10,7 @@ use App\Jobs\ProvisionTenantJob;
 use App\Models\Central\PendingTenantData;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\User;
 use App\Notifications\TenantPendenteNotification;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -87,7 +88,7 @@ class TenantService
      *
      * @return array<int, array{id: string, nome: string}>
      */
-    public function getAvailableTutors(string $currentTenantId): array
+    public function getAvailableTutors(string $currentTenantId, ?string $cursoId = null): array
     {
         return Tenant::query()
             ->where('id', '!=', $currentTenantId)
@@ -103,8 +104,37 @@ class TenantService
                 ];
             })
             ->filter(fn (array $tenant): bool => $tenant['tipo'] === 'instituto')
+            ->filter(function (array $tenant) use ($cursoId): bool {
+                if (! $cursoId) {
+                    return true;
+                }
+
+                return $this->tutorOffersCourse($tenant['id'], $cursoId);
+            })
             ->values()
             ->all();
+    }
+
+    /**
+     * Confirma que um instituto activo oferece o curso indicado.
+     */
+    public function tutorOffersCourse(string $tenantId, string $cursoId): bool
+    {
+        $tenant = Tenant::query()
+            ->whereKey($tenantId)
+            ->whereIn('status', [TenantStatus::ACTIVE, TenantStatus::TRIAL])
+            ->first();
+
+        if (! $tenant) {
+            return false;
+        }
+
+        return (bool) $tenant->run(
+            fn (): bool => InstituicaoCurso::query()
+                ->where('curso_id', $cursoId)
+                ->whereHas('instituicao', fn ($query) => $query->where('tipo', 'instituto'))
+                ->exists()
+        );
     }
 
     private function isMissingTenantDatabase(TenantDatabaseDoesNotExistException|QueryException $exception): bool

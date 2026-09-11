@@ -25,11 +25,11 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'professor_tutor_id' => [
-                'nullable',
-                'exists:professores,id',
-                new ProfessorTitularDoCurso($this->route('cursoTutelado')),
-            ],
+            // 'professor_tutor_id' => [
+            //     'nullable',
+            //     'exists:professores,id',
+            //     new ProfessorTitularDoCurso($this->route('cursoTutelado')),
+            // ],
             'nome_grupo' => 'required|string|max:255',
             'tema_grupo' => 'nullable|string|max:255',
             'problema' => 'nullable|string',

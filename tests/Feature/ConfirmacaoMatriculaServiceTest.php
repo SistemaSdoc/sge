@@ -1,27 +1,112 @@
 <?php
 
-use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
-use App\Models\Tenant\Candidato;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
-use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
+use App\Models\Tenant\NivelEnsino;
 use App\Models\Tenant\Turma;
-use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\Turno;
+use App\Services\Tenant\ConfirmacaoMatriculaViewService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use App\Models\Tenant\User;
+use App\Notifications\Aluno\MatriculaConfirmadaNotification;
 use App\Services\Tenant\ConfirmacaoMatriculaService;
+use Illuminate\Support\Facades\Notification;
 
-it('lista alunos que transitam e que repetem para confirmar matrícula no ano seguinte', function () {
+uses(RefreshDatabase::class);
+
+beforeEach(function (): void {
+    while (DB::transactionLevel() > 0) {
+        DB::rollBack();
+    }
+
+    Artisan::call('migrate:fresh', [
+        '--database' => 'sqlite',
+        '--path' => database_path('migrations/tenant'),
+        '--realpath' => true,
+        '--no-interaction' => true,
+    ]);
+});
+
+it('disponibiliza apenas turmas do próximo ano e do mesmo curso tutelado', function () {
     $instituicao = Instituicao::create([
         'nome' => 'Instituição de Teste',
         'sigla' => 'INST',
-        'tipo' => 'publica',
+        'tipo' => 'instituto',
+        'status' => 1,
+    ]);
+
+    $curso = Curso::create([
+        'nome' => 'Curso de Teste',
+        'duracao_anos' => 3,
+        'descricao' => 'Descrição',
+        'status' => 1,
+    ]);
+    $nivelEnsino = NivelEnsino::create(['nome' => 'Médio']);
+
+    $classe = Classe::create(['nome' => '10ª Classe', 'nivel_ensino' => 'medio', 'ordem' => 10]);
+    $turno = Turno::create(['nome' => 'Manhã']);
+    $anoActual = AnoLectivo::create([
+        'data_inicio' => now()->startOfYear(),
+        'data_fim' => now()->endOfYear(),
+    ]);
+    $anoProximo = AnoLectivo::create([
+        'data_inicio' => now()->addYear()->startOfYear(),
+        'data_fim' => now()->addYear()->endOfYear(),
+    ]);
+
+    $instituicaoCurso = InstituicaoCurso::create([
+        'instituicao_id' => $instituicao->id,
+        'curso_id' => $curso->id,
+        'duracao_anos' => 3,
+    ]);
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+    ]);
+    $cursoClasse = CursoClasse::create([
+        'classe_id' => $classe->id,
+        'curso_tutelado_id' => $cursoTutelado->id,
+        'nivel_ensino_id' => $nivelEnsino->id,
+    ]);
+    $cursoClasseTurno = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasse->id,
+        'turno_id' => $turno->id,
+    ]);
+
+    $turmaActual = Turma::create([
+        'nome' => '10A',
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'max_alunos' => 30,
+        'ano_lectivo_id' => $anoActual->id,
+    ]);
+    $turmaProxima = Turma::create([
+        'nome' => '10B',
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'max_alunos' => 30,
+        'ano_lectivo_id' => $anoProximo->id,
+    ]);
+
+    $opcoes = app(ConfirmacaoMatriculaViewService::class)->opcoes($turmaActual, $instituicao);
+
+    expect($opcoes['ano']['id'])->toBe($anoProximo->id)
+        ->and($opcoes['turmas']->pluck('id')->all())->toBe([$turmaProxima->id]);
+});
+
+it('envia notificação por email quando a matrícula do aluno é confirmada', function () {
+    Notification::fake();
+
+    $instituicao = Instituicao::create([
+        'nome' => 'Instituição de Teste',
+        'sigla' => 'INST',
+        'tipo' => 'instituto',
         'email' => 'teste@example.com',
         'telefone' => '123456789',
         'provincia' => 'Luanda',
@@ -36,7 +121,12 @@ it('lista alunos que transitam e que repetem para confirmar matrícula no ano se
         'status' => 1,
     ]);
 
-    $classe = Classe::create([
+    $classeAtual = Classe::create([
+        'nome' => '11ª Classe',
+        'ordem' => 11,
+    ]);
+
+    $classeNova = Classe::create([
         'nome' => '12ª Classe',
         'ordem' => 12,
     ]);
@@ -45,9 +135,18 @@ it('lista alunos que transitam e que repetem para confirmar matrícula no ano se
         'nome' => 'Manhã',
     ]);
 
-    $anoLectivo = AnoLectivo::create([
+    $anoAtual = AnoLectivo::create([
+        'nome' => '2025/2026',
         'data_inicio' => now()->subYear(),
-        'data_fim' => now()->addYear(),
+        'data_fim' => now()->addMonths(10),
+        'activo' => true,
+    ]);
+
+    $anoProximo = AnoLectivo::create([
+        'nome' => '2026/2027',
+        'data_inicio' => now()->addMonths(11),
+        'data_fim' => now()->addYear()->addMonths(10),
+        'activo' => false,
     ]);
 
     $instituicaoCurso = InstituicaoCurso::create([
@@ -61,91 +160,82 @@ it('lista alunos que transitam e que repetem para confirmar matrícula no ano se
         'instituicao_tutora_id' => $instituicao->id,
     ]);
 
-    $cursoClasse = CursoClasse::create([
-        'classe_id' => $classe->id,
+    $cursoClasseAtual = CursoClasse::create([
+        'classe_id' => $classeAtual->id,
         'curso_tutelado_id' => $cursoTutelado->id,
     ]);
 
-    $cursoClasseTurno = CursoClasseTurno::create([
-        'curso_classe_id' => $cursoClasse->id,
+    $cursoClasseNova = CursoClasse::create([
+        'classe_id' => $classeNova->id,
+        'curso_tutelado_id' => $cursoTutelado->id,
+    ]);
+
+    $cursoClasseTurnoAtual = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasseAtual->id,
         'turno_id' => $turno->id,
     ]);
 
-    $turma = Turma::create([
-        'nome' => '12A',
-        'curso_classe_turno_id' => $cursoClasseTurno->id,
+    $cursoClasseTurnoNova = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasseNova->id,
+        'turno_id' => $turno->id,
+    ]);
+
+    $turmaAtual = Turma::create([
+        'nome' => '11A',
+        'curso_classe_turno_id' => $cursoClasseTurnoAtual->id,
         'max_alunos' => 30,
-        'ano_lectivo_id' => $anoLectivo->id,
+        'ano_lectivo_id' => $anoAtual->id,
     ]);
 
-    $candidatoTransita = Candidato::create([
-        'nome' => 'Aluno a transitar',
-        'bi' => '000000000LA01',
-        'numero_estudante' => '0001',
-        'morada' => 'Rua A',
-        'telefone' => '911111111',
-        'email' => 'transita@example.com',
+    $turmaNova = Turma::create([
+        'nome' => '12A',
+        'curso_classe_turno_id' => $cursoClasseTurnoNova->id,
+        'max_alunos' => 30,
+        'ano_lectivo_id' => $anoProximo->id,
     ]);
 
-    $candidatoRepete = Candidato::create([
-        'nome' => 'Aluno a repetir',
-        'bi' => '000000000LA02',
-        'numero_estudante' => '0002',
-        'morada' => 'Rua B',
-        'telefone' => '922222222',
-        'email' => 'repete@example.com',
+    $candidato = Candidato::create([
+        'nome' => 'Aluno confirmado',
+        'bi' => '000000000LA03',
+        'numero_estudante' => '0003',
+        'morada' => 'Rua C',
+        'telefone' => '933333333',
+        'email' => 'confirmado@example.com',
     ]);
 
-    $inscricaoTransita = Inscricao::create([
-        'curso_classe_turno_id' => $cursoClasseTurno->id,
-        'candidato_id' => $candidatoTransita->id,
-        'ano_lectivo_id' => $anoLectivo->id,
+    $inscricao = Inscricao::create([
+        'curso_classe_turno_id' => $cursoClasseTurnoAtual->id,
+        'candidato_id' => $candidato->id,
+        'ano_lectivo_id' => $anoAtual->id,
         'status' => 'aprovado',
     ]);
 
-    $inscricaoRepete = Inscricao::create([
-        'curso_classe_turno_id' => $cursoClasseTurno->id,
-        'candidato_id' => $candidatoRepete->id,
-        'ano_lectivo_id' => $anoLectivo->id,
-        'status' => 'aprovado',
+    $user = User::factory()->create([
+        'nome' => 'Aluno confirmado',
+        'email' => 'confirmado@example.com',
     ]);
 
-    $userTransita = User::factory()->create();
-    $userRepete = User::factory()->create();
-
-    $alunoTransita = Aluno::create([
-        'inscricao_id' => $inscricaoTransita->id,
-        'user_id' => $userTransita->id,
-        'matricula' => 'MAT-TRANSITA',
-        'situacao' => 'activo',
-    ]);
-
-    $alunoRepete = Aluno::create([
-        'inscricao_id' => $inscricaoRepete->id,
-        'user_id' => $userRepete->id,
-        'matricula' => 'MAT-REPETE',
+    $aluno = Aluno::create([
+        'inscricao_id' => $inscricao->id,
+        'user_id' => $user->id,
+        'matricula' => 'MAT-CONFIRMADA',
         'situacao' => 'activo',
     ]);
 
     TurmaAluno::create([
-        'turma_id' => $turma->id,
-        'aluno_id' => $alunoTransita->id,
+        'turma_id' => $turmaAtual->id,
+        'aluno_id' => $aluno->id,
+        'ano_lectivo_id' => $anoAtual->id,
         'activo' => true,
         'situacao' => 'activo',
-        'resultado' => 'transita',
-    ]);
-
-    TurmaAluno::create([
-        'turma_id' => $turma->id,
-        'aluno_id' => $alunoRepete->id,
-        'activo' => true,
-        'situacao' => 'retido',
     ]);
 
     $service = app(ConfirmacaoMatriculaService::class);
-    $result = $service->listarAlunosPorConfirmarMatricula();
+    $service->confirmarMatricula($aluno, $turmaNova, $turmaAtual);
 
-    expect($result->items())->toHaveCount(2)
-        ->and($result->items())->toContainEqual(expect(fn ($aluno) => $aluno['nome'] === 'Aluno a transitar'))
-        ->and($result->items())->toContainEqual(expect(fn ($aluno) => $aluno['nome'] === 'Aluno a repetir'));
+    Notification::assertSentTo($user, MatriculaConfirmadaNotification::class, function ($notification, $channels) use ($aluno) {
+        return in_array('mail', $channels, true)
+            && $notification->aluno->is($aluno)
+            && $notification->turmaNova->is($turmaNova);
+    });
 });

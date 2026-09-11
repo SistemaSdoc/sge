@@ -1,5 +1,7 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { LogOut, Settings2 } from 'lucide-react';
+import { destroy as centralLogout } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
+import { edit as centralProfileEdit } from '@/actions/App/Http/Controllers/Central/Settings/ProfileController';
 import { edit } from '@/actions/App/Http/Controllers/Tenant/Settings/ProfileController';
 import {
   DropdownMenuGroup,
@@ -9,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
-import { logout } from '@/routes/tenant';
+import { logout as tenantLogout } from '@/routes/tenant';
 import type { User } from '@/types';
 
 type Props = {
@@ -18,6 +20,9 @@ type Props = {
 
 export function UserMenuContent({ user }: Props) {
   const cleanup = useMobileNavigation();
+  const { isTenant } = usePage<{ isTenant: boolean }>().props;
+  const profileEdit = isTenant ? edit : centralProfileEdit;
+  const logout = isTenant ? tenantLogout : centralLogout;
 
   const handleLogout = () => {
     cleanup();
@@ -38,7 +43,7 @@ export function UserMenuContent({ user }: Props) {
         <DropdownMenuItem asChild>
           <Link
             className="block w-full cursor-pointer"
-            href={edit()}
+            href={profileEdit()}
             prefetch
             onClick={cleanup}
           >

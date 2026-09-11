@@ -182,7 +182,7 @@
 
         <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
             O <strong>{{ $solicitadoPor }}</strong> solicitou uma correcção no trabalho do vosso grupo PAP.
-            Consulte o feedback abaixo e reenvie o trabalho quando estiver corrigido.
+            Consulte as recomendações abaixo e reenvie o trabalho quando estiver corrigido.
         </p>
 
         {{-- Grupo --}}
@@ -194,7 +194,7 @@
         {{-- Feedback --}}
         @if (!empty($comentario))
             <div class="feedback-box">
-                <div class="feedback-label">Feedback</div>
+                <div class="feedback-label">Recomendações</div>
                 <p>{{ $comentario }}</p>
             </div>
         @endif

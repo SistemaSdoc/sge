@@ -6,8 +6,5 @@ use App\Models\Tenant\Pagamento;
 
 class PagamentoObserver
 {
-    public function created(Pagamento $pagamento)
-    {
-        // $pagamento->gerarRecibo();
-    }
+    public function created(Pagamento $pagamento) {}
 }

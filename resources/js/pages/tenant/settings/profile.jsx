@@ -1,4 +1,8 @@
 import { Form, Head, usePage } from '@inertiajs/react';
+import {
+  update as centralUpdate,
+  edit as centralEdit,
+} from '@/actions/App/Http/Controllers/Central/Settings/ProfileController';
 import { Link } from '@inertiajs/react';
 import { update } from '@/actions/App/Http/Controllers/Tenant/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
@@ -11,8 +15,20 @@ import { edit } from '@/actions/App/Http/Controllers/Tenant/Settings/ProfileCont
 //rota errada temporaria
 import { create as send } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
 
+const currentProfileEdit = () => {
+  if (typeof window === 'undefined') {
+    return edit();
+  }
+
+  const centralUrl = new URL(centralEdit().url, window.location.origin);
+
+  return centralUrl.host === window.location.host ? centralEdit() : edit();
+};
+
 export default function Profile({ mustVerifyEmail, status }) {
-  const { auth } = usePage().props;
+  const { auth, isTenant } = usePage().props;
+  const profileUpdate = isTenant ? update : centralUpdate;
+  const profileEdit = isTenant ? edit : centralEdit;
 
   return (
     <>
@@ -28,7 +44,7 @@ export default function Profile({ mustVerifyEmail, status }) {
         />
 
         <Form
-          {...update.form()}
+          {...profileUpdate.form()}
           options={{
             preserveScroll: true,
           }}
@@ -110,7 +126,7 @@ Profile.layout = {
   breadcrumbs: [
     {
       title: 'Configurações do perfil',
-      href: edit(),
+      href: currentProfileEdit(),
     },
   ],
 };

@@ -2,10 +2,11 @@
 
 namespace App\Actions\Tenant\CursoTutelado;
 
-use App\Models\Tenant\Curso;
+use App\Models\Central\Curso;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
 use App\Services\Tenant\Tutela\TutelaService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -19,9 +20,10 @@ class CreateCursoTutelado
     public function __construct(private readonly TutelaService $tutelaService) {}
 
     /**
-     * Cria o curso local e publica a tutela externa, quando aplicável.
+     * Associa um curso central à instituição e publica a tutela externa,
+     * quando aplicável.
      *
-     * @param  array{curso_id?: string|null, nome?: string|null, duracao_anos?: int|null, nivel_ensino_id: string, classe_ids: array<int, string>, tenant_tutor_id?: string|null}  $validated
+     * @param  array{curso_id: string, nivel_ensino_id: string, classe_ids: array<int, string>, tenant_tutor_id?: string|null}  $validated
      */
     public function handle(Instituicao $instituicao, array $validated): CursoTutelado
     {
@@ -30,30 +32,38 @@ class CreateCursoTutelado
             ? $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId)
             : null;
 
-        $cursoTutelado = DB::connection('tenant')->transaction(function () use ($instituicao, $validated, $tenantTutorId): CursoTutelado {
-            $curso = isset($validated['curso_id'])
-                ? Curso::on('tenant')->findOrFail($validated['curso_id'])
-                : Curso::on('tenant')->firstOrCreate(
-                    ['nome' => $validated['nome']],
-                    ['duracao_anos' => $validated['duracao_anos']]
-                );
+        $curso = Curso::query()
+            ->whereKey($validated['curso_id'])
+            ->where('status', 1)
+            ->firstOrFail();
 
-            $curso->setConnection('tenant');
+        $cursoTutelado = DB::connection('tenant')->transaction(function () use ($instituicao, $validated, $tenantTutorId, $curso, $instituicaoTutora): CursoTutelado {
+            if ($instituicaoTutora && ! $instituicaoTutora->tenant->run(
+                fn (): bool => InstituicaoCurso::query()
+                    ->where('instituicao_id', $instituicaoTutora->instituicao->getKey())
+                    ->where('curso_id', $curso->getKey())
+                    ->exists()
+            )) {
+                throw ValidationException::withMessages([
+                    'curso_id' => 'O instituto tutor não oferece o curso seleccionado.',
+                ]);
+            }
+
             $instituicao->setConnection('tenant');
 
-            // if (Instituicao::query()
-            //     ->findOrFail($instituicao->getKey())
-            //     ->instituicaoCursos()
-            //     ->where('curso_id', $curso->getKey())
-            //     ->exists()) {
-            //     throw ValidationException::withMessages([
-            //         'curso_id' => 'Esta instituição já tem este curso associado.',
-            //     ]);
-            // }
+            if (Instituicao::query()
+                ->findOrFail($instituicao->getKey())
+                ->instituicaoCursos()
+                ->where('curso_id', $curso->getKey())
+                ->exists()) {
+                throw ValidationException::withMessages([
+                    'curso_id' => 'Esta instituição já tem este curso associado.',
+                ]);
+            }
 
             $instituicaoCurso = $instituicao->instituicaoCursos()->create([
                 'curso_id' => $curso->getKey(),
-                'duracao_anos' => $validated['duracao_anos'] ?? $curso->duracao_anos,
+                'duracao_anos' => $curso->duracao_anos,
             ]);
 
             $cursoTutelado = $instituicaoCurso->cursoTutelado()->create([

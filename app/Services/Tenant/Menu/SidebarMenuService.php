@@ -7,11 +7,9 @@ use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\AvisoController;
 use App\Http\Controllers\Tenant\ClasseController;
 use App\Http\Controllers\Tenant\Colegios\ColegioController;
-use App\Http\Controllers\Tenant\CursosController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\GrelhaCurricularController;
-use App\Http\Controllers\Tenant\GrupoPapController;
 use App\Http\Controllers\Tenant\InscricaoController;
 use App\Http\Controllers\Tenant\InstituicaoController;
 use App\Http\Controllers\Tenant\NotaAlunoController;
@@ -26,7 +24,6 @@ use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Aviso;
 use App\Models\Tenant\Classe;
-use App\Models\Tenant\Curso;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
@@ -36,15 +33,21 @@ use App\Models\Tenant\RegraAvaliacao;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
+use App\Services\Tenant\GrupoPap\GrupoPapNavigationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 final class SidebarMenuService
 {
+    public function __construct(
+        private readonly GrupoPapNavigationService $grupoPapNavigationService,
+    ) {}
+
     public function build(): array
     {
         $user = Auth::guard('tenant')->user();
         $gate = Gate::forUser($user);
+        $grupoPapNavigation = $this->grupoPapNavigationService->resolve($user);
 
         $groups = [
 
@@ -110,14 +113,6 @@ final class SidebarMenuService
                 ),
 
                 new MenuItem(
-                    key: 'cursos',
-                    title: 'Cursos',
-                    href: action([CursosController::class, 'index']),
-                    icon: 'BookOpen',
-                    can: $gate->allows('viewAny', Curso::class)
-                ),
-
-                new MenuItem(
                     key: 'classes',
                     title: 'Classes',
                     href: action([ClasseController::class, 'index']),
@@ -175,10 +170,10 @@ final class SidebarMenuService
 
                 new MenuItem(
                     key: 'grupos-pap',
-                    title: 'Grupos PAP',
-                    href: action([GrupoPapController::class, 'index']),
+                    title: $grupoPapNavigation['title'],
+                    href: $grupoPapNavigation['href'],
                     icon: 'Users',
-                    can: fn () => $gate->allows('viewAny', GrupoPap::class),
+                    can: $grupoPapNavigation['visible'] && $gate->allows('viewAny', GrupoPap::class),
                 ),
 
                 new MenuItem(

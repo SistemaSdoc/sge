@@ -141,12 +141,6 @@
 
     <div class="email-wrapper">
 
-        <div class="header">
-            <h1>Propina em atraso</h1>
-            <div class="account-badge">
-                <span>{{ $nome }}</span>
-            </div>
-        </div>
 
         <hr class="divider">
 
@@ -171,8 +165,8 @@
 
         <div class="credential-item">
             <div class="item-text">
-                <div class="label-danger">{{ $valorTotal }} AOA</div>
-                <div class="sublabel">Total em dívida</div>
+                <div class="label-danger">Total em dívida</div>
+                <div class="sublabel">{{ $valorTotal }} AOA</div>
             </div>
         </div>
 

@@ -5,6 +5,7 @@ namespace App\Services\Tenant;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\CursoClasseRecord;
 use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\Nota;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
@@ -45,11 +46,10 @@ class PreencherHistoricoService
                 ->where('curso_tutelado_id', $cursoTuteladoId)
                 ->when(
                     $ordemActual !== null,
-                    fn($q) => $q->whereHas('classe', fn($q2) => $q2->where('ordem', '<', $ordemActual))
+                    fn ($q) => $q->whereHas('classe', fn ($q2) => $q2->where('ordem', '<', $ordemActual))
                 )
                 ->get();
         }
-
 
         // Fallback: busca por turmas que o aluno já frequentou
         // (cobre colégios e casos sem tutela directa)
@@ -66,17 +66,17 @@ class PreencherHistoricoService
                     ?->cursoClasse
                     ?->cursoTutelado
                     ?->instituicaoCurso
-                        ?->instituicao_id;
+                    ?->instituicao_id;
 
             if ($instituicaoId) {
                 $classes = CursoClasseRecord::with('classe')
                     ->whereHas('cursoTutelado', function ($q) use ($instituicaoId) {
                         $q->where('instituicao_tutora_id', $instituicaoId)
-                            ->orWhereHas('instituicaoCurso', fn($q2) => $q2->where('instituicao_id', $instituicaoId));
+                            ->orWhereHas('instituicaoCurso', fn ($q2) => $q2->where('instituicao_id', $instituicaoId));
                     })
                     ->when(
                         $ordemActual !== null,
-                        fn($q) => $q->whereHas('classe', fn($q2) => $q2->where('ordem', '<', $ordemActual))
+                        fn ($q) => $q->whereHas('classe', fn ($q2) => $q2->where('ordem', '<', $ordemActual))
                     )
                     ->get();
             }
@@ -97,10 +97,10 @@ class PreencherHistoricoService
 
         foreach ($classes as $cc) {
             $ta = $turmaAlunos->first(
-                fn($x) => $x->turma?->cursoClasseTurno?->curso_classe_id === $cc->id
+                fn ($x) => $x->turma?->cursoClasseTurno?->curso_classe_id === $cc->id
             );
 
-            if (!$ta) {
+            if (! $ta) {
                 // Nunca iniciou — mostra botão "Lançar Notas"
                 $resultado[] = [
                     'curso_classe_id' => $cc->id,
@@ -114,7 +114,13 @@ class PreencherHistoricoService
                 continue;
             }
 
-            $todasFinalizadas = $this->verificarSeTodasPautasFinalizadas($ta->turma->id);
+            $todasFinalizadas = $this->verificarSeTodasPautasFinalizadas($ta->turma->id, $ta->id);
+
+            \Log::debug('[Historico] verificacao', [
+                'turma_id' => $ta->turma->id,
+                'ta_id' => $ta->id,
+                'todas_finalizadas' => $todasFinalizadas,
+            ]);
 
             if ($todasFinalizadas) {
                 // Completo — oculta
@@ -128,7 +134,8 @@ class PreencherHistoricoService
                 'ordem' => $cc->classe->ordem,
                 'turma_aluno_id' => $ta->id,
                 'em_curso' => true,
-                'tem_notas' => $ta->notas->isNotEmpty(),
+                'tem_notas' => $ta->notas->isNotEmpty(), // ← true se há rascunho
+
             ];
         }
 
@@ -142,7 +149,7 @@ class PreencherHistoricoService
             ->get();
 
         $cursoClasseIds = $turmaAlunos
-            ->map(fn($ta) => $ta->turma?->cursoClasseTurno?->curso_classe_id)
+            ->map(fn ($ta) => $ta->turma?->cursoClasseTurno?->curso_classe_id)
             ->filter()
             ->unique()
             ->values();
@@ -169,7 +176,7 @@ class PreencherHistoricoService
      * - Para o período 2: TODAS as disciplinas têm pauta finalizada
      * - Para o período 3: TODAS as disciplinas têm pauta finalizada
      */
-    private function verificarSeTodasPautasFinalizadas(string $turmaId): bool
+    private function verificarSeTodasPautasFinalizadas(string $turmaId, string $turmaAlunoId): bool
     {
         $tdps = TurmaDisciplinaProfessor::where('turma_id', $turmaId)
             ->pluck('id');
@@ -180,17 +187,41 @@ class PreencherHistoricoService
 
         $numDisciplinas = $tdps->count();
 
-        // Verifica cada período (1, 2, 3)
-        for ($periodo = 1; $periodo <= 3; $periodo++) {
-            $pautasFinalizadasNestePeriodo = PautaStatus::whereIn('turma_disciplina_professor_id', $tdps)
-                ->where('periodo', $periodo)
-                ->where('status', 'finalizada')
-                ->count();
+        $isHistorico = TurmaAluno::where('id', $turmaAlunoId)
+            ->value('is_historico');
 
-            // Se não tem o mesmo número de pautas finalizadas que disciplinas,
-            // significa que faltam disciplinas neste período
-            if ($pautasFinalizadasNestePeriodo !== $numDisciplinas) {
-                return false;
+        for ($periodo = 1; $periodo <= 3; $periodo++) {
+            if ($isHistorico) {
+                // Histórico: verifica notas não rascunho
+                $notasFinalizadas = Nota::where('turma_aluno_id', $turmaAlunoId)
+                    ->whereIn('turma_disciplina_professor_id', $tdps)
+                    ->where('periodo', $periodo)
+                    ->where('is_rascunho', false)
+                    ->count();
+
+                if ($notasFinalizadas !== $numDisciplinas) {
+                    return false;
+                }
+            } else {
+                // Turma normal: lógica original
+                $pautasFinalizadas = PautaStatus::whereIn('turma_disciplina_professor_id', $tdps)
+                    ->where('periodo', $periodo)
+                    ->where('status', 'finalizada')
+                    ->count();
+
+                if ($pautasFinalizadas !== $numDisciplinas) {
+                    return false;
+                }
+
+                $notasAluno = Nota::where('turma_aluno_id', $turmaAlunoId)
+                    ->whereIn('turma_disciplina_professor_id', $tdps)
+                    ->where('periodo', $periodo)
+                    ->whereNotNull('media_trimestral')
+                    ->count();
+
+                if ($notasAluno !== $numDisciplinas) {
+                    return false;
+                }
             }
         }
 
@@ -206,7 +237,7 @@ class PreencherHistoricoService
             ->with('turno')
             ->distinct()
             ->get()
-            ->map(fn($cct) => [
+            ->map(fn ($cct) => [
                 'id' => $cct->id,
                 'turno_id' => $cct->turno->id,
                 'turno_nome' => $cct->turno->nome,
@@ -227,10 +258,10 @@ class PreencherHistoricoService
             ->where('ano_lectivo_id', $anoLectivoId)
             ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado', function ($q) use ($instituicaoId) {
                 $q->where('instituicao_tutora_id', $instituicaoId)
-                    ->orWhereHas('instituicaoCurso', fn($q2) => $q2->where('instituicao_id', $instituicaoId));
+                    ->orWhereHas('instituicaoCurso', fn ($q2) => $q2->where('instituicao_id', $instituicaoId));
             })
             ->get()
-            ->map(fn($t) => [
+            ->map(fn ($t) => [
                 'id' => $t->id,
                 'nome' => $t->nome,
                 'max_alunos' => $t->max_alunos,
@@ -256,7 +287,7 @@ class PreencherHistoricoService
         $pertence = $cursoTutelado->instituicao_tutora_id === $instituicaoId
             || $cursoTutelado->instituicaoCurso?->instituicao_id === $instituicaoId;
 
-        if (!$pertence) {
+        if (! $pertence) {
             throw new \Exception('Turma não pertence à sua instituição.');
         }
 
@@ -285,6 +316,7 @@ class PreencherHistoricoService
             'ano_lectivo_id' => $turma->ano_lectivo_id,
             'activo' => true,
             'situacao' => 'concluido',
+            'is_historico' => true,
         ]);
     }
 }

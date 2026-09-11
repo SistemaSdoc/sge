@@ -16,8 +16,13 @@ class PapHelper
         ?User $utilizador,
         Instituicao $instituicaoTutora,
         string $nomeCurso,
+        ?string $actorTenantId = null,
     ): string {
         if (! $utilizador) {
+            if ($actorTenantId) {
+                return "Grupo disciplinar do curso de {$nomeCurso} do {$instituicaoTutora->sigla}";
+            }
+
             return '—';
         }
 

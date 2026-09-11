@@ -14,8 +14,10 @@ use App\Notifications\Pap\NotaAtribuidaNotification;
 use App\Notifications\Pap\TemaAprovadoNotification;
 use App\Notifications\Pap\TemaReprovadoNotification;
 use App\Notifications\Pap\TemaSubmetidoAoTutorNotification;
+use App\Notifications\Pap\TemaSubmetidoCoordenacaoNotification;
 use App\Notifications\Pap\TemaValidadoPeloTutorNotification;
 use App\Notifications\Pap\TrabalhoAprovadoNotification;
+use App\Notifications\Pap\TrabalhoSubmetidoConfirmacaoNotification;
 use App\Notifications\Pap\TrabalhoSubmetidoNotification;
 use Illuminate\Notifications\Notification as NotificationInstance;
 use Illuminate\Support\Facades\Notification;
@@ -33,10 +35,52 @@ trait NotificaGrupoPap
 
     protected function notificarTemaValidadoPeloTutor(GrupoPap $grupoPap): void
     {
-        $this->notificarCoordenadoresDoFluxo(
-            $grupoPap,
-            new TemaValidadoPeloTutorNotification($grupoPap),
+        $notification = new TemaValidadoPeloTutorNotification($grupoPap);
+
+        $this->notificarCoordenadoresLocais($grupoPap, $notification);
+        $this->notificarCoordenadoresDoFluxo($grupoPap, $notification);
+
+        $alunos = $grupoPap->alunos->map->user->filter();
+        $tutor = $grupoPap->professor?->user;
+        $destinatarios = $alunos;
+
+        if ($tutor) {
+            $destinatarios = $destinatarios->push($tutor)->unique('id');
+        }
+
+        if ($destinatarios->isNotEmpty()) {
+            Notification::send($destinatarios, new TemaSubmetidoCoordenacaoNotification($grupoPap));
+        }
+    }
+
+    /**
+     * Envia a notificação aos coordenadores do tenant local do curso.
+     */
+    protected function notificarCoordenadoresLocais(
+        GrupoPap $grupoPap,
+        NotificationInstance $notification,
+    ): void {
+        $grupoPap->loadMissing(
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao'
         );
+
+        $cursoTutelado = $grupoPap->turma
+            ?->cursoClasseTurno
+            ?->cursoClasse
+            ?->cursoTutelado;
+
+        if (! $cursoTutelado) {
+            return;
+        }
+
+        $coordenadores = $cursoTutelado->professores()
+            ->where('coordenador', 1)
+            ->with('user')
+            ->get()
+            ->map->user
+            ->filter();
+
+        Notification::send($coordenadores, $notification);
     }
 
     /**
@@ -83,7 +127,7 @@ trait NotificaGrupoPap
             $cursoTutor = CursoTutelado::query()
                 ->whereHas(
                     'instituicaoCurso.curso',
-                    fn ($query) => $query->where('nome', $shared->curso_nome)
+                    fn ($query) => $query->whereKey($shared->curso_id)
                 )
                 ->first();
 
@@ -100,10 +144,22 @@ trait NotificaGrupoPap
 
     protected function notificarTrabalhoAosCoordenadores(GrupoPap $grupoPap): void
     {
-        $this->notificarCoordenadoresDoFluxo(
-            $grupoPap,
-            new TrabalhoSubmetidoNotification($grupoPap),
-        );
+        $notification = new TrabalhoSubmetidoNotification($grupoPap);
+
+        $this->notificarCoordenadoresLocais($grupoPap, $notification);
+        $this->notificarCoordenadoresDoFluxo($grupoPap, $notification);
+
+        $alunos = $grupoPap->alunos->map->user->filter();
+        $tutor = $grupoPap->professor?->user;
+        $destinatarios = $alunos;
+
+        if ($tutor) {
+            $destinatarios = $destinatarios->push($tutor)->unique('id');
+        }
+
+        if ($destinatarios->isNotEmpty()) {
+            Notification::send($destinatarios, new TrabalhoSubmetidoConfirmacaoNotification($grupoPap));
+        }
     }
 
     protected function notificarTemaAprovado(GrupoPap $grupoPap): void

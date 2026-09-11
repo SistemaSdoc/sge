@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Helpers\PapHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
@@ -43,8 +44,11 @@ class TrabalhoPapController extends Controller
             'versoes.feedbacks.utilizador:id,nome',
             'feedbacks.utilizador:id,nome',
             'feedbacks.versao:id,numero_versao',
-            'aprovadoPor:id,nome',
+            'aprovadoPor:id,nome,instituicao_id',
         ])->first();
+
+        $instituicaoTutora = $cursoTutelado->instituicaoTutora;
+        $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
 
         // Se o tema ainda não foi aprovado, não existe trabalho
         if (! $trabalho) {
@@ -64,7 +68,9 @@ class TrabalhoPapController extends Controller
                 'id' => $trabalho->id,
                 'status' => $trabalho->status,
                 'data_aprovacao' => $trabalho->data_aprovacao?->toIso8601String(),
-                'aprovado_por' => $trabalho->aprovadoPor?->nome,
+                'aprovado_por' => $trabalho->aprovadoPor
+                    ? PapHelper::nomeAprovador($trabalho->aprovadoPor, $instituicaoTutora, $nomeCurso)
+                    : ($trabalho->aprovado_por_nome ?? '—'),
                 'versoes' => $trabalho->versoes->map(fn ($v) => [
                     'id' => $v->id,
                     'numero_versao' => $v->numero_versao,
@@ -76,10 +82,12 @@ class TrabalhoPapController extends Controller
                         'id' => $f->id,
                         'tipo' => $f->tipo,
                         'comentario' => $f->comentario,
-                        'utilizador' => $f->utilizador?->nome,
+                        'utilizador' => $f->utilizador
+                            ? PapHelper::nomeAprovador($f->utilizador, $instituicaoTutora, $nomeCurso)
+                            : ($f->utilizador_nome ?? '—'),
                         'created_at' => $f->created_at?->toIso8601String(),
-                        'tem_ficheiro_correcao' => ! is_null($f->caminho_ficheiro_correcao),  // ← faltava
-                        'nome_original_correcao' => $f->nome_original_correcao,               // ← falta
+                        'tem_ficheiro_correcao' => ! is_null($f->caminho_ficheiro_correcao),
+                        'nome_original_correcao' => $f->nome_original_correcao,
                     ]),
                 ]),
             ],

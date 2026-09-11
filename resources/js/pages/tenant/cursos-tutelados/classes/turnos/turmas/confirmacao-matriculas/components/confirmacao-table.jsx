@@ -112,7 +112,11 @@ export function ConfirmacaoTable({
                       <TableCell className="px-4 font-medium">
                         <ResultadoBadge resultado={aluno.status} />
                       </TableCell>
-                      <TableCell className="px-4 text-right">
+                      <TableCell
+                        className="px-4 text-right"
+                        onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                      >
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -125,13 +129,22 @@ export function ConfirmacaoTable({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-auto">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                onConfirmar(aluno, e);
-                              }}
-                            >
-                              Confirmar matrícula
-                            </DropdownMenuItem>
+                            {aluno.aguarda_resultado_recurso ? (
+                              <DropdownMenuItem disabled>
+                                Aguardar resultado do recurso
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                disabled={!aluno.can?.confirmar_matricula}
+                                onClick={(e) => {
+                                  onConfirmar(aluno, e);
+                                }}
+                              >
+                                {aluno.status === 'incompleto'
+                                  ? 'Notas incompletas'
+                                  : 'Confirmar matrícula'}
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

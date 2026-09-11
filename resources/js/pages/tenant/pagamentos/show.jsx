@@ -154,7 +154,7 @@ export default function Show({ pagamento }) {
 
               <TableFooter>
                 <TableRow>
-                  <TableCell colSpan={temAlgumaMulta ? 3 : 3} className="px-4">
+                  <TableCell colSpan={temAlgumaMulta ? 4 : 3} className="px-4">
                     Total
                   </TableCell>
                   <TableCell className="px-4 text-right">

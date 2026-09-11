@@ -17,6 +17,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\CursoTuteladoViewService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -89,6 +90,19 @@ class CursoTuteladoController extends Controller
     }
 
     /**
+     * Lista os cursos centrais oferecidos por um instituto tutor.
+     */
+    public function cursosDisponiveis(Request $request, Instituicao $instituicao): array
+    {
+        return [
+            'data' => $this->cursoTuteladoViewService->cursosDisponiveisParaTutor(
+                (string) $request->query('tenant_tutor_id'),
+                $instituicao,
+            ),
+        ];
+    }
+
+    /**
      * Apresenta o detalhe de um curso tutelado.
      */
     public function show(
@@ -133,7 +147,7 @@ class CursoTuteladoController extends Controller
 
         $this->cursoTuteladoViewService->prepareEdit($cursoTutelado);
 
-        $options = $this->cursoTuteladoViewService->editOptions($instituicao);
+        $options = $this->cursoTuteladoViewService->editOptions($instituicao, $cursoTutelado);
 
         return Inertia::render('tenant/cursos-tutelados/edit', [
             'instituicao' => [

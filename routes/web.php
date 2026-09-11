@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\Central\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Central\Auth\RegisteredController;
+use App\Http\Controllers\Central\CursoController;
 use App\Http\Controllers\Central\DashboardController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\UserController;
+use App\Mail\AccountNotificationMail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,19 +26,6 @@ foreach (config('tenancy.central_domains') as $domain) {
         |--------------------------------------------------------------------------
         */
         Route::inertia('/', 'central/welcome/index')->name('home');
-
-        Route::get('/test-email', function () {
-            return new \App\Mail\AccountNotificationMail(
-                userName: 'Joaquim Chiaca Ronildo',
-                userEmail: 'ronildojoaquimchiaca87@gmail.com',
-                featureName: 'Iniciar sessão com Google',
-                actionAt: now()->toIso8601String(),
-                ctaUrl: url('/'),
-                ctaLabel: 'Aceder à sua Conta',
-            );
-        });
-        ;
-
         /*
         |--------------------------------------------------------------------------
         | Rotas de Autenticação Central
@@ -81,7 +70,15 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->name('central.dashboard.')
             ->group(function () {
 
+                require base_path('routes/central-settings.php');
+
                 Route::resource('tenants', TenantController::class);
+
+                Route::resource('cursos', CursoController::class)->withTrashed(['show']);
+
+                Route::post('cursos/{curso}/restore', [CursoController::class, 'restore'])
+                    ->withTrashed()
+                    ->name('cursos.restore');
 
                 Route::post('tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
                     ->name('tenants.toggle-status');

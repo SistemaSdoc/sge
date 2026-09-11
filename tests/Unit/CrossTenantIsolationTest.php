@@ -14,6 +14,7 @@ use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
@@ -22,6 +23,7 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Services\Central\TenantService;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Services\Tenant\CrossTenantAccessService;
 use App\Services\Tenant\CursoTuteladoViewService;
@@ -33,6 +35,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Excel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\Models\Permission;
@@ -109,7 +112,7 @@ function createPapFixtureForIsolationTest(Tenant $tenant, string $sharedId, stri
             'status_aprovacao' => $status,
         ]);
 
-        return compact('grupo', 'cursoTutelado', 'turma');
+        return compact('grupo', 'cursoTutelado', 'turma', 'curso');
     });
 }
 
@@ -170,6 +173,100 @@ test('tutor consegue validar acesso ao colegio com vinculo activo', function ():
 
     expect($tenant->id)->toBe($this->tenantColegio->id)
         ->and($this->vinculo->fresh()->status)->toBe(TutelaStatus::ACTIVO);
+});
+
+test('apenas o coordenador do curso central consegue operar no grupo remoto', function (): void {
+    $fixture = createPapFixtureForIsolationTest($this->tenantColegio, $this->vinculo->id);
+    $this->vinculo->update([
+        'curso_tutelado_tutelado_id' => $fixture['cursoTutelado']->id,
+        'curso_id' => $fixture['curso']->id,
+    ]);
+
+    $instituicaoTutora = $this->tenantTutor->run(function () use ($fixture): Instituicao {
+        $instituicao = Instituicao::create([
+            'nome' => 'Instituto Tutor',
+            'tipo' => 'instituto',
+        ]);
+        $curso = InstituicaoCurso::create([
+            'curso_id' => $fixture['curso']->id,
+            'instituicao_id' => $instituicao->id,
+            'duracao_anos' => 3,
+        ]);
+        $cursoTutelado = CursoTutelado::create([
+            'instituicao_curso_id' => $curso->id,
+            'instituicao_tutora_id' => $instituicao->id,
+            'tipo_tutela' => 'propria',
+        ]);
+        $professor = Professor::create([
+            'user_id' => $this->tutor->id,
+        ]);
+        CursoTuteladoProfessor::create([
+            'curso_tutelado_id' => $cursoTutelado->id,
+            'professor_id' => $professor->id,
+            'coordenador' => true,
+        ]);
+
+        return $instituicao;
+    });
+    $this->tenantTutor->update(['instituicao_id' => $instituicaoTutora->id]);
+    $this->tutor->update(['instituicao_id' => $instituicaoTutora->id]);
+
+    tenancy()->initialize($this->tenantTutor);
+    $this->actingAs($this->tutor, 'tenant');
+
+    expect(app(TenantService::class)->tutorOffersCourse(
+        $this->tenantTutor->id,
+        $fixture['curso']->id,
+    ))->toBeTrue();
+
+    app(CrossTenantAccessService::class)->validarAcessoAoGrupoPap(
+        $this->tutor,
+        $this->tenantColegio,
+        $fixture['grupo']->id,
+        $this->vinculo->id,
+    );
+
+    expect(true)->toBeTrue();
+
+    $outroProfessor = $this->tenantTutor->run(function () use ($instituicaoTutora): User {
+        $curso = Curso::create([
+            'nome' => 'Outro Curso',
+            'duracao_anos' => 3,
+        ]);
+        $instituicaoCurso = InstituicaoCurso::create([
+            'curso_id' => $curso->id,
+            'instituicao_id' => $instituicaoTutora->id,
+            'duracao_anos' => 3,
+        ]);
+        $cursoTutelado = CursoTutelado::create([
+            'instituicao_curso_id' => $instituicaoCurso->id,
+            'instituicao_tutora_id' => $instituicaoTutora->id,
+            'tipo_tutela' => 'propria',
+        ]);
+        $user = User::create([
+            'nome' => 'Outro Coordenador',
+            'email' => 'outro-coordenador@example.test',
+            'password' => 'password',
+            'instituicao_id' => $instituicaoTutora->id,
+        ]);
+        $professor = Professor::create(['user_id' => $user->id]);
+        CursoTuteladoProfessor::create([
+            'curso_tutelado_id' => $cursoTutelado->id,
+            'professor_id' => $professor->id,
+            'coordenador' => true,
+        ]);
+
+        return $user->refresh();
+    });
+
+    $this->actingAs($outroProfessor, 'tenant');
+
+    expect(fn (): mixed => app(CrossTenantAccessService::class)->validarAcessoAoGrupoPap(
+        $outroProfessor,
+        $this->tenantColegio,
+        $fixture['grupo']->id,
+        $this->vinculo->id,
+    ))->toThrow(AuthorizationException::class);
 });
 
 test('curso externo pendente bloqueia operacoes de gestao e rejeitado permite reconfiguracao', function (): void {
@@ -290,6 +387,93 @@ test('lista de cursos resolve para o tutor activo anterior mesmo quando o shared
 
     expect($resultado->items())->toHaveCount(1)
         ->and($resultado->items()[0]['instituicao_tutora'])->toBe('Instituto Antigo');
+});
+
+test('pauta final usa director real da instituicao e nome do curso como area de formacao', function (): void {
+    tenancy()->initialize($this->tenantColegio);
+
+    $instituicaoColegio = Instituicao::create([
+        'nome' => 'Colégio Tutorado',
+        'tipo' => 'colegio',
+        'status' => 1,
+    ]);
+
+    $curso = Curso::create(['nome' => 'Técnico de Informática', 'duracao_anos' => 4]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicaoColegio->id,
+        'duracao_anos' => 4,
+    ]);
+
+    $director = User::create([
+        'nome' => 'Ana Maria da Silva',
+        'email' => 'ana-diretora@example.test',
+        'password' => 'password',
+        'instituicao_id' => $instituicaoColegio->id,
+    ]);
+    $director->assignRole('Director');
+
+    $user = User::create([
+        'nome' => 'Secretária da Escola',
+        'email' => 'secretaria@example.test',
+        'password' => 'password',
+        'instituicao_id' => $instituicaoColegio->id,
+    ]);
+    $user->assignRole('Secretaria');
+
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicaoColegio->id,
+        'tipo_tutela' => 'externa',
+    ]);
+
+    $classe = Classe::create(['nome' => '11A', 'nivel_ensino' => 'medio']);
+    $nivel = NivelEnsino::create(['nome' => 'Médio']);
+    $cursoClasse = CursoClasse::create([
+        'curso_tutelado_id' => $cursoTutelado->id,
+        'classe_id' => $classe->id,
+        'nivel_ensino_id' => $nivel->id,
+    ]);
+    $turno = Turno::create(['nome' => 'Tarde']);
+    $cursoClasseTurno = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasse->id,
+        'turno_id' => $turno->id,
+    ]);
+    $ano = AnoLectivo::create([
+        'nome' => '2026/2027',
+        'data_inicio' => '2026-09-01',
+        'data_fim' => '2027-07-31',
+    ]);
+    $turma = Turma::create([
+        'nome' => 'A',
+        'max_alunos' => 30,
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'ano_lectivo_id' => $ano->id,
+    ]);
+
+    Excel::fake();
+
+    app(ExportarPautaController::class)->exportarExcel(
+        $cursoTutelado->id,
+        $turma->id,
+        new Request,
+        false,
+        false,
+        $user,
+    );
+
+    Excel::assertDownloaded('pauta_a_final.xlsx', function ($export) use ($curso, $director): bool {
+        $ref = new ReflectionClass($export);
+
+        $directorProperty = $ref->getProperty('director');
+        $directorProperty->setAccessible(true);
+
+        $areaProperty = $ref->getProperty('areaFormacao');
+        $areaProperty->setAccessible(true);
+
+        return $directorProperty->getValue($export) === $director->nome
+            && $areaProperty->getValue($export) === $curso->nome;
+    });
 });
 
 test('tutora consegue exportar pauta de curso remoto atraves do shared activo', function (): void {

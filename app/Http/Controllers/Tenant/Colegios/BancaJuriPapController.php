@@ -15,6 +15,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\JuradoAdicionadoBancaNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -84,11 +85,18 @@ class BancaJuriPapController extends Controller
             403,
         );
 
-        BancaJuriPap::create([
+        $banca = BancaJuriPap::create([
             'grupo_pap_id' => $contexto['grupo']->id,
             'professor_id' => $request->professor_id,
             'funcao' => $request->funcao,
         ]);
+
+        $banca->load('professor.user');
+        $jurado = $banca->professor?->user;
+
+        if ($jurado) {
+            $jurado->notify(new JuradoAdicionadoBancaNotification($contexto['grupo'], $banca));
+        }
 
         return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', compact(
             'colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap',
@@ -160,8 +168,19 @@ class BancaJuriPapController extends Controller
         string $grupoPap,
         string $bancaJuriPap,
     ) {
+        $contexto = $this->contexto($colegio, $cursoTutelado, $cursoClasse, $cursoClasseTurno, $turma, $grupoPap);
+
         abort_unless($request->attributes->get('cross_tenant_can_update_banca') === true, 403);
-        BancaJuriPap::query()->whereKey($bancaJuriPap)->where('grupo_pap_id', $grupoPap)->firstOrFail()->update($request->only(['professor_id', 'funcao']));
+
+        $banca = BancaJuriPap::query()->whereKey($bancaJuriPap)->where('grupo_pap_id', $grupoPap)->firstOrFail();
+        $banca->update($request->only(['professor_id', 'funcao']));
+
+        $banca->refresh()->load('professor.user');
+        $jurado = $banca->professor?->user;
+
+        if ($jurado) {
+            $jurado->notify(new JuradoAdicionadoBancaNotification($contexto['grupo'], $banca));
+        }
 
         return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', compact(
             'colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap',

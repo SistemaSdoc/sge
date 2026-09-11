@@ -181,6 +181,7 @@ class InscricaoController extends Controller
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
             'anoLectivo:id,nome',
+            'aluno:id,inscricao_id',
         ]);
 
         return Inertia::render('tenant/inscricoes/show', [

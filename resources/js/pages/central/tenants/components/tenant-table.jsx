@@ -180,7 +180,6 @@ export function TenantTable({
                           >
                             Remover
                           </DropdownMenuItem> */}
-                          
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

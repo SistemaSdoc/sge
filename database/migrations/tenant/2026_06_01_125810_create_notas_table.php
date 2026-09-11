@@ -24,6 +24,7 @@ return new class extends Migration
             $table->enum('situacao_anual', ['APTO', 'N/APTO', 'EEF'])
                 ->nullable();
             $table->text('observacao')->nullable();
+            $table->boolean('is_rascunho')->default(true);
 
             // Notas
             $table->decimal('mac', 5, 2)->nullable();

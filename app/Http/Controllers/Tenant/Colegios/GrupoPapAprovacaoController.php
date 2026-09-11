@@ -60,7 +60,7 @@ class GrupoPapAprovacaoController extends Controller
         // Buscar apenas os temas dos cursos
         // onde o professor é coordenador.
         $temasPendentes = $this->service->temasPendentesParaCoordenador(
-            $user->professor->id
+            $user
         );
 
         return inertia('tenant/pap/PendentesAprovacao', [

@@ -1,5 +1,7 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
+import { edit as centralProfileEdit } from '@/actions/App/Http/Controllers/Central/Settings/ProfileController';
+import { edit as centralSecurityEdit } from '@/actions/App/Http/Controllers/Central/Settings/SecurityController';
 import { edit } from '@/actions/App/Http/Controllers/Tenant/Settings/ProfileController';
 import { edit as editSecurity } from '@/actions/App/Http/Controllers/Tenant/Settings/SecurityController';
 import Heading from '@/components/heading';
@@ -7,29 +9,36 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn, toUrl } from '@/lib/utils';
-import { edit as editAppearance } from '@/routes/tenant/dashboard/appearance';
+import { edit as centralAppearanceEdit } from '@/routes/central/dashboard/appearance';
+import { edit as tenantAppearanceEdit } from '@/routes/tenant/dashboard/appearance';
 import type { NavItem } from '@/types';
-
-const sidebarNavItems: NavItem[] = [
-  {
-    title: 'Perfil',
-    href: edit(),
-    icon: null,
-  },
-  {
-    title: 'Segurança',
-    href: editSecurity(),
-    icon: null,
-  },
-  {
-    title: 'Aparência',
-    href: editAppearance(),
-    icon: null,
-  },
-];
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
   const { isCurrentOrParentUrl } = useCurrentUrl();
+  const { isTenant } = usePage<{ isTenant: boolean }>().props;
+  const profileEdit = isTenant ? edit : centralProfileEdit;
+  const securityEdit = isTenant ? editSecurity : centralSecurityEdit;
+  const appearanceEdit = isTenant
+    ? tenantAppearanceEdit
+    : centralAppearanceEdit;
+
+  const sidebarNavItems: NavItem[] = [
+    {
+      title: 'Perfil',
+      href: profileEdit(),
+      icon: null,
+    },
+    {
+      title: 'Segurança',
+      href: securityEdit(),
+      icon: null,
+    },
+    {
+      title: 'Aparência',
+      href: appearanceEdit(),
+      icon: null,
+    },
+  ];
 
   return (
     <div className="px-4 py-6">

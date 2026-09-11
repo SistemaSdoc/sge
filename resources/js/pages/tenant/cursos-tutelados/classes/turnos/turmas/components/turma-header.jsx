@@ -177,47 +177,52 @@ export function Header({
             </Button>
           )}
 
-          {/* Menu dropdown de acções */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon-sm">
-                <MoreHorizontalIcon />
-              </Button>
-            </DropdownMenuTrigger>
+          {/* O dropdown aparece se houver pelo menos uma ação disponível */}
+          {can.confirmarMatricula
+            .viewAny /* || turma.can?.delete || outras condições */ && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon-sm">
+                  <MoreHorizontalIcon />
+                </Button>
+              </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" className="w-auto">
-              <DropdownMenuItem
-                onClick={() =>
-                  router.visit(
-                    index({
-                      instituicao: params.instituicao.id,
-                      cursoTutelado: params.cursoTutelado.id,
-                      cursoClasse: params.cursoClasse.id,
-                      cursoClasseTurno: params.cursoClasseTurno.id,
-                      turma: params.turma,
-                    }).url,
-                  )
-                }
-              >
-                Confirmar Matrículas
-                <ArrowUpRight />
-              </DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-auto">
+                {can.confirmarMatricula.viewAny && (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      router.visit(
+                        index({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                          cursoClasse: params.cursoClasse.id,
+                          cursoClasseTurno: params.cursoClasseTurno.id,
+                          turma: params.turma,
+                        }).url,
+                      )
+                    }
+                  >
+                    Confirmar Matrículas
+                    <ArrowUpRight />
+                  </DropdownMenuItem>
+                )}
 
-              {/*{turma.can?.delete && <DropdownMenuSeparator />}
+                {/*{turma.can?.delete && <DropdownMenuSeparator />}
 
-              {turma.can?.delete && (
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteFn(params.turma);
-                  }}
-                >
-                  Remover
-                </DropdownMenuItem>
-              )}*/}
-            </DropdownMenuContent>
-          </DropdownMenu>
+      {turma.can?.delete && (
+        <DropdownMenuItem
+          variant="destructive"
+          onClick={(e) => {
+            e.stopPropagation();
+            deleteFn(params.turma);
+          }}
+        >
+          Remover
+        </DropdownMenuItem>
+      )}*/}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </CardAction>
       </CardHeader>
 

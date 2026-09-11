@@ -106,7 +106,7 @@ export default function LancamentosHistoricoTable({
   };
 
   // monta payload no formato que o store espera
-  const recolherDados = () => {
+  const recolherDados = (accao) => {
     const notas = {};
     disciplinas.forEach((d) => {
       notas[d.tdp_id] = {
@@ -119,6 +119,7 @@ export default function LancamentosHistoricoTable({
     return {
       turma_aluno_id: turmaAluno.id,
       periodo: parseInt(periodo),
+      accao, // ← aqui
       notas,
     };
   };
@@ -204,26 +205,18 @@ export default function LancamentosHistoricoTable({
                   type="button"
                   variant="outline"
                   disabled={isPending}
-                  onClick={() => onSubmit('guardar', recolherDados())}
+                  onClick={() => onSubmit('guardar', recolherDados('guardar'))}
                 >
-                  {isPending && (
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                  )}
                   Guardar rascunho
                 </Button>
+
                 <Button
                   type="button"
                   disabled={isPending || !temNotasPreenchidas()}
-                  title={
-                    !temNotasPreenchidas()
-                      ? 'Preencha pelo menos uma nota antes de finalizar'
-                      : ''
+                  onClick={() =>
+                    onSubmit('finalizar', recolherDados('finalizar'))
                   }
-                  onClick={() => onSubmit('finalizar', recolherDados())}
                 >
-                  {isPending && (
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                  )}
                   Finalizar trimestre
                 </Button>
               </>

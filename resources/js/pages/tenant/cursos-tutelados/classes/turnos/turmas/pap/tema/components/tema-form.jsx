@@ -21,7 +21,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-export function TemaForm({ title, errors, processing, grupoPap, professores = [], }) {
+export function TemaForm({
+  title,
+  errors,
+  processing,
+  grupoPap,
+  professores = [],
+}) {
   const [professorTutorId, setProfessorTutorId] = useState(undefined);
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
@@ -33,10 +39,13 @@ export function TemaForm({ title, errors, processing, grupoPap, professores = []
         <CardContent>
           <FieldGroup>
             <FieldSet>
-
               <Field>
                 <FieldLabel>Professor tutor</FieldLabel>
-                <input type="hidden" name="professor_tutor_id" value={professorTutorId} />
+                <input
+                  type="hidden"
+                  name="professor_tutor_id"
+                  value={professorTutorId}
+                />
                 <Select
                   value={professorTutorId || undefined}
                   onValueChange={setProfessorTutorId}

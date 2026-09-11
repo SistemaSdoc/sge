@@ -14,8 +14,7 @@ class PagamentoRegistadoNotification extends Notification
 
     public function __construct(
         public Pagamento $pagamento,
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {
@@ -24,8 +23,6 @@ class PagamentoRegistadoNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $this->pagamento->gerarRecibo();
-
         $instituicao = $notifiable->instituicao;
 
         $mail = (new MailMessage)
@@ -45,9 +42,9 @@ class PagamentoRegistadoNotification extends Notification
                 },
             ]);
 
-        if ($this->pagamento->recibo_path && Storage::disk('local')->exists($this->pagamento->recibo_path)) {
+        if ($this->pagamento->recibo_path && Storage::disk('private')->exists($this->pagamento->recibo_path)) {
             $mail->attach(
-                Storage::disk('local')->path($this->pagamento->recibo_path),
+                Storage::disk('private')->path($this->pagamento->recibo_path),
                 [
                     'as' => "recibo-{$this->pagamento->numero_recibo}.pdf",
                     'mime' => 'application/pdf',
@@ -63,7 +60,7 @@ class PagamentoRegistadoNotification extends Notification
         return [
             'tipo' => 'pagamento_registado',
             'titulo' => 'Pagamento registado',
-            'mensagem' => 'O seu pagamento de ' . number_format($this->pagamento->valor_total, 2, ',', '.') . ' AOA foi registado com sucesso.',
+            'mensagem' => 'O seu pagamento de '.number_format($this->pagamento->valor_total, 2, ',', '.').' AOA foi registado com sucesso.',
             'pagamento_id' => $this->pagamento->id,
             'valor_total' => $this->pagamento->valor_total,
             'data_pagamento' => $this->pagamento->data_pagamento->format('d/m/Y'),

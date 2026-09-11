@@ -399,7 +399,7 @@ export default function InscricaoForm({
                       value={notaTeste}
                       onChange={(e) => setNotaTeste(e.target.value)}
                       disabled={processing}
-                      placeholder="Ex.: 14.5 (opcional)"
+                      placeholder="Ex.: 14.5"
                     />
                     {errors.nota_teste && (
                       <FieldError>{errors.nota_teste}</FieldError>

@@ -10,9 +10,7 @@ export default function Edit({
   tenantsTutores,
 }) {
   const { data, setData, put, processing, errors } = useForm({
-    nome: cursoTutelado.curso.nome,
     nivel_ensino_id: cursoTutelado?.nivel_ensino_id ?? '',
-    duracao_anos: cursoTutelado?.curso?.duracao_anos ?? '',
     tenant_tutor_id: cursoTutelado?.tenant_tutor_id ?? '',
     classes: Array.isArray(cursoTutelado?.classes) ? cursoTutelado.classes : [],
   });

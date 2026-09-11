@@ -115,9 +115,9 @@ export default function Show({ notificacao }) {
                   'curso_tutelado_shared_anterior_id',
                   'troca_tutela_final',
                   'status',
-                  'grupo_pap_id',   // ← adiciona
-                  'url',            // ← adiciona
-                  'comentario',     // ← adiciona
+                  'grupo_pap_id', // ← adiciona
+                  'url', // ← adiciona
+                  'comentario', // ← adiciona
                 ].includes(key),
             )
             .map(([key, value]) => (

@@ -10,6 +10,7 @@ use App\Http\Resources\Tenant\Turma\TurmaShowResource;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ClasseTurnoDisciplina;
+use App\Models\Tenant\ConfirmacaoMatricula;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -275,6 +276,9 @@ class ClasseTurnoTurmaController extends Controller
                 ],
                 'grupos' => [
                     'create' => $user->can('create', GrupoPap::class),
+                ],
+                'confirmarMatricula' => [
+                    'viewAny' => $user->can('viewAny', ConfirmacaoMatricula::class),
                 ],
             ],
 

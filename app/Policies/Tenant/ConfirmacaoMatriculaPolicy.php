@@ -39,6 +39,9 @@ class ConfirmacaoMatriculaPolicy
             ?->instituicaoCurso
             ?->instituicao_id;
 
-        return $user->can('confirmacoes.confirmar') && $instituicaoId === $user->instituicao_id;
+        $podeConfirmar = $user->hasRole('Director')
+            || $user->can('confirmacoes.confirmar');
+
+        return $podeConfirmar && $instituicaoId === $user->instituicao_id;
     }
 }

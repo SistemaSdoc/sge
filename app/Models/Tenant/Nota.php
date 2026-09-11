@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
     'situacao_trimestral',
     'situacao_anual',
     'observacao',
+    'is_rascunho'
 ])]
 
 class Nota extends Model
@@ -58,40 +59,40 @@ class Nota extends Model
     protected function mac(): Attribute
     {
         return Attribute::make(
-            get: fn ($v) => $v !== null ? (float) $v : null,
-            set: fn ($v) => $this->sanitizeNota($v),
+            get: fn($v) => $v !== null ? (float) $v : null,
+            set: fn($v) => $this->sanitizeNota($v),
         );
     }
 
     protected function notaProvaProfessor(): Attribute
     {
         return Attribute::make(
-            get: fn ($v) => $v !== null ? (float) $v : null,
-            set: fn ($v) => $this->sanitizeNota($v),
+            get: fn($v) => $v !== null ? (float) $v : null,
+            set: fn($v) => $this->sanitizeNota($v),
         );
     }
 
     protected function notaProvaTrimestral(): Attribute
     {
         return Attribute::make(
-            get: fn ($v) => $v !== null ? (float) $v : null,
-            set: fn ($v) => $this->sanitizeNota($v),
+            get: fn($v) => $v !== null ? (float) $v : null,
+            set: fn($v) => $this->sanitizeNota($v),
         );
     }
 
     protected function mediaTrimestral(): Attribute
     {
         return Attribute::make(
-            get: fn ($v) => $v !== null ? (float) $v : null,
-            set: fn ($v) => $this->sanitizeMedia($v),
+            get: fn($v) => $v !== null ? (float) $v : null,
+            set: fn($v) => $this->sanitizeMedia($v),
         );
     }
 
     protected function mediaFinal(): Attribute
     {
         return Attribute::make(
-            get: fn ($v) => $v !== null ? (float) $v : null,
-            set: fn ($v) => $this->sanitizeMedia($v),
+            get: fn($v) => $v !== null ? (float) $v : null,
+            set: fn($v) => $this->sanitizeMedia($v),
         );
     }
 
@@ -116,8 +117,8 @@ class Nota extends Model
     protected function faltas(): Attribute
     {
         return Attribute::make(
-            get: fn ($v) => max(0, (int) ($v ?? 0)),
-            set: fn ($v) => max(0, (int) ($v ?? 0)),
+            get: fn($v) => max(0, (int) ($v ?? 0)),
+            set: fn($v) => max(0, (int) ($v ?? 0)),
         );
     }
 }

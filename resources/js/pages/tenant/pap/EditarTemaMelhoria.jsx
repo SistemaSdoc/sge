@@ -15,28 +15,32 @@ const STATUS_CONFIG = {
     label: 'Reprovado',
     variant: 'destructive',
     titulo: 'Enviar Novo Tema PAP',
-    descricao: 'O tema anterior foi reprovado. Defina um novo tema e reenvie para análise.',
+    descricao:
+      'O tema anterior foi reprovado. Defina um novo tema e reenvie para análise.',
     botaoReenviar: 'Enviar Novo Tema',
   },
   'melhoria-solicitada': {
     label: 'Melhoria Solicitada',
     variant: 'outline',
     titulo: 'Corrigir Tema PAP',
-    descricao: 'Faça as alterações solicitadas pela instituição tutora antes de reenviar.',
+    descricao:
+      'Faça as alterações solicitadas pela instituição tutora antes de reenviar.',
     botaoReenviar: 'Corrigir e Reenviar',
   },
   'melhoria-solicitada-tutor': {
     label: 'Melhoria Solicitada',
     variant: 'outline',
     titulo: 'Corrigir Tema PAP',
-    descricao: 'Faça as alterações solicitadas pelo professor tutor antes de reenviar.',
+    descricao:
+      'Faça as alterações solicitadas pelo professor tutor antes de reenviar.',
     botaoReenviar: 'Corrigir e Reenviar',
   },
   'melhoria-solicitada-coordenacao': {
     label: 'Melhoria Solicitada',
     variant: 'outline',
     titulo: 'Corrigir Tema PAP',
-    descricao: 'Faça as alterações solicitadas pela coordenação antes de reenviar.',
+    descricao:
+      'Faça as alterações solicitadas pela coordenação antes de reenviar.',
     botaoReenviar: 'Corrigir e Reenviar',
   },
 };
@@ -48,7 +52,8 @@ export default function EditarTemaMelhoria({
   rotaReenviar,
 }) {
   const statusKey = String(grupoPap?.status_aprovacao || '').toLowerCase();
-  const config = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG['melhoria-solicitada'];
+  const config =
+    STATUS_CONFIG[statusKey] ?? STATUS_CONFIG['melhoria-solicitada'];
 
   const [tema, setTema] = useState(grupoPap?.tema_grupo || '');
   const [nomeGrupo, setNomeGrupo] = useState(grupoPap?.nome_grupo || '');
@@ -79,7 +84,9 @@ export default function EditarTemaMelhoria({
     <div className="mx-auto max-w-4xl space-y-6">
       {/* Cabeçalho */}
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">{config.titulo}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {config.titulo}
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">{config.descricao}</p>
       </div>
 
@@ -93,7 +100,9 @@ export default function EditarTemaMelhoria({
       {/* Histórico */}
       {historico.length > 0 && (
         <div className="space-y-3">
-          <p className="text-sm font-medium text-muted-foreground">Histórico de análise</p>
+          <p className="text-sm font-medium text-muted-foreground">
+            Histórico de análise
+          </p>
           {historico.map((item) => (
             <RecomendacaoBox
               key={item.id}

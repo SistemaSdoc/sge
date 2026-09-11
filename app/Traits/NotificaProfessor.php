@@ -12,6 +12,10 @@ use App\Notifications\Professor\PrazoLancamentoNotasDefinidoNotification;
 use App\Notifications\Professor\ProfessorAdicionadoAoCursoNotification;
 use App\Notifications\Professor\ProfessorAtribuidoADisciplinaNotification;
 use App\Notifications\Professor\ProfessorCriadoNotification;
+use App\Models\Tenant\SolicitacaoEdicaoPauta;
+use App\Notifications\Pauta\SolicitacaoEdicaoPautaDirectorNotification;
+use App\Notifications\Pauta\SolicitacaoEdicaoPautaProfessorNotification;
+use App\Notifications\Pauta\DecisaoEdicaoPautaNotification;
 use Illuminate\Support\Facades\Notification;
 
 trait NotificaProfessor
@@ -59,9 +63,11 @@ trait NotificaProfessor
     protected function notificarPrazoLancamentoNotas(PeriodoLancamentoNotas $periodo): void
     {
         $professores = Professor::whereHas(
-            'turmaDisciplinaProfessor.turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($q) use ($periodo) {
+            'turmaDisciplinaProfessor.turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+            function ($q) use ($periodo) {
                 $q->where('instituicao_id', $periodo->instituicao_id);
-            })
+            }
+        )
             ->with('user')
             ->get()
             ->pluck('user')
@@ -70,6 +76,41 @@ trait NotificaProfessor
         Notification::send(
             $professores,
             new PrazoLancamentoNotasDefinidoNotification($periodo)
+        );
+    }
+
+    protected function notificarSolicitacaoEdicaoPauta(
+        SolicitacaoEdicaoPauta $solicitacao
+    ): void {
+        $solicitacao->professor->notify(
+            new SolicitacaoEdicaoPautaProfessorNotification($solicitacao)
+        );
+
+        $instituicaoId = $solicitacao->turmaDisciplinaProfessor
+            ->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_tutora_id;
+
+        $directores = User::whereHas('roles', fn($q) => $q->whereIn('name', ['Director', 'Subdirector']))
+            ->where('instituicao_id', $instituicaoId)
+            ->get();
+
+        foreach ($directores as $director) {
+            $director->notify(
+                new SolicitacaoEdicaoPautaDirectorNotification($solicitacao, $director)
+            );
+        }
+    }
+
+    protected function notificarDecisaoEdicaoPauta(
+        SolicitacaoEdicaoPauta $solicitacao
+    ): void {
+        $solicitacao->load([
+            'professor',
+            'turmaDisciplinaProfessor.turma',
+            'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
+        ]);
+
+        $solicitacao->professor?->notify(
+            new DecisaoEdicaoPautaNotification($solicitacao)
         );
     }
 }

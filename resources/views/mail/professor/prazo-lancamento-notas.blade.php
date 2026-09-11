@@ -157,11 +157,7 @@
 <body>
     <div class="email-wrapper">
 
-        <div class="header">
-            <h1>Prazo de lançamento de notas</h1>
-            <div class="account-badge"><span>{{ $nome }}</span></div>
-        </div>
-
+      
         <hr class="divider">
 
         <br>
@@ -178,41 +174,26 @@
         <p class="section-label">Detalhes do prazo</p>
 
         <div class="credential-item">
-            <div class="item-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
-                </svg>
-            </div>
+            
             <div class="item-text">
-                <div class="label">{{ $periodo }}º Trimestre</div>
-                <div class="sublabel">Trimestre</div>
+                <div class="label">Trimestre</div>
+                <div class="sublabel">{{ $periodo }}º Trimestre</div>
             </div>
         </div>
 
         <div class="credential-item">
-            <div class="item-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
-                </svg>
-            </div>
+           
             <div class="item-text">
-                <div class="label">{{ $dataInicio }}</div>
-                <div class="sublabel">Início</div>
+                <div class="label">Início</div>
+                <div class="sublabel">{{ $dataInicio }}</div>
             </div>
         </div>
 
         <div class="credential-item">
-            <div class="item-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
-                </svg>
-            </div>
+            
             <div class="item-text">
-                <div class="label-warning">{{ $dataLimite }}</div>
-                <div class="sublabel">Data limite</div>
+                <div class="label-warning">Data limite</div>
+                <div class="sublabel">{{ $dataLimite }}</div>
             </div>
         </div>
 

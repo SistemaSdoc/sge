@@ -50,11 +50,6 @@ class ItemPagavel extends Model
         return $this->belongsTo(CursoClasse::class, 'curso_classe_id');
     }
 
-    public function periodosPagos(): HasMany
-    {
-        return $this->hasMany(PagamentoPeriodo::class);
-    }
-
     public function scopeAtivos(Builder $query): Builder
     {
         return $query->where('ativo', true);

@@ -5,7 +5,14 @@ import { useDialog } from '@/hooks/use-dialog';
 import { ConfirmarMatriculaModal } from './components/confirmar-matricula-modal';
 
 export default function Index() {
-  const { alunos, turma, params, anosLectivos, turmasPorAno } = usePage().props;
+  const {
+    alunos,
+    turma,
+    params,
+    anosLectivos,
+    anoLectivoProximo,
+    turmasPorAno,
+  } = usePage().props;
   const { openForm, closeDialog } = useDialog();
 
   const handlePageChange = (page) => {
@@ -29,6 +36,7 @@ export default function Index() {
           aluno={aluno}
           params={params}
           anosLectivos={anosLectivos}
+          anoLectivoProximo={anoLectivoProximo}
           turmasPorAno={turmasPorAno}
           onCancel={() => closeDialog()}
           onSuccess={() => closeDialog()}
