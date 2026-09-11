@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\Aluno;
-use App\Models\Classe;
-use App\Models\CursoClasse;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Classe;
+use App\Models\Tenant\CursoClasse;
 use Illuminate\Support\Collection;
 
 class ElegibilidadeDocumentoService

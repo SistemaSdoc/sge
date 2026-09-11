@@ -32,7 +32,7 @@ class SolicitacaoDocumentoStatusNotification extends Notification
             'tipo_documento' => $this->tipoDocumento,
             'titulo' => $this->titulo,
             'mensagem' => $this->mensagem,
-            'url' => $this->url ?? route('solicitacoes-documentos.index'),
+            'url' => $this->url ?? route('tenant.dashboard.solicitacoes-documentos.index'),
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services\Tenant\Menu;
 
+use App\Http\Controllers\SolicitacaoDocumentoController;
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\AvisoController;
@@ -19,7 +20,6 @@ use App\Http\Controllers\Tenant\RegraAvaliacaoController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
-use App\Http\Controllers\Tenant\RelatorioController;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Aviso;
@@ -30,9 +30,11 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\RegraAvaliacao;
+use App\Models\Tenant\SolicitacaoDocumento;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
+use App\Models\Tenant\User;
 use App\Services\Tenant\GrupoPap\GrupoPapNavigationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -44,7 +46,7 @@ final class SidebarMenuService
     ) {}
 
     public function build(): array
-    {
+    {   /** @var User $user */
         $user = Auth::guard('tenant')->user();
         $gate = Gate::forUser($user);
         $grupoPapNavigation = $this->grupoPapNavigationService->resolve($user);
@@ -206,44 +208,43 @@ final class SidebarMenuService
                     href: action([DocumentosController::class, 'index']),
                     icon: 'FileTextIcon',
                     can: fn () => $gate->allows('documentos.viewAny')
-                    can: fn() => Gate::allows('viewAny', SolicitacaoEdicaoPauta::class)
                 ),
 
                 new MenuItem(
                     key: 'solicitacoes-documentos-aluno',
                     title: 'Solicitar Documentos',
-                    href: route('solicitacoes-documentos.index'),
+                    href: action([SolicitacaoDocumentoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn() => Auth::user()?->hasRole('Aluno'),
+                    can: fn () => $user?->hasRole('Aluno'),
                 ),
 
                 new MenuItem(
                     key: 'solicitacoes-documentos-tutela',
                     title: 'Solicitações de Documentos',
-                    href: route('solicitacoes-documentos.tutela.index'),
+                    href: route('tenant.dashboard.solicitacoes-documentos.tutela.index'),
                     icon: 'FileTextIcon',
-                    can: fn() => Auth::user()?->instituicao?->tipo === 'instituto'
-                        && Auth::user()?->hasAnyRole(['Director', 'Subdirector', 'Secretaria'])
-                        && Gate::allows('viewAny', SolicitacaoDocumento::class),
+                    can: fn () => $user?->instituicao?->tipo === 'instituto'
+                        && $user?->hasAnyRole(['Director', 'Subdirector', 'Secretaria'])
+                        && $gate->allows('viewAny', SolicitacaoDocumento::class),
                 ),
 
                 new MenuItem(
                     key: 'solicitacoes-documentos-colegio',
                     title: 'Solicitar Documentos',
-                    href: route('solicitacoes-documentos.colegio.index'),
+                    href: route('tenant.dashboard.solicitacoes-documentos.colegio.index'),
                     icon: 'FileTextIcon',
-                    can: fn() => Auth::user()?->instituicao?->tipo === 'colegio'
-                        && Gate::allows('viewAny', SolicitacaoDocumento::class),
+                    can: fn () => $user?->instituicao?->tipo === 'colegio'
+                        && $gate->allows('viewAny', SolicitacaoDocumento::class),
                 ),
 
                 new MenuItem(
                     key: 'solicitacoes-documentos-emissao',
                     title: 'Emissão de documentos',
-                    href: route('solicitacoes-documentos.emissao.index'),
+                    href: route('tenant.dashboard.solicitacoes-documentos.emissao.index'),
                     icon: 'FileTextIcon',
-                    can: fn() => Auth::user()?->instituicao?->tipo === 'colegio'
-                        && Auth::user()?->hasAnyRole(['Secretaria', 'Director'])
-                        && Gate::allows('viewAny', SolicitacaoDocumento::class),
+                    can: fn () => $user?->instituicao?->tipo === 'colegio'
+                        && $user?->hasAnyRole(['Secretaria', 'Director'])
+                        && $gate->allows('viewAny', SolicitacaoDocumento::class),
                 ),
             ]),
 
@@ -333,7 +334,7 @@ final class SidebarMenuService
         ];
 
         return array_values(array_filter(
-            array_map(fn(MenuGroup $group) => $group->toArray(), $groups),
+            array_map(fn (MenuGroup $group) => $group->toArray(), $groups),
         ));
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\SolicitacaoDocumento;
+use App\Models\Tenant\SolicitacaoDocumento;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -29,7 +29,7 @@ class PagamentoConfirmadoNotification extends Notification
             'titulo' => 'Pagamento confirmado',
             'solicitacao_id' => $this->solicitacao->id,
             'mensagem' => 'Confirmámos o teu pagamento, o teu documento está a ser preparado.',
-            'url' => $this->url ?? route('solicitacoes-documentos.index'),
+            'url' => $this->url ?? route('tenant.dashboard.solicitacoes-documentos.index'),
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\SolicitacaoDocumento;
+use App\Models\Tenant\SolicitacaoDocumento;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -33,7 +33,7 @@ class RupeDisponivelNotification extends Notification
             'rupe_referencia' => $this->solicitacao->rupe_referencia,
             'rupe_entidade' => $this->solicitacao->rupe_entidade,
             'rupe_valor' => $this->solicitacao->rupe_valor,
-            'url' => $this->url ?? route('solicitacoes-documentos.index'),
+            'url' => $this->url ?? route('tenant.dashboard.solicitacoes-documentos.index'),
         ];
     }
 }

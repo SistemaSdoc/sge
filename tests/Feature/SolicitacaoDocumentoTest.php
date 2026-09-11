@@ -1,18 +1,18 @@
 <?php
 
-use App\Models\Aluno;
 use App\Models\AnoLectivo;
 use App\Models\Candidato;
-use App\Models\Classe;
 use App\Models\Curso;
-use App\Models\CursoClasse;
-use App\Models\CursoClasseTurno;
 use App\Models\CursoTutelado;
 use App\Models\Inscricao;
 use App\Models\Instituicao;
 use App\Models\InstituicaoCurso;
 use App\Models\NivelEnsino;
-use App\Models\SolicitacaoDocumento;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Classe;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\SolicitacaoDocumento;
 use App\Models\Turno;
 use App\Models\User;
 use Illuminate\Support\Str;

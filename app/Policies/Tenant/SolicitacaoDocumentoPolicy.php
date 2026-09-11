@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Policies;
+namespace App\Policies\Tenant;
 
-use App\Models\SolicitacaoDocumento;
-use App\Models\User;
+use App\Models\Tenant\SolicitacaoDocumento;
+use App\Models\Tenant\User;
 
 class SolicitacaoDocumentoPolicy
 {
@@ -112,6 +112,7 @@ class SolicitacaoDocumentoPolicy
             if ($solicitacao->aluno && $user->id === $solicitacao->aluno->user_id) {
                 return $solicitacao->status === SolicitacaoDocumento::STATUS_ENTREGUE || (bool) $solicitacao->data_levantamento;
             }
+
             return false;
         }
 

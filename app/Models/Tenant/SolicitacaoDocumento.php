@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Tenant;
 
 use App\Notifications\PagamentoConfirmadoNotification;
 use App\Notifications\RupeDisponivelNotification;
@@ -119,21 +119,20 @@ class SolicitacaoDocumento extends Model
     /**
      * Retorna o ID da instituição responsável pela solicitação (para decisões, pagamento e levantamento).
      */
-   public function instituicaoResponsavelId(): ?string
-{
+    public function instituicaoResponsavelId(): ?string
+    {
 
-    if ($this->tipo_documento === 'certificado') {
-        return $this->instituicao_tutora_id;
+        if ($this->tipo_documento === 'certificado') {
+            return $this->instituicao_tutora_id;
+        }
+
+        if ($this->instituicao_emissora_id) {
+            return $this->instituicao_emissora_id;
+        }
+
+        // Fallback: origem ou tutora (se emissora não estiver definida)
+        return $this->instituicao_origem_id ?? $this->instituicao_tutora_id;
     }
-
-
-    if ($this->instituicao_emissora_id) {
-        return $this->instituicao_emissora_id;
-    }
-
-    // Fallback: origem ou tutora (se emissora não estiver definida)
-    return $this->instituicao_origem_id ?? $this->instituicao_tutora_id;
-}
 
     public function getResponsavelInstituicaoIdAttribute(): ?int
     {
@@ -177,21 +176,21 @@ class SolicitacaoDocumento extends Model
             'Pedido aprovado',
             'A sua solicitação de documento foi aprovada.',
             'aluno',
-            route('solicitacoes-documentos.index')
+            route('tenant.dashboard.solicitacoes-documentos.index')
         );
 
         $this->notificarStatus(
             'Pedido aprovado',
             'A solicitação de '.$this->tipoLabel.' foi aprovada pela tutela.',
             'instituicao',
-            route('solicitacoes-documentos.colegio.index')
+            route('tenant.dashboard.solicitacoes-documentos.colegio.index')
         );
 
         $this->notificarStatus(
             'Pedido aprovado',
             'A solicitação de '.$this->tipoLabel.' foi aprovada pela tutela.',
             'tutela',
-            route('solicitacoes-documentos.tutela.index')
+            route('tenant.dashboard.solicitacoes-documentos.tutela.index')
         );
     }
 
@@ -215,21 +214,21 @@ class SolicitacaoDocumento extends Model
             'Documento pronto',
             'O teu documento está pronto, podes dirigir-te à secretaria para o levantar.',
             'aluno',
-            route('solicitacoes-documentos.index')
+            route('tenant.dashboard.solicitacoes-documentos.index')
         );
 
         $this->notificarStatus(
             'Documento pronto',
             'O documento de '.$this->tipoLabel.' foi marcado como pronto para levantamento.',
             'instituicao',
-            route('solicitacoes-documentos.colegio.index')
+            route('tenant.dashboard.solicitacoes-documentos.colegio.index')
         );
 
         $this->notificarStatus(
             'Documento pronto',
             'O documento de '.$this->tipoLabel.' foi marcado como pronto para levantamento.',
             'tutela',
-            route('solicitacoes-documentos.tutela.index')
+            route('tenant.dashboard.solicitacoes-documentos.tutela.index')
         );
     }
 
@@ -251,7 +250,7 @@ class SolicitacaoDocumento extends Model
                 solicitacaoId: $this->id,
                 tipoDocumento: $this->tipoLabel,
                 categoria: 'instituicao',
-                url: $rota ?? route('solicitacoes-documentos.colegio.index'),
+                url: $rota ?? route('tenant.dashboard.solicitacoes-documentos.colegio.index'),
             ));
         }
     }
@@ -259,13 +258,13 @@ class SolicitacaoDocumento extends Model
     public function notificarStatus(string $titulo, string $mensagem, ?string $categoria = 'aluno', ?string $rota = null): void
     {
         if ($categoria === 'instituicao') {
-            $this->notificarAUsuariosDaInstituicao($this->instituicao_origem_id, $titulo, $mensagem, $rota ?? route('solicitacoes-documentos.colegio.index'));
+            $this->notificarAUsuariosDaInstituicao($this->instituicao_origem_id, $titulo, $mensagem, $rota ?? route('tenant.dashboard.solicitacoes-documentos.colegio.index'));
 
             return;
         }
 
         if ($categoria === 'tutela') {
-            $this->notificarAUsuariosDaInstituicao($this->instituicao_tutora_id, $titulo, $mensagem, $rota ?? route('solicitacoes-documentos.tutela.index'));
+            $this->notificarAUsuariosDaInstituicao($this->instituicao_tutora_id, $titulo, $mensagem, $rota ?? route('tenant.dashboard.solicitacoes-documentos.tutela.index'));
 
             return;
         }
@@ -282,7 +281,7 @@ class SolicitacaoDocumento extends Model
             solicitacaoId: $this->id,
             tipoDocumento: $this->tipoLabel,
             categoria: 'aluno',
-            url: $rota ?? route('solicitacoes-documentos.index'),
+            url: $rota ?? route('tenant.dashboard.solicitacoes-documentos.index'),
         ));
     }
 
@@ -305,7 +304,7 @@ class SolicitacaoDocumento extends Model
                 $user->notify(new RupeDisponivelNotification(
                     $this,
                     categoria: 'aluno',
-                    url: route('solicitacoes-documentos.index'),
+                    url: route('tenant.dashboard.solicitacoes-documentos.index'),
                 ));
             }
         }
@@ -327,7 +326,7 @@ class SolicitacaoDocumento extends Model
             $user->notify(new PagamentoConfirmadoNotification(
                 $this,
                 categoria: 'aluno',
-                url: route('solicitacoes-documentos.index'),
+                url: route('tenant.dashboard.solicitacoes-documentos.index'),
             ));
         }
 
@@ -335,14 +334,14 @@ class SolicitacaoDocumento extends Model
             'Pagamento confirmado',
             'O pagamento foi confirmado para a solicitação de '.$this->tipoLabel.'.',
             'instituicao',
-            route('solicitacoes-documentos.colegio.index')
+            route('tenant.dashboard.solicitacoes-documentos.colegio.index')
         );
 
         $this->notificarStatus(
             'Pagamento confirmado',
             'O pagamento foi confirmado para a solicitação de '.$this->tipoLabel.'.',
             'tutela',
-            route('solicitacoes-documentos.tutela.index')
+            route('tenant.dashboard.solicitacoes-documentos.tutela.index')
         );
     }
 

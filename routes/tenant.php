@@ -49,6 +49,7 @@ use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
 use App\Http\Middleware\CheckTenantStatus;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -112,7 +113,7 @@ Route::middleware([
     Route::middleware([
         'auth:tenant',
         'verified',
-        'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno',
+        'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno,tenant',
         CheckTenantStatus::class,
     ])
         ->prefix('dashboard')
@@ -120,6 +121,7 @@ Route::middleware([
         ->group(function () {
 
             require base_path('routes/modules/confirmar-matriculas.php');
+            require base_path('routes/modules/solicitacoes-documentos.php');
             require base_path('routes/modules/acess-management.php');
             require base_path('routes/modules/historico-aluno.php');
             require base_path('routes/modules/certificado.php');
@@ -686,10 +688,11 @@ Route::middleware([
       |--------------------------------------------------------------------------
       */
     Route::get('/storage/{path}', function (string $path) {
-        if (! Storage::disk('public')->exists($path)) {
-            abort(404);
-        }
+        /** @var FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
 
-        return Storage::disk('public')->response($path);
+        abort_unless($disk->exists($path), 404);
+
+        return $disk->response($path);
     })->where('path', '.*')->name('tenant.storage');
 });

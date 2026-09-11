@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSolicitacaoDocumentoRequest;
-use App\Models\SolicitacaoDocumento;
+use App\Models\Tenant\SolicitacaoDocumento;
+use App\Models\Tenant\User;
 use App\Services\ElegibilidadeDocumentoService;
 use App\Services\Rupe\RupeGeneratorInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,7 +27,7 @@ class SolicitacaoDocumentoController extends Controller
      */
     public function index(Request $request): Response
     {
-        $user = Auth::user();
+        $user = $this->tenantUser();
         $aluno = optional($user)->aluno;
         $turmaAtual = $aluno?->turmaActual()->first() ?? $aluno?->turmas()->orderByDesc('created_at')->first();
         $cursoTuteladoAtual = $aluno?->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado;
@@ -62,7 +64,7 @@ class SolicitacaoDocumentoController extends Controller
             ? $solicitacoesQuery
                 ->orderByDesc('created_at')
                 ->get()
-                ->map(fn(SolicitacaoDocumento $solicitacao) => [
+                ->map(fn (SolicitacaoDocumento $solicitacao) => [
                     'id' => $solicitacao->id,
                     'tipo_documento' => $solicitacao->tipo_documento,
                     'tipo_label' => $solicitacao->tipoLabel,
@@ -126,7 +128,7 @@ class SolicitacaoDocumentoController extends Controller
     public function store(StoreSolicitacaoDocumentoRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-        $aluno = $request->user()?->aluno;
+        $aluno = $request->user('tenant')?->aluno;
 
         if (! $aluno) {
             return back()->withErrors(['aluno' => 'Não foi possível identificar o aluno autenticado.']);
@@ -161,7 +163,7 @@ class SolicitacaoDocumentoController extends Controller
             }
         }
 
-        $instituicaoOrigem = $aluno->instituicao_id ?? $request->user()?->instituicao_id;
+        $instituicaoOrigem = $aluno->instituicao_id ?? $request->user('tenant')?->instituicao_id;
         $instituicaoEmissora = $validated['instituicao_emissora_id'] ?? $instituicaoOrigem;
 
         $instituicaoTutora = $validated['tipo_documento'] === 'certificado'
@@ -194,8 +196,8 @@ class SolicitacaoDocumentoController extends Controller
         }
         $solicitacao->marcarRupeGerado($rupe, false);
 
-        return redirect()->route('solicitacoes-documentos.index')
-            ->with('success', 'Solicitação de ' . $solicitacao->tipoLabel . ' registada com sucesso. Aguarde a análise da sua solicitação.');
+        return redirect()->route('tenant.dashboard.solicitacoes-documentos.index')
+            ->with('success', 'Solicitação de '.$solicitacao->tipoLabel.' registada com sucesso. Aguarde a análise da sua solicitação.');
     }
 
     /**
@@ -205,7 +207,7 @@ class SolicitacaoDocumentoController extends Controller
      */
     public function colegioIndex(Request $request): Response
     {
-        $user = Auth::user();
+        $user = $this->tenantUser();
 
         if ((optional($user)->hasRole('Aluno') ?? false) || (optional($user)->hasRole('Candidato') ?? false)) {
             abort(403, 'Sem permissão para aceder a esta área.');
@@ -230,7 +232,7 @@ class SolicitacaoDocumentoController extends Controller
         $solicitacoes = $query
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn(SolicitacaoDocumento $solicitacao) => [
+            ->map(fn (SolicitacaoDocumento $solicitacao) => [
                 'id' => $solicitacao->id,
                 'tipo_documento' => $solicitacao->tipo_documento,
                 'tipo_label' => $solicitacao->tipoLabel,
@@ -272,7 +274,7 @@ class SolicitacaoDocumentoController extends Controller
      */
     public function tutelaDashboard(): Response
     {
-        $user = Auth::user();
+        $user = $this->tenantUser();
 
         $solicitacoes = SolicitacaoDocumento::query()
             ->where('instituicao_tutora_id', $user?->instituicao_id)
@@ -280,7 +282,7 @@ class SolicitacaoDocumentoController extends Controller
             ->limit(10)
             ->get();
 
-        return Inertia::render('dashboards/tutela/index', [
+        return Inertia::render('dashboards/tutela/solicitacoes-documentos/index', [
             'total' => $solicitacoes->count(),
             'pendentes' => $solicitacoes->where('status', 'pendente')->count(),
             'aprovadas' => $solicitacoes->where('status', 'aprovado')->count(),
@@ -296,7 +298,7 @@ class SolicitacaoDocumentoController extends Controller
      */
     public function tutelaIndex(Request $request): Response
     {
-        $user = Auth::user();
+        $user = $this->tenantUser();
 
         if ((optional($user)->hasRole('Aluno') ?? false) || (optional($user)->hasRole('Candidato') ?? false)) {
             abort(403, 'Sem permissão para aceder a esta área.');
@@ -329,7 +331,7 @@ class SolicitacaoDocumentoController extends Controller
         $solicitacoesLocais = $queryLocais
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn(SolicitacaoDocumento $solicitacao) => [
+            ->map(fn (SolicitacaoDocumento $solicitacao) => [
                 'id' => $solicitacao->id,
                 'tipo_documento' => $solicitacao->tipo_documento,
                 'tipo_label' => $solicitacao->tipoLabel,
@@ -359,7 +361,7 @@ class SolicitacaoDocumentoController extends Controller
         $solicitacoesTuteladas = $queryTuteladas
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn(SolicitacaoDocumento $solicitacao) => [
+            ->map(fn (SolicitacaoDocumento $solicitacao) => [
                 'id' => $solicitacao->id,
                 'tipo_documento' => $solicitacao->tipo_documento,
                 'tipo_label' => $solicitacao->tipoLabel,
@@ -400,7 +402,7 @@ class SolicitacaoDocumentoController extends Controller
      */
     public function history(Request $request)
     {
-        $user = Auth::user();
+        $user = $this->tenantUser();
 
         if (! $user) {
             return response()->json(['message' => 'Não autorizado'], 401);
@@ -418,7 +420,7 @@ class SolicitacaoDocumentoController extends Controller
                 ->whereIn('status', $estadosFinais)
                 ->orderByDesc('created_at')
                 ->get()
-                ->map(fn(SolicitacaoDocumento $solicitacao) => [
+                ->map(fn (SolicitacaoDocumento $solicitacao) => [
                     'id' => $solicitacao->id,
                     'tipo_documento' => $solicitacao->tipo_documento,
                     'tipo_label' => $solicitacao->tipoLabel,
@@ -458,7 +460,7 @@ class SolicitacaoDocumentoController extends Controller
                 ->whereIn('status', $estadosFinais)
                 ->orderByDesc('created_at')
                 ->get()
-                ->map(fn(SolicitacaoDocumento $solicitacao) => [
+                ->map(fn (SolicitacaoDocumento $solicitacao) => [
                     'id' => $solicitacao->id,
                     'tipo_documento' => $solicitacao->tipo_documento,
                     'tipo_label' => $solicitacao->tipoLabel,
@@ -497,7 +499,7 @@ class SolicitacaoDocumentoController extends Controller
                 ->whereIn('status', $estadosFinais)
                 ->orderByDesc('created_at')
                 ->get()
-                ->map(fn(SolicitacaoDocumento $solicitacao) => [
+                ->map(fn (SolicitacaoDocumento $solicitacao) => [
                     'id' => $solicitacao->id,
                     'tipo_documento' => $solicitacao->tipo_documento,
                     'tipo_label' => $solicitacao->tipoLabel,
@@ -535,7 +537,7 @@ class SolicitacaoDocumentoController extends Controller
      */
     public function enviarParaTutela(Request $request, SolicitacaoDocumento $solicitacao): RedirectResponse
     {
-        $user = Auth::user();
+        $user = $this->tenantUser();
 
         if (! $user?->instituicao_id || $user->instituicao_id !== $solicitacao->instituicao_origem_id) {
             abort(403, 'Sem permissão para encaminhar este pedido.');
@@ -547,10 +549,10 @@ class SolicitacaoDocumentoController extends Controller
 
         $solicitacao->status = 'pendente';
         $solicitacao->instituicao_aprovadora_id = $user->instituicao_id;
-        $solicitacao->data_aprovacao = now();
+        $solicitacao->data_aprovacao = Carbon::now();
         $solicitacao->save();
 
-        return back()->with('success', 'Pedido de ' . $solicitacao->tipoLabel . ' encaminhado para a instituição tutora para análise.');
+        return back()->with('success', 'Pedido de '.$solicitacao->tipoLabel.' encaminhado para a instituição tutora para análise.');
     }
 
     // -----------------------------------------------------------------------
@@ -583,10 +585,14 @@ class SolicitacaoDocumentoController extends Controller
 
     public function decidir(SolicitacaoDocumento $solicitacao): bool
     {
-        $user = Auth::user();
-        if (! $user) return false;
+        $user = $this->tenantUser();
+        if (! $user) {
+            return false;
+        }
 
-        if ($user->hasRole('SuperAdmin')) return true;
+        if ($user->hasRole('SuperAdmin')) {
+            return true;
+        }
 
         if (! $user->instituicao_id || ! $user->hasAnyRole(['Director', 'Secretaria'])) {
             return false;
@@ -602,10 +608,14 @@ class SolicitacaoDocumentoController extends Controller
 
     public function marcarComoPago(SolicitacaoDocumento $solicitacao): bool
     {
-        $user = Auth::user();
-        if (! $user) return false;
+        $user = $this->tenantUser();
+        if (! $user) {
+            return false;
+        }
 
-        if ($user->hasRole('SuperAdmin')) return true;
+        if ($user->hasRole('SuperAdmin')) {
+            return true;
+        }
 
         if (! $user->instituicao_id || ! $user->hasAnyRole(['Director', 'Secretaria'])) {
             return false;
@@ -616,10 +626,14 @@ class SolicitacaoDocumentoController extends Controller
 
     public function marcarComoPronto(SolicitacaoDocumento $solicitacao): bool
     {
-        $user = Auth::user();
-        if (! $user) return false;
+        $user = $this->tenantUser();
+        if (! $user) {
+            return false;
+        }
 
-        if ($user->hasRole('SuperAdmin')) return true;
+        if ($user->hasRole('SuperAdmin')) {
+            return true;
+        }
 
         if (! $user->instituicao_id || ! $user->hasAnyRole(['Director', 'Secretaria'])) {
             return false;
@@ -630,10 +644,14 @@ class SolicitacaoDocumentoController extends Controller
 
     public function marcarComoLevantadoPermission(SolicitacaoDocumento $solicitacao): bool
     {
-        $user = Auth::user();
-        if (! $user) return false;
+        $user = $this->tenantUser();
+        if (! $user) {
+            return false;
+        }
 
-        if ($user->hasRole('SuperAdmin')) return true;
+        if ($user->hasRole('SuperAdmin')) {
+            return true;
+        }
 
         if (! $user->instituicao_id || ! $user->hasAnyRole(['Director', 'Secretaria'])) {
             return false;
@@ -644,8 +662,10 @@ class SolicitacaoDocumentoController extends Controller
 
     public function deletePermission(SolicitacaoDocumento $solicitacao): bool
     {
-        $user = Auth::user();
-        if (! $user) return false;
+        $user = $this->tenantUser();
+        if (! $user) {
+            return false;
+        }
 
         $entregue = $solicitacao->status === SolicitacaoDocumento::STATUS_ENTREGUE
             || (bool) $solicitacao->data_levantamento;
@@ -677,7 +697,7 @@ class SolicitacaoDocumentoController extends Controller
 
         if ($request->decisao === 'aprovado') {
             $solicitacao->aprovar(
-                instituicaoAprovadoraId: Auth::user()->instituicao_id,
+                instituicaoAprovadoraId: $this->tenantUser()->instituicao_id,
                 observacoes: $request->input('observacoes')
             );
             $mensagem = 'Pedido aprovado com sucesso.';
@@ -746,7 +766,7 @@ class SolicitacaoDocumentoController extends Controller
 
         return back()->with(
             'success',
-            'A emissão do(a) ' . $solicitacao->tipoLabel . ' foi concluída com sucesso. O documento encontra-se disponível para levantamento na secretaria, pelo que se solicita ao requerente que se dirija às instalações para o efeito.'
+            'A emissão do(a) '.$solicitacao->tipoLabel.' foi concluída com sucesso. O documento encontra-se disponível para levantamento na secretaria, pelo que se solicita ao requerente que se dirija às instalações para o efeito.'
         );
     }
 
@@ -761,14 +781,14 @@ class SolicitacaoDocumentoController extends Controller
         }
 
         if ($solicitacao->data_levantamento || $solicitacao->status === 'entregue') {
-            return back()->with('info', 'O(A) ' . $solicitacao->tipoLabel . ' já se encontra registado(a) como levantado(a).');
+            return back()->with('info', 'O(A) '.$solicitacao->tipoLabel.' já se encontra registado(a) como levantado(a).');
         }
 
-        $solicitacao->marcarComoLevantado(Auth::user());
+        $solicitacao->marcarComoLevantado($this->tenantUser());
 
         return back()->with(
             'success',
-            'O levantamento do(a) ' . $solicitacao->tipoLabel . ' foi registado com sucesso. O processo considera-se, assim, concluído.'
+            'O levantamento do(a) '.$solicitacao->tipoLabel.' foi registado com sucesso. O processo considera-se, assim, concluído.'
         );
     }
 
@@ -789,7 +809,7 @@ class SolicitacaoDocumentoController extends Controller
 
     public function emissaoDashboard(): Response
     {
-        $user = Auth::user();
+        $user = $this->tenantUser();
 
         $solicitacoes = SolicitacaoDocumento::query()
             ->where('instituicao_emissora_id', $user?->instituicao_id)
@@ -797,7 +817,7 @@ class SolicitacaoDocumentoController extends Controller
             ->limit(10)
             ->get();
 
-        return Inertia::render('dashboards/emissao/index', [
+        return Inertia::render('dashboards/emissao/solicitacoes-documentos/index', [
             'total' => $solicitacoes->count(),
             'aprovadas' => $solicitacoes->whereIn('status', ['aprovado', 'pago'])->whereNull('data_emissao')->count(),
             'emitidas' => $solicitacoes->whereNotNull('data_emissao')->count(),
@@ -811,7 +831,7 @@ class SolicitacaoDocumentoController extends Controller
 
     public function emissaoIndex(): Response
     {
-        $user = Auth::user();
+        $user = $this->tenantUser();
 
         if ((optional($user)->hasRole('Aluno') ?? false) || (optional($user)->hasRole('Candidato') ?? false)) {
             abort(403, 'Sem permissão para aceder a esta área.');
@@ -823,11 +843,11 @@ class SolicitacaoDocumentoController extends Controller
             ->whereNull('data_emissao')
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn(SolicitacaoDocumento $solicitacao) => [
+            ->map(fn (SolicitacaoDocumento $solicitacao) => [
                 'id' => $solicitacao->id,
                 'tipo_documento' => $solicitacao->tipo_documento,
                 'tipo_label' => $solicitacao->tipoLabel,
-            'numero_processo' => $solicitacao->aluno?->numero_processo ?? $solicitacao->numero_processo,
+                'numero_processo' => $solicitacao->aluno?->numero_processo ?? $solicitacao->numero_processo,
                 'motivo' => $solicitacao->motivo,
                 'observacoes' => $solicitacao->observacoes,
                 'status' => $solicitacao->status,
@@ -855,5 +875,13 @@ class SolicitacaoDocumentoController extends Controller
             'solicitacoes' => $solicitacoes,
             'instituicao_id' => $user?->instituicao_id,
         ]);
+    }
+
+    private function tenantUser(): ?User
+    {
+        /** @var User|null $user */
+        $user = Auth::guard('tenant')->user();
+
+        return $user;
     }
 }

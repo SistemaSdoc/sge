@@ -29,7 +29,7 @@ class StoreSolicitacaoDocumentoRequest extends FormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
-            $aluno = $this->user()?->aluno;
+            $aluno = $this->user('tenant')?->aluno;
 
             if (! $aluno) {
                 $validator->errors()->add('aluno', 'Não foi possível identificar o aluno autenticado.');

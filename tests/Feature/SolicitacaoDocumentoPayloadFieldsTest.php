@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Aluno;
 use App\Models\Instituicao;
-use App\Models\SolicitacaoDocumento;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\SolicitacaoDocumento;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;

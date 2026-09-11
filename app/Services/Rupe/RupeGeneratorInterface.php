@@ -2,7 +2,7 @@
 
 namespace App\Services\Rupe;
 
-use App\Models\SolicitacaoDocumento;
+use App\Models\Tenant\SolicitacaoDocumento;
 
 interface RupeGeneratorInterface
 {
