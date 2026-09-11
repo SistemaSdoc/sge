@@ -29,6 +29,17 @@ final class ConfirmacaoMatriculaViewService
         }
 
         $anoProximo = $this->proximoAno($anoActual);
+        $cursoTuteladoId = $turma->cursoClasseTurno?->cursoClasse?->curso_tutelado_id;
+        $turmasDestino = $anoProximo
+            ? Turma::query()
+                ->where('ano_lectivo_id', $anoProximo->id)
+                ->whereHas('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($query) use ($cursoTuteladoId, $instituicaoId): void {
+                    $query->where('curso_tutelado_id', $cursoTuteladoId)
+                        ->when($instituicaoId, fn ($institutionQuery) => $institutionQuery->where('instituicao_id', $instituicaoId));
+                })
+                ->with('cursoClasseTurno.cursoClasse.classe', 'cursoClasseTurno.turno')
+                ->get()
+            : collect();
 
         return TurmaAluno::query()
             ->whereHas('turma', function ($query) use ($anoActual, $turma, $instituicaoId): void {
@@ -62,12 +73,17 @@ final class ConfirmacaoMatriculaViewService
             ])
             ->orderBy('created_at')
             ->paginate(10)
-            ->through(function (TurmaAluno $turmaAluno): array {
+            ->through(function (TurmaAluno $turmaAluno) use ($turmasDestino): array {
                 /** @var User|null $user */
                 $user = auth('tenant')->user();
                 $turmaActual = $turmaAluno->turma;
                 $classeActual = $turmaActual?->cursoClasseTurno?->cursoClasse?->classe;
                 $status = $this->regraAcademicaService->resolverSituacaoAcademica($turmaAluno)['situacao'];
+                $transita = in_array($status, ['transita', 'transita_com_deficiencia', 'aprovado_recurso'], true);
+                $classeDestino = $transita
+                    ? $turmaActual?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->classes
+                        ?->firstWhere('ordem', ($classeActual?->ordem ?? 0) + 1)
+                    : $classeActual;
 
                 return [
                     'id' => $turmaAluno->aluno?->id,
@@ -76,10 +92,18 @@ final class ConfirmacaoMatriculaViewService
                         ?? 'Desconhecido',
                     'curso' => $turmaActual?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
                     'classe_actual' => $classeActual?->nome,
-                    'classe_proximo_ano' => in_array($status, ['transita', 'transita_com_deficiencia', 'aprovado_recurso'], true)
-                        ? $turmaActual?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->classes
-                            ?->firstWhere('ordem', ($classeActual?->ordem ?? 0) + 1)?->nome
-                        : $classeActual?->nome,
+                    'classe_proximo_ano' => $classeDestino?->nome,
+                    'classe_destino_id' => $classeDestino?->id,
+                    'turmas_destino' => $turmasDestino
+                        ->filter(fn (Turma $turmaDestino): bool => (string) $turmaDestino->cursoClasseTurno?->cursoClasse?->classe_id === (string) $classeDestino?->id)
+                        ->map(fn (Turma $turmaDestino): array => [
+                            'id' => $turmaDestino->id,
+                            'nome' => $turmaDestino->nome,
+                            'turno' => $turmaDestino->cursoClasseTurno?->turno?->nome,
+                            'max_alunos' => $turmaDestino->max_alunos,
+                        ])
+                        ->values()
+                        ->all(),
                     'turno' => $turmaActual?->cursoClasseTurno?->turno?->nome,
                     'turma' => $turmaActual?->nome,
                     'status' => $status,
