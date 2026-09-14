@@ -2,11 +2,11 @@
 
 use App\Http\Controllers\Central\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Central\Auth\RegisteredController;
+use App\Http\Controllers\Central\CalendarioAnualController;
 use App\Http\Controllers\Central\CursoController;
 use App\Http\Controllers\Central\DashboardController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\UserController;
-use App\Mail\AccountNotificationMail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -93,6 +93,19 @@ foreach (config('tenancy.central_domains') as $domain) {
                     ->name('tenants.tables.records');
 
                 Route::resource('users', UserController::class);
+
+                Route::resource('calendarios-anuais', CalendarioAnualController::class)
+                    ->only(['index', 'store', 'update', 'destroy'])
+                    ->parameters(['calendarios-anuais' => 'calendarioAnual']);
+
+                Route::get('calendarios-anuais/{calendarioAnual}/download', [CalendarioAnualController::class, 'download'])
+                    ->name('calendarios-anuais.download');
+
+                Route::get('calendarios-anuais/{calendarioAnual}/view', [CalendarioAnualController::class, 'view'])
+                    ->name('calendarios-anuais.view');
+
+                Route::get('calendario-anual', [CalendarioAnualController::class, 'index'])
+                    ->name('calendario-anual');
             });
     });
 }

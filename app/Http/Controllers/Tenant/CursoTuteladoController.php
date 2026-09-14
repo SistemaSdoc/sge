@@ -34,8 +34,7 @@ class CursoTuteladoController extends Controller
         private readonly UpdateCursoTutelado $updateCursoTutelado,
         private readonly DeleteCursoTutelado $deleteCursoTutelado,
         private readonly UploadCursoTuteladoDocumentos $uploadCursoTuteladoDocumentos,
-    ) {
-    }
+    ) {}
 
     /**
      * Apresenta os cursos tutelados de uma instituição.
@@ -116,7 +115,6 @@ class CursoTuteladoController extends Controller
             ),
         ];
     }
-    
 
     /**
      * Apresenta o detalhe de um curso tutelado.
@@ -148,6 +146,8 @@ class CursoTuteladoController extends Controller
                 'instituicao' => [
                     'view' => $user->can('view', $instituicao),
                 ],
+                'uploadCriteriosPap' => $user->can('update', $cursoTutelado)
+                    && $cursoTutelado->tipo_tutela === 'propria',
             ],
         ]);
     }
@@ -224,8 +224,8 @@ class CursoTuteladoController extends Controller
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Documentos actualizados com sucesso.',
-                ]);
+            'type' => 'success',
+            'message' => 'Documentos actualizados com sucesso.',
+        ]);
     }
 }

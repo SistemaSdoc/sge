@@ -42,6 +42,14 @@ final class SidebarMenuService
                     icon: 'BookOpen',
                     can: true,
                 ),
+
+                new MenuItem(
+                    key: 'calendario-anual',
+                    title: 'Calendários',
+                    href: route('central.dashboard.calendario-anual'),
+                    icon: 'Calendar1',
+                    can: true,
+                ),
             ]),
 
             new MenuGroup('Gestão de Usuários', [

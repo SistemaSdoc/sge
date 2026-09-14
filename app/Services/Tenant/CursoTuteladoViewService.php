@@ -46,9 +46,10 @@ class CursoTuteladoViewService
                 $conversaoPendente = $cursoTutelado
                     ? $this->temConversaoPendente($sharedActivo)
                     : false;
-                $sharedExibido = $sharedPendente?->status === TutelaStatus::PENDENTE
+                $sharedExibido = ($sharedPendente && $sharedPendente->status !== TutelaStatus::PENDENTE_TROCA)
                     ? $sharedPendente
                     : $sharedActivo;
+
                 $nomeTutor = $this->resolverNomeTutor($cursoTutelado, $sharedExibido);
                 $idTutor = $this->resolverIdTutor($cursoTutelado, $sharedExibido);
 
@@ -156,7 +157,7 @@ class CursoTuteladoViewService
      *
      * @return array{classes: mixed, cursos: mixed, niveisEnsino: mixed, tenantsTutores: array}
      */
-    public function createOptions(Instituicao $instituicao): array  
+    public function createOptions(Instituicao $instituicao): array
     {
         $classes = Classe::query()
             ->select('id', 'nome')
@@ -274,7 +275,7 @@ class CursoTuteladoViewService
             'instituicaoCurso.curso:id,nome,descricao',
             'instituicaoCurso.instituicao:id,nome',
             'instituicaoTutora:id,nome',
-            'cursoTuteladoShared',  
+            'cursoTuteladoShared',
             'cursoClasses.classe:id,nome',
             'cursoClasses.turnos.turno:id,nome',
             'cursoClasses.turnos' => function ($query) use ($anoLectivoId): void {

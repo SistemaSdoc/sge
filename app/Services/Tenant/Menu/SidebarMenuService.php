@@ -5,6 +5,7 @@ namespace App\Services\Tenant\Menu;
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\AvisoController;
+use App\Http\Controllers\Tenant\CalendarioAnualController;
 use App\Http\Controllers\Tenant\ClasseController;
 use App\Http\Controllers\Tenant\Colegios\ColegioController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
@@ -19,7 +20,6 @@ use App\Http\Controllers\Tenant\RegraAvaliacaoController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
-use App\Http\Controllers\Tenant\RelatorioController;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Aviso;
@@ -193,6 +193,14 @@ final class SidebarMenuService
                 ),
 
                 new MenuItem(
+                    key: 'calendario-anual',
+                    title: 'Calendários',
+                    href: action([CalendarioAnualController::class, 'index']),
+                    icon: 'Calendar1',
+                    can: true,
+                ),
+
+                new MenuItem(
                     key: 'solicitacao-lancamento-notas',
                     title: 'Solicitações de Lançamentos',
                     href: action([SolicitacaoEdicaoPautaController::class, 'index']),
@@ -250,7 +258,7 @@ final class SidebarMenuService
                     })(),
                     icon: 'Building2',
                     can: fn () => $gate->allows('colegios.viewAny')
-                    && $user?->instituicao?->tipo === 'instituto',
+                        && $user?->instituicao?->tipo === 'instituto',
                 ),
             ]),
 
@@ -269,7 +277,7 @@ final class SidebarMenuService
                     href: route('tenant.dashboard.pagamentos.index'),
                     icon: 'CreditCard',
                     can: fn () => $gate->allows('pagamentos.viewAny')
-                    && $user?->instituicao?->tipo === 'colegio',
+                        && $user?->instituicao?->tipo === 'colegio',
                 ),
             ]),
 
