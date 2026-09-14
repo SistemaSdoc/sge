@@ -13,9 +13,7 @@ use Inertia\Inertia;
 
 class RelatorioController extends Controller
 {
-    public function __construct(protected RelatorioService $service)
-    {
-    }
+    public function __construct(protected RelatorioService $service) {}
 
     public function index(Request $request)
     {

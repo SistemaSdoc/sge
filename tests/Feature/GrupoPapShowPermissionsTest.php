@@ -748,8 +748,9 @@ test('quando o tema e o trabalho sao submetidos para a coordenacao, tutor e alun
     $grupoPap->setRelation('professor', $tutor);
     $tutor->setRelation('user', $tutorUser);
 
-    $notificador = new class {
-        use \App\Traits\NotificaGrupoPap;
+    $notificador = new class
+    {
+        use NotificaGrupoPap;
 
         public function dispararTema(GrupoPap $grupoPap): void
         {

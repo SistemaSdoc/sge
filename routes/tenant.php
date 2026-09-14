@@ -41,18 +41,20 @@ use App\Http\Controllers\Tenant\PreencherHistoricoController;
 use App\Http\Controllers\Tenant\ProfessorController as ProfessorControllerGeral;
 use App\Http\Controllers\Tenant\ReciboController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
+use App\Http\Controllers\Tenant\RelatorioController;
 use App\Http\Controllers\Tenant\RelatorioPropinaController;
+use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
+use App\Http\Controllers\Tenant\UserPermissionController;
 use App\Http\Middleware\CheckTenantStatus;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-use App\Http\Controllers\Tenant\RelatorioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -128,7 +130,14 @@ Route::middleware([
             require base_path('routes/modules/notas.php');
             require base_path('routes/settings.php');
 
+            Route::get('users/{user}/permissions', [UserPermissionController::class, 'create'])
+                ->name('users.permissions.create');
+
+            Route::put('users/{user}/permissions', [UserPermissionController::class, 'update'])
+                ->name('users.permissions.update');
+
             Route::resource('users', UserController::class);
+            Route::resource('roles', RoleController::class)->except(['show']);
             Route::resource('alunos', AlunoController::class);
             Route::resource('avisos', AvisoController::class);
             Route::resource('anos-lectivos', AnoLectivoController::class)->parameters(['anos-lectivos' => 'anoLectivo']);
@@ -356,14 +365,13 @@ Route::middleware([
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/professores', [TurmaDisciplinaProfessorController::class, 'store'])
                 ->name('turma.disciplinas.professores.store');
 
-
-                /*
+            /*
             |--------------------------------------------------------------------------
             | Relatorio geral do tenant
             |--------------------------------------------------------------------------
             */
             Route::get('/relatorios', [RelatorioController::class, 'index'])
-                 ->name('relatorios.index'); 
+                ->name('relatorios.index');
             /*
             |--------------------------------------------------------------------------
             | Horários de Disciplinas de Turmas

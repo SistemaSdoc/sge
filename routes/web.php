@@ -6,7 +6,6 @@ use App\Http\Controllers\Central\CursoController;
 use App\Http\Controllers\Central\DashboardController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\UserController;
-use App\Mail\AccountNotificationMail;
 use Illuminate\Support\Facades\Route;
 
 /*

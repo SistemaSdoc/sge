@@ -16,10 +16,11 @@ use App\Http\Controllers\Tenant\NotaAlunoController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\ProfessorController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
+use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
-use App\Http\Controllers\Tenant\RelatorioController;
+use App\Http\Controllers\Tenant\UserController;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Aviso;
@@ -33,9 +34,11 @@ use App\Models\Tenant\RegraAvaliacao;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
+use App\Models\Tenant\User;
 use App\Services\Tenant\GrupoPap\GrupoPapNavigationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Models\Role;
 
 final class SidebarMenuService
 {
@@ -221,6 +224,22 @@ final class SidebarMenuService
 
             new MenuGroup('Usuários', [
                 new MenuItem(
+                    key: 'usuarios',
+                    title: 'Usuários',
+                    href: action([UserController::class, 'index']),
+                    icon: 'UserCog',
+                    can: fn () => $gate->allows('viewAny', User::class),
+                ),
+
+                new MenuItem(
+                    key: 'roles',
+                    title: 'Funções e permissões',
+                    href: action([RoleController::class, 'index']),
+                    icon: 'ShieldCheck',
+                    can: fn () => $gate->allows('viewAny', Role::class),
+                ),
+
+                new MenuItem(
                     key: 'professores',
                     title: 'Professores',
                     href: action([ProfessorController::class, 'index']),
@@ -232,7 +251,7 @@ final class SidebarMenuService
                     key: 'alunos',
                     title: 'Alunos',
                     href: action([AlunoController::class, 'index']),
-                    icon: 'GraduationCap',
+                    icon: 'Users',
                     can: fn () => $gate->allows('viewAny', Aluno::class),
                 ),
             ]),

@@ -59,7 +59,12 @@ export default function ResumoGeral({
           titulo="Professores"
           descricao="Distribuição por especialidade"
           valor={valor('Professores')}
-          chart={<MiniDonutChart data={graficos.professores_por_especialidade} formatValor={(v) => `${v} professor${v === 1 ? '' : 'es'}`} />}
+          chart={
+            <MiniDonutChart
+              data={graficos.professores_por_especialidade}
+              formatValor={(v) => `${v} professor${v === 1 ? '' : 'es'}`}
+            />
+          }
           legend={<ChartLegend data={graficos.professores_por_especialidade} />}
         />
 
@@ -67,14 +72,25 @@ export default function ResumoGeral({
           titulo="Total de turmas"
           descricao="Ocupação de vagas por classe"
           valor={valor('Turmas')}
-          chart={<MiniBarChart data={graficos.turmas_ocupacao} color="#10b981" formatValor={(v) => `${v}% de vaga ocupada`} />}
+          chart={
+            <MiniBarChart
+              data={graficos.turmas_ocupacao}
+              color="#10b981"
+              formatValor={(v) => `${v}% de vaga ocupada`}
+            />
+          }
         />
 
         <KpiChartCard
           titulo="PAP - Total de finalistas"
           descricao="Estado de aprovação dos grupos"
           valor={kpisExtra.pap_finalistas}
-          chart={<MiniDonutChart data={graficos.pap_por_estado} formatValor={(v) => `${v} grupo${v === 1 ? '' : 's'}`} />}
+          chart={
+            <MiniDonutChart
+              data={graficos.pap_por_estado}
+              formatValor={(v) => `${v} grupo${v === 1 ? '' : 's'}`}
+            />
+          }
           legend={<ChartLegend data={graficos.pap_por_estado} />}
         />
 
@@ -91,7 +107,13 @@ export default function ResumoGeral({
           titulo="Total de documentos emitidos"
           descricao="Emitidos nos últimos 30 dias"
           valor={kpisExtra.documentos_emitidos ?? '—'}
-          chart={<MiniHorizontalBarChart data={graficos.documentos_por_tipo} color="#8b5cf6" formatValor={(v) => `${v} emitido${v === 1 ? '' : 's'}`} />}
+          chart={
+            <MiniHorizontalBarChart
+              data={graficos.documentos_por_tipo}
+              color="#8b5cf6"
+              formatValor={(v) => `${v} emitido${v === 1 ? '' : 's'}`}
+            />
+          }
         />
       </div>
     </div>

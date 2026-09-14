@@ -48,7 +48,9 @@ export function KpiChartCard({ titulo, descricao, valor, extra, chart, legend, c
         {extra}
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
-        <span className="font-heading text-2xl font-semibold text-foreground">{valor}</span>
+        <span className="font-heading text-2xl font-semibold text-foreground">
+          {valor}
+        </span>
         {chart ? <div className="h-40 w-full">{chart}</div> : null}
         {legend}
       </CardContent>
@@ -64,7 +66,12 @@ export function KpiChartCard({ titulo, descricao, valor, extra, chart, legend, c
  *
  * data: [{ label: 'Professores', valor: 4 }, ...]
  */
-export function ChartLegend({ data, dataKey = 'valor', categoryKey = 'label', colors = DONUT_COLORS }) {
+export function ChartLegend({
+  data,
+  dataKey = 'valor',
+  categoryKey = 'label',
+  colors = DONUT_COLORS,
+}) {
   if (!data?.length) return null;
 
   const total = data.reduce((acc, item) => acc + (item[dataKey] || 0), 0);
@@ -76,7 +83,10 @@ export function ChartLegend({ data, dataKey = 'valor', categoryKey = 'label', co
         const percentagem = total ? ((valor / total) * 100).toFixed(1) : '0.0';
 
         return (
-          <li key={item[categoryKey]} className="flex items-center justify-between gap-2">
+          <li
+            key={item[categoryKey]}
+            className="flex items-center justify-between gap-2"
+          >
             <span className="flex items-center gap-1.5 text-muted-foreground">
               <span
                 className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
@@ -110,7 +120,8 @@ function MiniTooltip({
   payload,
   categoryKey = 'label',
   dataKey = 'valor',
-  formatValor = (valor) => (typeof valor === 'number' ? valor.toLocaleString() : valor),
+  formatValor = (valor) =>
+    typeof valor === 'number' ? valor.toLocaleString() : valor,
 }) {
   if (!active || !payload?.length) return null;
 
@@ -123,7 +134,10 @@ function MiniTooltip({
     <div className="rounded-none border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl">
       <div className="font-medium text-foreground">{rotulo}</div>
       <div className="mt-0.5 flex items-center gap-1.5">
-        <span className="h-2 w-2 shrink-0 rounded-[2px]" style={{ backgroundColor: cor }} />
+        <span
+          className="h-2 w-2 shrink-0 rounded-[2px]"
+          style={{ backgroundColor: cor }}
+        />
         <span className="font-mono font-medium text-foreground tabular-nums">
           {formatValor(valor)}
         </span>
@@ -158,7 +172,13 @@ export function MiniBarChart({
           interval={0}
         />
         <Tooltip
-          content={<MiniTooltip categoryKey={categoryKey} dataKey={dataKey} formatValor={formatValor} />}
+          content={
+            <MiniTooltip
+              categoryKey={categoryKey}
+              dataKey={dataKey}
+              formatValor={formatValor}
+            />
+          }
           cursor={{ fill: 'var(--muted)' }}
         />
         <Bar dataKey={dataKey} fill={color} radius={0} />
@@ -183,8 +203,23 @@ export function MiniDonutChart({
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
-        <Tooltip content={<MiniTooltip categoryKey={categoryKey} dataKey={dataKey} formatValor={formatValor} />} />
-        <Pie data={data} dataKey={dataKey} innerRadius="60%" outerRadius="90%" paddingAngle={2} stroke="none">
+        <Tooltip
+          content={
+            <MiniTooltip
+              categoryKey={categoryKey}
+              dataKey={dataKey}
+              formatValor={formatValor}
+            />
+          }
+        />
+        <Pie
+          data={data}
+          dataKey={dataKey}
+          innerRadius="60%"
+          outerRadius="90%"
+          paddingAngle={2}
+          stroke="none"
+        >
           {data.map((_, i) => (
             <Cell key={i} fill={colors[i % colors.length]} />
           ))}
@@ -226,10 +261,22 @@ export function MiniLineChart({
           interval={0}
         />
         <Tooltip
-          content={<MiniTooltip categoryKey={categoryKey} dataKey={dataKey} formatValor={formatValor} />}
+          content={
+            <MiniTooltip
+              categoryKey={categoryKey}
+              dataKey={dataKey}
+              formatValor={formatValor}
+            />
+          }
           cursor={{ stroke: color, strokeWidth: 1, strokeDasharray: '3 3' }}
         />
-        <Area type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} fill={`url(#${gradientId})`} />
+        <Area
+          type="monotone"
+          dataKey={dataKey}
+          stroke={color}
+          strokeWidth={2}
+          fill={`url(#${gradientId})`}
+        />
       </AreaChart>
     </ResponsiveContainer>
   );
@@ -250,7 +297,11 @@ export function MiniHorizontalBarChart({
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }}>
+      <BarChart
+        data={data}
+        layout="vertical"
+        margin={{ top: 0, right: 8, left: 0, bottom: 0 }}
+      >
         <XAxis type="number" hide />
         <YAxis
           type="category"
@@ -261,7 +312,13 @@ export function MiniHorizontalBarChart({
           tickLine={false}
         />
         <Tooltip
-          content={<MiniTooltip categoryKey={categoryKey} dataKey={dataKey} formatValor={formatValor} />}
+          content={
+            <MiniTooltip
+              categoryKey={categoryKey}
+              dataKey={dataKey}
+              formatValor={formatValor}
+            />
+          }
           cursor={{ fill: 'var(--muted)' }}
         />
         <Bar dataKey={dataKey} fill={color} radius={0} barSize={10} />

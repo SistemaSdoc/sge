@@ -13,11 +13,15 @@ export default function RelatorioIndex({
   pode_ver_pagamentos: podeVerPagamentos,
 }) {
   function irPara(novosFiltros) {
-    router.get(route('relatorios.index'), { ...filtros, ...novosFiltros }, {
-      preserveState: true,
-      preserveScroll: true,
-      replace: true,
-    });
+    router.get(
+      route('relatorios.index'),
+      { ...filtros, ...novosFiltros },
+      {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+      },
+    );
   }
 
   return (
