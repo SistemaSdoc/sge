@@ -8,6 +8,7 @@ use App\Models\Tenant\Disciplina;
 use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Pagamento;
+use App\Models\Tenant\Turno;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 
@@ -58,6 +59,8 @@ class RelatorioService
             ])
             ->values();
 
+        $alunosPorClasseETurno = $this->alunosPorClasseETurno($ano);
+
         $totalFinalistasPap = ElementoGrupoPap::count();
 
         $porEstadoPap = GrupoPap::get()
@@ -88,12 +91,10 @@ class RelatorioService
             'tabela' => $porClasse,
 
             // Dados já no formato que o KpiChartCard.jsx espera (label/valor) —
-            // um array por card do dashboard.
+            // um array por card do dashboard. "alunos_por_classe" é a excepção:
+            // vem como { series, dados } porque é um gráfico agrupado (por turno).
             'graficos' => [
-                'alunos_por_classe' => $porClasse->map(fn ($c) => [
-                    'label' => $c['classe'],
-                    'valor' => $c['matriculados'],
-                ])->values(),
+                'alunos_por_classe' => $alunosPorClasseETurno,
 
                 'professores_por_especialidade' => $porEspecialidade,
 
@@ -132,6 +133,46 @@ class RelatorioService
     }
 
     /**
+     * Alunos matriculados por classe, com uma coluna extra por turno
+     * (Manhã/Tarde/Noite, ou o que existir na tua tabela de turnos).
+     * Os turnos vêm do catálogo (Turno::all()), não das turmas já criadas —
+     * assim um turno sem nenhuma turma aberta ainda aparece no gráfico com 0,
+     * em vez de simplesmente não aparecer.
+     * Devolve { series, dados } para o MiniGroupedBarChart:
+     *   series -> ['Manhã', 'Tarde', 'Noite']
+     *   dados  -> [['classe' => '10ª', 'Manhã' => 120, 'Tarde' => 80, 'Noite' => 0], ...]
+     */
+    protected function alunosPorClasseETurno(?AnoLectivo $ano): array
+    {
+        $turnos = Turno::orderBy('id')->pluck('nome');
+
+        $turmas = Turma::when($ano, fn ($q) => $q->where('ano_lectivo_id', $ano->id))
+            ->with(['cursoClasseTurno.cursoClasse.classe', 'cursoClasseTurno.turno'])
+            ->withCount('alunosActivos')
+            ->get();
+
+        $dados = $turmas
+            ->groupBy(fn ($t) => $t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? 'Sem classe')
+            ->map(function ($turmasDaClasse, $classe) use ($turnos) {
+                $linha = ['classe' => $classe];
+
+                foreach ($turnos as $turno) {
+                    $linha[$turno] = $turmasDaClasse
+                        ->filter(fn ($t) => ($t->cursoClasseTurno?->turno?->nome ?? null) === $turno)
+                        ->sum('alunos_activos_count');
+                }
+
+                return $linha;
+            })
+            ->values();
+
+        return [
+            'series' => $turnos->values()->all(),
+            'dados' => $dados->all(),
+        ];
+    }
+
+    /**
      * Total arrecadado por mês nos últimos 6 meses (incluindo meses sem pagamentos,
      * preenchidos com 0), para o mini-gráfico de linha do card "Pagamentos".
      */
@@ -165,7 +206,7 @@ class RelatorioService
                 $q->where(function ($q2) use ($termo) {
                     $q2->where('matricula', 'like', "%{$termo}%")
                         ->orWhere('numero_processo', 'like', "%{$termo}%")
-                        ->orWhereHas('user', fn ($q3) => $q3->where('nome', 'like', "%{$termo}%"));
+                       ->orWhereHas('user', fn ($q3) => $q3->where('nome', 'like', "%{$termo}%"));
                 });
             })
             ->when($filtros['turma_id'] ?? null, function ($q, $turmaId) {
@@ -206,8 +247,7 @@ class RelatorioService
             ->with('user')
             ->withCount(['turmas', 'classeTurnoDisciplinas as disciplinas_count'])
             ->when($filtros['pesquisa'] ?? null, function ($q, $termo) {
-                $q->whereHas('user', fn ($q2) => $q2->where('nome', 'like', "%{$termo}%"));
-            })
+                 $q->whereHas('user', fn ($q2) => $q2->where('nome', 'like', "%{$termo}%")); })
             ->when($filtros['classe_id'] ?? null, function ($q, $classeId) {
                 $q->whereHas('classeTurnoDisciplinas', fn ($q2) => $q2->where('classe_id', $classeId));
             });
@@ -264,23 +304,8 @@ class RelatorioService
                     'nome' => $t->nome,
                     'classe' => $t->cursoClasseTurno?->cursoClasse?->classe?->nome,
                     'vagas' => $t->max_alunos,
-                    'vagas_disponiveis' => max(0, $t->max_alunos - $t->alunos_activos_count),
                     'ocupacao' => $t->max_alunos ? round($t->alunos_activos_count / $t->max_alunos * 100).'%' : '0%',
                 ]),
-
-            // Dados no formato label/valor para o KpiChartCard.jsx (MiniBarChart).
-            'graficos' => [
-    'turmas_ocupacao' => $totais->map(fn ($t) => [
-        'label' => $t->nome,
-        'valor' => $t->max_alunos ? round($t->alunos_activos_count / $t->max_alunos * 100) : 0,
-        'vagas_disponiveis' => max(0, $t->max_alunos - $t->alunos_activos_count),
-    ])->values(),
-
-                'turmas_ocupacao' => $totais->map(fn ($t) => [
-                    'label' => $t->nome,
-                    'valor' => $t->max_alunos ? round($t->alunos_activos_count / $t->max_alunos * 100) : 0,
-                ])->values(),
-            ],
         ];
     }
 
@@ -316,7 +341,7 @@ class RelatorioService
                 ->through(fn ($g) => [
                     'grupo' => $g->nome_grupo,
                     'tema' => $g->tema_grupo,
-                    'orientador' => $g->professor?->user?->nome,
+                    'orientador' => $g->professor?->user?->name,
                     'turma' => $g->turma?->nome,
                     'estado' => $g->status_aprovacao,
                     'nota' => $g->nota_final,

@@ -1,23 +1,32 @@
 import {
+  ChartLegend,
   KpiChartCard,
   MiniBarChart,
   MiniDonutChart,
+  MiniGroupedBarChart,
   MiniHorizontalBarChart,
   MiniLineChart,
-   ChartLegend,
+  SeriesLegend,
 } from '@/components/relatorio/KpiChartCard';
 
 /**
  * ResumoGeral
- * Dashboard com os 6 cards do relatório geral (tipo === 'geral').
+ * Dashboard com os cards do relatório geral (tipo === 'geral').
  * Recebe exactamente os dados devolvidos por RelatorioService::resumoGeral():
- * stats, graficos, kpis_extra.
+ * stats, graficos, kpis_extra — mais `pode_ver_pagamentos`, enviado pelo
+ * controller com base na ItemPagavelPolicy (só instituições do tipo
+ * "colegio" veem o card de Pagamentos).
  *
- * Cada card tem o seu próprio `formatarValor`, usado pelo tooltip do gráfico
+ * Cada card tem o seu próprio `formatValor`, usado pelo tooltip do gráfico
  * ao passar o rato — o texto é diferente em cada um porque a unidade do dado
  * também é diferente (alunos, %, grupos, Kz, documentos...).
  */
-export default function ResumoGeral({ stats, graficos, kpis_extra: kpisExtra }) {
+export default function ResumoGeral({
+  stats,
+  graficos,
+  kpis_extra: kpisExtra,
+  pode_ver_pagamentos: podeVerPagamentos = true,
+}) {
   const valor = (label) => stats.find((s) => s.label === label)?.valor ?? '—';
 
   return (
@@ -34,9 +43,16 @@ export default function ResumoGeral({ stats, graficos, kpis_extra: kpisExtra }) 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <KpiChartCard
           titulo="Total de alunos da instituição"
-          descricao="Matriculados por classe"
+          descricao="Matriculados por classe e turno"
           valor={valor('Alunos')}
-          chart={<MiniBarChart data={graficos.alunos_por_classe} color="#00235b" formatValor={(v) => `${v} alunos matriculados`} />}
+          chart={
+            <MiniGroupedBarChart
+              data={graficos.alunos_por_classe.dados}
+              series={graficos.alunos_por_classe.series}
+              formatValor={(v) => `${v} alunos matriculados`}
+            />
+          }
+          legend={<SeriesLegend series={graficos.alunos_por_classe.series} />}
         />
 
         <KpiChartCard
@@ -62,12 +78,14 @@ export default function ResumoGeral({ stats, graficos, kpis_extra: kpisExtra }) 
           legend={<ChartLegend data={graficos.pap_por_estado} />}
         />
 
-        <KpiChartCard
-          titulo="Pagamentos efectuados"
-          descricao="Receita arrecadada nos últimos 6 meses"
-          valor={kpisExtra.pagamentos_adimplencia !== null ? `${kpisExtra.pagamentos_adimplencia}% Taxa de cobrança` : 'Taxa de cobrança— (pendente)'}
-          chart={<MiniLineChart data={graficos.pagamentos_mensal} color="#3b82f6" formatValor={(v) => `${v.toLocaleString()} Kz arrecadados`} />}
-        />
+        {podeVerPagamentos && (
+          <KpiChartCard
+            titulo="Pagamentos efectuados"
+            descricao="Receita arrecadada nos últimos 6 meses"
+            valor={kpisExtra.pagamentos_adimplencia !== null ? `${kpisExtra.pagamentos_adimplencia}% Taxa de cobrança` : 'Taxa de cobrança — (pendente)'}
+            chart={<MiniLineChart data={graficos.pagamentos_mensal} color="#3b82f6" formatValor={(v) => `${v.toLocaleString()} Kz arrecadados`} />}
+          />
+        )}
 
         <KpiChartCard
           titulo="Total de documentos emitidos"

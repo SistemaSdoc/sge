@@ -12,7 +12,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 const DONUT_COLORS = ['#00225a', '#faa106', '#05ba7d', '#ef4444', '#8b5cf6'];
@@ -28,11 +28,23 @@ const DONUT_COLORS = ['#00225a', '#faa106', '#05ba7d', '#ef4444', '#8b5cf6'];
  * @param {React.ReactNode} chart - Um dos mini-gráficos abaixo (MiniBarChart, MiniDonutChart, ...)
  * @param {string} className - Classes adicionais
  */
+/**
+ * @param {string} titulo - Título do card (ex: "Estado dos usuários")
+ * @param {string} descricao - Subtítulo curto por baixo do título (ex: "Activos, inactivos e suspensos")
+ * @param {string|number} valor - Valor principal em destaque
+ * @param {React.ReactNode} extra - Conteúdo opcional no canto superior direito (badge, menu, etc)
+ * @param {React.ReactNode} chart - Um dos mini-gráficos abaixo (MiniBarChart, MiniDonutChart, ...)
+ * @param {React.ReactNode} legend - Opcional: <ChartLegend data={...} /> por baixo do gráfico
+ * @param {string} className - Classes adicionais
+ */
 export function KpiChartCard({ titulo, descricao, valor, extra, chart, legend, className }) {
   return (
     <Card className={cn('gap-3', className)}>
-      <CardHeader className="flex-row items-center justify-between">
-        <CardTitle className="font-normal text-muted-foreground">{titulo}</CardTitle>
+      <CardHeader className="flex-row items-start justify-between">
+        <div>
+          <CardTitle className="font-normal text-muted-foreground">{titulo}</CardTitle>
+          {descricao ? <CardDescription>{descricao}</CardDescription> : null}
+        </div>
         {extra}
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
@@ -263,5 +275,89 @@ function SemDados() {
     <div className="flex h-full items-center text-[11px] text-muted-foreground">
       Sem dados ainda.
     </div>
+  );
+}
+
+/**
+ * MiniGroupedBarChart — várias barras lado a lado por categoria (ex: alunos
+ * por classe E por turno). Uma <Bar> por item de `series`, todas a ler do
+ * mesmo objecto de `data`.
+ *
+ * data: [{ classe: '10ª', 'Manhã': 120, 'Tarde': 80, 'Noite': 40 }, ...]
+ * series: ['Manhã', 'Tarde', 'Noite']
+ */
+export function MiniGroupedBarChart({
+  data,
+  series,
+  categoryKey = 'classe',
+  colors = DONUT_COLORS,
+  formatValor = (valor) => (typeof valor === 'number' ? valor.toLocaleString() : valor),
+}) {
+  if (!data?.length || !series?.length) return <SemDados />;
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={data} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+        <XAxis
+          dataKey={categoryKey}
+          tick={{ fontSize: 10 }}
+          axisLine={false}
+          tickLine={false}
+          interval={0}
+        />
+        <Tooltip
+          cursor={{ fill: 'var(--muted)' }}
+          content={({ active, payload, label }) => {
+            if (!active || !payload?.length) return null;
+
+            return (
+              <div className="rounded-none border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl">
+                <div className="font-medium text-foreground">{label}</div>
+                <div className="mt-1 flex flex-col gap-1">
+                  {payload.map((item) => (
+                    <div key={item.dataKey} className="flex items-center gap-1.5">
+                      <span
+                        className="h-2 w-2 shrink-0 rounded-[2px]"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="text-muted-foreground">{item.dataKey}:</span>
+                      <span className="font-mono font-medium text-foreground tabular-nums">
+                        {formatValor(item.value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          }}
+        />
+        {series.map((nomeSerie, i) => (
+          <Bar key={nomeSerie} dataKey={nomeSerie} fill={colors[i % colors.length]} radius={0} />
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+/**
+ * SeriesLegend — legenda simples (cor + nome) para os gráficos de várias
+ * séries (ex: MiniGroupedBarChart). Ao contrário do ChartLegend, não mostra
+ * percentagem — as séries não são partes de um todo, são valores paralelos.
+ */
+export function SeriesLegend({ series, colors = DONUT_COLORS }) {
+  if (!series?.length) return null;
+
+  return (
+    <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+      {series.map((nome, i) => (
+        <li key={nome} className="flex items-center gap-1.5">
+          <span
+            className="h-2.5 w-2.5 shrink-0 rounded-[2px]"
+            style={{ backgroundColor: colors[i % colors.length] }}
+          />
+          {nome}
+        </li>
+      ))}
+    </ul>
   );
 }

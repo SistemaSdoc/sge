@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Classe;
+use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Turma;
 use App\Services\Tenant\RelatorioService;
 use Illuminate\Http\Request;
@@ -32,6 +33,7 @@ class RelatorioController extends Controller
     'tipo' => $filtros['tipo'] ?? 'geral',
     'filtros' => $filtros,
     'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
+    'pode_ver_pagamentos' => $request->user()->can('viewAny', ItemPagavel::class),
     ...$dados,
 ]);
     }

@@ -10,6 +10,7 @@ export default function RelatorioIndex({
   tabela,
   graficos,
   kpis_extra: kpisExtra,
+  pode_ver_pagamentos: podeVerPagamentos,
 }) {
   function irPara(novosFiltros) {
     router.get(route('relatorios.index'), { ...filtros, ...novosFiltros }, {
@@ -25,7 +26,12 @@ export default function RelatorioIndex({
 
       <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl p-4">
         {tipo === 'geral' ? (
-          <ResumoGeral stats={stats} graficos={graficos} kpis_extra={kpisExtra} />
+          <ResumoGeral
+            stats={stats}
+            graficos={graficos}
+            kpis_extra={kpisExtra}
+            pode_ver_pagamentos={podeVerPagamentos}
+          />
         ) : (
           <pre className="overflow-auto rounded-none bg-muted p-4 text-xs">
             {JSON.stringify({ stats, tabela }, null, 2)}
