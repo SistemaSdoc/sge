@@ -308,7 +308,7 @@ final class SidebarMenuService
                     title: 'Relatórios',
                     href: route('tenant.dashboard.relatorios.index'),
                     icon: 'BarChart3',
-                    can: true,
+                    can: fn () => $user && ! $user->hasRole(['Aluno', 'Professor']),
                 ),
             ]),
         ];
