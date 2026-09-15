@@ -16,7 +16,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function create()
     {
-        return Inertia::render('tenant/auth/login');
+        $instituicao = \App\Models\Tenant\Instituicao::first();
+
+        return Inertia::render('tenant/auth/login', [
+            'instituicao' => [
+                'nome' => $instituicao?->nome,
+                'logo_url' => $instituicao?->logo_url,
+            ],
+        ]);
     }
 
     /**

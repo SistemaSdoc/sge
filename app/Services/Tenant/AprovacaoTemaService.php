@@ -17,7 +17,9 @@ class AprovacaoTemaService
 {
     use NotificaGrupoPap;
 
-    public function __construct(private readonly CrossTenantAccessService $crossTenantAccessService) {}
+    public function __construct(private readonly CrossTenantAccessService $crossTenantAccessService)
+    {
+    }
 
     /**
      * Buscar temas PAP pendentes dos cursos
@@ -29,7 +31,7 @@ class AprovacaoTemaService
         $professorId = $professor?->getKey();
         $instituicaoId = $user->instituicao_id;
 
-        if (! $professorId || ! $instituicaoId) {
+        if (!$professorId || !$instituicaoId) {
             return collect();
         }
 
@@ -51,12 +53,12 @@ class AprovacaoTemaService
             ->each(function (CursoTuteladoShared $shared) use (&$temasPendentes): void {
                 $tenantTutelado = Tenant::query()->find($shared->tenant_tutelado_id);
 
-                if (! $tenantTutelado) {
+                if (!$tenantTutelado) {
                     return;
                 }
 
                 $temasPendentes = $temasPendentes->merge($tenantTutelado->run(
-                    fn (): Collection => $this->temasPendentesDosCursos(
+                    fn(): Collection => $this->temasPendentesDosCursos(
                         collect([$shared->curso_tutelado_tutelado_id])
                     )
                 ));
@@ -75,7 +77,7 @@ class AprovacaoTemaService
             ->where('status_aprovacao', 'pendente')
             ->whereHas(
                 'turma.cursoClasseTurno.cursoClasse',
-                fn ($query) => $query->whereIn('curso_tutelado_id', $cursoTuteladoIds)
+                fn($query) => $query->whereIn('curso_tutelado_id', $cursoTuteladoIds)
             )
             ->with([
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
@@ -151,7 +153,7 @@ class AprovacaoTemaService
         ?string $comentario = null,
         ?string $actorTenantId = null,
     ): bool {
-        if (! $grupoPap->podeSerAprovado()) {
+        if (!$grupoPap->podeSerAprovado()) {
             return false;
         }
 
@@ -163,14 +165,7 @@ class AprovacaoTemaService
 
         $actorTenantId ??= (string) $currentTenantId;
 
-        return DB::transaction(function () use (
-            $grupoPap,
-            $user,
-            $novoEstado,
-            $comentario,
-            $actorTenantId,
-            $currentTenantId
-        ) {
+        return DB::transaction(function () use ($grupoPap, $user, $novoEstado, $comentario, $actorTenantId, $currentTenantId) {
 
             $estadoAnterior = $grupoPap->status_aprovacao;
             $isExternalActor = $actorTenantId !== null
@@ -231,15 +226,11 @@ class AprovacaoTemaService
         User $user,
         array $dados
     ): bool {
-        if (! $grupoPap->podeSerReenviado()) {
+        if (!$grupoPap->podeSerReenviado()) {
             return false;
         }
 
-        return DB::transaction(function () use (
-            $grupoPap,
-            $user,
-            $dados
-        ) {
+        return DB::transaction(function () use ($grupoPap, $user, $dados) {
 
             $estadoAnterior = $grupoPap->status_aprovacao;
 
@@ -269,6 +260,7 @@ class AprovacaoTemaService
             if ($tutor) {
                 $tutor->notify(new TemaSubmetidoAoTutorNotification($grupoPap));
             }
+            $this->notificarTemaSubmetidoConfirmacaoAlunos($grupoPap);
             // ──────────────────────────────────────────────────────
 
             return true;

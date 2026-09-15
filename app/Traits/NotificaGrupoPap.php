@@ -19,6 +19,7 @@ use App\Notifications\Pap\TemaValidadoPeloTutorNotification;
 use App\Notifications\Pap\TrabalhoAprovadoNotification;
 use App\Notifications\Pap\TrabalhoSubmetidoConfirmacaoNotification;
 use App\Notifications\Pap\TrabalhoSubmetidoNotification;
+use App\Notifications\Pap\TemaSubmetidoConfirmacaoNotification;
 use Illuminate\Notifications\Notification as NotificationInstance;
 use Illuminate\Support\Facades\Notification;
 
@@ -31,14 +32,43 @@ trait NotificaGrupoPap
         if ($tutor) {
             $tutor->notify(new TemaSubmetidoAoTutorNotification($grupoPap));
         }
+
+        // Confirmação para os alunos
+        $this->notificarTemaSubmetidoConfirmacaoAlunos($grupoPap);
+    }
+
+    protected function notificarTemaSubmetidoConfirmacaoAlunos(GrupoPap $grupoPap): void
+    {
+        $utilizadores = $grupoPap->alunos->map->user->filter();
+
+        if ($utilizadores->isNotEmpty()) {
+            Notification::send(
+                $utilizadores,
+                new TemaSubmetidoConfirmacaoNotification($grupoPap)
+            );
+        }
     }
 
     protected function notificarTemaValidadoPeloTutor(GrupoPap $grupoPap): void
     {
         $notification = new TemaValidadoPeloTutorNotification($grupoPap);
 
-        $this->notificarCoordenadoresLocais($grupoPap, $notification);
-        $this->notificarCoordenadoresDoFluxo($grupoPap, $notification);
+        $grupoPap->loadMissing('turma.cursoClasseTurno.cursoClasse.cursoTutelado');
+
+        $cursoTutelado = $grupoPap->turma
+            ?->cursoClasseTurno
+            ?->cursoClasse
+                ?->cursoTutelado;
+
+        $isTutelaExterna = $cursoTutelado?->tipo_tutela === 'externa'
+            && $cursoTutelado?->curso_tutelado_shared_id;
+
+        if ($isTutelaExterna) {
+            // Só o instituto tutor recebe — o colégio não coordena
+            $this->notificarCoordenadoresDoFluxo($grupoPap, $notification);
+        } else {
+            $this->notificarCoordenadoresLocais($grupoPap, $notification);
+        }
 
         $alunos = $grupoPap->alunos->map->user->filter();
         $tutor = $grupoPap->professor?->user;
@@ -67,9 +97,9 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-            ?->cursoTutelado;
+                ?->cursoTutelado;
 
-        if (! $cursoTutelado) {
+        if (!$cursoTutelado) {
             return;
         }
 
@@ -97,13 +127,13 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-            ?->cursoTutelado;
+                ?->cursoTutelado;
 
-        if (! $cursoTutelado) {
+        if (!$cursoTutelado) {
             return;
         }
 
-        if ($cursoTutelado->tipo_tutela !== 'externa' || ! $cursoTutelado->curso_tutelado_shared_id) {
+        if ($cursoTutelado->tipo_tutela !== 'externa' || !$cursoTutelado->curso_tutelado_shared_id) {
             $coordenadores = $cursoTutelado->professores()
                 ->where('coordenador', 1)
                 ->with('user')
@@ -119,15 +149,15 @@ trait NotificaGrupoPap
         $shared = CursoTuteladoShared::query()->find($cursoTutelado->curso_tutelado_shared_id);
         $tenantTutor = $shared ? Tenant::query()->find($shared->tenant_tutor_id) : null;
 
-        if (! $shared || ! $tenantTutor) {
+        if (!$shared || !$tenantTutor) {
             return;
         }
 
         $tenantTutor->run(function () use ($shared, $notification): void {
             $cursoTutor = CursoTutelado::query()
                 ->whereHas(
-                    'instituicaoCurso.curso',
-                    fn ($query) => $query->whereKey($shared->curso_id)
+                    'instituicaoCurso',
+                    fn($query) => $query->where('curso_id', $shared->curso_id)
                 )
                 ->first();
 
@@ -146,8 +176,26 @@ trait NotificaGrupoPap
     {
         $notification = new TrabalhoSubmetidoNotification($grupoPap);
 
-        $this->notificarCoordenadoresLocais($grupoPap, $notification);
-        $this->notificarCoordenadoresDoFluxo($grupoPap, $notification);
+        // Carregar cursoTutelado para verificar o tipo de tutela
+        $grupoPap->loadMissing(
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado'
+        );
+
+        $cursoTutelado = $grupoPap->turma
+            ?->cursoClasseTurno
+            ?->cursoClasse
+                ?->cursoTutelado;
+
+        $isTutelaExterna = $cursoTutelado?->tipo_tutela === 'externa'
+            && $cursoTutelado?->curso_tutelado_shared_id;
+
+        if ($isTutelaExterna) {
+            // Só o instituto tutor recebe — o colégio não tem papel na coordenação
+            $this->notificarCoordenadoresDoFluxo($grupoPap, $notification);
+        } else {
+            // Auto-tutela: coordenadores locais
+            $this->notificarCoordenadoresLocais($grupoPap, $notification);
+        }
 
         $alunos = $grupoPap->alunos->map->user->filter();
         $tutor = $grupoPap->professor?->user;
@@ -260,7 +308,8 @@ trait NotificaGrupoPap
                 $grupoPap,
                 $comentario,
                 $solicitadoPor
-            ));
+            )
+        );
     }
 
     protected function notificarTrabalhoAprovado(GrupoPap $grupoPap): void

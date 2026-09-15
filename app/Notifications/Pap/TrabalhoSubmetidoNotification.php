@@ -11,14 +11,16 @@ class TrabalhoSubmetidoNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(public GrupoPap $grupoPap) {}
+    public function __construct(public GrupoPap $grupoPap,  public ?string $urlExterno = null,)
+    {
+    }
 
     public function via(object $notifiable): array
     {
         return ['database', 'mail'];
     }
 
-    public function toMail(object $notifiable): MailMessage
+   public function toMail(object $notifiable): MailMessage
     {
         $turma = $this->grupoPap->turma;
         $turno = $turma->cursoClasseTurno;
@@ -26,7 +28,7 @@ class TrabalhoSubmetidoNotification extends Notification
         $cursoTutelado = $classe->cursoTutelado;
         $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
-        $url = route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
+        $url = $this->urlExterno ?? route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $classe->id,
@@ -48,14 +50,20 @@ class TrabalhoSubmetidoNotification extends Notification
             ]);
     }
 
-    public function toArray(object $notifiable): array
+     public function toArray(object $notifiable): array
     {
+        $cursoTutelado = $this->grupoPap->turma
+            ?->cursoClasseTurno
+            ?->cursoClasse
+            ?->cursoTutelado;
+        $nomeInstituicao = $cursoTutelado?->instituicaoCurso?->instituicao?->nome;
+
         return [
             'tipo' => 'trabalho_submetido',
             'titulo' => 'Novo trabalho submetido',
-            'mensagem' => "O grupo \"{$this->grupoPap->nome_grupo}\" submeteu uma nova versão do trabalho PAP para revisão.",
+            'mensagem' => "O grupo \"{$this->grupoPap->nome_grupo}\" do {$nomeInstituicao} submeteu uma nova versão do trabalho PAP para revisão.",
             'grupo_pap_id' => $this->grupoPap->id,
-            'url' => "/grupos-pap/{$this->grupoPap->id}",
+            'url' => $this->urlExterno ?? "/grupos-pap/{$this->grupoPap->id}",
         ];
     }
 }

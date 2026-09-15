@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="x-apple-disable-message-reformatting">
 
-    <title>Tema aguarda aprovação</title>
+    <title>Tema submetido ao tutor</title>
 
     <style>
         * {
@@ -32,7 +32,6 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
         }
 
-        /* ---- Header ---- */
         .header {
             text-align: center;
             padding: 32px 40px 24px;
@@ -45,21 +44,12 @@
             margin-bottom: 0;
         }
 
-        .header img.logo {
-            width: 75px;
-            height: 24px;
-            object-fit: contain;
-            margin-bottom: 20px;
-        }
-
-        /* ---- Divider ---- */
         .divider {
             border: none;
             border-top: 1px solid #e8eaed;
             margin: 0 40px;
         }
 
-        /* ---- Info Card ---- */
         .info-card {
             margin: 24px 24px 0;
             background: #f8f9fa;
@@ -88,7 +78,6 @@
             color: #202124;
         }
 
-        /* ---- CTA ---- */
         .cta-wrapper {
             text-align: center;
             padding: 8px 24px 24px;
@@ -107,21 +96,6 @@
             letter-spacing: 0.25px;
         }
 
-        /* ---- Link ---- */
-        .access-link {
-            padding: 0 24px 20px;
-            font-size: 13px;
-            color: #202124;
-            line-height: 1.5;
-            word-break: break-all;
-        }
-
-        .access-link a {
-            color: #1a73e8;
-            text-decoration: none;
-        }
-
-        /* ---- Footer ---- */
         .footer {
             padding: 16px 24px;
             border-top: 1px solid #e8eaed;
@@ -141,14 +115,8 @@
         }
 
         @media only screen and (max-width: 520px) {
-            body {
-                padding: 0;
-            }
-
-            .email-wrapper {
-                width: 100%;
-                border-radius: 0;
-            }
+            body { padding: 0; }
+            .email-wrapper { width: 100%; border-radius: 0; }
         }
     </style>
 </head>
@@ -157,62 +125,44 @@
 
     <div class="email-wrapper">
 
-        {{-- Header --}}
-        <div class="header">
-            <h1>Tema aguarda aprovação</h1>
-        </div>
-
         <hr class="divider">
 
-        {{-- Greeting --}}
         <br>
         <p style="padding: 0 24px; font-size: 14px; line-height: 1.6; color: #202124;">
             Olá!
         </p>
 
         <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
-            O professor tutor validou o tema do grupo abaixo.
-            O tema encontra-se agora <strong>pendente de aprovação</strong>.
+            O tema do vosso grupo PAP foi <strong>submetido ao tutor</strong> com sucesso.
+            Aguardem a validação para prosseguir.
         </p>
 
-        {{-- Info Card --}}
         <div class="info-card">
-            <div class="card-item">
-                <div class="card-label">Instituição</div>
-                <div class="card-value">{{ $nomeInstituicao }}</div>
-            </div>
-
             <div class="card-item">
                 <div class="card-label">Grupo</div>
                 <div class="card-value">{{ $nomeGrupo }}</div>
             </div>
 
-            <div class="card-item">
-                <div class="card-label">Tema</div>
-                <div class="card-value">{{ $temaGrupo }}</div>
-            </div>
-
-            <div class="card-item">
-                <div class="card-label">Turma</div>
-                <div class="card-value">{{ $turma }}</div>
-            </div>
+            @if(isset($temaGrupo))
+                <div class="card-item">
+                    <div class="card-label">Tema</div>
+                    <div class="card-value">{{ $temaGrupo }}</div>
+                </div>
+            @endif
         </div>
 
-        {{-- CTA --}}
         <div class="cta-wrapper">
             <a href="{{ $url }}" class="cta-button" target="_blank">
-                Ver tema
+                Ver grupo PAP
             </a>
         </div>
 
-        {{-- Footer --}}
         <div class="footer">
             <p>
                 Este email foi enviado automaticamente pela plataforma
                 {{ config('app.name') }}.
                 Por favor, não responda directamente a esta mensagem.
             </p>
-
             <p class="company">
                 © {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.
             </p>
