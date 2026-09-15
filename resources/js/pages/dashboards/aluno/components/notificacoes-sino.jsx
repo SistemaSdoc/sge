@@ -14,7 +14,7 @@ import {
   marcarTodasLidas,
 } from '@/actions/App/Http/Controllers/NotificacaoController';
 
-const INTERVALO_POLLING = 1990000; // 30s
+const INTERVALO_POLLING = 30000; // 30s
 
 const formatCurrency = (value) => {
   const amount = Number(value ?? 0);
@@ -59,19 +59,18 @@ export default function NotificacoesSino() {
     });
   };
 
-  const handleClickNotificacao = async (n) => {
-    if (!n.lida) {
-      await fetch(marcarLida(n.id).url, {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-          Accept: 'application/json',
-        },
-      });
-      carregar();
-    }
+  const handleMarcarTodasLidas = () => {
+    router.post(marcarTodasLidas().url, {}, {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: carregar,
+    });
+  };
 
-    if (n.url) {
+  const handleClickNotificacao = (n) => {
+    if (!n.lida) {
+      handleMarcarLida(n.id, n.url);
+    } else if (n.url) {
       setAberto(false);
       router.visit(n.url);
     }
@@ -98,7 +97,12 @@ export default function NotificacoesSino() {
         <div className="flex items-center justify-between border-b p-3">
           <span className="text-sm font-medium">Notificações</span>
           {naoLidas > 0 && (
-            <Button variant="ghost" size="sm" onClick={handleMarcarTodasLidas} className="h-7 text-xs">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleMarcarTodasLidas}
+              className="h-7 text-xs"
+            >
               <CheckCheck className="mr-1 size-3" />
               Marcar todas
             </Button>
