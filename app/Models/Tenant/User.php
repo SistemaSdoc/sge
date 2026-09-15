@@ -78,18 +78,9 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasRole('Director'); // usa o método do Spatie
     }
 
-    /**
-     * Retorna a rota de redirecionamento baseada no role do utilizador
-     */
-    public function roleRedirectPath(): string
+    public function isSubdirector(): bool
     {
-        // Se é candidato ou aluno, redireciona para portal
-        if ($this->hasRole('Candidato')) {
-            return '/portal';
-        }
-
-        // Qualquer outro role (admin, director, etc.) vai para dashboard
-        return '/dashboard';
+        return $this->hasRole('Subdirector');
     }
 
     public function instituicaoFiltro(): ?string

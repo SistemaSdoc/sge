@@ -22,8 +22,7 @@ final class ConfirmarMatricula
 {
     public function __construct(
         private readonly RegraAcademicaService $regraAcademicaService,
-    ) {
-    }
+    ) {}
 
     public function handle(
         Instituicao $instituicao,
@@ -46,7 +45,7 @@ final class ConfirmarMatricula
                 ->lockForUpdate()
                 ->first();
 
-            if (!$turmaAlunoActual) {
+            if (! $turmaAlunoActual) {
                 throw ValidationException::withMessages([
                     'aluno_id' => 'Aluno não está associado à turma actual.',
                 ]);
@@ -55,7 +54,7 @@ final class ConfirmarMatricula
             $turmaActual = $turmaAlunoActual->turma;
             $anoActual = $turmaActual?->anoLectivo;
 
-            if (!$anoActual) {
+            if (! $anoActual) {
                 throw ValidationException::withMessages([
                     'turma_nova_id' => 'A turma actual não tem ano lectivo definido.',
                 ]);
@@ -67,7 +66,7 @@ final class ConfirmarMatricula
                 ->orderBy('data_inicio')
                 ->first();
 
-            if (!$anoProximo) {
+            if (! $anoProximo) {
                 throw ValidationException::withMessages([
                     'turma_nova_id' => 'Não existe próximo ano lectivo configurado.',
                 ]);
@@ -181,7 +180,7 @@ final class ConfirmarMatricula
             $user = $aluno->user;
 
             if ($user) {
-                Log::info('Enviando notificação de confirmação de matrícula para o aluno: ' . $user->email);
+                Log::info('Enviando notificação de confirmação de matrícula para o aluno: '.$user->email);
                 $user->notify(new MatriculaConfirmadaNotification($aluno, $turmaNova));
             }
 

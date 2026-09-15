@@ -5,14 +5,18 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\AccessManagement\StoreRoleAndPermissionRequest;
 use App\Models\Tenant\User;
+use App\Services\Tenant\RoleManagementService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class AccessManagementController extends Controller
 {
+    public function __construct(
+        private readonly RoleManagementService $roleManagementService,
+    ) {}
+
     /**
      * Lista todos os usuários com suas roles e permissões, além de todas as roles e permissões disponíveis.
      */
@@ -25,6 +29,8 @@ class AccessManagementController extends Controller
 
         $users = User::with('roles', 'permissions')
             ->where('instituicao_id', $user->instituicao_id)
+            ->orderBy('nome')
+            ->orderBy('id')
             ->paginate(10)
             ->through(fn (User $u) => [
                 'id' => $u->id,
@@ -38,8 +44,9 @@ class AccessManagementController extends Controller
 
         return Inertia::render('tenant/gestao-acessos/index', [
             'users' => $users,
-            'roles' => Role::whereNotIn('name', ['SuperAdmin'])->get()->pluck('name'),
-            'allPermissions' => Permission::all()->pluck('name'),
+            'roles' => Role::where('guard_name', 'tenant')->whereNotIn('name', ['SuperAdmin'])->orderBy('name')->get()->pluck('name'),
+            'allPermissions' => $this->roleManagementService->permissions(),
+            'groupedPermissions' => $this->roleManagementService->groupedPermissions(),
         ]);
     }
 
@@ -50,9 +57,11 @@ class AccessManagementController extends Controller
     {
         Gate::authorize('acessos.create');
 
-        $user->syncRoles($request->roles);
+        Gate::authorize('update', $user);
 
-        $user->syncPermissions($request->directPermissions);
+        $user->syncRoles($request->validated('roles', []));
+
+        $user->syncPermissions($request->validated('directPermissions', []));
 
         return back()->with('success', "Roles e permissões atualizados para {$user->nome}.");
     }

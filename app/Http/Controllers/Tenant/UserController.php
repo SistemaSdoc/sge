@@ -2,127 +2,118 @@
 
 namespace App\Http\Controllers\Tenant;
 
-use App\Ai\Agents\ResumoDirector;
-use App\Ai\Agents\Teste;
+use App\Actions\Tenant\User\CreateUser;
+use App\Actions\Tenant\User\DeleteUser;
+use App\Actions\Tenant\User\UpdateUser;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenant\UserRequest;
-use App\Imports\UsersImport;
-use App\Models\Tenant\Instituicao;
-use App\Models\Tenant\Role;
+use App\Http\Requests\Tenant\User\StoreUserRequest;
+use App\Http\Requests\Tenant\User\UpdateUserRequest;
 use App\Models\Tenant\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Services\Tenant\RoleManagementService;
+use App\Services\Tenant\Users\UserManagementService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    public function importarForm(Request $request)
-    {
-        return view('importar');
-    }
-
-    public function importar(Request $request)
-    {
-        $request->validate([
-            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
-        ]);
-
-        $import = new UsersImport;
-
-        Excel::import($import, $request->file('file'), null, \Maatwebsite\Excel\Excel::XLSX);
-
-        return redirect()->back();
-    }
+    public function __construct(
+        private readonly UserManagementService $userManagementService,
+        private readonly RoleManagementService $roleManagementService,
+        private readonly CreateUser $createUser,
+        private readonly UpdateUser $updateUser,
+        private readonly DeleteUser $deleteUser,
+    ) {}
 
     public function index()
     {
-        // Carrega usuários com instituição e roles (para mostrar na listagem)
-        $users = User::paginate(10);
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
 
-        $reponses = (new Teste)->prompt('Analisa estes dados e de a tua opinião sobre eles. Stelvio é full stack developer e usa laravel + nextjs para desenvolvimento web.');
+        Gate::forUser($user)->authorize('viewAny', User::class);
 
-        $resumo = (new ResumoDirector)->prompt('dsfdsfsfsf');
-
-        return response()->json($users);
+        return Inertia::render('tenant/users/index', [
+            'users' => $this->userManagementService->index($user),
+            'roles' => $this->userManagementService->roles(),
+            'allPermissions' => $this->roleManagementService->permissions(),
+            'groupedPermissions' => $this->roleManagementService->groupedPermissions(),
+        ]);
     }
 
     public function create()
     {
-        $instituicoes = Instituicao::all();
-        $roles = Role::all();
+        Gate::authorize('create', User::class);
 
-        return response()->json(
-            [
-                'instituicoes' => $instituicoes,
-                'roles' => $roles,
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        return Inertia::render('tenant/users/create', [
+            'roles' => $this->userManagementService->roles($actor),
+            'currentUser' => [
+                'id' => $actor?->id,
+                'isSubdirector' => $actor?->isSubdirector(),
+                'isSuperAdmin' => $actor?->isSuperAdmin(),
             ],
-            status: 202
-        );
-
+        ]);
     }
 
-    public function store(UserRequest $request)
+    public function store(StoreUserRequest $request)
     {
-        $request->validated();
+        Gate::authorize('create', User::class);
 
-        $user = User::create([
-            'nome' => $request->nome,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'instituicao_id' => $request->instituicao_id,
-        ]);
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        $data = $request->validated();
+        $data['instituicao_id'] = $user->instituicao_id;
 
-        // Atribui roles
-        if ($request->roles) {
-            $user->roles()->sync($request->roles);
-        }
+        $this->createUser->handle($data);
 
-        return response()->json($user, status: 201);
+        return to_route('tenant.dashboard.users.index')->with('success', 'Usuário criado com sucesso.');
     }
 
     public function edit(User $user)
     {
-        $instituicoes = Instituicao::all();
-        $roles = Role::all();
+        Gate::authorize('update', $user);
 
-        return response()->json(
-            [
-                'user' => $user,
-                'instituicoes' => $instituicoes,
-                'roles' => $roles,
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        return Inertia::render('tenant/users/edit', [
+            'user' => [
+                ...$user->load('roles:id,name')->only('id', 'nome', 'email', 'telefone', 'roles'),
+                'isDirector' => $user->isDirector(),
             ],
-            status: 200
-        );
+            'roles' => $this->userManagementService->roles($actor, $user),
+            'currentUser' => [
+                'id' => $actor?->id,
+                'isSubdirector' => $actor?->isSubdirector(),
+                'isSuperAdmin' => $actor?->isSuperAdmin(),
+            ],
+        ]);
     }
 
-    public function update(UserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $request->validated();
-        $user->update([
-            'nome' => $request->nome,
-            'email' => $request->email,
-            'instituicao_id' => $request->instituicao_id,
-        ]);
+        Gate::authorize('update', $user);
 
-        if ($request->password) {
-            $user->password = Hash::make($request->password);
-            $user->save();
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        if ($actor?->isSubdirector() && $user->is($actor)) {
+            abort(403, 'Não pode alterar o seu próprio perfil de funções.');
         }
 
-        // Atualiza roles
-        $user->roles()->sync($request->roles ?? []);
+        $this->updateUser->handle($user, $request->validated());
 
-        return response()->json($user, status: 200);
+        return to_route('tenant.dashboard.users.index')->with('success', 'Usuário actualizado com sucesso.');
     }
 
     public function destroy(User $user)
     {
-        $user->roles()->detach();
-        $user->delete();
+        Gate::authorize('delete', $user);
 
-        return response()->json(
-            ['message' => 'Usuário removido com sucesso!'],
-            status: 200
-        );
+        $this->deleteUser->handle($user);
+
+        return to_route('tenant.dashboard.users.index')->with('success', 'Usuário removido com sucesso.');
     }
 }

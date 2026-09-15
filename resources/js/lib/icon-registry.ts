@@ -19,6 +19,7 @@ import {
   CalendarClock,
   Sheet,
   Calendar1,
+  UserCog,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -43,6 +44,7 @@ export const iconRegistry: Record<string, LucideIcon> = {
   CalendarClock,
   Sheet,
   Calendar1,
+  UserCog,
 };
 
 export function resolveIcon(name: string): LucideIcon {

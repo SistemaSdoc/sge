@@ -6,16 +6,16 @@ use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Models\Tenant\Professor;
+use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use App\Notifications\Pauta\DecisaoEdicaoPautaNotification;
+use App\Notifications\Pauta\SolicitacaoEdicaoPautaDirectorNotification;
+use App\Notifications\Pauta\SolicitacaoEdicaoPautaProfessorNotification;
 use App\Notifications\Professor\PrazoLancamentoNotasDefinidoNotification;
 use App\Notifications\Professor\ProfessorAdicionadoAoCursoNotification;
 use App\Notifications\Professor\ProfessorAtribuidoADisciplinaNotification;
 use App\Notifications\Professor\ProfessorCriadoNotification;
-use App\Models\Tenant\SolicitacaoEdicaoPauta;
-use App\Notifications\Pauta\SolicitacaoEdicaoPautaDirectorNotification;
-use App\Notifications\Pauta\SolicitacaoEdicaoPautaProfessorNotification;
-use App\Notifications\Pauta\DecisaoEdicaoPautaNotification;
 use Illuminate\Support\Facades\Notification;
 
 trait NotificaProfessor
@@ -89,7 +89,7 @@ trait NotificaProfessor
         $instituicaoId = $solicitacao->turmaDisciplinaProfessor
             ->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_tutora_id;
 
-        $directores = User::whereHas('roles', fn($q) => $q->whereIn('name', ['Director', 'Subdirector']))
+        $directores = User::whereHas('roles', fn ($q) => $q->whereIn('name', ['Director', 'Subdirector']))
             ->where('instituicao_id', $instituicaoId)
             ->get();
 

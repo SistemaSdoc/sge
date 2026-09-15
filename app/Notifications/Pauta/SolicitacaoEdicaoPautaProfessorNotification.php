@@ -29,21 +29,21 @@ class SolicitacaoEdicaoPautaProfessorNotification extends Notification
 
         $tipoLabel = match ($solicitacao->tipo) {
             'reabertura_edicao' => 'Reabertura de edição de pauta',
-            'extensao_prazo'    => 'Extensão de prazo de lançamento',
-            default             => $solicitacao->tipo,
+            'extensao_prazo' => 'Extensão de prazo de lançamento',
+            default => $solicitacao->tipo,
         };
 
         return (new MailMessage)
             ->subject('Pedido de edição de pauta submetido')
             ->view('mail.pauta.solicitacao-edicao-professor', [
                 'nomeProfessor' => $solicitacao->professor->nome,
-                'tipo'          => $solicitacao->tipo,
-                'tipoLabel'     => $tipoLabel,
-                'disciplina'    => $solicitacao->turmaDisciplinaProfessor
-                                        ->classeTurnoDisciplina->disciplina->nome ?? '—',
-                'turma'         => $solicitacao->turmaDisciplinaProfessor->turma->nome ?? '—',
-                'periodo'       => $solicitacao->periodo,
-                'motivo'        => $solicitacao->motivo,
+                'tipo' => $solicitacao->tipo,
+                'tipoLabel' => $tipoLabel,
+                'disciplina' => $solicitacao->turmaDisciplinaProfessor
+                    ->classeTurnoDisciplina->disciplina->nome ?? '—',
+                'turma' => $solicitacao->turmaDisciplinaProfessor->turma->nome ?? '—',
+                'periodo' => $solicitacao->periodo,
+                'motivo' => $solicitacao->motivo,
             ]);
     }
 
@@ -51,13 +51,13 @@ class SolicitacaoEdicaoPautaProfessorNotification extends Notification
     {
         $tipoLabel = match ($this->solicitacao->tipo) {
             'reabertura_edicao' => 'reabertura de edição de pauta',
-            'extensao_prazo'    => 'extensão de prazo de lançamento',
-            default             => $this->solicitacao->tipo,
+            'extensao_prazo' => 'extensão de prazo de lançamento',
+            default => $this->solicitacao->tipo,
         };
 
         return [
-            'tipo'     => 'solicitacao_edicao_pauta_submetida',
-            'titulo'   => 'Pedido submetido com sucesso',
+            'tipo' => 'solicitacao_edicao_pauta_submetida',
+            'titulo' => 'Pedido submetido com sucesso',
             'mensagem' => "O seu pedido de {$tipoLabel} foi enviado ao director e está pendente de aprovação.",
         ];
     }

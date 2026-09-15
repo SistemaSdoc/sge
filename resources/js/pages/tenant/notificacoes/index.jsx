@@ -52,21 +52,17 @@ export default function Index({ notificacoes, naoLidas = 0 }) {
       </div>
 
       {!notificacoes?.data?.length ? (
-        <Frame>
-          <FramePanel className="p-0!">
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <Bell />
-                </EmptyMedia>
-                <EmptyTitle>Sem notificações</EmptyTitle>
-                <EmptyDescription>
-                  Quando houver novidades, elas aparecerão aqui.
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          </FramePanel>
-        </Frame>
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Bell />
+            </EmptyMedia>
+            <EmptyTitle>Sem notificações</EmptyTitle>
+            <EmptyDescription>
+              Quando houver novidades, elas aparecerão aqui.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <div className="flex flex-col gap-1">
           {notificacoes.data.map((notificacao) => (

@@ -44,11 +44,13 @@ use App\Http\Controllers\Tenant\ReciboController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
 use App\Http\Controllers\Tenant\RelatorioController;
 use App\Http\Controllers\Tenant\RelatorioPropinaController;
+use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
+use App\Http\Controllers\Tenant\UserPermissionController;
 use App\Http\Middleware\CheckTenantStatus;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -129,7 +131,14 @@ Route::middleware([
             require base_path('routes/modules/notas.php');
             require base_path('routes/settings.php');
 
+            Route::get('users/{user}/permissions', [UserPermissionController::class, 'create'])
+                ->name('users.permissions.create');
+
+            Route::put('users/{user}/permissions', [UserPermissionController::class, 'update'])
+                ->name('users.permissions.update');
+
             Route::resource('users', UserController::class);
+            Route::resource('roles', RoleController::class)->except(['show']);
             Route::resource('alunos', AlunoController::class);
             Route::resource('avisos', AvisoController::class);
             Route::get('calendarios-anuais', [CalendarioAnualController::class, 'index'])

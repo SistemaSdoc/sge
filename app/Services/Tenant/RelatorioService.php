@@ -8,6 +8,7 @@ use App\Models\Tenant\Disciplina;
 use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Pagamento;
+use App\Models\Tenant\Turno;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 
@@ -58,6 +59,8 @@ class RelatorioService
             ])
             ->values();
 
+        $alunosPorClasseETurno = $this->alunosPorClasseETurno($ano);
+
         $totalFinalistasPap = ElementoGrupoPap::count();
 
         $porEstadoPap = GrupoPap::get()
@@ -67,6 +70,8 @@ class RelatorioService
                 'valor' => $grupo->count(),
             ])
             ->values();
+
+        $documentosPorTipo = $this->documentosPorTipo();
 
         $porEspecialidade = Professor::get()
             ->groupBy(fn ($p) => $p->especialidade ?: 'Não definida')
@@ -86,12 +91,10 @@ class RelatorioService
             'tabela' => $porClasse,
 
             // Dados já no formato que o KpiChartCard.jsx espera (label/valor) —
-            // um array por card do dashboard.
+            // um array por card do dashboard. "alunos_por_classe" é a excepção:
+            // vem como { series, dados } porque é um gráfico agrupado (por turno).
             'graficos' => [
-                'alunos_por_classe' => $porClasse->map(fn ($c) => [
-                    'label' => $c['classe'],
-                    'valor' => $c['matriculados'],
-                ])->values(),
+                'alunos_por_classe' => $alunosPorClasseETurno,
 
                 'professores_por_especialidade' => $porEspecialidade,
 
@@ -104,8 +107,7 @@ class RelatorioService
 
                 'pagamentos_mensal' => $this->pagamentosMensal(),
 
-                // Sem model/tabela de Documentos ainda — array vazio até existir a fonte real.
-                'documentos_por_tipo' => [],
+                'documentos_por_tipo' => $documentosPorTipo,
             ],
 
             'kpis_extra' => [
@@ -115,8 +117,58 @@ class RelatorioService
                 // não estão implementados (mesma observação já deixada em dadosFinanceiro()).
                 'pagamentos_adimplencia' => null,
 
-                'documentos_pendentes' => null,
+                'documentos_emitidos' => collect($documentosPorTipo)->sum('valor'),
             ],
+        ];
+    }
+
+    /**
+     * Total de documentos emitidos por tipo (últimos 30 dias), lido dos
+     * contadores em cache do DocumentoEmitidoService (sem tabela própria —
+     * ver limitações no ficheiro do serviço).
+     */
+    protected function documentosPorTipo(): array
+    {
+        return app(DocumentoEmitidoService::class)->contarTodosTipos(30);
+    }
+
+    /**
+     * Alunos matriculados por classe, com uma coluna extra por turno
+     * (Manhã/Tarde/Noite, ou o que existir na tua tabela de turnos).
+     * Os turnos vêm do catálogo (Turno::all()), não das turmas já criadas —
+     * assim um turno sem nenhuma turma aberta ainda aparece no gráfico com 0,
+     * em vez de simplesmente não aparecer.
+     * Devolve { series, dados } para o MiniGroupedBarChart:
+     *   series -> ['Manhã', 'Tarde', 'Noite']
+     *   dados  -> [['classe' => '10ª', 'Manhã' => 120, 'Tarde' => 80, 'Noite' => 0], ...]
+     */
+    protected function alunosPorClasseETurno(?AnoLectivo $ano): array
+    {
+        $turnos = Turno::orderBy('id')->pluck('nome');
+
+        $turmas = Turma::when($ano, fn ($q) => $q->where('ano_lectivo_id', $ano->id))
+            ->with(['cursoClasseTurno.cursoClasse.classe', 'cursoClasseTurno.turno'])
+            ->withCount('alunosActivos')
+            ->get();
+
+        $dados = $turmas
+            ->groupBy(fn ($t) => $t->cursoClasseTurno?->cursoClasse?->classe?->nome ?? 'Sem classe')
+            ->map(function ($turmasDaClasse, $classe) use ($turnos) {
+                $linha = ['classe' => $classe];
+
+                foreach ($turnos as $turno) {
+                    $linha[$turno] = $turmasDaClasse
+                        ->filter(fn ($t) => ($t->cursoClasseTurno?->turno?->nome ?? null) === $turno)
+                        ->sum('alunos_activos_count');
+                }
+
+                return $linha;
+            })
+            ->values();
+
+        return [
+            'series' => $turnos->values()->all(),
+            'dados' => $dados->all(),
         ];
     }
 

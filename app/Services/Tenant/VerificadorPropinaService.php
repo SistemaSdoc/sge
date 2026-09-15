@@ -3,7 +3,6 @@
 namespace App\Services\Tenant;
 
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\PagamentoItem;
 use Carbon\Carbon;
@@ -29,6 +28,7 @@ class VerificadorPropinaService
 
         if ($turmas->isEmpty()) {
             Log::debug('[VerificadorPropinaService] SEM TURMAS', ['aluno_id' => $aluno->id]);
+
             return [];
         }
 
@@ -42,8 +42,9 @@ class VerificadorPropinaService
 
         foreach ($turmas as $turma) {
             $anoLectivo = $turma->anoLectivo;
-            if (!$anoLectivo)
+            if (! $anoLectivo) {
                 continue;
+            }
 
             $turma->loadMissing(['cursoClasseTurno.cursoClasse']);
 
@@ -67,11 +68,13 @@ class VerificadorPropinaService
             $inicio = $entradaNaTurma->lt($inicioAno) ? $inicioAno : $entradaNaTurma;
 
             $fim = Carbon::now()->startOfMonth();
-            if ($fim->gt($fimAno))
+            if ($fim->gt($fimAno)) {
                 $fim = $fimAno;
+            }
 
-            if ($inicio->gt($fim))
+            if ($inicio->gt($fim)) {
                 continue;
+            }
 
             $query = ItemPagavel::query()
                 ->where('instituicao_id', $aluno->user->instituicao_id)
@@ -80,8 +83,9 @@ class VerificadorPropinaService
             if ($cursoClasseId || $classeId) {
                 $query->where(function ($q) use ($cursoClasseId, $classeId) {
                     $q->whereNull('curso_classe_id');
-                    if ($cursoClasseId)
+                    if ($cursoClasseId) {
                         $q->orWhere('curso_classe_id', $cursoClasseId);
+                    }
                     if ($classeId) {
                         $q->orWhereExists(function ($sub) use ($classeId) {
                             $sub->from('curso_classe')
@@ -94,7 +98,7 @@ class VerificadorPropinaService
                 $query->whereNull('curso_classe_id');
             }
 
-            $itensAplicaveis = $query->get()->filter(fn($item) => $this->ehItemDeBloqueio($item));
+            $itensAplicaveis = $query->get()->filter(fn ($item) => $this->ehItemDeBloqueio($item));
 
             foreach ($itensAplicaveis as $item) {
                 $pagosDoItem = $pagamentosExistentes->get($item->id, collect());
@@ -106,7 +110,7 @@ class VerificadorPropinaService
                 } else {
                     $anoCorrente = $anoLectivo->data_inicio->year;
                     $jaPago = $pagosDoItem->where('ano', $anoCorrente)->isNotEmpty();
-                    if (!$jaPago) {
+                    if (! $jaPago) {
                         $pendencias->push([
                             'item_pagavel_id' => $item->id,
                             'nome' => $item->nome,
@@ -159,9 +163,9 @@ class VerificadorPropinaService
             $mes = $cursor->month;
             $ano = $cursor->year;
 
-            $pago = $pagos->contains(fn($p) => (int) $p->mes === $mes && (int) $p->ano === $ano);
+            $pago = $pagos->contains(fn ($p) => (int) $p->mes === $mes && (int) $p->ano === $ano);
 
-            if (!$pago) {
+            if (! $pago) {
                 $valores = $this->valorComMulta($item, $mes, $ano);
 
                 $pendencias->push([
@@ -214,7 +218,7 @@ class VerificadorPropinaService
      */
     private function calcularMulta(ItemPagavel $item, int $mes, int $ano): float
     {
-        if (!$item->multa_dias_tolerancia || !$item->multa_valor) {
+        if (! $item->multa_dias_tolerancia || ! $item->multa_valor) {
             return 0.0;
         }
 
