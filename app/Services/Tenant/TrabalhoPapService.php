@@ -7,14 +7,12 @@ use App\Models\Tenant\TrabalhoPap;
 use App\Models\Tenant\TrabalhoPapFeedback;
 use App\Models\Tenant\TrabalhoPapVersao;
 use App\Models\Tenant\User;
-use App\Notifications\Pap\TrabalhoSubmetidoAoTutorConfirmacaoNotification;
 use App\Traits\NotificaGrupoPap;
 use App\Notifications\Pap\TrabalhoSubmetidoAoTutorConfirmacaoNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
 
 class TrabalhoPapService
 {
