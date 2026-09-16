@@ -5,6 +5,7 @@ use App\Http\Controllers\Central\Auth\RegisteredController;
 use App\Http\Controllers\Central\CalendarioAnualController;
 use App\Http\Controllers\Central\CursoController;
 use App\Http\Controllers\Central\DashboardController;
+use App\Http\Controllers\Central\DisciplinaController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\UserController;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +80,12 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::post('cursos/{curso}/restore', [CursoController::class, 'restore'])
                     ->withTrashed()
                     ->name('cursos.restore');
+
+                Route::resource('disciplinas', DisciplinaController::class)->withTrashed(['show']);
+
+                Route::post('disciplinas/{disciplina}/restore', [DisciplinaController::class, 'restore'])
+                    ->withTrashed()
+                    ->name('disciplinas.restore');
 
                 Route::post('tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
                     ->name('tenants.toggle-status');

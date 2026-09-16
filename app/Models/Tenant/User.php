@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Notifications\Tenant\ResetPasswordNotification;
 use App\Traits\HasUuid;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -43,6 +44,11 @@ class User extends Authenticatable implements PasskeyUser
 
     // Propriedade que o Spatie usa
     protected $guard_name = 'tenant';
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
 
     protected function casts(): array
     {

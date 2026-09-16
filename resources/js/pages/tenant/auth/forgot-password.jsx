@@ -6,12 +6,8 @@ import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-//import { login } from '@/routes';
-//rota errada temporária
-import { create as login } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
-//import { email } from '@/routes/password';
-//rota errada temporária
-import { store as email } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
+import { create as login } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
+import { email } from '@/routes/password';
 
 export default function ForgotPassword({ status }) {
   return (
@@ -20,7 +16,9 @@ export default function ForgotPassword({ status }) {
 
       {status && (
         <div className="mb-4 text-center text-sm font-medium text-green-600">
-          {status}
+          {status === 'We have emailed your password reset link.'
+            ? 'Enviámos o link de redefinição da sua password para o seu email.'
+            : status}
         </div>
       )}
 

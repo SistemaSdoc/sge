@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Tenant\Auth\NewPasswordController;
+use App\Http\Controllers\Tenant\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Tenant\AvisoController;
 use App\Http\Controllers\Tenant\BancaJuriPapController;
 use App\Http\Controllers\Tenant\CalendarioAnualController;
@@ -19,7 +21,6 @@ use App\Http\Controllers\Tenant\CursosController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\CursoTuteladoProfessorController;
 use App\Http\Controllers\Tenant\DashboardController;
-use App\Http\Controllers\Tenant\DisciplinaController as DisciplinaControllerGeral;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FichaMatriculaController;
@@ -76,6 +77,22 @@ Route::middleware([
     | Rotas de Autenticação de Tenant
     |--------------------------------------------------------------------------
     */
+
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
+        ->middleware('guest:tenant')
+        ->name('password.request');
+
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->middleware('guest:tenant')
+        ->name('password.email');
+
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+        ->middleware('guest:tenant')
+        ->name('password.reset');
+
+    Route::post('reset-password', [NewPasswordController::class, 'store'])
+        ->middleware('guest:tenant')
+        ->name('password.update');
 
     Route::get('/', [AuthenticatedSessionController::class, 'create'])
         ->middleware('guest:tenant')
@@ -303,8 +320,6 @@ Route::middleware([
             | Disciplinas de Turnos de Classes
             |--------------------------------------------------------------------------
             */
-
-            Route::resource('disciplinas', DisciplinaControllerGeral::class);
 
             Route::resource('instituicoes.cursos-tutelados.classes.turnos.disciplinas', ClasseTurnoDisciplinaController::class)
                 ->parameters([

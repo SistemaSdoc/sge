@@ -14,17 +14,20 @@ use App\Notifications\Pap\NotaAtribuidaNotification;
 use App\Notifications\Pap\TemaAprovadoNotification;
 use App\Notifications\Pap\TemaReprovadoNotification;
 use App\Notifications\Pap\TemaSubmetidoAoTutorNotification;
+use App\Notifications\Pap\TemaSubmetidoConfirmacaoNotification;
 use App\Notifications\Pap\TemaSubmetidoCoordenacaoNotification;
 use App\Notifications\Pap\TemaValidadoPeloTutorNotification;
 use App\Notifications\Pap\TrabalhoAprovadoNotification;
 use App\Notifications\Pap\TrabalhoSubmetidoConfirmacaoNotification;
 use App\Notifications\Pap\TrabalhoSubmetidoNotification;
-use App\Notifications\Pap\TemaSubmetidoConfirmacaoNotification;
 use Illuminate\Notifications\Notification as NotificationInstance;
 use Illuminate\Support\Facades\Notification;
 
 trait NotificaGrupoPap
 {
+    /**
+     * Notifica o tutor de que o tema do grupo foi submetido.
+     */
     protected function notificarTemaSubmetidoAoTutor(GrupoPap $grupoPap): void
     {
         $tutor = $grupoPap->professor?->user;
@@ -37,6 +40,9 @@ trait NotificaGrupoPap
         $this->notificarTemaSubmetidoConfirmacaoAlunos($grupoPap);
     }
 
+    /**
+     * Envia aos alunos a confirmação da submissão do tema.
+     */
     protected function notificarTemaSubmetidoConfirmacaoAlunos(GrupoPap $grupoPap): void
     {
         $utilizadores = $grupoPap->alunos->map->user->filter();
@@ -49,6 +55,9 @@ trait NotificaGrupoPap
         }
     }
 
+    /**
+     * Notifica os coordenadores, alunos e tutor após a validação do tema.
+     */
     protected function notificarTemaValidadoPeloTutor(GrupoPap $grupoPap): void
     {
         $notification = new TemaValidadoPeloTutorNotification($grupoPap);
@@ -58,7 +67,7 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-                ?->cursoTutelado;
+            ?->cursoTutelado;
 
         $isTutelaExterna = $cursoTutelado?->tipo_tutela === 'externa'
             && $cursoTutelado?->curso_tutelado_shared_id;
@@ -97,9 +106,9 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-                ?->cursoTutelado;
+            ?->cursoTutelado;
 
-        if (!$cursoTutelado) {
+        if (! $cursoTutelado) {
             return;
         }
 
@@ -127,13 +136,13 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-                ?->cursoTutelado;
+            ?->cursoTutelado;
 
-        if (!$cursoTutelado) {
+        if (! $cursoTutelado) {
             return;
         }
 
-        if ($cursoTutelado->tipo_tutela !== 'externa' || !$cursoTutelado->curso_tutelado_shared_id) {
+        if ($cursoTutelado->tipo_tutela !== 'externa' || ! $cursoTutelado->curso_tutelado_shared_id) {
             $coordenadores = $cursoTutelado->professores()
                 ->where('coordenador', 1)
                 ->with('user')
@@ -149,7 +158,7 @@ trait NotificaGrupoPap
         $shared = CursoTuteladoShared::query()->find($cursoTutelado->curso_tutelado_shared_id);
         $tenantTutor = $shared ? Tenant::query()->find($shared->tenant_tutor_id) : null;
 
-        if (!$shared || !$tenantTutor) {
+        if (! $shared || ! $tenantTutor) {
             return;
         }
 
@@ -157,7 +166,7 @@ trait NotificaGrupoPap
             $cursoTutor = CursoTutelado::query()
                 ->whereHas(
                     'instituicaoCurso',
-                    fn($query) => $query->where('curso_id', $shared->curso_id)
+                    fn ($query) => $query->where('curso_id', $shared->curso_id)
                 )
                 ->first();
 
@@ -172,6 +181,9 @@ trait NotificaGrupoPap
         });
     }
 
+    /**
+     * Notifica os destinatários sobre a submissão de um trabalho PAP.
+     */
     protected function notificarTrabalhoAosCoordenadores(GrupoPap $grupoPap): void
     {
         $notification = new TrabalhoSubmetidoNotification($grupoPap);
@@ -184,7 +196,7 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-                ?->cursoTutelado;
+            ?->cursoTutelado;
 
         $isTutelaExterna = $cursoTutelado?->tipo_tutela === 'externa'
             && $cursoTutelado?->curso_tutelado_shared_id;
@@ -210,6 +222,9 @@ trait NotificaGrupoPap
         }
     }
 
+    /**
+     * Informa alunos e tutor de que o tema foi aprovado.
+     */
     protected function notificarTemaAprovado(GrupoPap $grupoPap): void
     {
         $utilizadores = $grupoPap->alunos->map->user->filter();
@@ -227,6 +242,9 @@ trait NotificaGrupoPap
         );
     }
 
+    /**
+     * Informa os alunos de que o tema foi reprovado.
+     */
     protected function notificarTemaReprovado(GrupoPap $grupoPap): void
     {
         $utilizadores = $grupoPap->alunos->map->user->filter();
@@ -237,6 +255,9 @@ trait NotificaGrupoPap
         );
     }
 
+    /**
+     * Notifica os alunos e, quando aplicável, o tutor sobre melhorias solicitadas.
+     */
     protected function notificarMelhoriasSolicitadas(
         GrupoPap $grupoPap,
         string $solicitadoPor
@@ -257,6 +278,9 @@ trait NotificaGrupoPap
         );
     }
 
+    /**
+     * Informa alunos, jurados e tutor sobre a data de defesa definida.
+     */
     protected function notificarDataDefesaDefinida(GrupoPap $grupoPap): void
     {
         $alunosUsers = $grupoPap->alunos->map->user->filter();
@@ -277,6 +301,9 @@ trait NotificaGrupoPap
         );
     }
 
+    /**
+     * Notifica os revisores sobre a submissão de um trabalho.
+     */
     protected function notificarTrabalhoSubmetido(
         GrupoPap $grupoPap,
         $revisores
@@ -287,6 +314,9 @@ trait NotificaGrupoPap
         );
     }
 
+    /**
+     * Informa os alunos e, quando aplicável, o tutor sobre uma correção solicitada.
+     */
     protected function notificarCorrecaoSolicitada(
         GrupoPap $grupoPap,
         string $comentario,
@@ -312,6 +342,9 @@ trait NotificaGrupoPap
         );
     }
 
+    /**
+     * Informa alunos e tutor de que o trabalho foi aprovado.
+     */
     protected function notificarTrabalhoAprovado(GrupoPap $grupoPap): void
     {
         $utilizadores = $grupoPap->alunos->map->user->filter();
@@ -328,6 +361,9 @@ trait NotificaGrupoPap
         );
     }
 
+    /**
+     * Notifica o aluno associado ao elemento PAP sobre a nota atribuída.
+     */
     protected function notificarNotaAtribuida(
         GrupoPap $grupoPap,
         ElementoGrupoPap $elemento

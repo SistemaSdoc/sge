@@ -8,9 +8,9 @@ use App\Models\Tenant\Disciplina;
 use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Pagamento;
-use App\Models\Tenant\Turno;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\Turno;
 
 class RelatorioService
 {
@@ -206,7 +206,7 @@ class RelatorioService
                 $q->where(function ($q2) use ($termo) {
                     $q2->where('matricula', 'like', "%{$termo}%")
                         ->orWhere('numero_processo', 'like', "%{$termo}%")
-                       ->orWhereHas('user', fn ($q3) => $q3->where('nome', 'like', "%{$termo}%"));
+                        ->orWhereHas('user', fn ($q3) => $q3->where('nome', 'like', "%{$termo}%"));
                 });
             })
             ->when($filtros['turma_id'] ?? null, function ($q, $turmaId) {
@@ -247,7 +247,8 @@ class RelatorioService
             ->with('user')
             ->withCount(['turmas', 'classeTurnoDisciplinas as disciplinas_count'])
             ->when($filtros['pesquisa'] ?? null, function ($q, $termo) {
-                 $q->whereHas('user', fn ($q2) => $q2->where('nome', 'like', "%{$termo}%")); })
+                $q->whereHas('user', fn ($q2) => $q2->where('nome', 'like', "%{$termo}%"));
+            })
             ->when($filtros['classe_id'] ?? null, function ($q, $classeId) {
                 $q->whereHas('classeTurnoDisciplinas', fn ($q2) => $q2->where('classe_id', $classeId));
             });

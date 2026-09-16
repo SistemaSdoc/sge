@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\Disciplina;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
-use App\Models\Tenant\Disciplina;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\Turma;
@@ -17,6 +17,7 @@ use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class ClasseTurnoDisciplinaController extends Controller
@@ -33,7 +34,7 @@ class ClasseTurnoDisciplinaController extends Controller
         $this->authorize('create', ClasseTurnoDisciplina::class);
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/disciplinas/create', [
-            'disciplinas' => Disciplina::select('id', 'nome')->orderBy('nome')->get(),
+            'disciplinas' => Disciplina::select('id', 'nome') ->where('status', 1)->orderBy('nome')->get(),
             'anosLectivos' => AnoLectivo::select('id', 'nome')->orderByDesc('data_inicio')->get(),
             'anoLectivoId' => request('ano_lectivo_id'),
             'instituicao' => $instituicao->only('id'),
@@ -64,7 +65,11 @@ class ClasseTurnoDisciplinaController extends Controller
 
         $request->validate([
             'disciplina_ids' => 'required|array|min:1',
-            'disciplina_ids.*' => 'exists:disciplinas,id',
+            'disciplina_ids.*' => [
+                'uuid',
+                Rule::exists(config('tenancy.database.central_connection').'.disciplinas', 'id')
+                    ->where('status', 1),
+            ],
             'carga_horaria' => 'nullable|string|max:255',
             'tem_professor' => 'nullable|boolean',
             'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',

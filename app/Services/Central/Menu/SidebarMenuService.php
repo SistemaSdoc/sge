@@ -3,6 +3,7 @@
 namespace App\Services\Central\Menu;
 
 use App\Http\Controllers\Central\CursoController;
+use App\Http\Controllers\Central\DisciplinaController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,14 @@ final class SidebarMenuService
                     key: 'cursos',
                     title: 'Cursos',
                     href: action([CursoController::class, 'index']),
+                    icon: 'BookOpen',
+                    can: true,
+                ),
+
+                new MenuItem(
+                    key: 'disciplinas',
+                    title: 'Disciplinas',
+                    href: action([DisciplinaController::class, 'index']),
                     icon: 'BookOpen',
                     can: true,
                 ),

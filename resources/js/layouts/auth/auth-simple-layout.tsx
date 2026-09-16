@@ -15,7 +15,7 @@ export default function AuthSimpleLayout({ children, title, description }: AuthL
                 <img
                   src={instituicao.logo_url}
                   alt={instituicao.nome}
-                  className="w-56 object-contain"
+                  className="w-46 object-contain"
                 />
               ) : (
                 <span className="text-lg font-semibold">{instituicao?.nome}</span>
