@@ -8,9 +8,6 @@ use App\Http\Resources\Tenant\ClasseTurnoDisciplinaResource;
 use App\Http\Resources\Tenant\GrupoPapIndexResource;
 use App\Http\Resources\Tenant\Turma\TurmaShowResource;
 use App\Models\Central\AnoLectivo;
-use App\Models\Tenant\Aluno;
-use App\Models\Tenant\ClasseTurnoDisciplina;
-use App\Models\Tenant\ConfirmacaoMatricula;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -18,6 +15,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\User;
+use App\Rules\CentralAnoLectivoExists;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\Pauta\PautaService;
 use Illuminate\Http\Request;
@@ -149,7 +147,7 @@ class ClasseTurnoTurmaController extends Controller
         $request->validate([
             'nome' => 'required|string|max:255',
             'max_alunos' => 'nullable|integer|min:1',
-            'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',
+            'ano_lectivo_id' => ['nullable', 'uuid', new CentralAnoLectivoExists],
         ]);
 
         $anoLectivoId = $request->input('ano_lectivo_id')

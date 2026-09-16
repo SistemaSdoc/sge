@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Central\Disciplina;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoClasse;
@@ -13,6 +13,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
+use App\Rules\CentralAnoLectivoExists;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,7 @@ class ClasseTurnoDisciplinaController extends Controller
         $this->authorize('create', ClasseTurnoDisciplina::class);
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/disciplinas/create', [
-            'disciplinas' => Disciplina::select('id', 'nome') ->where('status', 1)->orderBy('nome')->get(),
+            'disciplinas' => Disciplina::select('id', 'nome')->where('status', 1)->orderBy('nome')->get(),
             'anosLectivos' => AnoLectivo::select('id', 'nome')->orderByDesc('data_inicio')->get(),
             'anoLectivoId' => request('ano_lectivo_id'),
             'instituicao' => $instituicao->only('id'),
@@ -72,7 +73,7 @@ class ClasseTurnoDisciplinaController extends Controller
             ],
             'carga_horaria' => 'nullable|string|max:255',
             'tem_professor' => 'nullable|boolean',
-            'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',
+            'ano_lectivo_id' => ['nullable', 'uuid', new CentralAnoLectivoExists],
         ]);
 
         $anoLectivoId = $request->input('ano_lectivo_id')

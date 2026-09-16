@@ -174,13 +174,7 @@
                 Redefinir password
             </a>
         </div>
-
-        <p class="access-link">
-            Se o botão acima não funcionar, copie e cole o seguinte endereço no seu navegador:
-            <br><br>
-            <a href="{{ $url }}" target="_blank">{{ $url }}</a>
-        </p>
-
+        
         <div class="footer">
             <p>
                 Este email foi enviado automaticamente pela plataforma {{ config('app.name') }}.
