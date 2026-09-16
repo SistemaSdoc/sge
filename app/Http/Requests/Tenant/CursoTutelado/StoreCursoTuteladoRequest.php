@@ -40,12 +40,12 @@ class StoreCursoTuteladoRequest extends FormRequest
 
         if ($hasTutor) {
             $rules['nivel_ensino_id'] = ['required', 'uuid'];
-            $rules['classes']         = ['required', 'array', 'min:1'];
-            $rules['classes.*']       = ['uuid'];
+            $rules['classes'] = ['required', 'array', 'min:1'];
+            $rules['classes.*'] = ['uuid'];
         } else {
             $rules['nivel_ensino_id'] = ['required', 'uuid', 'exists:niveis_ensino,id'];
-            $rules['classes']         = ['required', 'array', 'min:1'];
-            $rules['classes.*']       = ['uuid', 'exists:classes,id'];
+            $rules['classes'] = ['required', 'array', 'min:1'];
+            $rules['classes.*'] = ['uuid', 'exists:classes,id'];
         }
 
         return $rules;
@@ -98,14 +98,14 @@ class StoreCursoTuteladoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'curso_id.required'      => 'Seleccione um curso do catálogo central.',
-            'curso_id.exists'        => 'O curso seleccionado não está disponível.',
+            'curso_id.required' => 'Seleccione um curso do catálogo central.',
+            'curso_id.exists' => 'O curso seleccionado não está disponível.',
             'nivel_ensino_id.required' => 'Seleccione o nível de ensino.',
             'nivel_ensino_id.exists' => 'O nível de ensino seleccionado não existe.',
-            'classes.required'       => 'Seleccione pelo menos uma classe.',
-            'classes.min'            => 'Seleccione pelo menos uma classe.',
-            'classes.*.uuid'         => 'Uma ou mais classes seleccionadas são inválidas.',
-            'classes.*.exists'       => 'Uma ou mais classes seleccionadas não existem.',
+            'classes.required' => 'Seleccione pelo menos uma classe.',
+            'classes.min' => 'Seleccione pelo menos uma classe.',
+            'classes.*.uuid' => 'Uma ou mais classes seleccionadas são inválidas.',
+            'classes.*.exists' => 'Uma ou mais classes seleccionadas não existem.',
         ];
     }
 }

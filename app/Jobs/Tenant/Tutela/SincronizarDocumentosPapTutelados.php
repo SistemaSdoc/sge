@@ -57,8 +57,8 @@ class SincronizarDocumentosPapTutelados implements ShouldQueue
             }
 
             $mapa = [
-                'criterios_pap_path'          => 'criterios-pap',
-                'manual_pt_path'              => 'manual-pt',
+                'criterios_pap_path' => 'criterios-pap',
+                'manual_pt_path' => 'manual-pt',
                 'estrutura_trabalho_pap_path' => 'estrutura-trabalho-pap',
             ];
 
@@ -72,8 +72,8 @@ class SincronizarDocumentosPapTutelados implements ShouldQueue
                 }
 
                 $resultado[$campo] = [
-                    'conteudo'   => Storage::disk('public')->get($path),
-                    'extensao'   => pathinfo($path, PATHINFO_EXTENSION),
+                    'conteudo' => Storage::disk('public')->get($path),
+                    'extensao' => pathinfo($path, PATHINFO_EXTENSION),
                     'directorio' => $directorio,
                 ];
             }
@@ -84,7 +84,7 @@ class SincronizarDocumentosPapTutelados implements ShouldQueue
         if (empty($ficheiros)) {
             Log::info('SincronizarDocumentosPap: tutor sem documentos', [
                 'tenant_tutor_id' => $this->tenantTutorId,
-                'curso_id'        => $this->cursoId,
+                'curso_id' => $this->cursoId,
             ]);
 
             return;
@@ -119,8 +119,8 @@ class SincronizarDocumentosPapTutelados implements ShouldQueue
 
                 Log::info('SincronizarDocumentosPap: documentos copiados', [
                     'tenant_tutelado_id' => (string) tenancy()->tenant->getTenantKey(),
-                    'curso_tutelado_id'  => $cursoTutelado->id,
-                    'campos'             => array_keys($novosCaminhos),
+                    'curso_tutelado_id' => $cursoTutelado->id,
+                    'campos' => array_keys($novosCaminhos),
                 ]);
             });
         }

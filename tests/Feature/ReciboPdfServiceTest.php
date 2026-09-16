@@ -12,5 +12,6 @@ it('reconhece apenas ficheiros com assinatura PDF', function () {
 
     expect($servico->existe('valido.pdf'))->toBeTrue()
         ->and($servico->existe('invalido.pdf'))->toBeFalse()
-        ->and($servico->existe(null))->toBeFalse();
+        ->and($servico->existe(null))->toBeFalse()
+        ->and($servico->conteudo('valido.pdf'))->toBe('%PDF-1.7');
 });

@@ -14,11 +14,7 @@ class CalendarioAnualController extends Controller
     private function centralStorage(): FilesystemAdapter
     {
         /** @var FilesystemAdapter $disco */
-        $disco = Storage::build([
-            'driver' => 'local',
-            'root' => base_path('storage/app/public'),
-            'throw' => false,
-        ]);
+        $disco = Storage::disk('public');
 
         return $disco;
     }
@@ -60,7 +56,8 @@ class CalendarioAnualController extends Controller
             );
         }
 
-        return response()->file($disco->path($calendarioAnual->ficheiro_path), [
+        return response($disco->get($calendarioAnual->ficheiro_path), 200, [
+            'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="'.basename($calendarioAnual->ficheiro_nome).'"',
             'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
             'Pragma' => 'no-cache',

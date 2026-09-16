@@ -49,6 +49,7 @@ final class SidebarMenuService
 
     public function build(): array
     {
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
         $gate = Gate::forUser($user);
         $grupoPapNavigation = $this->grupoPapNavigationService->resolve($user);

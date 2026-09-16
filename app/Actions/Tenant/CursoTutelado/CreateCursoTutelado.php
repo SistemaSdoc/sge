@@ -42,10 +42,10 @@ class CreateCursoTutelado
             ? $this->sincronizarDadosDoTutor($instituicaoTutora, $validated)
             : [$validated['classes'], $validated['nivel_ensino_id']]; // ← era classe_ids
 
-        $cursoTutelado = DB::connection('tenant')->transaction(function () use ($instituicao, $validated, $tenantTutorId, $curso, $instituicaoTutora, $classeIds, $nivelEnsinoId): CursoTutelado {
+        $cursoTutelado = DB::connection('tenant')->transaction(function () use ($instituicao, $tenantTutorId, $curso, $instituicaoTutora, $classeIds, $nivelEnsinoId): CursoTutelado {
             if (
-                $instituicaoTutora && !$instituicaoTutora->tenant->run(
-                    fn(): bool => InstituicaoCurso::query()
+                $instituicaoTutora && ! $instituicaoTutora->tenant->run(
+                    fn (): bool => InstituicaoCurso::query()
                         ->where('instituicao_id', $instituicaoTutora->instituicao->getKey())
                         ->where('curso_id', $curso->getKey())
                         ->exists()
@@ -83,7 +83,7 @@ class CreateCursoTutelado
             $now = now();
 
             CursoClasse::insert(
-                collect($classeIds)->map(fn(string $classeId): array => [
+                collect($classeIds)->map(fn (string $classeId): array => [
                     'id' => (string) Str::uuid7(),
                     'curso_tutelado_id' => $cursoTutelado->getKey(),
                     'classe_id' => $classeId,

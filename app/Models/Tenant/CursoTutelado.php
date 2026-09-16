@@ -3,6 +3,7 @@
 namespace App\Models\Tenant;
 
 use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -91,7 +92,7 @@ class CursoTutelado extends Model
         }
 
         // Tutela externa — vai buscar ao tenant tutor
-        if ($this->tipo_tutela !== 'externa' || !$this->curso_tutelado_shared_id) {
+        if ($this->tipo_tutela !== 'externa' || ! $this->curso_tutelado_shared_id) {
             return $empty;
         }
 
@@ -100,13 +101,13 @@ class CursoTutelado extends Model
             ? $this->cursoTuteladoShared
             : $this->cursoTuteladoShared()->first();
 
-        if (!$shared?->tenant_tutor_id || !$shared?->curso_id) {
+        if (! $shared?->tenant_tutor_id || ! $shared?->curso_id) {
             return $empty;
         }
 
-        $tenantTutor = \App\Models\Central\Tenant::find($shared->tenant_tutor_id);
+        $tenantTutor = Tenant::find($shared->tenant_tutor_id);
 
-        if (!$tenantTutor) {
+        if (! $tenantTutor) {
             return $empty;
         }
 
@@ -115,7 +116,7 @@ class CursoTutelado extends Model
                 ->where('tipo_tutela', 'propria')
                 ->whereHas(
                     'instituicaoCurso',
-                    fn($q) => $q->where('curso_id', $shared->curso_id)
+                    fn ($q) => $q->where('curso_id', $shared->curso_id)
                 )
                 ->first(['criterios_pap_path', 'manual_pt_path', 'estrutura_trabalho_pap_path']);
 

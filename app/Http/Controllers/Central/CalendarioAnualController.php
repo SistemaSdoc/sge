@@ -89,7 +89,8 @@ class CalendarioAnualController extends Controller
             );
         }
 
-        return response()->file($disco->path($calendarioAnual->ficheiro_path), [
+        return response($disco->get($calendarioAnual->ficheiro_path), 200, [
+            'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="'.basename($calendarioAnual->ficheiro_nome).'"',
             'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
             'Pragma' => 'no-cache',

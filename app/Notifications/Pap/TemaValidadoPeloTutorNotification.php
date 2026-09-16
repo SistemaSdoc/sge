@@ -53,7 +53,7 @@ class TemaValidadoPeloTutorNotification extends Notification
         $cursoTutelado = $this->grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-                ?->cursoTutelado;
+            ?->cursoTutelado;
         $nomeInstituicao = $cursoTutelado?->instituicaoCurso?->instituicao?->nome;
 
         return [

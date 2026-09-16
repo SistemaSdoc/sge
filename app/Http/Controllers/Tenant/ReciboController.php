@@ -6,7 +6,7 @@ use App\Actions\Tenant\Pagamento\GerarRecibo;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Pagamento;
 use App\Services\Tenant\Recibos\ReciboPdfService;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Http\Response;
 
 class ReciboController extends Controller
 {
@@ -15,29 +15,28 @@ class ReciboController extends Controller
         private readonly ReciboPdfService $reciboPdfService,
     ) {}
 
-    public function exibir(Pagamento $pagamento): BinaryFileResponse
+    public function exibir(Pagamento $pagamento): Response
     {
         $this->authorize('view', $pagamento);
 
         $caminho = $this->caminhoRecibo($pagamento);
 
-        return response()->file($caminho, [
+        return response($this->reciboPdfService->conteudo($caminho), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="recibo-'.$pagamento->numero_recibo.'.pdf"',
         ]);
     }
 
-    public function exportar(Pagamento $pagamento): BinaryFileResponse
+    public function exportar(Pagamento $pagamento): Response
     {
         $this->authorize('view', $pagamento);
 
         $caminho = $this->caminhoRecibo($pagamento);
 
-        return response()->download(
-            $caminho,
-            "recibo-{$pagamento->numero_recibo}.pdf",
-            ['Content-Type' => 'application/pdf']
-        );
+        return response($this->reciboPdfService->conteudo($caminho), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="recibo-'.$pagamento->numero_recibo.'.pdf"',
+        ]);
     }
 
     private function caminhoRecibo(Pagamento $pagamento): string
@@ -46,6 +45,6 @@ class ReciboController extends Controller
 
         abort_unless($this->reciboPdfService->existe($caminhoRelativo), 404, 'Recibo indisponível.');
 
-        return $this->reciboPdfService->caminhoAbsoluto($caminhoRelativo);
+        return $caminhoRelativo;
     }
 }

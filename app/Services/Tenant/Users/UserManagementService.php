@@ -58,7 +58,7 @@ class UserManagementService
             })
             ->orderBy('name')
             ->get(['id', 'name'])
-            ->map(fn($role) => ['id' => $role->id, 'name' => $role->name])
+            ->map(fn ($role) => ['id' => $role->id, 'name' => $role->name])
             ->all();
     }
 }

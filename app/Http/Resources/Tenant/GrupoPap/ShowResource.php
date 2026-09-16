@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Tenant\GrupoPap;
 
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -12,15 +13,14 @@ class ShowResource extends JsonResource
 
     public function toArray(Request $request): array
     {
-        // Resolver documentos PAP uma vez só (herda do tutor se tipo_tutela = externa)
         $cursoTutelado = $this->turma
             ?->cursoClasseTurno
             ?->cursoClasse
             ?->cursoTutelado;
 
         $docs = $cursoTutelado?->resolverDocumentosPap() ?? [
-            'criterios_pap_path'          => null,
-            'manual_pt_path'              => null,
+            'criterios_pap_path' => null,
+            'manual_pt_path' => null,
             'estrutura_trabalho_pap_path' => null,
         ];
 
@@ -45,22 +45,27 @@ class ShowResource extends JsonResource
             'turma' => $this->turma ? [
                 'nome' => $this->turma->nome,
             ] : null,
-
-            // ← substituição dos 3 closures
             'criterios_pap_url' => $docs['criterios_pap_path']
-                ? Storage::url($docs['criterios_pap_path'])
+                ? $this->publicStorageUrl($docs['criterios_pap_path'])
                 : null,
             'manual_pt_url' => $docs['manual_pt_path']
-                ? Storage::url($docs['manual_pt_path'])
+                ? $this->publicStorageUrl($docs['manual_pt_path'])
                 : null,
             'estrutura_trabalho_pap_url' => $docs['estrutura_trabalho_pap_path']
-                ? Storage::url($docs['estrutura_trabalho_pap_path'])
+                ? $this->publicStorageUrl($docs['estrutura_trabalho_pap_path'])
                 : null,
-
             'aprovado_por' => $this->aprovadoPor ? [
                 'id'   => $this->aprovadoPor->id,
                 'nome' => $this->aprovadoPor->nome ?? null,
             ] : null,
         ];
+    }
+
+    private function publicStorageUrl(string $path): string
+    {
+        /** @var FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+
+        return $disk->url($path);
     }
 }

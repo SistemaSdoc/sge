@@ -42,13 +42,12 @@ class PagamentoRegistadoNotification extends Notification
                 },
             ]);
 
-        if ($this->pagamento->recibo_path && Storage::disk('private')->exists($this->pagamento->recibo_path)) {
-            $mail->attach(
-                Storage::disk('private')->path($this->pagamento->recibo_path),
-                [
-                    'as' => "recibo-{$this->pagamento->numero_recibo}.pdf",
-                    'mime' => 'application/pdf',
-                ]
+        $disco = Storage::disk('private');
+        if ($this->pagamento->recibo_path && $disco->exists($this->pagamento->recibo_path)) {
+            $mail->attachData(
+                $disco->get($this->pagamento->recibo_path),
+                "recibo-{$this->pagamento->numero_recibo}.pdf",
+                ['mime' => 'application/pdf']
             );
         }
 

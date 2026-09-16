@@ -359,7 +359,7 @@ class GrupoPapController extends Controller
                 })->values(),
 
                 'criterios_pap_url' => $cursoTutelado->criterios_pap_path
-                    ? Storage::url($cursoTutelado->criterios_pap_path)
+                    ? Storage::disk('public')->url($cursoTutelado->criterios_pap_path)
                     : null,
 
                 'banca' => BancaResource::collection($banca),

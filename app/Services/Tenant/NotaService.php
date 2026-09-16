@@ -207,8 +207,8 @@ class NotaService
         // Só calcula após os 3 trimestres
         $temTresTrimestres = collect([1, 2, 3])
             ->every(
-                fn($p) => isset($notas[$p]) &&
-                    !is_null($notas[$p]->media_trimestral)
+                fn ($p) => isset($notas[$p]) &&
+                    ! is_null($notas[$p]->media_trimestral)
             );
 
         if (!$temTresTrimestres) {

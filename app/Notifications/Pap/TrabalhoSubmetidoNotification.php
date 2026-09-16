@@ -11,9 +11,7 @@ class TrabalhoSubmetidoNotification extends Notification
 {
     use Queueable;
 
-    public function __construct(public GrupoPap $grupoPap,  public ?string $urlExterno = null,)
-    {
-    }
+    public function __construct(public GrupoPap $grupoPap, public ?string $urlExterno = null) {}
 
     public function via(object $notifiable): array
     {

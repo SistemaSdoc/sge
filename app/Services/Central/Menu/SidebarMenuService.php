@@ -53,7 +53,7 @@ final class SidebarMenuService
                     can: true,
                 ),
 
-                 new MenuItem(
+                new MenuItem(
                     key: 'disciplinas',
                     title: 'Disciplinas',
                     href: action([DisciplinaController::class, 'index']),
