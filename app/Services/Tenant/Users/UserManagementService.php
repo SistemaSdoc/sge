@@ -12,7 +12,7 @@ class UserManagementService
     {
         return User::query()
             ->with('roles:id,name')
-            ->when(! $actor->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $actor->instituicao_id))
+            ->when(!$actor->isSuperAdmin(), fn($query) => $query->where('instituicao_id', $actor->instituicao_id))
             ->orderBy('nome')
             ->orderBy('id')
             ->paginate(15)
@@ -47,10 +47,18 @@ class UserManagementService
             $query->whereNotIn('name', ['Director', 'Subdirector']);
         }
 
-        return $query
+        // garante que os roles actuais do target aparecem sempre
+        $targetRoleIds = $target?->roles->pluck('id')->all() ?? [];
+
+        return Role::query()
+            ->where('guard_name', 'tenant')
+            ->where(function ($q) use ($query, $targetRoleIds) {
+                $q->whereIn('id', $targetRoleIds)
+                    ->orWhereIn('id', $query->pluck('id'));
+            })
             ->orderBy('name')
             ->get(['id', 'name'])
-            ->map(fn (Role $role): array => ['id' => $role->id, 'name' => $role->name])
+            ->map(fn($role) => ['id' => $role->id, 'name' => $role->name])
             ->all();
     }
 }
