@@ -92,6 +92,8 @@ class CursoClasseController extends Controller
             'turno' => [
                 'create' => $user->can('update', $cursoTutelado)
                     && $user->can('create', CursoClasseTurno::class),
+                'edit' => $user->can('update', $cursoTutelado)
+                    && $user->can('cursoclasseturno.update'),
             ],
             'disciplina' => [
                 'create' => $user->can('update', $cursoTutelado)

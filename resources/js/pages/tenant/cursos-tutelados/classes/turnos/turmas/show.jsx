@@ -25,6 +25,7 @@ export default function Show({
   can,
   anoLectivoId,
   anosLectivos,
+  anoLectivoSelecionado,
 }) {
   const { deleteConfirm } = useDialog();
 
@@ -100,6 +101,7 @@ export default function Show({
             redirectTo={window.location.href}
             pagination={disciplinas.meta}
             onPageChange={disciplinasPagination.handlePageChange}
+            anoLectivoSelecionado={anoLectivoSelecionado}
           />
         </TabsContent>
 

@@ -292,6 +292,12 @@ Route::middleware([
             Route::put('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'store'])
                 ->name('curso-classe-turno.store');
 
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/edit', [CursoClasseTurnoController::class, 'edit'])
+                ->name('curso-classe-turno.edit');
+
+            Route::patch('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'update'])
+                ->name('curso-classe-turno.update');
+
             /*
             |--------------------------------------------------------------------------
             | Disciplinas de Turnos de Classes

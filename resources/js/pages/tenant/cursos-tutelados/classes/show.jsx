@@ -40,7 +40,10 @@ import {
   create as createTurma,
   edit as editTurma,
 } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
-import { create } from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
+import {
+  create,
+  edit as editTurno,
+} from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
 import { cn } from '@/lib/utils';
 import { Header } from './components/classe-header';
 
@@ -169,6 +172,9 @@ export default function Show({
         turnos={turnos}
         params={params}
         anoLectivoAtualNome={anoLectivoAtualNome}
+        instituicao={instituicao}
+        cursoTutelado={cursoTutelado}
+        cursoClasse={cursoClasse}
       />
 
       {turnos.length > 0 ? (
@@ -196,10 +202,16 @@ export default function Show({
                       !isLastInRow && 'border-r border-foreground/10',
                     )}
                   >
-                    <h3 className="mb-1 text-sm font-medium">{turno.nome}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {isActive ? 'A visualizar' : 'Clique aqui para ver'}
-                    </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="mb-1 text-sm font-medium">
+                          {turno.nome}
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          {isActive ? 'A visualizar' : 'Clique aqui para ver'}
+                        </p>
+                      </div>
+                    </div>
                   </button>
                 );
               })}

@@ -1,4 +1,6 @@
 import { useForm } from '@inertiajs/react';
+import { ArrowUpLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -6,40 +8,38 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import {
   Field,
-  FieldLabel,
   FieldError,
-  FieldDescription,
   FieldGroup,
+  FieldLabel,
   FieldSet,
+  FieldDescription,
 } from '@/components/ui/field';
 import MultipleSelect from '@/components/multiple-select';
-import { store } from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
-import { ArrowUpLeft } from 'lucide-react';
+import { update } from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
+import { Spinner } from '@/components/spinner';
 
-export default function Create({
+export default function EditTurno({
   instituicao,
   cursoTutelado,
   cursoClasse,
   turnos,
+  turnosSelecionados,
 }) {
-  const { data, setData, put, processing, errors } = useForm({
-    turnos: [],
+  const { data, setData, patch, processing, errors } = useForm({
+    turnos: turnosSelecionados,
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    put(
-      store({
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    patch(
+      update({
         instituicao: instituicao.id,
         cursoTutelado: cursoTutelado.id,
         cursoClasse: cursoClasse.id,
       }).url,
-      {
-        preserveScroll: true,
-      },
     );
   };
 
@@ -48,13 +48,12 @@ export default function Create({
       <form onSubmit={handleSubmit}>
         <Card className="gap-0 overflow-visible">
           <CardHeader className="border-b">
-            <CardTitle>Definir Turnos</CardTitle>
+            <CardTitle>Editar Turnos</CardTitle>
             <CardDescription>
-              Defina quais turnos esta classe estará disponível
+              Actualize os turnos associados à classe {cursoClasse.nome}.
             </CardDescription>
           </CardHeader>
 
-          {/* Cards de contexto */}
           <div className="grid grid-cols-2 divide-x border-b bg-muted/50 text-center">
             <div className="px-4 py-4">
               <p className="text-sm font-bold">{cursoTutelado.nome}</p>
@@ -66,50 +65,50 @@ export default function Create({
             </div>
           </div>
 
-          {/* Form */}
           <CardContent className="pt-6">
             <FieldGroup>
               <FieldSet>
-                {/* Turnos */}
                 <Field>
-                  <FieldLabel>Turnos</FieldLabel>
+                  <FieldLabel>Turnos da classe</FieldLabel>
                   <FieldDescription>
-                    Seleccione os turnos em que esta classe estará disponível.
+                    Adicione ou remova os turnos disponíveis para esta classe.
                   </FieldDescription>
                   <MultipleSelect
                     placeholder="Selecione os turnos"
-                    items={turnos?.map((t) => ({ value: t.id, label: t.nome }))}
-                    onChange={(opts) =>
+                    items={turnos.map((turno) => ({
+                      value: turno.id,
+                      label: turno.nome,
+                    }))}
+                    value={turnos
+                      .filter((turno) => data.turnos.includes(turno.id))
+                      .map((turno) => ({
+                        value: turno.id,
+                        label: turno.nome,
+                      }))}
+                    onChange={(options) =>
                       setData(
                         'turnos',
-                        opts.map((o) => o.value),
+                        options.map((option) => option.value),
                       )
                     }
-                    value={data.turnos.map((id) => ({
-                      value: id,
-                      label: turnos?.find((t) => t.id === id)?.nome ?? id,
-                    }))}
                     disabled={processing}
                   />
                   {errors.turnos && <FieldError>{errors.turnos}</FieldError>}
                 </Field>
 
-                {/* Botões de acção */}
-                <Field orientation={'vertical'}>
-                  <Button
-                    type="submit"
-                    disabled={processing || data.turnos.length === 0}
-                  >
-                    Definir Turnos
+                <Field orientation="vertical">
+                  <Button type="submit" disabled={processing}>
+                    {processing ? <Spinner className="size-4" /> : null}
+                    Guardar alterações
                   </Button>
-
                   <Button
+                    type="button"
                     variant="outline"
                     disabled={processing}
                     onClick={() => window.history.back()}
                   >
                     <ArrowUpLeft />
-                    Voltar a classe
+                    Voltar à classe
                   </Button>
                 </Field>
               </FieldSet>

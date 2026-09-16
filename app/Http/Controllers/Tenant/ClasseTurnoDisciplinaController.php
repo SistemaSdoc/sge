@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
@@ -33,6 +34,8 @@ class ClasseTurnoDisciplinaController extends Controller
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/disciplinas/create', [
             'disciplinas' => Disciplina::select('id', 'nome')->orderBy('nome')->get(),
+            'anosLectivos' => AnoLectivo::select('id', 'nome')->orderByDesc('data_inicio')->get(),
+            'anoLectivoId' => request('ano_lectivo_id'),
             'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => [
                 'id' => $cursoTutelado->id,
@@ -64,10 +67,11 @@ class ClasseTurnoDisciplinaController extends Controller
             'disciplina_ids.*' => 'exists:disciplinas,id',
             'carga_horaria' => 'nullable|string|max:255',
             'tem_professor' => 'nullable|boolean',
+            'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',
         ]);
 
-        // Determina automaticamente o ano lectivo
-        $anoLectivoId = $this->anoLectivoResolverService->obterAnoLectivoDefault();
+        $anoLectivoId = $request->input('ano_lectivo_id')
+            ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         // Buscar as que já existem para ignorar duplicadas no mesmo ano lectivo
         $jaExistentes = ClasseTurnoDisciplina::where('curso_classe_turno_id', $cursoClasseTurno->id)
@@ -176,16 +180,7 @@ class ClasseTurnoDisciplinaController extends Controller
 
         $classeTurnoDisciplina->delete();
 
-        // Preservar filtro no redirect
-        $anoLectivoParam = $classeTurnoDisciplina->ano_lectivo_id
-            ? ['ano_lectivo_id' => $classeTurnoDisciplina->ano_lectivo_id]
-            : [];
-
-        return to_route('tenant.dashboard.cursos-tutelados.classes.show', [
-            'instituicao' => $instituicao->id,
-            'cursoTutelado' => $cursoTutelado->id,
-            'cursoClasse' => $cursoClasse->id,
-            'cursoClasseTurno' => $cursoClasseTurno->id,
-        ] + $anoLectivoParam)->with('success', 'Disciplina removida com sucesso.');
+        return back()
+            ->with('success', 'Disciplina removida com sucesso.');
     }
 }

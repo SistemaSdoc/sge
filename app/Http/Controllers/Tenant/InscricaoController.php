@@ -8,7 +8,7 @@ use App\Http\Requests\Tenant\UpdateInscricaoRequest;
 use App\Http\Resources\Tenant\Inscricao\InscricaoResource;
 use App\Http\Resources\Tenant\Inscricao\InscricaoShowResource;
 use App\Models\Tenant\AnoLectivo;
-use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
@@ -98,44 +98,43 @@ class InscricaoController extends Controller
         $anoLectivoId = request('ano_lectivo_id')
             ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
-        $cursoClasseTurnos = CursoClasseTurno::with([
-            'turno:id,nome',
-            'cursoClasse.classe:id,nome',
-            'cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
-            'turmas' => fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId)->select('id', 'nome', 'curso_classe_turno_id'),
+        $cursoClasses = CursoClasse::with([
+            'classe:id,nome',
+            'cursoTutelado.instituicaoCurso.curso:id,nome',
+            'turnos.turno:id,nome',
+            'turnos.turmas' => fn ($q) => $q
+                ->where('ano_lectivo_id', $anoLectivoId)
+                ->select('id', 'nome', 'curso_classe_turno_id'),
         ])->whereHas(
-            'cursoClasse.cursoTutelado.instituicaoCurso',
+            'cursoTutelado.instituicaoCurso',
             fn ($q) => $q->where('instituicao_id', $instituicaoId)
         )->get();
 
-        $cursos = $cursoClasseTurnos
+        $cursos = $cursoClasses
             ->groupBy(function ($cct) {
-                return $cct->cursoClasse->cursoTutelado->instituicaoCurso->id;
+                return $cct->cursoTutelado->instituicaoCurso->id;
             })
             ->map(function ($group) {
                 $primeiro = $group->first();
 
-                $classes = $group->groupBy(fn ($cct) => $cct->cursoClasse->classe->id)
-                    ->map(function ($classGroup) {
-                        $firstInClass = $classGroup->first();
-
-                        return [
-                            'id' => $firstInClass->cursoClasse->classe->id,
-                            'nome' => $firstInClass->cursoClasse->classe->nome,
-                            'turnos' => $classGroup->map(fn ($cct) => [
-                                'id' => $cct->id,
-                                'nome' => $cct->turno->nome,
-                                'turmas' => $cct->turmas->map(fn ($t) => [
-                                    'id' => $t->id,
-                                    'nome' => $t->nome,
-                                ])->values(),
+                $classes = $group->map(function ($cursoClasse) {
+                    return [
+                        'id' => $cursoClasse->classe->id,
+                        'nome' => $cursoClasse->classe->nome,
+                        'turnos' => $cursoClasse->turnos->map(fn ($cursoClasseTurno) => [
+                            'id' => $cursoClasseTurno->id,
+                            'nome' => $cursoClasseTurno->turno->nome,
+                            'turmas' => $cursoClasseTurno->turmas->map(fn ($turma) => [
+                                'id' => $turma->id,
+                                'nome' => $turma->nome,
                             ])->values(),
-                        ];
-                    })->values();
+                        ])->values(),
+                    ];
+                })->values();
 
                 return [
-                    'id' => $primeiro->cursoClasse->cursoTutelado->instituicaoCurso->id,
-                    'nome' => $primeiro->cursoClasse->cursoTutelado->instituicaoCurso->curso->nome,
+                    'id' => $primeiro->cursoTutelado->instituicaoCurso->id,
+                    'nome' => $primeiro->cursoTutelado->instituicaoCurso->curso->nome,
                     'classes' => $classes,
                 ];
             })

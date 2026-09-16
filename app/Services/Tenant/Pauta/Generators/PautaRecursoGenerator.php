@@ -22,25 +22,29 @@ class PautaRecursoGenerator
 
         $query = TurmaAluno::with([
             'aluno.inscricao.candidato:id,nome',
-            'notas',
+            'notas.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
+            'turma.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
+            'turma.cursoClasseTurno.cursoClasse.classe',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
         ])
             ->where('turma_id', $turma->id)
             ->where('activo', true)
             ->whereIn('resultado', ['recurso', 'aprovado_recurso', 'reprovado_recurso']);
 
         if ($filtro) {
-            // 'pendente' é o filtro do card Incompletos — mapeia para resultado='recurso'
             $resultado = $filtro === 'pendente' ? 'recurso' : $filtro;
             $query->where('resultado', $resultado);
         }
 
         $paginator = $query->paginate($perPage, ['*'], 'page_pautas');
 
-        // Calcular disciplinas em recurso ANTES de montar os alunos
-        // usando directamente o resultado académico de cada turma_aluno
+        // Cache dos resultados — evita calcular 2x por aluno
+        $resultadosCache = [];
         $idsEmRecurso = collect();
+
         foreach ($paginator->items() as $ta) {
             $resultadoFinal = $this->regraAcademicaService->resolverSituacaoAcademica($ta);
+            $resultadosCache[$ta->id] = $resultadoFinal;
             $ids = collect($resultadoFinal['detalhes'])
                 ->where('situacao', 'recurso')
                 ->pluck('disciplina_id');
@@ -52,11 +56,12 @@ class PautaRecursoGenerator
             ->map(fn ($d) => ['id' => $d['id'], 'sigla' => $d['sigla'], 'nome' => $d['nome']])
             ->values();
 
+        $offset = 0;
         $alunos = $paginator->through(
-            function ($ta) use ($disciplinas, &$offset) {
+            function ($ta) use ($disciplinas, $resultadosCache, &$offset) {
                 $offset++;
 
-                return $this->montarAluno($ta, $offset, $disciplinas);
+                return $this->montarAluno($ta, $offset, $disciplinas, $resultadosCache[$ta->id]);
             }
         );
 
@@ -70,10 +75,10 @@ class PautaRecursoGenerator
         ];
     }
 
-    private function montarAluno($ta, int $numero, $disciplinas): array
+    private function montarAluno($ta, int $numero, $disciplinas, array $resultadoFinal): array
     {
-        $resultadoFinal = $this->regraAcademicaService->resolverSituacaoAcademica($ta);
-        $resultadoRecurso = $this->regraAcademicaService->resolverSituacaoRecurso($ta);
+        // resultadoFinal já vem do cache — sem query extra
+        $resultadoRecurso = $this->regraAcademicaService->resolverSituacaoRecurso($ta, $resultadoFinal);
 
         $disciplinasNegativas = collect($resultadoFinal['detalhes'])
             ->where('situacao', 'recurso')
@@ -86,7 +91,6 @@ class PautaRecursoGenerator
         $notas = $disciplinas
             ->filter(fn ($d) => $disciplinasNegativas->has($d['id']))
             ->mapWithKeys(function ($d) use ($ta, $notasPeriodo4, $disciplinasNegativas, $resultadoRecurso) {
-
                 $notasDisciplina = $ta->notas->where('turma_disciplina_professor_id', $d['tdp_id']);
                 $nota4 = $notasPeriodo4->get($d['tdp_id']);
                 $detFinal = $disciplinasNegativas->get($d['id']);
