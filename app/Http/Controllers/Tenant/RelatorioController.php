@@ -25,14 +25,14 @@ class RelatorioController extends Controller
 
         $dados = $this->service->gerar($filtros);
 
-        return Inertia::render('tenant/relatorio/index', [
-            'turmas' => Turma::orderBy('nome')->get(['id', 'nome']),
-            'classes' => Classe::orderBy('nome')->get(['id', 'nome']),
-            'tipo' => $filtros['tipo'] ?? 'geral',
-            'filtros' => $filtros,
-            'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
-            'pode_ver_pagamentos' => $request->user()->can('viewAny', ItemPagavel::class),
-            ...$dados,
-        ]);
+       return Inertia::render('tenant/relatorio/index', [
+    'turmas' => Turma::orderBy('nome')->get(['id', 'nome']),
+    'classes' => Classe::orderBy('nome')->get(['id', 'nome']),
+    'tipo' => $filtros['tipo'] ?? 'geral',
+    'filtros' => $filtros,
+    'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
+    'pode_ver_pagamentos' => $request->user()->can('viewAny', ItemPagavel::class),
+    ...$dados,
+]);
     }
 }

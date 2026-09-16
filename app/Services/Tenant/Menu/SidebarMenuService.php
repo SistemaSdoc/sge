@@ -49,6 +49,7 @@ final class SidebarMenuService
 
     public function build(): array
     {
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
         $gate = Gate::forUser($user);
         $grupoPapNavigation = $this->grupoPapNavigationService->resolve($user);
@@ -317,7 +318,7 @@ final class SidebarMenuService
                     title: 'Relatórios',
                     href: route('tenant.dashboard.relatorios.index'),
                     icon: 'BarChart3',
-                    can: true,
+                    can: fn () => $user && ! $user->hasRole(['Aluno', 'Professor']),
                 ),
             ]),
         ];
