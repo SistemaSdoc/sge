@@ -170,9 +170,9 @@ class RegraAcademicaService
      * @param  TurmaAluno  $turmaAluno  Aluno cuja nota de recurso vai ser processada.
      * @return array<string, mixed> Resultado final após a análise do recurso.
      */
-    public function resolverSituacaoRecurso(TurmaAluno $turmaAluno): array
+    public function resolverSituacaoRecurso(TurmaAluno $turmaAluno, ?array $resultadoFinal = null): array
     {
-        $resultadoFinal = $this->resolverSituacaoAcademica($turmaAluno);
+        $resultadoFinal ??= $this->resolverSituacaoAcademica($turmaAluno);
 
         $avaliacaoRecurso = $this->recurso->avaliar(
             turmaAluno: $turmaAluno,

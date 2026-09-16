@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\PeriodoLancamentoNotas;
@@ -207,7 +207,7 @@ class NotaService
         $temTresTrimestres = collect([1, 2, 3])
             ->every(
                 fn ($p) => isset($notas[$p]) &&
-                ! is_null($notas[$p]->media_trimestral)
+                    ! is_null($notas[$p]->media_trimestral)
             );
 
         if (! $temTresTrimestres) {
@@ -473,7 +473,7 @@ class NotaService
         if (in_array($status->status, ['finalizada', 'expirada'])) {
             $temAutorizacao = SolicitacaoEdicaoPauta::where('turma_disciplina_professor_id', $tdpId)
                 ->where('periodo', $periodo)
-                ->where('tipo', 'edicao')
+                ->whereIn('tipo', ['reabertura_edicao', 'extensao_prazo']) // ← corrigido
                 ->where('status', 'aprovada')
                 ->whereNull('usada_em')
                 ->where('prazo_edicao_ate', '>', now())

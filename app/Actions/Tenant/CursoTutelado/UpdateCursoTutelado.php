@@ -4,8 +4,11 @@ namespace App\Actions\Tenant\CursoTutelado;
 
 use App\Enums\TutelaStatus;
 use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
+use App\Models\Tenant\Classe;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\NivelEnsino;
 use App\Services\Tenant\Tutela\TutelaService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -88,10 +91,12 @@ class UpdateCursoTutelado
                         )->find($cursoTutelado->curso_tutelado_shared_id)
                         : null;
 
-                    if ($sharedAssociado && ! in_array($sharedAssociado->status, [
-                        TutelaStatus::REJEITADO,
-                        TutelaStatus::ENCERRADO,
-                    ], true)) {
+                    if (
+                        $sharedAssociado && ! in_array($sharedAssociado->status, [
+                            TutelaStatus::REJEITADO,
+                            TutelaStatus::ENCERRADO,
+                        ], true)
+                    ) {
                         throw ValidationException::withMessages([
                             'tenant_tutor_id' => 'A solicitação de tutela ainda aguarda decisão do instituto tutor.',
                         ]);
@@ -104,6 +109,38 @@ class UpdateCursoTutelado
                     );
                 }
 
+            }
+            if ($tenantTutorId) {
+                $tenantTutor = Tenant::query()->findOrFail($tenantTutorId);
+
+                $dadosTutor = $tenantTutor->run(function () use ($validated): array {
+                    return [
+                        'classes' => Classe::query()
+                            ->whereIn('id', $validated['classes'])
+                            ->get(['id', 'nome', 'nivel_ensino']),
+                        'nivelEnsino' => NivelEnsino::query()
+                            ->find($validated['nivel_ensino_id'], ['id', 'nome']),
+                    ];
+                });
+
+                // Nível — busca pelo nome localmente e substitui o ID
+                if ($dadosTutor['nivelEnsino']) {
+                    $nivelLocal = NivelEnsino::query()->firstOrCreate(
+                        ['nome' => $dadosTutor['nivelEnsino']->nome],
+                    );
+                    $validated['nivel_ensino_id'] = (string) $nivelLocal->getKey();
+                }
+
+                // Classes — busca pelo nome localmente e substitui os IDs
+                $classeIds = [];
+                foreach ($dadosTutor['classes'] as $classe) {
+                    $classeLocal = Classe::query()->firstOrCreate(
+                        ['nome' => $classe->nome],
+                        ['nivel_ensino' => $classe->nivel_ensino],
+                    );
+                    $classeIds[] = (string) $classeLocal->getKey();
+                }
+                $validated['classes'] = $classeIds;
             }
 
             $cursoTutelado->classes()->sync(

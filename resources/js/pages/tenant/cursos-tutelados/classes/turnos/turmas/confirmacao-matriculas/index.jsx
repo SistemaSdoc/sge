@@ -37,7 +37,7 @@ export default function Index() {
           params={params}
           anosLectivos={anosLectivos}
           anoLectivoProximo={anoLectivoProximo}
-          turmasPorAno={turmasPorAno}
+          turmasPorAno={aluno.turmas_destino ?? turmasPorAno}
           onCancel={() => closeDialog()}
           onSuccess={() => closeDialog()}
         />

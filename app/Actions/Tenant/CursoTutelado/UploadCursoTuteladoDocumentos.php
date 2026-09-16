@@ -2,6 +2,7 @@
 
 namespace App\Actions\Tenant\CursoTutelado;
 
+use App\Jobs\Tenant\Tutela\SincronizarDocumentosPapTutelados;
 use App\Models\Tenant\CursoTutelado;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -58,6 +59,16 @@ class UploadCursoTuteladoDocumentos
                 if (isset($novosCaminhos[$campo]) && $caminhoAntigo) {
                     Storage::disk('public')->delete($caminhoAntigo);
                 }
+            }
+
+            // Propaga os documentos para todos os tutelados activos deste curso
+            if (! empty($novosCaminhos) && $cursoTutelado->tipo_tutela === 'propria') {
+                $cursoTutelado->loadMissing('instituicaoCurso');
+
+                SincronizarDocumentosPapTutelados::dispatch(
+                    tenantTutorId: (string) tenancy()->tenant->getTenantKey(),
+                    cursoId: (string) $cursoTutelado->instituicaoCurso->curso_id,
+                )->afterCommit();
             }
         } catch (\Throwable $exception) {
             foreach ($novosCaminhos as $caminho) {

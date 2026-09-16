@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Notifications\Tenant\ResetPasswordNotification;
 use App\Traits\HasUuid;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -44,6 +45,11 @@ class User extends Authenticatable implements PasskeyUser
     // Propriedade que o Spatie usa
     protected $guard_name = 'tenant';
 
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
+
     protected function casts(): array
     {
         return [
@@ -78,18 +84,9 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasRole('Director'); // usa o método do Spatie
     }
 
-    /**
-     * Retorna a rota de redirecionamento baseada no role do utilizador
-     */
-    public function roleRedirectPath(): string
+    public function isSubdirector(): bool
     {
-        // Se é candidato ou aluno, redireciona para portal
-        if ($this->hasRole('Candidato')) {
-            return '/portal';
-        }
-
-        // Qualquer outro role (admin, director, etc.) vai para dashboard
-        return '/dashboard';
+        return $this->hasRole('Subdirector');
     }
 
     public function instituicaoFiltro(): ?string

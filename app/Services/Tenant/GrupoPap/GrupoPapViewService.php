@@ -3,10 +3,10 @@
 namespace App\Services\Tenant\GrupoPap;
 
 use App\Helpers\PapHelper;
+use App\Models\Central\AnoLectivo;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;

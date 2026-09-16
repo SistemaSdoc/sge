@@ -2,14 +2,17 @@
 
 namespace App\Providers;
 
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Documento;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
 use App\Models\Tenant\TurmaAluno;
+use App\Models\Tenant\User;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Observers\PagamentoObserver;
 use App\Policies\Tenant\AcessManagementPolicy;
+use App\Policies\Tenant\AnoLectivoPolicy;
 use App\Policies\Tenant\ColegioPolicy;
 use App\Policies\Tenant\ConfirmacaoMatriculaPolicy;
 use App\Policies\Tenant\DocumentoPolicy;
@@ -17,6 +20,8 @@ use App\Policies\Tenant\GrelhaCurricularPolicy;
 use App\Policies\Tenant\HorarioPolicy;
 use App\Policies\Tenant\ItemPagavelPolicy;
 use App\Policies\Tenant\PautaPolicy;
+use App\Policies\Tenant\RolePolicy;
+use App\Policies\Tenant\UserPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +29,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -51,9 +57,12 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('horarios.viewAny', [HorarioPolicy::class, 'viewAny']);
 
         Gate::policy(ItemPagavel::class, ItemPagavelPolicy::class);
+        Gate::policy(AnoLectivo::class, AnoLectivoPolicy::class);
 
         Gate::policy(Documento::class, DocumentoPolicy::class);
         Gate::policy(TurmaAluno::class, ConfirmacaoMatriculaPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Role::class, RolePolicy::class);
 
         Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);
 
@@ -61,9 +70,8 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('SuperAdmin') ? true : null;
         });
 
-        Gate::define('confirmacao-matricula.viewAny', [ConfirmacaoMatriculaPolicy::class, 'viewAny']);
-        Gate::define('confirmacao-matricula.view', [ConfirmacaoMatriculaPolicy::class, 'view']);
-        Gate::define('confirmacao-matricula.create', [ConfirmacaoMatriculaPolicy::class, 'create']);
+        Gate::define('confirmacoes.matricula.viewAny', [ConfirmacaoMatriculaPolicy::class, 'viewAny']);
+        Gate::define('confirmacoes.matricula.confirmar', [ConfirmacaoMatriculaPolicy::class, 'confirmar']);
 
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
         Pagamento::observe(PagamentoObserver::class);

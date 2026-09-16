@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\RegraAvaliacao\StoreRegraAvaliacaoRequest;
 use App\Http\Requests\Tenant\RegraAvaliacao\UpdateRegraAvaliacaoRequest;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\NivelEnsino;
 use App\Models\Tenant\RegraAvaliacao;

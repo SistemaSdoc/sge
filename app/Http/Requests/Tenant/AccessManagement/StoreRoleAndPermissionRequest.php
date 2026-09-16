@@ -12,7 +12,7 @@ class StoreRoleAndPermissionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('gerir permissoes');
+        return true;
     }
 
     /**

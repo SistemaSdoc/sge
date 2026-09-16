@@ -12,7 +12,7 @@ export default function Create({
   const { post, data, setData, processing, errors } = useForm({
     curso_id: '',
     nivel_ensino_id: '',
-    classe_ids: [],
+     classes: [],   
     tenant_tutor_id: '',
   });
 

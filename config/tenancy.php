@@ -174,7 +174,7 @@ return [
         // Stancl\Tenancy\Features\UniversalRoutes::class,
         // Stancl\Tenancy\Features\TenantConfig::class, // https://tenancyforlaravel.com/docs/v3/features/tenant-config
         // Stancl\Tenancy\Features\CrossDomainRedirect::class, // https://tenancyforlaravel.com/docs/v3/features/cross-domain-redirect
-        // Stancl\Tenancy\Features\ViteBundler::class,
+        Stancl\Tenancy\Features\ViteBundler::class,
     ],
 
     /**
@@ -200,6 +200,6 @@ return [
      */
     'seeder_parameters' => [
         '--class' => 'Database\Seeders\Tenant\TenantDatabaseSeeder', // root seeder class
-        // '--force' => true, // This needs to be true to seed tenant databases in production
+        '--force' => true, // This needs to be true to seed tenant databases in production
     ],
 ];

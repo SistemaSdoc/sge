@@ -37,6 +37,34 @@ export function UsuariosTable({
   const getInitials = useInitials();
   const isEmpty = usuarios?.data?.length === 0;
 
+  const renderRolesBadge = (roles = []) => {
+    const safeRoles = Array.isArray(roles) ? roles : [];
+    const visibleRoles = safeRoles.slice(0, 3);
+    const hiddenCount = Math.max(safeRoles.length - visibleRoles.length, 0);
+
+    return (
+      <div
+        className="flex flex-wrap items-center gap-1"
+        title={safeRoles.join(', ')}
+      >
+        {visibleRoles.map((role, index) => (
+          <span
+            key={`${role}-${index}`}
+            className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-2 py-0.5 text-[10px] font-medium text-orange-700"
+          >
+            {role}
+          </span>
+        ))}
+
+        {hiddenCount > 0 && (
+          <span className="inline-flex rounded-full border border-muted bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+            +{hiddenCount}
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="mx-auto w-full max-w-7xl p-6">
       <Card className="gap-0">
@@ -103,7 +131,7 @@ export function UsuariosTable({
                     </TableCell>
 
                     <TableCell className="px-4">
-                      {usuario.roles.join(', ')}
+                      {renderRolesBadge(usuario.roles)}
                     </TableCell>
 
                     <TableCell

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tenant\Inscricao;
 
+use App\Rules\CentralAnoLectivoExists;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreInscricaoRequest extends FormRequest
@@ -95,7 +96,8 @@ class StoreInscricaoRequest extends FormRequest
             ],
             'ano_lectivo_id' => [
                 'nullable',
-                'exists:ano_lectivos,id',
+                'uuid',
+                new CentralAnoLectivoExists,
             ],
         ];
     }

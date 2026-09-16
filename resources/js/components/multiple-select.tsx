@@ -6,6 +6,7 @@ export default function MultiSelectorField({
   onChange,
   placeholder = 'Selecione...',
   isLoading = false,
+  disabled = false,
 }) {
   const resolvedPlaceholder = isLoading
     ? 'A carregar...'
@@ -18,7 +19,7 @@ export default function MultiSelectorField({
       value={value}
       options={items}
       placeholder={resolvedPlaceholder}
-      disabled={isLoading || !items.length}
+      disabled={disabled || isLoading || !items.length}
       hideClearAllButton
       hidePlaceholderWhenSelected
       onChange={(val) => onChange(val)}

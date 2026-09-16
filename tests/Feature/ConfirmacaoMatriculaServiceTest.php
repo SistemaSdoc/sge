@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoClasse;
@@ -11,13 +11,13 @@ use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\NivelEnsino;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
+use App\Models\Tenant\User;
+use App\Notifications\Aluno\MatriculaConfirmadaNotification;
+use App\Services\Tenant\ConfirmacaoMatriculaService;
 use App\Services\Tenant\ConfirmacaoMatriculaViewService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use App\Models\Tenant\User;
-use App\Notifications\Aluno\MatriculaConfirmadaNotification;
-use App\Services\Tenant\ConfirmacaoMatriculaService;
 use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);

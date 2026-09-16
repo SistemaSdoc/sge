@@ -5,6 +5,7 @@ namespace App\Services\Tenant\Menu;
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\AvisoController;
+use App\Http\Controllers\Tenant\CalendarioAnualController;
 use App\Http\Controllers\Tenant\ClasseController;
 use App\Http\Controllers\Tenant\Colegios\ColegioController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
@@ -16,11 +17,13 @@ use App\Http\Controllers\Tenant\NotaAlunoController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\ProfessorController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
+use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
+use App\Http\Controllers\Tenant\UserController;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Aviso;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\GrupoPap;
@@ -32,9 +35,11 @@ use App\Models\Tenant\RegraAvaliacao;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
+use App\Models\Tenant\User;
 use App\Services\Tenant\GrupoPap\GrupoPapNavigationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Models\Role;
 
 final class SidebarMenuService
 {
@@ -192,6 +197,14 @@ final class SidebarMenuService
                 ),
 
                 new MenuItem(
+                    key: 'calendario-anual',
+                    title: 'Calendários',
+                    href: action([CalendarioAnualController::class, 'index']),
+                    icon: 'Calendar1',
+                    can: true,
+                ),
+
+                new MenuItem(
                     key: 'solicitacao-lancamento-notas',
                     title: 'Solicitações de Lançamentos',
                     href: action([SolicitacaoEdicaoPautaController::class, 'index']),
@@ -220,6 +233,22 @@ final class SidebarMenuService
 
             new MenuGroup('Usuários', [
                 new MenuItem(
+                    key: 'usuarios',
+                    title: 'Usuários',
+                    href: action([UserController::class, 'index']),
+                    icon: 'UserCog',
+                    can: fn () => $gate->allows('viewAny', User::class),
+                ),
+
+                new MenuItem(
+                    key: 'roles',
+                    title: 'Funções e permissões',
+                    href: action([RoleController::class, 'index']),
+                    icon: 'ShieldCheck',
+                    can: fn () => $gate->allows('viewAny', Role::class),
+                ),
+
+                new MenuItem(
                     key: 'professores',
                     title: 'Professores',
                     href: action([ProfessorController::class, 'index']),
@@ -231,7 +260,7 @@ final class SidebarMenuService
                     key: 'alunos',
                     title: 'Alunos',
                     href: action([AlunoController::class, 'index']),
-                    icon: 'GraduationCap',
+                    icon: 'Users',
                     can: fn () => $gate->allows('viewAny', Aluno::class),
                 ),
             ]),
@@ -249,7 +278,7 @@ final class SidebarMenuService
                     })(),
                     icon: 'Building2',
                     can: fn () => $gate->allows('colegios.viewAny')
-                    && $user?->instituicao?->tipo === 'instituto',
+                        && $user?->instituicao?->tipo === 'instituto',
                 ),
             ]),
 
@@ -268,7 +297,7 @@ final class SidebarMenuService
                     href: route('tenant.dashboard.pagamentos.index'),
                     icon: 'CreditCard',
                     can: fn () => $gate->allows('pagamentos.viewAny')
-                    && $user?->instituicao?->tipo === 'colegio',
+                        && $user?->instituicao?->tipo === 'colegio',
                 ),
             ]),
 
@@ -279,6 +308,16 @@ final class SidebarMenuService
                     href: action([AvisoController::class, 'index']),
                     icon: 'Bell',
                     can: fn () => $gate->allows('viewAny', Aviso::class),
+                ),
+            ]),
+
+            new MenuGroup('Relatórios', [
+                new MenuItem(
+                    key: 'relatorios',
+                    title: 'Relatórios',
+                    href: route('tenant.dashboard.relatorios.index'),
+                    icon: 'BarChart3',
+                    can: true,
                 ),
             ]),
         ];

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Models\Central\AnoLectivo;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;

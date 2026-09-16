@@ -93,6 +93,7 @@ export default function Create() {
           setNotaTeste={setNotaTeste}
           entityLabel={entityLabel}
           temNotaTeste={temNotaTeste}
+          anosLectivos={anosLectivos}
           anoLectivoActual={anoLectivoActual}
         />
       )}

@@ -20,6 +20,13 @@ class RolePermissionSeeder extends Seeder
                 'instituicoes.update',
                 'colegios.viewAny',
 
+                // usuários
+                'usuarios.viewAny',
+                'usuarios.view',
+                'usuarios.create',
+                'usuarios.update',
+                'usuarios.delete',
+
                 // solicitacao-edicao-pauta
                 'solicitacao-edicao-pauta.viewAny',
                 'solicitacao-edicao-pauta.view',
@@ -142,13 +149,6 @@ class RolePermissionSeeder extends Seeder
                 // 'classes.update',
                 // 'classes.delete',
 
-                // Cursos
-                // 'cursos.viewAny',
-                // 'cursos.view',
-                // 'cursos.create',
-                // 'cursos.update',
-                // 'cursos.delete',
-
                 // Cursos Tutelados
                 'curso-tutelado.viewAny',
                 'curso-tutelado.view',
@@ -186,14 +186,20 @@ class RolePermissionSeeder extends Seeder
                 'documentos.exportar',
 
                 // Confirmação de Matrícula
-                'confirmacoes.viewAny',
-                'confirmacoes.confirmar',
+                'confirmacoes.matricula.viewAny',
+                'confirmacoes.matricula.confirmar',
             ],
 
             'Subdirector' => [
                 // Instituições
                 'instituicoes.view',
-                'instituicoes.update',
+
+                // usuários
+                'usuarios.viewAny',
+                'usuarios.view',
+                'usuarios.create',
+                'usuarios.update',
+                'usuarios.delete',
 
                 // Regra de Avaliação
                 'regra-avaliacao.viewAny',
@@ -295,13 +301,6 @@ class RolePermissionSeeder extends Seeder
                 // 'classes.update',
                 // 'classes.delete',
 
-                // Cursos
-                // 'cursos.viewAny',
-                // 'cursos.view',
-                // 'cursos.create',
-                // 'cursos.update',
-                // 'cursos.delete',
-
                 // Cursos Tutelados
                 'curso-tutelado.viewAny',
                 'curso-tutelado.view',
@@ -342,8 +341,8 @@ class RolePermissionSeeder extends Seeder
                 'relatorios.view',
 
                 // Confirmação de Matrícula
-                'confirmacoes.viewAny',
-                'confirmacoes.confirmar',
+                'confirmacoes.matricula.viewAny',
+                'confirmacoes.matricula.confirmar',
             ],
 
             'Secretaria' => [
@@ -424,12 +423,6 @@ class RolePermissionSeeder extends Seeder
                 'elementogrupopap.create',
                 'elementogrupopap.update',
 
-                // Cursos
-                // 'cursos.viewAny',
-                // 'cursos.view',
-                // 'cursos.create',
-                // 'cursos.update',
-
                 // Classes
                 // 'classes.viewAny',
                 // 'classes.view',
@@ -456,8 +449,8 @@ class RolePermissionSeeder extends Seeder
                 'itemspagaveis.update',
 
                 // Confirmação de Matrícula
-                'confirmacoes.viewAny',
-                'confirmacoes.confirmar',
+                'confirmacoes.matricula.viewAny',
+                'confirmacoes.matricula.confirmar',
             ],
 
             'Coordenador' => [
@@ -523,8 +516,8 @@ class RolePermissionSeeder extends Seeder
                 'curso-tutelado.update',
 
                 // Confirmação de Matrícula
-                'confirmacoes.viewAny',
-                'confirmacoes.confirmar',
+                'confirmacoes.matricula.viewAny',
+                'confirmacoes.matricula.confirmar',
             ],
 
             'Professor' => [
@@ -583,8 +576,6 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.corrigirTema',
                 'grupopap.definirTema',
             ],
-
-            'Candidato' => [],
         ];
 
         // Garante que todas as permissões existem no guard correto antes de sincronizar

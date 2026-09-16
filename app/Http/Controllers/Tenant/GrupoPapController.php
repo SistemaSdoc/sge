@@ -18,7 +18,7 @@ use App\Http\Resources\Tenant\GrupoPap\EditResource;
 use App\Http\Resources\Tenant\GrupoPap\ElementoResource;
 use App\Http\Resources\Tenant\GrupoPap\IndexResource;
 use App\Http\Resources\Tenant\GrupoPap\ShowResource;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;

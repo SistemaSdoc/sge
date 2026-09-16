@@ -89,7 +89,7 @@ export function GrelhaTable({
                 <TableRow className="bg-muted/72">
                   <TableHead className="px-4">Sigla</TableHead>
                   <TableHead className="px-4">Disciplina</TableHead>
-                  <TableHead className="min-w px-4">Professor</TableHead>
+                  <TableHead className="min-w px-4">Professor (a)</TableHead>
                 </TableRow>
               </TableHeader>
 

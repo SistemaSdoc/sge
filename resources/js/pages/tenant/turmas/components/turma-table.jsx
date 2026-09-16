@@ -58,7 +58,7 @@ export function TurmaTable({
             <CardDescription>
               Lista de turmas cadastradas no ano lectivo{' '}
               <span className="font-semibold">
-                {anosLectivos.find((ano) => ano.id === anoLectivoActual).nome}
+                {anosLectivos.find((ano) => ano.id === anoLectivoActual)?.nome ?? 'seleccionado'}
               </span>
             </CardDescription>
           </div>

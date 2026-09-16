@@ -1,5 +1,6 @@
 import {
   Bell,
+  BarChart3,
   BookOpen,
   Building2,
   ClipboardList,
@@ -17,12 +18,15 @@ import {
   ClipboardCheck,
   CalendarClock,
   Sheet,
+  Calendar1,
+  UserCog,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
 
 export const iconRegistry: Record<string, LucideIcon> = {
   Bell,
+  BarChart3,
   BookOpen,
   Building2,
   ClipboardList,
@@ -39,6 +43,8 @@ export const iconRegistry: Record<string, LucideIcon> = {
   ClipboardCheck,
   CalendarClock,
   Sheet,
+  Calendar1,
+  UserCog,
 };
 
 export function resolveIcon(name: string): LucideIcon {

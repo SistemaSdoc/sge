@@ -178,6 +178,11 @@
         {{-- Info Card --}}
         <div class="info-card">
             <div class="card-item">
+                <div class="card-label">Instituição</div>
+                <div class="card-value">{{ $nomeInstituicao }}</div>
+            </div>
+
+            <div class="card-item">
                 <div class="card-label">Grupo</div>
                 <div class="card-value">{{ $nomeGrupo }}</div>
             </div>

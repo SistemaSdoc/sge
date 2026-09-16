@@ -5,8 +5,11 @@ declare(strict_types=1);
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Tenant\Auth\NewPasswordController;
+use App\Http\Controllers\Tenant\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Tenant\AvisoController;
 use App\Http\Controllers\Tenant\BancaJuriPapController;
+use App\Http\Controllers\Tenant\CalendarioAnualController;
 use App\Http\Controllers\Tenant\CertificadoController;
 use App\Http\Controllers\Tenant\ClasseController as ClasseControllerGeral;
 use App\Http\Controllers\Tenant\ClasseTurnoDisciplinaController;
@@ -18,7 +21,6 @@ use App\Http\Controllers\Tenant\CursosController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\CursoTuteladoProfessorController;
 use App\Http\Controllers\Tenant\DashboardController;
-use App\Http\Controllers\Tenant\DisciplinaController as DisciplinaControllerGeral;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FichaMatriculaController;
@@ -41,12 +43,15 @@ use App\Http\Controllers\Tenant\PreencherHistoricoController;
 use App\Http\Controllers\Tenant\ProfessorController as ProfessorControllerGeral;
 use App\Http\Controllers\Tenant\ReciboController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
+use App\Http\Controllers\Tenant\RelatorioController;
 use App\Http\Controllers\Tenant\RelatorioPropinaController;
+use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
+use App\Http\Controllers\Tenant\UserPermissionController;
 use App\Http\Middleware\CheckTenantStatus;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +78,22 @@ Route::middleware([
     | Rotas de Autenticação de Tenant
     |--------------------------------------------------------------------------
     */
+
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
+        ->middleware('guest:tenant')
+        ->name('password.request');
+
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->middleware('guest:tenant')
+        ->name('password.email');
+
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+        ->middleware('guest:tenant')
+        ->name('password.reset');
+
+    Route::post('reset-password', [NewPasswordController::class, 'store'])
+        ->middleware('guest:tenant')
+        ->name('password.update');
 
     Route::get('/', [AuthenticatedSessionController::class, 'create'])
         ->middleware('guest:tenant')
@@ -128,10 +149,25 @@ Route::middleware([
             require base_path('routes/modules/notas.php');
             require base_path('routes/settings.php');
 
+            Route::get('users/{user}/permissions', [UserPermissionController::class, 'create'])
+                ->name('users.permissions.create');
+
+            Route::put('users/{user}/permissions', [UserPermissionController::class, 'update'])
+                ->name('users.permissions.update');
+
             Route::resource('users', UserController::class);
+            Route::resource('roles', RoleController::class)->except(['show']);
             Route::resource('alunos', AlunoController::class);
             Route::resource('avisos', AvisoController::class);
-            Route::resource('anos-lectivos', AnoLectivoController::class)->parameters(['anos-lectivos' => 'anoLectivo']);
+            Route::get('calendarios-anuais', [CalendarioAnualController::class, 'index'])
+                ->name('calendarios-anuais.index');
+            Route::get('calendarios-anuais/{calendarioAnual}/download', [CalendarioAnualController::class, 'download'])
+                ->name('calendarios-anuais.download');
+            Route::get('calendarios-anuais/{calendarioAnual}/view', [CalendarioAnualController::class, 'view'])
+                ->name('calendarios-anuais.view');
+            Route::resource('anos-lectivos', AnoLectivoController::class)
+                ->only(['index'])
+                ->parameters(['anos-lectivos' => 'anoLectivo']);
             Route::resource('regras-avaliacao', RegraAvaliacaoController::class)->parameters(['regras-avaliacao' => 'regraAvaliacao']);
 
             /*
@@ -224,6 +260,9 @@ Route::middleware([
             Route::get('instituicoes/{instituicao}/cursos-tutelados-cursos-disponiveis', [CursoTuteladoController::class, 'cursosDisponiveis'])
                 ->name('instituicoes.cursos-tutelados.cursos-disponiveis');
 
+            Route::get('{instituicao}/cursos-tutelados/curso-detalhes', [CursoTuteladoController::class, 'cursoDetalhes'])
+                ->name('tenant.dashboard.instituicoes.cursos-tutelados.curso-detalhes');
+
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/criterios-pap', [CursoTuteladoController::class, 'uploadCriteriosPap'])
                 ->name('instituicoes.cursos-tutelados.criterios-pap');
 
@@ -273,13 +312,17 @@ Route::middleware([
             Route::put('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'store'])
                 ->name('curso-classe-turno.store');
 
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/edit', [CursoClasseTurnoController::class, 'edit'])
+                ->name('curso-classe-turno.edit');
+
+            Route::patch('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'update'])
+                ->name('curso-classe-turno.update');
+
             /*
             |--------------------------------------------------------------------------
             | Disciplinas de Turnos de Classes
             |--------------------------------------------------------------------------
             */
-
-            Route::resource('disciplinas', DisciplinaControllerGeral::class);
 
             Route::resource('instituicoes.cursos-tutelados.classes.turnos.disciplinas', ClasseTurnoDisciplinaController::class)
                 ->parameters([
@@ -356,6 +399,13 @@ Route::middleware([
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/professores', [TurmaDisciplinaProfessorController::class, 'store'])
                 ->name('turma.disciplinas.professores.store');
 
+            /*
+            |--------------------------------------------------------------------------
+            | Relatorio geral do tenant
+            |--------------------------------------------------------------------------
+            */
+            Route::get('/relatorios', [RelatorioController::class, 'index'])
+                ->name('relatorios.index');
             /*
             |--------------------------------------------------------------------------
             | Horários de Disciplinas de Turmas

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Tenant\InstituicaoCurso;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\InstituicaoCurso\StoreProfessorRequest;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
@@ -13,6 +13,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
+use App\Rules\CentralAnoLectivoExists;
 use App\Traits\NotificaProfessor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -79,7 +80,7 @@ class TurmaDisciplinaProfessorController extends Controller
         Gate::authorize('definirProfessor', new TurmaDisciplinaProfessor);
 
         $request->validate([
-            'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',
+            'ano_lectivo_id' => ['nullable', 'uuid', new CentralAnoLectivoExists],
         ]);
 
         $jaExisteNaTurma = TurmaDisciplinaProfessor::where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)

@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
+use App\Rules\CentralAnoLectivoExists;
 use App\Services\Tenant\AprovacaoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -122,7 +123,7 @@ class ProgressaoController extends Controller
     ) {
         $validated = $request->validate([
             'turma_destino_id' => 'required|exists:turmas,id',
-            'ano_lectivo_id' => 'required|exists:ano_lectivos,id',
+            'ano_lectivo_id' => ['required', 'uuid', new CentralAnoLectivoExists],
         ]);
 
         $turmaDestino = Turma::findOrFail($validated['turma_destino_id']);
@@ -265,7 +266,7 @@ class ProgressaoController extends Controller
 
         $validated = $request->validate([
             'turma_destino_id' => 'required|exists:turmas,id',
-            'ano_lectivo_id' => 'required|exists:ano_lectivos,id',  // ✅ UUID
+            'ano_lectivo_id' => ['required', 'uuid', new CentralAnoLectivoExists],
         ]);
 
         $turmaDestino = Turma::findOrFail($validated['turma_destino_id']);

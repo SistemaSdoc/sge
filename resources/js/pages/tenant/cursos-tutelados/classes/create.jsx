@@ -11,6 +11,7 @@ import {
   Field,
   FieldLabel,
   FieldError,
+  FieldDescription,
   FieldGroup,
   FieldSet,
 } from '@/components/ui/field';
@@ -72,6 +73,9 @@ export default function Create({
                 {/* Turnos */}
                 <Field>
                   <FieldLabel>Turnos</FieldLabel>
+                  <FieldDescription>
+                    Seleccione os turnos em que esta classe estará disponível.
+                  </FieldDescription>
                   <MultipleSelect
                     placeholder="Selecione os turnos"
                     items={turnos?.map((t) => ({ value: t.id, label: t.nome }))}

@@ -2,38 +2,28 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Central\Tenant;
-use App\Services\Tenant\AnoLectivoConsistencyService;
+use App\Services\Central\AnoLectivoService;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
-use Stancl\Tenancy\Exceptions\TenantDatabaseDoesNotExistException;
 
 #[Signature('anoletivo:sincronizar')]
-#[Description('Sincroniza o ano letivo activo e cria o próximo antecipadamente')]
+#[Description('Verifica o ano lectivo activo na base central')]
 class SincronizarAnoLectivoCommand extends Command
 {
-    public function handle(AnoLectivoConsistencyService $service): int
+    public function handle(AnoLectivoService $service): int
     {
-        Tenant::all()->each(function (Tenant $tenant) use ($service): void {
-            try {
-                tenancy()->initialize($tenant);
-                $service->sincronizar();
-            } catch (TenantDatabaseDoesNotExistException $exception) {
-                Log::warning('Skipping tenant without database during academic year synchronization.', [
-                    'tenant_id' => $tenant->getTenantKey(),
-                    'exception' => $exception,
-                ]);
-            } finally {
-                if (tenancy()->initialized) {
-                    tenancy()->end();
-                }
-            }
-        });
+        $service->sincronizarEstado();
+        $anoLectivo = $service->current();
 
-        $this->info('Sincronização de ano letivo concluída.');
+        if ($anoLectivo === null) {
+            $this->warn('Nenhum ano lectivo activo encontrado na central.');
 
-        return 0;
+            return self::SUCCESS;
+        }
+
+        $this->info("Ano lectivo central activo: {$anoLectivo->nome}.");
+
+        return self::SUCCESS;
     }
 }
