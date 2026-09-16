@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Models\Tenant\User;

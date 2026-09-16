@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Central\AnoLectivoController;
 use App\Http\Controllers\Central\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Central\Auth\RegisteredController;
 use App\Http\Controllers\Central\CalendarioAnualController;
@@ -76,6 +77,17 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::resource('tenants', TenantController::class);
 
                 Route::resource('cursos', CursoController::class)->withTrashed(['show']);
+
+                Route::resource('anos-lectivos', AnoLectivoController::class)
+                    ->only(['index', 'create', 'store'])
+                    ->parameters(['anos-lectivos' => 'anoLectivo']);
+
+                Route::post('anos-lectivos/{anoLectivo}/arquivar', [AnoLectivoController::class, 'archive'])
+                    ->name('anos-lectivos.archive');
+
+                Route::post('anos-lectivos/{anoLectivo}/restaurar', [AnoLectivoController::class, 'restore'])
+                    ->withTrashed()
+                    ->name('anos-lectivos.restore');
 
                 Route::post('cursos/{curso}/restore', [CursoController::class, 'restore'])
                     ->withTrashed()

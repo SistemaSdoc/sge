@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Candidato;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\ClasseTurnoDisciplina;

@@ -2,7 +2,7 @@
 
 namespace App\Policies\Tenant;
 
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\User;
 
 class AnoLectivoPolicy

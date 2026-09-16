@@ -2,9 +2,9 @@
 
 namespace App\Actions\Tenant\Colegios\CursoTutelado;
 
+use App\Models\Central\AnoLectivo;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;

@@ -2,6 +2,7 @@
 
 namespace App\Services\Central\Menu;
 
+use App\Http\Controllers\Central\AnoLectivoController;
 use App\Http\Controllers\Central\CursoController;
 use App\Http\Controllers\Central\DisciplinaController;
 use App\Http\Controllers\Central\TenantController;
@@ -45,6 +46,14 @@ final class SidebarMenuService
                 ),
 
                 new MenuItem(
+                    key: 'anos-lectivos',
+                    title: 'Anos Lectivos',
+                    href: action([AnoLectivoController::class, 'index']),
+                    icon: 'CalendarClock',
+                    can: true,
+                ),
+
+                 new MenuItem(
                     key: 'disciplinas',
                     title: 'Disciplinas',
                     href: action([DisciplinaController::class, 'index']),

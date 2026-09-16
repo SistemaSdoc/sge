@@ -20,8 +20,6 @@ class TenantDatabaseSeeder extends Seeder
 
                 // TABELAS BASE
                 // InstituicaoSeeder::class,
-                // AnosLectivosSimulacaoSeeder::class,
-                // AnoLectivoSeeder::class,
                 // CursoSeeder::class,
                 ClasseSeeder::class,
                 TurnoSeeder::class,

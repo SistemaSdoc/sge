@@ -2,8 +2,8 @@
 
 namespace App\Services\Tenant;
 
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Disciplina;
 use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;

@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\PeriodoLancamentoNotas;

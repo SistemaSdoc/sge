@@ -1,24 +1,13 @@
-import { Link, router } from '@inertiajs/react';
-import { MoreHorizontalIcon, LayersIcon } from 'lucide-react';
+import { LayersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { Button } from '@/components/ui/button';
 
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 import {
   Table,
@@ -29,10 +18,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
-import {
-  create,
-  edit,
-} from '@/actions/App/Http/Controllers/Tenant/AnoLectivoController';
 
 const ESTADO_CONFIG = {
   planeado: {
@@ -97,15 +82,9 @@ function formatarData(data) {
 
 export default function AnoLectivoTable({
   anosLectivos = [],
-  can,
-  deleteFn,
   pagination = {},
   onPageChange,
 }) {
-  const hasAnyAction = anosLectivos.some(
-    (anoLectivo) => anoLectivo.can.update || anoLectivo.can.delete,
-  );
-
   const isEmpty = !anosLectivos || anosLectivos.length === 0;
 
   return (
@@ -121,16 +100,7 @@ export default function AnoLectivoTable({
             variant="table"
             icon={LayersIcon}
             title="Nenhum ano lectivo cadastrado"
-            description="Comece adicionando o primeiro ano lectivo à tabela"
-            action={
-              can?.create
-                ? {
-                    label: 'Adicionar ano lectivo',
-                    href: create().url,
-                    variant: 'outline',
-                  }
-                : undefined
-            }
+            description="Os anos lectivos são geridos na aplicação central."
           />
         ) : (
           <Table>

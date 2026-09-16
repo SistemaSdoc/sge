@@ -2,7 +2,7 @@
 
 namespace App\Models\Tenant;
 
-use App\Models\Central\Disciplina;
+use App\Models\Central\AnoLectivo;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\Pivot;

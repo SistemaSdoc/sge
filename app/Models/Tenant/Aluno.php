@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\Central\AnoLectivo;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -139,20 +140,12 @@ class Aluno extends Model
 
     public function scopeDoAnoLectivoActivo($query)
     {
-        return $query->where(function ($q) {
-            $q->whereHas('turmas', function ($q2) {
-                $q2->whereHas('anoLectivo', fn ($q3) => $q3->ativo());
-            })
-                ->orWhere(function ($q2) {
-                    $q2->whereDoesntHave('turmas')
-                        ->whereHas('inscricao.anoLectivo', fn ($q3) => $q3->ativo());
-                });
-        });
-    }
+        $anoLectivoId = AnoLectivo::activo()?->getKey();
 
-    // ============================================
-    // RELACIONAMENTOS
-    // ============================================
+        return $anoLectivoId === null
+            ? $query->whereRaw('1 = 0')
+            : $query->doAnoLectivo($anoLectivoId);
+    }
 
     public function user()
     {

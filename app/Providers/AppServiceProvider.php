@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Documento;
 use App\Models\Tenant\ItemPagavel;
@@ -11,6 +12,7 @@ use App\Models\Tenant\User;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Observers\PagamentoObserver;
 use App\Policies\Tenant\AcessManagementPolicy;
+use App\Policies\Tenant\AnoLectivoPolicy;
 use App\Policies\Tenant\ColegioPolicy;
 use App\Policies\Tenant\ConfirmacaoMatriculaPolicy;
 use App\Policies\Tenant\DocumentoPolicy;
@@ -55,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('horarios.viewAny', [HorarioPolicy::class, 'viewAny']);
 
         Gate::policy(ItemPagavel::class, ItemPagavelPolicy::class);
+        Gate::policy(AnoLectivo::class, AnoLectivoPolicy::class);
 
         Gate::policy(Documento::class, DocumentoPolicy::class);
         Gate::policy(TurmaAluno::class, ConfirmacaoMatriculaPolicy::class);

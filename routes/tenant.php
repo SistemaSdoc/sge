@@ -164,7 +164,9 @@ Route::middleware([
                 ->name('calendarios-anuais.download');
             Route::get('calendarios-anuais/{calendarioAnual}/view', [CalendarioAnualController::class, 'view'])
                 ->name('calendarios-anuais.view');
-            Route::resource('anos-lectivos', AnoLectivoController::class)->parameters(['anos-lectivos' => 'anoLectivo']);
+            Route::resource('anos-lectivos', AnoLectivoController::class)
+                ->only(['index'])
+                ->parameters(['anos-lectivos' => 'anoLectivo']);
             Route::resource('regras-avaliacao', RegraAvaliacaoController::class)->parameters(['regras-avaliacao' => 'regraAvaliacao']);
 
             /*

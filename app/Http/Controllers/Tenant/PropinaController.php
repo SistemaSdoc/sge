@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Propina;
 use App\Models\Tenant\Turma;
+use App\Rules\CentralAnoLectivoExists;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -66,7 +67,7 @@ class PropinaController extends Controller
 
         $data = $request->validate([
             'aluno_id' => ['required', 'uuid', 'exists:alunos,id'],
-            'ano_lectivo_id' => ['required', 'uuid', 'exists:ano_lectivos,id'],
+            'ano_lectivo_id' => ['required', 'uuid', new CentralAnoLectivoExists],
             'item_pagavel_id' => ['required', 'uuid', 'exists:item_pagaveis,id'],
             'mes' => ['nullable', 'integer', 'between:1,12'],
             'valor_devido' => ['required', 'numeric', 'min:0'],
@@ -87,7 +88,7 @@ class PropinaController extends Controller
 
         $data = $request->validate([
             'turma_id' => ['required', 'uuid', 'exists:turmas,id'],
-            'ano_lectivo_id' => ['required', 'uuid', 'exists:ano_lectivos,id'],
+            'ano_lectivo_id' => ['required', 'uuid', new CentralAnoLectivoExists],
             'item_pagavel_id' => ['required', 'uuid', 'exists:item_pagaveis,id'],
             'mes' => ['required', 'integer', 'between:1,12'],
             'data_vencimento' => ['required', 'date'],

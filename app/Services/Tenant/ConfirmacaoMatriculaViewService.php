@@ -2,7 +2,7 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;

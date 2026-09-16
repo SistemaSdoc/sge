@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Helpers\BrowsershotHelper;
 use App\Http\Controllers\Controller;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
@@ -156,7 +157,7 @@ class CertificadoController extends Controller
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
             ])
-            ->whereHas('anoLectivo', fn ($q) => $q->where('activo', true))
+            ->where('ano_lectivo_id', AnoLectivo::activo()?->getKey())
             ->first();
 
         if (! $turmaAluno) {

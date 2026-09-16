@@ -80,7 +80,7 @@ return [
     */
 
     'status_disponiveis' => [
-        'planejamento',
+        'planeado',
         'matriculas_abertas',
         'em_curso',
         'encerrado',
