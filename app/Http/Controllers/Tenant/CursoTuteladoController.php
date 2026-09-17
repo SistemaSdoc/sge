@@ -146,8 +146,7 @@ class CursoTuteladoController extends Controller
                 'instituicao' => [
                     'view' => $user->can('view', $instituicao),
                 ],
-                'uploadCriteriosPap' => $user->can('update', $cursoTutelado)
-                    && $cursoTutelado->tipo_tutela === 'propria',
+                'uploadCriteriosPap' => $user->can('update', $cursoTutelado),
             ],
         ]);
     }
