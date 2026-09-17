@@ -112,7 +112,7 @@ Route::middleware([
     */
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware(['auth:tenant', 'tenant.status'])
+        ->middleware(['auth:tenant', 'tenant.status','perfil.completo' ])
         ->name('tenant.dashboard');
 
     Route::middleware([
@@ -120,6 +120,7 @@ Route::middleware([
         'verified',
         'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno',
         CheckTenantStatus::class,
+        'perfil.completo', 
     ])
         ->prefix('dashboard')
         ->name('tenant.dashboard.')

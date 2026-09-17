@@ -16,6 +16,7 @@ use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use Stancl\Tenancy\Exceptions\TenantDatabaseDoesNotExistException;
+use App\Http\Middleware\Tenant\EnsurePerfilCompleto;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -37,6 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'propina.em.dia' => VerificarPropinaEmDia::class,
             'tenant.status' => CheckTenantStatus::class,
             'cross.tenant' => ValidateCrossTenantAccess::class,
+            'perfil.completo' => EnsurePerfilCompleto::class,
         ]);
 
         $middleware->redirectGuestsTo(function () {

@@ -96,4 +96,7 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->belongsTo(Instituicao::class, 'instituicao_id');
     }
+
+
+
 }

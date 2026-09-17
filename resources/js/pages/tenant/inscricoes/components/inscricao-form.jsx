@@ -39,7 +39,7 @@ export default function InscricaoForm({
   anoLectivoActual,
 }) {
   const classes = cursoSelecionado?.classes ?? [];
-  const classeSelecionada = classes?.find(
+  const classeSelecionada = classes.find(
     (cl) => String(cl.id) === String(classeId),
   );
   const temTurnos = classeSelecionada?.turnos?.length > 0;
@@ -69,129 +69,44 @@ export default function InscricaoForm({
 
           <FieldGroup>
             <FieldSet>
+              {/* ─── Identificação mínima ─── */}
               <Field>
                 <FieldLabel>Nome do estudante</FieldLabel>
                 <Input
                   name="nome"
                   disabled={processing}
                   placeholder="Ex.: João Silva"
+                  required
                 />
                 {errors.nome && <FieldError>{errors.nome}</FieldError>}
               </Field>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <Field>
-                  <FieldLabel>Nome do pai</FieldLabel>
-                  <Input
-                    name="nome_pai"
-                    disabled={processing}
-                    placeholder="Ex.: João Silva"
-                  />
-                  {errors.nome_pai && (
-                    <FieldError>{errors.nome_pai}</FieldError>
-                  )}
-                </Field>
-
-                <Field>
-                  <FieldLabel>Nome da mãe</FieldLabel>
-                  <Input
-                    name="nome_mae"
-                    disabled={processing}
-                    placeholder="Ex.: Maria Silva"
-                  />
-                  {errors.nome_mae && (
-                    <FieldError>{errors.nome_mae}</FieldError>
-                  )}
-                </Field>
-              </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Field>
-                  <FieldLabel>Nº Bilhete</FieldLabel>
+                  <FieldLabel>Nº Bilhete de Identidade</FieldLabel>
                   <Input
                     name="bi"
                     disabled={processing}
                     placeholder="Ex.: 020419607LA096"
+                    required
                   />
                   {errors.bi && <FieldError>{errors.bi}</FieldError>}
                 </Field>
 
                 <Field>
-                  <FieldLabel>Data de Nascimento</FieldLabel>
-                  <Input type="date" name="data_nascimento" />
-                  {errors.data_nascimento && (
-                    <FieldError>{errors.data_nascimento}</FieldError>
-                  )}
+                  <FieldLabel>E-mail</FieldLabel>
+                  <Input
+                    name="email"
+                    type="email"
+                    disabled={processing}
+                    placeholder="Ex.: email@exemplo.com"
+                    required
+                  />
+                  {errors.email && <FieldError>{errors.email}</FieldError>}
                 </Field>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <Field>
-                  <FieldLabel>Nacionalidade</FieldLabel>
-                  <Input
-                    name="nacionalidade"
-                    disabled={processing}
-                    placeholder="Ex.: Angolana"
-                  />
-                  {errors.nacionalidade && (
-                    <FieldError>{errors.nacionalidade}</FieldError>
-                  )}
-                </Field>
-
-                <Field>
-                  <FieldLabel>Naturalidade</FieldLabel>
-                  <Input
-                    name="naturalidade"
-                    disabled={processing}
-                    placeholder="Ex.: Luanda"
-                  />
-                  {errors.naturalidade && (
-                    <FieldError>{errors.naturalidade}</FieldError>
-                  )}
-                </Field>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <Field>
-                  <FieldLabel>Município</FieldLabel>
-                  <Input
-                    name="municipio"
-                    disabled={processing}
-                    placeholder="Ex.: Belas"
-                  />
-                  {errors.municipio && (
-                    <FieldError>{errors.municipio}</FieldError>
-                  )}
-                </Field>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <Field>
-                  <FieldLabel>Morada</FieldLabel>
-                  <Input
-                    name="morada"
-                    disabled={processing}
-                    placeholder="Ex.: Luanda Sul"
-                  />
-                  {errors.morada && <FieldError>{errors.morada}</FieldError>}
-                </Field>
-                <Field>
-                  <FieldLabel>Género</FieldLabel>
-                  <Select name="genero" disabled={processing} defaultValue="M">
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione um género" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Géneros</SelectLabel>
-                        <SelectItem value="M">Masculino</SelectItem>
-                        <SelectItem value="F">Feminino</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  {errors.genero && <FieldError>{errors.genero}</FieldError>}
-                </Field>
-              </div>
-
+              {/* ─── Escondidos ─── */}
               <input
                 type="hidden"
                 name="ano_lectivo_id"
@@ -203,69 +118,7 @@ export default function InscricaoForm({
                 value={cursoClasseTurnoId ?? ''}
               />
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <Field>
-                  <FieldLabel>Telefone</FieldLabel>
-                  <div className="flex">
-                    <span className="flex items-center justify-center border border-r-0 px-3 py-1 text-xs text-muted-foreground">
-                      +244
-                    </span>
-                    <Input
-                      name="telefone"
-                      type="tel"
-                      disabled={processing}
-                      placeholder="Ex.: 950000000"
-                    />
-                  </div>
-                  {errors.telefone && (
-                    <FieldError>{errors.telefone}</FieldError>
-                  )}
-                </Field>
-
-                <Field>
-                  <FieldLabel>E-mail</FieldLabel>
-                  <Input
-                    name="email"
-                    type="email"
-                    disabled={processing}
-                    placeholder="Ex.: email@exemplo.com"
-                  />
-                  {errors.email && <FieldError>{errors.email}</FieldError>}
-                </Field>
-              </div>
-
-              {/* <Field>
-                <FieldLabel>{entityLabel}</FieldLabel>
-                <Select
-                  value={instituicaoId}
-                  onValueChange={setInstituicaoId}
-                  disabled={processing}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={`Selecione ${entityLabelText.toLowerCase()}`} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Instituições</SelectLabel>
-                      {instituicoes.map((i) => (
-                        <SelectItem key={i.id} value={String(i.id)}>
-                          {i.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                {errors.instituicao_id && (
-                  <FieldError>{errors.instituicao_id}</FieldError>
-                )}
-              </Field> */}
-
-              <input
-                type="hidden"
-                name="ano_lectivo_id"
-                value={anoLectivoActual || ''}
-              />
-
+              {/* ─── Curso / Classe / Turno ─── */}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 <Field>
                   <FieldLabel>Curso</FieldLabel>
@@ -287,6 +140,7 @@ export default function InscricaoForm({
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                  {errors.curso_id && <FieldError>{errors.curso_id}</FieldError>}
                 </Field>
 
                 <Field>
@@ -353,6 +207,7 @@ export default function InscricaoForm({
                 </Field>
               </div>
 
+              {/* ─── Turma + Nota ─── */}
               {temNotaTeste && (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <Field>
@@ -369,7 +224,7 @@ export default function InscricaoForm({
                               ? 'Selecione um turno primeiro'
                               : !temTurmas
                                 ? 'Nenhuma turma disponível'
-                                : 'Selecione uma turma (opcional)'
+                                : 'Selecione uma turma'
                           }
                         />
                       </SelectTrigger>
@@ -392,6 +247,7 @@ export default function InscricaoForm({
                   <Field>
                     <FieldLabel>Nota do Teste / Prova</FieldLabel>
                     <Input
+                      name="nota_teste"
                       type="number"
                       step="0.1"
                       min="0"
@@ -407,22 +263,10 @@ export default function InscricaoForm({
                   </Field>
                 </div>
               )}
-              {/*  nº de estudante
-              <Field>
-                <FieldLabel>Nº Estudante</FieldLabel>
-                <Input
-                  name="numero_estudante"
-                  disabled
-                  placeholder="Ex.: ES2026/034"
-                />
-                {errors.numero_estudante && (
-                  <FieldError>{errors.numero_estudante}</FieldError>
-                )}
-              </Field>
-                  */}
+
               <Field>
                 <Button type="submit" disabled={processing}>
-                  Matricular
+                  {processing ? 'A registar…' : 'Matricular'}
                 </Button>
               </Field>
             </FieldSet>

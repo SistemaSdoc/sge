@@ -586,6 +586,12 @@ class NotificacaoController extends Controller
                 'meses'       => $data['meses'] ?? [],
                 'valor_total' => $data['valor_total'] ?? null,
             ],
+            // ===== PERFIL =====
+            'perfil_incompleto' => [
+                'titulo'   => 'Alerta! Complete o seu perfil',
+                'mensagem' => 'O seu acesso está limitado. Preencha os dados obrigatórios para continuar.',
+                'url'      => '/dashboard/settings/profile',
+            ],
 
             // ===== DEFAULT =====
             default => [
