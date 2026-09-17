@@ -17,9 +17,9 @@ class CursoTuteladoResourceShow extends JsonResource
         $currentPageProfessores = $request->input('page_professores', 1);
 
         $turmasCollection = $this->cursoClasses
-            ->flatMap(fn($cc) => $cc->turnos)
-            ->flatMap(fn($cct) => $cct->turmas)
-            ->map(fn($turma) => [
+            ->flatMap(fn ($cc) => $cc->turnos)
+            ->flatMap(fn ($cct) => $cct->turmas)
+            ->map(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'max_alunos' => $turma->max_alunos,
@@ -82,6 +82,7 @@ class CursoTuteladoResourceShow extends JsonResource
             : $sharedAtivo;
 
         $docs = $this->resolverDocumentosPap();
+
         return [
             'id' => $this->id,
             'curso' => [
@@ -111,14 +112,14 @@ class CursoTuteladoResourceShow extends JsonResource
                 'turmas' => $turmasCollection->count(),
                 'professores' => $professoresCollection->count(),
                 'disciplinas' => $this->cursoClasses
-                    ->flatMap(fn($cc) => $cc->turnos)
-                    ->flatMap(fn($cct) => $cct->classeTurnoDisciplinas)
+                    ->flatMap(fn ($cc) => $cc->turnos)
+                    ->flatMap(fn ($cct) => $cct->classeTurnoDisciplinas)
                     ->count(),
             ],
             'classes' => $this->cursoClasses->map(fn ($cc) => [
                 'id' => $cc->id,
                 'nome' => $cc->classe->nome,
-                'turnos' => $cc->turnos->map(fn($cct) => $cct->turno->nome),
+                'turnos' => $cc->turnos->map(fn ($cct) => $cct->turno->nome),
             ]),
             'professores' => $professores->toArray(),
             'turmas' => $turmas->toArray(),

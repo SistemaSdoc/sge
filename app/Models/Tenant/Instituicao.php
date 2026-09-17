@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 #[Fillable([
     'nome',
@@ -34,7 +35,7 @@ class Instituicao extends Model
 
     public function getLogoUrlAttribute(): ?string
     {
-        return $this->logo ? tenant_asset($this->logo) : null;
+        return $this->logo ? Storage::disk('public')->url($this->logo) : null;
     }
 
     public function tenant(): BelongsTo

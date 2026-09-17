@@ -159,7 +159,7 @@ class TutelaTenantService
             $updated = GrupoPap::query()
                 ->whereHas(
                     'turma.cursoClasseTurno.cursoClasse',
-                    fn($query) => $query->whereKey($cursoTutelado->getKey())
+                    fn ($query) => $query->whereKey($cursoTutelado->getKey())
                 )
                 ->where('status', '!=', 'concluido')
                 ->where('status_aprovacao', '!=', 'arquivado')
@@ -183,7 +183,7 @@ class TutelaTenantService
     {
         $tenant = tenancy()->tenant;
 
-        if (!$tenant instanceof Tenant) {
+        if (! $tenant instanceof Tenant) {
             throw new \LogicException('O tenancy deve estar inicializado para executar uma operação tenant.');
         }
 

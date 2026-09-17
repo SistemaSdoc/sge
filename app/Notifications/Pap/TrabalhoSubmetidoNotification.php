@@ -3,13 +3,17 @@
 namespace App\Notifications\Pap;
 
 use App\Models\Tenant\GrupoPap;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TrabalhoSubmetidoNotification extends Notification
+class TrabalhoSubmetidoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(public GrupoPap $grupoPap, public ?string $urlExterno = null) {}
 
@@ -18,7 +22,7 @@ class TrabalhoSubmetidoNotification extends Notification
         return ['database', 'mail'];
     }
 
-   public function toMail(object $notifiable): MailMessage
+    public function toMail(object $notifiable): MailMessage
     {
         $turma = $this->grupoPap->turma;
         $turno = $turma->cursoClasseTurno;
@@ -48,7 +52,7 @@ class TrabalhoSubmetidoNotification extends Notification
             ]);
     }
 
-     public function toArray(object $notifiable): array
+    public function toArray(object $notifiable): array
     {
         $cursoTutelado = $this->grupoPap->turma
             ?->cursoClasseTurno

@@ -3,14 +3,19 @@
 namespace App\Notifications\Aluno;
 
 use App\Models\Tenant\Pagamento;
+use App\Notifications\Concerns\ReliableNotification;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Storage;
 
-class PagamentoRegistadoNotification extends Notification
+class PagamentoRegistadoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public Pagamento $pagamento,
@@ -29,8 +34,8 @@ class PagamentoRegistadoNotification extends Notification
             ->subject('Pagamento registado com sucesso')
             ->view('mail.aluno.pagamento-registado', [
                 'nome' => $notifiable->nome,
-                'valorTotal' => number_format($this->pagamento->valor_total, 2, ',', '.'),
-                'dataPagamento' => $this->pagamento->data_pagamento->format('d/m/Y'),
+                'valorTotal' => $this->valorFormatado(),
+                'dataPagamento' => $this->dataFormatada(),
                 'metodo' => $this->pagamento->metodo,
                 'referencia' => $this->pagamento->referencia,
                 'numeroRecibo' => $this->pagamento->numero_recibo,
@@ -59,11 +64,25 @@ class PagamentoRegistadoNotification extends Notification
         return [
             'tipo' => 'pagamento_registado',
             'titulo' => 'Pagamento registado',
-            'mensagem' => 'O seu pagamento de '.number_format($this->pagamento->valor_total, 2, ',', '.').' AOA foi registado com sucesso.',
+            'mensagem' => 'O seu pagamento de '.$this->valorFormatado().' AOA foi registado com sucesso.',
             'pagamento_id' => $this->pagamento->id,
             'valor_total' => $this->pagamento->valor_total,
-            'data_pagamento' => $this->pagamento->data_pagamento->format('d/m/Y'),
+            'data_pagamento' => $this->dataFormatada(),
             'numero_recibo' => $this->pagamento->numero_recibo,
         ];
+    }
+
+    private function valorFormatado(): string
+    {
+        return number_format((float) ($this->pagamento->valor_total ?? 0), 2, ',', '.');
+    }
+
+    private function dataFormatada(): ?string
+    {
+        $dataPagamento = $this->pagamento->data_pagamento;
+
+        return $dataPagamento
+            ? Carbon::parse((string) $dataPagamento)->format('d/m/Y')
+            : null;
     }
 }

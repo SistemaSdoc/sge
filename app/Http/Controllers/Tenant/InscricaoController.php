@@ -11,7 +11,6 @@ use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
-use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\InscricaoService;
 use Illuminate\Support\Facades\Auth;

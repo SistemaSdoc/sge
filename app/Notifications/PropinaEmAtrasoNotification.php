@@ -4,17 +4,20 @@ namespace App\Notifications;
 
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Instituicao;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class PropinaEmAtrasoNotification extends Notification implements ShouldQueue
+class PropinaEmAtrasoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     /**
      * @param  int  $totalMeses  Número total de meses em atraso

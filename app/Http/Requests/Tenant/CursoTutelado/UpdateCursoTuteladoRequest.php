@@ -54,7 +54,7 @@ class UpdateCursoTuteladoRequest extends FormRequest
         $validator->after(function (Validator $validator): void {
             $tenantTutorId = $this->input('tenant_tutor_id');
 
-            if (!$tenantTutorId) {
+            if (! $tenantTutorId) {
                 return;
             }
 
@@ -70,7 +70,7 @@ class UpdateCursoTuteladoRequest extends FormRequest
                 return;
             }
 
-            if (!$cursoId || !app(TenantService::class)->tutorOffersCourse((string) $tenantTutorId, (string) $cursoId)) {
+            if (! $cursoId || ! app(TenantService::class)->tutorOffersCourse((string) $tenantTutorId, (string) $cursoId)) {
                 $validator->errors()->add(
                     'tenant_tutor_id',
                     'A instituição seleccionada não lecciona este curso.'
@@ -81,7 +81,7 @@ class UpdateCursoTuteladoRequest extends FormRequest
 
             $tenant = Tenant::query()->find($tenantTutorId);
 
-            if (!$tenant) {
+            if (! $tenant) {
                 $validator->errors()->add(
                     'tenant_tutor_id',
                     'A instituição tutora seleccionada não está disponível.'

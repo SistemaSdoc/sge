@@ -18,9 +18,7 @@ use Illuminate\Validation\ValidationException;
  */
 class UpdateCursoTutelado
 {
-    public function __construct(private readonly TutelaService $tutelaService)
-    {
-    }
+    public function __construct(private readonly TutelaService $tutelaService) {}
 
     /**
      * Aplica as alterações da associação local e da instituição tutora.
@@ -61,7 +59,7 @@ class UpdateCursoTutelado
 
                 }
 
-                if (!$tutelaPendente) {
+                if (! $tutelaPendente) {
                     $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
                     $this->tutelaService->publicarEAssociarCurso($cursoTutelado, $instituicaoTutora);
                 }
@@ -147,7 +145,7 @@ class UpdateCursoTutelado
 
             $cursoTutelado->classes()->sync(
                 collect($validated['classes'])
-                    ->mapWithKeys(fn(string $classeId): array => [
+                    ->mapWithKeys(fn (string $classeId): array => [
                         $classeId => [
                             'nivel_ensino_id' => $validated['nivel_ensino_id'],
                         ],

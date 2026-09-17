@@ -25,21 +25,21 @@ class ShowResource extends JsonResource
         ];
 
         return [
-            'id'                    => $this->id,
-            'nome_grupo'            => $this->nome_grupo,
-            'tema_grupo'            => $this->tema_grupo,
-            'estudo_caso'           => $this->estudo_caso,
-            'status'                => $this->status,
-            'objectivos'            => $this->objectivos,
-            'problema'              => $this->problema,
-            'status_aprovacao'      => $this->status_aprovacao,
-            'comentario_aprovacao'  => $this->comentario_aprovacao,
-            'nota_final'            => $this->nota_final,
-            'data_defesa'           => $this->data_defesa?->toIso8601String(),
-            'local_defesa'          => $this->local_defesa,
+            'id' => $this->id,
+            'nome_grupo' => $this->nome_grupo,
+            'tema_grupo' => $this->tema_grupo,
+            'estudo_caso' => $this->estudo_caso,
+            'status' => $this->status,
+            'objectivos' => $this->objectivos,
+            'problema' => $this->problema,
+            'status_aprovacao' => $this->status_aprovacao,
+            'comentario_aprovacao' => $this->comentario_aprovacao,
+            'nota_final' => $this->nota_final,
+            'data_defesa' => $this->data_defesa?->toIso8601String(),
+            'local_defesa' => $this->local_defesa,
             'professor' => $this->professor ? [
-                'id'    => $this->professor->id,
-                'nome'  => $this->professor->user->nome,
+                'id' => $this->professor->id,
+                'nome' => $this->professor->user->nome,
                 'email' => $this->professor->user->email,
             ] : null,
             'turma' => $this->turma ? [
@@ -55,7 +55,7 @@ class ShowResource extends JsonResource
                 ? $this->publicStorageUrl($docs['estrutura_trabalho_pap_path'])
                 : null,
             'aprovado_por' => $this->aprovadoPor ? [
-                'id'   => $this->aprovadoPor->id,
+                'id' => $this->aprovadoPor->id,
                 'nome' => $this->aprovadoPor->nome ?? null,
             ] : null,
         ];

@@ -2,17 +2,20 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Notifica o instituto actual para aprovar a troca de tutela.
  */
-class TrocaTutelaNotification extends Notification implements ShouldQueue
+class TrocaTutelaNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public string $instituicaoNova,
@@ -22,9 +25,7 @@ class TrocaTutelaNotification extends Notification implements ShouldQueue
         public string $tenantTutorAnteriorId,
         public ?string $cursoTuteladoSharedAnteriorId = null,
         public string $url = '',
-    ) {
-        $this->afterCommit();
-    }
+    ) {}
 
     /**
      * @return array<int, string>

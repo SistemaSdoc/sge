@@ -1,6 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Field,
   FieldError,
@@ -60,7 +66,8 @@ export default function InscricaoForm({
             Preencha os dados para efectuar a matrícula no ano lectivo{' '}
             <span className="font-medium text-foreground">
               {anoLectivoNome ?? 'actual'}
-            </span>.
+            </span>
+            .
           </CardDescription>
         </CardHeader>
 

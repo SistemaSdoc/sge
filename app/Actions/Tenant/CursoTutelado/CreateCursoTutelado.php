@@ -10,16 +10,13 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\NivelEnsino;
 use App\Services\Tenant\Tutela\TutelaService;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class CreateCursoTutelado
 {
-    public function __construct(private readonly TutelaService $tutelaService)
-    {
-    }
+    public function __construct(private readonly TutelaService $tutelaService) {}
 
     /**
      * @param  array{curso_id: string, nivel_ensino_id: string, classe_ids: array<int, string>, tenant_tutor_id?: string|null}  $validated

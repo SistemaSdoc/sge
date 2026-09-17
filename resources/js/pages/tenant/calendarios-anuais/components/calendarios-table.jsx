@@ -28,7 +28,7 @@ import {
 import {
   download,
   view,
-} from '@/actions/App/Http/Controllers/Central/CalendarioAnualController';
+} from '@/actions/App/Http/Controllers/Tenant/CalendarioAnualController';
 import TablePagination from '@/components/table-pagination';
 
 export default function CalendariosTable({

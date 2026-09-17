@@ -12,7 +12,7 @@ class UserManagementService
     {
         return User::query()
             ->with('roles:id,name')
-            ->when(!$actor->isSuperAdmin(), fn($query) => $query->where('instituicao_id', $actor->instituicao_id))
+            ->when(! $actor->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $actor->instituicao_id))
             ->orderBy('nome')
             ->orderBy('id')
             ->paginate(15)

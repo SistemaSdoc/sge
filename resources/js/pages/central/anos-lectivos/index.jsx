@@ -91,20 +91,24 @@ export default function Index({ anosLectivos }) {
       description: `O ano lectivo ${anoLectivo.nome} será arquivado e poderá ser restaurado mais tarde.`,
       confirmLabel: 'Arquivar',
       confirmFn: () =>
-        router.post(archive(anoLectivo.id).url, {}, {
-          onError: (errors) => {
-            const message =
-              errors?.ano_inicio ??
-              `O ano lectivo ${anoLectivo.nome} não pode ser arquivado porque está activo e é a referência central actualmente usada pelos tenants. O arquivamento ficará disponível quando este ano deixar de estar activo; a mudança para o próximo ano é automática.`;
+        router.post(
+          archive(anoLectivo.id).url,
+          {},
+          {
+            onError: (errors) => {
+              const message =
+                errors?.ano_inicio ??
+                `O ano lectivo ${anoLectivo.nome} não pode ser arquivado porque está activo e é a referência central actualmente usada pelos tenants. O arquivamento ficará disponível quando este ano deixar de estar activo; a mudança para o próximo ano é automática.`;
 
-            closeDialog();
-            alert({
-              title: 'Ano lectivo não pode ser arquivado',
-              description: message,
-              confirmLabel: 'Entendi',
-            });
+              closeDialog();
+              alert({
+                title: 'Ano lectivo não pode ser arquivado',
+                description: message,
+                confirmLabel: 'Entendi',
+              });
+            },
           },
-        }),
+        ),
     });
   };
 
@@ -132,7 +136,8 @@ export default function Index({ anosLectivos }) {
           <CardHeader className="border-b">
             <CardTitle>Anos Lectivos</CardTitle>
             <CardDescription>
-              Gestão central dos anos lectivos sincronizados com as instituições.
+              Gestão central dos anos lectivos sincronizados com as
+              instituições.
             </CardDescription>
 
             <CardAction>
@@ -158,8 +163,12 @@ export default function Index({ anosLectivos }) {
               <TableBody>
                 {anosLectivos.data.map((anoLectivo) => (
                   <TableRow key={anoLectivo.id}>
-                    <TableCell className="px-4 font-medium">{anoLectivo.nome}</TableCell>
-                    <TableCell>{formatarData(anoLectivo.data_inicio)}</TableCell>
+                    <TableCell className="px-4 font-medium">
+                      {anoLectivo.nome}
+                    </TableCell>
+                    <TableCell>
+                      {formatarData(anoLectivo.data_inicio)}
+                    </TableCell>
                     <TableCell>{formatarData(anoLectivo.data_fim)}</TableCell>
                     <TableCell className="text-center">
                       <EstadoBadge estado={anoLectivo.estado} />

@@ -2,17 +2,20 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Informa o colégio de que a instituição tutora rejeitou a troca.
  */
-class TrocaTutelaRejeitadaNotification extends Notification implements ShouldQueue
+class TrocaTutelaRejeitadaNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public string $instituicaoRejeitou,
@@ -20,9 +23,7 @@ class TrocaTutelaRejeitadaNotification extends Notification implements ShouldQue
         public string $cursoNome,
         public string $sharedId,
         public string $url = '',
-    ) {
-        $this->afterCommit();
-    }
+    ) {}
 
     /**
      * @return array<int, string>

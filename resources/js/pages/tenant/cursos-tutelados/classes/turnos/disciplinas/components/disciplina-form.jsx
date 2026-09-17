@@ -69,7 +69,6 @@ export default function DisciplinaForm({
         <CardContent className="pt-6">
           <FieldGroup>
             <FieldSet>
-
               {/* ANO LECTIVO */}
 
               <Field>

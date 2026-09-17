@@ -45,10 +45,14 @@ export default function AnoLectivoForm({
                     min="2000"
                     max="2200"
                     value={data.ano_inicio}
-                    onChange={(event) => setData('ano_inicio', event.target.value)}
+                    onChange={(event) =>
+                      setData('ano_inicio', event.target.value)
+                    }
                     disabled={title.startsWith('Editar')}
                   />
-                  {errors.ano_inicio && <FieldError>{errors.ano_inicio}</FieldError>}
+                  {errors.ano_inicio && (
+                    <FieldError>{errors.ano_inicio}</FieldError>
+                  )}
                 </Field>
 
                 <Field>

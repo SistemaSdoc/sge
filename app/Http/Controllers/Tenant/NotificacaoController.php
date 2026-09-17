@@ -162,7 +162,7 @@ class NotificacaoController extends Controller
 
         Log::debug('NotificacaoController@marcarLida', ['notificacao_id' => $id]);
 
-        return response()->noContent();
+        return Redirect::back();
     }
 
     public function marcarTodasLidas(Request $request)
@@ -171,7 +171,7 @@ class NotificacaoController extends Controller
 
         Log::debug('NotificacaoController@marcarTodasLidas', ['user_id' => $request->user()->id]);
 
-        return response()->noContent();
+        return Redirect::back();
     }
 
     private function serializar(object $notification, bool $detalhada = false): array

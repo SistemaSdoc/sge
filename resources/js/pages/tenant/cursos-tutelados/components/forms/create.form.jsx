@@ -307,7 +307,9 @@ export function CursoForm({
                           label: classes?.find((c) => c.id === id)?.nome ?? id,
                         }))}
                       />
-                      {errors.classes && <FieldError>{errors.classes}</FieldError>} 
+                      {errors.classes && (
+                        <FieldError>{errors.classes}</FieldError>
+                      )}
                     </Field>
                   </>
                 )}

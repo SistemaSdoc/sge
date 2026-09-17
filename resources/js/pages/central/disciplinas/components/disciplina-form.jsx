@@ -70,7 +70,9 @@ export function DisciplinaForm({
                   </Field>
 
                   <Field>
-                    <FieldLabel htmlFor="carga_horaria">Carga horária</FieldLabel>
+                    <FieldLabel htmlFor="carga_horaria">
+                      Carga horária
+                    </FieldLabel>
                     <Input
                       id="carga_horaria"
                       type="number"
@@ -102,7 +104,9 @@ export function DisciplinaForm({
                         <SelectGroup>
                           <SelectLabel>Componente curricular</SelectLabel>
                           <SelectItem value="none">Não definido</SelectItem>
-                          <SelectItem value="sociocultural">Sociocultural</SelectItem>
+                          <SelectItem value="sociocultural">
+                            Sociocultural
+                          </SelectItem>
                           <SelectItem value="cientifica">Científica</SelectItem>
                           <SelectItem value="tecnica">Técnica</SelectItem>
                         </SelectGroup>
@@ -117,7 +121,9 @@ export function DisciplinaForm({
                     <FieldLabel>Status</FieldLabel>
                     <Select
                       value={String(data.status)}
-                      onValueChange={(value) => setData('status', Number(value))}
+                      onValueChange={(value) =>
+                        setData('status', Number(value))
+                      }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Seleccione o status" />

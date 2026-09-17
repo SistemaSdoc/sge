@@ -102,7 +102,9 @@ export function TurmaForm({
                   <Select
                     id="ano_lectivo_id"
                     value={data.ano_lectivo_id ?? ''}
-                    onValueChange={(value) => setData('ano_lectivo_id', value || null)}
+                    onValueChange={(value) =>
+                      setData('ano_lectivo_id', value || null)
+                    }
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione ano lectivo" />

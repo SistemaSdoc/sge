@@ -56,7 +56,6 @@ export default function CalendariosTable({
               Adicionar
             </Button>
           </CardAction>
-
         </CardHeader>
         <CardContent className="p-0!">
           {isEmpty ? (
@@ -135,10 +134,7 @@ export default function CalendariosTable({
             </Table>
           )}
         </CardContent>
-        <TablePagination
-          pagination={pagination}
-          onPageChange={onPageChange}
-        />
+        <TablePagination pagination={pagination} onPageChange={onPageChange} />
       </Card>
     </div>
   );

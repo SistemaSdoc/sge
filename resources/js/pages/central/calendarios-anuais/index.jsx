@@ -4,6 +4,7 @@ import {
   destroy,
   update,
 } from '@/actions/App/Http/Controllers/Central/CalendarioAnualController';
+import { index } from '@/routes/central/dashboard/calendarios-anuais';
 import { useDialog } from '@/hooks/use-dialog';
 import { useDrawerStore } from '@/stores/drawer.store';
 import CalendarioForm from './components/calendario-form';
@@ -60,15 +61,14 @@ export default function Index({ calendarios }) {
   const remove = (calendario) => {
     deleteConfirm({
       title: 'Tens a certeza?',
-      description:
-        'O calendário anual será removido.',
+      description: 'O calendário anual será removido.',
       confirmLabel: 'Remover',
       confirmFn: () => router.delete(destroy(calendario.id).url),
     });
   };
 
   const handlePageChange = (page) => {
-    router.visit(window.location.pathname, {
+    router.visit(index().url, {
       data: { page },
       preserveScroll: true,
     });
@@ -77,6 +77,7 @@ export default function Index({ calendarios }) {
   return (
     <>
       <Head title="Calendários anuais" />
+
       <input
         ref={replaceInput}
         type="file"
@@ -84,6 +85,7 @@ export default function Index({ calendarios }) {
         className="hidden"
         onChange={submitReplacement}
       />
+
       <CalendariosTable
         calendarios={calendarios.data}
         onToggle={toggle}

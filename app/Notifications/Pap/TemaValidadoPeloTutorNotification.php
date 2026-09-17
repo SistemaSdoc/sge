@@ -3,17 +3,19 @@
 namespace App\Notifications\Pap;
 
 use App\Models\Tenant\GrupoPap;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TemaValidadoPeloTutorNotification extends Notification
+class TemaValidadoPeloTutorNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
-    public function __construct(public GrupoPap $grupoPap)
-    {
-    }
+    public function __construct(public GrupoPap $grupoPap) {}
 
     public function via(object $notifiable): array
     {

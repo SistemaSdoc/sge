@@ -7,12 +7,12 @@ use App\Models\Tenant\TrabalhoPap;
 use App\Models\Tenant\TrabalhoPapFeedback;
 use App\Models\Tenant\TrabalhoPapVersao;
 use App\Models\Tenant\User;
-use App\Traits\NotificaGrupoPap;
 use App\Notifications\Pap\TrabalhoSubmetidoAoTutorConfirmacaoNotification;
-use Illuminate\Support\Facades\Notification;
+use App\Traits\NotificaGrupoPap;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class TrabalhoPapService
 {
@@ -36,7 +36,7 @@ class TrabalhoPapService
      */
     public function submeter(TrabalhoPap $trabalho, User $user, UploadedFile $ficheiro): TrabalhoPapVersao
     {
-        if (!$trabalho->podeSerSubmetido()) {
+        if (! $trabalho->podeSerSubmetido()) {
             throw new \RuntimeException('O trabalho não pode ser submetido neste momento.');
         }
 
@@ -94,7 +94,7 @@ class TrabalhoPapService
      */
     public function aprovarComoTutor(TrabalhoPap $trabalho, User $user, ?string $comentario = null): TrabalhoPapFeedback
     {
-        if (!$trabalho->podeSerAnalisadoPeloTutor()) {
+        if (! $trabalho->podeSerAnalisadoPeloTutor()) {
             throw new \RuntimeException('O trabalho não está em análise do tutor.');
         }
 
@@ -120,7 +120,7 @@ class TrabalhoPapService
      */
     public function solicitarCorrecaoComoTutor(TrabalhoPap $trabalho, User $user, string $comentario, ?UploadedFile $ficheiroCorrecao = null): TrabalhoPapFeedback
     {
-        if (!$trabalho->podeSerAnalisadoPeloTutor()) {
+        if (! $trabalho->podeSerAnalisadoPeloTutor()) {
             throw new \RuntimeException('O trabalho não está em análise do tutor.');
         }
 
@@ -145,7 +145,7 @@ class TrabalhoPapService
      */
     public function aprovarComoCoordenacao(TrabalhoPap $trabalho, User $user, ?string $comentario = null, ?string $actorTenantId = null): TrabalhoPapFeedback
     {
-        if (!$trabalho->podeSerAnalisadoPelaCoordenacao()) {
+        if (! $trabalho->podeSerAnalisadoPelaCoordenacao()) {
             throw new \RuntimeException('O trabalho não está em análise da coordenação.');
         }
 
@@ -187,7 +187,7 @@ class TrabalhoPapService
      */
     public function solicitarCorrecaoComoCoordenacao(TrabalhoPap $trabalho, User $user, string $comentario, ?UploadedFile $ficheiroCorrecao = null, ?string $actorTenantId = null): TrabalhoPapFeedback
     {
-        if (!$trabalho->podeSerAnalisadoPelaCoordenacao()) {
+        if (! $trabalho->podeSerAnalisadoPelaCoordenacao()) {
             throw new \RuntimeException('O trabalho não está em análise da coordenação.');
         }
 

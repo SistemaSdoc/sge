@@ -32,7 +32,7 @@ class StoreCursoTuteladoRequest extends FormRequest
             'curso_id' => [
                 'required',
                 'uuid',
-                Rule::exists(config('tenancy.database.central_connection') . '.cursos', 'id')
+                Rule::exists(config('tenancy.database.central_connection').'.cursos', 'id')
                     ->where('status', 1),
             ],
             'tenant_tutor_id' => ['nullable', 'string'],
@@ -68,22 +68,24 @@ class StoreCursoTuteladoRequest extends FormRequest
 
             if ($instituicao?->tipo === 'instituto' && $tenantTutorId) {
                 $validator->errors()->add('tenant_tutor_id', 'Institutos só podem ter tutela própria.');
+
                 return;
             }
 
-            if (!$tenantTutorId) {
+            if (! $tenantTutorId) {
                 return;
             }
 
             $tenant = Tenant::query()->find($tenantTutorId);
             $currentTenantId = (string) tenancy()->tenant->getTenantKey();
 
-            if (!$tenant || !in_array($tenant->status, [TenantStatus::ACTIVE, TenantStatus::TRIAL], true)) {
+            if (! $tenant || ! in_array($tenant->status, [TenantStatus::ACTIVE, TenantStatus::TRIAL], true)) {
                 $validator->errors()->add('tenant_tutor_id', 'A instituição tutora não está disponível.');
             }
 
             if ($tenantTutorId === $currentTenantId) {
                 $validator->errors()->add('tenant_tutor_id', 'Para tutela própria, deixe a instituição tutora vazia.');
+
                 return;
             }
 

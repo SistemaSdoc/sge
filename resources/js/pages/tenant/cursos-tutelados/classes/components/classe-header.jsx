@@ -99,21 +99,21 @@ export function Header({
               )}
 
               {can.turno?.edit && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      router.visit(
-                        editTurno({
-                          instituicao: params.instituicao.id,
-                          cursoTutelado: params.cursoTutelado.id,
-                          cursoClasse: params.cursoClasse.id,
-                        }).url,
-                      )
-                    }
-                  >
-                    Editar turnos da classe
-                  </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    router.visit(
+                      editTurno({
+                        instituicao: params.instituicao.id,
+                        cursoTutelado: params.cursoTutelado.id,
+                        cursoClasse: params.cursoClasse.id,
+                      }).url,
+                    )
+                  }
+                >
+                  Editar turnos da classe
+                </Button>
               )}
 
               {can.turno?.create && turnos.length < 3 && (
