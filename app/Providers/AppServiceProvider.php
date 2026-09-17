@@ -29,6 +29,8 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Inertia\ExceptionResponse;
+use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
@@ -47,6 +49,24 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Event::listen(Registered::class, RegisteredListener::class);
+
+        Inertia::handleExceptionsUsing(function (ExceptionResponse $response): ?ExceptionResponse {
+            if (app()->environment(['local', 'testing'])) {
+                return null;
+            }
+
+            if (! in_array($response->statusCode(), [403, 404, 500, 503], true)) {
+                return null;
+            }
+
+            if ($response->response->headers->has('X-Inertia')) {
+                return null;
+            }
+
+            return $response->render('errors/error-page', [
+                'status' => $response->statusCode(),
+            ])->withSharedData();
+        });
 
         Gate::define('pauta.viewAny', [PautaPolicy::class, 'viewAny']);
         Gate::define('pauta.view', [PautaPolicy::class, 'view']);

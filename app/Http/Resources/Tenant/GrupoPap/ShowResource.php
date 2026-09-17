@@ -13,6 +13,7 @@ class ShowResource extends JsonResource
 
     public function toArray(Request $request): array
     {
+        $user = $request->user('tenant');
         $cursoTutelado = $this->turma
             ?->cursoClasseTurno
             ?->cursoClasse
@@ -39,6 +40,10 @@ class ShowResource extends JsonResource
             'local_defesa' => $this->local_defesa,
             'professor' => $this->professor ? [
                 'id' => $this->professor->id,
+                'user_id' => $this->professor->user_id,
+                'is_current_user' => (string) $request->user('tenant')?->getKey() === (string) $this->professor->user_id,
+                'can_view' => $user?->is($this->professor->user)
+                    || $user?->can('view', $this->professor),
                 'nome' => $this->professor->user->nome,
                 'email' => $this->professor->user->email,
             ] : null,

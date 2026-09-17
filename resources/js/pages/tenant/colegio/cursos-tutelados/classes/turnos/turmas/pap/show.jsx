@@ -45,6 +45,7 @@ export default function Show({
   cursoClasseTurno,
   turma,
   grupoPap,
+  currentUserId,
   trabalho,
   historico,
   banca,
@@ -416,6 +417,7 @@ export default function Show({
             pagination={elementos}
             onPageChange={elementosPagination.handlePageChange}
             can={can}
+            currentUserId={currentUserId}
           />
         </TabsContent>
         {can?.verBanca && (
@@ -427,6 +429,7 @@ export default function Show({
               pagination={banca}
               onPageChange={bancaPagination.handlePageChange}
               can={can}
+              currentUserId={currentUserId}
             />
           </TabsContent>
         )}

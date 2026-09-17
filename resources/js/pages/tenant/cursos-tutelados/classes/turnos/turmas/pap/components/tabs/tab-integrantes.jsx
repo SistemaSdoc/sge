@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { EmptyState } from '@/components/empty-state';
 import { show as showAluno } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
+import { show as showUser } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
 import { create as adicionarElemento } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
 import TablePagination from '@/components/table-pagination';
 
@@ -40,6 +41,7 @@ export function TabIntegrantes({
   pagination,
   onPageChange,
   can,
+  currentUserId,
 }) {
   const [editando, setEditando] = useState({});
   const elementos = pagination?.data ?? [];
@@ -116,9 +118,14 @@ export function TabIntegrantes({
               {elementos.map((el) => (
                 <TableRow
                   key={el.id}
-                  className="hover:cursor-pointer"
+                  className={el.can_view ? 'hover:cursor-pointer' : undefined}
                   onClick={() =>
-                    router.visit(showAluno.url({ aluno: el.aluno_id }))
+                    el.can_view &&
+                    router.visit(
+                      String(currentUserId) === String(el.user_id)
+                        ? showUser.url({ user: el.user_id })
+                        : showAluno.url({ aluno: el.aluno_id }),
+                    )
                   }
                 >
                   <TableCell className="px-4 font-medium">{el.nome}</TableCell>

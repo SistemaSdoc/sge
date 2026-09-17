@@ -273,7 +273,7 @@ class GrupoPapController extends Controller
         $elementos = $grupoPap->elementos()
             ->with([
                 'aluno.inscricao.candidato:id,nome,email',
-                'aluno:id,matricula,inscricao_id',
+                'aluno:id,user_id,matricula,inscricao_id',
             ])
             ->paginate(10, ['*'], 'page_elementos');
 
@@ -299,6 +299,7 @@ class GrupoPapController extends Controller
                 'anoLectivoId' => $anoLectivoId,
                 'anosLectivos' => AnoLectivo::all(),
                 'grupoPap' => new ShowResource($grupoPap),
+                'currentUserId' => (string) $user->getKey(),
 
                 'trabalho' => $trabalho ? [
                     'id' => $trabalho->id,

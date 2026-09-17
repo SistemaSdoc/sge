@@ -405,7 +405,7 @@ class GrupoPapViewService
                 ->with('professor.user:id,nome,email')
                 ->paginate(10, ['*'], 'page_banca'),
             'elementos' => $grupoPap->elementos()
-                ->with('aluno.inscricao.candidato:id,nome,email', 'aluno:id,matricula,inscricao_id')
+                ->with('aluno.inscricao.candidato:id,nome,email', 'aluno:id,user_id,matricula,inscricao_id')
                 ->paginate(10, ['*'], 'page_elementos'),
         ];
     }

@@ -54,54 +54,54 @@ class GrupoPapController extends Controller
     /**
      * Lista os grupos PAP acessíveis ao utilizador.
      */
-        public function index()
-        {
-            $this->authorize('viewAny', GrupoPap::class);
+    public function index()
+    {
+        $this->authorize('viewAny', GrupoPap::class);
 
-            /** @var User $user */
-            $user = Auth::guard('tenant')->user();
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
 
-            $anoLectivoId = filled(request('ano_lectivo_id'))
-                ? request('ano_lectivo_id')
-                : $this->anoLectivoResolverService->obterAnoLectivoDefault();
+        $anoLectivoId = filled(request('ano_lectivo_id'))
+            ? request('ano_lectivo_id')
+            : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
-            $instituicaoIdFiltro = request('instituicao_id') ?: $user->instituicao_id;
-            $cursoTuteladoIdFiltro = request('curso_tutelado_id') ?: null;
+        $instituicaoIdFiltro = request('instituicao_id') ?: $user->instituicao_id;
+        $cursoTuteladoIdFiltro = request('curso_tutelado_id') ?: null;
 
-            $grupos = $this->grupoPapViewService->index($user, $anoLectivoId, $instituicaoIdFiltro, $cursoTuteladoIdFiltro);
+        $grupos = $this->grupoPapViewService->index($user, $anoLectivoId, $instituicaoIdFiltro, $cursoTuteladoIdFiltro);
 
-            $grupos->getCollection()->transform(function ($grupo) use ($user) {
-                $grupo->can = [
-                    'view' => $user->can('view', $grupo),
-                    'update' => $user->can('update', $grupo),
-                    'delete' => $user->can('delete', $grupo),
-                    'definirData' => $user->can('definirData', $grupo),
-                    'definirTema' => $user->can('definirTema', $grupo),
-                ];
+        $grupos->getCollection()->transform(function ($grupo) use ($user) {
+            $grupo->can = [
+                'view' => $user->can('view', $grupo),
+                'update' => $user->can('update', $grupo),
+                'delete' => $user->can('delete', $grupo),
+                'definirData' => $user->can('definirData', $grupo),
+                'definirTema' => $user->can('definirTema', $grupo),
+            ];
 
-                return $grupo;
-            });
+            return $grupo;
+        });
 
-            $cursosTutelados = $this->grupoPapViewService->tutoredCourses($user, $instituicaoIdFiltro);
-            $instituicoes = $this->grupoPapViewService->papInstitutions($user);
+        $cursosTutelados = $this->grupoPapViewService->tutoredCourses($user, $instituicaoIdFiltro);
+        $instituicoes = $this->grupoPapViewService->papInstitutions($user);
 
-            return Inertia::render('tenant/pap/index', [
-                'instituicao' => [
-                    'id' => $user->instituicao->id,
-                    'nome' => $user->instituicao->nome,
-                ],
-                'instituicoes' => $instituicoes,
-                'cursosTutelados' => $cursosTutelados,
-                'gruposPap' => IndexResource::collection($grupos),
-                'anoLectivoId' => $anoLectivoId,
-                'anosLectivos' => AnoLectivo::all(),
-                'can' => [
-                    'create' => $user->can('create', GrupoPap::class),
-                    'selecionarInstituicao' => $user->can('selecionarInstituicao', GrupoPap::class),
-                    'selecionarAnoLectivo' => $user->can('selecionarAnoLectivo', GrupoPap::class),
-                ],
-            ]);
-        }
+        return Inertia::render('tenant/pap/index', [
+            'instituicao' => [
+                'id' => $user->instituicao->id,
+                'nome' => $user->instituicao->nome,
+            ],
+            'instituicoes' => $instituicoes,
+            'cursosTutelados' => $cursosTutelados,
+            'gruposPap' => IndexResource::collection($grupos),
+            'anoLectivoId' => $anoLectivoId,
+            'anosLectivos' => AnoLectivo::all(),
+            'can' => [
+                'create' => $user->can('create', GrupoPap::class),
+                'selecionarInstituicao' => $user->can('selecionarInstituicao', GrupoPap::class),
+                'selecionarAnoLectivo' => $user->can('selecionarAnoLectivo', GrupoPap::class),
+            ],
+        ]);
+    }
 
     /**
      * Apresenta o formulário de criação de um grupo PAP.
@@ -199,6 +199,7 @@ class GrupoPapController extends Controller
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => AnoLectivo::all(),
             'grupoPap' => new ShowResource($grupoPap),
+            'currentUserId' => (string) $user->getKey(),
             'historico' => $this->grupoPapViewService->history(
                 $grupoPap,
                 $instituicaoTutoraId,
