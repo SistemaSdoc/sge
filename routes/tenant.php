@@ -159,6 +159,12 @@ Route::middleware([
             Route::get('users/{user}/academic', [UserProfileController::class, 'academic'])
                 ->name('users.academic');
 
+            Route::put('users/{user}/personal', [UserProfileController::class, 'updatePersonal'])
+                ->name('users.personal.update');
+
+            Route::post('users/{user}/avatar', [UserProfileController::class, 'updateAvatar'])
+                ->name('users.avatar.update');
+
             Route::get('users/{user}/security', [UserProfileController::class, 'security'])
                 ->name('users.security');
 

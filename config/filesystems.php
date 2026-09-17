@@ -58,11 +58,11 @@ return [
             'driver' => 's3',
             'region' => env('AWS_DEFAULT_REGION', 'eu-north-1'),
             'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
+            'url' => env('AWS_URL') ?: (env('AWS_BUCKET')
+                ? 'https://'.env('AWS_BUCKET').'.s3.'.env('AWS_DEFAULT_REGION', 'eu-north-1').'.amazonaws.com'
+                : null),
             'throw' => false,
         ],
-
-
 
         // 's3' => [
         //     'driver' => 's3',

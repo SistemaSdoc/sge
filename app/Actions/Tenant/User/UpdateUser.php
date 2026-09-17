@@ -3,12 +3,12 @@
 namespace App\Actions\Tenant\User;
 
 use App\Models\Tenant\User;
-use App\Services\Tenant\Users\UserProfileService;
+use App\Services\Tenant\Users\UserRoleProfileService;
 use Illuminate\Support\Facades\DB;
 
 class UpdateUser
 {
-    public function __construct(private readonly UserProfileService $userProfileService) {}
+    public function __construct(private readonly UserRoleProfileService $userProfileService) {}
 
     /**
      * @param  array<string, mixed>  $validated

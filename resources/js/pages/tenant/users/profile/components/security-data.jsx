@@ -13,7 +13,7 @@ export function SecurityData(props) {
 
   return (
     <>
-      <div className="w-full max-w-2xl space-y-6">
+      <div className="mx-auto w-full max-w-2xl space-y-6">
         <Heading
           variant="small"
           title={props.hasPassword ? 'Actualizar senha' : 'Definir senha'}

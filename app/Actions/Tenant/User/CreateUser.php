@@ -4,12 +4,12 @@ namespace App\Actions\Tenant\User;
 
 use App\Models\Tenant\User;
 use App\Notifications\User\UserCriadoNotification;
-use App\Services\Tenant\Users\UserProfileService;
+use App\Services\Tenant\Users\UserRoleProfileService;
 use Illuminate\Support\Facades\DB;
 
 class CreateUser
 {
-    public function __construct(private readonly UserProfileService $userProfileService) {}
+    public function __construct(private readonly UserRoleProfileService $userProfileService) {}
 
     /**
      * @param  array<string, mixed>  $validated
