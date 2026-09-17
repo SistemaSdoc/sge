@@ -35,7 +35,7 @@ export default function Login({ status, canResetPassword }) {
       </div>*/}
 
       <Form
-        {...LoginWithEmailAndPassword.form()}
+        {...LoginWithEmailAndPassword.post()}
         resetOnSuccess={['password']}
         className="flex flex-col gap-6"
       >

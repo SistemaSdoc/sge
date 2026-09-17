@@ -52,6 +52,7 @@ use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
 use App\Http\Controllers\Tenant\UserPermissionController;
+use App\Http\Controllers\Tenant\UserProfileController;
 use App\Http\Middleware\CheckTenantStatus;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Route;
@@ -155,7 +156,16 @@ Route::middleware([
             Route::put('users/{user}/permissions', [UserPermissionController::class, 'update'])
                 ->name('users.permissions.update');
 
-            Route::resource('users', UserController::class);
+            Route::get('users/{user}/academic', [UserProfileController::class, 'academic'])
+                ->name('users.academic');
+
+            Route::get('users/{user}/security', [UserProfileController::class, 'security'])
+                ->name('users.security');
+
+            Route::get('users/{user}', [UserProfileController::class, 'show'])
+                ->name('users.show');
+
+            Route::resource('users', UserController::class)->except(['show']);
             Route::resource('roles', RoleController::class)->except(['show']);
             Route::resource('alunos', AlunoController::class);
             Route::resource('avisos', AvisoController::class);

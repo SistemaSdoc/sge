@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Http\Controllers\Tenant;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\Settings\TwoFactorAuthenticationRequest;
+use App\Models\Tenant\User;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
+use Inertia\Response;
+use Laravel\Fortify\Features;
+
+class UserProfileController extends Controller
+{
+    public function show(User $user)
+    {
+        Gate::authorize('view', $user);
+
+        return Inertia::render('tenant/users/profile/show', [
+            'user' => $this->profileData($user),
+        ]);
+    }
+
+    public function academic(User $user)
+    {
+        Gate::authorize('view', $user);
+        abort_unless($user->hasRole('Aluno'), 404);
+
+        return Inertia::render('tenant/users/profile/academic', [
+            'user' => $this->profileData($user),
+        ]);
+    }
+
+    public function security(TwoFactorAuthenticationRequest $request, User $user): Response
+    {
+        Gate::authorize('view', $user);
+
+        $props = [
+            'user' => $this->profileData($user),
+            'hasPassword' => ! is_null($user->password),
+            'canManageTwoFactor' => Features::canManageTwoFactorAuthentication(),
+            'canManagePasskeys' => Features::canManagePasskeys(),
+            'passkeys' => Features::canManagePasskeys()
+                ? $user
+                    ->passkeys()
+                    ->select(['id', 'name', 'credential', 'created_at', 'last_used_at'])
+                    ->latest()
+                    ->get()
+                    ->map(fn ($passkey) => [
+                        'id' => $passkey->id,
+                        'name' => $passkey->name,
+                        'authenticator' => $passkey->authenticator,
+                        'created_at_diff' => $passkey->created_at->diffForHumans(),
+                        'last_used_at_diff' => $passkey->last_used_at?->diffForHumans(),
+                    ])
+                    ->values()
+                    ->all()
+                : [],
+            'passwordRules' => Password::defaults()->toPasswordRulesString(),
+        ];
+
+        if (Features::canManageTwoFactorAuthentication()) {
+            $request->ensureStateIsValid();
+
+            $props['twoFactorEnabled'] = $user->hasEnabledTwoFactorAuthentication();
+            $props['requiresConfirmation'] = Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm');
+        }
+
+        return Inertia::render('tenant/users/profile/security', $props);
+    }
+
+    /** @return array<string, mixed> */
+    private function profileData(User $user): array
+    {
+        return [
+            ...$user->only('id', 'nome', 'email', 'avatar'),
+            'isAluno' => $user->hasRole('Aluno'),
+        ];
+    }
+}

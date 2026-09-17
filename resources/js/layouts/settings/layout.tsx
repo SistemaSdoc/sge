@@ -24,16 +24,6 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
 
   const sidebarNavItems: NavItem[] = [
     {
-      title: 'Perfil',
-      href: profileEdit(),
-      icon: null,
-    },
-    {
-      title: 'Segurança',
-      href: securityEdit(),
-      icon: null,
-    },
-    {
       title: 'Aparência',
       href: appearanceEdit(),
       icon: null,

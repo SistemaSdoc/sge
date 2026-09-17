@@ -6,6 +6,7 @@ import { useFlashToast } from '@/hooks/use-flash-toast';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import UserProfileLayout from '@/layouts/user-profile/layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -34,6 +35,10 @@ createInertiaApp({
         return null;
       case name.startsWith('central/auth/') || name.startsWith('tenant/auth/'):
         return AuthLayout;
+      case name === 'tenant/users/profile/show' ||
+        name === 'tenant/users/profile/academic' ||
+        name === 'tenant/users/profile/security':
+        return [AppLayout, UserProfileLayout];
       case name.startsWith('tenant/settings/'):
         return [AppLayout, SettingsLayout];
       default:
