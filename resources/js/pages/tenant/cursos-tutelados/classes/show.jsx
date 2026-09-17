@@ -266,11 +266,16 @@ export default function Show({
                         <Button asChild size="sm">
                           <Link
                             data={{ redirect_to: window.location.href }}
-                            href={`${
-                              createDisciplina({
-                                ...params,
-                              }).url
-                            }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`}
+                            href={
+                              createDisciplina(
+                                { ...params },
+                                {
+                                  query: {
+                                    ano_lectivo_id: anoLectivoSelecionado,
+                                  },
+                                },
+                              ).url
+                            }
                           >
                             Adicionar Disciplina
                           </Link>
@@ -290,11 +295,14 @@ export default function Show({
                           can.disciplina.create
                             ? {
                                 label: 'Adicionar Disciplina',
-                                href: `${
-                                  createDisciplina({
-                                    ...params,
-                                  }).url
-                                }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`,
+                                href: createDisciplina(
+                                  { ...params },
+                                  {
+                                    query: {
+                                      ano_lectivo_id: anoLectivoSelecionado,
+                                    },
+                                  },
+                                ).url,
                                 variant: 'outline',
                               }
                             : undefined
@@ -380,9 +388,16 @@ export default function Show({
                         <Button asChild size="sm">
                           <Link
                             href={
-                              createTurma({
-                                ...params,
-                              }).url
+                              createTurma(
+                                {
+                                  ...params,
+                                },
+                                {
+                                  query: {
+                                    ano_lectivo_id: anoLectivoSelecionado,
+                                  },
+                                },
+                              ).url
                             }
                           >
                             Adicionar Turma
@@ -403,9 +418,14 @@ export default function Show({
                           can.turma.create
                             ? {
                                 label: 'Adicionar Turma',
-                                href: createTurma({
-                                  ...params,
-                                }).url,
+                                href: createTurma(
+                                  { ...params },
+                                  {
+                                    query: {
+                                      ano_lectivo_id: anoLectivoSelecionado,
+                                    },
+                                  },
+                                ).url,
                                 variant: 'outline',
                               }
                             : undefined
@@ -437,10 +457,18 @@ export default function Show({
                                 onClick={() => {
                                   if (turma.can?.view) {
                                     router.visit(
-                                      showTurma({
-                                        ...params,
-                                        turma: turma.id,
-                                      }).url,
+                                      showTurma(
+                                        {
+                                          ...params,
+                                          turma: turma.id,
+                                        },
+                                        {
+                                          query: {
+                                            ano_lectivo_id:
+                                              anoLectivoSelecionado,
+                                          },
+                                        },
+                                      ).url,
                                     );
                                   }
                                 }}
@@ -462,10 +490,19 @@ export default function Show({
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         router.visit(
-                                          editTurma({
-                                            ...params,
-                                            turma: turma.id,
-                                          }).url + '?origem=classe',
+                                          editTurma(
+                                            {
+                                              ...params,
+                                              turma: turma.id,
+                                            },
+                                            {
+                                              query: {
+                                                origem: 'classe',
+                                                ano_lectivo_id:
+                                                  anoLectivoSelecionado,
+                                              },
+                                            },
+                                          ).url,
                                         );
                                       }}
                                     >

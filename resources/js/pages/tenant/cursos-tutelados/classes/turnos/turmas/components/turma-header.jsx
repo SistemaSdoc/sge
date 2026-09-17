@@ -95,7 +95,7 @@ export function Header({
 
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  {can.classe.view ? (
+                  {can.turno.view ? (
                     <Link
                       className="text-sm font-semibold text-primary hover:text-primary/80"
                       href={
@@ -137,7 +137,7 @@ export function Header({
 
         <CardAction className="flex gap-3">
           {/* Botão de voltar */}
-          {can.curso?.view && (
+          {can.classe?.view && (
             <Button
               variant="outline"
               size={'sm'}
@@ -163,13 +163,21 @@ export function Header({
               onClick={(e) => {
                 e.stopPropagation();
                 router.visit(
-                  editTurma({
-                    instituicao: params.instituicao.id,
-                    cursoTutelado: params.cursoTutelado.id,
-                    cursoClasse: params.cursoClasse.id,
-                    cursoClasseTurno: params.cursoClasseTurno.id,
-                    turma: params.turma,
-                  }).url + '?origem=classe',
+                  editTurma(
+                    {
+                      instituicao: params.instituicao.id,
+                      cursoTutelado: params.cursoTutelado.id,
+                      cursoClasse: params.cursoClasse.id,
+                      cursoClasseTurno: params.cursoClasseTurno.id,
+                      turma: params.turma,
+                    },
+                    {
+                      query: {
+                        origem: 'classe',
+                        ano_lectivo_id: anoLectivoId,
+                      },
+                    },
+                  ).url,
                 );
               }}
             >

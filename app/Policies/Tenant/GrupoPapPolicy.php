@@ -22,10 +22,16 @@ class GrupoPapPolicy
      * Staff com permission vê apenas grupos da sua instituição.
      * Aluno vê apenas o seu próprio grupo.
      */
-    public function view(User $user, GrupoPap $grupoPap): bool
+    public function view(User $user, GrupoPap $grupo): bool
     {
+        //dd($grupo->toArray());
+
+        if ($user->hasAnyRole(['Director', 'Subdirector'])) {
+            return true;
+        }
+
         if ($user->hasRole('Aluno')) {
-            return $grupoPap->alunos()
+            return $grupo->alunos()
                 ->where('aluno_id', $user->aluno?->id)
                 ->exists();
         }
@@ -33,31 +39,32 @@ class GrupoPapPolicy
         if ($user->hasRole('Professor')) {
             $professor = $user->professor;
 
-            // Coordenador: acesso por permissão, sem restrição de turma/tutor/jurado
+            // Tutor
+            if ($grupo->professor_tutor_id === $professor?->id) {  // confirma o campo
+                return true;
+            }
+
+            // Coordenador
             if ($user->hasPermissionTo('grupopap.view')) {
                 $ehCoordenador = CursoTuteladoProfessor::where('professor_id', $professor?->id)
                     ->where('coordenador', true)
                     ->exists();
 
                 if ($ehCoordenador) {
-                    return $grupoPap->instituicao()?->id === $user->instituicao_id
-                        || $grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
+                    return $grupo->instituicao()?->id === $user->instituicao_id
+                        || $grupo->instituicaoTutora()?->id === $user->instituicao_id;
                 }
             }
 
-            $ehTutor = $grupoPap->professor_tutor_id === $professor?->id;
-
-            return $ehTutor
-                && $grupoPap->instituicao()?->id === $user->instituicao_id;
+            return false;
         }
 
         return $user->hasPermissionTo('grupopap.view')
             && (
-                $grupoPap->instituicao()?->id === $user->instituicao_id
-                || $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
+                $grupo->instituicao()?->id === $user->instituicao_id
+                || $grupo->instituicaoTutora()?->id === $user->instituicao_id
             );
     }
-
     /**
      * Determina se o utilizador pode criar grupos PAP.
      */
@@ -74,22 +81,16 @@ class GrupoPapPolicy
      */
     public function update(User $user, GrupoPap $grupoPap): bool
     {
-        if (! $user->hasRole('Professor')) {
+        if (!$user->hasRole('Professor')) {
             return $user->hasPermissionTo('grupopap.update')
                 && $grupoPap->instituicao()?->id === $user->instituicao_id;
         }
 
         $professor = $user->professor;
 
-        // ✅ Só professor DA TURMA ou TUTOR (não jurado)
-        $daFturma = $grupoPap->turma
-            ->professores()
-            ->where('professores.id', $professor?->id)
-            ->exists();
-
         $ehTutor = $grupoPap->professor_tutor_id === $professor?->id;
 
-        return ($daFturma || $ehTutor)
+        return $ehTutor
             && $grupoPap->instituicao()?->id === $user->instituicao_id;
     }
 
@@ -100,17 +101,17 @@ class GrupoPapPolicy
      */
     public function corrigirTema(User $user, GrupoPap $grupoPap): bool
     {
-        if (! $grupoPap->podeSerEditado()) {
+        if (!$grupoPap->podeSerEditado()) {
             return false;
         }
 
-        if (! $user->can('grupopap.corrigirTema')) {
+        if (!$user->can('grupopap.corrigirTema')) {
             return false;
         }
 
         // Apenas membros do grupo podem corrigir o tema
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
             ->exists();
     }
 
@@ -172,17 +173,17 @@ class GrupoPapPolicy
      */
     public function definirTema(User $user, GrupoPap $grupoPap): bool
     {
-        if (! $grupoPap->podeDefinirTema()) {
+        if (!$grupoPap->podeDefinirTema()) {
             return false;
         }
 
-        if (! $user->can('grupopap.definirTema')) {
+        if (!$user->can('grupopap.definirTema')) {
             return false;
         }
 
         // Só membros do grupo
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
             ->exists();
     }
 
@@ -218,12 +219,12 @@ class GrupoPapPolicy
     {
         $trabalho = $grupoPap->trabalhoPap;
 
-        if (! $trabalho || ! $trabalho->podeSerSubmetido()) {
+        if (!$trabalho || !$trabalho->podeSerSubmetido()) {
             return false;
         }
 
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
             ->exists();
     }
 
@@ -278,13 +279,13 @@ class GrupoPapPolicy
      */
     public function downloadVersaoTrabalho(User $user, GrupoPap $grupoPap): bool
     {
-        if (! $grupoPap->trabalhoPap) {
+        if (!$grupoPap->trabalhoPap) {
             return false;
         }
 
         // Membros do grupo
         $ehIntegrante = $grupoPap->elementos()
-            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
             ->exists();
 
         if ($ehIntegrante) {

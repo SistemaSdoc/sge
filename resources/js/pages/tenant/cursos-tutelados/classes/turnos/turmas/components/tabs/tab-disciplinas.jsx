@@ -125,12 +125,15 @@ export function TabDisciplinas({
               <Link
                 data={{ redirect_to: window.location.href }}
                 href={
-                  createDisciplina({
-                    instituicao: params.instituicao.id,
-                    cursoTutelado: params.cursoTutelado.id,
-                    cursoClasse: params.cursoClasse.id,
-                    cursoClasseTurno: params.cursoClasseTurno,
-                  }).url
+                  createDisciplina(
+                    {
+                      instituicao: params.instituicao.id,
+                      cursoTutelado: params.cursoTutelado.id,
+                      cursoClasse: params.cursoClasse.id,
+                      cursoClasseTurno: params.cursoClasseTurno,
+                    },
+                    { query: { ano_lectivo_id: anoLectivoId } },
+                  ).url
                 }
               >
                 Adicionar Disciplinas
@@ -151,12 +154,15 @@ export function TabDisciplinas({
               label: 'Adicionar Disciplina',
               onClick: () =>
                 router.visit(
-                  createDisciplina({
-                    instituicao: params.instituicao.id,
-                    cursoTutelado: params.cursoTutelado.id,
-                    cursoClasse: params.cursoClasse.id,
-                    cursoClasseTurno: params.cursoClasseTurno,
-                  }).url,
+                  createDisciplina(
+                    {
+                      instituicao: params.instituicao.id,
+                      cursoTutelado: params.cursoTutelado.id,
+                      cursoClasse: params.cursoClasse.id,
+                      cursoClasseTurno: params.cursoClasseTurno,
+                    },
+                    { query: { ano_lectivo_id: anoLectivoId } },
+                  ).url,
                   {
                     data: { redirect_to: redirectTo },
                   },

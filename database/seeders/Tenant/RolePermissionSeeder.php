@@ -515,6 +515,17 @@ class RolePermissionSeeder extends Seeder
                 'curso-tutelado.view',
                 'curso-tutelado.update',
 
+                // Curso Classe
+                'cursoclasse.viewAny',
+                'cursoclasse.view',
+
+                // classeturnodisciplina
+                'classeturnodisciplina.viewAny',
+                'classeturnodisciplina.view',
+                'classeturnodisciplina.create',
+                'classeturnodisciplina.update',
+                'classeturnodisciplina.delete',
+
                 // Confirmação de Matrícula
                 'confirmacoes.matricula.viewAny',
                 'confirmacoes.matricula.confirmar',

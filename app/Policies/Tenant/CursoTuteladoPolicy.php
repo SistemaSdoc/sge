@@ -65,6 +65,13 @@ class CursoTuteladoPolicy
             return false;
         }
 
+        if ($user->hasRole('Professor') && ! $cursoTutelado->professores()
+            ->where('professor_id', $user->professor?->id)
+            ->wherePivot('coordenador', true)
+            ->exists()) {
+            return false;
+        }
+
         $cursoTutelado->loadMissing('instituicaoCurso');
 
         if ($this->externalTutelaPendingOrClosed($cursoTutelado)) {

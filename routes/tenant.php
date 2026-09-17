@@ -630,8 +630,11 @@ Route::middleware([
             Route::get('notificacoes', [NotificacaoController::class, 'index'])
                 ->name('notificacoes.index');
 
-            Route::get('notificacoes/ler-todas', [NotificacaoController::class, 'marcarTodasLidas'])
+            Route::post('notificacoes/ler-todas', [NotificacaoController::class, 'marcarTodasLidas'])
                 ->name('notificacoes.ler-todas');
+
+            Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
+                ->name('notificacoes.ler');
 
             Route::get('notificacoes/tutela/{shared}', [NotificacaoController::class, 'showTutela'])
                 ->name('notificacoes.tutela.show');
@@ -644,9 +647,6 @@ Route::middleware([
 
             Route::post('notificacoes/{notification}/tutela/rejeitar', [NotificacaoController::class, 'rejeitarTutela'])
                 ->name('notificacoes.tutela.rejeitar');
-
-            Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
-                ->name('notificacoes.ler');
 
             /*
             |--------------------------------------------------------------------------

@@ -29,30 +29,22 @@ class AlunoPolicy
      */
     public function view(User $user, Aluno $aluno): bool
     {
-        // O próprio aluno pode sempre ver o seu perfil
         if ($user->aluno?->id === $aluno->id) {
             return true;
         }
 
-        if (! $user->can('alunos.view')) {
+        if (!$user->can('alunos.view')) {
             return false;
         }
 
-        $mesmaInstituicao = $aluno->user->instituicao_id === $user->instituicao_id;
-
-        if (! $mesmaInstituicao) {
-            return false;
-        }
-
-        // Professor só vê alunos das suas turmas
         if ($user->hasRole('Professor')) {
             return $user->professor
                 ->turmas()
-                ->whereHas('alunos', fn ($q) => $q->where('alunos.id', $aluno->id))
+                ->whereHas('alunos', fn($q) => $q->where('alunos.id', $aluno->id))
                 ->exists();
         }
 
-        return true;
+        return true; // Director/Subdirector com permissão passa direto
     }
 
     /**
