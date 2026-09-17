@@ -28,6 +28,9 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
+use App\Policies\PrazoProvaPolicy;
+use App\Policies\SubmissaoProvaPolicy;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -70,6 +73,26 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('confirmacoes.matricula.viewAny', [ConfirmacaoMatriculaPolicy::class, 'viewAny']);
         Gate::define('confirmacoes.matricula.confirmar', [ConfirmacaoMatriculaPolicy::class, 'confirmar']);
 
+          // PRAZO PROVA
+    Gate::define('prazo-prova.viewAny', [PrazoProvaPolicy::class, 'viewAny']);
+    Gate::define('prazo-prova.view', [PrazoProvaPolicy::class, 'view']);
+    Gate::define('prazo-prova.create', [PrazoProvaPolicy::class, 'create']);
+    Gate::define('prazo-prova.update', [PrazoProvaPolicy::class, 'update']);
+    Gate::define('prazo-prova.delete', [PrazoProvaPolicy::class, 'delete']);
+    Gate::define('prazo-prova.prorrogar', [PrazoProvaPolicy::class, 'prorrogar']);
+    Gate::define('prazo-prova.fechar', [PrazoProvaPolicy::class, 'fechar']);
+
+    // SUBMISSÃO PROVA
+    Gate::define('submissao-prova.viewAny', [SubmissaoProvaPolicy::class, 'viewAny']);
+    Gate::define('submissao-prova.view', [SubmissaoProvaPolicy::class, 'view']);
+    Gate::define('submissao-prova.create', [SubmissaoProvaPolicy::class, 'create']);
+    Gate::define('submissao-prova.update', [SubmissaoProvaPolicy::class, 'update']);
+    Gate::define('submissao-prova.delete', [SubmissaoProvaPolicy::class, 'delete']);
+    Gate::define('submissao-prova.avaliar', [SubmissaoProvaPolicy::class, 'avaliar']);
+    Gate::define('submissao-prova.visualizarArquivo', [SubmissaoProvaPolicy::class, 'visualizarArquivo']);
+
+
+        // Registrar observadores de modelos
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
         Pagamento::observe(PagamentoObserver::class);
     }

@@ -6,6 +6,7 @@ import { ProximosEventos } from './components/proximos-eventos';
 import { getGreeting, getTodayFormatted } from '@/utils/greeting';
 import { usePage } from '@inertiajs/react';
 import { DashboardPanel } from '@/components/dashboard-panel';
+import NotificacoesSino from './components/notificacoes-sino';
 
 export default function DirectorDashboard({
   metricas = [],
@@ -23,6 +24,8 @@ export default function DirectorDashboard({
         userName={auth.user?.nome}
         todayFormatted={todayFormatted}
       />
+        <NotificacoesSino />
+
 
       <DashboardSummary items={accoes} isLoading={false} />
 

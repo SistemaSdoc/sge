@@ -28,3 +28,6 @@ Schedule::command(FinalizarPautasVencidas::class)
     ->withoutOverlapping()
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/pautas-finalizadas.log'));
+
+
+Schedule::command('prazos:verificar')->everyFiveMinutes();
