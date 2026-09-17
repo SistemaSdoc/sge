@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('criado_por'); // diretor (users)
 
             // Dados do prazo
-            $table->enum('tipo_prova', ['Prova Trimestral', 'Exame-especial', 'Recurso'])->default('Prova Trimestral');
+            $table->enum('tipo_prova', ['Prova-Trimestral', 'Exame-especial', 'Recurso'])->default('Prova-Trimestral');
             $table->string('titulo', 255)->nullable();
             $table->text('observacoes')->nullable();
 
