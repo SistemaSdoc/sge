@@ -40,7 +40,7 @@ it('preserves scoped visibility and does not leak prefixes into the base S3 disk
     }
 
     Config::set('filesystems.disks.s3.handler', $handler);
-    Storage::forgetDisk(['public', 'private', 's3']);
+    Storage::forgetDisk([config('filesystems.default'), 'private']);
 
     $publicDisk = null;
     $privateDisk = null;
@@ -50,9 +50,9 @@ it('preserves scoped visibility and does not leak prefixes into the base S3 disk
     $basePath = 'base-visibility.txt';
 
     try {
-        $publicDisk = Storage::disk('public');
+        $publicDisk = Storage::disk(config('filesystems.default'));
         $privateDisk = Storage::disk('private');
-        $baseDisk = Storage::disk('s3');
+        $baseDisk = Storage::disk(config('filesystems.default'));
 
         expect($publicDisk->put($publicPath, 'public content'))->toBeTrue()
             ->and($publicDisk->getVisibility($publicPath))->toBe('public')
@@ -75,6 +75,6 @@ it('preserves scoped visibility and does not leak prefixes into the base S3 disk
         $publicDisk?->delete($publicPath);
         $privateDisk?->delete($privatePath);
         $baseDisk?->delete($basePath);
-        Storage::forgetDisk(['public', 'private', 's3']);
+        Storage::forgetDisk([config('filesystems.default'), 'private']);
     }
 });

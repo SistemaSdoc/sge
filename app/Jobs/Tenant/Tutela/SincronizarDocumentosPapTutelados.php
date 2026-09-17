@@ -67,12 +67,12 @@ class SincronizarDocumentosPapTutelados implements ShouldQueue
             foreach ($mapa as $campo => $directorio) {
                 $path = $tutor->$campo;
 
-                if (! $path || ! Storage::disk('public')->exists($path)) {
+                if (! $path || ! Storage::disk(config('filesystems.default'))->exists($path)) {
                     continue;
                 }
 
                 $resultado[$campo] = [
-                    'conteudo' => Storage::disk('public')->get($path),
+                    'conteudo' => Storage::disk(config('filesystems.default'))->get($path),
                     'extensao' => pathinfo($path, PATHINFO_EXTENSION),
                     'directorio' => $directorio,
                 ];
@@ -111,7 +111,7 @@ class SincronizarDocumentosPapTutelados implements ShouldQueue
                 foreach ($ficheiros as $campo => $dados) {
                     $pathDestino = "cursos-tutelados/{$cursoTutelado->getKey()}/{$dados['directorio']}/documento.{$dados['extensao']}";
 
-                    Storage::disk('public')->put($pathDestino, $dados['conteudo']);
+                    Storage::disk(config('filesystems.default'))->put($pathDestino, $dados['conteudo']);
                     $novosCaminhos[$campo] = $pathDestino;
                 }
 

@@ -9,14 +9,14 @@ use Tests\TestCase;
 uses(TestCase::class);
 
 test('guarda um calendário anual e substitui o ficheiro anterior', function (): void {
-    Storage::fake('public');
+    Storage::fake(config('filesystems.default'));
 
     $calendario = Mockery::mock(CalendarioAnual::class)->makePartial();
     $calendario->setIncrementing(false);
     $calendario->setKeyType('string');
     $calendario->setAttribute('id', 'calendario-uuid');
     $calendario->setAttribute('ficheiro_path', 'calendarios-anuais/calendario-uuid/antigo.pdf');
-    Storage::disk('public')->put($calendario->ficheiro_path, '%PDF-1.7');
+    Storage::disk(config('filesystems.default'))->put($calendario->ficheiro_path, '%PDF-1.7');
     $calendario->shouldReceive('save')->once();
 
     $upload = app(UploadCalendarioAnual::class);
@@ -26,6 +26,6 @@ test('guarda um calendário anual e substitui o ficheiro anterior', function ():
 
     expect($calendario->ficheiro_nome)->toBe('calendario.pdf')
         ->and($caminhoNovo)->toStartWith('calendarios-anuais/calendario-uuid/');
-    Storage::disk('public')->assertMissing('calendarios-anuais/calendario-uuid/antigo.pdf');
-    Storage::disk('public')->assertExists($caminhoNovo);
+    Storage::disk(config('filesystems.default'))->assertMissing('calendarios-anuais/calendario-uuid/antigo.pdf');
+    Storage::disk(config('filesystems.default'))->assertExists($caminhoNovo);
 });

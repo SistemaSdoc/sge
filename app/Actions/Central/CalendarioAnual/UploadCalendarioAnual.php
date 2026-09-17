@@ -15,7 +15,7 @@ class UploadCalendarioAnual
         try {
             $novoCaminho = $ficheiro->store(
                 "calendarios-anuais/{$calendario->getKey()}",
-                'public'
+                config('filesystems.default')
             );
 
             if ($novoCaminho === false) {
@@ -30,11 +30,11 @@ class UploadCalendarioAnual
             ])->save();
 
             if ($caminhoAntigo) {
-                Storage::disk('public')->delete($caminhoAntigo);
+                Storage::disk(config('filesystems.default'))->delete($caminhoAntigo);
             }
         } catch (\Throwable $exception) {
             if ($novoCaminho) {
-                Storage::disk('public')->delete($novoCaminho);
+                Storage::disk(config('filesystems.default'))->delete($novoCaminho);
             }
 
             throw $exception;

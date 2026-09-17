@@ -64,7 +64,7 @@ class InstituicaoController extends Controller
         $dados = $request->validated();
 
         if ($request->hasFile('logo')) {
-            $dados['logo'] = $request->file('logo')->store('logos', 'public');
+            $dados['logo'] = $request->file('logo')->store('logos', config('filesystems.default'));
         }
 
         Instituicao::create($dados);
@@ -179,10 +179,10 @@ class InstituicaoController extends Controller
 
         if ($request->hasFile('logo')) {
             if ($instituicao->logo) {
-                Storage::disk('public')->delete($instituicao->logo);
+                Storage::disk(config('filesystems.default'))->delete($instituicao->logo);
             }
 
-            $dados['logo'] = $request->file('logo')->store('logos', 'public');
+            $dados['logo'] = $request->file('logo')->store('logos', config('filesystems.default'));
         }
 
         $instituicao->update($dados);
@@ -196,7 +196,7 @@ class InstituicaoController extends Controller
     public function destroy(Instituicao $instituicao)
     {
         if ($instituicao->logo) {
-            Storage::disk('public')->delete($instituicao->logo);
+            Storage::disk(config('filesystems.default'))->delete($instituicao->logo);
         }
 
         $instituicao->delete();

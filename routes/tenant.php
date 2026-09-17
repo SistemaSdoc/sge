@@ -740,7 +740,7 @@ Route::middleware([
       */
     Route::get('/storage/{path}', function (string $path) {
         /** @var FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
+        $disk = Storage::disk(config('filesystems.default'));
 
         abort_unless($disk->exists($path), 404);
 

@@ -64,7 +64,7 @@ class ShowResource extends JsonResource
     private function publicStorageUrl(string $path): string
     {
         /** @var FilesystemAdapter $disk */
-        $disk = Storage::disk('public');
+        $disk = Storage::disk(config('filesystems.default'));
 
         return $disk->url($path);
     }

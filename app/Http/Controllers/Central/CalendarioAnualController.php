@@ -56,7 +56,7 @@ class CalendarioAnualController extends Controller
 
     public function destroy(CalendarioAnual $calendarioAnual): RedirectResponse
     {
-        Storage::disk('public')->delete($calendarioAnual->ficheiro_path);
+        Storage::disk(config('filesystems.default'))->delete($calendarioAnual->ficheiro_path);
         $calendarioAnual->delete();
 
         return back()->with('success', 'Calendário anual eliminado com sucesso.');
@@ -65,7 +65,7 @@ class CalendarioAnualController extends Controller
     public function download(CalendarioAnual $calendarioAnual): mixed
     {
         /** @var FilesystemAdapter $disco */
-        $disco = Storage::disk('public');
+        $disco = Storage::disk(config('filesystems.default'));
 
         abort_unless($disco->exists($calendarioAnual->ficheiro_path), 404);
 
@@ -78,7 +78,7 @@ class CalendarioAnualController extends Controller
     public function view(CalendarioAnual $calendarioAnual): mixed
     {
         /** @var FilesystemAdapter $disco */
-        $disco = Storage::disk('public');
+        $disco = Storage::disk(config('filesystems.default'));
 
         abort_unless($disco->exists($calendarioAnual->ficheiro_path), 404);
 

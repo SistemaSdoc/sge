@@ -14,7 +14,7 @@ class CalendarioAnualController extends Controller
     private function centralStorage(): FilesystemAdapter
     {
         /** @var FilesystemAdapter $disco */
-        $disco = Storage::disk('public');
+        $disco = Storage::disk(config('filesystems.default'));
 
         return $disco;
     }

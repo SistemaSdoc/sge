@@ -89,7 +89,7 @@ class PropinaEmAtrasoNotification extends Notification implements ShouldQueue, S
         $instituicao = $this->instituicao ?? ($aluno?->user?->instituicao ?? null);
         $instituicaoNome = $instituicao?->nome ?? config('app.name');
         /** @var FilesystemAdapter $publicDisk */
-        $publicDisk = Storage::disk('public');
+        $publicDisk = Storage::disk(config('filesystems.default'));
         $instituicaoLogotipo = $instituicao?->logo
             ? $publicDisk->url($instituicao->logo)
             : null;

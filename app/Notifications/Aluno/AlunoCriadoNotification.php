@@ -30,7 +30,7 @@ class AlunoCriadoNotification extends Notification implements ShouldQueue, Shoul
     public function toMail(object $notifiable): MailMessage
     {
         /** @var FilesystemAdapter $publicDisk */
-        $publicDisk = Storage::disk('public');
+        $publicDisk = Storage::disk(config('filesystems.default'));
         $logoUrl = $this->user->instituicao->logo
             ? $publicDisk->url($this->user->instituicao->logo)
             : null;

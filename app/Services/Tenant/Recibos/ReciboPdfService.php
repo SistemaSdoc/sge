@@ -87,7 +87,7 @@ class ReciboPdfService
 
     private function logoBase64(Instituicao $instituicao): ?string
     {
-        if (! $instituicao->logo || ! Storage::disk('public')->exists($instituicao->logo)) {
+        if (! $instituicao->logo || ! Storage::disk(config('filesystems.default'))->exists($instituicao->logo)) {
             return null;
         }
 
@@ -101,7 +101,7 @@ class ReciboPdfService
         };
 
         return $mime
-            ? "data:{$mime};base64,".base64_encode(Storage::disk('public')->get($instituicao->logo))
+            ? "data:{$mime};base64,".base64_encode(Storage::disk(config('filesystems.default'))->get($instituicao->logo))
             : null;
     }
 

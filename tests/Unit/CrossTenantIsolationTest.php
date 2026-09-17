@@ -202,9 +202,9 @@ test('o colegio usa os documentos do curso tutelado da instituicao tutora quando
             'tipo_tutela' => 'propria',
         ]);
 
-        Storage::disk('public')->put('pap/criterios-pap.pdf', 'conteudo-criterios');
-        Storage::disk('public')->put('pap/manual-pt.pdf', 'conteudo-manual');
-        Storage::disk('public')->put('pap/estrutura-trabalho-pap.pdf', 'conteudo-estrutura');
+        Storage::disk(config('filesystems.default'))->put('pap/criterios-pap.pdf', 'conteudo-criterios');
+        Storage::disk(config('filesystems.default'))->put('pap/manual-pt.pdf', 'conteudo-manual');
+        Storage::disk(config('filesystems.default'))->put('pap/estrutura-trabalho-pap.pdf', 'conteudo-estrutura');
 
         $cursoTuteladoTutor->update([
             'criterios_pap_path' => 'pap/criterios-pap.pdf',

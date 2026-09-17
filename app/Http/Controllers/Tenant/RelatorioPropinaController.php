@@ -182,7 +182,7 @@ class RelatorioPropinaController extends Controller
         $dadosInstituicao = null;
         if ($instituicao) {
             $logoBase64 = null;
-            if ($instituicao->logo && Storage::disk('public')->exists($instituicao->logo)) {
+            if ($instituicao->logo && Storage::disk(config('filesystems.default'))->exists($instituicao->logo)) {
                 $extension = strtolower(pathinfo($instituicao->logo, PATHINFO_EXTENSION));
                 $mime = match ($extension) {
                     'jpg', 'jpeg' => 'image/jpeg',
@@ -194,7 +194,7 @@ class RelatorioPropinaController extends Controller
 
                 if ($mime) {
                     $logoBase64 = 'data:'.$mime.';base64,'.base64_encode(
-                        Storage::disk('public')->get($instituicao->logo)
+                        Storage::disk(config('filesystems.default'))->get($instituicao->logo)
                     );
                 }
             }
