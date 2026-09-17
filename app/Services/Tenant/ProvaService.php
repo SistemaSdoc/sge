@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Tenant;
 
-use App\Models\PrazoProva;
-use App\Models\SubmissaoProva;
+use App\Models\Tenant\PrazoProva;
+use App\Models\Tenant\SubmissaoProva;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Exception;

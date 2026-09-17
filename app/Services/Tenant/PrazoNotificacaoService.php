@@ -1,31 +1,32 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Tenant;
 
-use App\Models\PrazoProva;
-use App\Models\Professor;
-use App\Notifications\PrazoProvaNotificacao;
+use App\Models\Tenant\User;
+use App\Models\Tenant\PrazoProva;
+use App\Models\Tenant\Professor; 
+use App\Models\Tenant\SubmissaoProva;
+use App\Models\Tenant\JustificativaNaoSubmissao; 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;  
-use App\Models\SubmissaoProva;
-use App\Models\JustificativaNaoSubmissao; 
-use App\Notifications\PrazoExpiradoDiretorNotificacao;
-use App\Notifications\JustificativaEnviadaNotificacao; 
+use Illuminate\Support\Facades\Log; 
+use App\Notifications\PrazoProvaNotificacao; 
 use App\Notifications\NovaSubmissaoNotificacao;
+use App\Notifications\PrazoExpiradoDiretorNotificacao;
+use App\Notifications\JustificativaEnviadaNotificacao;
 
 class PrazoNotificacaoService
 {
     public function notificarDiretoresNovaSubmissao(SubmissaoProva $submissao): int
 {
-    // 🔥 Buscar o prazo com instituicao
+    //   Buscar o prazo com instituicao
     $prazo = $submissao->prazo;
     if (!$prazo) {
         Log::warning('Nova submissão sem prazo associado', ['submissao_id' => $submissao->id]);
         return 0;
     }
 
-    // 🔥 Diretores apenas da mesma instituição do prazo
+    //   Diretores apenas da mesma instituição do prazo
     $diretores = $this->buscarDiretores($prazo->instituicao_id);
 
     if ($diretores->isEmpty()) {

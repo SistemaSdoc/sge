@@ -1,17 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Tenant;
 
-use App\Models\AnoLectivo;
-use App\Models\Classe;
-use App\Models\Disciplina;
-use App\Models\PrazoProva;
-use App\Models\Professor;
-use App\Models\SubmissaoProva;
-use App\Models\JustificativaNaoSubmissao;
+use App\Http\Controllers\Controller;
+
+use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\Classe;
+use App\Models\Tenant\Disciplina;
+use App\Models\Tenant\PrazoProva;
+use App\Models\Tenant\Professor;
+use App\Models\Tenant\SubmissaoProva;
+use App\Models\Tenant\JustificativaNaoSubmissao;
 use App\Notifications\PrazoProvaNotificacao;
-use App\Services\PrazoNotificacaoService;
-use App\Services\ProvaService;
+use App\Services\Tenant\PrazoNotificacaoService;
+use App\Services\Tenant\ProvaService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -63,7 +65,7 @@ class PrazoProvaController extends Controller
             ->withQueryString()
             ->through(fn($prazo) => $this->formatarPrazoParaLista($prazo));
 
-        return Inertia::render('diretor/prazos/index', [
+        return Inertia::render('tenant/diretor/prazos/index', [
             'prazos'      => $prazos,
             'filters'     => $request->only(['status', 'disciplina_id', 'ano_letivo']),
             'disciplinas' => Disciplina::orderBy('nome')->get(['id', 'nome', 'sigla']),  //   sem filtro
@@ -78,7 +80,7 @@ class PrazoProvaController extends Controller
     {
         $this->authorize('create', PrazoProva::class);
 
-        return Inertia::render('diretor/prazos/Create', [
+        return Inertia::render('tenant/diretor/prazos/Create', [
             'disciplinas' => Disciplina::orderBy('nome')->get(['id', 'nome', 'sigla']),      //   sem filtro
             'classes'     => Classe::orderBy('nome')->get(['id', 'nome', 'nivel_ensino']),  //   sem filtro
         ]);
@@ -179,14 +181,14 @@ class PrazoProvaController extends Controller
                 }
             }
 
-            Log::info('✅ Prazos criados', [
+            Log::info(' Prazos criados', [
                 'quantidade'     => count($prazosIds),
                 'criado_por'     => auth()->id(),
                 'instituicao_id' => $instituicaoId,
             ]);
 
             $total = count($prazosIds);
-            return redirect()->route('prazos.index')
+            return redirect()->route('tenant.dashboard.diretor.prazos.index')
                 ->with('success', "{$total} prazo(s) criado(s) com sucesso!");
 
         } catch (\Exception $e) {
@@ -213,7 +215,7 @@ class PrazoProvaController extends Controller
     {
         $this->authorize('update', $prazo);
 
-        return Inertia::render('diretor/prazos/edit', [
+        return Inertia::render('tenant/diretor/prazos/edit', [
             'prazo' => [
                 'id'              => $prazo->id,
                 'titulo'          => $prazo->titulo,
@@ -243,7 +245,7 @@ class PrazoProvaController extends Controller
 
         $prazo->update($validated);
 
-        return redirect()->route('prazos.show', $prazo)
+        return redirect()->route('tenant.dashboard.diretor.prazos.show', $prazo)
             ->with('success', 'Prazo atualizado com sucesso.');
     }
 
@@ -274,7 +276,7 @@ class PrazoProvaController extends Controller
                 'data_avaliacao' => $just->data_avaliacao?->format('d/m/Y H:i'),
             ]);
 
-        return Inertia::render('diretor/prazos/show', [
+        return Inertia::render('tenant/diretor/prazos/show', [
             'prazo'          => $this->formatarPrazoParaDetalhe($prazo),
             'submissoes'     => $submissoes,
             'justificativas' => $justificativas,
@@ -332,7 +334,7 @@ class PrazoProvaController extends Controller
 
         $status = $status->sortByDesc('submeteu')->values();
 
-        return Inertia::render('diretor/prazos/status', [
+        return Inertia::render('tenant/diretor/prazos/status', [
             'prazo' => [
                 'id'           => $prazo->id,
                 'titulo'       => $prazo->titulo ?? $prazo->tipo_prova,

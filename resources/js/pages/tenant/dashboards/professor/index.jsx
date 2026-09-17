@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/react';
 import { GreetingHeader } from './components/greeting-header';
 import { getGreeting, getTodayFormatted } from '@/utils/greeting';
-import NotificacoesSino from './components/notificacoes-sino';
+import NotificacoesSino from '@/components/notificacoes-sino';
 
 export default function ProfessorDashboard({ proximasAulas = [], avisos = [] }) {
   const { auth } = usePage().props;
@@ -16,7 +16,6 @@ export default function ProfessorDashboard({ proximasAulas = [], avisos = [] }) 
         todayFormatted={todayFormatted}
       />
 
-              <NotificacoesSino />
     </div>
   );
 }

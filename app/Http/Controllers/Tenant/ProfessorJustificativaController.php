@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Tenant;
 
-use App\Models\PrazoProva;
-use App\Models\Professor;
-use App\Models\SubmissaoProva;
-use App\Models\JustificativaNaoSubmissao;
-use App\Services\PrazoNotificacaoService;
+use App\Http\Controllers\Controller;
+
+use App\Models\Tenant\PrazoProva;
+use App\Models\Tenant\Professor;
+use App\Models\Tenant\SubmissaoProva;
+use App\Models\Tenant\JustificativaNaoSubmissao;
+use App\Services\Tenant\PrazoNotificacaoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -48,7 +50,7 @@ class ProfessorJustificativaController extends Controller
         }
 
         if ($this->jaSubmeteu($prazo, $professor)) {
-            return redirect()->route('professor.provas.index')
+            return redirect()->route('tenant.dashboard.professor.provas.index')
                 ->with('error', 'Você já submeteu uma prova para este prazo.');
         }
 
@@ -58,7 +60,7 @@ class ProfessorJustificativaController extends Controller
 
         $justificativa = $this->buscarJustificativa($prazo, $professor);
 
-        return Inertia::render('professores/justificativas/create', [
+        return Inertia::render('tenant/professores/justificativas/create', [
             'prazo' => [
                 'id'          => $prazo->id,
                 'titulo'      => $prazo->titulo ?? $prazo->tipo_prova,
@@ -129,7 +131,7 @@ class ProfessorJustificativaController extends Controller
                 'instituicao_id'   => $prazo->instituicao_id,
             ]);
 
-            return redirect()->route('professor.provas.index')
+            return redirect()->route('tenant.dashboard.professor.provas.index')
                 ->with('success', 'Justificativa enviada com sucesso! Aguarde a avaliação do diretor.');
 
         } catch (\Exception $e) {
@@ -172,7 +174,7 @@ class ProfessorJustificativaController extends Controller
                 ];
             });
 
-        return Inertia::render('professores/justificativas/index', [
+        return Inertia::render('tenant/professores/justificativas/index', [
             'justificativas' => $justificativas,
         ]);
     }

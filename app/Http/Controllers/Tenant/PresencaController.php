@@ -1,3 +1,7 @@
+<?php
+
+namespace App\Http\Controllers\Tenant;
+
 use App\Services\VerificadorPropinaService;
 
 class PresencaController extends Controller

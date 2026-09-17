@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Tenant;
 
-use App\Models\SubmissaoProva;
+use App\Http\Controllers\Controller;
+
+use App\Models\Tenant\SubmissaoProva;
 use App\Notifications\SubmissaoAvaliadaNotificacao;  
-use App\Services\ProvaService;
+use App\Services\Tenant\ProvaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 

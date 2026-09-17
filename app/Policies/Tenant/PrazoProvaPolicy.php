@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Policies;
+namespace App\Policies\Tenant;
 
-use App\Models\PrazoProva;
-use App\Models\User;
+use App\Models\Tenant\PrazoProva;
+use App\Models\Tenant\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PrazoProvaPolicy

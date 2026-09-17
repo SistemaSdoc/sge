@@ -1,13 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
 
-use App\Models\PrazoProva;
-use App\Models\SubmissaoProva;
-use App\Models\Professor;
-use App\Services\ProvaService;
-use App\Models\JustificativaNaoSubmissao;
-use App\Services\PrazoNotificacaoService;
+namespace App\Http\Controllers\Tenant;
+
+use App\Http\Controllers\Controller;
+
+use App\Models\Tenant\PrazoProva;
+use App\Models\Tenant\SubmissaoProva;
+use App\Models\Tenant\Professor;
+use App\Services\Tenant\ProvaService;
+use App\Models\Tenant\JustificativaNaoSubmissao;
+use App\Services\Tenant\PrazoNotificacaoService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -51,7 +54,7 @@ class SubmissaoProvaController extends Controller
         $prazosEncerrados = $this->getPrazosEncerradosParaProfessor($professor, $instituicaoId);
         $historico = $this->getHistoricoSubmissoes($professor, $instituicaoId);
 
-        return Inertia::render('professores/provas/index', [
+        return Inertia::render('tenant/professores/provas/index', [
             'prazos_abertos'    => $prazosAbertos,
             'prazos_encerrados' => $prazosEncerrados,
             'historico'         => $historico,
@@ -81,19 +84,19 @@ class SubmissaoProvaController extends Controller
             ->first();
 
         if ($justificativa && $justificativa->status === 'recusada') {
-            return redirect()->route('professor.provas.index')
+            return redirect()->route('tenant.dashboard.professor.provas.index')
                 ->with('error', 'A sua justificativa foi recusada. Não pode submeter para este prazo.');
         }
 
         if (!$prazo->isAberto()) {
-            return redirect()->route('professor.provas.index')
+            return redirect()->route('tenant.dashboard.professor.provas.index')
                 ->with('error', 'Este prazo já está encerrado.');
         }
 
         $turmas = $this->getTurmasDoProfessor($prazo, $professor);
         $turmaSelecionada = $request->input('turma_id');
 
-        return Inertia::render('professores/provas/submeter', [
+        return Inertia::render('tenant/professores/provas/submeter', [
             'prazo'             => $this->formatarPrazoParaSubmissao($prazo),
             'turmas'            => $turmas,
             'turma_selecionada' => $turmaSelecionada,
@@ -159,7 +162,7 @@ public function store(Request $request, PrazoProva $prazo)
             'instituicao_id' => $prazo->instituicao_id,
         ]);
 
-        return redirect()->route('professor.provas.index')
+        return redirect()->route('tenant.dashboard.professor.provas.index')
             ->with('success', "Prova submetida com sucesso! (Versão {$submissao->versao})");
     } catch (\Exception $e) {
         Log::error('Erro ao submeter prova', [
@@ -185,7 +188,7 @@ public function store(Request $request, PrazoProva $prazo)
 
     private function renderDashboardVazio()
     {
-        return Inertia::render('professores/provas/index', [
+        return Inertia::render('tenant/professores/provas/index', [
             'prazos_abertos'    => [],
             'prazos_encerrados' => [],
             'historico'         => SubmissaoProva::whereRaw('1 = 0')->paginate(15),
@@ -284,7 +287,7 @@ private function getPrazosAbertosParaProfessor(Professor $professor, string $ins
                 'status'       => $justificativa->status,
                 'status_label' => $justificativa->status_label,
             ] : null,
-            'url_justificar' => route('professor.justificar.create', $prazo),
+            'url_justificar' => route('tenant.dashboard.professor.justificar.create', $prazo),
         ];
 
         // Prazo geral (sem disciplina)
@@ -296,9 +299,9 @@ private function getPrazosAbertosParaProfessor(Professor $professor, string $ins
                 $resultados[] = array_merge($base, [
                     'id'           => $prazo->id,
                     'turma_id'     => null,
-                    'turma_nome'   => 'Todas',  // 🔥
+                    'turma_nome'   => 'Todas',  
                     'ja_submeteu'  => false,
-                    'url_submeter' => route('professor.provas.submeter', $prazo),
+                    'url_submeter' => route('tenant.dashboard.professor.provas.submeter', $prazo),
                 ]);
             } else {
                 foreach ($turmas as $turma) {
@@ -308,7 +311,7 @@ private function getPrazosAbertosParaProfessor(Professor $professor, string $ins
                         'turma_id'     => $turma['id'],
                         'turma_nome'   => $turma['nome'],  //  nome da turma
                         'ja_submeteu'  => $jaSubmeteu,
-                        'url_submeter' => route('professor.provas.submeter', [
+                        'url_submeter' => route('tenant.dashboard.professor.provas.submeter', [
                             'prazo'    => $prazo->id,
                             'turma_id' => $turma['id'],
                         ]),
@@ -328,7 +331,7 @@ private function getPrazosAbertosParaProfessor(Professor $professor, string $ins
                 'turma_id'     => null,
                 'turma_nome'   => 'Todas',  //  era $prazo->classe?->nome
                 'ja_submeteu'  => false,
-                'url_submeter' => route('professor.provas.submeter', $prazo),
+                'url_submeter' => route('tenant.dashboard.professor.provas.submeter', $prazo),
             ]);
         } else {
             foreach ($turmas as $turma) {
@@ -338,7 +341,7 @@ private function getPrazosAbertosParaProfessor(Professor $professor, string $ins
                     'turma_id'     => $turma['id'],
                     'turma_nome'   => $turma['nome'],  //  nome da turma
                     'ja_submeteu'  => $jaSubmeteu,
-                    'url_submeter' => route('professor.provas.submeter', [
+                    'url_submeter' => route('tenant.dashboard.professor.provas.submeter', [
                         'prazo'    => $prazo->id,
                         'turma_id' => $turma['id'],
                     ]),
@@ -411,7 +414,7 @@ private function getPrazosEncerradosParaProfessor(Professor $professor, string $
                 'status'       => $justificativa->status,
                 'status_label' => $justificativa->status_label,
             ] : null,
-            'url_justificar' => route('professor.justificar.create', $prazo),
+            'url_justificar' => route('tenant.dashboard.professor.justificar.create', $prazo),
         ];
 
         // Prazo geral

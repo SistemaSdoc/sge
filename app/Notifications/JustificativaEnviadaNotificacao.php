@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\JustificativaNaoSubmissao;
+use App\Models\Tenant\JustificativaNaoSubmissao;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;

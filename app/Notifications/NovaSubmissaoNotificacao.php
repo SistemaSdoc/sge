@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\SubmissaoProva;
+use App\Models\Tenant\SubmissaoProva;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;

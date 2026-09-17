@@ -55,6 +55,10 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use App\Http\Controllers\Tenant\AvaliacaoProvaController;
+use App\Http\Controllers\Tenant\ProfessorJustificativaController;
+use App\Http\Controllers\Tenant\PrazoProvaController;
+use App\Http\Controllers\Tenant\SubmissaoProvaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,8 +71,8 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 Route::middleware([
     'web',
-    InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
+    InitializeTenancyByDomain::class,
 ])->group(function () {
     /*
     |--------------------------------------------------------------------------
@@ -613,6 +617,27 @@ Route::middleware([
 
             Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
                 ->name('notificacoes.ler');
+
+            // ===== DIRETOR =====
+// ===== DIRETOR =====
+Route::prefix('diretor')->name('diretor.')->group(function () {
+    Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
+    Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');
+    Route::post('prazos/{prazo}/fechar', [PrazoProvaController::class, 'fechar'])->name('prazos.fechar');
+    Route::get('prazos/{prazo}/status', [PrazoProvaController::class, 'status'])->name('prazos.status');
+    Route::patch('justificativas/{justificativa}/avaliar', [PrazoProvaController::class, 'avaliar'])->name('justificativas.avaliar');
+    Route::patch('submissoes/{submissao}/avaliar', [AvaliacaoProvaController::class, 'update'])->name('submissoes.avaliar');
+});
+
+// ===== PROFESSOR =====
+Route::prefix('professor')->name('professor.')->group(function () {
+    Route::get('provas', [SubmissaoProvaController::class, 'index'])->name('provas.index');
+    Route::get('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'create'])->name('provas.submeter');
+    Route::post('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'store'])->name('provas.store');
+    Route::get('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
+    Route::post('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
+    Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
+});
 
             /*
             |--------------------------------------------------------------------------

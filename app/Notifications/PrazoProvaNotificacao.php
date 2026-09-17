@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\PrazoProva;
+use App\Models\Tenant\PrazoProva;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -104,12 +104,12 @@ class PrazoProvaNotificacao extends Notification
     private function icone(): string
     {
         return match ($this->tipo) {
-            self::TIPO_CRIADO     => '📝',
-            self::TIPO_PRORROGADO => '⏰',
-            self::TIPO_FECHADO    => '🔒',
-            self::TIPO_A_EXPIRAR  => '⚠️',
-            self::TIPO_EXPIRADO   => '❌',
-            default               => '📢',
+            self::TIPO_CRIADO     => ' ',
+            self::TIPO_PRORROGADO => ' ',
+            self::TIPO_FECHADO    => ' ',
+            self::TIPO_A_EXPIRAR  => ' ',
+            self::TIPO_EXPIRADO   => ' ',
+            default               => ' ',
         };
     }
 

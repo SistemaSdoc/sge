@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use App\Models\PrazoProva;
+use App\Models\Tenant\PrazoProva;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;

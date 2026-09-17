@@ -70,7 +70,7 @@ export function CursosTable({ cursos }) {
               {cursos.map((curso) => (
                 <TableRow
                   key={curso.id}
-                  className="hover:cursor-pointer"
+                  className=""
                   onClick={() => router.visit(show(curso.id).url)}
                 >
                   <TableCell className="px-4 font-medium">

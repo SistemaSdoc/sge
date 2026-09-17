@@ -28,8 +28,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
-use App\Policies\PrazoProvaPolicy;
-use App\Policies\SubmissaoProvaPolicy;
+use App\Policies\Tenant\PrazoProvaPolicy;
+use App\Policies\Tenant\SubmissaoProvaPolicy;
 
 
 class AppServiceProvider extends ServiceProvider

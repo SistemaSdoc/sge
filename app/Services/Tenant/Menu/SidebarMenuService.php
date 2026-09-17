@@ -21,6 +21,9 @@ use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
+use App\Http\Controllers\Tenant\PrazoProvaController;
+use App\Http\Controllers\Tenant\AvaliacaoProvaController;
+use App\Http\Controllers\Tenant\SubmissaoProvaController;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Aviso;
@@ -209,6 +212,24 @@ final class SidebarMenuService
                     href: action([DocumentosController::class, 'index']),
                     icon: 'FileTextIcon',
                     can: fn () => $gate->allows('documentos.viewAny')
+                ),
+            ]),
+
+                  // ===== NOVO GRUPO: AVALIAÇÃO (Provas) =====
+            new MenuGroup('Avaliação', [
+                new MenuItem(
+                    key: 'prazos-provas',
+                    title: 'Prazos de Provas',
+                    href: action([PrazoProvaController::class, 'index']),
+                    icon: 'FileText',
+                    can: fn () =>  Gate::allows('prazo-prova.viewAny')
+                ),
+                new MenuItem(
+                    key: 'submeter-provas',
+                    title: 'Submeter Provas', 
+                    href: action([SubmissaoProvaController::class, 'index']),
+                    icon: 'FileText',
+                    can: fn () => Gate::allows('submissao-prova.create')
                 ),
             ]),
 
