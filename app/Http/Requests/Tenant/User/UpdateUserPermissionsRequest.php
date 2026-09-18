@@ -25,13 +25,17 @@ class UpdateUserPermissionsRequest extends FormRequest
     /** @return array<int, string> */
     private function allowedPermissions(): array
     {
-        /** @var User $actor */
-        $actor = auth()->guard('tenant')->user();
+        /** @var User $user */
+        $user = auth()->guard('tenant')->user();
 
-        if (! $actor?->isSubdirector()) {
-            return app(RoleManagementService::class)->permissions();
+        if (! $user?->isSubdirector()) {
+            return collect(app(RoleManagementService::class)->permissions())
+                ->pluck('value')
+                ->all();
         }
 
-        return app(RoleManagementService::class)->permissions($actor);
+        return collect(app(RoleManagementService::class)->permissions($user))
+            ->pluck('value')
+            ->all();
     }
 }

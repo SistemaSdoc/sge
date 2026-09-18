@@ -25,7 +25,7 @@ class UserProfileController extends Controller
         private readonly UserProfileService $profileService,
     ) {}
 
-    /** Apresenta os dados pessoais do perfil. */
+    /** Mostra os dados pessoais do perfil. */
     public function show(User $user)
     {
         $this->authorizeOwnProfile($user);
@@ -59,7 +59,7 @@ class UserProfileController extends Controller
         return back()->with('success', 'Foto de perfil actualizada com sucesso.');
     }
 
-    /** Apresenta os dados académicos de um aluno. */
+    /** Mostra os dados académicos de um aluno. */
     public function academic(User $user)
     {
         $this->authorizeOwnProfile($user);
@@ -71,7 +71,7 @@ class UserProfileController extends Controller
         ]);
     }
 
-    /** Apresenta as opções de segurança do perfil. */
+    /** Mostra as opções de segurança do perfil. */
     public function security(
         TwoFactorAuthenticationRequest $request,
         User $user

@@ -23,8 +23,7 @@ class UserController extends Controller
         private readonly CreateUser $createUser,
         private readonly UpdateUser $updateUser,
         private readonly DeleteUser $deleteUser,
-    ) {
-    }
+    ) {}
 
     public function index()
     {
@@ -45,15 +44,15 @@ class UserController extends Controller
     {
         Gate::authorize('create', User::class);
 
-        /** @var User $actor */
-        $actor = Auth::guard('tenant')->user();
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
 
         return Inertia::render('tenant/users/create', [
-            'roles' => $this->userManagementService->roles($actor),
+            'roles' => $this->userManagementService->roles($user),
             'currentUser' => [
-                'id' => $actor?->id,
-                'isSubdirector' => $actor?->isSubdirector(),
-                'isSuperAdmin' => $actor?->isSuperAdmin(),
+                'id' => $user?->id,
+                'isSubdirector' => $user?->isSubdirector(),
+                'isSuperAdmin' => $user?->isSuperAdmin(),
             ],
         ]);
     }
@@ -91,19 +90,19 @@ class UserController extends Controller
     {
         Gate::authorize('update', $user);
 
-        /** @var User $actor */
-        $actor = Auth::guard('tenant')->user();
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
 
         return Inertia::render('tenant/users/edit', [
             'user' => [
                 ...$user->load('roles:id,name')->only('id', 'nome', 'email', 'telefone', 'roles'),
                 'isDirector' => $user->isDirector(),
             ],
-            'roles' => $this->userManagementService->roles($actor, $user),
+            'roles' => $this->userManagementService->roles($user, $user),
             'currentUser' => [
-                'id' => $actor?->id,
-                'isSubdirector' => $actor?->isSubdirector(),
-                'isSuperAdmin' => $actor?->isSuperAdmin(),
+                'id' => $user?->id,
+                'isSubdirector' => $user?->isSubdirector(),
+                'isSuperAdmin' => $user?->isSuperAdmin(),
             ],
         ]);
     }
@@ -112,10 +111,10 @@ class UserController extends Controller
     {
         Gate::authorize('update', $user);
 
-        /** @var User $actor */
-        $actor = Auth::guard('tenant')->user();
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
 
-        if ($actor?->isSubdirector() && $user->is($actor)) {
+        if ($user?->isSubdirector() && $user->is($user)) {
             abort(403, 'Não pode alterar o seu próprio perfil de funções.');
         }
 

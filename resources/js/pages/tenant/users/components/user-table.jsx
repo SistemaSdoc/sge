@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { MoreHorizontalIcon, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import {
   edit,
   create,
@@ -15,13 +15,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,

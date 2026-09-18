@@ -150,6 +150,8 @@ Route::middleware([
             require base_path('routes/modules/notas.php');
             require base_path('routes/settings.php');
 
+            Route::resource('users', UserController::class)->except(['show']);
+
             Route::get('users/{user}/permissions', [UserPermissionController::class, 'create'])
                 ->name('users.permissions.create');
 
@@ -171,7 +173,6 @@ Route::middleware([
             Route::get('users/{user}', [UserProfileController::class, 'show'])
                 ->name('users.show');
 
-            Route::resource('users', UserController::class)->except(['show']);
             Route::resource('roles', RoleController::class)->except(['show']);
             Route::resource('alunos', AlunoController::class);
             Route::resource('avisos', AvisoController::class);
