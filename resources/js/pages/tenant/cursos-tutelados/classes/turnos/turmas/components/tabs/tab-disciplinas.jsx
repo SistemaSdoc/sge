@@ -31,7 +31,10 @@ import {
   destroy,
 } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
 import { create as createNotas } from '@/actions/App/Http/Controllers/Tenant/NotaDisciplinaController';
-import { create as createProfessor } from '@/actions/App/Http/Controllers/Tenant/InstituicaoCurso/TurmaDisciplinaProfessorController';
+import {
+  create as createProfessor,
+  destroy as destroyProfessor,
+} from '@/actions/App/Http/Controllers/Tenant/InstituicaoCurso/TurmaDisciplinaProfessorController';
 import TablePagination from '@/components/table-pagination';
 import { toast } from 'sonner';
 import { useDialog } from '@/hooks/use-dialog';
@@ -64,10 +67,13 @@ export function TabDisciplinas({
 
     openForm({
       title: `Horários de ${disciplina?.nome}`,
-      description: 'Configure os horários de aulas para esta disciplina',
+      description: disciplina?.can?.manage_schedule
+        ? 'Configure os horários de aulas para esta disciplina'
+        : 'Consulte os horários de aulas desta disciplina',
       content: (
         <HorariosForm
           defaultValues={disciplina?.horarios}
+          readOnly={!disciplina?.can?.manage_schedule}
           onSubmit={(payload) => {
             router.post(
               action,
@@ -110,6 +116,32 @@ export function TabDisciplinas({
             onError: (errors) => {
               toast.error(errors.message);
             },
+          },
+        ),
+    });
+  };
+
+  const handleRemoveProfessor = (disciplina) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description: 'O professor será desassociado desta disciplina na turma.',
+      confirmLabel: 'Desassociar',
+      confirmFn: () =>
+        router.delete(
+          destroyProfessor({
+            instituicao: params.instituicao.id,
+            cursoTutelado: params.cursoTutelado.id,
+            cursoClasse: params.cursoClasse.id,
+            cursoClasseTurno: params.cursoClasseTurno.id,
+            turma: params.turma,
+            classeTurnoDisciplina: disciplina.id,
+          }).url,
+          {
+            preserveScroll: true,
+            data: { ano_lectivo_id: anoLectivoSelecionado },
+            onSuccess: () =>
+              toast.success('Professor desassociado com sucesso'),
+            onError: (errors) => toast.error(errors.message),
           },
         ),
     });
@@ -271,18 +303,23 @@ export function TabDisciplinas({
                           <DropdownMenuItem
                             onClick={(e) => abrirHorariosDialog(disciplina, e)}
                           >
-                            Definir horários
+                            {disciplina?.can?.manage_schedule
+                              ? 'Definir horários'
+                              : 'Visualizar horários'}
                           </DropdownMenuItem>
 
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteDisciplina(disciplina.id);
-                            }}
-                          >
-                            Remover
-                          </DropdownMenuItem>
+                          {disciplina.professor &&
+                            disciplina?.can?.detach_professor && (
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveProfessor(disciplina);
+                                }}
+                              >
+                                Desassociar professor
+                              </DropdownMenuItem>
+                            )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

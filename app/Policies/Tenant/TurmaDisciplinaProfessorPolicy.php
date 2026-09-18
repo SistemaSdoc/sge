@@ -72,12 +72,12 @@ class TurmaDisciplinaProfessorPolicy
     /**
      * Determina se o utilizador pode definir o professor de uma disciplina numa turma.
      *
-     * Apenas Director, Subdirector e Secretaria podem executar esta ação.
+     * Requer a permissão configurável de definição do professor da disciplina.
      */
     public function definirProfessor(User $user): bool
     {
         return $user->instituicao_id !== null
-            && $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']);
+            && $user->can('classeturnodisciplina.definirProfessor');
     }
 
     /**
@@ -97,7 +97,9 @@ class TurmaDisciplinaProfessorPolicy
      */
     public function delete(User $user, TurmaDisciplinaProfessor $relacao): bool
     {
-        return $this->view($user, $relacao);
+        return $user->instituicao_id !== null
+            && $user->can('classeturnodisciplina.definirProfessor')
+            && $this->pertenceAInstituicao($user, $relacao);
     }
 
     /**

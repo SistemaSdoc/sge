@@ -39,16 +39,22 @@ return [
         'local_public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL') . '/storage',
+            'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => true,
         ],
 
-        'public' => [
+        'public' => env('AWS_BUCKET') ? [
             'driver' => 'scoped',
             'disk' => 's3',
             'prefix' => 'public',
             'throw' => true,
+        ] : [
+            'driver' => 'local',
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
         ],
 
         's3' => [
@@ -61,7 +67,6 @@ return [
             'visibility' => 'private',
         ],
     ],
-
 
     /*
     |--------------------------------------------------------------------------

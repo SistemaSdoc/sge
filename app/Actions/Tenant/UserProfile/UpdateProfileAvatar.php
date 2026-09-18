@@ -12,6 +12,7 @@ class UpdateProfileAvatar
     {
         $user->update([
             'avatar' => $avatar->store('avatars', 'public'),
+
         ]);
     }
 }

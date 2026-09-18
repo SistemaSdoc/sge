@@ -41,4 +41,23 @@ class TurmaDisciplinaProfessor extends Pivot
     {
         return $this->hasMany(Nota::class, 'turma_disciplina_professor_id');
     }
+
+    public function pautaStatuses()
+    {
+        return $this->hasMany(PautaStatus::class, 'turma_disciplina_professor_id');
+    }
+
+    public function solicitacoesEdicaoPauta()
+    {
+        return $this->hasMany(SolicitacaoEdicaoPauta::class, 'turma_disciplina_professor_id');
+    }
+
+    public function temHistorico(): bool
+    {
+        return $this->notas()->exists()
+            || $this->pautaStatuses()
+                ->whereIn('status', ['finalizada', 'expirada'])
+                ->exists()
+            || $this->solicitacoesEdicaoPauta()->exists();
+    }
 }

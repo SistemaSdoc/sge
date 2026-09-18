@@ -416,6 +416,9 @@ Route::middleware([
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/professores', [TurmaDisciplinaProfessorController::class, 'store'])
                 ->name('turma.disciplinas.professores.store');
 
+            Route::delete('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/professores', [TurmaDisciplinaProfessorController::class, 'destroy'])
+                ->name('turma.disciplinas.professores.destroy');
+
             /*
             |--------------------------------------------------------------------------
             | Relatorio geral do tenant

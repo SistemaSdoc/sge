@@ -202,6 +202,8 @@ class RoleManagementService
                 'classeturnodisciplina.create',
                 'classeturnodisciplina.update',
                 'classeturnodisciplina.delete',
+                'classeturnodisciplina.definirProfessor',
+                'classeturnodisciplina.gerirHorarios',
             ],
             'Pautas' => [
                 'pautas.viewAny',

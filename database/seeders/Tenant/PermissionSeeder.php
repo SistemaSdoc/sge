@@ -75,6 +75,8 @@ class PermissionSeeder extends Seeder
             'classeturnodisciplina.create' => 'Atribuir disciplina a uma turma',
             'classeturnodisciplina.update' => 'Editar disciplina atribuída à turma',
             'classeturnodisciplina.delete' => 'Remover disciplina da turma',
+            'classeturnodisciplina.definirProfessor' => 'Definir professor da disciplina na turma',
+            'classeturnodisciplina.gerirHorarios' => 'Definir horários da disciplina na turma',
 
             // Pautas
             'pautas.viewAny' => 'Ver lista de pautas',

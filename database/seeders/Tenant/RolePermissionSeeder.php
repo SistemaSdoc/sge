@@ -79,6 +79,8 @@ class RolePermissionSeeder extends Seeder
                 'classeturnodisciplina.create',
                 'classeturnodisciplina.update',
                 'classeturnodisciplina.delete',
+                'classeturnodisciplina.definirProfessor',
+                'classeturnodisciplina.gerirHorarios',
 
                 // Curso Classe Turno
                 'cursoclasseturno.viewAny',
@@ -241,6 +243,8 @@ class RolePermissionSeeder extends Seeder
                 'classeturnodisciplina.create',
                 'classeturnodisciplina.update',
                 'classeturnodisciplina.delete',
+                'classeturnodisciplina.definirProfessor',
+                'classeturnodisciplina.gerirHorarios',
 
                 // Curso Classe Turno
                 'cursoclasseturno.viewAny',
@@ -374,6 +378,8 @@ class RolePermissionSeeder extends Seeder
                 // classeturnodisciplina
                 'classeturnodisciplina.viewAny',
                 'classeturnodisciplina.view',
+                'classeturnodisciplina.definirProfessor',
+                'classeturnodisciplina.gerirHorarios',
 
                 // Curso Classe Turno
                 'cursoclasseturno.viewAny',
@@ -525,6 +531,8 @@ class RolePermissionSeeder extends Seeder
                 'classeturnodisciplina.create',
                 'classeturnodisciplina.update',
                 'classeturnodisciplina.delete',
+                'classeturnodisciplina.definirProfessor',
+                'classeturnodisciplina.gerirHorarios',
 
                 // Confirmação de Matrícula
                 'confirmacoes.matricula.viewAny',
