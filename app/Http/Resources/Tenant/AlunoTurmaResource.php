@@ -21,7 +21,7 @@ class AlunoTurmaResource extends JsonResource
             'email' => $this->user?->email,
             'telefone' => $this->user?->telefone,
             'can' => [
-                'view' => $request->user()?->can('view', $this->resource) ?? false,
+                'view' => $request->user('tenant')?->can('view', $this->resource) ?? false,
             ],
         ];
     }

@@ -53,21 +53,31 @@ export function ConfirmacaoTable({
       <div className="mx-auto w-full max-w-7xl p-6">
         <Card className="gap-0">
           <CardHeader className="border-b">
-            <CardTitle>Confirmação de matrículas</CardTitle>
-            <CardDescription>
-              Lista de alunos por confirmar a sua matrícula
-            </CardDescription>
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              {/* Título e Descrição */}
+              <div className="min-w-0 space-y-1">
+                <CardTitle>Confirmação de matrículas</CardTitle>
+                <CardDescription>
+                  Lista de alunos por confirmar a sua matrícula
+                </CardDescription>
+              </div>
 
-            <CardAction className="flex gap-3">
-              <Field>
-                <div className="flex gap-2">
-                  <Input placeholder="Digite para pesquisar..." />
-                  <Button variant="outline">Pesquisar</Button>
-                </div>
-              </Field>
-            </CardAction>
+              {/* Search */}
+              <CardAction className="w-full shrink-0 md:w-auto">
+                <Field>
+                  <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row">
+                    <Input
+                      placeholder="Digite para pesquisar..."
+                      className="w-full md:w-auto"
+                    />
+                    <Button variant="outline" className="w-full md:w-auto">
+                      Pesquisar
+                    </Button>
+                  </div>
+                </Field>
+              </CardAction>
+            </div>
           </CardHeader>
-
           <CardContent className="p-0!">
             {isEmpty ? (
               <EmptyState

@@ -4,94 +4,114 @@ namespace App\Services\Tenant;
 
 use App\Models\Tenant\PrazoProva;
 use App\Models\Tenant\SubmissaoProva;
+use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Exception;
 
 class ProvaService
 {
     /**
      * Submete uma prova (cria nova versão ou substitui).
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function submeterProva(
         PrazoProva $prazo,
         string $professorId,
-        string $turmaId, 
+        string $turmaId,
         $arquivoProva,
         $arquivoChave,
         ?string $comentario = null
     ): SubmissaoProva {
-        \Log::info('SERVICE - Iniciando submeterProva', [
+        Log::info('SERVICE - Iniciando submeterProva', [
             'prazo_id' => $prazo->id,
             'professor_id' => $professorId,
             'comentario' => $comentario,
         ]);
 
-        if (!$prazo->isAberto()) {
-            \Log::warning(' SERVICE - Prazo não está aberto', ['prazo_id' => $prazo->id, 'status' => $prazo->status]);
+        if (! $prazo->isAberto()) {
+            Log::warning(' SERVICE - Prazo não está aberto', ['prazo_id' => $prazo->id, 'status' => $prazo->status]);
             throw new Exception('Este prazo não está aberto para submissões.');
         }
 
         $ultimaSubmissao = SubmissaoProva::where('prazo_prova_id', $prazo->id)
             ->where('professor_id', $professorId)
-            ->where('turma_id', $turmaId) 
+            ->where('turma_id', $turmaId)
             ->latest('versao')
             ->first();
 
         $novaVersao = $ultimaSubmissao ? $ultimaSubmissao->versao + 1 : 1;
-        \Log::info(' SERVICE - Versão calculada', ['versao' => $novaVersao, 'submissao_anterior' => $ultimaSubmissao ? $ultimaSubmissao->id : null]);
+        Log::info(' SERVICE - Versão calculada', ['versao' => $novaVersao, 'submissao_anterior' => $ultimaSubmissao ? $ultimaSubmissao->id : null]);
 
-        //NOVA LÓGICA: permite reenvio se a última foi rejeitada, mesmo que permite_reenvio seja false
+        // NOVA LÓGICA: permite reenvio se a última foi rejeitada, mesmo que permite_reenvio seja false
         if ($ultimaSubmissao) {
             $reenvioPermitido = $prazo->permite_reenvio || $ultimaSubmissao->estado === 'rejeitado';
-            if (!$reenvioPermitido) {
-                \Log::warning('SERVICE - Reenvio bloqueado', ['prazo_id' => $prazo->id]);
+            if (! $reenvioPermitido) {
+                Log::warning('SERVICE - Reenvio bloqueado', ['prazo_id' => $prazo->id]);
                 throw new Exception('Reenvio não autorizado para este prazo.');
             }
         }
 
-        try {
-            \Log::info(' SERVICE - Armazenando arquivo da prova');
-            $pathProva = $this->storeFile($arquivoProva, 'provas', $prazo->id, $professorId, $novaVersao);
-            \Log::info('SERVICE - Prova armazenada', ['path' => $pathProva]);
+        $pathProva = null;
+        $pathChave = null;
 
-            \Log::info('SERVICE - Armazenando arquivo da chave');
+        try {
+            Log::info(' SERVICE - Armazenando arquivo da prova');
+            $pathProva = $this->storeFile($arquivoProva, 'provas', $prazo->id, $professorId, $novaVersao);
+            Log::info('SERVICE - Prova armazenada', ['path' => $pathProva]);
+
+            Log::info('SERVICE - Armazenando arquivo da chave');
             $pathChave = $this->storeFile($arquivoChave, 'chaves', $prazo->id, $professorId, $novaVersao);
-            \Log::info(' SERVICE - Chave armazenada', ['path' => $pathChave]);
-        } catch (\Exception $e) {
-            \Log::error(' SERVICE - Erro ao armazenar arquivos', ['error' => $e->getMessage()]);
+            Log::info(' SERVICE - Chave armazenada', ['path' => $pathChave]);
+        } catch (Exception $e) {
+            if ($pathProva) {
+                Storage::disk('local')->delete($pathProva);
+            }
+
+            Log::error(' SERVICE - Erro ao armazenar arquivos', ['error' => $e->getMessage()]);
             throw $e;
         }
 
         $dados = [
             'prazo_prova_id' => $prazo->id,
-            'professor_id'   => $professorId,
-            'disciplina_id'  => $prazo->disciplina_id,
-            'classe_id'      => $prazo->classe_id,
-            'turma_id'       => $turmaId, 
-            'caminho_prova'  => $pathProva,
-            'caminho_chave'  => $pathChave,
-            'versao'         => $novaVersao,
+            'professor_id' => $professorId,
+            'disciplina_id' => $prazo->disciplina_id,
+            'classe_id' => $prazo->classe_id,
+            'turma_id' => $turmaId,
+            'caminho_prova' => $pathProva,
+            'caminho_chave' => $pathChave,
+            'versao' => $novaVersao,
             'comentario_professor' => $comentario,
-            'estado'         => 'pendente',
+            'estado' => 'pendente',
             'data_submissao' => now(),
         ];
 
-        \Log::info(' SERVICE - Tentando criar SubmissaoProva', $dados);
+        Log::info(' SERVICE - Tentando criar SubmissaoProva', $dados);
 
         try {
-            $submissao = SubmissaoProva::create($dados);
-            \Log::info(' SERVICE - Submissão criada', ['id' => $submissao->id]);
-        } catch (\Exception $e) {
-            \Log::error(' SERVICE - Falha ao criar SubmissaoProva', ['error' => $e->getMessage(), 'dados' => $dados]);
-            throw $e;
-        }
+            $submissao = DB::transaction(function () use ($dados, $ultimaSubmissao): SubmissaoProva {
+                $submissao = SubmissaoProva::create($dados);
 
-        if ($ultimaSubmissao) {
-            $ultimaSubmissao->update(['estado' => 'substituido']);
-            \Log::info(' SERVICE - Submissão anterior marcada como substituída', ['id' => $ultimaSubmissao->id]);
+                if ($ultimaSubmissao) {
+                    $ultimaSubmissao->update(['estado' => 'substituido']);
+                }
+
+                return $submissao;
+            });
+            Log::info(' SERVICE - Submissão criada', ['id' => $submissao->id]);
+        } catch (Exception $e) {
+            if ($pathProva) {
+                Storage::disk('local')->delete($pathProva);
+            }
+
+            if ($pathChave) {
+                Storage::disk('local')->delete($pathChave);
+            }
+
+            Log::error(' SERVICE - Falha ao criar SubmissaoProva', ['error' => $e->getMessage(), 'dados' => $dados]);
+            throw $e;
         }
 
         return $submissao;
@@ -102,7 +122,7 @@ class ProvaService
      */
     public function avaliarSubmissao(SubmissaoProva $submissao, string $acao, ?string $parecer = null): SubmissaoProva
     {
-        if (!in_array($acao, ['aprovar', 'rejeitar'])) {
+        if (! in_array($acao, ['aprovar', 'rejeitar'])) {
             throw new Exception('Ação inválida. Use "aprovar" ou "rejeitar".');
         }
 
@@ -154,13 +174,13 @@ class ProvaService
     {
         $nomeOriginal = $file->getClientOriginalName();
         $extensao = $file->getClientOriginalExtension();
-        $nomeUnico = Str::uuid() . '.' . $extensao;
+        $nomeUnico = Str::uuid().'.'.$extensao;
 
         $caminho = "provas/prazo_{$prazoId}/professor_{$professorId}/versao_{$versao}/{$tipo}/";
 
-        Storage::disk('public')->putFileAs($caminho, $file, $nomeUnico);
+        Storage::disk('local')->putFileAs($caminho, $file, $nomeUnico);
 
-        return $caminho . $nomeUnico;
+        return $caminho.$nomeUnico;
     }
 
     /**

@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Notifications\Pap;
+
+use App\Models\Tenant\GrupoPap;
+use App\Notifications\Concerns\ReliableNotification;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+
+class TrabalhoSubmetidoAoTutorConfirmacaoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
+{
+    use Queueable;
+    use ReliableNotification;
+
+    public function __construct(public GrupoPap $grupoPap) {}
+
+    public function via(object $notifiable): array
+    {
+        return ['database', 'mail'];
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject('Trabalho PAP submetido ao tutor!')
+            ->view('mail.pap.trabalho-submetido-ao-tutor-confirmacao', [
+                'nomeGrupo' => $this->grupoPap->nome_grupo,
+                'turma' => $this->grupoPap->turma?->nome,
+                'url' => $this->urlGrupo(),
+            ]);
+    }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'tipo' => 'trabalho_submetido_confirmacao',
+            'titulo' => 'Trabalho submetido!',
+            'mensagem' => "O trabalho do grupo \"{$this->grupoPap->nome_grupo}\" foi entregue ao tutor com sucesso. Aguarda revisão.",
+            'grupo_pap_id' => $this->grupoPap->id,
+            'url' => $this->urlGrupo(),
+        ];
+    }
+
+    private function urlGrupo(): string
+    {
+        $turma = $this->grupoPap->turma;
+        $turno = $turma->cursoClasseTurno;
+        $classe = $turno->cursoClasse;
+        $cursoTutelado = $classe->cursoTutelado;
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
+
+        return route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $classe->id,
+            'cursoClasseTurno' => $turno->id,
+            'turma' => $turma->id,
+            'grupoPap' => $this->grupoPap->id,
+        ]);
+    }
+}

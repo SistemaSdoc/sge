@@ -2,64 +2,66 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\Tenant\User;
+use App\Models\Tenant\JustificativaNaoSubmissao;
 use App\Models\Tenant\PrazoProva;
-use App\Models\Tenant\Professor; 
+use App\Models\Tenant\Professor;
 use App\Models\Tenant\SubmissaoProva;
-use App\Models\Tenant\JustificativaNaoSubmissao; 
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log; 
-use App\Notifications\PrazoProvaNotificacao; 
+use App\Models\Tenant\User;
+use App\Notifications\JustificativaEnviadaNotificacao;
 use App\Notifications\NovaSubmissaoNotificacao;
 use App\Notifications\PrazoExpiradoDiretorNotificacao;
-use App\Notifications\JustificativaEnviadaNotificacao;
+use App\Notifications\PrazoProvaNotificacao;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PrazoNotificacaoService
 {
     public function notificarDiretoresNovaSubmissao(SubmissaoProva $submissao): int
-{
-    //   Buscar o prazo com instituicao
-    $prazo = $submissao->prazo;
-    if (!$prazo) {
-        Log::warning('Nova submissão sem prazo associado', ['submissao_id' => $submissao->id]);
-        return 0;
-    }
+    {
+        //   Buscar o prazo com instituicao
+        $prazo = $submissao->prazo;
+        if (! $prazo) {
+            Log::warning('Nova submissão sem prazo associado', ['submissao_id' => $submissao->id]);
 
-    //   Diretores apenas da mesma instituição do prazo
-    $diretores = $this->buscarDiretores($prazo->instituicao_id);
-
-    if ($diretores->isEmpty()) {
-        Log::warning('Nenhum diretor para notificar sobre nova submissão', [
-            'submissao_id'   => $submissao->id,
-            'instituicao_id' => $prazo->instituicao_id,
-        ]);
-        return 0;
-    }
-
-    $enviadas = 0;
-
-    foreach ($diretores as $diretor) {
-        try {
-            $diretor->notify(new NovaSubmissaoNotificacao($submissao));
-            $enviadas++;
-        } catch (\Exception $e) {
-            Log::error('Erro ao notificar diretor sobre nova submissão', [
-                'diretor_id'   => $diretor->id,
-                'submissao_id' => $submissao->id,
-                'error'        => $e->getMessage(),
-            ]);
+            return 0;
         }
+
+        //   Diretores apenas da mesma instituição do prazo
+        $diretores = $this->buscarDiretores($prazo->instituicao_id);
+
+        if ($diretores->isEmpty()) {
+            Log::warning('Nenhum diretor para notificar sobre nova submissão', [
+                'submissao_id' => $submissao->id,
+                'instituicao_id' => $prazo->instituicao_id,
+            ]);
+
+            return 0;
+        }
+
+        $enviadas = 0;
+
+        foreach ($diretores as $diretor) {
+            try {
+                $diretor->notify(new NovaSubmissaoNotificacao($submissao));
+                $enviadas++;
+            } catch (\Exception $e) {
+                Log::error('Erro ao notificar diretor sobre nova submissão', [
+                    'diretor_id' => $diretor->id,
+                    'submissao_id' => $submissao->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        Log::info('Diretores notificados sobre nova submissão', [
+            'submissao_id' => $submissao->id,
+            'instituicao_id' => $prazo->instituicao_id,
+            'quantidade' => $enviadas,
+        ]);
+
+        return $enviadas;
     }
-
-    Log::info('Diretores notificados sobre nova submissão', [
-        'submissao_id'   => $submissao->id,
-        'instituicao_id' => $prazo->instituicao_id,
-        'quantidade'     => $enviadas,
-    ]);
-
-    return $enviadas;
-}
 
     /**
      * Notifica todos os professores elegíveis para um prazo.
@@ -73,15 +75,16 @@ class PrazoNotificacaoService
         if ($professores->isEmpty()) {
             Log::info('Nenhum professor elegível para notificar', [
                 'prazo_id' => $prazo->id,
-                'tipo'     => $tipo,
+                'tipo' => $tipo,
             ]);
+
             return 0;
         }
 
         $enviadas = 0;
 
         foreach ($professores as $professor) {
-            if (!$professor->user) {
+            if (! $professor->user) {
                 continue;
             }
 
@@ -91,19 +94,19 @@ class PrazoNotificacaoService
                 $enviadas++;
             } catch (\Exception $e) {
                 Log::error('Erro ao notificar professor', [
-                    'prazo_id'      => $prazo->id,
-                    'professor_id'  => $professor->id,
-                    'user_id'       => $professor->user->id,
-                    'error'         => $e->getMessage(),
+                    'prazo_id' => $prazo->id,
+                    'professor_id' => $professor->id,
+                    'user_id' => $professor->user->id,
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         Log::info('Notificações enviadas', [
-            'prazo_id'   => $prazo->id,
-            'tipo'       => $tipo,
+            'prazo_id' => $prazo->id,
+            'tipo' => $tipo,
             'quantidade' => $enviadas,
-            'total'      => $professores->count(),
+            'total' => $professores->count(),
         ]);
 
         return $enviadas;
@@ -116,7 +119,22 @@ class PrazoNotificacaoService
     {
         // Prazo geral (sem disciplina) → todos os professores
         if (is_null($prazo->disciplina_id)) {
-            return Professor::with('user')->get();
+            $query = Professor::with('user')
+                ->whereHas('user', fn ($query) => $query->where('instituicao_id', $prazo->instituicao_id));
+
+            if ($prazo->classe_id) {
+                $query->whereExists(function ($query) use ($prazo): void {
+                    $query->select(DB::raw(1))
+                        ->from('turma_disciplina_professor')
+                        ->join('classe_turno_disciplina', 'turma_disciplina_professor.classe_turno_disciplina_id', '=', 'classe_turno_disciplina.id')
+                        ->join('curso_classe_turno', 'classe_turno_disciplina.curso_classe_turno_id', '=', 'curso_classe_turno.id')
+                        ->join('curso_classe', 'curso_classe_turno.curso_classe_id', '=', 'curso_classe.id')
+                        ->whereColumn('turma_disciplina_professor.professor_id', 'professores.id')
+                        ->where('curso_classe.classe_id', $prazo->classe_id);
+                });
+            }
+
+            return $query->get();
         }
 
         // Prazo com disciplina → professores que a lecionam
@@ -130,22 +148,32 @@ class PrazoNotificacaoService
                         '=',
                         'classe_turno_disciplina.id'
                     )
+                    ->join('curso_classe_turno', 'classe_turno_disciplina.curso_classe_turno_id', '=', 'curso_classe_turno.id')
+                    ->join('curso_classe', 'curso_classe_turno.curso_classe_id', '=', 'curso_classe.id')
                     ->whereColumn('turma_disciplina_professor.professor_id', 'professores.id')
-                    ->where('classe_turno_disciplina.disciplina_id', $prazo->disciplina_id);
+                    ->where('classe_turno_disciplina.disciplina_id', $prazo->disciplina_id)
+                    ->when($prazo->classe_id, fn ($query) => $query->where('curso_classe.classe_id', $prazo->classe_id));
             })
+            ->whereHas('user', fn ($query) => $query->where('instituicao_id', $prazo->instituicao_id))
             ->get();
     }
-     /**
+
+    /**
      * Notifica os diretores que um prazo expirou, com estatísticas.
      */
     public function notificarDiretoresPrazoExpirado(PrazoProva $prazo): int
     {
-        $diretores = $this->buscarDiretores();
+        if (! $prazo->instituicao_id) {
+            return 0;
+        }
+
+        $diretores = $this->buscarDiretores($prazo->instituicao_id);
 
         if ($diretores->isEmpty()) {
             Log::warning('Nenhum diretor para notificar sobre prazo expirado', [
                 'prazo_id' => $prazo->id,
             ]);
+
             return 0;
         }
 
@@ -167,15 +195,15 @@ class PrazoNotificacaoService
             } catch (\Exception $e) {
                 Log::error('Erro ao notificar diretor', [
                     'diretor_id' => $diretor->id,
-                    'error'      => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         Log::info('Diretores notificados sobre prazo expirado', [
-            'prazo_id'   => $prazo->id,
+            'prazo_id' => $prazo->id,
             'quantidade' => $enviadas,
-            'stats'      => $stats,
+            'stats' => $stats,
         ]);
 
         return $enviadas;
@@ -186,7 +214,14 @@ class PrazoNotificacaoService
      */
     public function notificarDiretoresJustificativa(JustificativaNaoSubmissao $justificativa): int
     {
-        $diretores = $this->buscarDiretores();
+        $justificativa->loadMissing('prazo');
+        $instituicaoId = $justificativa->prazo?->instituicao_id;
+
+        if (! $instituicaoId) {
+            return 0;
+        }
+
+        $diretores = $this->buscarDiretores($instituicaoId);
 
         if ($diretores->isEmpty()) {
             return 0;
@@ -200,16 +235,16 @@ class PrazoNotificacaoService
                 $enviadas++;
             } catch (\Exception $e) {
                 Log::error('Erro ao notificar diretor sobre justificativa', [
-                    'diretor_id'       => $diretor->id,
+                    'diretor_id' => $diretor->id,
                     'justificativa_id' => $justificativa->id,
-                    'error'            => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         Log::info('Diretores notificados sobre justificativa', [
             'justificativa_id' => $justificativa->id,
-            'quantidade'       => $enviadas,
+            'quantidade' => $enviadas,
         ]);
 
         return $enviadas;
@@ -222,19 +257,18 @@ class PrazoNotificacaoService
     /**
      * Lista utilizadores com role de diretor.
      */
+    private function buscarDiretores(?string $instituicaoId = null): Collection
+    {
+        $query = User::whereHas('roles', function ($q) {
+            $q->whereIn('name', ['Director', 'Subdirector', 'SuperAdmin']);
+        });
 
-private function buscarDiretores(?string $instituicaoId = null): Collection
-{
-    $query = User::whereHas('roles', function ($q) {
-        $q->whereIn('name', ['Director', 'Subdirector', 'SuperAdmin']);
-    });
+        if ($instituicaoId) {
+            $query->where('instituicao_id', $instituicaoId);
+        }
 
-    if ($instituicaoId) {
-        $query->where('instituicao_id', $instituicaoId);
+        return $query->get();
     }
-
-    return $query->get();
-}
 
     /**
      * Calcula estatísticas de cumprimento de um prazo.
@@ -258,12 +292,10 @@ private function buscarDiretores(?string $instituicaoId = null): Collection
         $naoSubmeteram = $total - $submeteram;
 
         return [
-            'total'          => $total,
-            'submeteram'     => $submeteram,
-            'nao_submeteram' => $nao_submeteram,
-            'justificaram'   => $justificaram,
+            'total' => $total,
+            'submeteram' => $submeteram,
+            'nao_submeteram' => $naoSubmeteram,
+            'justificaram' => $justificaram,
         ];
     }
-
-
 }

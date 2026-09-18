@@ -7,17 +7,16 @@ use App\Http\Resources\Tenant\AlunoTurmaResource;
 use App\Http\Resources\Tenant\ClasseTurnoDisciplinaResource;
 use App\Http\Resources\Tenant\GrupoPapIndexResource;
 use App\Http\Resources\Tenant\Turma\TurmaShowResource;
-use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
-use App\Models\Tenant\ClasseTurnoDisciplina;
-use App\Models\Tenant\ConfirmacaoMatricula;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\User;
+use App\Rules\CentralAnoLectivoExists;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\Pauta\PautaService;
 use Illuminate\Http\Request;
@@ -41,6 +40,7 @@ class ClasseTurnoTurmaController extends Controller
 
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+        $user->loadMissing('roles.permissions', 'permissions');
 
         // Filtro ano lectivo
         $anoLectivoId = request('ano_lectivo_id')
@@ -84,7 +84,10 @@ class ClasseTurnoTurmaController extends Controller
                 'cursoClasse' => ['id' => $turma->cursoClasseTurno?->cursoClasse?->id],
                 'cursoClasseTurno' => ['id' => $turma->cursoClasseTurno?->id],
             ]),
-            'anosLectivos' => AnoLectivo::all(),
+            'anosLectivos' => AnoLectivo::query()
+                ->select('id', 'nome')
+                ->orderByDesc('data_inicio')
+                ->get(),
             'anoLectivoActual' => $anoLectivoId,
         ]);
     }
@@ -121,6 +124,12 @@ class ClasseTurnoTurmaController extends Controller
                 'id' => $cursoClasseTurno->id,
                 'nome' => $cursoClasseTurno->turno->nome ?? 'Turno não encontrado',
             ],
+            'anosLectivos' => AnoLectivo::query()
+                ->select('id', 'nome')
+                ->orderByDesc('data_inicio')
+                ->get(),
+            'anoLectivoId' => request('ano_lectivo_id')
+                ?? $this->anoLectivoResolverService->obterAnoLectivoDefault(),
             'can' => [
                 'create' => $user->can('create', Turma::class),
             ],
@@ -140,10 +149,11 @@ class ClasseTurnoTurmaController extends Controller
         $request->validate([
             'nome' => 'required|string|max:255',
             'max_alunos' => 'nullable|integer|min:1',
+            'ano_lectivo_id' => ['nullable', 'uuid', new CentralAnoLectivoExists],
         ]);
 
-        // Determina automaticamente o ano lectivo
-        $anoLectivoId = $this->anoLectivoResolverService->obterAnoLectivoDefault();
+        $anoLectivoId = $request->input('ano_lectivo_id')
+            ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         $jaExiste = Turma::where('curso_classe_turno_id', $cursoClasseTurno->id)
             ->where('ano_lectivo_id', $anoLectivoId)
@@ -165,6 +175,7 @@ class ClasseTurnoTurmaController extends Controller
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,
+            'ano_lectivo_id' => $anoLectivoId,
         ]))->with('success', 'Turma criada com sucesso!');
     }
 
@@ -179,6 +190,8 @@ class ClasseTurnoTurmaController extends Controller
         $user = Auth::guard('tenant')->user();
 
         Gate::authorize('view', $turma);
+
+        $user->loadMissing('roles.permissions', 'permissions');
 
         Redirect::setIntendedUrl(request()->fullUrl());
 
@@ -200,10 +213,19 @@ class ClasseTurnoTurmaController extends Controller
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
             ->paginate(10, ['*'], 'page_alunos');
 
+        // Adiciona isto:
+        $alunos->getCollection()->transform(function ($aluno) use ($user) {
+            $aluno->can = [
+                'view' => $user->can('view', $aluno),
+            ];
+
+            return $aluno;
+        });
+
         // Construir a query base de disciplinas
         $disciplinasQuery = $turma->cursoClasseTurno
             ->classeTurnoDisciplinas()
-            ->where('ano_lectivo_id', $turma->ano_lectivo_id)
+            ->where('ano_lectivo_id', $anoLectivoId)
             ->with([
                 'disciplina:id,nome,sigla',
                 'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
@@ -229,13 +251,32 @@ class ClasseTurnoTurmaController extends Controller
         $disciplinas = $disciplinasQuery->paginate(5, ['*'], 'page_disciplinas');
 
         $grupos = $turma->gruposPap()
-            ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final')
+            ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final', 'professor_tutor_id')
             ->paginate(5, ['*'], 'page_grupos');
 
-        $pautaRecurso = $this->pautaService->gerarPauta($turma, 4, 5);
+        $grupos->getCollection()->transform(function ($grupo) use ($user) {
+            $grupo->can = [
+                'view' => $user->can('view', $grupo),
+            ];
+
+            return $grupo;
+        });
+
+        $temAlunosEmRecurso = TurmaAluno::query()
+            ->where('turma_id', $turma->id)
+            ->where('activo', true)
+            ->whereIn('resultado', ['recurso', 'aprovado_recurso', 'reprovado_recurso'])
+            ->exists();
+
+        $pautaRecurso = $temAlunosEmRecurso
+            ? $this->pautaService->gerarPauta($turma, 4, 5)
+            : ['alunos' => [], 'resumo' => ['total' => 0]];
         $podeLancarRecurso = $user->hasAnyRole(['Director', 'Subdirector'])
             || collect($pautaRecurso['alunos'] ?? [])
                 ->contains(fn ($aluno) => is_null($aluno['nota_recurso'] ?? null));
+
+        // Pre-carregar relações usadas nas policies
+        $cursoTutelado->loadMissing('instituicaoCurso');
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/show', [
             'instituicao' => $instituicao->only('id'),
@@ -269,24 +310,24 @@ class ClasseTurnoTurmaController extends Controller
                     'view' => $user->can('view', $cursoClasseTurno),
                 ],
                 'alunos' => [
-                    'create' => $user->can('create', Aluno::class),
+                    'create' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),
                 ],
                 'disciplinas' => [
-                    'create' => $user->can('create', ClasseTurnoDisciplina::class),
+                    'create' => $user->hasAnyRole(['Director', 'Subdirector']),
                 ],
                 'grupos' => [
                     'create' => $user->can('create', GrupoPap::class),
                 ],
                 'confirmarMatricula' => [
-                    'viewAny' => $user->can('viewAny', ConfirmacaoMatricula::class),
+                    'viewAny' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),
                 ],
             ],
-
             'alunos' => AlunoTurmaResource::collection($alunos),
             'disciplinas' => ClasseTurnoDisciplinaResource::collection($disciplinas),
             'pautaRecurso' => $pautaRecurso,
             'pode_lancar_recurso' => $podeLancarRecurso,
             'grupos' => GrupoPapIndexResource::collection($grupos),
+
         ]);
     }
 
@@ -319,6 +360,11 @@ class ClasseTurnoTurmaController extends Controller
             ],
             'turma' => $turma,
             'origem' => request('origem'),
+            'anosLectivos' => AnoLectivo::query()
+                ->select('id', 'nome')
+                ->orderByDesc('data_inicio')
+                ->get(),
+            'anoLectivoId' => request('ano_lectivo_id') ?? $turma->ano_lectivo_id,
             'can' => [
                 'update' => $user->can('update', $turma),
             ],
@@ -338,11 +384,25 @@ class ClasseTurnoTurmaController extends Controller
         $request->validate([
             'nome' => 'sometimes|string|max:255',
             'max_alunos' => 'nullable|integer|min:1',
+            'ano_lectivo_id' => ['nullable', 'uuid', new CentralAnoLectivoExists],
         ]);
+
+        $anoLectivoId = $request->input('ano_lectivo_id')
+            ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
+
+        $jaExiste = Turma::where('curso_classe_turno_id', $cursoClasseTurno->id)
+            ->where('ano_lectivo_id', $anoLectivoId)
+            ->where('nome', $request->nome)
+            ->exists();
+
+        if ($jaExiste) {
+            return back()->withErrors(['nome' => 'Já existe uma turma com este nome neste turno.']);
+        }
 
         $turma->update(array_filter([
             'nome' => $request->input('nome', $turma->nome),
             'max_alunos' => $request->input('max_alunos', $turma->max_alunos),
+            'ano_lectivo_id' => $request->input('ano_lectivo_id', $turma->ano_lectivo_id),
         ], fn ($value) => $value !== null));
 
         // Preserva o filtro de ano lectivo na navegação de volta

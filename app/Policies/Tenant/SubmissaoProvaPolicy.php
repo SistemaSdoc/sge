@@ -12,7 +12,8 @@ class SubmissaoProvaPolicy
 {
     use HandlesAuthorization;
 
-    private const ROLE_DIRECTOR  = 'Director';
+    private const ROLE_DIRECTOR = 'Director';
+
     private const ROLE_PROFESSOR = 'Professor';
 
     /**
@@ -26,6 +27,7 @@ class SubmissaoProvaPolicy
 
         // Compara instituicao do prazo com a do utilizador
         $instituicaoDoPrazo = $submissao->prazo?->instituicao_id;
+
         return $instituicaoDoPrazo === $user->instituicao_id;
     }
 
@@ -37,6 +39,7 @@ class SubmissaoProvaPolicy
         if ($user->hasRole('SuperAdmin')) {
             return true;
         }
+
         return null;
     }
 
@@ -80,12 +83,12 @@ class SubmissaoProvaPolicy
      */
     public function submeterParaPrazo(User $user, PrazoProva $prazo): bool
     {
-        if (!$user->hasRole(self::ROLE_PROFESSOR)) {
+        if (! $user->hasRole(self::ROLE_PROFESSOR)) {
             return false;
         }
 
         // 🔥 Mesma instituição
-        if (!$user->hasRole('SuperAdmin') && $prazo->instituicao_id !== $user->instituicao_id) {
+        if (! $user->hasRole('SuperAdmin') && $prazo->instituicao_id !== $user->instituicao_id) {
             return false;
         }
 
@@ -95,14 +98,17 @@ class SubmissaoProvaPolicy
         }
 
         $professor = $user->professor;
-        if (!$professor) {
+        if (! $professor) {
             return false;
         }
 
         return DB::table('turma_disciplina_professor')
             ->join('classe_turno_disciplina', 'turma_disciplina_professor.classe_turno_disciplina_id', '=', 'classe_turno_disciplina.id')
+            ->join('curso_classe_turno', 'classe_turno_disciplina.curso_classe_turno_id', '=', 'curso_classe_turno.id')
+            ->join('curso_classe', 'curso_classe_turno.curso_classe_id', '=', 'curso_classe.id')
             ->where('classe_turno_disciplina.disciplina_id', $prazo->disciplina_id)
             ->where('turma_disciplina_professor.professor_id', $professor->id)
+            ->when($prazo->classe_id, fn ($query) => $query->where('curso_classe.classe_id', $prazo->classe_id))
             ->exists();
     }
 
@@ -111,7 +117,7 @@ class SubmissaoProvaPolicy
      */
     public function update(User $user, SubmissaoProva $submissao): bool
     {
-        if (!$user->hasRole(self::ROLE_PROFESSOR)) {
+        if (! $user->hasRole(self::ROLE_PROFESSOR)) {
             return false;
         }
 

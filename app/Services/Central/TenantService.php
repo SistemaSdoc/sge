@@ -156,7 +156,7 @@ class TenantService
     {
         $tenant = DB::transaction(function () use ($data): Tenant {
             $subdomain = $data['domain'];
-            $baseDomain = env('APP_DOMAIN', 'localhost');
+            $baseDomain = config('app.domain');
             $domain = "{$subdomain}.{$baseDomain}";
 
             $tenant = Tenant::create([
@@ -187,7 +187,7 @@ class TenantService
             nomeInstituicao: $data['nome'],
             nomeUser: $data['user_nome'],
             subdomain: $data['domain'],
-            url: 'http://'.$tenant->id.'.'.env('APP_DOMAIN', 'localhost'),
+            url: 'http://'.$tenant->id.'.'.config('app.domain'),
             sigla: $data['sigla'],
         ));
 

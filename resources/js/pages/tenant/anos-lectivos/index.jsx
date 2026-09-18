@@ -1,12 +1,8 @@
-import { useDialog } from '@/hooks/use-dialog';
 import { Head, router } from '@inertiajs/react';
 import AnoLectivoTable from './components/ano-lectivo-table';
-import {
-  index,
-  destroy,
-} from '@/actions/App/Http/Controllers/Tenant/AvisoController';
+import { index } from '@/actions/App/Http/Controllers/Tenant/AnoLectivoController';
 
-export default function Index({ anosLectivos = {}, can }) {
+export default function Index({ anosLectivos = {} }) {
   const handlePageChange = (page) => {
     router.visit(index().url, {
       data: { page },
@@ -19,7 +15,6 @@ export default function Index({ anosLectivos = {}, can }) {
       <Head title="Anos Lectivos" />
 
       <AnoLectivoTable
-        can={can}
         anosLectivos={anosLectivos.data}
         pagination={{
           current_page: anosLectivos.current_page,

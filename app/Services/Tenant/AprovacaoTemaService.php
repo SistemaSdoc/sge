@@ -163,14 +163,7 @@ class AprovacaoTemaService
 
         $actorTenantId ??= (string) $currentTenantId;
 
-        return DB::transaction(function () use (
-            $grupoPap,
-            $user,
-            $novoEstado,
-            $comentario,
-            $actorTenantId,
-            $currentTenantId
-        ) {
+        return DB::transaction(function () use ($grupoPap, $user, $novoEstado, $comentario, $actorTenantId, $currentTenantId) {
 
             $estadoAnterior = $grupoPap->status_aprovacao;
             $isExternalActor = $actorTenantId !== null
@@ -235,11 +228,7 @@ class AprovacaoTemaService
             return false;
         }
 
-        return DB::transaction(function () use (
-            $grupoPap,
-            $user,
-            $dados
-        ) {
+        return DB::transaction(function () use ($grupoPap, $user, $dados) {
 
             $estadoAnterior = $grupoPap->status_aprovacao;
 
@@ -269,6 +258,7 @@ class AprovacaoTemaService
             if ($tutor) {
                 $tutor->notify(new TemaSubmetidoAoTutorNotification($grupoPap));
             }
+            $this->notificarTemaSubmetidoConfirmacaoAlunos($grupoPap);
             // ──────────────────────────────────────────────────────
 
             return true;

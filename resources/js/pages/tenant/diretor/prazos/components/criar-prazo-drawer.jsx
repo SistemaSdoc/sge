@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCancel }) {
   const { data, setData, post, processing, errors } = useForm({
     titulo: '',
-    tipo_prova: 'teste',
+    tipo_prova: 'Prova-Trimestral',
     disciplina_ids: [],
     classe_ids: [],
     data_inicio: '',
@@ -82,10 +82,9 @@ export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCa
             <SelectValue placeholder="Selecione o tipo" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="teste">Teste</SelectItem>
-            <SelectItem value="exame">Exame</SelectItem>
-            <SelectItem value="ficha">Ficha</SelectItem>
-            <SelectItem value="recuperacao">Recuperação</SelectItem>
+            <SelectItem value="Prova-Trimestral">Prova Trimestral</SelectItem>
+            <SelectItem value="Recurso">Recurso</SelectItem>
+            <SelectItem value="Exame-especial">Exame Especial</SelectItem>
           </SelectContent>
         </Select>
         {errors.tipo_prova && <p className="text-sm text-destructive">{errors.tipo_prova}</p>}

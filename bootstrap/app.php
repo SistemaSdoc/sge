@@ -4,6 +4,7 @@ use App\Exceptions\TenantDatabaseNotExistException;
 use App\Http\Middleware\CheckTenantStatus;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\Tenant\EnsurePerfilCompleto;
 use App\Http\Middleware\ValidateCrossTenantAccess;
 use App\Http\Middleware\VerificarPropinaEmDia;
 use Illuminate\Database\QueryException;
@@ -16,7 +17,7 @@ use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use Stancl\Tenancy\Exceptions\TenantDatabaseDoesNotExistException;
-use App\Http\Middleware\Tenant\EnsurePerfilCompleto;
+use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -48,6 +49,28 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo(function () {
             return tenancy()->initialized ? route('tenant.dashboard') : route('central.dashboard');
         });
+
+        /**
+         * Configura os proxies confiáveis para a aplicação.
+         *
+         * A instância roda atrás de um AWS Application Load Balancer (ALB) que
+         * termina o TLS e encaminha as requisições em HTTP puro via X-Forwarded-*.
+         * Sem isto, o Laravel trata cada requisição como http:// e vinda do IP
+         * interno do ALB, quebrando geração de URLs (url(), route()), redirects
+         * de HTTPS, e o fluxo OAuth/Fortify (redirect_uri_mismatch).
+         *
+         * `at: '*'` confia em qualquer peer porque os IPs internos do ALB não são
+         * fixos nem documentados pela AWS. Isto só é seguro porque o Security Group
+         * da instância está restrito a aceitar tráfego apenas do Security Group do
+         * ALB (não 0.0.0.0/0) — sem essa restrição, o header X-Forwarded-Proto
+         * poderia ser forjado por qualquer requisição direta à instância.
+         *
+         * @see https://laravel.com/docs/13.x/requests#configuring-trusted-proxies
+         */
+        $middleware->trustProxies(
+            at: '*',
+            headers: SymfonyRequest::HEADER_X_FORWARDED_AWS_ELB,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

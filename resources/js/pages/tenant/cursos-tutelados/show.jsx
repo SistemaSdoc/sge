@@ -147,7 +147,8 @@ export default function Show({
             criteriosPapUrl={cursoTutelado.criterios_pap_url}
             manualPtUrl={cursoTutelado.manual_pt_url}
             estruturaTrabalhoPapUrl={cursoTutelado.estrutura_trabalho_pap_url}
-            can={cursoTutelado.can}
+            //can={cursoTutelado.can}
+            can={can}
             errors={errors}
           />
         </TabsContent>

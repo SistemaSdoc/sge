@@ -5,6 +5,7 @@ namespace App\Services\Tenant\Menu;
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\AvisoController;
+use App\Http\Controllers\Tenant\CalendarioAnualController;
 use App\Http\Controllers\Tenant\ClasseController;
 use App\Http\Controllers\Tenant\Colegios\ColegioController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
@@ -14,18 +15,17 @@ use App\Http\Controllers\Tenant\InscricaoController;
 use App\Http\Controllers\Tenant\InstituicaoController;
 use App\Http\Controllers\Tenant\NotaAlunoController;
 use App\Http\Controllers\Tenant\PautaController;
+use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\ProfessorController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
 use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
+use App\Http\Controllers\Tenant\SubmissaoProvaController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
-use App\Http\Controllers\Tenant\PrazoProvaController;
-use App\Http\Controllers\Tenant\AvaliacaoProvaController;
-use App\Http\Controllers\Tenant\SubmissaoProvaController;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Aviso;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\GrupoPap;
@@ -51,6 +51,7 @@ final class SidebarMenuService
 
     public function build(): array
     {
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
         $gate = Gate::forUser($user);
         $grupoPapNavigation = $this->grupoPapNavigationService->resolve($user);
@@ -199,6 +200,14 @@ final class SidebarMenuService
                 ),
 
                 new MenuItem(
+                    key: 'calendario-anual',
+                    title: 'Calendários',
+                    href: action([CalendarioAnualController::class, 'index']),
+                    icon: 'Calendar1',
+                    can: true,
+                ),
+
+                new MenuItem(
                     key: 'solicitacao-lancamento-notas',
                     title: 'Solicitações de Lançamentos',
                     href: action([SolicitacaoEdicaoPautaController::class, 'index']),
@@ -215,18 +224,18 @@ final class SidebarMenuService
                 ),
             ]),
 
-                  // ===== NOVO GRUPO: AVALIAÇÃO (Provas) =====
+            // ===== NOVO GRUPO: AVALIAÇÃO (Provas) =====
             new MenuGroup('Avaliação', [
                 new MenuItem(
                     key: 'prazos-provas',
                     title: 'Prazos de Provas',
                     href: action([PrazoProvaController::class, 'index']),
                     icon: 'FileText',
-                    can: fn () =>  Gate::allows('prazo-prova.viewAny')
+                    can: fn () => Gate::allows('prazo-prova.viewAny')
                 ),
                 new MenuItem(
                     key: 'submeter-provas',
-                    title: 'Submeter Provas', 
+                    title: 'Submeter Provas',
                     href: action([SubmissaoProvaController::class, 'index']),
                     icon: 'FileText',
                     can: fn () => Gate::allows('submissao-prova.create')
@@ -290,7 +299,7 @@ final class SidebarMenuService
                     })(),
                     icon: 'Building2',
                     can: fn () => $gate->allows('colegios.viewAny')
-                    && $user?->instituicao?->tipo === 'instituto',
+                        && $user?->instituicao?->tipo === 'instituto',
                 ),
             ]),
 
@@ -309,7 +318,7 @@ final class SidebarMenuService
                     href: route('tenant.dashboard.pagamentos.index'),
                     icon: 'CreditCard',
                     can: fn () => $gate->allows('pagamentos.viewAny')
-                    && $user?->instituicao?->tipo === 'colegio',
+                        && $user?->instituicao?->tipo === 'colegio',
                 ),
             ]),
 
@@ -329,7 +338,7 @@ final class SidebarMenuService
                     title: 'Relatórios',
                     href: route('tenant.dashboard.relatorios.index'),
                     icon: 'BarChart3',
-                    can: true,
+                    can: fn () => $user && ! $user->hasRole(['Aluno', 'Professor']),
                 ),
             ]),
         ];

@@ -4,13 +4,17 @@ namespace App\Notifications\Pap;
 
 use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\GrupoPap;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class JuradoAdicionadoBancaNotification extends Notification
+class JuradoAdicionadoBancaNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public GrupoPap $grupoPap,

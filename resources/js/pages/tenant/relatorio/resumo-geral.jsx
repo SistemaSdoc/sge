@@ -98,8 +98,18 @@ export default function ResumoGeral({
           <KpiChartCard
             titulo="Pagamentos efectuados"
             descricao="Receita arrecadada nos últimos 6 meses"
-            valor={kpisExtra.pagamentos_adimplencia !== null ? `${kpisExtra.pagamentos_adimplencia}% Taxa de cobrança` : 'Taxa de cobrança — (pendente)'}
-            chart={<MiniLineChart data={graficos.pagamentos_mensal} color="#3b82f6" formatValor={(v) => `${v.toLocaleString()} Kz arrecadados`} />}
+            valor={
+              kpisExtra.pagamentos_adimplencia !== null
+                ? `${kpisExtra.pagamentos_adimplencia}% Taxa de cobrança`
+                : 'Taxa de cobrança — (pendente)'
+            }
+            chart={
+              <MiniLineChart
+                data={graficos.pagamentos_mensal}
+                color="#3b82f6"
+                formatValor={(v) => `${v.toLocaleString()} Kz arrecadados`}
+              />
+            }
           />
         )}
 

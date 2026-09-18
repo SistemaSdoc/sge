@@ -15,7 +15,16 @@ import {
   FieldSet,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { ArrowUpLeft, Loader } from 'lucide-react';
+import { ArrowUpLeft } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export function TurmaForm({
   title,
@@ -27,6 +36,7 @@ export function TurmaForm({
   errors,
   processing,
   onSubmit,
+  anosLectivos = [],
   can = {},
 }) {
   const canSubmit = Boolean(can.create ?? can.update ?? true);
@@ -84,6 +94,34 @@ export function TurmaForm({
                   />
                   {errors.max_alunos && (
                     <FieldError>{errors.max_alunos}</FieldError>
+                  )}
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="ano_lectivo_id">Ano Lectivo</FieldLabel>
+                  <Select
+                    id="ano_lectivo_id"
+                    value={data.ano_lectivo_id ?? ''}
+                    onValueChange={(value) =>
+                      setData('ano_lectivo_id', value || null)
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione ano lectivo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Anos lectivos</SelectLabel>
+                        {anosLectivos.map((anoLectivo) => (
+                          <SelectItem key={anoLectivo.id} value={anoLectivo.id}>
+                            {anoLectivo.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  {errors.ano_lectivo_id && (
+                    <FieldError>{errors.ano_lectivo_id}</FieldError>
                   )}
                 </Field>
 

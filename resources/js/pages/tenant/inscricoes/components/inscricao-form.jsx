@@ -1,6 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Field,
   FieldError,
@@ -36,6 +42,7 @@ export default function InscricaoForm({
   setNotaTeste,
   entityLabel = 'Matrícula',
   temNotaTeste = false,
+  anosLectivos = [],
   anoLectivoActual,
 }) {
   const classes = cursoSelecionado?.classes ?? [];
@@ -45,28 +52,26 @@ export default function InscricaoForm({
   const temTurnos = classeSelecionada?.turnos?.length > 0;
   const turmas = turnoSelecionado?.turmas ?? [];
   const temTurmas = turmas.length > 0;
-  const hasInstitutionError = Boolean(errors?.instituicao || errors?.message);
+  const podeSubmeter = Boolean(cursoClasseTurnoId && turmaId);
+  const anoLectivoNome = anosLectivos.find(
+    (anoLectivo) => String(anoLectivo.id) === String(anoLectivoActual),
+  )?.nome;
 
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
       <Card>
         <CardHeader className="border-b">
           <CardTitle>{entityLabel}</CardTitle>
+          <CardDescription>
+            Preencha os dados para efectuar a matrícula no ano lectivo{' '}
+            <span className="font-medium text-foreground">
+              {anoLectivoNome ?? 'actual'}
+            </span>
+            .
+          </CardDescription>
         </CardHeader>
 
         <CardContent>
-          {hasInstitutionError && (
-            <div
-              role="alert"
-              className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"
-            >
-              <p className="font-medium">
-                Não foi possível registar a {entityLabel.toLowerCase()}.
-              </p>
-              <p>{errors?.instituicao ?? errors?.message}</p>
-            </div>
-          )}
-
           <FieldGroup>
             <FieldSet>
               {/* ─── Identificação mínima ─── */}
@@ -137,10 +142,24 @@ export default function InscricaoForm({
                             {c.nome}
                           </SelectItem>
                         ))}
+                        {!cursos.length && (
+                          <p className="px-2 py-1.5 text-sm text-muted-foreground">
+                            Nenhum curso configurado para esta instituição.
+                          </p>
+                        )}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  {errors.curso_id && <FieldError>{errors.curso_id}</FieldError>}
+                  {(errors.instituicao || errors.message) && (
+                    <FieldError>
+                      {errors.instituicao ?? errors.message}
+                    </FieldError>
+                  )}
+                  {!cursos.length && (
+                    <FieldError>
+                      Nenhum curso configurado para esta instituição.
+                    </FieldError>
+                  )}
                 </Field>
 
                 <Field>
@@ -170,6 +189,11 @@ export default function InscricaoForm({
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                  {cursoId && !classes.length && (
+                    <FieldError>
+                      Nenhuma classe configurada para este curso.
+                    </FieldError>
+                  )}
                 </Field>
 
                 <Field>
@@ -203,6 +227,12 @@ export default function InscricaoForm({
                   </Select>
                   {errors.curso_classe_turno_id && (
                     <FieldError>{errors.curso_classe_turno_id}</FieldError>
+                  )}
+                  {classeId && !temTurnos && (
+                    <FieldError>
+                      Adicione pelo menos um turno nesta classe antes de
+                      matricular.
+                    </FieldError>
                   )}
                 </Field>
               </div>
@@ -242,6 +272,11 @@ export default function InscricaoForm({
                     {errors.turma_id && (
                       <FieldError>{errors.turma_id}</FieldError>
                     )}
+                    {cursoClasseTurnoId && !temTurmas && (
+                      <FieldError>
+                        Crie uma turma neste turno antes de matricular.
+                      </FieldError>
+                    )}
                   </Field>
 
                   <Field>
@@ -265,8 +300,8 @@ export default function InscricaoForm({
               )}
 
               <Field>
-                <Button type="submit" disabled={processing}>
-                  {processing ? 'A registar…' : 'Matricular'}
+                <Button type="submit" disabled={processing || !podeSubmeter}>
+                  Matricular
                 </Button>
               </Field>
             </FieldSet>

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\Tenant;
 
+use App\Models\Central\AnoLectivo;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -10,9 +11,7 @@ class TurmaSeeder extends Seeder
 {
     public function run(): void
     {
-        $anoLectivoId = DB::table('ano_lectivos')
-            ->where('activo', true)
-            ->value('id');
+        $anoLectivoId = AnoLectivo::activo()?->getKey();
 
         if (! $anoLectivoId) {
             $this->command->error('Nenhum ano lectivo activo encontrado. Corre o AnoLectivoSeeder primeiro.');

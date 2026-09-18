@@ -26,7 +26,10 @@ import { Minus, MoreHorizontalIcon, BookIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { HorariosForm } from '../horarios/horarios-form';
 import { store as storeHorario } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaHorarioController';
-import { create as createDisciplina } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
+import {
+  create as createDisciplina,
+  destroy,
+} from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
 import { create as createNotas } from '@/actions/App/Http/Controllers/Tenant/NotaDisciplinaController';
 import { create as createProfessor } from '@/actions/App/Http/Controllers/Tenant/InstituicaoCurso/TurmaDisciplinaProfessorController';
 import TablePagination from '@/components/table-pagination';
@@ -40,12 +43,13 @@ export function TabDisciplinas({
   onPageChange,
   redirectTo,
   anoLectivoId,
+  anoLectivoSelecionado,
   can = {},
 }) {
   const isEmpty = disciplinas.length === 0;
   const canCreate = Boolean(can.create);
-  const { openForm, closeDialog } = useDialog();
 
+  const { openForm, closeDialog, deleteConfirm } = useDialog();
   const abrirHorariosDialog = (disciplina, e) => {
     e.stopPropagation();
 
@@ -78,6 +82,38 @@ export function TabDisciplinas({
     });
   };
 
+  const handleDeleteDisciplina = (disciplinaId) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description: 'Esta disciplina será removida desta turma.',
+      confirmLabel: 'Remover',
+      confirmFn: () =>
+        router.delete(
+          destroy[
+            '/dashboard/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/disciplinas/{classeTurnoDisciplina}'
+          ]({
+            instituicao: params.instituicao.id,
+            cursoTutelado: params.cursoTutelado.id,
+            cursoClasse: params.cursoClasse.id,
+            cursoClasseTurno: params.cursoClasseTurno.id,
+            classeTurnoDisciplina: disciplinaId,
+          }).url,
+          {
+            preserveScroll: true,
+            data: {
+              ano_lectivo_id: anoLectivoSelecionado,
+            },
+
+            onSuccess: () => {
+              toast.success('Disciplina removida com sucesso');
+            },
+            onError: (errors) => {
+              toast.error(errors.message);
+            },
+          },
+        ),
+    });
+  };
   return (
     <Card className="grid grid-rows-[auto_1fr_auto] gap-0">
       <CardHeader className="border-b">
@@ -89,12 +125,15 @@ export function TabDisciplinas({
               <Link
                 data={{ redirect_to: window.location.href }}
                 href={
-                  createDisciplina({
-                    instituicao: params.instituicao.id,
-                    cursoTutelado: params.cursoTutelado.id,
-                    cursoClasse: params.cursoClasse.id,
-                    cursoClasseTurno: params.cursoClasseTurno,
-                  }).url
+                  createDisciplina(
+                    {
+                      instituicao: params.instituicao.id,
+                      cursoTutelado: params.cursoTutelado.id,
+                      cursoClasse: params.cursoClasse.id,
+                      cursoClasseTurno: params.cursoClasseTurno,
+                    },
+                    { query: { ano_lectivo_id: anoLectivoId } },
+                  ).url
                 }
               >
                 Adicionar Disciplinas
@@ -115,12 +154,15 @@ export function TabDisciplinas({
               label: 'Adicionar Disciplina',
               onClick: () =>
                 router.visit(
-                  createDisciplina({
-                    instituicao: params.instituicao.id,
-                    cursoTutelado: params.cursoTutelado.id,
-                    cursoClasse: params.cursoClasse.id,
-                    cursoClasseTurno: params.cursoClasseTurno,
-                  }).url,
+                  createDisciplina(
+                    {
+                      instituicao: params.instituicao.id,
+                      cursoTutelado: params.cursoTutelado.id,
+                      cursoClasse: params.cursoClasse.id,
+                      cursoClasseTurno: params.cursoClasseTurno,
+                    },
+                    { query: { ano_lectivo_id: anoLectivoId } },
+                  ).url,
                   {
                     data: { redirect_to: redirectTo },
                   },
@@ -230,6 +272,16 @@ export function TabDisciplinas({
                             onClick={(e) => abrirHorariosDialog(disciplina, e)}
                           >
                             Definir horários
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteDisciplina(disciplina.id);
+                            }}
+                          >
+                            Remover
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

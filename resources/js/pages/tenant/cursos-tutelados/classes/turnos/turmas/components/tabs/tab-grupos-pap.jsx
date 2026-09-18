@@ -101,38 +101,51 @@ export function TabGruposPAP({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {grupos.map((grupo) => (
-                <TableRow
-                  key={grupo.id}
-                  className="hover:cursor-pointer"
-                  onClick={() =>
-                    router.visit(
-                      show({
-                        instituicao: params.instituicao.id,
-                        cursoTutelado: params.cursoTutelado.id,
-                        cursoClasse: params.cursoClasse.id,
-                        cursoClasseTurno: params.cursoClasseTurno.id,
-                        turma: params.turma,
-                        grupoPap: grupo.id,
-                      }),
-                    )
-                  }
-                >
-                  <TableCell className="px-4 font-medium">
-                    {grupo.nome}
-                  </TableCell>
+              {grupos.map((grupo) => {
+                const canView = Boolean(grupo.can?.view);
+                return (
+                  <TableRow
+                    key={grupo.id}
+                    className={canView ? 'hover:cursor-pointer' : 'opacity-70'}
+                    aria-disabled={!canView}
+                    onClick={() => {
+                      if (!canView) {
+                        return;
+                      }
 
-                  <TableCell>{grupo.tema}</TableCell>
+                      router.visit(
+                        show({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                          cursoClasse: params.cursoClasse.id,
+                          cursoClasseTurno: params.cursoClasseTurno.id,
+                          turma: params.turma,
+                          grupoPap: grupo.id,
+                        }),
+                      );
+                    }}
+                  >
+                    <TableCell className="px-4 font-medium">
+                      {grupo.nome}
+                    </TableCell>
 
-                  <TableCell>{grupo.status}</TableCell>
+                    <TableCell>{grupo.tema}</TableCell>
 
-                  <TableCell className="text-end">
-                    <Button variant="outline" size="xs" className="text-[10px]">
-                      Ver detalhes
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    <TableCell>{grupo.status}</TableCell>
+
+                    <TableCell className="text-end">
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        className="text-[10px]"
+                        disabled={!canView}
+                      >
+                        Ver detalhes
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}

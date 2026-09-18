@@ -26,7 +26,7 @@ class UpdateGrupoPap
                 'professor_tutor_id',
             ])));
 
-            if (array_key_exists('alunos', $validated)) {
+            if (\array_key_exists('alunos', $validated)) {
                 $grupoPap->alunos()->sync($validated['alunos']);
             }
         });

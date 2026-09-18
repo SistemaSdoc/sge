@@ -10,9 +10,9 @@ use App\Http\Resources\Tenant\GrupoPap\BancaResource;
 use App\Http\Resources\Tenant\GrupoPap\ElementoResource;
 use App\Http\Resources\Tenant\GrupoPap\IndexResource;
 use App\Http\Resources\Tenant\GrupoPap\ShowResource;
+use App\Models\Central\AnoLectivo;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -273,7 +273,7 @@ class GrupoPapController extends Controller
         $elementos = $grupoPap->elementos()
             ->with([
                 'aluno.inscricao.candidato:id,nome,email',
-                'aluno:id,matricula,inscricao_id',
+                'aluno:id,user_id,matricula,inscricao_id',
             ])
             ->paginate(10, ['*'], 'page_elementos');
 
@@ -299,6 +299,7 @@ class GrupoPapController extends Controller
                 'anoLectivoId' => $anoLectivoId,
                 'anosLectivos' => AnoLectivo::all(),
                 'grupoPap' => new ShowResource($grupoPap),
+                'currentUserId' => (string) $user->getKey(),
 
                 'trabalho' => $trabalho ? [
                     'id' => $trabalho->id,
@@ -359,7 +360,7 @@ class GrupoPapController extends Controller
                 })->values(),
 
                 'criterios_pap_url' => $cursoTutelado->criterios_pap_path
-                    ? Storage::url($cursoTutelado->criterios_pap_path)
+                    ? Storage::disk(config('filesystems.default'))->url($cursoTutelado->criterios_pap_path)
                     : null,
 
                 'banca' => BancaResource::collection($banca),

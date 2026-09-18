@@ -39,6 +39,7 @@ export function UserForm({
   submitLabel = 'Salvar',
   processingLabel = 'Salvando as alterações',
   currentUser = {},
+  rolesDisabled,
 }) {
   const [infoOpen, setInfoOpen] = useState(false);
 
@@ -182,6 +183,7 @@ export function UserForm({
                     disabled={
                       isLockedSelfRoleAssignment ||
                       isProtectedDirectorUser ||
+                      rolesDisabled ||
                       processing
                     }
                     onChange={(options) =>

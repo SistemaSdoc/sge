@@ -4,16 +4,20 @@ namespace App\Notifications;
 
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Instituicao;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class PropinaEmAtrasoNotification extends Notification implements ShouldQueue
+class PropinaEmAtrasoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     /**
      * @param  int  $totalMeses  Número total de meses em atraso
@@ -84,7 +88,11 @@ class PropinaEmAtrasoNotification extends Notification implements ShouldQueue
         // Instituição (se não passada, tenta buscar da relação)
         $instituicao = $this->instituicao ?? ($aluno?->user?->instituicao ?? null);
         $instituicaoNome = $instituicao?->nome ?? config('app.name');
-        $instituicaoLogotipo = $instituicao?->logo ? Storage::url($instituicao->logo) : null;
+        /** @var FilesystemAdapter $publicDisk */
+        $publicDisk = Storage::disk(config('filesystems.default'));
+        $instituicaoLogotipo = $instituicao?->logo
+            ? $publicDisk->url($instituicao->logo)
+            : null;
 
         // Monta a lista de meses com valores (base + multa) se disponível
         $linhasPendencias = [];

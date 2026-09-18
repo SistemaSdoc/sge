@@ -5,8 +5,12 @@ declare(strict_types=1);
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Tenant\Auth\NewPasswordController;
+use App\Http\Controllers\Tenant\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Tenant\AvaliacaoProvaController;
 use App\Http\Controllers\Tenant\AvisoController;
 use App\Http\Controllers\Tenant\BancaJuriPapController;
+use App\Http\Controllers\Tenant\CalendarioAnualController;
 use App\Http\Controllers\Tenant\CertificadoController;
 use App\Http\Controllers\Tenant\ClasseController as ClasseControllerGeral;
 use App\Http\Controllers\Tenant\ClasseTurnoDisciplinaController;
@@ -18,7 +22,6 @@ use App\Http\Controllers\Tenant\CursosController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\CursoTuteladoProfessorController;
 use App\Http\Controllers\Tenant\DashboardController;
-use App\Http\Controllers\Tenant\DisciplinaController as DisciplinaControllerGeral;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FichaMatriculaController;
@@ -37,28 +40,29 @@ use App\Http\Controllers\Tenant\NotaDisciplinaRecursoController;
 use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PagamentoController;
 use App\Http\Controllers\Tenant\PeriodoLancamentoNotasController;
+use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\PreencherHistoricoController;
 use App\Http\Controllers\Tenant\ProfessorController as ProfessorControllerGeral;
+use App\Http\Controllers\Tenant\ProfessorJustificativaController;
 use App\Http\Controllers\Tenant\ReciboController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
 use App\Http\Controllers\Tenant\RelatorioController;
 use App\Http\Controllers\Tenant\RelatorioPropinaController;
 use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
+use App\Http\Controllers\Tenant\SubmissaoProvaController;
 use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
 use App\Http\Controllers\Tenant\UserPermissionController;
+use App\Http\Controllers\Tenant\UserProfileController;
 use App\Http\Middleware\CheckTenantStatus;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-use App\Http\Controllers\Tenant\AvaliacaoProvaController;
-use App\Http\Controllers\Tenant\ProfessorJustificativaController;
-use App\Http\Controllers\Tenant\PrazoProvaController;
-use App\Http\Controllers\Tenant\SubmissaoProvaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +83,22 @@ Route::middleware([
     | Rotas de Autenticação de Tenant
     |--------------------------------------------------------------------------
     */
+
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
+        ->middleware('guest:tenant')
+        ->name('password.request');
+
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->middleware('guest:tenant')
+        ->name('password.email');
+
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+        ->middleware('guest:tenant')
+        ->name('password.reset');
+
+    Route::post('reset-password', [NewPasswordController::class, 'store'])
+        ->middleware('guest:tenant')
+        ->name('password.update');
 
     Route::get('/', [AuthenticatedSessionController::class, 'create'])
         ->middleware('guest:tenant')
@@ -112,7 +132,7 @@ Route::middleware([
     */
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware(['auth:tenant', 'tenant.status','perfil.completo' ])
+        ->middleware(['auth:tenant', 'tenant.status', 'perfil.completo'])
         ->name('tenant.dashboard');
 
     Route::middleware([
@@ -120,7 +140,7 @@ Route::middleware([
         'verified',
         'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno',
         CheckTenantStatus::class,
-        'perfil.completo', 
+        'perfil.completo',
     ])
         ->prefix('dashboard')
         ->name('tenant.dashboard.')
@@ -141,11 +161,34 @@ Route::middleware([
             Route::put('users/{user}/permissions', [UserPermissionController::class, 'update'])
                 ->name('users.permissions.update');
 
-            Route::resource('users', UserController::class);
+            Route::get('users/{user}/academic', [UserProfileController::class, 'academic'])
+                ->name('users.academic');
+
+            Route::put('users/{user}/personal', [UserProfileController::class, 'updatePersonal'])
+                ->name('users.personal.update');
+
+            Route::post('users/{user}/avatar', [UserProfileController::class, 'updateAvatar'])
+                ->name('users.avatar.update');
+
+            Route::get('users/{user}/security', [UserProfileController::class, 'security'])
+                ->name('users.security');
+
+            Route::get('users/{user}', [UserProfileController::class, 'show'])
+                ->name('users.show');
+
+            Route::resource('users', UserController::class)->except(['show']);
             Route::resource('roles', RoleController::class)->except(['show']);
             Route::resource('alunos', AlunoController::class);
             Route::resource('avisos', AvisoController::class);
-            Route::resource('anos-lectivos', AnoLectivoController::class)->parameters(['anos-lectivos' => 'anoLectivo']);
+            Route::get('calendarios-anuais', [CalendarioAnualController::class, 'index'])
+                ->name('calendarios-anuais.index');
+            Route::get('calendarios-anuais/{calendarioAnual}/download', [CalendarioAnualController::class, 'download'])
+                ->name('calendarios-anuais.download');
+            Route::get('calendarios-anuais/{calendarioAnual}/view', [CalendarioAnualController::class, 'view'])
+                ->name('calendarios-anuais.view');
+            Route::resource('anos-lectivos', AnoLectivoController::class)
+                ->only(['index'])
+                ->parameters(['anos-lectivos' => 'anoLectivo']);
             Route::resource('regras-avaliacao', RegraAvaliacaoController::class)->parameters(['regras-avaliacao' => 'regraAvaliacao']);
 
             /*
@@ -238,6 +281,9 @@ Route::middleware([
             Route::get('instituicoes/{instituicao}/cursos-tutelados-cursos-disponiveis', [CursoTuteladoController::class, 'cursosDisponiveis'])
                 ->name('instituicoes.cursos-tutelados.cursos-disponiveis');
 
+            Route::get('{instituicao}/cursos-tutelados/curso-detalhes', [CursoTuteladoController::class, 'cursoDetalhes'])
+                ->name('tenant.dashboard.instituicoes.cursos-tutelados.curso-detalhes');
+
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/criterios-pap', [CursoTuteladoController::class, 'uploadCriteriosPap'])
                 ->name('instituicoes.cursos-tutelados.criterios-pap');
 
@@ -287,13 +333,17 @@ Route::middleware([
             Route::put('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'store'])
                 ->name('curso-classe-turno.store');
 
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/edit', [CursoClasseTurnoController::class, 'edit'])
+                ->name('curso-classe-turno.edit');
+
+            Route::patch('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos', [CursoClasseTurnoController::class, 'update'])
+                ->name('curso-classe-turno.update');
+
             /*
             |--------------------------------------------------------------------------
             | Disciplinas de Turnos de Classes
             |--------------------------------------------------------------------------
             */
-
-            Route::resource('disciplinas', DisciplinaControllerGeral::class);
 
             Route::resource('instituicoes.cursos-tutelados.classes.turnos.disciplinas', ClasseTurnoDisciplinaController::class)
                 ->parameters([
@@ -601,8 +651,11 @@ Route::middleware([
             Route::get('notificacoes', [NotificacaoController::class, 'index'])
                 ->name('notificacoes.index');
 
-            Route::get('notificacoes/ler-todas', [NotificacaoController::class, 'marcarTodasLidas'])
+            Route::post('notificacoes/ler-todas', [NotificacaoController::class, 'marcarTodasLidas'])
                 ->name('notificacoes.ler-todas');
+
+            Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
+                ->name('notificacoes.ler');
 
             Route::get('notificacoes/tutela/{shared}', [NotificacaoController::class, 'showTutela'])
                 ->name('notificacoes.tutela.show');
@@ -620,25 +673,26 @@ Route::middleware([
                 ->name('notificacoes.ler');
 
             // ===== DIRETOR =====
-// ===== DIRETOR =====
-Route::prefix('diretor')->name('diretor.')->group(function () {
-    Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
-    Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');
-    Route::post('prazos/{prazo}/fechar', [PrazoProvaController::class, 'fechar'])->name('prazos.fechar');
-    Route::get('prazos/{prazo}/status', [PrazoProvaController::class, 'status'])->name('prazos.status');
-    Route::patch('justificativas/{justificativa}/avaliar', [PrazoProvaController::class, 'avaliar'])->name('justificativas.avaliar');
-    Route::patch('submissoes/{submissao}/avaliar', [AvaliacaoProvaController::class, 'update'])->name('submissoes.avaliar');
-});
+            // ===== DIRETOR =====
+            Route::prefix('diretor')->name('diretor.')->group(function () {
+                Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
+                Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');
+                Route::post('prazos/{prazo}/fechar', [PrazoProvaController::class, 'fechar'])->name('prazos.fechar');
+                Route::get('prazos/{prazo}/status', [PrazoProvaController::class, 'status'])->name('prazos.status');
+                Route::patch('justificativas/{justificativa}/avaliar', [PrazoProvaController::class, 'avaliar'])->name('justificativas.avaliar');
+                Route::patch('submissoes/{submissao}/avaliar', [AvaliacaoProvaController::class, 'update'])->name('submissoes.avaliar');
+            });
 
-// ===== PROFESSOR =====
-Route::prefix('professor')->name('professor.')->group(function () {
-    Route::get('provas', [SubmissaoProvaController::class, 'index'])->name('provas.index');
-    Route::get('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'create'])->name('provas.submeter');
-    Route::post('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'store'])->name('provas.store');
-    Route::get('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
-    Route::post('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
-    Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
-});
+            // ===== PROFESSOR =====
+            Route::prefix('professor')->name('professor.')->group(function () {
+                Route::get('provas', [SubmissaoProvaController::class, 'index'])->name('provas.index');
+                Route::get('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'create'])->name('provas.submeter');
+                Route::post('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'store'])->name('provas.store');
+                Route::get('provas/{submissao}/arquivo/{tipo}', [SubmissaoProvaController::class, 'arquivo'])->name('provas.arquivo');
+                Route::get('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
+                Route::post('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
+                Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
+            });
 
             /*
             |--------------------------------------------------------------------------
@@ -715,10 +769,11 @@ Route::prefix('professor')->name('professor.')->group(function () {
       |--------------------------------------------------------------------------
       */
     Route::get('/storage/{path}', function (string $path) {
-        if (! Storage::disk('public')->exists($path)) {
-            abort(404);
-        }
+        /** @var FilesystemAdapter $disk */
+        $disk = Storage::disk(config('filesystems.default'));
 
-        return Storage::disk('public')->response($path);
+        abort_unless($disk->exists($path), 404);
+
+        return $disk->response($path);
     })->where('path', '.*')->name('tenant.storage');
 });

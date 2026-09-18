@@ -25,7 +25,7 @@ class PautaService
         $resultadoFinal = $this->regraAcademicaService->resolverSituacaoAcademica($ta);
 
         if ($resultadoFinal['situacao'] === 'recurso') {
-            $resultadoRecurso = $this->regraAcademicaService->resolverSituacaoRecurso($ta);
+            $resultadoRecurso = $this->regraAcademicaService->resolverSituacaoRecurso($ta, $resultadoFinal);
 
             $novoResultado = $resultadoRecurso['situacao'] !== 'pendente'
                 ? $resultadoRecurso['situacao']

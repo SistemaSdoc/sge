@@ -71,6 +71,21 @@ class UserController extends Controller
         return to_route('tenant.dashboard.users.index')->with('success', 'Usuário criado com sucesso.');
     }
 
+    public function show()
+    {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
+        Gate::forUser($user)->authorize('view', User::class);
+
+        return Inertia::render('tenant/users/show', [
+            'users' => $this->userManagementService->index($user),
+            'roles' => $this->userManagementService->roles(),
+            'allPermissions' => $this->roleManagementService->permissions(),
+            'groupedPermissions' => $this->roleManagementService->groupedPermissions(),
+        ]);
+    }
+
     public function edit(User $user)
     {
         Gate::authorize('update', $user);

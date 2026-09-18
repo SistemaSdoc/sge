@@ -1,4 +1,4 @@
-import { ArrowUpLeft, Loader2 } from 'lucide-react';
+import { ArrowUpLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -16,6 +16,15 @@ import {
 } from '@/components/ui/field';
 import MultipleSelect from '@/components/multiple-select';
 import { Spinner } from '@/components/spinner';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectLabel,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function DisciplinaForm({
   params,
@@ -24,6 +33,9 @@ export default function DisciplinaForm({
   setDisciplinaIds,
   errors,
   processing,
+  anosLectivos,
+  anoLectivoId,
+  setAnoLectivoId,
 }) {
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
@@ -57,9 +69,36 @@ export default function DisciplinaForm({
         <CardContent className="pt-6">
           <FieldGroup>
             <FieldSet>
+              {/* ANO LECTIVO */}
+
+              <Field>
+                <FieldLabel>Ano Lectivo</FieldLabel>
+                <Select
+                  value={anoLectivoId ?? ''}
+                  onValueChange={(value) => setAnoLectivoId(value || null)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione ano lectivo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Anos lectivos</SelectLabel>
+                      {anosLectivos?.map((a) => (
+                        <SelectItem key={a.id} value={a.id}>
+                          {a.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {errors.ano_lectivo_id && (
+                  <FieldError>{errors.ano_lectivo_id}</FieldError>
+                )}
+              </Field>
+
+              {/* DISCIPLINAS */}
               <Field>
                 <FieldLabel>Disciplinas</FieldLabel>
-
                 <MultipleSelect
                   placeholder="Selecione as disciplinas"
                   items={disciplinas.map((d) => ({
@@ -74,7 +113,6 @@ export default function DisciplinaForm({
                     label: disciplinas.find((d) => d.id === id)?.nome ?? id,
                   }))}
                 />
-
                 {errors.disciplina_ids && (
                   <FieldError>{errors.disciplina_ids}</FieldError>
                 )}
@@ -88,15 +126,13 @@ export default function DisciplinaForm({
                   {processing ? <Spinner className="size-4" /> : null}
                   Adicionar Disciplinas
                 </Button>
-
                 <Button
                   type="button"
-                  variant={'outline'}
+                  variant="outline"
                   disabled={processing}
                   onClick={() => window.history.back()}
                 >
-                  <ArrowUpLeft />
-                  Voltar
+                  <ArrowUpLeft /> Voltar
                 </Button>
               </Field>
             </FieldSet>

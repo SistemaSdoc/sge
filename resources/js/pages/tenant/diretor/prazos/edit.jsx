@@ -102,10 +102,9 @@ export default function Edit({ prazo, disciplinas, classes }) {
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="teste">Teste</SelectItem>
-                      <SelectItem value="exame">Exame</SelectItem>
-                      <SelectItem value="ficha">Ficha</SelectItem>
-                      <SelectItem value="recuperacao">Recuperação</SelectItem>
+                      <SelectItem value="Prova-Trimestral">Prova Trimestral</SelectItem>
+                      <SelectItem value="Exame-especial">Exame Especial</SelectItem>
+                      <SelectItem value="Recurso">Recurso</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.tipo_prova && <p className="text-sm text-destructive">{errors.tipo_prova}</p>}

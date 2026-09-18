@@ -50,7 +50,7 @@ export function CursosTuteladosTable({
   );
 
   return (
-    <Card className="gap-0">
+    <Card className="gap-0 pb-0">
       {/* Header */}
       <CardHeader className="border-b">
         <div className="flex items-start justify-between">

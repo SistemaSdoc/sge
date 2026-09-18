@@ -41,16 +41,24 @@ class UpdateUserRequest extends FormRequest
     {
         /** @var User $actor */
         $actor = auth()->guard('tenant')->user();
+        $user = $this->route('user');
 
         $query = Role::query()
             ->where('guard_name', 'tenant')
-            ->whereNotIn('name', ['SuperAdmin', 'Aluno', 'Candidato']);
+            ->whereNotIn('name', ['SuperAdmin']);
 
         if ($actor?->isSubdirector()) {
             $query->whereNotIn('name', ['Director', 'Subdirector']);
         }
 
-        return $query->pluck('name')->all();
+        // inclui os roles actuais do user-alvo para não falhar validação
+        $currentRoleNames = $user->roles->pluck('name')->all();
+
+        return $query->pluck('name')
+            ->merge($currentRoleNames)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**

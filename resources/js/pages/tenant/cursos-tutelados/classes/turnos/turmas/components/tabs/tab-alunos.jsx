@@ -64,11 +64,18 @@ export function TabAlunos({
 
             <TableBody>
               {alunos.map((aluno) => {
+                const canView = Boolean(aluno.can?.view);
                 return (
                   <TableRow
                     key={aluno.id}
-                    className="hover:cursor-pointer"
-                    onClick={() => router.visit(show(aluno.id).url)}
+                    className={canView ? 'hover:cursor-pointer' : 'opacity-70'}
+                    aria-disabled={!canView}
+                    onClick={() => {
+                      if (!canView) {
+                        return;
+                      }
+                      router.visit(show(aluno.id).url);
+                    }}
                   >
                     <TableCell className="px-4 font-medium">
                       {aluno?.nome}
@@ -85,6 +92,8 @@ export function TabAlunos({
                         variant="outline"
                         size="xs"
                         className="text-[10px]"
+                        disabled={!canView}
+
                       >
                         Ver detalhes
                       </Button>

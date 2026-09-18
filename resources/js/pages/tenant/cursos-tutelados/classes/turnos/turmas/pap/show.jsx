@@ -36,6 +36,8 @@ import { editar as editarTema } from '@/actions/App/Http/Controllers/Tenant/Grup
 import { create as createTema } from '@/actions/App/Http/Controllers/Tenant/GrupoPapTemaController';
 import { TabTrabalho } from './components/tabs/tab-trabalho';
 import { FileText } from 'lucide-react';
+import { show as showUser } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
+import { show as showProfessor } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 
 export default function Show({
   instituicao,
@@ -44,6 +46,7 @@ export default function Show({
   cursoClasseTurno,
   turma,
   grupoPap,
+  currentUserId,
   trabalho,
   historico,
   banca,
@@ -183,12 +186,23 @@ export default function Show({
             <p className="text-sm text-muted-foreground">Professor tutor</p>
             <p className="font-medium">
               {grupoPap?.professor ? (
-                <Link
-                  href={`/dashboard/professores/${grupoPap.professor.id}`}
-                  className="hover:underline"
-                >
-                  {grupoPap.professor.nome}
-                </Link>
+                grupoPap.professor.can_view ? (
+                  <Link
+                    href={
+                      String(currentUserId) ===
+                      String(grupoPap.professor.user_id)
+                        ? showUser.url({ user: grupoPap.professor.user_id })
+                        : showProfessor.url({
+                            professor: grupoPap.professor.id,
+                          })
+                    }
+                    className="hover:underline"
+                  >
+                    {grupoPap.professor.nome}
+                  </Link>
+                ) : (
+                  grupoPap.professor.nome
+                )
               ) : (
                 <Minus size={15} className="text-muted-foreground" />
               )}
@@ -437,6 +451,7 @@ export default function Show({
             actualizarNotaFn={actualizarNotaFn}
             removerIntegranteFn={removerIntegranteFn}
             can={can}
+            currentUserId={currentUserId}
           />
         </TabsContent>
 
@@ -449,6 +464,7 @@ export default function Show({
               pagination={banca}
               onPageChange={bancaPagination.handlePageChange}
               can={can}
+              currentUserId={currentUserId}
             />
           </TabsContent>
         )}

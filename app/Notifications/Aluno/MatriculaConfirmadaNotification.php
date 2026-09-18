@@ -4,13 +4,17 @@ namespace App\Notifications\Aluno;
 
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Turma;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MatriculaConfirmadaNotification extends Notification
+class MatriculaConfirmadaNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public Aluno $aluno,

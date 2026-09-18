@@ -18,6 +18,7 @@ import {
   ClipboardCheck,
   CalendarClock,
   Sheet,
+  Calendar1,
   UserCog,
 } from 'lucide-react';
 
@@ -42,6 +43,7 @@ export const iconRegistry: Record<string, LucideIcon> = {
   ClipboardCheck,
   CalendarClock,
   Sheet,
+  Calendar1,
   UserCog,
 };
 

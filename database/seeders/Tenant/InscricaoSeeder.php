@@ -2,7 +2,7 @@
 
 namespace Database\Seeders\Tenant;
 
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Candidato;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\Inscricao;

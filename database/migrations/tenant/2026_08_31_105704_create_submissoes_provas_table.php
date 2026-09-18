@@ -8,8 +8,43 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('submissoes_provas')) {
+            $foreignKeys = collect(Schema::getForeignKeys('submissoes_provas'))
+                ->pluck('name')
+                ->all();
+            $indexes = collect(Schema::getIndexes('submissoes_provas'))
+                ->pluck('name')
+                ->all();
+
+            Schema::table('submissoes_provas', function (Blueprint $table) use ($foreignKeys, $indexes): void {
+                if (! in_array('submissoes_provas_classe_id_foreign', $foreignKeys, true)) {
+                    $table->foreign('classe_id', 'submissoes_provas_classe_id_foreign')
+                        ->references('id')
+                        ->on('classes')
+                        ->nullOnDelete();
+                }
+
+                if (! in_array('submissoes_provas_prazo_prova_id_estado_index', $indexes, true)) {
+                    $table->index(['prazo_prova_id', 'estado'], 'submissoes_provas_prazo_prova_id_estado_index');
+                }
+
+                if (! in_array('submissoes_provas_disciplina_id_index', $indexes, true)) {
+                    $table->index('disciplina_id', 'submissoes_provas_disciplina_id_index');
+                }
+
+                if (! in_array('submissoes_provas_prazo_prova_id_professor_id_versao_unique', $indexes, true)) {
+                    $table->unique(
+                        ['prazo_prova_id', 'professor_id', 'versao'],
+                        'submissoes_provas_prazo_prova_id_professor_id_versao_unique'
+                    );
+                }
+            });
+
+            return;
+        }
+
         Schema::create('submissoes_provas', function (Blueprint $table) {
-             $table->uuid('id')->primary();// auto-increment para esta tabela (opcional, mas mantém)
+            $table->uuid('id')->primary(); // auto-increment para esta tabela (opcional, mas mantém)
 
             // Chaves estrangeiras (UUID)
             $table->uuid('prazo_prova_id');      // referencia prazos_provas(id)
@@ -27,7 +62,7 @@ return new class extends Migration
 
             // Estados
             $table->enum('estado', [
-                'pendente', 'em_revisao', 'aprovado', 'rejeitado', 'substituido'
+                'pendente', 'em_revisao', 'aprovado', 'rejeitado', 'substituido',
             ])->default('pendente');
 
             $table->text('parecer_diretor')->nullable();
@@ -38,7 +73,6 @@ return new class extends Migration
             // FOREIGN KEYS
             $table->foreign('prazo_prova_id')->references('id')->on('prazos_provas')->onDelete('cascade');
             $table->foreign('professor_id')->references('id')->on('professores')->onDelete('cascade');
-            $table->foreign('disciplina_id')->references('id')->on('disciplinas')->onDelete('cascade');
             $table->foreign('classe_id')->references('id')->on('classes')->onDelete('set null');
 
             // Índices
@@ -49,6 +83,15 @@ return new class extends Migration
             // Garantir que não haja duas versões iguais para o mesmo professor/prazo
             $table->unique(['prazo_prova_id', 'professor_id', 'versao']);
         });
+
+        if (Schema::hasTable('disciplinas')) {
+            Schema::table('submissoes_provas', function (Blueprint $table): void {
+                $table->foreign('disciplina_id')
+                    ->references('id')
+                    ->on('disciplinas')
+                    ->cascadeOnDelete();
+            });
+        }
     }
 
     public function down(): void

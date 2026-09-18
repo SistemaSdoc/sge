@@ -3,14 +3,19 @@
 namespace App\Notifications\Aluno;
 
 use App\Models\Tenant\User;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Storage;
 
-class AlunoCriadoNotification extends Notification
+class AlunoCriadoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public User $user,
@@ -24,6 +29,12 @@ class AlunoCriadoNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        /** @var FilesystemAdapter $publicDisk */
+        $publicDisk = Storage::disk(config('filesystems.default'));
+        $logoUrl = $this->user->instituicao->logo
+            ? $publicDisk->url($this->user->instituicao->logo)
+            : null;
+
         return (new MailMessage)
             ->subject('Conta de Aluno criada')
             ->view('mail.aluno.aluno-criado', [
@@ -37,9 +48,7 @@ class AlunoCriadoNotification extends Notification
                     'colegio' => 'ao',
                     default => 'à',
                 },
-                'logoUrl' => $this->user->instituicao->logo
-                    ? Storage::url($this->user->instituicao->logo)
-                    : null,
+                'logoUrl' => $logoUrl,
             ]);
     }
 

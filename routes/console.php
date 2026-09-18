@@ -12,7 +12,8 @@ Artisan::command('inspire', function () {
 Schedule::command('anoletivo:sincronizar')
     ->everyMinute()
     ->name('ano-lectivo:sincronizar')
-    ->withoutOverlapping();
+    ->withoutOverlapping(10)
+    ->onOneServer();
 
 // Corre todos os dias às 23:55, só em produção
 // Schedule::command(FinalizarPautasVencidas::class)
@@ -28,6 +29,5 @@ Schedule::command(FinalizarPautasVencidas::class)
     ->withoutOverlapping()
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/pautas-finalizadas.log'));
-
 
 Schedule::command('prazos:verificar')->everyFiveMinutes();

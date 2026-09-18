@@ -2,9 +2,10 @@
 
 namespace App\Models\Tenant;
 
+use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\HasUuid;
+use Illuminate\Support\Str;
 
 class SubmissaoProva extends Model
 {
@@ -16,8 +17,8 @@ class SubmissaoProva extends Model
     use HasUuid; // <-- deve estar aqui
 
     public $incrementing = false;
-    protected $keyType = 'string';
 
+    protected $keyType = 'string';
 
     protected $table = 'submissoes_provas';
 
@@ -72,11 +73,10 @@ class SubmissaoProva extends Model
         return $this->belongsTo(Disciplina::class, 'disciplina_id');
     }
 
-
-public function turma()
-{
-    return $this->belongsTo(Turma::class, 'turma_id');
-}
+    public function turma()
+    {
+        return $this->belongsTo(Turma::class, 'turma_id');
+    }
 
     /**
      * Classe (turma) da prova.
@@ -95,7 +95,10 @@ public function turma()
      */
     public function getUrlProvaAttribute(): string
     {
-        return asset('storage/' . $this->caminho_prova);
+        return route('tenant.dashboard.professor.provas.arquivo', [
+            'submissao' => $this->id,
+            'tipo' => 'prova',
+        ]);
     }
 
     /**
@@ -103,7 +106,10 @@ public function turma()
      */
     public function getUrlChaveAttribute(): string
     {
-        return asset('storage/' . $this->caminho_chave);
+        return route('tenant.dashboard.professor.provas.arquivo', [
+            'submissao' => $this->id,
+            'tipo' => 'chave',
+        ]);
     }
 
     /**
@@ -112,12 +118,12 @@ public function turma()
     public function getEstadoLabelAttribute(): string
     {
         return match ($this->estado) {
-            'pendente'    => 'Pendente',
-            'em_revisao'  => 'Em Revisão',
-            'aprovado'    => 'Aprovado',
-            'rejeitado'   => 'Rejeitado',
+            'pendente' => 'Pendente',
+            'em_revisao' => 'Em Revisão',
+            'aprovado' => 'Aprovado',
+            'rejeitado' => 'Rejeitado',
             'substituido' => 'Substituído',
-            default       => ucfirst($this->estado),
+            default => ucfirst($this->estado),
         };
     }
 
@@ -127,12 +133,12 @@ public function turma()
     public function getEstadoBadgeClassAttribute(): string
     {
         return match ($this->estado) {
-            'pendente'    => 'bg-warning text-dark',
-            'em_revisao'  => 'bg-info text-dark',
-            'aprovado'    => 'bg-success',
-            'rejeitado'   => 'bg-danger',
+            'pendente' => 'bg-warning text-dark',
+            'em_revisao' => 'bg-info text-dark',
+            'aprovado' => 'bg-success',
+            'rejeitado' => 'bg-danger',
             'substituido' => 'bg-secondary',
-            default       => 'bg-light text-dark',
+            default => 'bg-light text-dark',
         };
     }
 
@@ -205,15 +211,15 @@ public function turma()
     {
         return $query->where('estado', 'rejeitado');
     }
+
     protected static function boot()
-{
-    parent::boot();
+    {
+        parent::boot();
 
-    static::creating(function ($model) {
-        if (empty($model->id)) {
-            $model->id = (string) \Illuminate\Support\Str::uuid();
-        }
-    });
-}
-
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+        });
+    }
 }

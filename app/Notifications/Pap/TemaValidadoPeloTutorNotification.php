@@ -3,13 +3,17 @@
 namespace App\Notifications\Pap;
 
 use App\Models\Tenant\GrupoPap;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TemaValidadoPeloTutorNotification extends Notification
+class TemaValidadoPeloTutorNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(public GrupoPap $grupoPap) {}
 
@@ -41,16 +45,23 @@ class TemaValidadoPeloTutorNotification extends Notification
                 'nomeGrupo' => $this->grupoPap->nome_grupo,
                 'temaGrupo' => $this->grupoPap->tema_grupo,
                 'turma' => $turma->nome,
+                'nomeInstituicao' => $instituicao->nome,  // ← adicionado
                 'url' => $url,
             ]);
     }
 
     public function toArray(object $notifiable): array
     {
+        $cursoTutelado = $this->grupoPap->turma
+            ?->cursoClasseTurno
+            ?->cursoClasse
+            ?->cursoTutelado;
+        $nomeInstituicao = $cursoTutelado?->instituicaoCurso?->instituicao?->nome;
+
         return [
             'tipo' => 'tema_validado_tutor',
             'titulo' => 'Tema aguarda aprovação da coordenação',
-            'mensagem' => "O tutor validou o tema \"{$this->grupoPap->tema_grupo}\" do grupo \"{$this->grupoPap->nome_grupo}\". Aguarda a sua aprovação.",
+            'mensagem' => "O tutor validou o tema \"{$this->grupoPap->tema_grupo}\" do grupo \"{$this->grupoPap->nome_grupo}\" do {$nomeInstituicao}. Aguarda a sua aprovação.",
             'grupo_pap_id' => $this->grupoPap->id,
             'url' => "/grupos-pap/{$this->grupoPap->id}",
         ];

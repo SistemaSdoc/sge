@@ -4,6 +4,7 @@ namespace App\Http\Resources\Tenant;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class GrupoPapIndexResource extends JsonResource
 {
@@ -14,6 +15,8 @@ class GrupoPapIndexResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $user = Auth::guard('tenant')->user();
+
         return [
             'id' => $this->id,
             'nome' => $this->nome_grupo,
@@ -21,7 +24,8 @@ class GrupoPapIndexResource extends JsonResource
             'status' => $this->status,
             'nota_final' => $this->nota_final,
             'can' => [
-                'view' => $request->user()?->can('view', $this->resource) ?? false,
+                'view' => $user?->can('view', $this->resource) ?? false,
+                'update' => $user?->can('update', $this->resource) ?? false,
             ],
         ];
     }

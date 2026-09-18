@@ -25,7 +25,7 @@ export function TurmaForm({
   closeDrawer,
   instituicaoId,
 }) {
-  const { anoLectivoActual, turnos = [], auth } = usePage().props;
+  const { anoLectivoActual, anosLectivos = [], turnos = [] } = usePage().props;
 
   const { data, setData, post, processing, errors } = useForm({
     curso_tutelado_id: '',
@@ -58,7 +58,10 @@ export function TurmaForm({
     }));
 
     router.visit(index().url, {
-      data: { curso_classe_id: value },
+      data: {
+        curso_classe_id: value,
+        ano_lectivo_id: data.ano_lectivo_id,
+      },
       only: ['turnos'],
       preserveState: true,
       preserveScroll: true,
@@ -187,6 +190,32 @@ export function TurmaForm({
           </Select>
           {errors.curso_classe_turno_id && (
             <FieldError>{errors.curso_classe_turno_id}</FieldError>
+          )}
+        </Field>
+
+        {/* Ano Lectivo */}
+        <Field data-invalid={!!errors.ano_lectivo_id}>
+          <FieldLabel htmlFor="ano_lectivo_id">Ano Lectivo</FieldLabel>
+          <Select
+            value={data.ano_lectivo_id ?? ''}
+            onValueChange={(value) => setData('ano_lectivo_id', value)}
+          >
+            <SelectTrigger
+              id="ano_lectivo_id"
+              aria-invalid={!!errors.ano_lectivo_id}
+            >
+              <SelectValue placeholder="Selecione o ano lectivo" />
+            </SelectTrigger>
+            <SelectContent>
+              {anosLectivos.map((ano) => (
+                <SelectItem key={ano.id} value={String(ano.id)}>
+                  {ano.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.ano_lectivo_id && (
+            <FieldError>{errors.ano_lectivo_id}</FieldError>
           )}
         </Field>
 

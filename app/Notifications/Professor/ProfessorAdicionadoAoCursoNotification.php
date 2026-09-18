@@ -4,13 +4,17 @@ namespace App\Notifications\Professor;
 
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Professor;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ProfessorAdicionadoAoCursoNotification extends Notification
+class ProfessorAdicionadoAoCursoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public Professor $professor,

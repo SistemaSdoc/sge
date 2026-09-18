@@ -2,13 +2,17 @@
 
 namespace App\Models\Tenant;
 
+use App\Notifications\Tenant\ResetPasswordNotification;
 use App\Traits\HasUuid;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -44,6 +48,11 @@ class User extends Authenticatable implements PasskeyUser
     // Propriedade que o Spatie usa
     protected $guard_name = 'tenant';
 
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
+
     protected function casts(): array
     {
         return [
@@ -51,6 +60,29 @@ class User extends Authenticatable implements PasskeyUser
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (blank($this->avatar)) {
+            return null;
+        }
+
+        if (Str::startsWith($this->avatar, ['http://', 'https://'])) {
+            return $this->avatar;
+        }
+
+        $path = ltrim($this->avatar, '/');
+        $publicPrefix = trim((string) config('filesystems.disks.public.prefix', 'public'), '/');
+
+        if (Str::startsWith($path, $publicPrefix.'/')) {
+            $path = Str::after($path, $publicPrefix.'/');
+        }
+
+        /** @var FilesystemAdapter $publicDisk */
+        $publicDisk = Storage::disk('public');
+
+        return $publicDisk->url($path);
     }
 
     public function professor()
@@ -96,7 +128,4 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->belongsTo(Instituicao::class, 'instituicao_id');
     }
-
-
-
 }

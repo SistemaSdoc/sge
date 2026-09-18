@@ -79,7 +79,8 @@ export function UserTable({ users, pagination, onPageChange, deleteFn }) {
                   user.roles.length - visibleRoles.length,
                   0,
                 );
-                const canEditUser = Boolean(user.can?.update);
+                const isAluno = user.roles.some((r) => r === 'Aluno');
+                const canEditUser = Boolean(user.can?.update) && !isAluno;
                 const canDeleteUser = Boolean(user.can?.delete);
                 const canManagePermissions = Boolean(
                   user.can?.manage_permissions,

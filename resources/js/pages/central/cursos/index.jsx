@@ -6,6 +6,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardAction,
 } from '@/components/ui/card';
 import {
   Table,
@@ -51,20 +52,19 @@ export default function Index({ cursos }) {
   return (
     <>
       <Head title="Cursos" />
-      <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
-        <Card className="gap-0">
+      <div className="mx-auto w-full max-w-7xl p-6">
+        <Card className="gap-0 pb-0">
           <CardHeader className="border-b">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <CardTitle>Cursos</CardTitle>
-                <CardDescription>
-                  Cursos disponíveis para associação às instituições.
-                </CardDescription>
-              </div>
+            <CardTitle>Cursos</CardTitle>
+            <CardDescription>
+              Cursos disponíveis para associação às instituições.
+            </CardDescription>
+
+            <CardAction>
               <Button asChild>
                 <Link href={create().url}>Adicionar curso</Link>
               </Button>
-            </div>
+            </CardAction>
           </CardHeader>
 
           <CardContent className="p-0!">

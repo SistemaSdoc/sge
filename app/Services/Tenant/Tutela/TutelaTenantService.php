@@ -3,6 +3,7 @@
 namespace App\Services\Tenant\Tutela;
 
 use App\Enums\TutelaStatus;
+use App\Jobs\Tenant\Tutela\SincronizarDocumentosPapTutelados;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoTutelado;
@@ -99,6 +100,12 @@ class TutelaTenantService
                 'curso_tutelado_id' => $cursoTutelado->id,
             ]);
         });
+
+        // Copia os documentos do tutor para o tutelado (se já existirem)
+        SincronizarDocumentosPapTutelados::dispatch(
+            tenantTutorId: $shared->tenant_tutor_id,
+            cursoId: $shared->curso_id,
+        )->afterCommit();
     }
 
     /**
@@ -120,10 +127,7 @@ class TutelaTenantService
             'tipo_tutela_anterior' => $cursoTutelado->tipo_tutela,
         ]);
 
-        $tenant->run(function () use (
-            $cursoTutelado,
-            $instituicaoId
-        ): void {
+        $tenant->run(function () use ($cursoTutelado, $instituicaoId): void {
             Instituicao::query()->findOrFail($instituicaoId);
 
             $cursoTutelado->forceFill([

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
+use App\Models\Central\Disciplina;
 use App\Models\Tenant\Classe;
-use App\Models\Tenant\Disciplina;
+use App\Models\Tenant\JustificativaNaoSubmissao;
 use App\Models\Tenant\PrazoProva;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\SubmissaoProva;
-use App\Models\Tenant\JustificativaNaoSubmissao;
+use App\Notifications\JustificativaAvaliadaNotificacao;
 use App\Notifications\PrazoProvaNotificacao;
 use App\Services\Tenant\PrazoNotificacaoService;
 use App\Services\Tenant\ProvaService;
@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class PrazoProvaController extends Controller
@@ -26,11 +27,9 @@ class PrazoProvaController extends Controller
     private const MAX_COMBINACOES = 50;
 
     public function __construct(
-        ProvaService $provaService,
+        private ProvaService $provaService,
         private PrazoNotificacaoService $notificacaoService
-    ) {
-        $this->provaService = $provaService;
-    }
+    ) {}
 
     /**
      * Retorna o instituicao_id do utilizador autenticado.
@@ -57,19 +56,19 @@ class PrazoProvaController extends Controller
 
         $prazos = PrazoProva::with(['disciplina', 'classe', 'criador'])
             ->where('instituicao_id', $instituicaoId)  //   FILTRO apenas no prazo
-            ->when($request->status, fn($q) => $q->where('status', $request->status))
-            ->when($request->disciplina_id, fn($q) => $q->where('disciplina_id', $request->disciplina_id))
-            ->when($request->ano_letivo, fn($q) => $q->where('ano_letivo', $request->ano_letivo))
+            ->when($request->status, fn ($q) => $q->where('status', $request->status))
+            ->when($request->disciplina_id, fn ($q) => $q->where('disciplina_id', $request->disciplina_id))
+            ->when($request->ano_letivo, fn ($q) => $q->where('ano_letivo', $request->ano_letivo))
             ->orderBy('created_at', 'desc')
             ->paginate(20)
             ->withQueryString()
-            ->through(fn($prazo) => $this->formatarPrazoParaLista($prazo));
+            ->through(fn ($prazo) => $this->formatarPrazoParaLista($prazo));
 
         return Inertia::render('tenant/diretor/prazos/index', [
-            'prazos'      => $prazos,
-            'filters'     => $request->only(['status', 'disciplina_id', 'ano_letivo']),
+            'prazos' => $prazos,
+            'filters' => $request->only(['status', 'disciplina_id', 'ano_letivo']),
             'disciplinas' => Disciplina::orderBy('nome')->get(['id', 'nome', 'sigla']),  //   sem filtro
-            'classes'     => Classe::orderBy('nome')->get(['id', 'nome']),               //   sem filtro
+            'classes' => Classe::orderBy('nome')->get(['id', 'nome']),               //   sem filtro
         ]);
     }
 
@@ -80,9 +79,9 @@ class PrazoProvaController extends Controller
     {
         $this->authorize('create', PrazoProva::class);
 
-        return Inertia::render('tenant/diretor/prazos/Create', [
+        return Inertia::render('tenant/diretor/prazos/create', [
             'disciplinas' => Disciplina::orderBy('nome')->get(['id', 'nome', 'sigla']),      //   sem filtro
-            'classes'     => Classe::orderBy('nome')->get(['id', 'nome', 'nivel_ensino']),  //   sem filtro
+            'classes' => Classe::orderBy('nome')->get(['id', 'nome', 'nivel_ensino']),  //   sem filtro
         ]);
     }
 
@@ -97,47 +96,47 @@ class PrazoProvaController extends Controller
 
         Log::info(' store() iniciado', [
             'instituicao_id' => $instituicaoId,
-            'user_id'        => auth()->id(),
-            'data'           => $request->all(),
+            'user_id' => auth()->id(),
+            'data' => $request->all(),
         ]);
 
         // Extrair IDs primeiro
         $disciplinaIds = $this->extractIds($request->input('disciplina_ids'));
-        $classeIds     = $this->extractIds($request->input('classe_ids'));
+        $classeIds = $this->extractIds($request->input('classe_ids'));
 
         $request->merge([
             'disciplina_ids' => $disciplinaIds,
-            'classe_ids'     => $classeIds,
+            'classe_ids' => $classeIds,
         ]);
 
         // Validação
         $validated = $request->validate([
-            'titulo'           => 'nullable|string|max:255',
-            'tipo_prova'       => 'required|in:teste,exame,ficha,recuperacao',
-            'disciplina_ids'   => 'nullable|array',
-            'disciplina_ids.*' => 'nullable|uuid|exists:disciplinas,id',
-            'classe_ids'       => 'nullable|array',
-            'classe_ids.*'     => 'nullable|uuid|exists:classes,id',
-            'data_inicio'      => 'required|date|before:data_limite',
-            'data_limite'      => 'required|date|after:now',
-            'periodo'          => 'required|string|max:20',
-            'observacoes'      => 'nullable|string',
+            'titulo' => 'nullable|string|max:255',
+            'tipo_prova' => 'required|in:Prova-Trimestral,Exame-especial,Recurso',
+            'disciplina_ids' => 'nullable|array',
+            'disciplina_ids.*' => ['nullable', 'uuid', Rule::exists(Disciplina::class, 'id')],
+            'classe_ids' => 'nullable|array',
+            'classe_ids.*' => 'nullable|uuid|exists:classes,id',
+            'data_inicio' => 'required|date|before:data_limite',
+            'data_limite' => 'required|date|after:now',
+            'periodo' => 'required|string|max:20',
+            'observacoes' => 'nullable|string',
         ]);
 
-        $disciplinas = !empty($validated['disciplina_ids']) ? $validated['disciplina_ids'] : [null];
-        $classes     = !empty($validated['classe_ids'])     ? $validated['classe_ids']     : [null];
+        $disciplinas = ! empty($validated['disciplina_ids']) ? $validated['disciplina_ids'] : [null];
+        $classes = ! empty($validated['classe_ids']) ? $validated['classe_ids'] : [null];
 
         // Limite máximo
         $totalCombinacoes = count($disciplinas) * count($classes);
         if ($totalCombinacoes > self::MAX_COMBINACOES) {
             return back()
-                ->with('error', "Demasiadas combinações ({$totalCombinacoes}). Máximo permitido: " . self::MAX_COMBINACOES)
+                ->with('error', "Demasiadas combinações ({$totalCombinacoes}). Máximo permitido: ".self::MAX_COMBINACOES)
                 ->withInput();
         }
 
         // Ano letivo ativo
-        $ano = AnoLectivo::getAnoAtivo();
-        if (!$ano) {
+        $ano = AnoLectivo::activo();
+        if (! $ano) {
             return back()->with('error', 'Nenhum ano letivo ativo.')->withInput();
         }
 
@@ -149,18 +148,18 @@ class PrazoProvaController extends Controller
                 foreach ($disciplinas as $disciplinaId) {
                     foreach ($classes as $classeId) {
                         $prazo = PrazoProva::create([
-                            'instituicao_id'  => $instituicaoId,  //  
-                            'titulo'          => $validated['titulo'] ?? null,
-                            'tipo_prova'      => $validated['tipo_prova'],
-                            'disciplina_id'   => $disciplinaId,
-                            'classe_id'       => $classeId,
-                            'data_inicio'     => $validated['data_inicio'],
-                            'data_limite'     => $validated['data_limite'],
-                            'periodo'         => $validated['periodo'],
-                            'observacoes'     => $validated['observacoes'] ?? null,
-                            'ano_letivo'      => $ano->nome,
-                            'criado_por'      => auth()->id(),
-                            'status'          => 'aberto',
+                            'instituicao_id' => $instituicaoId,  //
+                            'titulo' => $validated['titulo'] ?? null,
+                            'tipo_prova' => $validated['tipo_prova'],
+                            'disciplina_id' => $disciplinaId,
+                            'classe_id' => $classeId,
+                            'data_inicio' => $validated['data_inicio'],
+                            'data_limite' => $validated['data_limite'],
+                            'periodo' => $validated['periodo'],
+                            'observacoes' => $validated['observacoes'] ?? null,
+                            'ano_letivo' => $ano->nome,
+                            'criado_por' => auth()->id(),
+                            'status' => 'aberto',
                             'permite_reenvio' => false,
                         ]);
                         $ids[] = $prazo->id;
@@ -182,20 +181,21 @@ class PrazoProvaController extends Controller
             }
 
             Log::info(' Prazos criados', [
-                'quantidade'     => count($prazosIds),
-                'criado_por'     => auth()->id(),
+                'quantidade' => count($prazosIds),
+                'criado_por' => auth()->id(),
                 'instituicao_id' => $instituicaoId,
             ]);
 
             $total = count($prazosIds);
+
             return redirect()->route('tenant.dashboard.diretor.prazos.index')
                 ->with('success', "{$total} prazo(s) criado(s) com sucesso!");
 
         } catch (\Exception $e) {
             Log::error('  Erro ao criar prazos', [
-                'error'          => $e->getMessage(),
+                'error' => $e->getMessage(),
                 'instituicao_id' => $instituicaoId,
-                'trace'          => $e->getTraceAsString(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return back()
@@ -217,19 +217,19 @@ class PrazoProvaController extends Controller
 
         return Inertia::render('tenant/diretor/prazos/edit', [
             'prazo' => [
-                'id'              => $prazo->id,
-                'titulo'          => $prazo->titulo,
-                'tipo_prova'      => $prazo->tipo_prova,
-                'disciplina_id'   => $prazo->disciplina_id,
-                'classe_id'       => $prazo->classe_id,
-                'data_inicio'     => $prazo->data_inicio->format('Y-m-d\TH:i'),
-                'data_limite'     => $prazo->data_limite->format('Y-m-d\TH:i'),
-                'periodo'         => $prazo->periodo,
-                'observacoes'     => $prazo->observacoes,
+                'id' => $prazo->id,
+                'titulo' => $prazo->titulo,
+                'tipo_prova' => $prazo->tipo_prova,
+                'disciplina_id' => $prazo->disciplina_id,
+                'classe_id' => $prazo->classe_id,
+                'data_inicio' => $prazo->data_inicio->format('Y-m-d\TH:i'),
+                'data_limite' => $prazo->data_limite->format('Y-m-d\TH:i'),
+                'periodo' => $prazo->periodo,
+                'observacoes' => $prazo->observacoes,
                 'permite_reenvio' => (bool) $prazo->permite_reenvio,
             ],
             'disciplinas' => Disciplina::orderBy('nome')->get(['id', 'nome', 'sigla']),  //  sem filtro
-            'classes'     => Classe::orderBy('nome')->get(['id', 'nome']),               //   sem filtro
+            'classes' => Classe::orderBy('nome')->get(['id', 'nome']),               //   sem filtro
         ]);
     }
 
@@ -258,6 +258,8 @@ class PrazoProvaController extends Controller
      */
     public function show(PrazoProva $prazo)
     {
+        $this->authorize('view', $prazo);
+
         $this->marcarExpirados();
 
         $submissoes = $this->provaService->getSubmissoesParaIndex($prazo, auth()->user());
@@ -265,20 +267,20 @@ class PrazoProvaController extends Controller
         $justificativas = JustificativaNaoSubmissao::where('prazo_prova_id', $prazo->id)
             ->with(['professor.user', 'avaliador'])
             ->get()
-            ->map(fn($just) => [
-                'id'             => $just->id,
-                'professor'      => $just->professor?->user?->nome ?? 'N/A',
-                'motivo'         => $just->motivo,
-                'data'           => $just->data_justificativa->format('d/m/Y H:i'),
-                'status'         => $just->status,
-                'status_label'   => $just->status_label,
-                'avaliador'      => $just->avaliador?->nome ?? null,
+            ->map(fn ($just) => [
+                'id' => $just->id,
+                'professor' => $just->professor?->user?->nome ?? 'N/A',
+                'motivo' => $just->motivo,
+                'data' => $just->data_justificativa->format('d/m/Y H:i'),
+                'status' => $just->status,
+                'status_label' => $just->status_label,
+                'avaliador' => $just->avaliador?->nome ?? null,
                 'data_avaliacao' => $just->data_avaliacao?->format('d/m/Y H:i'),
             ]);
 
         return Inertia::render('tenant/diretor/prazos/show', [
-            'prazo'          => $this->formatarPrazoParaDetalhe($prazo),
-            'submissoes'     => $submissoes,
+            'prazo' => $this->formatarPrazoParaDetalhe($prazo),
+            'submissoes' => $submissoes,
             'justificativas' => $justificativas,
         ]);
     }
@@ -297,7 +299,7 @@ class PrazoProvaController extends Controller
             ->where('estado', '!=', 'substituido')
             ->get()
             ->groupBy('professor_id')
-            ->map(fn($group) => $group->sortByDesc('versao')->first());
+            ->map(fn ($group) => $group->sortByDesc('versao')->first());
 
         $justificativas = JustificativaNaoSubmissao::where('prazo_prova_id', $prazo->id)
             ->with('avaliador')
@@ -309,25 +311,25 @@ class PrazoProvaController extends Controller
             $justificativa = $justificativas->get($professor->id);
 
             return [
-                'professor_id'   => $professor->id,
+                'professor_id' => $professor->id,
                 'professor_nome' => $professor->user->nome ?? 'Sem nome',
-                'submeteu'       => !is_null($submissao),
-                'versao'         => $submissao?->versao,
-                'estado'         => $submissao?->estado,
-                'estado_label'   => $submissao?->estado_label,
-                'badge_class'    => $submissao?->estado_badge_class,
+                'submeteu' => ! is_null($submissao),
+                'versao' => $submissao?->versao,
+                'estado' => $submissao?->estado,
+                'estado_label' => $submissao?->estado_label,
+                'badge_class' => $submissao?->estado_badge_class,
                 'data_submissao' => $submissao?->data_submissao?->format('d/m/Y H:i'),
-                'submissao_id'   => $submissao?->id,
-                'pode_avaliar'   => $submissao && auth()->user()->can('avaliar', $submissao),
-                'justificativa'  => $justificativa ? [
-                    'id'                 => $justificativa->id,
-                    'motivo'             => $justificativa->motivo,
-                    'status'             => $justificativa->status,
-                    'status_label'       => $justificativa->status_label,
-                    'parecer_diretor'    => $justificativa->parecer_diretor,
+                'submissao_id' => $submissao?->id,
+                'pode_avaliar' => $submissao && auth()->user()->can('avaliar', $submissao),
+                'justificativa' => $justificativa ? [
+                    'id' => $justificativa->id,
+                    'motivo' => $justificativa->motivo,
+                    'status' => $justificativa->status,
+                    'status_label' => $justificativa->status_label,
+                    'parecer_diretor' => $justificativa->parecer_diretor,
                     'data_justificativa' => $justificativa->data_justificativa->format('d/m/Y H:i'),
-                    'data_avaliacao'     => $justificativa->data_avaliacao?->format('d/m/Y H:i'),
-                    'avaliador'          => $justificativa->avaliador?->nome ?? null,
+                    'data_avaliacao' => $justificativa->data_avaliacao?->format('d/m/Y H:i'),
+                    'avaliador' => $justificativa->avaliador?->nome ?? null,
                 ] : null,
             ];
         });
@@ -336,14 +338,14 @@ class PrazoProvaController extends Controller
 
         return Inertia::render('tenant/diretor/prazos/status', [
             'prazo' => [
-                'id'           => $prazo->id,
-                'titulo'       => $prazo->titulo ?? $prazo->tipo_prova,
-                'disciplina'   => $prazo->disciplina?->only(['id', 'nome', 'sigla']),
-                'classe'       => $prazo->classe?->only(['id', 'nome']),
-                'data_limite'  => $prazo->data_limite->format('d/m/Y H:i'),
-                'status'       => $prazo->status,
+                'id' => $prazo->id,
+                'titulo' => $prazo->titulo ?? $prazo->tipo_prova,
+                'disciplina' => $prazo->disciplina?->only(['id', 'nome', 'sigla']),
+                'classe' => $prazo->classe?->only(['id', 'nome']),
+                'data_limite' => $prazo->data_limite->format('d/m/Y H:i'),
+                'status' => $prazo->status,
                 'status_label' => $prazo->status_label,
-                'badge_class'  => $prazo->status_badge_class,
+                'badge_class' => $prazo->status_badge_class,
             ],
             'professores' => $status,
         ]);
@@ -361,7 +363,7 @@ class PrazoProvaController extends Controller
         $this->authorize('update', $prazo);
 
         $request->validate([
-            'nova_data_limite' => 'required|date|after:' . $prazo->data_limite,
+            'nova_data_limite' => 'required|date|after:'.$prazo->data_limite,
         ]);
 
         try {
@@ -378,10 +380,10 @@ class PrazoProvaController extends Controller
         } catch (\Exception $e) {
             Log::error('Falha ao prorrogar prazo', [
                 'prazo_id' => $prazo->id,
-                'error'    => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
-            return back()->with('error', 'Erro ao prorrogar: ' . $e->getMessage());
+            return back()->with('error', 'Erro ao prorrogar: '.$e->getMessage());
         }
     }
 
@@ -408,27 +410,30 @@ class PrazoProvaController extends Controller
      */
     public function avaliar(Request $request, JustificativaNaoSubmissao $justificativa)
     {
+        $justificativa->load('prazo');
+        $this->authorize('update', $justificativa->prazo);
+
         $request->validate([
             'status' => 'required|in:aceita,recusada',
             'motivo' => 'nullable|string|max:500',
         ]);
 
         $justificativa->update([
-            'status'          => $request->status,
-            'avaliado_por'    => auth()->id(),
-            'data_avaliacao'  => now(),
+            'status' => $request->status,
+            'avaliado_por' => auth()->id(),
+            'data_avaliacao' => now(),
             'parecer_diretor' => $request->motivo,
         ]);
 
         $professor = $justificativa->professor?->user;
         if ($professor) {
-            $professor->notify(new \App\Notifications\JustificativaAvaliadaNotificacao($justificativa));
+            $professor->notify(new JustificativaAvaliadaNotificacao($justificativa));
         }
 
         Log::info('Justificativa avaliada', [
             'justificativa_id' => $justificativa->id,
-            'status'           => $request->status,
-            'avaliado_por'     => auth()->id(),
+            'status' => $request->status,
+            'avaliado_por' => auth()->id(),
         ]);
 
         return redirect()->back()
@@ -444,7 +449,7 @@ class PrazoProvaController extends Controller
      */
     private function extractIds($input): array
     {
-        if (!is_array($input)) {
+        if (! is_array($input)) {
             return [];
         }
 
@@ -452,7 +457,7 @@ class PrazoProvaController extends Controller
             return array_column($input, 'value');
         }
 
-        return array_values(array_filter($input, fn($v) => !empty($v)));
+        return array_values(array_filter($input, fn ($v) => ! empty($v)));
     }
 
     /**
@@ -473,14 +478,14 @@ class PrazoProvaController extends Controller
     private function regrasValidacao(): array
     {
         return [
-            'disciplina_id' => 'nullable|uuid|exists:disciplinas,id',
-            'classe_id'     => 'nullable|uuid|exists:classes,id',
-            'tipo_prova'    => 'required|in:teste,exame,ficha,recuperacao',
-            'titulo'        => 'nullable|string|max:255',
-            'observacoes'   => 'nullable|string',
-            'data_inicio'   => 'required|date|before:data_limite',
-            'data_limite'   => 'required|date|after:now',
-            'periodo'       => 'required|string|max:20',
+            'disciplina_id' => ['nullable', 'uuid', Rule::exists(Disciplina::class, 'id')],
+            'classe_id' => 'nullable|uuid|exists:classes,id',
+            'tipo_prova' => 'required|in:Prova-Trimestral,Exame-especial,Recurso',
+            'titulo' => 'nullable|string|max:255',
+            'observacoes' => 'nullable|string',
+            'data_inicio' => 'required|date|before:data_limite',
+            'data_limite' => 'required|date|after:now',
+            'periodo' => 'required|string|max:20',
         ];
     }
 
@@ -490,21 +495,21 @@ class PrazoProvaController extends Controller
     private function formatarPrazoParaLista(PrazoProva $prazo): array
     {
         return [
-            'id'               => $prazo->id,
-            'titulo'           => $prazo->titulo ?? $prazo->tipo_prova,
-            'tipo_prova'       => $prazo->tipo_prova,
-            'disciplina'       => $prazo->disciplina?->only(['id', 'nome', 'sigla']),
-            'classe'           => $prazo->classe?->only(['id', 'nome']),
-            'data_limite'      => $prazo->data_limite->format('d/m/Y H:i'),
-            'data_inicio'      => $prazo->data_inicio->format('d/m/Y H:i'),
-            'status'           => $prazo->status,
-            'status_label'     => $prazo->status_label,
-            'badge_class'      => $prazo->status_badge_class,
+            'id' => $prazo->id,
+            'titulo' => $prazo->titulo ?? $prazo->tipo_prova,
+            'tipo_prova' => $prazo->tipo_prova,
+            'disciplina' => $prazo->disciplina?->only(['id', 'nome', 'sigla']),
+            'classe' => $prazo->classe?->only(['id', 'nome']),
+            'data_limite' => $prazo->data_limite->format('d/m/Y H:i'),
+            'data_inicio' => $prazo->data_inicio->format('d/m/Y H:i'),
+            'status' => $prazo->status,
+            'status_label' => $prazo->status_label,
+            'badge_class' => $prazo->status_badge_class,
             'total_submissoes' => $prazo->submissoes()->count(),
-            'ano_letivo'       => $prazo->ano_letivo,
-            'periodo'          => $prazo->periodo,
-            'criado_por'       => $prazo->criador?->nome ?? 'N/A',
-            'can'              => [
+            'ano_letivo' => $prazo->ano_letivo,
+            'periodo' => $prazo->periodo,
+            'criado_por' => $prazo->criador?->nome ?? 'N/A',
+            'can' => [
                 'update' => auth()->user()->can('update', $prazo),
                 'delete' => auth()->user()->can('delete', $prazo),
             ],
@@ -517,21 +522,21 @@ class PrazoProvaController extends Controller
     private function formatarPrazoParaDetalhe(PrazoProva $prazo): array
     {
         return [
-            'id'              => $prazo->id,
-            'titulo'          => $prazo->titulo ?? $prazo->tipo_prova,
-            'tipo_prova'      => $prazo->tipo_prova,
-            'disciplina'      => $prazo->disciplina?->only(['id', 'nome', 'sigla']),
-            'classe'          => $prazo->classe?->only(['id', 'nome']),
-            'data_inicio'     => $prazo->data_inicio->format('Y-m-d H:i'),
-            'data_limite'     => $prazo->data_limite->format('Y-m-d H:i'),
-            'status'          => $prazo->status,
-            'status_label'    => $prazo->status_label,
-            'badge_class'     => $prazo->status_badge_class,
-            'observacoes'     => $prazo->observacoes,
+            'id' => $prazo->id,
+            'titulo' => $prazo->titulo ?? $prazo->tipo_prova,
+            'tipo_prova' => $prazo->tipo_prova,
+            'disciplina' => $prazo->disciplina?->only(['id', 'nome', 'sigla']),
+            'classe' => $prazo->classe?->only(['id', 'nome']),
+            'data_inicio' => $prazo->data_inicio->format('Y-m-d H:i'),
+            'data_limite' => $prazo->data_limite->format('Y-m-d H:i'),
+            'status' => $prazo->status,
+            'status_label' => $prazo->status_label,
+            'badge_class' => $prazo->status_badge_class,
+            'observacoes' => $prazo->observacoes,
             'permite_reenvio' => $prazo->permite_reenvio,
-            'ano_letivo'      => $prazo->ano_letivo,
-            'periodo'         => $prazo->periodo,
-            'can'             => [
+            'ano_letivo' => $prazo->ano_letivo,
+            'periodo' => $prazo->periodo,
+            'can' => [
                 'update' => auth()->user()->can('update', $prazo),
                 'delete' => auth()->user()->can('delete', $prazo),
             ],
@@ -547,7 +552,7 @@ class PrazoProvaController extends Controller
         $instituicaoId = $prazo->instituicao_id;
 
         $base = Professor::with('user')
-            ->whereHas('user', fn($q) => $q->where('instituicao_id', $instituicaoId));
+            ->whereHas('user', fn ($q) => $q->where('instituicao_id', $instituicaoId));
 
         if ($prazo->disciplina_id) {
             return $base
@@ -556,7 +561,12 @@ class PrazoProvaController extends Controller
                         ->from('turma_disciplina_professor')
                         ->join('classe_turno_disciplina', 'turma_disciplina_professor.classe_turno_disciplina_id', '=', 'classe_turno_disciplina.id')
                         ->whereColumn('turma_disciplina_professor.professor_id', 'professores.id')
-                        ->where('classe_turno_disciplina.disciplina_id', $prazo->disciplina_id);
+                        ->where('classe_turno_disciplina.disciplina_id', $prazo->disciplina_id)
+                        ->when($prazo->classe_id, function ($query) use ($prazo): void {
+                            $query->join('curso_classe_turno', 'classe_turno_disciplina.curso_classe_turno_id', '=', 'curso_classe_turno.id')
+                                ->join('curso_classe', 'curso_classe_turno.curso_classe_id', '=', 'curso_classe.id')
+                                ->where('curso_classe.classe_id', $prazo->classe_id);
+                        });
                 })
                 ->get();
         }

@@ -13,6 +13,10 @@ class UserPolicy
 
     public function view(User $user, User $target): bool
     {
+        if ($user->is($target)) {
+            return true;
+        }
+
         if ($this->isProtectedDirectorTarget($user, $target)) {
             return false;
         }

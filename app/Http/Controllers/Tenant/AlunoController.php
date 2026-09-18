@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;

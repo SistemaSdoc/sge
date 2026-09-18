@@ -2,17 +2,20 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Notifica o administrador tutor sobre uma nova solicitação.
  */
-class SolicitacaoTutelaNotification extends Notification implements ShouldQueue
+class SolicitacaoTutelaNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public string $instituicaoTutelada,
@@ -21,9 +24,7 @@ class SolicitacaoTutelaNotification extends Notification implements ShouldQueue
         public string $url = '',
         public bool $trocaTutelaFinal = false,
         public ?string $cursoTuteladoSharedAnteriorId = null,
-    ) {
-        $this->afterCommit();
-    }
+    ) {}
 
     /**
      * @return array<int, string>

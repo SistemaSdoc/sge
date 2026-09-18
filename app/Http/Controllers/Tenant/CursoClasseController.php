@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
@@ -92,6 +92,8 @@ class CursoClasseController extends Controller
             'turno' => [
                 'create' => $user->can('update', $cursoTutelado)
                     && $user->can('create', CursoClasseTurno::class),
+                'edit' => $user->can('update', $cursoTutelado)
+                    && $user->can('cursoclasseturno.update'),
             ],
             'disciplina' => [
                 'create' => $user->can('update', $cursoTutelado)

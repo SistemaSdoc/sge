@@ -40,7 +40,10 @@ import {
   create as createTurma,
   edit as editTurma,
 } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
-import { create } from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
+import {
+  create,
+  edit as editTurno,
+} from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
 import { cn } from '@/lib/utils';
 import { Header } from './components/classe-header';
 
@@ -169,6 +172,9 @@ export default function Show({
         turnos={turnos}
         params={params}
         anoLectivoAtualNome={anoLectivoAtualNome}
+        instituicao={instituicao}
+        cursoTutelado={cursoTutelado}
+        cursoClasse={cursoClasse}
       />
 
       {turnos.length > 0 ? (
@@ -196,10 +202,16 @@ export default function Show({
                       !isLastInRow && 'border-r border-foreground/10',
                     )}
                   >
-                    <h3 className="mb-1 text-sm font-medium">{turno.nome}</h3>
-                    <p className="text-xs text-muted-foreground">
-                      {isActive ? 'A visualizar' : 'Clique aqui para ver'}
-                    </p>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="mb-1 text-sm font-medium">
+                          {turno.nome}
+                        </h3>
+                        <p className="text-xs text-muted-foreground">
+                          {isActive ? 'A visualizar' : 'Clique aqui para ver'}
+                        </p>
+                      </div>
+                    </div>
                   </button>
                 );
               })}
@@ -254,11 +266,16 @@ export default function Show({
                         <Button asChild size="sm">
                           <Link
                             data={{ redirect_to: window.location.href }}
-                            href={`${
-                              createDisciplina({
-                                ...params,
-                              }).url
-                            }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`}
+                            href={
+                              createDisciplina(
+                                { ...params },
+                                {
+                                  query: {
+                                    ano_lectivo_id: anoLectivoSelecionado,
+                                  },
+                                },
+                              ).url
+                            }
                           >
                             Adicionar Disciplina
                           </Link>
@@ -278,11 +295,14 @@ export default function Show({
                           can.disciplina.create
                             ? {
                                 label: 'Adicionar Disciplina',
-                                href: `${
-                                  createDisciplina({
-                                    ...params,
-                                  }).url
-                                }${anoLectivoSelecionado ? `?ano_lectivo_id=${encodeURIComponent(anoLectivoSelecionado)}` : ''}`,
+                                href: createDisciplina(
+                                  { ...params },
+                                  {
+                                    query: {
+                                      ano_lectivo_id: anoLectivoSelecionado,
+                                    },
+                                  },
+                                ).url,
                                 variant: 'outline',
                               }
                             : undefined
@@ -368,9 +388,16 @@ export default function Show({
                         <Button asChild size="sm">
                           <Link
                             href={
-                              createTurma({
-                                ...params,
-                              }).url
+                              createTurma(
+                                {
+                                  ...params,
+                                },
+                                {
+                                  query: {
+                                    ano_lectivo_id: anoLectivoSelecionado,
+                                  },
+                                },
+                              ).url
                             }
                           >
                             Adicionar Turma
@@ -391,9 +418,14 @@ export default function Show({
                           can.turma.create
                             ? {
                                 label: 'Adicionar Turma',
-                                href: createTurma({
-                                  ...params,
-                                }).url,
+                                href: createTurma(
+                                  { ...params },
+                                  {
+                                    query: {
+                                      ano_lectivo_id: anoLectivoSelecionado,
+                                    },
+                                  },
+                                ).url,
                                 variant: 'outline',
                               }
                             : undefined
@@ -425,10 +457,18 @@ export default function Show({
                                 onClick={() => {
                                   if (turma.can?.view) {
                                     router.visit(
-                                      showTurma({
-                                        ...params,
-                                        turma: turma.id,
-                                      }).url,
+                                      showTurma(
+                                        {
+                                          ...params,
+                                          turma: turma.id,
+                                        },
+                                        {
+                                          query: {
+                                            ano_lectivo_id:
+                                              anoLectivoSelecionado,
+                                          },
+                                        },
+                                      ).url,
                                     );
                                   }
                                 }}
@@ -450,10 +490,19 @@ export default function Show({
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         router.visit(
-                                          editTurma({
-                                            ...params,
-                                            turma: turma.id,
-                                          }).url + '?origem=classe',
+                                          editTurma(
+                                            {
+                                              ...params,
+                                              turma: turma.id,
+                                            },
+                                            {
+                                              query: {
+                                                origem: 'classe',
+                                                ano_lectivo_id:
+                                                  anoLectivoSelecionado,
+                                              },
+                                            },
+                                          ).url,
                                         );
                                       }}
                                     >

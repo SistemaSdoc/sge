@@ -103,6 +103,20 @@ class CursoTuteladoController extends Controller
     }
 
     /**
+     * Retorna os detalhes (nível de ensino e classes) de um curso no instituto tutor.
+     */
+    public function cursoDetalhes(Request $request, Instituicao $instituicao): array
+    {
+        return [
+            'data' => $this->cursoTuteladoViewService->detalhesCursoTutor(
+                (string) $request->query('tenant_tutor_id'),
+                (string) $request->query('curso_id'),
+                $instituicao,
+            ),
+        ];
+    }
+
+    /**
      * Apresenta o detalhe de um curso tutelado.
      */
     public function show(
@@ -132,6 +146,7 @@ class CursoTuteladoController extends Controller
                 'instituicao' => [
                     'view' => $user->can('view', $instituicao),
                 ],
+                'uploadCriteriosPap' => $user->can('update', $cursoTutelado),
             ],
         ]);
     }

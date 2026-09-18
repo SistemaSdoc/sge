@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tenant\Inscricao;
 
+use App\Rules\CentralAnoLectivoExists;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreInscricaoRequest extends FormRequest
@@ -50,7 +51,8 @@ class StoreInscricaoRequest extends FormRequest
 
             'ano_lectivo_id' => [
                 'nullable',
-                'exists:ano_lectivos,id',
+                'uuid',
+                new CentralAnoLectivoExists,
             ],
         ];
     }
@@ -59,13 +61,13 @@ class StoreInscricaoRequest extends FormRequest
     {
         return [
             'nome.required' => 'O nome é obrigatório.',
-            'bi.required'   => 'O número de BI é obrigatório.',
-            'bi.unique'     => 'Já existe um registo com este número de BI.',
+            'bi.required' => 'O número de BI é obrigatório.',
+            'bi.unique' => 'Já existe um registo com este número de BI.',
             'email.required' => 'O email é obrigatório.',
-            'email.email'   => 'O email introduzido não é válido.',
-            'email.unique'  => 'Já existe um registo com este email.',
+            'email.email' => 'O email introduzido não é válido.',
+            'email.unique' => 'Já existe um registo com este email.',
             'curso_classe_turno_id.required' => 'O curso/turno é obrigatório.',
-            'curso_classe_turno_id.exists'   => 'O curso/turno seleccionado não existe.',
+            'curso_classe_turno_id.exists' => 'O curso/turno seleccionado não existe.',
             'turma_id.exists' => 'A turma seleccionada não existe.',
             'nota_teste.numeric' => 'A nota deve ser numérica.',
             'nota_teste.min' => 'A nota não pode ser inferior a 0.',

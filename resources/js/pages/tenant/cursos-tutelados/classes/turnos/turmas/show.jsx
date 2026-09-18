@@ -25,6 +25,7 @@ export default function Show({
   can,
   anoLectivoId,
   anosLectivos,
+  anoLectivoSelecionado,
 }) {
   const { deleteConfirm } = useDialog();
 
@@ -39,15 +40,12 @@ export default function Show({
     cursoClasse,
     cursoClasseTurno,
     turma: turma.data.id,
-    // ano_lectivo_id: anoLectivoId,
   };
 
   const classe = turma.data.classe;
   const totalRecurso = pautaRecurso?.resumo?.total ?? 0;
 
   const handleDelete = (turmaId) => {
-    console.log('params:', params);
-    console.log('turmaId:', turmaId);
     deleteConfirm({
       title: 'Tens a certeza?',
       description: 'Esta acção é irreversível. A turma será removida.',
@@ -63,7 +61,7 @@ export default function Show({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+    <div className="mx-auto w-full max-w-6xl space-y-4 p-4 md:p-6">
       <Header
         can={can}
         turma={turma.data}
@@ -78,9 +76,12 @@ export default function Show({
       />
 
       <Tabs defaultValue="disciplinas" className="w-full">
-        <TurmaTabsList classe={classe} totalRecurso={totalRecurso} />
+        {/* Wrapper com scroll smooth no mobile */}
+        <div className="md:overflow-none overflow-x-auto">
+          <TurmaTabsList classe={classe} totalRecurso={totalRecurso} />
+        </div>
 
-        <TabsContent value="alunos" className="mt-2 space-y-6">
+        <TabsContent value="alunos" className="mt-2 space-y-4">
           <TabAlunos
             can={can.alunos}
             alunos={alunos.data}
@@ -90,7 +91,7 @@ export default function Show({
           />
         </TabsContent>
 
-        <TabsContent value="disciplinas" className="mt-2 space-y-6">
+        <TabsContent value="disciplinas" className="mt-2 space-y-4">
           <TabDisciplinas
             can={can.disciplinas}
             turma={turma}
@@ -100,11 +101,12 @@ export default function Show({
             redirectTo={window.location.href}
             pagination={disciplinas.meta}
             onPageChange={disciplinasPagination.handlePageChange}
+            anoLectivoSelecionado={anoLectivoSelecionado}
           />
         </TabsContent>
 
         {classe?.nome === '13ª' && (
-          <TabsContent value="grupos-pap" className="mt-2">
+          <TabsContent value="grupos-pap" className="mt-2 space-y-4">
             <TabGruposPAP
               can={can.grupos}
               turma={turma.data}
@@ -117,12 +119,12 @@ export default function Show({
         )}
 
         {totalRecurso > 0 && (
-          <TabsContent value="recurso">
+          <TabsContent value="recurso" className="mt-2 space-y-4">
             <TabRecurso
               disciplinas={disciplinas.data}
               params={params}
               pagination={disciplinas.meta}
-              onPageChange={disciplinasPagination.handlePageChange}
+              onPageChange={recursosPagination.handlePageChange}
               podeLancarRecurso={pode_lancar_recurso}
             />
           </TabsContent>

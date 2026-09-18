@@ -42,10 +42,10 @@ class StoreUserRequest extends FormRequest
 
         $query = Role::query()
             ->where('guard_name', 'tenant')
-            ->whereNotIn('name', ['SuperAdmin', 'Aluno', 'Candidato']);
+            ->whereNotIn('name', ['SuperAdmin', 'Candidato']); // removeu Aluno
 
         if ($actor?->isSubdirector()) {
-            $query->whereNotIn('name', ['Director', 'Subdirector']);
+            $query->whereNotIn('name', ['Director', 'Subdirector', 'Aluno']); // subdirector não pode criar Aluno
         }
 
         return $query->pluck('name')->all();

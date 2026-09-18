@@ -8,6 +8,25 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('prazos_provas')) {
+            Schema::table('prazos_provas', function (Blueprint $table): void {
+                $table->foreign('classe_id', 'prazos_provas_classe_id_foreign')
+                    ->references('id')
+                    ->on('classes')
+                    ->nullOnDelete();
+                $table->foreign('criado_por', 'prazos_provas_criado_por_foreign')
+                    ->references('id')
+                    ->on('users')
+                    ->cascadeOnDelete();
+                $table->index(['disciplina_id', 'classe_id']);
+                $table->index('status');
+                $table->index('data_limite');
+                $table->index('ano_letivo');
+            });
+
+            return;
+        }
+
         Schema::create('prazos_provas', function (Blueprint $table) {
             $table->uuid('id')->primary(); // chave primária UUID
 
@@ -32,7 +51,6 @@ return new class extends Migration
             $table->timestamps();
 
             // Foreign keys
-            $table->foreign('disciplina_id')->references('id')->on('disciplinas')->onDelete('set null');
             $table->foreign('classe_id')->references('id')->on('classes')->onDelete('set null');
             $table->foreign('criado_por')->references('id')->on('users')->onDelete('cascade');
 
@@ -42,6 +60,15 @@ return new class extends Migration
             $table->index('data_limite');
             $table->index('ano_letivo');
         });
+
+        if (Schema::hasTable('disciplinas')) {
+            Schema::table('prazos_provas', function (Blueprint $table): void {
+                $table->foreign('disciplina_id')
+                    ->references('id')
+                    ->on('disciplinas')
+                    ->nullOnDelete();
+            });
+        }
     }
 
     public function down(): void
