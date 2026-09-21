@@ -32,8 +32,8 @@ export function InstituicaoForm({
   can = {},
 }) {
   const canSubmit = Boolean(
-    can.create_instituicao ??
-    can.update_instituicao ??
+    can.create ??
+    can.edit ??
     can.create ??
     can.update ??
     true,

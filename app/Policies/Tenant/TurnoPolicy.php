@@ -8,7 +8,7 @@ use App\Models\Tenant\User;
 class TurnoPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determina se o usuário pode listar turnos.
      */
     public function viewAny(User $user): bool
     {
@@ -16,15 +16,15 @@ class TurnoPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determina se o usuário pode consultar um turno.
      */
     public function view(User $user, Turno $turno): bool
     {
-        return $user->can('turnos.view') && $turno->instituicao_id === $user->instituicao_id;
+        return $user->can('turnos.view');
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determina se o usuário pode criar turnos.
      */
     public function create(User $user): bool
     {
@@ -32,23 +32,23 @@ class TurnoPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determina se o usuário pode actualizar um turno.
      */
     public function update(User $user, Turno $turno): bool
     {
-        return $user->can('turnos.update') && $turno->instituicao_id === $user->instituicao_id;
+        return $user->can('turnos.update');
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determina se o usuário pode eliminar um turno.
      */
     public function delete(User $user, Turno $turno): bool
     {
-        return $user->can('turnos.delete') && $turno->instituicao_id === $user->instituicao_id;
+        return $user->can('turnos.delete');
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determina se o usuário pode restaurar um turno.
      */
     public function restore(User $user, Turno $turno): bool
     {
@@ -56,7 +56,7 @@ class TurnoPolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determina se o usuário pode eliminar permanentemente um turno.
      */
     public function forceDelete(User $user, Turno $turno): bool
     {

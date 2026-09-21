@@ -31,7 +31,7 @@ class UpdateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'professor_id.required' => 'Seleciona um professor.',
+            'professor_id.required' => 'Selecione um professor.',
             'professor_id.exists' => 'O professor selecionado não existe.',
             'funcao.required' => 'Seleciona uma função.',
             'funcao.in' => 'A função deve ser Presidente, Vogal 1 ou Vogal 2.',

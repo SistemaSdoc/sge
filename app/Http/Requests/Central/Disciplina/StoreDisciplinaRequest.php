@@ -1,17 +1,26 @@
 <?php
 
-namespace App\Http\Requests\Central;
+namespace App\Http\Requests\Central\Disciplina;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class DisciplinaRequest extends FormRequest
+class StoreDisciplinaRequest extends FormRequest
 {
+    /**
+     * Determina se o usuario pode criar uma disciplina.
+     */
     public function authorize(): bool
     {
         return $this->user()?->hasRole('SuperAdmin') ?? false;
     }
 
+    /**
+     * Obtém as regras de validação para a criação de uma disciplina.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [
@@ -20,9 +29,7 @@ class DisciplinaRequest extends FormRequest
                 'string',
                 'min:2',
                 'max:255',
-                Rule::unique('disciplinas', 'nome')
-                    ->ignore($this->route('disciplina')?->getKey())
-                    ->withoutTrashed(),
+                Rule::unique('disciplinas', 'nome')->withoutTrashed(),
             ],
             'sigla' => ['nullable', 'string', 'max:50'],
             'componente' => ['nullable', Rule::in(['sociocultural', 'cientifica', 'tecnica'])],
@@ -31,6 +38,11 @@ class DisciplinaRequest extends FormRequest
         ];
     }
 
+    /**
+     * Obtém as mensagens de validação personalizadas.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

@@ -98,6 +98,7 @@ class TenantController extends Controller
         }
 
         $instituicao = $this->tenantService->getInstituicao($tenant);
+
         $adminUser = $this->tenantService->getTenantAdminUser($tenant);
 
         $metrics = $this->getTenantMetrics($tenant);

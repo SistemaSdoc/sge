@@ -13,7 +13,7 @@ import { edit } from '@/actions/App/Http/Controllers/Tenant/InstituicaoControlle
 import { edit as editarPrazosLancamentoNotas } from '@/actions/App/Http/Controllers/Tenant/PeriodoLancamentoNotasController';
 
 export function InstituicaoCabecalho({ data, can = {} }) {
-  const canEdit = Boolean(can?.edit || can?.edit_instituicao);
+  const canEdit = Boolean(can?.edit);
   const canGerirPrazos = Boolean(can?.gerir_prazos);
 
   return (

@@ -2,15 +2,26 @@
 
 namespace App\Http\Controllers\Central;
 
+use App\Actions\Central\User\CreateUser;
+use App\Actions\Central\User\DeleteUser;
+use App\Actions\Central\User\UpdateUser;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Central\UserRequest;
+use App\Http\Requests\Central\User\StoreUserRequest;
+use App\Http\Requests\Central\User\UpdateUserRequest;
 use App\Models\Central\User;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    public function __construct(
+        private readonly CreateUser $createUser,
+        private readonly UpdateUser $updateUser,
+        private readonly DeleteUser $deleteUser,
+    ) {
+        $this->authorizeResource(User::class, 'user');
+    }
+
     /**
      * Display a listing of the users.
      */
@@ -21,7 +32,10 @@ class UserController extends Controller
             ->latest()
             ->paginate(10);
 
-        $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->get(['id', 'name']);
+        $roles = Role::query()
+            ->where('guard_name', 'web')
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
         return Inertia::render('central/users/index', [
             'users' => $users,
@@ -34,7 +48,10 @@ class UserController extends Controller
      */
     public function create()
     {
-        $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->get(['id', 'name']);
+        $roles = Role::query()
+            ->where('guard_name', 'web')
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
         return Inertia::render('central/users/create', [
             'roles' => $roles,
@@ -44,16 +61,9 @@ class UserController extends Controller
     /**
      * Store a newly created user in storage.
      */
-    public function store(UserRequest $request)
+    public function store(StoreUserRequest $request)
     {
-        $data = $request->validated();
-        $roles = $data['roles'] ?? [];
-        unset($data['roles']);
-        $data['password'] = Hash::make($data['password']);
-
-        $user = User::create($data);
-        $user->syncRoles($roles);
-        $user->load('roles:id,name');
+        $this->createUser->handle($request->validated());
 
         return redirect()->route('central.dashboard.users.index');
     }
@@ -65,7 +75,10 @@ class UserController extends Controller
     {
         $user->load('roles:id,name');
 
-        $roles = Role::query()->where('guard_name', 'web')->orderBy('name')->get(['id', 'name']);
+        $roles = Role::query()
+            ->where('guard_name', 'web')
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
         return Inertia::render('central/users/edit', [
             'user' => $user,
@@ -88,21 +101,9 @@ class UserController extends Controller
     /**
      * Update the specified user in storage.
      */
-    public function update(UserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $data = $request->validated();
-        $roles = $data['roles'] ?? [];
-        unset($data['roles']);
-
-        if (filled($data['password'] ?? null)) {
-            $data['password'] = Hash::make($data['password']);
-        } else {
-            unset($data['password']);
-        }
-
-        $user->update($data);
-        $user->syncRoles($roles);
-        $user->load('roles:id,name');
+        $this->updateUser->handle($user, $request->validated());
 
         return redirect()->route('central.dashboard.users.index');
     }
@@ -112,7 +113,7 @@ class UserController extends Controller
      */
     public function destroy(User $user)
     {
-        $user->delete();
+        $this->deleteUser->handle($user);
 
         return redirect()->route('central.dashboard.users.index');
     }

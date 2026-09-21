@@ -2,34 +2,46 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\Turno\CreateTurno;
+use App\Actions\Tenant\Turno\DeleteTurno;
+use App\Actions\Tenant\Turno\UpdateTurno;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\Turno\StoreTurnoRequest;
+use App\Http\Requests\Tenant\Turno\UpdateTurnoRequest;
 use App\Models\Tenant\Turno;
-use Illuminate\Http\Request;
+use App\Models\Tenant\User;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class TurnoController extends Controller
 {
-    public function __construct()
-    {
-        $this->authorizeResource(Turno::class, 'turno', [
-            'except' => ['create'],
-        ]);
+    public function __construct(
+        private readonly CreateTurno $createTurno,
+        private readonly UpdateTurno $updateTurno,
+        private readonly DeleteTurno $deleteTurno,
+    ) {
+        $this->authorizeResource(Turno::class, 'turno');
     }
 
+    /**
+     * Mostra a lista de turnos.
+     */
     public function index()
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         $turnos = Turno::select(['id', 'nome', 'created_at'])
             ->orderBy('nome', 'asc')
             ->paginate(10)
-            ->through(function ($turno) {
+            ->through(function (Turno $turno) use ($user) {
                 return [
                     'id' => $turno->id,
                     'nome' => $turno->nome,
                     'can' => [
-                        'view_turno' => Auth::guard('tenant')->user()->can('view', $turno),
-                        'edit_turno' => Auth::guard('tenant')->user()->can('update', $turno),
-                        'delete_turno' => Auth::guard('tenant')->user()->can('delete', $turno),
+                        'view' => $user->can('view', $turno),
+                        'edit' => $user->can('update', $turno),
+                        'delete' => $user->can('delete', $turno),
                     ],
                 ];
             });
@@ -37,29 +49,32 @@ class TurnoController extends Controller
         return Inertia::render('tenant/turnos/index', [
             'turnos' => $turnos,
             'can' => [
-                'create_turno' => Auth::guard('tenant')->user()->can('create', Turno::class),
+                'create' => $user->can('create', Turno::class),
             ],
         ]);
     }
 
+    /**
+     * Mostra o formulário para criar um novo turno.
+     */
     public function create()
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         return Inertia::render('tenant/turnos/create', [
             'can' => [
-                'create_turno' => Auth::guard('tenant')->user()->can('create', Turno::class),
+                'create' => $user->can('create', Turno::class),
             ],
         ]);
     }
 
-    public function store(Request $request)
+    /**
+     * Guarda um novo turno no tenant actual.
+     */
+    public function store(StoreTurnoRequest $request)
     {
-        $request->validate([
-            'nome' => 'required|string|max:50',
-        ]);
-
-        Turno::create([
-            'nome' => $request->nome,
-        ]);
+        $this->createTurno->handle($request->validated());
 
         return to_route('tenant.dashboard.turnos.index')->with('toast', [
             'type' => 'success',
@@ -67,33 +82,46 @@ class TurnoController extends Controller
         ]);
     }
 
+    /**
+     * Mostra os dados de um turno específico.
+     */
     public function show(Turno $turno)
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         return Inertia::render('tenant/turnos/show', [
             'turno' => $turno,
             'can' => [
-                'view_turno' => Auth::guard('tenant')->user()->can('view', $turno),
-                'edit_turno' => Auth::guard('tenant')->user()->can('update', $turno),
-                'delete_turno' => Auth::guard('tenant')->user()->can('delete', $turno),
+                'view' => $user->can('view', $turno),
+                'edit' => $user->can('update', $turno),
+                'delete' => $user->can('delete', $turno),
             ],
         ]);
     }
 
+    /**
+     * Mostra o formulário para editar um turno específico.
+     */
     public function edit(Turno $turno)
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         return Inertia::render('tenant/turnos/edit', [
             'turno' => $turno,
             'can' => [
-                'edit_turno' => Auth::guard('tenant')->user()->can('update', $turno),
+                'edit' => $user->can('update', $turno),
             ],
         ]);
     }
 
-    public function update(Request $request, Turno $turno)
+    /**
+     * Actualiza um turno específico.
+     */
+    public function update(UpdateTurnoRequest $request, Turno $turno)
     {
-        $turno->update([
-            'nome' => $request->nome,
-        ]);
+        $this->updateTurno->handle($turno, $request->validated());
 
         return to_route('tenant.dashboard.turnos.index')->with('toast', [
             'type' => 'success',
@@ -101,9 +129,12 @@ class TurnoController extends Controller
         ]);
     }
 
+    /**
+     * Remove um turno específico.
+     */
     public function destroy(Turno $turno)
     {
-        $turno->delete();
+        $this->deleteTurno->handle($turno);
 
         return to_route('tenant.dashboard.turnos.index')->with('toast', [
             'type' => 'success',

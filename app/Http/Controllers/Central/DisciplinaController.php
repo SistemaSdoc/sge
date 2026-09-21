@@ -2,13 +2,27 @@
 
 namespace App\Http\Controllers\Central;
 
+use App\Actions\Central\Disciplina\ArchiveDisciplina;
+use App\Actions\Central\Disciplina\CreateDisciplina;
+use App\Actions\Central\Disciplina\RestoreDisciplina;
+use App\Actions\Central\Disciplina\UpdateDisciplina;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Central\DisciplinaRequest;
+use App\Http\Requests\Central\Disciplina\StoreDisciplinaRequest;
+use App\Http\Requests\Central\Disciplina\UpdateDisciplinaRequest;
 use App\Models\Central\Disciplina;
 use Inertia\Inertia;
 
 class DisciplinaController extends Controller
 {
+    public function __construct(
+        private readonly CreateDisciplina $createDisciplina,
+        private readonly UpdateDisciplina $updateDisciplina,
+        private readonly ArchiveDisciplina $archiveDisciplina,
+        private readonly RestoreDisciplina $restoreDisciplina,
+    ) {
+        $this->authorizeResource(Disciplina::class, 'disciplina');
+    }
+
     /**
      * Apresenta a lista de disciplinas, incluindo as arquivadas.
      */
@@ -32,9 +46,9 @@ class DisciplinaController extends Controller
     /**
      * Cria uma nova disciplina com os dados validados.
      */
-    public function store(DisciplinaRequest $request)
+    public function store(StoreDisciplinaRequest $request)
     {
-        Disciplina::query()->create($request->validated());
+        $this->createDisciplina->handle($request->validated());
 
         return to_route('central.dashboard.disciplinas.index')
             ->with('success', 'Disciplina criada com sucesso.');
@@ -63,9 +77,10 @@ class DisciplinaController extends Controller
     /**
      * Atualiza os dados de uma disciplina existente.
      */
-    public function update(DisciplinaRequest $request, Disciplina $disciplina)
-    {
-        $disciplina->update($request->validated());
+    public function update(
+        UpdateDisciplinaRequest $request, Disciplina $disciplina
+    ) {
+        $this->updateDisciplina->handle($disciplina, $request->validated());
 
         return to_route('central.dashboard.disciplinas.index')
             ->with('success', 'Disciplina actualizada com sucesso.');
@@ -76,7 +91,7 @@ class DisciplinaController extends Controller
      */
     public function destroy(Disciplina $disciplina)
     {
-        $disciplina->delete();
+        $this->archiveDisciplina->handle($disciplina);
 
         return to_route('central.dashboard.disciplinas.index')
             ->with('success', 'Disciplina arquivada com sucesso.');
@@ -85,9 +100,10 @@ class DisciplinaController extends Controller
     /**
      * Restaura uma disciplina previamente arquivada.
      */
-    public function restore(string $disciplina)
+    public function restore(Disciplina $disciplina)
     {
-        Disciplina::withTrashed()->findOrFail($disciplina)->restore();
+        $this->authorize('restore', $disciplina);
+        $this->restoreDisciplina->handle($disciplina);
 
         return to_route('central.dashboard.disciplinas.index')
             ->with('success', 'Disciplina restaurada com sucesso.');

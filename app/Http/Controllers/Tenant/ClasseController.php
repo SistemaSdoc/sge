@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\Classe\CreateClasse;
+use App\Actions\Tenant\Classe\DeleteClasse;
+use App\Actions\Tenant\Classe\UpdateClasse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Classe\StoreClasseRequest;
 use App\Http\Requests\Tenant\Classe\UpdateClasseRequest;
@@ -12,15 +15,16 @@ use Inertia\Inertia;
 
 class ClasseController extends Controller
 {
-    public function __construct()
-    {
-        $this->authorizeResource(Classe::class, 'classe', [
-            'except' => [],
-        ]);
+    public function __construct(
+        private readonly CreateClasse $createClasse,
+        private readonly UpdateClasse $updateClasse,
+        private readonly DeleteClasse $deleteClasse,
+    ) {
+        $this->authorizeResource(Classe::class, 'classe');
     }
 
     /**
-     * Display a listing of the resource.
+     * Mostra a lista de classes.
      */
     public function index()
     {
@@ -30,15 +34,15 @@ class ClasseController extends Controller
         $classes = Classe::select(['id', 'nome', 'nivel_ensino', 'created_at'])
             ->orderBy('nome', 'asc')
             ->paginate(10)
-            ->through(function ($classe) use ($user) {
+            ->through(function (Classe $classe) use ($user) {
                 return [
                     'id' => $classe->id,
                     'nome' => $classe->nome,
                     'nivel_ensino' => $classe->nivel_ensino,
                     'can' => [
-                        'view_classe' => $user->can('view', $classe),
-                        'edit_classe' => $user->can('update', $classe),
-                        'delete_classe' => $user->can('delete', $classe),
+                        'view' => $user->can('view', $classe),
+                        'edit' => $user->can('update', $classe),
+                        'delete' => $user->can('delete', $classe),
                     ],
                 ];
             });
@@ -46,13 +50,13 @@ class ClasseController extends Controller
         return Inertia::render('tenant/classes/index', [
             'classes' => $classes,
             'can' => [
-                'create_classe' => $user->can('create', Classe::class),
+                'create' => $user->can('create', Classe::class),
             ],
         ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Mostra o formulário para criar uma nova classe.
      */
     public function create()
     {
@@ -61,17 +65,17 @@ class ClasseController extends Controller
 
         return Inertia::render('tenant/classes/create', [
             'can' => [
-                'create_classe' => $user->can('create', Classe::class),
+                'create' => $user->can('create', Classe::class),
             ],
         ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Guarda uma nova classe no tenant actual.
      */
     public function store(StoreClasseRequest $request)
     {
-        Classe::create($request->validated());
+        $this->createClasse->handle($request->validated());
 
         return to_route('tenant.dashboard.classes.index')->with('toast', [
             'type' => 'success',
@@ -80,7 +84,7 @@ class ClasseController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Mostra os dados de uma classe específica.
      */
     public function show(Classe $classe)
     {
@@ -90,15 +94,15 @@ class ClasseController extends Controller
         return Inertia::render('tenant/classes/show', [
             'classe' => $classe,
             'can' => [
-                'view_classe' => $user->can('view', $classe),
-                'edit_classe' => $user->can('update', $classe),
-                'delete_classe' => $user->can('delete', $classe),
+                'view' => $user->can('view', $classe),
+                'edit' => $user->can('update', $classe),
+                'delete' => $user->can('delete', $classe),
             ],
         ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Mostra o formulário para editar uma classe específica.
      */
     public function edit(Classe $classe)
     {
@@ -108,17 +112,17 @@ class ClasseController extends Controller
         return Inertia::render('tenant/classes/edit', [
             'classe' => $classe,
             'can' => [
-                'edit_classe' => $user->can('update', $classe),
+                'edit' => $user->can('update', $classe),
             ],
         ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualiza uma classe específica.
      */
     public function update(UpdateClasseRequest $request, Classe $classe)
     {
-        $classe->update($request->validated());
+        $this->updateClasse->handle($classe, $request->validated());
 
         return to_route('tenant.dashboard.classes.index')->with('toast', [
             'type' => 'success',
@@ -127,11 +131,11 @@ class ClasseController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove uma classe específica.
      */
     public function destroy(Classe $classe)
     {
-        $classe->delete();
+        $this->deleteClasse->handle($classe);
 
         return to_route('tenant.dashboard.classes.index')->with('toast', [
             'type' => 'success',

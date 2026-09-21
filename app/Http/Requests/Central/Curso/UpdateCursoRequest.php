@@ -1,17 +1,26 @@
 <?php
 
-namespace App\Http\Requests\Central;
+namespace App\Http\Requests\Central\Curso;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class CursoRequest extends FormRequest
+class UpdateCursoRequest extends FormRequest
 {
+    /**
+     * Determina se o utilizador pode actualizar um curso.
+     */
     public function authorize(): bool
     {
         return $this->user()?->hasRole('SuperAdmin') ?? false;
     }
 
+    /**
+     * Obtém as regras de validação para a actualização de um curso.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [
@@ -30,6 +39,11 @@ class CursoRequest extends FormRequest
         ];
     }
 
+    /**
+     * Obtém as mensagens de validação personalizadas.
+     *
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

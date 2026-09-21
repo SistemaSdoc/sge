@@ -50,7 +50,7 @@ export function InstituicaoTable({
           <CardTitle>Instituições</CardTitle>
           <CardDescription>Lista de intituições cadastradas</CardDescription>
           <CardAction>
-            {can.create_instituicao && (
+            {can.create && (
               <Button asChild>
                 <Link href={create().url}>Adicionar</Link>
               </Button>
@@ -86,10 +86,10 @@ export function InstituicaoTable({
                 {instituicoes.map((instituicao) => (
                   <TableRow
                     key={instituicao.id}
-                    aria-disabled={!instituicao.can?.view_instituicao}
+                    aria-disabled={!instituicao.can?.view}
                     className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-70 aria-disabled:hover:bg-transparent"
                     onClick={() => {
-                      if (instituicao.can?.view_instituicao) {
+                      if (instituicao.can?.view) {
                         router.visit(show(instituicao.id).url);
                       }
                     }}
@@ -103,8 +103,7 @@ export function InstituicaoTable({
                     <TableCell>{instituicao.tipo}</TableCell>
 
                     <TableCell className="px-4 text-right">
-                      {(instituicao.can?.edit_instituicao ||
-                        instituicao.can?.delete_instituicao) && (
+                      {(instituicao.can?.edit || instituicao.can?.delete) && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -118,7 +117,7 @@ export function InstituicaoTable({
                           </DropdownMenuTrigger>
 
                           <DropdownMenuContent align="end">
-                            {instituicao.can?.edit_instituicao && (
+                            {instituicao.can?.edit && (
                               <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -129,12 +128,11 @@ export function InstituicaoTable({
                               </DropdownMenuItem>
                             )}
 
-                            {instituicao.can?.edit_instituicao &&
-                              instituicao.can?.delete_instituicao && (
+                            {instituicao.can?.edit && instituicao.can?.delete && (
                                 <DropdownMenuSeparator />
                               )}
 
-                            {instituicao.can?.delete_instituicao && (
+                            {instituicao.can?.delete && (
                               <DropdownMenuItem
                                 variant="destructive"
                                 onClick={(e) => {

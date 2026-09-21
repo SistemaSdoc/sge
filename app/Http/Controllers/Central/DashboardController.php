@@ -35,7 +35,6 @@ class DashboardController extends Controller
                 'estadoLabel' => $t->status->label(),
                 'criadoEm' => $t->created_at?->format('d/m/Y'),
             ]),
-
         ]);
     }
 }

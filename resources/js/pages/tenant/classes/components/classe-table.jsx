@@ -54,7 +54,7 @@ export function ClasseTable({
   const lista = classes?.data ?? [];
   const isEmpty = lista.length === 0;
   const hasActionColumn = lista.some(
-    (classe) => classe.can?.edit_classe || classe.can?.delete_classe,
+    (classe) => classe.can?.edit || classe.can?.delete,
   );
 
   return (
@@ -64,7 +64,7 @@ export function ClasseTable({
           <CardTitle>Classes</CardTitle>
           <CardDescription>Lista de classes cadastradas</CardDescription>
           <CardAction>
-            {can.create_classe && (
+            {can.create && (
               <Button asChild>
                 <Link href={create().url}>Adicionar</Link>
               </Button>
@@ -80,7 +80,7 @@ export function ClasseTable({
               title="Nenhuma classe cadastrada"
               description="Comece adicionando a primeira classe à tabela"
               action={
-                can.create_classe
+                can.create
                   ? {
                       label: 'Adicionar Classe',
                       href: create().url,
@@ -107,12 +107,12 @@ export function ClasseTable({
                   <TableRow
                     key={classe.id}
                     className={
-                      classe.can?.view_classe
+                      classe.can?.view
                         ? 'hover:cursor-pointer'
                         : 'opacity-70'
                     }
                     onClick={() => {
-                      if (classe.can?.view_classe) {
+                      if (classe.can?.view) {
                         router.visit(show(classe.id).url);
                       }
                     }}
@@ -127,8 +127,7 @@ export function ClasseTable({
 
                     {hasActionColumn && (
                       <TableCell className="px-4 text-right">
-                        {(classe.can?.edit_classe ||
-                          classe.can?.delete_classe) && (
+                        {(classe.can?.edit || classe.can?.delete) && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
@@ -142,7 +141,7 @@ export function ClasseTable({
                             </DropdownMenuTrigger>
 
                             <DropdownMenuContent align="end">
-                              {classe.can?.edit_classe && (
+                              {classe.can?.edit && (
                                 <DropdownMenuItem
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -153,12 +152,11 @@ export function ClasseTable({
                                 </DropdownMenuItem>
                               )}
 
-                              {classe.can?.edit_classe &&
-                                classe.can?.delete_classe && (
+                              {classe.can?.edit && classe.can?.delete && (
                                   <DropdownMenuSeparator />
                                 )}
 
-                              {classe.can?.delete_classe && (
+                              {classe.can?.delete && (
                                 <DropdownMenuItem
                                   variant="destructive"
                                   onClick={(e) => {

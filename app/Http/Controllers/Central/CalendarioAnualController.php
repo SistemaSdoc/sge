@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Central;
 
-use App\Actions\Central\CalendarioAnual\UploadCalendarioAnual;
+use App\Actions\Central\CalendarioAnual\CreateCalendarioAnual;
+use App\Actions\Central\CalendarioAnual\DeleteCalendarioAnual;
+use App\Actions\Central\CalendarioAnual\UpdateCalendarioAnual;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Central\CalendarioAnual\CalendarioAnualRequest;
+use App\Http\Requests\Central\CalendarioAnual\StoreCalendarioAnualRequest;
+use App\Http\Requests\Central\CalendarioAnual\UpdateCalendarioAnualRequest;
 use App\Models\Central\CalendarioAnual;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +17,14 @@ use Inertia\Response;
 
 class CalendarioAnualController extends Controller
 {
+    public function __construct(
+        private readonly CreateCalendarioAnual $createCalendarioAnual,
+        private readonly UpdateCalendarioAnual $updateCalendarioAnual,
+        private readonly DeleteCalendarioAnual $deleteCalendarioAnual,
+    ) {
+        $this->authorizeResource(CalendarioAnual::class, 'calendarioAnual');
+    }
+
     public function index(): Response
     {
         return Inertia::render('central/calendarios-anuais/index', [
@@ -23,47 +34,32 @@ class CalendarioAnualController extends Controller
         ]);
     }
 
-    public function store(CalendarioAnualRequest $request, UploadCalendarioAnual $upload): RedirectResponse
+    public function store(StoreCalendarioAnualRequest $request): RedirectResponse
     {
-        $dados = $request->validated();
-
-        $calendario = CalendarioAnual::create([
-            'ano' => $dados['ano'],
-            'ficheiro_path' => '',
-            'ficheiro_nome' => '',
-        ]);
-
-        $upload->handle($calendario, $dados['ficheiro']);
+        $this->createCalendarioAnual->handle($request->validated());
 
         return redirect()->route('central.dashboard.calendarios-anuais.index')
             ->with('success', 'Calendário anual criado com sucesso.');
     }
 
-    public function update(CalendarioAnualRequest $request, CalendarioAnual $calendarioAnual, UploadCalendarioAnual $upload): RedirectResponse
+    public function update(UpdateCalendarioAnualRequest $request, CalendarioAnual $calendarioAnual): RedirectResponse
     {
-        $dados = $request->validated();
-
-        if (isset($dados['ficheiro'])) {
-            $upload->handle($calendarioAnual, $dados['ficheiro']);
-        }
-
-        if (array_key_exists('ativo', $dados)) {
-            $calendarioAnual->update(['ativo' => $dados['ativo']]);
-        }
+        $this->updateCalendarioAnual->handle($calendarioAnual, $request->validated());
 
         return back()->with('success', 'Calendário anual actualizado com sucesso.');
     }
 
     public function destroy(CalendarioAnual $calendarioAnual): RedirectResponse
     {
-        Storage::disk(config('filesystems.default'))->delete($calendarioAnual->ficheiro_path);
-        $calendarioAnual->delete();
+        $this->deleteCalendarioAnual->handle($calendarioAnual);
 
         return back()->with('success', 'Calendário anual eliminado com sucesso.');
     }
 
     public function download(CalendarioAnual $calendarioAnual): mixed
     {
+        $this->authorize('view', $calendarioAnual);
+
         /** @var FilesystemAdapter $disco */
         $disco = Storage::disk(config('filesystems.default'));
 
@@ -77,6 +73,8 @@ class CalendarioAnualController extends Controller
 
     public function view(CalendarioAnual $calendarioAnual): mixed
     {
+        $this->authorize('view', $calendarioAnual);
+
         /** @var FilesystemAdapter $disco */
         $disco = Storage::disk(config('filesystems.default'));
 

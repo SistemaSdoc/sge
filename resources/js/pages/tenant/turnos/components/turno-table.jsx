@@ -42,7 +42,7 @@ export function TurnoTable({
   const lista = Array.isArray(turnos) ? turnos : (turnos?.data ?? []);
   const isEmpty = lista.length === 0;
   const hasActionColumn = lista.some(
-    (turno) => turno.can?.edit_turno || turno.can?.delete_turno,
+    (turno) => turno.can?.edit || turno.can?.delete,
   );
 
   return (
@@ -52,7 +52,7 @@ export function TurnoTable({
           <CardTitle>Turnos</CardTitle>
           <CardDescription>Lista de turnos cadastrados</CardDescription>
           <CardAction>
-            {can.create_turno && (
+            {can.create && (
               <Button asChild>
                 <Link href={create().url}>Adicionar</Link>
               </Button>
@@ -68,7 +68,7 @@ export function TurnoTable({
               title="Nenhum turno cadastrado"
               description="Comece adicionando o primeiro turno à tabela"
               action={
-                can.create_turno
+                can.create
                   ? {
                       label: 'Adicionar Turno',
                       href: create().url,
@@ -92,12 +92,12 @@ export function TurnoTable({
                   <TableRow
                     key={turno.id}
                     className={
-                      turno.can?.view_turno
+                      turno.can?.view
                         ? 'hover:cursor-pointer'
                         : 'opacity-70'
                     }
                     onClick={() => {
-                      if (turno.can?.view_turno) {
+                      if (turno.can?.view) {
                         router.visit(show(turno.id).url);
                       }
                     }}
@@ -107,7 +107,7 @@ export function TurnoTable({
                     </TableCell>
                     {hasActionColumn && (
                       <TableCell className="px-4 text-right">
-                        {(turno.can?.edit_turno || turno.can?.delete_turno) && (
+                        {(turno.can?.edit || turno.can?.delete) && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
@@ -121,7 +121,7 @@ export function TurnoTable({
                             </DropdownMenuTrigger>
 
                             <DropdownMenuContent align="end">
-                              {turno.can?.edit_turno && (
+                              {turno.can?.edit && (
                                 <DropdownMenuItem
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -132,12 +132,11 @@ export function TurnoTable({
                                 </DropdownMenuItem>
                               )}
 
-                              {turno.can?.edit_turno &&
-                                turno.can?.delete_turno && (
+                              {turno.can?.edit && turno.can?.delete && (
                                   <DropdownMenuSeparator />
                                 )}
 
-                              {turno.can?.delete_turno && (
+                              {turno.can?.delete && (
                                 <DropdownMenuItem
                                   variant="destructive"
                                   onClick={(e) => {
