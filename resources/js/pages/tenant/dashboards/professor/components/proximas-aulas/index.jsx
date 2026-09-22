@@ -13,7 +13,7 @@ export function ProximasAulas({ data = [] }) {
   return (
     <ItemGroup>
       {data.map((aula) => (
-        <AulaItem key={`${aula.id}-${aula.dia}`} aula={aula} />
+        <AulaItem key={`${aula.id}-${aula.turma.id}-${aula.dia}`} aula={aula} />
       ))}
     </ItemGroup>
   );

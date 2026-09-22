@@ -42,29 +42,29 @@ export default function GrupoPapForm({
   const [classes, setClasses] = useState([]);
   const [turnos, setTurnos] = useState([]);
   const [turmas, setTurmas] = useState([]);
-  const [formOptions, setFormOptions] = useState({
-    professores: [],
-    alunos: [],
-  });
+  const [formOptions, setFormOptions] = useState({ professores: [], alunos: [] });
+  const [classesLoaded, setClassesLoaded] = useState(false);
+  const [turnosLoaded, setTurnosLoaded] = useState(false);
+  const [turmasLoaded, setTurmasLoaded] = useState(false);
   const [errors, setErrors] = useState({});
   const [processing, setProcessing] = useState(false);
 
-  const reset = (fields = {}) =>
+  const handleCursoChange = async (value) => {
     setData((prev) => ({
       ...prev,
+      curso_tutelado_id: value,
       curso_classe_id: '',
       curso_classe_turno_id: '',
       turma_id: '',
       alunos: [],
-      ...fields,
     }));
-
-  const handleCursoChange = async (value) => {
-    reset({ curso_tutelado_id: value });
     setClasses([]);
     setTurnos([]);
     setTurmas([]);
     setFormOptions({ professores: [], alunos: [] });
+    setClassesLoaded(false);
+    setTurnosLoaded(false);
+    setTurmasLoaded(false);
     if (!value) return;
     try {
       const res = await fetch(
@@ -73,17 +73,24 @@ export default function GrupoPapForm({
       setClasses(await res.json());
     } catch {
       setClasses([]);
+    } finally {
+      setClassesLoaded(true);
     }
   };
 
   const handleClasseChange = async (value) => {
-    reset({
-      curso_tutelado_id: data.curso_tutelado_id,
+    setData((prev) => ({
+      ...prev,
       curso_classe_id: value,
-    });
+      curso_classe_turno_id: '',
+      turma_id: '',
+      alunos: [],
+    }));
     setTurnos([]);
     setTurmas([]);
     setFormOptions({ professores: [], alunos: [] });
+    setTurnosLoaded(false);
+    setTurmasLoaded(false);
     if (!value) return;
     try {
       const res = await fetch(
@@ -92,18 +99,22 @@ export default function GrupoPapForm({
       setTurnos(await res.json());
     } catch {
       setTurnos([]);
+    } finally {
+      setTurnosLoaded(true);
     }
   };
 
   const handleTurnoChange = async (value) => {
-    reset({
-      curso_tutelado_id: data.curso_tutelado_id,
-      curso_classe_id: data.curso_classe_id,
+    if (!value) return;
+    setData((prev) => ({
+      ...prev,
       curso_classe_turno_id: value,
-    });
+      turma_id: '',
+      alunos: [],
+    }));
     setTurmas([]);
     setFormOptions({ professores: [], alunos: [] });
-    if (!value) return;
+    setTurmasLoaded(false);
     try {
       const res = await fetch(
         `${turmasRoute(instituicao.id).url}?curso_classe_turno_id=${value}`,
@@ -111,17 +122,15 @@ export default function GrupoPapForm({
       setTurmas(await res.json());
     } catch {
       setTurmas([]);
+    } finally {
+      setTurmasLoaded(true);
     }
   };
 
   const handleTurmaChange = async (value) => {
-    setData((prev) => ({
-      ...prev,
-      turma_id: value,
-      alunos: [],
-    }));
+    setData((prev) => ({ ...prev, turma_id: value, alunos: [] }));
     setFormOptions({ professores: [], alunos: [] });
-    if (!value || !data.curso_tutelado_id) return;
+    if (!value) return;
     try {
       const res = await fetch(
         `${formOptionsRoute(instituicao.id).url}?curso_tutelado_id=${data.curso_tutelado_id}&turma_id=${value}`,
@@ -142,15 +151,10 @@ export default function GrupoPapForm({
     });
   };
 
-  const emptyOption = (
-    <div className="px-2 py-1.5 text-sm text-muted-foreground">
-      Nenhuma opção disponível
-    </div>
-  );
-
   return (
     <form onSubmit={handleSubmit}>
       <FieldGroup className="@container/field-group">
+
         <Field data-invalid={!!errors.curso_tutelado_id}>
           <FieldLabel>Curso</FieldLabel>
           <Select
@@ -159,7 +163,7 @@ export default function GrupoPapForm({
             disabled={processing}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Seleciona um curso" />
+              <SelectValue placeholder="Selecione um curso" />
             </SelectTrigger>
             <SelectContent>
               {cursosTutelados.map((c) => (
@@ -177,6 +181,7 @@ export default function GrupoPapForm({
         <Field data-invalid={!!errors.curso_classe_id}>
           <FieldLabel>Classe</FieldLabel>
           <Select
+            key={data.curso_classe_id || 'empty-classe'}
             value={data.curso_classe_id || undefined}
             onValueChange={handleClasseChange}
             disabled={processing || !data.curso_tutelado_id}
@@ -191,15 +196,18 @@ export default function GrupoPapForm({
               />
             </SelectTrigger>
             <SelectContent>
-              {classes.length === 0
-                ? emptyOption
-                : classes.map((c) => (
-                    <SelectItem key={c.id} value={String(c.id)}>
-                      {c.nome}
-                    </SelectItem>
-                  ))}
+              {classes.map((c) => (
+                <SelectItem key={c.id} value={String(c.id)}>
+                  {c.nome}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
+          {classesLoaded && classes.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              Nenhuma classe disponível para este curso.
+            </p>
+          )}
           {errors.curso_classe_id && (
             <FieldError>{errors.curso_classe_id}</FieldError>
           )}
@@ -208,6 +216,7 @@ export default function GrupoPapForm({
         <Field data-invalid={!!errors.curso_classe_turno_id}>
           <FieldLabel>Turno</FieldLabel>
           <Select
+            key={data.curso_classe_turno_id || 'empty-turno'}
             value={data.curso_classe_turno_id || undefined}
             onValueChange={handleTurnoChange}
             disabled={processing || !data.curso_classe_id}
@@ -222,15 +231,18 @@ export default function GrupoPapForm({
               />
             </SelectTrigger>
             <SelectContent>
-              {turnos.length === 0
-                ? emptyOption
-                : turnos.map((t) => (
-                    <SelectItem key={t.id} value={String(t.id)}>
-                      {t.nome}
-                    </SelectItem>
-                  ))}
+              {turnos.map((t) => (
+                <SelectItem key={t.id} value={String(t.id)}>
+                  {t.nome}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
+          {turnosLoaded && turnos.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              Nenhum turno disponível para esta classe.
+            </p>
+          )}
           {errors.curso_classe_turno_id && (
             <FieldError>{errors.curso_classe_turno_id}</FieldError>
           )}
@@ -239,6 +251,7 @@ export default function GrupoPapForm({
         <Field data-invalid={!!errors.turma_id}>
           <FieldLabel>Turma</FieldLabel>
           <Select
+            key={data.turma_id || 'empty-turma'}
             value={data.turma_id || undefined}
             onValueChange={handleTurmaChange}
             disabled={processing || !data.curso_classe_turno_id}
@@ -253,15 +266,18 @@ export default function GrupoPapForm({
               />
             </SelectTrigger>
             <SelectContent>
-              {turmas.length === 0
-                ? emptyOption
-                : turmas.map((t) => (
-                    <SelectItem key={t.id} value={String(t.id)}>
-                      {t.nome}
-                    </SelectItem>
-                  ))}
+              {turmas.map((t) => (
+                <SelectItem key={t.id} value={String(t.id)}>
+                  {t.nome}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
+          {turmasLoaded && turmas.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              Nenhuma turma disponível para este turno.
+            </p>
+          )}
           {errors.turma_id && <FieldError>{errors.turma_id}</FieldError>}
         </Field>
 
@@ -297,8 +313,7 @@ export default function GrupoPapForm({
                 }))}
                 value={data.alunos.map((id) => ({
                   value: id,
-                  label:
-                    formOptions.alunos.find((a) => a.id === id)?.nome ?? id,
+                  label: formOptions.alunos.find((a) => a.id === id)?.nome ?? id,
                 }))}
                 onChange={(opts) =>
                   setData((prev) => ({
@@ -313,39 +328,6 @@ export default function GrupoPapForm({
                   <FieldError key={k}>{errors[k]}</FieldError>
                 ))}
             </Field>
-
-            {/* <Field data-invalid={!!errors.professor_tutor_id}>
-              <FieldLabel>Professor tutor</FieldLabel>
-              <Select
-                value={data.professor_tutor_id || undefined}
-                onValueChange={(v) =>
-                  setData((prev) => ({ ...prev, professor_tutor_id: v }))
-                }
-                disabled={processing || formOptions.professores.length === 0}
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      formOptions.professores.length === 0
-                        ? 'Nenhuma opção disponível'
-                        : 'Selecione o professor tutor'
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {formOptions.professores.length === 0
-                    ? emptyOption
-                    : formOptions.professores.map((p) => (
-                        <SelectItem key={p.id} value={String(p.id)}>
-                          {p.nome}
-                        </SelectItem>
-                      ))}
-                </SelectContent>
-              </Select>
-              {errors.professor_tutor_id && (
-                <FieldError>{errors.professor_tutor_id}</FieldError>
-              )}
-            </Field> */}
           </>
         )}
 
@@ -368,6 +350,7 @@ export default function GrupoPapForm({
             Cancelar
           </Button>
         </Field>
+
       </FieldGroup>
     </form>
   );

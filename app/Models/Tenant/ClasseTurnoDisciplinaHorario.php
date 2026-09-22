@@ -9,8 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'classe_turno_disciplina_id',
-    'dia_semana', 'hora_inicio',
+    'dia_semana',
+    'hora_inicio',
     'hora_fim',
+    'turma_id' => 'uuid',
+    
 ])]
 
 class ClasseTurnoDisciplinaHorario extends Model
@@ -35,5 +38,10 @@ class ClasseTurnoDisciplinaHorario extends Model
     public function classeTurnoDisciplina(): BelongsTo
     {
         return $this->belongsTo(ClasseTurnoDisciplina::class, 'classe_turno_disciplina_id');
+    }
+
+    public function turma(): BelongsTo
+    {
+        return $this->belongsTo(Turma::class, 'turma_id');
     }
 }

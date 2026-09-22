@@ -271,115 +271,102 @@ export default function LancamentosTable({
 
       <Card className="gap-0">
         <CardHeader className="border-b">
-          <div>
-            <CardTitle>{data?.disciplina?.nome}</CardTitle>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            {/* Título + descrição */}
+            <div className="min-w-0 space-y-1">
+              <CardTitle>{data?.disciplina?.nome}</CardTitle>
+              <CardDescription>
+                {finalizadaAutomaticamente
+                  ? 'Esta pauta foi encerrada automaticamente devido ao término do prazo estabelecido para o lançamento das notas.'
+                  : estaFinalizada
+                    ? can?.notas?.overrideLockedPeriods
+                      ? 'Esta pauta encontra-se encerrada. No entanto, possui permissão para efetuar alterações.'
+                      : 'Esta pauta encontra-se encerrada. Para realizar alterações, é necessária a autorização da Direção.'
+                    : !dentroDoPrazo?.[periodo] &&
+                        !can?.notas?.overrideLockedPeriods
+                      ? 'O período de lançamento das notas para este trimestre encontra-se encerrado.'
+                      : 'Preencha as classificações dos alunos correspondentes ao trimestre selecionado.'}
 
-            <CardDescription>
-              {finalizadaAutomaticamente
-                ? 'Esta pauta foi encerrada automaticamente devido ao término do prazo estabelecido para o lançamento das notas.'
-                : estaFinalizada
-                  ? can?.notas?.overrideLockedPeriods
-                    ? 'Esta pauta encontra-se encerrada. No entanto, possui permissão para efetuar alterações.'
-                    : 'Esta pauta encontra-se encerrada. Para realizar alterações, é necessária a autorização da Direção.'
-                  : !dentroDoPrazo?.[periodo] &&
-                      !can?.notas?.overrideLockedPeriods
-                    ? 'O período de lançamento das notas para este trimestre encontra-se encerrado.'
-                    : 'Preencha as classificações dos alunos correspondentes ao trimestre selecionado.'}
+                {tempoRestante && (
+                  <p className="mt-1 flex items-center gap-2 text-sm font-medium text-sky-600">
+                    <Clock className="size-4" />
+                    <strong>Tempo restante para edição:</strong> {tempoRestante}
+                  </p>
+                )}
+              </CardDescription>
 
-              {tempoRestante && (
-                <p className="mt-1 flex items-center gap-2 text-sm font-medium text-sky-600">
-                  <Clock className="size-4" />{' '}
-                  <strong>Tempo restante para edição:</strong> {tempoRestante}
+              {errors?.periodo && (
+                <p className="mt-2 text-sm text-destructive">
+                  {errors.periodo}
                 </p>
               )}
-            </CardDescription>
+            </div>
 
-            {errors?.periodo && (
-              <p className="mt-2 text-sm text-destructive">{errors.periodo}</p>
-            )}
+            {/* Acções */}
+            <div className="flex shrink-0 flex-wrap gap-2 sm:flex-row sm:items-center">
+              {!isEmpty && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleTodos}
+                >
+                  {todosAbertos ? (
+                    <>
+                      <LockKeyhole className="mr-1 size-4" />
+                      Fechar todos
+                    </>
+                  ) : (
+                    <>
+                      <LockKeyholeOpen className="mr-1 size-4" />
+                      Abrir todos
+                    </>
+                  )}
+                </Button>
+              )}
+
+              {podeGuardar && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() => onSubmit('guardar', recolherDados())}
+                >
+                  Guardar rascunho
+                </Button>
+              )}
+
+              {podeFinalizar && (
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() => onSubmit('finalizar', recolherDados())}
+                >
+                  Finalizar lançamento
+                </Button>
+              )}
+
+              {podeSolicitarEdicao && !temSolicitacaoPendente?.[periodo] && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => setModalSolicitacao(true)}
+                >
+                  Solicitar edição ao director
+                </Button>
+              )}
+
+              {podeSolicitarEdicao && temSolicitacaoPendente?.[periodo] && (
+                <Badge className="bg-yellow-50 px-3 py-1 text-yellow-700">
+                  Solicitação pendente
+                </Badge>
+              )}
+            </div>
           </div>
-
-          <CardAction className="flex items-center gap-3">
-            {!isEmpty && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={toggleTodos}
-              >
-                {todosAbertos ? (
-                  <>
-                    <LockKeyhole className="mr-1 size-4" />
-                    Fechar todos
-                  </>
-                ) : (
-                  <>
-                    <LockKeyholeOpen className="mr-1 size-4" />
-                    Abrir todos
-                  </>
-                )}
-              </Button>
-            )}
-            <Select>
-              <SelectContent>
-                <SelectItem value="1">1º Trimestre</SelectItem>
-                <SelectItem
-                  value="2"
-                  disabled={!podeOverride && !periodosDisponiveis?.[2]}
-                >
-                  2º Trimestre
-                </SelectItem>
-                <SelectItem
-                  value="3"
-                  disabled={!podeOverride && !periodosDisponiveis?.[3]}
-                >
-                  3º Trimestre
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <input type="hidden" name="tdp_id" value={data?.tdp_id ?? ''} />
-
-            <input type="hidden" name="periodo" value={parseInt(periodo)} />
-
-            {podeGuardar && (
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-                onClick={() => onSubmit('guardar', recolherDados())}
-              >
-                Guardar rascunho
-              </Button>
-            )}
-
-            {podeFinalizar && (
-              <Button
-                type="button"
-                disabled={isPending}
-                onClick={() => onSubmit('finalizar', recolherDados())}
-              >
-                Finalizar lançamento
-              </Button>
-            )}
-
-            {podeSolicitarEdicao && !temSolicitacaoPendente?.[periodo] && (
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => setModalSolicitacao(true)}
-              >
-                Solicitar edição ao director
-              </Button>
-            )}
-
-            {podeSolicitarEdicao && temSolicitacaoPendente?.[periodo] && (
-              <Badge className="bg-yellow-50 px-3 py-1 text-yellow-700">
-                Solicitação pendente
-              </Badge>
-            )}
-          </CardAction>
         </CardHeader>
-
         {/* Filtros */}
         <div className="border-b bg-muted/30 px-4 py-3">
           <div className="flex justify-end gap-3">

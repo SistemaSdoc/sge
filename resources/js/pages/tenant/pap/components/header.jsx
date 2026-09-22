@@ -50,39 +50,46 @@ export function Header({
   return (
     <Card className="gap-0! overflow-visible pb-0">
       <CardHeader className="border-b border-foreground/10">
-        <CardTitle className="min-w-0 space-y-1">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="min-w-0 shrink">
-                <BreadcrumbLink asChild>
-                  <span className="line-clamp-1 truncate text-sm font-semibold text-primary">
-                    {instituicaoSeleccionada.nome}
-                  </span>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem className="min-w-0 shrink">
-                <BreadcrumbPage className="line-clamp-1 truncate text-sm font-semibold text-secondary">
-                  Grupos para Prova de Aptidão Profissional
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </CardTitle>
+        {/* Segue o mesmo padrão do Header do curso */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 space-y-1">
+            <Breadcrumb>
+              <BreadcrumbList className="flex-wrap">
+                <BreadcrumbItem className="min-w-0">
+                  <BreadcrumbLink asChild>
+                    <span className="line-clamp-2 text-sm font-semibold text-primary">
+                      {instituicaoSeleccionada.nome}
+                    </span>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="min-w-0">
+                  <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
+                    Grupos para Prova de Aptidão Profissional
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
 
-        <CardDescription>
-          Grupos criados para a Prova de Aptidão Profissional (PAP) da
-          instituição{' '}
-          <span className="font-bold">{instituicaoSeleccionada.nome}</span>
-        </CardDescription>
+            <CardDescription>
+              Grupos criados para a Prova de Aptidão Profissional (PAP) da
+              instituição{' '}
+              <span className="font-bold">{instituicaoSeleccionada.nome}</span>
+            </CardDescription>
+          </div>
 
-        <CardAction>
           {can?.create && (
-            <Button size="sm" className="w-full sm:w-auto" onClick={onAddGrupo}>
-              Adicionar grupo
-            </Button>
+            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+              <Button
+                size="sm"
+                className="w-full justify-center sm:w-auto"
+                onClick={onAddGrupo}
+              >
+                Adicionar grupo
+              </Button>
+            </div>
           )}
-        </CardAction>
+        </div>
       </CardHeader>
 
       {/* Filtros */}
@@ -128,9 +135,14 @@ export function Header({
       )}
 
       {/* Cursos tutelados */}
-      <div className="border-t border-foreground/10">
+      <div className="overflow-hidden">
         {cursosTutelados.length > 0 ? (
-          <div className="-mb-px flex flex-wrap divide-x divide-foreground/10">
+          <div
+            className="-mb-px grid"
+            style={{
+              gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, 220px), 1fr))`,
+            }}
+          >
             {cursosTutelados.map((curso) => {
               const cursoValue = normalizeFilterValue(curso.id);
               const isSelected =
@@ -143,10 +155,9 @@ export function Header({
                   onClick={() => onCursoChange(curso.id)}
                   aria-pressed={isSelected}
                   className="text-left outline-none focus:outline-none"
-                  style={{ flexBasis: '220px', flexGrow: 1 }}
                 >
                   <div
-                    className={`h-full cursor-pointer border-b border-foreground/10 px-3 py-3 text-card-foreground transition-colors hover:bg-accent hover:text-secondary active:bg-accent sm:px-4 sm:py-4 ${
+                    className={`h-full cursor-pointer border-r border-b border-foreground/10 px-3 py-3 text-card-foreground transition-colors hover:bg-accent hover:text-secondary active:bg-accent sm:px-4 sm:py-4 ${
                       isSelected ? 'bg-accent text-secondary' : 'bg-card'
                     }`}
                   >

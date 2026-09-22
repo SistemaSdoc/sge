@@ -41,7 +41,7 @@ class DashboardController extends Controller
         if ($user->hasRole('Professor')) {
             $professor = $user?->professor;
 
-            return Inertia::render('tenant/dashboards/aluno/index', [
+            return Inertia::render('tenant/dashboards/professor/index', [
                 'proximasAulas' => $this->dashboardProfessorService->obterProximasAulas($professor, 2, 6),
                 'avisos' => $this->dashboardProfessorService->obterAvisos($professor, 6),
                 'anoLectivoId' => $anoLectivoId,          // ← NOVO

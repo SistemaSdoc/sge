@@ -228,10 +228,10 @@ class ClasseTurnoTurmaController extends Controller
             ->classeTurnoDisciplinas()
             ->where('ano_lectivo_id', $anoLectivoId)
             ->with([
-                'disciplina:id,nome,sigla',
+                'disciplina' => fn($q) => $q->withTrashed()->select(['id', 'nome', 'sigla', 'componente', 'deleted_at']),
                 'turmaDisciplinaProfessores' => fn($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
-                'horarios',
+                'horarios', 
             ]);
 
         // Se é professor, filtrar apenas as disciplinas que ele leciona
