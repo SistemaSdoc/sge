@@ -86,16 +86,15 @@ class CreateTenantInstitution implements ShouldQueue
                     $user->assignRole('Director');
                 }
 
-                if ($userCreated) {
-                    $user->notify(new TenantActivadoNotification(
-                        nomeInstituicao: $instituicao->nome,
-                        nomeUser: $user->nome,
-                        email: $user->email,
-                        subdomain: $this->tenant->id,
-                        url: 'http://'.$this->tenant->id.'.'.config('app.domain'),
-                        sigla: $pending->sigla,
-                    ));
-                }
+                $user->notify(new TenantActivadoNotification(
+                    nomeInstituicao: $instituicao->nome,
+                    nomeUser: $user->nome,
+                    email: $user->email,
+                    subdomain: $this->tenant->id,
+                    url: 'http://'.$this->tenant->id.'.'.env('APP_DOMAIN', 'localhost'),
+                    sigla: $pending->sigla,
+                    password: $userCreated ? '12345678' : null,
+                ));
 
                 $this->tenant->update([
                     'instituicao_id' => $instituicao->id,

@@ -1,4 +1,5 @@
 import { Loader2 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -27,6 +28,8 @@ export default function ProfessorForm({
   setTipo,
   coordenador,
   setCoordenador,
+  opap,
+  setOpap,
   errors,
   processing,
 }) {
@@ -89,6 +92,16 @@ export default function ProfessorForm({
                   </SelectContent>
                 </Select>
                 {errors?.tipo && <FieldError>{errors.tipo}</FieldError>}
+              </Field>
+
+              <Field orientation="horizontal">
+                <Checkbox
+                  id="opap"
+                  checked={opap}
+                  onCheckedChange={setOpap}
+                />
+                <FieldLabel htmlFor="opap">OPAP</FieldLabel>
+                {errors?.opap && <FieldError>{errors.opap}</FieldError>}
               </Field>
 
               <Field>

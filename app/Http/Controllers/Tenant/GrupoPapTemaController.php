@@ -37,7 +37,7 @@ class GrupoPapTemaController extends Controller
 
         $professores = Professor::whereHas('cursosTutelados', function ($q) use ($cursoTutelado) {
             $q->where('curso_tutelado_id', $cursoTutelado->id)
-                ->where('tipo', 'principal');
+                ->where('opap', true);
         })->with('user:id,nome')->get();
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/tema/create', [

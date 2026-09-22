@@ -69,6 +69,7 @@ class CursoTuteladoProfessorController extends Controller
             'professor_id' => 'required|exists:professores,id',
             'tipo' => 'required|in:principal,colaborador',
             'coordenador' => 'boolean',
+            'opap' => 'boolean',
         ]);
 
         // Se está a marcar como coordenador, verifica se já existe outro
@@ -93,6 +94,7 @@ class CursoTuteladoProfessorController extends Controller
             [
                 'tipo' => $request->tipo,
                 'coordenador' => $request->boolean('coordenador'),
+                'opap' => $request->boolean('opap'),
             ]
         );
 
@@ -116,11 +118,15 @@ class CursoTuteladoProfessorController extends Controller
     {
         $request->validate([
             'tipo' => 'required|in:principal,colaborador',
+            'opap' => 'boolean',
         ]);
 
         $vinculo = CursoTuteladoProfessor::findOrFail($professore);
 
-        $vinculo->update(['tipo' => $request->tipo]);
+        $vinculo->update([
+            'tipo' => $request->tipo,
+            'opap' => $request->boolean('opap'),
+        ]);
 
         return back();
     }
