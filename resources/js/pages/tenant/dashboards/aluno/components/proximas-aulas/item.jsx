@@ -18,7 +18,7 @@ export function AulaItem({ aula }) {
         <ItemTitle>
           {aula?.disciplina?.sigla} - {aula?.disciplina?.nome}
         </ItemTitle>
-        <ItemDescription>{aula?.professor?.nome}</ItemDescription>
+        <ItemDescription>Professor: {aula?.professor?.nome}</ItemDescription>
       </ItemContent>
 
       <ItemActions>

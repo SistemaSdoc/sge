@@ -97,6 +97,7 @@ class InstituicaoController extends Controller
                 'cursoTutelado.instituicaoTutora:id,nome',
                 'cursoTutelado.cursoTuteladoShared:id,status,tenant_tutor_nome,tenant_tutor_id',
             ])
+            ->orderBy('created_at', 'desc')
             ->paginate(5)
             ->through(function ($instituicaoCurso) {
                 $cursoTutelado = $instituicaoCurso->cursoTutelado;

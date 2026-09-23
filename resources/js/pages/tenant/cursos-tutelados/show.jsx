@@ -51,7 +51,7 @@ export default function Show({
         router.delete(
           destroy({
             ...params,
-            professore: vinculoId,
+            professor: vinculoId,
           }).url,
         ),
     });

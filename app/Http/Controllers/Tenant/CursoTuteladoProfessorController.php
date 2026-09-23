@@ -46,6 +46,10 @@ class CursoTuteladoProfessorController extends Controller
     {
         $professores = Professor::with('user:id,nome')
             ->whereHas('user', fn ($q) => $q->where('instituicao_id', $instituicao->id))
+            ->whereDoesntHave(
+                'cursosTutelados',
+                fn ($q) => $q->whereKey($cursoTutelado->getKey())
+            )
             ->orderBy('id')
             ->get();
 
@@ -112,19 +116,46 @@ class CursoTuteladoProfessorController extends Controller
         //
     }
 
-    public function edit($id) {}
+    public function edit(Instituicao $instituicao, CursoTutelado $cursoTutelado, $professore)
+    {
+        $this->authorize('manageProfessores', $cursoTutelado);
+
+        $vinculo = CursoTuteladoProfessor::query()
+            ->with('professor.user:id,nome')
+            ->where('curso_tutelado_id', $cursoTutelado->id)
+            ->findOrFail($professore);
+
+        return Inertia::render('tenant/cursos-tutelados/professores/edit', [
+            'vinculo' => [
+                'id' => $vinculo->id,
+                'professor_id' => $vinculo->professor_id,
+                'nome' => $vinculo->professor?->user?->nome,
+                'tipo' => $vinculo->tipo,
+                'coordenador' => (bool) $vinculo->coordenador,
+                'opap' => (bool) $vinculo->opap,
+            ],
+            'instituicaoId' => $instituicao->id,
+            'cursoTuteladoId' => $cursoTutelado->id,
+        ]);
+    }
 
     public function update(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado, $professore)
     {
+        $this->authorize('manageProfessores', $cursoTutelado);
+
         $request->validate([
             'tipo' => 'required|in:principal,colaborador',
+            'coordenador' => 'boolean',
             'opap' => 'boolean',
         ]);
 
-        $vinculo = CursoTuteladoProfessor::findOrFail($professore);
+        $vinculo = CursoTuteladoProfessor::query()
+            ->where('curso_tutelado_id', $cursoTutelado->id)
+            ->findOrFail($professore);
 
         $vinculo->update([
             'tipo' => $request->tipo,
+            'coordenador' => $request->boolean('coordenador'),
             'opap' => $request->boolean('opap'),
         ]);
 
@@ -133,7 +164,12 @@ class CursoTuteladoProfessorController extends Controller
 
     public function destroy(Instituicao $instituicao, CursoTutelado $cursoTutelado, $professore)
     {
-        CursoTuteladoProfessor::findOrFail($professore)->delete();
+        $this->authorize('manageProfessores', $cursoTutelado);
+
+        CursoTuteladoProfessor::query()
+            ->where('curso_tutelado_id', $cursoTutelado->id)
+            ->findOrFail($professore)
+            ->delete();
 
         return back();
     }

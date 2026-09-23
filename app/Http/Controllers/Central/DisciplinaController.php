@@ -30,7 +30,7 @@ class DisciplinaController extends Controller
     {
         return Inertia::render('central/disciplinas/index', [
             'disciplinas' => Disciplina::withTrashed()
-                ->orderBy('nome')
+                ->orderBy('created_at', 'desc')
                 ->paginate(10),
         ]);
     }

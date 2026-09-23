@@ -2,12 +2,6 @@ import { useState } from 'react';
 import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
   Field,
   FieldError,
   FieldGroup,
@@ -23,11 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { update } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
 import { Spinner } from '@/components/spinner';
 
-export default function EditProfessorModal({ vinculo, open, onClose, params }) {
+export default function EditProfessorForm({ vinculo, onClose, params }) {
   const [tipo, setTipo] = useState(vinculo?.tipo ?? '');
+  const [coordenador, setCoordenador] = useState(!!vinculo?.coordenador ?? false);
+  const [opap, setOpap] = useState(!!vinculo?.opap ?? false);
   const [errors, setErrors] = useState({});
   const [processing, setProcessing] = useState(false);
 
@@ -38,10 +35,10 @@ export default function EditProfessorModal({ vinculo, open, onClose, params }) {
         ...params,
         professor: vinculo.vinculo_id,
       }).url,
-      { tipo },
+      { tipo, coordenador, opap },
       {
         preserveScroll: true,
-        onSuccess: () => onClose(),
+        onSuccess: () => onClose?.(),
         onError: (e) => setErrors(e),
         onFinish: () => setProcessing(false),
       },
@@ -49,50 +46,64 @@ export default function EditProfessorModal({ vinculo, open, onClose, params }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent aria-describedby={undefined}>
-        <DialogHeader>
-          <DialogTitle>Editar Tipo de Professor</DialogTitle>
-        </DialogHeader>
+    <FieldGroup>
+      <FieldSet>
+        <Field>
+          <FieldLabel>Professor</FieldLabel>
+          <p className="text-sm text-muted-foreground">{vinculo?.nome}</p>
+        </Field>
 
-        <FieldGroup>
-          <FieldSet>
-            <Field>
-              <FieldLabel>Professor</FieldLabel>
-              <p className="text-sm text-muted-foreground">{vinculo?.nome}</p>
-            </Field>
+        <div className="flex items-center gap-4">
+          <Field orientation="horizontal" className="flex w-fit">
+            <FieldLabel htmlFor="coordenador">Coordenador</FieldLabel>
+            <Switch
+              size="sm"
+              id="coordenador"
+              checked={coordenador}
+              onCheckedChange={setCoordenador}
+            />
+          </Field>
 
-            <Field>
-              <FieldLabel>Tipo</FieldLabel>
-              <Select value={tipo} onValueChange={setTipo}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Tipos</SelectLabel>
-                    <SelectItem value="principal">Principal</SelectItem>
-                    <SelectItem value="colaborador">Colaborador</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              {errors?.tipo && <FieldError>{errors.tipo}</FieldError>}
-            </Field>
+          <Field orientation="horizontal" className="flex w-fit">
+            <FieldLabel htmlFor="opap">OPAP</FieldLabel>
+            <Switch
+              size="sm"
+              id="opap"
+              checked={opap}
+              onCheckedChange={setOpap}
+            />
+          </Field>
+        </div>
 
-            <Field>
-              <Button onClick={handleSubmit} disabled={processing}>
-                {processing ? (
-                  <>
-                    <Spinner className="animate-spin" /> A guardar...
-                  </>
-                ) : (
-                  'Guardar'
-                )}
-              </Button>
-            </Field>
-          </FieldSet>
-        </FieldGroup>
-      </DialogContent>
-    </Dialog>
+        <Field>
+          <FieldLabel>Tipo</FieldLabel>
+          <Select value={tipo} onValueChange={setTipo}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Selecione o tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Tipos</SelectLabel>
+                <SelectItem value="principal">Principal</SelectItem>
+                <SelectItem value="colaborador">Colaborador</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          {errors?.tipo && <FieldError>{errors.tipo}</FieldError>}
+        </Field>
+
+        <Field>
+          <Button onClick={handleSubmit} disabled={processing}>
+            {processing ? (
+              <>
+                <Spinner className="animate-spin" /> A guardar...
+              </>
+            ) : (
+              'Guardar'
+            )}
+          </Button>
+        </Field>
+      </FieldSet>
+    </FieldGroup>
   );
 }

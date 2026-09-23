@@ -39,8 +39,7 @@ class ProfessorController extends Controller
             'user_id',
             'especialidade',
             'nivel_academico',
-            'created_at
-            ',
+            'created_at',
         ])
             ->with(['user:id,nome,telefone'])
             ->when(
@@ -50,7 +49,7 @@ class ProfessorController extends Controller
                     fn ($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
-            ->orderBy('created_at', 'asc')
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         return Inertia::render('tenant/professores/index', [

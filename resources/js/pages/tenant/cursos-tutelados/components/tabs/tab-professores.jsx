@@ -20,12 +20,13 @@ import {
 
 import { Minus, BookOpenIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { create } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
+import {
+  create,
+  edit as editProfessor,
+} from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
 import { show } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 
 import TablePagination from '@/components/table-pagination';
-import { useState } from 'react';
-import EditProfessorModal from './edit-professor-modal';
 
 export function TabProfessores({
   params,
@@ -35,7 +36,6 @@ export function TabProfessores({
   deleteFn,
   can = {},
 }) {
-  const [editVinculo, setEditVinculo] = useState(null);
   const isEmpty = !professores.data || professores.data.length === 0;
   const hasAnyAction = can?.update || can?.delete;
 
@@ -112,10 +112,12 @@ export function TabProfessores({
                               className="text-[10px]"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setEditVinculo({
-                                  ...professor,
-                                  ...params,
-                                });
+                                router.visit(
+                                  editProfessor({
+                                    ...params,
+                                    professor: professor.vinculo_id,
+                                  }).url,
+                                );
                               }}
                             >
                               Editar do Curso
@@ -145,15 +147,6 @@ export function TabProfessores({
 
         <TablePagination pagination={pagination} onPageChange={onPageChange} />
       </Card>
-
-      {editVinculo && (
-        <EditProfessorModal
-          params={params}
-          vinculo={editVinculo}
-          open={!!editVinculo}
-          onClose={() => setEditVinculo(null)}
-        />
-      )}
     </>
   );
 }
