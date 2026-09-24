@@ -231,11 +231,13 @@ class ClasseTurnoTurmaController extends Controller
                 'disciplina' => fn($q) => $q->withTrashed()->select(['id', 'nome', 'sigla', 'componente', 'deleted_at']),
                 'turmaDisciplinaProfessores' => fn($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
-                'horarios', 
-            ]);
+                'horarios',
+            ])
+            ->OrderBy('created_at', 'desc');
 
-        // Se é professor, filtrar apenas as disciplinas que ele leciona
-        if ($user->hasRole('Professor')) {
+        // Professores comuns vêem apenas as disciplinas que lecionam.
+        // Coordenadores vêem todas as disciplinas do curso em modo de consulta.
+        if ($user->hasRole('Professor') && !$user->hasRole('Coordenador')) {
             $professorId = $user->professor?->id;
 
             if ($professorId) {
@@ -249,7 +251,8 @@ class ClasseTurnoTurmaController extends Controller
             }
         }
 
-        $disciplinas = $disciplinasQuery->paginate(5, ['*'], 'page_disciplinas');
+        $disciplinas = $disciplinasQuery->paginate(5, ['*'], 'page_disciplinas')
+        ;
 
         $grupos = $turma->gruposPap()
             ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final', 'professor_tutor_id')
@@ -314,7 +317,7 @@ class ClasseTurnoTurmaController extends Controller
                     'create' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),
                 ],
                 'disciplinas' => [
-                    'create' => $user->hasAnyRole(['Director', 'Subdirector']),
+                    'create' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Coordenador']),
                 ],
                 'grupos' => [
                     'create' => $user->can('create', GrupoPap::class),

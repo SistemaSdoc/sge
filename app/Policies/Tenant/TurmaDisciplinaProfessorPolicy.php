@@ -44,17 +44,13 @@ class TurmaDisciplinaProfessorPolicy
      */
     public function view(User $user, TurmaDisciplinaProfessor $relacao): bool
     {
-        /* if (! $user->can('turmas.view')) {
-             return false;
-         }
+        if (! $this->pertenceAInstituicao($user, $relacao)) {
+            return false;
+        }
 
-         if (! $this->pertenceAInstituicao($user, $relacao)) {
-             return false;
-         }
-
-         if ($user->hasRole('Professor')) {
-             return $this->isProfessorDaDisciplina($user, $relacao);
-         }*/
+        if ($user->hasAnyRole(['Coordenador', 'Professor'])) {
+            return $this->isProfessorDaDisciplina($user, $relacao);
+        }
 
         return true;
     }

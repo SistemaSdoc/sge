@@ -83,7 +83,16 @@ class TurmaController extends Controller
                 ]);
             }
 
-            $query->whereHas('turmaDisciplinaProfessor', fn ($q) => $q->where('professor_id', $professor->id));
+            if ($user->hasRole('Coordenador')) {
+                $query->whereHas(
+                    'cursoClasseTurno.cursoClasse.cursoTutelado.professores',
+                    fn ($q) => $q
+                        ->where('professor_id', $professor->id)
+                        ->where('curso_tutelado_professor.coordenador', true)
+                );
+            } else {
+                $query->whereHas('turmaDisciplinaProfessor', fn ($q) => $q->where('professor_id', $professor->id));
+            }
         }
 
         $turmas = $query->with([

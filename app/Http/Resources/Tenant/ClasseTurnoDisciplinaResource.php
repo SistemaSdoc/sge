@@ -17,7 +17,8 @@ class ClasseTurnoDisciplinaResource extends JsonResource
     public function toArray(Request $request): array
     {
         $tdp = $this->turmaDisciplinaProfessores
-            ->first(fn(TurmaDisciplinaProfessor $tdp) => $tdp->professor_id !== null);
+            ->first(fn (TurmaDisciplinaProfessor $tdp) => $tdp->professor_id !== null);
+        $user = $request->user();
 
         return [
             'id' => $this->id,
@@ -29,19 +30,19 @@ class ClasseTurnoDisciplinaResource extends JsonResource
                     'nome' => $tdp->professor->user->nome,
                 ]
                 : null,
-            'horarios' => $this->horarios->map(fn($h) => [
+            'horarios' => $this->horarios->map(fn ($h) => [
                 'dia_semana' => $h->dia_semana,
                 'hora_inicio' => $h->hora_inicio->format('H:i'),
                 'hora_fim' => $h->hora_fim->format('H:i'),
             ]),
             'can' => [
-                'view' => $tdp && $request->user()?->can('view', $tdp),
-                'assign_professor' => $request->user()?->can('definirProfessor', new TurmaDisciplinaProfessor),
-                'delete' => $request->user()?->can('delete', $this->resource),
+                'view' => $tdp && $user?->can('view', $tdp),
+                'assign_professor' => $user?->can('definirProfessor', new TurmaDisciplinaProfessor),
+                'delete' => $user?->can('delete', $this->resource),
                 'detach_professor' => $tdp
-                    && !$tdp->temHistorico()
-                    && $request->user()?->can('delete', $tdp),
-                'manage_schedule' => $request->user()?->can('create', new ClasseTurnoDisciplinaHorario),
+                    && ! $tdp->temHistorico()
+                    && $user?->can('delete', $tdp),
+                'manage_schedule' => $user?->can('create', new ClasseTurnoDisciplinaHorario),
             ],
         ];
     }

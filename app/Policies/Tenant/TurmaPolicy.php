@@ -39,12 +39,12 @@ class TurmaPolicy
     /**
      * Determina se o utilizador pode listar turmas.
      *
-     * Requer a permission 'turmas.viewAny' e instituição atribuída.
-     * Professor vê apenas as suas turmas — filtragem feita no controller.
+     * Requer 'turmas.viewAny' ou 'coordenador.manage-turmas' e instituição atribuída.
+     * Professores vêem apenas as suas turmas; coordenadores vêem as turmas dos seus cursos.
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('turmas.viewAny') && $user->instituicao_id !== null;
+        return $user->canAny(['turmas.viewAny']) && $user->instituicao_id !== null;
     }
 
     /**
