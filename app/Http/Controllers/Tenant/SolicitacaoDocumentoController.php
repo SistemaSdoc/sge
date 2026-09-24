@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Tenant;
 
-use App\Http\Requests\StoreSolicitacaoDocumentoRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\StoreSolicitacaoDocumentoRequest;
 use App\Models\Tenant\SolicitacaoDocumento;
 use App\Models\Tenant\User;
 use App\Services\ElegibilidadeDocumentoService;
@@ -17,8 +18,7 @@ use Inertia\Response;
 class SolicitacaoDocumentoController extends Controller
 {
     /**
-     * Página do aluno – lista as suas solicitações.
-     *
+     * Página do aluno – lista as suas solicitações.5
      * Modo "Estado dos pedidos" (predefinido): mostra apenas pedidos em curso
      * (exclui entregues e rejeitados).
      *

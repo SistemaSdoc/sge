@@ -19,7 +19,7 @@ class DecisaoEdicaoPautaNotification extends Notification
     {
         $canais = ['database'];
 
-        if (!empty($notifiable->email)) {
+        if (! empty($notifiable->email)) {
             $canais[] = 'mail';
         }
 
@@ -30,8 +30,8 @@ class DecisaoEdicaoPautaNotification extends Notification
     {
         $tipoLabel = match ($this->solicitacao->tipo) {
             'reabertura_edicao' => 'Reabertura de edição de pauta',
-            'extensao_prazo'    => 'Extensão de prazo de lançamento',
-            default             => $this->solicitacao->tipo,
+            'extensao_prazo' => 'Extensão de prazo de lançamento',
+            default => $this->solicitacao->tipo,
         };
 
         $aprovada = $this->solicitacao->status === 'aprovada';
@@ -39,16 +39,16 @@ class DecisaoEdicaoPautaNotification extends Notification
         return (new MailMessage)
             ->subject($aprovada ? 'Pedido de edição de pauta aprovado' : 'Pedido de edição de pauta rejeitado')
             ->view('mail.pauta.decisao-edicao-professor', [
-                'nomeProfessor'   => $this->solicitacao->professor->nome,
-                'tipo'            => $this->solicitacao->tipo,
-                'tipoLabel'       => $tipoLabel,
-                'disciplina'      => $this->solicitacao->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->nome ?? '—',
-                'turma'           => $this->solicitacao->turmaDisciplinaProfessor->turma->nome ?? '—',
-                'periodo'         => $this->solicitacao->periodo,
-                'aprovada'        => $aprovada,
-                'observacao'      => $this->solicitacao->observacao,
-                'prazoEdicaoAte'  => $this->solicitacao->prazo_edicao_ate?->format('d/m/Y H:i'),
-                'urlPautas'       => route('tenant.dashboard.pautas.cursos'),
+                'nomeProfessor' => $this->solicitacao->professor->nome,
+                'tipo' => $this->solicitacao->tipo,
+                'tipoLabel' => $tipoLabel,
+                'disciplina' => $this->solicitacao->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->nome ?? '—',
+                'turma' => $this->solicitacao->turmaDisciplinaProfessor->turma->nome ?? '—',
+                'periodo' => $this->solicitacao->periodo,
+                'aprovada' => $aprovada,
+                'observacao' => $this->solicitacao->observacao,
+                'prazoEdicaoAte' => $this->solicitacao->prazo_edicao_ate?->format('d/m/Y H:i'),
+                'urlPautas' => route('tenant.dashboard.pautas.cursos'),
             ]);
     }
 
@@ -58,16 +58,16 @@ class DecisaoEdicaoPautaNotification extends Notification
 
         $tipoLabel = match ($this->solicitacao->tipo) {
             'reabertura_edicao' => 'reabertura de edição de pauta',
-            'extensao_prazo'    => 'extensão de prazo de lançamento',
-            default             => $this->solicitacao->tipo,
+            'extensao_prazo' => 'extensão de prazo de lançamento',
+            default => $this->solicitacao->tipo,
         };
 
         return [
-            'tipo'     => 'decisao_edicao_pauta',
-            'titulo'   => $aprovada ? 'Pedido aprovado' : 'Pedido rejeitado',
+            'tipo' => 'decisao_edicao_pauta',
+            'titulo' => $aprovada ? 'Pedido aprovado' : 'Pedido rejeitado',
             'mensagem' => $aprovada
                 ? "O seu pedido de {$tipoLabel} foi aprovado. Já pode aceder à pauta."
-                : "O seu pedido de {$tipoLabel} foi rejeitado." . ($this->solicitacao->observacao ? ' Motivo: ' . $this->solicitacao->observacao : ''),
+                : "O seu pedido de {$tipoLabel} foi rejeitado.".($this->solicitacao->observacao ? ' Motivo: '.$this->solicitacao->observacao : ''),
         ];
     }
 }

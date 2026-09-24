@@ -47,7 +47,7 @@ class InstituicoesRequest extends FormRequest
             'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'descricao' => 'nullable|string|max:1000',
             'cursos' => 'nullable|array',
-            'cursos.*' => 'exists:cursos,id',
+            'cursos.*' => 'exists:'.config('tenancy.database.central_connection').'.cursos,id',
         ];
     }
 

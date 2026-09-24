@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\SolicitacaoDocumentoController;
+use App\Http\Controllers\Tenant\SolicitacaoDocumentoController;
 use Illuminate\Support\Facades\Route;
 
 // Rotas para o módulo de solicitações de documentos

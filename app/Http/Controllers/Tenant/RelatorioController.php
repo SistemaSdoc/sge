@@ -12,9 +12,7 @@ use Inertia\Inertia;
 
 class RelatorioController extends Controller
 {
-    public function __construct(protected RelatorioService $service)
-    {
-    }
+    public function __construct(protected RelatorioService $service) {}
 
     public function index(Request $request)
     {
@@ -26,13 +24,13 @@ class RelatorioController extends Controller
 
         $dados = $this->service->gerar($filtros);
 
-       return Inertia::render('tenant/relatorio/index', [
-    'turmas' => Turma::orderBy('nome')->get(['id', 'nome']),
-    'classes' => Classe::orderBy('nome')->get(['id', 'nome']),
-    'tipo' => $filtros['tipo'] ?? 'geral',
-    'filtros' => $filtros,
-    'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
-    ...$dados,
-]);
+        return Inertia::render('tenant/relatorio/index', [
+            'turmas' => Turma::orderBy('nome')->get(['id', 'nome']),
+            'classes' => Classe::orderBy('nome')->get(['id', 'nome']),
+            'tipo' => $filtros['tipo'] ?? 'geral',
+            'filtros' => $filtros,
+            'anosLectivos' => AnoLectivo::orderByDesc('data_inicio')->get(['id', 'nome']),
+            ...$dados,
+        ]);
     }
 }

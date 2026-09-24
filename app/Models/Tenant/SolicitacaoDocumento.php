@@ -165,34 +165,20 @@ class SolicitacaoDocumento extends Model
     }
 
     public function aprovar(?string $instituicaoAprovadoraId = null, ?string $observacoes = null): void
-    {
-        $this->status = self::STATUS_APROVADO;
-        $this->instituicao_aprovadora_id = $instituicaoAprovadoraId ?? $this->instituicao_aprovadora_id;
-        $this->observacoes = $observacoes ?? $this->observacoes;
-        $this->data_aprovacao = now();
-        $this->save();
+{
+    $this->status = self::STATUS_APROVADO;
+    $this->instituicao_aprovadora_id = $instituicaoAprovadoraId ?? $this->instituicao_aprovadora_id;
+    $this->observacoes = $observacoes ?? $this->observacoes;
+    $this->data_aprovacao = now();
+    $this->save();
 
-        $this->notificarStatus(
-            'Pedido aprovado',
-            'A sua solicitação de documento foi aprovada.',
-            'aluno',
-            route('tenant.dashboard.solicitacoes-documentos.index')
-        );
-
-        $this->notificarStatus(
-            'Pedido aprovado',
-            'A solicitação de '.$this->tipoLabel.' foi aprovada pela tutela.',
-            'instituicao',
-            route('tenant.dashboard.solicitacoes-documentos.colegio.index')
-        );
-
-        $this->notificarStatus(
-            'Pedido aprovado',
-            'A solicitação de '.$this->tipoLabel.' foi aprovada pela tutela.',
-            'tutela',
-            route('tenant.dashboard.solicitacoes-documentos.tutela.index')
-        );
-    }
+    $this->notificarStatus(
+        'Pedido aprovado',
+        'A sua solicitação de documento foi aprovada.',
+        'aluno',
+        route('tenant.dashboard.solicitacoes-documentos.index')
+    );
+}
 
     public function rejeitar(): void
     {
@@ -203,35 +189,20 @@ class SolicitacaoDocumento extends Model
     }
 
     public function emitir(?string $numeroRegistroTutela = null): void
-    {
-        $this->status = self::STATUS_PRONTO;
-        $this->numero_registro_tutora = $numeroRegistroTutela ?? $this->numero_registro_tutora;
-        $this->data_emissao = $this->data_emissao ?? now();
-        $this->data_pronto = $this->data_pronto ?? $this->data_emissao;
-        $this->save();
+{
+    $this->status = self::STATUS_PRONTO;
+    $this->numero_registro_tutora = $numeroRegistroTutela ?? $this->numero_registro_tutora;
+    $this->data_emissao = $this->data_emissao ?? now();
+    $this->data_pronto = $this->data_pronto ?? $this->data_emissao;
+    $this->save();
 
-        $this->notificarStatus(
-            'Documento pronto',
-            'O teu documento está pronto, podes dirigir-te à secretaria para o levantar.',
-            'aluno',
-            route('tenant.dashboard.solicitacoes-documentos.index')
-        );
-
-        $this->notificarStatus(
-            'Documento pronto',
-            'O documento de '.$this->tipoLabel.' foi marcado como pronto para levantamento.',
-            'instituicao',
-            route('tenant.dashboard.solicitacoes-documentos.colegio.index')
-        );
-
-        $this->notificarStatus(
-            'Documento pronto',
-            'O documento de '.$this->tipoLabel.' foi marcado como pronto para levantamento.',
-            'tutela',
-            route('tenant.dashboard.solicitacoes-documentos.tutela.index')
-        );
-    }
-
+    $this->notificarStatus(
+        'Documento pronto',
+        'O teu documento está pronto, podes dirigir-te à secretaria para o levantar.',
+        'aluno',
+        route('tenant.dashboard.solicitacoes-documentos.index')
+    );
+}
     protected function notificarAUsuariosDaInstituicao(string $instituicaoId, string $titulo, string $mensagem, ?string $rota = null): void
     {
         if (! $instituicaoId) {
@@ -314,36 +285,22 @@ class SolicitacaoDocumento extends Model
      * Marca a solicitação como paga (utilizado pela secretaria) e notifica o aluno.
      */
     public function marcarComoPago(): void
-    {
-        $this->status = self::STATUS_PAGO;
-        $this->estado_pagamento = 'pago';
-        $this->data_pagamento_confirmado = $this->data_pagamento_confirmado ?? now();
-        $this->save();
+{
+    $this->status = self::STATUS_PAGO;
+    $this->estado_pagamento = 'pago';
+    $this->data_pagamento_confirmado = $this->data_pagamento_confirmado ?? now();
+    $this->save();
 
-        $user = $this->aluno?->user;
+    $user = $this->aluno?->user;
 
-        if ($user) {
-            $user->notify(new PagamentoConfirmadoNotification(
-                $this,
-                categoria: 'aluno',
-                url: route('tenant.dashboard.solicitacoes-documentos.index'),
-            ));
-        }
-
-        $this->notificarStatus(
-            'Pagamento confirmado',
-            'O pagamento foi confirmado para a solicitação de '.$this->tipoLabel.'.',
-            'instituicao',
-            route('tenant.dashboard.solicitacoes-documentos.colegio.index')
-        );
-
-        $this->notificarStatus(
-            'Pagamento confirmado',
-            'O pagamento foi confirmado para a solicitação de '.$this->tipoLabel.'.',
-            'tutela',
-            route('tenant.dashboard.solicitacoes-documentos.tutela.index')
-        );
+    if ($user) {
+        $user->notify(new PagamentoConfirmadoNotification(
+            $this,
+            categoria: 'aluno',
+            url: route('tenant.dashboard.solicitacoes-documentos.index'),
+        ));
     }
+}
 
     /**
      * Registra o levantamento físico do documento pelo aluno.

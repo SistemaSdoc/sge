@@ -7,6 +7,7 @@ use App\Models\Tenant\Aviso;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Professor;
+use App\Models\Tenant\SolicitacaoDocumento;
 use App\Models\Tenant\Turma;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
@@ -71,6 +72,17 @@ class DashboardDirectorService
                 }
             })->count();
 
+        $solicitacoesPendentes = SolicitacaoDocumento::where('status', 'pendente')
+            ->when($instituicaoId, function ($query, $instituicaoId) {
+                $query->where(function ($query) use ($instituicaoId) {
+                    $query->where('instituicao_origem_id', $instituicaoId)
+                        ->orWhere('instituicao_tutora_id', $instituicaoId)
+                        ->orWhere('instituicao_emissora_id', $instituicaoId)
+                        ->orWhere('instituicao_aprovadora_id', $instituicaoId);
+                });
+            })
+            ->count();
+
         $turmasSemProfessor = Turma::whereHas('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso', function ($query) use ($instituicaoId) {
             if ($instituicaoId) {
                 $query->where('instituicao_id', $instituicaoId);
@@ -93,6 +105,16 @@ class DashboardDirectorService
                 'severity' => 'critical',
                 'icon' => 'user-check',
                 'href' => '/dashboard/inscricoes?status=pendente',
+            ],
+            [
+                'id' => 'pending-solicitacoes-documentos',
+                'type' => 'documentos',
+                'title' => 'Solicitações de Documentos Pendentes',
+                'description' => 'Pedidos de documentos aguardando análise e processamento',
+                'count' => $solicitacoesPendentes,
+                'severity' => 'warning',
+                'icon' => 'file-text',
+                'href' => '/dashboard/solicitacoes-documentos/colegio',
             ],
             [
                 'id' => 'turmas-sem-professor',

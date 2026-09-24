@@ -2,7 +2,6 @@
 
 namespace App\Models\Tenant;
 
-use App\Models\Central\Curso;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
     'curso_id',
     'duracao_anos',
 ])]
-
 class InstituicaoCurso extends Pivot
 {
     use HasUuid;
@@ -31,7 +29,8 @@ class InstituicaoCurso extends Pivot
 
     public function curso(): BelongsTo
     {
-        return $this->belongsTo(Curso::class)->withTrashed();
+        // Corrigido: aponta para o modelo Tenant\Curso (mesma conexão/tenant)
+        return $this->belongsTo(\App\Models\Tenant\Curso::class)->withTrashed();
     }
 
     public function cursoTutelado()

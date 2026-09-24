@@ -185,7 +185,7 @@ class ItemPagavelController extends Controller
         return redirect()
             ->route('tenant.dashboard.itens-pagaveis.index')
             ->with('success', 'Item actualizado com sucesso.');
-    } 
+    }
 
     public function destroy(ItemPagavel $itemPagavel)
     {

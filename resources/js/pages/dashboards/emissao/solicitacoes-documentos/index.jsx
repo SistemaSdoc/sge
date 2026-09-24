@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { router } from '@inertiajs/react';
-import { emitir, marcarComoPagoAction, marcarComoLevantado } from '@/actions/App/Http/Controllers/SolicitacaoDocumentoController';
+import { emitir, marcarComoPagoAction, marcarComoLevantado } from '@/actions/App/Http/Controllers/Tenant/SolicitacaoDocumentoController';
 import {
   resolveSolicitacaoStatus,
   solicitacaoDocumentoStatusLabels,

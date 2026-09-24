@@ -2,7 +2,6 @@
 
 namespace App\Services\Tenant\Menu;
 
-use App\Http\Controllers\SolicitacaoDocumentoController;
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\AvisoController;
@@ -17,6 +16,7 @@ use App\Http\Controllers\Tenant\NotaAlunoController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\ProfessorController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
+use App\Http\Controllers\Tenant\SolicitacaoDocumentoController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;

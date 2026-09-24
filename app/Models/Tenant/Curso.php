@@ -2,9 +2,38 @@
 
 namespace App\Models\Tenant;
 
-use App\Models\Central\Curso as CentralCurso;
+use App\Traits\HasUuid;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * @deprecated Use App\Models\Central\Curso. Kept temporarily for legacy imports.
- */
-class Curso extends CentralCurso {}
+class Curso extends Model
+{
+    use HasUuid, SoftDeletes;
+
+    protected $table = 'cursos';
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'nome',
+        'descricao',
+        'duracao_anos',
+        'status',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => 'integer',
+        ];
+    }
+
+    public function getStatusTextoAttribute(): string
+    {
+        return $this->status === 1 ? 'Activo' : 'Inactivo';
+    }
+
+    public function instituicaoCursos()
+    {
+        return $this->hasMany(InstituicaoCurso::class, 'curso_id');
+    }
+}

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Tenant;
 
 use App\Services\ElegibilidadeDocumentoService;
 use Illuminate\Foundation\Http\FormRequest;
@@ -19,7 +19,7 @@ class StoreSolicitacaoDocumentoRequest extends FormRequest
             'motivo' => ['required', 'string', 'min:3', 'max:500'],
             'observacoes' => ['nullable', 'string', 'max:1000'],
             'instituicao_emissora_id' => ['nullable', 'string', 'exists:instituicoes,id'],
-            'curso_id' => ['nullable', 'string', 'exists:cursos,id'],
+            'curso_id' => ['nullable', 'string', 'exists:'.config('tenancy.database.central_connection').'.cursos,id'],
             'turma_id' => ['nullable', 'string', 'exists:turmas,id'],
             'classe_id' => ['nullable', 'string', 'exists:classes,id'],
             'ano_lectivo_id' => ['nullable', 'string', 'exists:ano_lectivos,id'],

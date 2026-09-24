@@ -34,15 +34,15 @@ class TurmaController extends Controller
         if (! $instituicaoId) {
             return Inertia::render('turmas/index', [
                 'turmas' => ['data' => [], 'current_page' => 1, 'last_page' => 1],
-                'anosLectivos' => $this->getAnosLectivos(),
-                'anoLectivoActual' => $this->getAnoLectivoDefault(),
+                'anosLectivos' => AnoLectivo::all(),
+                'anoLectivoActual' => $this->anoLectivoResolverService->obterAnoLectivoDefault(),
                 'can' => ['create_turma' => false],
             ]);
         }
 
         $anoLectivoId = filled(request('ano_lectivo_id'))
             ? request('ano_lectivo_id')
-            : $this->getAnoLectivoDefault();
+            : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         $cursos = CursoTutelado::query()
             ->whereHas('instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicaoId))
@@ -73,10 +73,10 @@ class TurmaController extends Controller
             $query->where('ano_lectivo_id', $anoLectivoId);
         }
 
-        // 🔒 Permissão para criar turma (com fallback)
+        // Permissão para criar turma (com fallback)
         $canCreateTurma = optional($user)->can('create', Turma::class) ?? false;
 
-        // 🔒 Verificações de role com fallback
+        // Verificações de role com fallback
         $isSuperAdmin = optional($user)->isSuperAdmin() ?? false;
         $isDirector = optional($user)->isDirector() ?? false;
 
@@ -88,7 +88,7 @@ class TurmaController extends Controller
                         'current_page' => 1,
                         'last_page' => 1,
                     ],
-                    'anosLectivos' => $this->getAnosLectivos(),
+                    'anosLectivos' => AnoLectivo::all(),
                     'anoLectivoActual' => $anoLectivoId,
                     'cursos' => $cursos,
                     'classes' => $cursoClasses,
@@ -118,7 +118,7 @@ class TurmaController extends Controller
                 'current_page' => $turmas->currentPage(),
                 'last_page' => $turmas->lastPage(),
             ],
-            'anosLectivos' => $this->getAnosLectivos(),
+            'anosLectivos' => AnoLectivo::all(),
             'anoLectivoActual' => $anoLectivoId,
             'cursos' => $cursos,
             'classes' => $cursoClasses,

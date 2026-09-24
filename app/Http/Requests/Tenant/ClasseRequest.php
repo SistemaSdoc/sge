@@ -16,7 +16,7 @@ class ClasseRequest extends FormRequest
         return [
             'nome' => ['required', 'string', 'max:50', 'regex:/^[\p{L}\s]+$/u'],
             'cursos' => 'required|array',
-            'cursos.*' => 'exists:cursos,id',
+            'cursos.*' => 'exists:'.config('tenancy.database.central_connection').'.cursos,id',
         ];
     }
 

@@ -141,11 +141,11 @@ class Aluno extends Model
     {
         return $query->where(function ($q) {
             $q->whereHas('turmas', function ($q2) {
-                $q2->whereHas('anoLectivo', fn($q3) => $q3->ativo());
+                $q2->whereHas('anoLectivo', fn ($q3) => $q3->ativo());
             })
                 ->orWhere(function ($q2) {
                     $q2->whereDoesntHave('turmas')
-                        ->whereHas('inscricao.anoLectivo', fn($q3) => $q3->ativo());
+                        ->whereHas('inscricao.anoLectivo', fn ($q3) => $q3->ativo());
                 });
         });
     }
@@ -201,7 +201,7 @@ class Aluno extends Model
     {
         $turma = $this->turmaActual()->first();
 
-        if (!$turma) {
+        if (! $turma) {
             return null;
         }
 
@@ -257,7 +257,7 @@ class Aluno extends Model
      */
     public function estaEmDia(): bool
     {
-        return !$this->temDebitosPendentes();
+        return ! $this->temDebitosPendentes();
     }
 
     public function grupoPap()

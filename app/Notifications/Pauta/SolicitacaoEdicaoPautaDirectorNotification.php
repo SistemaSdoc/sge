@@ -32,22 +32,22 @@ class SolicitacaoEdicaoPautaDirectorNotification extends Notification
 
         $tipoLabel = match ($solicitacao->tipo) {
             'reabertura_edicao' => 'Reabertura de edição de pauta',
-            'extensao_prazo'    => 'Extensão de prazo de lançamento',
-            default             => $solicitacao->tipo,
+            'extensao_prazo' => 'Extensão de prazo de lançamento',
+            default => $solicitacao->tipo,
         };
 
         return (new MailMessage)
             ->subject('Novo pedido de edição de pauta pendente')
             ->view('mail.pauta.solicitacao-edicao-director', [
-                'nomeDirector'   => $this->director->nome,
-                'nomeProfessor'  => $solicitacao->professor->nome ?? '—',
-                'tipo'           => $solicitacao->tipo,
-                'tipoLabel'      => $tipoLabel,
-                'disciplina'     => $solicitacao->turmaDisciplinaProfessor
-                                         ->classeTurnoDisciplina->disciplina->nome ?? '—',
-                'turma'          => $solicitacao->turmaDisciplinaProfessor->turma->nome ?? '—',
-                'periodo'        => $solicitacao->periodo,
-                'motivo'         => $solicitacao->motivo,
+                'nomeDirector' => $this->director->nome,
+                'nomeProfessor' => $solicitacao->professor->nome ?? '—',
+                'tipo' => $solicitacao->tipo,
+                'tipoLabel' => $tipoLabel,
+                'disciplina' => $solicitacao->turmaDisciplinaProfessor
+                    ->classeTurnoDisciplina->disciplina->nome ?? '—',
+                'turma' => $solicitacao->turmaDisciplinaProfessor->turma->nome ?? '—',
+                'periodo' => $solicitacao->periodo,
+                'motivo' => $solicitacao->motivo,
                 'urlSolicitacoes' => route('tenant.dashboard.pautas.solicitacoes.index'),
             ]);
     }
@@ -58,13 +58,13 @@ class SolicitacaoEdicaoPautaDirectorNotification extends Notification
 
         $tipoLabel = match ($this->solicitacao->tipo) {
             'reabertura_edicao' => 'reabertura de edição de pauta',
-            'extensao_prazo'    => 'extensão de prazo de lançamento',
-            default             => $this->solicitacao->tipo,
+            'extensao_prazo' => 'extensão de prazo de lançamento',
+            default => $this->solicitacao->tipo,
         };
 
         return [
-            'tipo'     => 'solicitacao_edicao_pauta_pendente',
-            'titulo'   => 'Novo pedido de edição de pauta',
+            'tipo' => 'solicitacao_edicao_pauta_pendente',
+            'titulo' => 'Novo pedido de edição de pauta',
             'mensagem' => "O professor {$nomeProfessor} solicitou {$tipoLabel}. O pedido aguarda a sua decisão.",
         ];
     }

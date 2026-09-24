@@ -144,7 +144,7 @@ class AlunoController extends Controller
             'inscricao.cursoClasseTurno.turno:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-            'turmas' => fn($q) => $q->wherePivot('activo', true)
+            'turmas' => fn ($q) => $q->wherePivot('activo', true)
                 ->where('turmas.ano_lectivo_id', $anoLectivoId)
                 ->with([
                     'cursoClasseTurno.cursoClasse.classe:id,nome',
@@ -159,7 +159,7 @@ class AlunoController extends Controller
             ->first();
 
         // fallback: turma mais recente se não tiver no ano activo
-        if (!$turmaNoAno) {
+        if (! $turmaNoAno) {
             $turmaNoAno = $aluno->turmas()
                 ->wherePivot('activo', true)
                 ->wherePivot('is_historico', false)

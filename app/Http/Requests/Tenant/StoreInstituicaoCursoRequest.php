@@ -14,7 +14,7 @@ class StoreInstituicaoCursoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'curso_id' => ['nullable', 'string', 'exists:cursos,id'],
+            'curso_id' => ['nullable', 'string', 'exists:'.config('tenancy.database.central_connection').'.cursos,id'],
             'nome' => ['nullable', 'string', 'min:2', 'max:255'],
             'duracao_anos' => ['nullable', 'integer', 'min:1', 'max:10'],
             'classes' => ['required', 'array', 'min:1'],

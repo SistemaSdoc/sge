@@ -16,7 +16,7 @@ import {
   emitir,
   marcarComoLevantado,
   marcarComoPagoAction,    
-} from '@/actions/App/Http/Controllers/SolicitacaoDocumentoController';
+} from '@/actions/App/Http/Controllers/Tenant/SolicitacaoDocumentoController';
 import {
   resolveSolicitacaoStatus,
   solicitacaoDocumentoStatusLabels,

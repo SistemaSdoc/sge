@@ -15,6 +15,7 @@ use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\SolicitacaoDocumento;
 use App\Models\Turno;
 use App\Models\User;
+use App\Services\Tenant\Dashboards\DashboardDirectorService;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
@@ -77,6 +78,44 @@ it('calculates the responsible institution for the remaining workflow', function
     expect($pedidoLocal->instituicaoResponsavelId())->toBe($instituto->id)
         ->and($pedidoColégio->instituicaoResponsavelId())->toBe($colegio->id)
         ->and($pedidoCertificado->instituicaoResponsavelId())->toBe($instituto->id);
+});
+
+it('includes pending document requests in dashboard actions', function () {
+    $instituicao = Instituicao::create([
+        'nome' => 'Instituição Teste',
+        'sigla' => 'IT',
+        'tipo' => 'colegio',
+        'status' => 1,
+    ]);
+
+    SolicitacaoDocumento::create([
+        'instituicao_origem_id' => $instituicao->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'tipo_documento' => 'declaracao',
+        'motivo' => 'Necessário para matrícula',
+        'status' => 'pendente',
+    ]);
+
+    SolicitacaoDocumento::create([
+        'instituicao_origem_id' => $instituicao->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'tipo_documento' => 'certificado',
+        'motivo' => 'Necessário para matrícula',
+        'status' => 'pendente',
+    ]);
+
+    SolicitacaoDocumento::create([
+        'instituicao_origem_id' => $instituicao->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'tipo_documento' => 'declaracao',
+        'motivo' => 'Necessário para matrícula',
+        'status' => 'entregue',
+    ]);
+
+    $acoes = (new DashboardDirectorService)->obterAccoesPendentes($instituicao->id);
+
+    expect(collect($acoes)->firstWhere('id', 'pending-solicitacoes-documentos')['count'])->toBe(2)
+        ->and(collect($acoes)->firstWhere('id', 'pending-solicitacoes-documentos')['title'])->toBe('Solicitações de Documentos Pendentes');
 });
 
 it('emits an approved document and stores a generated pdf', function () {

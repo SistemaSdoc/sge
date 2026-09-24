@@ -14,7 +14,7 @@ class TutelaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'curso_id' => 'exists:cursos,id',
+            'curso_id' => 'exists:'.config('tenancy.database.central_connection').'.cursos,id',
             'nome' => 'required_without:curso_id|string|max:255',
             'duracao' => 'required_without:curso_id|integer|min:1',
             'instituicao_id' => 'required|exists:instituicoes,id',
