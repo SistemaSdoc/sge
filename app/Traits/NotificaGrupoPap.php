@@ -7,6 +7,7 @@ use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\User;
 use App\Notifications\Pap\CorrecaoSolicitadaNotification;
 use App\Notifications\Pap\DataDefesaDefinidaNotification;
 use App\Notifications\Pap\MelhoriasSolicitadasNotification;
@@ -67,7 +68,7 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-            ?->cursoTutelado;
+                ?->cursoTutelado;
 
         $isTutelaExterna = $cursoTutelado?->tipo_tutela === 'externa'
             && $cursoTutelado?->curso_tutelado_shared_id;
@@ -77,6 +78,7 @@ trait NotificaGrupoPap
             $this->notificarCoordenadoresDoFluxo($grupoPap, $notification);
         } else {
             $this->notificarCoordenadoresLocais($grupoPap, $notification);
+            $this->notificarGrupoDisciplinar($grupoPap, $notification);
         }
 
         $alunos = $grupoPap->alunos->map->user->filter();
@@ -106,9 +108,9 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-            ?->cursoTutelado;
+                ?->cursoTutelado;
 
-        if (! $cursoTutelado) {
+        if (!$cursoTutelado) {
             return;
         }
 
@@ -136,13 +138,13 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-            ?->cursoTutelado;
+                ?->cursoTutelado;
 
-        if (! $cursoTutelado) {
+        if (!$cursoTutelado) {
             return;
         }
 
-        if ($cursoTutelado->tipo_tutela !== 'externa' || ! $cursoTutelado->curso_tutelado_shared_id) {
+        if ($cursoTutelado->tipo_tutela !== 'externa' || !$cursoTutelado->curso_tutelado_shared_id) {
             $coordenadores = $cursoTutelado->professores()
                 ->where('coordenador', 1)
                 ->with('user')
@@ -151,6 +153,7 @@ trait NotificaGrupoPap
                 ->filter();
 
             Notification::send($coordenadores, $notification);
+            $this->notificarGrupoDisciplinar($grupoPap, $notification);
 
             return;
         }
@@ -158,15 +161,15 @@ trait NotificaGrupoPap
         $shared = CursoTuteladoShared::query()->find($cursoTutelado->curso_tutelado_shared_id);
         $tenantTutor = $shared ? Tenant::query()->find($shared->tenant_tutor_id) : null;
 
-        if (! $shared || ! $tenantTutor) {
+        if (!$shared || !$tenantTutor) {
             return;
         }
 
-        $tenantTutor->run(function () use ($shared, $notification): void {
+        $tenantTutor->run(function () use ($shared, $notification, $grupoPap): void {
             $cursoTutor = CursoTutelado::query()
                 ->whereHas(
                     'instituicaoCurso',
-                    fn ($query) => $query->where('curso_id', $shared->curso_id)
+                    fn($query) => $query->where('curso_id', $shared->curso_id)
                 )
                 ->first();
 
@@ -178,6 +181,7 @@ trait NotificaGrupoPap
                 ->filter() ?? collect();
 
             Notification::send($coordenadores, $notification);
+            $this->notificarGrupoDisciplinar($grupoPap, $notification);
         });
     }
 
@@ -196,7 +200,7 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-            ?->cursoTutelado;
+                ?->cursoTutelado;
 
         $isTutelaExterna = $cursoTutelado?->tipo_tutela === 'externa'
             && $cursoTutelado?->curso_tutelado_shared_id;
@@ -219,6 +223,19 @@ trait NotificaGrupoPap
 
         if ($destinatarios->isNotEmpty()) {
             Notification::send($destinatarios, new TrabalhoSubmetidoConfirmacaoNotification($grupoPap));
+        }
+    }
+
+    protected function notificarGrupoDisciplinar(
+        GrupoPap $grupoPap,
+        NotificationInstance $notification,
+    ): void {
+        $utilizadores = User::role(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])
+            ->where('instituicao_id', $grupoPap->instituicaoTutora()?->id)
+            ->get();
+
+        if ($utilizadores->isNotEmpty()) {
+            Notification::send($utilizadores, $notification);
         }
     }
 
@@ -364,6 +381,7 @@ trait NotificaGrupoPap
     /**
      * Notifica o aluno associado ao elemento PAP sobre a nota atribuída.
      */
+
     protected function notificarNotaAtribuida(
         GrupoPap $grupoPap,
         ElementoGrupoPap $elemento

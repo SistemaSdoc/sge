@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
     'tipo',
     'coordenador',
     'opap',
+    'grupo_disciplinar',
 ])]
 
 class CursoTuteladoProfessor extends Pivot

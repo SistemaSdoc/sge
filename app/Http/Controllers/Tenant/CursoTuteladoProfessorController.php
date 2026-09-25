@@ -32,12 +32,14 @@ class CursoTuteladoProfessorController extends Controller
             ->paginate(5);
 
         return response()->json(
-            $professores->through(fn ($prof) => [
+            $professores->through(fn($prof) => [
                 'id' => $prof->id,
                 'nome' => $prof->user?->nome,
                 'email' => $prof->user?->email,
                 'tipo' => $prof->pivot->tipo,
                 'coordenador' => $prof->pivot->coordenador,
+                'opap' => $prof->pivot->opap,
+                'grupo_disciplinar' => $prof->pivot->grupo_disciplinar,
             ])
         );
     }
@@ -66,7 +68,6 @@ class CursoTuteladoProfessorController extends Controller
     //  Atribuir ou atualizar professor no curso
     public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
-
         $this->authorize('manageProfessores', $cursoTutelado);
 
         $request->validate([
@@ -74,9 +75,9 @@ class CursoTuteladoProfessorController extends Controller
             'tipo' => 'required|in:principal,colaborador',
             'coordenador' => 'boolean',
             'opap' => 'boolean',
+            'grupo_disciplinar' => 'nullable|in:nenhum,membro,coordenador',
         ]);
 
-        // Se está a marcar como coordenador, verifica se já existe outro
         if ($request->boolean('coordenador')) {
             $jaTemCoordenador = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
                 ->where('professor_id', '!=', $request->professor_id)
@@ -90,6 +91,19 @@ class CursoTuteladoProfessorController extends Controller
             }
         }
 
+        if ($request->grupo_disciplinar === 'coordenador') {
+            $jaTemCoordenadorGrupo = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
+                ->where('professor_id', '!=', $request->professor_id)
+                ->where('grupo_disciplinar', 'coordenador')
+                ->exists();
+
+            if ($jaTemCoordenadorGrupo) {
+                return back()->withErrors([
+                    'grupo_disciplinar' => 'Este curso já tem um coordenador do grupo disciplinar.',
+                ]);
+            }
+        }
+
         CursoTuteladoProfessor::updateOrCreate(
             [
                 'curso_tutelado_id' => $cursoTutelado->id,
@@ -99,10 +113,21 @@ class CursoTuteladoProfessorController extends Controller
                 'tipo' => $request->tipo,
                 'coordenador' => $request->boolean('coordenador'),
                 'opap' => $request->boolean('opap'),
+                'grupo_disciplinar' => $request->grupo_disciplinar ?? 'nenhum',
             ]
         );
 
         $professor = Professor::find($request->professor_id);
+
+        $professor->user->removeRole('Membro do Grupo Disciplinar');
+        $professor->user->removeRole('Coordenador do Grupo Disciplinar');
+
+        match ($request->grupo_disciplinar) {
+            'membro' => $professor->user->assignRole('Membro do Grupo Disciplinar'),
+            'coordenador' => $professor->user->assignRole('Coordenador do Grupo Disciplinar'),
+            default => null,
+        };
+
         $this->notificarProfessorAdicionadoAoCurso($professor, $cursoTutelado);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
@@ -110,6 +135,7 @@ class CursoTuteladoProfessorController extends Controller
             'cursoTutelado' => $cursoTutelado->id,
         ]);
     }
+
 
     public function show(string $id)
     {
@@ -147,17 +173,41 @@ class CursoTuteladoProfessorController extends Controller
             'tipo' => 'required|in:principal,colaborador',
             'coordenador' => 'boolean',
             'opap' => 'boolean',
+            'grupo_disciplinar' => 'nullable|in:nenhum,membro,coordenador',
         ]);
 
-        $vinculo = CursoTuteladoProfessor::query()
-            ->where('curso_tutelado_id', $cursoTutelado->id)
-            ->findOrFail($professore);
+        if ($request->grupo_disciplinar === 'coordenador') {
+            $jaTemCoordenadorGrupo = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
+                ->where('id', '!=', $professore)
+                ->where('grupo_disciplinar', 'coordenador')
+                ->exists();
+
+            if ($jaTemCoordenadorGrupo) {
+                return back()->withErrors([
+                    'grupo_disciplinar' => 'Este curso já tem um coordenador do grupo disciplinar.',
+                ]);
+            }
+        }
+
+        $vinculo = CursoTuteladoProfessor::findOrFail($professore);
 
         $vinculo->update([
             'tipo' => $request->tipo,
             'coordenador' => $request->boolean('coordenador'),
             'opap' => $request->boolean('opap'),
+            'grupo_disciplinar' => $request->grupo_disciplinar ?? 'nenhum',
         ]);
+
+        $professor = $vinculo->professor;
+
+        $professor->user->removeRole('Membro do Grupo Disciplinar');
+        $professor->user->removeRole('Coordenador do Grupo Disciplinar');
+
+        match ($request->grupo_disciplinar) {
+            'membro' => $professor->user->assignRole('Membro do Grupo Disciplinar'),
+            'coordenador' => $professor->user->assignRole('Coordenador do Grupo Disciplinar'),
+            default => null,
+        };
 
         return back();
     }

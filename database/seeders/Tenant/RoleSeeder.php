@@ -16,6 +16,9 @@ class RoleSeeder extends Seeder
             'Coordenador',
             'Professor',
             'Aluno',
+            'Coordenador do Grupo Disciplinar',
+            'Membro do Grupo Disciplinar',
+
         ];
 
         foreach ($roles as $role) {

@@ -119,6 +119,7 @@ class GrupoPapViewService
             ->when(
                 $sharedId === null
                 && $user->hasRole('Professor')
+                && !$user->hasAnyRole(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])
                 && !$user->hasPermissionTo('grupopap.selecionarInstituicao'),
                 fn($query) => $query->where(function ($q) use ($user): void {
                     $professorId = $user->professor?->id;
@@ -128,6 +129,7 @@ class GrupoPapViewService
             ->when(
                 $sharedId === null
                 && $user->hasRole('Professor')
+                && !$user->hasAnyRole(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])
                 && $user->hasPermissionTo('grupopap.selecionarInstituicao'),
                 fn($query) => $query->whereHas(
                     'turma.cursoClasseTurno.cursoClasse.cursoTutelado',

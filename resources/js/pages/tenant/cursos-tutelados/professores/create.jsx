@@ -11,6 +11,7 @@ export default function Create() {
   const [tipo, setTipo] = useState('principal');
   const [coordenador, setCoordenador] = useState(false);
   const [opap, setOpap] = useState(false);
+  const [grupo_disciplinar, setGrupoDisciplinar] = useState('nenhum');
 
   return (
     <Form
@@ -24,6 +25,7 @@ export default function Create() {
         tipo,
         coordenador,
         opap,
+        grupo_disciplinar,
       })}
       onSuccess={() =>
         router.visit(
@@ -43,6 +45,8 @@ export default function Create() {
           setCoordenador={setCoordenador}
           tipo={tipo}
           setTipo={setTipo}
+          grupo_disciplinar={grupo_disciplinar}
+          setGrupoDisciplinar={setGrupoDisciplinar}
           opap={opap}
           setOpap={setOpap}
           errors={errors}

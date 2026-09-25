@@ -539,6 +539,24 @@ class RolePermissionSeeder extends Seeder
                 'confirmacoes.matricula.confirmar',
             ],
 
+            'Coordenador do Grupo Disciplinar' => [
+                'grupopap.viewAny',
+                'grupopap.view',
+                'grupopap.aprovar',
+                'grupopap.reprovar',
+                'grupopap.solicitarMelhoria',
+                'elementogrupopap.viewAny',
+                'elementogrupopap.view',
+            ],
+
+            'Membro do Grupo Disciplinar' => [
+                'grupopap.viewAny',
+                'grupopap.view',
+                'grupopap.aprovar',
+                'grupopap.reprovar',
+                'grupopap.solicitarMelhoria',
+            ],
+
             'Professor' => [
                 // Alunos
                 // 'alunos.viewAny',

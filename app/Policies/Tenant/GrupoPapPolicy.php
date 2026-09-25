@@ -44,6 +44,14 @@ class GrupoPapPolicy
                 return true;
             }
 
+            if ($user->hasAnyRole(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])) {
+                return $user->hasPermissionTo('grupopap.view')
+                    && (
+                        $grupo->instituicao()?->id === $user->instituicao_id
+                        || $grupo->instituicaoTutora()?->id === $user->instituicao_id
+                    );
+            }
+
             // Coordenador
             if ($user->hasPermissionTo('grupopap.view')) {
                 $ehCoordenador = CursoTuteladoProfessor::where('professor_id', $professor?->id)
