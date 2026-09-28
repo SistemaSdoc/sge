@@ -76,9 +76,13 @@ export function AlunoSidebar({ aluno }) {
           <div className="min-w-0">
             <p className="text-xs text-muted-foreground">Data de nascimento</p>
             <p className="truncate text-sm font-medium">
-              {aluno?.data_nascimento || (
-                <Minus size={14} className="text-muted-foreground" />
-              )}
+              {aluno?.data_nascimento
+                ? new Date(aluno.data_nascimento).toLocaleDateString('pt-AO', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                })
+                : <Minus size={14} className="text-muted-foreground" />}
             </p>
           </div>
 

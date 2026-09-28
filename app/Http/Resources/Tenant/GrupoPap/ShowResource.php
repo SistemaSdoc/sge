@@ -23,6 +23,7 @@ class ShowResource extends JsonResource
             'criterios_pap_path' => null,
             'manual_pt_path' => null,
             'estrutura_trabalho_pap_path' => null,
+            'sugestoes_temas_pap_path' => null,
         ];
 
         return [
@@ -58,6 +59,9 @@ class ShowResource extends JsonResource
                 : null,
             'estrutura_trabalho_pap_url' => $docs['estrutura_trabalho_pap_path']
                 ? $this->publicStorageUrl($docs['estrutura_trabalho_pap_path'])
+                : null,
+            'sugestoes_temas_pap_url' => $docs['sugestoes_temas_pap_path']
+                ? $this->publicStorageUrl($docs['sugestoes_temas_pap_path'])
                 : null,
             'aprovado_por' => $this->aprovadoPor ? [
                 'id' => $this->aprovadoPor->id,

@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
     'criterios_pap_path',
     'manual_pt_path',
     'estrutura_trabalho_pap_path',
+    'sugestoes_temas_pap_path',
 ])]
 
 class CursoTutelado extends Model
@@ -80,14 +81,16 @@ class CursoTutelado extends Model
             'criterios_pap_path' => null,
             'manual_pt_path' => null,
             'estrutura_trabalho_pap_path' => null,
+            'sugestoes_temas_pap_path' => null,
         ];
 
         // Tem documentos locais — usa-os directamente
-        if ($this->criterios_pap_path || $this->manual_pt_path || $this->estrutura_trabalho_pap_path) {
+        if ($this->criterios_pap_path || $this->manual_pt_path || $this->estrutura_trabalho_pap_path || $this->sugestoes_temas_pap_path ) {
             return [
                 'criterios_pap_path' => $this->criterios_pap_path,
                 'manual_pt_path' => $this->manual_pt_path,
                 'estrutura_trabalho_pap_path' => $this->estrutura_trabalho_pap_path,
+                'sugestoes_temas_pap_path' => $this->sugestoes_temas_pap_path,
             ];
         }
 
@@ -118,12 +121,13 @@ class CursoTutelado extends Model
                     'instituicaoCurso',
                     fn ($q) => $q->where('curso_id', $shared->curso_id)
                 )
-                ->first(['criterios_pap_path', 'manual_pt_path', 'estrutura_trabalho_pap_path']);
+                ->first(['criterios_pap_path', 'manual_pt_path', 'estrutura_trabalho_pap_path', 'sugestoes_temas_pap_path']);
 
             return [
                 'criterios_pap_path' => $tutor?->criterios_pap_path,
                 'manual_pt_path' => $tutor?->manual_pt_path,
                 'estrutura_trabalho_pap_path' => $tutor?->estrutura_trabalho_pap_path,
+                'sugestoes_temas_pap_path' => $tutor?->sugestoes_temas_pap_path,
             ];
         });
     }
