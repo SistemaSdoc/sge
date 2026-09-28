@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function ProfessorForm({
   // modo
@@ -136,8 +137,13 @@ export default function ProfessorForm({
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="grupo_disciplinar">Grupo Disciplinar</FieldLabel>
-                <Select value={grupo_disciplinar} onValueChange={setGrupoDisciplinar}>
+                <FieldLabel htmlFor="grupo_disciplinar">
+                  Grupo Disciplinar
+                </FieldLabel>
+                <Select
+                  value={grupo_disciplinar}
+                  onValueChange={setGrupoDisciplinar}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione o grupo" />
                   </SelectTrigger>
@@ -150,17 +156,9 @@ export default function ProfessorForm({
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                {errors?.grupo_disciplinar && <FieldError>{errors.grupo_disciplinar}</FieldError>}
-              </Field>
-
-              <Field orientation="horizontal">
-                <Checkbox
-                  id="opap"
-                  checked={opap}
-                  onCheckedChange={setOpap}
-                />
-                <FieldLabel htmlFor="opap">OPAP</FieldLabel>
-                {errors?.opap && <FieldError>{errors.opap}</FieldError>}
+                {errors?.grupo_disciplinar && (
+                  <FieldError>{errors.grupo_disciplinar}</FieldError>
+                )}
               </Field>
 
               <Field>

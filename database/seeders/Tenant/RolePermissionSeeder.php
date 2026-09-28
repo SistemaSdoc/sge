@@ -625,8 +625,14 @@ class RolePermissionSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         foreach ($mapa as $roleName => $permissions) {
-            Role::findByName($roleName, 'tenant')->syncPermissions(
-                Permission::whereIn('name', $permissions)->where('guard_name', 'tenant')->get()
+            $role = Role::firstOrCreate(
+                ['name' => $roleName, 'guard_name' => 'tenant']
+            );
+
+            $role->syncPermissions(
+                Permission::whereIn('name', $permissions)
+                    ->where('guard_name', 'tenant')
+                    ->get()
             );
         }
 

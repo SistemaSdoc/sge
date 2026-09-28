@@ -38,7 +38,15 @@ class AlunoPolicy
         }
 
         if ($user->hasRole('Professor')) {
-            return $user->professor
+            // Guardar relação para evitar null
+            $professor = $user->professor;
+
+            // Se não tem perfil de professor, nega acesso
+            if (!$professor) {
+                return false;
+            }
+
+            return $professor
                 ->turmas()
                 ->whereHas('alunos', fn($q) => $q->where('alunos.id', $aluno->id))
                 ->exists();
