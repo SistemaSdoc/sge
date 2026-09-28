@@ -157,7 +157,7 @@ class CertificadoController extends Controller
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
             ])
-            ->where('ano_lectivo_id', AnoLectivo::activo()?->getKey())
+            ->where('turmas.ano_lectivo_id', AnoLectivo::activo()?->getKey())
             ->first();
 
         if (! $turmaAluno) {

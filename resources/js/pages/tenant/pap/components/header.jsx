@@ -47,6 +47,11 @@ export function Header({
         normalizeFilterValue(filtroInstituicao),
     ) ?? instituicao;
 
+  const isColegioSelecionado =
+    can?.selecionarInstituicao &&
+    filtroInstituicao &&
+    filtroInstituicao !== String(instituicao?.id ?? '');
+
   return (
     <Card className="gap-0! overflow-visible pb-0">
       <CardHeader className="border-b border-foreground/10">
@@ -78,7 +83,7 @@ export function Header({
             </CardDescription>
           </div>
 
-          {can?.create && (
+          {can?.create && !isColegioSelecionado && (
             <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
               <Button
                 size="sm"
