@@ -3,13 +3,17 @@
 namespace App\Notifications;
 
 use App\Models\Tenant\SubmissaoProva;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NovaSubmissaoNotificacao extends Notification
+class NovaSubmissaoNotificacao extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public SubmissaoProva $submissao
@@ -17,44 +21,38 @@ class NovaSubmissaoNotificacao extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
     {
         $prazo = $this->submissao->prazo;
-        $professor = $this->submissao->professor?->user?->nome ?? 'Professor';
-        $turma = $this->submissao->turma?->nome ?? 'N/A';
 
         return (new MailMessage)
-            ->subject("Nova submissão: {$professor}")
-            ->greeting("Olá, {$notifiable->nome}")
-            ->line("O professor **{$professor}** submeteu uma prova. Está pendente de avaliação.")
-            ->line('**Detalhes:**')
-            ->line("• Prazo: {$prazo?->titulo}")
-            ->line("• Disciplina: {$prazo?->disciplina?->nome }")
-            ->line("• Classe: {$prazo?->classe?->nome}")
-            ->line("• Turma: {$turma}")
-            ->line("• Versão: {$this->submissao->versao}")
-            ->line("• Data: {$this->submissao->data_submissao->format('d/m/Y H:i')}")
-            ->action('Avaliar Submissão', url("/dashboard/diretor/prazos/{$prazo?->id}/status"))
-            ->line('Aguarda a sua avaliação.');
+            ->subject('Nova submissão de ' . ($this->submissao->professor?->user?->nome ?? 'Professor'))
+            ->view('mail.diretor.nova-submissao', [
+                'nome'          => $notifiable->nome,
+                'professor'     => $this->submissao->professor?->user?->nome ?? 'Professor',
+                'prazoTitulo'   => $prazo?->titulo,
+                'disciplina'    => $prazo?->disciplina?->nome,
+                'classe'        => $prazo?->classe?->nome,
+                'turmaNome'     => $this->submissao->turma?->nome,
+                'versao'        => $this->submissao->versao,
+                'dataSubmissao' => $this->submissao->data_submissao?->format('d/m/Y H:i') ?? '—',
+                'comentario'    => $this->submissao->comentario,
+                'url'           => url("/dashboard/diretor/prazos/{$prazo?->id}/status"),
+                'instituicao'   => $notifiable->instituicao,
+            ]);
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'          => 'nova_submissao',
-            'submissao_id'  => $this->submissao->id,
-            'prazo_id'      => $this->submissao->prazo_prova_id,
-            'professor_nome'=> $this->submissao->professor?->user?->nome ?? 'N/A',
-            'prazo_titulo'  => $this->submissao->prazo?->titulo,
-            'disciplina'    => $this->submissao->prazo?->disciplina?->nome,
-            'classe'        => $this->submissao->prazo?->classe?->nome,
-            'turma'         => $this->submissao->turma?->nome,
-            'versao'        => $this->submissao->versao,
-            'data'          => $this->submissao->data_submissao->format('d/m/Y H:i'),
-            'url'           => "/dashboard/diretor/prazos/{$this->submissao->prazo_prova_id}/status",
+            'tipo'     => 'nova_submissao',
+            'titulo'   => 'Nova submissão recebida',
+            'mensagem' => ($this->submissao->professor?->user?->nome ?? 'Professor') .
+                          " submeteu a prova \"{$this->submissao->prazo?->titulo}\".",
+            'url'      => "/dashboard/diretor/prazos/{$this->submissao->prazo_prova_id}/status",
         ];
     }
 }

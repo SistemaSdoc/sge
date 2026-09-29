@@ -42,6 +42,20 @@ class SubmissaoProvaController extends Controller
     {
         $professor = $this->getProfessorAutenticado();
 
+           Log::info('SubmissaoProva@index', [
+        'user_id' => auth()->id(),
+        'professor_id' => $professor?->id,
+        'instituicao_id_user' => auth()->user()->instituicao_id,
+        'total_prazos_abertos_db' => PrazoProva::where('status', 'aberto')->count(),
+        'total_prazos_instituicao' => PrazoProva::where('status', 'aberto')
+            ->where('instituicao_id', auth()->user()->instituicao_id)
+            ->count(),
+        'total_com_data_ok' => PrazoProva::where('status', 'aberto')
+            ->where('instituicao_id', auth()->user()->instituicao_id)
+            ->where('data_limite', '>=', now())
+            ->count(),
+    ]);
+    
         if (! $professor) {
             return $this->renderDashboardVazio();
         }

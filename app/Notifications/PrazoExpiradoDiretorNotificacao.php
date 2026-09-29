@@ -3,13 +3,17 @@
 namespace App\Notifications;
 
 use App\Models\Tenant\PrazoProva;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PrazoExpiradoDiretorNotificacao extends Notification
+class PrazoExpiradoDiretorNotificacao extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public PrazoProva $prazo,
@@ -21,50 +25,56 @@ class PrazoExpiradoDiretorNotificacao extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject(" Prazo expirado: {$this->tituloPrazo()}")
-            ->greeting("Olá, {$notifiable->nome}")
-            ->line("O prazo abaixo expirou. Segue o resumo de cumprimento:")
-            ->line("**Detalhes do prazo:**")
-            ->line("• Título: {$this->tituloPrazo()}")
-            ->line("• Disciplina: {$this->prazo->disciplina?->nome }")
-            ->line("• Classe: {$this->prazo->classe?->nome }")
-            ->line("• Data Limite: {$this->prazo->data_limite->format('d/m/Y H:i')}")
-            ->line("• Período: {$this->prazo->periodo}")
-            ->line('')
-            ->line('**Estatísticas:**')
-            ->line("• Total de professores: {$this->totalProfessores}")
-            ->line("•  Submeteram: {$this->submeteram}")
-            ->line("•  Não submeteram: {$this->naoSubmeteram}")
-            ->line("•  Justificaram: {$this->justificaram}")
-            ->action('Ver Detalhes', url("/dashboard/diretor/prazos/{$this->prazo->id}/status"))
-            ->line('Obrigado!');
+            ->subject('Prazo expirado: ' . $this->tituloPrazo())
+            ->view('mail.diretor.prazo-expirado', [
+                'nome'             => $notifiable->nome,
+                'titulo'           => $this->tituloPrazo(),
+                'disciplina'       => $this->prazo->disciplina?->nome,
+                'classe'           => $this->prazo->classe?->nome,
+                'dataLimite'       => $this->prazo->data_limite?->format('d/m/Y H:i') ?? '—',
+                'periodo'          => $this->prazo->periodo,
+                'totalProfessores' => $this->totalProfessores,
+                'submeteram'       => $this->submeteram,
+                'naoSubmeteram'    => $this->naoSubmeteram,
+                'justificaram'     => $this->justificaram,
+                'taxaCumprimento'  => $this->taxaCumprimento(),
+                'url'              => url("/dashboard/diretor/prazos/{$this->prazo->id}/status"),
+                'instituicao'      => $notifiable->instituicao,
+            ]);
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'             => 'prazo_expirado',
-            'prazo_id'         => $this->prazo->id,
-            'titulo'           => $this->tituloPrazo(),
-            'disciplina'       => $this->prazo->disciplina?->nome,
-            'classe'           => $this->prazo->classe?->nome,
-            'data_limite'      => $this->prazo->data_limite->format('d/m/Y H:i'),
-            'total_professores'=> $this->totalProfessores,
-            'submeteram'       => $this->submeteram,
-            'nao_submeteram'   => $this->naoSubmeteram,
-            'justificaram'     => $this->justificaram,
-            'url'              => "/dashboard/diretor/prazos/{$this->prazo->id}/status",
+            'tipo'     => 'prazo_expirado',
+            'titulo'   => 'Prazo expirado',
+            'mensagem' => "O prazo \"{$this->tituloPrazo()}\" expirou. "
+                          . "{$this->submeteram}/{$this->totalProfessores} professores submeteram.",
+            'url'      => "/dashboard/diretor/prazos/{$this->prazo->id}/status",
         ];
     }
 
+    // ============================================================
+    // AUXILIARES
+    // ============================================================
+
     private function tituloPrazo(): string
     {
-        return $this->prazo->titulo ?? $this->prazo->tipo_prova;
+        return $this->prazo->titulo ?? $this->prazo->tipo_prova ?? 'Prazo';
+    }
+
+    private function taxaCumprimento(): int
+    {
+        if ($this->totalProfessores === 0) {
+            return 0;
+        }
+
+        return (int) round(($this->submeteram / $this->totalProfessores) * 100);
     }
 }

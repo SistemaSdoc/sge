@@ -20,6 +20,10 @@ import {
   FileText as FileIcon,
   Info,
   Loader2,
+  CheckCircle2,
+  XCircle,
+  LockKeyhole,
+  Clock8,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -42,62 +46,110 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 export default function Show({ prazo, submissoes }) {
-  const [loading, setLoading] = useState(false);
+  // ── Loading específico por ação ──
+  const [loadingFechar, setLoadingFechar] = useState(false);
+  const [loadingProrrogar, setLoadingProrrogar] = useState(false);
+  const [avaliandoId, setAvaliandoId] = useState(null); // ID da submissão em avaliação
+  const [avaliandoAcao, setAvaliandoAcao] = useState(null); // 'aprovar' | 'rejeitar'
+
   const [prorrogarDialog, setProrrogarDialog] = useState(false);
   const [novaData, setNovaData] = useState('');
-  const [rejectDialog, setRejectDialog] = useState(null); // { submissaoId, motivo }
+  const [rejectDialog, setRejectDialog] = useState(null);
 
-  // Fechar prazo
+  const algumLoading = loadingFechar || loadingProrrogar || avaliandoId !== null;
+
+  // ── Fechar prazo ──
   const handleFecharPrazo = useCallback(() => {
-    if (!confirm('Tem certeza que deseja encerrar este prazo? Esta ação não pode ser desfeita.')) return;
-    setLoading(true);
-    router.post(`/dashboard/diretor/prazos/${prazo.id}/fechar`, {}, {
-      onSuccess: () => {
-        toast.success('Prazo encerrado com sucesso!');
-        router.reload();
-      },
-      onError: () => toast.error('Erro ao encerrar prazo'),
-      onFinish: () => setLoading(false),
-    });
+    if (!confirm(
+  'Encerrar o prazo "' + prazo.titulo + '"?\n\n' +
+  'Os professores deixam de poder submeter provas.\n' +
+  'Todos serão notificados.\n\n' +
+  'Esta ação pode ser desfeita prorrogando a duração.'
+)) return;
+    setLoadingFechar(true);
+    router.post(
+      `/dashboard/diretor/prazos/${prazo.id}/fechar`,
+      {},
+      {
+        onSuccess: () => {
+          toast.success('Prazo encerrado', {
+            description: 'Os professores foram notificados. Já não é possível submeter provas.',
+          });
+          router.reload();
+        },
+        onError: () => {
+          toast.error('Erro ao encerrar prazo', {
+            description: 'Tente novamente em alguns instantes.',
+          });
+        },
+        onFinish: () => setLoadingFechar(false),
+      }
+    );
   }, [prazo.id]);
 
-  // Prorrogar prazo
+  // ── Prorrogar prazo ──
   const handleProrrogar = useCallback(() => {
     if (!novaData) {
       toast.error('Informe a nova data limite.');
       return;
     }
-    setLoading(true);
-    router.post(`/dashboard/diretor/prazos/${prazo.id}/prorrogar`, {
-      nova_data_limite: novaData,
-    }, {
-      onSuccess: () => {
-        toast.success('Prazo prorrogado com sucesso!');
-        setProrrogarDialog(false);
-        router.reload();
-      },
-      onError: () => toast.error('Erro ao prorrogar prazo'),
-      onFinish: () => setLoading(false),
-    });
+
+    setLoadingProrrogar(true);
+    router.post(
+      `/dashboard/diretor/prazos/${prazo.id}/prorrogar`,
+      { nova_data_limite: novaData },
+      {
+        onSuccess: () => {
+          toast.success('Prazo prorrogado', {
+            description: `Nova data limite: ${new Date(novaData).toLocaleString('pt-AO')}`,
+          });
+          setProrrogarDialog(false);
+          setNovaData('');
+          router.reload();
+        },
+        onError: () => {
+          toast.error('Erro ao prorrogar prazo');
+        },
+        onFinish: () => setLoadingProrrogar(false),
+      }
+    );
   }, [prazo.id, novaData]);
 
-  // Avaliar submissão (aprovar/rejeitar)
+  // ── Avaliar submissão ──
   const handleAvaliar = useCallback((submissaoId, acao, motivo = null) => {
-    setLoading(true);
+    setAvaliandoId(submissaoId);
+    setAvaliandoAcao(acao);
+
     const payload = { acao };
     if (motivo) payload.parecer = motivo;
 
-    router.patch(`/dashboard/diretor/submissoes/${submissaoId}/avaliar`, payload, {
-      onSuccess: () => {
-        toast.success(`Submissão ${acao === 'aprovar' ? 'aprovada' : 'rejeitada'} com sucesso!`);
-        router.reload();
-      },
-      onError: () => toast.error('Erro ao avaliar submissão'),
-      onFinish: () => setLoading(false),
-    });
+    router.patch(
+      `/dashboard/diretor/submissoes/${submissaoId}/avaliar`,
+      payload,
+      {
+        onSuccess: () => {
+          toast.success(
+            acao === 'aprovar' ? 'Submissão aprovada' : 'Submissão rejeitada',
+            {
+              description:
+                acao === 'aprovar'
+                  ? 'O professor foi notificado da aprovação.'
+                  : 'O professor foi notificado com o motivo da rejeição.',
+            }
+          );
+          router.reload();
+        },
+        onError: () => {
+          toast.error('Erro ao avaliar submissão');
+        },
+        onFinish: () => {
+          setAvaliandoId(null);
+          setAvaliandoAcao(null);
+        },
+      }
+    );
   }, []);
 
-  // Abrir diálogo de rejeição
   const openRejectDialog = (submissaoId) => {
     setRejectDialog({ submissaoId, motivo: '' });
   };
@@ -132,7 +184,7 @@ export default function Show({ prazo, submissoes }) {
           <span className="text-foreground font-medium">{prazo.titulo}</span>
         </nav>
 
-        {/* Cabeçalho com ações */}
+        {/* Cabeçalho */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <h1 className="text-2xl font-bold text-foreground">{prazo.titulo}</h1>
           <div className="flex items-center gap-2">
@@ -195,20 +247,46 @@ export default function Show({ prazo, submissoes }) {
           </CardContent>
         </Card>
 
-       
-          <div className="flex flex-wrap gap-2 mb-6">
-         {/* Ações do prazo (apenas se aberto) */}
-        {prazo.status === 'aberto' && (
-            <Button variant="destructive" onClick={handleFecharPrazo} disabled={loading}>
-              {loading ? <Loader2 className="size-4 animate-spin mr-1.5" /> : <Lock className="mr-1.5 size-4" />}
-              Encerrar
+        {/* Ações do prazo */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {prazo.status === 'aberto' && (
+            <Button
+              variant="destructive"
+              onClick={handleFecharPrazo}
+              disabled={algumLoading}
+            >
+              {loadingFechar ? (
+                <>
+                  <Loader2 className="size-4 animate-spin mr-1.5" />
+                  A encerrar...
+                </>
+              ) : (
+                <>
+                  <Lock className="mr-1.5 size-4" />
+                  Encerrar prazo
+                </>
+              )}
             </Button>
-        )}
-            <Button variant="default" onClick={() => setProrrogarDialog(true)} disabled={loading}>
-              {loading ? <Loader2 className="size-4 animate-spin mr-1.5" /> : <ClockArrowUp className="mr-1.5 size-4" />}
-              Prorrogar
-            </Button>
-          </div>
+          )}
+
+          <Button
+            variant="default"
+            onClick={() => setProrrogarDialog(true)}
+            disabled={algumLoading}
+          >
+            {loadingProrrogar ? (
+              <>
+                <Loader2 className="size-4 animate-spin mr-1.5" />
+                A prorrogar...
+              </>
+            ) : (
+              <>
+                <ClockArrowUp className="mr-1.5 size-4" />
+                Prorrogar
+              </>
+            )}
+          </Button>
+        </div>
 
         {/* Lista de Submissões */}
         <div className="flex items-center gap-2 mb-4">
@@ -224,94 +302,116 @@ export default function Show({ prazo, submissoes }) {
           </div>
         ) : (
           <div className="space-y-4">
-            {submissoes.map((sub) => (
-              <Card key={sub.id} className="shadow-sm border-border">
-                <CardContent className="p-4">
-                  <div className="flex flex-wrap items-center gap-4">
-                    {/* Professor */}
-                    <div className="flex items-center gap-3 min-w-[180px]">
-                      <div className="size-10 rounded-full bg-muted flex items-center justify-center">
-                        <User className="size-5 text-muted-foreground" />
+            {submissoes.map((sub) => {
+              const estaAvaliando = avaliandoId === sub.id;
+              const acaoAtual = estaAvaliando ? avaliandoAcao : null;
+
+              return (
+                <Card key={sub.id} className="shadow-sm border-border">
+                  <CardContent className="p-4">
+                    <div className="flex flex-wrap items-center gap-4">
+                      {/* Professor */}
+                      <div className="flex items-center gap-3 min-w-[180px]">
+                        <div className="size-10 rounded-full bg-muted flex items-center justify-center">
+                          <User className="size-5 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{sub.professor?.nome || 'Professor'}</p>
+                          <p className="text-xs text-muted-foreground">Versão {sub.versao}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium">{sub.professor?.nome || 'Professor'}</p>
-                        <p className="text-xs text-muted-foreground">Versão {sub.versao}</p>
+
+                      {/* Estado */}
+                      <Badge variant="outline" className={sub.badge_class}>
+                        {sub.estado_label}
+                      </Badge>
+
+                      {/* Links arquivos */}
+                      <div className="flex gap-1">
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={sub.url_prova} target="_blank" rel="noopener noreferrer">
+                            <File className="mr-1 size-4" />
+                            Prova
+                          </a>
+                        </Button>
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={sub.url_chave} target="_blank" rel="noopener noreferrer">
+                            <FileIcon className="mr-1 size-4" />
+                            Chave
+                          </a>
+                        </Button>
+                      </div>
+
+                      {/* Ações */}
+                      <div className="ml-auto flex items-center gap-2">
+                        {sub.estado === 'pendente' && (
+                          <>
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700"
+                              onClick={() => handleAvaliar(sub.id, 'aprovar')}
+                              disabled={algumLoading}
+                            >
+                              {estaAvaliando && acaoAtual === 'aprovar' ? (
+                                <>
+                                  <Loader2 className="size-4 animate-spin mr-1" />
+                                  A aprovar...
+                                </>
+                              ) : (
+                                <>
+                                  <Check className="mr-1 size-4" />
+                                  Aprovar
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => openRejectDialog(sub.id)}
+                              disabled={algumLoading}
+                            >
+                              {estaAvaliando && acaoAtual === 'rejeitar' ? (
+                                <>
+                                  <Loader2 className="size-4 animate-spin mr-1" />
+                                  A rejeitar...
+                                </>
+                              ) : (
+                                <>
+                                  <X className="mr-1 size-4" />
+                                  Rejeitar
+                                </>
+                              )}
+                            </Button>
+                          </>
+                        )}
+                        {sub.estado !== 'pendente' && (
+                          <span className="text-sm text-muted-foreground flex items-center gap-1">
+                            {sub.estado === 'aprovado' ? (
+                              <Check className="size-4 text-green-600" />
+                            ) : (
+                              <X className="size-4 text-red-600" />
+                            )}
+                            Avaliado
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    {/* Estado */}
-                    <Badge variant="outline" className={sub.badge_class}>
-                      {sub.estado_label}
-                    </Badge>
-
-                    {/* Links para arquivos */}
-                    <div className="flex gap-1">
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={sub.url_prova} target="_blank" rel="noopener noreferrer">
-                          <File className="mr-1 size-4" />
-                          Prova
-                        </a>
-                      </Button>
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={sub.url_chave} target="_blank" rel="noopener noreferrer">
-                          <FileIcon className="mr-1 size-4" />
-                          Chave
-                        </a>
-                      </Button>
-                    </div>
-
-                    {/* Ações de avaliação */}
-                    <div className="ml-auto flex items-center gap-2">
-                      {sub.estado === 'pendente' && (
-                        <>
-                          <Button
-                            variant="default"
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700"
-                            onClick={() => handleAvaliar(sub.id, 'aprovar')}
-                            disabled={loading}
-                          >
-                            {loading ? <Loader2 className="size-4 animate-spin" /> : <Check className="mr-1 size-4" />}
-                            Aprovar
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => openRejectDialog(sub.id)}
-                            disabled={loading}
-                          >
-                            {loading ? <Loader2 className="size-4 animate-spin" /> : <X className="mr-1 size-4" />}
-                            Rejeitar
-                          </Button>
-                        </>
-                      )}
-                      {sub.estado !== 'pendente' && (
-                        <span className="text-sm text-muted-foreground flex items-center gap-1">
-                          {sub.estado === 'aprovado' ? (
-                            <Check className="size-4 text-green-600" />
-                          ) : (
-                            <X className="size-4 text-red-600" />
-                          )}
-                          Avaliado
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Parecer e comentário (condicionais) */}
-                  {sub.parecer && (
-                    <div className="mt-3 p-2 bg-muted/50 rounded text-sm">
-                      <strong>Remitente:</strong> {sub.parecer}
-                    </div>
-                  )}
-                  {sub.comentario && (
-                    <div className="mt-1 text-sm text-muted-foreground">
-                      <strong>Comentário do professor:</strong> {sub.comentario}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                    {sub.parecer && (
+                      <div className="mt-3 p-2 bg-muted/50 rounded text-sm">
+                        <strong>Parecer:</strong> {sub.parecer}
+                      </div>
+                    )}
+                    {sub.comentario && (
+                      <div className="mt-1 text-sm text-muted-foreground">
+                        <strong>Comentário do professor:</strong> {sub.comentario}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
@@ -322,7 +422,7 @@ export default function Show({ prazo, submissoes }) {
           <DialogHeader>
             <DialogTitle>Prorrogar Prazo</DialogTitle>
             <DialogDescription>
-              Informe a nova data limite para o prazo.
+              Informe a nova data limite. Os professores serão notificados.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-2">
@@ -336,10 +436,18 @@ export default function Show({ prazo, submissoes }) {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setProrrogarDialog(false)}>Cancelar</Button>
-            <Button variant="default" onClick={handleProrrogar} disabled={loading}>
-              {loading ? <Loader2 className="size-4 animate-spin mr-1.5" /> : null}
-              Prorrogar
+            <Button variant="outline" onClick={() => setProrrogarDialog(false)} disabled={loadingProrrogar}>
+              Cancelar
+            </Button>
+            <Button variant="default" onClick={handleProrrogar} disabled={loadingProrrogar}>
+              {loadingProrrogar ? (
+                <>
+                  <Loader2 className="size-4 animate-spin mr-1.5" />
+                  A prorrogar...
+                </>
+              ) : (
+                'Prorrogar'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -351,7 +459,7 @@ export default function Show({ prazo, submissoes }) {
           <DialogHeader>
             <DialogTitle>Rejeitar Submissão</DialogTitle>
             <DialogDescription>
-              Informe o motivo da rejeição.
+              Informe o motivo da rejeição. O professor será notificado.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-2">

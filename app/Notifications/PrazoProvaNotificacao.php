@@ -3,17 +3,18 @@
 namespace App\Notifications;
 
 use App\Models\Tenant\PrazoProva;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PrazoProvaNotificacao extends Notification
+class PrazoProvaNotificacao extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
-    /**
-     * Tipos de notificação suportados.
-     */
     public const TIPO_CRIADO     = 'criado';
     public const TIPO_PRORROGADO = 'prorrogado';
     public const TIPO_FECHADO    = 'fechado';
@@ -25,56 +26,40 @@ class PrazoProvaNotificacao extends Notification
         public string $tipo
     ) {}
 
-    /**
-     * Canais de entrega.
-     */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['database', 'mail'];
     }
 
-    /**
-     * Conteúdo do email.
-     */
     public function toMail(object $notifiable): MailMessage
     {
-        $assunto = $this->assunto();
-        $mensagem = $this->mensagem();
-        $icone = $this->icone();
-
         return (new MailMessage)
-            ->subject("{$icone} {$assunto}")
-            ->greeting("Olá, {$notifiable->nome}")
-            ->line($mensagem)
-            ->line('**Detalhes do prazo:**')
-            ->line("• Título: {$this->tituloPrazo()}")
-            ->line("• Disciplina: {$this->prazo->disciplina?->nome }")
-            ->line("• Classe: {$this->prazo->classe?->nome }")
-            ->line("• Data Limite: {$this->prazo->data_limite->format('d/m/Y H:i')}")
-            ->line("• Período: {$this->prazo->periodo}")
-            ->action('Ver Prazos', url('/dashboard/professor/provas'))
-            ->line('Obrigado!');
+            ->subject($this->assunto())
+            ->view('mail.professor.prazo-prova', [
+                'nome'         => $notifiable->nome,
+                'tipo'         => $this->tipo,
+                'titulo'       => $this->tituloPrazo(),
+                'disciplina'   => $this->prazo->disciplina?->nome,
+                'classe'       => $this->prazo->classe?->nome,
+                'dataLimite'   => $this->prazo->data_limite?->format('d/m/Y H:i') ?? '—',
+                'periodo'      => $this->prazo->periodo,
+                'url'          => url('/dashboard/professor/provas'),
+                'instituicao'  => $notifiable->instituicao,
+            ]);
     }
 
-    /**
-     * Dados guardados na tabela `notifications`.
-     */
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'        => $this->tipo,
-            'prazo_id'    => $this->prazo->id,
-            'titulo'      => $this->tituloPrazo(),
-            'disciplina'  => $this->prazo->disciplina?->nome,
-            'classe'      => $this->prazo->classe?->nome,
-            'data_limite' => $this->prazo->data_limite->format('d/m/Y H:i'),
-            'periodo'     => $this->prazo->periodo,
-            'url'         => '/dashboard/professor/provas',
+            'tipo'     => $this->tipo,
+            'titulo'   => $this->titulo(),
+            'mensagem' => $this->mensagem(),
+            'url'      => '/dashboard/professor/provas',
         ];
     }
 
     // ============================================================
-    // MÉTODOS PRIVADOS AUXILIARES
+    // AUXILIARES
     // ============================================================
 
     private function assunto(): string
@@ -89,32 +74,32 @@ class PrazoProvaNotificacao extends Notification
         };
     }
 
-    private function mensagem(): string
+    private function titulo(): string
     {
         return match ($this->tipo) {
-            self::TIPO_CRIADO     => 'Foi criado um novo prazo para submissão de provas. Consulte os detalhes abaixo e submeta a sua prova dentro do prazo.',
-            self::TIPO_PRORROGADO => 'O prazo foi prorrogado. Tem mais tempo para submeter a sua prova.',
-            self::TIPO_FECHADO    => 'O prazo foi encerrado manualmente pelo diretor. Já não é possível submeter provas para este prazo.',
-            self::TIPO_A_EXPIRAR  => '⚠️ Falta menos de 30 minutos para o prazo terminar! Se ainda não submeteu a sua prova, faça-o agora.',
-            self::TIPO_EXPIRADO   => 'O prazo expirou e já não é possível submeter a prova. Se não conseguiu submeter, contacte o diretor.',
-            default               => 'O prazo foi atualizado.',
+            self::TIPO_CRIADO     => 'Novo prazo de prova',
+            self::TIPO_PRORROGADO => 'Prazo prorrogado',
+            self::TIPO_FECHADO    => 'Prazo encerrado',
+            self::TIPO_A_EXPIRAR  => 'Prazo a expirar',
+            self::TIPO_EXPIRADO   => 'Prazo expirado',
+            default               => 'Atualização de prazo',
         };
     }
 
-    private function icone(): string
+    private function mensagem(): string
     {
         return match ($this->tipo) {
-            self::TIPO_CRIADO     => ' ',
-            self::TIPO_PRORROGADO => ' ',
-            self::TIPO_FECHADO    => ' ',
-            self::TIPO_A_EXPIRAR  => ' ',
-            self::TIPO_EXPIRADO   => ' ',
-            default               => ' ',
+            self::TIPO_CRIADO     => "Foi criado um novo prazo para \"{$this->tituloPrazo()}\".",
+            self::TIPO_PRORROGADO => "O prazo \"{$this->tituloPrazo()}\" foi prorrogado.",
+            self::TIPO_FECHADO    => "O prazo \"{$this->tituloPrazo()}\" foi encerrado pelo diretor.",
+            self::TIPO_A_EXPIRAR  => "Falta menos de 30 minutos para o prazo \"{$this->tituloPrazo()}\" terminar.",
+            self::TIPO_EXPIRADO   => "O prazo \"{$this->tituloPrazo()}\" expirou.",
+            default               => 'O prazo foi atualizado.',
         };
     }
 
     private function tituloPrazo(): string
     {
-        return $this->prazo->titulo ?? $this->prazo->tipo_prova;
+        return $this->prazo->titulo ?? $this->prazo->tipo_prova ?? 'Prazo';
     }
 }

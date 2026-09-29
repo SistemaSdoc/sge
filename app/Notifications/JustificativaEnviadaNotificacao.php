@@ -3,55 +3,57 @@
 namespace App\Notifications;
 
 use App\Models\Tenant\JustificativaNaoSubmissao;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class JustificativaEnviadaNotificacao extends Notification
+class JustificativaEnviadaNotificacao extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public JustificativaNaoSubmissao $justificativa
     ) {}
 
-
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
     {
-        $professor = $this->justificativa->professor?->user?->nome ?? 'N/A';
         $prazo = $this->justificativa->prazo;
+        $professor = $this->justificativa->professor?->user?->nome ?? 'Professor';
 
         return (new MailMessage)
-            ->subject(" Nova justificativa de {$professor}")
-            ->greeting("Olá, {$notifiable->nome}")
-            ->line("O professor **{$professor}** enviou uma justificativa de não submissão.")
-            ->line('**Detalhes:**')
-            ->line("• Prazo: {$prazo?->titulo}")
-            ->line("• Disciplina: {$prazo?->disciplina?->nome }")
-            ->line("• Classe: {$prazo?->classe?->nome }")
-            ->line("• Data: {$this->justificativa->data_justificativa->format('d/m/Y H:i')}")
-            ->line('')
-            ->line('**Motivo apresentado:**')
-            ->line("_{$this->justificativa->motivo}_")
-            ->action('Avaliar Justificativa', url("/dashboard/diretor/prazos/{$prazo?->id}/status"))
-            ->line('Obrigado!');
+            ->subject('Nova justificativa de ' . $professor)
+            ->view('mail.diretor.justificativa-enviada', [
+                'nome'              => $notifiable->nome,
+                'professor'         => $professor,
+                'prazoTitulo'       => $prazo?->titulo,
+                'disciplina'        => $prazo?->disciplina?->nome,
+                'classe'            => $prazo?->classe?->nome,
+                'turmaNome'         => $this->justificativa->turma?->nome,
+                'dataJustificativa' => $this->justificativa->data_justificativa?->format('d/m/Y H:i') ?? '—',
+                'motivo'            => $this->justificativa->motivo,
+                'url'               => url("/dashboard/diretor/prazos/{$prazo?->id}/status"),
+                'instituicao'       => $notifiable->instituicao,
+            ]);
     }
 
     public function toArray(object $notifiable): array
     {
+        $professor = $this->justificativa->professor?->user?->nome ?? 'Professor';
+
         return [
-            'tipo'              => 'justificativa_enviada',
-            'justificativa_id'  => $this->justificativa->id,
-            'prazo_id'          => $this->justificativa->prazo_prova_id,
-            'professor_nome'    => $this->justificativa->professor?->user?->nome ?? 'N/A',
-            'motivo'            => $this->justificativa->motivo,
-            'data'              => $this->justificativa->data_justificativa->format('d/m/Y H:i'),
-            'url'               => "/dashboard/diretor/prazos/{$this->justificativa->prazo_prova_id}/status",
+            'tipo'     => 'justificativa_enviada',
+            'titulo'   => 'Nova justificativa recebida',
+            'mensagem' => "{$professor} enviou uma justificativa para \"{$this->justificativa->prazo?->titulo}\".",
+            'url'      => "/dashboard/diretor/prazos/{$this->justificativa->prazo_prova_id}/status",
         ];
     }
 }
