@@ -12,6 +12,7 @@ use App\Models\Tenant\User;
 use App\Services\Tenant\Users\UserProfileService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Fortify\Features;
@@ -28,7 +29,7 @@ class UserProfileController extends Controller
     /** Mostra os dados pessoais do perfil. */
     public function show(User $user)
     {
-        $this->authorizeOwnProfile($user);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('viewOwnProfile', $user);
 
         return Inertia::render('tenant/users/profile/show', [
             'user' => $this->profileService->profileData($user),
@@ -41,7 +42,7 @@ class UserProfileController extends Controller
         UpdatePersonalProfileRequest $request,
         User $user
     ): RedirectResponse {
-        $this->authorizeOwnProfile($user);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('updateOwnProfile', $user);
 
         $this->updatePersonalProfile->handle($user, $request->validated());
 
@@ -52,7 +53,7 @@ class UserProfileController extends Controller
     public function updateAvatar(
         UpdateProfileAvatarRequest $request, User $user
     ): RedirectResponse {
-        $this->authorizeOwnProfile($user);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('updateOwnProfile', $user);
 
         $this->updateProfileAvatar->handle($user, $request->file('avatar'));
 
@@ -62,8 +63,7 @@ class UserProfileController extends Controller
     /** Mostra os dados académicos de um aluno. */
     public function academic(User $user)
     {
-        $this->authorizeOwnProfile($user);
-        abort_unless($user->hasRole('Aluno'), 404);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('viewAcademicProfile', $user);
 
         return Inertia::render('tenant/users/profile/academic', [
             'user' => $this->profileService->profileData($user),
@@ -76,7 +76,7 @@ class UserProfileController extends Controller
         TwoFactorAuthenticationRequest $request,
         User $user
     ): Response {
-        $this->authorizeOwnProfile($user);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('viewOwnProfile', $user);
 
         $props = $this->profileService->securityData($user);
 
@@ -84,18 +84,10 @@ class UserProfileController extends Controller
             $request->ensureStateIsValid();
 
             $props['twoFactorEnabled'] = $user->hasEnabledTwoFactorAuthentication();
+
             $props['requiresConfirmation'] = Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm');
         }
 
         return Inertia::render('tenant/users/profile/security', $props);
-    }
-
-    /** Garante que o usuário consulta apenas o próprio perfil. */
-    private function authorizeOwnProfile(User $user): void
-    {
-        /** @var User|null $authenticatedUser */
-        $authenticatedUser = Auth::guard('tenant')->user();
-
-        abort_unless($authenticatedUser?->is($user), 403);
     }
 }

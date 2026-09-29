@@ -37,9 +37,16 @@ class CreateCursoTutelado
         // enquanto ainda estamos no contexto do tenant atual
         [$classeIds, $nivelEnsinoId] = $tenantTutorId
             ? $this->sincronizarDadosDoTutor($instituicaoTutora, $validated)
-            : [$validated['classes'], $validated['nivel_ensino_id']]; // ← era classe_ids
+            : [$validated['classes'], $validated['nivel_ensino_id']];
 
-        $cursoTutelado = DB::connection('tenant')->transaction(function () use ($instituicao, $tenantTutorId, $curso, $instituicaoTutora, $classeIds, $nivelEnsinoId): CursoTutelado {
+        $cursoTutelado = DB::connection('tenant')->transaction(function () use (
+            $instituicao,
+            $tenantTutorId,
+            $curso,
+            $instituicaoTutora,
+            $classeIds,
+            $nivelEnsinoId
+        ): CursoTutelado {
             if (
                 $instituicaoTutora && ! $instituicaoTutora->tenant->run(
                     fn (): bool => InstituicaoCurso::query()
@@ -94,7 +101,10 @@ class CreateCursoTutelado
         });
 
         if ($tenantTutorId) {
-            $this->tutelaService->publicarEAssociarCurso($cursoTutelado, $instituicaoTutora);
+            $this->tutelaService->publicarEAssociarCurso(
+                $cursoTutelado,
+                $instituicaoTutora
+            );
         }
 
         return $cursoTutelado->refresh();

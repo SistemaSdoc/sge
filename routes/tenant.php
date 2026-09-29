@@ -17,7 +17,6 @@ use App\Http\Controllers\Tenant\ClasseTurnoDisciplinaHorarioController;
 use App\Http\Controllers\Tenant\ClasseTurnoTurmaController;
 use App\Http\Controllers\Tenant\CursoClasseController;
 use App\Http\Controllers\Tenant\CursoClasseTurnoController;
-use App\Http\Controllers\Tenant\CursosController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\CursoTuteladoProfessorController;
 use App\Http\Controllers\Tenant\DashboardController;
@@ -145,7 +144,6 @@ Route::middleware([
             require base_path('routes/modules/acess-management.php');
             require base_path('routes/modules/historico-aluno.php');
             require base_path('routes/modules/certificado.php');
-            require base_path('routes/modules/progressao.php');
             require base_path('routes/modules/pautas.php');
             require base_path('routes/modules/notas.php');
             require base_path('routes/settings.php');
@@ -282,9 +280,6 @@ Route::middleware([
 
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/criterios-pap', [CursoTuteladoController::class, 'uploadCriteriosPap'])
                 ->name('instituicoes.cursos-tutelados.criterios-pap');
-
-            Route::get('cursos/{curso}/instituicoes-tutoras', [CursosController::class, 'instituicoesTutoras'])
-                ->name('cursos.instituicoes-tutoras');
 
             /*
             |--------------------------------------------------------------------------
@@ -700,7 +695,8 @@ Route::middleware([
             |--------------------------------------------------------------------------
             */
 
-            Route::inertia('horarios', 'tenant/horarios/index')
+            Route::get('horarios', fn () => inertia('tenant/horarios/index'))
+                ->middleware('can:horarios.viewAny')
                 ->name('horarios');
 
             Route::inertia('propinas/bloqueio', 'tenant/propinas/bloqueio')

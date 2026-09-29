@@ -25,9 +25,16 @@ class UpdateCursoTutelado
      *
      * @param  array{tenant_tutor_id?: string|null, nivel_ensino_id: string, classes: array<int, string>}  $validated
      */
-    public function handle(Instituicao $instituicao, CursoTutelado $cursoTutelado, array $validated): void
-    {
-        DB::transaction(function () use ($instituicao, $cursoTutelado, $validated): void {
+    public function handle(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        array $validated
+    ): void {
+        DB::transaction(function () use (
+            $instituicao,
+            $cursoTutelado,
+            $validated
+        ): void {
             $tenantTutorId = $validated['tenant_tutor_id'] ?? null;
             $tutelaPendente = false;
             $tutorAtualId = $cursoTutelado->tipo_tutela === 'externa'
@@ -47,9 +54,24 @@ class UpdateCursoTutelado
                         ->where('status', TutelaStatus::ACTIVO)
                         ->latest('updated_at')
                         ->value('id');
-                    $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
-                    $sharedProposto = $this->tutelaService->publicarSemAssociarCurso($cursoTutelado, $instituicaoTutora);
-                    $this->tutelaService->notificarTrocaTutela($cursoTutelado->fresh(), $tutorAtualId, $sharedAnteriorId, $sharedProposto);
+
+                    $instituicaoTutora = $this->tutelaService->validarTutelaExterna(
+                        $instituicao,
+                        $tenantTutorId
+                    );
+
+                    $sharedProposto = $this->tutelaService->publicarSemAssociarCurso(
+                        $cursoTutelado,
+                        $instituicaoTutora
+                    );
+
+                    $this->tutelaService->notificarTrocaTutela(
+                        $cursoTutelado->fresh(),
+                        $tutorAtualId,
+                        $sharedAnteriorId,
+                        $sharedProposto
+                    );
+
                     $this->tutelaService->notificarTrocaPendente(
                         $sharedProposto,
                         $tutorAtualId,
@@ -60,8 +82,15 @@ class UpdateCursoTutelado
                 }
 
                 if (! $tutelaPendente) {
-                    $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
-                    $this->tutelaService->publicarEAssociarCurso($cursoTutelado, $instituicaoTutora);
+                    $instituicaoTutora = $this->tutelaService->validarTutelaExterna(
+                        $instituicao,
+                        $tenantTutorId
+                    );
+
+                    $this->tutelaService->publicarEAssociarCurso(
+                        $cursoTutelado,
+                        $instituicaoTutora
+                    );
                 }
             } elseif ($tenantTutorId === null && $cursoTutelado->tipo_tutela === 'externa') {
                 $sharedActual = CursoTuteladoShared::on(
@@ -103,6 +132,7 @@ class UpdateCursoTutelado
                     }
 
                     $this->tutelaService->encerrarVinculoRejeitado($cursoTutelado);
+
                     $this->tutelaService->converterParaTutelaPropria(
                         $cursoTutelado,
                         (string) $instituicao->getKey(),

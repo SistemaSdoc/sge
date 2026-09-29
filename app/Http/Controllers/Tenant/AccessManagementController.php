@@ -22,13 +22,17 @@ class AccessManagementController extends Controller
      */
     public function index()
     {
-        Gate::authorize('acessos.viewAny');
-
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
-        $users = User::with('roles', 'permissions')
-            ->where('instituicao_id', $user->instituicao_id)
+        Gate::forUser($user)->authorize('acessos.viewAny');
+
+        $users = User::with([
+            'roles:id,name',
+            'roles.permissions:id,name',
+            'permissions:id,name',
+        ])
+            ->when(! $user->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $user->instituicao_id))
             ->orderBy('nome')
             ->orderBy('id')
             ->paginate(10)
@@ -38,8 +42,13 @@ class AccessManagementController extends Controller
                 'email' => $u->email,
                 'avatar' => $u->avatar,
                 'roles' => $u->getRoleNames(),
-                'directPermissions' => $u->getDirectPermissions()->pluck('name'),
-                'inheritedPermissions' => $u->getPermissionsViaRoles()->pluck('name'),
+                'directPermissions' => $u->permissions->pluck('name')->values()->all(),
+                'inheritedPermissions' => $u->roles
+                    ->flatMap(fn ($role) => $role->permissions)
+                    ->pluck('name')
+                    ->unique()
+                    ->values()
+                    ->all(),
             ]);
 
         return Inertia::render('tenant/gestao-acessos/index', [
@@ -55,9 +64,10 @@ class AccessManagementController extends Controller
      */
     public function store(StoreRoleAndPermissionRequest $request, User $user)
     {
-        Gate::authorize('acessos.create');
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
 
-        Gate::authorize('update', $user);
+        Gate::forUser($actor)->authorize('managePermissions', $user);
 
         $user->syncRoles($request->validated('roles', []));
 

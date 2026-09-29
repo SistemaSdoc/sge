@@ -18,6 +18,7 @@ class CreateRole
     public function handle(array $validated): Role
     {
         $permissions = $validated['permissions'] ?? [];
+
         $allowedPermissions = collect($this->roleManagementService->permissions(Auth::guard('tenant')->user()))
             ->pluck('value')
             ->all();
@@ -27,7 +28,11 @@ class CreateRole
         }
 
         return DB::transaction(function () use ($validated): Role {
-            $role = Role::create(['name' => $validated['name'], 'guard_name' => 'tenant']);
+            $role = Role::create([
+                'name' => $validated['name'],
+                'guard_name' => 'tenant',
+            ]);
+
             $role->syncPermissions($validated['permissions'] ?? []);
 
             return $role->load('permissions:id,name');

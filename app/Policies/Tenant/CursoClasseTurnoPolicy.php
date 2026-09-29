@@ -8,7 +8,7 @@ use App\Models\Tenant\User;
 class CursoClasseTurnoPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determina se o usuário pode listar os turnos das classes de cursos tutelados.
      */
     public function viewAny(User $user): bool
     {
@@ -16,7 +16,7 @@ class CursoClasseTurnoPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determina se o usuário pode consultar um turno associado a uma classe de curso tutelado.
      */
     public function view(User $user, CursoClasseTurno $cursoClasseTurno): bool
     {
@@ -25,7 +25,7 @@ class CursoClasseTurnoPolicy
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determina se o usuário pode associar um turno a uma classe de curso tutelado.
      */
     public function create(User $user): bool
     {
@@ -33,7 +33,7 @@ class CursoClasseTurnoPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determina se o usuário pode actualizar o turno de uma classe de curso tutelado.
      */
     public function update(User $user, CursoClasseTurno $cursoClasseTurno): bool
     {
@@ -42,7 +42,7 @@ class CursoClasseTurnoPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determina se o usuário pode remover o turno de uma classe de curso tutelado.
      */
     public function delete(User $user, CursoClasseTurno $cursoClasseTurno): bool
     {
@@ -51,7 +51,7 @@ class CursoClasseTurnoPolicy
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determina se o usuário pode restaurar a associação entre turno e classe de curso tutelado.
      */
     public function restore(User $user, CursoClasseTurno $cursoClasseTurno): bool
     {
@@ -59,7 +59,7 @@ class CursoClasseTurnoPolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determina se o usuário pode eliminar permanentemente a associação entre turno e classe de curso tutelado.
      */
     public function forceDelete(User $user, CursoClasseTurno $cursoClasseTurno): bool
     {

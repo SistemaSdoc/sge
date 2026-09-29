@@ -33,7 +33,7 @@ class AlunoPolicy
             return true;
         }
 
-        if (!$user->can('alunos.view')) {
+        if (! $user->can('alunos.view')) {
             return false;
         }
 
@@ -48,7 +48,7 @@ class AlunoPolicy
 
             return $professor
                 ->turmas()
-                ->whereHas('alunos', fn($q) => $q->where('alunos.id', $aluno->id))
+                ->whereHas('alunos', fn ($q) => $q->where('alunos.id', $aluno->id))
                 ->exists();
         }
 

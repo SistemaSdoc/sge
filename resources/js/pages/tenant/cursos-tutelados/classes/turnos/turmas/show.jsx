@@ -3,7 +3,6 @@ import { TabAlunos } from './components/tabs/tab-alunos';
 import { TabRecurso } from './components/tabs/tab-recurso';
 import { TabGruposPAP } from './components/tabs/tab-grupos-pap';
 import { TabDisciplinas } from './components/tabs/tab-disciplinas';
-import { preview } from '@/actions/App/Http/Controllers/Tenant/ProgressaoController';
 import { destroy } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import { Header } from './components/turma-header';
 import { TurmaTabsList } from './components/tabs/tab-list';
@@ -13,8 +12,8 @@ import { router } from '@inertiajs/react';
 
 export default function Show({
   instituicao,
-  cursoTutelado,
   cursoClasse,
+  cursoTutelado,
   cursoClasseTurno,
   turma,
   alunos,
@@ -68,7 +67,6 @@ export default function Show({
         disciplinas={disciplinas}
         alunos={alunos}
         totalRecurso={totalRecurso}
-        preview={preview}
         params={params}
         anoLectivoId={anoLectivoId}
         anosLectivos={anosLectivos}

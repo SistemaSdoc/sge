@@ -30,8 +30,7 @@ class ClasseTurnoTurmaController extends Controller
     public function __construct(
         private readonly AnoLectivoResolverService $anoLectivoResolverService,
         private readonly PautaService $pautaService,
-    ) {
-    }
+    ) {}
 
     public function index(
         Instituicao $instituicao,
@@ -49,12 +48,12 @@ class ClasseTurnoTurmaController extends Controller
 
         $turmas = Turma::whereHas(
             'cursoClasseTurno.cursoClasse',
-            fn($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
+            fn ($q) => $q->where('curso_tutelado_id', $cursoTutelado->id)
         )
             ->where('ano_lectivo_id', $anoLectivoId)  // ← Filtro
             ->when(
                 $user->hasRole('Professor'),
-                fn($q) => $q->whereHas('professores', function ($q) use ($user) {
+                fn ($q) => $q->whereHas('professores', function ($q) use ($user) {
                     $q->where('professor_id', $user->professor->id);
                 })
             )
@@ -76,7 +75,7 @@ class ClasseTurnoTurmaController extends Controller
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
                 ],
             ],
-            'turmas' => $turmas->through(fn($turma) => [
+            'turmas' => $turmas->through(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
@@ -210,7 +209,7 @@ class ClasseTurnoTurmaController extends Controller
 
         $alunos = $turma->alunos()
             ->wherePivot('activo', true)
-            ->whereHas('inscricao', fn($q) => $q->where('status', '!=', 'cancelado'))
+            ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
             ->paginate(10, ['*'], 'page_alunos');
 
@@ -228,8 +227,8 @@ class ClasseTurnoTurmaController extends Controller
             ->classeTurnoDisciplinas()
             ->where('ano_lectivo_id', $anoLectivoId)
             ->with([
-                'disciplina' => fn($q) => $q->withTrashed()->select(['id', 'nome', 'sigla', 'componente', 'deleted_at']),
-                'turmaDisciplinaProfessores' => fn($q) => $q->where('turma_id', $turma->id),
+                'disciplina' => fn ($q) => $q->withTrashed()->select(['id', 'nome', 'sigla', 'componente', 'deleted_at']),
+                'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
                 'horarios',
             ])
@@ -237,13 +236,13 @@ class ClasseTurnoTurmaController extends Controller
 
         // Professores comuns vêem apenas as disciplinas que lecionam.
         // Coordenadores vêem todas as disciplinas do curso em modo de consulta.
-        if ($user->hasRole('Professor') && !$user->hasRole('Coordenador')) {
+        if ($user->hasRole('Professor') && ! $user->hasRole('Coordenador')) {
             $professorId = $user->professor?->id;
 
             if ($professorId) {
                 $disciplinasQuery->whereHas(
                     'turmaDisciplinaProfessores',
-                    fn($q) => $q->where('professor_id', $professorId)
+                    fn ($q) => $q->where('professor_id', $professorId)
                         ->where('turma_id', $turma->id)
                 );
             } else {
@@ -251,8 +250,7 @@ class ClasseTurnoTurmaController extends Controller
             }
         }
 
-        $disciplinas = $disciplinasQuery->paginate(5, ['*'], 'page_disciplinas')
-        ;
+        $disciplinas = $disciplinasQuery->paginate(5, ['*'], 'page_disciplinas');
 
         $grupos = $turma->gruposPap()
             ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final', 'professor_tutor_id')
@@ -277,7 +275,7 @@ class ClasseTurnoTurmaController extends Controller
             : ['alunos' => [], 'resumo' => ['total' => 0]];
         $podeLancarRecurso = $user->hasAnyRole(['Director', 'Subdirector'])
             || collect($pautaRecurso['alunos'] ?? [])
-                ->contains(fn($aluno) => is_null($aluno['nota_recurso'] ?? null));
+                ->contains(fn ($aluno) => is_null($aluno['nota_recurso'] ?? null));
 
         // Pre-carregar relações usadas nas policies
         $cursoTutelado->loadMissing('instituicaoCurso');
@@ -407,7 +405,7 @@ class ClasseTurnoTurmaController extends Controller
             'nome' => $request->input('nome', $turma->nome),
             'max_alunos' => $request->input('max_alunos', $turma->max_alunos),
             'ano_lectivo_id' => $request->input('ano_lectivo_id', $turma->ano_lectivo_id),
-        ], fn($value) => $value !== null));
+        ], fn ($value) => $value !== null));
 
         // Preserva o filtro de ano lectivo na navegação de volta
         $anoLectivoParam = $turma->ano_lectivo_id ? ['ano_lectivo_id' => $turma->ano_lectivo_id] : [];

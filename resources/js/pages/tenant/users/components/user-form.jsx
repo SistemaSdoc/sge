@@ -46,6 +46,11 @@ export function UserForm({
   const isLockedSelfRoleAssignment = Boolean(
     currentUser?.isSubdirector && currentUser?.id === data?.id,
   );
+  const isLockedOwnDirectorRoles = Boolean(
+    currentUser?.isDirector &&
+    currentUser?.id === data?.id &&
+    (data.roles ?? []).includes('Director'),
+  );
   const isProtectedDirectorUser = Boolean(
     data?.isDirector &&
     !currentUser?.isSuperAdmin &&
@@ -182,6 +187,7 @@ export function UserForm({
                     value={selectedRoles}
                     disabled={
                       isLockedSelfRoleAssignment ||
+                      isLockedOwnDirectorRoles ||
                       isProtectedDirectorUser ||
                       rolesDisabled ||
                       processing
@@ -194,11 +200,15 @@ export function UserForm({
                     }
                   />
 
-                  {(isLockedSelfRoleAssignment || isProtectedDirectorUser) && (
+                  {(isLockedSelfRoleAssignment ||
+                    isLockedOwnDirectorRoles ||
+                    isProtectedDirectorUser) && (
                     <p className="mt-2 text-xs text-muted-foreground">
                       {isProtectedDirectorUser
                         ? 'Este utilizador é o Director e não pode ser alterado por um subdiretor.'
-                        : 'Como subdiretor, não pode alterar as suas próprias funções.'}
+                        : isLockedOwnDirectorRoles
+                          ? 'Não pode remover o papel Director da própria conta.'
+                          : 'Como subdiretor, não pode alterar as suas próprias funções.'}
                     </p>
                   )}
 

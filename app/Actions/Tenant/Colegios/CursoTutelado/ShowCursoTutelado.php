@@ -43,8 +43,13 @@ class ShowCursoTutelado
 
         $instituicaoTutor = Instituicao::query()->findOrFail($user->instituicao_id);
 
-        return $tenantColegio->run(function () use ($instituicaoTutor, $colegio, $cursoTutelado): array {
+        return $tenantColegio->run(function () use (
+            $instituicaoTutor,
+            $colegio,
+            $cursoTutelado
+        ): array {
             $colegioModel = Instituicao::query()->findOrFail($colegio);
+
             $curso = CursoTutelado::query()
                 ->whereKey($cursoTutelado)
                 ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->getKey()))

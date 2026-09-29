@@ -35,7 +35,7 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
 
         // Criar novos horários
         $horarios = collect($request->validated()['horarios'])
-            ->map(fn($horario) => array_merge($horario, [
+            ->map(fn ($horario) => array_merge($horario, [
                 'id' => (string) Str::uuid7(),
                 'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
                 'turma_id' => $turma->id,  // ← adicionar
@@ -51,7 +51,7 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
 
         if ($anoLectivoId = request('ano_lectivo_id')) {
             $separator = str_contains($url, '?') ? '&' : '?';
-            $url .= $separator . 'ano_lectivo_id=' . $anoLectivoId;
+            $url .= $separator.'ano_lectivo_id='.$anoLectivoId;
         }
 
         return redirect($url);

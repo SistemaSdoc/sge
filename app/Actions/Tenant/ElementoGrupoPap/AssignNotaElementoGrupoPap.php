@@ -16,7 +16,11 @@ class AssignNotaElementoGrupoPap
      */
     public function handle(GrupoPap $grupoPap, ElementoGrupoPap $elementoGrupoPap, array $validated): void
     {
-        DB::transaction(function () use ($grupoPap, $elementoGrupoPap, $validated): void {
+        DB::transaction(function () use (
+            $grupoPap,
+            $elementoGrupoPap,
+            $validated
+        ): void {
             $elementoGrupoPap->update([
                 'nota_individual' => $validated['nota_individual'],
             ]);

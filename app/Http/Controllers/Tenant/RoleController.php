@@ -29,9 +29,10 @@ class RoleController extends Controller
      */
     public function index()
     {
-        Gate::authorize('viewAny', Role::class);
         /** @var User $actor */
         $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('viewAny', Role::class);
 
         return Inertia::render('tenant/roles/index', [
             'roles' => $this->roleManagementService->index(),
@@ -45,9 +46,10 @@ class RoleController extends Controller
      */
     public function create()
     {
-        Gate::authorize('create', Role::class);
         /** @var User $actor */
         $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('create', Role::class);
 
         return Inertia::render('tenant/roles/create', [
             'permissions' => $this->roleManagementService->permissions($actor),
@@ -60,7 +62,11 @@ class RoleController extends Controller
      */
     public function store(StoreRoleRequest $request)
     {
-        Gate::authorize('create', Role::class);
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('create', Role::class);
+
         $this->createRole->handle($request->validated());
 
         return to_route('tenant.dashboard.roles.index')->with('success', 'Role criada com sucesso.');
@@ -71,9 +77,10 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
-        Gate::authorize('update', $role);
         /** @var User $actor */
         $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('update', $role);
 
         return Inertia::render('tenant/roles/edit', [
             'role' => $role->load('permissions:id,name,label')->only('id', 'name', 'permissions'),
@@ -87,7 +94,11 @@ class RoleController extends Controller
      */
     public function update(UpdateRoleRequest $request, Role $role)
     {
-        Gate::authorize('update', $role);
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('update', $role);
+
         $this->updateRole->handle($role, $request->validated());
 
         return to_route('tenant.dashboard.roles.index')->with('success', 'Role actualizada com sucesso.');
@@ -98,7 +109,11 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
-        Gate::authorize('delete', $role);
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('delete', $role);
+
         $this->deleteRole->handle($role);
 
         return to_route('tenant.dashboard.roles.index')->with('success', 'Role removida com sucesso.');

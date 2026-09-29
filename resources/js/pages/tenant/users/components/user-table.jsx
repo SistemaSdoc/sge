@@ -4,6 +4,7 @@ import {
   edit,
   create,
 } from '@/actions/App/Http/Controllers/Tenant/UserController';
+import { create as managePermissions } from '@/actions/App/Http/Controllers/Tenant/UserPermissionController';
 import { EmptyState } from '@/components/empty-state';
 import TablePagination from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
@@ -115,7 +116,7 @@ export function UserTable({ users, pagination, onPageChange, deleteFn }) {
                           </>
                         ) : (
                           <span className="text-muted-foreground">
-                            Sem role
+                            Sem funções atribuídas
                           </span>
                         )}
                       </div>
@@ -125,9 +126,7 @@ export function UserTable({ users, pagination, onPageChange, deleteFn }) {
                       <div className="flex items-center justify-end gap-2">
                         {canManagePermissions && (
                           <Button variant="outline" size="xs">
-                            <Link
-                              href={`/dashboard/users/${user.id}/permissions`}
-                            >
+                            <Link href={managePermissions(user.id).url}>
                               Gerir permissões
                             </Link>
                           </Button>

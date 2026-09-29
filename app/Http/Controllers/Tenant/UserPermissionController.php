@@ -20,10 +20,11 @@ class UserPermissionController extends Controller
 
     public function create(User $user)
     {
-        Gate::authorize('update', $user);
-
         /** @var User $currentUser */
         $currentUser = Auth::guard('tenant')->user();
+
+        Gate::forUser($currentUser)->authorize('managePermissions', $user);
+
         $user->load('roles:id,name');
 
         return Inertia::render('tenant/users/permissions', [
@@ -39,8 +40,8 @@ class UserPermissionController extends Controller
                 'isSubdirector' => $user?->isSubdirector(),
                 'isDirector' => $user->isDirector(),
             ],
-            'allPermissions' => $this->roleManagementService->permissions($user),
-            'groupedPermissions' => $this->roleManagementService->groupedPermissions($user),
+            'allPermissions' => $this->roleManagementService->permissions($currentUser),
+            'groupedPermissions' => $this->roleManagementService->groupedPermissions($currentUser),
             'currentUser' => [
                 'id' => $currentUser?->id,
                 'isSubdirector' => $currentUser?->isSubdirector(),
@@ -51,10 +52,10 @@ class UserPermissionController extends Controller
 
     public function update(UpdateUserPermissionsRequest $request, User $user)
     {
-        Gate::authorize('update', $user);
-
         /** @var User $currentUser */
         $currentUser = Auth::guard('tenant')->user();
+
+        Gate::forUser($currentUser)->authorize('managePermissions', $user);
 
         if ($currentUser?->isSubdirector() && $currentUser->is($user)) {
             abort(403, 'Não pode alterar as suas próprias permissões.');
@@ -62,7 +63,8 @@ class UserPermissionController extends Controller
 
         $this->updateUserPermissions->handle(
             $user,
-            $request->validated('permissions', [])
+            $request->validated('permissions', []),
+            $currentUser,
         );
 
         return to_route('tenant.dashboard.users.index')

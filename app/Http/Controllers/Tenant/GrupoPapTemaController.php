@@ -14,6 +14,8 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Notifications\Pap\TemaDefinidoNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
@@ -31,7 +33,7 @@ class GrupoPapTemaController extends Controller
         GrupoPap $grupoPap
     ) {
         // $this->authorize('create', [GrupoPap::class, $grupoPap]);
-        $this->authorize('definirTema', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('definirTema', $grupoPap);
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
@@ -66,7 +68,7 @@ class GrupoPapTemaController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('definirTema', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('definirTema', $grupoPap);
 
         $validated = $request->validate([
             'tema_grupo' => 'required|string|max:255',
@@ -115,7 +117,7 @@ class GrupoPapTemaController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('definirTema', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('definirTema', $grupoPap);
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
@@ -142,7 +144,7 @@ class GrupoPapTemaController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('definirTema', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('definirTema', $grupoPap);
 
         $validated = $request->validate([
             'tema_grupo' => 'required|string|max:255',

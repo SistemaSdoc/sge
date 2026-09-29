@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'hora_inicio',
     'hora_fim',
     'turma_id' => 'uuid',
-    
+
 ])]
 
 class ClasseTurnoDisciplinaHorario extends Model

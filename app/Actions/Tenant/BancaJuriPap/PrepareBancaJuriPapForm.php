@@ -39,7 +39,11 @@ class PrepareBancaJuriPapForm
             'anoLectivoId' => $turma->ano_lectivo_id,
             'anosLectivos' => AnoLectivo::all(),
             'professores' => $professores,
-            'funcoes' => ['Presidente', 'Vogal 1', 'Vogal 2'],
+            'funcoes' => [
+                'Presidente',
+                'Vogal 1',
+                'Vogal 2',
+            ],
         ];
     }
 }

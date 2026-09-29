@@ -53,7 +53,7 @@ class RoleManagementService
             ->keyBy('name');
 
         $allowedPermissionNames = $actor?->isSubdirector()
-            ? array_flip($this->permissions($actor))
+            ? array_flip(collect($this->permissions($actor))->pluck('value')->all())
             : null;
 
         $grouped = collect($this->permissionGroups())
@@ -68,6 +68,7 @@ class RoleManagementService
                         $name,
                         $tenantPermissions->get($name)?->label,
                     ))
+                    ->values()
                     ->all(),
             ])
             ->filter(fn (array $group) => ! empty($group['permissions']))

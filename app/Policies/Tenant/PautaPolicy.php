@@ -10,9 +10,9 @@ use App\Models\Tenant\User;
 class PautaPolicy
 {
     /**
-     * Determina se o utilizador pode aceder à listagem de pautas.
+     * Determina se o usuário pode listar pautas.
      *
-     * Requer 'pautas.viewAny' e instituição atribuída.
+     * Requer a permissão 'pautas.viewAny' e uma instituição atribuída.
      */
     public function viewAny(User $user): bool
     {
@@ -20,11 +20,11 @@ class PautaPolicy
     }
 
     /**
-     * Pode aceder à lista de turmas de um curso tutelado específico?
+     * Determina se o usuário pode listar as turmas de um curso tutelado.
      *
-     * Requer 'pautas.viewAny', ser a instituição que oferece o curso ou
-     * o tenant tutor activo, e Professor tem adicionalmente de estar associado
-     * ao curso tutelado via curso_tutelado_professor.
+     * Requer a permissão 'pautas.viewAny', pertencer à instituição que oferece
+     * o curso ou ser o tenant tutor activo. Professor também deve estar
+     * associado ao curso tutelado através de curso_tutelado_professor.
      */
     public function viewAnyCurso(User $user, CursoTutelado $cursoTutelado): bool
     {
@@ -41,12 +41,11 @@ class PautaPolicy
     }
 
     /**
-     * Determina se o utilizador pode ver a pauta de uma turma específica.
+     * Determina se o usuário pode consultar a pauta de uma turma específica.
      *
-     * Requer 'pautas.view' e pertencer à instituição que oferece o curso ou
-     * ao tenant tutor activo.
-     * Professor adicionalmente tem de lecionar nessa turma
-     * (via turma_disciplina_professor).
+     * Requer a permissão 'pautas.view' e pertencer à instituição que oferece
+     * o curso ou ao tenant tutor activo. Professor também deve leccionar
+     * nessa turma através de turma_disciplina_professor.
      */
     public function view(User $user, Turma $turma): bool
     {
@@ -62,6 +61,10 @@ class PautaPolicy
         return ! $user->hasRole('Professor') || $this->isProfessorDaTurma($user, $turma);
     }
 
+    /**
+     * Determina se o curso tutelado pertence à instituição do usuário,
+     * à instituição tutora ou a um tenant tutor activo.
+     */
     private function pertenceAInstituicaoCurso(User $user, CursoTutelado $cursoTutelado): bool
     {
         $cursoTutelado->loadMissing('instituicaoCurso');
@@ -77,6 +80,9 @@ class PautaPolicy
         return $this->isTutorDoCurso($user, $cursoTutelado);
     }
 
+    /**
+     * Determina se o usuário é tutor activo do curso tutelado.
+     */
     private function isTutorDoCurso(User $user, CursoTutelado|Turma $resource): bool
     {
         $cursoTutelado = $resource instanceof Turma
@@ -93,6 +99,9 @@ class PautaPolicy
                 ->exists();
     }
 
+    /**
+     * Determina se o professor autenticado está associado ao curso tutelado.
+     */
     private function professorAssociadoAoCurso(User $user, CursoTutelado $cursoTutelado): bool
     {
         $professor = $user->professor;
@@ -106,6 +115,9 @@ class PautaPolicy
             ->exists();
     }
 
+    /**
+     * Obtém a instituição responsável pela turma através da sua estrutura curricular.
+     */
     private function instituicaoId(Turma $turma): ?string
     {
         $turma->loadMissing('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso');
@@ -117,11 +129,17 @@ class PautaPolicy
             ?->instituicao_id;
     }
 
+    /**
+     * Determina se a turma pertence à instituição do usuário.
+     */
     private function pertenceAInstituicao(User $user, Turma $turma): bool
     {
         return $this->instituicaoId($turma) === $user->instituicao_id;
     }
 
+    /**
+     * Determina se o professor autenticado lecciona na turma.
+     */
     private function isProfessorDaTurma(User $user, Turma $turma): bool
     {
         $professor = $user->professor;

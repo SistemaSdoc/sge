@@ -51,13 +51,6 @@ class RolePermissionSeeder extends Seeder
                 'turmas.update',
                 'turmas.delete',
 
-                // Turnos
-                // 'turnos.viewAny',
-                // 'turnos.view',
-                // 'turnos.create',
-                // 'turnos.update',
-                // 'turnos.delete',
-
                 // Inscrições
                 'inscricoes.viewAny',
                 'inscricoes.view',
@@ -144,13 +137,6 @@ class RolePermissionSeeder extends Seeder
                 'elementogrupopap.delete',
                 'elementogrupopap.atualizarNota',
 
-                // Classes
-                // 'classes.viewAny',
-                // 'classes.view',
-                // 'classes.create',
-                // 'classes.update',
-                // 'classes.delete',
-
                 // Cursos Tutelados
                 'curso-tutelado.viewAny',
                 'curso-tutelado.view',
@@ -162,7 +148,7 @@ class RolePermissionSeeder extends Seeder
                 'notas.export',
 
                 // Outros
-                'utilizadores.gerir',
+                'usuarios.gerir',
                 'acessos.viewAny',
                 'acessos.create',
                 'relatorios.view',
@@ -202,6 +188,7 @@ class RolePermissionSeeder extends Seeder
                 'usuarios.create',
                 'usuarios.update',
                 'usuarios.delete',
+                'usuarios.gerir',
 
                 // Regra de Avaliação
                 'regra-avaliacao.viewAny',
@@ -558,12 +545,8 @@ class RolePermissionSeeder extends Seeder
             ],
 
             'Professor' => [
-                // Alunos
-                // 'alunos.viewAny',
-                // 'alunos.view',
-
-                // Professores
-                'professores.view',
+                // Usuários
+                'usuarios.view',
 
                 // Turmas
                 'turmas.viewAny',
@@ -577,12 +560,11 @@ class RolePermissionSeeder extends Seeder
                 'notas.create',
                 'notas.update',
 
-                // Professor e Coordenador (já têm notas.create/update)
                 'pautas.solicitarEdicao',
                 'pautas.finalizar',
 
                 // Avisos
-                // 'avisos.viewAny',
+                'avisos.viewAny',
                 'avisos.view',
 
                 // Grupo PAP
@@ -605,10 +587,13 @@ class RolePermissionSeeder extends Seeder
             ],
 
             'Aluno' => [
+                // Notas
                 'notas.viewAny',
+
+                // Grelha Curricular
                 'grelha.viewAny',
 
-                'grupopap.viewAny',
+                // PAP
                 'grupopap.view',
                 'grupopap.corrigirTema',
                 'grupopap.definirTema',

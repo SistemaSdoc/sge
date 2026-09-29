@@ -11,7 +11,11 @@ class UserManagementService
     public function index(User $actor): LengthAwarePaginator
     {
         return User::query()
-            ->with('roles:id,name')
+            ->with([
+                'roles:id,name',
+                'roles.permissions:id,name',
+                'permissions:id,name',
+            ])
             ->when(! $actor->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $actor->instituicao_id))
             ->orderBy('nome')
             ->orderBy('id')
@@ -25,12 +29,17 @@ class UserManagementService
                     'avatar' => $user->avatar,
                     'instituicao_id' => $user->instituicao_id,
                     'roles' => $user->getRoleNames()->values()->all(),
-                    'directPermissions' => $user->getDirectPermissions()->pluck('name')->values()->all(),
-                    'inheritedPermissions' => $user->getPermissionsViaRoles()->pluck('name')->values()->all(),
+                    'directPermissions' => $user->permissions->pluck('name')->values()->all(),
+                    'inheritedPermissions' => $user->roles
+                        ->flatMap(fn ($role) => $role->permissions)
+                        ->pluck('name')
+                        ->unique()
+                        ->values()
+                        ->all(),
                     'can' => [
                         'update' => $actor->can('update', $user),
                         'delete' => $actor->can('delete', $user),
-                        'manage_permissions' => $actor->can('update', $user),
+                        'manage_permissions' => $actor->can('managePermissions', $user),
                     ],
                 ];
             });

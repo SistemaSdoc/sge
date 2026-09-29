@@ -22,7 +22,7 @@ class NotaAlunoController extends Controller
      */
     public function index()
     {
-        Gate::authorize('viewAny', Nota::class);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('viewAny', Nota::class);
 
         $aluno = Auth::guard('tenant')->user()->aluno;
         $classes = $this->notaAlunoService->classesDisponiveis($aluno);

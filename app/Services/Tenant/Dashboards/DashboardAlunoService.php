@@ -32,7 +32,7 @@ class DashboardAlunoService
                         'weekday' => $weekday,
                         'weekday_name' => $this->obterNomeDia($weekday),
                         'date' => $data->toDateString(),
-                    ]
+                    ],
                 ];
             });
 
@@ -41,19 +41,19 @@ class DashboardAlunoService
         return $aluno->turmas()
             ->wherePivot('activo', true)
             ->with([
-                'cursoClasseTurno.classeTurnoDisciplinas' => function ($query) use ($diasSemana) {
+                'cursoClasseTurno.classeTurnoDisciplinas' => function ($query) {
                     $query->with([
                         'turmaDisciplinaProfessores.professor.user',
                         'disciplina',
                     ]);
-                }
+                },
             ])
             ->get()
             ->flatMap(function ($turma) use ($diasMapa) {
                 return $turma->cursoClasseTurno->classeTurnoDisciplinas
                     ->flatMap(function ($disciplina) use ($turma, $diasMapa) {
                         $professor = $disciplina->turmaDisciplinaProfessores
-                            ->first(fn($tdp) => $tdp->turma_id === $turma->id)?->professor;
+                            ->first(fn ($tdp) => $tdp->turma_id === $turma->id)?->professor;
 
                         $horarios = $disciplina->horarios()
                             ->whereIn('dia_semana', array_keys($diasMapa->all()))
@@ -61,7 +61,7 @@ class DashboardAlunoService
                             ->orderBy('hora_inicio')
                             ->get();
 
-                        return $horarios->map(function ($horario) use ($disciplina, $professor, $turma, $diasMapa) {
+                        return $horarios->map(function ($horario) use ($disciplina, $professor, $diasMapa) {
                             $meta = $diasMapa[$horario->dia_semana];
 
                             return [
@@ -89,8 +89,8 @@ class DashboardAlunoService
                         });
                     });
             })
-            ->filter(fn($item) => $this->aulaAindaNaoTerminou($item['dia'], $item['horario']['hora_fim']))
-            ->sortBy(fn($item) => $item['dia'] . ' ' . $item['horario']['hora_inicio'])
+            ->filter(fn ($item) => $this->aulaAindaNaoTerminou($item['dia'], $item['horario']['hora_fim']))
+            ->sortBy(fn ($item) => $item['dia'].' '.$item['horario']['hora_inicio'])
             ->values()
             ->take($limite);
     }
@@ -109,13 +109,13 @@ class DashboardAlunoService
                 'notas' => function ($query) {
                     $query->with('turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina')
                         ->orderByDesc('periodo');
-                }
+                },
             ])
             ->get()
-            ->flatMap(fn($turmaAluno) => $turmaAluno->notas);
+            ->flatMap(fn ($turmaAluno) => $turmaAluno->notas);
 
         // Consolidar por disciplina com array de períodos
-        return $notas->groupBy(fn($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id)
+        return $notas->groupBy(fn ($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id)
             ->map(function ($notasPorDisciplina) {
                 $primeira = $notasPorDisciplina->first();
                 $disciplina = $primeira->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina;
@@ -132,7 +132,7 @@ class DashboardAlunoService
                         'id' => $professor->id,
                         'nome' => $professor->nome,
                     ],
-                    'periodos' => $notasPorDisciplina->map(fn($nota) => [
+                    'periodos' => $notasPorDisciplina->map(fn ($nota) => [
                         'numero' => $nota->periodo,
                         'faltas' => $nota->faltas,
                         'mac' => $nota->mac,
@@ -166,12 +166,12 @@ class DashboardAlunoService
             ->whereIn('destinatario', ['todos', 'alunos'])
             ->when(
                 $instituicaoId,
-                fn($q) => $q->where('instituicao_id', $instituicaoId)
+                fn ($q) => $q->where('instituicao_id', $instituicaoId)
             )
             ->orderByRaw("FIELD(tipo, 'urgente', 'evento', 'aviso')")
             ->orderBy('data', 'asc')
             ->get()
-            ->map(fn(Aviso $a) => [
+            ->map(fn (Aviso $a) => [
                 'id' => $a->id,
                 'type' => $a->tipo,
                 'titulo' => $a->titulo,
@@ -189,7 +189,7 @@ class DashboardAlunoService
             ->whereDate('data_defesa', '>=', $today)
             ->orderBy('data_defesa')
             ->get()
-            ->map(fn(GrupoPap $grupo) => [
+            ->map(fn (GrupoPap $grupo) => [
                 'id' => "pap-{$grupo->id}",
                 'type' => 'evento',
                 'titulo' => "Banca de Defesa - {$grupo->nome_grupo}",

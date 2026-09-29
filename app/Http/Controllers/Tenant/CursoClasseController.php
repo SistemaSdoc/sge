@@ -19,9 +19,7 @@ use Inertia\Inertia;
 
 class CursoClasseController extends Controller
 {
-    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService)
-    {
-    }
+    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
     /**
      * Display the specified resource (Show page via Inertia).
@@ -72,13 +70,13 @@ class CursoClasseController extends Controller
         $disciplinas = $turnoActual
             ? $turnoActual->classeTurnoDisciplinas()
                 ->where('ano_lectivo_id', $anoLectivoId)
-                ->with(['disciplina' => fn($q) => $q->withTrashed()->select(['id', 'nome', 'sigla', 'componente', 'deleted_at'])])
+                ->with(['disciplina' => fn ($q) => $q->withTrashed()->select(['id', 'nome', 'sigla', 'componente', 'deleted_at'])])
                 ->orderBy('created_at', 'desc')
                 ->paginate(7, ['*'], 'page_disciplinas')
             : $this->emptyPaginator('page_disciplinas');
 
         // Formatar turnos
-        $turnos = $cursoClasse->turnos->map(fn($t) => [
+        $turnos = $cursoClasse->turnos->map(fn ($t) => [
             'id' => $t->id,
             'nome' => $t->turno->nome,
         ])->toArray();

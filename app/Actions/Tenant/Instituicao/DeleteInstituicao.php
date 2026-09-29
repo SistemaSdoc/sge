@@ -13,6 +13,7 @@ class DeleteInstituicao
     public function handle(Instituicao $instituicao): void
     {
         $logo = $instituicao->logo;
+
         $instituicao->delete();
 
         if ($logo) {

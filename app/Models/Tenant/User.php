@@ -4,7 +4,7 @@ namespace App\Models\Tenant;
 
 use App\Notifications\Tenant\ResetPasswordNotification;
 use App\Traits\HasUuid;
-use Database\Factories\UserFactory;
+use Database\Factories\Tenant\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

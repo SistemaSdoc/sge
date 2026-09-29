@@ -10,6 +10,7 @@ use App\Traits\NotificaGrupoPap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class GrupoPapAprovacaoController extends Controller
 {
@@ -57,7 +58,7 @@ class GrupoPapAprovacaoController extends Controller
 
     public function aprovarTutor(Request $request, GrupoPap $grupoPap)
     {
-        $this->authorize('aprovarComoTutor', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('aprovarComoTutor', $grupoPap);
 
         $validated = $request->validate([
             'comentario' => 'nullable|string|max:2000',
@@ -95,7 +96,7 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function solicitarMelhoriaComoTutor(Request $request, GrupoPap $grupoPap)
     {
-        $this->authorize('solicitarMelhoriaComoTutor', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('solicitarMelhoriaComoTutor', $grupoPap);
 
         $validated = $request->validate([
             'recomendacao' => 'required|string|min:10|max:2000',
@@ -133,7 +134,7 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function aprovar(Request $request, GrupoPap $grupoPap)
     {
-        $this->authorize('aprovar', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('aprovar', $grupoPap);
 
         // Verificar se pode ser aprovado
         if (! $grupoPap->podeSerAprovado()) {
@@ -172,7 +173,7 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('reprovar', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('reprovar', $grupoPap);
 
         // O motivo da reprovação é obrigatório
         $validated = $request->validate([
@@ -209,6 +210,8 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function atualizar(Request $request, GrupoPap $grupoPap)
     {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('atualizarTema', $grupoPap);
+
         $validated = $request->validate([
             'nome_grupo' => 'required|string|max:500',
             'tema_grupo' => 'required|string|max:500',
@@ -229,7 +232,7 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('solicitarMelhoria', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('solicitarMelhoria', $grupoPap);
 
         // A recomendação é obrigatória
         $validated = $request->validate([
@@ -268,6 +271,8 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function reenviar(Request $request, GrupoPap $grupoPap)
     {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('reenviarTema', $grupoPap);
+
         if (! $grupoPap->podeSerReenviado()) {
             return back()->withErrors(['grupo' => 'Este tema não pode ser reenviado neste momento.']);
         }
@@ -313,6 +318,8 @@ class GrupoPapAprovacaoController extends Controller
     {
         $user = Auth::guard('tenant')->user();
 
+        Gate::forUser($user)->authorize('viewMelhorias', GrupoPap::class);
+
         $temas = GrupoPap::query()
             ->whereIn('status_aprovacao', [
                 GrupoPap::APROVACAO_MELHORIA_TUTOR,
@@ -320,11 +327,10 @@ class GrupoPapAprovacaoController extends Controller
             ])
             ->whereHas(
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-                function ($query) {
-                    // Aqui deve ser aplicada a regra
-                    // para garantir que o grupo pertence
-                    // ao colégio do utilizador.
-                }
+                fn ($query) => $query->whereHas(
+                    'instituicaoCurso',
+                    fn ($institutionQuery) => $institutionQuery->where('instituicao_id', $user->instituicao_id)
+                )
             )
             ->with([
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
@@ -345,10 +351,7 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function editar(GrupoPap $grupoPap)
     {
-        /* $this->authorize(
-             'editarTema',
-             $grupoPap
-         );*/
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('atualizarTema', $grupoPap);
 
         $grupoPap->load([
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
@@ -369,10 +372,7 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function historico(GrupoPap $grupoPap)
     {
-        /* $this->authorize(
-             'verHistorico',
-             $grupoPap
-         );*/
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('viewHistorico', $grupoPap);
 
         $grupoPap->load([
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',

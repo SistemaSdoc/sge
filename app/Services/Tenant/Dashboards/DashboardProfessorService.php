@@ -30,7 +30,7 @@ class DashboardProfessorService
                         'weekday' => $weekday,
                         'weekday_name' => $this->obterNomeDia($weekday),
                         'date' => $data->toDateString(),
-                    ]
+                    ],
                 ];
             });
 
@@ -60,6 +60,7 @@ class DashboardProfessorService
                     ->where('turma_id', $turma->id)  // só esta turma, sem fallback null
                     ->orderBy('hora_inicio')
                     ->get();
+
                 return $horarios->map(function ($horario) use ($disciplina, $turma, $diasMapa) {
                     $meta = $diasMapa[$horario->dia_semana];
 
@@ -88,8 +89,8 @@ class DashboardProfessorService
                     ];
                 });
             })
-            ->filter(fn($item) => $this->aulaAindaNaoTerminou($item['dia'], $item['horario']['hora_fim']))
-            ->sortBy(fn($item) => $item['dia'] . ' ' . $item['horario']['hora_inicio'])
+            ->filter(fn ($item) => $this->aulaAindaNaoTerminou($item['dia'], $item['horario']['hora_fim']))
+            ->sortBy(fn ($item) => $item['dia'].' '.$item['horario']['hora_inicio'])
             ->values()
             ->take($limite);
     }
@@ -105,7 +106,7 @@ class DashboardProfessorService
                 'turma',
             ])
             ->get()
-            ->groupBy(fn($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
+            ->groupBy(fn ($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
             ->map(function ($items) {
                 $primeiro = $items->first();
                 $disciplina = $primeiro->classeTurnoDisciplina->disciplina;
@@ -117,7 +118,7 @@ class DashboardProfessorService
                         'nome' => $disciplina->nome,
                         'sigla' => $disciplina->sigla,
                     ],
-                    'turmas' => $items->map(fn($item) => [
+                    'turmas' => $items->map(fn ($item) => [
                         'id' => $item->turma->id,
                         'nome' => $item->turma->nome,
                     ])->values(),
@@ -142,12 +143,12 @@ class DashboardProfessorService
             ->whereIn('destinatario', ['todos', 'professores'])
             ->when(
                 $instituicaoId,
-                fn($q) => $q->where('instituicao_id', $instituicaoId)
+                fn ($q) => $q->where('instituicao_id', $instituicaoId)
             )
             ->orderByRaw("FIELD(tipo, 'urgente', 'evento', 'aviso')")
             ->orderBy('data', 'asc')
             ->get()
-            ->map(fn(Aviso $a) => [
+            ->map(fn (Aviso $a) => [
                 'id' => $a->id,
                 'type' => $a->tipo,
                 'titulo' => $a->titulo,

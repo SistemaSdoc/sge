@@ -8,7 +8,7 @@ use App\Models\Tenant\User;
 class CursoClassePolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determina se o usuário pode listar as classes disponíveis num curso tutelado.
      */
     public function viewAny(User $user): bool
     {
@@ -16,7 +16,7 @@ class CursoClassePolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determina se o usuário pode consultar uma classe associada a um curso tutelado.
      */
     public function view(User $user, CursoClasse $cursoClasse): bool
     {
@@ -25,7 +25,7 @@ class CursoClassePolicy
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determina se o usuário pode associar uma classe a um curso tutelado.
      */
     public function create(User $user): bool
     {
@@ -33,7 +33,7 @@ class CursoClassePolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determina se o usuário pode actualizar a classe de um curso tutelado.
      */
     public function update(User $user, CursoClasse $cursoClasse): bool
     {
@@ -42,7 +42,7 @@ class CursoClassePolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determina se o usuário pode remover uma classe de um curso tutelado.
      */
     public function delete(User $user, CursoClasse $cursoClasse): bool
     {
@@ -51,7 +51,7 @@ class CursoClassePolicy
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determina se o usuário pode restaurar a associação entre classe e curso tutelado.
      */
     public function restore(User $user, CursoClasse $cursoClasse): bool
     {
@@ -59,7 +59,7 @@ class CursoClassePolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determina se o usuário pode eliminar permanentemente a associação entre classe e curso tutelado.
      */
     public function forceDelete(User $user, CursoClasse $cursoClasse): bool
     {

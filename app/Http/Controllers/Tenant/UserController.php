@@ -42,10 +42,10 @@ class UserController extends Controller
 
     public function create()
     {
-        Gate::authorize('create', User::class);
-
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
+        Gate::forUser($user)->authorize('create', User::class);
 
         return Inertia::render('tenant/users/create', [
             'roles' => $this->userManagementService->roles($user),
@@ -59,11 +59,13 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request)
     {
-        Gate::authorize('create', User::class);
-
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
+        Gate::forUser($user)->authorize('create', User::class);
+
         $data = $request->validated();
+
         $data['instituicao_id'] = $user->instituicao_id;
 
         $this->createUser->handle($data);
@@ -88,44 +90,48 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        Gate::authorize('update', $user);
+        /** @var User $currentUser */
+        $currentUser = Auth::guard('tenant')->user();
 
-        /** @var User $user */
-        $user = Auth::guard('tenant')->user();
+        Gate::forUser($currentUser)->authorize('update', $user);
 
         return Inertia::render('tenant/users/edit', [
             'user' => [
                 ...$user->load('roles:id,name')->only('id', 'nome', 'email', 'telefone', 'roles'),
                 'isDirector' => $user->isDirector(),
             ],
-            'roles' => $this->userManagementService->roles($user, $user),
+            'roles' => $this->userManagementService->roles($currentUser, $user),
             'currentUser' => [
-                'id' => $user?->id,
-                'isSubdirector' => $user?->isSubdirector(),
-                'isSuperAdmin' => $user?->isSuperAdmin(),
+                'id' => $currentUser?->id,
+                'isSubdirector' => $currentUser?->isSubdirector(),
+                'isDirector' => $currentUser?->isDirector(),
+                'isSuperAdmin' => $currentUser?->isSuperAdmin(),
             ],
         ]);
     }
 
     public function update(UpdateUserRequest $request, User $user)
     {
-        Gate::authorize('update', $user);
+        /** @var User $currentUser */
+        $currentUser = Auth::guard('tenant')->user();
 
-        /** @var User $user */
-        $user = Auth::guard('tenant')->user();
+        Gate::forUser($currentUser)->authorize('update', $user);
 
-        if ($user?->isSubdirector() && $user->is($user)) {
+        if ($currentUser?->isSubdirector() && $currentUser->is($user)) {
             abort(403, 'Não pode alterar o seu próprio perfil de funções.');
         }
 
-        $this->updateUser->handle($user, $request->validated());
+        $this->updateUser->handle($user, $request->validated(), $currentUser);
 
         return to_route('tenant.dashboard.users.index')->with('success', 'Usuário actualizado com sucesso.');
     }
 
     public function destroy(User $user)
     {
-        Gate::authorize('delete', $user);
+        /** @var User $currentUser */
+        $currentUser = Auth::guard('tenant')->user();
+
+        Gate::forUser($currentUser)->authorize('delete', $user);
 
         $this->deleteUser->handle($user);
 

@@ -34,6 +34,7 @@ use App\Services\Tenant\GrupoPap\GrupoPapViewService;
 use App\Traits\NotificaGrupoPap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 
@@ -56,7 +57,7 @@ class GrupoPapController extends Controller
      */
     public function index()
     {
-        $this->authorize('viewAny', GrupoPap::class);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('viewAny', GrupoPap::class);
 
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
@@ -113,7 +114,7 @@ class GrupoPapController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
-        $this->authorize('create', GrupoPap::class);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('create', GrupoPap::class);
 
         $anoLectivoId = $turma->ano_lectivo_id;
         $options = $this->grupoPapViewService->createOptions($cursoTutelado, $turma);
@@ -144,7 +145,7 @@ class GrupoPapController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
-        $this->authorize('create', GrupoPap::class);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('create', GrupoPap::class);
 
         $grupo = $this->createGrupoPap->handle($turma, $request->validated());
 
@@ -174,7 +175,7 @@ class GrupoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        $this->authorize('view', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('view', $grupoPap);
 
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
@@ -268,7 +269,7 @@ class GrupoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
-        $this->authorize('update', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('update', $grupoPap);
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
@@ -302,7 +303,7 @@ class GrupoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
-        $this->authorize('update', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('update', $grupoPap);
 
         $this->updateGrupoPap->handle($grupoPap, $request->validated());
 
@@ -324,7 +325,7 @@ class GrupoPapController extends Controller
      */
     public function destroy(GrupoPap $grupoPap)
     {
-        $this->authorize('delete', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('delete', $grupoPap);
 
         $this->deleteGrupoPap->handle($grupoPap);
 
@@ -343,7 +344,7 @@ class GrupoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
-        $this->authorize('definirData', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('definirData', $grupoPap);
 
         $this->definirDataDefesa->handle($grupoPap, $request->validated());
 
@@ -374,7 +375,7 @@ class GrupoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
-        $this->authorize('corrigirTema', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('corrigirTema', $grupoPap);
 
         $anoLectivoId = $turma->ano_lectivo_id;
 
@@ -402,7 +403,7 @@ class GrupoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
-        $this->authorize('corrigirTema', $grupoPap);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('corrigirTema', $grupoPap);
 
         $validated = $request->validated();
 
@@ -475,7 +476,7 @@ class GrupoPapController extends Controller
      */
     public function createIndependente(Instituicao $instituicao)
     {
-        $this->authorize('create', GrupoPap::class);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('create', GrupoPap::class);
 
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
@@ -508,7 +509,7 @@ class GrupoPapController extends Controller
      */
     public function storeIndependente(StoreIndependenteRequest $request, Instituicao $instituicao)
     {
-        $this->authorize('create', GrupoPap::class);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('create', GrupoPap::class);
 
         $validated = $request->validated();
         $turma = Turma::with('cursoClasseTurno.cursoClasse')->findOrFail($validated['turma_id']);

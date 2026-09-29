@@ -15,6 +15,7 @@ class UpdateInstituicao
     public function handle(Instituicao $instituicao, array $validated): void
     {
         $logoAnterior = $instituicao->logo;
+
         $logoNovo = null;
 
         try {

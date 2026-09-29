@@ -13,7 +13,8 @@ class GrupoPapPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('grupopap.viewAny');
+        return ! $user->hasRole('Aluno')
+            && $user->can('grupopap.viewAny');
     }
 
     /**
@@ -24,7 +25,7 @@ class GrupoPapPolicy
      */
     public function view(User $user, GrupoPap $grupo): bool
     {
-        //dd($grupo->toArray());
+        // dd($grupo->toArray());
 
         if ($user->hasAnyRole(['Director', 'Subdirector'])) {
             return true;
@@ -73,6 +74,7 @@ class GrupoPapPolicy
                 || $grupo->instituicaoTutora()?->id === $user->instituicao_id
             );
     }
+
     /**
      * Determina se o utilizador pode criar grupos PAP.
      */
@@ -89,7 +91,7 @@ class GrupoPapPolicy
      */
     public function update(User $user, GrupoPap $grupoPap): bool
     {
-        if (!$user->hasRole('Professor')) {
+        if (! $user->hasRole('Professor')) {
             return $user->hasPermissionTo('grupopap.update')
                 && $grupoPap->instituicao()?->id === $user->instituicao_id;
         }
@@ -109,18 +111,56 @@ class GrupoPapPolicy
      */
     public function corrigirTema(User $user, GrupoPap $grupoPap): bool
     {
-        if (!$grupoPap->podeSerEditado()) {
+        if (! $grupoPap->podeSerEditado()) {
             return false;
         }
 
-        if (!$user->can('grupopap.corrigirTema')) {
+        if (! $user->can('grupopap.corrigirTema')) {
             return false;
         }
 
         // Apenas membros do grupo podem corrigir o tema
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
             ->exists();
+    }
+
+    public function atualizarTema(User $user, GrupoPap $grupoPap): bool
+    {
+        if ($user->hasRole('Aluno')) {
+            return $this->corrigirTema($user, $grupoPap);
+        }
+
+        return $user->can('grupopap.update')
+            && $grupoPap->instituicao()?->id === $user->instituicao_id;
+    }
+
+    public function reenviarTema(User $user, GrupoPap $grupoPap): bool
+    {
+        if (! $grupoPap->podeSerReenviado()) {
+            return false;
+        }
+
+        if ($user->hasRole('Aluno')) {
+            return $user->can('grupopap.corrigirTema')
+                && $grupoPap->elementos()
+                    ->whereHas('aluno', fn ($query) => $query->where('user_id', $user->id))
+                    ->exists();
+        }
+
+        return $user->can('grupopap.update')
+            && $grupoPap->instituicao()?->id === $user->instituicao_id;
+    }
+
+    public function viewHistorico(User $user, GrupoPap $grupoPap): bool
+    {
+        return $this->view($user, $grupoPap);
+    }
+
+    public function viewMelhorias(User $user): bool
+    {
+        return $user->can('grupopap.solicitarMelhoria')
+            && $user->instituicao_id !== null;
     }
 
     /**
@@ -181,17 +221,17 @@ class GrupoPapPolicy
      */
     public function definirTema(User $user, GrupoPap $grupoPap): bool
     {
-        if (!$grupoPap->podeDefinirTema()) {
+        if (! $grupoPap->podeDefinirTema()) {
             return false;
         }
 
-        if (!$user->can('grupopap.definirTema')) {
+        if (! $user->can('grupopap.definirTema')) {
             return false;
         }
 
         // Só membros do grupo
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
             ->exists();
     }
 
@@ -227,12 +267,12 @@ class GrupoPapPolicy
     {
         $trabalho = $grupoPap->trabalhoPap;
 
-        if (!$trabalho || !$trabalho->podeSerSubmetido()) {
+        if (! $trabalho || ! $trabalho->podeSerSubmetido()) {
             return false;
         }
 
         return $grupoPap->elementos()
-            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
             ->exists();
     }
 
@@ -287,13 +327,13 @@ class GrupoPapPolicy
      */
     public function downloadVersaoTrabalho(User $user, GrupoPap $grupoPap): bool
     {
-        if (!$grupoPap->trabalhoPap) {
+        if (! $grupoPap->trabalhoPap) {
             return false;
         }
 
         // Membros do grupo
         $ehIntegrante = $grupoPap->elementos()
-            ->whereHas('aluno', fn($q) => $q->where('user_id', $user->id))
+            ->whereHas('aluno', fn ($q) => $q->where('user_id', $user->id))
             ->exists();
 
         if ($ehIntegrante) {

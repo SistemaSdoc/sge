@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Documento;
+use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
 use App\Models\Tenant\TurmaAluno;
@@ -17,6 +18,7 @@ use App\Policies\Tenant\ColegioPolicy;
 use App\Policies\Tenant\ConfirmacaoMatriculaPolicy;
 use App\Policies\Tenant\DocumentoPolicy;
 use App\Policies\Tenant\GrelhaCurricularPolicy;
+use App\Policies\Tenant\GrupoPapPolicy;
 use App\Policies\Tenant\HorarioPolicy;
 use App\Policies\Tenant\ItemPagavelPolicy;
 use App\Policies\Tenant\PautaPolicy;
@@ -82,6 +84,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Documento::class, DocumentoPolicy::class);
         Gate::policy(TurmaAluno::class, ConfirmacaoMatriculaPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(GrupoPap::class, GrupoPapPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
 
         Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);

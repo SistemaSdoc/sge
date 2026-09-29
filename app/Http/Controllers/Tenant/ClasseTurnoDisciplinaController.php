@@ -23,9 +23,7 @@ use Inertia\Inertia;
 
 class ClasseTurnoDisciplinaController extends Controller
 {
-    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService)
-    {
-    }
+    public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
     public function create(
         Instituicao $instituicao,
@@ -71,7 +69,7 @@ class ClasseTurnoDisciplinaController extends Controller
             'disciplina_ids' => 'required|array|min:1',
             'disciplina_ids.*' => [
                 'uuid',
-                Rule::exists(config('tenancy.database.central_connection') . '.disciplinas', 'id')
+                Rule::exists(config('tenancy.database.central_connection').'.disciplinas', 'id')
                     ->where('status', 1),
             ],
             'carga_horaria' => 'nullable|string|max:255',

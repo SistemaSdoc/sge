@@ -17,7 +17,7 @@ class GrelhaCurricularController extends Controller
      */
     public function index()
     {
-        Gate::authorize('grelha-curricular.viewAny');
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('grelha-curricular.viewAny');
 
         $aluno = Auth::guard('tenant')->user()->aluno;
         $classes = $this->grelhaCurricularService->classesDisponiveis($aluno);
