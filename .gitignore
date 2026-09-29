@@ -31,3 +31,5 @@ yarn-error.log
 /.zed
 /.ai
 /.agents
+# Storage por tenant (uploads de utilizadores)
+/storage/tenant*

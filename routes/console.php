@@ -9,11 +9,7 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('anoletivo:sincronizar')
-    ->everyMinute()
-    ->name('ano-lectivo:sincronizar')
-    ->withoutOverlapping(10)
-    ->onOneServer();
+//Schedule::command('anoletivo:sincronizar')     ->everyMinute()     ->name('ano-lectivo:sincronizar')  ->withoutOverlapping(10)     ->onOneServer();
 
 // Corre todos os dias às 23:55, só em produção
 // Schedule::command(FinalizarPautasVencidas::class)
