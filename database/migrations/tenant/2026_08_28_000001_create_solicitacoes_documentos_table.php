@@ -32,6 +32,7 @@ return new class extends Migration
 
             $table->timestamp('data_solicitacao')->nullable();
             $table->timestamp('data_aprovacao')->nullable();
+            $table->timestamp('data_encaminhamento')->nullable(); // <-- NOVO
             $table->timestamp('data_emissao')->nullable();
 
             // Rupe / pagamento fields

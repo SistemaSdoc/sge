@@ -44,6 +44,7 @@ class SolicitacaoDocumento extends Model
         'numero_registro_tutora',
         'data_solicitacao',
         'data_aprovacao',
+        'data_encaminhamento',
         'data_emissao',
         'data_pronto',
         'data_pagamento_confirmado',
@@ -60,6 +61,7 @@ class SolicitacaoDocumento extends Model
     protected $casts = [
         'data_solicitacao' => 'datetime',
         'data_aprovacao' => 'datetime',
+        'data_encaminhamento' => 'datetime',
         'data_emissao' => 'datetime',
         'data_pronto' => 'datetime',
         'data_pagamento_confirmado' => 'datetime',
@@ -121,7 +123,6 @@ class SolicitacaoDocumento extends Model
      */
     public function instituicaoResponsavelId(): ?string
     {
-
         if ($this->tipo_documento === 'certificado') {
             return $this->instituicao_tutora_id;
         }
@@ -134,9 +135,27 @@ class SolicitacaoDocumento extends Model
         return $this->instituicao_origem_id ?? $this->instituicao_tutora_id;
     }
 
-    public function getResponsavelInstituicaoIdAttribute(): ?int
+    public function getResponsavelInstituicaoIdAttribute(): ?string
     {
         return $this->instituicaoResponsavelId();
+    }
+
+    /**
+     * Indica se o pedido já foi encaminhado pelo colégio para a tutela.
+     * Baseia-se apenas em data_encaminhamento (independente de data_aprovacao).
+     */
+    public function getEncaminhadoParaTutelaAttribute(): bool
+    {
+        return (bool) $this->data_encaminhamento;
+    }
+
+    /**
+     * Regista o encaminhamento do pedido para a instituição tutora.
+     */
+    public function encaminharParaTutela(): void
+    {
+        $this->data_encaminhamento = now();
+        $this->save();
     }
 
     public function getFluxoStatusAttribute(): string
@@ -165,63 +184,74 @@ class SolicitacaoDocumento extends Model
     }
 
     public function aprovar(?string $instituicaoAprovadoraId = null, ?string $observacoes = null): void
-{
-    $this->status = self::STATUS_APROVADO;
-    $this->instituicao_aprovadora_id = $instituicaoAprovadoraId ?? $this->instituicao_aprovadora_id;
-    $this->observacoes = $observacoes ?? $this->observacoes;
-    $this->data_aprovacao = now();
-    $this->save();
+    {
+        $this->status = self::STATUS_APROVADO;
+        $this->instituicao_aprovadora_id = $instituicaoAprovadoraId ?? $this->instituicao_aprovadora_id;
+        $this->observacoes = $observacoes ?? $this->observacoes;
+        $this->data_aprovacao = now();
+        $this->save();
 
-    $this->notificarStatus(
-        'Pedido aprovado',
-        'A sua solicitação de documento foi aprovada.',
-        'aluno',
-        route('tenant.dashboard.solicitacoes-documentos.index')
-    );
-}
+        $this->notificarStatus(
+            'Pedido aprovado',
+            'A sua solicitação de documento foi aprovada.',
+            'aluno',
+            route('tenant.dashboard.solicitacoes-documentos.index')
+        );
+    }
 
     public function rejeitar(): void
     {
         $this->status = self::STATUS_REJEITADO;
         $this->save();
 
-        $this->notificarStatus('Pedido rejeitado', 'Pedido rejeitado pela tutela.');
+        $this->notificarStatus('Pedido rejeitado', 'A sua solicitação de documento foi rejeitada.');
     }
 
     public function emitir(?string $numeroRegistroTutela = null): void
-{
-    $this->status = self::STATUS_PRONTO;
-    $this->numero_registro_tutora = $numeroRegistroTutela ?? $this->numero_registro_tutora;
-    $this->data_emissao = $this->data_emissao ?? now();
-    $this->data_pronto = $this->data_pronto ?? $this->data_emissao;
-    $this->save();
+    {
+        $this->status = self::STATUS_PRONTO;
+        $this->numero_registro_tutora = $numeroRegistroTutela ?? $this->numero_registro_tutora;
+        $this->data_emissao = $this->data_emissao ?? now();
+        $this->data_pronto = $this->data_pronto ?? $this->data_emissao;
+        $this->save();
 
-    $this->notificarStatus(
-        'Documento pronto',
-        'O teu documento está pronto, podes dirigir-te à secretaria para o levantar.',
-        'aluno',
-        route('tenant.dashboard.solicitacoes-documentos.index')
-    );
-}
-    protected function notificarAUsuariosDaInstituicao(string $instituicaoId, string $titulo, string $mensagem, ?string $rota = null): void
+        $this->notificarStatus(
+            'Documento pronto',
+            'O teu documento está pronto, podes dirigir-te à secretaria para o levantar.',
+            'aluno',
+            route('tenant.dashboard.solicitacoes-documentos.index')
+        );
+    }
+
+    /**
+     * Notifica os utilizadores de gestão/secretaria de uma instituição.
+     * Se não for indicada uma rota, usa a página adequada ao tipo da instituição
+     * do destinatário (instituto → tutela, colégio → colégio).
+     */
+    protected function notificarAUsuariosDaInstituicao(?string $instituicaoId, string $titulo, string $mensagem, ?string $rota = null): void
     {
         if (! $instituicaoId) {
             return;
         }
 
         $users = User::query()
+            ->with('instituicao')
             ->where('instituicao_id', $instituicaoId)
             ->get()
-            ->reject(fn (User $user) => $user->hasRole('Aluno') || $user->hasRole('Candidato'));
+            ->filter(fn (User $user) => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']));
 
         foreach ($users as $user) {
+            $url = $rota ?? ($user->instituicao?->tipo === 'instituto'
+                ? route('tenant.dashboard.solicitacoes-documentos.tutela.index')
+                : route('tenant.dashboard.solicitacoes-documentos.colegio.index'));
+
             $user->notify(new SolicitacaoDocumentoStatusNotification(
                 titulo: $titulo,
                 mensagem: $mensagem,
                 solicitacaoId: $this->id,
                 tipoDocumento: $this->tipoLabel,
                 categoria: 'instituicao',
-                url: $rota ?? route('tenant.dashboard.solicitacoes-documentos.colegio.index'),
+                url: $url,
             ));
         }
     }
@@ -229,13 +259,13 @@ class SolicitacaoDocumento extends Model
     public function notificarStatus(string $titulo, string $mensagem, ?string $categoria = 'aluno', ?string $rota = null): void
     {
         if ($categoria === 'instituicao') {
-            $this->notificarAUsuariosDaInstituicao($this->instituicao_origem_id, $titulo, $mensagem, $rota ?? route('tenant.dashboard.solicitacoes-documentos.colegio.index'));
+            $this->notificarAUsuariosDaInstituicao($this->instituicao_origem_id, $titulo, $mensagem, $rota);
 
             return;
         }
 
         if ($categoria === 'tutela') {
-            $this->notificarAUsuariosDaInstituicao($this->instituicao_tutora_id, $titulo, $mensagem, $rota ?? route('tenant.dashboard.solicitacoes-documentos.tutela.index'));
+            $this->notificarAUsuariosDaInstituicao($this->instituicao_tutora_id, $titulo, $mensagem, $rota);
 
             return;
         }
@@ -285,22 +315,22 @@ class SolicitacaoDocumento extends Model
      * Marca a solicitação como paga (utilizado pela secretaria) e notifica o aluno.
      */
     public function marcarComoPago(): void
-{
-    $this->status = self::STATUS_PAGO;
-    $this->estado_pagamento = 'pago';
-    $this->data_pagamento_confirmado = $this->data_pagamento_confirmado ?? now();
-    $this->save();
+    {
+        $this->status = self::STATUS_PAGO;
+        $this->estado_pagamento = 'pago';
+        $this->data_pagamento_confirmado = $this->data_pagamento_confirmado ?? now();
+        $this->save();
 
-    $user = $this->aluno?->user;
+        $user = $this->aluno?->user;
 
-    if ($user) {
-        $user->notify(new PagamentoConfirmadoNotification(
-            $this,
-            categoria: 'aluno',
-            url: route('tenant.dashboard.solicitacoes-documentos.index'),
-        ));
+        if ($user) {
+            $user->notify(new PagamentoConfirmadoNotification(
+                $this,
+                categoria: 'aluno',
+                url: route('tenant.dashboard.solicitacoes-documentos.index'),
+            ));
+        }
     }
-}
 
     /**
      * Registra o levantamento físico do documento pelo aluno.

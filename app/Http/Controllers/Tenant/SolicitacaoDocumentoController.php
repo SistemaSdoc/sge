@@ -10,7 +10,6 @@ use App\Services\ElegibilidadeDocumentoService;
 use App\Services\Rupe\RupeGeneratorInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -200,10 +199,12 @@ class SolicitacaoDocumentoController extends Controller
             ->with('success', 'Solicitação de '.$solicitacao->tipoLabel.' registada com sucesso. Aguarde a análise da sua solicitação.');
     }
 
-    /**
+       /**
      * Página do colégio.
      * - Predefinido: Estado dos pedidos (em curso)
      * - ?ver=historico: Histórico (rejeitado + entregue)
+     *
+     * Se a instituição do utilizador for um instituto, mostra a página da tutela.
      */
     public function colegioIndex(Request $request): Response
     {
@@ -214,6 +215,11 @@ class SolicitacaoDocumentoController extends Controller
         }
 
         $instituicao = $user?->instituicao;
+
+        if ($instituicao?->tipo === 'instituto') {
+            return $this->tutelaIndex($request);
+        }
+
         if (! $instituicao || $instituicao->tipo !== 'colegio') {
             abort(403, 'Acesso apenas para colégios.');
         }
@@ -247,8 +253,8 @@ class SolicitacaoDocumentoController extends Controller
                 'data_emissao' => $solicitacao->data_emissao?->format('d/m/Y H:i'),
                 'documento_gerado' => (bool) $solicitacao->data_emissao,
                 'data_levantamento' => $solicitacao->data_levantamento?->format('d/m/Y H:i'),
-                'encaminhado_para_tutela' => (bool) $solicitacao->data_aprovacao,
-                'encaminhado_em' => $solicitacao->data_aprovacao?->format('d/m/Y H:i'),
+                'encaminhado_para_tutela' => $solicitacao->encaminhado_para_tutela,
+                'encaminhado_em' => $solicitacao->data_encaminhamento?->format('d/m/Y H:i'),
                 'aluno' => $solicitacao->aluno?->user?->nome,
                 'numero_estudante' => $solicitacao->aluno?->user?->numero_estudante,
                 'created_at' => $solicitacao->created_at?->format('d/m/Y H:i'),
@@ -264,11 +270,10 @@ class SolicitacaoDocumentoController extends Controller
 
         return Inertia::render('dashboards/colegio/solicitacoes-documentos/index', [
             'solicitacoes' => $solicitacoes,
-            'ver' => $request->query('ver'),          // ← NOVO
+            'ver' => $request->query('ver'),
             'instituicao_id' => $instituicaoId,
         ]);
     }
-
     /**
      * Dashboard da tutela (resumo).
      */
@@ -346,7 +351,7 @@ class SolicitacaoDocumentoController extends Controller
                 'data_emissao' => $solicitacao->data_emissao?->format('d/m/Y H:i'),
                 'documento_gerado' => (bool) $solicitacao->data_emissao,
                 'data_levantamento' => $solicitacao->data_levantamento?->format('d/m/Y H:i'),
-                'encaminhado_para_tutela' => (bool) $solicitacao->data_aprovacao,
+                'encaminhado_para_tutela' => $solicitacao->encaminhado_para_tutela,
                 'aluno' => $solicitacao->aluno?->user?->nome,
                 'numero_estudante' => $solicitacao->aluno?->user?->numero_estudante,
                 'origem' => $solicitacao->instituicaoOrigem?->nome ?? 'Instituição',
@@ -376,7 +381,7 @@ class SolicitacaoDocumentoController extends Controller
                 'data_emissao' => $solicitacao->data_emissao?->format('d/m/Y H:i'),
                 'documento_gerado' => (bool) $solicitacao->data_emissao,
                 'data_levantamento' => $solicitacao->data_levantamento?->format('d/m/Y H:i'),
-                'encaminhado_para_tutela' => (bool) $solicitacao->data_aprovacao,
+                'encaminhado_para_tutela' => $solicitacao->encaminhado_para_tutela,
                 'aluno' => $solicitacao->aluno?->user?->nome,
                 'numero_estudante' => $solicitacao->aluno?->user?->numero_estudante,
                 'origem' => $solicitacao->instituicaoOrigem?->nome ?? 'Colégio',
@@ -475,8 +480,8 @@ class SolicitacaoDocumentoController extends Controller
                     'data_emissao' => $solicitacao->data_emissao?->format('d/m/Y H:i'),
                     'documento_gerado' => (bool) $solicitacao->data_emissao,
                     'data_levantamento' => $solicitacao->data_levantamento?->format('d/m/Y H:i'),
-                    'encaminhado_para_tutela' => (bool) $solicitacao->data_aprovacao,
-                    'encaminhado_em' => $solicitacao->data_aprovacao?->format('d/m/Y H:i'),
+                    'encaminhado_para_tutela' => $solicitacao->encaminhado_para_tutela,
+                    'encaminhado_em' => $solicitacao->data_encaminhamento?->format('d/m/Y H:i'),
                     'aluno' => $solicitacao->aluno?->user?->nome,
                     'numero_estudante' => $solicitacao->aluno?->user?->numero_estudante,
                     'created_at' => $solicitacao->created_at?->format('d/m/Y H:i'),
@@ -514,7 +519,7 @@ class SolicitacaoDocumentoController extends Controller
                     'data_emissao' => $solicitacao->data_emissao?->format('d/m/Y H:i'),
                     'documento_gerado' => (bool) $solicitacao->data_emissao,
                     'data_levantamento' => $solicitacao->data_levantamento?->format('d/m/Y H:i'),
-                    'encaminhado_para_tutela' => (bool) $solicitacao->data_aprovacao,
+                    'encaminhado_para_tutela' => $solicitacao->encaminhado_para_tutela,
                     'aluno' => $solicitacao->aluno?->user?->nome,
                     'numero_estudante' => $solicitacao->aluno?->user?->numero_estudante,
                     'origem' => $solicitacao->instituicaoOrigem?->nome ?? 'Instituição',
@@ -547,10 +552,11 @@ class SolicitacaoDocumentoController extends Controller
             abort(422, 'Só é possível encaminhar pedidos pendentes.');
         }
 
-        $solicitacao->status = 'pendente';
-        $solicitacao->instituicao_aprovadora_id = $user->instituicao_id;
-        $solicitacao->data_aprovacao = Carbon::now();
-        $solicitacao->save();
+        if ($solicitacao->data_encaminhamento) {
+            return back()->with('info', 'Este pedido já foi encaminhado para a instituição tutora.');
+        }
+
+        $solicitacao->encaminharParaTutela();
 
         return back()->with('success', 'Pedido de '.$solicitacao->tipoLabel.' encaminhado para a instituição tutora para análise.');
     }

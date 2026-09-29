@@ -7,34 +7,33 @@ use App\Models\Tenant\User;
 
 class SolicitacaoDocumentoPolicy
 {
+    /** Perfis que podem ver a listagem de solicitações (exclui Professores). */
+    private const ROLES_LISTAGEM = ['Director', 'Subdirector', 'Secretaria', 'SuperAdmin'];
+
+    /** Perfis que podem executar acções sobre uma solicitação (igual ao controller). */
+    private const ROLES_ACCAO = ['Director', 'Secretaria'];
+
     public function viewAny(User $user): bool
     {
-        // Restringe explicitamente a visualização a perfis de gestão/secretaria
-        // e administradores — exclui Professores.
-        return $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'SuperAdmin']);
+        return $user->hasAnyRole(self::ROLES_LISTAGEM);
     }
 
     /**
-     * Determina se o usuário pode visualizar uma solicitação.
-     * O segundo argumento é opcional para evitar erros quando a política for
+     * Determina se o utilizador pode visualizar uma solicitação.
+     * O segundo argumento é opcional para evitar erros quando a policy for
      * invocada para outros modelos (ex: Turma).
      */
     public function view(User $user, $solicitacao = null): bool
     {
-        // Se o segundo argumento não for uma solicitação válida, nega o acesso
         if (! $solicitacao instanceof SolicitacaoDocumento) {
             return false;
         }
 
-        return $user->id === $solicitacao->aluno?->user_id
-            || $user->instituicao_id === $solicitacao->instituicao_emissora_id
-            || $user->instituicao_id === $solicitacao->instituicao_tutora_id
-            || $user->hasRole('SuperAdmin');
-    }
-
-    public function marcarComoPago(User $user, SolicitacaoDocumento $solicitacao): bool
-    {
         if ($user->hasRole('SuperAdmin')) {
+            return true;
+        }
+
+        if ($user->id === $solicitacao->aluno?->user_id) {
             return true;
         }
 
@@ -42,7 +41,16 @@ class SolicitacaoDocumentoPolicy
             return false;
         }
 
-        return $user->instituicao_id === $solicitacao->instituicaoResponsavelId();
+        return in_array($user->instituicao_id, [
+            $solicitacao->instituicao_origem_id,
+            $solicitacao->instituicao_emissora_id,
+            $solicitacao->instituicao_tutora_id,
+        ], true);
+    }
+
+    public function marcarComoPago(User $user, SolicitacaoDocumento $solicitacao): bool
+    {
+        return $this->podeAgirEm($user, $solicitacao->instituicaoResponsavelId());
     }
 
     public function decidir(User $user, SolicitacaoDocumento $solicitacao): bool
@@ -51,7 +59,7 @@ class SolicitacaoDocumentoPolicy
             return true;
         }
 
-        if (! $user->instituicao_id) {
+        if (! $user->instituicao_id || ! $user->hasAnyRole(self::ROLES_ACCAO)) {
             return false;
         }
 
@@ -65,41 +73,17 @@ class SolicitacaoDocumentoPolicy
 
     public function emitir(User $user, SolicitacaoDocumento $solicitacao): bool
     {
-        if ($user->hasRole('SuperAdmin')) {
-            return true;
-        }
-
-        if (! $user->instituicao_id) {
-            return false;
-        }
-
-        return $user->instituicao_id === $solicitacao->instituicaoResponsavelId();
+        return $this->podeAgirEm($user, $solicitacao->instituicaoResponsavelId());
     }
 
     public function marcarComoLevantado(User $user, SolicitacaoDocumento $solicitacao): bool
     {
-        if ($user->hasRole('SuperAdmin')) {
-            return true;
-        }
-
-        if (! $user->instituicao_id) {
-            return false;
-        }
-
-        return $user->instituicao_id === $solicitacao->instituicaoResponsavelId();
+        return $this->podeAgirEm($user, $solicitacao->instituicaoResponsavelId());
     }
 
     public function marcarComoPronto(User $user, SolicitacaoDocumento $solicitacao): bool
     {
-        if ($user->hasRole('SuperAdmin')) {
-            return true;
-        }
-
-        if (! $user->instituicao_id) {
-            return false;
-        }
-
-        return $user->instituicao_id === $solicitacao->instituicaoResponsavelId();
+        return $this->podeAgirEm($user, $solicitacao->instituicaoResponsavelId());
     }
 
     public function delete(User $user, SolicitacaoDocumento $solicitacao): bool
@@ -108,19 +92,31 @@ class SolicitacaoDocumentoPolicy
             return true;
         }
 
-        if ($user->hasRole('Aluno')) {
-            if ($solicitacao->aluno && $user->id === $solicitacao->aluno->user_id) {
-                return $solicitacao->status === SolicitacaoDocumento::STATUS_ENTREGUE || (bool) $solicitacao->data_levantamento;
-            }
+        $entregue = $solicitacao->status === SolicitacaoDocumento::STATUS_ENTREGUE
+            || (bool) $solicitacao->data_levantamento;
 
+        if ($user->hasRole('Aluno')) {
+            return $solicitacao->aluno
+                && $user->id === $solicitacao->aluno->user_id
+                && $entregue;
+        }
+
+        return $entregue && $this->podeAgirEm($user, $solicitacao->instituicaoResponsavelId());
+    }
+
+    /**
+     * SuperAdmin, ou Director/Secretaria da instituição indicada.
+     */
+    private function podeAgirEm(User $user, $instituicaoId): bool
+    {
+        if ($user->hasRole('SuperAdmin')) {
+            return true;
+        }
+
+        if (! $user->instituicao_id || ! $user->hasAnyRole(self::ROLES_ACCAO)) {
             return false;
         }
 
-        if ($user->instituicao_id && $user->hasAnyRole(['Secretaria', 'Director', 'Subdirector'])) {
-            return $user->instituicao_id === $solicitacao->instituicaoResponsavelId()
-                && ($solicitacao->status === SolicitacaoDocumento::STATUS_ENTREGUE || (bool) $solicitacao->data_levantamento);
-        }
-
-        return false;
+        return $user->instituicao_id === $instituicaoId;
     }
 }
