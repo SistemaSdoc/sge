@@ -11,15 +11,21 @@ return new class extends Migration
         Schema::create('solicitacoes_documentos', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('aluno_id')->nullable()->constrained('alunos');
-            $table->foreignUuid('curso_id')->nullable()->constrained('cursos');
+
+            // [ALTERADO] curso_id vive no catálogo central (outra base de dados): sem FK, só índice
+            $table->uuid('curso_id')->nullable()->index();
+
             $table->foreignUuid('turma_id')->nullable()->constrained('turmas');
             $table->foreignUuid('classe_id')->nullable()->constrained('classes');
             $table->foreignUuid('ano_lectivo_id')->nullable()->constrained('ano_lectivos');
 
+            // instituicao_origem_id é o próprio colégio (existe no tenant): mantém a FK
             $table->foreignUuid('instituicao_origem_id')->nullable()->constrained('instituicoes');
-            $table->foreignUuid('instituicao_tutora_id')->nullable()->constrained('instituicoes');
-            $table->foreignUuid('instituicao_aprovadora_id')->nullable()->constrained('instituicoes');
-            $table->foreignUuid('instituicao_emissora_id')->nullable()->constrained('instituicoes');
+
+            // [ALTERADO] tutora/aprovadora/emissora podem ser o instituto (outro tenant): sem FK, só índice
+            $table->uuid('instituicao_tutora_id')->nullable()->index();
+            $table->uuid('instituicao_aprovadora_id')->nullable()->index();
+            $table->uuid('instituicao_emissora_id')->nullable()->index();
 
             // Os tipos base estão em config/documentos.php — mantido aqui por compatibilidade
             $table->enum('tipo_documento', ['declaracao', 'historico', 'certificado', 'declaracao_com_notas'])->default('declaracao');

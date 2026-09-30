@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\Central\Curso as CursoCentral; // [ADICIONADO]
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,8 +30,8 @@ class InstituicaoCurso extends Pivot
 
     public function curso(): BelongsTo
     {
-        // Corrigido: aponta para o modelo Tenant\Curso (mesma conexão/tenant)
-        return $this->belongsTo(\App\Models\Tenant\Curso::class)->withTrashed();
+        // [ALTERADO] o curso vive no catálogo central (CentralConnection), não na BD do tenant
+        return $this->belongsTo(CursoCentral::class, 'curso_id')->withTrashed();
     }
 
     public function cursoTutelado()
