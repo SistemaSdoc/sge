@@ -16,23 +16,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-/**
- * Mostra a lista de cursos tutelados da instituição do user logado
- */
-Route::get('pautas/cursos', [PautaController::class, 'indexCursos'])
-    ->name('pautas.cursos');
+Route::get('pautas', [PautaController::class, 'index'])
+    ->name('pautas.index');
 
 /**
- * Mostra a lista de turmas de um curso tutelado
+ * Mostra a pauta de uma turma.
  */
-Route::get('pautas/cursos/{cursoTutelado}/turmas', [PautaController::class, 'indexTurmas'])
-    ->name('pautas.cursos.turmas');
-
-/**
- * Mostra a pauta de uma turma de um curso tutelado
- */
-Route::get('pautas/cursos/{cursoTutelado}/turmas/{turma}/pauta', [PautaController::class, 'pauta'])
-    ->name('pautas.cursos.turmas.pauta');
+Route::get('pauta/{turma}', [PautaController::class, 'pauta'])
+    ->name('pautas.pauta');
 
 /**
  * Exporta a mini-pauta de uma disciplina de uma turma.

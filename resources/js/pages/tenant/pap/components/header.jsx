@@ -98,6 +98,7 @@ export function Header({
       </CardHeader>
 
       {/* Filtros */}
+      {/* Filtros */}
       {can?.selecionarAnoLectivo && (
         <div className="flex flex-col gap-3 overflow-hidden px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
           <h1 className="text-sm font-semibold whitespace-nowrap">Filtros</h1>
@@ -120,6 +121,26 @@ export function Header({
                 </SelectContent>
               </Select>
             )}
+
+            {/* ✅ Curso agora é um Select como os outros */}
+            {cursosTutelados.length > 0 && (
+              <Select
+                value={normalizeFilterValue(filtroCurso)}
+                onValueChange={onCursoChange}
+              >
+                <SelectTrigger className="w-full sm:w-56">
+                  <SelectValue placeholder="Todos os cursos" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cursosTutelados.map((curso) => (
+                    <SelectItem key={curso.id} value={String(curso.id)}>
+                      {curso.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
             <Select
               value={normalizeFilterValue(anoLectivoId)}
               onValueChange={onAnoLectivoChange}
@@ -138,55 +159,6 @@ export function Header({
           </div>
         </div>
       )}
-
-      {/* Cursos tutelados */}
-      <div className="overflow-hidden">
-        {cursosTutelados.length > 0 ? (
-          <div
-            className="-mb-px grid"
-            style={{
-              gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, 220px), 1fr))`,
-            }}
-          >
-            {cursosTutelados.map((curso) => {
-              const cursoValue = normalizeFilterValue(curso.id);
-              const isSelected =
-                normalizeFilterValue(filtroCurso) === cursoValue;
-
-              return (
-                <button
-                  type="button"
-                  key={curso.id}
-                  onClick={() => onCursoChange(curso.id)}
-                  aria-pressed={isSelected}
-                  className="text-left outline-none focus:outline-none"
-                >
-                  <div
-                    className={`h-full cursor-pointer border-r border-b border-foreground/10 px-3 py-3 text-card-foreground transition-colors hover:bg-accent hover:text-secondary active:bg-accent sm:px-4 sm:py-4 ${
-                      isSelected ? 'bg-accent text-secondary' : 'bg-card'
-                    }`}
-                  >
-                    <h3 className="mb-0.5 text-xs font-medium sm:mb-1 sm:text-sm">
-                      {curso.nome}
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      {isSelected
-                        ? 'A visualizar os grupos deste curso'
-                        : 'Clique para ver os grupos deste curso'}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center bg-card p-6 text-center">
-            <p className="text-xs text-muted-foreground">
-              Nenhum curso disponível para a instituição selecionada.
-            </p>
-          </div>
-        )}
-      </div>
     </Card>
   );
 }

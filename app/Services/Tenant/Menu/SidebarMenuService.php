@@ -144,7 +144,7 @@ final class SidebarMenuService
                 new MenuItem(
                     key: 'pautas',
                     title: 'Pautas',
-                    href: action([PautaController::class, 'indexCursos']),
+                    href: action([PautaController::class, 'index']),
                     icon: 'FileText',
                     can: fn () => $gate->allows('pauta.viewAny')
                 ),

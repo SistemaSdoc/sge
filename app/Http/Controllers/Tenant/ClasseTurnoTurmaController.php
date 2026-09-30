@@ -66,7 +66,7 @@ class ClasseTurnoTurmaController extends Controller
             ])
             ->paginate(5);
 
-        return Inertia::render('tenant/pautas/index', [
+        return Inertia::render('tenant/pautas/turmas/index', [
             'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => [
                 'id' => $cursoTutelado->id,

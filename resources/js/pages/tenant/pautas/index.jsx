@@ -1,49 +1,88 @@
-import { router, usePage } from '@inertiajs/react';
-import { PautaTable } from './components/pauta-table';
-import { usePagination } from '@/hooks/use-pagination';
-import { ResumoCards } from './components/resumo-cards';
+import { Head, router } from '@inertiajs/react';
+import { index } from '@/actions/App/Http/Controllers/Tenant/PautaController';
+import { PautasHeader } from './components/header';
+import { TurmasTable } from './components/turmas-table';
 
-export default function Show({ cursoTutelado, pauta, periodo, filtro }) {
-  const { url } = usePage();
-  const { handlePageChange } = usePagination('pautas');
-
-  const handlePeriodoChange = (novoPeriodo) => {
-    router.visit(url, {
-      data: { periodo: novoPeriodo },
-      preserveState: false,
-      preserveScroll: false,
-    });
+export default function Index({
+  instituicao,
+  instituicoes = [],
+  cursos = [],
+  turmas = [],
+  anosLectivos = [],
+  filtros = {},
+}) {
+  const visitarFiltros = (instituicaoId, cursoId, anoLectivoId) => {
+    router.visit(
+      index({
+        query: {
+          instituicao_id: instituicaoId,
+          curso_tutelado_id: cursoId || null,
+          ano_lectivo_id: anoLectivoId,
+        },
+      }),
+      {
+        only: ['instituicao', 'cursos', 'turmas', 'filtros'],
+        preserveState: true,
+        preserveScroll: true,
+      },
+    );
   };
 
-  const handleFiltro = (novoFiltro) => {
-    router.visit(window.location.pathname, {
-      data: { periodo, filtro: novoFiltro },
-      preserveState: false,
-      preserveScroll: false,
-    });
+  const handleInstituicaoChange = (instituicaoId) => {
+    visitarFiltros(instituicaoId, '', filtros.ano_lectivo_id);
+  };
+
+  const handleCursoChange = (cursoId) => {
+    visitarFiltros(
+      filtros.instituicao_id,
+      cursoId === 'todos' ? '' : cursoId,
+      filtros.ano_lectivo_id,
+    );
+  };
+
+  const handleAnoLectivoChange = (anoLectivoId) => {
+    visitarFiltros(
+      filtros.instituicao_id,
+      filtros.curso_tutelado_id,
+      anoLectivoId,
+    );
+  };
+
+  const handlePageChange = (page) => {
+    router.visit(
+      index({
+        query: {
+          ...filtros,
+          page,
+          per_page: turmas.per_page,
+        },
+      }),
+      {
+        only: ['turmas'],
+        preserveScroll: true,
+      },
+    );
   };
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
-      <ResumoCards
-        resumo={pauta.resumo}
-        tipo={pauta.tipo}
-        filtroActivo={filtro}
-        onFiltro={handleFiltro}
+      <Head title="Pautas" />
+
+      <PautasHeader
+        instituicao={instituicao}
+        instituicoes={instituicoes}
+        cursos={cursos}
+        anosLectivos={anosLectivos}
+        filtros={filtros}
+        onInstituicaoChange={handleInstituicaoChange}
+        onCursoChange={handleCursoChange}
+        onAnoLectivoChange={handleAnoLectivoChange}
       />
 
-      <PautaTable
-        data={pauta}
-        disciplinas={pauta.disciplinas ?? []}
-        alunos={pauta.alunos?.data ?? []}
-        pagination={pauta.alunos ?? null}
-        periodo={periodo}
-        setPeriodo={handlePeriodoChange}
+      <TurmasTable
+        turmas={turmas.data ?? []}
+        pagination={turmas}
         onPageChange={handlePageChange}
-        params={{
-          cursoTutelado: cursoTutelado?.id,
-          turma: pauta.turma?.id,
-        }}
       />
     </div>
   );

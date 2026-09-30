@@ -5,6 +5,7 @@ use App\Actions\Tenant\CursoTutelado\UpdateCursoTutelado;
 use App\Enums\TutelaStatus;
 use App\Http\Controllers\Tenant\ExportarPautaController;
 use App\Http\Controllers\Tenant\NotificacaoController;
+use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Resources\Tenant\GrupoPap\ShowResource;
 use App\Jobs\Tenant\Tutela\SincronizarAssociacaoTutela;
 use App\Models\Central\AnoLectivo;
@@ -1183,6 +1184,170 @@ test('lista cursos tutelados de instituto tutor mescla cursos locais e remotos s
         ->toContain('Curso Remoto')
         ->and($result->pluck('id')->all())->toContain((string) $localCurso->getKey())
         ->and($result->pluck('id')->all())->toContain((string) $remoteCurso->getKey());
+});
+
+test('pautas filtram os cursos pela instituicao seleccionada', function (): void {
+    tenancy()->initialize($this->tenantTutor);
+
+    $instituicaoTutor = Instituicao::create([
+        'nome' => 'Instituto Tutor',
+        'tipo' => 'instituto',
+    ]);
+    $this->tenantTutor->update(['instituicao_id' => $instituicaoTutor->id]);
+    $this->tutor->update(['instituicao_id' => $instituicaoTutor->id]);
+
+    $criarCursoLocal = function (string $nome) use ($instituicaoTutor): CursoTutelado {
+        $curso = Curso::create(['nome' => $nome, 'duracao_anos' => 3]);
+        $instituicaoCurso = InstituicaoCurso::create([
+            'curso_id' => $curso->id,
+            'instituicao_id' => $instituicaoTutor->id,
+            'duracao_anos' => 3,
+        ]);
+
+        return CursoTutelado::create([
+            'instituicao_curso_id' => $instituicaoCurso->id,
+            'instituicao_tutora_id' => $instituicaoTutor->id,
+        ]);
+    };
+
+    $cursoLocalA = $criarCursoLocal('Curso Local A');
+    $cursoLocalB = $criarCursoLocal('Curso Local B');
+    $anoLectivo = AnoLectivo::create([
+        'nome' => 'Ano teste pautas',
+        'data_inicio' => '2026-09-01',
+        'data_fim' => '2027-07-31',
+        'activo' => true,
+        'estado' => 'em_curso',
+    ]);
+    $criarTurma = function (CursoTutelado $cursoTutelado, string $nome) use ($anoLectivo): Turma {
+        $classe = Classe::create([
+            'nome' => $nome,
+            'ordem' => 10,
+            'nivel_ensino' => 'medio',
+        ]);
+        $cursoClasse = CursoClasse::create([
+            'curso_tutelado_id' => $cursoTutelado->id,
+            'classe_id' => $classe->id,
+            'nivel_ensino_id' => NivelEnsino::firstOrCreate(['nome' => 'Médio'])->id,
+        ]);
+        $cursoClasseTurno = CursoClasseTurno::create([
+            'curso_classe_id' => $cursoClasse->id,
+            'turno_id' => Turno::create(['nome' => 'Manhã'])->id,
+        ]);
+
+        return Turma::create([
+            'nome' => $nome,
+            'max_alunos' => 30,
+            'curso_classe_turno_id' => $cursoClasseTurno->id,
+            'ano_lectivo_id' => $anoLectivo->id,
+        ]);
+    };
+    $turmaLocalA = $criarTurma($cursoLocalA, 'Turma Local A');
+    $turmaLocalB = $criarTurma($cursoLocalB, 'Turma Local B');
+
+    $cursoRemotoData = $this->tenantColegio->run(function () use ($anoLectivo): array {
+        $instituicao = Instituicao::create([
+            'nome' => 'Colégio Tutelado',
+            'tipo' => 'colegio',
+        ]);
+        $curso = Curso::create(['nome' => 'Curso Remoto', 'duracao_anos' => 3]);
+        $instituicaoCurso = InstituicaoCurso::create([
+            'curso_id' => $curso->id,
+            'instituicao_id' => $instituicao->id,
+            'duracao_anos' => 3,
+        ]);
+        $cursoTutelado = CursoTutelado::create([
+            'instituicao_curso_id' => $instituicaoCurso->id,
+            'instituicao_tutora_id' => $instituicao->id,
+            'tipo_tutela' => 'externa',
+            'curso_tutelado_shared_id' => $this->vinculo->id,
+        ]);
+        $classe = Classe::create([
+            'nome' => '13A',
+            'ordem' => 13,
+            'nivel_ensino' => 'medio',
+        ]);
+        $cursoClasse = CursoClasse::create([
+            'curso_tutelado_id' => $cursoTutelado->id,
+            'classe_id' => $classe->id,
+            'nivel_ensino_id' => NivelEnsino::firstOrCreate(['nome' => 'Médio'])->id,
+        ]);
+        $cursoClasseTurno = CursoClasseTurno::create([
+            'curso_classe_id' => $cursoClasse->id,
+            'turno_id' => Turno::create(['nome' => 'Manhã'])->id,
+        ]);
+        $turma = Turma::create([
+            'nome' => 'Turma Remota',
+            'max_alunos' => 30,
+            'curso_classe_turno_id' => $cursoClasseTurno->id,
+            'ano_lectivo_id' => $anoLectivo->id,
+        ]);
+
+        return [
+            'instituicao_id' => $instituicao->id,
+            'curso_tutelado_id' => $cursoTutelado->id,
+            'turma_id' => $turma->id,
+        ];
+    });
+    $this->tenantColegio->update(['instituicao_id' => $cursoRemotoData['instituicao_id']]);
+    $this->vinculo->update([
+        'curso_tutelado_tutelado_id' => $cursoRemotoData['curso_tutelado_id'],
+    ]);
+
+    Permission::create(['name' => 'pautas.viewAny', 'guard_name' => 'tenant']);
+    $this->tutor->givePermissionTo('pautas.viewAny');
+    $this->actingAs($this->tutor, 'tenant');
+    request()->headers->set('X-Inertia', 'true');
+    request()->query->set('instituicao_id', (string) $instituicaoTutor->id);
+    request()->query->set('ano_lectivo_id', (string) $anoLectivo->id);
+
+    $cursosLocais = app(PautaController::class)
+        ->index(request())
+        ->toResponse(request())
+        ->getData(true)['props'];
+
+    request()->query->set('curso_tutelado_id', (string) $cursoLocalB->id);
+    $cursoLocalFiltrado = app(PautaController::class)
+        ->index(request())
+        ->toResponse(request())
+        ->getData(true)['props'];
+
+    request()->query->set('instituicao_id', (string) $cursoRemotoData['instituicao_id']);
+    request()->query->remove('curso_tutelado_id');
+    $cursosRemotos = app(PautaController::class)
+        ->index(request())
+        ->toResponse(request())
+        ->getData(true)['props'];
+
+    expect(collect($cursosLocais['cursos'])->pluck('id')->all())
+        ->toEqualCanonicalizing([(string) $cursoLocalA->id, (string) $cursoLocalB->id])
+        ->and(collect($cursosLocais['turmas']['data'])->pluck('id')->all())
+        ->toEqualCanonicalizing([(string) $turmaLocalA->id, (string) $turmaLocalB->id])
+        ->and($cursoLocalFiltrado['filtros']['curso_tutelado_id'])
+        ->toBe((string) $cursoLocalB->id)
+        ->and(collect($cursoLocalFiltrado['turmas']['data'])->pluck('id')->all())
+        ->toBe([(string) $turmaLocalB->id])
+        ->and(collect($cursosRemotos['cursos'])->pluck('nome')->all())
+        ->toBe(['Curso Remoto'])
+        ->and(collect($cursosRemotos['turmas']['data'])->pluck('id')->all())
+        ->toBe([(string) $cursoRemotoData['turma_id']])
+        ->and($cursosRemotos['filtros']['instituicao_id'])
+        ->toBe((string) $cursoRemotoData['instituicao_id']);
+
+    request()->query->set('instituicao_id', (string) $instituicaoTutor->id);
+    request()->query->remove('curso_tutelado_id');
+    request()->query->set('per_page', '1');
+    request()->query->set('page', '2');
+
+    $segundaPagina = app(PautaController::class)
+        ->index(request())
+        ->toResponse(request())
+        ->getData(true)['props']['turmas'];
+
+    expect($segundaPagina['current_page'])->toBe(2)
+        ->and($segundaPagina['last_page'])->toBe(2)
+        ->and(collect($segundaPagina['data'])->pluck('id')->all())
+        ->toBe([(string) $turmaLocalB->id]);
 });
 
 test('publicarEAssociar nao perde o contexto da conexao do tenant', function (): void {

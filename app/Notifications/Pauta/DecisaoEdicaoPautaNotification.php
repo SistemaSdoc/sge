@@ -52,7 +52,7 @@ class DecisaoEdicaoPautaNotification extends Notification implements ShouldQueue
                 'aprovada' => $aprovada,
                 'observacao' => $this->solicitacao->observacao,
                 'prazoEdicaoAte' => $this->solicitacao->prazo_edicao_ate?->format('d/m/Y H:i'),
-                'urlPautas' => route('tenant.dashboard.pautas.cursos'),
+                'urlPautas' => route('tenant.dashboard.pautas.index'),
             ]);
     }
 
