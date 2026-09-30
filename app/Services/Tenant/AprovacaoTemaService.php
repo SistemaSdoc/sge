@@ -47,7 +47,7 @@ class AprovacaoTemaService
 
         $temasPendentes = $this->temasPendentesDosCursos($cursosTutelados);
 
-        $this->crossTenantAccessService->vinculosCoordenados($user)
+        $this->crossTenantAccessService->vinculosVisiveisPorProfessor($user)
             ->each(function (CursoTuteladoShared $shared) use (&$temasPendentes): void {
                 $tenantTutelado = Tenant::query()->find($shared->tenant_tutelado_id);
 

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Tenant\Colegios;
 
+use App\Actions\Tenant\BancaJuriPap\PrepareBancaJuriPapForm;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\BancaJuriPap\StoreRequest;
 use App\Http\Requests\Tenant\BancaJuriPap\UpdateRequest;
 use App\Models\Central\AnoLectivo;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
@@ -18,6 +20,7 @@ use App\Models\Tenant\User;
 use App\Notifications\Pap\JuradoAdicionadoBancaNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class BancaJuriPapController extends Controller
@@ -37,21 +40,12 @@ class BancaJuriPapController extends Controller
 
         abort_unless(
             $request->attributes->get('cross_tenant_can_create_banca') === true
-                && $contexto['grupo']->data_defesa !== null,
+            && $contexto['grupo']->data_defesa !== null,
             403,
         );
 
-        $jurados = $contexto['grupo']->jurados()->pluck('professor_id');
-        $professores = Professor::with('user:id,nome')
-            ->whereNotIn('id', $jurados)
-            ->whereHas('cursosTutelados', fn ($query) => $query
-                ->where('curso_tutelado_id', $contexto['curso']->id)
-                ->where('tipo', 'principal'))
-            ->get()
-            ->map(fn ($professor) => [
-                'id' => $professor->id,
-                'nome' => $professor->user?->nome ?? 'Sem nome',
-            ])->values();
+        $professores = app(PrepareBancaJuriPapForm::class)
+            ->handle($contexto['turma'], $contexto['curso'], $contexto['grupo'])['professores'];
 
         return Inertia::render('tenant/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/create', [
             'instituicao' => ['id' => $user->instituicao_id],
@@ -81,25 +75,34 @@ class BancaJuriPapController extends Controller
 
         abort_unless(
             $request->attributes->get('cross_tenant_can_create_banca') === true
-                && $contexto['grupo']->data_defesa !== null,
+            && $contexto['grupo']->data_defesa !== null,
             403,
         );
 
+        $professor = $this->professorSeleccionado($request, $contexto);
+        $externo = $professor['tenant_id'] !== null;
+
         $banca = BancaJuriPap::create([
             'grupo_pap_id' => $contexto['grupo']->id,
-            'professor_id' => $request->professor_id,
+            'professor_id' => $externo ? null : $professor['id'],
+            'professor_externo_id' => $externo ? $professor['id'] : null,
+            'professor_externo_tenant_id' => $externo ? $professor['tenant_id'] : null,
             'funcao' => $request->funcao,
         ]);
 
-        $banca->load('professor.user');
-        $jurado = $banca->professor?->user;
+        $jurado = $this->utilizadorDoProfessor($professor);
 
         if ($jurado) {
             $jurado->notify(new JuradoAdicionadoBancaNotification($contexto['grupo'], $banca));
         }
 
         return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', compact(
-            'colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap',
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
         ));
     }
 
@@ -122,7 +125,12 @@ class BancaJuriPapController extends Controller
             ->delete();
 
         return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', compact(
-            'colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap',
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
         ));
     }
 
@@ -139,10 +147,8 @@ class BancaJuriPapController extends Controller
         $contexto = $this->contexto($colegio, $cursoTutelado, $cursoClasse, $cursoClasseTurno, $turma, $grupoPap);
         abort_unless($request->attributes->get('cross_tenant_can_update_banca') === true, 403);
         $banca = BancaJuriPap::query()->whereKey($bancaJuriPap)->where('grupo_pap_id', $grupoPap)->firstOrFail();
-        $jurados = $contexto['grupo']->jurados()->where('id', '!=', $banca->id)->pluck('professor_id');
-        $professores = Professor::with('user:id,nome')->whereNotIn('id', $jurados)
-            ->whereHas('cursosTutelados', fn ($query) => $query->where('curso_tutelado_id', $contexto['curso']->id)->where('tipo', 'principal'))
-            ->get()->map(fn ($professor) => ['id' => $professor->id, 'nome' => $professor->user?->nome ?? 'Sem nome'])->values();
+        $professores = app(PrepareBancaJuriPapForm::class)
+            ->handle($contexto['turma'], $contexto['curso'], $contexto['grupo'], $banca)['professores'];
 
         return Inertia::render('tenant/colegio/cursos-tutelados/classes/turnos/turmas/pap/banca/edit', [
             'instituicao' => ['id' => $request->attributes->get('cross_tenant_tutor')?->instituicao_id],
@@ -152,7 +158,12 @@ class BancaJuriPapController extends Controller
             'cursoClasseTurno' => $contexto['turno']->only('id'),
             'turma' => $contexto['turma']->only('id', 'nome'),
             'grupoPap' => $contexto['grupo']->only('id', 'nome_grupo'),
-            'bancaJuriPap' => $banca->only('id', 'professor_id', 'funcao'),
+            'bancaJuriPap' => [
+                'id' => $banca->id,
+                'professor_id' => $banca->professor_externo_id ?? $banca->professor_id,
+                'professor_externo_tenant_id' => $banca->professor_externo_tenant_id,
+                'funcao' => $banca->funcao,
+            ],
             'professores' => $professores,
             'funcoes' => ['Presidente', 'Vogal 1', 'Vogal 2'],
         ]);
@@ -173,17 +184,29 @@ class BancaJuriPapController extends Controller
         abort_unless($request->attributes->get('cross_tenant_can_update_banca') === true, 403);
 
         $banca = BancaJuriPap::query()->whereKey($bancaJuriPap)->where('grupo_pap_id', $grupoPap)->firstOrFail();
-        $banca->update($request->only(['professor_id', 'funcao']));
+        $professor = $this->professorSeleccionado($request, $contexto, $banca);
+        $externo = $professor['tenant_id'] !== null;
 
-        $banca->refresh()->load('professor.user');
-        $jurado = $banca->professor?->user;
+        $banca->update([
+            'professor_id' => $externo ? null : $professor['id'],
+            'professor_externo_id' => $externo ? $professor['id'] : null,
+            'professor_externo_tenant_id' => $externo ? $professor['tenant_id'] : null,
+            'funcao' => $request->funcao,
+        ]);
+
+        $jurado = $this->utilizadorDoProfessor($professor);
 
         if ($jurado) {
             $jurado->notify(new JuradoAdicionadoBancaNotification($contexto['grupo'], $banca));
         }
 
         return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', compact(
-            'colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap',
+            'colegio',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
         ));
     }
 
@@ -215,5 +238,45 @@ class BancaJuriPapController extends Controller
             'turma' => $turmaModel,
             'grupo' => $grupo,
         ];
+    }
+
+    /**
+     * @param  array{colegio: Instituicao, curso: CursoTutelado, classe: CursoClasse, turno: CursoClasseTurno, turma: Turma, grupo: GrupoPap}  $contexto
+     * @return array{id: string, nome: string, externo: bool, tenant_id: ?string}
+     */
+    private function professorSeleccionado(Request $request, array $contexto, ?BancaJuriPap $banca = null): array
+    {
+        $professores = app(PrepareBancaJuriPapForm::class)
+            ->handle($contexto['turma'], $contexto['curso'], $contexto['grupo'], $banca)['professores'];
+
+        $professor = $professores->first(fn (array $item): bool => (string) $item['id'] === (string) $request->input('professor_id')
+            && (string) ($item['tenant_id'] ?? '') === (string) $request->input('professor_externo_tenant_id', '')
+        );
+
+        if ($professor === null) {
+            throw ValidationException::withMessages([
+                'professor_id' => 'O professor seleccionado não pertence ao curso tutelado ou já está na banca.',
+            ]);
+        }
+
+        return $professor;
+    }
+
+    /**
+     * @param  array{id: string, nome: string, externo: bool, tenant_id: ?string}  $professor
+     */
+    private function utilizadorDoProfessor(array $professor): ?User
+    {
+        if ($professor['tenant_id'] === null) {
+            return Professor::with('user')->find($professor['id'])?->user;
+        }
+
+        $tenant = Tenant::find($professor['tenant_id']);
+
+        if ($tenant === null) {
+            return null;
+        }
+
+        return $tenant->run(fn (): ?User => Professor::with('user')->find($professor['id'])?->user);
     }
 }

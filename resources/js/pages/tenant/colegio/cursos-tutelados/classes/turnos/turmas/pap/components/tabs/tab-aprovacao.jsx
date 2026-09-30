@@ -48,7 +48,7 @@ const STATUS = {
 
 const getStatus = (status) => STATUS[status?.toLowerCase()] || STATUS.pendente;
 
-export function TabAprovacao({ params, grupoPap, can }) {
+export function TabAprovacao({ params, grupoPap, turma, can }) {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState(null);
   const [comentario, setComentario] = useState('');
@@ -252,7 +252,7 @@ export function TabAprovacao({ params, grupoPap, can }) {
                 Turma
               </p>
               <p className="mt-1 text-sm font-medium">
-                {grupoPap.turma?.nome ?? '—'}
+                {turma?.nome ?? '—'}
               </p>
             </div>
             <div>

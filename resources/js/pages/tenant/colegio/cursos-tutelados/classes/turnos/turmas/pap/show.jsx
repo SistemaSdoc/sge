@@ -452,7 +452,12 @@ export default function Show({
           </TabsContent>
         )}
         <TabsContent value="aprovacao">
-          <TabAprovacao params={params} grupoPap={grupoPap} can={can} />
+          <TabAprovacao
+            params={params}
+            grupoPap={grupoPap}
+            turma={turma}
+            can={can}
+          />
         </TabsContent>
 
         {/* ← NOVO */}

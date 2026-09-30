@@ -534,6 +534,9 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.solicitarMelhoria',
                 'elementogrupopap.viewAny',
                 'elementogrupopap.view',
+                'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
+
             ],
 
             'Membro do Grupo Disciplinar' => [
@@ -542,6 +545,8 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.aprovar',
                 'grupopap.reprovar',
                 'grupopap.solicitarMelhoria',
+                'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
             ],
 
             'Professor' => [

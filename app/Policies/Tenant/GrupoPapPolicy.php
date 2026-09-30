@@ -40,8 +40,12 @@ class GrupoPapPolicy
         if ($user->hasRole('Professor')) {
             $professor = $user->professor;
 
+            if (! $professor) {
+                return false;
+            }
+
             // Tutor
-            if ($grupo->professor_tutor_id === $professor?->id) {  // confirma o campo
+            if ($grupo->professor_tutor_id === $professor->id) {
                 return true;
             }
 
@@ -53,9 +57,9 @@ class GrupoPapPolicy
                     );
             }
 
-            // Coordenador
+            // Coordenador do curso tutelado ou do grupo disciplinar, mesmo sem a role específica
             if ($user->hasPermissionTo('grupopap.view')) {
-                $ehCoordenador = CursoTuteladoProfessor::where('professor_id', $professor?->id)
+                $ehCoordenador = CursoTuteladoProfessor::where('professor_id', $professor->id)
                     ->where('coordenador', true)
                     ->exists();
 

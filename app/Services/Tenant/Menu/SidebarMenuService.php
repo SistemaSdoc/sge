@@ -180,7 +180,8 @@ final class SidebarMenuService
                     title: $grupoPapNavigation['title'],
                     href: $grupoPapNavigation['href'],
                     icon: 'Users',
-                    can: $grupoPapNavigation['visible'] && $gate->allows('viewAny', GrupoPap::class),
+                    can: $grupoPapNavigation['visible']
+                        && ($user?->hasRole('Aluno') || $gate->allows('viewAny', GrupoPap::class)),
                 ),
 
                 new MenuItem(

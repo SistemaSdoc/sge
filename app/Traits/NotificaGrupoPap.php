@@ -68,7 +68,7 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-                ?->cursoTutelado;
+            ?->cursoTutelado;
 
         $isTutelaExterna = $cursoTutelado?->tipo_tutela === 'externa'
             && $cursoTutelado?->curso_tutelado_shared_id;
@@ -108,9 +108,9 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-                ?->cursoTutelado;
+            ?->cursoTutelado;
 
-        if (!$cursoTutelado) {
+        if (! $cursoTutelado) {
             return;
         }
 
@@ -138,13 +138,13 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-                ?->cursoTutelado;
+            ?->cursoTutelado;
 
-        if (!$cursoTutelado) {
+        if (! $cursoTutelado) {
             return;
         }
 
-        if ($cursoTutelado->tipo_tutela !== 'externa' || !$cursoTutelado->curso_tutelado_shared_id) {
+        if ($cursoTutelado->tipo_tutela !== 'externa' || ! $cursoTutelado->curso_tutelado_shared_id) {
             $coordenadores = $cursoTutelado->professores()
                 ->where('coordenador', 1)
                 ->with('user')
@@ -161,27 +161,42 @@ trait NotificaGrupoPap
         $shared = CursoTuteladoShared::query()->find($cursoTutelado->curso_tutelado_shared_id);
         $tenantTutor = $shared ? Tenant::query()->find($shared->tenant_tutor_id) : null;
 
-        if (!$shared || !$tenantTutor) {
+        if (! $shared || ! $tenantTutor) {
             return;
         }
 
-        $tenantTutor->run(function () use ($shared, $notification, $grupoPap): void {
+        // Primeiro run: recolher IDs dos coordenadores
+        $coordenadoresIds = [];
+        $instituicaoTutoraId = null;
+
+        $tenantTutor->run(function () use ($shared, &$coordenadoresIds, &$instituicaoTutoraId): void {
             $cursoTutor = CursoTutelado::query()
                 ->whereHas(
                     'instituicaoCurso',
-                    fn($query) => $query->where('curso_id', $shared->curso_id)
+                    fn ($query) => $query->where('curso_id', $shared->curso_id)
                 )
                 ->first();
 
-            $coordenadores = $cursoTutor?->professores()
+            $instituicaoTutoraId = $cursoTutor?->instituicao_tutora_id;
+            $coordenadoresIds = $cursoTutor?->professores()
                 ->where('coordenador', 1)
                 ->with('user')
                 ->get()
-                ->map->user
-                ->filter() ?? collect();
+                ->pluck('user.id')
+                ->filter()
+                ->values()
+                ->toArray() ?? [];
+        });
 
-            Notification::send($coordenadores, $notification);
-            $this->notificarGrupoDisciplinar($grupoPap, $notification);
+        $tenantTutor->run(function () use ($coordenadoresIds, $instituicaoTutoraId, $notification): void {
+            $coordenadores = User::query()->whereIn('id', $coordenadoresIds)->get();
+            $membrosGrupoDisciplinar = $instituicaoTutoraId
+                ? User::role(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])
+                    ->where('instituicao_id', $instituicaoTutoraId)
+                    ->get()
+                : collect();
+
+            Notification::send($coordenadores->merge($membrosGrupoDisciplinar)->unique('id'), $notification);
         });
     }
 
@@ -200,7 +215,7 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-                ?->cursoTutelado;
+            ?->cursoTutelado;
 
         $isTutelaExterna = $cursoTutelado?->tipo_tutela === 'externa'
             && $cursoTutelado?->curso_tutelado_shared_id;
@@ -211,6 +226,7 @@ trait NotificaGrupoPap
         } else {
             // Auto-tutela: coordenadores locais
             $this->notificarCoordenadoresLocais($grupoPap, $notification);
+            $this->notificarGrupoDisciplinar($grupoPap, $notification);
         }
 
         $alunos = $grupoPap->alunos->map->user->filter();

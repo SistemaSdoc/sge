@@ -265,6 +265,8 @@ class GrupoPapController extends Controller
             && $grupoPap->status_aprovacao === GrupoPap::APROVACAO_APROVADO;
         $canManageWorkAsCoordination = $user?->can('grupopap.aprovar')
             && $trabalho?->podeSerAnalisadoPelaCoordenacao();
+        $canViewWorkVersions = $user?->can('grupopap.aprovar')
+            && $trabalho !== null;
 
         $banca = $grupoPap->jurados()
             ->with('professor.user:id,nome,email')
@@ -381,7 +383,7 @@ class GrupoPapController extends Controller
                     'solicitarCorrecaoComoTutor' => false,
                     'aprovarComoCoordenacao' => $canManageWorkAsCoordination,
                     'solicitarCorrecaoComoCoordenacao' => $canManageWorkAsCoordination,
-                    'downloadVersao' => $canManageWorkAsCoordination,
+                    'downloadVersao' => $canViewWorkVersions,
                     'elementos' => [
                         'create' => false,
                         'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')

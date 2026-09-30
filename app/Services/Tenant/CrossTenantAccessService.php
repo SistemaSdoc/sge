@@ -51,11 +51,12 @@ class CrossTenantAccessService
     }
 
     /**
-     * Devolve os vínculos activos dos cursos coordenados pelo professor.
+     * Devolve os vínculos dos cursos acessíveis ao professor no painel PAP.
      *
-     * A coordenação é verificada no tenant tutor, onde o professor existe.
+     * Professores vêem cursos que coordenam; membros do grupo disciplinar
+     * também vêem os cursos associados ao seu grupo disciplinar.
      */
-    public function vinculosCoordenados(User $tutor): Collection
+    public function vinculosVisiveisPorProfessor(User $tutor): Collection
     {
         $this->validarTutorAutenticado($tutor);
 
@@ -76,9 +77,16 @@ class CrossTenantAccessService
             )
             ->whereHas(
                 'professores',
-                fn ($query) => $query
-                    ->where('professor_id', $professorId)
-                    ->where('coordenador', true)
+                function ($query) use ($professorId, $tutor): void {
+                    $query->where('professor_id', $professorId)
+                        ->where(function ($membershipQuery) use ($tutor): void {
+                            $membershipQuery->where('coordenador', true);
+
+                            if ($tutor->hasAnyRole(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])) {
+                                $membershipQuery->orWhereIn('grupo_disciplinar', ['membro', 'coordenador']);
+                            }
+                        });
+                }
             )
             ->with('instituicaoCurso:id,curso_id')
             ->get()
@@ -113,7 +121,7 @@ class CrossTenantAccessService
                 ->get();
         }
 
-        return $this->vinculosCoordenados($user);
+        return $this->vinculosVisiveisPorProfessor($user);
     }
 
     /**
@@ -147,7 +155,7 @@ class CrossTenantAccessService
             throw new AuthorizationException('Tenant tutelado inválido.');
         }
 
-        $this->validarCoordenacaoDoCurso($tutor, $vinculo);
+        $this->validarAcessoDoProfessorAoCurso($tutor, $vinculo);
 
         $tenantColega->run(function () use ($grupoPapId, $vinculo): void {
             $grupo = GrupoPap::query()
@@ -167,13 +175,18 @@ class CrossTenantAccessService
     }
 
     /**
-     * Garante que o actor coordena o mesmo curso central da tutela.
+     * Garante que o actor coordena ou integra o grupo disciplinar do curso tutelado.
      */
-    private function validarCoordenacaoDoCurso(User $tutor, CursoTuteladoShared $vinculo): void
+    private function validarAcessoDoProfessorAoCurso(User $tutor, CursoTuteladoShared $vinculo): void
     {
         if (! $vinculo->curso_id || ! $tutor->professor) {
             throw new AuthorizationException('O professor não está associado ao curso tutor.');
         }
+
+        $ehGrupoDisciplinar = $tutor->hasAnyRole([
+            'Coordenador do Grupo Disciplinar',
+            'Membro do Grupo Disciplinar',
+        ]);
 
         $autorizado = CursoTutelado::query()
             ->whereHas(
@@ -184,14 +197,21 @@ class CrossTenantAccessService
             )
             ->whereHas(
                 'professores',
-                fn ($query) => $query
-                    ->where('professor_id', $tutor->professor->getKey())
-                    ->where('coordenador', true)
+                function ($query) use ($tutor, $ehGrupoDisciplinar): void {
+                    $query->where('professor_id', $tutor->professor->getKey())
+                        ->where(function ($membershipQuery) use ($ehGrupoDisciplinar): void {
+                            $membershipQuery->where('coordenador', true);
+
+                            if ($ehGrupoDisciplinar) {
+                                $membershipQuery->orWhereIn('grupo_disciplinar', ['membro', 'coordenador']);
+                            }
+                        });
+                }
             )
             ->exists();
 
         if (! $autorizado) {
-            throw new AuthorizationException('O professor não coordena este curso.');
+            throw new AuthorizationException('O professor não coordena nem integra o grupo disciplinar deste curso.');
         }
     }
 
