@@ -29,8 +29,20 @@ class AlunoPolicy
      */
     public function view(User $user, Aluno $aluno): bool
     {
+        $isCoordenador = $user->professor?->cursosTutelados()
+            ->wherePivot('coordenador', true)
+            ->exists() ?? false;
+
+        if ($isCoordenador) {
+            return false;
+        }
+
         if ($user->aluno?->id === $aluno->id) {
             return true;
+        }
+
+        if ($user->instituicao_id !== $aluno->instituicao_id) {
+            return false;
         }
 
         if (! $user->can('alunos.view')) {
@@ -42,7 +54,7 @@ class AlunoPolicy
             $professor = $user->professor;
 
             // Se não tem perfil de professor, nega acesso
-            if (!$professor) {
+            if (! $professor) {
                 return false;
             }
 

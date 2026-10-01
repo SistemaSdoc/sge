@@ -100,7 +100,7 @@ class InscricaoController extends Controller
 
         $cursoClasses = CursoClasse::with([
             'classe:id,nome',
-            'cursoTutelado.instituicaoCurso.curso:id,nome',
+            'cursoTutelado.instituicaoCurso.curso:id,nome,deleted_at',
             'turnos.turno:id,nome',
             'turnos.turmas' => fn ($q) => $q
                 ->where('ano_lectivo_id', $anoLectivoId)
@@ -108,7 +108,10 @@ class InscricaoController extends Controller
         ])->whereHas(
             'cursoTutelado.instituicaoCurso',
             fn ($q) => $q->where('instituicao_id', $instituicaoId)
-        )->get();
+        )->get()
+            ->reject(fn (CursoClasse $cursoClasse) => $cursoClasse
+                ->cursoTutelado?->instituicaoCurso?->curso?->trashed())
+            ->values();
 
         $cursos = $cursoClasses
             ->groupBy(function ($cct) {

@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Tenant\Inscricao;
 
+use App\Models\Tenant\CursoClasseTurno;
 use App\Rules\CentralAnoLectivoExists;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class StoreInscricaoRequest extends FormRequest
 {
@@ -100,6 +102,32 @@ class StoreInscricaoRequest extends FormRequest
                 new CentralAnoLectivoExists,
             ],
         ];
+    }
+
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            if ($validator->errors()->has('curso_classe_turno_id')) {
+                return;
+            }
+
+            $cursoClasseTurno = CursoClasseTurno::query()
+                ->with('cursoClasse.cursoTutelado.instituicaoCurso.curso')
+                ->find($this->input('curso_classe_turno_id'));
+
+            $curso = $cursoClasseTurno
+                ?->cursoClasse
+                ?->cursoTutelado
+                ?->instituicaoCurso
+                ?->curso;
+
+            if ($curso?->trashed()) {
+                $validator->errors()->add(
+                    'curso_classe_turno_id',
+                    'O curso selecionado está arquivado e não pode receber novas matrículas.'
+                );
+            }
+        }];
     }
 
     public function messages(): array

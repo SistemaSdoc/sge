@@ -32,8 +32,8 @@ export default function Index({ cursos }) {
   const handleDelete = (curso) => {
     deleteConfirm({
       title: 'Tens a certeza?',
-      description: 'O curso será arquivado do catálogo central.',
-      confirmLabel: 'Arquivar',
+      description: 'O curso será suspenso do catálogo central.',
+      confirmLabel: 'Suspender',
       confirmFn: () => router.delete(destroy(curso.id).url),
     });
   };
@@ -107,7 +107,7 @@ export default function Index({ cursos }) {
                               size="xs"
                               onClick={() => handleDelete(curso)}
                             >
-                              Arquivar
+                              Suspender
                             </Button>
                           </>
                         )}

@@ -85,7 +85,7 @@ class CursoTutelado extends Model
         ];
 
         // Tem documentos locais — usa-os directamente
-        if ($this->criterios_pap_path || $this->manual_pt_path || $this->estrutura_trabalho_pap_path || $this->sugestoes_temas_pap_path ) {
+        if ($this->criterios_pap_path || $this->manual_pt_path || $this->estrutura_trabalho_pap_path || $this->sugestoes_temas_pap_path) {
             return [
                 'criterios_pap_path' => $this->criterios_pap_path,
                 'manual_pt_path' => $this->manual_pt_path,

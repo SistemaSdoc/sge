@@ -14,6 +14,7 @@ use App\Services\Tenant\VerificadorPropinaService;
 use App\Traits\NotificaAluno;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
@@ -34,6 +35,15 @@ class AlunoController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
+
+        $cursosCoordenados = $user->professor
+            ? DB::table('curso_tutelado_professor')
+                ->where('professor_id', $user->professor->id)
+                ->where('coordenador', true)
+                ->pluck('curso_tutelado_id')
+            : collect();
+
+        $ehCoordenador = $cursosCoordenados->isNotEmpty();
 
         $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
             ->doAnoLectivo($anoLectivoId)
@@ -57,13 +67,17 @@ class AlunoController extends Controller
                 )
             )
             ->when(
-                $user->hasRole('Professor'),
+                $ehCoordenador,
+                fn ($q) => $q->whereHas(
+                    'inscricao.cursoClasseTurno.cursoClasse',
+                    fn ($q) => $q->whereIn('curso_tutelado_id', $cursosCoordenados)
+                )
+            )
+            ->when(
+                ! $ehCoordenador && $user->hasRole('Professor'),
                 fn ($q) => $q->whereHas(
                     'turmas',
-                    fn ($q) => $q->whereIn(
-                        'turmas.id',
-                        $user->professor->turmas()->pluck('turmas.id')
-                    )
+                    fn ($q) => $q->whereIn('turmas.id', $user->professor->turmas()->pluck('turmas.id'))
                 )
             )
             ->latest()

@@ -146,7 +146,7 @@ class CursoTuteladoController extends Controller
                 'instituicao' => [
                     'view' => $user->can('view', $instituicao),
                 ],
-                'uploadCriteriosPap' => $user->can('update', $cursoTutelado),
+                'uploadCriteriosPap' => $user->can('uploadDocumentosPap', $cursoTutelado),
             ],
         ]);
     }
@@ -183,7 +183,7 @@ class CursoTuteladoController extends Controller
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado
     ) {
-        Gate::authorize('update', $cursoTutelado);
+        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
 
         $this->updateCursoTutelado->handle($instituicao, $cursoTutelado, $request->validated());
 
@@ -216,7 +216,7 @@ class CursoTuteladoController extends Controller
         CursoTutelado $cursoTutelado
     ) {
         // dd($request->validated());
-        Gate::authorize('update', $cursoTutelado);
+        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
         $this->uploadCursoTuteladoDocumentos->handle($cursoTutelado, $request->validated());
 
         return redirect()->route('tenant.dashboard.instituicoes.cursos-tutelados.show', [

@@ -32,6 +32,10 @@ class PautaPolicy
             return false;
         }
 
+        if ($this->isCoordenadorDoCurso($user, $cursoTutelado)) {
+            return true;
+        }
+
         if (! $this->pertenceAInstituicaoCurso($user, $cursoTutelado)) {
             return false;
         }
@@ -51,6 +55,10 @@ class PautaPolicy
     {
         if (! $user->can('pautas.view') || $user->instituicao_id === null) {
             return false;
+        }
+
+        if ($this->isCoordenadorDoCurso($user, $turma)) {
+            return true;
         }
 
         if (! $this->pertenceAInstituicao($user, $turma)
@@ -115,9 +123,20 @@ class PautaPolicy
             ->exists();
     }
 
-    /**
-     * Obtém a instituição responsável pela turma através da sua estrutura curricular.
-     */
+    private function isCoordenadorDoCurso(User $user, CursoTutelado|Turma $resource): bool
+    {
+        $cursoTutelado = $resource instanceof Turma
+            ? $resource->cursoClasseTurno?->cursoClasse?->cursoTutelado
+            : $resource;
+        $professorId = $user->professor?->id;
+
+        return $professorId !== null
+            && $cursoTutelado?->professores()
+                ->where('professor_id', $professorId)
+                ->wherePivot('coordenador', true)
+                ->exists();
+    }
+
     private function instituicaoId(Turma $turma): ?string
     {
         $turma->loadMissing('cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso');

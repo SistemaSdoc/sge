@@ -25,6 +25,19 @@ class TurmaDisciplinaProfessorPolicy
         return $relacao->professor_id === $professor->id;
     }
 
+    private function isCoordenadorDoCurso(User $user, TurmaDisciplinaProfessor $relacao): bool
+    {
+        $relacao->loadMissing('turma.cursoClasseTurno.cursoClasse.cursoTutelado');
+        $cursoTutelado = $relacao->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado;
+        $professorId = $user->professor?->id;
+
+        return $professorId !== null
+            && $cursoTutelado?->professores()
+                ->where('professor_id', $professorId)
+                ->wherePivot('coordenador', true)
+                ->exists();
+    }
+
     /**
      * Determina se o utilizador pode consultar a listagem de disciplinas associadas a turmas.
      *
@@ -48,7 +61,11 @@ class TurmaDisciplinaProfessorPolicy
             return false;
         }
 
-        if ($user->hasAnyRole(['Coordenador', 'Professor'])) {
+        if ($this->isCoordenadorDoCurso($user, $relacao)) {
+            return true;
+        }
+
+        if ($user->hasRole('Professor')) {
             return $this->isProfessorDaDisciplina($user, $relacao);
         }
 

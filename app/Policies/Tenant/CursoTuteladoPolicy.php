@@ -112,6 +112,21 @@ class CursoTuteladoPolicy
         return true;
     }
 
+    public function uploadDocumentosPap(User $user, CursoTutelado $cursoTutelado): bool
+    {
+        if (! $user->can('curso-tutelado.update') || $user->instituicao_id === null) {
+            return false;
+        }
+
+        $cursoTutelado->loadMissing('instituicaoCurso');
+
+        if ($cursoTutelado->tipo_tutela === 'externa') {
+            return (string) $user->instituicao_id === (string) $cursoTutelado->instituicao_tutora_id;
+        }
+
+        return (string) $user->instituicao_id === (string) $cursoTutelado->instituicaoCurso?->instituicao_id;
+    }
+
     private function externalTutelaPendingOrClosed(CursoTutelado $cursoTutelado): bool
     {
         if (! $cursoTutelado->curso_tutelado_shared_id) {
