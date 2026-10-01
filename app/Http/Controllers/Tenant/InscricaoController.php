@@ -13,6 +13,7 @@ use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\InscricaoService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -37,7 +38,7 @@ class InscricaoController extends Controller
         ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Inscricao::class);
 
@@ -65,11 +66,14 @@ class InscricaoController extends Controller
             )->when(
                 $anoLectivoId,
                 fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId)
-            )->latest()->paginate(10);
+            )->search($request->string('search')->toString())
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('tenant/inscricoes/index', [
             'inscricoes' => [
-                'data' => InscricaoResource::collection($inscricoes->items())->toArray(request()),
+                'data' => InscricaoResource::collection($inscricoes->items())->toArray($request),
                 'current_page' => $inscricoes->currentPage(),
                 'last_page' => $inscricoes->lastPage(),
             ],
@@ -78,6 +82,7 @@ class InscricaoController extends Controller
                 ->orderByDesc('data_inicio')
                 ->get(),
             'anoLectivoActual' => $anoLectivoId,
+            'filters' => $request->only('search'),
             'can' => [
                 'create' => $user->can('create', Inscricao::class),
             ],

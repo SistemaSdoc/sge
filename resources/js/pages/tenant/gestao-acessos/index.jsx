@@ -4,7 +4,7 @@ import { index } from '@/actions/App/Http/Controllers/Tenant/AccessManagementCon
 import { useDrawer } from '@/hooks/use-drawer';
 import { EditarAcessoDrawer } from './components/drawer';
 
-export default function Index({ users, roles, allPermissions }) {
+export default function Index({ users, roles, allPermissions, filters }) {
   const { openForm, closeDrawer } = useDrawer();
 
   const editarAcessoFn = (usuario) =>
@@ -22,7 +22,7 @@ export default function Index({ users, roles, allPermissions }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -30,9 +30,9 @@ export default function Index({ users, roles, allPermissions }) {
   return (
     <>
       <Head title="Gerir Acessos" />
-
       <UsuariosTable
         usuarios={users}
+        filters={filters}
         pagination={{
           current_page: users?.current_page,
           last_page: users?.last_page,

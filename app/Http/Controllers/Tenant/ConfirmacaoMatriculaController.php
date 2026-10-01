@@ -14,6 +14,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
 use App\Services\Tenant\ConfirmacaoMatriculaViewService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -28,6 +29,7 @@ class ConfirmacaoMatriculaController extends Controller
      * Lista os alunos da turma actual que podem confirmar matrícula.
      */
     public function index(
+        Request $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -55,6 +57,7 @@ class ConfirmacaoMatriculaController extends Controller
         $alunos = $this->confirmacaoMatriculaViewService->listarAlunos(
             turma: $turma,
             instituicaoId: $instituicao->id,
+            search: $request->string('search')->toString(),
         );
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/confirmacao-matriculas/index', [
@@ -66,6 +69,7 @@ class ConfirmacaoMatriculaController extends Controller
             'anosLectivos' => $opcoes['anos'],
             'turmasPorAno' => $opcoes['turmas'],
             'alunos' => $alunos,
+            'filters' => $request->only('search'),
             'params' => [
                 'instituicao' => $instituicao->id,
                 'cursoTutelado' => $cursoTutelado->id,

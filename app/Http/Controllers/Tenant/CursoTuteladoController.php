@@ -39,15 +39,20 @@ class CursoTuteladoController extends Controller
     /**
      * Apresenta os cursos tutelados de uma instituição.
      */
-    public function index(Instituicao $instituicao)
+    public function index(Request $request, Instituicao $instituicao)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
-        $cursos = $this->cursoTuteladoViewService->index($instituicao, $user);
+        $cursos = $this->cursoTuteladoViewService->index(
+            $instituicao,
+            $user,
+            $request->string('search')->toString(),
+        );
 
         return Inertia::render('tenant/cursos-tutelados/index', [
             'cursos' => $cursos,
+            'filters' => $request->only('search'),
             'instituicao' => $instituicao->only('id'),
             'can' => [
                 'create_curso' => $user->can('create', CursoTutelado::class),

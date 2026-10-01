@@ -1,8 +1,7 @@
 import { Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Minus, BookIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Minus, BookIcon, Search } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -19,7 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 
 import { EmptyState } from '@/components/empty-state';
 import {
@@ -28,26 +26,30 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import TablePagination from '@/components/table-pagination';
-import { ButtonGroup } from '@/components/ui/button-group';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import { TutelaStatusBadge } from './tutela-status-badge';
 
 export function CursosTuteladosTable({
-  data,
+  data = [],
+  filters,
   instituicaoId,
   deleteFn,
   pagination = {},
   onPageChange,
   can = {},
 }) {
-  const [filtroNome, setFiltroNome] = useState('');
-
-  const isEmpty = !data || data.length === 0;
-  const canCreate = Boolean(can?.create_curso || can?.create);
-
-  // Filtrar dados
-  const linhasFiltradas = data.filter((curso) =>
-    curso.nome.toLowerCase().includes(filtroNome.toLowerCase()),
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['cursos', 'filters'],
+    },
   );
+
+  // "vazio total" só se não há dados E não há pesquisa aplicada
+  const isEmpty = data.length === 0 && !applied;
+
+  const canCreate = Boolean(can?.create_curso || can?.create);
 
   return (
     <Card className="gap-0 pb-0">
@@ -89,27 +91,15 @@ export function CursosTuteladosTable({
           />
         ) : (
           <>
-            {/* Filtros */}
-            <div className="border-b bg-muted/30 px-4 py-3">
-              <div className="flex justify-end">
-                <ButtonGroup className="w-full max-w-xs">
-                  <Input type="search" placeholder="Pesquisar..." />
-
-                  <Button variant="outline" size="icon">
-                    <Search />
-                    <span className="sr-only">Pesquisar</span>
-                  </Button>
-                </ButtonGroup>
-              </div>
-            </div>
+            <TableSearch value={search} onChange={onChange} onSubmit={submit} />
 
             {/* Tabela */}
-            {linhasFiltradas.length === 0 ? (
+            {data.length === 0 ? (
               <EmptyState
                 variant="table"
                 icon={BookIcon}
                 title="Nenhum curso encontrado"
-                description="Tenta ajustar os filtros"
+                description="Tenta ajustar a pesquisa"
               />
             ) : (
               <Table>
@@ -122,7 +112,7 @@ export function CursosTuteladosTable({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {linhasFiltradas.map((curso) => (
+                  {data.map((curso) => (
                     <TableRow
                       key={curso.id}
                       className={

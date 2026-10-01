@@ -42,6 +42,7 @@ class PagamentoController extends Controller
 
         $pagamentos = Pagamento::query()
             ->where('instituicao_id', $instituicaoId)
+            ->search($request->string('search')->toString())
             ->with(['aluno.user:id,nome,instituicao_id'])
             ->orderByDesc('data_pagamento')
             ->paginate(15)
@@ -104,6 +105,7 @@ class PagamentoController extends Controller
 
         return Inertia::render('tenant/pagamentos/index', [
             'pagamentos' => $pagamentos,
+            'filters' => $request->only('search'),
             'turmas' => $turmas,
             'can' => [
                 'create' => Auth::guard('tenant')->user()->can('create', Pagamento::class),

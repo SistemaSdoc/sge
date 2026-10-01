@@ -10,6 +10,7 @@ use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -18,7 +19,7 @@ class TurmaController extends Controller
 {
     public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Turma::class);
 
@@ -55,7 +56,8 @@ class TurmaController extends Controller
             ->whereHas(
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
                 fn ($q) => $q->where('instituicoes.id', $instituicaoId)
-            );
+            )
+            ->search($request->string('search')->toString()); // <- novo
 
         if ($anoLectivoId) {
             $query->where('ano_lectivo_id', $anoLectivoId);
@@ -69,6 +71,7 @@ class TurmaController extends Controller
                         'current_page' => 1,
                         'last_page' => 1,
                     ],
+                    'filters' => $request->only('search'),
                     'anosLectivos' => AnoLectivo::query()
                         ->select('id', 'nome')
                         ->orderByDesc('data_inicio')
@@ -102,7 +105,8 @@ class TurmaController extends Controller
             'cursoClasseTurno.classeTurnoDisciplinas.disciplina:id,nome',
             'anoLectivo:id,nome',
             'alunosActivos',
-        ])->paginate(10);
+        ])->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('tenant/turmas/index', [
             'instituicaoId' => $instituicaoId,
@@ -111,6 +115,7 @@ class TurmaController extends Controller
                 'current_page' => $turmas->currentPage(),
                 'last_page' => $turmas->lastPage(),
             ],
+            'filters' => $request->only('search'),
             'anosLectivos' => AnoLectivo::query()
                 ->select('id', 'nome')
                 ->orderByDesc('data_inicio')
@@ -118,14 +123,15 @@ class TurmaController extends Controller
             'anoLectivoActual' => $anoLectivoId,
             'cursos' => $cursos,
             'classes' => $cursoClasses,
-            'turnos' => Inertia::defer(fn () => CursoClasseTurno::query()
-                ->where('curso_classe_id', request('curso_classe_id'))
-                ->with('turno:id,nome')
-                ->get()
-                ->map(fn ($cct) => [
-                    'id' => $cct->id,
-                    'nome' => $cct->turno?->nome,
-                ])
+            'turnos' => Inertia::defer(
+                fn () => CursoClasseTurno::query()
+                    ->where('curso_classe_id', request('curso_classe_id'))
+                    ->with('turno:id,nome')
+                    ->get()
+                    ->map(fn ($cct) => [
+                        'id' => $cct->id,
+                        'nome' => $cct->turno?->nome,
+                    ])
             ),
             'can' => [
                 'create' => $user->can('create', Turma::class),

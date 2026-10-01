@@ -6,7 +6,7 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/ClasseController';
 import { useDialog } from '@/hooks/use-dialog';
 
-export default function Index({ classes, can }) {
+export default function Index({ classes, can, filters }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (classeId) => {
@@ -21,7 +21,7 @@ export default function Index({ classes, can }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -29,10 +29,10 @@ export default function Index({ classes, can }) {
   return (
     <>
       <Head title="Classes" />
-
       <ClasseTable
         classes={classes}
         can={can}
+        filters={filters}
         deleteFn={handleDelete}
         pagination={{
           current_page: classes.current_page,

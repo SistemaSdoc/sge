@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Central\AnoLectivo;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class AnoLectivoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $anosLectivos = AnoLectivo::query()
+            ->search($request->string('search')->toString())
             ->orderByDesc('data_inicio')
             ->paginate(15)
+            ->withQueryString()
             ->through(fn (AnoLectivo $ano) => [
                 'id' => $ano->id,
                 'nome' => $ano->nome,
@@ -24,6 +27,7 @@ class AnoLectivoController extends Controller
 
         return Inertia::render('tenant/anos-lectivos/index', [
             'anosLectivos' => $anosLectivos,
+            'filters' => $request->only('search'),
         ]);
     }
 }

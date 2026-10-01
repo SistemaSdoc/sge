@@ -6,7 +6,7 @@ import {
 import { useDialog } from '@/hooks/use-dialog';
 import { UserTable } from './components/user-table';
 
-export default function Index({ users, roles, allPermissions }) {
+export default function Index({ users, roles, allPermissions, filters }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (user) => {
@@ -20,7 +20,7 @@ export default function Index({ users, roles, allPermissions }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -32,6 +32,7 @@ export default function Index({ users, roles, allPermissions }) {
       <div className="mx-auto w-full max-w-7xl p-6">
         <UserTable
           users={users}
+          filters={filters}
           pagination={users}
           onPageChange={handlePageChange}
           deleteFn={handleDelete}

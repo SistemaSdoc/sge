@@ -1,6 +1,6 @@
   import { router } from '@inertiajs/react';
   import { Button } from '@/components/ui/button';
-  import { Filter, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
+  import { MoreHorizontalIcon, UsersIcon } from 'lucide-react';
   import { EmptyState } from '@/components/empty-state';
   import {
     Card,
@@ -25,9 +25,9 @@
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from '@/components/ui/dropdown-menu';
-  import { Field } from '@/components/ui/field';
-  import { Input } from '@/components/ui/input';
   import TablePagination from '@/components/table-pagination';
+  import { TableSearch } from '@/components/table-search';
+  import { useTableSearch } from '@/hooks/use-table-search';
   import { edit } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
   import {
     Select,
@@ -41,6 +41,7 @@
 
   export function AlunoTable({
     data,
+    filters,
     deleteFn,
     pagination = {},
     onPageChange,
@@ -50,6 +51,9 @@
     onAnoLectivoChange,
     atribuirTurmaFn,
   }) {
+    const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+      only: ['alunos', 'filters'],
+    });
     const isEmpty = !data || data.length === 0;
     const hasActionColumn = data?.some((aluno) => aluno.can?.update);
     return (
@@ -77,22 +81,17 @@
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <Field>
-                <div className="flex gap-2">
-                  <Input placeholder="Digite para pesquisar..." />
-                  <Button variant="outline">Pesquisar</Button>
-                </div>
-              </Field>
             </CardAction>
           </CardHeader>
 
           <CardContent className="p-0!">
+            <TableSearch value={search} onChange={onChange} onSubmit={submit} />
             {isEmpty ? (
               <EmptyState
                 variant="table"
                 icon={UsersIcon}
-                title="Nenhum aluno cadastrado"
-                description="Comece adicionando o primeiro aluno à tabela"
+                title={applied ? 'Nenhum aluno encontrado' : 'Nenhum aluno cadastrado'}
+                description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando o primeiro aluno à tabela'}
                 action={
                   can?.create
                     ? {

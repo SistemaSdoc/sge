@@ -9,6 +9,7 @@ use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\NivelEnsino;
 use App\Models\Tenant\RegraAvaliacao;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -17,14 +18,16 @@ class RegraAvaliacaoController extends Controller
     /**
      * Mostra a lista de regras de avaliação.
      */
-    public function index()
+    public function index(Request $request)
     {
 
         $this->authorize('viewAny', RegraAvaliacao::class);
 
         $regrasAvaliacao = RegraAvaliacao::with(['instituicao', 'anoLectivo', 'classe', 'nivelEnsino'])
+            ->search($request->string('search')->toString())
             ->orderBy('created_at', 'desc')
             ->paginate(10)
+            ->withQueryString()
             ->through(function ($regra) {
                 return [
                     'id' => $regra->id,
@@ -36,6 +39,7 @@ class RegraAvaliacaoController extends Controller
 
         return Inertia::render('tenant/regras-avaliacao/index', [
             'regrasAvaliacao' => $regrasAvaliacao,
+            'filters' => $request->only('search'),
         ]);
     }
 

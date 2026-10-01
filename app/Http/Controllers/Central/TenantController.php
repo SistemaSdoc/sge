@@ -10,6 +10,7 @@ use App\Http\Resources\Central\Tenant\TenantIndexResource;
 use App\Models\Central\Tenant;
 use App\Services\Central\TenantMetricsService;
 use App\Services\Central\TenantService;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class TenantController extends Controller
@@ -21,16 +22,17 @@ class TenantController extends Controller
     /**
      * Lista todos os tenants paginados com instituições.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tenants = Tenant::with('domains')->paginate(10);
-
         $tenantsPagineted = TenantIndexResource::collection(
-            $this->tenantService->getTenantsWithInstituicoes($tenants)
+            $this->tenantService->getTenantsWithInstituicoes(
+                $request->string('search')->toString(),
+            )
         );
 
         return Inertia::render('central/tenants/index', [
             'tenants' => $tenantsPagineted,
+            'filters' => $request->only('search'),
         ]);
     }
 

@@ -27,10 +27,11 @@ class CursoTuteladoViewService
     /**
      * Lista os cursos da instituição com as permissões do utilizador.
      */
-    public function index(Instituicao $instituicao, User $user): LengthAwarePaginator
+    public function index(Instituicao $instituicao, User $user, ?string $search = null): LengthAwarePaginator
     {
         return $instituicao->instituicaoCursos()
             ->has('cursoTutelado')
+            ->search($search)
             ->with([
                 'curso:id,nome',
                 'cursoTutelado.instituicaoTutora:id,nome',
@@ -38,6 +39,8 @@ class CursoTuteladoViewService
             ])
             ->orderBy('created_at', 'desc')
             ->paginate(10)
+            ->withQueryString()
+
             ->through(function ($instituicaoCurso) use ($user): array {
                 $cursoTutelado = $instituicaoCurso->cursoTutelado;
                 $sharedActivo = $cursoTutelado ? $this->sharedActivo($cursoTutelado) : null;

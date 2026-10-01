@@ -10,6 +10,7 @@ use App\Http\Requests\Tenant\Role\StoreRoleRequest;
 use App\Http\Requests\Tenant\Role\UpdateRoleRequest;
 use App\Models\Tenant\User;
 use App\Services\Tenant\RoleManagementService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -27,7 +28,7 @@ class RoleController extends Controller
     /**
      * Mostra a lista de funções e permissões disponíveis.
      */
-    public function index()
+    public function index(Request $request)
     {
         /** @var User $actor */
         $actor = Auth::guard('tenant')->user();
@@ -35,7 +36,8 @@ class RoleController extends Controller
         Gate::forUser($actor)->authorize('viewAny', Role::class);
 
         return Inertia::render('tenant/roles/index', [
-            'roles' => $this->roleManagementService->index(),
+            'roles' => $this->roleManagementService->index($request->string('search')->toString()),
+            'filters' => $request->only('search'),
             'permissions' => $this->roleManagementService->permissions($actor),
             'groupedPermissions' => $this->roleManagementService->groupedPermissions($actor),
         ]);

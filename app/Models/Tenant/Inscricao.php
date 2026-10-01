@@ -3,6 +3,7 @@
 namespace App\Models\Tenant;
 
 use App\Models\Central\AnoLectivo;
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,14 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class Inscricao extends Model
 {
-    use HasUuid;
+    use HasSearch, HasUuid;
+
+    protected array $searchable = [
+        'status',
+        'candidato.nome',
+        'cursoClasseTurno.turno.nome',
+        'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso.nome',
+    ];
 
     protected $table = 'inscricoes';
 

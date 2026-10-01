@@ -33,9 +33,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { show } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
-
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 export function TurmaTable({
   turmas,
+  filters,
   can = {},
   deleteFn,
   pagination = {},
@@ -45,8 +47,14 @@ export function TurmaTable({
   onAnoLectivoChange,
   handleAdicionarTurma,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    { only: ['turmas', 'filters'] },
+  );
+
   const lista = Array.isArray(turmas) ? turmas : (turmas?.data ?? []);
   const isEmpty = lista.length === 0;
+
   const hasActionColumn = lista.some((turma) => turma.can?.view);
 
   return (
@@ -103,22 +111,29 @@ export function TurmaTable({
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Input placeholder="Pesquisar..." className="" />
-            <Button variant="outline" size="icon">
-              <Search />
-              <span className="sr-only">Pesquisar</span>
-            </Button>
+
+            <TableSearch
+              bare
+              value={search}
+              onChange={onChange}
+              onSubmit={submit}
+            />
+            
           </div>
         </div>
 
-        {isEmpty ? (
-          <EmptyState
-            variant="table"
-            icon={UsersIcon}
-            title="Nenhuma turma adicionada, ainda"
-            description="Ainda não cadrastou nenhum turma neste ano lectivo."
-          />
-        ) : (
+{isEmpty ? (
+  <EmptyState
+    variant="table"
+    icon={UsersIcon}
+    title={applied ? 'Nenhuma turma encontrada' : 'Nenhuma turma adicionada, ainda'}
+    description={
+      applied
+        ? 'Tenta ajustar a pesquisa.'
+        : 'Ainda não cadastrou nenhuma turma neste ano lectivo.'
+    }
+  />
+) : (
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/72">

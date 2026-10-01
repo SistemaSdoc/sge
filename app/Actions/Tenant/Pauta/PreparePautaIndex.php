@@ -21,8 +21,7 @@ class PreparePautaIndex
 {
     public function __construct(
         private readonly AnoLectivoResolverService $anoLectivoResolverService,
-    ) {
-    }
+    ) {}
 
     /**
      * Obtém os dados da listagem de turmas com os filtros seleccionados.
@@ -64,7 +63,7 @@ class PreparePautaIndex
             ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
             ->where('status', 'activo')
             ->get()
-            ->filter(fn(CursoTuteladoShared $vinculo): bool => $user->can('pautas.viewAny')
+            ->filter(fn (CursoTuteladoShared $vinculo): bool => $user->can('pautas.viewAny')
                 || $this->ehCoordenadorDoCursoPartilhado($user, $vinculo));
 
         if ($instituicaoIdFiltro === $instituicaoId) {
@@ -73,12 +72,12 @@ class PreparePautaIndex
                     $query->where('instituicao_tutora_id', $instituicaoId)
                         ->orWhereHas(
                             'instituicaoCurso',
-                            fn($query) => $query->where('instituicao_id', $instituicaoId),
+                            fn ($query) => $query->where('instituicao_id', $instituicaoId),
                         );
                 })
-                ->when($isProfessor, fn($query) => $query->whereHas(
+                ->when($isProfessor, fn ($query) => $query->whereHas(
                     'professores',
-                    fn($query) => $query->where('professor_id', $professorId),
+                    fn ($query) => $query->where('professor_id', $professorId),
                 ))
                 ->with([
                     'instituicaoCurso.curso:id,nome',
@@ -98,19 +97,19 @@ class PreparePautaIndex
             $turmasLocais = Turma::query()
                 ->whereHas(
                     'cursoClasseTurno.cursoClasse',
-                    fn($query) => $query->whereIn('curso_tutelado_id', $idsCursos),
+                    fn ($query) => $query->whereIn('curso_tutelado_id', $idsCursos),
                 )
                 ->where('ano_lectivo_id', $anoLectivoId)
-                ->when(filled($cursoTuteladoIdFiltro), fn($query) => $query->whereHas(
+                ->when(filled($cursoTuteladoIdFiltro), fn ($query) => $query->whereHas(
                     'cursoClasseTurno.cursoClasse',
-                    fn($query) => $query->where('curso_tutelado_id', $cursoTuteladoIdFiltro),
+                    fn ($query) => $query->where('curso_tutelado_id', $cursoTuteladoIdFiltro),
                 ))
                 // ALTERADO: professor vê as suas turmas OU todas as dos cursos que coordena
-                ->when($isProfessor, fn($query) => $query->where(function ($query) use ($professorId, $idsCursosCoordenados): void {
-                    $query->whereHas('professores', fn($q) => $q->where('professor_id', $professorId))
+                ->when($isProfessor, fn ($query) => $query->where(function ($query) use ($professorId, $idsCursosCoordenados): void {
+                    $query->whereHas('professores', fn ($q) => $q->where('professor_id', $professorId))
                         ->orWhereHas(
                             'cursoClasseTurno.cursoClasse',
-                            fn($q) => $q->whereIn('curso_tutelado_id', $idsCursosCoordenados),
+                            fn ($q) => $q->whereIn('curso_tutelado_id', $idsCursosCoordenados),
                         );
                 }))
                 ->with($this->turmaRelations())
@@ -118,20 +117,20 @@ class PreparePautaIndex
                 ->get();
 
             $turmas = $turmas->merge(
-                $turmasLocais->map(fn(Turma $turma): array => $this->mapTurma($turma, $user)),
+                $turmasLocais->map(fn (Turma $turma): array => $this->mapTurma($turma, $user)),
             );
         }
 
         // ALTERADO: $isProfessor e $professorId saíram dos use()
         $vinculosActivos->groupBy('tenant_tutelado_id')
-            ->each(function (Collection $vinculosTenant, string $tenantId) use (&$cursos, &$instituicoes, &$turmas, $instituicaoIdFiltro, $cursoTuteladoIdFiltro, $anoLectivoId, $user, ): void {
+            ->each(function (Collection $vinculosTenant, string $tenantId) use (&$cursos, &$instituicoes, &$turmas, $instituicaoIdFiltro, $cursoTuteladoIdFiltro, $anoLectivoId, $user): void {
                 $tenantTutelado = Tenant::query()->find($tenantId);
 
-                if (!$tenantTutelado) {
+                if (! $tenantTutelado) {
                     return;
                 }
 
-                $dadosTenant = $tenantTutelado->run(function () use ($tenantTutelado, $vinculosTenant, $instituicaoIdFiltro, $cursoTuteladoIdFiltro, $anoLectivoId, ): array {
+                $dadosTenant = $tenantTutelado->run(function () use ($tenantTutelado, $vinculosTenant, $instituicaoIdFiltro, $cursoTuteladoIdFiltro, $anoLectivoId): array {
                     $instituicao = Instituicao::query()->find($tenantTutelado->instituicao_id);
                     $resultado = [
                         'instituicao' => $instituicao ? [
@@ -152,7 +151,7 @@ class PreparePautaIndex
                         ->get();
 
                     $resultado['cursos'] = $cursosRemotos->map(
-                        fn(CursoTutelado $cursoTutelado): array => [
+                        fn (CursoTutelado $cursoTutelado): array => [
                             'id' => (string) $cursoTutelado->getKey(),
                             'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome ?? 'Curso sem nome',
                             'remote' => true,
@@ -171,7 +170,7 @@ class PreparePautaIndex
                     $resultado['turmas'] = Turma::query()
                         ->whereHas(
                             'cursoClasseTurno.cursoClasse',
-                            fn($query) => $query->whereIn('curso_tutelado_id', $idsCursos),
+                            fn ($query) => $query->whereIn('curso_tutelado_id', $idsCursos),
                         )
                         ->where('ano_lectivo_id', $anoLectivoId)
                         ->with($this->turmaRelations())
@@ -187,7 +186,7 @@ class PreparePautaIndex
 
                 $cursos = $cursos->merge($dadosTenant['cursos']);
                 $turmas = $turmas->merge(
-                    $dadosTenant['turmas']->map(fn(Turma $turma): array => $this->mapTurma($turma, $user, true)),
+                    $dadosTenant['turmas']->map(fn (Turma $turma): array => $this->mapTurma($turma, $user, true)),
                 );
             });
 
@@ -200,8 +199,20 @@ class PreparePautaIndex
             ? (string) $cursoTuteladoIdFiltro
             : null;
         $turmas = $turmas
-            ->when($cursoTuteladoIdFiltro, fn($items) => $items->where('curso_tutelado_id', $cursoTuteladoIdFiltro))
-            ->sortBy(fn(array $turma): string => $turma['nome'] . '-' . $turma['curso'] . '-' . $turma['id'])
+            ->when($cursoTuteladoIdFiltro, fn ($items) => $items->where('curso_tutelado_id', $cursoTuteladoIdFiltro))
+            ->when(filled($filtros['search'] ?? null), function (Collection $items) use ($filtros): Collection {
+                $term = mb_strtolower(trim((string) $filtros['search']));
+
+                return $items->filter(fn (array $turma): bool => collect([
+                    $turma['nome'] ?? '',
+                    $turma['classe'] ?? '',
+                    $turma['turno'] ?? '',
+                    $turma['curso'] ?? '',
+                ])->contains(
+                    fn ($value): bool => str_contains(mb_strtolower((string) $value), $term),
+                ));
+            })
+            ->sortBy(fn (array $turma): string => $turma['nome'].'-'.$turma['curso'].'-'.$turma['id'])
             ->values();
         $porPagina = min(100, max(1, $request->integer('per_page', 10)));
         $pagina = max(1, $request->integer('page', 1));
@@ -224,6 +235,7 @@ class PreparePautaIndex
                 'instituicao_id' => $instituicaoIdFiltro,
                 'curso_tutelado_id' => $cursoTuteladoIdFiltro,
                 'ano_lectivo_id' => $anoLectivoId,
+                'search' => $filtros['search'] ?? '',
             ],
         ];
     }
@@ -248,7 +260,6 @@ class PreparePautaIndex
      *
      * @return array<int, string>
      */
-
     private function ehCoordenadorDoCursoPartilhado(User $user, CursoTuteladoShared $shared): bool
     {
         $professorId = $user->professor?->id;
@@ -258,7 +269,7 @@ class PreparePautaIndex
         }
 
         return $user->professor->cursosTutelados()
-            ->whereHas('instituicaoCurso', fn($q) => $q->where('curso_id', $shared->curso_id))
+            ->whereHas('instituicaoCurso', fn ($q) => $q->where('curso_id', $shared->curso_id))
             ->wherePivot('coordenador', true)
             ->exists();
     }

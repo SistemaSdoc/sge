@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Central\Curso\StoreCursoRequest;
 use App\Http\Requests\Central\Curso\UpdateCursoRequest;
 use App\Models\Central\Curso;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class CursoController extends Controller
@@ -23,14 +24,17 @@ class CursoController extends Controller
         $this->authorizeResource(Curso::class, 'curso');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $cursos = Curso::withTrashed()
+            ->search($request->string('search')->toString())
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('central/cursos/index', [
             'cursos' => $cursos,
+            'filters' => $request->only('search'),
         ]);
     }
 

@@ -6,7 +6,7 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/RegraAvaliacaoController';
 import { useDialog } from '@/hooks/use-dialog';
 
-export default function Index({ regrasAvaliacao }) {
+export default function Index({ regrasAvaliacao, filters }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (regraId) => {
@@ -21,7 +21,7 @@ export default function Index({ regrasAvaliacao }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -29,9 +29,9 @@ export default function Index({ regrasAvaliacao }) {
   return (
     <>
       <Head title="Regras de Avaliação" />
-
       <RegraTable
         regras={regrasAvaliacao}
+        filters={filters}
         deleteFn={handleDelete}
         pagination={regrasAvaliacao}
         onPageChange={handlePageChange}

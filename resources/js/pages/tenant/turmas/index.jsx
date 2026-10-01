@@ -7,6 +7,7 @@ import { index } from '@/actions/App/Http/Controllers/Tenant/TurmaController';
 export default function Index({
   can,
   turmas,
+  filters,
   cursos = [],
   classes = [],
   instituicaoId,
@@ -58,6 +59,7 @@ export default function Index({
         can={can}
         pagination={turmas}
         turmas={turmas.data ?? []}
+        filters={filters}
         anosLectivos={anosLectivos}
         onPageChange={handlePageChange}
         anoLectivoActual={anoLectivoActual}

@@ -6,7 +6,7 @@ import {
   destroy,
 } from '@/actions/App/Http/Controllers/Central/UserController';
 
-export default function Index({ users, can }) {
+export default function Index({ users, can, filters }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (userId) => {
@@ -21,7 +21,7 @@ export default function Index({ users, can }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -32,6 +32,7 @@ export default function Index({ users, can }) {
       <UserTable
         can={can}
         users={users.data}
+        filters={filters}
         deleteFn={handleDelete}
         pagination={{
           current_page: users.current_page,

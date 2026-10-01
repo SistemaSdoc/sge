@@ -25,7 +25,7 @@ class AlunoController extends Controller
 
     public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
-    public function index(VerificadorPropinaService $verificador)
+    public function index(Request $request, VerificadorPropinaService $verificador)
     {
         Gate::authorize('viewAny', Aluno::class);
 
@@ -47,6 +47,7 @@ class AlunoController extends Controller
 
         $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
             ->doAnoLectivo($anoLectivoId)
+            ->search($request->string('search')->toString())
             ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
             ->with([
                 'inscricao.candidato:id,nome,bi,email,telefone',
@@ -81,7 +82,8 @@ class AlunoController extends Controller
                 )
             )
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         $alunos->getCollection()->transform(function ($aluno) use ($user) {
             $aluno->can = [
@@ -127,6 +129,7 @@ class AlunoController extends Controller
                 ];
             }),
             'anoLectivoId' => $anoLectivoId,
+            'filters' => $request->only('search'),
             'anosLectivos' => AnoLectivo::query()
                 ->select('id', 'nome')
                 ->orderByDesc('data_inicio')

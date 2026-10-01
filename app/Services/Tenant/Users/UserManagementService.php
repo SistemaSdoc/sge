@@ -8,7 +8,7 @@ use Spatie\Permission\Models\Role;
 
 class UserManagementService
 {
-    public function index(User $actor): LengthAwarePaginator
+    public function index(User $actor, ?string $search = null): LengthAwarePaginator
     {
         return User::query()
             ->with([
@@ -17,9 +17,11 @@ class UserManagementService
                 'permissions:id,name',
             ])
             ->when(! $actor->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $actor->instituicao_id))
+            ->search($search)
             ->orderBy('nome')
             ->orderBy('id')
             ->paginate(15)
+            ->withQueryString()
             ->through(function (User $user) use ($actor): array {
                 return [
                     'id' => $user->getKey(),

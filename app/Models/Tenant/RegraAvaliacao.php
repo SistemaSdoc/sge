@@ -3,12 +3,15 @@
 namespace App\Models\Tenant;
 
 use App\Models\Central\AnoLectivo;
+use App\Traits\HasSearch;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class RegraAvaliacao extends Model
 {
-    use HasUuids;
+    use HasSearch, HasUuids;
+
+    protected array $searchable = ['nome', 'classe.nome', 'nivelEnsino.nome'];
 
     protected $table = 'regras_avaliacao';
 

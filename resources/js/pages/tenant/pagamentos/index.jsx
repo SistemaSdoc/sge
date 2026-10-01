@@ -28,6 +28,7 @@ export default function Index({
   can,
   statusFiltro,
   alunosPorStatus,
+  filters,
 }) {
   const { deleteConfirm } = useDialog();
   const [turmaEscolhida, setTurmaEscolhida] = useState('');
@@ -43,7 +44,10 @@ export default function Index({
   };
 
   const handlePageChange = (page) => {
-    router.visit(index().url, { data: { page }, preserveScroll: true });
+    router.visit(index().url, {
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
+      preserveScroll: true,
+    });
   };
 
   const handleStatusChange = (value) => {
@@ -127,6 +131,7 @@ export default function Index({
           deleteFn={handleDelete}
           verReciboFn={handleVerRecibo}
           exportarReciboFn={handleExportarRecibo}
+          filters={filters}
           pagination={{
             current_page: pagamentos.current_page,
             last_page: pagamentos.last_page,

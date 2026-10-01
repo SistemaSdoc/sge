@@ -3,6 +3,7 @@
 namespace App\Models\Tenant;
 
 use App\Notifications\Tenant\ResetPasswordNotification;
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Database\Factories\Tenant\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -41,7 +42,9 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory, HasRoles, HasSearch, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    protected array $searchable = ['nome', 'email'];
 
     protected $guard = 'tenant';
 

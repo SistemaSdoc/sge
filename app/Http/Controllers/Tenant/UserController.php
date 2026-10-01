@@ -11,6 +11,7 @@ use App\Http\Requests\Tenant\User\UpdateUserRequest;
 use App\Models\Tenant\User;
 use App\Services\Tenant\RoleManagementService;
 use App\Services\Tenant\Users\UserManagementService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -25,7 +26,7 @@ class UserController extends Controller
         private readonly DeleteUser $deleteUser,
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
@@ -33,7 +34,8 @@ class UserController extends Controller
         Gate::forUser($user)->authorize('viewAny', User::class);
 
         return Inertia::render('tenant/users/index', [
-            'users' => $this->userManagementService->index($user),
+            'users' => $this->userManagementService->index($user, $request->string('search')->toString()),
+            'filters' => $request->only('search'),
             'roles' => $this->userManagementService->roles(),
             'allPermissions' => $this->roleManagementService->permissions(),
             'groupedPermissions' => $this->roleManagementService->groupedPermissions(),

@@ -49,6 +49,8 @@ import {
   show,
 } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import { destroy } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
 import {
   Select,
@@ -74,7 +76,11 @@ export function InscricaoTable({
   temNotaTeste = false,
   destroyFn,
   reativarFn,
+  filters,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['inscricoes', 'filters'],
+  });
   const [nota, setNota] = useState('');
   const [inscricaoSelecionada, setInscricaoSelecionada] = useState(null);
   const isEmpty = !inscricoes || inscricoes.length === 0;
@@ -158,12 +164,13 @@ export function InscricaoTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={UserCheckIcon}
-              title={`Nenhuma ${entityLabel.toLowerCase()} cadastrada`}
-              description={`Comece adicionando a primeira ${entityLabel.toLowerCase()} à tabela`}
+              title={applied ? `Nenhuma ${entityLabel.toLowerCase()} encontrada` : `Nenhuma ${entityLabel.toLowerCase()} cadastrada`}
+              description={applied ? 'Tenta ajustar a pesquisa.' : `Comece adicionando a primeira ${entityLabel.toLowerCase()} à tabela`}
               action={
                 can.create
                   ? {

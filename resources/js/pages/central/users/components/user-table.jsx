@@ -26,6 +26,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import {
   create,
   edit,
@@ -33,10 +35,14 @@ import {
 
 export default function UserTable({
   users,
+  filters,
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['users', 'filters'],
+  });
   const isEmpty = !users || users.length === 0;
 
   return (
@@ -52,12 +58,13 @@ export default function UserTable({
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={UsersIcon}
-            title="Nenhum utilizador registado"
-            description="Comece adicionando o primeiro usuário"
+            title={applied ? 'Nenhum utilizador encontrado' : 'Nenhum utilizador registado'}
+            description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando o primeiro usuário'}
             action={{
               label: 'Adicionar usuário',
               href: create().url,

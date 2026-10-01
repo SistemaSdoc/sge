@@ -20,7 +20,7 @@ final class ConfirmacaoMatriculaViewService
         private readonly RegraAcademicaService $regraAcademicaService,
     ) {}
 
-    public function listarAlunos(Turma $turma, ?string $instituicaoId = null): LengthAwarePaginator
+    public function listarAlunos(Turma $turma, ?string $instituicaoId = null, ?string $search = null): LengthAwarePaginator
     {
         $anoActual = $turma->anoLectivo ?: AnoLectivo::activo();
 
@@ -56,6 +56,14 @@ final class ConfirmacaoMatriculaViewService
             ->whereHas('notas', fn ($query) => $query->where('periodo', 2)->whereNotNull('media_trimestral'), '>=', 1)
             ->whereHas('notas', fn ($query) => $query->where('periodo', 3)->whereNotNull('media_trimestral'), '>=', 1)
             ->where('activo', true)
+            ->when(filled($search), function ($query) use ($search): void {
+                $term = '%'.addcslashes(trim((string) $search), '\\%_').'%';
+                $query->where(function ($query) use ($term): void {
+                    $query->whereHas('aluno.inscricao.candidato', fn ($candidateQuery) => $candidateQuery->where('nome', 'like', $term))
+                        ->orWhereHas('aluno.user', fn ($userQuery) => $userQuery->where('nome', 'like', $term))
+                        ->orWhereHas('turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso', fn ($courseQuery) => $courseQuery->where('nome', 'like', $term));
+                });
+            })
             ->when($anoProximo, fn ($query) => $query->whereDoesntHave(
                 'aluno.confirmacoesMatricula',
                 fn ($confirmationQuery) => $confirmationQuery
@@ -73,6 +81,7 @@ final class ConfirmacaoMatriculaViewService
             ])
             ->orderBy('created_at')
             ->paginate(10)
+            ->withQueryString()
             ->through(function (TurmaAluno $turmaAluno) use ($turmasDestino): array {
                 /** @var User|null $user */
                 $user = auth('tenant')->user();

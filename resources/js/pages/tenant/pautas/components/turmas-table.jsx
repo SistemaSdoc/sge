@@ -19,8 +19,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
-export function TurmasTable({ turmas = [], pagination = {}, onPageChange }) {
+export function TurmasTable({ turmas = [], filtros, pagination = {}, onPageChange }) {
+  const { search, onChange, submit, applied } = useTableSearch(filtros?.search, {
+    only: ['turmas', 'filtros'],
+  });
+
   return (
     <Card className="gap-0">
       <CardHeader className="border-b">
@@ -31,12 +37,13 @@ export function TurmasTable({ turmas = [], pagination = {}, onPageChange }) {
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {turmas.length === 0 ? (
           <EmptyState
             variant="table"
             icon={BookOpen}
-            title="Nenhuma pauta disponível"
-            description="Não existem turmas para os filtros seleccionados"
+            title={applied ? 'Nenhuma pauta encontrada' : 'Nenhuma pauta disponível'}
+            description={applied ? 'Tenta ajustar a pesquisa.' : 'Não existem turmas para os filtros seleccionados'}
           />
         ) : (
           <Table>
