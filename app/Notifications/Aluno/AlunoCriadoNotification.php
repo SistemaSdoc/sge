@@ -19,7 +19,8 @@ class AlunoCriadoNotification extends Notification implements ShouldQueue, Shoul
 
     public function __construct(
         public User $user,
-        public string $passwordPlain = '12345678'
+        public string $passwordPlain = '12345678',
+        public ?string $loginUrl = null,
     ) {}
 
     public function via(object $notifiable): array
@@ -41,7 +42,7 @@ class AlunoCriadoNotification extends Notification implements ShouldQueue, Shoul
                 'nome' => $this->user->nome,
                 'email' => $this->user->email,
                 'password' => $this->passwordPlain,
-                'url' => route('tenant.login'),
+                'url' => $this->loginUrl ?? route('tenant.login'),
                 'instituicao' => $this->user->instituicao,
                 'artigoInstituicao' => match ($this->user->instituicao->tipo) {
                     'instituto' => 'ao',

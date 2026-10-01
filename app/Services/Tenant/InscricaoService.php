@@ -7,11 +7,13 @@ use App\Models\Tenant\Candidato;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
+use App\Notifications\PerfilIncompletoNotificacao;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Traits\NotificaAluno;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Spatie\Permission\Models\Role;
 
@@ -34,18 +36,22 @@ class InscricaoService
             $candidato = Candidato::create([
                 'nome' => $dados['nome'],
                 'bi' => $dados['bi'],
-                'numero_estudante' => $dados['numero_estudante'] ?? null,
-                'telefone' => $dados['telefone'] ?? null,
                 'email' => $dados['email'],
-                'morada' => $dados['morada'] ?? null,
-                'genero' => $dados['genero'] ?? null,
-                'nacionalidade' => $dados['nacionalidade'] ?? null,
-                'naturalidade' => $dados['naturalidade'] ?? null,
-                'filiacao' => $dados['filiacao'] ?? null,
-                'data_nascimento' => $dados['data_nascimento'],
-                'municipio' => $dados['municipio'],
-            ]);
 
+                // preenchidos depois pelo próprio aluno
+                'numero_estudante' => 'INS-'.now()->year.'-'.Str::ulid()->toString(),
+                'telefone' => null,
+                'morada' => null,
+                'genero' => null,
+                'nacionalidade' => null,
+                'naturalidade' => null,
+                'filiacao' => null,
+                'data_nascimento' => null,
+                'municipio' => null,
+
+                // ─── Controlo ───
+                'perfil_completo' => false,
+            ]);
             $anoLectivoId = $dados['ano_lectivo_id'] ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
             if (! $anoLectivoId) {
@@ -141,6 +147,8 @@ class InscricaoService
             ]
         );
 
+        $inscricao->candidato->update(['user_id' => $user->id]);
+
         $role = Role::where('name', 'Aluno')->firstOrFail();
         $user->assignRole($role);
 
@@ -153,6 +161,8 @@ class InscricaoService
 
         if ($user->wasRecentlyCreated) {
             $this->notificarAlunoCriado($user, '12345678');
+
+            $user->notify(new PerfilIncompletoNotificacao);
         }
 
         if ($turmaId) {

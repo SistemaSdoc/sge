@@ -381,7 +381,6 @@ trait NotificaGrupoPap
     /**
      * Notifica o aluno associado ao elemento PAP sobre a nota atribuída.
      */
-
     protected function notificarNotaAtribuida(
         GrupoPap $grupoPap,
         ElementoGrupoPap $elemento

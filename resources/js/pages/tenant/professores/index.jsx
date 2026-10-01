@@ -27,6 +27,7 @@ export default function Index({ professores }) {
   };
 
   return (
+    
     <div className="mx-auto w-full max-w-7xl p-6">
       <ProfessorTable
         pagination={{
@@ -40,3 +41,4 @@ export default function Index({ professores }) {
     </div>
   );
 }
+

@@ -100,6 +100,12 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasOne(Candidato::class);
     }
 
+    /** Resolve o candidato diretamente ligado ao usuário ou pela inscrição do aluno. */
+    public function candidatoDoAluno(): ?Candidato
+    {
+        return $this->candidato ?? $this->aluno?->inscricao?->candidato;
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->hasRole('SuperAdmin'); // usa o método do Spatie

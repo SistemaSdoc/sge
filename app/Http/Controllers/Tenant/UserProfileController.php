@@ -84,7 +84,6 @@ class UserProfileController extends Controller
             $request->ensureStateIsValid();
 
             $props['twoFactorEnabled'] = $user->hasEnabledTwoFactorAuthentication();
-
             $props['requiresConfirmation'] = Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm');
         }
 

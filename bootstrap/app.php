@@ -4,6 +4,7 @@ use App\Exceptions\TenantDatabaseNotExistException;
 use App\Http\Middleware\CheckTenantStatus;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\Tenant\EnsurePerfilCompleto;
 use App\Http\Middleware\ValidateCrossTenantAccess;
 use App\Http\Middleware\VerificarPropinaEmDia;
 use Illuminate\Database\QueryException;
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'propina.em.dia' => VerificarPropinaEmDia::class,
             'tenant.status' => CheckTenantStatus::class,
             'cross.tenant' => ValidateCrossTenantAccess::class,
+            'perfil.completo' => EnsurePerfilCompleto::class,
         ]);
 
         $middleware->redirectGuestsTo(function () {

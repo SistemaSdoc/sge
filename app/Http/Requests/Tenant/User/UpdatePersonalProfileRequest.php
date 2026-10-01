@@ -21,19 +21,23 @@ class UpdatePersonalProfileRequest extends FormRequest
     /** Define as regras dos dados pessoais. */
     public function rules(): array
     {
+        $studentFieldRequirement = $this->user('tenant')?->hasRole('Aluno')
+            ? 'required'
+            : 'nullable';
+
         return [
             'nome' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->route('user'))],
-            'bi' => ['nullable', 'string', 'max:255'],
-            'genero' => ['nullable', Rule::in(['M', 'F'])],
-            'data_nascimento' => ['nullable', 'date'],
-            'nacionalidade' => ['nullable', 'string', 'max:255'],
-            'naturalidade' => ['nullable', 'string', 'max:255'],
-            'nome_pai' => ['nullable', 'string', 'max:255'],
-            'nome_mae' => ['nullable', 'string', 'max:255'],
-            'morada' => ['nullable', 'string', 'max:255'],
-            'municipio' => ['nullable', 'string', 'max:255'],
-            'telefone' => ['nullable', 'string', 'max:15'],
+            'bi' => [$studentFieldRequirement, 'string', 'max:255'],
+            'genero' => [$studentFieldRequirement, Rule::in(['M', 'F'])],
+            'data_nascimento' => [$studentFieldRequirement, 'date'],
+            'nacionalidade' => [$studentFieldRequirement, 'string', 'max:255'],
+            'naturalidade' => [$studentFieldRequirement, 'string', 'max:255'],
+            'nome_pai' => [$studentFieldRequirement, 'string', 'max:255'],
+            'nome_mae' => [$studentFieldRequirement, 'string', 'max:255'],
+            'morada' => [$studentFieldRequirement, 'string', 'max:255'],
+            'municipio' => [$studentFieldRequirement, 'string', 'max:255'],
+            'telefone' => [$studentFieldRequirement, 'string', 'max:15'],
         ];
     }
 }

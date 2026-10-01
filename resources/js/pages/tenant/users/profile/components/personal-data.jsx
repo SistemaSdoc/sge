@@ -112,6 +112,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.nome}
                 onChange={updateField('nome')}
                 error={form.errors.nome}
+                required
               />
 
               <ProfileField
@@ -121,6 +122,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.email}
                 onChange={updateField('email')}
                 error={form.errors.email}
+                required
               />
 
               <ProfileField
@@ -129,6 +131,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.bi}
                 onChange={updateField('bi')}
                 error={form.errors.bi}
+                required
               />
 
               <ProfileField
@@ -138,6 +141,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.data_nascimento}
                 onChange={updateField('data_nascimento')}
                 error={form.errors.data_nascimento}
+                required
               />
 
               <ProfileField
@@ -146,6 +150,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.genero}
                 onChange={updateField('genero')}
                 error={form.errors.genero}
+                required
               />
 
               <ProfileField
@@ -154,6 +159,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.nacionalidade}
                 onChange={updateField('nacionalidade')}
                 error={form.errors.nacionalidade}
+                required
               />
 
               <ProfileField
@@ -162,6 +168,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.naturalidade}
                 onChange={updateField('naturalidade')}
                 error={form.errors.naturalidade}
+                required
               />
             </div>
           </FieldSet>
@@ -176,6 +183,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.nome_pai}
                 onChange={updateField('nome_pai')}
                 error={form.errors.nome_pai}
+                required
               />
 
               <ProfileField
@@ -184,6 +192,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.nome_mae}
                 onChange={updateField('nome_mae')}
                 error={form.errors.nome_mae}
+                required
               />
 
               <ProfileField
@@ -192,6 +201,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.morada}
                 onChange={updateField('morada')}
                 error={form.errors.morada}
+                required
               />
 
               <ProfileField
@@ -200,6 +210,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.municipio}
                 onChange={updateField('municipio')}
                 error={form.errors.municipio}
+                required
               />
 
               <ProfileField
@@ -208,6 +219,7 @@ export function PersonalData({ user, data }) {
                 value={form.data.telefone}
                 onChange={updateField('telefone')}
                 error={form.errors.telefone}
+                required
               />
             </div>
           </FieldSet>
@@ -223,6 +235,7 @@ export function PersonalData({ user, data }) {
               value={form.data.nome}
               onChange={updateField('nome')}
               error={form.errors.nome}
+              required
             />
 
             <ProfileField
@@ -232,6 +245,7 @@ export function PersonalData({ user, data }) {
               value={form.data.email}
               onChange={updateField('email')}
               error={form.errors.email}
+              required
             />
 
             <ProfileField

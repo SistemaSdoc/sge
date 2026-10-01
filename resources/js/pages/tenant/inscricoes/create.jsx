@@ -42,21 +42,11 @@ export default function Create() {
       action={store.url()}
       method="post"
       transform={(data) => {
-        const filiacao =
-          data.filiacao ||
-          [data.nome_pai, data.nome_mae].filter(Boolean).join(' e ') ||
-          null;
-
         return {
           ...data,
           curso_classe_turno_id: cursoClasseTurnoId,
           turma_id: turmaId || undefined,
           nota_teste: notaTeste || undefined,
-          numero_estudante:
-            data.numero_estudante ||
-            `INS-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`,
-          genero: data.genero || 'M',
-          filiacao,
           ano_lectivo_id: data.ano_lectivo_id || anoLectivoActual || undefined,
         };
       }}

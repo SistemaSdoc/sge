@@ -11,6 +11,7 @@ use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\InscricaoService;
 use Illuminate\Support\Facades\Auth;
@@ -41,8 +42,9 @@ class InscricaoController extends Controller
     {
         $this->authorize('viewAny', Inscricao::class);
 
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
-        $instituicaoId = Auth::guard('tenant')->user()?->instituicaoFiltro();
+        $instituicaoId = $user?->instituicaoFiltro();
         $contexto = $this->resolveContextoInstituicao();
 
         $anoLectivoId = filled(request('ano_lectivo_id'))

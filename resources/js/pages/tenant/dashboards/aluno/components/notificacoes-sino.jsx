@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { BellIcon } from 'lucide-react';
+import { BellIcon, CheckCheck, ExternalLink } from 'lucide-react';
+import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -17,7 +18,10 @@ const INTERVALO_POLLING = 30000; // 30s
 
 const formatCurrency = (value) => {
   const amount = Number(value ?? 0);
-  return `${amount.toLocaleString('pt', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AOA`;
+  return `${amount.toLocaleString('pt', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} AOA`;
 };
 
 export default function NotificacoesSino() {
@@ -28,13 +32,19 @@ export default function NotificacoesSino() {
   const carregar = useCallback(async () => {
     try {
       const res = await fetch(index().url, {
-        headers: { Accept: 'application/json' },
+        credentials: 'same-origin',
       });
+
+      if (!res.ok) {
+        console.warn('Notificações indisponíveis', res.status);
+        return;
+      }
+
       const data = await res.json();
-      setNotificacoes(data.notificacoes);
-      setNaoLidas(data.nao_lidas);
+      setNotificacoes(Array.isArray(data?.notificacoes) ? data.notificacoes : []);
+      setNaoLidas(Number(data?.nao_lidas) || 0);
     } catch (e) {
-      // silencioso — não interrompe a UI por falha de polling
+      console.warn('Erro ao carregar notificações', e);
     }
   }, []);
 
@@ -44,15 +54,43 @@ export default function NotificacoesSino() {
     return () => clearInterval(intervalo);
   }, [carregar]);
 
-  const handleMarcarTodasLidas = async () => {
-    await fetch(marcarTodasLidas().url, {
-      method: 'POST',
-      headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-          ?.content,
+  const handleMarcarLida = (id, url = null) => {
+    router.post(
+      marcarLida(id).url,
+      {},
+      {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+          carregar();
+          if (url) {
+            setAberto(false);
+            router.visit(url);
+          }
+        },
       },
-    });
-    carregar();
+    );
+  };
+
+  const handleMarcarTodasLidas = () => {
+    router.post(
+      marcarTodasLidas().url,
+      {},
+      {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: carregar,
+      },
+    );
+  };
+
+  const handleClickNotificacao = (n) => {
+    if (!n.lida) {
+      handleMarcarLida(n.id, n.url);
+    } else if (n.url) {
+      setAberto(false);
+      router.visit(n.url);
+    }
   };
 
   return (
@@ -71,16 +109,24 @@ export default function NotificacoesSino() {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="end" className="w-80 p-0">
+      <PopoverContent align="end" className="w-96 p-0">
+        {/* Cabeçalho */}
         <div className="flex items-center justify-between border-b p-3">
           <span className="text-sm font-medium">Notificações</span>
           {naoLidas > 0 && (
-            <Button variant="ghost" size="sm" onClick={handleMarcarTodasLidas}>
-              Marcar todas como lidas
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleMarcarTodasLidas}
+              className="h-7 text-xs"
+            >
+              <CheckCheck className="mr-1 size-3" />
+              Marcar todas
             </Button>
           )}
         </div>
 
+        {/* Lista */}
         <div className="max-h-96 overflow-y-auto">
           {notificacoes.length === 0 ? (
             <p className="p-4 text-center text-sm text-muted-foreground">
@@ -88,9 +134,11 @@ export default function NotificacoesSino() {
             </p>
           ) : (
             notificacoes.map((n) => (
-              <div
+              <button
                 key={n.id}
-                className={`w-full border-b p-3 text-left last:border-0 ${
+                type="button"
+                onClick={() => handleClickNotificacao(n)}
+                className={`w-full border-b p-3 text-left last:border-0 hover:bg-muted/50 transition-colors ${
                   n.lida ? 'opacity-60' : ''
                 }`}
               >
@@ -103,14 +151,49 @@ export default function NotificacoesSino() {
 
                 <p className="text-xs text-muted-foreground">{n.mensagem}</p>
 
+                {/* 🔥 Estatísticas do prazo expirado (diretor) */}
+                {n.tipo === 'prazo_expirado' && n.stats && (
+                  <div className="mt-2 grid grid-cols-2 gap-x-2 gap-y-0.5 text-xs">
+                    <span className="text-muted-foreground">Total:</span>
+                    <span className="font-medium">{n.stats.total}</span>
+                    <span className="text-muted-foreground">✅ Submeteram:</span>
+                    <span className="font-medium text-green-600">
+                      {n.stats.submeteram}
+                    </span>
+                    <span className="text-muted-foreground">❌ Não submeteram:</span>
+                    <span className="font-medium text-red-600">
+                      {n.stats.nao_submeteram}
+                    </span>
+                    <span className="text-muted-foreground">📄 Justificaram:</span>
+                    <span className="font-medium text-blue-600">
+                      {n.stats.justificaram}
+                    </span>
+                  </div>
+                )}
+
+                {/* 🔥 Motivo da justificativa (diretor) */}
+                {n.tipo === 'justificativa_enviada' && n.motivo && (
+                  <div className="mt-2 p-2 bg-muted/40 rounded border border-border text-xs">
+                    <p className="font-medium text-muted-foreground">Motivo:</p>
+                    <p className="mt-0.5">{n.motivo}</p>
+                  </div>
+                )}
+
+                {/* 🔥 Parecer do diretor (professor) */}
+                {n.tipo === 'justificativa_avaliada' && n.parecer_diretor && (
+                  <div className="mt-2 p-2 bg-muted/40 rounded border border-border text-xs">
+                    <p className="font-medium text-muted-foreground">
+                      Parecer do diretor:
+                    </p>
+                    <p className="mt-0.5">{n.parecer_diretor}</p>
+                  </div>
+                )}
+
+                {/* Propinas em atraso */}
                 {n.tipo === 'propina_atraso' && n.meses?.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {n.meses.map((mes, i) => (
-                      <Badge
-                        key={i}
-                        variant="destructive"
-                        className="font-normal"
-                      >
+                      <Badge key={i} variant="destructive" className="font-normal">
                         {mes}
                       </Badge>
                     ))}
@@ -129,10 +212,12 @@ export default function NotificacoesSino() {
                   </p>
                 )}
 
-                <p className="mt-1 text-[10px] text-muted-foreground">
-                  {n.criada_em}
-                </p>
-              </div>
+                {/* Data + link */}
+                <div className="mt-1 flex items-center justify-between">
+                  <p className="text-[10px] text-muted-foreground">{n.criada_em}</p>
+                  {n.url && <ExternalLink className="size-3 text-muted-foreground" />}
+                </div>
+              </button>
             ))
           )}
         </div>
