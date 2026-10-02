@@ -226,7 +226,7 @@ final class SidebarMenuService
             ]),
 
             // ===== NOVO GRUPO: AVALIAÇÃO (Provas) =====
-            new MenuGroup('Avaliação', [
+            /*new MenuGroup('Avaliação', [
                 new MenuItem(
                     key: 'prazos-provas',
                     title: 'Prazos de Provas',
@@ -234,6 +234,7 @@ final class SidebarMenuService
                     icon: 'FileText',
                     can: fn () => Gate::allows('prazo-prova.viewAny')
                 ),
+                
                 new MenuItem(
                     key: 'submeter-provas',
                     title: 'Submeter Provas',
@@ -241,7 +242,7 @@ final class SidebarMenuService
                     icon: 'FileText',
                     can: fn () => Gate::allows('submissao-prova.create')
                 ),
-            ]),
+            ]),*/
 
             new MenuGroup('Matrículas', [
                 new MenuItem(
