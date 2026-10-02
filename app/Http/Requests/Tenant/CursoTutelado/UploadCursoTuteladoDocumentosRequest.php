@@ -47,12 +47,6 @@ class UploadCursoTuteladoDocumentosRequest extends FormRequest
                 'mimes:pdf',
                 'max:10240',
             ],
-            'sugestoes_temas_pap' => [
-                $cursoTutelado?->sugestoes_temas_pap_path ? 'nullable' : 'required',
-                'file',
-                'mimes:pdf',
-                'max:10240',
-            ],
         ];
     }
 
@@ -79,11 +73,6 @@ class UploadCursoTuteladoDocumentosRequest extends FormRequest
             'estrutura_trabalho_pap.uploaded' => 'O servidor não conseguiu receber a estrutura do trabalho PAP. Tente novamente.',
             'estrutura_trabalho_pap.mimes' => 'A estrutura do trabalho PAP deve estar no formato PDF.',
             'estrutura_trabalho_pap.max' => 'O ficheiro da estrutura do trabalho PAP não pode ultrapassar 10 MB.',
-            'sugestoes_temas_pap.required' => 'Seleccione as sugestões de temas PAP em PDF.',
-            'sugestoes_temas_pap.file' => 'As sugestões de temas PAP devem ser enviadas como ficheiro.',
-            'sugestoes_temas_pap.uploaded' => 'O servidor não conseguiu receber as sugestões de temas PAP. Tente novamente.',
-            'sugestoes_temas_pap.mimes' => 'As sugestões de temas PAP devem estar no formato PDF.',
-            'sugestoes_temas_pap.max' => 'O ficheiro das sugestões de temas PAP não pode ultrapassar 10 MB.',
         ];
     }
 
@@ -93,7 +82,7 @@ class UploadCursoTuteladoDocumentosRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (): void {
-            foreach (['criterios_pap', 'manual_pt', 'estrutura_trabalho_pap', 'sugestoes_temas_pap'] as $campo) {
+            foreach (['criterios_pap', 'manual_pt', 'estrutura_trabalho_pap'] as $campo) {
                 $ficheiro = $this->file($campo);
 
                 if ($ficheiro && $ficheiro->getError() !== UPLOAD_ERR_OK) {

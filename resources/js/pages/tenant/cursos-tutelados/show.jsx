@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TabTurmas } from './components/tabs/tab-turmas';
 import { TabProfessores } from './components/tabs/tab-professores';
 import { TabCriteriosPap } from './components/tabs/tab-criteriospap';
+import { TabSugestoesTemas } from './components/tabs/tab-sugestoes-temas';
 import { Badge } from '@/components/ui/badge';
 import { show as showClasse } from '@/actions/App/Http/Controllers/Tenant/CursoClasseController';
 import {
@@ -62,6 +63,7 @@ export default function Show({
       data: {
         page_turmas: cursoTutelado.turmas?.current_page ?? 1,
         page_professores: cursoTutelado.professores?.current_page ?? 1,
+        page_sugestoes: cursoTutelado.sugestoes_temas?.current_page ?? 1,
         ano_lectivo_id: anoLectivoId,
         [param]: page,
       },
@@ -94,6 +96,12 @@ export default function Show({
             </TabsTrigger>
             <TabsTrigger value="criterios-pap" className="hover:cursor-pointer">
               Critérios para a PAP
+            </TabsTrigger>
+            <TabsTrigger
+              value="sugestoes-temas"
+              className="hover:cursor-pointer"
+            >
+              Sugestões de temas
             </TabsTrigger>
           </TabsList>
 
@@ -151,6 +159,16 @@ export default function Show({
             //can={cursoTutelado.can}
             can={can}
             errors={errors}
+          />
+        </TabsContent>
+
+        <TabsContent value="sugestoes-temas" className="mt-2">
+          <TabSugestoesTemas
+            params={params}
+            sugestoes={cursoTutelado.sugestoes_temas?.data ?? []}
+            pagination={cursoTutelado.sugestoes_temas}
+            onPageChange={handlePageChange('page_sugestoes')}
+            canManage={can?.uploadCriteriosPap}
           />
         </TabsContent>
       </Tabs>

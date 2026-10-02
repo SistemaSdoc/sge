@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Tenant\GrupoPap;
 
 use App\Rules\AlunoNaoPertencenteAoGrupo;
+use App\Rules\EstudoCasoPapUnico;
+use App\Rules\TemaPapUnico;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,8 +27,28 @@ class UpdateRequest extends FormRequest
     {
         return [
             'nome_grupo' => 'sometimes|string|max:255',
-            'tema_grupo' => 'sometimes|string|max:255',
-            'estudo_caso' => 'nullable|string',
+            'tema_grupo' => [
+                'sometimes',
+                'string',
+                'max:255',
+                new TemaPapUnico(
+                    (string) $this->route('cursoTutelado')->getKey(),
+                    (string) $this->route('turma')->ano_lectivo_id,
+                    (string) $this->route('cursoClasseTurno')->getKey(),
+                    (string) $this->route('grupoPap')->getKey(),
+                ),
+            ],
+            'estudo_caso' => [
+                'nullable',
+                'string',
+                new EstudoCasoPapUnico(
+                    (string) $this->route('cursoTutelado')->getKey(),
+                    (string) $this->route('turma')->ano_lectivo_id,
+                    (string) $this->route('cursoClasseTurno')->getKey(),
+                    $this->input('tema_grupo', $this->route('grupoPap')?->tema_grupo),
+                    (string) $this->route('grupoPap')->getKey(),
+                ),
+            ],
             'status' => 'sometimes|string',
             'nota_final' => 'nullable|numeric|min:0|max:20',
             'data_defesa' => 'nullable|date',

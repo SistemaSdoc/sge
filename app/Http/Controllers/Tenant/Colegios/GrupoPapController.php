@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant\Colegios;
 
+use App\Actions\Tenant\GrupoPap\CreateGrupoPap;
 use App\Helpers\PapHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\GrupoPap\DefinirDataDefesaRequest;
@@ -86,24 +87,12 @@ class GrupoPapController extends Controller
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
         CursoClasseTurno $cursoClasseTurno,
-        Turma $turma
+        Turma $turma,
+        CreateGrupoPap $createGrupoPap
     ) {
         $this->authorize('create', GrupoPap::class);
 
-        $grupo = GrupoPap::create([
-            'turma_id' => $turma->id,
-            'professor_tutor_id' => $request->professor_tutor_id,
-            'nome_grupo' => $request->nome_grupo,
-            'status_aprovacao' => GrupoPap::APROVACAO_RASCUNHO,
-            'tema_grupo' => $request->tema_grupo,
-            'estudo_caso' => $request->estudo_caso,
-            'nota_final' => $request->nota_final,
-            'data_defesa' => $request->data_defesa,
-        ]);
-
-        $grupo->elementos()->createMany(
-            collect($request->alunos)->map(fn ($id) => ['aluno_id' => $id])->toArray()
-        );
+        $grupo = $createGrupoPap->handle($turma, $request->validated());
 
         return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', [
             'colegio' => $instituicao->id,

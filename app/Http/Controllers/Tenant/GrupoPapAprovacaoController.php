@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
+use App\Rules\EstudoCasoPapUnico;
+use App\Rules\TemaPapUnico;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Traits\NotificaGrupoPap;
 use Illuminate\Http\Request;
@@ -214,10 +216,31 @@ class GrupoPapAprovacaoController extends Controller
 
         $validated = $request->validate([
             'nome_grupo' => 'required|string|max:500',
-            'tema_grupo' => 'required|string|max:500',
+            'tema_grupo' => [
+                'required',
+                'string',
+                'max:500',
+                new TemaPapUnico(
+                    (string) $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
+                    (string) $grupoPap->turma?->ano_lectivo_id,
+                    (string) $grupoPap->turma?->curso_classe_turno_id,
+                    (string) $grupoPap->getKey(),
+                ),
+            ],
             'problema' => 'nullable|string|max:2000',
             'objectivos' => 'nullable|string|max:2000',
-            'estudo_caso' => 'nullable|string|max:2000',
+            'estudo_caso' => [
+                'nullable',
+                'string',
+                'max:2000',
+                new EstudoCasoPapUnico(
+                    (string) $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
+                    (string) $grupoPap->turma?->ano_lectivo_id,
+                    (string) $grupoPap->turma?->curso_classe_turno_id,
+                    $request->input('tema_grupo', $grupoPap->tema_grupo),
+                    (string) $grupoPap->getKey(),
+                ),
+            ],
         ]);
 
         $grupoPap->update($validated);
@@ -279,7 +302,17 @@ class GrupoPapAprovacaoController extends Controller
 
         $validated = $request->validate([
             'nome_grupo' => 'required|string|max:500',
-            'tema_grupo' => 'required|string|max:500',
+            'tema_grupo' => [
+                'required',
+                'string',
+                'max:500',
+                new TemaPapUnico(
+                    (string) $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
+                    (string) $grupoPap->turma?->ano_lectivo_id,
+                    (string) $grupoPap->turma?->curso_classe_turno_id,
+                    (string) $grupoPap->getKey(),
+                ),
+            ],
             'problema' => 'nullable|string|max:2000',
             'objectivos' => 'nullable|string|max:2000',
         ]);

@@ -84,6 +84,26 @@ class CursoTuteladoResourceShow extends JsonResource
             : $sharedAtivo;
 
         $docs = $this->resolverDocumentosPap();
+        $sugestoesTemas = $this->tipo_tutela === 'externa'
+            ? $this->resolverSugestoesTemas()
+            : $this->sugestoesTemas;
+        $sugestoesCollection = collect($sugestoesTemas)->map(fn ($sugestao) => [
+            'id' => data_get($sugestao, 'id'),
+            'titulo' => data_get($sugestao, 'titulo'),
+            'descricao' => data_get($sugestao, 'descricao'),
+            'ativo' => (bool) data_get($sugestao, 'ativo'),
+        ]);
+        $paginaSugestoes = min(
+            max(1, (int) $request->input('page_sugestoes', 1)),
+            max(1, (int) ceil($sugestoesCollection->count() / $perPage))
+        );
+        $sugestoes = new LengthAwarePaginator(
+            $sugestoesCollection->forPage($paginaSugestoes, $perPage)->values(),
+            $sugestoesCollection->count(),
+            $perPage,
+            $paginaSugestoes,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         return [
             'id' => $this->id,
@@ -125,6 +145,7 @@ class CursoTuteladoResourceShow extends JsonResource
             ]),
             'professores' => $professores->toArray(),
             'turmas' => $turmas->toArray(),
+            'sugestoes_temas' => $sugestoes->toArray(),
             'criterios_pap_url' => $docs['criterios_pap_path']
                 ? $this->publicStorageUrl($docs['criterios_pap_path'])
                 : null,

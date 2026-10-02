@@ -290,6 +290,7 @@ class CursoTuteladoViewService
                 $query->with('user:id,nome')
                     ->orderBy('created_at', 'desc');
             },
+            'sugestoesTemas' => fn ($query) => $query->orderBy('titulo'),
         ]);
     }
 

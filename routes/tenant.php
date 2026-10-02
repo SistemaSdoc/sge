@@ -307,6 +307,15 @@ Route::middleware([
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/criterios-pap', [CursoTuteladoController::class, 'uploadCriteriosPap'])
                 ->name('instituicoes.cursos-tutelados.criterios-pap');
 
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas', [CursoTuteladoController::class, 'storeSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.store');
+
+            Route::put('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}', [CursoTuteladoController::class, 'updateSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.update');
+
+            Route::delete('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}', [CursoTuteladoController::class, 'destroySugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.destroy');
+
             /*
             |--------------------------------------------------------------------------
             | Professores de Cursos Tutelados

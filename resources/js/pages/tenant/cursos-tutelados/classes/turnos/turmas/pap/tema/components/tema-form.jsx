@@ -27,8 +27,14 @@ export function TemaForm({
   processing,
   grupoPap,
   professores = [],
+  sugestoesTemas = [],
 }) {
   const [professorTutorId, setProfessorTutorId] = useState(undefined);
+  const [origemTema, setOrigemTema] = useState(
+    sugestoesTemas.length > 0 ? 'sugerido' : 'autoral',
+  );
+  const [sugestaoTemaId, setSugestaoTemaId] = useState('');
+
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
       <Card className="overflow-visible">
@@ -40,7 +46,7 @@ export function TemaForm({
           <FieldGroup>
             <FieldSet>
               <Field>
-                <FieldLabel>Professor tutor</FieldLabel>
+                <FieldLabel>Professor tutor (obrigatório)</FieldLabel>
                 <input
                   type="hidden"
                   name="professor_tutor_id"
@@ -71,20 +77,93 @@ export function TemaForm({
               </Field>
 
               <Field>
-                <FieldLabel>Tema</FieldLabel>
-                <Input
-                  name="tema_grupo"
-                  disabled={processing}
-                  placeholder="Ex.: Sistema de Gestão Escolar"
-                  defaultValue={grupoPap?.tema_grupo ?? ''}
-                />
+                <FieldLabel>Escolha do tema</FieldLabel>
+                <input type="hidden" name="origem_tema" value={origemTema} />
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Button
+                    type="button"
+                    variant={origemTema === 'sugerido' ? 'default' : 'outline'}
+                    aria-pressed={origemTema === 'sugerido'}
+                    disabled={processing || sugestoesTemas.length === 0}
+                    onClick={() => {
+                      setSugestaoTemaId('');
+                      setOrigemTema('sugerido');
+                    }}
+                  >
+                    Escolher tema sugerido
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={origemTema === 'autoral' ? 'default' : 'outline'}
+                    aria-pressed={origemTema === 'autoral'}
+                    disabled={processing}
+                    onClick={() => {
+                      setSugestaoTemaId('');
+                      setOrigemTema('autoral');
+                    }}
+                  >
+                    Propor tema do grupo
+                  </Button>
+                </div>
+
+                {origemTema === 'sugerido' ? (
+                  <>
+                    <input
+                      type="hidden"
+                      name="tema_sugerido_id"
+                      value={sugestaoTemaId}
+                    />
+                    <Select
+                      value={sugestaoTemaId || undefined}
+                      onValueChange={setSugestaoTemaId}
+                      disabled={processing}
+                    >
+                      <SelectTrigger
+                        id="tema-sugerido-select"
+                        className="w-full"
+                      >
+                        <SelectValue placeholder="Selecione um tema sugerido" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>
+                            Temas sugeridos para o curso
+                          </SelectLabel>
+                          {sugestoesTemas.map((sugestao) => (
+                            <SelectItem
+                              key={sugestao.id}
+                              value={String(sugestao.id)}
+                            >
+                              {sugestao.titulo}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    {errors.tema_sugerido_id && (
+                      <FieldError>{errors.tema_sugerido_id}</FieldError>
+                    )}
+                    {sugestoesTemas.length === 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        Não existem temas sugeridos. Proponha um tema do grupo.
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <Input
+                    name="tema_grupo"
+                    disabled={processing}
+                    placeholder="Ex.: Sistema de Gestão Escolar"
+                    defaultValue={grupoPap?.tema_grupo ?? ''}
+                  />
+                )}
                 {errors.tema_grupo && (
                   <FieldError>{errors.tema_grupo}</FieldError>
                 )}
               </Field>
 
               <Field>
-                <FieldLabel>Problema</FieldLabel>
+                <FieldLabel>Problema (obrigatório)</FieldLabel>
                 <Input
                   name="problema"
                   disabled={processing}
@@ -95,7 +174,7 @@ export function TemaForm({
               </Field>
 
               <Field>
-                <FieldLabel>Objectivos</FieldLabel>
+                <FieldLabel>Objectivos (obrigatório)</FieldLabel>
                 <Textarea
                   name="objectivos"
                   disabled={processing}
@@ -108,7 +187,7 @@ export function TemaForm({
               </Field>
 
               <Field>
-                <FieldLabel>Estudo de caso</FieldLabel>
+                <FieldLabel>Estudo de caso (obrigatório)</FieldLabel>
                 <Input
                   name="estudo_caso"
                   disabled={processing}

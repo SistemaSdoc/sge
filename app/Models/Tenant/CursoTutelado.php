@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Model;
     'criterios_pap_path',
     'manual_pt_path',
     'estrutura_trabalho_pap_path',
-    'sugestoes_temas_pap_path',
 ])]
 
 class CursoTutelado extends Model
@@ -130,5 +129,38 @@ class CursoTutelado extends Model
                 'sugestoes_temas_pap_path' => $tutor?->sugestoes_temas_pap_path,
             ];
         });
+    }
+
+    public function sugestoesTemas()
+    {
+        return $this->hasMany(SugestaoTemaPap::class, 'curso_tutelado_id');
+    }
+
+    /**
+     * Sugestões activas. Tutela externa vai buscar ao tutor.
+     */
+    public function resolverSugestoesTemas(): array
+    {
+        $select = ['id', 'titulo', 'descricao'];
+
+        if ($this->tipo_tutela !== 'externa') {
+            return $this->sugestoesTemas()->where('ativo', true)->orderBy('titulo')->get($select)->toArray();
+        }
+
+        $shared = $this->cursoTuteladoShared;
+
+        if (! $shared?->tenant_tutor_id || ! $shared?->curso_id) {
+            return [];
+        }
+
+        $tenantTutor = Tenant::find($shared->tenant_tutor_id);
+
+        return $tenantTutor?->run(
+            fn () => CursoTutelado::query()
+                ->where('tipo_tutela', 'propria')
+                ->whereHas('instituicaoCurso', fn ($q) => $q->where('curso_id', $shared->curso_id))
+                ->first()
+                ?->sugestoesTemas()->where('ativo', true)->orderBy('titulo')->get($select)->toArray() ?? []
+        ) ?? [];
     }
 }

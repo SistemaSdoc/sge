@@ -13,6 +13,7 @@ use App\Models\Tenant\HistoricoAprovacaoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use App\Rules\TemaPapUnico;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Services\Tenant\CrossTenantAccessService;
 use App\Services\Tenant\Tutela\TutelaService;
@@ -287,7 +288,18 @@ class GrupoPapAprovacaoController extends Controller
 
         $validated = $request->validate([
             'nome_grupo' => ['required', 'string', 'max:255'],
-            'tema_grupo' => ['required', 'string', 'max:255'],
+            'tema_grupo' => [
+                'required',
+                'string',
+                'max:255',
+                new TemaPapUnico(
+                    (string) $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
+                    (string) $grupoPap->turma?->ano_lectivo_id,
+                    (string) $grupoPap->turma?->curso_classe_turno_id,
+                    (string) $grupoPap->getKey(),
+                    $request->input('estudo_caso', $grupoPap->estudo_caso),
+                ),
+            ],
             'problema' => ['nullable', 'string', 'max:2000'],
             'objectivos' => ['nullable', 'string', 'max:2000'],
         ]);
@@ -429,7 +441,18 @@ class GrupoPapAprovacaoController extends Controller
 
         $dados = $request->validate([
             'nome_grupo' => ['required', 'string', 'max:255'],
-            'tema_grupo' => ['required', 'string', 'max:255'],
+            'tema_grupo' => [
+                'required',
+                'string',
+                'max:255',
+                new TemaPapUnico(
+                    (string) $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
+                    (string) $grupoPap->turma?->ano_lectivo_id,
+                    (string) $grupoPap->turma?->curso_classe_turno_id,
+                    (string) $grupoPap->getKey(),
+                    $request->input('estudo_caso', $grupoPap->estudo_caso),
+                ),
+            ],
         ]);
 
         $resultado = $this->service->reenviar(

@@ -26,7 +26,6 @@ class UploadCursoTuteladoDocumentos
                 'criterios_pap' => 'criterios-pap',
                 'manual_pt' => 'manual-pt',
                 'estrutura_trabalho_pap' => 'estrutura-trabalho-pap',
-                'sugestoes_temas_pap' => 'sugestoes-temas-pap',
             ];
 
             foreach ($documentos as $campo => $diretorio) {
@@ -48,14 +47,12 @@ class UploadCursoTuteladoDocumentos
                 'criterios_pap' => $cursoTutelado->criterios_pap_path,
                 'manual_pt' => $cursoTutelado->manual_pt_path,
                 'estrutura_trabalho_pap' => $cursoTutelado->estrutura_trabalho_pap_path,
-                'sugestoes_temas_pap' => $cursoTutelado->sugestoes_temas_pap_path,
             ];
 
             $cursoTutelado->forceFill([
                 'criterios_pap_path' => $novosCaminhos['criterios_pap'] ?? $cursoTutelado->criterios_pap_path,
                 'manual_pt_path' => $novosCaminhos['manual_pt'] ?? $cursoTutelado->manual_pt_path,
                 'estrutura_trabalho_pap_path' => $novosCaminhos['estrutura_trabalho_pap'] ?? $cursoTutelado->estrutura_trabalho_pap_path,
-                'sugestoes_temas_pap_path' => $novosCaminhos['sugestoes_temas_pap'] ?? $cursoTutelado->sugestoes_temas_pap_path,
             ])->save();
 
             foreach ($caminhosAntigos as $campo => $caminhoAntigo) {

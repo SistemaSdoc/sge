@@ -40,37 +40,31 @@ export function TabCriteriosPap({
   criteriosPapUrl,
   manualPtUrl,
   estruturaTrabalhoPapUrl,
-  sugestoesTemaPapUrl,
   can,
   errors = {},
 }) {
   const criteriosId = useId();
   const manualId = useId();
   const estruturaTrabalhoPapId = useId();
-  const sugestoesTemaPapId = useId();
   const [modalAberto, setModalAberto] = useState(false);
   const [ficheiroCriterios, setFicheiroCriterios] = useState(null);
   const [ficheiroManual, setFicheiroManual] = useState(null);
   const [ficheiroEstruturaTrabalhoPap, setFicheiroEstruturaTrabalhoPap] =
     useState(null);
-  const [ficheiroSugestoesTemaPap, setFicheiroSugestoesTemaPap] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   const faltaCriterios = !criteriosPapUrl;
   const faltaManual = !manualPtUrl;
   const faltaEstruturaTrabalhoPap = !estruturaTrabalhoPapUrl;
-  const faltaSugestoesTemaPap = !sugestoesTemaPapUrl;
   const algumDocumento = !!(
     criteriosPapUrl ||
     manualPtUrl ||
-    estruturaTrabalhoPapUrl ||
-    sugestoesTemaPapUrl
+    estruturaTrabalhoPapUrl
   );
   const todosCarregados = !!(
     criteriosPapUrl &&
     manualPtUrl &&
-    estruturaTrabalhoPapUrl &&
-    sugestoesTemaPapUrl
+    estruturaTrabalhoPapUrl
   );
 
   // Botão válido se os ficheiros em falta estiverem seleccionados, e pelo menos um seleccionado
@@ -78,15 +72,13 @@ export function TabCriteriosPap({
     (!faltaCriterios || ficheiroCriterios) &&
     (!faltaManual || ficheiroManual) &&
     (!faltaEstruturaTrabalhoPap || ficheiroEstruturaTrabalhoPap) &&
-    (!faltaSugestoesTemaPap || ficheiroSugestoesTemaPap) &&
-    !!(ficheiroCriterios || ficheiroManual || ficheiroEstruturaTrabalhoPap || ficheiroSugestoesTemaPap);
+    !!(ficheiroCriterios || ficheiroManual || ficheiroEstruturaTrabalhoPap);
 
   const handleFecharModal = () => {
     setModalAberto(false);
     setFicheiroCriterios(null);
     setFicheiroManual(null);
     setFicheiroEstruturaTrabalhoPap(null);
-    setFicheiroSugestoesTemaPap(null);
   };
 
   const handleUpload = () => {
@@ -97,8 +89,7 @@ export function TabCriteriosPap({
     if (ficheiroManual) payload.manual_pt = ficheiroManual;
     if (ficheiroEstruturaTrabalhoPap)
       payload.estrutura_trabalho_pap = ficheiroEstruturaTrabalhoPap;
-    if (ficheiroSugestoesTemaPap)
-      payload.sugestoes_temas_pap = ficheiroSugestoesTemaPap;
+
 
     setUploading(true);
     router.post(
@@ -126,7 +117,6 @@ export function TabCriteriosPap({
     { label: 'Critérios PAP.pdf', url: criteriosPapUrl },
     { label: 'Manual PT.pdf', url: manualPtUrl },
     { label: 'Estrutura do Trabalho PAP.pdf', url: estruturaTrabalhoPapUrl },
-    { label: 'Sugestões de Temas PAP.pdf', url: sugestoesTemaPapUrl },
   ];
 
   return (
@@ -315,32 +305,6 @@ export function TabCriteriosPap({
                   {errors.estrutura_trabalho_pap === 'validation.uploaded'
                     ? 'O servidor não conseguiu receber este ficheiro. Tente novamente ou contacte o administrador.'
                     : errors.estrutura_trabalho_pap}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor={sugestoesTemaPapId}>
-                Sugestões de Temas PAP (PDF)
-                {!faltaSugestoesTemaPap && (
-                  <span className="font-normal text-muted-foreground">
-                    {' '}
-                    — opcional
-                  </span>
-                )}
-              </Label>
-              <Input
-                id={sugestoesTemaPapId}
-                type="file"
-                accept=".pdf"
-                onChange={(e) => setFicheiroSugestoesTemaPap(e.target.files?.[0] ?? null)}
-                className="p-0 pr-3 text-muted-foreground italic file:mr-3 file:h-full file:border-0 file:border-r file:border-solid file:border-input file:bg-transparent file:px-3 file:text-sm file:font-medium file:text-foreground file:not-italic"
-              />
-              {errors.sugestoes_temas_pap && (
-                <p className="text-sm text-destructive">
-                  {errors.sugestoes_temas_pap === 'validation.uploaded'
-                    ? 'O servidor não conseguiu receber este ficheiro. Tente novamente ou contacte o administrador.'
-                    : errors.sugestoes_temas_pap}
                 </p>
               )}
             </div>

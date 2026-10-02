@@ -8,12 +8,15 @@ use App\Actions\Tenant\CursoTutelado\UpdateCursoTutelado;
 use App\Actions\Tenant\CursoTutelado\UploadCursoTuteladoDocumentos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\CursoTutelado\StoreCursoTuteladoRequest;
+use App\Http\Requests\Tenant\CursoTutelado\StoreSugestaoTemaPapRequest;
 use App\Http\Requests\Tenant\CursoTutelado\UpdateCursoTuteladoRequest;
+use App\Http\Requests\Tenant\CursoTutelado\UpdateSugestaoTemaPapRequest;
 use App\Http\Requests\Tenant\CursoTutelado\UploadCursoTuteladoDocumentosRequest;
 use App\Http\Resources\Tenant\CursoTutelado\CursoTuteladoResourceEdit;
 use App\Http\Resources\Tenant\CursoTutelado\CursoTuteladoResourceShow;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\SugestaoTemaPap;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\CursoTuteladoViewService;
@@ -226,5 +229,38 @@ class CursoTuteladoController extends Controller
             'type' => 'success',
             'message' => 'Documentos actualizados com sucesso.',
         ]);
+    }
+
+    public function storeSugestaoTema(StoreSugestaoTemaPapRequest $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
+    {
+        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+
+        $cursoTutelado->sugestoesTemas()->create($request->validated());
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão cadastrada.']);
+    }
+
+    public function updateSugestaoTema(
+        UpdateSugestaoTemaPapRequest $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        SugestaoTemaPap $sugestao
+    ) {
+        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+        abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
+
+        $sugestao->update($request->validated());
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão actualizada.']);
+    }
+
+    public function destroySugestaoTema(Instituicao $instituicao, CursoTutelado $cursoTutelado, SugestaoTemaPap $sugestao)
+    {
+        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+        abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
+
+        $sugestao->delete();
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão removida.']);
     }
 }
