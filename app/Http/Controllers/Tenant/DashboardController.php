@@ -32,6 +32,12 @@ class DashboardController extends Controller
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
+        if ($user->hasRole('Secretario do Curso') && $user->instituicao_id) {
+            return to_route('tenant.dashboard.instituicoes.cursos-tutelados.index', [
+                'instituicao' => $user->instituicao_id,
+            ]);
+        }
+
         $anoLectivoId = AnoLectivo::activo()?->id;
 
         if ($user->hasAnyRole(['SuperAdmin', 'Master', 'Director', 'Subdirector', 'Secretaria'])) {

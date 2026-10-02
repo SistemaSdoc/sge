@@ -19,6 +19,7 @@ use App\Http\Controllers\Tenant\CursoClasseController;
 use App\Http\Controllers\Tenant\CursoClasseTurnoController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\CursoTuteladoProfessorController;
+use App\Http\Controllers\Tenant\CursoTuteladoSecretarioController;
 use App\Http\Controllers\Tenant\DashboardController;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
@@ -270,7 +271,8 @@ Route::middleware([
                 ->parameters([
                     'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
-                ]);
+                ])
+                ->except(['index', 'show']);
 
             Route::get('instituicoes/{instituicao}/cursos-tutelados-cursos-disponiveis', [CursoTuteladoController::class, 'cursosDisponiveis'])
                 ->name('instituicoes.cursos-tutelados.cursos-disponiveis');
@@ -295,6 +297,12 @@ Route::middleware([
                     'cursos-tutelados' => 'cursoTutelado',
                     'professores' => 'professor',
                 ]);
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/secretarios', [CursoTuteladoSecretarioController::class, 'store'])
+                ->name('instituicoes.cursos-tutelados.secretarios.store');
+
+            Route::delete('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/secretarios/{secretario}', [CursoTuteladoSecretarioController::class, 'destroy'])
+                ->name('instituicoes.cursos-tutelados.secretarios.destroy');
 
             /*
             |--------------------------------------------------------------------------
@@ -731,6 +739,22 @@ Route::middleware([
 
             Route::match(['GET', 'POST'], 'documentos/exportar', [DocumentosController::class, 'exportar'])
                 ->name('documentos.exportar');
+        });
+
+    Route::middleware([
+        'auth:tenant',
+        'verified',
+        'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno|Secretario do Curso',
+        CheckTenantStatus::class,
+    ])
+        ->prefix('dashboard')
+        ->name('tenant.dashboard.')
+        ->group(function () {
+            Route::get('instituicoes/{instituicao}/cursos-tutelados', [CursoTuteladoController::class, 'index'])
+                ->name('instituicoes.cursos-tutelados.index');
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}', [CursoTuteladoController::class, 'show'])
+                ->name('instituicoes.cursos-tutelados.show');
         });
 
     /*

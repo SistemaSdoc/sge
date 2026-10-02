@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 #[Fillable([
     'nome',
@@ -98,5 +99,22 @@ class Instituicao extends Model
     public function permiteMatricula(): bool
     {
         return in_array($this->tipo, ['colegio', 'instituicao', 'instituto']);
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function (Instituicao $instituicao): void {
+            if (! tenant() || ! ($instituicao->wasRecentlyCreated || $instituicao->wasChanged('nome'))) {
+                return;
+            }
+
+            try {
+                Tenant::query()
+                    ->whereKey(tenant('id'))
+                    ->update(['instituicao_nome' => $instituicao->nome]);
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        });
     }
 }

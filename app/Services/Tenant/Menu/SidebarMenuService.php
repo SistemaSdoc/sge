@@ -51,6 +51,11 @@ final class SidebarMenuService
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
+        if (! $user instanceof User) {
+            return [];
+        }
+
         $gate = Gate::forUser($user);
         $grupoPapNavigation = $this->grupoPapNavigationService->resolve($user);
 
@@ -91,7 +96,9 @@ final class SidebarMenuService
 
                         $instituicao = Instituicao::find($user?->instituicao_id, ['id']);
 
-                        return $instituicao && $gate->allows('view', $instituicao);
+                        return ! $user->hasRole('Secretario do Curso')
+                            && $instituicao
+                            && $gate->allows('view', $instituicao);
                     },
                 ),
 
@@ -113,7 +120,10 @@ final class SidebarMenuService
 
                         $instituicao = Instituicao::find($user?->instituicao_id, ['id']);
 
-                        return $instituicao && $gate->allows('view', $instituicao);
+                        return $instituicao
+                            && ($gate->allows('view', $instituicao)
+                                || ($user->hasRole('Secretario do Curso')
+                                    && $user->cursosSecretariados()->exists()));
                     },
                 ),
 
@@ -178,7 +188,8 @@ final class SidebarMenuService
                     title: $grupoPapNavigation['title'],
                     href: $grupoPapNavigation['href'],
                     icon: 'Users',
-                    can: $grupoPapNavigation['visible'] && $gate->allows('viewAny', GrupoPap::class),
+                    can: $grupoPapNavigation['visible']
+                        && ($user?->hasRole('Aluno') === true || $gate->allows('viewAny', GrupoPap::class)),
                 ),
 
                 new MenuItem(
@@ -323,8 +334,30 @@ final class SidebarMenuService
             ]),
         ];
 
-        return array_values(array_filter(
+        $menuGroups = array_values(array_filter(
             array_map(fn (MenuGroup $group) => $group->toArray(), $groups),
         ));
+
+        if ($user->hasRole('Secretario do Curso')) {
+            return array_values(array_map(
+                function (array $group): array {
+                    $group['items'] = array_values(array_filter(
+                        $group['items'],
+                        fn (array $item): bool => in_array($item['key'], ['dashboard', 'meus-cursos'], true),
+                    ));
+
+                    return $group;
+                },
+                array_filter(
+                    $menuGroups,
+                    fn (array $group): bool => count(array_intersect(
+                        ['dashboard', 'meus-cursos'],
+                        array_column($group['items'], 'key'),
+                    )) > 0,
+                ),
+            ));
+        }
+
+        return $menuGroups;
     }
 }

@@ -44,6 +44,11 @@ class CursoTuteladoController extends Controller
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
+        if ($user->hasRole('Secretario do Curso')) {
+            abort_unless((string) $user->instituicao_id === (string) $instituicao->getKey(), 404);
+            Gate::authorize('viewAny', CursoTutelado::class);
+        }
+
         $cursos = $this->cursoTuteladoViewService->index(
             $instituicao,
             $user,
@@ -139,12 +144,35 @@ class CursoTuteladoController extends Controller
 
         $this->cursoTuteladoViewService->prepareShow($cursoTutelado, $anoLectivoId);
 
+        $secretariosDisponiveis = $user->can('manageSecretarios', $cursoTutelado)
+            ? User::query()
+                ->where('instituicao_id', $instituicao->id)
+                ->role('Secretario do Curso', 'tenant')
+                ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', [
+                    'Secretaria',
+                    'Director',
+                    'Subdirector',
+                    'Coordenador',
+                    'SuperAdmin',
+
+                ]))
+                ->whereDoesntHave('cursosSecretariados', fn ($query) => $query->whereKey($cursoTutelado->getKey()))
+                ->orderBy('nome')
+                ->get(['id', 'nome', 'email'])
+                ->map(fn (User $candidate): array => [
+                    'id' => $candidate->id,
+                    'nome' => $candidate->nome,
+                    'email' => $candidate->email,
+                ])
+            : collect();
+
         return Inertia::render('tenant/cursos-tutelados/show', [
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,
             ],
             'cursoTutelado' => (new CursoTuteladoResourceShow($cursoTutelado))->resolve(),
+            'secretariosDisponiveis' => $secretariosDisponiveis,
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => $this->cursoTuteladoViewService->academicYears(),
             'can' => [

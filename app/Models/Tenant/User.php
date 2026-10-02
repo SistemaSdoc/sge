@@ -9,6 +9,7 @@ use Database\Factories\Tenant\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -91,6 +92,14 @@ class User extends Authenticatable implements PasskeyUser
     public function professor()
     {
         return $this->hasOne(Professor::class);
+    }
+
+    public function cursosSecretariados(): BelongsToMany
+    {
+        return $this->belongsToMany(CursoTutelado::class, 'curso_tutelado_secretario', 'user_id', 'curso_tutelado_id')
+            ->using(CursoTuteladoSecretario::class)
+            ->withPivot('id')
+            ->withTimestamps();
     }
 
     public function aluno()

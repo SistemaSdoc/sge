@@ -2,6 +2,7 @@ import { router } from '@inertiajs/react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TabTurmas } from './components/tabs/tab-turmas';
 import { TabProfessores } from './components/tabs/tab-professores';
+import { TabSecretarios } from './components/tabs/tab-secretarios';
 import { TabCriteriosPap } from './components/tabs/tab-criteriospap';
 import { Badge } from '@/components/ui/badge';
 import { show as showClasse } from '@/actions/App/Http/Controllers/Tenant/CursoClasseController';
@@ -10,6 +11,7 @@ import {
   show as showCurso,
 } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import { destroy } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
+import { destroy as destroySecretario } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoSecretarioController';
 import { useDialog } from '@/hooks/use-dialog';
 import {
   Select,
@@ -31,10 +33,12 @@ export default function Show({
   cursoTutelado,
   anoLectivoId,
   anosLectivos = [],
+  secretariosDisponiveis = [],
   can,
   errors = {},
 }) {
   const { deleteConfirm } = useDialog();
+  const [activeTab, setActiveTab] = useState('turmas');
 
   const params = {
     instituicao,
@@ -53,6 +57,22 @@ export default function Show({
             ...params,
             professor: vinculoId,
           }).url,
+        ),
+    });
+  };
+
+  const handleDeleteSecretario = (userId, nome) => {
+    deleteConfirm({
+      title: 'Remover secretário do curso?',
+      description: `${nome} deixará de ter acesso associado a este curso.`,
+      confirmLabel: 'Remover',
+      confirmFn: () =>
+        router.delete(
+          destroySecretario({
+            ...params,
+            secretario: userId,
+          }).url,
+          { preserveScroll: true },
         ),
     });
   };
@@ -83,7 +103,7 @@ export default function Show({
       <Header can={can} params={params} />
 
       {/* Tabs */}
-      <Tabs defaultValue="turmas" onValueChange={(value) => {}}>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex w-full flex-col gap-3 md:flex md:flex-row md:justify-between">
           <TabsList className="order-2 w-auto md:order-1">
             <TabsTrigger value="turmas" className="hover:cursor-pointer">
@@ -91,6 +111,9 @@ export default function Show({
             </TabsTrigger>
             <TabsTrigger value="professores" className="hover:cursor-pointer">
               Professores
+            </TabsTrigger>
+            <TabsTrigger value="secretarios" className="hover:cursor-pointer">
+              Secretários
             </TabsTrigger>
             <TabsTrigger value="criterios-pap" className="hover:cursor-pointer">
               Critérios para a PAP
@@ -136,8 +159,20 @@ export default function Show({
             professores={cursoTutelado.professores}
             can={cursoTutelado.can}
             deleteFn={handleDeleteProfessor}
+            canAttachSecretario={cursoTutelado.can?.attachSecretario}
+            onAddSecretario={() => setActiveTab('secretarios')}
             pagination={cursoTutelado?.professores}
             onPageChange={handlePageChange('page_professores')}
+          />
+        </TabsContent>
+
+        <TabsContent value="secretarios" className="mt-2">
+          <TabSecretarios
+            params={params}
+            secretarios={cursoTutelado.secretarios ?? []}
+            disponiveis={secretariosDisponiveis}
+            canAttach={cursoTutelado.can?.attachSecretario}
+            removeFn={handleDeleteSecretario}
           />
         </TabsContent>
 

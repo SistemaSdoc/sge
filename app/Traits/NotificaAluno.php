@@ -20,9 +20,15 @@ trait NotificaAluno
         User $user,
         string $passwordPlain
     ): void {
+        $domain = tenant()?->domains?->first()?->domain;
+        $loginUrl = $domain
+            ? tenant_route($domain, 'tenant.login')
+            : route('tenant.login');
+
         $user->notify(new AlunoCriadoNotification(
             $user,
-            $passwordPlain
+            $passwordPlain,
+            $loginUrl,
         ));
     }
 

@@ -15,6 +15,7 @@ class RolePermissionSeeder extends Seeder
 
         $mapa = [
             'Director' => [
+                'curso.secretarios.manage',
                 // Instituições
                 'instituicoes.view',
                 'instituicoes.update',
@@ -446,7 +447,14 @@ class RolePermissionSeeder extends Seeder
                 'confirmacoes.matricula.confirmar',
             ],
 
+            'Secretario do Curso' => [
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
+            ],
+
             'Coordenador' => [
+
+                'curso.secretarios.manage',
 
                 'instituicoes.view',
                 'instituicoes.update',

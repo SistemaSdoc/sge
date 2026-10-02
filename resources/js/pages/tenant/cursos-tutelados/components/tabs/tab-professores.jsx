@@ -35,6 +35,8 @@ export function TabProfessores({
   onPageChange,
   deleteFn,
   can = {},
+  canAttachSecretario = false,
+  onAddSecretario,
 }) {
   const isEmpty = !professores.data || professores.data.length === 0;
   const hasAnyAction = can?.update || can?.delete;
@@ -47,11 +49,26 @@ export function TabProfessores({
             Professores ({params.cursoTutelado.contadores?.professores ?? 0})
           </CardTitle>
           <CardDescription>Professores associados a este curso</CardDescription>
-          {can?.attachProfessor && (
+          {(can?.attachProfessor || canAttachSecretario) && (
             <CardAction>
-              <Button asChild>
-                <Link href={create({ ...params }).url}>Adicionar</Link>
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                {can?.attachProfessor && (
+                  <Button asChild>
+                    <Link href={create({ ...params }).url}>
+                      Adicionar Professor
+                    </Link>
+                  </Button>
+                )}
+                {canAttachSecretario && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onAddSecretario}
+                  >
+                    Adicionar Secretário
+                  </Button>
+                )}
+              </div>
             </CardAction>
           )}
         </CardHeader>

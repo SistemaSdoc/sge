@@ -16,7 +16,6 @@ use App\Notifications\TenantPendenteNotification;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -29,53 +28,16 @@ class TenantService
      */
     public function getTenantsWithInstituicoes(?string $search = null): LengthAwarePaginator
     {
-        $query = Tenant::query()->with('domains')->orderBy('id');
-
-        if (blank($search)) {
-            return $query->paginate(10)
-                ->withQueryString()
-                ->through(fn (Tenant $tenant): Tenant => $tenant->setRelation(
-                    'instituicao',
-                    $this->getInstituicao($tenant),
-                ));
-        }
-
-        $term = mb_strtolower(trim($search));
-        $tenants = collect();
-
-        $query->chunk(100, function (Collection $batch) use ($tenants, $term): void {
-            foreach ($batch as $tenant) {
-                $tenant->setRelation('instituicao', $this->getInstituicao($tenant));
-
-                $searchableValues = [
-                    (string) $tenant->getTenantKey(),
-                    $tenant->instituicao?->nome,
-                    $tenant->status?->value,
-                    $tenant->status?->label(),
-                    ...$tenant->domains->pluck('domain')->all(),
-                ];
-
-                if (collect($searchableValues)->contains(
-                    fn (?string $value): bool => str_contains(mb_strtolower((string) $value), $term),
-                )) {
-                    $tenants->push($tenant);
-                }
-            }
-        });
-
-        $page = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
-
-        return new LengthAwarePaginator(
-            $tenants->forPage($page, $perPage)->values(),
-            $tenants->count(),
-            $perPage,
-            $page,
-            [
-                'path' => request()->url(),
-                'query' => request()->query(),
-            ],
-        );
+        return Tenant::query()
+            ->with('domains')
+            ->search($search)
+            ->orderBy('id')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn (Tenant $tenant): Tenant => $tenant->setRelation(
+                'instituicao',
+                $this->getInstituicao($tenant),
+            ));
     }
 
     /**
@@ -207,6 +169,7 @@ class TenantService
             $tenant = Tenant::create([
                 'id' => $subdomain,
                 'status' => TenantStatus::PENDING,
+                'instituicao_nome' => $data['nome'],
             ]);
 
             $tenant->domains()->create([

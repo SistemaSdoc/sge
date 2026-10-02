@@ -26,6 +26,10 @@ class CursoTuteladoPolicy
             return false;
         }
 
+        if ($user->hasRole('Secretario do Curso')) {
+            return $cursoTutelado->secretarios()->whereKey($user->getKey())->exists();
+        }
+
         $cursoTutelado->loadMissing('instituicaoCurso');
 
         // CORRETO: Verifica se é da instituição que oferece o curso
@@ -97,6 +101,25 @@ class CursoTuteladoPolicy
         }
 
         return true;
+    }
+
+    public function manageSecretarios(User $user, CursoTutelado $cursoTutelado): bool
+    {
+        if (! $user->can('curso.secretarios.manage')) {
+            return false;
+        }
+
+        if ($user->hasRole('Director')) {
+            $cursoTutelado->loadMissing('instituicaoCurso');
+
+            return (string) $user->instituicao_id === (string) $cursoTutelado->instituicaoCurso?->instituicao_id;
+        }
+
+        return $user->hasRole('Coordenador')
+            && $user->professor?->cursosTutelados()
+                ->whereKey($cursoTutelado->getKey())
+                ->wherePivot('coordenador', true)
+                ->exists();
     }
 
     public function manageTurmas(User $user, CursoTutelado $cursoTutelado): bool

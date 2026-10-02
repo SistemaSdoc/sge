@@ -15,6 +15,8 @@ Schedule::command('anoletivo:sincronizar')
     ->withoutOverlapping(10)
     ->onOneServer();
 
+Schedule::command('tenants:sync-nomes')->daily();
+
 // Corre todos os dias às 23:55, só em produção
 // Schedule::command(FinalizarPautasVencidas::class)
 //     ->dailyAt('23:55')

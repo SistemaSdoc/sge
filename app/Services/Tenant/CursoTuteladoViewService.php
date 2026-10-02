@@ -31,6 +31,18 @@ class CursoTuteladoViewService
     {
         return $instituicao->instituicaoCursos()
             ->has('cursoTutelado')
+            ->when(
+                $user->hasRole('Secretario do Curso') && ! $user->hasAnyRole(['Director', 'SuperAdmin']),
+                function ($query) use ($user): void {
+                    $query->where(function ($courseQuery) use ($user): void {
+                        $courseQuery->whereHas(
+                            'cursoTutelado.secretarios',
+                            fn ($secretarios) => $secretarios->whereKey($user->getKey()),
+                        );
+
+                    });
+                },
+            )
             ->search($search)
             ->with([
                 'curso:id,nome',
@@ -293,6 +305,7 @@ class CursoTuteladoViewService
                 $query->with('user:id,nome')
                     ->orderBy('created_at', 'desc');
             },
+            'secretarios:id,nome,email',
         ]);
     }
 
