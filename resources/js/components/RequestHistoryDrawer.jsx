@@ -118,13 +118,13 @@ export default function RequestHistoryDrawer({ viewType = 'sent', items = null }
           <div className="min-w-0">
             {/* Para instituições: mostrar Nome do estudante e Número de processo (apenas em vista de instituições) */}
             {!isStudentView && s.aluno && (
-              <div className="text-sm font-medium">Nome do estudante: {s.aluno}</div>
+              <div className="wrap-break-words text-sm font-medium">Nome do estudante: {s.aluno}</div>
             )}
             {!isStudentView && s.numero_processo && (
-              <div className="text-xs text-muted-foreground">Número de processo: {s.numero_processo}</div>
+              <div className="wrap-break-words text-xs text-muted-foreground">Número de processo: {s.numero_processo}</div>
             )}
 
-            <div className="text-sm font-medium">{s.tipo_label ?? s.tipo_documento}</div>
+            <div className="wrap-break-words text-sm font-medium">{s.tipo_label ?? s.tipo_documento}</div>
             <div className="text-xs text-muted-foreground truncate">{s.motivo}</div>
             <div className="mt-1 text-xs text-muted-foreground">{s.created_at}</div>
           </div>
@@ -145,16 +145,20 @@ export default function RequestHistoryDrawer({ viewType = 'sent', items = null }
           size="sm"
           aria-label="Histórico de Solicitações"
           title="Clique para ver histórico de solicitações"
-          className={`gap-2 px-6 text-sm font-medium ${triggerClassName}`}
+          // Mobile: botão com largura total (as páginas empilham o cabeçalho). A partir de sm: largura natural.
+          className={`w-full gap-2 px-6 text-sm font-medium sm:w-auto ${triggerClassName}`}
         >
           {React.createElement(triggerIcon, { className: 'size-4' })}
           <span>Histórico de Solicitações</span>
         </Button>
       </DrawerTrigger>
 
-      <DrawerContent>
+      {/* Mobile: painel a 92% da largura (o por defeito, 3/4, ficava estreito).
+          A partir de sm o limite max-w-sm do DrawerContent continua a valer. */}
+      <DrawerContent className="data-[vaul-drawer-direction=right]:w-[92%]">
         <DrawerHeader className="relative border-b py-3">
-          <div>
+          {/* pr-10: o título não passa por baixo do botão de fechar */}
+          <div className="pr-10">
             <DrawerTitle>{title}</DrawerTitle>
             <CardDescription className="mt-1">{isStudentView ? 'Consulte as suas solicitações.' : 'Consulte as solicitações recebidas pela instituição.'}</CardDescription>
           </div>
@@ -168,7 +172,9 @@ export default function RequestHistoryDrawer({ viewType = 'sent', items = null }
           </div>
         </DrawerHeader>
 
-        <div className="p-4 overflow-auto max-h-[70vh]">
+        {/* flex-1 + min-h-0: a lista ocupa a altura restante do painel e faz scroll aqui.
+            Antes era max-h-[70vh], que deixava espaço vazio e dependia da altura da janela. */}
+        <div className="min-h-0 flex-1 overflow-y-auto p-4">
           {loading ? (
             <div className="flex items-center gap-2">
               <Spinner />

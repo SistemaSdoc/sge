@@ -74,7 +74,7 @@ export default function SolicitacoesDocumentosPage() {
     form.post(store().url, {
       preserveScroll: true,
       onSuccess: () => {
-        form.reset(); // sem argumentos: repõe TODOS os campos para os valores iniciais
+        form.reset();
         setErrors([]);
         setSuccessMessage('Pedido enviado com sucesso. Aguarde a análise da sua solicitação.');
         window.scrollTo(0, 0);
@@ -118,23 +118,27 @@ export default function SolicitacoesDocumentosPage() {
     });
   };
 
+  const getResponsibleLabel = (solicitacao) => {
+    if (solicitacao.responsavel_instituicao_id === solicitacao.instituicao_tutora_id) {
+      return 'A cargo do instituto';
+    }
+    return 'A cargo do colégio';
+  };
+
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between gap-4">
+    <div className="space-y-6 p-4 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Solicitar Documentos</h1>
-          <p className="text-sm text-muted-foreground">
-            Registe o pedido e acompanhe o estado do documento solicitado.
-          </p>
+          <h1 className="text-xl font-semibold sm:text-2xl">Solicitar Documentos</h1>
         </div>
 
-        <div>
+        <div className="shrink-0">
           <RequestHistoryDrawer viewType="sent" items={ver === 'historico' ? solicitacoes : undefined} />
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle>Novo pedido</CardTitle>
             <CardDescription>
@@ -168,8 +172,6 @@ export default function SolicitacoesDocumentosPage() {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Tipos de documento</SelectLabel>
-                      {/* optional empty item kept for placeholder semantics if desired */}
-                      {/* <SelectItem value="">Seleccione o documento a solicitar</SelectItem> */}
                       {tipos.map((tipo) => {
                         if (tipo.value === 'certificado' && !pode_certificado) {
                           return null;
@@ -279,7 +281,7 @@ export default function SolicitacoesDocumentosPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="min-w-0">
           <CardHeader>
             <CardTitle>Estado dos pedidos</CardTitle>
             <CardDescription>
@@ -302,23 +304,30 @@ export default function SolicitacoesDocumentosPage() {
 
               return (
                 <div key={solicitacao.id} className="border bg-muted/30 p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-medium">
+                  <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                    <span className="wrap-break-word text-sm font-medium">
                       Pedido de {getTipoLabel(solicitacao.tipo_documento)}
                     </span>
                     <Badge
-                      className={
+                      className={`shrink-0 ${
                         solicitacaoDocumentoStatusClassNames[currentStatus] ??
                         'bg-slate-100 text-slate-700'
-                      }
+                      }`}
                     >
                       {statusLabel}
                     </Badge>
                   </div>
-                  <p className="mt-2 text-sm text-muted-foreground">
+                  <p className="mt-2 wrap-break-word text-sm text-muted-foreground">
                     {getTipoLabel(solicitacao.tipo_documento)} —{' '}
                     {solicitacao.motivo}
                   </p>
+
+                  {solicitacao.observacoes && (
+                    <p className="mt-1 wrap-break-word text-sm text-muted-foreground">
+                      Observações: {solicitacao.observacoes}
+                    </p>
+                  )}
+
                   <p className="mt-1 text-xs text-muted-foreground">
                     Processo {solicitacao.numero_processo ?? 'a gerar'} •
                     Registado em {solicitacao.created_at}
@@ -329,11 +338,60 @@ export default function SolicitacoesDocumentosPage() {
                     </p>
                   )}
 
+                  {solicitacao.numero_registro_tutora && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Nº de registo: {solicitacao.numero_registro_tutora}
+                    </p>
+                  )}
+
                   {solicitacao.rupe_referencia && (
                     <p className="mt-1 text-xs text-muted-foreground">
                       Referência: {solicitacao.rupe_referencia} • Entidade:{' '}
                       {solicitacao.rupe_entidade} • Valor:{' '}
                       {solicitacao.rupe_valor ?? '-'}
+                    </p>
+                  )}
+
+                  {['pendente', 'aprovado', 'pago', 'pronto', 'entregue'].includes(currentStatus) && (
+                    <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                      {[
+                        { label: 'Pendente', complete: currentStatus !== 'pendente' },
+                        { label: 'Aprovado', complete: ['aprovado', 'pago', 'pronto', 'entregue'].includes(currentStatus) },
+                        { label: 'Pago', complete: ['pago', 'pronto', 'entregue'].includes(currentStatus) },
+                        { label: 'Pronto', complete: ['pronto', 'entregue'].includes(currentStatus) },
+                        { label: 'Levantado', complete: currentStatus === 'entregue' },
+                      ].map((step, index) => (
+                        <div key={step.label} className="flex items-center gap-2">
+                          <span
+                            className={
+                              step.complete
+                                ? 'rounded-full bg-green-100 px-2 py-1 text-green-800'
+                                : 'rounded-full bg-slate-100 px-2 py-1 text-slate-500'
+                            }
+                          >
+                            {step.label}
+                          </span>
+                          {index < 3 && <span className="text-slate-400">→</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {currentStatus === 'rejeitado' && (
+                    <p className="mt-3 text-sm text-muted-foreground">
+                      Pedido rejeitado.
+                    </p>
+                  )}
+
+                  {currentStatus === 'aprovado' && (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      {getResponsibleLabel(solicitacao)}
+                    </p>
+                  )}
+
+                  {solicitacao.encaminhado_para_tutela && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Encaminhado à tutela em {solicitacao.encaminhado_em}
                     </p>
                   )}
 

@@ -1,6 +1,8 @@
 import { usePage, router } from '@inertiajs/react';
 import { useState } from 'react';
+import { LayersIcon } from 'lucide-react';
 import AlertError from '@/components/alert-error';
+import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -12,10 +14,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import {
   enviarParaTutela,
-  processarDecisao,       
+  processarDecisao,
   emitir,
   marcarComoLevantado,
-  marcarComoPagoAction,    
+  marcarComoPagoAction,
 } from '@/actions/App/Http/Controllers/Tenant/SolicitacaoDocumentoController';
 import {
   resolveSolicitacaoStatus,
@@ -23,10 +25,12 @@ import {
   solicitacaoDocumentoStatusClassNames,
 } from '@/utils/solicitacao-documento-status';
 import RequestHistoryDrawer from '@/components/RequestHistoryDrawer';
+import { useDialog } from '@/hooks/use-dialog';
 
 export default function ColegioSolicitacoesDocumentosPage() {
   const { solicitacoes = [], auth = {}, ver = null } = usePage().props;
   const [errors, setErrors] = useState([]);
+  const { confirm } = useDialog();
 
   const handleEnviar = (solicitacaoId) => {
     router.post(
@@ -46,7 +50,7 @@ export default function ColegioSolicitacoesDocumentosPage() {
 
   const handleDecision = (solicitacaoId, decisao) => {
     router.post(
-      processarDecisao(solicitacaoId).url,  
+      processarDecisao(solicitacaoId).url,
       { decisao },
       {
         preserveScroll: true,
@@ -68,18 +72,14 @@ export default function ColegioSolicitacoesDocumentosPage() {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between gap-4">
+    <div className="space-y-6 p-4 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Solicitar Documentos</h1>
-          <p className="text-sm text-muted-foreground">
-            Revise os pedidos do colégio: decida diretamente os documentos normais
-            e encaminhe apenas os certificados para a tutela.
-          </p>
+          <h1 className="text-xl font-semibold sm:text-2xl">Solicitar Documentos</h1>
         </div>
 
-        <div>
-        <RequestHistoryDrawer viewType="received" items={ver === 'historico' ? solicitacoes : undefined} />
+        <div className="shrink-0">
+          <RequestHistoryDrawer viewType="received" items={ver === 'historico' ? solicitacoes : undefined} />
         </div>
       </div>
 
@@ -87,9 +87,12 @@ export default function ColegioSolicitacoesDocumentosPage() {
         {errors.length > 0 && <AlertError errors={errors} title="Erro" />}
         {solicitacoes.length === 0 && (
           <Card className="border-0">
-            <CardContent className="py-8 text-sm text-muted-foreground">
-              Nenhuma solicitação pendente no colégio.
-            </CardContent>
+            <EmptyState
+              variant="table"
+              icon={LayersIcon}
+              title="Nenhuma solicitação pendente"
+              description="Não existem pedidos de documentos para tratar neste momento."
+            />
           </Card>
         )}
 
@@ -119,15 +122,15 @@ export default function ColegioSolicitacoesDocumentosPage() {
           return (
             <Card key={solicitacao.id} className="border-0">
               <CardHeader>
-                <div className="flex items-center justify-between gap-3">
-                  <CardTitle className="text-base">
+                <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                  <CardTitle className="wrap-break-words text-base">
                     {solicitacao.aluno ?? 'Aluno'} - {solicitacao.tipo_label}
                   </CardTitle>
                   <Badge
-                    className={
+                    className={`shrink-0 ${
                       solicitacaoDocumentoStatusClassNames[currentStatus] ??
                       'bg-slate-100 text-slate-700'
-                    }
+                    }`}
                   >
                     {statusLabel}
                   </Badge>
@@ -139,18 +142,30 @@ export default function ColegioSolicitacoesDocumentosPage() {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
+                <p className="wrap-break-words text-sm text-muted-foreground">
                   Motivo: {solicitacao.motivo}
                 </p>
 
                 {solicitacao.observacoes && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="wrap-break-words text-sm text-muted-foreground">
                     Observações: {solicitacao.observacoes}
                   </p>
                 )}
 
+                {solicitacao.numero_registro_tutora && (
+                  <p className="wrap-break-words text-sm text-muted-foreground">
+                    Nº de registo: {solicitacao.numero_registro_tutora}
+                  </p>
+                )}
+
+                {solicitacao.data_levantamento && (
+                  <p className="wrap-break-words text-sm text-muted-foreground">
+                    Levantado em {solicitacao.data_levantamento}
+                  </p>
+                )}
+
                 {['pendente', 'aprovado', 'pago', 'pronto', 'entregue'].includes(currentStatus) && (
-                  <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                  <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                     {[
                       { label: 'Pendente', complete: currentStatus !== 'pendente' },
                       { label: 'Aprovado', complete: ['aprovado', 'pago', 'pronto', 'entregue'].includes(currentStatus) },
@@ -179,7 +194,7 @@ export default function ColegioSolicitacoesDocumentosPage() {
                     Pedido rejeitado{isCertificado ? ' pela tutela.' : '.'}
                   </p>
                 ) : (
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                     {podeEnviarParaTutela && (
                       <Button onClick={() => handleEnviar(solicitacao.id)}>
                         {solicitacao.encaminhado_para_tutela
@@ -190,7 +205,7 @@ export default function ColegioSolicitacoesDocumentosPage() {
 
                     {isCertificado && currentStatus === 'pendente' && solicitacao.encaminhado_para_tutela && (
                       <p className="text-xs text-muted-foreground">
-                        Aguardando decisão da tutela.
+                        Aguardando decisão.
                       </p>
                     )}
 
@@ -211,18 +226,23 @@ export default function ColegioSolicitacoesDocumentosPage() {
                     {showPaymentAction && (
                       <Button
                         variant="secondary"
-                        onClick={() => {
-                          if (!confirm('Deseja marcar este documento como pago?')) return;
-                          router.post(marcarComoPagoAction(solicitacao.id).url, {}, {
-                            preserveScroll: true,
-                            onSuccess: () => setErrors([]),
-                            onError: (err) => {
-                              const msgs = Object.values(err || {}).flat().map((m) => String(m));
-                              setErrors(msgs.length ? msgs : ['Erro ao marcar como pago.']);
-                              window.scrollTo(0, 0);
-                            },
-                          });
-                        }}
+                        onClick={() =>
+                          confirm({
+                            title: 'Marcar como pago',
+                            description: 'Deseja marcar este documento como pago?',
+                            confirmLabel: 'Marcar como pago',
+                            confirmFn: () =>
+                              router.post(marcarComoPagoAction(solicitacao.id).url, {}, {
+                                preserveScroll: true,
+                                onSuccess: () => setErrors([]),
+                                onError: (err) => {
+                                  const msgs = Object.values(err || {}).flat().map((m) => String(m));
+                                  setErrors(msgs.length ? msgs : ['Erro ao marcar como pago.']);
+                                  window.scrollTo(0, 0);
+                                },
+                              }),
+                          })
+                        }
                       >
                         Marcar como pago
                       </Button>
@@ -231,25 +251,30 @@ export default function ColegioSolicitacoesDocumentosPage() {
                     {showReadyAction && (
                       <Button
                         variant="outline"
-                        onClick={() => {
-                          if (!confirm('Deseja marcar este documento como pronto?')) return;
-                          router.post(
-                            emitir(solicitacao.id).url,
-                            {
-                              numero_registro_tutora:
-                                solicitacao.numero_registro_tutora || 'REGISTO MANUAL',
-                            },
-                            {
-                              preserveScroll: true,
-                              onSuccess: () => setErrors([]),
-                              onError: (err) => {
-                                const msgs = Object.values(err || {}).flat().map((m) => String(m));
-                                setErrors(msgs.length ? msgs : ['Erro ao marcar como pronto.']);
-                                window.scrollTo(0, 0);
-                              },
-                            },
-                          );
-                        }}
+                        onClick={() =>
+                          confirm({
+                            title: 'Marcar como pronto',
+                            description: 'Deseja marcar este documento como pronto?',
+                            confirmLabel: 'Marcar como pronto',
+                            confirmFn: () =>
+                              router.post(
+                                emitir(solicitacao.id).url,
+                                {
+                                  numero_registro_tutora:
+                                    solicitacao.numero_registro_tutora || 'REGISTO MANUAL',
+                                },
+                                {
+                                  preserveScroll: true,
+                                  onSuccess: () => setErrors([]),
+                                  onError: (err) => {
+                                    const msgs = Object.values(err || {}).flat().map((m) => String(m));
+                                    setErrors(msgs.length ? msgs : ['Erro ao marcar como pronto.']);
+                                    window.scrollTo(0, 0);
+                                  },
+                                },
+                              ),
+                          })
+                        }
                       >
                         Marcar documento pronto
                       </Button>
@@ -258,18 +283,23 @@ export default function ColegioSolicitacoesDocumentosPage() {
                     {showCollectionAction && (
                       <Button
                         variant="outline"
-                        onClick={() => {
-                          if (!confirm('Deseja registar o levantamento do documento?')) return;
-                          router.post(marcarComoLevantado(solicitacao.id).url, {}, {
-                            preserveScroll: true,
-                            onSuccess: () => setErrors([]),
-                            onError: (err) => {
-                              const msgs = Object.values(err || {}).flat().map((m) => String(m));
-                              setErrors(msgs.length ? msgs : ['Erro ao registar levantamento.']);
-                              window.scrollTo(0, 0);
-                            },
-                          });
-                        }}
+                        onClick={() =>
+                          confirm({
+                            title: 'Registar levantamento',
+                            description: 'Deseja registar o levantamento do documento?',
+                            confirmLabel: 'Registar levantamento',
+                            confirmFn: () =>
+                              router.post(marcarComoLevantado(solicitacao.id).url, {}, {
+                                preserveScroll: true,
+                                onSuccess: () => setErrors([]),
+                                onError: (err) => {
+                                  const msgs = Object.values(err || {}).flat().map((m) => String(m));
+                                  setErrors(msgs.length ? msgs : ['Erro ao registar levantamento.']);
+                                  window.scrollTo(0, 0);
+                                },
+                              }),
+                          })
+                        }
                       >
                         Marcar como levantado
                       </Button>

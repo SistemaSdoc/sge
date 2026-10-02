@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { usePage, router } from '@inertiajs/react';
+import { LayersIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -16,17 +17,20 @@ import {
   marcarComoLevantado,
 } from '@/actions/App/Http/Controllers/Tenant/SolicitacaoDocumentoController';
 import AlertError from '@/components/alert-error';
+import { EmptyState } from '@/components/empty-state';
 import {
   resolveSolicitacaoStatus,
   solicitacaoDocumentoStatusLabels,
   solicitacaoDocumentoStatusClassNames,
 } from '@/utils/solicitacao-documento-status';
 import RequestHistoryDrawer from '@/components/RequestHistoryDrawer';
+import { useDialog } from '@/hooks/use-dialog';
 
 export default function TutelaSolicitacoesDocumentosPage() {
   const { solicitacoes_locais = [], solicitacoes_tuteladas = [], auth = {}, ver = null } =
     usePage().props;
   const [errors, setErrors] = useState([]);
+  const { confirm } = useDialog();
 
   const handleDecision = (solicitacaoId, decisao) => {
     router.post(
@@ -52,7 +56,7 @@ export default function TutelaSolicitacoesDocumentosPage() {
   };
 
   const renderSolicitacoes = (solicitacoes, titulo, descricao) => (
-    <Card className="h-full">
+    <Card className="h-full min-w-0">
       <CardHeader>
         <CardTitle className="text-lg">{titulo}</CardTitle>
         <CardDescription>{descricao}</CardDescription>
@@ -60,9 +64,12 @@ export default function TutelaSolicitacoesDocumentosPage() {
       <CardContent className="space-y-4">
         {errors.length > 0 && <AlertError errors={errors} title="Erro ao processar decisão" />}
         {solicitacoes.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            Nenhuma solicitação pendente nesta categoria.
-          </p>
+          <EmptyState
+            variant="table"
+            icon={LayersIcon}
+            title="Nenhuma solicitação pendente"
+            description="Não existem pedidos nesta categoria de momento."
+          />
         )}
 
         {solicitacoes.map((solicitacao) => {
@@ -86,39 +93,57 @@ export default function TutelaSolicitacoesDocumentosPage() {
             Boolean(solicitacao.can_marcar_levantado);
 
           return (
-            <div key={solicitacao.id} className="border bg-muted/30 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium">
+            <div key={solicitacao.id} className="border bg-muted/30 p-3 sm:p-4">
+              <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                <p className="wrap-break-word text-sm font-medium">
                   {solicitacao.aluno} - {solicitacao.tipo_label}
                 </p>
                 <Badge
-                  className={
+                  className={`shrink-0 ${
                     solicitacaoDocumentoStatusClassNames[currentStatus] ??
                     'bg-slate-100 text-slate-700'
-                  }
+                  }`}
                 >
                   {statusLabel}
                 </Badge>
               </div>
 
               <div className="mt-2 space-y-1 text-sm text-muted-foreground">
-                <p>Origem: {solicitacao.origem}</p>
+                <p className="wrap-break-word">Origem: {solicitacao.origem}</p>
                 <p>Processo: {solicitacao.numero_processo ?? 'a gerar'}</p>
                 <p>{solicitacao.created_at}</p>
               </div>
 
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-3 wrap-break-word text-sm text-muted-foreground">
                 Motivo: {solicitacao.motivo}
               </p>
 
               {solicitacao.observacoes && (
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 wrap-break-word text-sm text-muted-foreground">
                   Observações: {solicitacao.observacoes}
                 </p>
               )}
 
+              {solicitacao.numero_registro_tutora && (
+                <p className="mt-2 wrap-break-word text-sm text-muted-foreground">
+                  Nº de registo: {solicitacao.numero_registro_tutora}
+                </p>
+              )}
+
+              {solicitacao.data_levantamento && (
+                <p className="mt-2 wrap-break-word text-sm text-muted-foreground">
+                  Levantado em {solicitacao.data_levantamento}
+                </p>
+              )}
+
+              {solicitacao.encaminhado_para_tutela && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Encaminhado à tutela em {solicitacao.encaminhado_em}
+                </p>
+              )}
+
               {['pendente', 'aprovado', 'pago', 'pronto', 'entregue'].includes(currentStatus) && (
-                <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                   {[
                     { label: 'Pendente', complete: currentStatus !== 'pendente' },
                     {
@@ -145,8 +170,14 @@ export default function TutelaSolicitacoesDocumentosPage() {
                 </div>
               )}
 
+              {currentStatus === 'rejeitado' && (
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Pedido rejeitado.
+                </p>
+              )}
+
               {showPendingDecision && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   <Button onClick={() => handleDecision(solicitacao.id, 'aprovado')}>
                     Aprovar
                   </Button>
@@ -164,7 +195,7 @@ export default function TutelaSolicitacoesDocumentosPage() {
               )}
 
               {showPaymentAction && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   <Button
                     onClick={() => {
                       router.post(marcarComoPagoAction(solicitacao.id).url, {}, {
@@ -184,7 +215,7 @@ export default function TutelaSolicitacoesDocumentosPage() {
               )}
 
               {showReadyAction && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   <Button
                     onClick={() => {
                       router.post(
@@ -211,21 +242,26 @@ export default function TutelaSolicitacoesDocumentosPage() {
               )}
 
               {showLevantamentoAction && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      if (!confirm('Deseja registar o levantamento do documento?')) return;
-                      router.post(marcarComoLevantado(solicitacao.id).url, {}, {
-                        preserveScroll: true,
-                        onSuccess: () => setErrors([]),
-                        onError: (err) => {
-                          const msgs = Object.values(err || {}).flat().map((m) => String(m));
-                          setErrors(msgs.length ? msgs : ['Erro ao registar levantamento.']);
-                          window.scrollTo(0, 0);
-                        },
-                      });
-                    }}
+                    onClick={() =>
+                      confirm({
+                        title: 'Registar levantamento',
+                        description: 'Deseja registar o levantamento do documento?',
+                        confirmLabel: 'Registar levantamento',
+                        confirmFn: () =>
+                          router.post(marcarComoLevantado(solicitacao.id).url, {}, {
+                            preserveScroll: true,
+                            onSuccess: () => setErrors([]),
+                            onError: (err) => {
+                              const msgs = Object.values(err || {}).flat().map((m) => String(m));
+                              setErrors(msgs.length ? msgs : ['Erro ao registar levantamento.']);
+                              window.scrollTo(0, 0);
+                            },
+                          }),
+                      })
+                    }
                   >
                     Marcar como levantado
                   </Button>
@@ -245,17 +281,13 @@ export default function TutelaSolicitacoesDocumentosPage() {
   );
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between gap-4">
+    <div className="space-y-6 p-4 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Solicitações de Documentos</h1>
-          <p className="text-sm text-muted-foreground">
-            Acompanhe e decida os pedidos locais e os pedidos enviados pelas
-            instituições tuteladas.
-          </p>
+          <h1 className="text-xl font-semibold sm:text-2xl">Solicitações de Documentos</h1>
         </div>
 
-        <div>
+        <div className="shrink-0">
           <RequestHistoryDrawer viewType="received" items={ver === 'historico' ? [...solicitacoes_locais, ...solicitacoes_tuteladas] : undefined} />
         </div>
       </div>
