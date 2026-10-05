@@ -137,6 +137,9 @@ export default function Show({
               <h2 className="md:text-1xl text-2xl font-semibold">
                 Tema: {grupoPap?.tema_grupo}
               </h2>
+              <p className="max-w-3xl text-sm text-white/90">
+                Estudo de caso: {grupoPap?.estudo_caso || 'Não definido'}
+              </p>
             </div>
 
             {/* {hasAnyAction && (*/}

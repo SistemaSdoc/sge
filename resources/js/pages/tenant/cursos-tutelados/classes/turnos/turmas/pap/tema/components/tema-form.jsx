@@ -46,7 +46,7 @@ export function TemaForm({
           <FieldGroup>
             <FieldSet>
               <Field>
-                <FieldLabel>Professor tutor (obrigatório)</FieldLabel>
+                <FieldLabel>Professor tutor</FieldLabel>
                 <input
                   type="hidden"
                   name="professor_tutor_id"
@@ -163,7 +163,7 @@ export function TemaForm({
               </Field>
 
               <Field>
-                <FieldLabel>Problema (obrigatório)</FieldLabel>
+                <FieldLabel>Problema</FieldLabel>
                 <Input
                   name="problema"
                   disabled={processing}
@@ -174,7 +174,7 @@ export function TemaForm({
               </Field>
 
               <Field>
-                <FieldLabel>Objectivos (obrigatório)</FieldLabel>
+                <FieldLabel>Objectivos</FieldLabel>
                 <Textarea
                   name="objectivos"
                   disabled={processing}
@@ -187,7 +187,7 @@ export function TemaForm({
               </Field>
 
               <Field>
-                <FieldLabel>Estudo de caso (obrigatório)</FieldLabel>
+                <FieldLabel>Estudo de caso</FieldLabel>
                 <Input
                   name="estudo_caso"
                   disabled={processing}
