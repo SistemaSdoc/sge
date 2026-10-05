@@ -9,9 +9,9 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import {
-  index,
   marcarLida,
   marcarTodasLidas,
+  sino,
 } from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
 
 const INTERVALO_POLLING = 30000; // 30s
@@ -31,7 +31,7 @@ export default function NotificacoesSino() {
 
   const carregar = useCallback(async () => {
     try {
-      const res = await fetch(index().url, {
+      const res = await fetch(sino().url, {
         credentials: 'same-origin',
       });
 

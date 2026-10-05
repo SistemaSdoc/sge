@@ -185,6 +185,11 @@ function Sidebar({
           data-slot="sidebar"
           data-mobile="true"
           className="w-(--sidebar-width) bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
+          onClick={(event) => {
+            if (event.target instanceof Element && event.target.closest("a")) {
+              setOpenMobile(false)
+            }
+          }}
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,

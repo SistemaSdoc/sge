@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useDrawer } from '@/hooks/use-drawer';
 import {
-  index,
   marcarTodasLidas,
+  sino,
   show,
 } from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
 
@@ -124,9 +124,7 @@ export function useNotificacoes() {
 
   const carregar = async () => {
     try {
-      const response = await fetch(index().url, {
-        headers: { Accept: 'application/json' },
-      });
+      const response = await fetch(sino().url);
       const data = await response.json();
 
       setNotificacoes(data.notificacoes ?? []);

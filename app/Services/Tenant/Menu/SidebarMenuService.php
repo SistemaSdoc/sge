@@ -14,6 +14,7 @@ use App\Http\Controllers\Tenant\GrelhaCurricularController;
 use App\Http\Controllers\Tenant\InscricaoController;
 use App\Http\Controllers\Tenant\InstituicaoController;
 use App\Http\Controllers\Tenant\NotaAlunoController;
+use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\ProfessorController;
@@ -107,7 +108,7 @@ final class SidebarMenuService
                             ? action([CursoTuteladoController::class, 'index'], ['instituicao' => $id])
                             : '#';
                     })(),
-                    icon: 'Building2',
+                    icon: 'BookIcon',
                     can: function () use ($user, $gate) {
                         if (! $user?->instituicao_id) {
                             return false;
@@ -234,7 +235,7 @@ final class SidebarMenuService
                     icon: 'FileText',
                     can: fn () => Gate::allows('prazo-prova.viewAny')
                 ),
-                
+
                 new MenuItem(
                     key: 'submeter-provas',
                     title: 'Submeter Provas',
@@ -325,6 +326,14 @@ final class SidebarMenuService
             ]),
 
             new MenuGroup('Comunicação', [
+                new MenuItem(
+                    key: 'notificacoes',
+                    title: 'Central de Notificações',
+                    href: action([NotificacaoController::class, 'index']),
+                    icon: 'BellDot',
+                    can: true,
+                ),
+
                 new MenuItem(
                     key: 'avisos',
                     title: 'Avisos',

@@ -186,7 +186,7 @@ export function TurmaTable({
                             );
                           }}
                         >
-                          Ver detalher
+                          Ver detalhes
                         </Button>
                       )}
                     </TableCell>

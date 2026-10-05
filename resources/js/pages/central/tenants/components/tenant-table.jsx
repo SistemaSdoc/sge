@@ -58,12 +58,6 @@ export function TenantTable({
           <CardTitle>Instituições</CardTitle>
           <CardDescription>Lista de instituições cadastradas</CardDescription>
           <CardAction>
-            {/*{can.create && (
-              <Button asChild>
-                <Link href={create().url}>Adicionar</Link>
-              </Button>
-            )}*/}
-
             <Button asChild>
               <Link href={create().url}>Adicionar Instituição</Link>
             </Button>
@@ -144,7 +138,7 @@ export function TenantTable({
 
                           <DropdownMenuSeparator />
 
-                          {tenant.status !== 'pending' &&
+                          {/* {tenant.status !== 'pending' &&
                             tenant.status !== 'provisioning' && (
                               <>
                                 <DropdownMenuItem
@@ -158,7 +152,7 @@ export function TenantTable({
 
                                 <DropdownMenuSeparator />
                               </>
-                            )}
+                            )} */}
 
                           <DropdownMenuItem
                             onClick={(e) => {
@@ -171,7 +165,7 @@ export function TenantTable({
 
                           <DropdownMenuSeparator />
 
-                          {/* <DropdownMenuItem
+                          <DropdownMenuItem
                             variant="destructive"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -179,7 +173,7 @@ export function TenantTable({
                             }}
                           >
                             Remover
-                          </DropdownMenuItem> */}
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

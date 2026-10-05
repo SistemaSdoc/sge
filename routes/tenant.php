@@ -677,6 +677,9 @@ Route::middleware([
             |--------------------------------------------------------------------------
             */
 
+            Route::get('notificacoes/sino', [NotificacaoController::class, 'sino'])
+                ->name('notificacoes.sino');
+
             Route::get('notificacoes', [NotificacaoController::class, 'index'])
                 ->name('notificacoes.index');
 
