@@ -60,9 +60,6 @@ class ShowResource extends JsonResource
             'estrutura_trabalho_pap_url' => $docs['estrutura_trabalho_pap_path']
                 ? $this->publicStorageUrl($docs['estrutura_trabalho_pap_path'])
                 : null,
-            'sugestoes_temas_pap_url' => $docs['sugestoes_temas_pap_path']
-                ? $this->publicStorageUrl($docs['sugestoes_temas_pap_path'])
-                : null,
             'aprovado_por' => $this->aprovadoPor ? [
                 'id' => $this->aprovadoPor->id,
                 'nome' => $this->aprovadoPor->nome ?? null,
