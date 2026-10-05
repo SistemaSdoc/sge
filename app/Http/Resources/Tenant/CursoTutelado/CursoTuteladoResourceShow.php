@@ -155,9 +155,6 @@ class CursoTuteladoResourceShow extends JsonResource
             'estrutura_trabalho_pap_url' => $docs['estrutura_trabalho_pap_path']
                 ? $this->publicStorageUrl($docs['estrutura_trabalho_pap_path'])
                 : null,
-            'sugestoes_temas_pap_url' => $docs['sugestoes_temas_pap_path']
-                ? $this->publicStorageUrl($docs['sugestoes_temas_pap_path'])
-                : null,
             'can' => [
                 'update' => $request->user()?->can('update', $this->resource) ?? false,
                 'delete' => $request->user()?->can('delete', $this->resource) ?? false,

@@ -45,7 +45,7 @@ class StoreInscricaoRequest extends FormRequest
             ],
 
             'nota_teste' => [
-                'nullable',
+                'required',
                 'numeric',
                 'min:0',
                 'max:20',
@@ -100,6 +100,7 @@ class StoreInscricaoRequest extends FormRequest
             'nota_teste.numeric' => 'A nota deve ser numérica.',
             'nota_teste.min' => 'A nota não pode ser inferior a 0.',
             'nota_teste.max' => 'A nota não pode ser superior a 20.',
+            'nota_teste.required' => 'A nota é obrigatória.',
         ];
     }
 }
