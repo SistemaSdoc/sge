@@ -48,6 +48,10 @@ class NotificacaoController extends Controller
         $user = $request->user();
         abort_unless($user instanceof User, 401);
 
+        if (! $request->expectsJson()) {
+            return redirect()->route('tenant.dashboard.notificacoes.index');
+        }
+
         return response()->json([
             'notificacoes' => $this->notificacaoService->sino($user)
                 ->map(fn (DatabaseNotification $notificacao) => $this->notificacaoService->formatarNotificacao($notificacao))

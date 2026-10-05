@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Central\AnoLectivoController;
 use App\Http\Controllers\Central\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Central\Auth\GoogleAuthController;
 use App\Http\Controllers\Central\Auth\RegisteredController;
 use App\Http\Controllers\Central\CalendarioAnualController;
 use App\Http\Controllers\Central\CursoController;
@@ -53,6 +54,13 @@ foreach (config('tenancy.central_domains') as $domain) {
         Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
             ->middleware('auth:web')
             ->name('central.logout');
+
+        // Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirect'])
+        //     ->middleware('guest')
+        //     ->name('central.google.redirect');
+
+        // Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])
+        //     ->name('central.google.callback');
 
         /*
         |--------------------------------------------------------------------------
@@ -125,6 +133,7 @@ foreach (config('tenancy.central_domains') as $domain) {
 
                 Route::get('calendario-anual', [CalendarioAnualController::class, 'index'])
                     ->name('calendario-anual');
+
             });
     });
 }

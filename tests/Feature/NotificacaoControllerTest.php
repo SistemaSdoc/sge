@@ -61,8 +61,28 @@ it('returns notification data from the bell endpoint as JSON', function () {
         EnsurePerfilCompleto::class,
     ])
         ->actingAs($user, 'tenant')
-        ->get(route('tenant.dashboard.notificacoes.sino'));
+        ->get(route('tenant.dashboard.notificacoes.sino'), [
+            'Accept' => 'application/json',
+        ]);
 
     $response->assertJsonPath('notificacoes', [])
         ->assertJsonPath('nao_lidas', 0);
+});
+
+it('redirects direct browser requests from the bell endpoint to the notifications page', function () {
+    $user = User::factory()->create();
+
+    $response = $this->withoutMiddleware([
+        PreventAccessFromCentralDomains::class,
+        InitializeTenancyByDomain::class,
+        'auth:tenant',
+        EnsureEmailIsVerified::class,
+        RoleMiddleware::class,
+        CheckTenantStatus::class,
+        EnsurePerfilCompleto::class,
+    ])
+        ->actingAs($user, 'tenant')
+        ->get(route('tenant.dashboard.notificacoes.sino'));
+
+    $response->assertRedirect(route('tenant.dashboard.notificacoes.index'));
 });
