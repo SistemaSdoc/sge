@@ -55,21 +55,22 @@ class GrupoPapController extends Controller
     /**
      * Lista os grupos PAP acessíveis ao utilizador.
      */
-    public function index()
+    public function index(Request $request)
     {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('viewAny', GrupoPap::class);
 
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+        $search = $request->string('search')->toString();
 
-        $anoLectivoId = filled(request('ano_lectivo_id'))
-            ? request('ano_lectivo_id')
+        $anoLectivoId = filled($request->input('ano_lectivo_id'))
+            ? $request->input('ano_lectivo_id')
             : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
-        $instituicaoIdFiltro = request('instituicao_id') ?: $user->instituicao_id;
-        $cursoTuteladoIdFiltro = request('curso_tutelado_id') ?: null;
+        $instituicaoIdFiltro = $request->input('instituicao_id') ?: $user->instituicao_id;
+        $cursoTuteladoIdFiltro = $request->input('curso_tutelado_id') ?: null;
 
-        $grupos = $this->grupoPapViewService->index($user, $anoLectivoId, $instituicaoIdFiltro, $cursoTuteladoIdFiltro);
+        $grupos = $this->grupoPapViewService->index($user, $anoLectivoId, $instituicaoIdFiltro, $cursoTuteladoIdFiltro, $search);
 
         $grupos->getCollection()->transform(function ($grupo) use ($user) {
             $grupo->can = [
@@ -96,6 +97,7 @@ class GrupoPapController extends Controller
             'gruposPap' => IndexResource::collection($grupos),
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => AnoLectivo::all(),
+            'filters' => $request->only('search'),
             'can' => [
                 'create' => $user->can('create', GrupoPap::class),
                 'selecionarInstituicao' => $user->can('selecionarInstituicao', GrupoPap::class),

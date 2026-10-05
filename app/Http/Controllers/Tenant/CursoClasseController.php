@@ -29,6 +29,12 @@ class CursoClasseController extends Controller
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse
     ) {
+        abort_unless(
+            (string) $cursoClasse->curso_tutelado_id === (string) $cursoTutelado->getKey()
+                && (string) $cursoTutelado->instituicaoCurso?->instituicao_id === (string) $instituicao->getKey(),
+            404,
+        );
+
         $this->authorize('view', $cursoClasse);
 
         /** @var User $user */
@@ -99,6 +105,7 @@ class CursoClasseController extends Controller
             'disciplina' => [
                 'create' => $user->can('update', $cursoTutelado)
                     && $user->can('create', ClasseTurnoDisciplina::class),
+                'delete' => $user->can('classeturnodisciplina.delete'),
             ],
             'turma' => [
                 'create' => $user->can('update', $cursoTutelado)

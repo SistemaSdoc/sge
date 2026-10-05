@@ -4,6 +4,7 @@ namespace App\Http\Resources\Tenant\CursoTutelado;
 
 use App\Enums\TutelaStatus;
 use App\Models\Central\CursoTuteladoShared;
+use App\Models\Tenant\Inscricao;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -84,6 +85,8 @@ class CursoTuteladoResourceShow extends JsonResource
             : $sharedAtivo;
 
         $docs = $this->resolverDocumentosPap();
+        $canManageSecretarios = ($request->user()?->hasRole('Coordenador') ?? false)
+            && ($request->user()?->can('manageSecretarios', $this->resource) ?? false);
 
         return [
             'id' => $this->id,
@@ -124,10 +127,10 @@ class CursoTuteladoResourceShow extends JsonResource
                 'turnos' => $cc->turnos->map(fn ($cct) => $cct->turno->nome),
             ]),
             'professores' => $professores->toArray(),
-            'secretarios' => $this->secretarios->map(fn ($secretario) => [
+            'secretarios' => $canManageSecretarios ? $this->secretarios->map(fn ($secretario) => [
                 'id' => $secretario->id,
                 'nome' => $secretario->nome,
-            ])->values(),
+            ])->values() : [],
             'turmas' => $turmas->toArray(),
             'criterios_pap_url' => $docs['criterios_pap_path']
                 ? $this->publicStorageUrl($docs['criterios_pap_path'])
@@ -145,7 +148,11 @@ class CursoTuteladoResourceShow extends JsonResource
                 'update' => $request->user()?->can('update', $this->resource) ?? false,
                 'delete' => $request->user()?->can('delete', $this->resource) ?? false,
                 'attachProfessor' => $request->user()?->can('update', $this->resource) ?? false,
-                'attachSecretario' => $request->user()?->can('manageSecretarios', $this->resource) ?? false,
+                'manageSecretarios' => $canManageSecretarios,
+                'attachSecretario' => $canManageSecretarios,
+                'createInscricao' => ($request->user()?->can('create', Inscricao::class) ?? false)
+                    && (! $request->user()?->hasRole('Secretario do Curso')
+                        || $this->secretarios()->whereKey($request->user()->getKey())->exists()),
                 'uploadCriteriosPap' => $request->user()?->can('uploadDocumentosPap', $this->resource) ?? false,
                 'uploadManualPt' => $request->user()?->can('uploadDocumentosPap', $this->resource) ?? false,
                 'uploadEstruturaTrabalhoPap' => $request->user()?->can('uploadDocumentosPap', $this->resource) ?? false,

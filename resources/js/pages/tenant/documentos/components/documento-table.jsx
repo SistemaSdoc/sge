@@ -46,7 +46,7 @@ export function DocumentoTable({ documentos, classes = [] }) {
 
   return (
     <>
-      <Card className="gap-0">
+      <Card className="gap-0 pb-0">
         <CardHeader className="border-b">
           <CardTitle>Documentos</CardTitle>
           <CardDescription>

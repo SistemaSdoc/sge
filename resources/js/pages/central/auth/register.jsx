@@ -52,6 +52,8 @@ export default function Register({ passwordRules }) {
     post('/register');
   }
 
+  const appHost = new URL(import.meta.env.VITE_APP_URL).host;
+
   return (
     <>
       <Head title="Register" />
@@ -138,7 +140,7 @@ export default function Register({ passwordRules }) {
                   align="inline-end"
                   className="font-normal text-foreground"
                 >
-                  .sge.localhost
+                  {appHost}
                 </InputGroupAddon>
               </InputGroup>
               {errors.domain && <FieldError>{errors.domain}</FieldError>}
@@ -147,9 +149,7 @@ export default function Register({ passwordRules }) {
             {/* Nome & Email do Diretor */}
 
             <Field>
-              <FieldLabel htmlFor="user_nome">
-                Nome do Utilizador (Diretor)
-              </FieldLabel>
+              <FieldLabel htmlFor="user_nome">Nome do Utilizador</FieldLabel>
               <Input
                 id="user_nome"
                 type="text"
@@ -162,9 +162,7 @@ export default function Register({ passwordRules }) {
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="user_email">
-                Email do Utilizador (Diretor)
-              </FieldLabel>
+              <FieldLabel htmlFor="user_email">Email do Utilizador</FieldLabel>
               <Input
                 id="user_email"
                 type="email"

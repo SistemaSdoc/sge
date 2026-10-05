@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { TableSearch } from '@/components/table-search';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -39,6 +40,9 @@ export function Header({
   anoLectivoId,
   onAnoLectivoChange,
   onAddGrupo,
+  search,
+  onSearchChange,
+  onSearchSubmit,
 }) {
   const instituicaoSeleccionada =
     instituicoes.find(
@@ -156,6 +160,16 @@ export function Header({
                 ))}
               </SelectContent>
             </Select>
+
+            <div className="w-full sm:w-[280px]">
+              <TableSearch
+                bare
+                value={search}
+                onChange={onSearchChange}
+                onSubmit={onSearchSubmit}
+                placeholder="Pesquisar grupo PAP..."
+              />
+            </div>
           </div>
         </div>
       )}

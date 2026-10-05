@@ -33,6 +33,8 @@ class PreparePautaShow
             return $this->dadosPauta($turma, $request);
         }
 
+        abort_if($user->hasRole('Secretario do Curso'), 404);
+
         abort_unless($user->can('pautas.view'), 403);
 
         $vinculosActivos = CursoTuteladoShared::query()

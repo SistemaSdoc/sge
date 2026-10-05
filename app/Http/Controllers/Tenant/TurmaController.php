@@ -28,6 +28,10 @@ class TurmaController extends Controller
         $user = Auth::guard('tenant')->user();
         $professor = $user?->professor;
         $instituicaoId = $user->instituicao_id;
+        $isCourseSecretary = $user->hasRole('Secretario do Curso');
+        $secretariadoCourseIds = $isCourseSecretary
+            ? $user->cursosSecretariados()->select('curso_tutelado.id')
+            : null;
 
         $anoLectivoId = filled(request('ano_lectivo_id'))
             ? request('ano_lectivo_id')
@@ -35,6 +39,7 @@ class TurmaController extends Controller
 
         $cursos = CursoTutelado::query()
             ->whereHas('instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicaoId))
+            ->when($secretariadoCourseIds !== null, fn ($q) => $q->whereIn('id', $secretariadoCourseIds))
             ->with('instituicaoCurso.curso:id,nome')
             ->get()
             ->map(fn ($ct) => [
@@ -44,6 +49,7 @@ class TurmaController extends Controller
 
         $cursoClasses = CursoClasse::query()
             ->whereHas('cursoTutelado.instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicaoId))
+            ->when($secretariadoCourseIds !== null, fn ($q) => $q->whereIn('curso_tutelado_id', $secretariadoCourseIds))
             ->with('classe:id,nome')
             ->get()
             ->map(fn ($cc) => [
@@ -57,13 +63,19 @@ class TurmaController extends Controller
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
                 fn ($q) => $q->where('instituicoes.id', $instituicaoId)
             )
+            ->when($secretariadoCourseIds !== null, fn ($q) => $q->whereHas(
+                'cursoClasseTurno.cursoClasse',
+                fn ($q) => $q->whereIn('curso_tutelado_id', $secretariadoCourseIds),
+            ))
             ->search($request->string('search')->toString()); // <- novo
 
         if ($anoLectivoId) {
             $query->where('ano_lectivo_id', $anoLectivoId);
         }
 
-        if (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
+        if ($isCourseSecretary) {
+            // The course filter above is the secretary's complete scope.
+        } elseif (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
             if (! $professor) {
                 return Inertia::render('tenant/turmas/index', [
                     'turmas' => [
@@ -126,6 +138,10 @@ class TurmaController extends Controller
             'turnos' => Inertia::defer(
                 fn () => CursoClasseTurno::query()
                     ->where('curso_classe_id', request('curso_classe_id'))
+                    ->when($secretariadoCourseIds !== null, fn ($q) => $q->whereHas(
+                        'cursoClasse',
+                        fn ($q) => $q->whereIn('curso_tutelado_id', $secretariadoCourseIds),
+                    ))
                     ->with('turno:id,nome')
                     ->get()
                     ->map(fn ($cct) => [

@@ -17,15 +17,35 @@ class CursoTuteladoSecretarioSeeder extends Seeder
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $manageSecretaries = Permission::findOrCreate('curso.secretarios.manage', 'tenant');
-        $viewCourses = [
+        $manageHistory = Permission::findOrCreate('historico.manage', 'tenant');
+        $secretaryPermissions = [
+            $manageHistory,
             Permission::findOrCreate('curso-tutelado.viewAny', 'tenant'),
             Permission::findOrCreate('curso-tutelado.view', 'tenant'),
+            Permission::findOrCreate('cursoclasse.viewAny', 'tenant'),
+            Permission::findOrCreate('cursoclasse.view', 'tenant'),
+            Permission::findOrCreate('cursoclasseturno.viewAny', 'tenant'),
+            Permission::findOrCreate('cursoclasseturno.view', 'tenant'),
+            Permission::findOrCreate('turmas.viewAny', 'tenant'),
+            Permission::findOrCreate('turmas.view', 'tenant'),
+            Permission::findOrCreate('classeturnodisciplina.viewAny', 'tenant'),
+            Permission::findOrCreate('classeturnodisciplina.view', 'tenant'),
+            Permission::findOrCreate('inscricoes.create', 'tenant'),
+            Permission::findOrCreate('inscricoes.viewAny', 'tenant'),
+            Permission::findOrCreate('inscricoes.view', 'tenant'),
+            Permission::findOrCreate('alunos.viewAny', 'tenant'),
+            Permission::findOrCreate('alunos.view', 'tenant'),
+            Permission::findOrCreate('pautas.viewAny', 'tenant'),
+            Permission::findOrCreate('pautas.view', 'tenant'),
         ];
 
-        Role::findOrCreate('Secretario do Curso', 'tenant')->syncPermissions($viewCourses);
+        Role::findOrCreate('Secretario do Curso', 'tenant')->syncPermissions($secretaryPermissions);
 
-        foreach (['Coordenador', 'Director'] as $roleName) {
-            Role::findOrCreate($roleName, 'tenant')->givePermissionTo($manageSecretaries);
+        Role::findOrCreate('Coordenador', 'tenant')->givePermissionTo($manageSecretaries);
+        Role::findOrCreate('Coordenador', 'tenant')->givePermissionTo($manageHistory);
+
+        foreach (['Director', 'Subdirector', 'Secretaria'] as $roleName) {
+            Role::findOrCreate($roleName, 'tenant')->revokePermissionTo($manageSecretaries);
         }
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();

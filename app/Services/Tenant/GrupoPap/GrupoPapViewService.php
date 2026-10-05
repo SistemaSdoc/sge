@@ -33,11 +33,12 @@ class GrupoPapViewService
         ?string $anoLectivoId,
         ?string $instituicaoIdFiltro = null,
         ?string $cursoTuteladoIdFiltro = null,
+        ?string $search = null,
     ): LengthAwarePaginator {
         $instituicaoIdPadrao = $instituicaoIdFiltro ?? $user->instituicao_id;
 
         // $anoLectivoNome removido — já não é necessário, filtramos sempre pela FK ano_lectivo_id
-        $groups = $this->groupsForTenant($user, $anoLectivoId, null, $instituicaoIdPadrao, $cursoTuteladoIdFiltro);
+        $groups = $this->groupsForTenant($user, $anoLectivoId, null, $instituicaoIdPadrao, $cursoTuteladoIdFiltro, $search);
 
         if ($this->isTutorInstitution($user)) {
             $this->crossTenantAccessService->vinculosVisiveisNoPap($user)
@@ -57,7 +58,7 @@ class GrupoPapViewService
                     }
 
                     $remoteGroups = $tenant->run(
-                        fn (): SupportCollection => $this->groupsForTenant($user, $anoLectivoId, (string) $shared->getKey(), $instituicaoIdFiltro ?? $instituicaoIdPadrao, $cursoTuteladoIdFiltro)
+                        fn (): SupportCollection => $this->groupsForTenant($user, $anoLectivoId, (string) $shared->getKey(), $instituicaoIdFiltro ?? $instituicaoIdPadrao, $cursoTuteladoIdFiltro, $search)
                     )->each(function (GrupoPap $grupoPap): void {
                         $grupoPap->setAttribute('cross_tenant', true);
                     });
@@ -85,6 +86,7 @@ class GrupoPapViewService
         ?string $sharedId = null,
         ?string $instituicaoIdFiltro = null,
         ?string $cursoTuteladoIdFiltro = null,
+        ?string $search = null,
     ): SupportCollection {
         // Para tenant local: usa o filtro explícito se vier, senão usa o da instituição do user
         $instituicaoId = $sharedId === null
@@ -92,6 +94,7 @@ class GrupoPapViewService
             : null;
 
         return GrupoPap::query()
+            ->search($search)
             ->with([
                 'professor.user:id,nome',
                 'turma.cursoClasseTurno.turno:id,nome',
@@ -117,9 +120,9 @@ class GrupoPapViewService
             ->when(
                 $sharedId === null
                 && $user->hasRole('Professor')
-                && !$user->hasAnyRole(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])
-                && !$user->hasPermissionTo('grupopap.selecionarInstituicao'),
-                fn($query) => $query->where(function ($q) use ($user): void {
+                && ! $user->hasAnyRole(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])
+                && ! $user->hasPermissionTo('grupopap.selecionarInstituicao'),
+                fn ($query) => $query->where(function ($q) use ($user): void {
                     $professorId = $user->professor?->id;
                     $q->where('professor_tutor_id', $professorId);
                 })
@@ -127,7 +130,7 @@ class GrupoPapViewService
             ->when(
                 $sharedId === null
                 && $user->hasRole('Professor')
-                && !$user->hasAnyRole(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])
+                && ! $user->hasAnyRole(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])
                 && $user->hasPermissionTo('grupopap.selecionarInstituicao'),
                 fn ($query) => $query->whereHas(
                     'turma.cursoClasseTurno.cursoClasse.cursoTutelado',

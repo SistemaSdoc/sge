@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useDrawer } from '@/hooks/use-drawer';
 import { Head, router } from '@inertiajs/react';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import { GrupoPapCards } from './components/grupo-pap-cards';
 import { Header } from './components/header';
 import GrupoPapForm from './components/grupo-pap-form';
@@ -13,8 +15,12 @@ export default function Index({
   anoLectivoId,
   anosLectivos,
   can,
+  filters,
 }) {
   const { openForm, closeDrawer } = useDrawer();
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['gruposPap', 'cursosTutelados', 'instituicao', 'anoLectivoId'],
+  });
 
   const [filtroInstituicao, setFiltroInstituicao] = useState(
     String(instituicao?.id ?? ''),
@@ -103,10 +109,20 @@ export default function Index({
         anoLectivoId={filtroAnoLectivo}
         onAnoLectivoChange={handleAnoLectivoChange}
         onAddGrupo={handleAdicionarGrupo}
+        search={search}
+        onSearchChange={onChange}
+        onSearchSubmit={submit}
       />
 
       <div className="mt-6">
-        <GrupoPapCards can={can} grupos={gruposPap.data ?? []} />
+        <GrupoPapCards
+          can={can}
+          grupos={gruposPap.data ?? []}
+          emptyTitle={applied ? 'Nenhum grupo PAP encontrado' : 'Nenhum Grupo PAP definido'}
+          emptyDescription={
+            applied ? 'Tenta ajustar a pesquisa.' : 'Ainda não existem grupos PAP para esta turma.'
+          }
+        />
       </div>
     </div>
   );

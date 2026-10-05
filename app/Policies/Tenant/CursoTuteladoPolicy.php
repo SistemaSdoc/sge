@@ -109,12 +109,6 @@ class CursoTuteladoPolicy
             return false;
         }
 
-        if ($user->hasRole('Director')) {
-            $cursoTutelado->loadMissing('instituicaoCurso');
-
-            return (string) $user->instituicao_id === (string) $cursoTutelado->instituicaoCurso?->instituicao_id;
-        }
-
         return $user->hasRole('Coordenador')
             && $user->professor?->cursosTutelados()
                 ->whereKey($cursoTutelado->getKey())

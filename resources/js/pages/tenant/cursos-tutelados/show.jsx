@@ -4,12 +4,7 @@ import { TabTurmas } from './components/tabs/tab-turmas';
 import { TabProfessores } from './components/tabs/tab-professores';
 import { TabSecretarios } from './components/tabs/tab-secretarios';
 import { TabCriteriosPap } from './components/tabs/tab-criteriospap';
-import { Badge } from '@/components/ui/badge';
-import { show as showClasse } from '@/actions/App/Http/Controllers/Tenant/CursoClasseController';
-import {
-  edit,
-  show as showCurso,
-} from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
+import { show as showCurso } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import { destroy } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
 import { destroy as destroySecretario } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoSecretarioController';
 import { useDialog } from '@/hooks/use-dialog';
@@ -23,10 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Header } from './components/curso-header';
-// Imports a adicionar:
-import { useState, useRef } from 'react';
-import { FileText, Upload } from 'lucide-react';
-import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
+import { useState } from 'react';
 
 export default function Show({
   instituicao,
@@ -112,9 +104,11 @@ export default function Show({
             <TabsTrigger value="professores" className="hover:cursor-pointer">
               Professores
             </TabsTrigger>
-            <TabsTrigger value="secretarios" className="hover:cursor-pointer">
-              Secretários
-            </TabsTrigger>
+            {cursoTutelado.can?.manageSecretarios && (
+              <TabsTrigger value="secretarios" className="hover:cursor-pointer">
+                Secretários
+              </TabsTrigger>
+            )}
             <TabsTrigger value="criterios-pap" className="hover:cursor-pointer">
               Critérios para a PAP
             </TabsTrigger>
@@ -166,15 +160,17 @@ export default function Show({
           />
         </TabsContent>
 
-        <TabsContent value="secretarios" className="mt-2">
-          <TabSecretarios
-            params={params}
-            secretarios={cursoTutelado.secretarios ?? []}
-            disponiveis={secretariosDisponiveis}
-            canAttach={cursoTutelado.can?.attachSecretario}
-            removeFn={handleDeleteSecretario}
-          />
-        </TabsContent>
+        {cursoTutelado.can?.manageSecretarios && (
+          <TabsContent value="secretarios" className="mt-2">
+            <TabSecretarios
+              params={params}
+              secretarios={cursoTutelado.secretarios ?? []}
+              disponiveis={secretariosDisponiveis}
+              canAttach={cursoTutelado.can?.attachSecretario}
+              removeFn={handleDeleteSecretario}
+            />
+          </TabsContent>
+        )}
 
         <TabsContent value="criterios-pap" className="mt-2">
           <TabCriteriosPap

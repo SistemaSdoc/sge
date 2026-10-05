@@ -339,11 +339,20 @@ final class SidebarMenuService
         ));
 
         if ($user->hasRole('Secretario do Curso')) {
+            $allowedKeys = [
+                'dashboard',
+                'meus-cursos',
+                'turmas',
+                'pautas',
+                'inscricoes',
+                'alunos',
+            ];
+
             return array_values(array_map(
-                function (array $group): array {
+                function (array $group) use ($allowedKeys): array {
                     $group['items'] = array_values(array_filter(
                         $group['items'],
-                        fn (array $item): bool => in_array($item['key'], ['dashboard', 'meus-cursos'], true),
+                        fn (array $item): bool => in_array($item['key'], $allowedKeys, true),
                     ));
 
                     return $group;
@@ -351,7 +360,7 @@ final class SidebarMenuService
                 array_filter(
                     $menuGroups,
                     fn (array $group): bool => count(array_intersect(
-                        ['dashboard', 'meus-cursos'],
+                        $allowedKeys,
                         array_column($group['items'], 'key'),
                     )) > 0,
                 ),

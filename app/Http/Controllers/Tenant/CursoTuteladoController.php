@@ -144,7 +144,10 @@ class CursoTuteladoController extends Controller
 
         $this->cursoTuteladoViewService->prepareShow($cursoTutelado, $anoLectivoId);
 
-        $secretariosDisponiveis = $user->can('manageSecretarios', $cursoTutelado)
+        $canManageSecretarios = $user->hasRole('Coordenador')
+            && $user->can('manageSecretarios', $cursoTutelado);
+
+        $secretariosDisponiveis = $canManageSecretarios
             ? User::query()
                 ->where('instituicao_id', $instituicao->id)
                 ->role('Secretario do Curso', 'tenant')

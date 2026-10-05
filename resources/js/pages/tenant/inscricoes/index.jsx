@@ -19,17 +19,24 @@ export default function Index() {
     entity_label_plural: entityLabelPlural,
     tem_nota_teste: temNotaTeste,
     filters,
+    cursosParaMatricula = [],
   } = usePage().props;
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page, ano_lectivo_id: anoLectivoActual },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+        ano_lectivo_id: anoLectivoActual,
+      },
       preserveScroll: true,
     });
   };
 
   const handleAnoLectivoChange = (value) => {
-    const params = Object.fromEntries(new URLSearchParams(window.location.search));
+    const params = Object.fromEntries(
+      new URLSearchParams(window.location.search),
+    );
     delete params.page;
 
     router.visit(index().url, {
@@ -86,6 +93,7 @@ export default function Index() {
         entityLabelPlural={entityLabelPlural}
         temNotaTeste={temNotaTeste}
         filters={filters}
+        cursosParaMatricula={cursosParaMatricula}
       />
     </div>
   );

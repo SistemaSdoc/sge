@@ -91,7 +91,6 @@ export function TabSecretarios({
       <CardContent className="p-0">
         {secretarios.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
-            <UserRoundX className="size-8 text-muted-foreground" />
             <p className="font-medium">Ainda não há secretários associados</p>
             <p className="text-sm text-muted-foreground">
               {canAttach

@@ -20,6 +20,13 @@ class CursoClasseTurnoPolicy
      */
     public function view(User $user, CursoClasseTurno $cursoClasseTurno): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return $user->can('cursoclasseturno.view')
+                && $cursoClasseTurno->cursoClasse?->cursoTutelado?->secretarios()
+                    ->whereKey($user->getKey())
+                    ->exists();
+        }
+
         return $user->can('cursoclasseturno.view')
             && $cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;
     }

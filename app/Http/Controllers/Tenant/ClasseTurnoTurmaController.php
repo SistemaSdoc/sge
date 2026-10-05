@@ -40,6 +40,16 @@ class ClasseTurnoTurmaController extends Controller
 
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
+        abort_unless(
+            (string) $cursoTutelado->instituicaoCurso?->instituicao_id === (string) $instituicao->getKey(),
+            404,
+        );
+
+        if ($user->hasRole('Secretario do Curso')) {
+            abort_unless($user->cursosSecretariados()->whereKey($cursoTutelado->getKey())->exists(), 404);
+        }
+
         $user->loadMissing('roles.permissions', 'permissions');
 
         // Filtro ano lectivo
@@ -189,6 +199,14 @@ class ClasseTurnoTurmaController extends Controller
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
+        abort_unless(
+            (string) $cursoTutelado->instituicaoCurso?->instituicao_id === (string) $instituicao->getKey()
+                && (string) $cursoClasse->curso_tutelado_id === (string) $cursoTutelado->getKey()
+                && (string) $cursoClasseTurno->curso_classe_id === (string) $cursoClasse->getKey()
+                && (string) $turma->curso_classe_turno_id === (string) $cursoClasseTurno->getKey(),
+            404,
+        );
+
         Gate::authorize('view', $turma);
 
         $user->loadMissing('roles.permissions', 'permissions');
@@ -264,7 +282,7 @@ class ClasseTurnoTurmaController extends Controller
             return $grupo;
         });
 
-        $temAlunosEmRecurso = TurmaAluno::query()
+        $temAlunosEmRecurso = ! $user->hasRole('Secretario do Curso') && TurmaAluno::query()
             ->where('turma_id', $turma->id)
             ->where('activo', true)
             ->whereIn('resultado', ['recurso', 'aprovado_recurso', 'reprovado_recurso'])

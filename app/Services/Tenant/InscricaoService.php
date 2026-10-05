@@ -4,6 +4,7 @@ namespace App\Services\Tenant;
 
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Candidato;
+use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
@@ -30,7 +31,21 @@ class InscricaoService
      */
     public function criar(array $dados, ?Instituicao $instituicao = null): Inscricao
     {
-        return DB::transaction(function () use ($dados) {
+        return DB::transaction(function () use ($dados, $instituicao) {
+            $cursoClasseTurno = CursoClasseTurno::query()
+                ->with('cursoClasse.cursoTutelado.instituicaoCurso')
+                ->findOrFail($dados['curso_classe_turno_id']);
+
+            $cursoInstituicaoId = $cursoClasseTurno
+                ->cursoClasse
+                ?->cursoTutelado
+                ?->instituicaoCurso
+                ?->instituicao_id;
+
+            if ($instituicao !== null && (string) $instituicao->getKey() !== (string) $cursoInstituicaoId) {
+                throw new InvalidArgumentException('A instituição não corresponde ao curso seleccionado.');
+            }
+
             $candidato = Candidato::create([
                 'nome' => $dados['nome'],
                 'bi' => $dados['bi'],

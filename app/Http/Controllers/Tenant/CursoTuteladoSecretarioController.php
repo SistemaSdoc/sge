@@ -9,7 +9,6 @@ use App\Models\Tenant\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\PermissionRegistrar;
@@ -19,7 +18,7 @@ class CursoTuteladoSecretarioController extends Controller
     public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado): RedirectResponse
     {
         $this->assertCourseBelongsToInstitution($instituicao, $cursoTutelado);
-        Gate::authorize('manageSecretarios', $cursoTutelado);
+        $this->authorizeSecretaryManagement($request->user('tenant'), $cursoTutelado);
 
         $validated = $request->validate([
             'user_id' => [
@@ -55,7 +54,7 @@ class CursoTuteladoSecretarioController extends Controller
     public function destroy(Instituicao $instituicao, CursoTutelado $cursoTutelado, string $secretario): RedirectResponse
     {
         $this->assertCourseBelongsToInstitution($instituicao, $cursoTutelado);
-        Gate::authorize('manageSecretarios', $cursoTutelado);
+        $this->authorizeSecretaryManagement(request()->user('tenant'), $cursoTutelado);
 
         $user = $cursoTutelado->secretarios()->whereKey($secretario)->firstOrFail();
 
@@ -77,6 +76,19 @@ class CursoTuteladoSecretarioController extends Controller
         abort_unless(
             (string) $cursoTutelado->instituicaoCurso?->instituicao_id === (string) $instituicao->getKey(),
             404,
+        );
+    }
+
+    private function authorizeSecretaryManagement(User $user, CursoTutelado $cursoTutelado): void
+    {
+        abort_unless(
+            $user->hasRole('Coordenador')
+                && $user->hasPermissionTo('curso.secretarios.manage')
+                && $user->professor?->cursosTutelados()
+                    ->whereKey($cursoTutelado->getKey())
+                    ->wherePivot('coordenador', true)
+                    ->exists(),
+            403,
         );
     }
 }

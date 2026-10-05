@@ -38,7 +38,19 @@ class PreparePautaIndex
             ? (string) $filtros['ano_lectivo_id']
             : (string) $this->anoLectivoResolverService->obterAnoLectivoDefault();
         $isProfessor = $user->hasRole('Professor');
+        $isCourseSecretary = $user->hasRole('Secretario do Curso');
         $professorId = $user->professor?->id;
+        $secretariadoCourseIds = $isCourseSecretary
+            ? $user->cursosSecretariados()->pluck('curso_tutelado.id')->map(fn ($id): string => (string) $id)->all()
+            : [];
+
+        if ($isCourseSecretary) {
+            abort_unless($instituicaoIdFiltro === $instituicaoId, 404);
+
+            if (filled($cursoTuteladoIdFiltro)) {
+                abort_unless(in_array((string) $cursoTuteladoIdFiltro, $secretariadoCourseIds, true), 404);
+            }
+        }
 
         // NOVO: cursos onde o user é coordenador
         $idsCursosCoordenados = $isProfessor
@@ -59,7 +71,7 @@ class PreparePautaIndex
         $turmas = collect();
 
         // ALTERADO: só vínculos que o user pode ver (permissão ou coordenador)
-        $vinculosActivos = CursoTuteladoShared::query()
+        $vinculosActivos = $isCourseSecretary ? collect() : CursoTuteladoShared::query()
             ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
             ->where('status', 'activo')
             ->get()
@@ -75,10 +87,11 @@ class PreparePautaIndex
                             fn ($query) => $query->where('instituicao_id', $instituicaoId),
                         );
                 })
-                ->when($isProfessor, fn ($query) => $query->whereHas(
+                ->when($isProfessor && ! $isCourseSecretary, fn ($query) => $query->whereHas(
                     'professores',
                     fn ($query) => $query->where('professor_id', $professorId),
                 ))
+                ->when($isCourseSecretary, fn ($query) => $query->whereIn('id', $secretariadoCourseIds))
                 ->with([
                     'instituicaoCurso.curso:id,nome',
                     'instituicaoCurso.instituicao:id,nome',
@@ -87,7 +100,7 @@ class PreparePautaIndex
 
             foreach ($cursosLocais as $cursoTutelado) {
                 $cursos->push([
-                    'id' => (string) $cursoTutelado->getKey(),
+                    'id' => (string) $cursoTutelado->id,
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome ?? 'Curso sem nome',
                     'remote' => false,
                 ]);
@@ -105,7 +118,7 @@ class PreparePautaIndex
                     fn ($query) => $query->where('curso_tutelado_id', $cursoTuteladoIdFiltro),
                 ))
                 // ALTERADO: professor vê as suas turmas OU todas as dos cursos que coordena
-                ->when($isProfessor, fn ($query) => $query->where(function ($query) use ($professorId, $idsCursosCoordenados): void {
+                ->when($isProfessor && ! $isCourseSecretary, fn ($query) => $query->where(function ($query) use ($professorId, $idsCursosCoordenados): void {
                     $query->whereHas('professores', fn ($q) => $q->where('professor_id', $professorId))
                         ->orWhereHas(
                             'cursoClasseTurno.cursoClasse',

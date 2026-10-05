@@ -27,7 +27,9 @@ class NotaPolicy
      */
     public function create(User $user, ?TurmaDisciplinaProfessor $tdp = null): bool
     {
-        if (! $user->can('notas.create') || $user->instituicao_id === null) {
+        if ($user->hasRole('Secretario do Curso')
+            || ! $user->can('notas.create')
+            || $user->instituicao_id === null) {
             return false;
         }
 
@@ -54,7 +56,7 @@ class NotaPolicy
      */
     public function update(User $user, Nota $nota): bool
     {
-        if (! $user->can('notas.update')) {
+        if ($user->hasRole('Secretario do Curso') || ! $user->can('notas.update')) {
             return false;
         }
 
@@ -78,7 +80,9 @@ class NotaPolicy
      */
     public function export(User $user, ?TurmaDisciplinaProfessor $tdp = null): bool
     {
-        if (! $user->can('notas.export') || $user->instituicao_id === null) {
+        if ($user->hasRole('Secretario do Curso')
+            || ! $user->can('notas.export')
+            || $user->instituicao_id === null) {
             return false;
         }
 

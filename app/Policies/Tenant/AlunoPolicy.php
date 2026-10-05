@@ -16,7 +16,9 @@ class AlunoPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('alunos.viewAny') && $user->instituicao_id !== null;
+        return $user->can('alunos.viewAny')
+            && $user->instituicao_id !== null
+            && (! $user->hasRole('Secretario do Curso') || $user->cursosSecretariados()->exists());
     }
 
     /**
@@ -29,16 +31,20 @@ class AlunoPolicy
      */
     public function view(User $user, Aluno $aluno): bool
     {
+        if ($user->aluno?->id === $aluno->id) {
+            return true;
+        }
+
+        if ($user->hasRole('Secretario do Curso') || $this->isCoordinatorForStudent($user, $aluno)) {
+            return $user->can('alunos.view') && $this->hasCourseAccessToStudent($user, $aluno);
+        }
+
         $isCoordenador = $user->professor?->cursosTutelados()
             ->wherePivot('coordenador', true)
             ->exists() ?? false;
 
         if ($isCoordenador) {
             return false;
-        }
-
-        if ($user->aluno?->id === $aluno->id) {
-            return true;
         }
 
         if ($user->instituicao_id !== $aluno->instituicao_id) {
@@ -65,6 +71,55 @@ class AlunoPolicy
         }
 
         return true; // Director/Subdirector com permissão passa direto
+    }
+
+    public function manageHistorico(User $user, Aluno $aluno): bool
+    {
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        if ($user->hasAnyRole(['Director', 'Subdirector', 'Secretaria'])) {
+            return $user->can('alunos.update')
+                && $aluno->user?->instituicao_id === $user->instituicao_id;
+        }
+
+        return $user->hasPermissionTo('historico.manage')
+            && $this->hasCourseAccessToStudent($user, $aluno);
+    }
+
+    private function hasCourseAccessToStudent(User $user, Aluno $aluno): bool
+    {
+        $cursoTutelado = $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado;
+
+        if (! $cursoTutelado) {
+            return false;
+        }
+
+        $isAssignedSecretary = $user->hasRole('Secretario do Curso')
+            && $cursoTutelado->secretarios()->whereKey($user->getKey())->exists();
+
+        $professorId = $user->professor?->getKey();
+        $isCoordinator = $professorId !== null
+            && $cursoTutelado->professores()
+                ->where('professor_id', $professorId)
+                ->wherePivot('coordenador', true)
+                ->exists();
+
+        return $isAssignedSecretary || $isCoordinator;
+    }
+
+    private function isCoordinatorForStudent(User $user, Aluno $aluno): bool
+    {
+        $cursoTutelado = $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado;
+        $professorId = $user->professor?->getKey();
+
+        return $cursoTutelado !== null
+            && $professorId !== null
+            && $cursoTutelado->professores()
+                ->where('professor_id', $professorId)
+                ->wherePivot('coordenador', true)
+                ->exists();
     }
 
     /**

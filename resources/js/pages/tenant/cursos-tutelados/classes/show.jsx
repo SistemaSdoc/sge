@@ -319,9 +319,11 @@ export default function Show({
                               <TableHead className="text-center">
                                 Nome
                               </TableHead>
-                              <TableHead className="px-4 text-right">
-                                Acções
-                              </TableHead>
+                              {can.disciplina.delete && (
+                                <TableHead className="px-4 text-right">
+                                  Acções
+                                </TableHead>
+                              )}
                             </TableRow>
                           </TableHeader>
 
@@ -342,19 +344,21 @@ export default function Show({
                                   )}
                                 </TableCell>
 
-                                <TableCell className="px-4 text-right">
-                                  <Button
-                                    size="xs"
-                                    variant="destructive"
-                                    className="text-[10px]"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteDisciplina(disc.id);
-                                    }}
-                                  >
-                                    Remover
-                                  </Button>
-                                </TableCell>
+                                {can.disciplina.delete && (
+                                  <TableCell className="px-4 text-right">
+                                    <Button
+                                      size="xs"
+                                      variant="destructive"
+                                      className="text-[10px]"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteDisciplina(disc.id);
+                                      }}
+                                    >
+                                      Remover
+                                    </Button>
+                                  </TableCell>
+                                )}
                               </TableRow>
                             ))}
                           </TableBody>
