@@ -32,24 +32,44 @@ class GrupoPapViewService
         User $user,
         ?string $anoLectivoId,
         ?string $instituicaoIdFiltro = null,
-        ?string $cursoTuteladoIdFiltro = null,
+        ?string $cursoIdFiltro = null,
         ?string $search = null,
-    ): LengthAwarePaginator {
+    ): Collection {
+        $isCourseSecretary = $user->hasRole('Secretario do Curso');
+        $isInstituteSecretary = $isCourseSecretary && $this->isTutorInstitution($user);
         $instituicaoIdPadrao = $instituicaoIdFiltro ?? $user->instituicao_id;
 
-        // $anoLectivoNome removido — já não é necessário, filtramos sempre pela FK ano_lectivo_id
-        $groups = $this->groupsForTenant($user, $anoLectivoId, null, $instituicaoIdPadrao, $cursoTuteladoIdFiltro, $search);
+        $localGroups = $this->groupsForTenant(
+            $user,
+            $anoLectivoId,
+            null,
+            $instituicaoIdPadrao,
+            $cursoIdFiltro,
+            $search,
+        );
+        $groups = $localGroups;
 
         if ($this->isTutorInstitution($user)) {
             $this->crossTenantAccessService->vinculosVisiveisNoPap($user)
-                ->each(function (CursoTuteladoShared $shared) use (&$groups, $anoLectivoId, $user, $instituicaoIdFiltro, $cursoTuteladoIdFiltro, $instituicaoIdPadrao): void {
+                ->each(function (CursoTuteladoShared $shared) use (
+                    &$groups,
+                    $anoLectivoId,
+                    $user,
+                    $instituicaoIdFiltro,
+                    $cursoIdFiltro,
+                    $search,
+                    $instituicaoIdPadrao,
+                    $isInstituteSecretary,
+                ): void {
                     $tenant = Tenant::query()->find($shared->tenant_tutelado_id);
 
                     if (! $tenant) {
                         return;
                     }
 
-                    if ($instituicaoIdFiltro === null && $tenant->instituicao_id !== $instituicaoIdPadrao) {
+                    if ($instituicaoIdFiltro === null
+                        && ! $isInstituteSecretary
+                        && $tenant->instituicao_id !== $instituicaoIdPadrao) {
                         return;
                     }
 
@@ -58,9 +78,18 @@ class GrupoPapViewService
                     }
 
                     $remoteGroups = $tenant->run(
-                        fn (): SupportCollection => $this->groupsForTenant($user, $anoLectivoId, (string) $shared->getKey(), $instituicaoIdFiltro ?? $instituicaoIdPadrao, $cursoTuteladoIdFiltro, $search)
-                    )->each(function (GrupoPap $grupoPap): void {
+                        fn (): Collection => $this->groupsForTenant(
+                            $user,
+                            $anoLectivoId,
+                            (string) $shared->getKey(),
+                            $instituicaoIdFiltro ?? $instituicaoIdPadrao,
+                            $cursoIdFiltro,
+                            $search,
+                        )
+                    );
+                    $remoteGroups->each(function (GrupoPap $grupoPap) use ($isInstituteSecretary): void {
                         $grupoPap->setAttribute('cross_tenant', true);
+                        $grupoPap->setAttribute('secretaria_course_access', $isInstituteSecretary);
                     });
 
                     $groups = $groups->merge($remoteGroups);
@@ -68,16 +97,8 @@ class GrupoPapViewService
         }
 
         $groups = $groups->sortByDesc('created_at')->values();
-        $page = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
 
-        return new LengthAwarePaginator(
-            $groups->forPage($page, $perPage)->values(),
-            $groups->count(),
-            $perPage,
-            $page,
-            ['path' => LengthAwarePaginator::resolveCurrentPath(), 'query' => request()->query()]
-        );
+        return $groups;
     }
 
     private function groupsForTenant(
@@ -85,28 +106,30 @@ class GrupoPapViewService
         ?string $anoLectivoId,
         ?string $sharedId = null,
         ?string $instituicaoIdFiltro = null,
-        ?string $cursoTuteladoIdFiltro = null,
+        ?string $cursoIdFiltro = null,
         ?string $search = null,
-    ): SupportCollection {
+    ): Collection {
         // Para tenant local: usa o filtro explícito se vier, senão usa o da instituição do user
         $instituicaoId = $sharedId === null
             ? ($instituicaoIdFiltro ?? $user->instituicaoFiltro())
             : null;
 
-        return GrupoPap::query()
+        $query = GrupoPap::query()
             ->search($search)
-            ->with([
-                'professor.user:id,nome',
-                'turma.cursoClasseTurno.turno:id,nome',
-                'turma.cursoClasseTurno.cursoClasse.classe:id,nome',
-                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
-                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-                'elementos.aluno.inscricao.candidato:id,nome',
-            ])
             ->when($instituicaoId, fn ($query) => $query->whereHas(
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
                 fn ($q) => $q->where('instituicao_id', $instituicaoId)
             ))
+            ->when(
+                $sharedId === null && $user->hasRole('Secretario do Curso'),
+                fn ($query) => $query->whereHas(
+                    'turma.cursoClasseTurno.cursoClasse',
+                    fn ($query) => $query->whereIn(
+                        'curso_tutelado_id',
+                        $user->cursosSecretariados()->select('curso_tutelado.id'),
+                    ),
+                ),
+            )
             // Filtro por ano lectivo via FK directa em turmas — funciona tanto no tenant local
             // como no tenant remoto, sem precisar aceder à tabela ano_lectivos (que está no central)
             ->when($anoLectivoId, fn ($query) => $query->whereHas(
@@ -145,10 +168,20 @@ class GrupoPapViewService
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
                 fn ($q) => $q->where('tipo_tutela', 'externa')->where('curso_tutelado_shared_id', $sharedId)
             ))
-            ->when($cursoTuteladoIdFiltro, fn ($query) => $query->whereHas(
-                'turma.cursoClasseTurno.cursoClasse',
-                fn ($q) => $q->where('curso_tutelado_id', $cursoTuteladoIdFiltro)
-            ))
+            ->when($cursoIdFiltro, fn ($query) => $query->whereHas(
+                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                fn ($q) => $q->where('curso_id', $cursoIdFiltro)
+            ));
+
+        return $query
+            ->with([
+                'professor.user:id,nome',
+                'turma.cursoClasseTurno.turno:id,nome',
+                'turma.cursoClasseTurno.cursoClasse.classe:id,nome',
+                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
+                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
+                'elementos.aluno.inscricao.candidato:id,nome',
+            ])
             ->latest()
             ->get();
     }
@@ -156,7 +189,7 @@ class GrupoPapViewService
     /**
      * Lista os cursos tutelados da instituição do utilizador.
      *
-     * @return SupportCollection<int, array{id: string, nome: string, instituicao_id: string}>
+     * @return SupportCollection<int, array{id: string, nome: string, instituicao_id: string, curso_id: ?string}>
      */
     public function tutoredCourses(User $user, ?string $instituicaoIdFiltro = null): SupportCollection
     {
@@ -169,6 +202,13 @@ class GrupoPapViewService
                 ->whereHas(
                     'instituicaoCurso',
                     fn ($query) => $query->where('instituicao_id', $instituicaoIdLocal)
+                )
+                ->when(
+                    $user->hasRole('Secretario do Curso'),
+                    fn ($query) => $query->whereHas(
+                        'secretarios',
+                        fn ($query) => $query->whereKey($user->getKey()),
+                    ),
                 )
                 ->when(
                     $user->hasRole('Professor') && ! $user->hasPermissionTo('grupopap.selecionarInstituicao'),
@@ -193,6 +233,9 @@ class GrupoPapViewService
                     'id' => (string) $ct->getKey(),
                     'nome' => $ct->instituicaoCurso?->curso?->nome ?? 'Curso sem nome',
                     'instituicao_id' => $instituicaoIdLocal,
+                    'curso_id' => $ct->instituicaoCurso?->curso_id
+                        ? (string) $ct->instituicaoCurso->curso_id
+                        : null,
                 ]);
         }
 
@@ -223,6 +266,9 @@ class GrupoPapViewService
                             'id' => (string) $ct->getKey(),
                             'nome' => $ct->instituicaoCurso?->curso?->nome ?? $shared->curso_nome,
                             'instituicao_id' => (string) $tenant->instituicao_id,
+                            'curso_id' => $ct->instituicaoCurso?->curso_id
+                                ? (string) $ct->instituicaoCurso->curso_id
+                                : ($shared->curso_id ? (string) $shared->curso_id : null),
                         ]);
                 });
 
@@ -231,6 +277,23 @@ class GrupoPapViewService
 
         return $courses
             ->unique(fn (array $c): string => $c['instituicao_id'].'-'.$c['id'])
+            ->values();
+    }
+
+    /**
+     * @param  SupportCollection<int, array{id: string, nome: string, instituicao_id: string, curso_id: ?string}>  $courses
+     * @return SupportCollection<int, array{id: string, nome: string}>
+     */
+    public function courseFilterOptions(SupportCollection $courses): SupportCollection
+    {
+        return $courses
+            ->filter(fn (array $course): bool => filled($course['curso_id']))
+            ->unique(fn (array $course): string => $course['curso_id'])
+            ->map(fn (array $course): array => [
+                'id' => $course['curso_id'],
+                'nome' => $course['nome'],
+            ])
+            ->sortBy('nome')
             ->values();
     }
 
@@ -291,10 +354,14 @@ class GrupoPapViewService
 
         $currentTenantId = (string) tenancy()->tenant->getTenantKey();
 
-        $remoteInstitutions = CursoTuteladoShared::query()
-            ->where('tenant_tutor_id', $currentTenantId)
-            ->where('status', 'activo')
-            ->get()
+        $sharedLinks = $user->hasRole('Secretario do Curso')
+            ? $this->crossTenantAccessService->vinculosSecretariados($user)
+            : CursoTuteladoShared::query()
+                ->where('tenant_tutor_id', $currentTenantId)
+                ->where('status', 'activo')
+                ->get();
+
+        $remoteInstitutions = $sharedLinks
             ->map(function (CursoTuteladoShared $shared): ?array {
                 $tenant = Tenant::query()->find($shared->tenant_tutelado_id);
                 $instituicao = $tenant ? $tenant->run(fn (): ?Instituicao => Instituicao::query()->find($tenant->instituicao_id)) : null;

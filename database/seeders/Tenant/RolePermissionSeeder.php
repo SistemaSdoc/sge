@@ -448,6 +448,8 @@ class RolePermissionSeeder extends Seeder
 
             'Secretario do Curso' => [
                 'historico.manage',
+                'grupopap.viewAny',
+                'grupopap.view',
                 'curso-tutelado.viewAny',
                 'curso-tutelado.view',
                 'cursoclasse.viewAny',

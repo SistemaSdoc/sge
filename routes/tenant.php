@@ -135,7 +135,7 @@ Route::middleware([
     Route::middleware([
         'auth:tenant',
         'verified',
-        'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno',
+        'role:SuperAdmin|Director|Subdirector|Secretaria|Secretario do Curso|Professor|Aluno',
         CheckTenantStatus::class,
     ])
         ->prefix('dashboard')

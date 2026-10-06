@@ -4,17 +4,21 @@ use App\Http\Controllers\Tenant\Settings\ProfileController;
 use App\Http\Controllers\Tenant\Settings\SecurityController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth'])->group(function () {
-    Route::redirect('settings', '/settings/profile')->name('settings');
+Route::middleware(['auth:tenant'])->group(function () {
+    Route::get('settings', fn () => to_route('tenant.dashboard.profile.edit'))
+        ->name('settings')
+        ->withoutMiddleware('verified');
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
+        ->name('profile.edit')
+        ->withoutMiddleware('verified');
 
     Route::patch('settings/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
+        ->name('profile.update')
+        ->withoutMiddleware('verified');
 });
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth:tenant', 'verified'])->group(function () {
     Route::delete('settings/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 
@@ -26,5 +30,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user-password.update');
 
     Route::inertia('settings/appearance', 'tenant/settings/appearance')
-        ->name('appearance.edit');
+        ->name('appearance.edit')
+        ->withoutMiddleware('verified');
 });

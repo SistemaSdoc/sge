@@ -20,6 +20,8 @@ class CursoTuteladoSecretarioSeeder extends Seeder
         $manageHistory = Permission::findOrCreate('historico.manage', 'tenant');
         $secretaryPermissions = [
             $manageHistory,
+            Permission::findOrCreate('grupopap.viewAny', 'tenant'),
+            Permission::findOrCreate('grupopap.view', 'tenant'),
             Permission::findOrCreate('curso-tutelado.viewAny', 'tenant'),
             Permission::findOrCreate('curso-tutelado.view', 'tenant'),
             Permission::findOrCreate('cursoclasse.viewAny', 'tenant'),

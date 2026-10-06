@@ -61,30 +61,43 @@ class GrupoPapController extends Controller
 
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+        $isReadOnlyCourseSecretary = $user->hasRole('Secretario do Curso');
         $search = $request->string('search')->toString();
 
         $anoLectivoId = filled($request->input('ano_lectivo_id'))
             ? $request->input('ano_lectivo_id')
             : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
-        $instituicaoIdFiltro = $request->input('instituicao_id') ?: $user->instituicao_id;
-        $cursoTuteladoIdFiltro = $request->input('curso_tutelado_id') ?: null;
+        $instituicaoIdFiltro = $request->input('instituicao_id');
 
-        $grupos = $this->grupoPapViewService->index($user, $anoLectivoId, $instituicaoIdFiltro, $cursoTuteladoIdFiltro, $search);
+        if (! $instituicaoIdFiltro
+            && ! ($user->hasRole('Secretario do Curso') && $user->instituicao?->tipo === 'instituto')) {
+            $instituicaoIdFiltro = $user->instituicao_id;
+        }
+        $cursoIdFiltro = $request->input('curso_id') ?: null;
 
-        $grupos->getCollection()->transform(function ($grupo) use ($user) {
+        $grupos = $this->grupoPapViewService->index(
+            $user,
+            $anoLectivoId,
+            $instituicaoIdFiltro,
+            $cursoIdFiltro,
+            $search,
+        );
+
+        $grupos->transform(function ($grupo) use ($user, $isReadOnlyCourseSecretary) {
             $grupo->can = [
                 'view' => $user->can('view', $grupo),
-                'update' => $user->can('update', $grupo),
-                'delete' => $user->can('delete', $grupo),
-                'definirData' => $user->can('definirData', $grupo),
-                'definirTema' => $user->can('definirTema', $grupo),
+                'update' => ! $isReadOnlyCourseSecretary && $user->can('update', $grupo),
+                'delete' => ! $isReadOnlyCourseSecretary && $user->can('delete', $grupo),
+                'definirData' => ! $isReadOnlyCourseSecretary && $user->can('definirData', $grupo),
+                'definirTema' => ! $isReadOnlyCourseSecretary && $user->can('definirTema', $grupo),
             ];
 
             return $grupo;
         });
 
         $cursosTutelados = $this->grupoPapViewService->tutoredCourses($user, $instituicaoIdFiltro);
+        $cursosFiltro = $this->grupoPapViewService->courseFilterOptions($cursosTutelados);
         $instituicoes = $this->grupoPapViewService->papInstitutions($user);
 
         return Inertia::render('tenant/pap/index', [
@@ -94,14 +107,26 @@ class GrupoPapController extends Controller
             ],
             'instituicoes' => $instituicoes,
             'cursosTutelados' => $cursosTutelados,
-            'gruposPap' => IndexResource::collection($grupos),
+            'cursosFiltro' => $cursosFiltro,
+            'gruposPap' => [
+                'data' => IndexResource::collection($grupos)->resolve(),
+            ],
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => AnoLectivo::all(),
-            'filters' => $request->only('search'),
+            'filters' => [
+                'search' => $search,
+                'instituicao_id' => (string) ($instituicaoIdFiltro ?? ''),
+                'curso_id' => (string) ($cursoIdFiltro ?? ''),
+                'ano_lectivo_id' => (string) ($anoLectivoId ?? ''),
+            ],
             'can' => [
-                'create' => $user->can('create', GrupoPap::class),
-                'selecionarInstituicao' => $user->can('selecionarInstituicao', GrupoPap::class),
-                'selecionarAnoLectivo' => $user->can('selecionarAnoLectivo', GrupoPap::class),
+                'create' => ! $isReadOnlyCourseSecretary && $user->can('create', GrupoPap::class),
+                'selecionarInstituicao' => ($isReadOnlyCourseSecretary && $user->instituicao?->tipo === 'instituto')
+                    || $user->can('selecionarInstituicao', GrupoPap::class),
+                'selecionarTodasInstituicoes' => $isReadOnlyCourseSecretary
+                    && $user->instituicao?->tipo === 'instituto',
+                'selecionarAnoLectivo' => $isReadOnlyCourseSecretary
+                    || $user->can('selecionarAnoLectivo', GrupoPap::class),
             ],
         ]);
     }
@@ -181,17 +206,16 @@ class GrupoPapController extends Controller
 
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-
+        $isReadOnlyCourseSecretary = $user->hasRole('Secretario do Curso');
         $anoLectivoId = $turma->ano_lectivo_id;
 
         $this->grupoPapViewService->prepareShow($grupoPap);
 
-        $instituicaoTutoraModel = $grupoPap->instituicaoTutora();
-        $instituicaoTutoraId = $instituicaoTutoraModel?->id;
+        $instituicaoTutora = $grupoPap->instituicaoTutora();
         $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
-        $siglaInstituto = $instituicaoTutoraModel?->sigla;
-
         $detalhes = $this->grupoPapViewService->paginatedDetails($grupoPap);
+        $can = fn (string $ability): bool => ! $isReadOnlyCourseSecretary
+            && $user->can($ability, $grupoPap);
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/show', [
             'instituicao' => $instituicao->only('id', 'nome'),
@@ -205,64 +229,56 @@ class GrupoPapController extends Controller
             'currentUserId' => (string) $user->getKey(),
             'historico' => $this->grupoPapViewService->history(
                 $grupoPap,
-                $instituicaoTutoraId,
+                $instituicaoTutora?->id,
                 $nomeCurso,
-                $siglaInstituto,
+                $instituicaoTutora?->sigla,
             ),
-            'trabalho' => $this->grupoPapViewService->workDetails(
-                $grupoPap,
-                $instituicaoTutoraModel,
-                $nomeCurso,
-            ),
+            'trabalho' => $this->grupoPapViewService->workDetails($grupoPap, $instituicaoTutora, $nomeCurso),
             'banca' => BancaResource::collection($detalhes['banca']),
             'elementos' => ElementoResource::collection($detalhes['elementos']),
             'can' => [
-                'update' => $user?->can('update', $grupoPap),
-                'definirData' => $user?->can('definirData', $grupoPap),
-                'delete' => $user?->can('delete', $grupoPap),
-                'corrigirTema' => $user?->can('corrigirTema', $grupoPap),
-                'aprovar' => $user?->can('aprovar', $grupoPap),
-                'reprovar' => $user?->can('reprovar', $grupoPap),
-                'solicitarMelhoria' => $user?->can('solicitarMelhoria', $grupoPap),
-                'definirTema' => $user->can('definirTema', $grupoPap),
-                'aprovarComoTutor' => $user?->can('aprovarComoTutor', $grupoPap),
-                // trabalho
-                'submeter' => $user?->can('submeterTrabalho', $grupoPap),
-                'aprovarTrabalhoComoTutor' => $user?->can('aprovarTrabalhoComoTutor', $grupoPap),
-                'solicitarCorrecaoComoTutor' => $user?->can('solicitarCorrecaoTrabalhoComoTutor', $grupoPap),
-                'aprovarComoCoordenacao' => $user?->can('aprovarTrabalhoComoCoordenacao', $grupoPap),
-                'solicitarCorrecaoComoCoordenacao' => $user?->can('solicitarCorrecaoTrabalhoComoCoordenacao', $grupoPap),
-                'downloadVersao' => $user?->can('downloadVersaoTrabalho', $grupoPap),
-
+                'update' => $can('update'),
+                'definirData' => $can('definirData'),
+                'delete' => $can('delete'),
+                'corrigirTema' => $can('corrigirTema'),
+                'aprovar' => $can('aprovar'),
+                'reprovar' => $can('reprovar'),
+                'solicitarMelhoria' => $can('solicitarMelhoria'),
+                'definirTema' => $can('definirTema'),
+                'aprovarComoTutor' => $can('aprovarComoTutor'),
+                'submeter' => $can('submeterTrabalho'),
+                'aprovarTrabalhoComoTutor' => $can('aprovarTrabalhoComoTutor'),
+                'solicitarCorrecaoComoTutor' => $can('solicitarCorrecaoTrabalhoComoTutor'),
+                'aprovarComoCoordenacao' => $can('aprovarTrabalhoComoCoordenacao'),
+                'solicitarCorrecaoComoCoordenacao' => $can('solicitarCorrecaoTrabalhoComoCoordenacao'),
+                'downloadVersao' => $can('downloadVersaoTrabalho'),
                 'elementos' => [
-                    'create' => $user?->can('elementogrupopap.create'),
-                    'atualizarNota' => $user?->can('elementogrupopap.atualizarNota')
-                        && $instituicaoTutoraModel?->id === $user->instituicao_id
-                        && ! is_null($grupoPap->data_defesa)
+                    'create' => ! $isReadOnlyCourseSecretary && $user->can('elementogrupopap.create'),
+                    'atualizarNota' => ! $isReadOnlyCourseSecretary
+                        && $user->can('elementogrupopap.atualizarNota')
+                        && $instituicaoTutora?->id === $user->instituicao_id
+                        && $grupoPap->data_defesa !== null
                         && ! $grupoPap->data_defesa->isFuture()
                         && $grupoPap->jurados()->exists(),
-                    'delete' => $user?->can('elementogrupopap.delete'),
+                    'delete' => ! $isReadOnlyCourseSecretary && $user->can('elementogrupopap.delete'),
                 ],
-                'verBanca' => $instituicaoTutoraModel?->id === $user->instituicao_id
-                    && ! $user->hasRole('Aluno'),
+                'verBanca' => $isReadOnlyCourseSecretary
+                    || ($instituicaoTutora?->id === $user->instituicao_id && ! $user->hasRole('Aluno')),
                 'banca' => [
-                    'create' => $user?->can('create', [BancaJuriPap::class, $grupoPap])
-                        && $instituicaoTutoraModel?->id === $user->instituicao_id,
-                    'update' => $user?->can('bancajuripap.update')
-                        && $instituicaoTutoraModel?->id === $user->instituicao_id,
-                    'delete' => $user?->can('bancajuripap.delete')
-                        && $instituicaoTutoraModel?->id === $user->instituicao_id,
+                    'create' => ! $isReadOnlyCourseSecretary
+                        && $user->can('create', [BancaJuriPap::class, $grupoPap])
+                        && $instituicaoTutora?->id === $user->instituicao_id,
+                    'update' => ! $isReadOnlyCourseSecretary
+                        && $user->can('bancajuripap.update')
+                        && $instituicaoTutora?->id === $user->instituicao_id,
+                    'delete' => ! $isReadOnlyCourseSecretary
+                        && $user->can('bancajuripap.delete')
+                        && $instituicaoTutora?->id === $user->instituicao_id,
                 ],
             ],
         ]);
     }
 
-    /**
-     * Mostra o formulário para editar os dados de um grupo da PAP.
-     */
-    /**
-     * Apresenta o formulário de edição de um grupo PAP.
-     */
     public function edit(
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
@@ -273,8 +289,6 @@ class GrupoPapController extends Controller
     ) {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('update', $grupoPap);
 
-        $anoLectivoId = $turma->ano_lectivo_id;
-
         $options = $this->grupoPapViewService->editOptions($cursoTutelado, $turma, $grupoPap);
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/edit', [
@@ -283,7 +297,7 @@ class GrupoPapController extends Controller
             'cursoClasse' => $cursoClasse->only('id'),
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => $turma->only('id', 'nome'),
-            'anoLectivoId' => $anoLectivoId,
+            'anoLectivoId' => $turma->ano_lectivo_id,
             'anosLectivos' => AnoLectivo::all(),
             'form' => new EditResource((object) [
                 'professores' => $options['professores'],

@@ -10,6 +10,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
+use App\Services\Tenant\CrossTenantAccessService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -21,6 +22,7 @@ class PreparePautaIndex
 {
     public function __construct(
         private readonly AnoLectivoResolverService $anoLectivoResolverService,
+        private readonly CrossTenantAccessService $crossTenantAccessService,
     ) {}
 
     /**
@@ -39,16 +41,43 @@ class PreparePautaIndex
             : (string) $this->anoLectivoResolverService->obterAnoLectivoDefault();
         $isProfessor = $user->hasRole('Professor');
         $isCourseSecretary = $user->hasRole('Secretario do Curso');
+        $isInstituteSecretary = $isCourseSecretary && $user->instituicao?->tipo === 'instituto';
         $professorId = $user->professor?->id;
         $secretariadoCourseIds = $isCourseSecretary
             ? $user->cursosSecretariados()->pluck('curso_tutelado.id')->map(fn ($id): string => (string) $id)->all()
             : [];
+        $secretariadoSharedLinks = $isInstituteSecretary
+            ? $this->crossTenantAccessService->vinculosSecretariados($user)
+            : collect();
+        $secretariadoRemoteCourseIds = $secretariadoSharedLinks
+            ->pluck('curso_tutelado_tutelado_id')
+            ->map(fn ($id): string => (string) $id)
+            ->all();
+        $isAllTuteladoInstitutionsFilter = $isInstituteSecretary
+            && $instituicaoIdFiltro === $instituicaoId;
 
         if ($isCourseSecretary) {
-            abort_unless($instituicaoIdFiltro === $instituicaoId, 404);
+            if (! $isInstituteSecretary) {
+                abort_unless($instituicaoIdFiltro === $instituicaoId, 404);
+            } elseif (! $isAllTuteladoInstitutionsFilter) {
+                $allowedInstitutionIds = $secretariadoSharedLinks
+                    ->map(fn (CursoTuteladoShared $shared) => Tenant::query()->find($shared->tenant_tutelado_id)?->instituicao_id)
+                    ->filter()
+                    ->map(fn ($id): string => (string) $id)
+                    ->all();
+
+                abort_unless(
+                    $instituicaoIdFiltro === $instituicaoId || in_array($instituicaoIdFiltro, $allowedInstitutionIds, true),
+                    404,
+                );
+            }
 
             if (filled($cursoTuteladoIdFiltro)) {
-                abort_unless(in_array((string) $cursoTuteladoIdFiltro, $secretariadoCourseIds, true), 404);
+                abort_unless(
+                    in_array((string) $cursoTuteladoIdFiltro, $secretariadoCourseIds, true)
+                        || in_array((string) $cursoTuteladoIdFiltro, $secretariadoRemoteCourseIds, true),
+                    404,
+                );
             }
         }
 
@@ -71,12 +100,14 @@ class PreparePautaIndex
         $turmas = collect();
 
         // ALTERADO: só vínculos que o user pode ver (permissão ou coordenador)
-        $vinculosActivos = $isCourseSecretary ? collect() : CursoTuteladoShared::query()
-            ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
-            ->where('status', 'activo')
-            ->get()
-            ->filter(fn (CursoTuteladoShared $vinculo): bool => $user->can('pautas.viewAny')
-                || $this->ehCoordenadorDoCursoPartilhado($user, $vinculo));
+        $vinculosActivos = $isInstituteSecretary
+            ? $secretariadoSharedLinks
+            : ($isCourseSecretary ? collect() : CursoTuteladoShared::query()
+                ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
+                ->where('status', 'activo')
+                ->get()
+                ->filter(fn (CursoTuteladoShared $vinculo): bool => $user->can('pautas.viewAny')
+                    || $this->ehCoordenadorDoCursoPartilhado($user, $vinculo)));
 
         if ($instituicaoIdFiltro === $instituicaoId) {
             $cursosLocais = CursoTutelado::query()
@@ -99,8 +130,11 @@ class PreparePautaIndex
                 ->get();
 
             foreach ($cursosLocais as $cursoTutelado) {
+                $cursoKey = (string) ($cursoTutelado->instituicaoCurso?->curso_id ?? $cursoTutelado->getKey());
+
                 $cursos->push([
                     'id' => (string) $cursoTutelado->id,
+                    'curso_key' => $cursoKey,
                     'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome ?? 'Curso sem nome',
                     'remote' => false,
                 ]);
@@ -136,14 +170,14 @@ class PreparePautaIndex
 
         // ALTERADO: $isProfessor e $professorId saíram dos use()
         $vinculosActivos->groupBy('tenant_tutelado_id')
-            ->each(function (Collection $vinculosTenant, string $tenantId) use (&$cursos, &$instituicoes, &$turmas, $instituicaoIdFiltro, $cursoTuteladoIdFiltro, $anoLectivoId, $user): void {
+            ->each(function (Collection $vinculosTenant, string $tenantId) use (&$cursos, &$instituicoes, &$turmas, $instituicaoIdFiltro, $anoLectivoId, $user, $isAllTuteladoInstitutionsFilter): void {
                 $tenantTutelado = Tenant::query()->find($tenantId);
 
                 if (! $tenantTutelado) {
                     return;
                 }
 
-                $dadosTenant = $tenantTutelado->run(function () use ($tenantTutelado, $vinculosTenant, $instituicaoIdFiltro, $cursoTuteladoIdFiltro, $anoLectivoId): array {
+                $dadosTenant = $tenantTutelado->run(function () use ($tenantTutelado, $vinculosTenant, $instituicaoIdFiltro, $anoLectivoId, $isAllTuteladoInstitutionsFilter): array {
                     $instituicao = Instituicao::query()->find($tenantTutelado->instituicao_id);
                     $resultado = [
                         'instituicao' => $instituicao ? [
@@ -154,7 +188,8 @@ class PreparePautaIndex
                         'turmas' => collect(),
                     ];
 
-                    if ((string) $tenantTutelado->instituicao_id !== $instituicaoIdFiltro) {
+                    if (! $isAllTuteladoInstitutionsFilter
+                        && (string) $tenantTutelado->instituicao_id !== $instituicaoIdFiltro) {
                         return $resultado;
                     }
 
@@ -165,15 +200,14 @@ class PreparePautaIndex
 
                     $resultado['cursos'] = $cursosRemotos->map(
                         fn (CursoTutelado $cursoTutelado): array => [
+                            'curso_key' => (string) ($cursoTutelado->instituicaoCurso?->curso_id ?? $cursoTutelado->getKey()),
                             'id' => (string) $cursoTutelado->getKey(),
                             'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome ?? 'Curso sem nome',
                             'remote' => true,
                         ],
-                    );
+                    )->keyBy(fn (array $curso): string => $curso['curso_key'])->values();
 
-                    $idsCursos = filled($cursoTuteladoIdFiltro)
-                        ? $cursosRemotos->where('id', $cursoTuteladoIdFiltro)->modelKeys()
-                        : $cursosRemotos->modelKeys();
+                    $idsCursos = $cursosRemotos->modelKeys();
 
                     if ($idsCursos === []) {
                         return $resultado;
@@ -206,13 +240,17 @@ class PreparePautaIndex
         $instituicoes = $instituicoes->unique('id')->sortBy('nome')->values();
         abort_unless($instituicoes->contains('id', $instituicaoIdFiltro), 404);
 
-        $cursos = $cursos->unique('id')->sortBy('nome')->values();
-        $cursoTuteladoIdFiltro = filled($cursoTuteladoIdFiltro)
-            && $cursos->contains('id', (string) $cursoTuteladoIdFiltro)
-            ? (string) $cursoTuteladoIdFiltro
+        $cursos = $cursos
+            ->unique(fn (array $curso): string => (string) ($curso['curso_key'] ?? $curso['id']))
+            ->sortBy('nome')
+            ->values();
+        $cursoSelecionado = filled($cursoTuteladoIdFiltro)
+            ? $cursos->firstWhere('id', (string) $cursoTuteladoIdFiltro)
             : null;
+        $cursoKeyFiltro = $cursoSelecionado['curso_key'] ?? null;
+        $cursoTuteladoIdFiltro = $cursoSelecionado ? (string) $cursoSelecionado['id'] : null;
         $turmas = $turmas
-            ->when($cursoTuteladoIdFiltro, fn ($items) => $items->where('curso_tutelado_id', $cursoTuteladoIdFiltro))
+            ->when($cursoKeyFiltro, fn ($items) => $items->where('curso_key', $cursoKeyFiltro))
             ->when(filled($filtros['search'] ?? null), function (Collection $items) use ($filtros): Collection {
                 $term = mb_strtolower(trim((string) $filtros['search']));
 
@@ -303,6 +341,7 @@ class PreparePautaIndex
             'turno' => $turma->cursoClasseTurno?->turno?->nome,
             'curso' => $cursoTutelado?->instituicaoCurso?->curso?->nome ?? 'Curso sem nome',
             'curso_tutelado_id' => (string) $cursoTutelado?->getKey(),
+            'curso_key' => (string) ($cursoTutelado?->instituicaoCurso?->curso_id ?? $cursoTutelado?->getKey()),
             'can' => [
                 'view_pauta' => $remoteTutor || $user->can('pauta.view', $turma),
             ],

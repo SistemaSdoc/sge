@@ -16,6 +16,7 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Services\Tenant\Menu\SidebarMenuService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
@@ -118,6 +119,8 @@ it('assigns a course secretary only within the coordinator course and removes th
         'cursoclasse.view',
         'cursoclasseturno.view',
         'turmas.view',
+        'grupopap.viewAny',
+        'grupopap.view',
         'classeturnodisciplina.view',
         'inscricoes.create',
         'historico.manage',
@@ -132,6 +135,22 @@ it('assigns a course secretary only within the coordinator course and removes th
     $secretario->assignRole($professorRole);
     $secretario->assignRole($secretarioRole);
     app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+    $secretarioSemRoleProfessor = User::factory()->unverified()->create(['instituicao_id' => $instituicao->id]);
+    $secretarioSemRoleProfessor->assignRole($secretarioRole);
+    app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+    $this->actingAs($secretarioSemRoleProfessor, 'tenant')
+        ->get('/dashboard/settings/appearance')
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('tenant/settings/appearance'));
+
+    $menuItems = collect(app(SidebarMenuService::class)->build())
+        ->pluck('items')
+        ->flatten(1)
+        ->pluck('key');
+
+    expect($menuItems)->toContain('grupos-pap');
 
     $baseUrl = "/dashboard/instituicoes/{$instituicao->id}/cursos-tutelados";
 
@@ -162,6 +181,19 @@ it('assigns a course secretary only within the coordinator course and removes th
             ->component('tenant/inscricoes/create')
             ->has('cursos', 1)
             ->where('cursos.0.curso_tutelado_id', $cursoCoordenado->id));
+
+    $this->get("/dashboard/pap?search=grupo&curso_id={$curso->id}&ano_lectivo_id={$anoLectivo->id}")
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('tenant/pap/index')
+            ->where('filters.search', 'grupo')
+            ->where('filters.curso_id', (string) $curso->id)
+            ->where('filters.ano_lectivo_id', (string) $anoLectivo->id)
+            ->where('can.selecionarInstituicao', true)
+            ->where('can.selecionarAnoLectivo', true)
+            ->has('cursosFiltro', 1)
+            ->where('cursosFiltro.0.id', (string) $curso->id)
+            ->has('gruposPap.data'));
 
     $registrationData = [
         'nome' => 'Estudante de Teste',

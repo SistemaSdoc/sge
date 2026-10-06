@@ -189,7 +189,9 @@ final class SidebarMenuService
                     href: $grupoPapNavigation['href'],
                     icon: 'Users',
                     can: $grupoPapNavigation['visible']
-                        && ($user?->hasRole('Aluno') === true || $gate->allows('viewAny', GrupoPap::class)),
+                        && ($user?->hasRole('Aluno') === true
+                            || $user?->hasRole('Secretario do Curso') === true
+                            || $gate->allows('viewAny', GrupoPap::class)),
                 ),
 
                 new MenuItem(
@@ -342,6 +344,7 @@ final class SidebarMenuService
             $allowedKeys = [
                 'dashboard',
                 'meus-cursos',
+                'grupos-pap',
                 'turmas',
                 'pautas',
                 'inscricoes',
