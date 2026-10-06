@@ -15,6 +15,7 @@ export default function Index({ notas, classes = [], classeId }) {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-6">
       <NotasResumo data={notas ?? []} />
+
       <NotasTable
         data={notas ?? []}
         classes={classes}

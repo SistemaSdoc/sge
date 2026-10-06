@@ -16,9 +16,9 @@ import {
  */
 export function TrimestroSelector({ value, onChange }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex w-full flex-col gap-2 md:w-fit">
       <Select value={String(value)} onValueChange={(v) => onChange(Number(v))}>
-        <SelectTrigger className="w-full">
+        <SelectTrigger className="w-full md:w-fit">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

@@ -53,7 +53,7 @@ export function NotasResumo({ data = [], trimestre = 1 }) {
         <span className="text-2xl font-bold">{stats?.faltas}</span>
       </div>
 
-      <div className="flex flex-col gap-1 border bg-card p-3">
+      <div className="col-span-2 flex flex-col gap-1 border bg-card p-3 md:col-span-1">
         <span className="text-xs text-muted-foreground">Média Geral</span>
         <span className="text-2xl font-bold">{stats.mediaGeral}</span>
       </div>

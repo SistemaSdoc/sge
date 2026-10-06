@@ -17,14 +17,21 @@ class GrelhaCurricularController extends Controller
      */
     public function index()
     {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('grelha-curricular.viewAny');
+        $user = Auth::guard('tenant')->user();
 
-        $aluno = Auth::guard('tenant')->user()->aluno;
+        Gate::forUser($user)->authorize('grelha-curricular.viewAny');
+
+        $aluno = $user->aluno;
+
         $classes = $this->grelhaCurricularService->classesDisponiveis($aluno);
+
         $classeId = request('classe_id') ?? collect($classes)->first()['id'] ?? null;
 
-        return Inertia::render('tenant/aluno/grelha-curricular/index', [
-            'grelhaCurricular' => $this->grelhaCurricularService->gerarGrelhaCurricular($aluno, $classeId),
+        return Inertia::render('tenant/grelha-curricular/index', [
+            'grelhaCurricular' => $this->grelhaCurricularService->gerarGrelhaCurricular(
+                $aluno,
+                $classeId
+            ),
             'classes' => $classes,
             'classeId' => $classeId,
         ]);

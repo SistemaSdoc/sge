@@ -48,16 +48,18 @@ export function GrelhaTable({
 
   return (
     <Card className="w-full gap-0 pb-0">
-      <CardHeader className="border-b">
-        <CardTitle>Lista de disciplinas</CardTitle>
+      <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-center">
+        <div className="min-w-0 md:flex-1">
+          <CardTitle>Lista de disciplinas</CardTitle>
 
-        <CardDescription>
-          Visualize todas as disciplinas da sua turma e respetivos professores
-        </CardDescription>
+          <CardDescription>
+            Visualize todas as disciplinas da sua turma e respetivos professores
+          </CardDescription>
+        </div>
 
-        <CardAction>
+        <CardAction className="w-full self-stretch md:w-auto md:self-center">
           <Select value={classeId ?? ''} onValueChange={handleClasseChange}>
-            <SelectTrigger id="classe" className="w-20">
+            <SelectTrigger id="classe" className="w-full md:w-fit">
               <SelectValue placeholder="Selecione a classe" />
             </SelectTrigger>
             <SelectContent>

@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BookOpenIcon, Filter } from 'lucide-react';
+import { BookOpenIcon, Minus } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import {
   Table,
@@ -51,21 +51,30 @@ export function NotasTable({
   const [trimestre, setTrimestre] = useState(1);
   const isEmpty = !data || data.length === 0;
   const formatarNota = (n) =>
-    n !== null && n !== undefined ? parseFloat(Number(n).toFixed(1)) : '—';
+    n !== null && n !== undefined ? (
+      parseFloat(Number(n).toFixed(1))
+    ) : (
+      <Minus
+        className="mx-auto block size-4 text-muted-foreground"
+        aria-label="Nota indisponível"
+      />
+    );
 
   return (
     <Card className="w-full gap-0 pb-0">
-      <CardHeader className="border-b">
-        <CardTitle>Notas Detalhadas</CardTitle>
+      <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-center">
+        <div className="min-w-0 md:flex-1">
+          <CardTitle>Minhas Notas</CardTitle>
 
-        <CardDescription className="">
-          Desempenho nas provas do{' '}
-          {trimestre === 1 ? '1º' : trimestre === 2 ? '2º' : '3º'} trimestre
-        </CardDescription>
+          <CardDescription>
+            Desempenho nas provas do{' '}
+            {trimestre === 1 ? '1º' : trimestre === 2 ? '2º' : '3º'} trimestre
+          </CardDescription>
+        </div>
 
-        <CardAction className="flex flex-col gap-2 md:flex-row md:items-center">
+        <CardAction className="flex w-full flex-col gap-2 self-stretch md:w-auto md:flex-row md:self-center">
           <Select value={classeId ?? ''} onValueChange={handleClasseChange}>
-            <SelectTrigger id="classe" className="w-16">
+            <SelectTrigger id="classe" className="w-full md:w-fit">
               <SelectValue placeholder="Selecione a classe" />
             </SelectTrigger>
             <SelectContent>
@@ -149,9 +158,14 @@ export function NotasTable({
 
                       <TableCell className="px-4 text-center">
                         {trimData.faltas !== null &&
-                        trimData.faltas !== undefined
-                          ? trimData.faltas
-                          : '-'}
+                        trimData.faltas !== undefined ? (
+                          trimData.faltas
+                        ) : (
+                          <Minus
+                            className="mx-auto block size-4 text-muted-foreground"
+                            aria-label="Faltas não registadas"
+                          />
+                        )}
                       </TableCell>
 
                       <TableCell className="px-4 text-center font-semibold">
@@ -164,9 +178,10 @@ export function NotasTable({
                             {trimData.situacao}
                           </Badge>
                         ) : (
-                          <span className="text-xs text-muted-foreground">
-                            —
-                          </span>
+                          <Minus
+                            className="mx-auto block size-4 text-muted-foreground"
+                            aria-label="Classificação indisponível"
+                          />
                         )}
                       </TableCell>
                     </TableRow>
