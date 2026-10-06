@@ -67,8 +67,8 @@ class PreencherHistoricoController extends Controller
             return [
                 'tdp_id' => $tdp->id,
                 'id' => $tdp->classeTurnoDisciplina->id,
-                'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
-                'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
+                'nome' => $tdp->classeTurnoDisciplina->disciplina?->nome,
+                'sigla' => $tdp->classeTurnoDisciplina->disciplina?->sigla,
                 'notas' => $notas->keyBy('periodo')->map(fn ($n) => $this->formatarNota($n)),
             ];
         });
