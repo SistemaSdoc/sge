@@ -34,11 +34,9 @@ class NotificacaoController extends Controller
         $user = $request->user();
         abort_unless($user instanceof User, 401);
 
-        $notificacoes = $this->notificacaoService->pagina($user)
-            ->through(fn (DatabaseNotification $notificacao) => $this->notificacaoService->formatarNotificacao($notificacao));
-
         return Inertia::render('tenant/notificacoes/index', [
-            'notificacoes' => $notificacoes,
+            'notificacoes' => Inertia::scroll(fn () => $this->notificacaoService->pagina($user)
+                ->through(fn (DatabaseNotification $notificacao) => $this->notificacaoService->formatarNotificacao($notificacao))),
             'naoLidas' => $this->notificacaoService->naoLidas($user),
         ]);
     }

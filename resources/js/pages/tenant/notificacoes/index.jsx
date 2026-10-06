@@ -1,26 +1,11 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { ArrowUpRight, Bell, CheckCheck } from 'lucide-react';
-import {
-  Alert,
-  AlertAction,
-  AlertDescription,
-  AlertTitle,
-} from '@/components/ui/alert';
+import { Head, InfiniteScroll, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty';
-import {
-  index,
-  marcarTodasLidas,
-  show,
-} from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
+import { marcarTodasLidas } from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
+import { NotificationsList } from './components/notification-list';
 
 export default function Index({ notificacoes, naoLidas = 0 }) {
+  const notificacoesDaPagina = notificacoes?.data ?? [];
+
   const marcarTodas = () => {
     if (naoLidas === 0) {
       return;
@@ -30,99 +15,53 @@ export default function Index({ notificacoes, naoLidas = 0 }) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-4 sm:px-6 sm:py-6">
+    <div className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
       <Head title="Notificações" />
 
-      <div className="mb-5 flex flex-col items-stretch gap-3 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
-            Notificações
-          </h1>
-          <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-            Consulte as novidades e solicitações da instituição.
-          </p>
-        </div>
-        {naoLidas > 0 && (
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full sm:w-auto"
-            onClick={marcarTodas}
-          >
-            <CheckCheck data-icon="inline-start" />
-            Marcar todas como lidas
-          </Button>
-        )}
-      </div>
+      <header className="pb-4 sm:pb-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+              Central de notificações
+            </h1>
 
-      {!notificacoes?.data?.length ? (
-        <Empty className="p-4 sm:p-6">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <Bell />
-            </EmptyMedia>
-            <EmptyTitle>Sem notificações</EmptyTitle>
-            <EmptyDescription>
-              Quando houver novidades, elas aparecerão aqui.
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      ) : (
-        <div className="flex min-w-0 flex-col gap-2 sm:gap-1">
-          {notificacoes.data.map((notificacao) => (
-            <Alert
-              key={notificacao.id}
-              variant={notificacao.lida ? 'default' : 'info'}
-              className={`min-w-0 grid-cols-1 gap-x-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-x-4 ${notificacao.lida ? 'opacity-820' : ''}`}
-            >
-              <AlertTitle className="col-start-1 line-clamp-none min-w-0 wrap-break-word">
-                {notificacao.titulo}
-              </AlertTitle>
-              <AlertAction className="max-sm:col-start-1 max-sm:mt-1 sm:col-start-2 sm:justify-self-end">
-                <Button asChild size="xs">
-                  <Link href={show(notificacao.id).url}>
-                    Ver detalhes
-                    <ArrowUpRight />
-                  </Link>
-                </Button>
-              </AlertAction>
-              <AlertDescription className="col-start-1 min-w-0 wrap-anywhere">
-                <p>{notificacao.mensagem}</p>
-                <p className="text-xs">{notificacao.criada_em}</p>
-              </AlertDescription>
-            </Alert>
-          ))}
-        </div>
-      )}
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+              {naoLidas === 0
+                ? 'Não há notificações por ler.'
+                : `${naoLidas} ${naoLidas === 1 ? 'notificação aguarda' : 'notificações aguardam'} leitura.`}{' '}
+            </p>
+          </div>
 
-      {notificacoes?.last_page > 1 && (
-        <nav
-          className="mt-4 flex max-w-full flex-wrap justify-center gap-1"
-          aria-label="Paginação das notificações"
-        >
-          {Array.from(
-            { length: notificacoes.last_page },
-            (_, page) => page + 1,
-          ).map((page) => (
+          {naoLidas > 0 && (
             <Button
-              key={page}
               type="button"
-              variant={
-                page === notificacoes.current_page ? 'default' : 'outline'
-              }
-              size="sm"
-              aria-current={
-                page === notificacoes.current_page ? 'page' : undefined
-              }
-              onClick={() =>
-                router.get(index().url, { page }, { preserveScroll: true })
-              }
+              variant="default"
+              onClick={marcarTodas}
+              className="w-full bg-foreground text-background hover:bg-foreground/90 sm:w-auto"
             >
-              {page}
+              Marcar todas como lidas
             </Button>
-          ))}
-        </nav>
-      )}
+          )}
+        </div>
+      </header>
+
+      <section className="min-w-0">
+        <InfiniteScroll
+          data="notificacoes"
+          onlyNext
+          buffer={500}
+          loading={() => (
+            <p
+              className="px-4 py-3 text-center text-xs text-muted-foreground"
+              role="status"
+            >
+              A carregar mais notificações...
+            </p>
+          )}
+        >
+          <NotificationsList notificacoes={notificacoesDaPagina} />
+        </InfiniteScroll>
+      </section>
     </div>
   );
 }
