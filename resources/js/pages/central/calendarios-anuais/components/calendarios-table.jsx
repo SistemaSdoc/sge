@@ -30,9 +30,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontalIcon } from 'lucide-react';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export default function CalendariosTable({
   calendarios = [],
+  filters,
   onAdd,
   onToggle,
   onReplace,
@@ -40,6 +43,9 @@ export default function CalendariosTable({
   pagination,
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['calendarios', 'filters'],
+  });
   const isEmpty = calendarios.length === 0;
 
   return (
@@ -58,12 +64,13 @@ export default function CalendariosTable({
           </CardAction>
         </CardHeader>
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={Calendar1}
-              title="Nenhum calendário publicado"
-              description="Adicione um calendário anual para o disponibilizar as instituições."
+              title={applied ? 'Nenhum calendário encontrado' : 'Nenhum calendário publicado'}
+              description={applied ? 'Tenta ajustar a pesquisa.' : 'Adicione um calendário anual para o disponibilizar as instituições.'}
             />
           ) : (
             <Table>

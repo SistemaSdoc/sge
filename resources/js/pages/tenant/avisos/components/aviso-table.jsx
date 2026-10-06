@@ -38,6 +38,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import {
   create,
   show,
@@ -46,11 +48,15 @@ import {
 
 export default function avisoTable({
   avisos,
+  filters,
   can,
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['avisos', 'filters'],
+  });
   const hasAnyAction = avisos.some(
     (aviso) => aviso.can.update || aviso.can.delete,
   );
@@ -71,12 +77,13 @@ export default function avisoTable({
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title="Nenhum aviso cadastrado"
-            description="Comece adicionando a primeiro aviso à tabela"
+            title={applied ? 'Nenhum aviso encontrado' : 'Nenhum aviso cadastrado'}
+            description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando a primeiro aviso à tabela'}
             action={
               can?.create
                 ? {

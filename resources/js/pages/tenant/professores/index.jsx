@@ -6,7 +6,7 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 import { useDialog } from '@/hooks/use-dialog';
 
-export default function Index({ professores }) {
+export default function Index({ professores, filters }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (professorId) => {
@@ -21,7 +21,7 @@ export default function Index({ professores }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -36,6 +36,7 @@ export default function Index({ professores }) {
         }}
         onPageChange={handlePageChange}
         professores={professores}
+        filters={filters}
         deleteFn={handleDelete}
       />
     </div>

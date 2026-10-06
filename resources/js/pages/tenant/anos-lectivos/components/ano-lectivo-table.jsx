@@ -18,6 +18,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 const ESTADO_CONFIG = {
   planeado: {
@@ -82,9 +84,13 @@ function formatarData(data) {
 
 export default function AnoLectivoTable({
   anosLectivos = [],
+  filters,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['anosLectivos', 'filters'],
+  });
   const isEmpty = !anosLectivos || anosLectivos.length === 0;
 
   return (
@@ -95,12 +101,13 @@ export default function AnoLectivoTable({
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title="Nenhum ano lectivo cadastrado"
-            description="Os anos lectivos são geridos na aplicação central."
+            title={applied ? 'Nenhum ano lectivo encontrado' : 'Nenhum ano lectivo cadastrado'}
+            description={applied ? 'Tenta ajustar a pesquisa.' : 'Os anos lectivos são geridos na aplicação central.'}
           />
         ) : (
           <Table>

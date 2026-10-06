@@ -37,6 +37,16 @@ class ExportarPautaController extends Controller
                 ->first();
 
             if ($shared) {
+                if ($user?->hasRole('Secretario do Curso')) {
+                    abort_unless(
+                        $user->instituicao?->tipo === 'instituto'
+                            && $user->cursosSecretariados()
+                                ->whereHas('instituicaoCurso', fn ($query) => $query->where('curso_id', $shared->curso_id))
+                                ->exists(),
+                        404,
+                    );
+                }
+
                 abort_unless($user?->can('pautas.view'), 403);
 
                 return Tenant::findOrFail($shared->tenant_tutelado_id)
@@ -49,6 +59,11 @@ class ExportarPautaController extends Controller
 
         if (! $remoteTutor) {
             $this->authorize('pauta.view', $turma);
+        } elseif ($user?->hasRole('Secretario do Curso')) {
+            abort_unless(
+                (string) $turma->cursoClasseTurno?->cursoClasse?->curso_tutelado_id === (string) $cursoTutelado->getKey(),
+                404,
+            );
         }
 
         $periodo = $request->query('periodo'); // '1', '2', '3' ou null (final)

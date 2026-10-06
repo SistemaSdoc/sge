@@ -64,6 +64,16 @@ class TurmaPolicy
      */
     public function view(User $user, Turma $turma): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            $cursoTuteladoId = $turma->cursoClasseTurno
+                ?->cursoClasse
+                ?->curso_tutelado_id;
+
+            return $user->can('turmas.view')
+                && $cursoTuteladoId !== null
+                && $user->cursosSecretariados()->whereKey($cursoTuteladoId)->exists();
+        }
+
         return true;
     }
 

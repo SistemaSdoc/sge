@@ -43,14 +43,20 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Tenant/ClasseController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function ClasseTable({
   classes,
+  filters,
   can = {},
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['classes', 'filters'],
+  });
   const lista = classes?.data ?? [];
   const isEmpty = lista.length === 0;
   const hasActionColumn = lista.some(
@@ -73,12 +79,13 @@ export function ClasseTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={LayersIcon}
-              title="Nenhuma classe cadastrada"
-              description="Comece adicionando a primeira classe à tabela"
+              title={applied ? 'Nenhuma classe encontrada' : 'Nenhuma classe cadastrada'}
+              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando a primeira classe à tabela'}
               action={
                 can.create
                   ? {

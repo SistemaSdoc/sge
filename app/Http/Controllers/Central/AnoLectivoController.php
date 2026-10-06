@@ -7,18 +7,22 @@ use App\Http\Requests\Central\AnoLectivoRequest;
 use App\Models\Central\AnoLectivo;
 use App\Services\Central\AnoLectivoService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AnoLectivoController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('central/anos-lectivos/index', [
             'anosLectivos' => AnoLectivo::query()
                 ->withTrashed()
+                ->search($request->string('search')->toString())
                 ->orderByDesc('data_inicio')
-                ->paginate(10),
+                ->paginate(10)
+                ->withQueryString(),
+            'filters' => $request->only('search'),
         ]);
     }
 

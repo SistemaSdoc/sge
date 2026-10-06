@@ -27,13 +27,19 @@ import {
 import TablePagination from '@/components/table-pagination';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function UsuariosTable({
   usuarios,
+  filters,
   pagination = {},
   onPageChange,
   editarAcessoFn,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['users', 'filters'],
+  });
   const getInitials = useInitials();
   const isEmpty = usuarios?.data?.length === 0;
 
@@ -79,12 +85,13 @@ export function UsuariosTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={LayersIcon}
-              title="Nenhum usuário cadastrado"
-              description="Comece adicionando o primeiro usuário à tabela"
+              title={applied ? 'Nenhum usuário encontrado' : 'Nenhum usuário cadastrado'}
+              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando o primeiro usuário à tabela'}
               action={{
                 label: 'Adicionar Usuário',
                 href: create().url,

@@ -57,6 +57,10 @@ class TurmaDisciplinaProfessorPolicy
      */
     public function view(User $user, TurmaDisciplinaProfessor $relacao): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
         if (! $this->pertenceAInstituicao($user, $relacao)) {
             return false;
         }

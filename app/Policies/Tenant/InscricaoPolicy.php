@@ -12,7 +12,8 @@ class InscricaoPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('inscricoes.viewAny');
+        return $user->can('inscricoes.viewAny')
+            && (! $user->hasRole('Secretario do Curso') || $user->cursosSecretariados()->exists());
     }
 
     /**
@@ -20,8 +21,17 @@ class InscricaoPolicy
      */
     public function view(User $user, Inscricao $inscricao): bool
     {
-        return $user->can('inscricoes.view')
-            && $inscricao->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso->instituicao_id === $user->instituicao_id;
+        if (! $user->can('inscricoes.view')) {
+            return false;
+        }
+
+        $cursoTutelado = $inscricao->cursoClasseTurno?->cursoClasse?->cursoTutelado;
+
+        if ($user->hasRole('Secretario do Curso')) {
+            return $cursoTutelado?->secretarios()->whereKey($user->getKey())->exists() ?? false;
+        }
+
+        return $cursoTutelado?->instituicaoCurso?->instituicao_id === $user->instituicao_id;
     }
 
     /**

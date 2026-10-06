@@ -25,11 +25,14 @@ class TenantController extends Controller
     public function index(Request $request)
     {
         $tenantsPagineted = TenantIndexResource::collection(
-            $this->tenantService->getTenantsWithInstituicoes($request->query('search'))
+            $this->tenantService->getTenantsWithInstituicoes(
+                $request->string('search')->toString(),
+            )
         );
 
         return Inertia::render('central/tenants/index', [
             'tenants' => $tenantsPagineted,
+            'filters' => $request->only('search'),
         ]);
     }
 

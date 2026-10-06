@@ -27,10 +27,23 @@ class CursoTuteladoViewService
     /**
      * Lista os cursos da instituição com as permissões do utilizador.
      */
-    public function index(Instituicao $instituicao, User $user): LengthAwarePaginator
+    public function index(Instituicao $instituicao, User $user, ?string $search = null): LengthAwarePaginator
     {
         return $instituicao->instituicaoCursos()
             ->has('cursoTutelado')
+            ->when(
+                $user->hasRole('Secretario do Curso') && ! $user->hasAnyRole(['Director', 'SuperAdmin']),
+                function ($query) use ($user): void {
+                    $query->where(function ($courseQuery) use ($user): void {
+                        $courseQuery->whereHas(
+                            'cursoTutelado.secretarios',
+                            fn ($secretarios) => $secretarios->whereKey($user->getKey()),
+                        );
+
+                    });
+                },
+            )
+            ->search($search)
             ->with([
                 'curso:id,nome',
                 'cursoTutelado.instituicaoTutora:id,nome',
@@ -38,6 +51,8 @@ class CursoTuteladoViewService
             ])
             ->orderBy('created_at', 'desc')
             ->paginate(10)
+            ->withQueryString()
+
             ->through(function ($instituicaoCurso) use ($user): array {
                 $cursoTutelado = $instituicaoCurso->cursoTutelado;
                 $sharedActivo = $cursoTutelado ? $this->sharedActivo($cursoTutelado) : null;
@@ -291,6 +306,7 @@ class CursoTuteladoViewService
                     ->orderBy('created_at', 'desc');
             },
             'sugestoesTemas' => fn ($query) => $query->orderBy('titulo'),
+            'secretarios:id,nome,email',
         ]);
     }
 

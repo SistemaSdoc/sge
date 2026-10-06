@@ -21,6 +21,7 @@ use App\Http\Controllers\Tenant\CursoClasseController;
 use App\Http\Controllers\Tenant\CursoClasseTurnoController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\CursoTuteladoProfessorController;
+use App\Http\Controllers\Tenant\CursoTuteladoSecretarioController;
 use App\Http\Controllers\Tenant\DashboardController;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
@@ -39,6 +40,7 @@ use App\Http\Controllers\Tenant\NotaDisciplinaController;
 use App\Http\Controllers\Tenant\NotaDisciplinaRecursoController;
 use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PagamentoController;
+use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PeriodoLancamentoNotasController;
 use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\PreencherHistoricoController;
@@ -158,7 +160,7 @@ Route::middleware([
     Route::middleware([
         'auth:tenant',
         'verified',
-        'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno',
+        'role:SuperAdmin|Director|Subdirector|Secretaria|Secretario do Curso|Professor|Aluno',
         CheckTenantStatus::class,
         'perfil.completo',
     ])
@@ -168,7 +170,6 @@ Route::middleware([
 
             require base_path('routes/modules/confirmar-matriculas.php');
             require base_path('routes/modules/acess-management.php');
-            require base_path('routes/modules/historico-aluno.php');
             require base_path('routes/modules/certificado.php');
             require base_path('routes/modules/pautas.php');
             require base_path('routes/modules/notas.php');
@@ -198,7 +199,7 @@ Route::middleware([
                 ->name('users.show');
 
             Route::resource('roles', RoleController::class)->except(['show']);
-            Route::resource('alunos', AlunoController::class);
+            Route::resource('alunos', AlunoController::class)->except(['index', 'show']);
             Route::resource('avisos', AvisoController::class);
             Route::get('calendarios-anuais', [CalendarioAnualController::class, 'index'])
                 ->name('calendarios-anuais.index');
@@ -247,16 +248,15 @@ Route::middleware([
             Route::get('turmas/get-turnos/{cursoClasse}', [TurmaController::class, 'getTurnos'])
                 ->name('turmas.get-turnos');
 
-            Route::get('turmas', [TurmaController::class, 'index'])
-                ->name('turmas.index');
-
             /*
             |--------------------------------------------------------------------------
             | Inscrições
             |--------------------------------------------------------------------------
             */
 
-            Route::resource('inscricoes', InscricaoController::class)->parameters(['inscricoes' => 'inscricao']);
+            Route::resource('inscricoes', InscricaoController::class)
+                ->parameters(['inscricoes' => 'inscricao'])
+                ->except(['index', 'show', 'create', 'store']);
 
             Route::patch('inscricoes/{inscricao}/reativar', [InscricaoController::class, 'reativar'])
                 ->name('inscricoes.reativar');
@@ -296,7 +296,8 @@ Route::middleware([
                 ->parameters([
                     'instituicoes' => 'instituicao',
                     'cursos-tutelados' => 'cursoTutelado',
-                ]);
+                ])
+                ->except(['index', 'show']);
 
             Route::get('instituicoes/{instituicao}/cursos-tutelados-cursos-disponiveis', [CursoTuteladoController::class, 'cursosDisponiveis'])
                 ->name('instituicoes.cursos-tutelados.cursos-disponiveis');
@@ -331,6 +332,12 @@ Route::middleware([
                     'professores' => 'professor',
                 ]);
 
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/secretarios', [CursoTuteladoSecretarioController::class, 'store'])
+                ->name('instituicoes.cursos-tutelados.secretarios.store');
+
+            Route::delete('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/secretarios/{secretario}', [CursoTuteladoSecretarioController::class, 'destroy'])
+                ->name('instituicoes.cursos-tutelados.secretarios.destroy');
+
             /*
             |--------------------------------------------------------------------------
             | Classes de Cursos Tutelados
@@ -338,9 +345,6 @@ Route::middleware([
             */
 
             Route::resource('classes', ClasseControllerGeral::class)->parameters(['classes' => 'classe']);
-
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}', [CursoClasseController::class, 'show'])
-                ->name('cursos-tutelados.classes.show');
 
             /*
             |--------------------------------------------------------------------------
@@ -393,7 +397,8 @@ Route::middleware([
                     'classes' => 'cursoClasse',
                     'turnos' => 'cursoClasseTurno',
                     'turmas' => 'turma',
-                ]);
+                ])
+                ->except(['show']);
 
             /*
             |--------------------------------------------------------------------------
@@ -767,21 +772,6 @@ Route::middleware([
 
             /*
             |--------------------------------------------------------------------------
-            | Histórico Académico
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('historico/{aluno}/lancar', [PreencherHistoricoController::class, 'create'])
-                ->name('preencher-historico.create');
-
-            Route::post('historico/{aluno}/lancar', [PreencherHistoricoController::class, 'store'])
-                ->name('preencher-historico.store');
-
-            Route::post('historico/{aluno}/confirmar', [PreencherHistoricoController::class, 'confirmar'])
-                ->name('preencher-historico.confirmar');
-
-            /*
-            |--------------------------------------------------------------------------
             | Documentos Escolares
             |--------------------------------------------------------------------------
             */
@@ -794,6 +784,74 @@ Route::middleware([
 
             Route::match(['GET', 'POST'], 'documentos/exportar', [DocumentosController::class, 'exportar'])
                 ->name('documentos.exportar');
+        });
+
+    Route::middleware([
+        'auth:tenant',
+        'verified',
+        'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno|Secretario do Curso|Coordenador',
+        CheckTenantStatus::class,
+    ])
+        ->prefix('dashboard')
+        ->name('tenant.dashboard.')
+        ->group(function () {
+            Route::get('instituicoes/{instituicao}/cursos-tutelados', [CursoTuteladoController::class, 'index'])
+                ->name('instituicoes.cursos-tutelados.index');
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}', [CursoTuteladoController::class, 'show'])
+                ->name('instituicoes.cursos-tutelados.show');
+        });
+
+    Route::middleware([
+        'auth:tenant',
+        'verified',
+        'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno|Secretario do Curso|Coordenador',
+        CheckTenantStatus::class,
+    ])
+        ->prefix('dashboard')
+        ->name('tenant.dashboard.')
+        ->group(function () {
+            Route::get('alunos', [AlunoController::class, 'index'])
+                ->name('alunos.index');
+
+            Route::get('alunos/{aluno}', [AlunoController::class, 'show'])
+                ->name('alunos.show');
+
+            Route::get('turmas', [TurmaController::class, 'index'])
+                ->name('turmas.index');
+
+            Route::get('inscricoes', [InscricaoController::class, 'index'])
+                ->name('inscricoes.index');
+
+            Route::get('inscricoes/create', [InscricaoController::class, 'create'])
+                ->name('inscricoes.create');
+
+            Route::get('inscricoes/{inscricao}', [InscricaoController::class, 'show'])
+                ->name('inscricoes.show');
+
+            Route::get('pautas', [PautaController::class, 'index'])
+                ->name('pautas.index');
+
+            Route::get('pauta/{turma}', [PautaController::class, 'pauta'])
+                ->name('pautas.pauta');
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}', [CursoClasseController::class, 'show'])
+                ->name('cursos-tutelados.classes.show');
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}', [ClasseTurnoTurmaController::class, 'show'])
+                ->name('instituicoes.cursos-tutelados.classes.turnos.turmas.show');
+
+            Route::post('inscricoes', [InscricaoController::class, 'store'])
+                ->name('inscricoes.store');
+
+            Route::get('historico/{aluno}/lancar', [PreencherHistoricoController::class, 'create'])
+                ->name('preencher-historico.create');
+
+            Route::post('historico/{aluno}/lancar', [PreencherHistoricoController::class, 'store'])
+                ->name('preencher-historico.store');
+
+            Route::post('historico/{aluno}/confirmar', [PreencherHistoricoController::class, 'confirmar'])
+                ->name('preencher-historico.confirmar');
         });
 
     /*

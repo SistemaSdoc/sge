@@ -45,7 +45,7 @@ class GrupoPapAprovacaoController extends Controller
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.aprovar'), 403);
 
         // O utilizador precisa estar associado a um professor
@@ -97,7 +97,7 @@ class GrupoPapAprovacaoController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.aprovar'), 403);
 
         $validated = $request->validate([
@@ -232,7 +232,7 @@ class GrupoPapAprovacaoController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.reprovar'), 403);
 
         // O motivo da reprovação é obrigatório
@@ -326,7 +326,7 @@ class GrupoPapAprovacaoController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.solicitarMelhoria'), 403);
 
         // A recomendação é obrigatória
@@ -437,7 +437,8 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        // $this->authorize('reenviarTema', $grupoPap);
+        abort_if(Auth::guard('tenant')->user()?->hasRole('Secretario do Curso'), 403);
+        $this->authorize('reenviarTema', $grupoPap);
 
         $dados = $request->validate([
             'nome_grupo' => ['required', 'string', 'max:255'],

@@ -27,9 +27,11 @@ class ItemPagavelController extends Controller
 
         $itens = ItemPagavel::query()
             ->where('instituicao_id', $request->user()->instituicao_id)
+            ->search($request->string('search')->toString())
             ->with('cursoClasse.classe:id,nome') // <- carrega também a classe para obter o nome real
             ->orderBy('nome')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         Log::info('ItemPagavelController@index - resultado da query', [
             'total' => $itens->total(),
@@ -67,6 +69,7 @@ class ItemPagavelController extends Controller
 
         return Inertia::render('tenant/itens-pagaveis/index', [
             'itens' => $itens,
+            'filters' => $request->only('search'),
             'can' => [
                 'create' => $request->user()->can('create', ItemPagavel::class) ?? true,
             ],

@@ -24,6 +24,10 @@ import {
   restore,
 } from '@/actions/App/Http/Controllers/Central/AnoLectivoController';
 import { useDialog } from '@/hooks/use-dialog';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
+import { EmptyState } from '@/components/empty-state';
+import { CalendarRange } from 'lucide-react';
 
 function formatarData(data) {
   return new Intl.DateTimeFormat('pt-PT', {
@@ -82,8 +86,11 @@ function EstadoBadge({ estado }) {
   );
 }
 
-export default function Index({ anosLectivos }) {
+export default function Index({ anosLectivos, filters }) {
   const { confirm, deleteConfirm, alert, closeDialog } = useDialog();
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['anosLectivos', 'filters'],
+  });
 
   const handleArchive = (anoLectivo) => {
     deleteConfirm({
@@ -123,7 +130,7 @@ export default function Index({ anosLectivos }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -148,6 +155,15 @@ export default function Index({ anosLectivos }) {
           </CardHeader>
 
           <CardContent className="p-0!">
+            <TableSearch value={search} onChange={onChange} onSubmit={submit} />
+            {anosLectivos.data.length === 0 ? (
+              <EmptyState
+                variant="table"
+                icon={CalendarRange}
+                title={applied ? 'Nenhum ano lectivo encontrado' : 'Nenhum ano lectivo cadastrado'}
+                description={applied ? 'Tenta ajustar a pesquisa.' : 'Adicione um ano lectivo à gestão central.'}
+              />
+            ) : (
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/72">
@@ -216,6 +232,7 @@ export default function Index({ anosLectivos }) {
                 ))}
               </TableBody>
             </Table>
+            )}
           </CardContent>
 
           <TablePagination

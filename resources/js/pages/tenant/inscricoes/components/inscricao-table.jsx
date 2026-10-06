@@ -49,6 +49,8 @@ import {
   show,
 } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import { destroy } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
 import {
   Select,
@@ -74,9 +76,31 @@ export function InscricaoTable({
   temNotaTeste = false,
   destroyFn,
   reativarFn,
+  filters,
+  cursosParaMatricula = [],
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['inscricoes', 'filters'],
+    },
+  );
   const [nota, setNota] = useState('');
   const [inscricaoSelecionada, setInscricaoSelecionada] = useState(null);
+  const [cursoParaMatricula, setCursoParaMatricula] = useState(
+    cursosParaMatricula[0]?.id ?? '',
+  );
+  const isCourseSecretary = cursosParaMatricula.length > 0;
+  const createHref = isCourseSecretary
+    ? cursoParaMatricula
+      ? create.url({
+          query: {
+            curso_tutelado_id: cursoParaMatricula,
+            ano_lectivo_id: anoLectivoActual,
+          },
+        })
+      : undefined
+    : create.url({ query: { ano_lectivo_id: anoLectivoActual } });
   const isEmpty = !inscricoes || inscricoes.length === 0;
   const hasActionColumn =
     temNotaTeste &&
@@ -150,25 +174,62 @@ export function InscricaoTable({
                 </SelectContent>
               </Select>
 
-              <Button asChild>
-                <Link href={create.url()}>Adicionar</Link>
-              </Button>
+              {isCourseSecretary && cursosParaMatricula.length > 1 ? (
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={cursoParaMatricula}
+                    onValueChange={setCursoParaMatricula}
+                  >
+                    <SelectTrigger className="w-52">
+                      <SelectValue placeholder="Escolha o curso" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Os meus cursos</SelectLabel>
+                        {cursosParaMatricula.map((curso) => (
+                          <SelectItem key={curso.id} value={String(curso.id)}>
+                            {curso.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <Button asChild disabled={!createHref}>
+                    <Link href={createHref ?? '#'}>Matricular</Link>
+                  </Button>
+                </div>
+              ) : (
+                <Button asChild>
+                  <Link href={createHref ?? '#'}>
+                    {isCourseSecretary ? 'Matricular' : 'Adicionar'}
+                  </Link>
+                </Button>
+              )}
             </CardAction>
           )}
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={UserCheckIcon}
-              title={`Nenhuma ${entityLabel.toLowerCase()} cadastrada`}
-              description={`Comece adicionando a primeira ${entityLabel.toLowerCase()} à tabela`}
+              title={
+                applied
+                  ? `Nenhuma ${entityLabel.toLowerCase()} encontrada`
+                  : `Nenhuma ${entityLabel.toLowerCase()} cadastrada`
+              }
+              description={
+                applied
+                  ? 'Tenta ajustar a pesquisa.'
+                  : `Comece adicionando a primeira ${entityLabel.toLowerCase()} à tabela`
+              }
               action={
-                can.create
+                can.create && createHref
                   ? {
                       label: `Adicionar ${entityLabel}`,
-                      href: create.url(),
+                      href: createHref ?? '#',
                       variant: 'outline',
                     }
                   : undefined

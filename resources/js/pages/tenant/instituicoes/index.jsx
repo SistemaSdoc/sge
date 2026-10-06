@@ -6,7 +6,7 @@ import {
   destroy,
 } from '@/actions/App/Http/Controllers/Tenant/InstituicaoController';
 
-export default function Index({ instituicoes, can }) {
+export default function Index({ instituicoes, can, filters }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (instituicaoId) => {
@@ -21,7 +21,7 @@ export default function Index({ instituicoes, can }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -29,10 +29,10 @@ export default function Index({ instituicoes, can }) {
   return (
     <>
       <Head title="Instituições" />
-
       <InstituicaoTable
         can={can}
         instituicoes={instituicoes.data}
+        filters={filters}
         deleteFn={handleDelete}
         pagination={{
           current_page: instituicoes.current_page,

@@ -27,8 +27,13 @@ import {
 } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
-export function UserTable({ users, pagination, onPageChange, deleteFn }) {
+export function UserTable({ users, filters, pagination, onPageChange, deleteFn }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['users', 'filters'],
+  });
   const isEmpty = !users?.data?.length;
   const getInitials = useInitials();
 
@@ -45,12 +50,13 @@ export function UserTable({ users, pagination, onPageChange, deleteFn }) {
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={Users}
-            title="Nenhum usuário cadastrado"
-            description="Clique no botão abaixo para adicionar um usuário."
+            title={applied ? 'Nenhum usuário encontrado' : 'Nenhum usuário cadastrado'}
+            description={applied ? 'Tenta ajustar a pesquisa.' : 'Clique no botão abaixo para adicionar um usuário.'}
             action={{
               label: 'Adicionar usuário',
               href: create().url,

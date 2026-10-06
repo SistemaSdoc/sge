@@ -15,6 +15,7 @@ use App\Services\Tenant\Pauta\PautaService;
 use App\Services\Tenant\PreencherHistoricoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class PreencherHistoricoController extends Controller
@@ -33,7 +34,7 @@ class PreencherHistoricoController extends Controller
      */
     public function create(Request $request, Aluno $aluno)
     {
-        $this->authorize('update', $aluno);
+        Gate::authorize('manageHistorico', $aluno);
 
         $turmaAluno = TurmaAluno::with([
             'turma.cursoClasseTurno.cursoClasse.classe',
@@ -44,6 +45,10 @@ class PreencherHistoricoController extends Controller
             ->findOrFail($request->query('turma_aluno_id'));
 
         $turma = $turmaAluno->turma;
+        $this->assertHistoricoTurmaIsInStudentCourse($aluno, $turmaAluno);
+
+        abort_unless((bool) $turmaAluno->is_historico, 404);
+
         $cursoClasseTurno = $turma->cursoClasseTurno;
 
         // Todos os TDPs desta turma (uma linha por disciplina)
@@ -91,7 +96,7 @@ class PreencherHistoricoController extends Controller
             ],
             'disciplinas' => $disciplinas->values(),
             'can' => [
-                'lancar' => Auth::guard('tenant')->user()->can('update', $aluno),
+                'lancar' => Auth::guard('tenant')->user()->can('manageHistorico', $aluno),
             ],
         ]);
     }
@@ -104,7 +109,7 @@ class PreencherHistoricoController extends Controller
      */
     public function store(Request $request, Aluno $aluno)
     {
-        $this->authorize('update', $aluno);
+        Gate::authorize('manageHistorico', $aluno);
 
         $validated = $request->validate([
             'turma_aluno_id' => 'required|uuid|exists:turma_aluno,id',
@@ -118,14 +123,25 @@ class PreencherHistoricoController extends Controller
         ]);
 
         $turmaAluno = TurmaAluno::with([
-            'turma',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
             'aluno',
             'turma.cursoClasseTurno.cursoClasse',
         ])->findOrFail($validated['turma_aluno_id']);
 
+        abort_unless((string) $turmaAluno->aluno_id === (string) $aluno->getKey(), 404);
+        abort_unless((bool) $turmaAluno->is_historico, 404);
+        $this->assertHistoricoTurmaIsInStudentCourse($aluno, $turmaAluno);
+
+        $tdpIds = array_keys($validated['notas']);
+        $tdpsDaTurma = TurmaDisciplinaProfessor::query()
+            ->where('turma_id', $turmaAluno->turma_id)
+            ->whereIn('id', $tdpIds)
+            ->count();
+
+        abort_unless($tdpsDaTurma === count($tdpIds), 404);
+
         $periodo = (int) $validated['periodo'];
 
-        // Verifica se há pelo menos uma nota preenchida ao finalizar
         if ($validated['accao'] === 'finalizar') {
             $temNotas = false;
             foreach ($validated['notas'] as $valores) {
@@ -153,6 +169,10 @@ class PreencherHistoricoController extends Controller
             ->where('periodo', $periodo)
             ->update(['is_rascunho' => $validated['accao'] === 'guardar']);
 
+        if ($validated['accao'] === 'finalizar' && $turmaAluno->is_historico) {
+            return back()->with('success', 'Histórico do trimestre '.$periodo.' finalizado com sucesso.');
+        }
+
         if ($validated['accao'] === 'finalizar') {
             $tdpIds = TurmaDisciplinaProfessor::where('turma_id', $turmaAluno->turma_id)
                 ->pluck('id');
@@ -176,11 +196,28 @@ class PreencherHistoricoController extends Controller
      */
     public function confirmar(Request $request, Aluno $aluno)
     {
-        $this->authorize('update', $aluno);
+        Gate::authorize('manageHistorico', $aluno);
 
         $validated = $request->validate([
             'turma_id' => 'required|uuid|exists:turmas,id',
         ]);
+
+        $turma = Turma::query()
+            ->with('cursoClasseTurno.cursoClasse.cursoTutelado')
+            ->findOrFail($validated['turma_id']);
+        $cursoClasseActual = $aluno->inscricao?->cursoClasseTurno?->cursoClasse;
+        $cursoClasseActualId = $cursoClasseActual?->getKey();
+        $cursoTuteladoActualId = $cursoClasseActual?->curso_tutelado_id;
+        $classesFaltando = collect($this->service->obterClassesFaltando($aluno))
+            ->pluck('curso_classe_id')
+            ->map(fn ($id): string => (string) $id);
+
+        abort_unless(
+            (string) $turma->cursoClasseTurno?->curso_classe_id !== (string) $cursoClasseActualId
+                && (string) $turma->cursoClasseTurno?->cursoClasse?->curso_tutelado_id === (string) $cursoTuteladoActualId
+                && $classesFaltando->contains((string) $turma->cursoClasseTurno?->curso_classe_id),
+            404,
+        );
 
         try {
             $instituicaoId = Auth::guard('tenant')->user()?->instituicao_id;
@@ -202,6 +239,19 @@ class PreencherHistoricoController extends Controller
         } catch (\Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+    private function assertHistoricoTurmaIsInStudentCourse(Aluno $aluno, TurmaAluno $turmaAluno): void
+    {
+        $cursoActualId = $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id;
+        $cursoHistoricoId = $turmaAluno->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id;
+
+        abort_unless(
+            $cursoActualId !== null
+                && (string) $cursoHistoricoId === (string) $cursoActualId
+                && (string) $turmaAluno->aluno_id === (string) $aluno->getKey(),
+            404,
+        );
     }
 
     private function formatarNota(Nota $n): array

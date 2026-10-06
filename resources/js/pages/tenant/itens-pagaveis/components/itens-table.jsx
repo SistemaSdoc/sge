@@ -29,6 +29,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import {
   create,
   edit,
@@ -47,10 +49,14 @@ const frequenciaLabels = {
 
 export default function ItensTable({
   itens = [],
+  filters,
   can,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['itens', 'filters'],
+  });
   const hasAnyAction = itens.some((i) => i.can?.update || i.can?.delete);
   const isEmpty = !itens || itens.length === 0;
 
@@ -71,12 +77,13 @@ export default function ItensTable({
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title="Nenhum emolumento encontrado"
-            description="Adicione emolumentos para começar a cobrar"
+            title={applied ? 'Nenhum emolumento encontrado' : 'Nenhum emolumento cadastrado'}
+            description={applied ? 'Tenta ajustar a pesquisa.' : 'Adicione emolumentos para começar a cobrar'}
             action={
               can?.create
                 ? {

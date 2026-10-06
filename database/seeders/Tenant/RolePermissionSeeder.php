@@ -446,7 +446,33 @@ class RolePermissionSeeder extends Seeder
                 'confirmacoes.matricula.confirmar',
             ],
 
+            'Secretario do Curso' => [
+                'historico.manage',
+                'grupopap.viewAny',
+                'grupopap.view',
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
+                'cursoclasse.viewAny',
+                'cursoclasse.view',
+                'cursoclasseturno.viewAny',
+                'cursoclasseturno.view',
+                'turmas.viewAny',
+                'turmas.view',
+                'classeturnodisciplina.viewAny',
+                'classeturnodisciplina.view',
+                'inscricoes.create',
+                'inscricoes.viewAny',
+                'inscricoes.view',
+                'alunos.viewAny',
+                'alunos.view',
+                'pautas.viewAny',
+                'pautas.view',
+            ],
+
             'Coordenador' => [
+
+                'curso.secretarios.manage',
+                'historico.manage',
 
                 'instituicoes.view',
                 'instituicoes.update',

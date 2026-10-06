@@ -16,7 +16,9 @@ class PautaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('pautas.viewAny') && $user->instituicao_id !== null;
+        return $user->can('pautas.viewAny')
+            && $user->instituicao_id !== null
+            && (! $user->hasRole('Secretario do Curso') || $user->cursosSecretariados()->exists());
     }
 
     /**
@@ -30,6 +32,10 @@ class PautaPolicy
     {
         if (! $user->can('pautas.viewAny') || $user->instituicao_id === null) {
             return false;
+        }
+
+        if ($user->hasRole('Secretario do Curso')) {
+            return $cursoTutelado->secretarios()->whereKey($user->getKey())->exists();
         }
 
         if ($this->isCoordenadorDoCurso($user, $cursoTutelado)) {
@@ -55,6 +61,12 @@ class PautaPolicy
     {
         if (! $user->can('pautas.view') || $user->instituicao_id === null) {
             return false;
+        }
+
+        if ($user->hasRole('Secretario do Curso')) {
+            return $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->secretarios()
+                ->whereKey($user->getKey())
+                ->exists() ?? false;
         }
 
         if ($this->isCoordenadorDoCurso($user, $turma)) {

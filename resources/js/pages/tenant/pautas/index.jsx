@@ -18,6 +18,7 @@ export default function Index({
           instituicao_id: instituicaoId,
           curso_tutelado_id: cursoId || null,
           ano_lectivo_id: anoLectivoId,
+          search: filtros.search || null,
         },
       }),
       {
@@ -81,6 +82,7 @@ export default function Index({
 
       <TurmasTable
         turmas={turmas.data ?? []}
+        filtros={filtros}
         pagination={turmas}
         onPageChange={handlePageChange}
       />

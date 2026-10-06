@@ -6,7 +6,7 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/TurnoController';
 import { useDialog } from '@/hooks/use-dialog';
 
-export default function Index({ turnos, can }) {
+export default function Index({ turnos, can, filters }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (turnoId) => {
@@ -21,7 +21,7 @@ export default function Index({ turnos, can }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -29,10 +29,10 @@ export default function Index({ turnos, can }) {
   return (
     <>
       <Head title="Turnos" />
-
       <TurnoTable
         turnos={turnos}
         can={can}
+        filters={filters}
         pagination={{
           current_page: turnos.current_page,
           last_page: turnos.last_page,

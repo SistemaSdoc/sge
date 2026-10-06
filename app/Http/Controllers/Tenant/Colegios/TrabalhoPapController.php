@@ -146,6 +146,7 @@ class TrabalhoPapController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.aprovar'), 403);
         $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
 
@@ -191,6 +192,7 @@ class TrabalhoPapController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.aprovar'), 403);
         $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
 

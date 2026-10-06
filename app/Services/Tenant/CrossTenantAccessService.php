@@ -114,6 +114,10 @@ class CrossTenantAccessService
      */
     public function vinculosVisiveisNoPap(User $user): Collection
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return $this->vinculosSecretariados($user);
+        }
+
         if ($user->hasRole('Director') && $user->instituicao?->tipo === 'instituto') {
             return CursoTuteladoShared::query()
                 ->where('tenant_tutor_id', (string) tenancy()->tenant->getTenantKey())
@@ -122,6 +126,38 @@ class CrossTenantAccessService
         }
 
         return $this->vinculosVisiveisPorProfessor($user);
+    }
+
+    /**
+     * Returns active shared links for central courses assigned to an institute secretary.
+     *
+     * @return Collection<int, CursoTuteladoShared>
+     */
+    public function vinculosSecretariados(User $user): Collection
+    {
+        if (! $user->hasRole('Secretario do Curso') || $user->instituicao?->tipo !== 'instituto') {
+            return collect();
+        }
+
+        $cursoIds = CursoTutelado::query()
+            ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $user->instituicao_id))
+            ->whereHas('secretarios', fn ($query) => $query->whereKey($user->getKey()))
+            ->with('instituicaoCurso:id,curso_id')
+            ->get()
+            ->pluck('instituicaoCurso.curso_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($cursoIds->isEmpty()) {
+            return collect();
+        }
+
+        return CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', (string) tenancy()->tenant->getTenantKey())
+            ->where('status', 'activo')
+            ->whereIn('curso_id', $cursoIds)
+            ->get();
     }
 
     /**

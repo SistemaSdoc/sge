@@ -3,6 +3,7 @@
 namespace App\Models\Tenant;
 
 use App\Models\Central\Tenant;
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -28,7 +29,9 @@ use Throwable;
 
 class Instituicao extends Model
 {
-    use HasFactory, HasUuid, SoftDeletes;
+    use HasFactory, HasSearch, HasUuid, SoftDeletes;
+
+    protected array $searchable = ['nome', 'sigla', 'tipo'];
 
     protected $table = 'instituicoes';
 

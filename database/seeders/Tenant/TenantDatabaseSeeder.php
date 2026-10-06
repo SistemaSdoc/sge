@@ -17,6 +17,7 @@ class TenantDatabaseSeeder extends Seeder
                 PermissionSeeder::class,
                 RoleSeeder::class,
                 RolePermissionSeeder::class,
+                CursoTuteladoSecretarioSeeder::class,
 
                 // TABELAS BASE
                 // InstituicaoSeeder::class,

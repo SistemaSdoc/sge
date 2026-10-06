@@ -3,11 +3,13 @@
 namespace App\Models\Tenant;
 
 use App\Notifications\Tenant\ResetPasswordNotification;
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Database\Factories\Tenant\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -41,7 +43,9 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory, HasRoles, HasSearch, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    protected array $searchable = ['nome', 'email'];
 
     protected $guard = 'tenant';
 
@@ -88,6 +92,14 @@ class User extends Authenticatable implements PasskeyUser
     public function professor()
     {
         return $this->hasOne(Professor::class);
+    }
+
+    public function cursosSecretariados(): BelongsToMany
+    {
+        return $this->belongsToMany(CursoTutelado::class, 'curso_tutelado_secretario', 'user_id', 'curso_tutelado_id')
+            ->using(CursoTuteladoSecretario::class)
+            ->withPivot('id')
+            ->withTimestamps();
     }
 
     public function aluno()

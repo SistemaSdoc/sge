@@ -36,13 +36,19 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function ProfessorTable({
   professores,
+  filters,
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['professores', 'filters'],
+  });
   const isEmpty = !professores || professores.length === 0;
 
   return (
@@ -58,11 +64,13 @@ export function ProfessorTable({
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title="Nenhum professor cadastrado"
+            title={applied ? 'Nenhum professor encontrado' : 'Nenhum professor cadastrado'}
+            description={applied ? 'Tenta ajustar a pesquisa.' : undefined}
             action={{
               label: 'Adicionar Professor',
               href: create().url,

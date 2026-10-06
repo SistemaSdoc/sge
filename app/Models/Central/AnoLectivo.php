@@ -2,6 +2,7 @@
 
 namespace App\Models\Central;
 
+use App\Traits\HasSearch;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,7 +10,9 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
 
 class AnoLectivo extends Model
 {
-    use CentralConnection, HasUuids, SoftDeletes;
+    use CentralConnection, HasSearch, HasUuids, SoftDeletes;
+
+    protected array $searchable = ['nome', 'estado'];
 
     protected $table = 'ano_lectivos';
 

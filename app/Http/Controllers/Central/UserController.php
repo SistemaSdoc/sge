@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Central\User\StoreUserRequest;
 use App\Http\Requests\Central\User\UpdateUserRequest;
 use App\Models\Central\User;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
 
@@ -25,12 +26,14 @@ class UserController extends Controller
     /**
      * Display a listing of the users.
      */
-    public function index()
+    public function index(Request $request)
     {
         $users = User::query()
             ->with('roles:id,name')
+            ->search($request->string('search')->toString())
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         $roles = Role::query()
             ->where('guard_name', 'web')
@@ -40,6 +43,7 @@ class UserController extends Controller
         return Inertia::render('central/users/index', [
             'users' => $users,
             'roles' => $roles,
+            'filters' => $request->only('search'),
         ]);
     }
 

@@ -31,14 +31,20 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Tenant/TurnoController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function TurnoTable({
   turnos,
+  filters,
   can = {},
   pagination = {},
   onPageChange,
   deleteFn,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['turnos', 'filters'],
+  });
   const lista = Array.isArray(turnos) ? turnos : (turnos?.data ?? []);
   const isEmpty = lista.length === 0;
   const hasActionColumn = lista.some(
@@ -61,12 +67,13 @@ export function TurnoTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={ClockIcon}
-              title="Nenhum turno cadastrado"
-              description="Comece adicionando o primeiro turno à tabela"
+              title={applied ? 'Nenhum turno encontrado' : 'Nenhum turno cadastrado'}
+              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando o primeiro turno à tabela'}
               action={
                 can.create
                   ? {

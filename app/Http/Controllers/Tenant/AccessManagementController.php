@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\AccessManagement\StoreRoleAndPermissionRequest;
 use App\Models\Tenant\User;
 use App\Services\Tenant\RoleManagementService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -20,7 +21,7 @@ class AccessManagementController extends Controller
     /**
      * Lista todos os usuários com suas roles e permissões, além de todas as roles e permissões disponíveis.
      */
-    public function index()
+    public function index(Request $request)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
@@ -33,9 +34,11 @@ class AccessManagementController extends Controller
             'permissions:id,name',
         ])
             ->when(! $user->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $user->instituicao_id))
+            ->search($request->string('search')->toString())
             ->orderBy('nome')
             ->orderBy('id')
             ->paginate(10)
+            ->withQueryString()
             ->through(fn (User $u) => [
                 'id' => $u->id,
                 'nome' => $u->nome,
@@ -53,6 +56,7 @@ class AccessManagementController extends Controller
 
         return Inertia::render('tenant/gestao-acessos/index', [
             'users' => $users,
+            'filters' => $request->only('search'),
             'roles' => Role::where('guard_name', 'tenant')->whereNotIn('name', ['SuperAdmin'])->orderBy('name')->get()->pluck('name'),
             'allPermissions' => $this->roleManagementService->permissions(),
             'groupedPermissions' => $this->roleManagementService->groupedPermissions(),

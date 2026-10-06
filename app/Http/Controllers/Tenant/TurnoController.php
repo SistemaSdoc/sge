@@ -10,6 +10,7 @@ use App\Http\Requests\Tenant\Turno\StoreTurnoRequest;
 use App\Http\Requests\Tenant\Turno\UpdateTurnoRequest;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -26,14 +27,16 @@ class TurnoController extends Controller
     /**
      * Mostra a lista de turnos.
      */
-    public function index()
+    public function index(Request $request)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
         $turnos = Turno::select(['id', 'nome', 'created_at'])
+            ->search($request->string('search')->toString())
             ->orderBy('nome', 'asc')
             ->paginate(10)
+            ->withQueryString()
             ->through(function (Turno $turno) use ($user) {
                 return [
                     'id' => $turno->id,
@@ -48,6 +51,7 @@ class TurnoController extends Controller
 
         return Inertia::render('tenant/turnos/index', [
             'turnos' => $turnos,
+            'filters' => $request->only('search'),
             'can' => [
                 'create' => $user->can('create', Turno::class),
             ],

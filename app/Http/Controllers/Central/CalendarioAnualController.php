@@ -11,6 +11,7 @@ use App\Http\Requests\Central\CalendarioAnual\UpdateCalendarioAnualRequest;
 use App\Models\Central\CalendarioAnual;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,12 +26,15 @@ class CalendarioAnualController extends Controller
         $this->authorizeResource(CalendarioAnual::class, 'calendarioAnual');
     }
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('central/calendarios-anuais/index', [
             'calendarios' => CalendarioAnual::query()
+                ->search($request->string('search')->toString())
                 ->orderByDesc('ano')
-                ->paginate(10, ['id', 'ano', 'ficheiro_nome', 'ativo']),
+                ->paginate(10, ['id', 'ano', 'ficheiro_nome', 'ativo'])
+                ->withQueryString(),
+            'filters' => $request->only('search'),
         ]);
     }
 

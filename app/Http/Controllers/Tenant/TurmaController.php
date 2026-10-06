@@ -10,6 +10,7 @@ use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -18,7 +19,7 @@ class TurmaController extends Controller
 {
     public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Turma::class);
 
@@ -27,6 +28,10 @@ class TurmaController extends Controller
         $user = Auth::guard('tenant')->user();
         $professor = $user?->professor;
         $instituicaoId = $user->instituicao_id;
+        $isCourseSecretary = $user->hasRole('Secretario do Curso');
+        $secretariadoCourseIds = $isCourseSecretary
+            ? $user->cursosSecretariados()->select('curso_tutelado.id')
+            : null;
 
         $anoLectivoId = filled(request('ano_lectivo_id'))
             ? request('ano_lectivo_id')
@@ -34,6 +39,7 @@ class TurmaController extends Controller
 
         $cursos = CursoTutelado::query()
             ->whereHas('instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicaoId))
+            ->when($secretariadoCourseIds !== null, fn ($q) => $q->whereIn('id', $secretariadoCourseIds))
             ->with('instituicaoCurso.curso:id,nome')
             ->get()
             ->map(fn ($ct) => [
@@ -43,6 +49,7 @@ class TurmaController extends Controller
 
         $cursoClasses = CursoClasse::query()
             ->whereHas('cursoTutelado.instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicaoId))
+            ->when($secretariadoCourseIds !== null, fn ($q) => $q->whereIn('curso_tutelado_id', $secretariadoCourseIds))
             ->with('classe:id,nome')
             ->get()
             ->map(fn ($cc) => [
@@ -55,13 +62,20 @@ class TurmaController extends Controller
             ->whereHas(
                 'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
                 fn ($q) => $q->where('instituicoes.id', $instituicaoId)
-            );
+            )
+            ->when($secretariadoCourseIds !== null, fn ($q) => $q->whereHas(
+                'cursoClasseTurno.cursoClasse',
+                fn ($q) => $q->whereIn('curso_tutelado_id', $secretariadoCourseIds),
+            ))
+            ->search($request->string('search')->toString()); // <- novo
 
         if ($anoLectivoId) {
             $query->where('ano_lectivo_id', $anoLectivoId);
         }
 
-        if (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
+        if ($isCourseSecretary) {
+            // The course filter above is the secretary's complete scope.
+        } elseif (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
             if (! $professor) {
                 return Inertia::render('tenant/turmas/index', [
                     'turmas' => [
@@ -69,6 +83,7 @@ class TurmaController extends Controller
                         'current_page' => 1,
                         'last_page' => 1,
                     ],
+                    'filters' => $request->only('search'),
                     'anosLectivos' => AnoLectivo::query()
                         ->select('id', 'nome')
                         ->orderByDesc('data_inicio')
@@ -102,7 +117,8 @@ class TurmaController extends Controller
             'cursoClasseTurno.classeTurnoDisciplinas.disciplina:id,nome',
             'anoLectivo:id,nome',
             'alunosActivos',
-        ])->paginate(10);
+        ])->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('tenant/turmas/index', [
             'instituicaoId' => $instituicaoId,
@@ -111,6 +127,7 @@ class TurmaController extends Controller
                 'current_page' => $turmas->currentPage(),
                 'last_page' => $turmas->lastPage(),
             ],
+            'filters' => $request->only('search'),
             'anosLectivos' => AnoLectivo::query()
                 ->select('id', 'nome')
                 ->orderByDesc('data_inicio')
@@ -118,14 +135,19 @@ class TurmaController extends Controller
             'anoLectivoActual' => $anoLectivoId,
             'cursos' => $cursos,
             'classes' => $cursoClasses,
-            'turnos' => Inertia::defer(fn () => CursoClasseTurno::query()
-                ->where('curso_classe_id', request('curso_classe_id'))
-                ->with('turno:id,nome')
-                ->get()
-                ->map(fn ($cct) => [
-                    'id' => $cct->id,
-                    'nome' => $cct->turno?->nome,
-                ])
+            'turnos' => Inertia::defer(
+                fn () => CursoClasseTurno::query()
+                    ->where('curso_classe_id', request('curso_classe_id'))
+                    ->when($secretariadoCourseIds !== null, fn ($q) => $q->whereHas(
+                        'cursoClasse',
+                        fn ($q) => $q->whereIn('curso_tutelado_id', $secretariadoCourseIds),
+                    ))
+                    ->with('turno:id,nome')
+                    ->get()
+                    ->map(fn ($cct) => [
+                        'id' => $cct->id,
+                        'nome' => $cct->turno?->nome,
+                    ])
             ),
             'can' => [
                 'create' => $user->can('create', Turma::class),

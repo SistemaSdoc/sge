@@ -35,9 +35,12 @@ import {
 } from '@/actions/App/Http/Controllers/Central/TenantController';
 import TablePagination from '@/components/table-pagination';
 import { StatusBadge } from './status-badge';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function TenantTable({
   tenants,
+  filters,
   can = {},
   deleteFn,
   pagination = {},
@@ -45,6 +48,9 @@ export function TenantTable({
   handleToggleStatus,
   recreateDatabaseFn,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['tenants', 'filters'],
+  });
   const isEmpty = tenants?.length === 0;
 
   const hasActionColumn = tenants.some(
@@ -65,12 +71,13 @@ export function TenantTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={LayersIcon}
-              title="Nenhuma instituição cadastrada"
-              description="Clique no botão abaixo para cadastrar uma nova instituição"
+              title={applied ? 'Nenhuma instituição encontrada' : 'Nenhuma instituição cadastrada'}
+              description={applied ? 'Tenta ajustar a pesquisa.' : 'Clique no botão abaixo para cadastrar uma nova instituição'}
               action={
                 can.create
                   ? {

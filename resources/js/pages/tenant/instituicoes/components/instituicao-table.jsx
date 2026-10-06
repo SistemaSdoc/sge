@@ -33,14 +33,20 @@ import {
   create,
 } from '@/actions/App/Http/Controllers/Tenant/InstituicaoController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function InstituicaoTable({
   instituicoes,
+  filters,
   can,
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['instituicoes', 'filters'],
+  });
   const isEmpty = !instituicoes || instituicoes.length === 0;
 
   return (
@@ -59,12 +65,13 @@ export function InstituicaoTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={BuildingIcon}
-              title="Nenhuma instituição cadastrada"
-              description="Comece adicionando a primeira instituição à tabela"
+              title={applied ? 'Nenhuma instituição encontrada' : 'Nenhuma instituição cadastrada'}
+              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando a primeira instituição à tabela'}
               action={{
                 label: 'Adicionar Instituição',
                 href: create().url,

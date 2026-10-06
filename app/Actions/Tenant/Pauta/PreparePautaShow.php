@@ -6,6 +6,7 @@ use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use App\Services\Tenant\CrossTenantAccessService;
 use App\Services\Tenant\Pauta\PautaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -15,7 +16,10 @@ use Illuminate\Support\Facades\Gate;
  */
 class PreparePautaShow
 {
-    public function __construct(private readonly PautaService $pautaService) {}
+    public function __construct(
+        private readonly PautaService $pautaService,
+        private readonly CrossTenantAccessService $crossTenantAccessService,
+    ) {}
 
     /**
      * Autoriza o acesso à turma e prepara os dados da pauta.
@@ -33,12 +37,19 @@ class PreparePautaShow
             return $this->dadosPauta($turma, $request);
         }
 
+        $isCourseSecretary = $user->hasRole('Secretario do Curso');
+        $isInstituteSecretary = $isCourseSecretary && $user->instituicao?->tipo === 'instituto';
+
+        abort_if($isCourseSecretary && ! $isInstituteSecretary, 404);
+
         abort_unless($user->can('pautas.view'), 403);
 
-        $vinculosActivos = CursoTuteladoShared::query()
-            ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
-            ->where('status', 'activo')
-            ->get();
+        $vinculosActivos = $isInstituteSecretary
+            ? $this->crossTenantAccessService->vinculosSecretariados($user)
+            : CursoTuteladoShared::query()
+                ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
+                ->where('status', 'activo')
+                ->get();
 
         foreach ($vinculosActivos->groupBy('tenant_tutelado_id') as $tenantId => $vinculosTenant) {
             $tenantTutelado = Tenant::query()->find($tenantId);

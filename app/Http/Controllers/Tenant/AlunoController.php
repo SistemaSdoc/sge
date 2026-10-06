@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
+use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
@@ -25,7 +26,7 @@ class AlunoController extends Controller
 
     public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
-    public function index(VerificadorPropinaService $verificador)
+    public function index(Request $request, VerificadorPropinaService $verificador)
     {
         Gate::authorize('viewAny', Aluno::class);
 
@@ -35,6 +36,7 @@ class AlunoController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
+        $isCourseSecretary = $user->hasRole('Secretario do Curso');
 
         $cursosCoordenados = $user->professor
             ? DB::table('curso_tutelado_professor')
@@ -44,9 +46,14 @@ class AlunoController extends Controller
             : collect();
 
         $ehCoordenador = $cursosCoordenados->isNotEmpty();
+        $cursosComAcesso = $cursosCoordenados
+            ->merge($isCourseSecretary ? $user->cursosSecretariados()->pluck('curso_tutelado.id') : collect())
+            ->unique()
+            ->values();
 
         $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
             ->doAnoLectivo($anoLectivoId)
+            ->search($request->string('search')->toString())
             ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
             ->with([
                 'inscricao.candidato:id,nome,bi,email,telefone',
@@ -67,21 +74,22 @@ class AlunoController extends Controller
                 )
             )
             ->when(
-                $ehCoordenador,
+                $isCourseSecretary || $ehCoordenador,
                 fn ($q) => $q->whereHas(
                     'inscricao.cursoClasseTurno.cursoClasse',
-                    fn ($q) => $q->whereIn('curso_tutelado_id', $cursosCoordenados)
+                    fn ($q) => $q->whereIn('curso_tutelado_id', $cursosComAcesso)
                 )
             )
             ->when(
-                ! $ehCoordenador && $user->hasRole('Professor'),
+                ! $ehCoordenador && ! $isCourseSecretary && $user->hasRole('Professor'),
                 fn ($q) => $q->whereHas(
                     'turmas',
                     fn ($q) => $q->whereIn('turmas.id', $user->professor->turmas()->pluck('turmas.id'))
                 )
             )
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         $alunos->getCollection()->transform(function ($aluno) use ($user) {
             $aluno->can = [
@@ -127,6 +135,7 @@ class AlunoController extends Controller
                 ];
             }),
             'anoLectivoId' => $anoLectivoId,
+            'filters' => $request->only('search'),
             'anosLectivos' => AnoLectivo::query()
                 ->select('id', 'nome')
                 ->orderByDesc('data_inicio')
@@ -148,11 +157,6 @@ class AlunoController extends Controller
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
-        // Calcular pendentes ANTES do load() que polui as relações em memória
-        $historicoService = app(PreencherHistoricoService::class);
-        $pendentes = $historicoService->obterClassesFaltando($aluno);
-
-        // Só depois faz o load() para a view
         $aluno->load([
             'inscricao.candidato:id,nome,bi,email,telefone,genero,nacionalidade,naturalidade,morada,filiacao,data_nascimento',
             'inscricao.cursoClasseTurno.turno:id,nome',
@@ -182,8 +186,10 @@ class AlunoController extends Controller
                 ->first();
         }
 
-        $historicoService = app(PreencherHistoricoService::class);
-        $pendentes = $historicoService->obterClassesFaltando($aluno);
+        $canManageHistorico = $user->can('manageHistorico', $aluno);
+        $pendentes = $canManageHistorico
+            ? app(PreencherHistoricoService::class)->obterClassesFaltando($aluno)
+            : [];
 
         $aluno2 = Aluno::find($aluno->id);
 
@@ -194,6 +200,20 @@ class AlunoController extends Controller
         $cursoClasseActual = $inscricao?->cursoClasseTurno?->cursoClasse;
         $ordemActual = $cursoClasseActual?->classe?->ordem;
         $cursoTuteladoId = $cursoClasseActual?->curso_tutelado_id;
+        if ($canManageHistorico && $cursoTuteladoId) {
+            $pendingClassIds = collect($pendentes)->pluck('curso_classe_id');
+            $historicoClassIds = CursoClasse::query()
+                ->where('curso_tutelado_id', $cursoTuteladoId)
+                ->whereIn('id', $pendingClassIds)
+                ->pluck('id')
+                ->map(fn ($id): string => (string) $id)
+                ->all();
+
+            $pendentes = collect($pendentes)
+                ->filter(fn (array $pending): bool => in_array((string) $pending['curso_classe_id'], $historicoClassIds, true))
+                ->values()
+                ->all();
+        }
 
         $anosLectivos = AnoLectivo::where('activo', false)
             ->orderBy('data_fim', 'desc')
@@ -209,6 +229,13 @@ class AlunoController extends Controller
             fn () => $request->filled('ano_lectivo_id') && $request->filled('curso_classe_id')
                 ? CursoClasseTurno::query()
                     ->where('curso_classe_id', $request->query('curso_classe_id'))
+                    ->when(
+                        $canManageHistorico,
+                        fn ($query) => $query->whereHas(
+                            'cursoClasse',
+                            fn ($query) => $query->where('curso_tutelado_id', $cursoTuteladoId),
+                        ),
+                    )
                     ->with('turno:id,nome')
                     ->get()
                     ->map(fn ($cct) => [
@@ -223,6 +250,13 @@ class AlunoController extends Controller
                 ? Turma::query()
                     ->where('ano_lectivo_id', $request->query('ano_lectivo_id'))
                     ->where('curso_classe_turno_id', $request->query('curso_classe_turno_id'))
+                    ->when(
+                        $canManageHistorico,
+                        fn ($query) => $query->whereHas(
+                            'cursoClasseTurno.cursoClasse',
+                            fn ($query) => $query->where('curso_tutelado_id', $cursoTuteladoId),
+                        ),
+                    )
                     ->get()
                     ->map(fn ($t) => [
                         'id' => $t->id,
@@ -258,6 +292,7 @@ class AlunoController extends Controller
                     'view' => $user->can('view', $aluno),
                     'update' => $user->can('update', $aluno),
                     'delete' => $user->can('delete', $aluno),
+                    'manageHistorico' => $canManageHistorico,
                 ],
             ],
             'historicoPendente' => $pendentes,

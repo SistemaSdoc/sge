@@ -10,6 +10,7 @@ use App\Http\Requests\Tenant\Classe\StoreClasseRequest;
 use App\Http\Requests\Tenant\Classe\UpdateClasseRequest;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -26,14 +27,16 @@ class ClasseController extends Controller
     /**
      * Mostra a lista de classes.
      */
-    public function index()
+    public function index(Request $request)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
         $classes = Classe::select(['id', 'nome', 'nivel_ensino', 'created_at'])
+            ->search($request->string('search')->toString())
             ->orderBy('nome', 'asc')
             ->paginate(10)
+            ->withQueryString()
             ->through(function (Classe $classe) use ($user) {
                 return [
                     'id' => $classe->id,
@@ -49,6 +52,7 @@ class ClasseController extends Controller
 
         return Inertia::render('tenant/classes/index', [
             'classes' => $classes,
+            'filters' => $request->only('search'),
             'can' => [
                 'create' => $user->can('create', Classe::class),
             ],

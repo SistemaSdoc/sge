@@ -13,6 +13,7 @@ use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -29,13 +30,15 @@ class InstituicaoController extends Controller
     /**
      * Mostra a lista de instituições.
      */
-    public function index()
+    public function index(Request $request)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
         $instituicoes = Instituicao::select(['id', 'nome', 'sigla', 'tipo'])
+            ->search($request->string('search')->toString())
             ->orderBy('nome', 'asc')
             ->paginate(10)
+            ->withQueryString()
             ->through(function (Instituicao $instituicao) use ($user) {
                 return [
                     'id' => $instituicao->id,
@@ -55,6 +58,7 @@ class InstituicaoController extends Controller
                 'create' => $user->can('create', Instituicao::class),
             ],
             'instituicoes' => $instituicoes,
+            'filters' => $request->only('search'),
         ]);
     }
 

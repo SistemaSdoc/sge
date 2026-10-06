@@ -44,7 +44,7 @@ export default function Show() {
     <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
       <AlunoHeader aluno={aluno} />
 
-      {historicoPendente.length > 0 && (
+      {aluno.can?.manageHistorico && historicoPendente.length > 0 && (
         <HistoricoPendenteAlert
           aluno={aluno}
           pendentes={historicoPendente}

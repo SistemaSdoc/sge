@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Pagamento extends Model
 {
-    use HasUuid, SoftDeletes;
+    use HasSearch, HasUuid, SoftDeletes;
+
+    protected array $searchable = ['referencia', 'numero_recibo', 'metodo', 'observacoes', 'aluno.user.nome'];
 
     protected $table = 'pagamentos';
 

@@ -3,6 +3,7 @@
 namespace App\Models\Tenant;
 
 use App\Models\Central\AnoLectivo;
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +17,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Turma extends Model
 {
+    use HasSearch;
+
+    protected array $searchable = [
+        'nome',
+        'cursoClasseTurno.turno.nome',
+        'cursoClasseTurno.cursoClasse.classe.nome',
+        'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso.nome',
+    ];
+
     use HasUuid;
 
     protected $table = 'turmas';

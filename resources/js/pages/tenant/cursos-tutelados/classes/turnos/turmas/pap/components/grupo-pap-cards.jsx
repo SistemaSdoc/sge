@@ -26,7 +26,14 @@ import {
 import { MoreHorizontalIcon, ArrowUpRightIcon, Users2 } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 
-export function GrupoPapCards({ params, grupos = [], deleteGrupoFn, can }) {
+export function GrupoPapCards({
+  params,
+  grupos = [],
+  deleteGrupoFn,
+  can,
+  emptyTitle = 'Nenhum Grupo PAP definido',
+  emptyDescription = 'Ainda não existem grupos PAP para esta turma.',
+}) {
   return (
     <div className="space-y-4">
       {grupos.length > 0 ? (
@@ -149,7 +156,8 @@ export function GrupoPapCards({ params, grupos = [], deleteGrupoFn, can }) {
       ) : (
         <EmptyState
           icon={Users2}
-          title="Nenhum Grupo PAP definido"
+          title={emptyTitle}
+          description={emptyDescription}
           variant="compact"
           action={
             can?.create

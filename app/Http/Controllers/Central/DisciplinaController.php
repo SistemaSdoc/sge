@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Central\Disciplina\StoreDisciplinaRequest;
 use App\Http\Requests\Central\Disciplina\UpdateDisciplinaRequest;
 use App\Models\Central\Disciplina;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class DisciplinaController extends Controller
@@ -26,12 +27,15 @@ class DisciplinaController extends Controller
     /**
      * Apresenta a lista de disciplinas, incluindo as arquivadas.
      */
-    public function index()
+    public function index(Request $request)
     {
         return Inertia::render('central/disciplinas/index', [
             'disciplinas' => Disciplina::withTrashed()
+                ->search($request->string('search')->toString())
                 ->orderBy('created_at', 'desc')
-                ->paginate(10),
+                ->paginate(10)
+                ->withQueryString(),
+            'filters' => $request->only('search'),
         ]);
     }
 

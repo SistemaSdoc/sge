@@ -7,6 +7,7 @@ use App\Models\Central\Tenant;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 #[Fillable([
     'instituicao_curso_id',
@@ -54,6 +55,14 @@ class CursoTutelado extends Model
         )
             ->using(CursoClasse::class)
             ->withPivot('nivel_ensino_id')
+            ->withTimestamps();
+    }
+
+    public function secretarios(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'curso_tutelado_secretario', 'curso_tutelado_id', 'user_id')
+            ->using(CursoTuteladoSecretario::class)
+            ->withPivot('id')
             ->withTimestamps();
     }
 

@@ -8,7 +8,7 @@ import {
 import { useDialog } from '@/hooks/use-dialog';
 import { AlterarStatusDialog } from './components/alterar-status-dialog';
 
-export default function Index({ tenants, can }) {
+export default function Index({ tenants, can, filters }) {
   const { deleteConfirm, openForm, closeDialog } = useDialog();
 
   const handleToggleStatus = (tenant, e) => {
@@ -52,7 +52,7 @@ export default function Index({ tenants, can }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -64,6 +64,7 @@ export default function Index({ tenants, can }) {
       <TenantTable
         can={can}
         tenants={tenants.data ?? []}
+        filters={filters}
         deleteFn={handleDelete}
         pagination={tenants.meta}
         onPageChange={handlePageChange}

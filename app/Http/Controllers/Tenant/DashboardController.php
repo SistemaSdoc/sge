@@ -34,6 +34,10 @@ class DashboardController extends Controller
 
         $anoLectivoId = AnoLectivo::activo()?->id;
 
+        if ($user->hasRole('Secretario do Curso')) {
+            return $this->renderDirectorDashboard($user->instituicaoFiltro());
+        }
+
         if ($user->hasAnyRole(['SuperAdmin', 'Master', 'Director', 'Subdirector', 'Secretaria'])) {
             return $this->renderDirectorDashboard($user->instituicaoFiltro());
         }

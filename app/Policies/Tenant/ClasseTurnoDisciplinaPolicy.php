@@ -24,6 +24,15 @@ class ClasseTurnoDisciplinaPolicy
             return false;
         }
 
+        if ($user->hasRole('Secretario do Curso')) {
+            return $classeTurnoDisciplina->cursoClasseTurno
+                ?->cursoClasse
+                ?->cursoTutelado
+                ?->secretarios()
+                ->whereKey($user->getKey())
+                ->exists() ?? false;
+        }
+
         $cursoTutelado = $classeTurnoDisciplina->cursoClasseTurno
             ->cursoClasse
             ->cursoTutelado;

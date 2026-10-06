@@ -25,9 +25,16 @@ import {
   restore,
 } from '@/actions/App/Http/Controllers/Central/DisciplinaController';
 import { useDialog } from '@/hooks/use-dialog';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
+import { EmptyState } from '@/components/empty-state';
+import { BookOpenCheck } from 'lucide-react';
 
-export default function Index({ disciplinas }) {
+export default function Index({ disciplinas, filters }) {
   const { deleteConfirm } = useDialog();
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['disciplinas', 'filters'],
+  });
 
   const handleDelete = (disciplina) => {
     deleteConfirm({
@@ -44,7 +51,7 @@ export default function Index({ disciplinas }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -68,6 +75,15 @@ export default function Index({ disciplinas }) {
           </CardHeader>
 
           <CardContent className="p-0!">
+            <TableSearch value={search} onChange={onChange} onSubmit={submit} />
+            {disciplinas.data.length === 0 ? (
+              <EmptyState
+                variant="table"
+                icon={BookOpenCheck}
+                title={applied ? 'Nenhuma disciplina encontrada' : 'Nenhuma disciplina cadastrada'}
+                description={applied ? 'Tenta ajustar a pesquisa.' : 'Adicione uma disciplina ao catálogo central.'}
+              />
+            ) : (
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/72">
@@ -126,6 +142,7 @@ export default function Index({ disciplinas }) {
                 ))}
               </TableBody>
             </Table>
+            )}
           </CardContent>
 
           <TablePagination

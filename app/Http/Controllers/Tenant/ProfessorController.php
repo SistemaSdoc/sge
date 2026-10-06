@@ -12,6 +12,7 @@ use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -26,7 +27,7 @@ class ProfessorController extends Controller
     /**
      * Mostra a lista de professores da instituição do usuario.
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Professor::class);
 
@@ -42,6 +43,7 @@ class ProfessorController extends Controller
             'created_at',
         ])
             ->with(['user:id,nome,telefone'])
+            ->search($request->string('search')->toString())
             ->when(
                 $instituicaoId,
                 fn ($q) => $q->whereHas(
@@ -50,10 +52,12 @@ class ProfessorController extends Controller
                 )
             )
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('tenant/professores/index', [
             'professores' => $professores,
+            'filters' => $request->only('search'),
         ]);
     }
 

@@ -42,15 +42,25 @@ class CursoTuteladoController extends Controller
     /**
      * Apresenta os cursos tutelados de uma instituição.
      */
-    public function index(Instituicao $instituicao)
+    public function index(Request $request, Instituicao $instituicao)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
-        $cursos = $this->cursoTuteladoViewService->index($instituicao, $user);
+        if ($user->hasRole('Secretario do Curso')) {
+            abort_unless((string) $user->instituicao_id === (string) $instituicao->getKey(), 404);
+            Gate::authorize('viewAny', CursoTutelado::class);
+        }
+
+        $cursos = $this->cursoTuteladoViewService->index(
+            $instituicao,
+            $user,
+            $request->string('search')->toString(),
+        );
 
         return Inertia::render('tenant/cursos-tutelados/index', [
             'cursos' => $cursos,
+            'filters' => $request->only('search'),
             'instituicao' => $instituicao->only('id'),
             'can' => [
                 'create_curso' => $user->can('create', CursoTutelado::class),
@@ -137,12 +147,38 @@ class CursoTuteladoController extends Controller
 
         $this->cursoTuteladoViewService->prepareShow($cursoTutelado, $anoLectivoId);
 
+        $canManageSecretarios = $user->hasRole('Coordenador')
+            && $user->can('manageSecretarios', $cursoTutelado);
+
+        $secretariosDisponiveis = $canManageSecretarios
+            ? User::query()
+                ->where('instituicao_id', $instituicao->id)
+                ->role('Secretario do Curso', 'tenant')
+                ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', [
+                    'Secretaria',
+                    'Director',
+                    'Subdirector',
+                    'Coordenador',
+                    'SuperAdmin',
+
+                ]))
+                ->whereDoesntHave('cursosSecretariados', fn ($query) => $query->whereKey($cursoTutelado->getKey()))
+                ->orderBy('nome')
+                ->get(['id', 'nome', 'email'])
+                ->map(fn (User $candidate): array => [
+                    'id' => $candidate->id,
+                    'nome' => $candidate->nome,
+                    'email' => $candidate->email,
+                ])
+            : collect();
+
         return Inertia::render('tenant/cursos-tutelados/show', [
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,
             ],
             'cursoTutelado' => (new CursoTuteladoResourceShow($cursoTutelado))->resolve(),
+            'secretariosDisponiveis' => $secretariosDisponiveis,
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => $this->cursoTuteladoViewService->academicYears(),
             'can' => [
