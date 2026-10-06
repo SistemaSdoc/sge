@@ -9,7 +9,6 @@ use App\Http\Resources\Tenant\Inscricao\InscricaoResource;
 use App\Http\Resources\Tenant\Inscricao\InscricaoShowResource;
 use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\CursoClasse;
-use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
@@ -221,22 +220,6 @@ class InscricaoController extends Controller
         $this->inscricaoService->criar($request->validated(), $instituicao);
 
         $user = Auth::guard('tenant')->user();
-
-        if ($user->hasRole('Secretario do Curso')) {
-            $cursoTutelado = CursoClasseTurno::query()
-                ->with('cursoClasse.cursoTutelado')
-                ->findOrFail($request->validated('curso_classe_turno_id'))
-                ->cursoClasse
-                ->cursoTutelado;
-
-            return to_route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
-                'instituicao' => $instituicao->getKey(),
-                'cursoTutelado' => $cursoTutelado->getKey(),
-            ])->with('toast', [
-                'type' => 'success',
-                'message' => 'Matrícula criada com sucesso.',
-            ]);
-        }
 
         return redirect()->route('tenant.dashboard.inscricoes.index', [
             'ano_lectivo_id' => $request->validated('ano_lectivo_id') ?? $request->input('ano_lectivo_id'),

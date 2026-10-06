@@ -12,6 +12,7 @@ final class MenuItem
         public readonly string $href,
         public readonly string $icon,
         public readonly Closure|bool $can = true,
+        public readonly bool $disabled = false,
     ) {}
 
     public function isVisible(): bool
@@ -28,6 +29,7 @@ final class MenuItem
             'title' => $this->title,
             'href' => $this->href,
             'icon' => $this->icon,
+            'disabled' => $this->disabled,
         ];
     }
 }

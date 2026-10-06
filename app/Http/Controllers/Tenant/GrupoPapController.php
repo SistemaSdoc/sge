@@ -50,8 +50,7 @@ class GrupoPapController extends Controller
         private readonly UpdateGrupoPap $updateGrupoPap,
         private readonly DeleteGrupoPap $deleteGrupoPap,
         private readonly DefinirDataDefesa $definirDataDefesa
-    ) {
-    }
+    ) {}
 
     /**
      * Lista os grupos PAP acessíveis ao utilizador.
@@ -71,8 +70,10 @@ class GrupoPapController extends Controller
 
         $instituicaoIdFiltro = $request->input('instituicao_id');
 
-        if (! $instituicaoIdFiltro
-            && ! ($user->hasRole('Secretario do Curso') && $user->instituicao?->tipo === 'instituto')) {
+        if (
+            ! $instituicaoIdFiltro
+            && ! ($user->hasRole('Secretario do Curso') && $user->instituicao?->tipo === 'instituto')
+        ) {
             $instituicaoIdFiltro = $user->instituicao_id;
         }
         $cursoIdFiltro = $request->input('curso_id') ?: null;
@@ -234,7 +235,12 @@ class GrupoPapController extends Controller
                 $nomeCurso,
                 $instituicaoTutora?->sigla,
             ),
-            'trabalho' => $this->grupoPapViewService->workDetails($grupoPap, $instituicaoTutora, $nomeCurso),
+            'trabalho' => $this->grupoPapViewService->workDetails(
+                $grupoPap,
+                $instituicaoTutora,
+                $nomeCurso,
+                $instituicaoTutora?->sigla,
+            ),
             'banca' => BancaResource::collection($detalhes['banca']),
             'elementos' => ElementoResource::collection($detalhes['elementos']),
             'can' => [
@@ -332,9 +338,9 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Grupo PAP actualizado com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Grupo PAP actualizado com sucesso!',
+        ]);
     }
 
     /**
@@ -376,9 +382,9 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Data e local da defesa definidos com sucesso!',
-                ]);
+            'type' => 'success',
+            'message' => 'Data e local da defesa definidos com sucesso!',
+        ]);
     }
 
     /**
@@ -437,9 +443,9 @@ class GrupoPapController extends Controller
             'turma' => $turma->id,
             'grupoPap' => $grupoPap->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Tema corrigido. Aguarda revisão do professor tutor.',
-                ]);
+            'type' => 'success',
+            'message' => 'Tema corrigido. Aguarda revisão do professor tutor.',
+        ]);
     }
 
     /* ------------------------------------------------------------------ */
@@ -501,7 +507,7 @@ class GrupoPapController extends Controller
         return Inertia::render('tenant/pap/create', [
             'instituicao' => $instituicao->only('id', 'nome'),
             'cursosTutelados' => $this->grupoPapViewService->tutoredCourses($user)
-                ->map(fn(array $curso): array => [
+                ->map(fn (array $curso): array => [
                     'id' => $curso['id'],
                     'nome' => $curso['nome'],
                 ])

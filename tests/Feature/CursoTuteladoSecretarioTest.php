@@ -151,6 +151,7 @@ it('assigns a course secretary only within the coordinator course and removes th
         ->pluck('key');
 
     expect($menuItems)->toContain('grupos-pap');
+    expect($menuItems)->not->toContain('professores');
 
     $baseUrl = "/dashboard/instituicoes/{$instituicao->id}/cursos-tutelados";
 

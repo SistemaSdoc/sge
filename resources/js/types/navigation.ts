@@ -12,6 +12,7 @@ export type NavItem = {
   href: NonNullable<InertiaLinkProps['href']>;
   icon?: string;
   isActive?: boolean;
+  disabled?: boolean;
 };
 
 export interface LocalNavItem {

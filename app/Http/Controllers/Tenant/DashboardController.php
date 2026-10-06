@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Central\AnoLectivo;
+use App\Models\Tenant\Professor;
 use App\Models\Tenant\User;
 use App\Services\Tenant\Dashboards\DashboardAlunoService;
 use App\Services\Tenant\Dashboards\DashboardDirectorService;
@@ -77,6 +78,9 @@ class DashboardController extends Controller
             'metricas' => $this->dashboardDirectorService->obterMetricas($instituicaoId),
             'accoes' => $this->dashboardDirectorService->obterAccoesPendentes($instituicaoId),
             'eventos' => $this->dashboardDirectorService->obterAvisos($instituicaoId),
+            'can' => [
+                'viewProfessores' => Auth::guard('tenant')->user()?->can('viewAny', Professor::class) ?? false,
+            ],
         ]);
     }
 }

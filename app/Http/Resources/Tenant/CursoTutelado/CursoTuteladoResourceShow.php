@@ -43,6 +43,7 @@ class CursoTuteladoResourceShow extends JsonResource
             'coordenador' => (bool) $prof->pivot->coordenador,
             'opap' => (bool) $prof->pivot->opap,
             'can' => [
+                'view' => $request->user()?->can('view', $prof) ?? false,
                 'update' => $request->user()?->can('update', $this->resource) ?? false,
                 'delete' => $request->user()?->can('delete', $this->resource) ?? false,
             ],

@@ -11,7 +11,6 @@ import {
   edit,
   show as showCurso,
 } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
-import { show as showCurso } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import { destroy } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
 import { destroy as destroySecretario } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoSecretarioController';
 import { useDialog } from '@/hooks/use-dialog';

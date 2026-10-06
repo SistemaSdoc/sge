@@ -8,11 +8,13 @@ import {
 import { ArrowRight } from 'lucide-react';
 import { router } from '@inertiajs/react';
 
-export function MetricItem({ label, value, href }) {
+export function MetricItem({ label, value, href, disabled = false }) {
   return (
     <Card
-      className="group cursor-pointer transition-all duration-200 hover:bg-muted/50"
-      onClick={() => router.visit(href)}
+      aria-disabled={disabled}
+      title={disabled ? 'Não tem permissão para abrir esta lista' : undefined}
+      className={`group transition-all duration-200 ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-muted/50'}`}
+      onClick={disabled ? undefined : () => router.visit(href)}
     >
       <CardHeader className="p-4">
         <CardDescription className="text-xs">{label}</CardDescription>

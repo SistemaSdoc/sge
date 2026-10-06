@@ -104,9 +104,21 @@ export function TabProfessores({
                 {professores.data.map((professor) => (
                   <TableRow
                     key={professor.id}
-                    className="hover:cursor-pointer"
-                    onClick={() =>
-                      router.visit(show({ professor: professor.id }).url)
+                    aria-disabled={!professor.can?.view}
+                    title={
+                      professor.can?.view
+                        ? undefined
+                        : 'Não tem permissão para abrir este perfil'
+                    }
+                    className={
+                      professor.can?.view
+                        ? 'cursor-pointer'
+                        : 'cursor-not-allowed opacity-60'
+                    }
+                    onClick={
+                      professor.can?.view
+                        ? () => router.visit(show({ professor: professor.id }).url)
+                        : undefined
                     }
                   >
                     <TableCell className="px-4 font-medium">

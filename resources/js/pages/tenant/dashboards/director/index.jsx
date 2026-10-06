@@ -11,6 +11,7 @@ export default function DirectorDashboard({
   metricas = [],
   accoes = [],
   eventos = [],
+  can = {},
 }) {
   const greeting = getGreeting();
   const todayFormatted = getTodayFormatted();
@@ -29,7 +30,7 @@ export default function DirectorDashboard({
 
       <DashboardSummary items={acoesComPendencias} />
 
-      <MetricsBar metrics={metricas} />
+      <MetricsBar metrics={metricas} canViewProfessores={can.viewProfessores} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <DashboardPanel title="Ações Pendentes" colSpan="lg:col-span-2">

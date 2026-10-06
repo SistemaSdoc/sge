@@ -289,7 +289,9 @@ final class SidebarMenuService
                     title: 'Professores',
                     href: action([ProfessorController::class, 'index']),
                     icon: 'Users',
-                    can: fn () => $gate->allows('viewAny', Professor::class),
+                    can: fn () => $gate->allows('viewAny', Professor::class)
+                        || $user->hasRole('Secretario do Curso'),
+                    disabled: ! $gate->allows('viewAny', Professor::class),
                 ),
 
                 new MenuItem(
