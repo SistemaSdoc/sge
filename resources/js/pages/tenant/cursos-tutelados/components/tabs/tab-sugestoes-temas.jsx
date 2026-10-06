@@ -45,6 +45,7 @@ export function TabSugestoesTemas({
   pagination = {},
   onPageChange,
   canManage = false,
+  tutelaExterna = false,
 }) {
   const [formularioAberto, setFormularioAberto] = useState(false);
   const [sugestaoEmEdicao, setSugestaoEmEdicao] = useState(null);
@@ -127,8 +128,9 @@ export function TabSugestoesTemas({
             Sugestões de temas ({pagination.total ?? sugestoes.length})
           </CardTitle>
           <CardDescription>
-            Registe temas de referência para orientar a escolha dos temas da PAP
-            neste curso.
+            {tutelaExterna
+              ? 'Temas de referência definidos pela instituição tutora para orientar a escolha dos temas da PAP neste curso.'
+              : 'Registe temas de referência para orientar a escolha dos temas da PAP neste curso.'}
           </CardDescription>
           {canManage && (
             <CardAction>
@@ -145,7 +147,11 @@ export function TabSugestoesTemas({
               variant="table"
               icon={BookOpenText}
               title="Nenhuma sugestão cadastrada"
-              description="Adicione temas de referência para este curso."
+              description={
+                tutelaExterna
+                  ? 'A instituição tutora ainda não registou sugestões de temas.'
+                  : 'Adicione temas de referência para este curso.'
+              }
               action={
                 canManage && {
                   label: 'Adicionar sugestão',

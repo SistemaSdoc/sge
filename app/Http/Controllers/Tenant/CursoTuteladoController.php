@@ -37,7 +37,8 @@ class CursoTuteladoController extends Controller
         private readonly UpdateCursoTutelado $updateCursoTutelado,
         private readonly DeleteCursoTutelado $deleteCursoTutelado,
         private readonly UploadCursoTuteladoDocumentos $uploadCursoTuteladoDocumentos,
-    ) {}
+    ) {
+    }
 
     /**
      * Apresenta os cursos tutelados de uma instituição.
@@ -154,7 +155,7 @@ class CursoTuteladoController extends Controller
             ? User::query()
                 ->where('instituicao_id', $instituicao->id)
                 ->role('Secretario do Curso', 'tenant')
-                ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', [
+                ->whereDoesntHave('roles', fn($query) => $query->whereIn('name', [
                     'Secretaria',
                     'Director',
                     'Subdirector',
@@ -162,10 +163,10 @@ class CursoTuteladoController extends Controller
                     'SuperAdmin',
 
                 ]))
-                ->whereDoesntHave('cursosSecretariados', fn ($query) => $query->whereKey($cursoTutelado->getKey()))
+                ->whereDoesntHave('cursosSecretariados', fn($query) => $query->whereKey($cursoTutelado->getKey()))
                 ->orderBy('nome')
                 ->get(['id', 'nome', 'email'])
-                ->map(fn (User $candidate): array => [
+                ->map(fn(User $candidate): array => [
                     'id' => $candidate->id,
                     'nome' => $candidate->nome,
                     'email' => $candidate->email,
@@ -262,15 +263,24 @@ class CursoTuteladoController extends Controller
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Documentos actualizados com sucesso.',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Documentos actualizados com sucesso.',
+                ]);
+    }
+
+    private function garantirTutelaPropria(CursoTutelado $cursoTutelado): void
+    {
+        abort_if(
+            $cursoTutelado->tipo_tutela === 'externa',
+            403,
+            'As sugestões deste curso são geridas pela instituição tutora.'
+        );
     }
 
     public function storeSugestaoTema(StoreSugestaoTemaPapRequest $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
         Gate::authorize('uploadDocumentosPap', $cursoTutelado);
-
+        $this->garantirTutelaPropria($cursoTutelado);
         $cursoTutelado->sugestoesTemas()->create($request->validated());
 
         return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão cadastrada.']);
@@ -283,6 +293,7 @@ class CursoTuteladoController extends Controller
         SugestaoTemaPap $sugestao
     ) {
         Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+        $this->garantirTutelaPropria($cursoTutelado);
         abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
 
         $sugestao->update($request->validated());
@@ -293,6 +304,7 @@ class CursoTuteladoController extends Controller
     public function destroySugestaoTema(Instituicao $instituicao, CursoTutelado $cursoTutelado, SugestaoTemaPap $sugestao)
     {
         Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+        $this->garantirTutelaPropria($cursoTutelado);
         abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
 
         $sugestao->delete();

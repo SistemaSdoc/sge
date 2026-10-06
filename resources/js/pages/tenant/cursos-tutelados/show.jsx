@@ -204,7 +204,10 @@ export default function Show({
             sugestoes={cursoTutelado.sugestoes_temas?.data ?? []}
             pagination={cursoTutelado.sugestoes_temas}
             onPageChange={handlePageChange('page_sugestoes')}
-            canManage={can?.uploadCriteriosPap}
+            tutelaExterna={cursoTutelado.tipo_tutela === 'externa'}
+            canManage={
+              can?.uploadCriteriosPap && cursoTutelado.tipo_tutela !== 'externa'
+            }
           />
         </TabsContent>
       </Tabs>
