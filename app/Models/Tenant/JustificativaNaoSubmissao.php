@@ -21,6 +21,7 @@ class JustificativaNaoSubmissao extends Model
     protected $fillable = [
         'prazo_prova_id',
         'professor_id',
+        'turma_id', 
         'motivo',
         'status',
         'avaliado_por',
@@ -65,6 +66,16 @@ class JustificativaNaoSubmissao extends Model
         return $this->belongsTo(Professor::class);
     }
 
+
+    /**
+     * Relacionamento com a turma.
+     */
+
+    public function turma()
+{
+    return $this->belongsTo(\App\Models\Tenant\Turma::class);
+}
+ 
     /**
      * Relacionamento com o usuário que avaliou (diretor).
      */
