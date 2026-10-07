@@ -40,7 +40,7 @@ class SubmissaoProvaController extends Controller
     {
         $professor = $this->getProfessorAutenticado();
 
-        Log::info('SubmissaoProva@index', [
+          Log::info('SubmissaoProva@index', [
             'user_id' => auth()->id(),
             'professor_id' => $professor?->id,
             'instituicao_id_user' => auth()->user()->instituicao_id,

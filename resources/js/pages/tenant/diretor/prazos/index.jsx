@@ -56,7 +56,6 @@ export default function Index({ prazos, filters, disciplinas, periodos, classes 
       <Head title="Gestão de Prazos de Provas" />
 
       <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
-        <div className="border border-border bg-card p-4 shadow-sm">
           <FiltrosPrazos
             filtros={filtros}
             disciplinas={disciplinas}
@@ -69,7 +68,6 @@ export default function Index({ prazos, filters, disciplinas, periodos, classes 
               aplicarFiltros({ status: '', disciplina_id: '', ano_letivo: '' });
             }}
           />
-        </div>
 
         <PrazosTable
           prazos={prazos.data}
