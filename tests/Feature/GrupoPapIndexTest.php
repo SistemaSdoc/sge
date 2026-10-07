@@ -16,8 +16,10 @@ use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
 use App\Services\Tenant\GrupoPap\GrupoPapService;
 use App\Services\Tenant\GrupoPapViewService;
+use App\Services\Tenant\Menu\SidebarMenuService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -104,6 +106,79 @@ test('grupo pap index returns accessible courses and filters groups by course', 
         ->and($gruposDoCursoA->first()->turma->cursoClasseTurno->cursoClasse->cursoTutelado->id)
         ->toBe($cursoA->id);
 });
+
+test('aluno can open the direct link to their own grupo pap', function () {
+    $instituicao = Instituicao::create([
+        'nome' => 'Instituição Teste',
+        'sigla' => 'IT',
+        'tipo' => 'colegio',
+        'email' => 'teste@escola.test',
+        'telefone' => '+244 999 999 999',
+        'provincia' => 'Luanda',
+        'endereco' => 'Rua Teste',
+        'status' => 1,
+        'descricao' => 'Instituição de teste',
+    ]);
+
+    $curso = Curso::create([
+        'nome' => 'Curso Teste',
+        'descricao' => 'Curso de teste',
+        'duracao_anos' => 1,
+        'status' => 1,
+    ]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'curso_id' => $curso->id,
+        'instituicao_id' => $instituicao->id,
+        'duracao_anos' => 1,
+    ]);
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+    ]);
+    $cursoClasse = CursoClasse::create([
+        'curso_tutelado_id' => $cursoTutelado->id,
+        'classe_id' => Classe::create(['nome' => '13ª', 'ordem' => 13])->id,
+    ]);
+    $cursoClasseTurno = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasse->id,
+        'turno_id' => Turno::create(['nome' => 'Manhã'])->id,
+    ]);
+    $turma = Turma::create([
+        'nome' => 'Turma PAP',
+        'max_alunos' => 30,
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+    ]);
+    $grupoPap = GrupoPap::create([
+        'turma_id' => $turma->id,
+        'nome_grupo' => 'Grupo do Aluno',
+        'tema_grupo' => 'Tema',
+        'status' => 'Em análise',
+    ]);
+
+    $user = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $user->assignRole(Role::findOrCreate('Aluno', 'tenant'));
+    $aluno = $user->aluno()->create([
+        'inscricao_id' => null,
+        'instituicao_id' => $instituicao->id,
+        'matricula' => 'AL-001',
+        'numero_processo' => 'AL-001',
+        'situacao' => 'activo',
+    ]);
+    $grupoPap->elementos()->create(['aluno_id' => $aluno->id]);
+
+    $this->actingAs($user, 'tenant');
+
+    $sidebar = app(SidebarMenuService::class)->build();
+    $papItem = collect($sidebar)
+        ->flatMap(fn (array $group) => $group['items'])
+        ->firstWhere('key', 'grupos-pap');
+
+    expect($papItem)->not->toBeNull()
+        ->and($papItem['title'])->toBe('Meu Grupo PAP');
+
+    $this->get($papItem['href'])->assertOk();
+});
+
 test('grupo pap independente pode ser criado sem professor tutor', function () {
     $instituicao = Instituicao::create([
         'nome' => 'Instituição Teste',

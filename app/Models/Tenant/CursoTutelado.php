@@ -7,6 +7,8 @@ use App\Models\Central\Tenant;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 
 #[Fillable([
     'instituicao_curso_id',
@@ -57,6 +59,14 @@ class CursoTutelado extends Model
             ->withTimestamps();
     }
 
+    public function secretarios(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'curso_tutelado_secretario', 'curso_tutelado_id', 'user_id')
+            ->using(CursoTuteladoSecretario::class)
+            ->withPivot('id')
+            ->withTimestamps();
+    }
+
     public function professores()
     {
         return $this->belongsToMany(
@@ -66,9 +76,49 @@ class CursoTutelado extends Model
             'professor_id'
         )
             ->using(CursoTuteladoProfessor::class)
-            ->withPivot('id', 'tipo', 'coordenador')
+            ->withPivot(['id', 'tipo', 'coordenador', 'opap'])
             ->withTimestamps();
     }
+
+    public function sugestoesTemas()
+    {
+        return $this->hasMany(SugestaoTemaPap::class, 'curso_tutelado_id');
+    }
+
+    public function resolverSugestoesTemas(): Collection
+{
+    if ($this->tipo_tutela !== 'externa' || ! $this->curso_tutelado_shared_id) {
+        return $this->sugestoesTemas;
+    }
+
+    $shared = $this->relationLoaded('cursoTuteladoShared')
+        ? $this->cursoTuteladoShared
+        : $this->cursoTuteladoShared()->first();
+
+    if (! $shared?->tenant_tutor_id || ! $shared?->curso_id) {
+        return collect();
+    }
+
+    $tenantTutor = Tenant::find($shared->tenant_tutor_id);
+
+    if (! $tenantTutor) {
+        return collect();
+    }
+
+    return $tenantTutor->run(function () use ($shared): Collection {
+        $tutor = CursoTutelado::query()
+            ->where('tipo_tutela', 'propria')
+            ->whereHas(
+                'instituicaoCurso',
+                fn ($q) => $q->where('curso_id', $shared->curso_id)
+            )
+            ->first();
+
+        return $tutor
+            ? $tutor->sugestoesTemas()->get(['id', 'titulo', 'descricao', 'ativo'])
+            : collect();
+    });
+}
 
     /**
      * Resolve os paths dos documentos PAP.
@@ -83,7 +133,7 @@ class CursoTutelado extends Model
         ];
 
         // Tem documentos locais — usa-os directamente
-        if ($this->criterios_pap_path || $this->manual_pt_path || $this->estrutura_trabalho_pap_path) {
+        if ($this->criterios_pap_path || $this->manual_pt_path || $this->estrutura_trabalho_pap_path || $this->sugestoes_temas_pap_path) {
             return [
                 'criterios_pap_path' => $this->criterios_pap_path,
                 'manual_pt_path' => $this->manual_pt_path,
@@ -92,7 +142,7 @@ class CursoTutelado extends Model
         }
 
         // Tutela externa — vai buscar ao tenant tutor
-        if ($this->tipo_tutela !== 'externa' || ! $this->curso_tutelado_shared_id) {
+        if ($this->tipo_tutela !== 'externa' || !$this->curso_tutelado_shared_id) {
             return $empty;
         }
 
@@ -101,13 +151,13 @@ class CursoTutelado extends Model
             ? $this->cursoTuteladoShared
             : $this->cursoTuteladoShared()->first();
 
-        if (! $shared?->tenant_tutor_id || ! $shared?->curso_id) {
+        if (!$shared?->tenant_tutor_id || !$shared?->curso_id) {
             return $empty;
         }
 
         $tenantTutor = Tenant::find($shared->tenant_tutor_id);
 
-        if (! $tenantTutor) {
+        if (!$tenantTutor) {
             return $empty;
         }
 
@@ -116,7 +166,7 @@ class CursoTutelado extends Model
                 ->where('tipo_tutela', 'propria')
                 ->whereHas(
                     'instituicaoCurso',
-                    fn ($q) => $q->where('curso_id', $shared->curso_id)
+                    fn($q) => $q->where('curso_id', $shared->curso_id)
                 )
                 ->first(['criterios_pap_path', 'manual_pt_path', 'estrutura_trabalho_pap_path']);
 

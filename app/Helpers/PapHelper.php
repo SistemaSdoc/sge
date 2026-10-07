@@ -18,18 +18,23 @@ class PapHelper
         string $nomeCurso,
         ?string $actorTenantId = null,
     ): string {
-        if (! $utilizador) {
+        if (!$utilizador) {
             if ($actorTenantId) {
-                return "Grupo disciplinar do curso de {$nomeCurso} do {$instituicaoTutora->sigla}";
+                return "Grupo disciplinar do curso {$nomeCurso} do {$instituicaoTutora->sigla}";
             }
 
             return '—';
         }
 
         if ($utilizador->instituicao_id === $instituicaoTutora->id) {
-            return "Grupo disciplinar do curso de {$nomeCurso} do {$instituicaoTutora->sigla}";
+            return "Grupo disciplinar do curso {$nomeCurso} do {$instituicaoTutora->sigla}";
         }
 
         return $utilizador->nome;
+    }
+
+    public static function rotuloGrupoDisciplinar(string $nomeCurso, ?string $sigla): string
+    {
+        return trim("Grupo disciplinar do curso {$nomeCurso}" . ($sigla ? " do {$sigla}" : ''));
     }
 }

@@ -11,6 +11,7 @@ use App\Http\Requests\Tenant\User\UpdateUserRequest;
 use App\Models\Tenant\User;
 use App\Services\Tenant\RoleManagementService;
 use App\Services\Tenant\Users\UserManagementService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -25,7 +26,7 @@ class UserController extends Controller
         private readonly DeleteUser $deleteUser,
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
@@ -33,7 +34,8 @@ class UserController extends Controller
         Gate::forUser($user)->authorize('viewAny', User::class);
 
         return Inertia::render('tenant/users/index', [
-            'users' => $this->userManagementService->index($user),
+            'users' => $this->userManagementService->index($user, $request->string('search')->toString()),
+            'filters' => $request->only('search'),
             'roles' => $this->userManagementService->roles(),
             'allPermissions' => $this->roleManagementService->permissions(),
             'groupedPermissions' => $this->roleManagementService->groupedPermissions(),
@@ -42,28 +44,30 @@ class UserController extends Controller
 
     public function create()
     {
-        Gate::authorize('create', User::class);
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
 
-        /** @var User $actor */
-        $actor = Auth::guard('tenant')->user();
+        Gate::forUser($user)->authorize('create', User::class);
 
         return Inertia::render('tenant/users/create', [
-            'roles' => $this->userManagementService->roles($actor),
+            'roles' => $this->userManagementService->roles($user),
             'currentUser' => [
-                'id' => $actor?->id,
-                'isSubdirector' => $actor?->isSubdirector(),
-                'isSuperAdmin' => $actor?->isSuperAdmin(),
+                'id' => $user?->id,
+                'isSubdirector' => $user?->isSubdirector(),
+                'isSuperAdmin' => $user?->isSuperAdmin(),
             ],
         ]);
     }
 
     public function store(StoreUserRequest $request)
     {
-        Gate::authorize('create', User::class);
-
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
+        Gate::forUser($user)->authorize('create', User::class);
+
         $data = $request->validated();
+
         $data['instituicao_id'] = $user->instituicao_id;
 
         $this->createUser->handle($data);
@@ -88,44 +92,48 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        Gate::authorize('update', $user);
+        /** @var User $currentUser */
+        $currentUser = Auth::guard('tenant')->user();
 
-        /** @var User $actor */
-        $actor = Auth::guard('tenant')->user();
+        Gate::forUser($currentUser)->authorize('update', $user);
 
         return Inertia::render('tenant/users/edit', [
             'user' => [
                 ...$user->load('roles:id,name')->only('id', 'nome', 'email', 'telefone', 'roles'),
                 'isDirector' => $user->isDirector(),
             ],
-            'roles' => $this->userManagementService->roles($actor, $user),
+            'roles' => $this->userManagementService->roles($currentUser, $user),
             'currentUser' => [
-                'id' => $actor?->id,
-                'isSubdirector' => $actor?->isSubdirector(),
-                'isSuperAdmin' => $actor?->isSuperAdmin(),
+                'id' => $currentUser?->id,
+                'isSubdirector' => $currentUser?->isSubdirector(),
+                'isDirector' => $currentUser?->isDirector(),
+                'isSuperAdmin' => $currentUser?->isSuperAdmin(),
             ],
         ]);
     }
 
     public function update(UpdateUserRequest $request, User $user)
     {
-        Gate::authorize('update', $user);
+        /** @var User $currentUser */
+        $currentUser = Auth::guard('tenant')->user();
 
-        /** @var User $actor */
-        $actor = Auth::guard('tenant')->user();
+        Gate::forUser($currentUser)->authorize('update', $user);
 
-        if ($actor?->isSubdirector() && $user->is($actor)) {
+        if ($currentUser?->isSubdirector() && $currentUser->is($user)) {
             abort(403, 'Não pode alterar o seu próprio perfil de funções.');
         }
 
-        $this->updateUser->handle($user, $request->validated());
+        $this->updateUser->handle($user, $request->validated(), $currentUser);
 
         return to_route('tenant.dashboard.users.index')->with('success', 'Usuário actualizado com sucesso.');
     }
 
     public function destroy(User $user)
     {
-        Gate::authorize('delete', $user);
+        /** @var User $currentUser */
+        $currentUser = Auth::guard('tenant')->user();
+
+        Gate::forUser($currentUser)->authorize('delete', $user);
 
         $this->deleteUser->handle($user);
 

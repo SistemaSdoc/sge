@@ -75,6 +75,8 @@ class PermissionSeeder extends Seeder
             'classeturnodisciplina.create' => 'Atribuir disciplina a uma turma',
             'classeturnodisciplina.update' => 'Editar disciplina atribuída à turma',
             'classeturnodisciplina.delete' => 'Remover disciplina da turma',
+            'classeturnodisciplina.definirProfessor' => 'Definir professor da disciplina na turma',
+            'classeturnodisciplina.gerirHorarios' => 'Definir horários da disciplina na turma',
 
             // Pautas
             'pautas.viewAny' => 'Ver lista de pautas',
@@ -166,6 +168,7 @@ class PermissionSeeder extends Seeder
             'usuarios.create' => 'Criar novo utilizador',
             'usuarios.update' => 'Editar dados de um utilizador',
             'usuarios.delete' => 'Eliminar utilizador',
+            'usuarios.gerir' => 'Gerir permissões individuais de um utilizador',
 
             // Acessos
             'acessos.viewAny' => 'Ver permissões de acesso',
@@ -193,17 +196,6 @@ class PermissionSeeder extends Seeder
             'documentos.view' => 'Ver detalhes de um documento',
             'documentos.emitir' => 'Emitir documentos (certificados, declarações, etc.)',
             'documentos.exportar' => 'Exportar documentos',
-
-            // Coordenador
-            'coordenador.view-curso' => 'Ver curso sob coordenação',
-            'coordenador.update-curso' => 'Editar curso sob coordenação',
-            'coordenador.manage-professores' => 'Gerir professores do curso',
-            'coordenador.manage-turmas' => 'Gerir turmas do curso',
-            'coordenador.view-pautas' => 'Ver pautas do curso',
-            'coordenador.update-pautas' => 'Editar pautas do curso',
-            'coordenador.create-notas' => 'Lançar notas do curso',
-            'coordenador.update-notas' => 'Editar notas do curso',
-            'coordenador.view-relatorios' => 'Ver relatórios do curso',
 
         ];
 

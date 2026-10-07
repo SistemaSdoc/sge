@@ -33,14 +33,20 @@ import {
   create,
 } from '@/actions/App/Http/Controllers/Tenant/InstituicaoController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function InstituicaoTable({
   instituicoes,
+  filters,
   can,
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['instituicoes', 'filters'],
+  });
   const isEmpty = !instituicoes || instituicoes.length === 0;
 
   return (
@@ -50,7 +56,7 @@ export function InstituicaoTable({
           <CardTitle>Instituições</CardTitle>
           <CardDescription>Lista de intituições cadastradas</CardDescription>
           <CardAction>
-            {can.create_instituicao && (
+            {can.create && (
               <Button asChild>
                 <Link href={create().url}>Adicionar</Link>
               </Button>
@@ -59,12 +65,13 @@ export function InstituicaoTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={BuildingIcon}
-              title="Nenhuma instituição cadastrada"
-              description="Comece adicionando a primeira instituição à tabela"
+              title={applied ? 'Nenhuma instituição encontrada' : 'Nenhuma instituição cadastrada'}
+              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando a primeira instituição à tabela'}
               action={{
                 label: 'Adicionar Instituição',
                 href: create().url,
@@ -86,10 +93,10 @@ export function InstituicaoTable({
                 {instituicoes.map((instituicao) => (
                   <TableRow
                     key={instituicao.id}
-                    aria-disabled={!instituicao.can?.view_instituicao}
+                    aria-disabled={!instituicao.can?.view}
                     className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-70 aria-disabled:hover:bg-transparent"
                     onClick={() => {
-                      if (instituicao.can?.view_instituicao) {
+                      if (instituicao.can?.view) {
                         router.visit(show(instituicao.id).url);
                       }
                     }}
@@ -103,8 +110,7 @@ export function InstituicaoTable({
                     <TableCell>{instituicao.tipo}</TableCell>
 
                     <TableCell className="px-4 text-right">
-                      {(instituicao.can?.edit_instituicao ||
-                        instituicao.can?.delete_instituicao) && (
+                      {(instituicao.can?.edit || instituicao.can?.delete) && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -118,7 +124,7 @@ export function InstituicaoTable({
                           </DropdownMenuTrigger>
 
                           <DropdownMenuContent align="end">
-                            {instituicao.can?.edit_instituicao && (
+                            {instituicao.can?.edit && (
                               <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -129,12 +135,11 @@ export function InstituicaoTable({
                               </DropdownMenuItem>
                             )}
 
-                            {instituicao.can?.edit_instituicao &&
-                              instituicao.can?.delete_instituicao && (
+                            {instituicao.can?.edit && instituicao.can?.delete && (
                                 <DropdownMenuSeparator />
                               )}
 
-                            {instituicao.can?.delete_instituicao && (
+                            {instituicao.can?.delete && (
                               <DropdownMenuItem
                                 variant="destructive"
                                 onClick={(e) => {

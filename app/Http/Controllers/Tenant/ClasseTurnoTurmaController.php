@@ -40,6 +40,16 @@ class ClasseTurnoTurmaController extends Controller
 
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
+        abort_unless(
+            (string) $cursoTutelado->instituicaoCurso?->instituicao_id === (string) $instituicao->getKey(),
+            404,
+        );
+
+        if ($user->hasRole('Secretario do Curso')) {
+            abort_unless($user->cursosSecretariados()->whereKey($cursoTutelado->getKey())->exists(), 404);
+        }
+
         $user->loadMissing('roles.permissions', 'permissions');
 
         // Filtro ano lectivo
@@ -66,7 +76,7 @@ class ClasseTurnoTurmaController extends Controller
             ])
             ->paginate(5);
 
-        return Inertia::render('tenant/pautas/index', [
+        return Inertia::render('tenant/pautas/turmas/index', [
             'instituicao' => $instituicao->only('id'),
             'cursoTutelado' => [
                 'id' => $cursoTutelado->id,
@@ -189,6 +199,14 @@ class ClasseTurnoTurmaController extends Controller
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
+        abort_unless(
+            (string) $cursoTutelado->instituicaoCurso?->instituicao_id === (string) $instituicao->getKey()
+                && (string) $cursoClasse->curso_tutelado_id === (string) $cursoTutelado->getKey()
+                && (string) $cursoClasseTurno->curso_classe_id === (string) $cursoClasse->getKey()
+                && (string) $turma->curso_classe_turno_id === (string) $cursoClasseTurno->getKey(),
+            404,
+        );
+
         Gate::authorize('view', $turma);
 
         $user->loadMissing('roles.permissions', 'permissions');
@@ -227,14 +245,16 @@ class ClasseTurnoTurmaController extends Controller
             ->classeTurnoDisciplinas()
             ->where('ano_lectivo_id', $anoLectivoId)
             ->with([
-                'disciplina:id,nome,sigla',
+                'disciplina' => fn ($q) => $q->withTrashed()->select(['id', 'nome', 'sigla', 'componente', 'deleted_at']),
                 'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
                 'horarios',
-            ]);
+            ])
+            ->OrderBy('created_at', 'desc');
 
-        // Se é professor, filtrar apenas as disciplinas que ele leciona
-        if ($user->hasRole('Professor')) {
+        // Professores comuns vêem apenas as disciplinas que lecionam.
+        // Coordenadores vêem todas as disciplinas do curso em modo de consulta.
+        if ($user->hasRole('Professor') && ! $user->hasRole('Coordenador')) {
             $professorId = $user->professor?->id;
 
             if ($professorId) {
@@ -262,7 +282,7 @@ class ClasseTurnoTurmaController extends Controller
             return $grupo;
         });
 
-        $temAlunosEmRecurso = TurmaAluno::query()
+        $temAlunosEmRecurso = ! $user->hasRole('Secretario do Curso') && TurmaAluno::query()
             ->where('turma_id', $turma->id)
             ->where('activo', true)
             ->whereIn('resultado', ['recurso', 'aprovado_recurso', 'reprovado_recurso'])
@@ -313,7 +333,7 @@ class ClasseTurnoTurmaController extends Controller
                     'create' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),
                 ],
                 'disciplinas' => [
-                    'create' => $user->hasAnyRole(['Director', 'Subdirector']),
+                    'create' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Coordenador']),
                 ],
                 'grupos' => [
                     'create' => $user->can('create', GrupoPap::class),

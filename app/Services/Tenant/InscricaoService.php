@@ -4,17 +4,19 @@ namespace App\Services\Tenant;
 
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Candidato;
+use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
+use App\Notifications\PerfilIncompletoNotificacao;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Traits\NotificaAluno;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Spatie\Permission\Models\Role;
-use App\Notifications\PerfilIncompletoNotificacao;
 
 class InscricaoService
 {
@@ -31,25 +33,39 @@ class InscricaoService
      */
     public function criar(array $dados, ?Instituicao $instituicao = null): Inscricao
     {
-        return DB::transaction(function () use ($dados) {
-           $candidato = Candidato::create([
-                'nome'  => $dados['nome'],
-                'bi'    => $dados['bi'],
+        return DB::transaction(function () use ($dados, $instituicao) {
+            $cursoClasseTurno = CursoClasseTurno::query()
+                ->with('cursoClasse.cursoTutelado.instituicaoCurso')
+                ->findOrFail($dados['curso_classe_turno_id']);
+
+            $cursoInstituicaoId = $cursoClasseTurno
+                ->cursoClasse
+                ?->cursoTutelado
+                ?->instituicaoCurso
+                ?->instituicao_id;
+
+            if ($instituicao !== null && (string) $instituicao->getKey() !== (string) $cursoInstituicaoId) {
+                throw new InvalidArgumentException('A instituição não corresponde ao curso seleccionado.');
+            }
+
+            $candidato = Candidato::create([
+                'nome' => $dados['nome'],
+                'bi' => $dados['bi'],
                 'email' => $dados['email'],
 
                 // preenchidos depois pelo próprio aluno
-                'numero_estudante' => null,
-                'telefone'         => null,
-                'morada'           => null,
-                'genero'           => null,
-                'nacionalidade'    => null,
-                'naturalidade'     => null,
-                'filiacao'         => null,
-                'data_nascimento'  => null,
-                'municipio'        => null,
+                'numero_estudante' => 'INS-'.now()->year.'-'.Str::ulid()->toString(),
+                'telefone' => null,
+                'morada' => null,
+                'genero' => null,
+                'nacionalidade' => null,
+                'naturalidade' => null,
+                'filiacao' => null,
+                'data_nascimento' => null,
+                'municipio' => null,
 
                 // ─── Controlo ───
-                'perfil_completo'  => false,
+                'perfil_completo' => false,
             ]);
             $anoLectivoId = $dados['ano_lectivo_id'] ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
@@ -161,7 +177,7 @@ class InscricaoService
         if ($user->wasRecentlyCreated) {
             $this->notificarAlunoCriado($user, '12345678');
 
-            $user->notify(new PerfilIncompletoNotificacao());
+            $user->notify(new PerfilIncompletoNotificacao);
         }
 
         if ($turmaId) {

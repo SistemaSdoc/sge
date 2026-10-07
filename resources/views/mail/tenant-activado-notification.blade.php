@@ -1,168 +1,216 @@
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html dir="ltr" lang="en">
+<!DOCTYPE html>
+<html lang="pt">
 
 <head>
-  <link rel="preload" as="image" href="../../public/images/logo-sge.png" />
-  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
-  <meta name="x-apple-disable-message-reformatting" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="x-apple-disable-message-reformatting">
+    <title>Conta activada com sucesso</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f1f3f4;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            font-size: 14px;
+            color: #202124;
+            padding: 24px 0;
+        }
+
+        .email-wrapper {
+            max-width: 480px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+
+        .header {
+            text-align: center;
+            padding: 32px 40px 24px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #e8eaed;
+            margin: 0 40px;
+        }
+
+        .credential-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 10px 24px;
+        }
+
+        .credential-item .item-text .label {
+            font-size: 14px;
+            color: #202124;
+            word-break: break-word;
+        }
+
+        .credential-item .item-text .sublabel {
+            font-size: 12px;
+            color: #5f6368;
+            margin-top: 2px;
+        }
+
+        .security-note {
+            margin: 20px 24px;
+            background: #f8f9fa;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+
+        .security-note .text .title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 4px;
+        }
+
+        .security-note .text p {
+            font-size: 12px;
+            color: #5f6368;
+            line-height: 1.5;
+        }
+
+        .cta-wrapper {
+            text-align: center;
+            padding: 8px 24px 24px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: #1a73e8;
+            color: #ffffff !important;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 10px 24px;
+            border-radius: 4px;
+            letter-spacing: 0.25px;
+        }
+
+        .access-link {
+            padding: 0 24px 20px;
+            font-size: 13px;
+            color: #202124;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+
+        .access-link a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+
+        /* ---- Footer ---- */
+        .footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e8eaed;
+            text-align: center;
+        }
+
+        .footer p {
+            font-size: 11px;
+            color: #5f6368;
+            line-height: 1.6;
+        }
+
+        .footer .company {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #80868b;
+        }
+
+        @media only screen and (max-width: 520px) {
+            body {
+                padding: 0;
+            }
+
+            .email-wrapper {
+                width: 100%;
+                border-radius: 0;
+            }
+        }
+    </style>
 </head>
 
-<body
-  style="background-color:rgb(255,255,255);margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-right:0;padding-left:0">
-  <!--$-->
-  <!--html-->
-  <!--head-->
-  <div style="display:none;overflow:hidden;line-height:1px;opacity:0;max-height:0;max-width:0" data-skip-in-text="true">
-    A conta do {{ $nomeInstituicao }} foi activada. Já pode aceder à
-    plataforma.
-    <div>
-       ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿ ‌​‍‎‏﻿
+<body>
+
+    <div class="email-wrapper">
+
+        <div class="header"></div>
+
+        <hr class="divider">
+
+        <br>
+        <p style="padding: 0 24px; font-size: 14px; line-height: 1.6; color: #202124;">
+            Olá, <strong>{{ $nomeUser }}</strong>!
+        </p>
+
+        <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
+            A conta da instituição <strong>{{ $nomeInstituicao }} ({{ $sigla }})</strong> foi aprovada
+            e já pode aceder à plataforma PGE.
+        </p>
+
+        <p class="section-label" style="padding: 0 24px 12px; font-size: 13px; color: #202124;">
+            Dados de acesso à sua conta
+        </p>
+
+        <div class="credential-item">
+            <div class="item-text">
+                <div class="label">Email de acesso</div>
+                <div class="sublabel">{{ $email }}</div>
+            </div>
+        </div>
+
+        
+            <div class="credential-item">
+                <div class="item-text">
+                    <div class="label">Password temporária</div>
+                    <div class="sublabel">12345678</div>
+                </div>
+            </div>
+
+
+        <div class="security-note">
+            <div class="text">
+                <div class="title">Proteja a sua conta</div>
+                <p>
+                    Por motivos de segurança, recomendamos que altere a sua
+                    password após realizar o primeiro acesso e que não partilhe
+                    as suas credenciais com terceiros.
+                </p>
+            </div>
+        </div>
+
+        <div class="cta-wrapper">
+            <a href="{{ $url }}" class="cta-button" target="_blank">Aceder à plataforma</a>
+        </div>
+
+
+        <div class="footer">
+            <p>
+                Este email foi enviado automaticamente pela plataforma
+                {{ config('app.name') }}.
+                Por favor, não responda directamente a esta mensagem.
+            </p>
+            <p class="company">
+                © {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.
+            </p>
+        </div>
+
     </div>
-  </div>
-  <!--body-->
-  <table border="0" width="100%" cellpadding="0" cellspacing="0" role="presentation" align="center">
-    <tbody>
-      <tr>
-        <td
-          style='margin-right:auto;margin-left:auto;margin-bottom:auto;margin-top:auto;background-color:rgb(255,255,255);padding-right:0.5rem;padding-left:0.5rem;font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"'>
-          <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
-            style="max-width:465px;margin-right:auto;margin-left:auto;margin-bottom:40px;margin-top:40px;border-radius:0.25rem;border-style:solid;border-width:1px;border-color:rgb(234,234,234);padding:20px">
-            <tbody>
-              <tr style="width:100%">
-                <td>
-                  {{--<table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
-                    style="margin-top:32px">
-                    <tbody>
-                      <tr>
-                        <td>
-                          <img alt="Logo SGE" height="37" src="../../public/images/logo-sge.png"
-                            style="display:block;outline:none;border:none;text-decoration:none;margin-right:auto;margin-left:auto;margin-bottom:0;margin-top:0"
-                            width="40" />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>--}}
-                  <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
-                    style="margin-top:32px;text-align:center">
-                    <tbody>
-                      <tr>
-                        <td>
-                          <h1
-                            style="margin-right:0;margin-left:0;margin-bottom:20px;margin-top:20px;padding:0;text-align:center;font-size:24px;font-weight:400;color:rgb(0,0,0)">
-                            Conta activada com sucesso!
-                          </h1>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <p style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-                    Olá, <strong>{{ $nomeUser }}</strong>!
-                  </p>
-                  <p style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-                    A conta da instituição
-                    <!-- -->
-                    <strong>{{ $nomeInstituicao }}
-                      <!-- -->
-                      (
-                      <!-- -->{{ $sigla }}
-                      <!-- -->)
-                    </strong>
-                    <!-- -->foi aprovada e já pode aceder à plataforma SGE.
-                  </p>
-                  <hr
-                    style="width:100%;border:none;border-top:1px solid #eaeaea;margin-right:0;margin-left:0;margin-bottom:26px;margin-top:26px;border-style:solid;border-width:1px;border-color:rgb(234,234,234)" />
-                  <p
-                    style="font-size:14px;line-height:24px;font-weight:600;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-                    As suas credenciais de acesso:
-                  </p>
-                  <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
-                    style="border-radius:0.25rem;background-color:rgb(244,244,245);padding-right:16px;padding-left:16px;padding-bottom:12px;padding-top:12px">
-                    <tbody>
-                      <tr>
-                        <td>
-                          <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0"
-                            role="presentation">
-                            <tbody style="width:100%">
-                              <tr style="width:100%">
-                                <td data-id="__react-email-column">
-                                  <p
-                                    style="font-size:13px;line-height:24px;margin:0;color:rgb(102,102,102);margin-top:0;margin-bottom:0;margin-left:0;margin-right:0">
-                                    Email
-                                  </p>
-                                  <p
-                                    style="font-size:14px;line-height:24px;margin:0;font-weight:600;color:rgb(0,0,0);margin-top:0;margin-bottom:0;margin-left:0;margin-right:0">
-                                    {{ $email }}
-                                  </p>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                          <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0"
-                            role="presentation" style="margin-top:8px">
-                            <tbody style="width:100%">
-                              <tr style="width:100%">
-                                <td data-id="__react-email-column">
-                                  <p
-                                    style="font-size:13px;line-height:24px;margin:0;color:rgb(102,102,102);margin-top:0;margin-bottom:0;margin-left:0;margin-right:0">
-                                    Password temporária
-                                  </p>
-                                  <p
-                                    style="font-size:14px;line-height:24px;margin:0;font-weight:600;color:rgb(0,0,0);margin-top:0;margin-bottom:0;margin-left:0;margin-right:0">
-                                    12345678
-                                  </p>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <p style="font-size:12px;line-height:24px;color:rgb(102,102,102);margin-top:16px;margin-bottom:16px">
-                    Altere a password após o primeiro acesso.
-                  </p>
-                  <hr
-                    style="width:100%;border:none;border-top:1px solid #eaeaea;margin-right:0;margin-left:0;margin-bottom:26px;margin-top:26px;border-style:solid;border-width:1px;border-color:rgb(234,234,234)" />
-                  <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation"
-                    style="margin-top:32px;margin-bottom:32px;text-align:center">
-                    <tbody>
-                      <tr>
-                        <td>
-                          <a href="{{ $url }}"
-                            style="line-height:100%;text-decoration:none;display:inline-block;max-width:100%;mso-padding-alt:0px;border-radius:0.25rem;background-color:rgb(0,0,0);padding-right:20px;padding-left:20px;padding-bottom:12px;padding-top:12px;text-align:center;font-size:12px;font-weight:600;color:rgb(255,255,255);text-decoration-line:none"
-                            target="_blank"><span>
-                              <!--[if mso]><i style="mso-font-width:500%;mso-text-raise:18" hidden>&#8202;&#8202;</i><![endif]-->
-                            </span><span
-                              style="max-width:100%;display:inline-block;line-height:120%;mso-padding-alt:0px;mso-text-raise:9px">Aceder
-                              à Plataforma</span><span>
-                              <!--[if mso]><i style="mso-font-width:500%" hidden>&#8202;&#8202;&#8203;</i><![endif]-->
-                            </span></a>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <p style="font-size:14px;line-height:24px;color:rgb(0,0,0);margin-top:16px;margin-bottom:16px">
-                    ou copie e cole este link no seu navegador:
-                    <!-- -->
-                    <a href="{{ $url }}" style="color:rgb(21,93,252);text-decoration-line:none" target="_blank">{{ $url
-                      }}</a>
-                  </p>
-                  <hr
-                    style="width:100%;border:none;border-top:1px solid #eaeaea;margin-right:0;margin-left:0;margin-bottom:26px;margin-top:26px;border-style:solid;border-width:1px;border-color:rgb(234,234,234)" />
-                  <p style="font-size:12px;line-height:24px;color:rgb(102,102,102);margin-top:16px;margin-bottom:16px">
-                    Se não reconhece esta conta, contacte o nosso suporte
-                    imediatamente.
-                  </p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <!--/$-->
+
 </body>
 
 </html>

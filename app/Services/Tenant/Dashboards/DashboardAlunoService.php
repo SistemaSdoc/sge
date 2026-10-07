@@ -25,29 +25,29 @@ class DashboardAlunoService
                 $data = $hoje->copy()->addDays($offset);
                 $weekday = $data->dayOfWeekIso;
 
-                return [$weekday => [
-                    'offset' => $offset,
-                    'label' => null,
-                    'weekday' => $weekday,
-                    'weekday_name' => $this->obterNomeDia($weekday),
-                    'date' => $data->toDateString(),
-                ]];
+                return [
+                    $weekday => [
+                        'offset' => $offset,
+                        'label' => null,
+                        'weekday' => $weekday,
+                        'weekday_name' => $this->obterNomeDia($weekday),
+                        'date' => $data->toDateString(),
+                    ],
+                ];
             });
 
         $diasSemana = $diasMapa->keys()->all();
 
         return $aluno->turmas()
             ->wherePivot('activo', true)
-            ->with(['cursoClasseTurno.classeTurnoDisciplinas' => function ($query) use ($diasSemana) {
-                $query->with([
-                    'horarios' => function ($query) use ($diasSemana) {
-                        $query->whereIn('dia_semana', $diasSemana)
-                            ->orderBy('hora_inicio');
-                    },
-                    'turmaDisciplinaProfessores.professor.user',
-                    'disciplina',
-                ]);
-            }])
+            ->with([
+                'cursoClasseTurno.classeTurnoDisciplinas' => function ($query) {
+                    $query->with([
+                        'turmaDisciplinaProfessores.professor.user',
+                        'disciplina',
+                    ]);
+                },
+            ])
             ->get()
             ->flatMap(function ($turma) use ($diasMapa) {
                 return $turma->cursoClasseTurno->classeTurnoDisciplinas
@@ -55,7 +55,13 @@ class DashboardAlunoService
                         $professor = $disciplina->turmaDisciplinaProfessores
                             ->first(fn ($tdp) => $tdp->turma_id === $turma->id)?->professor;
 
-                        return $disciplina->horarios->map(function ($horario) use ($disciplina, $professor, $diasMapa) {
+                        $horarios = $disciplina->horarios()
+                            ->whereIn('dia_semana', array_keys($diasMapa->all()))
+                            ->where('turma_id', $turma->id)
+                            ->orderBy('hora_inicio')
+                            ->get();
+
+                        return $horarios->map(function ($horario) use ($disciplina, $professor, $diasMapa) {
                             $meta = $diasMapa[$horario->dia_semana];
 
                             return [
@@ -99,10 +105,12 @@ class DashboardAlunoService
         // define a `notas` relation, so accessing `$turma->notas` causes the RelationNotFoundException.
         $notas = TurmaAluno::where('aluno_id', $aluno->id)
             ->where('activo', true)
-            ->with(['notas' => function ($query) {
-                $query->with('turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina')
-                    ->orderByDesc('periodo');
-            }])
+            ->with([
+                'notas' => function ($query) {
+                    $query->with('turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina')
+                        ->orderByDesc('periodo');
+                },
+            ])
             ->get()
             ->flatMap(fn ($turmaAluno) => $turmaAluno->notas);
 

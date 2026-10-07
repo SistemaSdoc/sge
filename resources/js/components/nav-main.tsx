@@ -33,27 +33,38 @@ export function NavMain({ groups = [] }: { groups: NavGroup[] }) {
 
               return (
                 <SidebarMenuItem key={item.key}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isCurrentUrl(item.href)}
-                    tooltip={{ children: item.title }}
-                  >
-                    <Link
-                      href={item.href}
-                      prefetch
-                      className="[&_span]:text-sidebar-foreground hover:[&_span]:font-bold hover:[&_span]:text-sidebar-foreground hover:[&>svg]:text-ring"
+                  {item.disabled ? (
+                    <SidebarMenuButton
+                      disabled
+                      tooltip={{ children: item.title }}
+                      className="cursor-not-allowed opacity-50"
                     >
                       {Icon && <Icon />}
-                      <span
-                        className={cn(
-                          isCurrentUrl(item.href) && 'font-bold',
-                          'font-bold',
-                        )}
+                      <span className="font-bold">{item.title}</span>
+                    </SidebarMenuButton>
+                  ) : (
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isCurrentUrl(item.href)}
+                      tooltip={{ children: item.title }}
+                    >
+                      <Link
+                        href={item.href}
+                        prefetch
+                        className="[&_span]:text-sidebar-foreground hover:[&_span]:font-bold hover:[&_span]:text-sidebar-foreground hover:[&>svg]:text-ring"
                       >
-                        {item.title}
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
+                        {Icon && <Icon />}
+                        <span
+                          className={cn(
+                            isCurrentUrl(item.href) && 'font-bold',
+                            'font-bold',
+                          )}
+                        >
+                          {item.title}
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  )}
                 </SidebarMenuItem>
               );
             })}

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Nota;
-use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\NotaAlunoService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -13,7 +12,6 @@ use Inertia\Inertia;
 class NotaAlunoController extends Controller
 {
     public function __construct(
-        private readonly AnoLectivoResolverService $anoLectivoResolverService,
         private NotaAlunoService $notaAlunoService,
     ) {}
 
@@ -22,13 +20,17 @@ class NotaAlunoController extends Controller
      */
     public function index()
     {
-        Gate::authorize('viewAny', Nota::class);
+        $user = Auth::guard('tenant')->user();
 
-        $aluno = Auth::guard('tenant')->user()->aluno;
+        Gate::forUser($user)->authorize('viewAny', Nota::class);
+
+        $aluno = $user->aluno;
+
         $classes = $this->notaAlunoService->classesDisponiveis($aluno);
+
         $classeId = request('classe_id') ?? collect($classes)->first()['id'] ?? null;
 
-        return Inertia::render('tenant/aluno/minhas-notas/index', [
+        return Inertia::render('tenant/minhas-notas/index', [
             'notas' => $this->notaAlunoService->notas($aluno, $classeId),
             'classes' => $classes,
             'classeId' => $classeId,

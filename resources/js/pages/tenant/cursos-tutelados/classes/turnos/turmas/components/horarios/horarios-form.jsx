@@ -16,12 +16,17 @@ export function HorariosForm({
   onSubmit,
   isLoading = false,
   defaultValues = null,
+  readOnly = false,
 }) {
   const { horarios, toggle, update, algumAtivo, getPayload, DIAS_SEMANA } =
     useHorarios(defaultValues);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (readOnly) {
+      return;
+    }
+
     onSubmit(getPayload());
   };
 
@@ -44,6 +49,7 @@ export function HorariosForm({
                   <label className="flex cursor-pointer items-center gap-2">
                     <Checkbox
                       checked={h.ativo}
+                      disabled={readOnly}
                       onCheckedChange={() => toggle(id)}
                     />
                     <span className={h.ativo ? 'font-medium' : ''}>{nome}</span>
@@ -53,7 +59,7 @@ export function HorariosForm({
                   <Input
                     type="time"
                     value={h.hora_inicio}
-                    disabled={!h.ativo}
+                    disabled={readOnly || !h.ativo}
                     onChange={(e) => update(id, 'hora_inicio', e.target.value)}
                     className="w-28"
                   />
@@ -62,7 +68,7 @@ export function HorariosForm({
                   <Input
                     type="time"
                     value={h.hora_fim}
-                    disabled={!h.ativo}
+                    disabled={readOnly || !h.ativo}
                     onChange={(e) => update(id, 'hora_fim', e.target.value)}
                     className="w-28"
                   />
@@ -73,18 +79,20 @@ export function HorariosForm({
         </TableBody>
       </Table>
 
-      {!algumAtivo && (
+      {!readOnly && !algumAtivo && (
         <p className="text-destructive">Selecione pelo menos um dia.</p>
       )}
 
-      <Button
-        type="submit"
-        disabled={isLoading || !algumAtivo}
-        className="w-full"
-      >
-        {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
-        {isLoading ? 'A definrir.' : 'Definir Horários'}
-      </Button>
+      {!readOnly && (
+        <Button
+          type="submit"
+          disabled={isLoading || !algumAtivo}
+          className="w-full"
+        >
+          {isLoading && <Loader2 className="mr-2 size-4 animate-spin" />}
+          {isLoading ? 'A definrir.' : 'Definir Horários'}
+        </Button>
+      )}
     </form>
   );
 }

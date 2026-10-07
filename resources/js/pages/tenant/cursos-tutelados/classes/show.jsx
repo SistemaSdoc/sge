@@ -319,9 +319,11 @@ export default function Show({
                               <TableHead className="text-center">
                                 Nome
                               </TableHead>
-                              <TableHead className="px-4 text-right">
-                                Acções
-                              </TableHead>
+                              {can.disciplina.delete && (
+                                <TableHead className="px-4 text-right">
+                                  Acções
+                                </TableHead>
+                              )}
                             </TableRow>
                           </TableHeader>
 
@@ -329,26 +331,34 @@ export default function Show({
                             {disciplinas.data.map((disc) => (
                               <TableRow key={disc.id}>
                                 <TableCell className="px-4 font-medium">
-                                  {disc.disciplina.sigla}
+                                  {disc.disciplina?.sigla ?? '—'}
                                 </TableCell>
 
-                                <TableCell className="text-center">
-                                  {disc.disciplina.nome}
+                                <TableCell className="flex items-center justify-center gap-2 text-center">
+                                  {disc.disciplina?.nome ??
+                                    'Disciplina arquivada'}
+                                  {disc.disciplina?.deleted_at && (
+                                    <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+                                      Arquivada
+                                    </span>
+                                  )}
                                 </TableCell>
 
-                                <TableCell className="px-4 text-right">
-                                  <Button
-                                    size="xs"
-                                    variant="destructive"
-                                    className="text-[10px]"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteDisciplina(disc.id);
-                                    }}
-                                  >
-                                    Remover
-                                  </Button>
-                                </TableCell>
+                                {can.disciplina.delete && (
+                                  <TableCell className="px-4 text-right">
+                                    <Button
+                                      size="xs"
+                                      variant="destructive"
+                                      className="text-[10px]"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteDisciplina(disc.id);
+                                      }}
+                                    >
+                                      Remover
+                                    </Button>
+                                  </TableCell>
+                                )}
                               </TableRow>
                             ))}
                           </TableBody>

@@ -1,12 +1,8 @@
 import { Form } from '@inertiajs/react';
-import { router, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-import {
-  create,
-  index,
-  store,
-} from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
 
 import InscricaoForm from './components/inscricao-form';
 
@@ -17,9 +13,11 @@ export default function Create() {
     anoLectivoActual,
     entity_label: entityLabel,
     tem_nota_teste: temNotaTeste,
+    cursoTuteladoId,
+    cursoInstituicaoId,
   } = usePage().props;
 
-  const [cursoId, setCursoId] = useState(undefined);
+  const [cursoId, setCursoId] = useState(cursos?.[0]?.id);
   const [classeId, setClasseId] = useState(undefined);
   const [cursoClasseTurnoId, setCursoClasseTurnoId] = useState(undefined);
   const [turmaId, setTurmaId] = useState(undefined);
@@ -42,25 +40,15 @@ export default function Create() {
       action={store.url()}
       method="post"
       transform={(data) => {
-        const filiacao =
-          data.filiacao ||
-          [data.nome_pai, data.nome_mae].filter(Boolean).join(' e ') ||
-          null;
-
         return {
           ...data,
           curso_classe_turno_id: cursoClasseTurnoId,
           turma_id: turmaId || undefined,
           nota_teste: notaTeste || undefined,
-          numero_estudante:
-            data.numero_estudante ||
-            `INS-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`,
-          genero: data.genero || 'M',
-          filiacao,
           ano_lectivo_id: data.ano_lectivo_id || anoLectivoActual || undefined,
+          ...(cursoTuteladoId ? { curso_tutelado_id: cursoTuteladoId } : {}),
         };
       }}
-      onSuccess={() => router.visit(index.url())}
     >
       {({ errors, processing }) => (
         <InscricaoForm
@@ -68,6 +56,7 @@ export default function Create() {
           processing={processing}
           cursos={cursos}
           cursoId={cursoId}
+          lockedCourse={Boolean(cursoTuteladoId)}
           setCursoId={(val) => {
             setCursoId(val);
             setClasseId(undefined);

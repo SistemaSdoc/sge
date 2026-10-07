@@ -19,13 +19,21 @@ import {
 
 import { show } from '@/actions/App/Http/Controllers/Tenant/Colegios/ColegioController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
+import { EmptyState } from '@/components/empty-state';
+import { School } from 'lucide-react';
 
 export function ColegioTable({
   instituicao,
   colegios,
+  filters,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['colegios', 'filters'],
+  });
   const lista = Array.isArray(colegios) ? colegios : (colegios?.data ?? []);
   const isEmpty = lista.length === 0;
 
@@ -40,6 +48,15 @@ export function ColegioTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
+          {isEmpty ? (
+            <EmptyState
+              variant="table"
+              icon={School}
+              title={applied ? 'Nenhum colégio encontrado' : 'Nenhum colégio disponível'}
+              description={applied ? 'Tenta ajustar a pesquisa.' : 'Não existem colégios com cursos tutelados.'}
+            />
+          ) : (
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/72">
@@ -73,6 +90,7 @@ export function ColegioTable({
               ))}
             </TableBody>
           </Table>
+          )}
         </CardContent>
 
         <TablePagination pagination={pagination} onPageChange={onPageChange} />

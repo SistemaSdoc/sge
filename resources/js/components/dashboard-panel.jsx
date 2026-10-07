@@ -1,12 +1,18 @@
-// components/dashboard-card.jsx
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
-export function DashboardPanel({ title, children, colSpan }) {
+export function DashboardPanel({ title, description, children, colSpan }) {
   return (
     <div className={colSpan}>
       <Card className="flex h-full flex-col">
-        <CardHeader className="border-b pb-4">
-          <CardTitle className="text-base">{title}</CardTitle>
+        <CardHeader className="border-b">
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
         </CardHeader>
 
         <CardContent className="flex-1 overflow-y-auto pt-4">

@@ -206,7 +206,8 @@ class DocumentosController extends Controller
         $documentos = ItemPagavel::where('instituicao_id', $user->instituicao_id)
             ->where('tipo', 'documento')
             ->where('ativo', 1)
-            ->with('documento') // ← adiciona
+            ->with('documento')
+            ->orderBy('created_at', 'desc')
             ->get(['id', 'nome', 'curso_classe_id', 'valor'])
             ->map(fn ($item) => [
                 'id' => $item->id,

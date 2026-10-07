@@ -31,6 +31,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import {
   create,
   show,
@@ -60,7 +62,11 @@ export default function PagamentosTable({
   exportarReciboFn,
   pagination = {},
   onPageChange,
+  filters,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['pagamentos', 'filters'],
+  });
   const isEmpty = pagamentos.length === 0;
 
   return (
@@ -81,12 +87,13 @@ export default function PagamentosTable({
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title="Nenhum pagamento registado"
-            description="Comece por registar o primeiro pagamento."
+            title={applied ? 'Nenhum pagamento encontrado' : 'Nenhum pagamento registado'}
+            description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece por registar o primeiro pagamento.'}
             action={
               can?.create
                 ? {

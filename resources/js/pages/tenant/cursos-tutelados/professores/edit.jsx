@@ -8,20 +8,24 @@ import { show } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoControl
 import ProfessorForm from './components/professor-form';
 
 export default function Edit() {
-  const { vinculo, professores, instituicaoId, cursoTuteladoId } =
-    usePage().props;
+  const { vinculo, instituicaoId, cursoTuteladoId } = usePage().props;
 
-  const [professorId] = useState(vinculo.professor_id);
   const [tipo, setTipo] = useState(vinculo.tipo);
   const [coordenador, setCoordenador] = useState(vinculo.coordenador ?? false);
+  const [opap, setOpap] = useState(vinculo.opap ?? false);
 
   return (
     <Form
-      {...update(vinculo.id).form()}
+      {...update.form({
+        instituicao: instituicaoId,
+        cursoTutelado: cursoTuteladoId,
+        professor: vinculo.id,
+      })}
       transform={(data) => ({
         ...data,
         tipo,
         coordenador,
+        opap,
       })}
       onSuccess={() =>
         router.visit(
@@ -34,16 +38,16 @@ export default function Edit() {
     >
       {({ errors, processing }) => (
         <ProfessorForm
-          professores={professores}
-          professorId={professorId}
-          setProfessorId={() => {}}
+          mode="edit"
+          professorNome={vinculo.nome}
           tipo={tipo}
           setTipo={setTipo}
           coordenador={coordenador}
           setCoordenador={setCoordenador}
+          opap={opap}
+          setOpap={setOpap}
           errors={errors}
           processing={processing}
-          disableProfessor
         />
       )}
     </Form>

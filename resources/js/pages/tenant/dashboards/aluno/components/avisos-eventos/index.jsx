@@ -1,12 +1,19 @@
 import { ItemGroup } from '@/components/ui/item';
 import { AvisoEventoItem } from './item';
+import { EmptyState } from '@/components/empty-state';
+import { Calendar1 } from 'lucide-react';
 
 export function AvisosEventos({ data = [] }) {
   if (!data.length) {
     return (
-      <p className="py-8 text-center text-xs text-muted-foreground">
-        Sem avisos ou eventos
-      </p>
+      <div className="overflow-hidden">
+        <EmptyState
+          icon={Calendar1}
+          title="Sem avisos ou eventos"
+          description="Não há avisos ou eventos por visualizar."
+          variant="table"
+        />
+      </div>
     );
   }
 

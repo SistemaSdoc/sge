@@ -34,13 +34,19 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Tenant/RegraAvaliacaoController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function RegraTable({
   regras,
+  filters,
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['regrasAvaliacao', 'filters'],
+  });
   const isEmpty = regras?.data.length === 0;
 
   return (
@@ -57,12 +63,13 @@ export function RegraTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={LayersIcon}
-              title="Nenhuma regra cadastrada"
-              description="Comece adicionando a primeira regra à tabela"
+              title={applied ? 'Nenhuma regra encontrada' : 'Nenhuma regra cadastrada'}
+              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando a primeira regra à tabela'}
               action={{
                 label: 'Adicionar Regra',
                 href: create().url,

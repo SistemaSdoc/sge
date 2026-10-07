@@ -30,7 +30,12 @@ final class ConfirmarMatricula
         Turma $turmaNova,
         Turma $turmaAtual,
     ): ConfirmacaoMatriculaModel {
-        return DB::transaction(function () use ($instituicao, $aluno, $turmaNova, $turmaAtual): ConfirmacaoMatriculaModel {
+        return DB::transaction(function () use (
+            $instituicao,
+            $aluno,
+            $turmaNova,
+            $turmaAtual
+        ): ConfirmacaoMatriculaModel {
             /** @var TurmaAluno|null $turmaAlunoActual */
             $turmaAlunoActual = TurmaAluno::query()
                 ->with([
@@ -83,7 +88,9 @@ final class ConfirmarMatricula
                 ->firstOrFail();
 
             $cursoTuteladoActualId = $turmaActual->cursoClasseTurno?->cursoClasse?->curso_tutelado_id;
+
             $cursoTuteladoDestinoId = $turmaDestino->cursoClasseTurno?->cursoClasse?->curso_tutelado_id;
+
             $instituicaoDestinoId = $turmaDestino->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao_id;
 
             if ($instituicaoDestinoId !== $instituicao->id || $cursoTuteladoActualId !== $cursoTuteladoDestinoId) {
@@ -107,7 +114,9 @@ final class ConfirmarMatricula
             }
 
             $ordemActual = $turmaActual->cursoClasseTurno?->cursoClasse?->classe?->ordem;
+
             $ordemDestino = $turmaDestino->cursoClasseTurno?->cursoClasse?->classe?->ordem;
+
             $ordemEsperada = in_array($situacao, ['transita', 'transita_com_deficiencia', 'aprovado_recurso'], true)
                 && $ordemActual !== null
                 ? $ordemActual + 1

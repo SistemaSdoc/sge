@@ -29,6 +29,12 @@ class CursoClasseController extends Controller
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse
     ) {
+        abort_unless(
+            (string) $cursoClasse->curso_tutelado_id === (string) $cursoTutelado->getKey()
+                && (string) $cursoTutelado->instituicaoCurso?->instituicao_id === (string) $instituicao->getKey(),
+            404,
+        );
+
         $this->authorize('view', $cursoClasse);
 
         /** @var User $user */
@@ -49,28 +55,29 @@ class CursoClasseController extends Controller
         $turnoActual = $cursoClasse->turnos->firstWhere('id', $turnoId);
 
         $turmas = $turnoActual
-        ? $turnoActual->turmas()
-            ->where('ano_lectivo_id', $anoLectivoId)
-            ->withCount('alunosActivos')
-            ->orderBy('nome')
-            ->paginate(7, ['*'], 'page_turmas')
-            ->through(function (Turma $turma) use ($user) {
-                return [
-                    'id' => $turma->id,
-                    'nome' => $turma->nome,
-                    'alunos_activos_count' => $turma->alunosActivos()->count(),
-                    'can' => [
-                        'view' => $user->can('view', $turma),
-                        'edit' => $user->can('update', $turma),
-                    ],
-                ];
-            })
-        : $this->emptyPaginator('page_turmas');
+            ? $turnoActual->turmas()
+                ->where('ano_lectivo_id', $anoLectivoId)
+                ->withCount('alunosActivos')
+                ->orderBy('nome')
+                ->paginate(7, ['*'], 'page_turmas')
+                ->through(function (Turma $turma) use ($user) {
+                    return [
+                        'id' => $turma->id,
+                        'nome' => $turma->nome,
+                        'alunos_activos_count' => $turma->alunosActivos()->count(),
+                        'can' => [
+                            'view' => $user->can('view', $turma),
+                            'edit' => $user->can('update', $turma),
+                        ],
+                    ];
+                })
+            : $this->emptyPaginator('page_turmas');
 
         $disciplinas = $turnoActual
             ? $turnoActual->classeTurnoDisciplinas()
                 ->where('ano_lectivo_id', $anoLectivoId)
-                ->with('disciplina:id,nome,sigla,componente')
+                ->with(['disciplina' => fn ($q) => $q->withTrashed()->select(['id', 'nome', 'sigla', 'componente', 'deleted_at'])])
+                ->orderBy('created_at', 'desc')
                 ->paginate(7, ['*'], 'page_disciplinas')
             : $this->emptyPaginator('page_disciplinas');
 
@@ -98,6 +105,7 @@ class CursoClasseController extends Controller
             'disciplina' => [
                 'create' => $user->can('update', $cursoTutelado)
                     && $user->can('create', ClasseTurnoDisciplina::class),
+                'delete' => $user->can('classeturnodisciplina.delete'),
             ],
             'turma' => [
                 'create' => $user->can('update', $cursoTutelado)

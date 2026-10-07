@@ -31,7 +31,10 @@ import {
   destroy,
 } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
 import { create as createNotas } from '@/actions/App/Http/Controllers/Tenant/NotaDisciplinaController';
-import { create as createProfessor } from '@/actions/App/Http/Controllers/Tenant/InstituicaoCurso/TurmaDisciplinaProfessorController';
+import {
+  create as createProfessor,
+  destroy as destroyProfessor,
+} from '@/actions/App/Http/Controllers/Tenant/InstituicaoCurso/TurmaDisciplinaProfessorController';
 import TablePagination from '@/components/table-pagination';
 import { toast } from 'sonner';
 import { useDialog } from '@/hooks/use-dialog';
@@ -50,9 +53,9 @@ export function TabDisciplinas({
   const canCreate = Boolean(can.create);
 
   const { openForm, closeDialog, deleteConfirm } = useDialog();
+
   const abrirHorariosDialog = (disciplina, e) => {
     e.stopPropagation();
-
     const action = storeHorario.form({
       instituicao: params.instituicao.id,
       cursoTutelado: params.cursoTutelado.id,
@@ -64,17 +67,18 @@ export function TabDisciplinas({
 
     openForm({
       title: `Horários de ${disciplina?.nome}`,
-      description: 'Configure os horários de aulas para esta disciplina',
+      description: disciplina?.can?.manage_schedule
+        ? 'Configure os horários de aulas para esta disciplina'
+        : 'Consulte os horários de aulas desta disciplina',
       content: (
         <HorariosForm
           defaultValues={disciplina?.horarios}
+          readOnly={!disciplina?.can?.manage_schedule}
           onSubmit={(payload) => {
             router.post(
               action,
               { horarios: payload },
-              {
-                onSuccess: () => closeDialog(),
-              },
+              { onSuccess: () => closeDialog() },
             );
           }}
         />
@@ -100,20 +104,68 @@ export function TabDisciplinas({
           }).url,
           {
             preserveScroll: true,
-            data: {
-              ano_lectivo_id: anoLectivoSelecionado,
-            },
-
-            onSuccess: () => {
-              toast.success('Disciplina removida com sucesso');
-            },
-            onError: (errors) => {
-              toast.error(errors.message);
-            },
+            data: { ano_lectivo_id: anoLectivoSelecionado },
+            onSuccess: () => toast.success('Disciplina removida com sucesso'),
+            onError: (errors) => toast.error(errors.message),
           },
         ),
     });
   };
+
+  const handleRemoveProfessor = (disciplina) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description: 'O professor será desassociado desta disciplina na turma.',
+      confirmLabel: 'Desassociar',
+      confirmFn: () =>
+        router.delete(
+          destroyProfessor({
+            instituicao: params.instituicao.id,
+            cursoTutelado: params.cursoTutelado.id,
+            cursoClasse: params.cursoClasse.id,
+            cursoClasseTurno: params.cursoClasseTurno.id,
+            turma: params.turma,
+            classeTurnoDisciplina: disciplina.id,
+          }).url,
+          {
+            preserveScroll: true,
+            data: { ano_lectivo_id: anoLectivoSelecionado },
+            onSuccess: () =>
+              toast.success('Professor desassociado com sucesso'),
+            onError: (errors) => toast.error(errors.message),
+          },
+        ),
+    });
+  };
+
+  const handleDisciplinaClick = (disciplina) => {
+    if (disciplina?.arquivada) {
+      toast.warning('Esta disciplina está arquivada.');
+      return;
+    }
+
+    if (!disciplina.professor) {
+      toast.warning('Esta disciplina ainda não tem professor atribuído.');
+      return;
+    }
+
+    if (disciplina?.can?.view) {
+      router.visit(
+        createNotas(
+          {
+            instituicao: params.instituicao.id,
+            cursoTutelado: params.cursoTutelado.id,
+            cursoClasse: params.cursoClasse.id,
+            cursoClasseTurno: params.cursoClasseTurno.id,
+            turma: params.turma,
+            classeTurnoDisciplina: disciplina.id,
+          },
+          { query: { ano_lectivo_id: anoLectivoId } },
+        ).url,
+      );
+    }
+  };
+
   return (
     <Card className="grid grid-rows-[auto_1fr_auto] gap-0">
       <CardHeader className="border-b">
@@ -163,9 +215,7 @@ export function TabDisciplinas({
                     },
                     { query: { ano_lectivo_id: anoLectivoId } },
                   ).url,
-                  {
-                    data: { redirect_to: redirectTo },
-                  },
+                  { data: { redirect_to: redirectTo } },
                 ),
               variant: 'outline',
             }}
@@ -181,52 +231,32 @@ export function TabDisciplinas({
             </TableHeader>
 
             <TableBody>
-              {disciplinas.map((disciplina) => {
-                return (
-                  <TableRow
-                    key={disciplina.id}
-                    aria-disabled={!disciplina?.can?.view}
-                    className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:hover:bg-transparent"
-                    onClick={() => {
-                      if (!disciplina.professor) {
-                        toast.warning(
-                          'Esta disciplina ainda não tem professor atribuído.',
-                        );
-                        return;
-                      }
+              {disciplinas.map((disciplina) => (
+                <TableRow
+                  key={disciplina.id}
+                  aria-disabled={
+                    disciplina?.arquivada || !disciplina?.can?.view
+                  }
+                  className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:hover:bg-transparent"
+                  onClick={() => handleDisciplinaClick(disciplina)}
+                >
+                  <TableCell className="px-4 font-medium">
+                    <span>{disciplina?.nome}</span>
+                    {disciplina?.arquivada && (
+                      <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+                        Arquivada
+                      </span>
+                    )}
+                  </TableCell>
 
-                      if (disciplina?.can?.view) {
-                        router.visit(
-                          createNotas(
-                            {
-                              instituicao: params.instituicao.id,
-                              cursoTutelado: params.cursoTutelado.id,
-                              cursoClasse: params.cursoClasse.id,
-                              cursoClasseTurno: params.cursoClasseTurno.id,
-                              turma: params.turma,
-                              classeTurnoDisciplina: disciplina.id,
-                            },
-                            {
-                              query: {
-                                ano_lectivo_id: anoLectivoId,
-                              },
-                            },
-                          ).url,
-                        );
-                      }
-                    }}
-                  >
-                    <TableCell className="px-4 font-medium">
-                      {disciplina?.nome}
-                    </TableCell>
+                  <TableCell>
+                    {disciplina.professor?.nome ?? (
+                      <Minus size={15} className="text-muted-foreground" />
+                    )}
+                  </TableCell>
 
-                    <TableCell>
-                      {disciplina.professor?.nome ?? (
-                        <Minus size={15} className="text-muted-foreground" />
-                      )}
-                    </TableCell>
-
-                    <TableCell className="px-4 text-right">
+                  <TableCell className="px-4 text-right">
+                    {!disciplina?.arquivada && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -255,11 +285,7 @@ export function TabDisciplinas({
                                       turma: params.turma,
                                       classeTurnoDisciplina: disciplina.id,
                                     },
-                                    {
-                                      query: {
-                                        ano_lectivo_id: anoLectivoId,
-                                      },
-                                    },
+                                    { query: { ano_lectivo_id: anoLectivoId } },
                                   ).url,
                                 );
                               }}
@@ -271,24 +297,30 @@ export function TabDisciplinas({
                           <DropdownMenuItem
                             onClick={(e) => abrirHorariosDialog(disciplina, e)}
                           >
-                            Definir horários
+                            {disciplina?.can?.manage_schedule
+                              ? 'Definir horários'
+                              : 'Visualizar horários'}
                           </DropdownMenuItem>
 
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteDisciplina(disciplina.id);
-                            }}
-                          >
-                            Remover
-                          </DropdownMenuItem>
+                          {disciplina.professor &&
+                            disciplina?.can?.detach_professor && (
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveProfessor(disciplina);
+                                }}
+                              >
+                                Desassociar professor
+                              </DropdownMenuItem>
+                            )}
+
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         )}

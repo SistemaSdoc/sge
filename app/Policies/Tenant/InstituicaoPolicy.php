@@ -8,10 +8,10 @@ use App\Models\Tenant\User;
 class InstituicaoPolicy
 {
     /**
-     * Determina se o utilizador pode listar todas as instituições.
+     * Determina se o usuário pode listar todas as instituições.
      *
-     * Nenhum role local tem esta permissão.
-     * SuperAdmin é tratado globalmente pelo Gate::before().
+     * Nenhum role local possui esta permissão. O SuperAdmin é tratado
+     * globalmente pelo Gate::before().
      */
     public function viewAny(User $user): bool
     {
@@ -19,10 +19,10 @@ class InstituicaoPolicy
     }
 
     /**
-     * Determina se o utilizador pode ver a instituição.
+     * Determina se o usuário pode consultar uma instituição.
      *
-     * Requer a permission 'instituicoes.view' e que o utilizador
-     * pertença à mesma instituição que está a tentar aceder.
+     * Requer a permissão 'instituicoes.view' e que o usuário pertença
+     * à mesma instituição que está a consultar.
      */
     public function view(User $user, Instituicao $instituicao): bool
     {
@@ -30,9 +30,9 @@ class InstituicaoPolicy
     }
 
     /**
-     * Determina se o utilizador pode criar instituições.
+     * Determina se o usuário pode criar instituições.
      *
-     * Exclusivo do SuperAdmin via Gate::before().
+     * Esta operação permanece exclusiva do SuperAdmin através do Gate::before().
      */
     public function create(User $user): bool
     {
@@ -40,10 +40,10 @@ class InstituicaoPolicy
     }
 
     /**
-     * Determina se o utilizador pode actualizar a instituição.
+     * Determina se o usuário pode actualizar uma instituição.
      *
-     * Requer a permission 'instituicoes.update' e que o utilizador
-     * pertença à mesma instituição que está a tentar editar.
+     * Requer a permissão 'instituicoes.update' e que o usuário pertença
+     * à mesma instituição que está a editar.
      */
     public function update(User $user, Instituicao $instituicao): bool
     {
@@ -51,9 +51,9 @@ class InstituicaoPolicy
     }
 
     /**
-     * Determina se o utilizador pode apagar a instituição.
+     * Determina se o usuário pode eliminar uma instituição.
      *
-     * Exclusivo do SuperAdmin via Gate::before().
+     * Esta operação permanece exclusiva do SuperAdmin através do Gate::before().
      */
     public function delete(User $user, Instituicao $instituicao): bool
     {
@@ -61,9 +61,9 @@ class InstituicaoPolicy
     }
 
     /**
-     * Determina se o utilizador pode restaurar a instituição.
+     * Determina se o usuário pode restaurar uma instituição.
      *
-     * Exclusivo do SuperAdmin via Gate::before().
+     * Esta operação permanece exclusiva do SuperAdmin através do Gate::before().
      */
     public function restore(User $user, Instituicao $instituicao): bool
     {
@@ -71,9 +71,9 @@ class InstituicaoPolicy
     }
 
     /**
-     * Determina se o utilizador pode apagar a instituição permanentemente.
+     * Determina se o usuário pode eliminar permanentemente uma instituição.
      *
-     * Exclusivo do SuperAdmin via Gate::before().
+     * Esta operação permanece exclusiva do SuperAdmin através do Gate::before().
      */
     public function forceDelete(User $user, Instituicao $instituicao): bool
     {

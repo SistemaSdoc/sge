@@ -1,4 +1,4 @@
-import { Download, FileText, Filter } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
 import { useState } from 'react';
 
 import { EmptyState } from '@/components/empty-state';
@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { TableSearch } from '@/components/table-search';
 import {
   Table,
   TableBody,
@@ -26,6 +26,7 @@ import { ModalEmitirDocumento } from './modal-emitir-documento';
 
 export function DocumentoTable({ documentos, classes = [] }) {
   const [search, setSearch] = useState('');
+  const [appliedSearch, setAppliedSearch] = useState('');
   const [documentoActivo, setDocumentoActivo] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -33,7 +34,7 @@ export function DocumentoTable({ documentos, classes = [] }) {
     ? documentos
     : (documentos?.data ?? []);
   const filtrados = lista.filter((documento) =>
-    documento?.nome?.toLowerCase().includes(search.toLowerCase()),
+    documento?.nome?.toLowerCase().includes(appliedSearch.toLowerCase()),
   );
 
   const isEmpty = filtrados.length === 0;
@@ -45,29 +46,21 @@ export function DocumentoTable({ documentos, classes = [] }) {
 
   return (
     <>
-      <Card className="gap-0">
+      <Card className="gap-0 pb-0">
         <CardHeader className="border-b">
           <CardTitle>Documentos</CardTitle>
           <CardDescription>
             Lista de documentos disponíveis para emissão
           </CardDescription>
 
-          <CardAction className="flex gap-3">
-            <Input
-              placeholder="Digite para pesquisar..."
-              className="w-64"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-
-            <Button variant="outline">
-              <Filter />
-              Filtrar
-            </Button>
-          </CardAction>
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch
+            value={search}
+            onChange={setSearch}
+            onSubmit={() => setAppliedSearch(search.trim())}
+          />
           {isEmpty ? (
             <EmptyState
               variant="table"

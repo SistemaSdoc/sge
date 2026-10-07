@@ -8,14 +8,20 @@ use Spatie\Permission\Models\Role;
 
 class UserManagementService
 {
-    public function index(User $actor): LengthAwarePaginator
+    public function index(User $actor, ?string $search = null): LengthAwarePaginator
     {
         return User::query()
-            ->with('roles:id,name')
+            ->with([
+                'roles:id,name',
+                'roles.permissions:id,name',
+                'permissions:id,name',
+            ])
             ->when(! $actor->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $actor->instituicao_id))
+            ->search($search)
             ->orderBy('nome')
             ->orderBy('id')
             ->paginate(15)
+            ->withQueryString()
             ->through(function (User $user) use ($actor): array {
                 return [
                     'id' => $user->getKey(),
@@ -25,12 +31,17 @@ class UserManagementService
                     'avatar' => $user->avatar,
                     'instituicao_id' => $user->instituicao_id,
                     'roles' => $user->getRoleNames()->values()->all(),
-                    'directPermissions' => $user->getDirectPermissions()->pluck('name')->values()->all(),
-                    'inheritedPermissions' => $user->getPermissionsViaRoles()->pluck('name')->values()->all(),
+                    'directPermissions' => $user->permissions->pluck('name')->values()->all(),
+                    'inheritedPermissions' => $user->roles
+                        ->flatMap(fn ($role) => $role->permissions)
+                        ->pluck('name')
+                        ->unique()
+                        ->values()
+                        ->all(),
                     'can' => [
                         'update' => $actor->can('update', $user),
                         'delete' => $actor->can('delete', $user),
-                        'manage_permissions' => $actor->can('update', $user),
+                        'manage_permissions' => $actor->can('managePermissions', $user),
                     ],
                 ];
             });

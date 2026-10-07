@@ -49,8 +49,15 @@ export function UserPermissionsForm({
     !currentUser?.isSuperAdmin &&
     currentUser?.id !== user?.id,
   );
+  const isPermissionFormLocked =
+    processing || isLockedSelfPermissionAssignment || isProtectedDirectorUser;
 
   const inheritedPermissions = new Set(user?.inheritedPermissions ?? []);
+  const permissionErrors = Object.entries(errors ?? {})
+    .filter(
+      ([field]) => field === 'permissions' || field.startsWith('permissions.'),
+    )
+    .map(([, message]) => message);
 
   const permissionGroups = groupedPermissions.length
     ? groupedPermissions
@@ -85,6 +92,10 @@ export function UserPermissionsForm({
 
   const togglePermission = (permission, checked) => {
     const value = permission.value ?? permission;
+
+    if (inheritedPermissions.has(value)) {
+      return;
+    }
 
     setData(
       'permissions',
@@ -160,6 +171,8 @@ export function UserPermissionsForm({
                                     permission.value ?? permission;
                                   const permissionLabel =
                                     permission.label ?? permissionValue;
+                                  const isInheritedPermission =
+                                    inheritedPermissions.has(permissionValue);
 
                                   return (
                                     <label
@@ -171,9 +184,14 @@ export function UserPermissionsForm({
                                           permissionValue,
                                         )}
                                         disabled={
-                                          processing ||
-                                          isLockedSelfPermissionAssignment ||
-                                          isProtectedDirectorUser
+                                          isPermissionFormLocked ||
+                                          isInheritedPermission
+                                        }
+                                        className={
+                                          !isInheritedPermission &&
+                                          !isPermissionFormLocked
+                                            ? 'group-has-disabled/field:opacity-100'
+                                            : undefined
                                         }
                                         onCheckedChange={(checked) =>
                                           togglePermission(permission, checked)
@@ -181,9 +199,7 @@ export function UserPermissionsForm({
                                       />
                                       <span className="break-all">
                                         {permissionLabel}
-                                        {inheritedPermissions.has(
-                                          permissionValue,
-                                        ) && (
+                                        {isInheritedPermission && (
                                           <span className="ml-1 text-[10px] text-muted-foreground">
                                             (herdada)
                                           </span>
@@ -213,8 +229,14 @@ export function UserPermissionsForm({
                     </p>
                   )}
 
-                  {errors.permissions && (
-                    <FieldError>{errors.permissions}</FieldError>
+                  {permissionErrors.length > 0 && (
+                    <div role="alert" aria-live="polite" className="space-y-1">
+                      {permissionErrors.map((message, index) => (
+                        <FieldError key={`${index}-${message}`}>
+                          {message}
+                        </FieldError>
+                      ))}
+                    </div>
                   )}
                 </Field>
 

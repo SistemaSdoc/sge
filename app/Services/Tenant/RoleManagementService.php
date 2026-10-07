@@ -53,7 +53,7 @@ class RoleManagementService
             ->keyBy('name');
 
         $allowedPermissionNames = $actor?->isSubdirector()
-            ? array_flip($this->permissions($actor))
+            ? array_flip(collect($this->permissions($actor))->pluck('value')->all())
             : null;
 
         $grouped = collect($this->permissionGroups())
@@ -68,6 +68,7 @@ class RoleManagementService
                         $name,
                         $tenantPermissions->get($name)?->label,
                     ))
+                    ->values()
                     ->all(),
             ])
             ->filter(fn (array $group) => ! empty($group['permissions']))
@@ -89,15 +90,17 @@ class RoleManagementService
         return $ordered;
     }
 
-    public function index(): LengthAwarePaginator
+    public function index(?string $search = null): LengthAwarePaginator
     {
         return Role::query()
             ->where('guard_name', 'tenant')
             ->where('name', '!=', 'SuperAdmin')
+            ->when(filled($search), fn ($query) => $query->where('name', 'like', '%'.addcslashes(trim((string) $search), '\\%_').'%'))
             ->withCount('users')
             ->with('permissions:id,name,label')
             ->orderBy('name')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
     }
 
     /** @return array<int, array{value: string, label: string}> */
@@ -202,6 +205,8 @@ class RoleManagementService
                 'classeturnodisciplina.create',
                 'classeturnodisciplina.update',
                 'classeturnodisciplina.delete',
+                'classeturnodisciplina.definirProfessor',
+                'classeturnodisciplina.gerirHorarios',
             ],
             'Pautas' => [
                 'pautas.viewAny',

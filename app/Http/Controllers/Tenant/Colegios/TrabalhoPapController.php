@@ -146,6 +146,7 @@ class TrabalhoPapController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.aprovar'), 403);
         $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
 
@@ -191,6 +192,7 @@ class TrabalhoPapController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.aprovar'), 403);
         $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
 
@@ -321,80 +323,116 @@ class TrabalhoPapController extends Controller
     }
 
     public function download(
-        Instituicao $instituicao,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
         int $numeroVersao
     ) {
-        $this->authorize('downloadVersaoTrabalho', $grupoPap);
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        abort_unless($user->can('grupopap.aprovar'), 403);
 
-        $versao = $grupoPap->trabalhoPap?->versoes()
-            ->where('numero_versao', $numeroVersao)
-            ->firstOrFail();
+        return $this->withExternalGrupo(
+            $colegio,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
+            $grupoPap,
+            $user,
+            function (GrupoPap $grupoPap) use ($numeroVersao) {
+                $versao = $grupoPap->trabalhoPap?->versoes()
+                    ->where('numero_versao', $numeroVersao)
+                    ->firstOrFail();
 
-        if (! Storage::disk('private')->exists($versao->caminho_ficheiro)) {
-            abort(404, 'Ficheiro não encontrado.');
-        }
+                if (! Storage::disk('private')->exists($versao->caminho_ficheiro)) {
+                    abort(404, 'Ficheiro não encontrado.');
+                }
 
-        return Storage::disk('private')->download($versao->caminho_ficheiro, $versao->nome_original);
+                return Storage::disk('private')->download($versao->caminho_ficheiro, $versao->nome_original);
+            },
+        );
     }
 
     public function visualizar(
-        Instituicao $instituicao,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
         int $numeroVersao
     ) {
-        $this->authorize('downloadVersaoTrabalho', $grupoPap);
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        abort_unless($user->can('grupopap.aprovar'), 403);
 
-        $versao = $grupoPap->trabalhoPap?->versoes()
-            ->where('numero_versao', $numeroVersao)
-            ->firstOrFail();
+        return $this->withExternalGrupo(
+            $colegio,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
+            $grupoPap,
+            $user,
+            function (GrupoPap $grupoPap) use ($numeroVersao) {
+                $versao = $grupoPap->trabalhoPap?->versoes()
+                    ->where('numero_versao', $numeroVersao)
+                    ->firstOrFail();
 
-        if (! Storage::disk('private')->exists($versao->caminho_ficheiro)) {
-            abort(404, 'Ficheiro não encontrado.');
-        }
+                if (! Storage::disk('private')->exists($versao->caminho_ficheiro)) {
+                    abort(404, 'Ficheiro não encontrado.');
+                }
 
-        return response(
-            Storage::disk('private')->get($versao->caminho_ficheiro),
-            200,
-            [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="'.$versao->nome_original.'"',
-            ]
+                return response(
+                    Storage::disk('private')->get($versao->caminho_ficheiro),
+                    200,
+                    [
+                        'Content-Type' => 'application/pdf',
+                        'Content-Disposition' => 'inline; filename="'.$versao->nome_original.'"',
+                    ]
+                );
+            },
         );
     }
 
     public function downloadCorrecao(
-        Instituicao $instituicao,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
         string $feedbackId
     ) {
-        $this->authorize('downloadVersaoTrabalho', $grupoPap);
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        abort_unless($user->can('grupopap.aprovar'), 403);
 
-        $feedback = $grupoPap->trabalhoPap?->feedbacks()->findOrFail($feedbackId);
+        return $this->withExternalGrupo(
+            $colegio,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
+            $grupoPap,
+            $user,
+            function (GrupoPap $grupoPap) use ($feedbackId) {
+                $feedback = $grupoPap->trabalhoPap?->feedbacks()->findOrFail($feedbackId);
 
-        if (! $feedback->caminho_ficheiro_correcao ||
-            ! Storage::disk('private')->exists($feedback->caminho_ficheiro_correcao)) {
-            abort(404, 'Ficheiro de correção não encontrado.');
-        }
+                if (! $feedback?->caminho_ficheiro_correcao ||
+                    ! Storage::disk('private')->exists($feedback->caminho_ficheiro_correcao)) {
+                    abort(404, 'Ficheiro de correção não encontrado.');
+                }
 
-        return Storage::disk('private')->download(
-            $feedback->caminho_ficheiro_correcao,
-            $feedback->nome_original_correcao ?? 'correcao.pdf'
+                return Storage::disk('private')->download(
+                    $feedback->caminho_ficheiro_correcao,
+                    $feedback->nome_original_correcao ?? 'correcao.pdf'
+                );
+            },
         );
     }
 }

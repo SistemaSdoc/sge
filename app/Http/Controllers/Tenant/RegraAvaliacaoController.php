@@ -2,57 +2,39 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\RegraAvaliacao\CreateRegraAvaliacao;
+use App\Actions\Tenant\RegraAvaliacao\DeleteRegraAvaliacao;
+use App\Actions\Tenant\RegraAvaliacao\PrepareRegraAvaliacaoForm;
+use App\Actions\Tenant\RegraAvaliacao\PrepareRegraAvaliacaoIndex;
+use App\Actions\Tenant\RegraAvaliacao\UpdateRegraAvaliacao;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\RegraAvaliacao\StoreRegraAvaliacaoRequest;
 use App\Http\Requests\Tenant\RegraAvaliacao\UpdateRegraAvaliacaoRequest;
-use App\Models\Central\AnoLectivo;
-use App\Models\Tenant\Classe;
-use App\Models\Tenant\NivelEnsino;
 use App\Models\Tenant\RegraAvaliacao;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class RegraAvaliacaoController extends Controller
 {
+    public function __construct(
+        private readonly PrepareRegraAvaliacaoIndex $prepareRegraAvaliacaoIndex,
+        private readonly PrepareRegraAvaliacaoForm $prepareRegraAvaliacaoForm,
+        private readonly CreateRegraAvaliacao $createRegraAvaliacao,
+        private readonly UpdateRegraAvaliacao $updateRegraAvaliacao,
+        private readonly DeleteRegraAvaliacao $deleteRegraAvaliacao,
+    ) {}
+
     /**
      * Mostra a lista de regras de avaliação.
      */
-    public function index()
+    public function index(Request $request)
     {
-
         $this->authorize('viewAny', RegraAvaliacao::class);
 
-        $regrasAvaliacao = RegraAvaliacao::with(['instituicao', 'anoLectivo', 'classe', 'nivelEnsino'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10)
-            ->through(function ($regra) {
-                return [
-                    'id' => $regra->id,
-                    'nome' => $regra->nome,
-                    'nivelEnsino' => $regra->nivelEnsino?->nome ?? 'Todos os níveis',
-                    'aplicacao' => $this->getAplicacao($regra),
-                ];
-            });
-
         return Inertia::render('tenant/regras-avaliacao/index', [
-            'regrasAvaliacao' => $regrasAvaliacao,
+            'regrasAvaliacao' => $this->prepareRegraAvaliacaoIndex->handle(),
         ]);
-    }
-
-    /**
-     * Obtém o contexto de aplicação para uma regra.
-     */
-    private function getAplicacao($regra): string
-    {
-        if ($regra->classe_id && $regra->classe) {
-            return $regra->classe->nome;
-        }
-
-        if ($regra->nivel_ensino_id && $regra->nivelEnsino) {
-            return $regra->nivelEnsino->nome;
-        }
-
-        return 'Todas as classes';
     }
 
     /**
@@ -62,20 +44,8 @@ class RegraAvaliacaoController extends Controller
     {
         $this->authorize('create', RegraAvaliacao::class);
 
-        $niveisEnsino = NivelEnsino::where('activo', 1)->orderBy('ordem')->get(['id', 'nome']);
-
-        $classesPorNivel = Classe::select('classes.id', 'classes.nome', 'classes.ordem', 'curso_classe.nivel_ensino_id')
-            ->join('curso_classe', 'classes.id', '=', 'curso_classe.classe_id')
-            ->whereNotNull('curso_classe.nivel_ensino_id')
-            ->distinct()
-            ->orderBy('classes.ordem')
-            ->get()
-            ->groupBy('nivel_ensino_id')
-            ->map(fn ($classes) => $classes->map->only(['id', 'nome'])->values());
-
-        return Inertia::render('regras-avaliacao/create', [
-            'niveisEnsino' => $niveisEnsino,
-            'classesPorNivel' => $classesPorNivel,
+        return Inertia::render('tenant/regras-avaliacao/create', [
+            ...$this->prepareRegraAvaliacaoForm->handle(),
         ]);
     }
 
@@ -86,11 +56,10 @@ class RegraAvaliacaoController extends Controller
     {
         $this->authorize('create', RegraAvaliacao::class);
 
-        RegraAvaliacao::create([
-            ...$request->validated(),
-            'instituicao_id' => Auth::guard('tenant')->user()->instituicao_id,
-            'ano_lectivo_id' => AnoLectivo::activo()?->id,
-        ]);
+        $this->createRegraAvaliacao->handle(
+            $request->validated(),
+            Auth::guard('tenant')->user()->instituicao_id,
+        );
 
         return redirect()->route('tenant.dashboard.regras-avaliacao.index');
     }
@@ -102,7 +71,7 @@ class RegraAvaliacaoController extends Controller
     {
         $this->authorize('view', $regraAvaliacao);
 
-        return Inertia::render('regras-avaliacao/show', [
+        return Inertia::render('tenant/regras-avaliacao/show', [
             'regraAvaliacao' => $regraAvaliacao,
         ]);
     }
@@ -114,23 +83,8 @@ class RegraAvaliacaoController extends Controller
     {
         $this->authorize('update', $regraAvaliacao);
 
-        $niveisEnsino = NivelEnsino::where('activo', 1)->orderBy('ordem')->get(['id', 'nome']);
-
-        $classesPorNivel = Classe::select('classes.id', 'classes.nome', 'classes.ordem', 'curso_classe.nivel_ensino_id')
-            ->join('curso_classe', 'classes.id', '=', 'curso_classe.classe_id')
-            ->whereNotNull('curso_classe.nivel_ensino_id')
-            ->distinct()
-            ->orderBy('classes.ordem')
-            ->get()
-            ->groupBy('nivel_ensino_id')
-            ->map(fn ($classes) => $classes->map->only(['id', 'nome'])->values());
-
-        $regraAvaliacao->load(['classe', 'nivelEnsino']);
-
-        return Inertia::render('regras-avaliacao/edit', [
-            'regraAvaliacao' => $regraAvaliacao,
-            'niveisEnsino' => $niveisEnsino,
-            'classesPorNivel' => $classesPorNivel,
+        return Inertia::render('tenant/regras-avaliacao/edit', [
+            ...$this->prepareRegraAvaliacaoForm->handle($regraAvaliacao),
         ]);
     }
 
@@ -141,7 +95,7 @@ class RegraAvaliacaoController extends Controller
     {
         $this->authorize('update', $regraAvaliacao);
 
-        $regraAvaliacao->update($request->validated());
+        $this->updateRegraAvaliacao->handle($regraAvaliacao, $request->validated());
 
         return redirect()->route('tenant.dashboard.regras-avaliacao.index');
     }
@@ -152,7 +106,8 @@ class RegraAvaliacaoController extends Controller
     public function destroy(RegraAvaliacao $regraAvaliacao)
     {
         $this->authorize('delete', $regraAvaliacao);
-        $regraAvaliacao->delete();
+
+        $this->deleteRegraAvaliacao->handle($regraAvaliacao);
 
         return redirect()->route('tenant.dashboard.regras-avaliacao.index');
     }

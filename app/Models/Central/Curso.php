@@ -2,6 +2,7 @@
 
 namespace App\Models\Central;
 
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,9 @@ use Stancl\Tenancy\Database\Concerns\CentralConnection;
 ])]
 class Curso extends Model
 {
-    use CentralConnection, HasUuid, SoftDeletes;
+    use CentralConnection, HasSearch, HasUuid, SoftDeletes;
+
+    protected array $searchable = ['nome', 'descricao'];
 
     protected $table = 'cursos';
 

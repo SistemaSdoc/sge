@@ -23,13 +23,15 @@ class DashboardProfessorService
                 $data = $hoje->copy()->addDays($offset);
                 $weekday = $data->dayOfWeekIso;
 
-                return [$weekday => [
-                    'offset' => $offset,
-                    'label' => null,
-                    'weekday' => $weekday,
-                    'weekday_name' => $this->obterNomeDia($weekday),
-                    'date' => $data->toDateString(),
-                ]];
+                return [
+                    $weekday => [
+                        'offset' => $offset,
+                        'label' => null,
+                        'weekday' => $weekday,
+                        'weekday_name' => $this->obterNomeDia($weekday),
+                        'date' => $data->toDateString(),
+                    ],
+                ];
             });
 
         $diasSemana = $diasMapa->keys()->all();
@@ -52,7 +54,14 @@ class DashboardProfessorService
                 $disciplina = $tdp->classeTurnoDisciplina;
                 $turma = $tdp->turma;
 
-                return $disciplina->horarios->map(function ($horario) use ($disciplina, $turma, $diasMapa) {
+                // Buscar horários directamente da DB filtrados por turma
+                $horarios = $disciplina->horarios()
+                    ->whereIn('dia_semana', array_keys($diasMapa->all()))
+                    ->where('turma_id', $turma->id)  // só esta turma, sem fallback null
+                    ->orderBy('hora_inicio')
+                    ->get();
+
+                return $horarios->map(function ($horario) use ($disciplina, $turma, $diasMapa) {
                     $meta = $diasMapa[$horario->dia_semana];
 
                     return [

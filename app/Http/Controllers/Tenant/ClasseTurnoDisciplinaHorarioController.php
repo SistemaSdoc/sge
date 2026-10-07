@@ -31,13 +31,14 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
         Gate::authorize('create', new ClasseTurnoDisciplinaHorario);
 
         // Remover horários antigos
-        $classeTurnoDisciplina->horarios()->delete();
+        $classeTurnoDisciplina->horarios()->where('turma_id', $turma->id)->delete();
 
         // Criar novos horários
         $horarios = collect($request->validated()['horarios'])
             ->map(fn ($horario) => array_merge($horario, [
                 'id' => (string) Str::uuid7(),
                 'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
+                'turma_id' => $turma->id,  // ← adicionar
                 'created_at' => now(),
                 'updated_at' => now(),
             ]))

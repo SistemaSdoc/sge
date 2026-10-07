@@ -3,17 +3,13 @@
 namespace App\Notifications\Pap;
 
 use App\Models\Tenant\GrupoPap;
-use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class TrabalhoSubmetidoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
+class TrabalhoSubmetidoNotification extends Notification
 {
     use Queueable;
-    use ReliableNotification;
 
     public function __construct(public GrupoPap $grupoPap, public ?string $urlExterno = null) {}
 

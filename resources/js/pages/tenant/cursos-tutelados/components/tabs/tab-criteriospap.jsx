@@ -90,6 +90,7 @@ export function TabCriteriosPap({
     if (ficheiroEstruturaTrabalhoPap)
       payload.estrutura_trabalho_pap = ficheiroEstruturaTrabalhoPap;
 
+
     setUploading(true);
     router.post(
       uploadCriteriosPap({

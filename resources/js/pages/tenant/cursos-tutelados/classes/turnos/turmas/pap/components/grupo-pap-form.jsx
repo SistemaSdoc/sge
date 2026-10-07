@@ -27,6 +27,8 @@ export default function GrupoPapForm({
   processing,
   professores = [],
   alunos = [],
+  nomeGrupo,
+  setNomeGrupo,
   professorTutorId,
   setProfessorTutorId,
   alunoIds,
@@ -50,7 +52,8 @@ export default function GrupoPapForm({
                     name="nome_grupo"
                     disabled={processing}
                     placeholder="Ex.: Grupo Alpha"
-                    defaultValue={grupoPap?.nome_grupo ?? ''}
+                    value={nomeGrupo}
+                    onChange={(event) => setNomeGrupo(event.target.value)}
                   />
                   {errors.nome_grupo && (
                     <FieldError>{errors.nome_grupo}</FieldError>

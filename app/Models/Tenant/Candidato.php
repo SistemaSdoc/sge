@@ -67,19 +67,27 @@ class Candidato extends Model
     {
         return Attribute::make(
             get: fn () => match ($this->genero) {
-                'M'     => 'Masculino',
-                'F'     => 'Feminino',
+                'M' => 'Masculino',
+                'F' => 'Feminino',
                 default => '—',
             },
         );
     }
 
-    // ============================================================
-    // HELPERS
-    // ============================================================
-
+    
+    
+    /** Verifica se todos os dados pessoais obrigatórios do perfil estão preenchidos. */
     public function temPerfilCompleto(): bool
     {
-        return (bool) $this->perfil_completo;
+        return collect([
+            $this->telefone,
+            $this->morada,
+            $this->genero,
+            $this->nacionalidade,
+            $this->naturalidade,
+            $this->filiacao,
+            $this->data_nascimento,
+            $this->municipio,
+        ])->every(filled(...));
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Central\AnoLectivo;
+use App\Models\Tenant\Professor;
 use App\Models\Tenant\User;
 use App\Services\Tenant\Dashboards\DashboardAlunoService;
 use App\Services\Tenant\Dashboards\DashboardDirectorService;
@@ -34,6 +35,10 @@ class DashboardController extends Controller
 
         $anoLectivoId = AnoLectivo::activo()?->id;
 
+        if ($user->hasRole('Secretario do Curso')) {
+            return $this->renderDirectorDashboard($user->instituicaoFiltro());
+        }
+
         if ($user->hasAnyRole(['SuperAdmin', 'Master', 'Director', 'Subdirector', 'Secretaria'])) {
             return $this->renderDirectorDashboard($user->instituicaoFiltro());
         }
@@ -41,7 +46,7 @@ class DashboardController extends Controller
         if ($user->hasRole('Professor')) {
             $professor = $user?->professor;
 
-            return Inertia::render('tenant/dashboards/aluno/index', [
+            return Inertia::render('tenant/dashboards/professor/index', [
                 'proximasAulas' => $this->dashboardProfessorService->obterProximasAulas($professor, 2, 6),
                 'avisos' => $this->dashboardProfessorService->obterAvisos($professor, 6),
                 'anoLectivoId' => $anoLectivoId,          // ← NOVO
@@ -73,6 +78,9 @@ class DashboardController extends Controller
             'metricas' => $this->dashboardDirectorService->obterMetricas($instituicaoId),
             'accoes' => $this->dashboardDirectorService->obterAccoesPendentes($instituicaoId),
             'eventos' => $this->dashboardDirectorService->obterAvisos($instituicaoId),
+            'can' => [
+                'viewProfessores' => Auth::guard('tenant')->user()?->can('viewAny', Professor::class) ?? false,
+            ],
         ]);
     }
 }

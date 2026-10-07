@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Turno extends Model
 {
-    use HasUuid;
+    use HasSearch, HasUuid;
+
+    protected array $searchable = ['nome'];
 
     protected $table = 'turnos';
 

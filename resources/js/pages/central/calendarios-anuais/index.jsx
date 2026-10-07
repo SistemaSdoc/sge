@@ -10,7 +10,7 @@ import { useDrawerStore } from '@/stores/drawer.store';
 import CalendarioForm from './components/calendario-form';
 import CalendariosTable from './components/calendarios-table';
 
-export default function Index({ calendarios }) {
+export default function Index({ calendarios, filters }) {
   const { deleteConfirm } = useDialog();
   const { openDrawer, closeDrawer } = useDrawerStore();
   const replaceInput = useRef(null);
@@ -69,7 +69,7 @@ export default function Index({ calendarios }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
       preserveScroll: true,
     });
   };
@@ -88,6 +88,7 @@ export default function Index({ calendarios }) {
 
       <CalendariosTable
         calendarios={calendarios.data}
+        filters={filters}
         onToggle={toggle}
         onReplace={replaceFile}
         onDelete={remove}

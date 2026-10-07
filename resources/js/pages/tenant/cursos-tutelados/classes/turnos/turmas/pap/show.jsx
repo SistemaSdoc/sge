@@ -137,6 +137,9 @@ export default function Show({
               <h2 className="md:text-1xl text-2xl font-semibold">
                 Tema: {grupoPap?.tema_grupo}
               </h2>
+              <p className="max-w-3xl text-sm text-white/90">
+                Estudo de caso: {grupoPap?.estudo_caso || 'Não definido'}
+              </p>
             </div>
 
             {/* {hasAnyAction && (*/}
@@ -286,6 +289,24 @@ export default function Show({
 
               <a
                 href={grupoPap.estrutura_trabalho_pap_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 font-medium text-primary hover:underline"
+              >
+                <FileText className="size-4" />
+                Ver documento
+              </a>
+            </div>
+          )}
+
+          {grupoPap?.sugestoes_temas_pap_url && (
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Sugestões de Temas PAP
+              </p>
+
+              <a
+                href={grupoPap.sugestoes_temas_pap_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 font-medium text-primary hover:underline"

@@ -30,9 +30,12 @@ import {
   view,
 } from '@/actions/App/Http/Controllers/Tenant/CalendarioAnualController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export default function CalendariosTable({
   calendarios = [],
+  filters,
   onAdd,
   onToggle,
   onReplace,
@@ -40,6 +43,9 @@ export default function CalendariosTable({
   pagination,
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['calendarios', 'filters'],
+  });
   const isEmpty = calendarios.length === 0;
 
   return (
@@ -51,12 +57,13 @@ export default function CalendariosTable({
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={Calendar1}
-            title="Nenhum calendário publicado"
-            description="Ainda não foi disponibilizado um calendário anual."
+            title={applied ? 'Nenhum calendário encontrado' : 'Nenhum calendário publicado'}
+            description={applied ? 'Tenta ajustar a pesquisa.' : 'Ainda não foi disponibilizado um calendário anual.'}
           />
         ) : (
           <Table>

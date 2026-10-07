@@ -1,8 +1,4 @@
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 
 export function ProfileField({
@@ -11,6 +7,7 @@ export function ProfileField({
   value,
   onChange,
   error,
+  required = false,
   type = 'text',
 }) {
   return (
@@ -24,8 +21,9 @@ export function ProfileField({
         value={value ?? ''}
         onChange={onChange}
         aria-invalid={Boolean(error)}
+        required={required}
       />
-      
+
       <FieldError>{error}</FieldError>
     </Field>
   );

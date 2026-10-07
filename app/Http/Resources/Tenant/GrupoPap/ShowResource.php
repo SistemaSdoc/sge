@@ -23,6 +23,7 @@ class ShowResource extends JsonResource
             'criterios_pap_path' => null,
             'manual_pt_path' => null,
             'estrutura_trabalho_pap_path' => null,
+            'sugestoes_temas_pap_path' => null,
         ];
 
         return [

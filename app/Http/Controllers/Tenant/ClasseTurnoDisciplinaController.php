@@ -188,8 +188,10 @@ class ClasseTurnoDisciplinaController extends Controller
 
         abort_if($classeTurnoDisciplina->curso_classe_turno_id !== $cursoClasseTurno->id, 404);
 
-        // Verificar se tem professores associados
-        $temProfessores = $classeTurnoDisciplina->turmaDisciplinaProfessores()->exists();
+        // Bloquear apenas se tem professor efectivamente atribuído
+        $temProfessores = $classeTurnoDisciplina->turmaDisciplinaProfessores()
+            ->whereNotNull('professor_id')
+            ->exists();
 
         if ($temProfessores) {
             return back()->withErrors([
@@ -197,9 +199,21 @@ class ClasseTurnoDisciplinaController extends Controller
             ]);
         }
 
-        $classeTurnoDisciplina->delete();
+        DB::transaction(function () use ($classeTurnoDisciplina) {
+            $tdps = $classeTurnoDisciplina->turmaDisciplinaProfessores()
+                ->whereNull('professor_id')
+                ->get();
 
-        return back()
-            ->with('success', 'Disciplina removida com sucesso.');
+            foreach ($tdps as $tdp) {
+                $tdp->solicitacoesEdicaoPauta()->delete();
+                $tdp->pautaStatuses()->delete();
+                $tdp->notas()->delete();
+                $tdp->delete();
+            }
+
+            $classeTurnoDisciplina->delete();
+        });
+
+        return back()->with('success', 'Disciplina removida com sucesso.');
     }
 }

@@ -12,6 +12,8 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/RoleController';
 import { EmptyState } from '@/components/empty-state';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -38,7 +40,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export function RoleTable({ roles, pagination, onPageChange, deleteFn }) {
+export function RoleTable({ roles, filters, pagination, onPageChange, deleteFn }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['roles', 'filters'],
+  });
   const isEmpty = !roles?.data?.length;
 
   return (
@@ -54,12 +59,13 @@ export function RoleTable({ roles, pagination, onPageChange, deleteFn }) {
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={ShieldCheck}
-            title="Nenhuma função cadastrada"
-            description="Clique no botão abaixo para adicionar uma nova função."
+            title={applied ? 'Nenhuma função encontrada' : 'Nenhuma função cadastrada'}
+            description={applied ? 'Tenta ajustar a pesquisa.' : 'Clique no botão abaixo para adicionar uma nova função.'}
             action={{
               label: 'Adicionar função',
               href: create().url,

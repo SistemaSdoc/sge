@@ -7,6 +7,7 @@ use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\User;
 use App\Notifications\Pap\CorrecaoSolicitadaNotification;
 use App\Notifications\Pap\DataDefesaDefinidaNotification;
 use App\Notifications\Pap\MelhoriasSolicitadasNotification;
@@ -77,6 +78,7 @@ trait NotificaGrupoPap
             $this->notificarCoordenadoresDoFluxo($grupoPap, $notification);
         } else {
             $this->notificarCoordenadoresLocais($grupoPap, $notification);
+            $this->notificarGrupoDisciplinar($grupoPap, $notification);
         }
 
         $alunos = $grupoPap->alunos->map->user->filter();
@@ -151,6 +153,7 @@ trait NotificaGrupoPap
                 ->filter();
 
             Notification::send($coordenadores, $notification);
+            $this->notificarGrupoDisciplinar($grupoPap, $notification);
 
             return;
         }
@@ -162,7 +165,11 @@ trait NotificaGrupoPap
             return;
         }
 
-        $tenantTutor->run(function () use ($shared, $notification): void {
+        // Primeiro run: recolher IDs dos coordenadores
+        $coordenadoresIds = [];
+        $instituicaoTutoraId = null;
+
+        $tenantTutor->run(function () use ($shared, &$coordenadoresIds, &$instituicaoTutoraId): void {
             $cursoTutor = CursoTutelado::query()
                 ->whereHas(
                     'instituicaoCurso',
@@ -170,14 +177,26 @@ trait NotificaGrupoPap
                 )
                 ->first();
 
-            $coordenadores = $cursoTutor?->professores()
+            $instituicaoTutoraId = $cursoTutor?->instituicao_tutora_id;
+            $coordenadoresIds = $cursoTutor?->professores()
                 ->where('coordenador', 1)
                 ->with('user')
                 ->get()
-                ->map->user
-                ->filter() ?? collect();
+                ->pluck('user.id')
+                ->filter()
+                ->values()
+                ->toArray() ?? [];
+        });
 
-            Notification::send($coordenadores, $notification);
+        $tenantTutor->run(function () use ($coordenadoresIds, $instituicaoTutoraId, $notification): void {
+            $coordenadores = User::query()->whereIn('id', $coordenadoresIds)->get();
+            $membrosGrupoDisciplinar = $instituicaoTutoraId
+                ? User::role(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])
+                    ->where('instituicao_id', $instituicaoTutoraId)
+                    ->get()
+                : collect();
+
+            Notification::send($coordenadores->merge($membrosGrupoDisciplinar)->unique('id'), $notification);
         });
     }
 
@@ -207,6 +226,7 @@ trait NotificaGrupoPap
         } else {
             // Auto-tutela: coordenadores locais
             $this->notificarCoordenadoresLocais($grupoPap, $notification);
+            $this->notificarGrupoDisciplinar($grupoPap, $notification);
         }
 
         $alunos = $grupoPap->alunos->map->user->filter();
@@ -219,6 +239,19 @@ trait NotificaGrupoPap
 
         if ($destinatarios->isNotEmpty()) {
             Notification::send($destinatarios, new TrabalhoSubmetidoConfirmacaoNotification($grupoPap));
+        }
+    }
+
+    protected function notificarGrupoDisciplinar(
+        GrupoPap $grupoPap,
+        NotificationInstance $notification,
+    ): void {
+        $utilizadores = User::role(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])
+            ->where('instituicao_id', $grupoPap->instituicaoTutora()?->id)
+            ->get();
+
+        if ($utilizadores->isNotEmpty()) {
+            Notification::send($utilizadores, $notification);
         }
     }
 

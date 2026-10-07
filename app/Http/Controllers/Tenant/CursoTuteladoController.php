@@ -8,12 +8,15 @@ use App\Actions\Tenant\CursoTutelado\UpdateCursoTutelado;
 use App\Actions\Tenant\CursoTutelado\UploadCursoTuteladoDocumentos;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\CursoTutelado\StoreCursoTuteladoRequest;
+use App\Http\Requests\Tenant\CursoTutelado\StoreSugestaoTemaPapRequest;
 use App\Http\Requests\Tenant\CursoTutelado\UpdateCursoTuteladoRequest;
+use App\Http\Requests\Tenant\CursoTutelado\UpdateSugestaoTemaPapRequest;
 use App\Http\Requests\Tenant\CursoTutelado\UploadCursoTuteladoDocumentosRequest;
 use App\Http\Resources\Tenant\CursoTutelado\CursoTuteladoResourceEdit;
 use App\Http\Resources\Tenant\CursoTutelado\CursoTuteladoResourceShow;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\SugestaoTemaPap;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\CursoTuteladoViewService;
@@ -34,20 +37,31 @@ class CursoTuteladoController extends Controller
         private readonly UpdateCursoTutelado $updateCursoTutelado,
         private readonly DeleteCursoTutelado $deleteCursoTutelado,
         private readonly UploadCursoTuteladoDocumentos $uploadCursoTuteladoDocumentos,
-    ) {}
+    ) {
+    }
 
     /**
      * Apresenta os cursos tutelados de uma instituição.
      */
-    public function index(Instituicao $instituicao)
+    public function index(Request $request, Instituicao $instituicao)
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
-        $cursos = $this->cursoTuteladoViewService->index($instituicao, $user);
+        if ($user->hasRole('Secretario do Curso')) {
+            abort_unless((string) $user->instituicao_id === (string) $instituicao->getKey(), 404);
+            Gate::authorize('viewAny', CursoTutelado::class);
+        }
+
+        $cursos = $this->cursoTuteladoViewService->index(
+            $instituicao,
+            $user,
+            $request->string('search')->toString(),
+        );
 
         return Inertia::render('tenant/cursos-tutelados/index', [
             'cursos' => $cursos,
+            'filters' => $request->only('search'),
             'instituicao' => $instituicao->only('id'),
             'can' => [
                 'create_curso' => $user->can('create', CursoTutelado::class),
@@ -134,19 +148,45 @@ class CursoTuteladoController extends Controller
 
         $this->cursoTuteladoViewService->prepareShow($cursoTutelado, $anoLectivoId);
 
+        $canManageSecretarios = $user->hasRole('Coordenador')
+            && $user->can('manageSecretarios', $cursoTutelado);
+
+        $secretariosDisponiveis = $canManageSecretarios
+            ? User::query()
+                ->where('instituicao_id', $instituicao->id)
+                ->role('Secretario do Curso', 'tenant')
+                ->whereDoesntHave('roles', fn($query) => $query->whereIn('name', [
+                    'Secretaria',
+                    'Director',
+                    'Subdirector',
+                    'Coordenador',
+                    'SuperAdmin',
+
+                ]))
+                ->whereDoesntHave('cursosSecretariados', fn($query) => $query->whereKey($cursoTutelado->getKey()))
+                ->orderBy('nome')
+                ->get(['id', 'nome', 'email'])
+                ->map(fn(User $candidate): array => [
+                    'id' => $candidate->id,
+                    'nome' => $candidate->nome,
+                    'email' => $candidate->email,
+                ])
+            : collect();
+
         return Inertia::render('tenant/cursos-tutelados/show', [
             'instituicao' => [
                 'id' => $instituicao->id,
                 'nome' => $instituicao->nome,
             ],
             'cursoTutelado' => (new CursoTuteladoResourceShow($cursoTutelado))->resolve(),
+            'secretariosDisponiveis' => $secretariosDisponiveis,
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => $this->cursoTuteladoViewService->academicYears(),
             'can' => [
                 'instituicao' => [
                     'view' => $user->can('view', $instituicao),
                 ],
-                'uploadCriteriosPap' => $user->can('update', $cursoTutelado),
+                'uploadCriteriosPap' => $user->can('uploadDocumentosPap', $cursoTutelado),
             ],
         ]);
     }
@@ -183,7 +223,7 @@ class CursoTuteladoController extends Controller
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado
     ) {
-        Gate::authorize('update', $cursoTutelado);
+        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
 
         $this->updateCursoTutelado->handle($instituicao, $cursoTutelado, $request->validated());
 
@@ -216,15 +256,59 @@ class CursoTuteladoController extends Controller
         CursoTutelado $cursoTutelado
     ) {
         // dd($request->validated());
-        Gate::authorize('update', $cursoTutelado);
+        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
         $this->uploadCursoTuteladoDocumentos->handle($cursoTutelado, $request->validated());
 
         return redirect()->route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Documentos actualizados com sucesso.',
-        ]);
+                    'type' => 'success',
+                    'message' => 'Documentos actualizados com sucesso.',
+                ]);
+    }
+
+    private function garantirTutelaPropria(CursoTutelado $cursoTutelado): void
+    {
+        abort_if(
+            $cursoTutelado->tipo_tutela === 'externa',
+            403,
+            'As sugestões deste curso são geridas pela instituição tutora.'
+        );
+    }
+
+    public function storeSugestaoTema(StoreSugestaoTemaPapRequest $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
+    {
+        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+        $this->garantirTutelaPropria($cursoTutelado);
+        $cursoTutelado->sugestoesTemas()->create($request->validated());
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão cadastrada.']);
+    }
+
+    public function updateSugestaoTema(
+        UpdateSugestaoTemaPapRequest $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        SugestaoTemaPap $sugestao
+    ) {
+        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+        $this->garantirTutelaPropria($cursoTutelado);
+        abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
+
+        $sugestao->update($request->validated());
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão actualizada.']);
+    }
+
+    public function destroySugestaoTema(Instituicao $instituicao, CursoTutelado $cursoTutelado, SugestaoTemaPap $sugestao)
+    {
+        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+        $this->garantirTutelaPropria($cursoTutelado);
+        abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
+
+        $sugestao->delete();
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão removida.']);
     }
 }

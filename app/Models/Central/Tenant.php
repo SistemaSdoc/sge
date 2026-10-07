@@ -4,6 +4,7 @@ namespace App\Models\Central;
 
 use App\Enums\TenantStatus;
 use App\Models\Tenant\Instituicao;
+use App\Traits\HasSearch;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
@@ -12,7 +13,13 @@ use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
-    use HasDatabase, HasDomains;
+    use HasDatabase, HasDomains, HasSearch;
+
+    protected array $searchable = [
+        'id',
+        'instituicao_nome',
+        'domains.domain',
+    ];
 
     protected $casts = [
         'status' => TenantStatus::class,
@@ -27,6 +34,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
             'instituicao_id',
             'admin_user_id',
             'status',
+            'instituicao_nome',
             'provisioning_target_status',
             'provisioning_attempts',
             'provisioning_error',

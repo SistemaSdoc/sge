@@ -14,11 +14,19 @@ return new class extends Migration
 
         $centralConnection = config('tenancy.database.central_connection');
 
-        $database = DB::connection()->getDatabaseName();
-        $foreignKeys = DB::select(
-            'select TABLE_NAME as table_name, COLUMN_NAME as column_name, CONSTRAINT_NAME as constraint_name from information_schema.KEY_COLUMN_USAGE where CONSTRAINT_SCHEMA = ? and REFERENCED_TABLE_NAME = ? and REFERENCED_COLUMN_NAME = ? and REFERENCED_TABLE_SCHEMA = ? order by TABLE_NAME, CONSTRAINT_NAME',
-            [$database, 'disciplinas', 'id', $database],
-        );
+        if (Schema::hasTable('classe_turno_disciplina')) {
+            $database = DB::connection()->getDatabaseName();
+            $foreignKeyExists = DB::selectOne(
+                'select 1 from information_schema.TABLE_CONSTRAINTS where CONSTRAINT_SCHEMA = ? and TABLE_NAME = ? and CONSTRAINT_NAME = ? and CONSTRAINT_TYPE = \'FOREIGN KEY\' limit 1',
+                [$database, 'classe_turno_disciplina', 'classe_turno_disciplina_disciplina_id_foreign'],
+            );
+
+            if ($foreignKeyExists) {
+                Schema::table('classe_turno_disciplina', function ($table): void {
+                    $table->dropForeign('classe_turno_disciplina_disciplina_id_foreign');
+                });
+            }
+        }
 
         foreach (DB::table('disciplinas')->get() as $disciplina) {
             $centralDisciplina = DB::connection($centralConnection)
@@ -41,17 +49,11 @@ return new class extends Migration
                 $centralDisciplina = (object) ['id' => $disciplina->id];
             }
 
-            foreach ($foreignKeys as $foreignKey) {
-                DB::table($foreignKey->table_name)
-                    ->where($foreignKey->column_name, $disciplina->id)
-                    ->update([$foreignKey->column_name => $centralDisciplina->id]);
+            if (Schema::hasTable('classe_turno_disciplina')) {
+                DB::table('classe_turno_disciplina')
+                    ->where('disciplina_id', $disciplina->id)
+                    ->update(['disciplina_id' => $centralDisciplina->id]);
             }
-        }
-
-        foreach ($foreignKeys as $foreignKey) {
-            Schema::table($foreignKey->table_name, function ($table) use ($foreignKey): void {
-                $table->dropForeign($foreignKey->constraint_name);
-            });
         }
 
         Schema::dropIfExists('disciplinas');

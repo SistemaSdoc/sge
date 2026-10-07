@@ -25,6 +25,19 @@ class TurmaDisciplinaProfessorPolicy
         return $relacao->professor_id === $professor->id;
     }
 
+    private function isCoordenadorDoCurso(User $user, TurmaDisciplinaProfessor $relacao): bool
+    {
+        $relacao->loadMissing('turma.cursoClasseTurno.cursoClasse.cursoTutelado');
+        $cursoTutelado = $relacao->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado;
+        $professorId = $user->professor?->id;
+
+        return $professorId !== null
+            && $cursoTutelado?->professores()
+                ->where('professor_id', $professorId)
+                ->wherePivot('coordenador', true)
+                ->exists();
+    }
+
     /**
      * Determina se o utilizador pode consultar a listagem de disciplinas associadas a turmas.
      *
@@ -44,17 +57,21 @@ class TurmaDisciplinaProfessorPolicy
      */
     public function view(User $user, TurmaDisciplinaProfessor $relacao): bool
     {
-        /* if (! $user->can('turmas.view')) {
-             return false;
-         }
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
 
-         if (! $this->pertenceAInstituicao($user, $relacao)) {
-             return false;
-         }
+        if (! $this->pertenceAInstituicao($user, $relacao)) {
+            return false;
+        }
 
-         if ($user->hasRole('Professor')) {
-             return $this->isProfessorDaDisciplina($user, $relacao);
-         }*/
+        if ($this->isCoordenadorDoCurso($user, $relacao)) {
+            return true;
+        }
+
+        if ($user->hasRole('Professor')) {
+            return $this->isProfessorDaDisciplina($user, $relacao);
+        }
 
         return true;
     }
@@ -72,12 +89,12 @@ class TurmaDisciplinaProfessorPolicy
     /**
      * Determina se o utilizador pode definir o professor de uma disciplina numa turma.
      *
-     * Apenas Director, Subdirector e Secretaria podem executar esta ação.
+     * Requer a permissão configurável de definição do professor da disciplina.
      */
     public function definirProfessor(User $user): bool
     {
         return $user->instituicao_id !== null
-            && $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']);
+            && $user->can('classeturnodisciplina.definirProfessor');
     }
 
     /**
@@ -97,7 +114,9 @@ class TurmaDisciplinaProfessorPolicy
      */
     public function delete(User $user, TurmaDisciplinaProfessor $relacao): bool
     {
-        return $this->view($user, $relacao);
+        return $user->instituicao_id !== null
+            && $user->can('classeturnodisciplina.definirProfessor')
+            && $this->pertenceAInstituicao($user, $relacao);
     }
 
     /**

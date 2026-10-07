@@ -23,6 +23,15 @@ export default function Show() {
     return value;
   };
 
+  const renderDate = (value) => {
+    if (!value) return <Minus size={15} className="text-muted-foreground" />;
+    return new Date(value).toLocaleDateString('pt-AO', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
+
   const splitFiliacao = (value) => {
     if (typeof value !== 'string') {
       return [];
@@ -97,7 +106,7 @@ export default function Show() {
           <div>
             <p className="text-sm text-muted-foreground">Data de nascimento</p>
             <p className="font-medium">
-              {renderValue(candidato.data_nascimento)}
+              {renderDate(candidato.data_nascimento)}
             </p>
           </div>
 

@@ -26,11 +26,18 @@ class TenantService
     /**
      * Lista tenants com as instituições carregadas.
      */
-    public function getTenantsWithInstituicoes(LengthAwarePaginator $tenants): LengthAwarePaginator
+    public function getTenantsWithInstituicoes(?string $search = null): LengthAwarePaginator
     {
-        return $tenants->through(function (Tenant $tenant): Tenant {
-            return $tenant->setRelation('instituicao', $this->getInstituicao($tenant));
-        });
+        return Tenant::query()
+            ->with('domains')
+            ->search($search)
+            ->orderBy('id')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn (Tenant $tenant): Tenant => $tenant->setRelation(
+                'instituicao',
+                $this->getInstituicao($tenant),
+            ));
     }
 
     /**
@@ -162,6 +169,7 @@ class TenantService
             $tenant = Tenant::create([
                 'id' => $subdomain,
                 'status' => TenantStatus::PENDING,
+                'instituicao_nome' => $data['nome'],
             ]);
 
             $tenant->domains()->create([

@@ -24,9 +24,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Field } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import { ResultadoBadge } from '@/pages/tenant/pautas/components/pauta-table/resultado-badge';
 
 export function ConfirmacaoTable({
@@ -35,7 +35,11 @@ export function ConfirmacaoTable({
   onPageChange,
   onConfirmar,
   turma,
+  filters,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['alunos', 'filters'],
+  });
   const isEmpty = !data || data.length === 0;
 
   return (
@@ -62,29 +66,16 @@ export function ConfirmacaoTable({
                 </CardDescription>
               </div>
 
-              {/* Search */}
-              <CardAction className="w-full shrink-0 md:w-auto">
-                <Field>
-                  <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row">
-                    <Input
-                      placeholder="Digite para pesquisar..."
-                      className="w-full md:w-auto"
-                    />
-                    <Button variant="outline" className="w-full md:w-auto">
-                      Pesquisar
-                    </Button>
-                  </div>
-                </Field>
-              </CardAction>
             </div>
           </CardHeader>
           <CardContent className="p-0!">
+            <TableSearch value={search} onChange={onChange} onSubmit={submit} />
             {isEmpty ? (
               <EmptyState
                 variant="table"
                 icon={UsersIcon}
-                title="Nenhuma aluno por confirmar matrícula"
-                description="Não existem alunos por confirmar a sua matrícula."
+                title={applied ? 'Nenhum aluno encontrado' : 'Nenhum aluno por confirmar matrícula'}
+                description={applied ? 'Tenta ajustar a pesquisa.' : 'Não existem alunos por confirmar a sua matrícula.'}
               />
             ) : (
               <Table>

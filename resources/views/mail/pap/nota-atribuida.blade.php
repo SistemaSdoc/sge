@@ -198,7 +198,7 @@
             <div class="card-row">
                 <div class="card-label">Nota individual</div>
                 <div class="card-value nota">
-                    {{ $nota }} <span>valores</span>
+                    {{ rtrim(rtrim(number_format((float) $nota, 2, ',', ''), '0'), ',') }} <span>valores</span>
                 </div>
             </div>
 
@@ -212,7 +212,7 @@
             </a>
 
         </div>
-        
+
         {{-- Footer --}}
         <div class="footer">
 

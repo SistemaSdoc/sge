@@ -20,12 +20,13 @@ import {
 
 import { Minus, BookOpenIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { create } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
+import {
+  create,
+  edit as editProfessor,
+} from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
 import { show } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 
 import TablePagination from '@/components/table-pagination';
-import { useState } from 'react';
-import EditProfessorModal from './edit-professor-modal';
 
 export function TabProfessores({
   params,
@@ -34,8 +35,9 @@ export function TabProfessores({
   onPageChange,
   deleteFn,
   can = {},
+  canAttachSecretario = false,
+  onAddSecretario,
 }) {
-  const [editVinculo, setEditVinculo] = useState(null);
   const isEmpty = !professores.data || professores.data.length === 0;
   const hasAnyAction = can?.update || can?.delete;
 
@@ -47,11 +49,26 @@ export function TabProfessores({
             Professores ({params.cursoTutelado.contadores?.professores ?? 0})
           </CardTitle>
           <CardDescription>Professores associados a este curso</CardDescription>
-          {can?.attachProfessor && (
+          {(can?.attachProfessor || canAttachSecretario) && (
             <CardAction>
-              <Button asChild>
-                <Link href={create({ ...params }).url}>Adicionar</Link>
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                {can?.attachProfessor && (
+                  <Button asChild>
+                    <Link href={create({ ...params }).url}>
+                      Adicionar Professor
+                    </Link>
+                  </Button>
+                )}
+                {canAttachSecretario && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onAddSecretario}
+                  >
+                    Adicionar Secretário
+                  </Button>
+                )}
+              </div>
             </CardAction>
           )}
         </CardHeader>
@@ -87,9 +104,21 @@ export function TabProfessores({
                 {professores.data.map((professor) => (
                   <TableRow
                     key={professor.id}
-                    className="hover:cursor-pointer"
-                    onClick={() =>
-                      router.visit(show({ professor: professor.id }).url)
+                    aria-disabled={!professor.can?.view}
+                    title={
+                      professor.can?.view
+                        ? undefined
+                        : 'Não tem permissão para abrir este perfil'
+                    }
+                    className={
+                      professor.can?.view
+                        ? 'cursor-pointer'
+                        : 'cursor-not-allowed opacity-60'
+                    }
+                    onClick={
+                      professor.can?.view
+                        ? () => router.visit(show({ professor: professor.id }).url)
+                        : undefined
                     }
                   >
                     <TableCell className="px-4 font-medium">
@@ -112,10 +141,12 @@ export function TabProfessores({
                               className="text-[10px]"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setEditVinculo({
-                                  ...professor,
-                                  ...params,
-                                });
+                                router.visit(
+                                  editProfessor({
+                                    ...params,
+                                    professor: professor.vinculo_id,
+                                  }).url,
+                                );
                               }}
                             >
                               Editar do Curso
@@ -145,15 +176,6 @@ export function TabProfessores({
 
         <TablePagination pagination={pagination} onPageChange={onPageChange} />
       </Card>
-
-      {editVinculo && (
-        <EditProfessorModal
-          params={params}
-          vinculo={editVinculo}
-          open={!!editVinculo}
-          onClose={() => setEditVinculo(null)}
-        />
-      )}
     </>
   );
 }

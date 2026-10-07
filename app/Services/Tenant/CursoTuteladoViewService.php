@@ -27,16 +27,32 @@ class CursoTuteladoViewService
     /**
      * Lista os cursos da instituição com as permissões do utilizador.
      */
-    public function index(Instituicao $instituicao, User $user): LengthAwarePaginator
+    public function index(Instituicao $instituicao, User $user, ?string $search = null): LengthAwarePaginator
     {
         return $instituicao->instituicaoCursos()
             ->has('cursoTutelado')
+            ->when(
+                $user->hasRole('Secretario do Curso') && ! $user->hasAnyRole(['Director', 'SuperAdmin']),
+                function ($query) use ($user): void {
+                    $query->where(function ($courseQuery) use ($user): void {
+                        $courseQuery->whereHas(
+                            'cursoTutelado.secretarios',
+                            fn ($secretarios) => $secretarios->whereKey($user->getKey()),
+                        );
+
+                    });
+                },
+            )
+            ->search($search)
             ->with([
                 'curso:id,nome',
                 'cursoTutelado.instituicaoTutora:id,nome',
                 'cursoTutelado.cursoTuteladoShared:id,status,tenant_tutor_nome,tenant_tutor_id',
             ])
+            ->orderBy('created_at', 'desc')
             ->paginate(10)
+            ->withQueryString()
+
             ->through(function ($instituicaoCurso) use ($user): array {
                 $cursoTutelado = $instituicaoCurso->cursoTutelado;
                 $sharedActivo = $cursoTutelado ? $this->sharedActivo($cursoTutelado) : null;
@@ -285,7 +301,12 @@ class CursoTuteladoViewService
                     'classeTurnoDisciplinas',
                 ]);
             },
-            'professores.user:id,nome',
+            'professores' => function ($query) {
+                $query->with('user:id,nome')
+                    ->orderBy('created_at', 'desc');
+            },
+            'sugestoesTemas' => fn ($query) => $query->orderBy('titulo'),
+            'secretarios:id,nome,email',
         ]);
     }
 

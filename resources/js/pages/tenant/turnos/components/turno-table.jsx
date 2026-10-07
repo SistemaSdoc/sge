@@ -31,18 +31,24 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Tenant/TurnoController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function TurnoTable({
   turnos,
+  filters,
   can = {},
   pagination = {},
   onPageChange,
   deleteFn,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
+    only: ['turnos', 'filters'],
+  });
   const lista = Array.isArray(turnos) ? turnos : (turnos?.data ?? []);
   const isEmpty = lista.length === 0;
   const hasActionColumn = lista.some(
-    (turno) => turno.can?.edit_turno || turno.can?.delete_turno,
+    (turno) => turno.can?.edit || turno.can?.delete,
   );
 
   return (
@@ -52,7 +58,7 @@ export function TurnoTable({
           <CardTitle>Turnos</CardTitle>
           <CardDescription>Lista de turnos cadastrados</CardDescription>
           <CardAction>
-            {can.create_turno && (
+            {can.create && (
               <Button asChild>
                 <Link href={create().url}>Adicionar</Link>
               </Button>
@@ -61,14 +67,15 @@ export function TurnoTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={ClockIcon}
-              title="Nenhum turno cadastrado"
-              description="Comece adicionando o primeiro turno à tabela"
+              title={applied ? 'Nenhum turno encontrado' : 'Nenhum turno cadastrado'}
+              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando o primeiro turno à tabela'}
               action={
-                can.create_turno
+                can.create
                   ? {
                       label: 'Adicionar Turno',
                       href: create().url,
@@ -92,12 +99,12 @@ export function TurnoTable({
                   <TableRow
                     key={turno.id}
                     className={
-                      turno.can?.view_turno
+                      turno.can?.view
                         ? 'hover:cursor-pointer'
                         : 'opacity-70'
                     }
                     onClick={() => {
-                      if (turno.can?.view_turno) {
+                      if (turno.can?.view) {
                         router.visit(show(turno.id).url);
                       }
                     }}
@@ -107,7 +114,7 @@ export function TurnoTable({
                     </TableCell>
                     {hasActionColumn && (
                       <TableCell className="px-4 text-right">
-                        {(turno.can?.edit_turno || turno.can?.delete_turno) && (
+                        {(turno.can?.edit || turno.can?.delete) && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
@@ -121,7 +128,7 @@ export function TurnoTable({
                             </DropdownMenuTrigger>
 
                             <DropdownMenuContent align="end">
-                              {turno.can?.edit_turno && (
+                              {turno.can?.edit && (
                                 <DropdownMenuItem
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -132,12 +139,11 @@ export function TurnoTable({
                                 </DropdownMenuItem>
                               )}
 
-                              {turno.can?.edit_turno &&
-                                turno.can?.delete_turno && (
+                              {turno.can?.edit && turno.can?.delete && (
                                   <DropdownMenuSeparator />
                                 )}
 
-                              {turno.can?.delete_turno && (
+                              {turno.can?.delete && (
                                 <DropdownMenuItem
                                   variant="destructive"
                                   onClick={(e) => {

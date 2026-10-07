@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { TableSearch } from '@/components/table-search';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,7 +9,6 @@ import {
 } from '@/components/ui/breadcrumb';
 import {
   Card,
-  CardAction,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -39,6 +38,9 @@ export function Header({
   anoLectivoId,
   onAnoLectivoChange,
   onAddGrupo,
+  search,
+  onSearchChange,
+  onSearchSubmit,
 }) {
   const instituicaoSeleccionada =
     instituicoes.find(
@@ -47,67 +49,105 @@ export function Header({
         normalizeFilterValue(filtroInstituicao),
     ) ?? instituicao;
 
+  const isColegioSelecionado =
+    can?.selecionarInstituicao &&
+    filtroInstituicao &&
+    filtroInstituicao !== 'todas' &&
+    filtroInstituicao !== String(instituicao?.id ?? '');
+
   return (
     <Card className="gap-0! overflow-visible pb-0">
       <CardHeader className="border-b border-foreground/10">
-        <CardTitle className="min-w-0 space-y-1">
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="min-w-0 shrink">
-                <BreadcrumbLink asChild>
-                  <span className="line-clamp-1 truncate text-sm font-semibold text-primary">
-                    {instituicaoSeleccionada.nome}
-                  </span>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem className="min-w-0 shrink">
-                <BreadcrumbPage className="line-clamp-1 truncate text-sm font-semibold text-secondary">
-                  Grupos para Prova de Aptidão Profissional
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </CardTitle>
+        {/* Segue o mesmo padrão do Header do curso */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 space-y-1">
+            <Breadcrumb>
+              <BreadcrumbList className="flex-wrap">
+                <BreadcrumbItem className="min-w-0">
+                  <BreadcrumbLink asChild>
+                    <span className="line-clamp-2 text-sm font-semibold text-primary">
+                      {instituicaoSeleccionada.nome}
+                    </span>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="min-w-0">
+                  <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
+                    Grupos para Prova de Aptidão Profissional
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
 
-        <CardDescription>
-          Grupos criados para a Prova de Aptidão Profissional (PAP) da
-          instituição{' '}
-          <span className="font-bold">{instituicaoSeleccionada.nome}</span>
-        </CardDescription>
+            <CardDescription>
+              Grupos criados para a Prova de Aptidão Profissional (PAP) da
+              instituição{' '}
+              <span className="font-bold">{instituicaoSeleccionada.nome}</span>
+            </CardDescription>
+          </div>
 
-        <CardAction>
-          {can?.create && (
-            <Button size="sm" className="w-full sm:w-auto" onClick={onAddGrupo}>
-              Adicionar grupo
-            </Button>
+          {can?.create && !isColegioSelecionado && (
+            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+              <Button
+                size="sm"
+                className="w-full justify-center sm:w-auto"
+                onClick={onAddGrupo}
+              >
+                Adicionar grupo
+              </Button>
+            </div>
           )}
-        </CardAction>
+        </div>
       </CardHeader>
 
-      {/* Filtros */}
-      {can?.selecionarAnoLectivo && (
-        <div className="flex flex-col gap-3 overflow-hidden px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
-          <h1 className="text-sm font-semibold whitespace-nowrap">Filtros</h1>
+      <div className="flex flex-col gap-3 overflow-hidden px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
+        <h2 className="text-sm font-semibold whitespace-nowrap">Filtros</h2>
 
-          <div className="flex w-full flex-col justify-end gap-2 sm:w-auto sm:flex-row">
-            {can?.selecionarInstituicao && (
-              <Select
-                value={normalizeFilterValue(filtroInstituicao)}
-                onValueChange={onInstituicaoChange}
-              >
-                <SelectTrigger className="w-full sm:w-56">
-                  <SelectValue placeholder="Instituição" />
-                </SelectTrigger>
-                <SelectContent>
-                  {instituicoes.map((item) => (
-                    <SelectItem key={item.id} value={String(item.id)}>
-                      {item.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+        <div className="flex w-full flex-col justify-end gap-2 sm:w-auto sm:flex-row">
+          {can?.selecionarInstituicao && (
+            <Select
+              value={
+                normalizeFilterValue(filtroInstituicao) ||
+                (can?.selecionarTodasInstituicoes ? 'todas' : '')
+              }
+              onValueChange={onInstituicaoChange}
+            >
+              <SelectTrigger className="w-full sm:w-56">
+                <SelectValue placeholder="Instituição" />
+              </SelectTrigger>
+              <SelectContent>
+                {can?.selecionarTodasInstituicoes && (
+                  <SelectItem value="todas">Todas as instituições</SelectItem>
+                )}
+                {instituicoes.map((item) => (
+                  <SelectItem key={item.id} value={String(item.id)}>
+                    {item.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {cursosTutelados.length > 0 && (
+            <Select
+              value={normalizeFilterValue(filtroCurso) || 'todos'}
+              onValueChange={onCursoChange}
+            >
+              <SelectTrigger className="w-full sm:w-56">
+                <SelectValue placeholder="Todos os cursos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os cursos</SelectItem>
+                {cursosTutelados.map((curso) => (
+                  <SelectItem key={curso.id} value={String(curso.id)}>
+                    {curso.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {can?.selecionarAnoLectivo && (
             <Select
               value={normalizeFilterValue(anoLectivoId)}
               onValueChange={onAnoLectivoChange}
@@ -123,53 +163,18 @@ export function Header({
                 ))}
               </SelectContent>
             </Select>
+          )}
+
+          <div className="w-full sm:w-70">
+            <TableSearch
+              bare
+              value={search}
+              onChange={onSearchChange}
+              onSubmit={onSearchSubmit}
+              placeholder="Pesquisar grupo PAP..."
+            />
           </div>
         </div>
-      )}
-
-      {/* Cursos tutelados */}
-      <div className="border-t border-foreground/10">
-        {cursosTutelados.length > 0 ? (
-          <div className="-mb-px flex flex-wrap divide-x divide-foreground/10">
-            {cursosTutelados.map((curso) => {
-              const cursoValue = normalizeFilterValue(curso.id);
-              const isSelected =
-                normalizeFilterValue(filtroCurso) === cursoValue;
-
-              return (
-                <button
-                  type="button"
-                  key={curso.id}
-                  onClick={() => onCursoChange(curso.id)}
-                  aria-pressed={isSelected}
-                  className="text-left outline-none focus:outline-none"
-                  style={{ flexBasis: '220px', flexGrow: 1 }}
-                >
-                  <div
-                    className={`h-full cursor-pointer border-b border-foreground/10 px-3 py-3 text-card-foreground transition-colors hover:bg-accent hover:text-secondary active:bg-accent sm:px-4 sm:py-4 ${
-                      isSelected ? 'bg-accent text-secondary' : 'bg-card'
-                    }`}
-                  >
-                    <h3 className="mb-0.5 text-xs font-medium sm:mb-1 sm:text-sm">
-                      {curso.nome}
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      {isSelected
-                        ? 'A visualizar os grupos deste curso'
-                        : 'Clique para ver os grupos deste curso'}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center bg-card p-6 text-center">
-            <p className="text-xs text-muted-foreground">
-              Nenhum curso disponível para a instituição selecionada.
-            </p>
-          </div>
-        )}
       </div>
     </Card>
   );

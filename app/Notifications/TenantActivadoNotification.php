@@ -23,7 +23,8 @@ class TenantActivadoNotification extends Notification implements ShouldQueue, Sh
         public string $email,
         public string $subdomain,
         public string $url,
-        public string $sigla
+        public string $sigla,
+        public ?string $password = null,
 
     ) {}
 
@@ -44,13 +45,14 @@ class TenantActivadoNotification extends Notification implements ShouldQueue, Sh
     {
         return (new MailMessage)
             ->subject('Conta activada com sucesso!')
-            ->markdown('mail.tenant-activado-notification', [
+            ->view('mail.tenant-activado-notification', [
                 'nomeInstituicao' => $this->nomeInstituicao,
                 'nomeUser' => $this->nomeUser,
                 'email' => $this->email,
                 'sigla' => $this->sigla,
                 'subdomain' => $this->subdomain,
                 'url' => $this->url,
+                'password' => $this->password,
 
             ]);
     }

@@ -14,6 +14,7 @@ use App\Http\Controllers\Tenant\GrelhaCurricularController;
 use App\Http\Controllers\Tenant\InscricaoController;
 use App\Http\Controllers\Tenant\InstituicaoController;
 use App\Http\Controllers\Tenant\NotaAlunoController;
+use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\ProfessorController;
@@ -53,6 +54,11 @@ final class SidebarMenuService
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
+        if (! $user instanceof User) {
+            return [];
+        }
+
         $gate = Gate::forUser($user);
         $grupoPapNavigation = $this->grupoPapNavigationService->resolve($user);
 
@@ -93,7 +99,9 @@ final class SidebarMenuService
 
                         $instituicao = Instituicao::find($user?->instituicao_id, ['id']);
 
-                        return $instituicao && $gate->allows('view', $instituicao);
+                        return ! $user->hasRole('Secretario do Curso')
+                            && $instituicao
+                            && $gate->allows('view', $instituicao);
                     },
                 ),
 
@@ -107,7 +115,7 @@ final class SidebarMenuService
                             ? action([CursoTuteladoController::class, 'index'], ['instituicao' => $id])
                             : '#';
                     })(),
-                    icon: 'Building2',
+                    icon: 'BookIcon',
                     can: function () use ($user, $gate) {
                         if (! $user?->instituicao_id) {
                             return false;
@@ -115,7 +123,10 @@ final class SidebarMenuService
 
                         $instituicao = Instituicao::find($user?->instituicao_id, ['id']);
 
-                        return $instituicao && $gate->allows('view', $instituicao);
+                        return $instituicao
+                            && ($gate->allows('view', $instituicao)
+                                || ($user->hasRole('Secretario do Curso')
+                                    && $user->cursosSecretariados()->exists()));
                     },
                 ),
 
@@ -146,7 +157,7 @@ final class SidebarMenuService
                 new MenuItem(
                     key: 'pautas',
                     title: 'Pautas',
-                    href: action([PautaController::class, 'indexCursos']),
+                    href: action([PautaController::class, 'index']),
                     icon: 'FileText',
                     can: fn () => $gate->allows('pauta.viewAny')
                 ),
@@ -180,7 +191,10 @@ final class SidebarMenuService
                     title: $grupoPapNavigation['title'],
                     href: $grupoPapNavigation['href'],
                     icon: 'Users',
-                    can: $grupoPapNavigation['visible'] && $gate->allows('viewAny', GrupoPap::class),
+                    can: $grupoPapNavigation['visible']
+                        && ($user?->hasRole('Aluno') === true
+                            || $user?->hasRole('Secretario do Curso') === true
+                            || $gate->allows('viewAny', GrupoPap::class)),
                 ),
 
                 new MenuItem(
@@ -225,7 +239,7 @@ final class SidebarMenuService
             ]),
 
             // ===== NOVO GRUPO: AVALIAÇÃO (Provas) =====
-            new MenuGroup('Avaliação', [
+            /*new MenuGroup('Avaliação', [
                 new MenuItem(
                     key: 'prazos-provas',
                     title: 'Prazos de Provas',
@@ -233,6 +247,7 @@ final class SidebarMenuService
                     icon: 'FileText',
                     can: fn () => Gate::allows('prazo-prova.viewAny')
                 ),
+
                 new MenuItem(
                     key: 'submeter-provas',
                     title: 'Submeter Provas',
@@ -240,7 +255,7 @@ final class SidebarMenuService
                     icon: 'FileText',
                     can: fn () => Gate::allows('submissao-prova.create')
                 ),
-            ]),
+            ]),*/
 
             new MenuGroup('Matrículas', [
                 new MenuItem(
@@ -274,7 +289,9 @@ final class SidebarMenuService
                     title: 'Professores',
                     href: action([ProfessorController::class, 'index']),
                     icon: 'Users',
-                    can: fn () => $gate->allows('viewAny', Professor::class),
+                    can: fn () => $gate->allows('viewAny', Professor::class)
+                        || $user->hasRole('Secretario do Curso'),
+                    disabled: ! $gate->allows('viewAny', Professor::class),
                 ),
 
                 new MenuItem(
@@ -324,6 +341,14 @@ final class SidebarMenuService
 
             new MenuGroup('Comunicação', [
                 new MenuItem(
+                    key: 'notificacoes',
+                    title: 'Central de Notificações',
+                    href: action([NotificacaoController::class, 'index']),
+                    icon: 'BellDot',
+                    can: true,
+                ),
+
+                new MenuItem(
                     key: 'avisos',
                     title: 'Avisos',
                     href: action([AvisoController::class, 'index']),
@@ -343,8 +368,40 @@ final class SidebarMenuService
             ]),
         ];
 
-        return array_values(array_filter(
+        $menuGroups = array_values(array_filter(
             array_map(fn (MenuGroup $group) => $group->toArray(), $groups),
         ));
+
+        if ($user->hasRole('Secretario do Curso')) {
+            $allowedKeys = [
+                'dashboard',
+                'meus-cursos',
+                'grupos-pap',
+                'turmas',
+                'pautas',
+                'inscricoes',
+                'alunos',
+            ];
+
+            return array_values(array_map(
+                function (array $group) use ($allowedKeys): array {
+                    $group['items'] = array_values(array_filter(
+                        $group['items'],
+                        fn (array $item): bool => in_array($item['key'], $allowedKeys, true),
+                    ));
+
+                    return $group;
+                },
+                array_filter(
+                    $menuGroups,
+                    fn (array $group): bool => count(array_intersect(
+                        $allowedKeys,
+                        array_column($group['items'], 'key'),
+                    )) > 0,
+                ),
+            ));
+        }
+
+        return $menuGroups;
     }
 }

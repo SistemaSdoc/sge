@@ -29,6 +29,7 @@ export default function InscricaoForm({
   processing,
   cursos = [],
   cursoId,
+  lockedCourse = false,
   setCursoId,
   cursoSelecionado,
   classeId,
@@ -130,7 +131,7 @@ export default function InscricaoForm({
                   <Select
                     value={cursoId ?? ''}
                     onValueChange={setCursoId}
-                    disabled={processing}
+                    disabled={processing || lockedCourse}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione um curso" />
@@ -298,8 +299,14 @@ export default function InscricaoForm({
                   </Field>
                 </div>
               )}
-
+              
               <Field>
+                {!podeSubmeter && (
+                  <p className="text-sm text-muted-foreground">
+                    Para matricular, seleccione um curso, classe, turno e turma
+                    disponíveis para este ano lectivo.
+                  </p>
+                )}
                 <Button type="submit" disabled={processing || !podeSubmeter}>
                   Matricular
                 </Button>

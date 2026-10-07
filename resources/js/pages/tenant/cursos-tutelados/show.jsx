@@ -2,7 +2,9 @@ import { router } from '@inertiajs/react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TabTurmas } from './components/tabs/tab-turmas';
 import { TabProfessores } from './components/tabs/tab-professores';
+import { TabSecretarios } from './components/tabs/tab-secretarios';
 import { TabCriteriosPap } from './components/tabs/tab-criteriospap';
+import { TabSugestoesTemas } from './components/tabs/tab-sugestoes-temas';
 import { Badge } from '@/components/ui/badge';
 import { show as showClasse } from '@/actions/App/Http/Controllers/Tenant/CursoClasseController';
 import {
@@ -10,6 +12,7 @@ import {
   show as showCurso,
 } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import { destroy } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
+import { destroy as destroySecretario } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoSecretarioController';
 import { useDialog } from '@/hooks/use-dialog';
 import {
   Select,
@@ -21,20 +24,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Header } from './components/curso-header';
-// Imports a adicionar:
-import { useState, useRef } from 'react';
-import { FileText, Upload } from 'lucide-react';
-import { uploadCriteriosPap } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
+import { useState } from 'react';
 
 export default function Show({
   instituicao,
   cursoTutelado,
   anoLectivoId,
   anosLectivos = [],
+  secretariosDisponiveis = [],
   can,
   errors = {},
 }) {
   const { deleteConfirm } = useDialog();
+  const [activeTab, setActiveTab] = useState('turmas');
 
   const params = {
     instituicao,
@@ -51,8 +53,24 @@ export default function Show({
         router.delete(
           destroy({
             ...params,
-            professore: vinculoId,
+            professor: vinculoId,
           }).url,
+        ),
+    });
+  };
+
+  const handleDeleteSecretario = (userId, nome) => {
+    deleteConfirm({
+      title: 'Remover secretário do curso?',
+      description: `${nome} deixará de ter acesso associado a este curso.`,
+      confirmLabel: 'Remover',
+      confirmFn: () =>
+        router.delete(
+          destroySecretario({
+            ...params,
+            secretario: userId,
+          }).url,
+          { preserveScroll: true },
         ),
     });
   };
@@ -62,6 +80,7 @@ export default function Show({
       data: {
         page_turmas: cursoTutelado.turmas?.current_page ?? 1,
         page_professores: cursoTutelado.professores?.current_page ?? 1,
+        page_sugestoes: cursoTutelado.sugestoes_temas?.current_page ?? 1,
         ano_lectivo_id: anoLectivoId,
         [param]: page,
       },
@@ -83,7 +102,7 @@ export default function Show({
       <Header can={can} params={params} />
 
       {/* Tabs */}
-      <Tabs defaultValue="turmas" onValueChange={(value) => {}}>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex w-full flex-col gap-3 md:flex md:flex-row md:justify-between">
           <TabsList className="order-2 w-auto md:order-1">
             <TabsTrigger value="turmas" className="hover:cursor-pointer">
@@ -92,8 +111,19 @@ export default function Show({
             <TabsTrigger value="professores" className="hover:cursor-pointer">
               Professores
             </TabsTrigger>
+            {cursoTutelado.can?.manageSecretarios && (
+              <TabsTrigger value="secretarios" className="hover:cursor-pointer">
+                Secretários
+              </TabsTrigger>
+            )}
             <TabsTrigger value="criterios-pap" className="hover:cursor-pointer">
               Critérios para a PAP
+            </TabsTrigger>
+            <TabsTrigger
+              value="sugestoes-temas"
+              className="hover:cursor-pointer"
+            >
+              Sugestões de temas
             </TabsTrigger>
           </TabsList>
 
@@ -136,10 +166,24 @@ export default function Show({
             professores={cursoTutelado.professores}
             can={cursoTutelado.can}
             deleteFn={handleDeleteProfessor}
+            canAttachSecretario={cursoTutelado.can?.attachSecretario}
+            onAddSecretario={() => setActiveTab('secretarios')}
             pagination={cursoTutelado?.professores}
             onPageChange={handlePageChange('page_professores')}
           />
         </TabsContent>
+
+        {cursoTutelado.can?.manageSecretarios && (
+          <TabsContent value="secretarios" className="mt-2">
+            <TabSecretarios
+              params={params}
+              secretarios={cursoTutelado.secretarios ?? []}
+              disponiveis={secretariosDisponiveis}
+              canAttach={cursoTutelado.can?.attachSecretario}
+              removeFn={handleDeleteSecretario}
+            />
+          </TabsContent>
+        )}
 
         <TabsContent value="criterios-pap" className="mt-2">
           <TabCriteriosPap
@@ -147,9 +191,23 @@ export default function Show({
             criteriosPapUrl={cursoTutelado.criterios_pap_url}
             manualPtUrl={cursoTutelado.manual_pt_url}
             estruturaTrabalhoPapUrl={cursoTutelado.estrutura_trabalho_pap_url}
+            sugestoesTemaPapUrl={cursoTutelado.sugestoes_temas_pap_url}
             //can={cursoTutelado.can}
             can={can}
             errors={errors}
+          />
+        </TabsContent>
+
+        <TabsContent value="sugestoes-temas" className="mt-2">
+          <TabSugestoesTemas
+            params={params}
+            sugestoes={cursoTutelado.sugestoes_temas?.data ?? []}
+            pagination={cursoTutelado.sugestoes_temas}
+            onPageChange={handlePageChange('page_sugestoes')}
+            tutelaExterna={cursoTutelado.tipo_tutela === 'externa'}
+            canManage={
+              can?.uploadCriteriosPap && cursoTutelado.tipo_tutela !== 'externa'
+            }
           />
         </TabsContent>
       </Tabs>

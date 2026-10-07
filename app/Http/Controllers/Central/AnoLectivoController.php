@@ -7,18 +7,22 @@ use App\Http\Requests\Central\AnoLectivoRequest;
 use App\Models\Central\AnoLectivo;
 use App\Services\Central\AnoLectivoService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AnoLectivoController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('central/anos-lectivos/index', [
             'anosLectivos' => AnoLectivo::query()
                 ->withTrashed()
+                ->search($request->string('search')->toString())
                 ->orderByDesc('data_inicio')
-                ->paginate(10),
+                ->paginate(10)
+                ->withQueryString(),
+            'filters' => $request->only('search'),
         ]);
     }
 
@@ -27,24 +31,30 @@ class AnoLectivoController extends Controller
         return Inertia::render('central/anos-lectivos/create');
     }
 
-    public function store(AnoLectivoRequest $request, AnoLectivoService $service): RedirectResponse
-    {
+    public function store(
+        AnoLectivoRequest $request,
+        AnoLectivoService $service
+    ): RedirectResponse {
         $service->criar((int) $request->validated('ano_inicio'));
 
         return to_route('central.dashboard.anos-lectivos.index')
             ->with('success', 'Ano lectivo criado com sucesso.');
     }
 
-    public function archive(AnoLectivo $anoLectivo, AnoLectivoService $service): RedirectResponse
-    {
+    public function archive(
+        AnoLectivo $anoLectivo,
+        AnoLectivoService $service
+    ): RedirectResponse {
         $service->arquivar($anoLectivo);
 
         return to_route('central.dashboard.anos-lectivos.index')
             ->with('success', 'Ano lectivo arquivado com sucesso.');
     }
 
-    public function restore(AnoLectivo $anoLectivo, AnoLectivoService $service): RedirectResponse
-    {
+    public function restore(
+        AnoLectivo $anoLectivo,
+        AnoLectivoService $service
+    ): RedirectResponse {
         $service->restaurar($anoLectivo);
 
         return to_route('central.dashboard.anos-lectivos.index')

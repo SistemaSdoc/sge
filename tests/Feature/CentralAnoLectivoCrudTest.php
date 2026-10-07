@@ -2,7 +2,9 @@
 
 use App\Models\Central\AnoLectivo;
 use App\Models\Central\User;
+use App\Services\Central\AnoLectivoService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -57,5 +59,39 @@ test('superadmin consegue gerir anos lectivos no central', function (): void {
         ->post(route('central.dashboard.anos-lectivos.restore', $ano->id))
         ->assertRedirect(route('central.dashboard.anos-lectivos.index'));
 
+    expect($ano->fresh()->trashed())->toBeFalse();
+});
+
+test('resolve como actual apenas um ano lectivo activo', function (): void {
+    $activo = AnoLectivo::query()->create([
+        'ano_inicio' => 2035,
+        'data_inicio' => now()->subDays(2),
+        'data_fim' => now()->addDays(2),
+        'activo' => true,
+        'estado' => 'em_curso',
+    ]);
+
+    AnoLectivo::query()->create([
+        'ano_inicio' => 2036,
+        'data_inicio' => now()->subDay(),
+        'data_fim' => now()->addDays(3),
+        'activo' => false,
+        'estado' => 'planeado',
+    ]);
+
+    expect(app(AnoLectivoService::class)->current()?->getKey())->toBe($activo->getKey());
+});
+
+test('não arquiva o ano lectivo activo', function (): void {
+    $ano = AnoLectivo::query()->create([
+        'ano_inicio' => 2035,
+        'data_inicio' => now()->subDay(),
+        'data_fim' => now()->addDay(),
+        'activo' => true,
+        'estado' => 'em_curso',
+    ]);
+
+    expect(fn () => app(AnoLectivoService::class)->arquivar($ano))
+        ->toThrow(ValidationException::class);
     expect($ano->fresh()->trashed())->toBeFalse();
 });

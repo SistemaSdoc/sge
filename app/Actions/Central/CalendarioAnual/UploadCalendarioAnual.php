@@ -2,13 +2,13 @@
 
 namespace App\Actions\Central\CalendarioAnual;
 
-use App\Models\Central\CalendarioAnual as CalendarioAnualModel;
+use App\Models\Central\CalendarioAnual;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class UploadCalendarioAnual
 {
-    public function handle(CalendarioAnualModel $calendario, UploadedFile $ficheiro): void
+    public function handle(CalendarioAnual $calendario, UploadedFile $ficheiro): void
     {
         $novoCaminho = null;
 
@@ -29,8 +29,26 @@ class UploadCalendarioAnual
                 'ficheiro_nome' => $ficheiro->getClientOriginalName(),
             ])->save();
 
+            $connection = $calendario->getConnection();
+
+            $inTransaction = $connection->transactionLevel() > 0;
+
             if ($caminhoAntigo) {
-                Storage::disk(config('filesystems.default'))->delete($caminhoAntigo);
+                $disco = config('filesystems.default');
+
+                if ($inTransaction) {
+                    $connection->afterCommit(
+                        fn (): bool => Storage::disk($disco)->delete($caminhoAntigo)
+                    );
+                } else {
+                    Storage::disk($disco)->delete($caminhoAntigo);
+                }
+            }
+
+            if ($inTransaction) {
+                $connection->afterRollBack(
+                    fn (): bool => Storage::disk(config('filesystems.default'))->delete($novoCaminho)
+                );
             }
         } catch (\Throwable $exception) {
             if ($novoCaminho) {

@@ -42,7 +42,14 @@ export function CreateForm({
                 <Select
                   name="professor_id"
                   value={data.professor_id ?? ''}
-                  onValueChange={(value) => setData('professor_id', value)}
+                  onValueChange={(value) => {
+                    const professor = professores.find((item) => item.id === value);
+                    setData('professor_id', value);
+                    setData(
+                      'professor_externo_tenant_id',
+                      professor?.tenant_id ?? '',
+                    );
+                  }}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione o professor" />

@@ -14,7 +14,10 @@ class StoreUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        /** @var User|null $actor */
+        $actor = $this->user('tenant');
+
+        return $actor instanceof User && $actor->can('create', User::class);
     }
 
     /**
