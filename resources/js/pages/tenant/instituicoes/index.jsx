@@ -21,7 +21,10 @@ export default function Index({ instituicoes, can, filters }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      },
       preserveScroll: true,
     });
   };

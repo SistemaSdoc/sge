@@ -42,7 +42,10 @@ export default function GrupoPapForm({
   const [classes, setClasses] = useState([]);
   const [turnos, setTurnos] = useState([]);
   const [turmas, setTurmas] = useState([]);
-  const [formOptions, setFormOptions] = useState({ professores: [], alunos: [] });
+  const [formOptions, setFormOptions] = useState({
+    professores: [],
+    alunos: [],
+  });
   const [classesLoaded, setClassesLoaded] = useState(false);
   const [turnosLoaded, setTurnosLoaded] = useState(false);
   const [turmasLoaded, setTurmasLoaded] = useState(false);
@@ -154,7 +157,6 @@ export default function GrupoPapForm({
   return (
     <form onSubmit={handleSubmit}>
       <FieldGroup className="@container/field-group">
-
         <Field data-invalid={!!errors.curso_tutelado_id}>
           <FieldLabel>Curso</FieldLabel>
           <Select
@@ -313,7 +315,8 @@ export default function GrupoPapForm({
                 }))}
                 value={data.alunos.map((id) => ({
                   value: id,
-                  label: formOptions.alunos.find((a) => a.id === id)?.nome ?? id,
+                  label:
+                    formOptions.alunos.find((a) => a.id === id)?.nome ?? id,
                 }))}
                 onChange={(opts) =>
                   setData((prev) => ({
@@ -332,7 +335,11 @@ export default function GrupoPapForm({
         )}
 
         <Field>
-          <Button type="submit" disabled={processing || !data.turma_id}>
+          <Button
+            type="submit"
+            disabled={processing || !data.turma_id}
+            className="hover:cursor-pointer"
+          >
             {processing ? (
               <>
                 <Loader2 className="animate-spin" /> A guardar...
@@ -346,11 +353,11 @@ export default function GrupoPapForm({
             variant="outline"
             onClick={closeDrawer}
             disabled={processing}
+            className="hover:cursor-pointer"
           >
             Cancelar
           </Button>
         </Field>
-
       </FieldGroup>
     </form>
   );

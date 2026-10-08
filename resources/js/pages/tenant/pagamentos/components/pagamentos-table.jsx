@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -64,26 +63,30 @@ export default function PagamentosTable({
   onPageChange,
   filters,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['pagamentos', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['pagamentos', 'filters'],
+    },
+  );
   const isEmpty = pagamentos.length === 0;
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
-      <CardHeader className="border-b">
-        <CardTitle>Pagamentos</CardTitle>
-        <CardDescription>
-          Registos de propinas e outros encargos escolares.
-        </CardDescription>
-
-        <CardAction className="flex items-center gap-2">
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <CardTitle>Pagamentos</CardTitle>
+          <CardDescription>
+            Registos de propinas e outros encargos escolares.
+          </CardDescription>
+        </div>
+        <div className="w-full sm:w-auto">
           {can?.create && (
-            <Button asChild>
+            <Button asChild className="w-full sm:w-auto">
               <Link href={create().url}>Adicionar Pagamento</Link>
             </Button>
           )}
-        </CardAction>
+        </div>
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -92,8 +95,16 @@ export default function PagamentosTable({
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title={applied ? 'Nenhum pagamento encontrado' : 'Nenhum pagamento registado'}
-            description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece por registar o primeiro pagamento.'}
+            title={
+              applied
+                ? 'Nenhum pagamento encontrado'
+                : 'Nenhum pagamento registado'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Comece por registar o primeiro pagamento.'
+            }
             action={
               can?.create
                 ? {

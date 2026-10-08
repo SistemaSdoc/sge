@@ -9,6 +9,7 @@ use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +26,7 @@ class TurmaController extends Controller
 
         Redirect::setIntendedUrl(request()->fullUrl());
 
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
         $professor = $user?->professor;
         $instituicaoId = $user->instituicao_id;
@@ -110,7 +112,7 @@ class TurmaController extends Controller
             }
         }
 
-        $turmas = $query->with([
+        $turmas = $query->latest('created_at')->with([
             'cursoClasseTurno.turno:id,nome',
             'cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',

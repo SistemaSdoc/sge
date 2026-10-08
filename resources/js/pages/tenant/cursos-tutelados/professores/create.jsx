@@ -39,6 +39,12 @@ export default function Create() {
       {({ errors, processing }) => (
         <ProfessorForm
           professores={professores}
+          courseUrl={
+            show({
+              instituicao: instituicaoId,
+              cursoTutelado: cursoTuteladoId,
+            }).url
+          }
           professorId={professorId}
           setProfessorId={setProfessorId}
           coordenador={coordenador}

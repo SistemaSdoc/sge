@@ -61,6 +61,7 @@ use App\Http\Controllers\Tenant\UserPermissionController;
 use App\Http\Controllers\Tenant\UserProfileController;
 use App\Http\Middleware\CheckTenantStatus;
 use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -80,6 +81,8 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
     InitializeTenancyByDomain::class,
 ])->group(function () {
+    Broadcast::routes(['middleware' => ['web', 'auth:tenant']]);
+
     /*
     |--------------------------------------------------------------------------
     | Rotas de Autenticação de Tenant
@@ -688,14 +691,11 @@ Route::middleware([
             Route::get('notificacoes', [NotificacaoController::class, 'index'])
                 ->name('notificacoes.index');
 
-            Route::post('notificacoes/ler-todas', [NotificacaoController::class, 'marcarTodasLidas'])
+            Route::post('notificacoes/ler-todas', [NotificacaoController::class, 'markAllAsRead'])
                 ->name('notificacoes.ler-todas');
 
-            Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
+            Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'markAsRead'])
                 ->name('notificacoes.ler');
-
-            Route::get('notificacoes/tutela/{shared}', [NotificacaoController::class, 'showTutela'])
-                ->name('notificacoes.tutela.show');
 
             Route::get('notificacoes/{notification}', [NotificacaoController::class, 'show'])
                 ->name('notificacoes.show');
@@ -705,9 +705,6 @@ Route::middleware([
 
             Route::post('notificacoes/{notification}/tutela/rejeitar', [NotificacaoController::class, 'rejeitarTutela'])
                 ->name('notificacoes.tutela.rejeitar');
-
-            Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
-                ->name('notificacoes.ler');
 
             // ===== DIRETOR =====
             // ===== DIRETOR =====

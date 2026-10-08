@@ -58,7 +58,7 @@ class CursoClasseController extends Controller
             ? $turnoActual->turmas()
                 ->where('ano_lectivo_id', $anoLectivoId)
                 ->withCount('alunosActivos')
-                ->orderBy('nome')
+                ->latest('created_at')
                 ->paginate(7, ['*'], 'page_turmas')
                 ->through(function (Turma $turma) use ($user) {
                     return [

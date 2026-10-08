@@ -277,6 +277,7 @@ class GrupoPapController extends Controller
 
         $banca = $grupoPap->jurados()
             ->with('professor.user:id,nome,email')
+            ->orderByPivotDesc('created_at')
             ->paginate(10, ['*'], 'page_banca');
 
         $elementos = $grupoPap->elementos()
@@ -284,6 +285,7 @@ class GrupoPapController extends Controller
                 'aluno.inscricao.candidato:id,nome,email',
                 'aluno:id,user_id,matricula,inscricao_id',
             ])
+            ->latest('created_at')
             ->paginate(10, ['*'], 'page_elementos');
 
         return Inertia::render(

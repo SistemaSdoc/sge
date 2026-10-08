@@ -148,7 +148,7 @@ export function Header({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-center sm:w-auto"
+                  className="w-full justify-center hover:cursor-pointer sm:w-auto"
                   onClick={() =>
                     router.visit(
                       showClasse({
@@ -167,7 +167,7 @@ export function Header({
               {turma.can?.edit && (
                 <Button
                   size="sm"
-                  className="w-full justify-center sm:w-auto"
+                  className="w-full justify-center hover:cursor-pointer sm:w-auto"
                   onClick={(e) => {
                     e.stopPropagation();
                     router.visit(
@@ -190,7 +190,7 @@ export function Header({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="w-full justify-center sm:hidden"
+                  className="w-full justify-center hover:cursor-pointer sm:hidden"
                   onClick={() =>
                     router.visit(
                       index({
@@ -213,13 +213,18 @@ export function Header({
                 <div className="hidden sm:block">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="icon-sm">
+                      <Button
+                        variant="outline"
+                        size="icon-sm"
+                        className="hover:cursor-pointer"
+                      >
                         <MoreHorizontalIcon />
                       </Button>
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent align="end" className="w-auto">
                       <DropdownMenuItem
+                        className="hover:cursor-pointer"
                         onClick={() =>
                           router.visit(
                             index({

@@ -1,3 +1,5 @@
+import { Link } from '@inertiajs/react';
+import { ArrowUpLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -23,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { index } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
 
 export default function InscricaoForm({
   errors,
@@ -59,7 +62,7 @@ export default function InscricaoForm({
   )?.nome;
 
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
       <Card>
         <CardHeader className="border-b">
           <CardTitle>{entityLabel}</CardTitle>
@@ -299,7 +302,7 @@ export default function InscricaoForm({
                   </Field>
                 </div>
               )}
-              
+
               <Field>
                 {!podeSubmeter && (
                   <p className="text-sm text-muted-foreground">
@@ -307,8 +310,19 @@ export default function InscricaoForm({
                     disponíveis para este ano lectivo.
                   </p>
                 )}
-                <Button type="submit" disabled={processing || !podeSubmeter}>
+                <Button
+                  type="submit"
+                  disabled={processing || !podeSubmeter}
+                  className="hover:cursor-pointer"
+                >
                   Matricular
+                </Button>
+
+                <Button asChild variant="outline">
+                  <Link href={index().url}>
+                    <ArrowUpLeft aria-hidden="true" />
+                    Voltar à lista de matrículas
+                  </Link>
                 </Button>
               </Field>
             </FieldSet>

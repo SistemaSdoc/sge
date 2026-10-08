@@ -35,7 +35,7 @@ export default function Edit({
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-6">
+    <div className="mx-auto w-full max-w-5xl">
       <CursoForm
         title="Editar curso tutelado"
         instituicao={instituicao}

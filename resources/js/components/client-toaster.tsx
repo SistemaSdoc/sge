@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 
 const Toaster = lazy(() =>
-  import('@/components/ui/sonner').then((m) => ({ default: m.Toaster }))
+  import('@/components/ui/sonner').then((m) => ({ default: m.Toaster })),
 );
 
 export function ClientToaster() {

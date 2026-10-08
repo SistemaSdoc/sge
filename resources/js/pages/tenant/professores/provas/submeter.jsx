@@ -5,7 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -16,7 +22,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-export default function Submeter({ prazo, turmas = [], turma_selecionada = null }) {
+export default function Submeter({
+  prazo,
+  turmas = [],
+  turma_selecionada = null,
+}) {
   //   Se veio turma do card, pré-seleciona. Senão, fica vazio.
   const { data, setData, post, processing, errors } = useForm({
     turma_id: turma_selecionada || '',
@@ -47,7 +57,7 @@ export default function Submeter({ prazo, turmas = [], turma_selecionada = null 
     <>
       <Head title={`Submeter: ${prazo.titulo}`} />
 
-      <div className="w-full space-y-6 p-6 max-w-3xl mx-auto">
+      <div className="mx-auto w-full max-w-3xl space-y-6 p-6">
         {/* Cabeçalho */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-2xl font-bold text-foreground">Submeter Prova</h1>
@@ -60,24 +70,31 @@ export default function Submeter({ prazo, turmas = [], turma_selecionada = null 
         </div>
 
         {/* Card do prazo */}
-        <Card className="shadow-sm border-border">
+        <Card className="border-border shadow-sm">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">{prazo.titulo}</CardTitle>
+            <CardTitle className="text-lg font-semibold">
+              {prazo.titulo}
+            </CardTitle>
             <CardDescription>
-              Disciplina: {prazo.disciplina?.nome || 'Todas'} | Limite: {prazo.data_limite}
+              Disciplina: {prazo.disciplina?.nome || 'Todas'} | Limite:{' '}
+              {prazo.data_limite}
             </CardDescription>
           </CardHeader>
         </Card>
 
         {/* Formulário */}
-        <Card className="shadow-sm border-border">
+        <Card className="border-border shadow-sm">
           <CardContent className="pt-6">
-            <form onSubmit={submit} encType="multipart/form-data" className="space-y-6">
+            <form
+              onSubmit={submit}
+              encType="multipart/form-data"
+              className="space-y-6"
+            >
               {hasErrors && (
                 <Alert variant="destructive">
                   <AlertCircle className="size-4" />
                   <AlertDescription>
-                    <ul className="list-disc pl-4 space-y-1 text-sm">
+                    <ul className="list-disc space-y-1 pl-4 text-sm">
                       {Object.values(errors).map((msg, i) => (
                         <li key={i}>{msg}</li>
                       ))}
@@ -88,16 +105,18 @@ export default function Submeter({ prazo, turmas = [], turma_selecionada = null 
 
               {/*   TURMA */}
               <div className="space-y-2">
-                <Label className="font-medium flex items-center gap-2">
+                <Label className="flex items-center gap-2 font-medium">
                   <Users className="size-4" />
                   Turma <span className="text-destructive">*</span>
                 </Label>
 
                 {turmaVemDoCard ? (
                   /*   Turma pré-selecionada (vinda do card) */
-                  <div className="flex items-center gap-2 p-3 bg-muted/40 border border-border">
+                  <div className="flex items-center gap-2 border border-border bg-muted/40 p-3">
                     <Lock className="size-4 text-muted-foreground" />
-                    <span className="font-medium">{turmaInfo?.nome || 'Turma selecionada'}</span>
+                    <span className="font-medium">
+                      {turmaInfo?.nome || 'Turma selecionada'}
+                    </span>
                     <Badge variant="outline" className="ml-auto text-xs">
                       Fixa
                     </Badge>
@@ -141,7 +160,8 @@ export default function Submeter({ prazo, turmas = [], turma_selecionada = null 
               {/* Arquivo da Prova */}
               <div className="space-y-2">
                 <Label htmlFor="arquivo_prova" className="font-medium">
-                  Arquivo da Prova (PDF ou Word) <span className="text-destructive">*</span>
+                  Arquivo da Prova (PDF ou Word){' '}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="arquivo_prova"
@@ -153,14 +173,17 @@ export default function Submeter({ prazo, turmas = [], turma_selecionada = null 
                 />
                 <p className="text-sm text-muted-foreground">Máx. 10MB</p>
                 {errors.arquivo_prova && (
-                  <p className="text-sm text-destructive">{errors.arquivo_prova}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.arquivo_prova}
+                  </p>
                 )}
               </div>
 
               {/* Chave / Gabarito */}
               <div className="space-y-2">
                 <Label htmlFor="arquivo_chave" className="font-medium">
-                  Chave / Gabarito (PDF ou Word) <span className="text-destructive">*</span>
+                  Chave / Gabarito (PDF ou Word){' '}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="arquivo_chave"
@@ -172,7 +195,9 @@ export default function Submeter({ prazo, turmas = [], turma_selecionada = null 
                 />
                 <p className="text-sm text-muted-foreground">Máx. 10MB</p>
                 {errors.arquivo_chave && (
-                  <p className="text-sm text-destructive">{errors.arquivo_chave}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.arquivo_chave}
+                  </p>
                 )}
               </div>
 

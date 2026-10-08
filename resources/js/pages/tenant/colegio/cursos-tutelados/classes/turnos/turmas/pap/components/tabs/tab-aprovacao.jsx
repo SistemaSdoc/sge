@@ -251,9 +251,7 @@ export function TabAprovacao({ params, grupoPap, turma, can }) {
               <p className="text-xs font-medium text-muted-foreground uppercase">
                 Turma
               </p>
-              <p className="mt-1 text-sm font-medium">
-                {turma?.nome ?? '—'}
-              </p>
+              <p className="mt-1 text-sm font-medium">{turma?.nome ?? '—'}</p>
             </div>
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase">

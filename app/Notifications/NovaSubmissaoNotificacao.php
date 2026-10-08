@@ -29,30 +29,30 @@ class NovaSubmissaoNotificacao extends Notification implements ShouldQueue, Shou
         $prazo = $this->submissao->prazo;
 
         return (new MailMessage)
-            ->subject('Nova submissão de ' . ($this->submissao->professor?->user?->nome ?? 'Professor'))
+            ->subject('Nova submissão de '.($this->submissao->professor?->user?->nome ?? 'Professor'))
             ->view('mail.diretor.nova-submissao', [
-                'nome'          => $notifiable->nome,
-                'professor'     => $this->submissao->professor?->user?->nome ?? 'Professor',
-                'prazoTitulo'   => $prazo?->titulo,
-                'disciplina'    => $prazo?->disciplina?->nome,
-                'classe'        => $prazo?->classe?->nome,
-                'turmaNome'     => $this->submissao->turma?->nome,
-                'versao'        => $this->submissao->versao,
+                'nome' => $notifiable->nome,
+                'professor' => $this->submissao->professor?->user?->nome ?? 'Professor',
+                'prazoTitulo' => $prazo?->titulo,
+                'disciplina' => $prazo?->disciplina?->nome,
+                'classe' => $prazo?->classe?->nome,
+                'turmaNome' => $this->submissao->turma?->nome,
+                'versao' => $this->submissao->versao,
                 'dataSubmissao' => $this->submissao->data_submissao?->format('d/m/Y H:i') ?? '—',
-                'comentario'    => $this->submissao->comentario,
-                'url'           => url("/dashboard/diretor/prazos/{$prazo?->id}/status"),
-                'instituicao'   => $notifiable->instituicao,
+                'comentario' => $this->submissao->comentario,
+                'url' => url("/dashboard/diretor/prazos/{$prazo?->id}/status"),
+                'instituicao' => $notifiable->instituicao,
             ]);
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'     => 'nova_submissao',
-            'titulo'   => 'Nova submissão recebida',
-            'mensagem' => ($this->submissao->professor?->user?->nome ?? 'Professor') .
+            'tipo' => 'nova_submissao',
+            'titulo' => 'Nova submissão recebida',
+            'mensagem' => ($this->submissao->professor?->user?->nome ?? 'Professor').
                           " submeteu a prova \"{$this->submissao->prazo?->titulo}\".",
-            'url'      => "/dashboard/diretor/prazos/{$this->submissao->prazo_prova_id}/status",
+            'url' => "/dashboard/diretor/prazos/{$this->submissao->prazo_prova_id}/status",
         ];
     }
 }

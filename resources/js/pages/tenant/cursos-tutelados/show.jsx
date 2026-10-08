@@ -98,30 +98,42 @@ export default function Show({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
+    <div className="mx-auto w-full max-w-6xl space-y-4 p-4 md:p-6">
       <Header can={can} params={params} />
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex w-full flex-col gap-3 md:flex md:flex-row md:justify-between">
-          <TabsList className="order-2 w-auto md:order-1">
-            <TabsTrigger value="turmas" className="hover:cursor-pointer">
+          <TabsList className="order-2 w-auto max-md:grid max-md:h-auto! max-md:w-full max-md:grid-cols-2 max-md:gap-1 md:order-1">
+            <TabsTrigger
+              value="turmas"
+              className="hover:cursor-pointer max-md:h-auto! max-md:min-h-8 max-md:min-w-0 max-md:text-center max-md:leading-tight max-md:whitespace-normal"
+            >
               Turmas
             </TabsTrigger>
-            <TabsTrigger value="professores" className="hover:cursor-pointer">
+            <TabsTrigger
+              value="professores"
+              className="hover:cursor-pointer max-md:h-auto! max-md:min-h-8 max-md:min-w-0 max-md:text-center max-md:leading-tight max-md:whitespace-normal"
+            >
               Professores
             </TabsTrigger>
             {cursoTutelado.can?.manageSecretarios && (
-              <TabsTrigger value="secretarios" className="hover:cursor-pointer">
+              <TabsTrigger
+                value="secretarios"
+                className="hover:cursor-pointer max-md:h-auto! max-md:min-h-8 max-md:min-w-0 max-md:text-center max-md:leading-tight max-md:whitespace-normal"
+              >
                 Secretários
               </TabsTrigger>
             )}
-            <TabsTrigger value="criterios-pap" className="hover:cursor-pointer">
+            <TabsTrigger
+              value="criterios-pap"
+              className="hover:cursor-pointer max-md:h-auto! max-md:min-h-8 max-md:min-w-0 max-md:text-center max-md:leading-tight max-md:whitespace-normal"
+            >
               Critérios para a PAP
             </TabsTrigger>
             <TabsTrigger
               value="sugestoes-temas"
-              className="hover:cursor-pointer"
+              className="hover:cursor-pointer max-md:h-auto! max-md:min-h-8 max-md:min-w-0 max-md:text-center max-md:leading-tight max-md:whitespace-normal"
             >
               Sugestões de temas
             </TabsTrigger>

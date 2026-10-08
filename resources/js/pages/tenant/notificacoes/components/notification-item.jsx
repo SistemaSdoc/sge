@@ -3,13 +3,13 @@ import { ArrowUpRight, Check, Dot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  marcarLida,
+  markAsRead,
   show,
 } from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
 
 export function NotificationItem({ notificacao }) {
   const handleMarcarLida = () => {
-    router.post(marcarLida(notificacao.id).url, {}, { preserveScroll: true });
+    router.post(markAsRead(notificacao.id).url, {}, { preserveScroll: true });
   };
 
   return (
@@ -20,7 +20,7 @@ export function NotificationItem({ notificacao }) {
             {notificacao.titulo}{' '}
           </h3>
 
-          <Dot />
+          <Dot className="text-secondary" />
 
           <time className="text-xs text-muted-foreground">
             {notificacao.criada_em}
@@ -37,7 +37,7 @@ export function NotificationItem({ notificacao }) {
           <Button
             type="button"
             variant="outline"
-            size="sm"
+            size="xs"
             className="justify-start hover:cursor-pointer"
             onClick={handleMarcarLida}
           >
@@ -46,7 +46,7 @@ export function NotificationItem({ notificacao }) {
           </Button>
         )}
 
-        <Button asChild variant="outline" size="sm" className="justify-start">
+        <Button asChild variant="outline" size="xs" className="justify-start">
           <Link href={show(notificacao.id).url}>
             Ver detalhes
             <ArrowUpRight data-icon="inline-end" />

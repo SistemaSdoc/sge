@@ -82,11 +82,13 @@ export function TabRecurso({
 
   return (
     <Card className="gap-0">
-      <CardHeader className="border-b">
-        <CardTitle>Recurso</CardTitle>
-        <CardDescription>
-          Disciplinas com alunos em situação de recurso
-        </CardDescription>
+      <CardHeader className="flex flex-col gap-1 border-b">
+        <div className="min-w-0">
+          <CardTitle>Recurso</CardTitle>
+          <CardDescription>
+            Disciplinas com alunos em situação de recurso
+          </CardDescription>
+        </div>
       </CardHeader>
 
       <CardContent className="p-0!">

@@ -30,18 +30,18 @@ class JustificativaEnviadaNotificacao extends Notification implements ShouldQueu
         $professor = $this->justificativa->professor?->user?->nome ?? 'Professor';
 
         return (new MailMessage)
-            ->subject('Nova justificativa de ' . $professor)
+            ->subject('Nova justificativa de '.$professor)
             ->view('mail.diretor.justificativa-enviada', [
-                'nome'              => $notifiable->nome,
-                'professor'         => $professor,
-                'prazoTitulo'       => $prazo?->titulo,
-                'disciplina'        => $prazo?->disciplina?->nome,
-                'classe'            => $prazo?->classe?->nome,
-                'turmaNome'         => $this->justificativa->turma?->nome,
+                'nome' => $notifiable->nome,
+                'professor' => $professor,
+                'prazoTitulo' => $prazo?->titulo,
+                'disciplina' => $prazo?->disciplina?->nome,
+                'classe' => $prazo?->classe?->nome,
+                'turmaNome' => $this->justificativa->turma?->nome,
                 'dataJustificativa' => $this->justificativa->data_justificativa?->format('d/m/Y H:i') ?? '—',
-                'motivo'            => $this->justificativa->motivo,
-                'url'               => url("/dashboard/diretor/prazos/{$prazo?->id}/status"),
-                'instituicao'       => $notifiable->instituicao,
+                'motivo' => $this->justificativa->motivo,
+                'url' => url("/dashboard/diretor/prazos/{$prazo?->id}/status"),
+                'instituicao' => $notifiable->instituicao,
             ]);
     }
 
@@ -50,10 +50,10 @@ class JustificativaEnviadaNotificacao extends Notification implements ShouldQueu
         $professor = $this->justificativa->professor?->user?->nome ?? 'Professor';
 
         return [
-            'tipo'     => 'justificativa_enviada',
-            'titulo'   => 'Nova justificativa recebida',
+            'tipo' => 'justificativa_enviada',
+            'titulo' => 'Nova justificativa recebida',
             'mensagem' => "{$professor} enviou uma justificativa para \"{$this->justificativa->prazo?->titulo}\".",
-            'url'      => "/dashboard/diretor/prazos/{$this->justificativa->prazo_prova_id}/status",
+            'url' => "/dashboard/diretor/prazos/{$this->justificativa->prazo_prova_id}/status",
         ];
     }
 }

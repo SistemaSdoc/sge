@@ -131,7 +131,7 @@ class TurmaDisciplinaProfessorController extends Controller
             'cursoClasse' => $cursoClasse->id,
             'cursoClasseTurno' => $cursoClasseTurno->id,
             'turma' => $turma->id,
-            //'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
+            // 'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
         ] + $anoLectivoParam)->with('success', 'Professor associado com sucesso.');
     }
 

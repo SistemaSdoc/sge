@@ -86,39 +86,39 @@ class CursoTutelado extends Model
     }
 
     public function resolverSugestoesTemas(): Collection
-{
-    if ($this->tipo_tutela !== 'externa' || ! $this->curso_tutelado_shared_id) {
-        return $this->sugestoesTemas;
+    {
+        if ($this->tipo_tutela !== 'externa' || ! $this->curso_tutelado_shared_id) {
+            return $this->sugestoesTemas;
+        }
+
+        $shared = $this->relationLoaded('cursoTuteladoShared')
+            ? $this->cursoTuteladoShared
+            : $this->cursoTuteladoShared()->first();
+
+        if (! $shared?->tenant_tutor_id || ! $shared?->curso_id) {
+            return collect();
+        }
+
+        $tenantTutor = Tenant::find($shared->tenant_tutor_id);
+
+        if (! $tenantTutor) {
+            return collect();
+        }
+
+        return $tenantTutor->run(function () use ($shared): Collection {
+            $tutor = CursoTutelado::query()
+                ->where('tipo_tutela', 'propria')
+                ->whereHas(
+                    'instituicaoCurso',
+                    fn ($q) => $q->where('curso_id', $shared->curso_id)
+                )
+                ->first();
+
+            return $tutor
+                ? $tutor->sugestoesTemas()->get(['id', 'titulo', 'descricao', 'ativo'])
+                : collect();
+        });
     }
-
-    $shared = $this->relationLoaded('cursoTuteladoShared')
-        ? $this->cursoTuteladoShared
-        : $this->cursoTuteladoShared()->first();
-
-    if (! $shared?->tenant_tutor_id || ! $shared?->curso_id) {
-        return collect();
-    }
-
-    $tenantTutor = Tenant::find($shared->tenant_tutor_id);
-
-    if (! $tenantTutor) {
-        return collect();
-    }
-
-    return $tenantTutor->run(function () use ($shared): Collection {
-        $tutor = CursoTutelado::query()
-            ->where('tipo_tutela', 'propria')
-            ->whereHas(
-                'instituicaoCurso',
-                fn ($q) => $q->where('curso_id', $shared->curso_id)
-            )
-            ->first();
-
-        return $tutor
-            ? $tutor->sugestoesTemas()->get(['id', 'titulo', 'descricao', 'ativo'])
-            : collect();
-    });
-}
 
     /**
      * Resolve os paths dos documentos PAP.
@@ -142,7 +142,7 @@ class CursoTutelado extends Model
         }
 
         // Tutela externa — vai buscar ao tenant tutor
-        if ($this->tipo_tutela !== 'externa' || !$this->curso_tutelado_shared_id) {
+        if ($this->tipo_tutela !== 'externa' || ! $this->curso_tutelado_shared_id) {
             return $empty;
         }
 
@@ -151,13 +151,13 @@ class CursoTutelado extends Model
             ? $this->cursoTuteladoShared
             : $this->cursoTuteladoShared()->first();
 
-        if (!$shared?->tenant_tutor_id || !$shared?->curso_id) {
+        if (! $shared?->tenant_tutor_id || ! $shared?->curso_id) {
             return $empty;
         }
 
         $tenantTutor = Tenant::find($shared->tenant_tutor_id);
 
-        if (!$tenantTutor) {
+        if (! $tenantTutor) {
             return $empty;
         }
 
@@ -166,7 +166,7 @@ class CursoTutelado extends Model
                 ->where('tipo_tutela', 'propria')
                 ->whereHas(
                     'instituicaoCurso',
-                    fn($q) => $q->where('curso_id', $shared->curso_id)
+                    fn ($q) => $q->where('curso_id', $shared->curso_id)
                 )
                 ->first(['criterios_pap_path', 'manual_pt_path', 'estrutura_trabalho_pap_path']);
 

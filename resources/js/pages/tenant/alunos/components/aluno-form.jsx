@@ -28,7 +28,7 @@ export default function AlunoForm({
   defaultValues = {},
 }) {
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
       <Card className="overflow-visible">
         <CardHeader className="border-b">
           <CardTitle>Editar aluno</CardTitle>

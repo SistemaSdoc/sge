@@ -32,9 +32,12 @@ import { BookOpen } from 'lucide-react';
 
 export default function Index({ cursos, filters }) {
   const { deleteConfirm } = useDialog();
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['cursos', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['cursos', 'filters'],
+    },
+  );
 
   const handleDelete = (curso) => {
     deleteConfirm({
@@ -51,7 +54,10 @@ export default function Index({ cursos, filters }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      },
       preserveScroll: true,
     });
   };
@@ -80,69 +86,77 @@ export default function Index({ cursos, filters }) {
               <EmptyState
                 variant="table"
                 icon={BookOpen}
-                title={applied ? 'Nenhum curso encontrado' : 'Nenhum curso cadastrado'}
-                description={applied ? 'Tenta ajustar a pesquisa.' : 'Adicione um curso ao catálogo central.'}
+                title={
+                  applied
+                    ? 'Nenhum curso encontrado'
+                    : 'Nenhum curso cadastrado'
+                }
+                description={
+                  applied
+                    ? 'Tenta ajustar a pesquisa.'
+                    : 'Adicione um curso ao catálogo central.'
+                }
               />
             ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/72">
-                  <TableHead className="px-4">Nome</TableHead>
-                  <TableHead>Duração</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="px-4 text-right">Acções</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {cursos.data.map((curso) => (
-                  <TableRow key={curso.id}>
-                    <TableCell className="px-4 font-medium">
-                      {curso.nome}
-                    </TableCell>
-
-                    <TableCell>{curso.duracao_anos} anos</TableCell>
-
-                    <TableCell>
-                      {curso.deleted_at
-                        ? 'Arquivado'
-                        : curso.status === 1
-                          ? 'Activo'
-                          : 'Inactivo'}
-                    </TableCell>
-
-                    <TableCell className="px-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        {!curso.deleted_at && (
-                          <>
-                            <Button asChild variant="outline" size="xs">
-                              <Link href={edit(curso.id).url}>Editar</Link>
-                            </Button>
-
-                            <Button
-                              variant="destructive"
-                              size="xs"
-                              onClick={() => handleDelete(curso)}
-                            >
-                              Suspender
-                            </Button>
-                          </>
-                        )}
-
-                        {curso.deleted_at && (
-                          <Button
-                            variant="outline"
-                            size="xs"
-                            onClick={() => handleRestore(curso)}
-                          >
-                            Restaurar
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/72">
+                    <TableHead className="px-4">Nome</TableHead>
+                    <TableHead>Duração</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="px-4 text-right">Acções</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {cursos.data.map((curso) => (
+                    <TableRow key={curso.id}>
+                      <TableCell className="px-4 font-medium">
+                        {curso.nome}
+                      </TableCell>
+
+                      <TableCell>{curso.duracao_anos} anos</TableCell>
+
+                      <TableCell>
+                        {curso.deleted_at
+                          ? 'Arquivado'
+                          : curso.status === 1
+                            ? 'Activo'
+                            : 'Inactivo'}
+                      </TableCell>
+
+                      <TableCell className="px-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          {!curso.deleted_at && (
+                            <>
+                              <Button asChild variant="outline" size="xs">
+                                <Link href={edit(curso.id).url}>Editar</Link>
+                              </Button>
+
+                              <Button
+                                variant="destructive"
+                                size="xs"
+                                onClick={() => handleDelete(curso)}
+                              >
+                                Suspender
+                              </Button>
+                            </>
+                          )}
+
+                          {curso.deleted_at && (
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              onClick={() => handleRestore(curso)}
+                            >
+                              Restaurar
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
 

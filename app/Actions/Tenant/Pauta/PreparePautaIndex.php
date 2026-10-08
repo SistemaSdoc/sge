@@ -160,7 +160,7 @@ class PreparePautaIndex
                         );
                 }))
                 ->with($this->turmaRelations())
-                ->orderBy('nome')
+                ->latest('created_at')
                 ->get();
 
             $turmas = $turmas->merge(
@@ -221,7 +221,7 @@ class PreparePautaIndex
                         )
                         ->where('ano_lectivo_id', $anoLectivoId)
                         ->with($this->turmaRelations())
-                        ->orderBy('nome')
+                        ->latest('created_at')
                         ->get();
 
                     return $resultado;
@@ -263,7 +263,12 @@ class PreparePautaIndex
                     fn ($value): bool => str_contains(mb_strtolower((string) $value), $term),
                 ));
             })
-            ->sortBy(fn (array $turma): string => $turma['nome'].'-'.$turma['curso'].'-'.$turma['id'])
+            ->sortByDesc('_created_at')
+            ->map(function (array $turma): array {
+                unset($turma['_created_at']);
+
+                return $turma;
+            })
             ->values();
         $porPagina = min(100, max(1, $request->integer('per_page', 10)));
         $pagina = max(1, $request->integer('page', 1));
@@ -336,6 +341,7 @@ class PreparePautaIndex
 
         return [
             'id' => (string) $turma->getKey(),
+            '_created_at' => $turma->created_at?->getTimestamp() ?? 0,
             'nome' => $turma->nome,
             'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
             'turno' => $turma->cursoClasseTurno?->turno?->nome,

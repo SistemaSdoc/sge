@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('curso_tutelado_professor') || Schema::hasColumn('curso_tutelado_professor', 'opap')) {
+            return;
+        }
+
         Schema::table('curso_tutelado_professor', function (Blueprint $table) {
             $table->boolean('opap')->default(false)->after('coordenador');
         });

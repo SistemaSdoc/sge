@@ -87,7 +87,7 @@ class AlunoController extends Controller
                     fn ($q) => $q->whereIn('turmas.id', $user->professor->turmas()->pluck('turmas.id'))
                 )
             )
-            ->latest()
+            ->latest('created_at')
             ->paginate(10)
             ->withQueryString();
 

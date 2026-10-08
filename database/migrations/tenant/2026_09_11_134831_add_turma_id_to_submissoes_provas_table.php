@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('submissoes_provas') || Schema::hasColumn('submissoes_provas', 'turma_id')) {
+            return;
+        }
+
         Schema::table('submissoes_provas', function (Blueprint $table) {
             $table->uuid('turma_id')->nullable()->after('classe_id');
             $table->foreign('turma_id')->references('id')->on('turmas')->onDelete('cascade');

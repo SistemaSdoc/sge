@@ -90,7 +90,7 @@ class NotaDisciplinaController extends Controller
                         ->where('turma_aluno.activo', true);
                 })->orWhere('turma_aluno.situacao', 'concluido');
             })
-            ->orderBy('candidatos.nome')
+            ->latest('turma_aluno.created_at')
             ->paginate(20, ['*'], 'page_alunos');
 
         $professorDono = Auth::guard('tenant')->user()->professor?->id === $tdp->professor_id;
@@ -226,7 +226,7 @@ class NotaDisciplinaController extends Controller
                         ->where('turma_aluno.activo', true);
                 })->orWhere('turma_aluno.situacao', 'concluido');
             })
-            ->orderBy('candidatos.nome')
+            ->latest('turma_aluno.created_at')
             ->paginate(20, ['*'], 'page_alunos');
 
         $alunosMapeados = $turmaAlunos->getCollection()->map(fn ($ta) => [

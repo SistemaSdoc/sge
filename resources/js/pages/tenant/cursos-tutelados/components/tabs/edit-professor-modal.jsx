@@ -23,7 +23,9 @@ import { Spinner } from '@/components/spinner';
 
 export default function EditProfessorForm({ vinculo, onClose, params }) {
   const [tipo, setTipo] = useState(vinculo?.tipo ?? '');
-  const [coordenador, setCoordenador] = useState(!!vinculo?.coordenador ?? false);
+  const [coordenador, setCoordenador] = useState(
+    !!vinculo?.coordenador ?? false,
+  );
   const [opap, setOpap] = useState(!!vinculo?.opap ?? false);
   const [errors, setErrors] = useState({});
   const [processing, setProcessing] = useState(false);

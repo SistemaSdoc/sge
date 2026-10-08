@@ -32,17 +32,17 @@ class SubmissaoAvaliadaNotificacao extends Notification implements ShouldQueue, 
         return (new MailMessage)
             ->subject($aprovado ? 'Submissão aprovada' : 'Submissão rejeitada')
             ->view('mail.professor.submissao-avaliada', [
-                'nome'           => $notifiable->nome,
-                'aprovado'       => $aprovado,
-                'prazoTitulo'    => $prazo?->titulo,
-                'disciplina'     => $prazo?->disciplina?->nome,
-                'classe'         => $prazo?->classe?->nome,
-                'turmaNome'      => $this->submissao->turma?->nome,
-                'versao'         => $this->submissao->versao,
-                'dataSubmissao'  => $this->submissao->data_submissao?->format('d/m/Y H:i') ?? '—',
-                'parecer'        => $this->submissao->parecer_diretor,
-                'url'            => url('/dashboard/professor/provas'),
-                'instituicao'    => $notifiable->instituicao,
+                'nome' => $notifiable->nome,
+                'aprovado' => $aprovado,
+                'prazoTitulo' => $prazo?->titulo,
+                'disciplina' => $prazo?->disciplina?->nome,
+                'classe' => $prazo?->classe?->nome,
+                'turmaNome' => $this->submissao->turma?->nome,
+                'versao' => $this->submissao->versao,
+                'dataSubmissao' => $this->submissao->data_submissao?->format('d/m/Y H:i') ?? '—',
+                'parecer' => $this->submissao->parecer_diretor,
+                'url' => url('/dashboard/professor/provas'),
+                'instituicao' => $notifiable->instituicao,
             ]);
     }
 
@@ -51,10 +51,10 @@ class SubmissaoAvaliadaNotificacao extends Notification implements ShouldQueue, 
         $aprovado = $this->submissao->estado === 'aprovado';
 
         return [
-            'tipo'     => 'submissao_avaliada',
-            'titulo'   => $aprovado ? 'Submissão aprovada' : 'Submissão rejeitada',
-            'mensagem' => "A sua submissão para \"{$this->submissao->prazo?->titulo}\" foi " . ($aprovado ? 'aprovada' : 'rejeitada') . ".",
-            'url'      => '/dashboard/professor/provas',
+            'tipo' => 'submissao_avaliada',
+            'titulo' => $aprovado ? 'Submissão aprovada' : 'Submissão rejeitada',
+            'mensagem' => "A sua submissão para \"{$this->submissao->prazo?->titulo}\" foi ".($aprovado ? 'aprovada' : 'rejeitada').'.',
+            'url' => '/dashboard/professor/provas',
         ];
     }
 }

@@ -29,10 +29,11 @@ class CursoTuteladoProfessorController extends Controller
 
         $professores = $cursoTutelado->professores()
             ->with(['user'])
+            ->orderByPivotDesc('created_at')
             ->paginate(5);
 
         return response()->json(
-            $professores->through(fn($prof) => [
+            $professores->through(fn ($prof) => [
                 'id' => $prof->id,
                 'nome' => $prof->user?->nome,
                 'email' => $prof->user?->email,
@@ -135,7 +136,6 @@ class CursoTuteladoProfessorController extends Controller
             'cursoTutelado' => $cursoTutelado->id,
         ]);
     }
-
 
     public function show(string $id)
     {

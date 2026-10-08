@@ -12,7 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function Edit({ prazo, disciplinas, classes }) {
@@ -56,19 +62,17 @@ export default function Edit({ prazo, disciplinas, classes }) {
         </div>
 
         {/* Formulário */}
-        <Card className="shadow-sm border-border">
+        <Card className="border-border shadow-sm">
           <CardHeader>
             <CardTitle>Editar Prazo de Provas</CardTitle>
-            <CardDescription>
-              Atualize as informações do prazo.
-            </CardDescription>
+            <CardDescription>Atualize as informações do prazo.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={submit} className="space-y-6">
               {hasErrors && (
                 <Alert variant="destructive">
                   <AlertDescription>
-                    <ul className="list-disc pl-4 space-y-1 text-sm">
+                    <ul className="list-disc space-y-1 pl-4 text-sm">
                       {Object.values(errors).map((msg, i) => (
                         <li key={i}>{msg}</li>
                       ))}
@@ -91,7 +95,10 @@ export default function Edit({ prazo, disciplinas, classes }) {
 
                 {/* Tipo de Prova */}
                 <div className="space-y-2">
-                  <Label htmlFor="tipo_prova" className="after:content-['*'] after:ml-0.5 after:text-destructive">
+                  <Label
+                    htmlFor="tipo_prova"
+                    className="after:ml-0.5 after:text-destructive after:content-['*']"
+                  >
                     Tipo de Prova
                   </Label>
                   <Select
@@ -102,12 +109,20 @@ export default function Edit({ prazo, disciplinas, classes }) {
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Prova-Trimestral">Prova Trimestral</SelectItem>
-                      <SelectItem value="Exame-especial">Exame Especial</SelectItem>
+                      <SelectItem value="Prova-Trimestral">
+                        Prova Trimestral
+                      </SelectItem>
+                      <SelectItem value="Exame-especial">
+                        Exame Especial
+                      </SelectItem>
                       <SelectItem value="Recurso">Recurso</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.tipo_prova && <p className="text-sm text-destructive">{errors.tipo_prova}</p>}
+                  {errors.tipo_prova && (
+                    <p className="text-sm text-destructive">
+                      {errors.tipo_prova}
+                    </p>
+                  )}
                 </div>
 
                 {/* Disciplina */}
@@ -154,7 +169,10 @@ export default function Edit({ prazo, disciplinas, classes }) {
 
                 {/* Data Início */}
                 <div className="space-y-2">
-                  <Label htmlFor="data_inicio" className="after:content-['*'] after:ml-0.5 after:text-destructive">
+                  <Label
+                    htmlFor="data_inicio"
+                    className="after:ml-0.5 after:text-destructive after:content-['*']"
+                  >
                     Data de Início
                   </Label>
                   <Input
@@ -164,12 +182,19 @@ export default function Edit({ prazo, disciplinas, classes }) {
                     onChange={(e) => setData('data_inicio', e.target.value)}
                     required
                   />
-                  {errors.data_inicio && <p className="text-sm text-destructive">{errors.data_inicio}</p>}
+                  {errors.data_inicio && (
+                    <p className="text-sm text-destructive">
+                      {errors.data_inicio}
+                    </p>
+                  )}
                 </div>
 
                 {/* Data Limite */}
                 <div className="space-y-2">
-                  <Label htmlFor="data_limite" className="after:content-['*'] after:ml-0.5 after:text-destructive">
+                  <Label
+                    htmlFor="data_limite"
+                    className="after:ml-0.5 after:text-destructive after:content-['*']"
+                  >
                     Data Limite
                   </Label>
                   <Input
@@ -179,12 +204,19 @@ export default function Edit({ prazo, disciplinas, classes }) {
                     onChange={(e) => setData('data_limite', e.target.value)}
                     required
                   />
-                  {errors.data_limite && <p className="text-sm text-destructive">{errors.data_limite}</p>}
+                  {errors.data_limite && (
+                    <p className="text-sm text-destructive">
+                      {errors.data_limite}
+                    </p>
+                  )}
                 </div>
 
                 {/* Período */}
                 <div className="space-y-2">
-                  <Label htmlFor="periodo" className="after:content-['*'] after:ml-0.5 after:text-destructive">
+                  <Label
+                    htmlFor="periodo"
+                    className="after:ml-0.5 after:text-destructive after:content-['*']"
+                  >
                     Período
                   </Label>
                   <Input
@@ -194,7 +226,9 @@ export default function Edit({ prazo, disciplinas, classes }) {
                     placeholder="Ex: 1º Trimestre"
                     required
                   />
-                  {errors.periodo && <p className="text-sm text-destructive">{errors.periodo}</p>}
+                  {errors.periodo && (
+                    <p className="text-sm text-destructive">{errors.periodo}</p>
+                  )}
                 </div>
 
                 {/* Observações */}
@@ -213,9 +247,14 @@ export default function Edit({ prazo, disciplinas, classes }) {
                   <Switch
                     id="permiteReenvio"
                     checked={data.permite_reenvio}
-                    onCheckedChange={(checked) => setData('permite_reenvio', checked)}
+                    onCheckedChange={(checked) =>
+                      setData('permite_reenvio', checked)
+                    }
                   />
-                  <Label htmlFor="permiteReenvio" className="text-sm font-normal">
+                  <Label
+                    htmlFor="permiteReenvio"
+                    className="text-sm font-normal"
+                  >
                     Permite reenvio
                   </Label>
                 </div>
@@ -224,9 +263,15 @@ export default function Edit({ prazo, disciplinas, classes }) {
               {/* Botões */}
               <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:space-x-2">
                 <Button variant="outline" asChild className="w-full sm:w-auto">
-                  <Link href={`/dashboard/diretor/prazos/${prazo.id}`}>Cancelar</Link>
+                  <Link href={`/dashboard/diretor/prazos/${prazo.id}`}>
+                    Cancelar
+                  </Link>
                 </Button>
-                <Button type="submit" disabled={processing} className="w-full sm:w-auto">
+                <Button
+                  type="submit"
+                  disabled={processing}
+                  className="w-full sm:w-auto"
+                >
                   {processing ? (
                     <>
                       <Loader2 className="mr-1.5 size-4 animate-spin" />

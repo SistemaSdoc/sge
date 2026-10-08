@@ -1,4 +1,5 @@
-import { Loader2 } from 'lucide-react';
+import { Link } from '@inertiajs/react';
+import { ArrowUpLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -40,39 +41,44 @@ export default function ProfessorForm({
   setGrupoDisciplinar,
   errors,
   processing,
+  courseUrl,
 }) {
   const hasAvailableProfessores = mode !== 'create' || professores.length > 0;
 
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
       <Card className="overflow-visible">
-        <CardHeader className="border-b">
-          <div className="flex items-center justify-between">
-            <CardTitle>
-              {mode === 'create' ? 'Associar Professor' : 'Editar Professor'}
-            </CardTitle>
+        <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-center md:justify-between">
+          <CardTitle>
+            {mode === 'create' ? 'Associar Professor' : 'Editar Professor'}
+          </CardTitle>
 
-            <div className="flex items-center gap-5">
-              <Field orientation="horizontal" className="flex w-fit">
-                <FieldLabel htmlFor="coordenador">Coordenador</FieldLabel>
-                <Switch
-                  size="sm"
-                  id="coordenador"
-                  checked={coordenador}
-                  onCheckedChange={setCoordenador}
-                />
-              </Field>
+          <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center md:w-auto">
+            <Field
+              orientation="horizontal"
+              className="flex w-full flex-row items-center justify-between sm:w-fit sm:gap-2"
+            >
+              <FieldLabel htmlFor="coordenador">Coordenador</FieldLabel>
+              <Switch
+                size="sm"
+                id="coordenador"
+                checked={coordenador}
+                onCheckedChange={setCoordenador}
+              />
+            </Field>
 
-              <Field orientation="horizontal" className="flex w-fit">
-                <FieldLabel htmlFor="opap">OPAP</FieldLabel>
-                <Switch
-                  size="sm"
-                  id="opap"
-                  checked={opap}
-                  onCheckedChange={setOpap}
-                />
-              </Field>
-            </div>
+            <Field
+              orientation="horizontal"
+              className="flex w-full flex-row items-center justify-between sm:w-fit sm:gap-2"
+            >
+              <FieldLabel htmlFor="opap">OPAP</FieldLabel>
+              <Switch
+                size="sm"
+                id="opap"
+                checked={opap}
+                onCheckedChange={setOpap}
+              />
+            </Field>
           </div>
         </CardHeader>
 
@@ -179,6 +185,12 @@ export default function ProfessorForm({
                   ) : (
                     'Guardar'
                   )}
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href={courseUrl}>
+                    <ArrowUpLeft aria-hidden="true" />
+                    Voltar ao curso
+                  </Link>
                 </Button>
               </Field>
 

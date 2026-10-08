@@ -38,7 +38,7 @@ export default function Index({
 
   const handleAdicionarGrupo = () => {
     openForm({
-      title: 'Criar Novo Grupo PAP',
+      title: 'Criar novo grupo PAP',
       description: 'Preenche os dados para criar um novo grupo',
       content: (
         <GrupoPapForm
@@ -79,7 +79,7 @@ export default function Index({
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <Head title="Grupos PAP" />
 
       <Header

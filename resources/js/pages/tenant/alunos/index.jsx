@@ -15,13 +15,19 @@ export default function Index() {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page, ano_lectivo_id: anoLectivoId },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+        ano_lectivo_id: anoLectivoId,
+      },
       preserveScroll: true,
     });
   };
 
   const handleAnoLectivoChange = (value) => {
-    const params = Object.fromEntries(new URLSearchParams(window.location.search));
+    const params = Object.fromEntries(
+      new URLSearchParams(window.location.search),
+    );
     delete params.page;
 
     router.visit(index().url, {
@@ -55,17 +61,17 @@ export default function Index() {
 
   return (
     <>
-    <AlunoTable
-      data={alunos.data}
-      can={can}
-      pagination={alunos}
-      onPageChange={handlePageChange}
-      anoLectivoActual={anoLectivoId}
-      anosLectivos={anosLectivos}
-      onAnoLectivoChange={handleAnoLectivoChange}
-      atribuirTurmaFn={handleAtribuirTurma}
-      filters={filters}
-    />
+      <AlunoTable
+        data={alunos.data}
+        can={can}
+        pagination={alunos}
+        onPageChange={handlePageChange}
+        anoLectivoActual={anoLectivoId}
+        anosLectivos={anosLectivos}
+        onAnoLectivoChange={handleAnoLectivoChange}
+        atribuirTurmaFn={handleAtribuirTurma}
+        filters={filters}
+      />
     </>
   );
 }

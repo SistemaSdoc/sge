@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('users') || Schema::hasColumn('users', 'perfil_completo')) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->boolean('perfil_completo')->default(false);
         });
     }
 

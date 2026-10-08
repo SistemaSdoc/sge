@@ -44,7 +44,7 @@ export default function Create({
   };
 
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
       <form onSubmit={handleSubmit}>
         <Card className="gap-0 overflow-visible">
           <CardHeader className="border-b">
@@ -55,13 +55,17 @@ export default function Create({
           </CardHeader>
 
           {/* Cards de contexto */}
-          <div className="grid grid-cols-2 divide-x border-b bg-muted/50 text-center">
-            <div className="px-4 py-4">
-              <p className="text-sm font-bold">{cursoTutelado.nome}</p>
+          <div className="grid grid-cols-1 divide-y border-b bg-muted/50 text-center sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+            <div className="min-w-0 px-3 py-3 sm:px-4 sm:py-4">
+              <p className="text-sm font-bold wrap-break-word">
+                {cursoTutelado.nome}
+              </p>
               <p className="text-xs text-muted-foreground">Curso</p>
             </div>
-            <div className="px-4 py-4">
-              <p className="text-sm font-bold">{cursoClasse.nome}</p>
+            <div className="min-w-0 px-3 py-3 sm:px-4 sm:py-4">
+              <p className="text-sm font-bold wrap-break-word">
+                {cursoClasse.nome}
+              </p>
               <p className="text-xs text-muted-foreground">Classe</p>
             </div>
           </div>
@@ -99,14 +103,17 @@ export default function Create({
                   <Button
                     type="submit"
                     disabled={processing || data.turnos.length === 0}
+                    className="hover:cursor-pointer"
                   >
                     Definir Turnos
                   </Button>
 
                   <Button
                     variant="outline"
+                    type="button"
                     disabled={processing}
                     onClick={() => window.history.back()}
+                    className="hover:cursor-pointer"
                   >
                     <ArrowUpLeft />
                     Voltar a classe

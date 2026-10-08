@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Tenant\SubmissaoProva;
-use App\Notifications\SubmissaoAvaliadaNotificacao;  
+use App\Notifications\SubmissaoAvaliadaNotificacao;
 use App\Services\Tenant\ProvaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +32,7 @@ class AvaliacaoProvaController extends Controller
         }
 
         $request->validate([
-            'acao'    => 'required|in:aprovar,rejeitar',
+            'acao' => 'required|in:aprovar,rejeitar',
             'parecer' => 'required_if:acao,rejeitar|nullable|string|max:500',
         ]);
 
@@ -54,10 +53,10 @@ class AvaliacaoProvaController extends Controller
                 $professor->notify(new SubmissaoAvaliadaNotificacao($submissao));
 
                 Log::info('📧 Notificação de avaliação enviada ao professor', [
-                    'submissao_id'   => $submissao->id,
-                    'professor_id'   => $submissao->professor_id,
+                    'submissao_id' => $submissao->id,
+                    'professor_id' => $submissao->professor_id,
                     'professor_user' => $professor->email,
-                    'estado'         => $submissao->estado,
+                    'estado' => $submissao->estado,
                 ]);
             } else {
                 Log::warning('⚠️ Submissão avaliada, mas professor/user não encontrado', [
@@ -66,9 +65,9 @@ class AvaliacaoProvaController extends Controller
             }
 
             Log::info('Submissão avaliada', [
-                'submissao_id'   => $submissao->id,
-                'acao'           => $request->acao,
-                'avaliado_por'   => auth()->id(),
+                'submissao_id' => $submissao->id,
+                'acao' => $request->acao,
+                'avaliado_por' => auth()->id(),
                 'instituicao_id' => $instituicaoId,
             ]);
 
@@ -76,7 +75,7 @@ class AvaliacaoProvaController extends Controller
         } catch (\Exception $e) {
             Log::error('Erro ao avaliar submissão', [
                 'submissao_id' => $submissao->id,
-                'error'        => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
             return back()->with('error', $e->getMessage());

@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('curso_tutelado') || ! Schema::hasColumn('curso_tutelado', 'sugestoes_temas_pap_path')) {
+            return;
+        }
+
         Schema::table('curso_tutelado', function (Blueprint $table) {
             $table->dropColumn('sugestoes_temas_pap_path');
         });

@@ -1,4 +1,5 @@
-import { Loader2 } from 'lucide-react';
+import { Link } from '@inertiajs/react';
+import { ArrowUpLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -34,9 +35,10 @@ export default function GrupoPapForm({
   alunoIds,
   setAlunoIds,
   grupoPap,
+  turmaUrl,
 }) {
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
       <Card className="overflow-visible">
         <CardHeader className="border-b">
           <CardTitle>{title}</CardTitle>
@@ -110,7 +112,11 @@ export default function GrupoPapForm({
               </div>
 
               <Field>
-                <Button type="submit" disabled={processing}>
+                <Button
+                  type="submit"
+                  disabled={processing}
+                  className="hover:cursor-pointer"
+                >
                   {processing ? (
                     <>
                       <Loader2 className="animate-spin" /> A guardar...
@@ -118,6 +124,12 @@ export default function GrupoPapForm({
                   ) : (
                     <>Guardar</>
                   )}
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href={turmaUrl}>
+                    <ArrowUpLeft aria-hidden="true" />
+                    Voltar à turma
+                  </Link>
                 </Button>
               </Field>
             </FieldSet>

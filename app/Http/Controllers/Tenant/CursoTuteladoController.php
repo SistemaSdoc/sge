@@ -37,8 +37,7 @@ class CursoTuteladoController extends Controller
         private readonly UpdateCursoTutelado $updateCursoTutelado,
         private readonly DeleteCursoTutelado $deleteCursoTutelado,
         private readonly UploadCursoTuteladoDocumentos $uploadCursoTuteladoDocumentos,
-    ) {
-    }
+    ) {}
 
     /**
      * Apresenta os cursos tutelados de uma instituição.
@@ -155,7 +154,7 @@ class CursoTuteladoController extends Controller
             ? User::query()
                 ->where('instituicao_id', $instituicao->id)
                 ->role('Secretario do Curso', 'tenant')
-                ->whereDoesntHave('roles', fn($query) => $query->whereIn('name', [
+                ->whereDoesntHave('roles', fn ($query) => $query->whereIn('name', [
                     'Secretaria',
                     'Director',
                     'Subdirector',
@@ -163,10 +162,10 @@ class CursoTuteladoController extends Controller
                     'SuperAdmin',
 
                 ]))
-                ->whereDoesntHave('cursosSecretariados', fn($query) => $query->whereKey($cursoTutelado->getKey()))
+                ->whereDoesntHave('cursosSecretariados', fn ($query) => $query->whereKey($cursoTutelado->getKey()))
                 ->orderBy('nome')
                 ->get(['id', 'nome', 'email'])
-                ->map(fn(User $candidate): array => [
+                ->map(fn (User $candidate): array => [
                     'id' => $candidate->id,
                     'nome' => $candidate->nome,
                     'email' => $candidate->email,
@@ -223,7 +222,7 @@ class CursoTuteladoController extends Controller
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado
     ) {
-        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+        Gate::authorize('update', $cursoTutelado);
 
         $this->updateCursoTutelado->handle($instituicao, $cursoTutelado, $request->validated());
 
@@ -263,9 +262,9 @@ class CursoTuteladoController extends Controller
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ])->with('toast', [
-                    'type' => 'success',
-                    'message' => 'Documentos actualizados com sucesso.',
-                ]);
+            'type' => 'success',
+            'message' => 'Documentos actualizados com sucesso.',
+        ]);
     }
 
     private function garantirTutelaPropria(CursoTutelado $cursoTutelado): void

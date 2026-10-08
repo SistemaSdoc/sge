@@ -74,6 +74,7 @@ class ClasseTurnoTurmaController extends Controller
                 'cursoClasseTurno.cursoClasse.classe:id,nome',
                 'anoLectivo:id,nome',
             ])
+            ->latest('created_at')
             ->paginate(5);
 
         return Inertia::render('tenant/pautas/turmas/index', [
@@ -229,6 +230,7 @@ class ClasseTurnoTurmaController extends Controller
             ->wherePivot('activo', true)
             ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
+            ->orderBy('alunos.created_at', 'desc')
             ->paginate(10, ['*'], 'page_alunos');
 
         // Adiciona isto:
@@ -272,6 +274,7 @@ class ClasseTurnoTurmaController extends Controller
 
         $grupos = $turma->gruposPap()
             ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final', 'professor_tutor_id')
+            ->latest('created_at')
             ->paginate(5, ['*'], 'page_grupos');
 
         $grupos->getCollection()->transform(function ($grupo) use ($user) {

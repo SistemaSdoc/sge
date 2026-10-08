@@ -1,6 +1,11 @@
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import FiltrosPrazos from './components/filtros-prazos';
 import CriarPrazoDrawer from './components/criar-prazo-drawer';
 import PrazosTable from './components/prazos-table';
@@ -36,9 +41,13 @@ export default function Index({ prazos, filters, disciplinas, classes }) {
 
   const fecharPrazo = (id) => {
     if (confirm('Tem certeza que deseja encerrar este prazo?')) {
-      router.post(`/dashboard/diretor/prazos/${id}/fechar`, {}, {
-        onSuccess: () => router.reload(),
-      });
+      router.post(
+        `/dashboard/diretor/prazos/${id}/fechar`,
+        {},
+        {
+          onSuccess: () => router.reload(),
+        },
+      );
     }
   };
 
@@ -47,7 +56,7 @@ export default function Index({ prazos, filters, disciplinas, classes }) {
       <Head title="Gestão de Prazos de Provas" />
 
       <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
-        <div className="bg-card p-4  border border-border shadow-sm">
+        <div className="border border-border bg-card p-4 shadow-sm">
           <FiltrosPrazos
             filtros={filtros}
             disciplinas={disciplinas}
@@ -74,22 +83,22 @@ export default function Index({ prazos, filters, disciplinas, classes }) {
         />
       </div>
 
-{/*  MODAL CENTRALIZADO */}
-<Dialog open={openCriar} onOpenChange={setOpenCriar}>
-  <DialogContent className="w-[95vw] max-w-2xl sm:w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
-    <DialogHeader>
-      <DialogTitle>Novo Prazo de Provas</DialogTitle>
-    </DialogHeader>
-    {openCriar && (
-      <CriarPrazoDrawer
-        disciplinas={disciplinas}
-        classes={classes}
-        onSuccess={fecharCriarPrazo}
-        onCancel={fecharCriarPrazo}
-      />
-    )}
-  </DialogContent>
-</Dialog>
+      {/*  MODAL CENTRALIZADO */}
+      <Dialog open={openCriar} onOpenChange={setOpenCriar}>
+        <DialogContent className="max-h-[90vh] w-[95vw] max-w-2xl overflow-y-auto p-4 sm:w-full sm:p-6">
+          <DialogHeader>
+            <DialogTitle>Novo Prazo de Provas</DialogTitle>
+          </DialogHeader>
+          {openCriar && (
+            <CriarPrazoDrawer
+              disciplinas={disciplinas}
+              classes={classes}
+              onSuccess={fecharCriarPrazo}
+              onCancel={fecharCriarPrazo}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

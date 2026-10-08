@@ -93,7 +93,6 @@ export function TabAlunos({
                         size="xs"
                         className="text-[10px]"
                         disabled={!canView}
-
                       >
                         Ver detalhes
                       </Button>

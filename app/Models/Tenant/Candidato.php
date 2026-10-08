@@ -74,8 +74,6 @@ class Candidato extends Model
         );
     }
 
-    
-    
     /** Verifica se todos os dados pessoais obrigatórios do perfil estão preenchidos. */
     public function temPerfilCompleto(): bool
     {

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Models\Tenant;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -43,9 +42,9 @@ class JustificativaNaoSubmissao extends Model
     {
         return match ($this->status) {
             'pendente' => 'Pendente',
-            'aceita'   => 'Aceite',
+            'aceita' => 'Aceite',
             'recusada' => 'Recusada',
-            default    => 'Desconhecido',
+            default => 'Desconhecido',
         };
     }
 

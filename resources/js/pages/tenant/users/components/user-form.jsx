@@ -63,7 +63,7 @@ export function UserForm({
   }));
 
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-2xl">
       <form onSubmit={submit}>
         <Card className="overflow-visible">
           <CardHeader className="border-b">
@@ -219,6 +219,7 @@ export function UserForm({
                   <Button
                     type="submit"
                     disabled={processing || isProtectedDirectorUser}
+                    className="hover:cursor-pointer"
                   >
                     {processing ? (
                       <>

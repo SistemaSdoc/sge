@@ -32,7 +32,7 @@ export function TabTurmas({
 
   return (
     <Card className="gap-0">
-      <CardHeader className="border-b">
+      <CardHeader className="flex flex-col gap-1 border-b">
         <CardTitle>
           Turmas ({params.cursoTutelado.contadores?.turmas ?? 0})
         </CardTitle>

@@ -40,9 +40,12 @@ export default function UserTable({
   pagination = {},
   onPageChange,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['users', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['users', 'filters'],
+    },
+  );
   const isEmpty = !users || users.length === 0;
 
   return (
@@ -63,8 +66,16 @@ export default function UserTable({
           <EmptyState
             variant="table"
             icon={UsersIcon}
-            title={applied ? 'Nenhum utilizador encontrado' : 'Nenhum utilizador registado'}
-            description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando o primeiro usuário'}
+            title={
+              applied
+                ? 'Nenhum utilizador encontrado'
+                : 'Nenhum utilizador registado'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Comece adicionando o primeiro usuário'
+            }
             action={{
               label: 'Adicionar usuário',
               href: create().url,

@@ -37,9 +37,12 @@ export function ConfirmacaoTable({
   turma,
   filters,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['alunos', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['alunos', 'filters'],
+    },
+  );
   const isEmpty = !data || data.length === 0;
 
   return (
@@ -54,7 +57,7 @@ export function ConfirmacaoTable({
         }
       `}</style>
 
-      <div className="mx-auto w-full max-w-7xl p-6">
+      <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
         <Card className="gap-0">
           <CardHeader className="border-b">
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -65,7 +68,6 @@ export function ConfirmacaoTable({
                   Lista de alunos por confirmar a sua matrícula
                 </CardDescription>
               </div>
-
             </div>
           </CardHeader>
           <CardContent className="p-0!">
@@ -74,8 +76,16 @@ export function ConfirmacaoTable({
               <EmptyState
                 variant="table"
                 icon={UsersIcon}
-                title={applied ? 'Nenhum aluno encontrado' : 'Nenhum aluno por confirmar matrícula'}
-                description={applied ? 'Tenta ajustar a pesquisa.' : 'Não existem alunos por confirmar a sua matrícula.'}
+                title={
+                  applied
+                    ? 'Nenhum aluno encontrado'
+                    : 'Nenhum aluno por confirmar matrícula'
+                }
+                description={
+                  applied
+                    ? 'Tenta ajustar a pesquisa.'
+                    : 'Não existem alunos por confirmar a sua matrícula.'
+                }
               />
             ) : (
               <Table>

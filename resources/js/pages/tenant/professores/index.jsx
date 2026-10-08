@@ -21,14 +21,16 @@ export default function Index({ professores, filters }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      },
       preserveScroll: true,
     });
   };
 
   return (
-    
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <ProfessorTable
         pagination={{
           current_page: professores.current_page,
@@ -42,4 +44,3 @@ export default function Index({ professores, filters }) {
     </div>
   );
 }
-

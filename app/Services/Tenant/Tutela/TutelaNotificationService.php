@@ -15,6 +15,7 @@ use App\Notifications\TrocaTutelaRejeitadaNotification;
 use App\Notifications\TrocaTutelaResultadoNotification;
 use App\Services\Central\TenantService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * Envia notificações de tutela no tenant tutor.
@@ -91,12 +92,14 @@ class TutelaNotificationService
                 'curso_nome' => $shared->curso_nome,
             ]);
 
-            $admin->notify(new SolicitacaoTutelaNotification(
+            $notification = new SolicitacaoTutelaNotification(
                 instituicaoTutelada: $instituicaoTutelada->nome,
                 cursoNome: $shared->curso_nome,
                 sharedId: (string) $shared->getKey(),
-                url: $this->url($tenantTutor, (string) $shared->getKey()),
-            ));
+            );
+            $notification->id = (string) Str::uuid7();
+            $notification->url = $this->url($tenantTutor, (string) $notification->id);
+            $admin->notify($notification);
 
             Log::info('Notificação de solicitação de tutela enviada com sucesso', [
                 'shared_id' => $shared->id,
@@ -167,15 +170,17 @@ class TutelaNotificationService
                 return;
             }
 
-            $admin->notify(new TrocaTutelaNotification(
+            $notification = new TrocaTutelaNotification(
                 instituicaoNova: $instituicaoNova->nome,
                 instituicaoTutelada: $instituicaoTutelada->nome,
                 cursoNome: $shared->curso_nome,
                 sharedId: (string) $shared->getKey(),
                 tenantTutorAnteriorId: (string) $tenantAnterior->getKey(),
                 cursoTuteladoSharedAnteriorId: $cursoTuteladoSharedAnteriorId,
-                url: $this->url($tenantAnterior, (string) $shared->getKey()),
-            ));
+            );
+            $notification->id = (string) Str::uuid7();
+            $notification->url = $this->url($tenantAnterior, (string) $notification->id);
+            $admin->notify($notification);
         });
     }
 
@@ -204,14 +209,16 @@ class TutelaNotificationService
                 return;
             }
 
-            $admin->notify(new SolicitacaoTutelaNotification(
+            $notification = new SolicitacaoTutelaNotification(
                 instituicaoTutelada: $shared->tenant_tutelado_id ? $this->tenantService->getInstituicao(Tenant::query()->findOrFail($shared->tenant_tutelado_id))->nome : 'Instituição tutelada',
                 cursoNome: $shared->curso_nome,
                 sharedId: (string) $shared->getKey(),
-                url: $this->url($tenantAtual, (string) $shared->getKey()),
                 trocaTutelaFinal: true,
                 cursoTuteladoSharedAnteriorId: $sharedAnterior?->getKey(),
-            ));
+            );
+            $notification->id = (string) Str::uuid7();
+            $notification->url = $this->url($tenantAtual, (string) $notification->id);
+            $admin->notify($notification);
         });
     }
 
@@ -253,13 +260,15 @@ class TutelaNotificationService
                 return;
             }
 
-            $admin->notify(new TrocaTutelaRejeitadaNotification(
+            $notification = new TrocaTutelaRejeitadaNotification(
                 instituicaoRejeitou: $instituicaoAnterior->nome,
                 instituicaoProposta: $instituicaoAtual->nome,
                 cursoNome: $shared->curso_nome,
                 sharedId: (string) $shared->getKey(),
-                url: $this->url($tenantTutelado, (string) $shared->getKey()),
-            ));
+            );
+            $notification->id = (string) Str::uuid7();
+            $notification->url = $this->url($tenantTutelado, (string) $notification->id);
+            $admin->notify($notification);
         });
     }
 
@@ -305,15 +314,17 @@ class TutelaNotificationService
                 return;
             }
 
-            $admin->notify(new TrocaTutelaResultadoNotification(
+            $notification = new TrocaTutelaResultadoNotification(
                 instituicaoDecisora: $instituicaoDecisora->nome,
                 instituicaoProposta: $instituicaoProposta->nome,
                 cursoNome: $shared->curso_nome,
                 sharedId: (string) $shared->getKey(),
                 resultado: $resultado,
                 fase: $fase,
-                url: $this->url($tenantTutelado, (string) $shared->getKey()),
-            ));
+            );
+            $notification->id = (string) Str::uuid7();
+            $notification->url = $this->url($tenantTutelado, (string) $notification->id);
+            $admin->notify($notification);
         });
     }
 
@@ -360,14 +371,16 @@ class TutelaNotificationService
             $admin = User::query()->find($tenantTutor->admin_user_id);
 
             if ($admin) {
-                $admin->notify(new ConversaoTutelaPropriaNotification(
+                $notification = new ConversaoTutelaPropriaNotification(
                     instituicaoSolicitante: $instituicaoSolicitante->nome,
                     instituicaoActual: $instituicaoActual->nome,
                     cursoNome: $shared->curso_nome,
                     sharedId: (string) $shared->getKey(),
                     tenantTutorAnteriorId: (string) $tenantTutor->getTenantKey(),
-                    url: $this->url($tenantTutor, (string) $shared->getKey()),
-                ));
+                );
+                $notification->id = (string) Str::uuid7();
+                $notification->url = $this->url($tenantTutor, (string) $notification->id);
+                $admin->notify($notification);
             }
         });
     }
@@ -410,13 +423,15 @@ class TutelaNotificationService
                     ->get()
                     ->each(fn ($notification): bool => (bool) $notification->delete());
 
-                $admin->notify(new ConversaoTutelaPropriaResultadoNotification(
+                $notification = new ConversaoTutelaPropriaResultadoNotification(
                     instituicaoDecisora: $instituicaoDecisora->nome,
                     cursoNome: $shared->curso_nome,
                     sharedId: (string) $shared->getKey(),
                     resultado: $resultado,
-                    url: $this->url($tenantTutelado, (string) $shared->getKey()),
-                ));
+                );
+                $notification->id = (string) Str::uuid7();
+                $notification->url = $this->url($tenantTutelado, (string) $notification->id);
+                $admin->notify($notification);
             }
         });
     }
@@ -424,13 +439,13 @@ class TutelaNotificationService
     /**
      * Constrói o URL absoluto da notificação no domínio do tenant tutor.
      */
-    private function url(Tenant $tenant, string $sharedId): string
+    private function url(Tenant $tenant, string $notificationId): string
     {
         $domain = $tenant->domains()->first()?->domain;
         $scheme = parse_url((string) config('app.url'), PHP_URL_SCHEME) ?: 'http';
 
         return $domain
-            ? "{$scheme}://{$domain}/dashboard/notificacoes/tutela/{$sharedId}"
-            : url("/dashboard/notificacoes/tutela/{$sharedId}");
+            ? "{$scheme}://{$domain}/dashboard/notificacoes/{$notificationId}"
+            : url("/dashboard/notificacoes/{$notificationId}");
     }
 }

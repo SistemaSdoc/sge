@@ -89,7 +89,7 @@ class CursoClasseController extends Controller
             ? $turnoActual->turmas()
                 ->where('ano_lectivo_id', $anoLectivoId)
                 ->withCount('alunosActivos')
-                ->orderBy('nome')
+                ->latest('created_at')
                 ->paginate(5, ['*'], 'page_turmas')
             : $this->emptyPaginator('page_turmas');
 

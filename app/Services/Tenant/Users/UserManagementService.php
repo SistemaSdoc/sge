@@ -18,8 +18,7 @@ class UserManagementService
             ])
             ->when(! $actor->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $actor->instituicao_id))
             ->search($search)
-            ->orderBy('nome')
-            ->orderBy('id')
+            ->latest('created_at')
             ->paginate(15)
             ->withQueryString()
             ->through(function (User $user) use ($actor): array {

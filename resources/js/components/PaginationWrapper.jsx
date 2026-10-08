@@ -19,7 +19,8 @@ const PaginationWrapper = ({ links, onPageChange }) => {
                 className="page-link"
                 onClick={() => {
                   if (!isDisabled && onPageChange) {
-                    const page = new URL(link.url).searchParams.get('page') || 1;
+                    const page =
+                      new URL(link.url).searchParams.get('page') || 1;
                     onPageChange(page);
                   }
                 }}

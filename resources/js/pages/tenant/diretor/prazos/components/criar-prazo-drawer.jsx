@@ -14,7 +14,12 @@ import {
 import MultipleSelector from '@/components/ui/multiselect';
 import { toast } from 'sonner';
 
-export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCancel }) {
+export default function CriarPrazoDrawer({
+  disciplinas,
+  classes,
+  onSuccess,
+  onCancel,
+}) {
   const { data, setData, post, processing, errors } = useForm({
     titulo: '',
     tipo_prova: 'Prova-Trimestral',
@@ -27,8 +32,10 @@ export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCa
     permite_reenvio: true,
   });
 
-  const disciplinaOptions = disciplinas?.map((d) => ({ value: d.id, label: d.nome })) || [];
-  const classeOptions = classes?.map((c) => ({ value: c.id, label: c.nome })) || [];
+  const disciplinaOptions =
+    disciplinas?.map((d) => ({ value: d.id, label: d.nome })) || [];
+  const classeOptions =
+    classes?.map((c) => ({ value: c.id, label: c.nome })) || [];
 
   const submit = (e) => {
     e.preventDefault();
@@ -77,7 +84,10 @@ export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCa
         <Label htmlFor="tipo_prova">
           Tipo de Prova <span className="text-destructive">*</span>
         </Label>
-        <Select value={data.tipo_prova} onValueChange={(value) => setData('tipo_prova', value)}>
+        <Select
+          value={data.tipo_prova}
+          onValueChange={(value) => setData('tipo_prova', value)}
+        >
           <SelectTrigger id="tipo_prova" className="w-full">
             <SelectValue placeholder="Selecione o tipo" />
           </SelectTrigger>
@@ -87,7 +97,9 @@ export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCa
             <SelectItem value="Exame-especial">Exame Especial</SelectItem>
           </SelectContent>
         </Select>
-        {errors.tipo_prova && <p className="text-sm text-destructive">{errors.tipo_prova}</p>}
+        {errors.tipo_prova && (
+          <p className="text-sm text-destructive">{errors.tipo_prova}</p>
+        )}
       </div>
 
       {/* Disciplinas */}
@@ -101,7 +113,9 @@ export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCa
           emptyIndicator="Nenhuma disciplina encontrada"
           className="w-full"
         />
-        {errors.disciplina_ids && <p className="text-sm text-destructive">{errors.disciplina_ids}</p>}
+        {errors.disciplina_ids && (
+          <p className="text-sm text-destructive">{errors.disciplina_ids}</p>
+        )}
       </div>
 
       {/* Classes */}
@@ -115,7 +129,9 @@ export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCa
           emptyIndicator="Nenhuma classe encontrada"
           className="w-full"
         />
-        {errors.classe_ids && <p className="text-sm text-destructive">{errors.classe_ids}</p>}
+        {errors.classe_ids && (
+          <p className="text-sm text-destructive">{errors.classe_ids}</p>
+        )}
       </div>
 
       {/* Datas */}
@@ -131,7 +147,9 @@ export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCa
             onChange={(e) => setData('data_inicio', e.target.value)}
             required
           />
-          {errors.data_inicio && <p className="text-sm text-destructive">{errors.data_inicio}</p>}
+          {errors.data_inicio && (
+            <p className="text-sm text-destructive">{errors.data_inicio}</p>
+          )}
         </div>
 
         <div className="space-y-1.5">
@@ -145,7 +163,9 @@ export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCa
             onChange={(e) => setData('data_limite', e.target.value)}
             required
           />
-          {errors.data_limite && <p className="text-sm text-destructive">{errors.data_limite}</p>}
+          {errors.data_limite && (
+            <p className="text-sm text-destructive">{errors.data_limite}</p>
+          )}
         </div>
       </div>
 
@@ -162,7 +182,9 @@ export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCa
           onChange={(e) => setData('periodo', e.target.value)}
           required
         />
-        {errors.periodo && <p className="text-sm text-destructive">{errors.periodo}</p>}
+        {errors.periodo && (
+          <p className="text-sm text-destructive">{errors.periodo}</p>
+        )}
       </div>
 
       {/* Observações */}
@@ -189,11 +211,20 @@ export default function CriarPrazoDrawer({ disciplinas, classes, onSuccess, onCa
       </div>
 
       {/* Botões */}
-      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
+      <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          className="w-full sm:w-auto"
+        >
           Cancelar
         </Button>
-        <Button type="submit" disabled={processing} className="w-full sm:w-auto">
+        <Button
+          type="submit"
+          disabled={processing}
+          className="w-full sm:w-auto"
+        >
           {processing ? 'Salvando...' : 'Criar Prazo'}
         </Button>
       </div>

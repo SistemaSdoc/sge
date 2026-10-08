@@ -11,6 +11,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('classe_turno_disciplina_horarios') || Schema::hasColumn('classe_turno_disciplina_horarios', 'turma_id')) {
+            return;
+        }
+
         Schema::table('classe_turno_disciplina_horarios', function (Blueprint $table) {
             $table->uuid('turma_id')->nullable()->after('classe_turno_disciplina_id');
 

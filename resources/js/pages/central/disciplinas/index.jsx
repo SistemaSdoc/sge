@@ -32,9 +32,12 @@ import { BookOpenCheck } from 'lucide-react';
 
 export default function Index({ disciplinas, filters }) {
   const { deleteConfirm } = useDialog();
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['disciplinas', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['disciplinas', 'filters'],
+    },
+  );
 
   const handleDelete = (disciplina) => {
     deleteConfirm({
@@ -51,7 +54,10 @@ export default function Index({ disciplinas, filters }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      },
       preserveScroll: true,
     });
   };
@@ -80,68 +86,78 @@ export default function Index({ disciplinas, filters }) {
               <EmptyState
                 variant="table"
                 icon={BookOpenCheck}
-                title={applied ? 'Nenhuma disciplina encontrada' : 'Nenhuma disciplina cadastrada'}
-                description={applied ? 'Tenta ajustar a pesquisa.' : 'Adicione uma disciplina ao catálogo central.'}
+                title={
+                  applied
+                    ? 'Nenhuma disciplina encontrada'
+                    : 'Nenhuma disciplina cadastrada'
+                }
+                description={
+                  applied
+                    ? 'Tenta ajustar a pesquisa.'
+                    : 'Adicione uma disciplina ao catálogo central.'
+                }
               />
             ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/72">
-                  <TableHead className="px-4">Nome</TableHead>
-                  <TableHead>Sigla</TableHead>
-                  <TableHead>Componente</TableHead>
-                  <TableHead>Carga horária</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="px-4 text-right">Acções</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {disciplinas.data.map((disciplina) => (
-                  <TableRow key={disciplina.id}>
-                    <TableCell className="px-4 font-medium">
-                      {disciplina.nome}
-                    </TableCell>
-                    <TableCell>{disciplina.sigla || '—'}</TableCell>
-                    <TableCell>{disciplina.componente || '—'}</TableCell>
-                    <TableCell>{disciplina.carga_horaria} horas</TableCell>
-                    <TableCell>
-                      {disciplina.deleted_at
-                        ? 'Arquivada'
-                        : disciplina.status === 1
-                          ? 'Activa'
-                          : 'Inactiva'}
-                    </TableCell>
-                    <TableCell className="px-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        {!disciplina.deleted_at && (
-                          <>
-                            <Button asChild variant="outline" size="xs">
-                              <Link href={edit(disciplina.id).url}>Editar</Link>
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="xs"
-                              onClick={() => handleDelete(disciplina)}
-                            >
-                              Arquivar
-                            </Button>
-                          </>
-                        )}
-                        {disciplina.deleted_at && (
-                          <Button
-                            variant="outline"
-                            size="xs"
-                            onClick={() => handleRestore(disciplina)}
-                          >
-                            Restaurar
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/72">
+                    <TableHead className="px-4">Nome</TableHead>
+                    <TableHead>Sigla</TableHead>
+                    <TableHead>Componente</TableHead>
+                    <TableHead>Carga horária</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="px-4 text-right">Acções</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {disciplinas.data.map((disciplina) => (
+                    <TableRow key={disciplina.id}>
+                      <TableCell className="px-4 font-medium">
+                        {disciplina.nome}
+                      </TableCell>
+                      <TableCell>{disciplina.sigla || '—'}</TableCell>
+                      <TableCell>{disciplina.componente || '—'}</TableCell>
+                      <TableCell>{disciplina.carga_horaria} horas</TableCell>
+                      <TableCell>
+                        {disciplina.deleted_at
+                          ? 'Arquivada'
+                          : disciplina.status === 1
+                            ? 'Activa'
+                            : 'Inactiva'}
+                      </TableCell>
+                      <TableCell className="px-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          {!disciplina.deleted_at && (
+                            <>
+                              <Button asChild variant="outline" size="xs">
+                                <Link href={edit(disciplina.id).url}>
+                                  Editar
+                                </Link>
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="xs"
+                                onClick={() => handleDelete(disciplina)}
+                              >
+                                Arquivar
+                              </Button>
+                            </>
+                          )}
+                          {disciplina.deleted_at && (
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              onClick={() => handleRestore(disciplina)}
+                            >
+                              Restaurar
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
 

@@ -18,7 +18,7 @@ class PapHelper
         string $nomeCurso,
         ?string $actorTenantId = null,
     ): string {
-        if (!$utilizador) {
+        if (! $utilizador) {
             if ($actorTenantId) {
                 return "Grupo disciplinar do curso {$nomeCurso} do {$instituicaoTutora->sigla}";
             }
@@ -35,6 +35,6 @@ class PapHelper
 
     public static function rotuloGrupoDisciplinar(string $nomeCurso, ?string $sigla): string
     {
-        return trim("Grupo disciplinar do curso {$nomeCurso}" . ($sigla ? " do {$sigla}" : ''));
+        return trim("Grupo disciplinar do curso {$nomeCurso}".($sigla ? " do {$sigla}" : ''));
     }
 }

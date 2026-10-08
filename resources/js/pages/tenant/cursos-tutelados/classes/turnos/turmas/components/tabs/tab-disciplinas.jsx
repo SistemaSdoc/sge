@@ -2,7 +2,6 @@ import { Link, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -168,12 +167,14 @@ export function TabDisciplinas({
 
   return (
     <Card className="grid grid-rows-[auto_1fr_auto] gap-0">
-      <CardHeader className="border-b">
-        <CardTitle>Disciplinas</CardTitle>
-        <CardDescription>Disciplinas lecionadas nesta turma</CardDescription>
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <CardTitle>Disciplinas</CardTitle>
+          <CardDescription>Disciplinas lecionadas nesta turma</CardDescription>
+        </div>
         {canCreate && (
-          <CardAction>
-            <Button asChild>
+          <div className="w-full sm:w-auto">
+            <Button asChild className="w-full sm:w-auto">
               <Link
                 data={{ redirect_to: window.location.href }}
                 href={
@@ -191,7 +192,7 @@ export function TabDisciplinas({
                 Adicionar Disciplinas
               </Link>
             </Button>
-          </CardAction>
+          </div>
         )}
       </CardHeader>
 
@@ -314,7 +315,6 @@ export function TabDisciplinas({
                                 Desassociar professor
                               </DropdownMenuItem>
                             )}
-
                         </DropdownMenuContent>
                       </DropdownMenu>
                     )}

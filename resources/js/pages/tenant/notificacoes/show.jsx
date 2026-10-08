@@ -62,7 +62,8 @@ const LABELS = {
 };
 
 const labelDe = (key) =>
-  LABELS[key] ?? key.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  LABELS[key] ??
+  key.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
 const deveMostrar = (key) => {
   // Esconde tudo o que termina em _id
@@ -133,13 +134,14 @@ export default function Show({ notificacao }) {
   };
 
   // Constrói a lista de campos a mostrar
-  const camposVisiveis = Object.entries(notificacao.dados ?? {})
-    .filter(([key, value]) => {
+  const camposVisiveis = Object.entries(notificacao.dados ?? {}).filter(
+    ([key, value]) => {
       if (!deveMostrar(key)) return false;
       if (value === null || value === undefined || value === '') return false;
       if (Array.isArray(value) && value.length === 0) return false;
       return true;
-    });
+    },
+  );
 
   return (
     <div className="mx-auto w-full max-w-3xl p-6">

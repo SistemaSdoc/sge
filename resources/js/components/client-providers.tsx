@@ -2,11 +2,15 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 
 // Carrega os componentes apenas no cliente
 const TooltipProvider = lazy(() =>
-  import('@/components/ui/tooltip').then((m) => ({ default: m.TooltipProvider }))
+  import('@/components/ui/tooltip').then((m) => ({
+    default: m.TooltipProvider,
+  })),
 );
 
 const ClientToaster = lazy(() =>
-  import('@/components/client-toaster').then((m) => ({ default: m.ClientToaster }))
+  import('@/components/client-toaster').then((m) => ({
+    default: m.ClientToaster,
+  })),
 );
 
 export function ClientProviders({ children }: { children: React.ReactNode }) {

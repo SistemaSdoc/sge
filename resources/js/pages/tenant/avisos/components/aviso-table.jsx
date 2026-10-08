@@ -54,9 +54,12 @@ export default function avisoTable({
   pagination = {},
   onPageChange,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['avisos', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['avisos', 'filters'],
+    },
+  );
   const hasAnyAction = avisos.some(
     (aviso) => aviso.can.update || aviso.can.delete,
   );
@@ -82,8 +85,14 @@ export default function avisoTable({
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title={applied ? 'Nenhum aviso encontrado' : 'Nenhum aviso cadastrado'}
-            description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando a primeiro aviso à tabela'}
+            title={
+              applied ? 'Nenhum aviso encontrado' : 'Nenhum aviso cadastrado'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Comece adicionando a primeiro aviso à tabela'
+            }
             action={
               can?.create
                 ? {

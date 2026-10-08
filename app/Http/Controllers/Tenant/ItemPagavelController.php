@@ -29,7 +29,7 @@ class ItemPagavelController extends Controller
             ->where('instituicao_id', $request->user()->instituicao_id)
             ->search($request->string('search')->toString())
             ->with('cursoClasse.classe:id,nome') // <- carrega também a classe para obter o nome real
-            ->orderBy('nome')
+            ->latest('created_at')
             ->paginate(15)
             ->withQueryString();
 

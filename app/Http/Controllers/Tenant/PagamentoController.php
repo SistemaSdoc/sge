@@ -44,7 +44,7 @@ class PagamentoController extends Controller
             ->where('instituicao_id', $instituicaoId)
             ->search($request->string('search')->toString())
             ->with(['aluno.user:id,nome,instituicao_id'])
-            ->orderByDesc('data_pagamento')
+            ->latest('created_at')
             ->paginate(15)
             ->withQueryString()
             ->through(function (Pagamento $p) use ($request) {
