@@ -709,8 +709,7 @@ Route::middleware([
             Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
                 ->name('notificacoes.ler');
 
-            // ===== DIRETOR =====
-            // ===== DIRETOR =====
+            // ===== DIRETOR ===== 
             Route::prefix('diretor')->name('diretor.')->group(function () {
                 Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
                 Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');
@@ -726,9 +725,9 @@ Route::middleware([
                 Route::get('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'create'])->name('provas.submeter');
                 Route::post('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'store'])->name('provas.store');
                 Route::get('provas/{submissao}/arquivo/{tipo}', [SubmissaoProvaController::class, 'arquivo'])->name('provas.arquivo');
-                Route::get('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
-                Route::post('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
-                Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
+                Route::get('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
+                Route::post('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
+               Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
             });
 
             /*

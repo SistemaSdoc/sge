@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Professor;
 
 use App\Models\Tenant\JustificativaNaoSubmissao;
 use App\Notifications\Concerns\ReliableNotification;

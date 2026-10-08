@@ -159,6 +159,74 @@
         .stat-card.warn   .stat-value { color: #b06000; }
         .stat-card.danger .stat-value { color: #b3261e; }
 
+        /* ─── Tabela de atribuições ─── */
+        .atribuicoes-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 0 20px;
+            font-size: 13px;
+        }
+
+        .atribuicoes-table thead th {
+            background: #f1f3f4;
+            padding: 10px 16px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 11px;
+            color: #5f6368;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-bottom: 1px solid #e8eaed;
+        }
+
+        .atribuicoes-table tbody td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #f1f3f4;
+            color: #202124;
+            vertical-align: middle;
+        }
+
+        .atribuicoes-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .atribuicoes-table tbody tr.row-pending {
+            background: #fffaf0;
+        }
+
+        .atribuicoes-table .col-prof {
+            font-weight: 500;
+        }
+
+        .atribuicoes-table .col-turma {
+            color: #1a73e8;
+            font-weight: 500;
+        }
+
+        .badge-estado {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .badge-estado.ok {
+            background: #e6f4ea;
+            color: #137333;
+        }
+
+        .badge-estado.warn {
+            background: #fef7e0;
+            color: #b06000;
+        }
+
+        .badge-estado.danger {
+            background: #fce8e6;
+            color: #b3261e;
+        }
+
         .security-note {
             margin: 20px 24px;
             background: #fce8e6;
@@ -202,6 +270,9 @@
             body { padding: 0; }
             .email-wrapper { width: 100%; border-radius: 0; }
             .stat-card { flex: 1 1 100%; }
+            .atribuicoes-table { font-size: 12px; }
+            .atribuicoes-table thead th,
+            .atribuicoes-table tbody td { padding: 8px 10px; }
         }
     </style>
 </head>
@@ -227,6 +298,9 @@
             O prazo <strong>{{ $titulo }}</strong> expirou. Segue o resumo de cumprimento dos professores.
         </p>
 
+        {{-- ════════════════════════════════════════════════════ --}}
+        {{-- DETALHES DO PRAZO                                    --}}
+        {{-- ════════════════════════════════════════════════════ --}}
         <p class="section-label">Detalhes do prazo</p>
 
         <div class="credential-item">
@@ -268,24 +342,29 @@
 
         <br>
 
-        {{-- Barra de progresso --}}
+        {{-- ════════════════════════════════════════════════════ --}}
+        {{-- BARRA DE PROGRESSO                                   --}}
+        {{-- ════════════════════════════════════════════════════ --}}
         @php
-            $classe = $taxaCumprimento >= 80 ? 'ok' : ($taxaCumprimento >= 50 ? 'warn' : 'danger');
+            $classeProgresso = $taxaCumprimento >= 80 ? 'ok' : ($taxaCumprimento >= 50 ? 'warn' : 'danger');
         @endphp
 
         <div class="progress-block">
             <div class="label">Taxa de cumprimento</div>
-            <div class="percent {{ $classe }}">{{ $taxaCumprimento }}%</div>
+            <div class="percent {{ $classeProgresso }}">{{ $taxaCumprimento }}%</div>
             <div class="progress-bar">
-                <div class="fill {{ $classe }}" style="width: {{ $taxaCumprimento }}%;"></div>
+                <div class="fill {{ $classeProgresso }}" style="width: {{ $taxaCumprimento }}%;"></div>
             </div>
         </div>
 
+        {{-- ════════════════════════════════════════════════════ --}}
+        {{-- ESTATÍSTICAS                                         --}}
+        {{-- ════════════════════════════════════════════════════ --}}
         <p class="section-label">Estatísticas</p>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Total de professores</div>
+                <div class="stat-label">Total de atribuições</div>
                 <div class="stat-value">{{ $totalProfessores }}</div>
             </div>
 
@@ -305,20 +384,85 @@
             </div>
         </div>
 
+        {{-- ════════════════════════════════════════════════════ --}}
+        {{-- DETALHES POR PROFESSOR + TURMA                       --}}
+        {{-- ════════════════════════════════════════════════════ --}}
+        @if(!empty($atribuicoes))
+            <p class="section-label">Detalhes por professor</p>
+
+            <table class="atribuicoes-table">
+                <thead>
+                    <tr>
+                        <th>Professor</th>
+                        <th>Turma</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($atribuicoes as $atr)
+                        @php
+                            $submeteu = $atr['submeteu'] ?? false;
+                            $justStatus = $atr['justificativa_status'] ?? null;
+
+                            if ($submeteu) {
+                                $estadoLabel = 'Submeteu';
+                                $estadoClass = 'ok';
+                            } elseif ($justStatus === 'aceita') {
+                                $estadoLabel = 'Justificou (aceite)';
+                                $estadoClass = 'warn';
+                            } elseif ($justStatus === 'pendente') {
+                                $estadoLabel = 'Justificou (pendente)';
+                                $estadoClass = 'warn';
+                            } elseif ($justStatus === 'recusada') {
+                                $estadoLabel = 'Justificativa recusada';
+                                $estadoClass = 'danger';
+                            } else {
+                                $estadoLabel = 'Não submeteu';
+                                $estadoClass = 'danger';
+                            }
+                        @endphp
+
+                        <tr class="{{ $submeteu ? '' : 'row-pending' }}">
+                            <td class="col-prof">{{ $atr['professor_nome'] ?? '—' }}</td>
+                            <td class="col-turma">{{ $atr['turma_nome'] ?? '—' }}</td>
+                            <td>
+                                <span class="badge-estado {{ $estadoClass }}">
+                                    {{ $estadoLabel }}
+                                </span>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+
+        {{-- ════════════════════════════════════════════════════ --}}
+        {{-- AVISO                                                --}}
+        {{-- ════════════════════════════════════════════════════ --}}
         @if($naoSubmeteram > 0)
             <div class="security-note">
                 <div class="text">
-                    <div class="title">Professores em falta</div>
-                    <p>Existem {{ $naoSubmeteram }} professor(es) que não submeteram a prova.
-                        Consulte a lista detalhada no painel para tomar as devidas providências.</p>
+                    <div class="title">Ação recomendada</div>
+                    <p>
+                        Existem <strong>{{ $naoSubmeteram }}</strong> atribuição(ões) sem submissão.
+                        Consulte a lista detalhada no painel para tomar as devidas providências.
+                    </p>
                 </div>
             </div>
         @endif
 
+        {{-- ════════════════════════════════════════════════════ --}}
+        {{-- FOOTER                                               --}}
+        {{-- ════════════════════════════════════════════════════ --}}
         <div class="footer">
-            <p>Este email foi enviado automaticamente pela plataforma {{ $instituicao->nome }}. Por favor, não responda
-                directamente a esta mensagem.</p>
-            <p class="company">© {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.</p>
+            <p>
+                Este email foi enviado automaticamente pela plataforma
+                {{ $instituicao->nome ?? config('app.name') }}.
+                Por favor, não responda directamente a esta mensagem.
+            </p>
+            <p class="company">
+                © {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.
+            </p>
         </div>
 
     </div>

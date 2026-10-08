@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Professor;
 
 use App\Models\Tenant\PrazoProva;
 use App\Notifications\Concerns\ReliableNotification;
