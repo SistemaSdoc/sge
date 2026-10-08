@@ -250,7 +250,7 @@ class ClasseTurnoTurmaController extends Controller
                 'disciplina' => fn ($q) => $q->withTrashed()->select(['id', 'nome', 'sigla', 'componente', 'deleted_at']),
                 'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
-                'horarios',
+                'horarios' => fn ($q) => $q->where('turma_id', $turma->id),
             ])
             ->OrderBy('created_at', 'desc');
 

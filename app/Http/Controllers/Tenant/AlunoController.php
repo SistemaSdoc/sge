@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Exceptions\UserRemovalBlockedException;
 use App\Http\Controllers\Controller;
 use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
@@ -13,6 +14,7 @@ use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\PreencherHistoricoService;
 use App\Services\Tenant\VerificadorPropinaService;
 use App\Traits\NotificaAluno;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -95,7 +97,6 @@ class AlunoController extends Controller
             $aluno->can = [
                 'view' => $user->can('view', $aluno),
                 'update' => $user->can('update', $aluno),
-                'delete' => $user->can('delete', $aluno),
             ];
 
             return $aluno;
@@ -269,6 +270,7 @@ class AlunoController extends Controller
             'aluno' => [
                 'id' => $aluno->id,
                 'matricula' => $aluno->matricula,
+                'inscricao_id' => $aluno->inscricao_id,
                 'numero_processo' => $aluno->numero_processo,
                 'nome' => $aluno->inscricao?->candidato?->nome,
                 'bi' => $aluno->inscricao?->candidato?->bi,
@@ -292,8 +294,11 @@ class AlunoController extends Controller
                     'view' => $user->can('view', $aluno),
                     'update' => $user->can('update', $aluno),
                     'delete' => $user->can('delete', $aluno),
+                    'cancelar_matricula' => $aluno->inscricao !== null
+                        && $user->can('cancelar', $aluno->inscricao),
                     'manageHistorico' => $canManageHistorico,
                 ],
+                'remocao' => $user->isSuperAdmin() ? $aluno->podeSerRemovido() : null,
             ],
             'historicoPendente' => $pendentes,
             'classesFaltando' => $pendentes,
@@ -387,11 +392,39 @@ class AlunoController extends Controller
         ]);
     }
 
-    public function destroy(Aluno $aluno)
+    public function destroy(Aluno $aluno): RedirectResponse
     {
-        Gate::authorize('delete', $aluno);
+        $authorization = Gate::inspect('delete', $aluno);
 
-        $aluno->delete();
+        if ($authorization->denied()) {
+            abort_unless(Auth::guard('tenant')->user()->isSuperAdmin(), 403);
+
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => $authorization->message(),
+            ]);
+
+            return back();
+        }
+
+        try {
+            DB::transaction(function () use ($aluno): void {
+                $user = $aluno->user;
+                $candidato = $aluno->inscricao?->candidato;
+
+                $aluno->cleanupOnUserRemoval();
+                $candidato?->delete();
+
+                $user?->removeRole('Aluno');
+            });
+        } catch (UserRemovalBlockedException $exception) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => $exception->getMessage(),
+            ]);
+
+            return back();
+        }
 
         return to_route('tenant.dashboard.alunos.index')->with('toast', [
             'type' => 'success',

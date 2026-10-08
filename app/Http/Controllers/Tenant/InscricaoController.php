@@ -58,11 +58,26 @@ class InscricaoController extends Controller
 
         $inscricoes = Inscricao::with([
             'candidato:id,nome',
+            'aluno' => fn ($query) => $query->withTrashed()->select('id', 'inscricao_id'),
             'cursoClasseTurno.turno:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
             'anoLectivo:id,nome',
         ])
+            ->where(function ($query) {
+                $query->where(function ($query) {
+                    $query->whereHas('candidato')
+                        ->whereDoesntHave('aluno', fn ($alunoQuery) => $alunoQuery->onlyTrashed());
+                })->orWhereHas(
+                    'aluno',
+                    fn ($alunoQuery) => $alunoQuery
+                        ->withTrashed()
+                        ->whereHas(
+                            'pagamentos',
+                            fn ($pagamentoQuery) => $pagamentoQuery->withTrashed()
+                        )
+                );
+            })
             ->when(
                 $instituicaoId,
                 fn ($q) => $q->whereHas(
@@ -237,7 +252,7 @@ class InscricaoController extends Controller
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
             'anoLectivo:id,nome',
-            'aluno:id,inscricao_id',
+            'aluno' => fn ($query) => $query->withTrashed()->select('id', 'inscricao_id'),
         ]);
 
         return Inertia::render('tenant/inscricoes/show', [

@@ -69,6 +69,6 @@ class JustificativaNaoSubmissao extends Model
      */
     public function avaliador()
     {
-        return $this->belongsTo(User::class, 'avaliado_por');
+        return $this->belongsTo(User::class, 'avaliado_por')->withTrashed();
     }
 }

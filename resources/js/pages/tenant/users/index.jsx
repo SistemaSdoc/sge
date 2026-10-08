@@ -10,11 +10,19 @@ export default function Index({ users, roles, allPermissions, filters }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (user) => {
+    const isAluno = user.roles.includes('Aluno');
+    const inscricao = user.aluno_matricula || 'associada';
+
     deleteConfirm({
       title: 'Remover usuário?',
-      description: `Esta acção removerá o acesso de ${user.nome}.`,
+      description: isAluno
+        ? `Esta acção removerá a conta de ${user.nome} e a inscrição ${inscricao} se não houver histórico académico ou financeiro. Com histórico, a remoção será bloqueada; anule a matrícula em vez de remover.`
+        : `Esta acção removerá a conta de ${user.nome}.`,
       confirmLabel: 'Remover',
-      confirmFn: () => router.delete(destroy(user.id).url),
+      confirmFn: () =>
+        router.delete(destroy(user.id).url, {
+          preserveScroll: true,
+        }),
     });
   };
 

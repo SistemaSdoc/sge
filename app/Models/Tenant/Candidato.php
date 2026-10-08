@@ -2,10 +2,12 @@
 
 namespace App\Models\Tenant;
 
+use App\Contracts\HasUserCleanup;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'user_id',
@@ -23,9 +25,14 @@ use Illuminate\Database\Eloquent\Model;
     'morada',
     'perfil_completo',
 ])]
-class Candidato extends Model
+class Candidato extends Model implements HasUserCleanup
 {
-    use HasUuid;
+    use HasUuid, SoftDeletes;
+
+    public function cleanupOnUserRemoval(): void
+    {
+        $this->delete();
+    }
 
     protected $table = 'candidatos';
 

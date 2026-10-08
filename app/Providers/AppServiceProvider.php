@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Central\AnoLectivo;
+use App\Models\Tenant\Aluno;
 use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Documento;
 use App\Models\Tenant\GrupoPap;
@@ -27,6 +28,7 @@ use App\Policies\Tenant\RolePolicy;
 use App\Policies\Tenant\SubmissaoProvaPolicy;
 use App\Policies\Tenant\UserPolicy;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -91,8 +93,19 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);
 
-        Gate::before(function ($user, $ability) {
+        Gate::before(function ($user, $ability, array $arguments) {
+            if ($ability === 'delete' && ($arguments[0] ?? null) instanceof Aluno) {
+                return null;
+            }
+
             return $user->hasRole('SuperAdmin') ? true : null;
+        });
+
+        ResetPassword::createUrlUsing(function ($user, string $token) {
+            $domain = tenant()?->domains()->first()?->domain;
+
+            return 'http://'.$domain.'/reset-password/'.$token
+                .'?email='.urlencode($user->getEmailForPasswordReset());
         });
 
         Gate::define('confirmacoes.matricula.viewAny', [ConfirmacaoMatriculaPolicy::class, 'viewAny']);

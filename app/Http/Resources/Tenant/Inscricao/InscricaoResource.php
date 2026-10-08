@@ -14,11 +14,12 @@ class InscricaoResource extends JsonResource
     public function toArray($request): array
     {
         $user = $request->user();
+        $alunoRemovido = $this->aluno?->trashed() ?? false;
 
         return [
             'id' => $this->id,
             'status' => $this->status,
-            'candidato' => $this->candidato->nome,
+            'candidato' => $alunoRemovido ? 'Aluno removido' : ($this->candidato?->nome ?? 'Aluno removido'),
             'curso' => $this->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
             'instituicao' => $this->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
             'turno' => $this->cursoClasseTurno?->turno?->nome,

@@ -4,6 +4,7 @@ namespace App\Policies\Tenant;
 
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\User;
+use Illuminate\Auth\Access\Response;
 
 class AlunoPolicy
 {
@@ -149,9 +150,19 @@ class AlunoPolicy
      *
      * Exclusivo do SuperAdmin via Gate::before().
      */
-    public function delete(User $user, Aluno $aluno): bool
+    public function delete(User $user, Aluno $aluno): Response
     {
-        return false;
+        if (! $user->isSuperAdmin()) {
+            return Response::deny('Não tem permissão para remover este aluno.');
+        }
+
+        $remocao = $aluno->podeSerRemovido();
+
+        if (! $remocao['pode_remover']) {
+            return Response::deny($remocao['mensagem']);
+        }
+
+        return Response::allow();
     }
 
     /**

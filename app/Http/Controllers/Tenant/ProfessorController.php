@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Actions\Tenant\Professor\CreateProfessor;
 use App\Actions\Tenant\Professor\DeleteProfessor;
 use App\Actions\Tenant\Professor\UpdateProfessor;
+use App\Exceptions\UserRemovalBlockedException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Professor\StoreProfessoresRequest;
 use App\Http\Requests\Tenant\Professor\UpdateProfessoresRequest;
@@ -12,8 +13,10 @@ use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ProfessorController extends Controller
@@ -78,8 +81,11 @@ class ProfessorController extends Controller
     {
         $this->authorize('create', Professor::class);
 
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
         $this->createProfessor->handle(
-            Auth::guard('tenant')->user(),
+            $user,
             $request->validated(),
         );
 
@@ -165,15 +171,26 @@ class ProfessorController extends Controller
     /**
      * Remove um professor específico.
      */
-    public function destroy(Professor $professor)
+    public function destroy(Professor $professor): RedirectResponse
     {
-        $this->authorize('delete', $professor);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('delete', $professor);
 
-        $this->deleteProfessor->handle($professor);
+        try {
+            $this->deleteProfessor->handle($professor);
+        } catch (UserRemovalBlockedException $e) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => $e->getMessage(),
+            ]);
 
-        return to_route('tenant.dashboard.professores.index')->with('toast', [
+            return back();
+        }
+
+        Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Professor removido com sucesso.',
         ]);
+
+        return to_route('tenant.dashboard.professores.index');
     }
 }

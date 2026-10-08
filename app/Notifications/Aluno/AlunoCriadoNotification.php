@@ -25,7 +25,7 @@ class AlunoCriadoNotification extends Notification implements ShouldQueue, Shoul
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ['mail'];
     }
 
     public function toMail(object $notifiable): MailMessage

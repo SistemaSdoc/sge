@@ -61,7 +61,7 @@ class ConfirmacaoMatricula extends Model
 
     public function confirmadoPor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'confirmado_por');
+        return $this->belongsTo(User::class, 'confirmado_por')->withTrashed();
     }
 
     // ═══════════════════════════════════════════════════════════════

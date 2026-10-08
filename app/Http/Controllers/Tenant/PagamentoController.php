@@ -57,6 +57,10 @@ class PagamentoController extends Controller
                     ->implode(', ');
 
                 $podeApagar = $request->user()->can('delete', $p);
+                $aluno = $p->aluno;
+                $nomeAluno = $aluno?->trashed()
+                    ? 'Aluno removido'
+                    : ($aluno?->user?->nome ?? 'Aluno removido');
 
                 Log::debug('PagamentoController@index - verificação can.delete', [
                     'pagamento_id' => $p->id,
@@ -70,7 +74,7 @@ class PagamentoController extends Controller
 
                 return [
                     'id' => $p->id,
-                    'aluno' => $p->aluno->user->nome,
+                    'aluno' => $nomeAluno,
                     'valor_total' => $p->valor_total,
                     'metodo' => $p->metodo,
                     'referencia' => $p->referencia,
@@ -473,6 +477,10 @@ class PagamentoController extends Controller
         Log::info('PagamentoController@show - início', ['pagamento_id' => $pagamento->id]);
 
         $pagamento->load(['aluno.user:id,nome', 'registadoPor:id,nome']);
+        $aluno = $pagamento->aluno;
+        $nomeAluno = $aluno?->trashed()
+            ? 'Aluno removido'
+            : ($aluno?->user?->nome ?? 'Aluno removido');
 
         $itens = $pagamento->itens()
             ->with('itemPagavel:id,nome,frequencia,valor')
@@ -510,7 +518,7 @@ class PagamentoController extends Controller
         return Inertia::render('tenant/pagamentos/show', [
             'pagamento' => [
                 'id' => $pagamento->id,
-                'aluno' => $pagamento->aluno->user->nome,
+                'aluno' => $nomeAluno,
                 'registado_por' => $pagamento->registadoPor->nome,
                 'data_pagamento' => $pagamento->data_pagamento->format('d/m/Y'),
                 'valor_total' => $pagamento->valor_total,

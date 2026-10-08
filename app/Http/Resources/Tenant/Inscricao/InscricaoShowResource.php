@@ -26,6 +26,8 @@ class InscricaoShowResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $alunoRemovido = $this->aluno?->trashed() ?? false;
+
         return [
             'id' => $this->id,
             'status' => $this->status,
@@ -34,7 +36,7 @@ class InscricaoShowResource extends JsonResource
             'nota_teste' => $this->nota_teste,
             'ano_lectivo' => $this->anoLectivo?->nome,
             'candidato' => [
-                'nome' => $this->candidato?->nome,
+                'nome' => $alunoRemovido ? 'Aluno removido' : ($this->candidato?->nome ?? 'Aluno removido'),
                 'bi' => $this->candidato?->bi,
                 'numero_estudante' => $this->candidato?->numero_estudante,
                 'email' => $this->candidato?->email,

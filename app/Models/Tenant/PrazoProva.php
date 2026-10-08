@@ -86,7 +86,7 @@ class PrazoProva extends Model
      */
     public function criador()
     {
-        return $this->belongsTo(User::class, 'criado_por');
+        return $this->belongsTo(User::class, 'criado_por')->withTrashed();
     }
 
     /**

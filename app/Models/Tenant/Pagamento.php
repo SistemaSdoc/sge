@@ -30,7 +30,7 @@ class Pagamento extends Model
 
     public function aluno(): BelongsTo
     {
-        return $this->belongsTo(Aluno::class);
+        return $this->belongsTo(Aluno::class)->withTrashed();
     }
 
     public function itens(): HasMany
@@ -40,6 +40,6 @@ class Pagamento extends Model
 
     public function registadoPor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'registado_por');
+        return $this->belongsTo(User::class, 'registado_por')->withTrashed();
     }
 }

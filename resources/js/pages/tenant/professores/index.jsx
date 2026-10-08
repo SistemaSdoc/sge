@@ -13,8 +13,8 @@ export default function Index({ professores, filters }) {
     deleteConfirm({
       title: 'Tens a certeza?',
       description:
-        'Esta acção é irreversível. O professor será eliminado permanentemente.',
-      confirmLabel: 'Eliminar',
+        'A remoção só é possível se o professor não estiver associado a cursos, disciplinas/turmas ou grupos de PAP.',
+      confirmLabel: 'Remover',
       confirmFn: () => router.delete(destroy(professorId).url),
     });
   };

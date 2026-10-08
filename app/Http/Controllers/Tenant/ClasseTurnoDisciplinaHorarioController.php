@@ -38,7 +38,7 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
             ->map(fn ($horario) => array_merge($horario, [
                 'id' => (string) Str::uuid7(),
                 'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
-                'turma_id' => $turma->id,  // ← adicionar
+                'turma_id' => $turma->id,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]))
