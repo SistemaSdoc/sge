@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Central\Tenant;
 use App\Models\Tenant\PrazoProva;
-use App\Notifications\PrazoProvaNotificacao;
+use App\Notifications\Professor\PrazoProvaNotificacao;
 use App\Services\Tenant\PrazoNotificacaoService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
