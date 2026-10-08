@@ -1,123 +1,136 @@
-import { Form, Head } from '@inertiajs/react';
-import { useState } from 'react';
-import { GoogleButton } from '@/components/google-button';
+import { Form, Head, Link } from '@inertiajs/react';
 import InputError from '@/components/input-error';
-import PasskeyVerify from '@/components/passkey-verify';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { store as LoginWithEmailAndPassword } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
 import { request } from '@/routes/password';
-//import { redirect as LoginWithGoogle } from '@/actions/App/Http/Controllers/Tenant/Auth/GoogleAuthController';
+import { GoogleButton } from './components/socials-buttons/google-button';
+import { AppleButton } from './components/socials-buttons/apple-button';
+import { FacebookButton } from './components/socials-buttons/facebook-button';
 
 export default function Login({ status, canResetPassword }) {
-  /*const [googleLoading, setGoogleLoading] = useState(false);
-
-  const handleGoogleConfirmation = () => {
-    setGoogleLoading(true);
-    window.location.href = LoginWithGoogle().url;
-  };*/
-
   return (
     <>
       <Head title="Login" />
 
-      {/*<div className="flex flex-col gap-2">
-        <GoogleButton
-          isLoading={googleLoading}
-          onClick={handleGoogleConfirmation}
-        />
-        <PasskeyVerify /*separator="Ou continue com email e senha" />
-      </div>*/}
-
       <Form
         {...LoginWithEmailAndPassword.post()}
         resetOnSuccess={['password']}
-        className="flex flex-col gap-6"
+        className="w-full"
       >
         {({ processing, errors }) => (
-          <>
-            <div className="grid gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Endereço de Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  name="email"
-                  required
-                  autoFocus
-                  tabIndex={1}
-                  autoComplete="email"
-                  placeholder="email@example.com"
-                />
-                <InputError message={errors.email} />
+          <FieldGroup>
+            <div className="flex flex-col gap-1 text-center">
+              <h1 className="text-lg font-bold md:text-xl">
+                Inicie sessão na sua conta
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Introduza o seu email e a sua senha para aceder à sua conta.
+              </p>
+            </div>
+
+            <Field data-invalid={Boolean(errors.email)}>
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                name="email"
+                required
+                autoFocus
+                tabIndex={1}
+                autoComplete="email"
+                placeholder="email@exemplo.ao"
+                aria-invalid={Boolean(errors.email)}
+              />
+              <InputError message={errors.email} />
+            </Field>
+
+            <Field data-invalid={Boolean(errors.password)}>
+              <div className="flex items-center gap-3">
+                <FieldLabel htmlFor="password">Senha</FieldLabel>
+                {canResetPassword && (
+                  <Link
+                    href={request().url}
+                    className="ml-auto text-xs hover:underline text-muted-foreground"
+                    tabIndex={5}
+                  >
+                    Esqueceu a senha?
+                  </Link>
+                )}
               </div>
 
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Senha</Label>
-                  {canResetPassword && (
-                    <TextLink
-                      href={request().url}
-                      className="ml-auto text-sm"
-                      tabIndex={5}
-                    >
-                      Esqueceu sua senha?
-                    </TextLink>
-                  )}
-                </div>
-                <PasswordInput
-                  id="password"
-                  name="password"
-                  required
-                  tabIndex={2}
-                  autoComplete="current-password"
-                  placeholder="Senha"
-                />
-                <InputError message={errors.password} />
-              </div>
+              <PasswordInput
+                id="password"
+                name="password"
+                required
+                tabIndex={2}
+                autoComplete="current-password"
+                placeholder="Insira a sua senha"
+                aria-invalid={Boolean(errors.password)}
+              />
+              <InputError message={errors.password} />
+            </Field>
 
-              <div className="flex items-center space-x-3">
-                <Checkbox id="remember" name="remember" tabIndex={3} />
-                <Label htmlFor="remember">Lembrar-me</Label>
-              </div>
+            <Field orientation="horizontal" className="items-center">
+              <Checkbox id="remember" name="remember" tabIndex={3} />
+              <FieldLabel htmlFor="remember">Lembrar-me</FieldLabel>
+            </Field>
 
+            <Field>
               <Button
                 type="submit"
-                className="mt-4 w-full"
+                className="w-full hover:cursor-pointer"
                 tabIndex={4}
                 disabled={processing}
                 data-test="login-button"
               >
-                {processing && <Spinner />}
-                Log in
+                {processing && <Spinner data-icon="inline-start" />}
+                Entrar
               </Button>
-            </div>
+            </Field>
 
-            {/* <div className="text-center text-sm text-muted-foreground">
-              Não tem uma conta?{' '}
-              <TextLink href={register()} tabIndex={5}>
-                Criar
-              </TextLink>
-            </div>*/}
-          </>
+            <FieldSeparator className="my-1 *:data-[slot=field-separator-content]:bg-background">
+              Ou continue com
+            </FieldSeparator>
+
+            <Field>
+              <GoogleButton />
+              <AppleButton />
+              <FacebookButton />
+            </Field>
+
+          </FieldGroup>
         )}
       </Form>
 
       {status && (
-        <div className="mb-4 text-center text-sm font-medium text-green-600">
+        <FieldDescription
+          role="status"
+          className="mt-4 text-center text-primary"
+        >
           {status}
-        </div>
+        </FieldDescription>
       )}
     </>
   );
 }
 
 Login.layout = {
-  title: 'Inicie sessão na sua conta',
-  description: 'Insira suas credenciais para acessar sua conta',
+  showAside: false,
+  formFooter: (
+    <FieldDescription className="text-center">
+      Precisa de acesso? Contacte a administração da sua instituição.
+    </FieldDescription>
+  ),
 };

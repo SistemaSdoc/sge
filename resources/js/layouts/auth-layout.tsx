@@ -25,7 +25,7 @@ const mobileFormStyles = `
   }
 
   .auth-split-form {
-    padding: 32px 32px calc(var(--auth-gap) + 33px);
+    padding: 32px 12px calc(var(--auth-gap) + 33px);
     min-height: calc(100vh - var(--auth-gap) - 1px);
     min-height: calc(100dvh - var(--auth-gap) - 1px);
   }
@@ -42,6 +42,7 @@ export default function AuthLayout({
   children,
   title,
   description,
+  formFooter,
 }: AuthLayoutProps) {
   const { instituicao } = usePage().props as {
     instituicao?: { logo_url?: string; nome?: string };
@@ -73,14 +74,16 @@ export default function AuthLayout({
 
       <aside className="relative z-10 flex flex-1 flex-col border border-border bg-background md:flex-row">
         <section
-          className="auth-split-form flex items-center justify-center"
+          className={`auth-split-form flex ${formFooter ? 'flex-col items-center justify-between' : 'items-center justify-center'}`}
           style={{ flex: '1 1 auto', minWidth: 0 }}
         >
-          <div className="w-full max-w-90">
+          <div
+            className={`w-full max-w-100 ${formFooter ? 'flex flex-1 flex-col justify-center' : ''}`}
+          >
             <Link
               href={home()}
               className="mb-5 flex min-h-8 items-center justify-center gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4 focus-visible:ring-offset-background"
-              aria-label={instituicao?.nome ?? 'SGE'}
+              aria-label={instituicao?.nome ?? 'PGE'}
             >
               {instituicao?.logo_url ? (
                 <img
@@ -94,7 +97,7 @@ export default function AuthLayout({
                     {instituicao?.nome?.charAt(0) ?? 'S'}
                   </span>
                   <span className="text-xs font-medium text-foreground">
-                    {instituicao?.nome ?? 'SGE'}
+                    {instituicao?.nome ?? 'PGE'}
                   </span>
                 </>
               )}
@@ -102,14 +105,22 @@ export default function AuthLayout({
 
             <header className="mb-5 space-y-1 text-center">
               <h1 className="text-sm font-semibold text-foreground">{title}</h1>
+
               {description && (
                 <p className="text-xs leading-5 text-muted-foreground">
                   {description}
                 </p>
               )}
             </header>
+
             {children}
           </div>
+
+          {formFooter && (
+            <footer className="mt-8 w-full max-w-100 text-center text-muted-foreground">
+              {formFooter}
+            </footer>
+          )}
         </section>
 
         <aside
