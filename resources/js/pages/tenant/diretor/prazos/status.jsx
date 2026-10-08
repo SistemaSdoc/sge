@@ -12,10 +12,12 @@ import {
   Loader2,
   Clock,
   AlertCircle,
+  CalendarClock,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   Card,
   CardContent,
@@ -42,17 +44,14 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 
 export default function Status({ prazo, professores }) {
-  // ── Loading por ação específica ──
   const [processing, setProcessing] = useState({});
 
-  // Estado para o diálogo de rejeição de submissão
-  const [rejectDialog, setRejectDialog] = useState(null); // { submissaoId, professorNome }
+  const [rejectDialog, setRejectDialog] = useState(null);
   const [motivoRejeicao, setMotivoRejeicao] = useState('');
 
-  // Estado para o diálogo de recusa de justificativa
-  const [justificativaDialog, setJustificativaDialog] = useState(null); // { id, professorNome }
-  const [motivoRecusaJustificativa, setMotivoRecusaJustificativa] =
-    useState('');
+  const [justificativaDialog, setJustificativaDialog] = useState(null);
+  const [motivoRecusaJustificativa, setMotivoRecusaJustificativa] = useState('');
+  const [diasPrazoExtra, setDiasPrazoExtra] = useState(3);
 
   // ============================================================
   // 1. AVALIAR SUBMISSÃO
@@ -60,24 +59,25 @@ export default function Status({ prazo, professores }) {
   const handleAvaliarSubmissao = useCallback((submissaoId, acao, motivo = null) => {
     setProcessing((prev) => ({ ...prev, [`sub_${submissaoId}`]: true }));
 
-      const payload = { acao };
-      if (motivo) payload.parecer = motivo;
+    const payload = { acao };
+    if (motivo) payload.parecer = motivo;
 
     router.patch(`/dashboard/diretor/submissoes/${submissaoId}/avaliar`, payload, {
       preserveScroll: true,
+      preserveState: false,   // ✅ NOVO
       onSuccess: () => {
         toast.success(
           acao === 'aprovar' ? 'Submissão aprovada' : 'Submissão rejeitada',
-          {
-            description: 'O professor foi notificado.',
-          }
+          { description: 'O professor foi notificado.' }
         );
-        router.reload({ only: ['professores'] });
+        router.reload({
+          only: ['professores'],
+          preserveScroll: true,
+          preserveState: false,   // ✅ NOVO
+        });
       },
       onError: () => {
-        toast.error('Erro ao avaliar submissão', {
-          description: 'Tente novamente em alguns instantes.',
-        });
+        toast.error('Erro ao avaliar submissão');
       },
       onFinish: () => {
         setProcessing((prev) => ({ ...prev, [`sub_${submissaoId}`]: false }));
@@ -89,31 +89,48 @@ export default function Status({ prazo, professores }) {
   // 2. AVALIAR JUSTIFICATIVA
   // ============================================================
   const handleAvaliarJustificativa = useCallback(
-    (justificativaId, status, motivo = null, contexto = {}) => {
+    (justificativaId, status, motivo = null, contexto = {}, dias = null) => {
       setProcessing((prev) => ({ ...prev, [`just_${justificativaId}`]: true }));
+
+      const payload = { status, motivo };
+      if (status === 'aceita' && dias) {
+        payload.dias_prazo_extra = dias;
+      }
+
+      // Guarda os valores antes de resetar
+      const professorNome = contexto.professorNome ?? '—';
+      const turmaNome = contexto.turmaNome ?? '—';
+      const diasUsados = dias ?? 3;
 
       router.patch(
         `/dashboard/diretor/justificativas/${justificativaId}/avaliar`,
-        { status, motivo },
+        payload,
         {
           preserveScroll: true,
+          preserveState: false,   // ✅ NOVO
           onSuccess: () => {
-            toast.success(
-              status === 'aceita' ? 'Justificativa aceite' : 'Justificativa recusada',
-              {
-                description: `Professor: ${contexto.professorNome ?? '—'} • Turma: ${contexto.turmaNome ?? '—'}`,
-              }
-            );
-            router.reload({ only: ['professores'] });
+            if (status === 'aceita') {
+              toast.success('Justificativa aceite', {
+                description: `${professorNome} • ${turmaNome} • ${diasUsados} dias de prazo extra`,
+              });
+            } else {
+              toast.success('Justificativa recusada', {
+                description: `${professorNome} • ${turmaNome}`,
+              });
+            }
+            router.reload({
+              only: ['professores'],
+              preserveScroll: true,
+              preserveState: false,   // ✅ NOVO
+            });
           },
           onError: () => {
-            toast.error('Erro ao avaliar justificativa', {
-              description: 'Tente novamente em alguns instantes.',
-            });
+            toast.error('Erro ao avaliar justificativa');
           },
           onFinish: () => {
             setProcessing((prev) => ({ ...prev, [`just_${justificativaId}`]: false }));
             setJustificativaDialog(null);
+            setDiasPrazoExtra(3);
           },
         }
       );
@@ -122,7 +139,7 @@ export default function Status({ prazo, professores }) {
   );
 
   // ============================================================
-  // 3. ABRIR/FECHAR DIÁLOGOS
+  // 3. DIÁLOGOS
   // ============================================================
   const openRejectDialog = (submissaoId, professorNome, turmaNome) => {
     setMotivoRejeicao('');
@@ -136,14 +153,14 @@ export default function Status({ prazo, professores }) {
       toast.error('Informe o motivo da rejeição.');
       return;
     }
-    const { submissaoId, professorNome, turmaNome } = rejectDialog;
+    const { submissaoId } = rejectDialog;
     closeRejectDialog();
     handleAvaliarSubmissao(submissaoId, 'rejeitar', motivoRejeicao.trim());
   };
 
   const openRejectJustificativaDialog = (id, professorNome, turmaNome) => {
     setMotivoRecusaJustificativa('');
-    setJustificativaDialog({ id, professorNome, turmaNome });
+    setJustificativaDialog({ id, professorNome, turmaNome, aceitar: false });
   };
 
   const closeJustificativaDialog = () => setJustificativaDialog(null);
@@ -155,6 +172,24 @@ export default function Status({ prazo, professores }) {
       professorNome,
       turmaNome,
     });
+  };
+
+  const confirmAceitar = () => {
+    if (!justificativaDialog) return;
+
+    if (diasPrazoExtra < 1 || diasPrazoExtra > 30) {
+      toast.error('O prazo extra deve ser entre 1 e 30 dias.');
+      return;
+    }
+
+    const { id, professorNome, turmaNome } = justificativaDialog;
+    handleAvaliarJustificativa(
+      id,
+      'aceita',
+      null,
+      { professorNome, turmaNome },
+      diasPrazoExtra
+    );
   };
 
   // ============================================================
@@ -178,7 +213,7 @@ export default function Status({ prazo, professores }) {
             <h1 className="text-2xl font-bold text-foreground">
               Status do Prazo: <span className="text-primary">{prazo.titulo}</span>
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="mt-1 text-sm text-muted-foreground">
               {prazo.disciplina?.nome ?? 'Todas as disciplinas'}
               {prazo.classe?.nome && ` • ${prazo.classe.nome}`}
               {prazo.data_limite && ` • Limite: ${prazo.data_limite}`}
@@ -196,35 +231,29 @@ export default function Status({ prazo, professores }) {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card className="border-0 shadow-sm">
             <CardContent className="flex items-center p-4">
-              <Users className="size-8 mr-3 text-muted-foreground" />
+              <Users className="mr-3 size-8 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Total de atribuições
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">Total</p>
                 <p className="text-3xl font-bold">{total}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-0 text-white shadow-sm">
-            <CardContent className="flex items-center p-4">
-              <CheckCircle className="mr-3 size-8" />
-              <div>
-                <CardTitle className="text-sm font-medium">
-                  Submeteram
-                </CardTitle>
-                <p className="text-3xl font-bold">{cumpriram}</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-0 shadow-sm">
             <CardContent className="flex items-center p-4">
-              <XCircle className="size-8 mr-3 text-red-600" />
+              <CheckCircle className="mr-3 size-8 text-green-600" />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Não submeteram
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">Submeteram</p>
+                <p className="text-3xl font-bold text-green-600">{cumpriram}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-sm">
+            <CardContent className="flex items-center p-4">
+              <XCircle className="mr-3 size-8 text-red-600" />
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Não submeteram</p>
                 <p className="text-3xl font-bold text-red-600">{naoCumpriram}</p>
               </div>
             </CardContent>
@@ -232,12 +261,11 @@ export default function Status({ prazo, professores }) {
         </div>
 
         {/* Tabela */}
-        <Card className="shadow-sm border-border">
+        <Card className="border-border shadow-sm">
           <CardHeader>
             <CardTitle>Lista de Professores</CardTitle>
             <CardDescription>
-              Uma linha por professor e turma. Professores que lecionam várias turmas
-              aparecem várias vezes — uma por cada turma.
+              Uma linha por professor e turma. Aceitar justificativa concede prazo extra automaticamente.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
@@ -256,10 +284,7 @@ export default function Status({ prazo, professores }) {
               <TableBody>
                 {professores.length === 0 ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="text-center py-8 text-muted-foreground"
-                    >
+                    <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                       Nenhum professor atribuído a este prazo.
                     </TableCell>
                   </TableRow>
@@ -274,25 +299,21 @@ export default function Status({ prazo, professores }) {
                     return (
                       <TableRow
                         key={rowKey}
-                        className={
-                          !prof.submeteu ? 'bg-yellow-50 dark:bg-yellow-950/20' : ''
-                        }
+                        className={!prof.submeteu ? 'bg-yellow-50 dark:bg-yellow-950/20' : ''}
                       >
-                        {/* Professor */}
                         <TableCell className="px-4">
                           <div className="flex items-center gap-2">
-                            <div className="size-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                            <div className="flex size-8 items-center justify-center rounded-full bg-muted">
                               <User className="size-4 text-muted-foreground" />
                             </div>
                             <span className="font-medium">{prof.professor_nome}</span>
                           </div>
                         </TableCell>
 
-                        {/* Turma */}
                         <TableCell className="px-4">
                           {prof.turma_nome && prof.turma_nome !== '—' ? (
                             <Badge variant="outline" className="font-medium">
-                              <Users className="size-3 mr-1" />
+                              <Users className="mr-1 size-3" />
                               {prof.turma_nome}
                             </Badge>
                           ) : (
@@ -300,15 +321,11 @@ export default function Status({ prazo, professores }) {
                           )}
                         </TableCell>
 
-                        {/* Submissão */}
                         <TableCell className="px-4">
                           {prof.submeteu ? (
                             <div className="flex flex-wrap items-center gap-1">
-                              <Badge
-                                variant="default"
-                                className="bg-green-600 hover:bg-green-700"
-                              >
-                                <CheckCircle className="size-3 mr-1" />
+                              <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                                <CheckCircle className="mr-1 size-3" />
                                 Submeteu
                               </Badge>
                               {prof.estado && (
@@ -322,35 +339,28 @@ export default function Status({ prazo, professores }) {
                                         : 'border-yellow-500 text-yellow-700'
                                   }
                                 >
-                                  {prof.estado === 'aprovado' && (
-                                    <Check className="size-3 mr-1" />
-                                  )}
-                                  {prof.estado === 'rejeitado' && (
-                                    <X className="size-3 mr-1" />
-                                  )}
+                                  {prof.estado === 'aprovado' && <Check className="mr-1 size-3" />}
+                                  {prof.estado === 'rejeitado' && <X className="mr-1 size-3" />}
                                   {prof.estado_label}
                                 </Badge>
                               )}
                             </div>
                           ) : (
                             <Badge variant="destructive">
-                              <XCircle className="size-3 mr-1" />
+                              <XCircle className="mr-1 size-3" />
                               Não submeteu
                             </Badge>
                           )}
                         </TableCell>
 
-                        {/* Versão */}
                         <TableCell className="px-4 text-center">
                           {prof.versao ? `v${prof.versao}` : '—'}
                         </TableCell>
 
-                        {/* Data */}
                         <TableCell className="px-4 text-center text-sm text-muted-foreground">
                           {prof.data_submissao || '—'}
                         </TableCell>
 
-                        {/* Justificativa */}
                         <TableCell className="px-4">
                           {prof.justificativa ? (
                             <div className="space-y-1">
@@ -365,20 +375,20 @@ export default function Status({ prazo, professores }) {
                                 }
                               >
                                 {prof.justificativa.status === 'pendente' && (
-                                  <AlertCircle className="size-3 mr-1" />
+                                  <AlertCircle className="mr-1 size-3" />
                                 )}
                                 {prof.justificativa.status === 'aceita' && (
-                                  <CheckCircle className="size-3 mr-1" />
+                                  <CheckCircle className="mr-1 size-3" />
                                 )}
                                 {prof.justificativa.status === 'recusada' && (
-                                  <XCircle className="size-3 mr-1" />
+                                  <XCircle className="mr-1 size-3" />
                                 )}
                                 {prof.justificativa.status_label}
                               </Badge>
-                              <p className="text-xs text-muted-foreground line-clamp-2">
+                              <p className="line-clamp-2 text-xs text-muted-foreground">
                                 {prof.justificativa.motivo}
                               </p>
-                              <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                              <p className="flex items-center gap-1 text-[10px] text-muted-foreground">
                                 <Clock className="size-3" />
                                 {prof.justificativa.data_justificativa}
                               </p>
@@ -388,25 +398,22 @@ export default function Status({ prazo, professores }) {
                           )}
                         </TableCell>
 
-                        {/* Ações */}
                         <TableCell className="px-4 text-center">
-                          {/* 1. Submeteu, aguarda avaliação */}
+                          {/* Submeteu pendente */}
                           {prof.submeteu && prof.estado === 'pendente' && (
                             <div className="flex justify-center gap-2">
                               <Button
                                 variant="default"
                                 size="sm"
                                 className="bg-green-600 hover:bg-green-700"
-                                onClick={() =>
-                                  handleAvaliarSubmissao(prof.submissao_id, 'aprovar')
-                                }
+                                onClick={() => handleAvaliarSubmissao(prof.submissao_id, 'aprovar')}
                                 disabled={isSubmiting}
                               >
                                 {isSubmiting ? (
                                   <Loader2 className="size-4 animate-spin" />
                                 ) : (
                                   <>
-                                    <Check className="size-4 mr-1" />
+                                    <Check className="mr-1 size-4" />
                                     Aprovar
                                   </>
                                 )}
@@ -415,61 +422,40 @@ export default function Status({ prazo, professores }) {
                                 variant="destructive"
                                 size="sm"
                                 onClick={() =>
-                                  openRejectDialog(
-                                    prof.submissao_id,
-                                    prof.professor_nome,
-                                    prof.turma_nome
-                                  )
+                                  openRejectDialog(prof.submissao_id, prof.professor_nome, prof.turma_nome)
                                 }
                                 disabled={isSubmiting}
                               >
-                                {isSubmiting ? (
-                                  <Loader2 className="size-4 animate-spin" />
-                                ) : (
-                                  <>
-                                    <X className="size-4 mr-1" />
-                                    Rejeitar
-                                  </>
-                                )}
+                                <X className="mr-1 size-4" />
+                                Rejeitar
                               </Button>
                             </div>
                           )}
 
-                          {/* 2. Submeteu e já foi avaliado */}
                           {prof.submeteu && prof.estado !== 'pendente' && (
-                            <span className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                            <span className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
                               <CheckCircle className="size-4" />
                               Avaliado
                             </span>
                           )}
 
-                          {/* 3. Não submeteu, justificativa pendente */}
+                          {/* Justificativa pendente → aceitar/recusar */}
                           {!prof.submeteu &&
                             prof.justificativa &&
                             prof.justificativa.status === 'pendente' && (
                               <div className="flex flex-col items-center gap-1">
-                                <Badge
-                                  variant="outline"
-                                  className="border-yellow-500 text-yellow-700"
-                                >
-                                  <AlertCircle className="size-3 mr-1" />
-                                  Aguardando análise
-                                </Badge>
                                 <div className="flex gap-1">
                                   <Button
                                     size="sm"
                                     variant="default"
-                                    className="bg-green-600 hover:bg-green-700 text-xs h-7"
+                                    className="h-7 bg-green-600 text-xs hover:bg-green-700"
                                     onClick={() =>
-                                      handleAvaliarJustificativa(
-                                        prof.justificativa.id,
-                                        'aceita',
-                                        null,
-                                        {
-                                          professorNome: prof.professor_nome,
-                                          turmaNome: prof.turma_nome,
-                                        }
-                                      )
+                                      setJustificativaDialog({
+                                        id: prof.justificativa.id,
+                                        professorNome: prof.professor_nome,
+                                        turmaNome: prof.turma_nome,
+                                        aceitar: true,
+                                      })
                                     }
                                     disabled={isJustifying}
                                   >
@@ -477,7 +463,7 @@ export default function Status({ prazo, professores }) {
                                       <Loader2 className="size-3 animate-spin" />
                                     ) : (
                                       <>
-                                        <Check className="size-3 mr-1" />
+                                        <Check className="mr-1 size-3" />
                                         Aceitar
                                       </>
                                     )}
@@ -485,7 +471,7 @@ export default function Status({ prazo, professores }) {
                                   <Button
                                     size="sm"
                                     variant="destructive"
-                                    className="text-xs h-7"
+                                    className="h-7 text-xs"
                                     onClick={() =>
                                       openRejectJustificativaDialog(
                                         prof.justificativa.id,
@@ -495,24 +481,17 @@ export default function Status({ prazo, professores }) {
                                     }
                                     disabled={isJustifying}
                                   >
-                                    {isJustifying ? (
-                                      <Loader2 className="size-3 animate-spin" />
-                                    ) : (
-                                      <>
-                                        <X className="size-3 mr-1" />
-                                        Recusar
-                                      </>
-                                    )}
+                                    <X className="mr-1 size-3" />
+                                    Recusar
                                   </Button>
                                 </div>
                               </div>
                             )}
 
-                          {/* 4. Não submeteu, justificativa já avaliada */}
                           {!prof.submeteu &&
                             prof.justificativa &&
                             prof.justificativa.status !== 'pendente' && (
-                              <span className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                              <span className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
                                 {prof.justificativa.status === 'aceita' ? (
                                   <CheckCircle className="size-4 text-green-600" />
                                 ) : (
@@ -522,11 +501,8 @@ export default function Status({ prazo, professores }) {
                               </span>
                             )}
 
-                          {/* 5. Não submeteu, sem justificativa */}
                           {!prof.submeteu && !prof.justificativa && (
-                            <span className="text-sm text-muted-foreground">
-                              Sem justificativa
-                            </span>
+                            <span className="text-sm text-muted-foreground">Sem justificativa</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -539,13 +515,8 @@ export default function Status({ prazo, professores }) {
         </Card>
       </div>
 
-      {/* ============================================================
-          DIÁLOGO 1: Rejeitar Submissão
-          ============================================================ */}
-      <Dialog
-        open={!!rejectDialog}
-        onOpenChange={(open) => !open && closeRejectDialog()}
-      >
+      {/* Diálogo: Rejeitar submissão */}
+      <Dialog open={!!rejectDialog} onOpenChange={(open) => !open && closeRejectDialog()}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -559,37 +530,25 @@ export default function Status({ prazo, professores }) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-2">
-            <label htmlFor="motivoRejeicao" className="text-sm font-medium">
-              Motivo da rejeição <span className="text-destructive">*</span>
+            <label className="text-sm font-medium">
+              Motivo <span className="text-destructive">*</span>
             </label>
             <Textarea
-              id="motivoRejeicao"
               rows={3}
-              placeholder="Explique porque a submissão está a ser rejeitada..."
               value={motivoRejeicao}
               onChange={(e) => setMotivoRejeicao(e.target.value)}
-              required
             />
-            <p className="text-xs text-muted-foreground">
-              O professor será notificado com este parecer.
-            </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeRejectDialog}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={confirmReject}>
-              Rejeitar Submissão
-            </Button>
+            <Button variant="outline" onClick={closeRejectDialog}>Cancelar</Button>
+            <Button variant="destructive" onClick={confirmReject}>Rejeitar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* ============================================================
-          DIÁLOGO 2: Recusar Justificativa
-          ============================================================ */}
+      {/* Diálogo: Recusar justificativa */}
       <Dialog
-        open={!!justificativaDialog}
+        open={!!justificativaDialog && !justificativaDialog.aceitar}
         onOpenChange={(open) => !open && closeJustificativaDialog()}
       >
         <DialogContent>
@@ -599,36 +558,77 @@ export default function Status({ prazo, professores }) {
               Recusar Justificativa
             </DialogTitle>
             <DialogDescription>
-              <strong>Professor:</strong> {justificativaDialog?.professorNome}
-              <br />
-              <strong>Turma:</strong> {justificativaDialog?.turmaNome}
+              <strong>{justificativaDialog?.professorNome}</strong> • {justificativaDialog?.turmaNome}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-2">
-            <label
-              htmlFor="motivoRecusaJustificativa"
-              className="text-sm font-medium"
-            >
-              Motivo da recusa{' '}
-              <span className="text-muted-foreground">(opcional)</span>
+            <label className="text-sm font-medium">
+              Motivo <span className="text-muted-foreground">(opcional)</span>
             </label>
             <Textarea
-              id="motivoRecusaJustificativa"
               rows={3}
-              placeholder="Explique porque a justificativa foi recusada..."
               value={motivoRecusaJustificativa}
               onChange={(e) => setMotivoRecusaJustificativa(e.target.value)}
             />
-            <p className="text-xs text-muted-foreground">
-              O professor será notificado com este parecer.
-            </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeJustificativaDialog}>
-              Cancelar
-            </Button>
+            <Button variant="outline" onClick={closeJustificativaDialog}>Cancelar</Button>
             <Button variant="destructive" onClick={confirmRejectJustificativa}>
-              Recusar Justificativa
+              Recusar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo: Aceitar justificativa com escolha de dias */}
+      <Dialog
+        open={!!justificativaDialog && justificativaDialog.aceitar === true}
+        onOpenChange={(open) => !open && closeJustificativaDialog()}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CalendarClock className="size-5 text-green-600" />
+              Aceitar Justificativa
+            </DialogTitle>
+            <DialogDescription>
+              <strong>{justificativaDialog?.professorNome}</strong> • {justificativaDialog?.turmaNome}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            <div className="rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/20">
+              <p className="text-sm text-green-800 dark:text-green-300">
+                Ao aceitar, será concedido um prazo extra para o professor
+                submeter a prova <strong>desta turma</strong>.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">
+                Dias de prazo extra <span className="text-destructive">*</span>
+              </label>
+              <Input
+                type="number"
+                min={1}
+                max={30}
+                value={diasPrazoExtra}
+                onChange={(e) => setDiasPrazoExtra(Number(e.target.value))}
+              />
+              <p className="text-xs text-muted-foreground">
+                Entre 1 e 30 dias. Padrão: 3 dias.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={closeJustificativaDialog}>Cancelar</Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700"
+              onClick={confirmAceitar}
+            >
+              <Check className="mr-1.5 size-4" />
+              Aceitar e conceder {diasPrazoExtra} dias
             </Button>
           </DialogFooter>
         </DialogContent>
