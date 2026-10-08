@@ -65,7 +65,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-
+use App\Http\Controllers\Tenant\PlanificacaoController;
 /*
 |--------------------------------------------------------------------------
 | Tenant Routes
@@ -852,6 +852,34 @@ Route::middleware([
 
             Route::post('historico/{aluno}/confirmar', [PreencherHistoricoController::class, 'confirmar'])
                 ->name('preencher-historico.confirmar');
+
+                // ─────────────────────────────────────────────────────────────
+// Planificações
+// ─────────────────────────────────────────────────────────────
+Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
+    Route::get('/', [PlanificacaoController::class, 'index'])
+        ->name('index');
+
+    Route::get('/create', [PlanificacaoController::class, 'create'])
+        ->name('create');
+
+    Route::post('/', [PlanificacaoController::class, 'store'])
+        ->name('store');
+
+    // Preview e download da versão (não da planificação)
+    Route::get('/versao/{versao}/preview', [PlanificacaoController::class, 'preview'])
+        ->name('preview');
+
+    Route::get('/versao/{versao}/download', [PlanificacaoController::class, 'download'])
+        ->name('download');
+
+    // Dinâmicas por último
+    Route::get('/{planificacao}', [PlanificacaoController::class, 'show'])
+        ->name('show');
+
+    Route::delete('/{planificacao}', [PlanificacaoController::class, 'destroy'])
+        ->name('destroy');
+});
         });
 
     /*

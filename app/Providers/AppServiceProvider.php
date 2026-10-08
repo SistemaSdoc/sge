@@ -10,6 +10,8 @@ use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\User;
+use App\Models\Tenant\Planificacao;
+use App\Policies\Tenant\PlanificacaoPolicy;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Observers\PagamentoObserver;
 use App\Policies\Tenant\AcessManagementPolicy;
@@ -116,6 +118,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('submissao-prova.avaliar', [SubmissaoProvaPolicy::class, 'avaliar']);
         Gate::define('submissao-prova.visualizarArquivo', [SubmissaoProvaPolicy::class, 'visualizarArquivo']);
 
+
+        Gate::policy(Planificacao::class, PlanificacaoPolicy::class);
         // Registrar observadores de modelos
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
         Pagamento::observe(PagamentoObserver::class);
@@ -133,14 +137,14 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Password::defaults(
-            fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
+            fn(): ?Password => app()->isProduction()
+                ? Password::min(12)
                 ->mixedCase()
                 ->letters()
                 ->numbers()
                 ->symbols()
                 ->uncompromised()
-            : null,
+                : null,
         );
     }
 }
