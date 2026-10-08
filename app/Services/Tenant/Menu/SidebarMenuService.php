@@ -153,7 +153,7 @@ final class SidebarMenuService
                     title: 'Turmas',
                     href: action([TurmaController::class, 'index']),
                     icon: 'Users',
-                    can: fn () => $gate->allows('viewAny', Turma::class),
+                    can: fn() => $gate->allows('viewAny', Turma::class),
                 ),
 
                 new MenuItem(
@@ -161,7 +161,7 @@ final class SidebarMenuService
                     title: 'Pautas',
                     href: action([PautaController::class, 'index']),
                     icon: 'FileText',
-                    can: fn () => $gate->allows('pauta.viewAny')
+                    can: fn() => $gate->allows('pauta.viewAny')
                 ),
 
                 new MenuItem(
@@ -169,7 +169,7 @@ final class SidebarMenuService
                     title: 'Grelha Curricular',
                     href: action([GrelhaCurricularController::class, 'index']),
                     icon: 'LayoutList',
-                    can: fn () => ! $user->isSuperAdmin()
+                    can: fn() => ! $user->isSuperAdmin()
                         && $user->hasRole('Aluno')
                         && $gate->allows('grelha-curricular.viewAny'),
                 ),
@@ -179,7 +179,7 @@ final class SidebarMenuService
                     title: 'Minhas Notas',
                     href: action([NotaAlunoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn () => ! $user->isSuperAdmin()
+                    can: fn() => ! $user->isSuperAdmin()
                         && $user->hasRole('Aluno')
                         && $gate->allows('viewAny', Nota::class)
                 ),
@@ -189,7 +189,7 @@ final class SidebarMenuService
                     title: 'Horários',
                     href: route('tenant.dashboard.horarios'),
                     icon: 'CalendarClock',
-                    can: fn () => ! $user->isSuperAdmin()
+                    can: fn() => ! $user->isSuperAdmin()
                         && $user->hasAnyRole(['Aluno', 'Professor'])
                         && $gate->allows('horarios.viewAny')
                 ),
@@ -210,7 +210,7 @@ final class SidebarMenuService
                     title: 'Regras de Avaliação',
                     href: action([RegraAvaliacaoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn () => $gate->allows('viewAny', RegraAvaliacao::class),
+                    can: fn() => $gate->allows('viewAny', RegraAvaliacao::class),
                 ),
 
                 new MenuItem(
@@ -218,7 +218,7 @@ final class SidebarMenuService
                     title: 'Anos Lectivos',
                     href: action([AnoLectivoController::class, 'index']),
                     icon: 'CalendarClock',
-                    can: fn () => $gate->allows('viewAny', AnoLectivo::class)
+                    can: fn() => $gate->allows('viewAny', AnoLectivo::class)
                 ),
 
                 new MenuItem(
@@ -234,7 +234,7 @@ final class SidebarMenuService
                     title: 'Solicitações de Lançamentos',
                     href: action([SolicitacaoEdicaoPautaController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn () => $gate->allows('viewAny', SolicitacaoEdicaoPauta::class)
+                    can: fn() => $gate->allows('viewAny', SolicitacaoEdicaoPauta::class)
                 ),
 
                 new MenuItem(
@@ -242,18 +242,18 @@ final class SidebarMenuService
                     title: 'Documentos Escolares',
                     href: action([DocumentosController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn () => $gate->allows('documentos.viewAny')
+                    can: fn() => $gate->allows('documentos.viewAny')
                 ),
             ]),
 
             // ===== NOVO GRUPO: AVALIAÇÃO (Provas) =====
-            /* new MenuGroup('Avaliação', [
+            new MenuGroup('Avaliação', [
                 new MenuItem(
                     key: 'prazos-provas',
                     title: 'Prazos de Provas',
                     href: action([PrazoProvaController::class, 'index']),
                     icon: 'FileText',
-                    can: fn() => Gate::allows('prazo-prova.viewAny')
+                    can: fn() => $gate->allows('prazo-prova.viewAny')
                 ),
 
                 new MenuItem(
@@ -261,7 +261,8 @@ final class SidebarMenuService
                     title: 'Submeter Provas',
                     href: action([SubmissaoProvaController::class, 'index']),
                     icon: 'FileText',
-                    can: fn() => Gate::allows('submissao-prova.create')
+                    can: fn() => $user->hasRole('Professor')
+                        && $gate->allows('submissao-prova.viewAny'),
                 ),
                 new MenuItem(
                     key: 'planificacoes',
@@ -271,7 +272,8 @@ final class SidebarMenuService
                     can: fn() => $gate->allows('viewAny', Planificacao::class),
                 ),
 
-            ]),*/
+            ]),
+
 
             new MenuGroup('Matrículas', [
                 new MenuItem(
@@ -279,7 +281,7 @@ final class SidebarMenuService
                     title: 'Matrículas',
                     href: action([InscricaoController::class, 'index']),
                     icon: 'ClipboardList',
-                    can: fn () => $gate->allows('viewAny', Inscricao::class)
+                    can: fn() => $gate->allows('viewAny', Inscricao::class)
                 ),
             ]),
 
@@ -289,7 +291,7 @@ final class SidebarMenuService
                     title: 'Usuários',
                     href: action([UserController::class, 'index']),
                     icon: 'UserCog',
-                    can: fn () => $gate->allows('viewAny', User::class),
+                    can: fn() => $gate->allows('viewAny', User::class),
                 ),
 
                 new MenuItem(
@@ -297,7 +299,7 @@ final class SidebarMenuService
                     title: 'Funções e permissões',
                     href: action([RoleController::class, 'index']),
                     icon: 'ShieldCheck',
-                    can: fn () => $gate->allows('viewAny', Role::class),
+                    can: fn() => $gate->allows('viewAny', Role::class),
                 ),
 
                 new MenuItem(
@@ -305,7 +307,7 @@ final class SidebarMenuService
                     title: 'Professores',
                     href: action([ProfessorController::class, 'index']),
                     icon: 'Users',
-                    can: fn () => $gate->allows('viewAny', Professor::class)
+                    can: fn() => $gate->allows('viewAny', Professor::class)
                         || $user->hasRole('Secretario do Curso'),
                     disabled: ! $gate->allows('viewAny', Professor::class),
                 ),
@@ -315,7 +317,7 @@ final class SidebarMenuService
                     title: 'Alunos',
                     href: action([AlunoController::class, 'index']),
                     icon: 'Users',
-                    can: fn () => $gate->allows('viewAny', Aluno::class),
+                    can: fn() => $gate->allows('viewAny', Aluno::class),
                 ),
             ]),
 
@@ -331,7 +333,7 @@ final class SidebarMenuService
                             : '#';
                     })(),
                     icon: 'Building2',
-                    can: fn () => $gate->allows('colegios.viewAny')
+                    can: fn() => $gate->allows('colegios.viewAny')
                         && $user?->instituicao?->tipo === 'instituto',
                 ),
             ]),
@@ -342,7 +344,7 @@ final class SidebarMenuService
                     title: 'Emolumentos Escolares',
                     href: route('tenant.dashboard.itens-pagaveis.index'),
                     icon: 'ReceiptText',
-                    can: fn () => $gate->allows('itemspagaveis.viewAny')
+                    can: fn() => $gate->allows('itemspagaveis.viewAny')
                 ),
 
                 new MenuItem(
@@ -350,7 +352,7 @@ final class SidebarMenuService
                     title: 'Pagamentos',
                     href: route('tenant.dashboard.pagamentos.index'),
                     icon: 'CreditCard',
-                    can: fn () => $gate->allows('pagamentos.viewAny')
+                    can: fn() => $gate->allows('pagamentos.viewAny')
                         && $user?->instituicao?->tipo === 'colegio',
                 ),
             ]),
@@ -369,7 +371,7 @@ final class SidebarMenuService
                     title: 'Avisos',
                     href: action([AvisoController::class, 'index']),
                     icon: 'Bell',
-                    can: fn () => $gate->allows('viewAny', Aviso::class),
+                    can: fn() => $gate->allows('viewAny', Aviso::class),
                 ),
             ]),
 
@@ -379,13 +381,13 @@ final class SidebarMenuService
                     title: 'Relatórios',
                     href: route('tenant.dashboard.relatorios.index'),
                     icon: 'BarChart3',
-                    can: fn () => $user && ! $user->hasRole(['Aluno', 'Professor']),
+                    can: fn() => $user && ! $user->hasRole(['Aluno', 'Professor']),
                 ),
             ]),
         ];
 
         $menuGroups = array_values(array_filter(
-            array_map(fn (MenuGroup $group) => $group->toArray(), $groups),
+            array_map(fn(MenuGroup $group) => $group->toArray(), $groups),
         ));
 
         if ($user->hasRole('Secretario do Curso')) {
@@ -403,14 +405,14 @@ final class SidebarMenuService
                 function (array $group) use ($allowedKeys): array {
                     $group['items'] = array_values(array_filter(
                         $group['items'],
-                        fn (array $item): bool => in_array($item['key'], $allowedKeys, true),
+                        fn(array $item): bool => in_array($item['key'], $allowedKeys, true),
                     ));
 
                     return $group;
                 },
                 array_filter(
                     $menuGroups,
-                    fn (array $group): bool => count(array_intersect(
+                    fn(array $group): bool => count(array_intersect(
                         $allowedKeys,
                         array_column($group['items'], 'key'),
                     )) > 0,

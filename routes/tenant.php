@@ -43,7 +43,6 @@ use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PagamentoController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PeriodoLancamentoNotasController;
-use App\Http\Controllers\Tenant\PlanificacaoController;
 use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\PreencherHistoricoController;
 use App\Http\Controllers\Tenant\ProfessorController as ProfessorControllerGeral;
@@ -68,7 +67,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-
+use App\Http\Controllers\Tenant\PlanificacaoController;
 /*
 |--------------------------------------------------------------------------
 | Tenant Routes
@@ -120,6 +119,7 @@ Route::middleware([
         ->name('tenant.logout');
 
     Route::get('token/{token}', [AuthenticatedSessionController::class, 'token'])
+        ->middleware('guest:tenant')
         ->name('tenant.login.token');
 
     /*
@@ -180,36 +180,36 @@ Route::middleware([
             require base_path('routes/settings.php');
 
             // ─────────────────────────────────────────────────────────────
-            // Planificações
-            // ─────────────────────────────────────────────────────────────
-            Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
+// Planificações
+// ─────────────────────────────────────────────────────────────
+Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
 
-                // ─── Estáticas (ordem importa) ───
-                Route::get('/', [PlanificacaoController::class, 'index'])
-                    ->name('index');
+    // ─── Estáticas (ordem importa) ───
+    Route::get('/', [PlanificacaoController::class, 'index'])
+        ->name('index');
 
-                Route::get('/create', [PlanificacaoController::class, 'create'])
-                    ->name('create');
+    Route::get('/create', [PlanificacaoController::class, 'create'])
+        ->name('create');
 
-                Route::post('/', [PlanificacaoController::class, 'store'])
-                    ->name('store');
+    Route::post('/', [PlanificacaoController::class, 'store'])
+        ->name('store');
 
-                Route::get('/por-disciplina/{disciplina}', [PlanificacaoController::class, 'porDisciplina'])
-                    ->name('por-disciplina');
+    Route::get('/por-disciplina/{disciplina}', [PlanificacaoController::class, 'porDisciplina'])
+        ->name('por-disciplina');
 
-                Route::get('/versao/{versao}/preview', [PlanificacaoController::class, 'preview'])
-                    ->name('preview');
+    Route::get('/versao/{versao}/preview', [PlanificacaoController::class, 'preview'])
+        ->name('preview');
 
-                Route::get('/versao/{versao}/download', [PlanificacaoController::class, 'download'])
-                    ->name('download');
+    Route::get('/versao/{versao}/download', [PlanificacaoController::class, 'download'])
+        ->name('download');
 
-                // ─── Dinâmicas (por último) ───
-                Route::get('/{planificacao}', [PlanificacaoController::class, 'show'])
-                    ->name('show');
+    // ─── Dinâmicas (por último) ───
+    Route::get('/{planificacao}', [PlanificacaoController::class, 'show'])
+        ->name('show');
 
-                Route::delete('/{planificacao}', [PlanificacaoController::class, 'destroy'])
-                    ->name('destroy');
-            });
+    Route::delete('/{planificacao}', [PlanificacaoController::class, 'destroy'])
+        ->name('destroy');
+});
 
             Route::resource('users', UserController::class)->except(['show']);
 
@@ -352,18 +352,6 @@ Route::middleware([
 
             Route::delete('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}', [CursoTuteladoController::class, 'destroySugestaoTema'])
                 ->name('instituicoes.cursos-tutelados.sugestoes-temas.destroy');
-
-            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/aprovar', [CursoTuteladoController::class, 'aprovarSugestaoTema'])
-                ->name('instituicoes.cursos-tutelados.sugestoes-temas.aprovar');
-
-            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/rejeitar', [CursoTuteladoController::class, 'rejeitarSugestaoTema'])
-                ->name('instituicoes.cursos-tutelados.sugestoes-temas.rejeitar');
-
-            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/solicitar-melhoria', [CursoTuteladoController::class, 'solicitarMelhoriaSugestaoTema'])
-                ->name('instituicoes.cursos-tutelados.sugestoes-temas.solicitar-melhoria');
-
-            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/resubmeter', [CursoTuteladoController::class, 'resubmeterSugestaoTema'])
-                ->name('instituicoes.cursos-tutelados.sugestoes-temas.resubmeter');
 
             /*
             |--------------------------------------------------------------------------
@@ -514,8 +502,6 @@ Route::middleware([
             | Horários de Disciplinas de Turmas
             |--------------------------------------------------------------------------
             */
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios/create', [ClasseTurnoDisciplinaHorarioController::class, 'create'])
-                ->name('turma.disciplinas.horarios.create');
 
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store'])
                 ->name('turma.disciplinas.horarios.store');
@@ -753,7 +739,10 @@ Route::middleware([
             Route::post('notificacoes/{notification}/tutela/rejeitar', [NotificacaoController::class, 'rejeitarTutela'])
                 ->name('notificacoes.tutela.rejeitar');
 
-            // ===== DIRETOR =====
+            Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
+                ->name('notificacoes.ler');
+
+            // ===== DIRETOR ===== 
             Route::prefix('diretor')->name('diretor.')->group(function () {
                 Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
                 Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');
@@ -771,7 +760,7 @@ Route::middleware([
                 Route::get('provas/{submissao}/arquivo/{tipo}', [SubmissaoProvaController::class, 'arquivo'])->name('provas.arquivo');
                 Route::get('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
                 Route::post('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
-                Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
+               Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
             });
 
             /*
@@ -807,8 +796,8 @@ Route::middleware([
             */
 
             Route::get('horarios', [HorarioController::class, 'index'])
-                ->middleware('can:horarios.viewAny')
-                ->name('horarios');
+    ->middleware('can:horarios.viewAny')
+    ->name('horarios');
 
             Route::inertia('propinas/bloqueio', 'tenant/propinas/bloqueio')
                 ->name('propinas.divida');

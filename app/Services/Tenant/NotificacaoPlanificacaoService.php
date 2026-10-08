@@ -6,6 +6,7 @@ use App\Models\Tenant\Planificacao;
 use App\Models\Tenant\User;
 use App\Notifications\Professor\PlanificacaoPublicadaNotificacao;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class NotificacaoPlanificacaoService
@@ -77,7 +78,7 @@ class NotificacaoPlanificacaoService
             ->whereHas('roles', fn ($q) => $q->where('name', 'Professor'))
             ->whereHas('professor', function ($q) use ($planificacao) {
                 $q->whereExists(function ($sub) use ($planificacao) {
-                    $sub->select(\DB::raw(1))
+                    $sub->select(DB::raw(1))
                         ->from('turma_disciplina_professor')
                         ->join('classe_turno_disciplina', 'turma_disciplina_professor.classe_turno_disciplina_id', '=', 'classe_turno_disciplina.id')
                         ->join('curso_classe_turno', 'classe_turno_disciplina.curso_classe_turno_id', '=', 'curso_classe_turno.id')
@@ -109,7 +110,7 @@ class NotificacaoPlanificacaoService
             ->whereHas('roles', fn ($q) => $q->where('name', 'Aluno'))
             ->whereHas('aluno', function ($q) use ($planificacao) {
                 $q->whereExists(function ($sub) use ($planificacao) {
-                    $sub->select(\DB::raw(1))
+                    $sub->select(DB::raw(1))
                         ->from('turma_aluno')
                         ->join('turmas', 'turma_aluno.turma_id', '=', 'turmas.id')
                         ->join('curso_classe_turno', 'turmas.curso_classe_turno_id', '=', 'curso_classe_turno.id')
