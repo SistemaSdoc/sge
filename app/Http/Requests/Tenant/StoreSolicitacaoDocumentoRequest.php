@@ -46,6 +46,13 @@ class StoreSolicitacaoDocumentoRequest extends FormRequest
                 return;
             }
 
+            $bloqueioDuplicado = $this->bloqueioDuplicado($aluno, $tipo);
+            if ($bloqueioDuplicado) {
+                $validator->errors()->add('tipo_documento', $bloqueioDuplicado['mensagem']);
+
+                return;
+            }
+
             if ($tipo === 'declaracao_com_notas') {
                 $classeId = $this->input('classe_id');
 
@@ -103,5 +110,26 @@ class StoreSolicitacaoDocumentoRequest extends FormRequest
         }
 
         return $tipos;
+    }
+
+    protected function bloqueioDuplicado($aluno, ?string $tipo): ?array
+    {
+        if (! $tipo || ! $aluno) {
+            return null;
+        }
+
+        $emCurso = $aluno->solicitacoesDocumentos()
+            ->where('tipo_documento', $tipo)
+            ->whereNotIn('status', ['entregue', 'rejeitado'])
+            ->exists();
+
+        if ($emCurso) {
+            return [
+                'motivo' => 'em_curso',
+                'mensagem' => 'Já tem uma solicitação deste tipo de documento em curso. Aguarde a conclusão do processo (levantamento ou rejeição) antes de solicitar novamente.',
+            ];
+        }
+
+        return null;
     }
 }

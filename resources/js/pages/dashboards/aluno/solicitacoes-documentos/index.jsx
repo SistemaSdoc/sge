@@ -51,6 +51,7 @@ export default function SolicitacoesDocumentosPage() {
     turma_atual = null,
     classe_atual = null,
     ano_lectivo_atual = null,
+    bloqueios_tipo = {},
     ver = null,
   } = usePage().props;
 
@@ -68,6 +69,9 @@ export default function SolicitacoesDocumentosPage() {
   const form = useForm(initialFormData);
   const [errors, setErrors] = useState([]);
   const [successMessage, setSuccessMessage] = useState('');
+  const tipoBloqueado = form.data.tipo_documento
+    ? bloqueios_tipo[form.data.tipo_documento]
+    : null;
 
   const submit = (event) => {
     event.preventDefault();
@@ -186,6 +190,9 @@ export default function SolicitacoesDocumentosPage() {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
+                {tipoBloqueado && (
+                  <p className="mt-2 text-sm text-red-600">{tipoBloqueado.mensagem}</p>
+                )}
               </div>
 
               <div className="border bg-muted/30 p-3">
@@ -273,7 +280,7 @@ export default function SolicitacoesDocumentosPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={form.processing || !form.data.tipo_documento}
+                disabled={form.processing || !form.data.tipo_documento || !!tipoBloqueado}
               >
                 {form.processing ? 'A enviar...' : 'Enviar pedido'}
               </Button>

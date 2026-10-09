@@ -1,5 +1,7 @@
 import { router } from '@inertiajs/react';
+import { LayersIcon } from 'lucide-react';
 
+import { EmptyState } from '@/components/empty-state';
 import {
   Card,
   CardAction,
@@ -30,7 +32,7 @@ export function ColegioTable({
   const isEmpty = lista.length === 0;
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-4 p-6">
+    <div className="mx-auto w-full max-w-7xl space-y-4 p-4 sm:p-6">
       <Card className="gap-0">
         <CardHeader className="border-b">
           <CardTitle>Colegios</CardTitle>
@@ -40,39 +42,50 @@ export function ColegioTable({
         </CardHeader>
 
         <CardContent className="p-0!">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/72">
-                <TableHead className="px-4">Nome</TableHead>
+          {isEmpty ? (
+            <EmptyState
+              variant="table"
+              icon={LayersIcon}
+              title="Nenhum colégio encontrado"
+              description="Não existem colégios com cursos tutelados registados."
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table className="min-w-420px">
+                <TableHeader>
+                  <TableRow className="bg-muted/72">
+                    <TableHead className="px-4">Nome</TableHead>
 
-                <TableHead className="px-4">Cursos Tutelados</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {lista.map((colegio) => (
-                <TableRow
-                  key={colegio.id}
-                  className="hover:cursor-pointer"
-                  onClick={() =>
-                    router.visit(
-                      show({
-                        instituicao: instituicao.id,
-                        colegio: colegio.id,
-                      }).url,
-                    )
-                  }
-                >
-                  <TableCell className="px-4 font-medium">
-                    {colegio.nome}
-                  </TableCell>
+                    <TableHead className="px-4">Cursos Tutelados</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {lista.map((colegio) => (
+                    <TableRow
+                      key={colegio.id}
+                      className="hover:cursor-pointer"
+                      onClick={() =>
+                        router.visit(
+                          show({
+                            instituicao: instituicao.id,
+                            colegio: colegio.id,
+                          }).url,
+                        )
+                      }
+                    >
+                      <TableCell className="wrap-break-words px-4 font-medium">
+                        {colegio.nome}
+                      </TableCell>
 
-                  <TableCell className="px-4 font-medium">
-                    {colegio.total_cursos}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                      <TableCell className="px-4 font-medium">
+                        {colegio.total_cursos}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
 
         <TablePagination pagination={pagination} onPageChange={onPageChange} />

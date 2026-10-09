@@ -40,13 +40,29 @@ export default function Show() {
         <div className="relative flex h-56 w-full items-end bg-muted">
           <div className="absolute inset-0 bg-black/50" />
 
-          <div className="relative z-10 space-y-2 p-6 text-white">
-            <h1 className="text-2xl font-semibold wrap-break-word md:text-3xl">
-              {candidato.nome || 'Sem nome'}
-            </h1>
-            <p className="text-sm break-all opacity-90">
-              {renderValue(candidato.telefone)} — {renderValue(candidato.email)}
-            </p>
+          <div className="relative z-10 flex w-full flex-col gap-4 p-6 text-white md:flex-row md:items-end md:justify-between">
+            <div className="space-y-2">
+              <h1 className="text-2xl font-semibold wrap-break-word md:text-3xl">
+                {candidato.nome || 'Sem nome'}
+              </h1>
+              <p className="text-sm break-all opacity-90">
+                {renderValue(candidato.telefone)} —{' '}
+                {renderValue(candidato.email)}
+              </p>
+            </div>
+
+            {inscricao?.aluno_id && (
+              <Button asChild variant="default" size="sm" className="shrink-0">
+                <a
+                  href={fichaMatriculaPdf.url(inscricao.aluno_id)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Download />
+                  Ficha de Matrícula
+                </a>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -154,26 +170,6 @@ export default function Show() {
             </p>
             <p className="font-medium">{inscricao.created_at}</p>
           </div>
-
-          {inscricao?.aluno_id && (
-            <div className="mt-6 flex justify-end border-t pt-4 md:col-span-3">
-              <Button
-                type="button"
-                variant="default"
-                size="sm"
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90"
-                onClick={() =>
-                  window.open(
-                    fichaMatriculaPdf.url(inscricao.aluno_id),
-                    '_blank',
-                  )
-                }
-              >
-                <Download className="size-4" />
-                Ficha de Matrícula (PDF)
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
     </div>

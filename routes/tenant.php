@@ -19,7 +19,7 @@ use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\CursoTuteladoProfessorController;
 use App\Http\Controllers\Tenant\DashboardController;
 use App\Http\Controllers\Tenant\DisciplinaController as DisciplinaControllerGeral;
-use App\Http\Controllers\Tenant\DocumentosController;
+// use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FichaMatriculaController;
 use App\Http\Controllers\Tenant\FolhaAprovacaoController;
@@ -662,18 +662,18 @@ Route::middleware([
 
             /*
             |--------------------------------------------------------------------------
-            | Documentos Escolares
+            | Documentos Escolares (DESACTIVADO - substituído pelo módulo de solicitações de documentos)
             |--------------------------------------------------------------------------
             */
 
-            Route::get('documentos', [DocumentosController::class, 'index'])
-                ->name('documentos.index');
-
-            Route::get('documentos/pesquisar-aluno', [DocumentosController::class, 'pesquisarAluno'])
-                ->name('documentos.pesquisar-aluno');
-
-            Route::match(['GET', 'POST'], 'documentos/exportar', [DocumentosController::class, 'exportar'])
-                ->name('documentos.exportar');
+            // Route::get('documentos', [DocumentosController::class, 'index'])
+            //     ->name('documentos.index');
+            //
+            // Route::get('documentos/pesquisar-aluno', [DocumentosController::class, 'pesquisarAluno'])
+            //     ->name('documentos.pesquisar-aluno');
+            //
+            // Route::match(['GET', 'POST'], 'documentos/exportar', [DocumentosController::class, 'exportar'])
+            //     ->name('documentos.exportar');
 
             /*
             |--------------------------------------------------------------------------

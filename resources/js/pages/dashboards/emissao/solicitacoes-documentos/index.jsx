@@ -1,6 +1,7 @@
+// ─── Imports ─────────────────────────────────────────────────────────────────
 import { useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { LayersIcon } from 'lucide-react';
+import { FileText, LayersIcon } from 'lucide-react';
 import AlertError from '@/components/alert-error';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,11 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { router } from '@inertiajs/react';
-import { emitir, marcarComoPagoAction, marcarComoLevantado } from '@/actions/App/Http/Controllers/Tenant/SolicitacaoDocumentoController';
+import {
+  emitir,
+  gerarDocumento,
+  marcarComoLevantado,
+} from '@/actions/App/Http/Controllers/Tenant/SolicitacaoDocumentoController';
 import {
   resolveSolicitacaoStatus,
   solicitacaoDocumentoStatusLabels,
@@ -23,11 +28,24 @@ import {
 } from '@/utils/solicitacao-documento-status';
 import RequestHistoryDrawer from '@/components/RequestHistoryDrawer';
 
+/**
+ * Página de Emissão de Documentos.
+ *
+ * Fluxo de cada pedido (botões nesta ordem):
+ *   1. Documento Pago        -> regista o pagamento
+ *   2. Gerar documento       -> abre o PDF para impressão (Director/Secretaria)
+ *   3. Emitir documento      -> regista o nº de registo e marca como pronto
+ *   4. Marcar como levantado -> regista a entrega ao aluno
+ */
 export default function EmissaoSolicitacoesDocumentosPage() {
+  // ─── Dados e estado ────────────────────────────────────────────────────────
   const { solicitacoes = [], ver = null } = usePage().props;
   const form = useForm({ numero_registro_tutora: '' });
   const [errors, setErrors] = useState([]);
 
+  // ─── Acções ────────────────────────────────────────────────────────────────
+
+  // Emite o documento (regista o nº de registo e marca como pronto)
   const handleEmitir = (solicitacaoId) => {
     router.post(
       emitir(solicitacaoId).url,
@@ -46,6 +64,7 @@ export default function EmissaoSolicitacoesDocumentosPage() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6">
+      {/* ─── Cabeçalho da página ─────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold sm:text-2xl">Emissão de documentos</h1>
@@ -57,7 +76,10 @@ export default function EmissaoSolicitacoesDocumentosPage() {
       </div>
 
       <div className="space-y-4">
+        {/* ─── Erros das acções ────────────────────────────────────────── */}
         {errors.length > 0 && <AlertError errors={errors} title="Erro" />}
+
+        {/* ─── Estado vazio ────────────────────────────────────────────── */}
         {solicitacoes.length === 0 && (
           <Card className="border-0">
             <EmptyState
@@ -69,14 +91,26 @@ export default function EmissaoSolicitacoesDocumentosPage() {
           </Card>
         )}
 
+        {/* ─── Lista de solicitações ───────────────────────────────────── */}
         {solicitacoes.map((solicitacao) => {
           const currentStatus = resolveSolicitacaoStatus(solicitacao);
           const statusLabel =
             solicitacaoDocumentoStatusLabels[currentStatus] ??
             currentStatus;
 
+          // O botão "Gerar documento" só aparece a Director/Secretaria,
+          // com o pagamento confirmado e para tipos com gerador automático.
+          const podeGerarDocumento =
+            solicitacao.can_gerar_documento &&
+            solicitacao.gera_documento_automatico &&
+            solicitacao.estado_pagamento === 'pago';
+          const podeEmitirDocumento =
+            (solicitacao.accao_disponivel === 'emitir' || (solicitacao.can_marcar_pronto && solicitacao.estado_pagamento === 'pago')) &&
+            !solicitacao.data_emissao;
+
           return (
             <Card key={solicitacao.id} className="border-0">
+              {/* Título, estado e identificação do processo */}
               <CardHeader>
                 <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                   <CardTitle className="wrap-break-words text-base">
@@ -98,7 +132,9 @@ export default function EmissaoSolicitacoesDocumentosPage() {
                   {solicitacao.created_at}
                 </CardDescription>
               </CardHeader>
+
               <CardContent className="space-y-4">
+                {/* ─── Detalhes do pedido ──────────────────────────────── */}
                 <p className="wrap-break-words text-sm text-muted-foreground">
                   Motivo: {solicitacao.motivo}
                 </p>
@@ -121,6 +157,7 @@ export default function EmissaoSolicitacoesDocumentosPage() {
                   </p>
                 )}
 
+                {/* ─── Linha de progresso (Pendente → ... → Levantado) ─── */}
                 {['pendente', 'aprovado', 'pago', 'pronto', 'entregue'].includes(currentStatus) && (
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-2 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                     {[
@@ -152,6 +189,7 @@ export default function EmissaoSolicitacoesDocumentosPage() {
                   </p>
                 )}
 
+                {/* ─── Número de registo (usado em "Emitir documento") ─── */}
                 <div className="space-y-2">
                   <Label htmlFor={`registo-${solicitacao.id}`}>
                     Número de registo da tutela
@@ -166,30 +204,30 @@ export default function EmissaoSolicitacoesDocumentosPage() {
                   />
                 </div>
 
+                {/* ─── Botões de acção ─────────────────────────────────── */}
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                  <Button onClick={() => handleEmitir(solicitacao.id)}>
-                    Emitir documento
-                  </Button>
-
-                  {solicitacao.estado_pagamento !== 'pago' && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        if (!confirm('Deseja marcar este documento como pago?')) return;
-                        router.post(marcarComoPagoAction(solicitacao.id).url, {}, {
-                          onSuccess: () => setErrors([]),
-                          onError: (err) => {
-                            const msgs = Object.values(err || {}).flat().map((m) => String(m));
-                            setErrors(msgs.length ? msgs : ['Erro ao marcar como pago.']);
-                            window.scrollTo(0, 0);
-                          },
-                        });
-                      }}
-                    >
-                      Documento Pago
+                  {/* Gerar documento: abre o PDF noutro separador */}
+                  {podeGerarDocumento && (
+                    <Button asChild variant="outline">
+                      <a
+                        href={gerarDocumento(solicitacao.id).url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FileText />
+                        Gerar documento
+                      </a>
                     </Button>
                   )}
 
+                  {/* Emitir documento: marca como pronto */}
+                  {podeEmitirDocumento && (
+                    <Button onClick={() => handleEmitir(solicitacao.id)}>
+                      Emitir documento
+                    </Button>
+                  )}
+
+                  {/* Marcar como levantado: só depois de o documento estar pronto */}
                   {solicitacao.can_marcar_levantado &&
                     solicitacao.documento_gerado &&
                     !solicitacao.data_levantamento && (

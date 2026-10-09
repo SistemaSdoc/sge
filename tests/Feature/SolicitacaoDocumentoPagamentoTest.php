@@ -1,20 +1,20 @@
 <?php
 
-use App\Models\AnoLectivo;
-use App\Models\Candidato;
-use App\Models\Curso;
-use App\Models\CursoTutelado;
-use App\Models\Inscricao;
-use App\Models\Instituicao;
-use App\Models\InstituicaoCurso;
-use App\Models\NivelEnsino;
+use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\Candidato;
+use App\Models\Tenant\Curso;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Inscricao;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
+use App\Models\Tenant\NivelEnsino;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\SolicitacaoDocumento;
-use App\Models\Turno;
-use App\Models\User;
+use App\Models\Tenant\Turno;
+use App\Models\Tenant\User;
 use App\Notifications\PagamentoConfirmadoNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -94,4 +94,61 @@ it('secretaria can mark a solicitacao as paid and student receives notification'
         ->count();
 
     expect($notificationsCount)->toBeGreaterThan(0);
+});
+
+it('blocks creating a second active request for the same document type', function () {
+    $colegio = Instituicao::create([
+        'nome' => 'Colégio Duplicado',
+        'sigla' => 'CD',
+        'tipo' => 'colegio',
+        'status' => 1,
+    ]);
+
+    $alunoUser = User::factory()->create([
+        'nome' => 'Aluno Duplicado',
+        'email' => 'aluno-duplicado@example.com',
+        'instituicao_id' => $colegio->id,
+    ]);
+    $alunoUser->assignRole('Aluno');
+
+    $curso = Curso::create(['nome' => 'Curso Duplicado', 'duracao_anos' => 3, 'descricao' => 'dup', 'status' => 1]);
+    $instituicaoCurso = InstituicaoCurso::create(['curso_id' => $curso->id, 'instituicao_id' => $colegio->id, 'duracao_anos' => 3]);
+    $cursoTutelado = CursoTutelado::create(['instituicao_curso_id' => $instituicaoCurso->id, 'instituicao_tutora_id' => $colegio->id]);
+    $nivel = NivelEnsino::create(['nome' => 'Ensino', 'ordem' => 1, 'activo' => true]);
+    $classe = Classe::create(['nome' => '10ª', 'nivel_ensino' => 'Ensino', 'ordem' => 10]);
+    $cursoClasse = CursoClasse::create(['curso_tutelado_id' => $cursoTutelado->id, 'classe_id' => $classe->id, 'nivel_ensino_id' => $nivel->id]);
+    $turno = Turno::create(['nome' => 'Manhã']);
+    $cursoClasseTurno = CursoClasseTurno::create(['turno_id' => $turno->id, 'curso_classe_id' => $cursoClasse->id]);
+    $anoLectivo = AnoLectivo::create(['nome' => '2025/2026', 'data_inicio' => now()->subYear(), 'data_fim' => now(), 'activo' => true, 'estado' => 'em_curso']);
+    $candidato = Candidato::create(['nome' => 'Cand Dup', 'bi' => '999', 'numero_estudante' => Str::uuid(), 'telefone' => '999', 'email' => 'cand-dup@example.com']);
+    $inscricao = Inscricao::create(['curso_classe_turno_id' => $cursoClasseTurno->id, 'candidato_id' => $candidato->id, 'ano_lectivo_id' => $anoLectivo->id, 'status' => 'aprovado']);
+
+    $aluno = Aluno::create([
+        'user_id' => $alunoUser->id,
+        'inscricao_id' => $inscricao->id,
+        'situacao' => 'activo',
+    ]);
+
+    SolicitacaoDocumento::create([
+        'aluno_id' => $aluno->id,
+        'instituicao_origem_id' => $colegio->id,
+        'instituicao_tutora_id' => $colegio->id,
+        'instituicao_aprovadora_id' => $colegio->id,
+        'instituicao_emissora_id' => $colegio->id,
+        'tipo_documento' => 'declaracao',
+        'motivo' => 'Teste duplicado',
+        'status' => 'pendente',
+        'numero_processo' => '00011/2026',
+        'data_solicitacao' => now(),
+    ]);
+
+    $response = $this->actingAs($alunoUser)
+        ->post(route('tenant.dashboard.solicitacoes-documentos.store'), [
+            'tipo_documento' => 'declaracao',
+            'motivo' => 'Solicito novamente',
+            'observacoes' => 'Pedido duplicado',
+        ]);
+
+    $response->assertSessionHasErrors(['tipo_documento']);
+    expect($aluno->solicitacoesDocumentos()->where('tipo_documento', 'declaracao')->whereNotIn('status', ['entregue', 'rejeitado'])->count())->toBe(1);
 });

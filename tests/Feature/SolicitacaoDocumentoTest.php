@@ -1,20 +1,20 @@
 <?php
 
-use App\Models\AnoLectivo;
-use App\Models\Candidato;
-use App\Models\Curso;
-use App\Models\CursoTutelado;
-use App\Models\Inscricao;
-use App\Models\Instituicao;
-use App\Models\InstituicaoCurso;
-use App\Models\NivelEnsino;
 use App\Models\Tenant\Aluno;
+use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\Candidato;
 use App\Models\Tenant\Classe;
+use App\Models\Tenant\Curso;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Inscricao;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
+use App\Models\Tenant\NivelEnsino;
 use App\Models\Tenant\SolicitacaoDocumento;
-use App\Models\Turno;
-use App\Models\User;
+use App\Models\Tenant\Turno;
+use App\Models\Tenant\User;
 use App\Services\Tenant\Dashboards\DashboardDirectorService;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;

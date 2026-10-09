@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\Instituicao;
 use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\SolicitacaoDocumento;
-use App\Models\User;
+use App\Models\Tenant\User;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Role;
 
@@ -111,8 +111,8 @@ it('emissao listing includes fields and flags', function () {
         'instituicao_emissora_id' => $instituicao->id,
         'tipo_documento' => 'declaracao',
         'motivo' => 'Para emissão',
-        'status' => 'aprovado',
-        'estado_pagamento' => 'pendente',
+        'status' => 'pago',
+        'estado_pagamento' => 'pago',
     ]);
 
     $this->actingAs($user);
@@ -124,10 +124,55 @@ it('emissao listing includes fields and flags', function () {
         ->has('solicitacoes', 1)
         ->where('solicitacoes.0.responsavel_instituicao_id', $solicitacao->instituicaoResponsavelId())
         ->where('solicitacoes.0.can_decidir', false)
-        ->where('solicitacoes.0.can_marcar_pago', false)
-        ->where('solicitacoes.0.can_marcar_pronto', false)
-        ->where('solicitacoes.0.estado_pagamento', 'pendente')
+        ->where('solicitacoes.0.can_marcar_pago', true)
+        ->where('solicitacoes.0.can_marcar_pronto', true)
+        ->where('solicitacoes.0.estado_pagamento', 'pago')
+        ->where('solicitacoes.0.accao_disponivel', 'emitir')
         ->etc()
+    );
+});
+
+it('emissao index excludes approved requests that are not yet paid', function () {
+    $instituicao = Instituicao::create([
+        'nome' => 'Emissor Teste 2',
+        'sigla' => 'ET2',
+        'tipo' => 'colegio',
+        'status' => 1,
+    ]);
+
+    $user = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $user->assignRole('Secretaria');
+
+    SolicitacaoDocumento::create([
+        'aluno_id' => null,
+        'instituicao_origem_id' => $instituicao->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'instituicao_emissora_id' => $instituicao->id,
+        'tipo_documento' => 'declaracao',
+        'motivo' => 'Aprovada sem pagamento',
+        'status' => 'aprovado',
+        'estado_pagamento' => 'pendente',
+    ]);
+
+    SolicitacaoDocumento::create([
+        'aluno_id' => null,
+        'instituicao_origem_id' => $instituicao->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'instituicao_emissora_id' => $instituicao->id,
+        'tipo_documento' => 'historico',
+        'motivo' => 'Paga e pronta para emitir',
+        'status' => 'pago',
+        'estado_pagamento' => 'pago',
+    ]);
+
+    $this->actingAs($user);
+
+    $response = $this->get('/dashboard/solicitacoes-documentos/emissao');
+
+    $response->assertOk();
+    $response->assertInertia(fn (Assert $page) => $page->component('dashboards/emissao/solicitacoes-documentos/index')
+        ->has('solicitacoes', 1)
+        ->where('solicitacoes.0.status', 'pago')
     );
 });
 

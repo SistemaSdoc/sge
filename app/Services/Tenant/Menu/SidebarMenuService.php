@@ -8,7 +8,7 @@ use App\Http\Controllers\Tenant\AvisoController;
 use App\Http\Controllers\Tenant\ClasseController;
 use App\Http\Controllers\Tenant\Colegios\ColegioController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
-use App\Http\Controllers\Tenant\DocumentosController;
+// use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\GrelhaCurricularController;
 use App\Http\Controllers\Tenant\InscricaoController;
 use App\Http\Controllers\Tenant\InstituicaoController;
@@ -202,6 +202,7 @@ final class SidebarMenuService
                     can: fn () => $gate->allows('viewAny', SolicitacaoEdicaoPauta::class)
                 ),
 
+                /*
                 new MenuItem(
                     key: 'documentos-escolares',
                     title: 'Documentos Escolares',
@@ -209,6 +210,7 @@ final class SidebarMenuService
                     icon: 'FileTextIcon',
                     can: fn () => $gate->allows('documentos.viewAny')
                 ),
+                */
 
                 new MenuItem(
                     key: 'solicitacoes-documentos-aluno',
