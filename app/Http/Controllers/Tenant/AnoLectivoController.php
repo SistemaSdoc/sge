@@ -13,7 +13,7 @@ class AnoLectivoController extends Controller
     {
         $anosLectivos = AnoLectivo::query()
             ->search($request->string('search')->toString())
-            ->orderByDesc('data_inicio')
+            ->latest('created_at')
             ->paginate(15)
             ->withQueryString()
             ->through(fn (AnoLectivo $ano) => [

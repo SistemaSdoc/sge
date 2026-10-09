@@ -52,7 +52,7 @@ class NotaDisciplinaRecursoController extends Controller
             ->where('turma_id', $turma->id)
             ->where('situacao', 'activo')
             ->where('activo', true)
-            ->orderBy('id')
+            ->latest('created_at')
             ->get()
             ->filter(function ($ta) {
                 $notaP3 = $ta->notas->firstWhere('periodo', 3);

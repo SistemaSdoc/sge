@@ -36,10 +36,13 @@ interface HistoricoSubmissoesProps {
   onPageChange: (page: number) => void;
 }
 
-export default function HistoricoSubmissoes({ historico, onPageChange }: HistoricoSubmissoesProps) {
+export default function HistoricoSubmissoes({
+  historico,
+  onPageChange,
+}: HistoricoSubmissoesProps) {
   if (historico.data.length === 0) {
     return (
-      <div className="flex items-center gap-2 text-muted-foreground border rounded-lg p-4 bg-muted/30">
+      <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-4 text-muted-foreground">
         <Clock className="size-5" />
         <span>Nenhuma submissão no histórico.</span>
       </div>
@@ -47,14 +50,14 @@ export default function HistoricoSubmissoes({ historico, onPageChange }: Histori
   }
 
   return (
-    <div className="rounded-lg border border-border shadow-sm overflow-hidden bg-card">
+    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
               <TableHead className="px-4">Prazo</TableHead>
               <TableHead className="px-4">Disciplina</TableHead>
-              <TableHead className="px-4">Turma</TableHead> 
+              <TableHead className="px-4">Turma</TableHead>
               <TableHead className="px-4 text-center">Versão</TableHead>
               <TableHead className="px-4 text-center">Estado</TableHead>
               <TableHead className="px-4 text-center">Data</TableHead>
@@ -66,27 +69,41 @@ export default function HistoricoSubmissoes({ historico, onPageChange }: Histori
               <TableRow key={sub.id}>
                 <TableCell className="px-4 font-medium">{sub.prazo}</TableCell>
                 <TableCell className="px-4">{sub.disciplina}</TableCell>
-                <TableCell className="px-4">{sub.turma_nome || sub.classe || 'N/A'}</TableCell>
+                <TableCell className="px-4">
+                  {sub.turma_nome || sub.classe || 'N/A'}
+                </TableCell>
                 <TableCell className="px-4 text-center">{sub.versao}</TableCell>
                 <TableCell className="px-4 text-center">
                   <Badge variant="outline" className={sub.badge_class}>
                     {sub.estado_label}
                   </Badge>
                   {sub.parecer && (
-                    <div className="text-xs text-muted-foreground mt-1">{sub.parecer}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {sub.parecer}
+                    </div>
                   )}
                 </TableCell>
-                <TableCell className="px-4 text-center">{sub.data_submissao}</TableCell>
+                <TableCell className="px-4 text-center">
+                  {sub.data_submissao}
+                </TableCell>
                 <TableCell className="px-4 text-center">
                   <div className="flex justify-center gap-1">
                     <Button variant="outline" size="sm" asChild>
-                      <a href={sub.url_prova} target="_blank" rel="noopener noreferrer">
+                      <a
+                        href={sub.url_prova}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <File className="mr-1 size-4" />
                         Prova
                       </a>
                     </Button>
                     <Button variant="outline" size="sm" asChild>
-                      <a href={sub.url_chave} target="_blank" rel="noopener noreferrer">
+                      <a
+                        href={sub.url_chave}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <FileText className="mr-1 size-4" />
                         Chave
                       </a>

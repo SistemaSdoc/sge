@@ -18,7 +18,7 @@ const formatCurrency = (value) => {
 
 export default function Show({ itemPagavel }) {
   return (
-    <div className="mx-auto w-full max-w-4xl px-6 py-6">
+    <div className="mx-auto w-full max-w-4xl p-4 md:p-6">
       <Head title={itemPagavel?.nome ?? 'Item pagável'} />
 
       <div className="mb-6 flex items-center justify-between">

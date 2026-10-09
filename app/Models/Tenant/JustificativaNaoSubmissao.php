@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Models\Tenant;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -44,9 +43,9 @@ class JustificativaNaoSubmissao extends Model
     {
         return match ($this->status) {
             'pendente' => 'Pendente',
-            'aceita'   => 'Aceite',
+            'aceita' => 'Aceite',
             'recusada' => 'Recusada',
-            default    => 'Desconhecido',
+            default => 'Desconhecido',
         };
     }
 
@@ -81,6 +80,6 @@ class JustificativaNaoSubmissao extends Model
      */
     public function avaliador()
     {
-        return $this->belongsTo(User::class, 'avaliado_por');
+        return $this->belongsTo(User::class, 'avaliado_por')->withTrashed();
     }
 }

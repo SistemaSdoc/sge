@@ -43,7 +43,9 @@ export function CreateForm({
                   name="professor_id"
                   value={data.professor_id ?? ''}
                   onValueChange={(value) => {
-                    const professor = professores.find((item) => item.id === value);
+                    const professor = professores.find(
+                      (item) => item.id === value,
+                    );
                     setData('professor_id', value);
                     setData(
                       'professor_externo_tenant_id',

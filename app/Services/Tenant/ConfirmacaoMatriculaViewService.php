@@ -79,7 +79,7 @@ final class ConfirmacaoMatriculaViewService
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
                 'notas.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
             ])
-            ->orderBy('created_at')
+            ->latest('created_at')
             ->paginate(10)
             ->withQueryString()
             ->through(function (TurmaAluno $turmaAluno) use ($turmasDestino): array {

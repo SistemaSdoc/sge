@@ -236,11 +236,20 @@ export function TurmaForm({
 
         {/* Botões de acção */}
         <Field>
-          <Button type="submit" disabled={!isFormValid || processing}>
+          <Button
+            type="submit"
+            disabled={!isFormValid || processing}
+            className="hover:cursor-pointer"
+          >
             {processing ? 'A criar...' : 'Criar Turma'}
           </Button>
 
-          <Button variant="outline" onClick={closeDrawer} disabled={processing}>
+          <Button
+            variant="outline"
+            onClick={closeDrawer}
+            disabled={processing}
+            className="hover:cursor-pointer"
+          >
             Cancelar
           </Button>
         </Field>

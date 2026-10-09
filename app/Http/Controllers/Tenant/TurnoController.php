@@ -34,7 +34,7 @@ class TurnoController extends Controller
 
         $turnos = Turno::select(['id', 'nome', 'created_at'])
             ->search($request->string('search')->toString())
-            ->orderBy('nome', 'asc')
+            ->latest('created_at')
             ->paginate(10)
             ->withQueryString()
             ->through(function (Turno $turno) use ($user) {

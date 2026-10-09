@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -40,10 +41,10 @@ use Spatie\Permission\Traits\HasRoles;
     'remember_token',
 ])]
 
+/** @use HasFactory<UserFactory> */
 class User extends Authenticatable implements PasskeyUser
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, HasSearch, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory, HasRoles, HasSearch, HasUuid, Notifiable, PasskeyAuthenticatable, SoftDeletes, TwoFactorAuthenticatable;
 
     protected array $searchable = ['nome', 'email'];
 
@@ -51,6 +52,16 @@ class User extends Authenticatable implements PasskeyUser
 
     // Propriedade que o Spatie usa
     protected $guard_name = 'tenant';
+
+    /** Perfis ligados ao user que precisam de limpeza ao remover. */
+    public function profiles(): array
+    {
+        return array_filter([
+            $this->aluno,
+            $this->professor,
+            $this->candidato,
+        ]);
+    }
 
     public function sendPasswordResetNotification($token): void
     {

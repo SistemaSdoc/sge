@@ -43,9 +43,12 @@ export default function CalendariosTable({
   pagination,
   onPageChange,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['calendarios', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['calendarios', 'filters'],
+    },
+  );
   const isEmpty = calendarios.length === 0;
 
   return (
@@ -62,8 +65,16 @@ export default function CalendariosTable({
           <EmptyState
             variant="table"
             icon={Calendar1}
-            title={applied ? 'Nenhum calendário encontrado' : 'Nenhum calendário publicado'}
-            description={applied ? 'Tenta ajustar a pesquisa.' : 'Ainda não foi disponibilizado um calendário anual.'}
+            title={
+              applied
+                ? 'Nenhum calendário encontrado'
+                : 'Nenhum calendário publicado'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Ainda não foi disponibilizado um calendário anual.'
+            }
           />
         ) : (
           <Table>

@@ -74,6 +74,7 @@ class ClasseTurnoTurmaController extends Controller
                 'cursoClasseTurno.cursoClasse.classe:id,nome',
                 'anoLectivo:id,nome',
             ])
+            ->latest('created_at')
             ->paginate(5);
 
         return Inertia::render('tenant/pautas/turmas/index', [
@@ -88,6 +89,7 @@ class ClasseTurnoTurmaController extends Controller
             'turmas' => $turmas->through(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
+                'sala' => $turma->sala,
                 'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
                 'turno' => $turma->cursoClasseTurno?->turno?->nome,
                 'ano_lectivo' => $turma->anoLectivo?->nome,
@@ -158,6 +160,7 @@ class ClasseTurnoTurmaController extends Controller
 
         $request->validate([
             'nome' => 'required|string|max:255',
+            'sala' => 'required|string|max:255',
             'max_alunos' => 'nullable|integer|min:1',
             'ano_lectivo_id' => ['nullable', 'uuid', new CentralAnoLectivoExists],
         ]);
@@ -178,6 +181,7 @@ class ClasseTurnoTurmaController extends Controller
             'curso_classe_turno_id' => $cursoClasseTurno->id,
             'ano_lectivo_id' => $anoLectivoId,
             'nome' => $request->nome,
+            'sala' => $request->sala,
             'max_alunos' => $request->max_alunos,
         ]);
 
@@ -201,9 +205,9 @@ class ClasseTurnoTurmaController extends Controller
 
         abort_unless(
             (string) $cursoTutelado->instituicaoCurso?->instituicao_id === (string) $instituicao->getKey()
-                && (string) $cursoClasse->curso_tutelado_id === (string) $cursoTutelado->getKey()
-                && (string) $cursoClasseTurno->curso_classe_id === (string) $cursoClasse->getKey()
-                && (string) $turma->curso_classe_turno_id === (string) $cursoClasseTurno->getKey(),
+            && (string) $cursoClasse->curso_tutelado_id === (string) $cursoTutelado->getKey()
+            && (string) $cursoClasseTurno->curso_classe_id === (string) $cursoClasse->getKey()
+            && (string) $turma->curso_classe_turno_id === (string) $cursoClasseTurno->getKey(),
             404,
         );
 
@@ -229,6 +233,7 @@ class ClasseTurnoTurmaController extends Controller
             ->wherePivot('activo', true)
             ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
+            ->orderBy('alunos.created_at', 'desc')
             ->paginate(10, ['*'], 'page_alunos');
 
         // Adiciona isto:
@@ -248,7 +253,7 @@ class ClasseTurnoTurmaController extends Controller
                 'disciplina' => fn ($q) => $q->withTrashed()->select(['id', 'nome', 'sigla', 'componente', 'deleted_at']),
                 'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
                 'turmaDisciplinaProfessores.professor.user:id,nome',
-                'horarios',
+                'horarios' => fn ($q) => $q->where('turma_id', $turma->id),
             ])
             ->OrderBy('created_at', 'desc');
 
@@ -272,6 +277,7 @@ class ClasseTurnoTurmaController extends Controller
 
         $grupos = $turma->gruposPap()
             ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final', 'professor_tutor_id')
+            ->latest('created_at')
             ->paginate(5, ['*'], 'page_grupos');
 
         $grupos->getCollection()->transform(function ($grupo) use ($user) {
@@ -358,6 +364,16 @@ class ClasseTurnoTurmaController extends Controller
         CursoClasseTurno $cursoClasseTurno,
         Turma $turma
     ) {
+        abort_unless(
+            (string) $cursoTutelado->instituicaoCurso?->instituicao_id === (string) $instituicao->getKey()
+                && (string) $cursoClasse->curso_tutelado_id === (string) $cursoTutelado->getKey()
+                && (string) $cursoClasseTurno->curso_classe_id === (string) $cursoClasse->getKey()
+                && (string) $turma->curso_classe_turno_id === (string) $cursoClasseTurno->getKey(),
+            404,
+        );
+
+        Gate::authorize('update', $turma);
+
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
@@ -403,16 +419,18 @@ class ClasseTurnoTurmaController extends Controller
 
         $request->validate([
             'nome' => 'sometimes|string|max:255',
+            'sala' => 'sometimes|string|max:255',
             'max_alunos' => 'nullable|integer|min:1',
             'ano_lectivo_id' => ['nullable', 'uuid', new CentralAnoLectivoExists],
         ]);
 
-        $anoLectivoId = $request->input('ano_lectivo_id')
-            ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
+        $nome = $request->input('nome', $turma->nome);
+        $anoLectivoId = $request->input('ano_lectivo_id') ?? $turma->ano_lectivo_id;
 
         $jaExiste = Turma::where('curso_classe_turno_id', $cursoClasseTurno->id)
             ->where('ano_lectivo_id', $anoLectivoId)
-            ->where('nome', $request->nome)
+            ->where('nome', $nome)
+            ->where('id', '!=', $turma->id) // ignora a turma que está a ser editada
             ->exists();
 
         if ($jaExiste) {
@@ -420,9 +438,10 @@ class ClasseTurnoTurmaController extends Controller
         }
 
         $turma->update(array_filter([
-            'nome' => $request->input('nome', $turma->nome),
+            'nome' => $nome,
+            'sala' => $request->input('sala', $turma->sala),
             'max_alunos' => $request->input('max_alunos', $turma->max_alunos),
-            'ano_lectivo_id' => $request->input('ano_lectivo_id', $turma->ano_lectivo_id),
+            'ano_lectivo_id' => $anoLectivoId,
         ], fn ($value) => $value !== null));
 
         // Preserva o filtro de ano lectivo na navegação de volta
@@ -435,6 +454,13 @@ class ClasseTurnoTurmaController extends Controller
                 'cursoClasse' => $cursoClasse,
                 'cursoClasseTurno' => $cursoClasseTurno,
                 'turma' => $turma,
+            ] + $anoLectivoParam);
+        }
+
+        if ($request->origem === 'curso') {
+            return to_route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
+                'instituicao' => $instituicao,
+                'cursoTutelado' => $cursoTutelado,
             ] + $anoLectivoParam);
         }
 

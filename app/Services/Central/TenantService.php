@@ -31,7 +31,7 @@ class TenantService
         return Tenant::query()
             ->with('domains')
             ->search($search)
-            ->orderBy('id')
+            ->latest('created_at')
             ->paginate(10)
             ->withQueryString()
             ->through(fn (Tenant $tenant): Tenant => $tenant->setRelation(

@@ -37,9 +37,12 @@ export function UsuariosTable({
   onPageChange,
   editarAcessoFn,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['users', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['users', 'filters'],
+    },
+  );
   const getInitials = useInitials();
   const isEmpty = usuarios?.data?.length === 0;
 
@@ -90,8 +93,16 @@ export function UsuariosTable({
             <EmptyState
               variant="table"
               icon={LayersIcon}
-              title={applied ? 'Nenhum usuário encontrado' : 'Nenhum usuário cadastrado'}
-              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando o primeiro usuário à tabela'}
+              title={
+                applied
+                  ? 'Nenhum usuário encontrado'
+                  : 'Nenhum usuário cadastrado'
+              }
+              description={
+                applied
+                  ? 'Tenta ajustar a pesquisa.'
+                  : 'Comece adicionando o primeiro usuário à tabela'
+              }
               action={{
                 label: 'Adicionar Usuário',
                 href: create().url,

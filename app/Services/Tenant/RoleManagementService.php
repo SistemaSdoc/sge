@@ -98,7 +98,7 @@ class RoleManagementService
             ->when(filled($search), fn ($query) => $query->where('name', 'like', '%'.addcslashes(trim((string) $search), '\\%_').'%'))
             ->withCount('users')
             ->with('permissions:id,name,label')
-            ->orderBy('name')
+            ->latest('created_at')
             ->paginate(15)
             ->withQueryString();
     }

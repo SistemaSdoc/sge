@@ -42,9 +42,12 @@ export function TurnoTable({
   onPageChange,
   deleteFn,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['turnos', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['turnos', 'filters'],
+    },
+  );
   const lista = Array.isArray(turnos) ? turnos : (turnos?.data ?? []);
   const isEmpty = lista.length === 0;
   const hasActionColumn = lista.some(
@@ -72,8 +75,14 @@ export function TurnoTable({
             <EmptyState
               variant="table"
               icon={ClockIcon}
-              title={applied ? 'Nenhum turno encontrado' : 'Nenhum turno cadastrado'}
-              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando o primeiro turno à tabela'}
+              title={
+                applied ? 'Nenhum turno encontrado' : 'Nenhum turno cadastrado'
+              }
+              description={
+                applied
+                  ? 'Tenta ajustar a pesquisa.'
+                  : 'Comece adicionando o primeiro turno à tabela'
+              }
               action={
                 can.create
                   ? {
@@ -99,9 +108,7 @@ export function TurnoTable({
                   <TableRow
                     key={turno.id}
                     className={
-                      turno.can?.view
-                        ? 'hover:cursor-pointer'
-                        : 'opacity-70'
+                      turno.can?.view ? 'hover:cursor-pointer' : 'opacity-70'
                     }
                     onClick={() => {
                       if (turno.can?.view) {
@@ -140,8 +147,8 @@ export function TurnoTable({
                               )}
 
                               {turno.can?.edit && turno.can?.delete && (
-                                  <DropdownMenuSeparator />
-                                )}
+                                <DropdownMenuSeparator />
+                              )}
 
                               {turno.can?.delete && (
                                 <DropdownMenuItem

@@ -2,13 +2,17 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('prazos_provas') || Schema::hasColumn('prazos_provas', 'instituicao_id')) {
+            return;
+        }
+
         Schema::table('prazos_provas', function (Blueprint $table) {
             $table->uuid('instituicao_id')->nullable()->after('id');
             $table->foreign('instituicao_id')->references('id')->on('instituicoes')->onDelete('cascade');
@@ -16,12 +20,12 @@ return new class extends Migration
         });
 
         // Preencher instituicao_id dos prazos existentes (a partir do criador)
-        DB::statement("
+        DB::statement('
             UPDATE prazos_provas p
             INNER JOIN users u ON u.id = p.criado_por
             SET p.instituicao_id = u.instituicao_id
             WHERE p.instituicao_id IS NULL
-        ");
+        ');
     }
 
     public function down(): void

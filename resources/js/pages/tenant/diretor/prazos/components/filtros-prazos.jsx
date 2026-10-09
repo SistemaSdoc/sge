@@ -8,20 +8,31 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-export default function FiltrosPrazos({ filtros, disciplinas, onChange, onLimpar }) {
+export default function FiltrosPrazos({
+  filtros,
+  disciplinas,
+  onChange,
+  onLimpar,
+}) {
   const handleChange = (field, value) => {
     onChange({ ...filtros, [field]: value });
   };
 
   return (
-    <div className="bg-card border border-border p-4 shadow-sm">
+    <div className="border border-border bg-card p-4 shadow-sm">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Status */}
         <div className="space-y-1.5">
-          <Label htmlFor="status" className="text-sm font-medium text-muted-foreground">
+          <Label
+            htmlFor="status"
+            className="text-sm font-medium text-muted-foreground"
+          >
             Status
           </Label>
-          <Select value={filtros.status} onValueChange={(value) => handleChange('status', value)}>
+          <Select
+            value={filtros.status}
+            onValueChange={(value) => handleChange('status', value)}
+          >
             <SelectTrigger id="status" className="w-full">
               <SelectValue placeholder="Todos" />
             </SelectTrigger>
@@ -36,10 +47,16 @@ export default function FiltrosPrazos({ filtros, disciplinas, onChange, onLimpar
 
         {/* Disciplina */}
         <div className="space-y-1.5">
-          <Label htmlFor="disciplina" className="text-sm font-medium text-muted-foreground">
+          <Label
+            htmlFor="disciplina"
+            className="text-sm font-medium text-muted-foreground"
+          >
             Disciplina
           </Label>
-          <Select value={filtros.disciplina_id} onValueChange={(value) => handleChange('disciplina_id', value)}>
+          <Select
+            value={filtros.disciplina_id}
+            onValueChange={(value) => handleChange('disciplina_id', value)}
+          >
             <SelectTrigger id="disciplina" className="w-full">
               <SelectValue placeholder="Todas" />
             </SelectTrigger>
@@ -55,7 +72,7 @@ export default function FiltrosPrazos({ filtros, disciplinas, onChange, onLimpar
         </div>
 
         {/*  Botões ocupam 2 colunas em desktop */}
-        <div className="flex flex-col sm:flex-row items-end gap-2 sm:col-span-2 lg:col-span-2 lg:justify-end">
+        <div className="flex flex-col items-end gap-2 sm:col-span-2 sm:flex-row lg:col-span-2 lg:justify-end">
           <Button
             variant="default"
             onClick={() => onChange(filtros)}

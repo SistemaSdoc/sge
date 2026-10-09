@@ -100,15 +100,22 @@ class UserPolicy
      */
     public function delete(User $user, User $target): bool
     {
-        if (
-            ($target->isDirector() && ! $user->isSuperAdmin() && ! $user->is($target))
-            || ($user->isSubdirector() && $user->is($target))
-        ) {
+        // só director (ou super admin) pode remover
+        if (! $user->isDirector() && ! $user->isSuperAdmin()) {
+            return false;
+        }
+
+        // não pode remover a própria conta
+        if ($user->is($target)) {
+            return false;
+        }
+
+        // só super admin remove outro director
+        if ($target->isDirector() && ! $user->isSuperAdmin()) {
             return false;
         }
 
         return $user->can('usuarios.delete')
-            && ($user->getKey() !== $target->getKey())
             && $user->can('usuarios.gerir')
             && ($user->isSuperAdmin() || $user->instituicao_id === $target->instituicao_id);
     }

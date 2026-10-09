@@ -1,6 +1,11 @@
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import FiltrosPrazos from './components/filtros-prazos';
 import CriarPrazoDrawer from './components/criar-prazo-drawer';
 import PrazosTable from './components/prazos-table';
@@ -36,9 +41,13 @@ export default function Index({ prazos, filters, disciplinas, periodos, classes 
 
   const fecharPrazo = (id) => {
     if (confirm('Tem certeza que deseja encerrar este prazo?')) {
-      router.post(`/dashboard/diretor/prazos/${id}/fechar`, {}, {
-        onSuccess: () => router.reload(),
-      });
+      router.post(
+        `/dashboard/diretor/prazos/${id}/fechar`,
+        {},
+        {
+          onSuccess: () => router.reload(),
+        },
+      );
     }
   };
 
@@ -47,7 +56,7 @@ export default function Index({ prazos, filters, disciplinas, periodos, classes 
       <Head title="Gestão de Prazos de Provas" />
 
       <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
-        <div className="bg-card p-4  border border-border shadow-sm">
+        <div className="border border-border bg-card p-4 shadow-sm">
           <FiltrosPrazos
             filtros={filtros}
             disciplinas={disciplinas}

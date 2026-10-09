@@ -25,7 +25,7 @@ class PropinaController extends Controller
             ))
             ->when($request->estado, fn ($q) => $q->where('estado', $request->estado))
             ->when($request->mes, fn ($q) => $q->where('mes', $request->mes))
-            ->orderByDesc('data_vencimento')
+            ->latest('created_at')
             ->paginate(20)
             ->withQueryString()
             ->through(fn (Propina $propina) => [

@@ -34,7 +34,7 @@ class ClasseController extends Controller
 
         $classes = Classe::select(['id', 'nome', 'nivel_ensino', 'created_at'])
             ->search($request->string('search')->toString())
-            ->orderBy('nome', 'asc')
+            ->latest('created_at')
             ->paginate(10)
             ->withQueryString()
             ->through(function (Classe $classe) use ($user) {

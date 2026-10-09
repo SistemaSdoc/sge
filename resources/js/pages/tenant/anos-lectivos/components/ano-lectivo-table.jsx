@@ -88,9 +88,12 @@ export default function AnoLectivoTable({
   pagination = {},
   onPageChange,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['anosLectivos', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['anosLectivos', 'filters'],
+    },
+  );
   const isEmpty = !anosLectivos || anosLectivos.length === 0;
 
   return (
@@ -106,8 +109,16 @@ export default function AnoLectivoTable({
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title={applied ? 'Nenhum ano lectivo encontrado' : 'Nenhum ano lectivo cadastrado'}
-            description={applied ? 'Tenta ajustar a pesquisa.' : 'Os anos lectivos são geridos na aplicação central.'}
+            title={
+              applied
+                ? 'Nenhum ano lectivo encontrado'
+                : 'Nenhum ano lectivo cadastrado'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Os anos lectivos são geridos na aplicação central.'
+            }
           />
         ) : (
           <Table>

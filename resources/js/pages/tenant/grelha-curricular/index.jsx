@@ -16,9 +16,7 @@ export default function Index({ grelhaCurricular, classes = [], classeId }) {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-lg font-medium md:text-xl">
-          Grelha Curricular
-        </h1>
+        <h1 className="text-lg font-medium md:text-xl">Grelha Curricular</h1>
 
         <p className="text-sm text-muted-foreground md:text-balance">
           Acompanhe a grelha curricular da sua turma

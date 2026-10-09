@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('turma_disciplina_professor')) {
+            return;
+        }
+
         Schema::table('turma_disciplina_professor', function (Blueprint $table) {
             $table->foreignUuid('professor_id')->nullable()->change();
         });

@@ -24,7 +24,7 @@ export default function Create({
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-6">
+    <div className="mx-auto w-full max-w-5xl p-4 md:p-6">
       <CursoForm
         title="Adicionar Curso"
         instituicao={instituicao}

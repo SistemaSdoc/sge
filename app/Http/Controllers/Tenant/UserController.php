@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Tenant;
 use App\Actions\Tenant\User\CreateUser;
 use App\Actions\Tenant\User\DeleteUser;
 use App\Actions\Tenant\User\UpdateUser;
+use App\Exceptions\UserRemovalBlockedException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\User\StoreUserRequest;
 use App\Http\Requests\Tenant\User\UpdateUserRequest;
 use App\Models\Tenant\User;
 use App\Services\Tenant\RoleManagementService;
 use App\Services\Tenant\Users\UserManagementService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -128,15 +130,29 @@ class UserController extends Controller
         return to_route('tenant.dashboard.users.index')->with('success', 'Usuário actualizado com sucesso.');
     }
 
-    public function destroy(User $user)
+    public function destroy(User $user): RedirectResponse
     {
         /** @var User $currentUser */
         $currentUser = Auth::guard('tenant')->user();
 
         Gate::forUser($currentUser)->authorize('delete', $user);
 
-        $this->deleteUser->handle($user);
+        try {
+            $this->deleteUser->handle($user);
+        } catch (UserRemovalBlockedException $e) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => $e->getMessage(),
+            ]);
 
-        return to_route('tenant.dashboard.users.index')->with('success', 'Usuário removido com sucesso.');
+            return back();
+        }
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Usuário removido com sucesso.',
+        ]);
+
+        return to_route('tenant.dashboard.users.index');
     }
 }

@@ -33,7 +33,6 @@ export default function Create({ prazo, turma, justificativa }) {
 
   const isBlocked =
     justificativa?.status === 'aceita' || justificativa?.status === 'recusada';
-
   const prazoEncerrado = prazo.status !== 'aberto';
 
   const getStatusBadge = (status) => {
@@ -63,9 +62,9 @@ export default function Create({ prazo, turma, justificativa }) {
   };
 
   const getStatusIcon = (status) => {
-    if (status === 'pendente') return <AlertCircle className="size-4 mr-1" />;
-    if (status === 'aceita') return <CheckCircle className="size-4 mr-1" />;
-    if (status === 'recusada') return <XCircle className="size-4 mr-1" />;
+    if (status === 'pendente') return <AlertCircle className="mr-1 size-4" />;
+    if (status === 'aceita') return <CheckCircle className="mr-1 size-4" />;
+    if (status === 'recusada') return <XCircle className="mr-1 size-4" />;
     return null;
   };
 
@@ -101,7 +100,7 @@ export default function Create({ prazo, turma, justificativa }) {
           toast.error(msg);
         },
         onFinish: () => setLoading(false),
-      }
+      },
     );
   };
 
@@ -112,7 +111,7 @@ export default function Create({ prazo, turma, justificativa }) {
       <div className="max-w-3xl mx-auto p-4 sm:p-6">
         <Button variant="ghost" size="sm" asChild className="mb-4">
           <Link href="/dashboard/professor/provas">
-            <ArrowLeft className="size-4 mr-1" />
+            <ArrowLeft className="mr-1 size-4" />
             Voltar para provas
           </Link>
         </Button>
@@ -123,7 +122,7 @@ export default function Create({ prazo, turma, justificativa }) {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-2xl flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-2xl">
                     <AlertCircle className="size-6 text-primary" />
                     Justificar não submissão
                   </CardTitle>
@@ -194,8 +193,8 @@ export default function Create({ prazo, turma, justificativa }) {
             <CardContent className="space-y-6 pt-6">
               {/* Aviso se prazo encerrado */}
               {prazoEncerrado && (
-                <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg flex items-start gap-2">
-                  <AlertCircle className="size-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
+                  <AlertCircle className="mt-0.5 size-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
                   <div>
                     <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
                       Prazo encerrado
@@ -224,7 +223,7 @@ export default function Create({ prazo, turma, justificativa }) {
                   placeholder="Descreva detalhadamente o motivo pelo qual não pôde submeter a prova (mínimo 10 caracteres)..."
                   rows={6}
                   disabled={loading || isBlocked}
-                  className="resize-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  className="resize-none transition-all focus:ring-2 focus:ring-primary/20"
                 />
                 <p className="text-xs text-muted-foreground">
                   {motivo.trim().length === 0
@@ -237,13 +236,13 @@ export default function Create({ prazo, turma, justificativa }) {
               {justificativa && (
                 <>
                   <Separator />
-                  <div className="p-4 bg-muted/40 rounded-lg border border-border/50">
-                    <p className="text-sm font-medium flex items-center gap-2">
+                  <div className="rounded-lg border border-border/50 bg-muted/40 p-4">
+                    <p className="flex items-center gap-2 text-sm font-medium">
                       Status da justificativa
                       {getStatusBadge(justificativa.status)}
                     </p>
                     {isBlocked && (
-                      <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                      <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
                         <AlertCircle className="size-3" />
                         Esta justificativa já foi avaliada e não pode mais ser
                         alterada.
@@ -262,7 +261,7 @@ export default function Create({ prazo, turma, justificativa }) {
               )}
             </CardContent>
 
-            <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2 pb-6 border-t border-border/50 mt-2">
+            <CardFooter className="mt-2 flex flex-col-reverse gap-3 border-t border-border/50 pt-2 pb-6 sm:flex-row sm:justify-end">
               <Button
                 type="button"
                 variant="outline"
@@ -275,16 +274,16 @@ export default function Create({ prazo, turma, justificativa }) {
               <Button
                 type="submit"
                 disabled={loading || isBlocked}
-                className="w-full sm:w-auto min-w-[160px]"
+                className="w-full min-w-[160px] sm:w-auto"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="size-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 size-4 animate-spin" />
                     Enviando...
                   </>
                 ) : (
                   <>
-                    <Send className="size-4 mr-2" />
+                    <Send className="mr-2 size-4" />
                     Enviar justificativa
                   </>
                 )}

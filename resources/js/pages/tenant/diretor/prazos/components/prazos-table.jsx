@@ -1,5 +1,12 @@
 import { router } from '@inertiajs/react';
-import { PlusIcon, LayersIcon, MoreHorizontalIcon, EyeIcon, EditIcon, XCircleIcon } from 'lucide-react';
+import {
+  PlusIcon,
+  LayersIcon,
+  MoreHorizontalIcon,
+  EyeIcon,
+  EditIcon,
+  XCircleIcon,
+} from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -38,7 +45,7 @@ export default function PrazosTable({
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
-      <CardHeader className="border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
         <div>
           <CardTitle>Prazos de Provas</CardTitle>
           <CardDescription>
@@ -75,7 +82,9 @@ export default function PrazosTable({
                   <TableHead className="px-4">Título</TableHead>
                   <TableHead className="px-4">Disciplina</TableHead>
                   <TableHead className="px-4">Classe</TableHead>
-                  <TableHead className="px-4 text-center">Data Limite</TableHead>
+                  <TableHead className="px-4 text-center">
+                    Data Limite
+                  </TableHead>
                   <TableHead className="px-4 text-center">Status</TableHead>
                   <TableHead className="px-4 text-center">Submissões</TableHead>
                   <TableHead className="px-4 text-right">Ações</TableHead>
@@ -87,24 +96,43 @@ export default function PrazosTable({
                   <TableRow
                     key={prazo.id}
                     className="cursor-pointer"
-                    onClick={() => router.visit(`/dashboard/diretor/prazos/${prazo.id}`)}
+                    onClick={() =>
+                      router.visit(`/dashboard/diretor/prazos/${prazo.id}`)
+                    }
                   >
-                    <TableCell className="px-4 font-medium">{prazo.titulo}</TableCell>
-                    <TableCell className="px-4">{prazo.disciplina?.nome || 'Todas'}</TableCell>
-                    <TableCell className="px-4">{prazo.classe?.nome || 'Todas'}</TableCell>
-                    <TableCell className="px-4 text-center">{prazo.data_limite}</TableCell>
+                    <TableCell className="px-4 font-medium">
+                      {prazo.titulo}
+                    </TableCell>
+                    <TableCell className="px-4">
+                      {prazo.disciplina?.nome || 'Todas'}
+                    </TableCell>
+                    <TableCell className="px-4">
+                      {prazo.classe?.nome || 'Todas'}
+                    </TableCell>
+                    <TableCell className="px-4 text-center">
+                      {prazo.data_limite}
+                    </TableCell>
                     <TableCell className="px-4 text-center">
                       <Badge variant="outline" className={prazo.badge_class}>
                         {prazo.status_label}
                       </Badge>
                     </TableCell>
                     <TableCell className="px-4 text-center">
-                      <Badge variant="secondary">{prazo.total_submissoes || 0}</Badge>
+                      <Badge variant="secondary">
+                        {prazo.total_submissoes || 0}
+                      </Badge>
                     </TableCell>
                     <TableCell className="px-4 text-right">
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                          <Button variant="ghost" size="icon" className="size-8">
+                        <DropdownMenuTrigger
+                          asChild
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                          >
                             <MoreHorizontalIcon className="size-4" />
                             <span className="sr-only">Abrir menu</span>
                           </Button>
@@ -114,7 +142,9 @@ export default function PrazosTable({
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.stopPropagation();
-                              router.visit(`/dashboard/diretor/prazos/${prazo.id}`);
+                              router.visit(
+                                `/dashboard/diretor/prazos/${prazo.id}`,
+                              );
                             }}
                           >
                             <EyeIcon className="mr-2 size-4" />
@@ -124,25 +154,28 @@ export default function PrazosTable({
                           <DropdownMenuItem
                             onClick={(e) => {
                               e.stopPropagation();
-                              router.visit(`/dashboard/diretor/prazos/${prazo.id}/edit`);
+                              router.visit(
+                                `/dashboard/diretor/prazos/${prazo.id}/edit`,
+                              );
                             }}
                           >
                             <EditIcon className="mr-2 size-4" />
                             Editar
                           </DropdownMenuItem>
 
-                          {prazo.status === 'aberto' && prazo.status_label !== 'Expirado' && (
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onFechar(prazo.id);
-                              }}
-                            >
-                              <XCircleIcon className="mr-2 size-4" />
-                              Encerrar prazo
-                            </DropdownMenuItem>
-                          )}
+                          {prazo.status === 'aberto' &&
+                            prazo.status_label !== 'Expirado' && (
+                              <DropdownMenuItem
+                                variant="destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onFechar(prazo.id);
+                                }}
+                              >
+                                <XCircleIcon className="mr-2 size-4" />
+                                Encerrar prazo
+                              </DropdownMenuItem>
+                            )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

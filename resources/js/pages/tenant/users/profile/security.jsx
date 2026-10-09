@@ -5,7 +5,7 @@ export default function Security(props) {
   return (
     <>
       <Head title="Segurança" />
-      
+
       <SecurityData {...props} />
     </>
   );

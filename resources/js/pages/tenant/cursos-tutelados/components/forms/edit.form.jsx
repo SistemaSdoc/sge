@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Clock3 } from 'lucide-react';
+import { Clock3, Dot } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Field,
@@ -73,7 +73,7 @@ export function CursoForm({
   }, [data.tenant_tutor_id]);
 
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
       <form onSubmit={onSubmit}>
         <Card className="overflow-visible">
           <CardHeader className="border-b">
@@ -93,12 +93,13 @@ export function CursoForm({
               </Alert>
             )}
             <FieldGroup>
-              <FieldSet>
+              <FieldSet className="min-w-0">
                 {instituicao.tipo === 'colegio' && (
                   <Field>
                     <FieldLabel htmlFor="tenant_tutor_id">
                       Instituição Tutora
                     </FieldLabel>
+
                     <Select
                       value={data.tenant_tutor_id || 'propria'}
                       onValueChange={(value) => {
@@ -114,6 +115,7 @@ export function CursoForm({
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Selecione a instituição tutora" />
                       </SelectTrigger>
+
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Tutela curricular</SelectLabel>
@@ -128,6 +130,7 @@ export function CursoForm({
                         </SelectGroup>
                       </SelectContent>
                     </Select>
+
                     {errors.tenant_tutor_id && (
                       <FieldError>{errors.tenant_tutor_id}</FieldError>
                     )}
@@ -138,14 +141,16 @@ export function CursoForm({
                   <Field>
                     <FieldLabel>Nível de Ensino e Classes</FieldLabel>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="border bg-muted px-3 py-1.5 text-sm font-medium">
+                      <span className="border bg-muted p-1 text-xs font-medium md:p-1.5 md:text-sm">
                         {herancaTutor.nivel_ensino_nome}
                       </span>
-                      <span className="text-muted-foreground">·</span>
+                      <span className="text-muted-foreground">
+                        <Dot />
+                      </span>
                       {herancaTutor.classes.map((c) => (
                         <span
                           key={c.id}
-                          className="border bg-muted px-3 py-1.5 text-sm"
+                          className="border bg-muted p-1 text-xs md:p-1.5 md:text-sm"
                         >
                           {c.nome}
                         </span>
@@ -214,7 +219,11 @@ export function CursoForm({
                 )}
 
                 <Field>
-                  <Button type="submit" disabled={processing}>
+                  <Button
+                    type="submit"
+                    disabled={processing}
+                    className="hover:cursor-pointer"
+                  >
                     Guardar
                   </Button>
                 </Field>

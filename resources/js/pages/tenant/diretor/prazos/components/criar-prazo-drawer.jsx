@@ -93,7 +93,10 @@ export default function CriarPrazoDrawer({
         <Label htmlFor="tipo_prova">
           Tipo de Prova <span className="text-destructive"></span>
         </Label>
-        <Select value={data.tipo_prova} onValueChange={(value) => setData('tipo_prova', value)}>
+        <Select
+          value={data.tipo_prova}
+          onValueChange={(value) => setData('tipo_prova', value)}
+        >
           <SelectTrigger id="tipo_prova" className="w-full">
             <SelectValue placeholder="Selecione o tipo" />
           </SelectTrigger>
@@ -103,7 +106,9 @@ export default function CriarPrazoDrawer({
             <SelectItem value="Exame-especial">Exame Especial</SelectItem>
           </SelectContent>
         </Select>
-        {errors.tipo_prova && <p className="text-sm text-destructive">{errors.tipo_prova}</p>}
+        {errors.tipo_prova && (
+          <p className="text-sm text-destructive">{errors.tipo_prova}</p>
+        )}
       </div>
 
       {/* Disciplinas */}
@@ -246,7 +251,11 @@ export default function CriarPrazoDrawer({
         >
           Cancelar
         </Button>
-        <Button type="submit" disabled={processing} className="w-full sm:w-auto">
+        <Button
+          type="submit"
+          disabled={processing}
+          className="w-full sm:w-auto"
+        >
           {processing ? 'Salvando...' : 'Criar Prazo'}
         </Button>
       </div>

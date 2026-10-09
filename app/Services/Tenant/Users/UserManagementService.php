@@ -15,11 +15,11 @@ class UserManagementService
                 'roles:id,name',
                 'roles.permissions:id,name',
                 'permissions:id,name',
+                'aluno:id,user_id,matricula',
             ])
             ->when(! $actor->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $actor->instituicao_id))
             ->search($search)
-            ->orderBy('nome')
-            ->orderBy('id')
+            ->latest('created_at')
             ->paginate(15)
             ->withQueryString()
             ->through(function (User $user) use ($actor): array {
@@ -30,6 +30,7 @@ class UserManagementService
                     'telefone' => $user->telefone,
                     'avatar' => $user->avatar,
                     'instituicao_id' => $user->instituicao_id,
+                    'aluno_matricula' => $user->aluno?->matricula,
                     'roles' => $user->getRoleNames()->values()->all(),
                     'directPermissions' => $user->permissions->pluck('name')->values()->all(),
                     'inheritedPermissions' => $user->roles

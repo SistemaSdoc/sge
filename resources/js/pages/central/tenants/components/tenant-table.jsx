@@ -48,9 +48,12 @@ export function TenantTable({
   handleToggleStatus,
   recreateDatabaseFn,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['tenants', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['tenants', 'filters'],
+    },
+  );
   const isEmpty = tenants?.length === 0;
 
   const hasActionColumn = tenants.some(
@@ -76,8 +79,16 @@ export function TenantTable({
             <EmptyState
               variant="table"
               icon={LayersIcon}
-              title={applied ? 'Nenhuma instituição encontrada' : 'Nenhuma instituição cadastrada'}
-              description={applied ? 'Tenta ajustar a pesquisa.' : 'Clique no botão abaixo para cadastrar uma nova instituição'}
+              title={
+                applied
+                  ? 'Nenhuma instituição encontrada'
+                  : 'Nenhuma instituição cadastrada'
+              }
+              description={
+                applied
+                  ? 'Tenta ajustar a pesquisa.'
+                  : 'Clique no botão abaixo para cadastrar uma nova instituição'
+              }
               action={
                 can.create
                   ? {

@@ -44,9 +44,12 @@ export function InstituicaoTable({
   pagination = {},
   onPageChange,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['instituicoes', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['instituicoes', 'filters'],
+    },
+  );
   const isEmpty = !instituicoes || instituicoes.length === 0;
 
   return (
@@ -70,8 +73,16 @@ export function InstituicaoTable({
             <EmptyState
               variant="table"
               icon={BuildingIcon}
-              title={applied ? 'Nenhuma instituição encontrada' : 'Nenhuma instituição cadastrada'}
-              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando a primeira instituição à tabela'}
+              title={
+                applied
+                  ? 'Nenhuma instituição encontrada'
+                  : 'Nenhuma instituição cadastrada'
+              }
+              description={
+                applied
+                  ? 'Tenta ajustar a pesquisa.'
+                  : 'Comece adicionando a primeira instituição à tabela'
+              }
               action={{
                 label: 'Adicionar Instituição',
                 href: create().url,
@@ -135,7 +146,8 @@ export function InstituicaoTable({
                               </DropdownMenuItem>
                             )}
 
-                            {instituicao.can?.edit && instituicao.can?.delete && (
+                            {instituicao.can?.edit &&
+                              instituicao.can?.delete && (
                                 <DropdownMenuSeparator />
                               )}
 

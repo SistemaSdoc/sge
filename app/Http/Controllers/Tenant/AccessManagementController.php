@@ -35,8 +35,7 @@ class AccessManagementController extends Controller
         ])
             ->when(! $user->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $user->instituicao_id))
             ->search($request->string('search')->toString())
-            ->orderBy('nome')
-            ->orderBy('id')
+            ->latest('created_at')
             ->paginate(10)
             ->withQueryString()
             ->through(fn (User $u) => [

@@ -88,9 +88,12 @@ function EstadoBadge({ estado }) {
 
 export default function Index({ anosLectivos, filters }) {
   const { confirm, deleteConfirm, alert, closeDialog } = useDialog();
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['anosLectivos', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['anosLectivos', 'filters'],
+    },
+  );
 
   const handleArchive = (anoLectivo) => {
     deleteConfirm({
@@ -130,7 +133,10 @@ export default function Index({ anosLectivos, filters }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      },
       preserveScroll: true,
     });
   };
@@ -160,78 +166,86 @@ export default function Index({ anosLectivos, filters }) {
               <EmptyState
                 variant="table"
                 icon={CalendarRange}
-                title={applied ? 'Nenhum ano lectivo encontrado' : 'Nenhum ano lectivo cadastrado'}
-                description={applied ? 'Tenta ajustar a pesquisa.' : 'Adicione um ano lectivo à gestão central.'}
+                title={
+                  applied
+                    ? 'Nenhum ano lectivo encontrado'
+                    : 'Nenhum ano lectivo cadastrado'
+                }
+                description={
+                  applied
+                    ? 'Tenta ajustar a pesquisa.'
+                    : 'Adicione um ano lectivo à gestão central.'
+                }
               />
             ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/72">
-                  <TableHead className="px-4">Nome</TableHead>
-                  <TableHead>Data início</TableHead>
-                  <TableHead>Data fim</TableHead>
-                  <TableHead className="text-center">Estado</TableHead>
-                  <TableHead className="text-center">Activo</TableHead>
-                  <TableHead className="px-4 text-right">Acções</TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {anosLectivos.data.map((anoLectivo) => (
-                  <TableRow key={anoLectivo.id}>
-                    <TableCell className="px-4 font-medium">
-                      {anoLectivo.nome}
-                    </TableCell>
-                    <TableCell>
-                      {formatarData(anoLectivo.data_inicio)}
-                    </TableCell>
-                    <TableCell>{formatarData(anoLectivo.data_fim)}</TableCell>
-                    <TableCell className="text-center">
-                      <EstadoBadge estado={anoLectivo.estado} />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {anoLectivo.activo ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                          <span className="relative flex size-1.5">
-                            <span className="absolute inline-flex h-full w-full animate-ping bg-emerald-500 opacity-75" />
-                            <span className="relative inline-flex size-1.5 bg-emerald-500" />
-                          </span>
-                          Sim
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                          <span className="relative flex size-1.5">
-                            <span className="relative inline-flex size-1.5 bg-muted-foreground/50" />
-                          </span>
-                          Não
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="px-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        {anoLectivo.deleted_at ? (
-                          <Button
-                            variant="outline"
-                            size="xs"
-                            onClick={() => handleRestore(anoLectivo)}
-                          >
-                            Restaurar
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="destructive"
-                            size="xs"
-                            onClick={() => handleArchive(anoLectivo)}
-                          >
-                            Arquivar
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/72">
+                    <TableHead className="px-4">Nome</TableHead>
+                    <TableHead>Data início</TableHead>
+                    <TableHead>Data fim</TableHead>
+                    <TableHead className="text-center">Estado</TableHead>
+                    <TableHead className="text-center">Activo</TableHead>
+                    <TableHead className="px-4 text-right">Acções</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+
+                <TableBody>
+                  {anosLectivos.data.map((anoLectivo) => (
+                    <TableRow key={anoLectivo.id}>
+                      <TableCell className="px-4 font-medium">
+                        {anoLectivo.nome}
+                      </TableCell>
+                      <TableCell>
+                        {formatarData(anoLectivo.data_inicio)}
+                      </TableCell>
+                      <TableCell>{formatarData(anoLectivo.data_fim)}</TableCell>
+                      <TableCell className="text-center">
+                        <EstadoBadge estado={anoLectivo.estado} />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {anoLectivo.activo ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                            <span className="relative flex size-1.5">
+                              <span className="absolute inline-flex h-full w-full animate-ping bg-emerald-500 opacity-75" />
+                              <span className="relative inline-flex size-1.5 bg-emerald-500" />
+                            </span>
+                            Sim
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                            <span className="relative flex size-1.5">
+                              <span className="relative inline-flex size-1.5 bg-muted-foreground/50" />
+                            </span>
+                            Não
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          {anoLectivo.deleted_at ? (
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              onClick={() => handleRestore(anoLectivo)}
+                            >
+                              Restaurar
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="destructive"
+                              size="xs"
+                              onClick={() => handleArchive(anoLectivo)}
+                            >
+                              Arquivar
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
 

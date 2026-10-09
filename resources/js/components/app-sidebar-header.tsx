@@ -19,11 +19,12 @@ export function AppSidebarHeader({
   const { openForm } = useDrawer();
   const { naoLidas } = useNotificacoes();
 
-  const abrirNotificacoes = () => {
+  const openNotifications = () => {
     openForm({
       title: 'Notificações',
       description: 'Consulte as novidades e solicitações da instituição.',
       closeOnOutsideClick: true,
+      className: 'p-0',
       content: <NotificacoesDrawer />,
     });
   };
@@ -31,17 +32,18 @@ export function AppSidebarHeader({
   return (
     <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/80">
       <div className="flex h-full items-center gap-2">
-        <SidebarTrigger className="-ml-1" />
+        <SidebarTrigger className="-ml-1 bg-transparent hover:cursor-pointer" />
         <Separator orientation="vertical" className="mx-1 h-full" />
         <Breadcrumbs breadcrumbs={breadcrumbs} />
       </div>
+
       <div className="ml-auto">
         <Button
           type="button"
           variant="ghost"
           size="icon"
-          className="relative"
-          onClick={abrirNotificacoes}
+          className="relative hover:cursor-pointer"
+          onClick={openNotifications}
           aria-label="Abrir notificações"
         >
           <Bell className="size-5" />

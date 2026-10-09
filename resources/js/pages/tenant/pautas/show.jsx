@@ -24,7 +24,7 @@ export default function Show({ cursoTutelado, pauta, periodo, filtro }) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
+    <div className="mx-auto w-full max-w-7xl space-y-6 p-4 md:p-6">
       <ResumoCards
         resumo={pauta.resumo}
         tipo={pauta.tipo}

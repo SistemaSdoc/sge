@@ -17,7 +17,6 @@ import { useTableSearch } from '@/hooks/use-table-search';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -40,22 +39,34 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-export function RoleTable({ roles, filters, pagination, onPageChange, deleteFn }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['roles', 'filters'],
-  });
+export function RoleTable({
+  roles,
+  filters,
+  pagination,
+  onPageChange,
+  deleteFn,
+}) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['roles', 'filters'],
+    },
+  );
   const isEmpty = !roles?.data?.length;
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
-      <CardHeader className="border-b">
-        <CardTitle>Funções</CardTitle>
-        <CardDescription>Funções e permissões disponíveis</CardDescription>
-        <CardAction>
-          <Button asChild>
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <CardTitle>Funções</CardTitle>
+          <CardDescription>Funções e permissões disponíveis</CardDescription>
+        </div>
+
+        <div className="w-full sm:w-auto">
+          <Button asChild className="w-full sm:w-auto">
             <Link href={create().url}>Adicionar função</Link>
           </Button>
-        </CardAction>
+        </div>
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -64,8 +75,16 @@ export function RoleTable({ roles, filters, pagination, onPageChange, deleteFn }
           <EmptyState
             variant="table"
             icon={ShieldCheck}
-            title={applied ? 'Nenhuma função encontrada' : 'Nenhuma função cadastrada'}
-            description={applied ? 'Tenta ajustar a pesquisa.' : 'Clique no botão abaixo para adicionar uma nova função.'}
+            title={
+              applied
+                ? 'Nenhuma função encontrada'
+                : 'Nenhuma função cadastrada'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Clique no botão abaixo para adicionar uma nova função.'
+            }
             action={{
               label: 'Adicionar função',
               href: create().url,

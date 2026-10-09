@@ -36,7 +36,7 @@ class InstituicaoController extends Controller
         $user = Auth::guard('tenant')->user();
         $instituicoes = Instituicao::select(['id', 'nome', 'sigla', 'tipo'])
             ->search($request->string('search')->toString())
-            ->orderBy('nome', 'asc')
+            ->latest('created_at')
             ->paginate(10)
             ->withQueryString()
             ->through(function (Instituicao $instituicao) use ($user) {

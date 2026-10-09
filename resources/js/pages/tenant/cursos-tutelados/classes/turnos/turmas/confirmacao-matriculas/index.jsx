@@ -18,7 +18,10 @@ export default function Index() {
 
   const handlePageChange = (page) => {
     router.visit(index(params).url, {
-      data: { ...Object.fromEntries(new URLSearchParams(window.location.search)), page },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      },
       only: ['alunos'],
       preserveScroll: true,
       preserveState: true,

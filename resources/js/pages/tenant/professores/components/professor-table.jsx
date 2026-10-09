@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -46,21 +45,26 @@ export function ProfessorTable({
   pagination = {},
   onPageChange,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['professores', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['professores', 'filters'],
+    },
+  );
   const isEmpty = !professores || professores.length === 0;
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
-      <CardHeader className="border-b">
-        <CardTitle>Professores</CardTitle>
-        <CardDescription>Lista de professores cadastrados</CardDescription>
-        <CardAction>
-          <Button asChild>
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <CardTitle>Professores</CardTitle>
+          <CardDescription>Lista de professores cadastrados</CardDescription>
+        </div>
+        <div className="w-full sm:w-auto">
+          <Button asChild className="w-full sm:w-auto">
             <Link href={create().url}>Adicionar</Link>
           </Button>
-        </CardAction>
+        </div>
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -69,7 +73,11 @@ export function ProfessorTable({
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title={applied ? 'Nenhum professor encontrado' : 'Nenhum professor cadastrado'}
+            title={
+              applied
+                ? 'Nenhum professor encontrado'
+                : 'Nenhum professor cadastrado'
+            }
             description={applied ? 'Tenta ajustar a pesquisa.' : undefined}
             action={{
               label: 'Adicionar Professor',
@@ -116,7 +124,7 @@ export function ProfessorTable({
                       <Button
                         variant="outline"
                         size="xs"
-                        className="text-[10px]"
+                        className="text-[10px] hover:cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           router.visit(edit(professor.id).url);
@@ -128,7 +136,7 @@ export function ProfessorTable({
                       <Button
                         variant="destructive"
                         size="xs"
-                        className="text-[10px]"
+                        className="text-[10px] hover:cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           deleteFn(professor.id);

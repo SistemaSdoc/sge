@@ -69,7 +69,7 @@ export function Header({ can, params }) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-center sm:w-auto"
+                  className="w-full justify-center hover:cursor-pointer sm:w-auto"
                   onClick={() =>
                     router.visit(
                       showInstituicao({ instituicao: params.instituicao.id })
@@ -84,7 +84,7 @@ export function Header({ can, params }) {
               {params.cursoTutelado.can?.update && (
                 <Button
                   size="sm"
-                  className="w-full justify-center sm:w-auto"
+                  className="w-full justify-center hover:cursor-pointer sm:w-auto"
                   onClick={(e) => {
                     e.stopPropagation();
                     router.visit(edit({ ...params }).url);

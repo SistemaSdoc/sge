@@ -75,9 +75,7 @@ export default function Show({
 
       <Tabs defaultValue="disciplinas" className="w-full">
         {/* Wrapper com scroll smooth no mobile */}
-        <div className="md:overflow-none overflow-x-auto">
-          <TurmaTabsList classe={classe} totalRecurso={totalRecurso} />
-        </div>
+        <TurmaTabsList classe={classe} totalRecurso={totalRecurso} />
 
         <TabsContent value="alunos" className="mt-2 space-y-4">
           <TabAlunos

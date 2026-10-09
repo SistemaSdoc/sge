@@ -25,8 +25,10 @@ import {
 
 export default function Index({ justificativas }) {
   const getStatusIcon = (statusLabel) => {
-    if (statusLabel === 'Aceite') return <CheckCircle className="size-4 text-green-600" />;
-    if (statusLabel === 'Recusada') return <XCircle className="size-4 text-red-600" />;
+    if (statusLabel === 'Aceite')
+      return <CheckCircle className="size-4 text-green-600" />;
+    if (statusLabel === 'Recusada')
+      return <XCircle className="size-4 text-red-600" />;
     return <AlertCircle className="size-4 text-yellow-600" />;
   };
 
@@ -60,7 +62,8 @@ export default function Index({ justificativas }) {
             <CardHeader>
               <CardTitle>Histórico de Justificativas</CardTitle>
               <CardDescription>
-                Lista de todas as justificativas de não submissão que você enviou.
+                Lista de todas as justificativas de não submissão que você
+                enviou.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
@@ -117,7 +120,6 @@ export default function Index({ justificativas }) {
                           </span>
                         </Badge>
                       </TableCell>
-
                       <TableCell className="px-4 text-center">
                         {just.data}
                       </TableCell>

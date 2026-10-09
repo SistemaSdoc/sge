@@ -3,7 +3,6 @@ import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -44,16 +43,20 @@ export function TabProfessores({
   return (
     <>
       <Card className="gap-0">
-        <CardHeader className="border-b">
-          <CardTitle>
-            Professores ({params.cursoTutelado.contadores?.professores ?? 0})
-          </CardTitle>
-          <CardDescription>Professores associados a este curso</CardDescription>
+        <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-start md:justify-between">
+          <div className="min-w-0">
+            <CardTitle>
+              Professores ({params.cursoTutelado.contadores?.professores ?? 0})
+            </CardTitle>
+            <CardDescription>
+              Professores associados a este curso
+            </CardDescription>
+          </div>
           {(can?.attachProfessor || canAttachSecretario) && (
-            <CardAction>
-              <div className="flex flex-wrap gap-2">
+            <div className="w-full md:w-auto">
+              <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row">
                 {can?.attachProfessor && (
-                  <Button asChild>
+                  <Button asChild className="w-full md:w-auto">
                     <Link href={create({ ...params }).url}>
                       Adicionar Professor
                     </Link>
@@ -63,13 +66,14 @@ export function TabProfessores({
                   <Button
                     type="button"
                     variant="outline"
+                    className="w-full md:w-auto"
                     onClick={onAddSecretario}
                   >
                     Adicionar Secretário
                   </Button>
                 )}
               </div>
-            </CardAction>
+            </div>
           )}
         </CardHeader>
 
@@ -117,7 +121,8 @@ export function TabProfessores({
                     }
                     onClick={
                       professor.can?.view
-                        ? () => router.visit(show({ professor: professor.id }).url)
+                        ? () =>
+                            router.visit(show({ professor: professor.id }).url)
                         : undefined
                     }
                   >

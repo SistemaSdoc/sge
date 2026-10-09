@@ -137,7 +137,7 @@ export function CursoForm({
   }, [data.tenant_tutor_id, data.curso_id]);
 
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
+    <div className="mx-auto w-full max-w-sm md:max-w-md lg:max-w-195">
       <form onSubmit={onSubmit}>
         <Card className="overflow-visible">
           <CardHeader className="border-b">
@@ -315,7 +315,11 @@ export function CursoForm({
                 )}
 
                 <Field>
-                  <Button type="submit" disabled={processing}>
+                  <Button
+                    type="submit"
+                    disabled={processing}
+                    className="hover:cursor-pointer"
+                  >
                     Adicionar Curso
                   </Button>
 
@@ -323,6 +327,7 @@ export function CursoForm({
                     variant={'outline'}
                     disabled={processing}
                     onClick={() => window.history.back()}
+                    className="hover:cursor-pointer"
                   >
                     <ArrowUpLeft />
                     Voltar a lista de cursos

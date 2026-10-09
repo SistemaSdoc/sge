@@ -3,10 +3,12 @@ import { ColegioTable } from './components/colegio-table';
 
 export default function Index({ instituicao, colegios, filters }) {
   const handlePageChange = (page) => {
-    router.get(route('colegios.index', {
-      ...Object.fromEntries(new URLSearchParams(window.location.search)),
-      page,
-    }));
+    router.get(
+      route('colegios.index', {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      }),
+    );
   };
 
   return (

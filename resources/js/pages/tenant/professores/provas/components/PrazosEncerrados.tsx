@@ -1,5 +1,13 @@
 import { Link } from '@inertiajs/react';
-import { Clock, BookOpen, Users, MessageSquare, CheckCircle, XCircle, GraduationCap } from 'lucide-react';
+import {
+  Clock,
+  BookOpen,
+  Users,
+  MessageSquare,
+  CheckCircle,
+  XCircle,
+  GraduationCap,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -11,10 +19,42 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-export default function PrazosEncerrados({ prazos = [] }) {
+// ─────────────────────────────────────────────────────────────
+// Tipos
+// ─────────────────────────────────────────────────────────────
+interface Justificativa {
+  id: string;
+  motivo: string;
+  status: string;
+  status_label: string;
+}
+
+interface PrazoEncerrado {
+  id: string;
+  titulo: string;
+  data_limite: string;
+  status: string;
+  status_label: string;
+  disciplina: { id: string; nome: string; sigla: string } | null;
+  classe: { id: string; nome: string } | null;
+  submeteu: boolean;
+  turma_nome: string;
+  bloqueado: boolean;
+  justificativa: Justificativa | null;
+  url_justificar: string;
+}
+
+interface PrazosEncerradosProps {
+  prazos: PrazoEncerrado[];
+}
+
+// ─────────────────────────────────────────────────────────────
+// Componente
+// ─────────────────────────────────────────────────────────────
+export default function PrazosEncerrados({ prazos = [] }: PrazosEncerradosProps) {
   if (prazos.length === 0) {
     return (
-      <div className="flex items-center gap-2 text-muted-foreground border rounded-lg p-4 bg-muted/30">
+      <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-4 text-muted-foreground">
         <Clock className="size-5" />
         <span>Nenhum prazo encerrado.</span>
       </div>
@@ -27,7 +67,10 @@ export default function PrazosEncerrados({ prazos = [] }) {
         const jaJustificou = !!prazo.justificativa;
 
         return (
-          <Card key={prazo.id} className="shadow-sm border-border hover:shadow-md transition-shadow">
+          <Card
+            key={prazo.id}
+            className="border-border shadow-sm transition-shadow hover:shadow-md"
+          >
             <CardHeader>
               <CardTitle className="text-lg">{prazo.titulo}</CardTitle>
               <CardDescription>
@@ -46,13 +89,12 @@ export default function PrazosEncerrados({ prazos = [] }) {
                 <BookOpen className="size-4 text-muted-foreground" />
                 <strong>Disciplina:</strong> {prazo.disciplina?.nome || 'Todas'}
               </p>
-
               <p className="flex items-center gap-2">
                 <GraduationCap className="size-4 text-muted-foreground" />
                 <strong>Classe:</strong> {prazo.classe?.nome || 'Todas'}
               </p>
 
-              {/* ✅ TURMA em destaque */}
+              {/* TURMA em destaque */}
               <p className="flex items-center gap-2">
                 <Users className="size-4 text-primary" />
                 <strong>Turma:</strong>{' '}
@@ -62,7 +104,7 @@ export default function PrazosEncerrados({ prazos = [] }) {
               </p>
 
               {prazo.justificativa && (
-                <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
+                <div className="mt-2 rounded bg-muted/30 p-2 text-xs">
                   <strong>Justificativa:</strong> {prazo.justificativa.motivo}
                   <br />
                   <Badge variant="outline" className="mt-1">
@@ -72,8 +114,8 @@ export default function PrazosEncerrados({ prazos = [] }) {
               )}
 
               {prazo.bloqueado && (
-                <div className="mt-2 p-2 bg-red-50 dark:bg-red-950/20 rounded border border-red-200 dark:border-red-800">
-                  <p className="text-xs text-red-700 dark:text-red-400 flex items-center gap-1">
+                <div className="mt-2 rounded border border-red-200 bg-red-50 p-2 dark:border-red-800 dark:bg-red-950/20">
+                  <p className="flex items-center gap-1 text-xs text-red-700 dark:text-red-400">
                     <XCircle className="size-3" />
                     <strong>Justificativa recusada.</strong> Não pode justificar.
                   </p>
@@ -84,26 +126,29 @@ export default function PrazosEncerrados({ prazos = [] }) {
             <CardFooter>
               {prazo.bloqueado ? (
                 <Badge variant="destructive" className="w-full justify-center">
-                  <XCircle className="size-3 mr-1" />
+                  <XCircle className="mr-1 size-3" />
                   Acesso negado
                 </Badge>
               ) : !prazo.submeteu ? (
                 !jaJustificou ? (
                   <Button variant="outline" asChild className="w-full">
                     <Link href={prazo.url_justificar}>
-                      <MessageSquare className="size-4 mr-1" />
+                      <MessageSquare className="mr-1 size-4" />
                       Justificar não submissão
                     </Link>
                   </Button>
                 ) : (
                   <Badge variant="secondary" className="w-full justify-center">
-                    <CheckCircle className="size-3 mr-1" />
+                    <CheckCircle className="mr-1 size-3" />
                     Justificativa enviada
                   </Badge>
                 )
               ) : (
-                <Badge variant="default" className="w-full justify-center bg-green-600">
-                  <CheckCircle className="size-3 mr-1" />
+                <Badge
+                  variant="default"
+                  className="w-full justify-center bg-green-600"
+                >
+                  <CheckCircle className="mr-1 size-3" />
                   Submeteu
                 </Badge>
               )}

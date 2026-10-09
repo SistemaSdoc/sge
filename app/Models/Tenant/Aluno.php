@@ -2,12 +2,15 @@
 
 namespace App\Models\Tenant;
 
+use App\Contracts\HasUserCleanup;
+use App\Exceptions\UserRemovalBlockedException;
 use App\Models\Central\AnoLectivo;
 use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 #[Fillable([
@@ -19,9 +22,9 @@ use Illuminate\Support\Facades\DB;
     'situacao',
 ])]
 
-class Aluno extends Model
+class Aluno extends Model implements HasUserCleanup
 {
-    use HasSearch, HasUuid;
+    use HasSearch, HasUuid, SoftDeletes;
 
     protected array $searchable = [
         'matricula',
@@ -34,6 +37,76 @@ class Aluno extends Model
     protected $table = 'alunos';
 
     protected $primaryKey = 'id';
+
+    public function cleanupOnUserRemoval(): void
+    {
+        DB::transaction(function (): void {
+            $remocao = $this->podeSerRemovido();
+
+            if (! $remocao['pode_remover']) {
+                throw new UserRemovalBlockedException($remocao['mensagem']);
+            }
+
+            $this->turmas()->detach();
+            $this->forceDelete();
+            Inscricao::query()->whereKey($this->inscricao_id)->delete();
+        });
+    }
+
+    /**
+     * @return array{pode_remover: bool, bloqueios: list<string>, mensagem: ?string}
+     */
+    public function podeSerRemovido(): array
+    {
+        $bloqueios = [];
+
+        if (
+            $this->pagamentos()->withTrashed()->exists()
+            || PagamentoItem::query()->where('aluno_id', $this->getKey())->exists()
+        ) {
+            $bloqueios[] = 'pagamentos';
+        }
+
+        if ($this->propinas()->withTrashed()->exists()) {
+            $bloqueios[] = 'propinas';
+        }
+
+        $historicoTurmas = TurmaAluno::query()
+            ->where('aluno_id', $this->getKey())
+            ->where(function ($query): void {
+                $query->whereHas('notas')
+                    ->orWhere('situacao', '!=', 'activo')
+                    ->orWhere('is_historico', true)
+                    ->orWhereNotNull('resultado');
+            })
+            ->exists();
+
+        if ($historicoTurmas) {
+            $bloqueios[] = 'notas ou histórico de turma';
+        }
+
+        if ($this->elementosGrupoPap()->exists()) {
+            $bloqueios[] = 'PAP';
+        }
+
+        if ($this->confirmacoesMatricula()->withTrashed()->exists()) {
+            $bloqueios[] = 'confirmações de matrícula';
+        }
+
+        if (DB::table('documentos_emitidos')->where('aluno_id', $this->getKey())->exists()) {
+            $bloqueios[] = 'documentos académicos';
+        }
+
+        $podeRemover = $bloqueios === [];
+
+        return [
+            'pode_remover' => $podeRemover,
+            'bloqueios' => $bloqueios,
+            'mensagem' => $podeRemover
+                ? null
+                : 'Não é possível remover este aluno porque existem registos de '.implode(', ', $bloqueios).'. Anule a matrícula em vez de remover.',
+        ];
+    }
 
     // ============================================
     // GERAÇÃO AUTOMÁTICA DO NÚMERO DE PROCESSO
@@ -174,6 +247,11 @@ class Aluno extends Model
         return $this->belongsTo(Instituicao::class);
     }
 
+    public function pagamentos(): HasMany
+    {
+        return $this->hasMany(Pagamento::class);
+    }
+
     public function turmas()
     {
         return $this->belongsToMany(Turma::class, 'turma_aluno', 'aluno_id', 'turma_id')
@@ -262,6 +340,11 @@ class Aluno extends Model
             'id',
             'grupo_pap_id'
         );
+    }
+
+    public function elementosGrupoPap(): HasMany
+    {
+        return $this->hasMany(ElementoGrupoPap::class, 'aluno_id');
     }
 
     public function confirmacoesMatricula()

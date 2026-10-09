@@ -82,7 +82,11 @@ export function PersonalData({ user, data }) {
         )}
 
         <div className="flex justify-end">
-          <Button type="button" onClick={() => setIsEditing(true)}>
+          <Button
+            type="button"
+            onClick={() => setIsEditing(true)}
+            className="hover:cursor-pointer"
+          >
             Editar as minhas informações
           </Button>
         </div>
@@ -264,11 +268,16 @@ export function PersonalData({ user, data }) {
           type="button"
           variant="outline"
           onClick={() => setIsEditing(false)}
+          className="hover:cursor-pointer"
         >
           Cancelar
         </Button>
 
-        <Button type="submit" disabled={form.processing}>
+        <Button
+          type="submit"
+          disabled={form.processing}
+          className="hover:cursor-pointer"
+        >
           {form.processing ? 'A salvar as alterações...' : 'Salvar alterações'}
         </Button>
       </div>

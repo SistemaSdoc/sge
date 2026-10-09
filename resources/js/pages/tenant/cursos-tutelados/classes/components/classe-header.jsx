@@ -83,7 +83,7 @@ export function Header({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-center sm:w-auto"
+                  className="w-full justify-center hover:cursor-pointer sm:w-auto"
                   onClick={() =>
                     router.visit(
                       showCurso({
@@ -102,6 +102,7 @@ export function Header({
                 <Button
                   size="sm"
                   variant="outline"
+                  className="hover:cursor-pointer"
                   onClick={() =>
                     router.visit(
                       editTurno({
@@ -119,7 +120,7 @@ export function Header({
               {can.turno?.create && turnos.length < 3 && (
                 <Button
                   size="sm"
-                  className="w-full justify-center sm:w-auto"
+                  className="w-full justify-center hover:cursor-pointer sm:w-auto"
                   onClick={() =>
                     router.visit(
                       create({

@@ -1,6 +1,6 @@
 import { Head, InfiniteScroll, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { marcarTodasLidas } from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
+import { markAllAsRead } from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
 import { NotificationsList } from './components/notification-list';
 
 export default function Index({ notificacoes, naoLidas = 0 }) {
@@ -11,7 +11,7 @@ export default function Index({ notificacoes, naoLidas = 0 }) {
       return;
     }
 
-    router.post(marcarTodasLidas().url, {}, { preserveScroll: true });
+    router.post(markAllAsRead().url, {}, { preserveScroll: true });
   };
 
   return (

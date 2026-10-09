@@ -2,7 +2,6 @@ import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -43,14 +42,16 @@ export function TabGruposPAP({
 
   return (
     <Card className="gap-0 pb-0">
-      <CardHeader className="border-b">
-        <CardTitle>Grupos para PAP</CardTitle>
-        <CardDescription>
-          Grupos de aptidão profissional desta turma
-        </CardDescription>
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <CardTitle>Grupos para PAP</CardTitle>
+          <CardDescription>
+            Grupos de aptidão profissional desta turma
+          </CardDescription>
+        </div>
         {can?.create && (
-          <CardAction>
-            <Button asChild>
+          <div className="w-full sm:w-auto">
+            <Button asChild className="w-full sm:w-auto">
               <Link
                 href={create({
                   instituicao: params.instituicao.id,
@@ -63,7 +64,7 @@ export function TabGruposPAP({
                 Criar grupo
               </Link>
             </Button>
-          </CardAction>
+          </div>
         )}
       </CardHeader>
 

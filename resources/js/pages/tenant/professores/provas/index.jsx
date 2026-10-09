@@ -4,7 +4,11 @@ import PrazosEncerrados from './components/PrazosEncerrados';
 import HistoricoSubmissoes from './components/HistoricoSubmissoes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function Index({ prazos_abertos, prazos_encerrados, historico }) {
+export default function Index({
+  prazos_abertos,
+  prazos_encerrados,
+  historico,
+}) {
   const handlePageChange = (page) => {
     router.visit('/dashboard/professor/provas', {
       data: { page },
@@ -16,7 +20,9 @@ export default function Index({ prazos_abertos, prazos_encerrados, historico }) 
     <>
       <Head title="Submissão de Provas" />
       <div className="w-full space-y-6 p-6">
-        <h1 className="text-2xl font-bold text-foreground">Submissão de Provas</h1>
+        <h1 className="text-2xl font-bold text-foreground">
+          Submissão de Provas
+        </h1>
 
         <Tabs defaultValue="abertos" className="space-y-4">
           <TabsList>
@@ -26,18 +32,27 @@ export default function Index({ prazos_abertos, prazos_encerrados, historico }) 
           </TabsList>
 
           <TabsContent value="abertos" className="space-y-4">
-            <h2 className="text-xl font-semibold flex items-center gap-2">Prazos Abertos</h2>
+            <h2 className="flex items-center gap-2 text-xl font-semibold">
+              Prazos Abertos
+            </h2>
             <PrazosAbertos prazos={prazos_abertos} />
           </TabsContent>
 
           <TabsContent value="encerrados" className="space-y-4">
-            <h2 className="text-xl font-semibold flex items-center gap-2">Prazos Encerrados</h2>
+            <h2 className="flex items-center gap-2 text-xl font-semibold">
+              Prazos Encerrados
+            </h2>
             <PrazosEncerrados prazos={prazos_encerrados} />
           </TabsContent>
 
           <TabsContent value="historico" className="space-y-4">
-            <h2 className="text-xl font-semibold flex items-center gap-2">Meu Histórico de Submissões</h2>
-            <HistoricoSubmissoes historico={historico} onPageChange={handlePageChange} />
+            <h2 className="flex items-center gap-2 text-xl font-semibold">
+              Meu Histórico de Submissões
+            </h2>
+            <HistoricoSubmissoes
+              historico={historico}
+              onPageChange={handlePageChange}
+            />
           </TabsContent>
         </Tabs>
       </div>

@@ -73,7 +73,7 @@ export default function UserProfileLayout({ children }: PropsWithChildren) {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-6">
+    <div className="mx-auto w-full max-w-5xl px-4 py-6">
       <header className="mx-auto mb-10 w-full max-w-7xl overflow-hidden border bg-card">
         <div
           className="relative h-36 bg-muted bg-cover bg-center md:h-48"
@@ -88,8 +88,8 @@ export default function UserProfileLayout({ children }: PropsWithChildren) {
         </div>
 
         <div className="relative px-5 pb-5">
-          <div className="-mt-10 flex flex-col gap-4 sm:-mt-12 sm:flex-row sm:items-end">
-            <div className="relative z-10 rounded-full bg-card p-1">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div className="relative z-10 -mt-10 w-fit self-center rounded-full bg-card p-1 sm:-mt-12 sm:self-start">
               <div className="relative">
                 <Avatar className="size-20">
                   <AvatarImage
@@ -118,7 +118,7 @@ export default function UserProfileLayout({ children }: PropsWithChildren) {
               </div>
             </div>
 
-            <div className="pb-1 sm:pb-2">
+            <div className="pb-1 text-center sm:pb-2 sm:text-left">
               <p className="text-base font-semibold">{user.nome}</p>
               <p className="text-sm text-muted-foreground">{user.email}</p>
             </div>

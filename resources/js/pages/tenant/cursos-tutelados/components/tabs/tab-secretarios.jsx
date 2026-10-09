@@ -3,7 +3,6 @@ import { UserRoundPlus, UserRoundX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -42,19 +41,21 @@ export function TabSecretarios({
 
   return (
     <Card className="gap-0">
-      <CardHeader className="border-b">
-        <CardTitle>Secretários do Curso ({secretarios.length})</CardTitle>
-        <CardDescription>
-          A conta deve existir primeiro na aplicação. Ao associá-la, recebe
-          acesso apenas a este curso; os perfis existentes não são alterados.
-        </CardDescription>
+      <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0">
+          <CardTitle>Secretários do Curso ({secretarios.length})</CardTitle>
+          <CardDescription>
+            A conta deve existir primeiro na aplicação. Ao associá-la, recebe
+            acesso apenas a este curso; os perfis existentes não são alterados.
+          </CardDescription>
+        </div>
         {canAttach && (
-          <CardAction>
+          <div className="w-full md:w-auto">
             <form
               onSubmit={submit}
-              className="flex flex-wrap items-start gap-2"
+              className="flex w-full flex-col items-stretch gap-2 md:w-auto md:flex-row md:items-start"
             >
-              <div className="w-64">
+              <div className="w-full md:w-64">
                 <Select
                   value={data.user_id}
                   onValueChange={(value) => setData('user_id', value)}
@@ -80,11 +81,15 @@ export function TabSecretarios({
                   </p>
                 )}
               </div>
-              <Button type="submit" disabled={processing || !data.user_id}>
+              <Button
+                type="submit"
+                disabled={processing || !data.user_id}
+                className="w-full md:w-auto"
+              >
                 Adicionar
               </Button>
             </form>
-          </CardAction>
+          </div>
         )}
       </CardHeader>
 

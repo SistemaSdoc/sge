@@ -28,12 +28,7 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -56,16 +51,22 @@ export default function Show({ prazo, submissoes }) {
   const [novaData, setNovaData] = useState('');
   const [rejectDialog, setRejectDialog] = useState(null);
 
-  const algumLoading = loadingFechar || loadingProrrogar || avaliandoId !== null;
+  const algumLoading =
+    loadingFechar || loadingProrrogar || avaliandoId !== null;
 
   // ── Fechar prazo ──
   const handleFecharPrazo = useCallback(() => {
-    if (!confirm(
-  'Encerrar o prazo "' + prazo.titulo + '"?\n\n' +
-  'Os professores deixam de poder submeter provas.\n' +
-  'Todos serão notificados.\n\n' +
-  'Esta ação pode ser desfeita prorrogando a duração.'
-)) return;
+    if (
+      !confirm(
+        'Encerrar o prazo "' +
+          prazo.titulo +
+          '"?\n\n' +
+          'Os professores deixam de poder submeter provas.\n' +
+          'Todos serão notificados.\n\n' +
+          'Esta ação pode ser desfeita prorrogando a duração.',
+      )
+    )
+      return;
     setLoadingFechar(true);
     router.post(
       `/dashboard/diretor/prazos/${prazo.id}/fechar`,
@@ -73,7 +74,8 @@ export default function Show({ prazo, submissoes }) {
       {
         onSuccess: () => {
           toast.success('Prazo encerrado', {
-            description: 'Os professores foram notificados. Já não é possível submeter provas.',
+            description:
+              'Os professores foram notificados. Já não é possível submeter provas.',
           });
           router.reload();
         },
@@ -83,7 +85,7 @@ export default function Show({ prazo, submissoes }) {
           });
         },
         onFinish: () => setLoadingFechar(false),
-      }
+      },
     );
   }, [prazo.id]);
 
@@ -111,7 +113,7 @@ export default function Show({ prazo, submissoes }) {
           toast.error('Erro ao prorrogar prazo');
         },
         onFinish: () => setLoadingProrrogar(false),
-      }
+      },
     );
   }, [prazo.id, novaData]);
 
@@ -135,7 +137,7 @@ export default function Show({ prazo, submissoes }) {
                 acao === 'aprovar'
                   ? 'O professor foi notificado da aprovação.'
                   : 'O professor foi notificado com o motivo da rejeição.',
-            }
+            },
           );
           router.reload();
         },
@@ -146,7 +148,7 @@ export default function Show({ prazo, submissoes }) {
           setAvaliandoId(null);
           setAvaliandoAcao(null);
         },
-      }
+      },
     );
   }, []);
 
@@ -170,22 +172,28 @@ export default function Show({ prazo, submissoes }) {
     <>
       <Head title={`Prazo: ${prazo.titulo}`} />
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="mx-auto max-w-7xl px-4 py-6">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-          <Link href="/dashboard" className="hover:text-foreground transition-colors">
+        <nav className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+          <Link
+            href="/dashboard"
+            className="transition-colors hover:text-foreground"
+          >
             Dashboard
           </Link>
           <span>/</span>
-          <Link href="/dashboard/diretor/prazos" className="hover:text-foreground transition-colors">
+          <Link
+            href="/dashboard/diretor/prazos"
+            className="transition-colors hover:text-foreground"
+          >
             Prazos
           </Link>
           <span>/</span>
-          <span className="text-foreground font-medium">{prazo.titulo}</span>
+          <span className="font-medium text-foreground">{prazo.titulo}</span>
         </nav>
 
         {/* Cabeçalho */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <h1 className="text-2xl font-bold text-foreground">{prazo.titulo}</h1>
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild>
@@ -204,51 +212,67 @@ export default function Show({ prazo, submissoes }) {
         </div>
 
         {/* Card do Prazo */}
-        <Card className="shadow-sm border-border mb-6">
+        <Card className="mb-6 border-border shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between border-b">
             <CardTitle>Detalhes do Prazo</CardTitle>
             <Badge variant="outline" className={prazo.badge_class}>
               {prazo.status_label}
             </Badge>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4 md:grid-cols-4 pt-4">
+          <CardContent className="grid grid-cols-2 gap-4 pt-4 md:grid-cols-4">
             <div className="flex items-center gap-2 text-sm">
               <Tag className="size-4 text-muted-foreground" />
-              <span><strong>Tipo:</strong> {prazo.tipo_prova}</span>
+              <span>
+                <strong>Tipo:</strong> {prazo.tipo_prova}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <BookOpen className="size-4 text-muted-foreground" />
-              <span><strong>Disciplina:</strong> {prazo.disciplina?.nome || 'Todas'}</span>
+              <span>
+                <strong>Disciplina:</strong> {prazo.disciplina?.nome || 'Todas'}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Users className="size-4 text-muted-foreground" />
-              <span><strong>Classe:</strong> {prazo.classe?.nome || 'Todas'}</span>
+              <span>
+                <strong>Classe:</strong> {prazo.classe?.nome || 'Todas'}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="size-4 text-muted-foreground" />
-              <span><strong>Início:</strong> {prazo.data_inicio}</span>
+              <span>
+                <strong>Início:</strong> {prazo.data_inicio}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Clock className="size-4 text-muted-foreground" />
-              <span><strong>Limite:</strong> {prazo.data_limite}</span>
+              <span>
+                <strong>Limite:</strong> {prazo.data_limite}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="size-4 text-muted-foreground" />
-              <span><strong>Ano Lectivo:</strong> {prazo.ano_letivo}</span>
+              <span>
+                <strong>Ano Lectivo:</strong> {prazo.ano_letivo}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Clock className="size-4 text-muted-foreground" />
-              <span><strong>Período:</strong> {prazo.periodo}</span>
+              <span>
+                <strong>Período:</strong> {prazo.periodo}
+              </span>
             </div>
-            <div className="flex items-center gap-2 text-sm col-span-2 md:col-span-4">
+            <div className="col-span-2 flex items-center gap-2 text-sm md:col-span-4">
               <MessageSquare className="size-4 text-muted-foreground" />
-              <span><strong>Observações:</strong> {prazo.observacoes || 'Nenhuma'}</span>
+              <span>
+                <strong>Observações:</strong> {prazo.observacoes || 'Nenhuma'}
+              </span>
             </div>
           </CardContent>
         </Card>
 
         {/* Ações do prazo */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="mb-6 flex flex-wrap gap-2">
           {prazo.status === 'aberto' && (
             <Button
               variant="destructive"
@@ -257,8 +281,8 @@ export default function Show({ prazo, submissoes }) {
             >
               {loadingFechar ? (
                 <>
-                  <Loader2 className="size-4 animate-spin mr-1.5" />
-                  A encerrar...
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />A
+                  encerrar...
                 </>
               ) : (
                 <>
@@ -276,8 +300,7 @@ export default function Show({ prazo, submissoes }) {
           >
             {loadingProrrogar ? (
               <>
-                <Loader2 className="size-4 animate-spin mr-1.5" />
-                A prorrogar...
+                <Loader2 className="mr-1.5 size-4 animate-spin" />A prorrogar...
               </>
             ) : (
               <>
@@ -289,14 +312,14 @@ export default function Show({ prazo, submissoes }) {
         </div>
 
         {/* Lista de Submissões */}
-        <div className="flex items-center gap-2 mb-4">
+        <div className="mb-4 flex items-center gap-2">
           <FileText className="size-5" />
           <h2 className="text-lg font-semibold">Submissões</h2>
           <Badge variant="secondary">{submissoes.length}</Badge>
         </div>
 
         {submissoes.length === 0 ? (
-          <div className="flex items-center gap-2 text-muted-foreground border rounded-lg p-4 bg-muted/30">
+          <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-4 text-muted-foreground">
             <Info className="size-5" />
             <span>Nenhuma submissão ainda.</span>
           </div>
@@ -307,17 +330,21 @@ export default function Show({ prazo, submissoes }) {
               const acaoAtual = estaAvaliando ? avaliandoAcao : null;
 
               return (
-                <Card key={sub.id} className="shadow-sm border-border">
+                <Card key={sub.id} className="border-border shadow-sm">
                   <CardContent className="p-4">
                     <div className="flex flex-wrap items-center gap-4">
                       {/* Professor */}
-                      <div className="flex items-center gap-3 min-w-[180px]">
-                        <div className="size-10 rounded-full bg-muted flex items-center justify-center">
+                      <div className="flex min-w-[180px] items-center gap-3">
+                        <div className="flex size-10 items-center justify-center rounded-full bg-muted">
                           <User className="size-5 text-muted-foreground" />
                         </div>
                         <div>
-                          <p className="font-medium">{sub.professor?.nome || 'Professor'}</p>
-                          <p className="text-xs text-muted-foreground">Versão {sub.versao}</p>
+                          <p className="font-medium">
+                            {sub.professor?.nome || 'Professor'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Versão {sub.versao}
+                          </p>
                         </div>
                       </div>
 
@@ -329,13 +356,21 @@ export default function Show({ prazo, submissoes }) {
                       {/* Links arquivos */}
                       <div className="flex gap-1">
                         <Button variant="outline" size="sm" asChild>
-                          <a href={sub.url_prova} target="_blank" rel="noopener noreferrer">
+                          <a
+                            href={sub.url_prova}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             <File className="mr-1 size-4" />
                             Prova
                           </a>
                         </Button>
                         <Button variant="outline" size="sm" asChild>
-                          <a href={sub.url_chave} target="_blank" rel="noopener noreferrer">
+                          <a
+                            href={sub.url_chave}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             <FileIcon className="mr-1 size-4" />
                             Chave
                           </a>
@@ -355,7 +390,7 @@ export default function Show({ prazo, submissoes }) {
                             >
                               {estaAvaliando && acaoAtual === 'aprovar' ? (
                                 <>
-                                  <Loader2 className="size-4 animate-spin mr-1" />
+                                  <Loader2 className="mr-1 size-4 animate-spin" />
                                   A aprovar...
                                 </>
                               ) : (
@@ -373,7 +408,7 @@ export default function Show({ prazo, submissoes }) {
                             >
                               {estaAvaliando && acaoAtual === 'rejeitar' ? (
                                 <>
-                                  <Loader2 className="size-4 animate-spin mr-1" />
+                                  <Loader2 className="mr-1 size-4 animate-spin" />
                                   A rejeitar...
                                 </>
                               ) : (
@@ -386,7 +421,7 @@ export default function Show({ prazo, submissoes }) {
                           </>
                         )}
                         {sub.estado !== 'pendente' && (
-                          <span className="text-sm text-muted-foreground flex items-center gap-1">
+                          <span className="flex items-center gap-1 text-sm text-muted-foreground">
                             {sub.estado === 'aprovado' ? (
                               <Check className="size-4 text-green-600" />
                             ) : (
@@ -399,13 +434,14 @@ export default function Show({ prazo, submissoes }) {
                     </div>
 
                     {sub.parecer && (
-                      <div className="mt-3 p-2 bg-muted/50 rounded text-sm">
+                      <div className="mt-3 rounded bg-muted/50 p-2 text-sm">
                         <strong>Parecer:</strong> {sub.parecer}
                       </div>
                     )}
                     {sub.comentario && (
                       <div className="mt-1 text-sm text-muted-foreground">
-                        <strong>Comentário do professor:</strong> {sub.comentario}
+                        <strong>Comentário do professor:</strong>{' '}
+                        {sub.comentario}
                       </div>
                     )}
                   </CardContent>
@@ -436,14 +472,22 @@ export default function Show({ prazo, submissoes }) {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setProrrogarDialog(false)} disabled={loadingProrrogar}>
+            <Button
+              variant="outline"
+              onClick={() => setProrrogarDialog(false)}
+              disabled={loadingProrrogar}
+            >
               Cancelar
             </Button>
-            <Button variant="default" onClick={handleProrrogar} disabled={loadingProrrogar}>
+            <Button
+              variant="default"
+              onClick={handleProrrogar}
+              disabled={loadingProrrogar}
+            >
               {loadingProrrogar ? (
                 <>
-                  <Loader2 className="size-4 animate-spin mr-1.5" />
-                  A prorrogar...
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />A
+                  prorrogar...
                 </>
               ) : (
                 'Prorrogar'
@@ -454,7 +498,10 @@ export default function Show({ prazo, submissoes }) {
       </Dialog>
 
       {/* Diálogo de Rejeição */}
-      <Dialog open={!!rejectDialog} onOpenChange={(open) => !open && closeRejectDialog()}>
+      <Dialog
+        open={!!rejectDialog}
+        onOpenChange={(open) => !open && closeRejectDialog()}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Rejeitar Submissão</DialogTitle>
@@ -469,12 +516,16 @@ export default function Show({ prazo, submissoes }) {
               type="text"
               placeholder="Descreva o motivo..."
               value={rejectDialog?.motivo || ''}
-              onChange={(e) => setRejectDialog(prev => ({ ...prev, motivo: e.target.value }))}
+              onChange={(e) =>
+                setRejectDialog((prev) => ({ ...prev, motivo: e.target.value }))
+              }
               required
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeRejectDialog}>Cancelar</Button>
+            <Button variant="outline" onClick={closeRejectDialog}>
+              Cancelar
+            </Button>
             <Button variant="destructive" onClick={confirmReject}>
               Rejeitar
             </Button>

@@ -165,7 +165,7 @@ export default function Show({
   )?.nome;
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-4 p-6">
+    <div className="mx-auto w-full max-w-6xl space-y-4 p-4 md:p-6">
       {/* Header com Breadcrumb */}
       <Header
         can={can}
@@ -246,24 +246,26 @@ export default function Show({
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 {/* DISCIPLINAS */}
                 <Card className="grid grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
-                  <CardHeader className="border-b">
-                    <CardTitle className="flex! gap-2">
-                      Disciplinas ({disciplinas?.total ?? 0})
-                    </CardTitle>
+                  <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <CardTitle className="flex! gap-2">
+                        Disciplinas ({disciplinas?.total ?? 0})
+                      </CardTitle>
 
-                    <CardDescription>
-                      Disciplinas do turno da{' '}
-                      <span>
-                        {
-                          turnos.find((turno) => turno.id === selectedTurnoId)
-                            ?.nome
-                        }
-                      </span>
-                    </CardDescription>
+                      <CardDescription>
+                        Disciplinas do turno da{' '}
+                        <span>
+                          {
+                            turnos.find((turno) => turno.id === selectedTurnoId)
+                              ?.nome
+                          }
+                        </span>
+                      </CardDescription>
+                    </div>
 
                     {can.disciplina.create && (
-                      <CardAction>
-                        <Button asChild size="sm">
+                      <CardAction className="w-full sm:w-auto">
+                        <Button asChild size="sm" className="w-full sm:w-auto">
                           <Link
                             data={{ redirect_to: window.location.href }}
                             href={
@@ -349,7 +351,7 @@ export default function Show({
                                     <Button
                                       size="xs"
                                       variant="destructive"
-                                      className="text-[10px]"
+                                      className="text-[10px] hover:cursor-pointer"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleDeleteDisciplina(disc.id);
@@ -378,24 +380,26 @@ export default function Show({
 
                 {/* TURMAS */}
                 <Card className="grid grid-rows-[auto_1fr_auto] gap-0 overflow-hidden">
-                  <CardHeader className="border-b">
-                    <CardTitle className="flex! gap-2">
-                      Turmas ({turmas?.total ?? 0})
-                    </CardTitle>
+                  <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <CardTitle className="flex! gap-2">
+                        Turmas ({turmas?.total ?? 0})
+                      </CardTitle>
 
-                    <CardDescription>
-                      Turmas do turno da{' '}
-                      <span>
-                        {
-                          turnos.find((turno) => turno.id === selectedTurnoId)
-                            ?.nome
-                        }
-                      </span>
-                    </CardDescription>
+                      <CardDescription>
+                        Turmas do turno da{' '}
+                        <span>
+                          {
+                            turnos.find((turno) => turno.id === selectedTurnoId)
+                              ?.nome
+                          }
+                        </span>
+                      </CardDescription>
+                    </div>
 
                     {can.turma.create && (
-                      <CardAction>
-                        <Button asChild size="sm">
+                      <CardAction className="w-full sm:w-auto">
+                        <Button asChild size="sm" className="w-full sm:w-auto">
                           <Link
                             href={
                               createTurma(
@@ -449,6 +453,7 @@ export default function Show({
                           <TableHeader>
                             <TableRow className="bg-muted/72">
                               <TableHead className="px-4">Nome</TableHead>
+                              <TableHead className="px-4">Sala</TableHead>
                               <TableHead className="text-center">
                                 Alunos
                               </TableHead>
@@ -487,6 +492,10 @@ export default function Show({
                                   {turma.nome}
                                 </TableCell>
 
+                                <TableCell className="px-4 font-medium">
+                                  {turma.sala || 'Por definir'}
+                                </TableCell>
+
                                 <TableCell className="text-center">
                                   {turma.alunos_activos_count}
                                 </TableCell>
@@ -496,7 +505,7 @@ export default function Show({
                                     <Button
                                       variant="outline"
                                       size="xs"
-                                      className="text-[10px]"
+                                      className="text-[10px] hover:cursor-pointer"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         router.visit(

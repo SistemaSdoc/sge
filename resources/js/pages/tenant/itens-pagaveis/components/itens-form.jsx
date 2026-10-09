@@ -1,3 +1,5 @@
+import { Link } from '@inertiajs/react';
+import { ArrowUpLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -21,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { index } from '@/actions/App/Http/Controllers/Tenant/ItemPagavelController';
 
 const FREQUENCIAS = [
   { label: 'Mensal', value: 'mensal' },
@@ -49,7 +52,7 @@ export function ItensForm({
   const temMulta = data.multa_dias_tolerancia || data.multa_valor;
 
   return (
-    <div className="mx-auto w-full max-w-2xl p-6">
+    <div className="mx-auto w-full max-w-2xl p-4 md:p-6">
       <form onSubmit={submitFn}>
         <Card>
           <CardHeader className="border-b">
@@ -58,7 +61,7 @@ export function ItensForm({
 
           <CardContent>
             <FieldGroup>
-              <FieldSet>
+              <FieldSet className="min-w-0">
                 {/* Nome */}
                 <Field data-invalid={Boolean(errors?.nome)}>
                   <FieldLabel htmlFor="nome">Nome</FieldLabel>
@@ -74,7 +77,7 @@ export function ItensForm({
 
                 {/* Valor e Frequência — só colégios */}
                 {isColegio && (
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-4 lg:grid-cols-2">
                     <Field data-invalid={Boolean(errors?.valor)}>
                       <FieldLabel htmlFor="valor">Valor</FieldLabel>
                       <Input
@@ -122,7 +125,7 @@ export function ItensForm({
                     onValueChange={(val) => setData('tipo', val)}
                     disabled={processing}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full min-w-0">
                       <SelectValue placeholder="Selecione um tipo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -151,7 +154,7 @@ export function ItensForm({
                         if (!data.nome) setData('nome', SUBTIPO_LABELS[val]);
                       }}
                     >
-                      <SelectTrigger id="subtipo">
+                      <SelectTrigger id="subtipo" className="w-full min-w-0">
                         <SelectValue placeholder="Seleccione o subtipo..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -181,7 +184,10 @@ export function ItensForm({
                       setData('curso_classe_id', val === 'todos' ? '' : val)
                     }
                   >
-                    <SelectTrigger id="curso_classe_id">
+                    <SelectTrigger
+                      id="curso_classe_id"
+                      className="w-full min-w-0"
+                    >
                       <SelectValue placeholder="Aplica-se a toda a instituição" />
                     </SelectTrigger>
                     <SelectContent>
@@ -237,7 +243,7 @@ export function ItensForm({
                         propina).
                       </p>
 
-                      <div className="grid gap-4 md:grid-cols-2">
+                      <div className="grid gap-4 lg:grid-cols-2">
                         <Field
                           data-invalid={Boolean(errors?.multa_dias_tolerancia)}
                         >
@@ -300,9 +306,18 @@ export function ItensForm({
                   </>
                 )}
 
-                <Button type="submit" disabled={processing}>
-                  {processing ? 'A guardar...' : submitLabel}
-                </Button>
+                <Field>
+                  <Button type="submit" disabled={processing}>
+                    {processing ? 'A guardar...' : submitLabel}
+                  </Button>
+
+                  <Button asChild variant="outline">
+                    <Link href={index().url}>
+                      <ArrowUpLeft aria-hidden="true" />
+                      Voltar à lista de emolumentos
+                    </Link>
+                  </Button>
+                </Field>
               </FieldSet>
             </FieldGroup>
           </CardContent>

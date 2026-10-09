@@ -28,6 +28,7 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\TemaSubmetidoCoordenacaoNotification;
 use App\Services\Central\TenantService;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Services\Tenant\CrossTenantAccessService;
@@ -36,6 +37,7 @@ use App\Services\Tenant\GrupoPapViewService;
 use App\Services\Tenant\Tutela\Data\InstituicaoTutoraData;
 use App\Services\Tenant\Tutela\TutelaService;
 use App\Services\Tenant\Tutela\TutelaTenantService;
+use App\Traits\NotificaGrupoPap;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -43,6 +45,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Excel;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -1256,18 +1259,6 @@ test('pautas filtram os cursos pela instituicao seleccionada', function (): void
         $curso = Curso::create(['nome' => 'Curso Remoto', 'duracao_anos' => 3]);
         $instituicaoCurso = InstituicaoCurso::create([
             'curso_id' => $curso->id,
-test('banca de tutela externa usa professores principais do curso tutor e apresenta jurados externos', function (): void {
-    $fixture = createPapFixtureForIsolationTest($this->tenantColegio, $this->vinculo->id);
-
-    $this->vinculo->update([
-        'curso_tutelado_tutelado_id' => $fixture['cursoTutelado']->id,
-        'curso_id' => $fixture['curso']->id,
-    ]);
-
-    $tutorData = $this->tenantTutor->run(function () use ($fixture): array {
-        $instituicao = Instituicao::create(['nome' => 'Instituto Tutor Banca', 'tipo' => 'instituto']);
-        $instituicaoCurso = InstituicaoCurso::create([
-            'curso_id' => $fixture['curso']->id,
             'instituicao_id' => $instituicao->id,
             'duracao_anos' => 3,
         ]);
@@ -1363,6 +1354,26 @@ test('banca de tutela externa usa professores principais do curso tutor e aprese
         ->and($segundaPagina['last_page'])->toBe(2)
         ->and(collect($segundaPagina['data'])->pluck('id')->all())
         ->toBe([(string) $turmaLocalB->id]);
+});
+
+test('banca de tutela externa usa professores principais do curso tutor e apresenta jurados externos', function (): void {
+    $fixture = createPapFixtureForIsolationTest($this->tenantColegio, $this->vinculo->id);
+
+    $this->vinculo->update([
+        'curso_tutelado_tutelado_id' => $fixture['cursoTutelado']->id,
+        'curso_id' => $fixture['curso']->id,
+    ]);
+
+    $tutorData = $this->tenantTutor->run(function () use ($fixture): array {
+        $instituicao = Instituicao::create(['nome' => 'Instituto Tutor Banca', 'tipo' => 'instituto']);
+        $instituicaoCurso = InstituicaoCurso::create([
+            'curso_id' => $fixture['curso']->id,
+            'instituicao_id' => $instituicao->id,
+            'duracao_anos' => 3,
+        ]);
+        $cursoTutelado = CursoTutelado::create([
+            'instituicao_curso_id' => $instituicaoCurso->id,
+            'instituicao_tutora_id' => $instituicao->id,
             'tipo_tutela' => 'propria',
         ]);
 
@@ -1525,7 +1536,7 @@ test('a submissao PAP remota notifica membros do grupo disciplinar do instituto 
             'password' => 'password',
             'instituicao_id' => $instituicao->id,
         ]);
-        $membro->assignRole(\Spatie\Permission\Models\Role::findOrCreate(
+        $membro->assignRole(Role::findOrCreate(
             'Membro do Grupo Disciplinar',
             'tenant',
         ));
@@ -1533,17 +1544,17 @@ test('a submissao PAP remota notifica membros do grupo disciplinar do instituto 
         return ['coordenador' => $coordenador, 'membro' => $membro];
     });
 
-    \Illuminate\Support\Facades\Notification::fake();
+    Notification::fake();
 
     $notificador = new class
     {
-        use \App\Traits\NotificaGrupoPap;
+        use NotificaGrupoPap;
 
         public function enviar(GrupoPap $grupoPap): void
         {
             $this->notificarCoordenadoresDoFluxo(
                 $grupoPap,
-                new \App\Notifications\Pap\TemaSubmetidoCoordenacaoNotification($grupoPap),
+                new TemaSubmetidoCoordenacaoNotification($grupoPap),
             );
         }
     };
@@ -1552,8 +1563,8 @@ test('a submissao PAP remota notifica membros do grupo disciplinar do instituto 
         $notificador->enviar(GrupoPap::query()->findOrFail($fixture['grupo']->id));
     });
 
-    \Illuminate\Support\Facades\Notification::assertSentTo(
+    Notification::assertSentTo(
         $tutorData['membro'],
-        \App\Notifications\Pap\TemaSubmetidoCoordenacaoNotification::class,
+        TemaSubmetidoCoordenacaoNotification::class,
     );
 });

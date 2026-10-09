@@ -52,7 +52,6 @@ export function DocumentoTable({ documentos, classes = [] }) {
           <CardDescription>
             Lista de documentos disponíveis para emissão
           </CardDescription>
-
         </CardHeader>
 
         <CardContent className="p-0!">

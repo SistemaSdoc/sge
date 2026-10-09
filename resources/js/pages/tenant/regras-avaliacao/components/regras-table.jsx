@@ -44,13 +44,16 @@ export function RegraTable({
   pagination = {},
   onPageChange,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['regrasAvaliacao', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['regrasAvaliacao', 'filters'],
+    },
+  );
   const isEmpty = regras?.data.length === 0;
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <Card className="gap-0">
         <CardHeader className="border-b">
           <CardTitle>Regras de Avaliação</CardTitle>
@@ -68,8 +71,16 @@ export function RegraTable({
             <EmptyState
               variant="table"
               icon={LayersIcon}
-              title={applied ? 'Nenhuma regra encontrada' : 'Nenhuma regra cadastrada'}
-              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando a primeira regra à tabela'}
+              title={
+                applied
+                  ? 'Nenhuma regra encontrada'
+                  : 'Nenhuma regra cadastrada'
+              }
+              description={
+                applied
+                  ? 'Tenta ajustar a pesquisa.'
+                  : 'Comece adicionando a primeira regra à tabela'
+              }
               action={{
                 label: 'Adicionar Regra',
                 href: create().url,

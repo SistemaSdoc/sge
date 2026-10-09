@@ -2,9 +2,9 @@
 
 namespace App\Models\Tenant;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class PrazoProva extends Model
 {
@@ -14,7 +14,9 @@ class PrazoProva extends Model
      * A chave primária é do tipo UUID.
      */
     protected $keyType = 'string';
+
     public $incrementing = false;
+
     protected $table = 'prazos_provas';
 
     /**
@@ -40,8 +42,8 @@ class PrazoProva extends Model
      * Os atributos que devem ser convertidos para tipos nativos.
      */
     protected $casts = [
-        'data_inicio'  => 'datetime',
-        'data_limite'  => 'datetime',
+        'data_inicio' => 'datetime',
+        'data_limite' => 'datetime',
         'permite_reenvio' => 'boolean',
     ];
 
@@ -59,9 +61,9 @@ class PrazoProva extends Model
     // =====================================
 
     public function instituicao()
-{
-    return $this->belongsTo(Instituicao::class);
-}
+    {
+        return $this->belongsTo(Instituicao::class);
+    }
 
     /**
      * Disciplina associada ao prazo (pode ser null para "todas").
@@ -84,7 +86,7 @@ class PrazoProva extends Model
      */
     public function criador()
     {
-        return $this->belongsTo(User::class, 'criado_por');
+        return $this->belongsTo(User::class, 'criado_por')->withTrashed();
     }
 
     /**
@@ -104,7 +106,7 @@ class PrazoProva extends Model
     public function submissoesAtuais()
     {
         return $this->hasMany(SubmissaoProva::class, 'prazo_prova_id')
-                    ->where('estado', '!=', 'substituido');
+            ->where('estado', '!=', 'substituido');
     }
 
     // =====================================
@@ -117,8 +119,8 @@ class PrazoProva extends Model
     public function scopeAberto($query)
     {
         return $query->where('status', 'aberto')
-                     ->where('data_inicio', '<=', now())
-                     ->where('data_limite', '>=', now());
+            ->where('data_inicio', '<=', now())
+            ->where('data_limite', '>=', now());
     }
 
     /**
@@ -127,7 +129,7 @@ class PrazoProva extends Model
     public function scopeExpirado($query)
     {
         return $query->where('status', 'aberto')
-                     ->where('data_limite', '<', now());
+            ->where('data_limite', '<', now());
     }
 
     /**
@@ -202,35 +204,34 @@ class PrazoProva extends Model
 
         // Caso contrário, usa o valor do banco (aberto ou expirado)
         return match ($this->status) {
-            'aberto'   => 'Aberto',
+            'aberto' => 'Aberto',
             'expirado' => 'Expirado',
-            default    => ucfirst($this->status),
+            default => ucfirst($this->status),
         };
     }
 
     /**
      * Classe CSS para o badge do status (dinâmico).
      */
-public function getStatusBadgeClassAttribute(): string
-{
-    if ($this->status === 'fechado') {
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800/40 dark:text-gray-300';
+    public function getStatusBadgeClassAttribute(): string
+    {
+        if ($this->status === 'fechado') {
+            return 'bg-gray-100 text-gray-800 dark:bg-gray-800/40 dark:text-gray-300';
+        }
+
+        if ($this->isExpirado()) {
+            return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+        }
+
+        return match ($this->status) {
+            'aberto' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+            'expirado' => 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+            default => 'bg-gray-100 text-gray-800 dark:bg-gray-800/40 dark:text-gray-300',
+        };
     }
 
-    if ($this->isExpirado()) {
-        return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+    public function justificativas()
+    {
+        return $this->hasMany(JustificativaNaoSubmissao::class, 'prazo_prova_id');
     }
-
-    return match ($this->status) {
-        'aberto'   => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-        'expirado' => 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-        default    => 'bg-gray-100 text-gray-800 dark:bg-gray-800/40 dark:text-gray-300',
-    };
-}
-
-public function justificativas()
-{
-    return $this->hasMany(JustificativaNaoSubmissao::class, 'prazo_prova_id');
-}
-
 }

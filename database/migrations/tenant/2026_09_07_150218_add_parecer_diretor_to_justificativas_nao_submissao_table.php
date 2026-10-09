@@ -9,12 +9,20 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up()
-{
-    Schema::table('justificativas_nao_submissao', function (Blueprint $table) {
-        $table->text('parecer_diretor')->nullable()->after('data_avaliacao');
-    });
-}
+    public function up(): void
+    {
+        if (! Schema::hasTable('justificativas_nao_submissao')) {
+            return;
+        }
+
+        if (Schema::hasColumn('justificativas_nao_submissao', 'parecer_diretor')) {
+            return;
+        }
+
+        Schema::table('justificativas_nao_submissao', function (Blueprint $table) {
+            $table->text('parecer_diretor')->nullable()->after('data_avaliacao');
+        });
+    }
 
     /**
      * Reverse the migrations.

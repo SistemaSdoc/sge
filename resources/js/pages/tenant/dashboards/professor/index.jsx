@@ -1,7 +1,6 @@
 import { usePage } from '@inertiajs/react';
 import { GreetingHeader } from './components/greeting-header';
 import { getGreeting, getTodayFormatted } from '@/utils/greeting';
-import NotificacoesSino from '@/components/notificacoes-sino';
 import { DashboardSummary } from './components/dashboard-summary';
 import { ProximasAulas } from './components/proximas-aulas';
 import { AvisosEventos } from './components/avisos-eventos';

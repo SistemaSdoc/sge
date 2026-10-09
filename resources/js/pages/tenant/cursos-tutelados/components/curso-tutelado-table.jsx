@@ -55,16 +55,17 @@ export function CursosTuteladosTable({
     <Card className="gap-0 pb-0">
       {/* Header */}
       <CardHeader className="border-b">
-        <div className="flex items-start justify-between">
+        <div className="flex w-full! flex-col items-start justify-between gap-2 md:flex-row">
           <div>
             <CardTitle>Cursos</CardTitle>
             <CardDescription>
               Cursos lecionados por esta instituição
             </CardDescription>
           </div>
+
           {canCreate && (
-            <CardAction>
-              <Button asChild>
+            <CardAction className="w-full sm:w-auto">
+              <Button asChild className="w-full sm:w-auto">
                 <Link href={create(instituicaoId).url}>Adicionar Curso</Link>
               </Button>
             </CardAction>
@@ -168,6 +169,7 @@ export function CursosTuteladosTable({
                             <Button
                               variant="outline"
                               size="xs"
+                              className="hover:cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 router.visit(
@@ -178,7 +180,7 @@ export function CursosTuteladosTable({
                                 );
                               }}
                             >
-                              <span className="hidden sm:inline">Editar</span>
+                              Editar
                             </Button>
                           )}
 
@@ -187,12 +189,13 @@ export function CursosTuteladosTable({
                             <Button
                               variant="destructive"
                               size="xs"
+                              className="hover:cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 deleteFn(curso.id);
                               }}
                             >
-                              <span className="hidden sm:inline">Remover</span>
+                              Remover
                             </Button>
                           )}
                         </div>

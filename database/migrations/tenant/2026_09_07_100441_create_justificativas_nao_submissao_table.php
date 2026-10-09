@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('justificativas_nao_submissao')) {
+            return;
+        }
+
         Schema::create('justificativas_nao_submissao', function (Blueprint $table) {
             // Chave primária UUID (se seus modelos usarem UUID)
             $table->uuid('id')->primary();
@@ -35,19 +39,19 @@ return new class extends Migration
 
             // Foreign keys
             $table->foreign('prazo_prova_id')
-                  ->references('id')
-                  ->on('prazos_provas')
-                  ->onDelete('cascade');
+                ->references('id')
+                ->on('prazos_provas')
+                ->onDelete('cascade');
 
             $table->foreign('professor_id')
-                  ->references('id')
-                  ->on('professores')
-                  ->onDelete('cascade');
+                ->references('id')
+                ->on('professores')
+                ->onDelete('cascade');
 
             $table->foreign('avaliado_por')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
 
             // Índices para consultas rápidas
             $table->index(['prazo_prova_id', 'professor_id']);

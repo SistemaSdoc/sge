@@ -90,7 +90,7 @@ export function Header({
             <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
               <Button
                 size="sm"
-                className="w-full justify-center sm:w-auto"
+                className="w-full justify-center hover:cursor-pointer sm:w-auto"
                 onClick={onAddGrupo}
               >
                 Adicionar grupo

@@ -32,14 +32,14 @@ class PrazoExpiradoDiretorNotificacao extends Notification implements ShouldQueu
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Prazo expirado: ' . $this->tituloPrazo())
+            ->subject('Prazo expirado: '.$this->tituloPrazo())
             ->view('mail.diretor.prazo-expirado', [
-                'nome'             => $notifiable->nome,
-                'titulo'           => $this->tituloPrazo(),
-                'disciplina'       => $this->prazo->disciplina?->nome,
-                'classe'           => $this->prazo->classe?->nome,
-                'dataLimite'       => $this->prazo->data_limite?->format('d/m/Y H:i') ?? '—',
-                'periodo'          => $this->prazo->periodo,
+                'nome' => $notifiable->nome,
+                'titulo' => $this->tituloPrazo(),
+                'disciplina' => $this->prazo->disciplina?->nome,
+                'classe' => $this->prazo->classe?->nome,
+                'dataLimite' => $this->prazo->data_limite?->format('d/m/Y H:i') ?? '—',
+                'periodo' => $this->prazo->periodo,
                 'totalProfessores' => $this->totalProfessores,
                 'submeteram'       => $this->submeteram,
                 'naoSubmeteram'    => $this->naoSubmeteram,
@@ -54,11 +54,11 @@ class PrazoExpiradoDiretorNotificacao extends Notification implements ShouldQueu
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'     => 'prazo_expirado',
-            'titulo'   => 'Prazo expirado',
+            'tipo' => 'prazo_expirado',
+            'titulo' => 'Prazo expirado',
             'mensagem' => "O prazo \"{$this->tituloPrazo()}\" expirou. "
-                          . "{$this->submeteram}/{$this->totalProfessores} professores submeteram.",
-            'url'      => "/dashboard/diretor/prazos/{$this->prazo->id}/status",
+                          ."{$this->submeteram}/{$this->totalProfessores} professores submeteram.",
+            'url' => "/dashboard/diretor/prazos/{$this->prazo->id}/status",
         ];
     }
 

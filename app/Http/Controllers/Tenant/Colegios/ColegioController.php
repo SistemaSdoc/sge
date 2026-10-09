@@ -32,6 +32,7 @@ class ColegioController extends Controller
 
         $colegios = $shared
             ->groupBy('tenant_tutelado_id')
+            ->sortByDesc(fn ($vinculos) => $vinculos->max(fn ($vinculo) => $vinculo->created_at?->getTimestamp()) ?? 0)
             ->map(function ($vinculos, string $tenantTuteladoId): array {
                 $tenant = Tenant::query()->find($tenantTuteladoId);
                 $colegio = $tenant ? $this->tenantService->getInstituicao($tenant) : null;
@@ -52,7 +53,6 @@ class ColegioController extends Controller
                 return $items->filter(fn (array $colegio): bool => str_contains(mb_strtolower($colegio['nome']), $term)
                     || str_contains(mb_strtolower((string) $colegio['tenant_id']), $term));
             })
-            ->sortBy('nome')
             ->values();
 
         $perPage = 5;

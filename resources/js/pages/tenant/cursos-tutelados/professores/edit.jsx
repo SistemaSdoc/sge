@@ -39,6 +39,12 @@ export default function Edit() {
       {({ errors, processing }) => (
         <ProfessorForm
           mode="edit"
+          courseUrl={
+            show({
+              instituicao: instituicaoId,
+              cursoTutelado: cursoTuteladoId,
+            }).url
+          }
           professorNome={vinculo.nome}
           tipo={tipo}
           setTipo={setTipo}

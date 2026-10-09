@@ -6,7 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/empty-state';
 import { formatStatusInscricao } from '@/utils/format-status';
-import { MoreHorizontalIcon, UserCheckIcon } from 'lucide-react';
+import {
+  ChevronDownIcon,
+  MoreHorizontalIcon,
+  UserCheckIcon,
+} from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -24,7 +28,6 @@ import {
 } from '@/components/ui/dialog';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -41,7 +44,9 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuLabel,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -148,39 +153,22 @@ export function InscricaoTable({
       </Dialog>
 
       <Card className="gap-0">
-        <CardHeader className="border-b">
-          <CardTitle>{entityLabelPlural}</CardTitle>
-          <CardDescription>
-            Lista de {entityLabelPlural.toLowerCase()}
-          </CardDescription>
+        <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <CardTitle>{entityLabelPlural}</CardTitle>
+            <CardDescription>
+              Lista de {entityLabelPlural.toLowerCase()}
+            </CardDescription>
+          </div>
           {can.create && (
-            <CardAction className="flex gap-3">
-              <Select
-                value={anoLectivoActual ?? ''}
-                onValueChange={onAnoLectivoChange}
-              >
-                <SelectTrigger id="ano-lectivo" className="w-48">
-                  <SelectValue placeholder="Selecione o ano lectivo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Anos Lectivos</SelectLabel>
-                    {anosLectivos?.map((ano) => (
-                      <SelectItem key={ano.id} value={ano.id}>
-                        {ano.nome}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
               {isCourseSecretary && cursosParaMatricula.length > 1 ? (
-                <div className="flex items-center gap-2">
+                <>
                   <Select
                     value={cursoParaMatricula}
                     onValueChange={setCursoParaMatricula}
                   >
-                    <SelectTrigger className="w-52">
+                    <SelectTrigger className="w-full sm:w-52">
                       <SelectValue placeholder="Escolha o curso" />
                     </SelectTrigger>
                     <SelectContent>
@@ -194,23 +182,66 @@ export function InscricaoTable({
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  <Button asChild disabled={!createHref}>
+                  <Button
+                    asChild
+                    disabled={!createHref}
+                    className="w-full sm:w-auto"
+                  >
                     <Link href={createHref ?? '#'}>Matricular</Link>
                   </Button>
-                </div>
+                </>
               ) : (
-                <Button asChild>
+                <Button asChild className="w-full sm:w-auto">
                   <Link href={createHref ?? '#'}>
                     {isCourseSecretary ? 'Matricular' : 'Adicionar'}
                   </Link>
                 </Button>
               )}
-            </CardAction>
+            </div>
           )}
         </CardHeader>
 
         <CardContent className="p-0!">
-          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
+          <div className="flex flex-col gap-2 border-b bg-muted/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-end">
+            <div className="flex w-full max-w-sm flex-col gap-2 sm:w-auto sm:flex-row">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    aria-label="Filtrar por ano lectivo"
+                    className="w-full hover:cursor-pointer sm:w-auto"
+                  >
+                    {anoLectivoActual
+                      ? anosLectivos.find((ano) => ano.id === anoLectivoActual)
+                          ?.nome
+                      : 'Filtrar'}
+                    <ChevronDownIcon aria-hidden="true" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="sm:w-48">
+                  <DropdownMenuLabel>Anos Lectivos</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {anosLectivos.map((ano) => (
+                    <DropdownMenuItem
+                      key={ano.id}
+                      onClick={() => onAnoLectivoChange(ano.id)}
+                      className={`${anoLectivoActual === ano.id ? 'bg-muted' : ''} hover:cursor-pointer`}
+                    >
+                      {ano.nome}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <TableSearch
+                bare
+                buttonGroupClassName="max-w-none sm:max-w-xs"
+                value={search}
+                onChange={onChange}
+                onSubmit={submit}
+              />
+            </div>
+          </div>
           {isEmpty ? (
             <EmptyState
               variant="table"

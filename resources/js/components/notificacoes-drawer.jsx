@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useDrawer } from '@/hooks/use-drawer';
 import {
-  marcarTodasLidas,
+  index,
+  markAllAsRead,
   sino,
   show,
 } from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
@@ -22,6 +24,9 @@ export function NotificacoesDrawer({
 } = {}) {
   const notificacoesState = useNotificacoes();
   const notificacoes = notificacoesProp ?? notificacoesState.notificacoes;
+  const notificacoesNaoLidas = notificacoes.filter(
+    (notificacao) => !notificacao.lida,
+  );
   const naoLidas = naoLidasProp ?? notificacoesState.naoLidas;
   const onRefresh = onRefreshProp ?? notificacoesState.carregar;
   const { closeDrawer } = useDrawer();
@@ -32,7 +37,7 @@ export function NotificacoesDrawer({
     }
 
     router.post(
-      marcarTodasLidas().url,
+      markAllAsRead().url,
       {},
       {
         preserveScroll: true,
@@ -45,13 +50,19 @@ export function NotificacoesDrawer({
 
   return (
     <div className="flex min-h-full flex-col">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
+        <p className="text-xs text-muted-foreground">
+          {naoLidas > 0
+            ? `${naoLidas} ${naoLidas === 1 ? 'não lida' : 'não lidas'}`
+            : 'Todas as notificações estão lidas'}
+        </p>
         {naoLidas > 0 && (
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={handleMarcarTodasLidas}
+            className="hover:cursor-pointer"
           >
             Marcar todas como lidas
           </Button>
@@ -59,29 +70,38 @@ export function NotificacoesDrawer({
       </div>
 
       <div className="flex-1">
-        {notificacoes.length === 0 ? (
-          <p className="p-6 text-center text-sm text-muted-foreground">
-            Sem notificações.
-          </p>
+        {notificacoesNaoLidas.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
+            <p className="text-sm text-muted-foreground">
+              Sem notificações por ler.
+            </p>
+            <Button asChild variant="outline" size="sm">
+              <Link href={index().url} onClick={closeDrawer}>
+                Abrir central de notificações
+              </Link>
+            </Button>
+          </div>
         ) : (
-          notificacoes.map((notificacao) => (
+          notificacoesNaoLidas.map((notificacao) => (
             <Link
               key={notificacao.id}
               href={show(notificacao.id).url}
               onClick={closeDrawer}
-              className={`w-full border-b p-4 text-left transition-colors last:border-0 ${
-                notificacao.lida
-                  ? 'cursor-default opacity-60'
-                  : 'cursor-pointer hover:bg-muted/50'
-              }`}
+              className={cn(
+                'block border-b px-4 py-3 text-left transition-colors hover:bg-muted/50',
+                'bg-muted/20',
+              )}
             >
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-medium">{notificacao.titulo}</p>
-                {!notificacao.lida && (
-                  <span className="mt-1 size-2 shrink-0 rounded-full bg-destructive" />
-                )}
+              <div className="flex min-w-0 items-center gap-2">
+                <p className="min-w-0 flex-1 truncate text-sm font-medium">
+                  {notificacao.titulo}
+                </p>
+                <p className="shrink-0 text-[10px] text-muted-foreground">
+                  {notificacao.criada_em}
+                </p>
+                <span className="size-2 shrink-0 rounded-full bg-destructive" />
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 line-clamp-2 text-xs whitespace-pre-line text-muted-foreground">
                 {notificacao.mensagem}
               </p>
 
@@ -106,10 +126,6 @@ export function NotificacoesDrawer({
                     Total: {formatCurrency(notificacao.valor_total)}
                   </p>
                 )}
-
-              <p className="mt-2 text-[10px] text-muted-foreground">
-                {notificacao.criada_em}
-              </p>
             </Link>
           ))
         )}
@@ -124,7 +140,9 @@ export function useNotificacoes() {
 
   const carregar = async () => {
     try {
-      const response = await fetch(sino().url);
+      const response = await fetch(sino().url, {
+        headers: { Accept: 'application/json' },
+      });
       const data = await response.json();
 
       setNotificacoes(data.notificacoes ?? []);

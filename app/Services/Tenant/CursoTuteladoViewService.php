@@ -296,7 +296,11 @@ class CursoTuteladoViewService
             'cursoClasses.turnos.turno:id,nome',
             'cursoClasses.turnos' => function ($query) use ($anoLectivoId): void {
                 $query->with([
-                    'turmas' => fn($q) => $q->where('ano_lectivo_id', $anoLectivoId),
+                    'turmas' => fn($q) => $q->where('ano_lectivo_id', $anoLectivoId)
+                        ->with([
+                            'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+                            'cursoClasseTurno.cursoClasse.cursoTutelado.cursoTuteladoShared',
+                        ]),
                     'turmas.cursoClasseTurno.turno:id,nome',
                     'turmas.cursoClasseTurno.cursoClasse.classe:id,nome',
                     'classeTurnoDisciplinas.professores',

@@ -1,6 +1,5 @@
 import { SummaryItem } from './summary-item';
-  import { getBadgeVariantForDay, getDayCategory } from '@/utils/get-badge-color';
-
+import { getBadgeVariantForDay, getDayCategory } from '@/utils/get-badge-color';
 
 export function StateToday({ aula, timeLeft }) {
   const disciplina = aula.disciplina.sigla ?? aula.disciplina.nome;

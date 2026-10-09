@@ -19,7 +19,7 @@ class AnoLectivoController extends Controller
             'anosLectivos' => AnoLectivo::query()
                 ->withTrashed()
                 ->search($request->string('search')->toString())
-                ->orderByDesc('data_inicio')
+                ->latest('created_at')
                 ->paginate(10)
                 ->withQueryString(),
             'filters' => $request->only('search'),

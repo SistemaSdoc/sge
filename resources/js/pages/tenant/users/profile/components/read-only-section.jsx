@@ -6,7 +6,7 @@ export function ReadOnlySection({ title, children }) {
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
-      
+
       <CardContent className="grid gap-6 md:grid-cols-2">
         {children}
       </CardContent>

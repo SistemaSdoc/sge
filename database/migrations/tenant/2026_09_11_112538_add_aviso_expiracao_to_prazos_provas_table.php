@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('prazos_provas') || Schema::hasColumn('prazos_provas', 'aviso_expiracao_enviado')) {
+            return;
+        }
+
         Schema::table('prazos_provas', function (Blueprint $table) {
             $table->boolean('aviso_expiracao_enviado')->default(false)->after('status');
         });

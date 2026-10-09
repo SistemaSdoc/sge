@@ -34,7 +34,7 @@ export default function Index({
 
   const handleAdicionarTurma = () => {
     openForm({
-      title: 'Criar Nova Turma',
+      title: 'Criar nova turma',
       description: 'Preenche os dados para criar uma nova turma',
       content: (
         <TurmaForm
@@ -52,7 +52,7 @@ export default function Index({
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <Head title="Turmas" />
 
       <TurmaTable

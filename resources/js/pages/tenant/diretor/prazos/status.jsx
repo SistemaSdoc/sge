@@ -45,13 +45,14 @@ export default function Status({ prazo, professores }) {
   // ── Loading por ação específica ──
   const [processing, setProcessing] = useState({});
 
-  // ── Diálogo de rejeição de submissão ──
-  const [rejectDialog, setRejectDialog] = useState(null);
+  // Estado para o diálogo de rejeição de submissão
+  const [rejectDialog, setRejectDialog] = useState(null); // { submissaoId, professorNome }
   const [motivoRejeicao, setMotivoRejeicao] = useState('');
 
-  // ── Diálogo de recusa de justificativa ──
-  const [justificativaDialog, setJustificativaDialog] = useState(null);
-  const [motivoRecusaJustificativa, setMotivoRecusaJustificativa] = useState('');
+  // Estado para o diálogo de recusa de justificativa
+  const [justificativaDialog, setJustificativaDialog] = useState(null); // { id, professorNome }
+  const [motivoRecusaJustificativa, setMotivoRecusaJustificativa] =
+    useState('');
 
   // ============================================================
   // 1. AVALIAR SUBMISSÃO
@@ -59,8 +60,8 @@ export default function Status({ prazo, professores }) {
   const handleAvaliarSubmissao = useCallback((submissaoId, acao, motivo = null) => {
     setProcessing((prev) => ({ ...prev, [`sub_${submissaoId}`]: true }));
 
-    const payload = { acao };
-    if (motivo) payload.parecer = motivo;
+      const payload = { acao };
+      if (motivo) payload.parecer = motivo;
 
     router.patch(`/dashboard/diretor/submissoes/${submissaoId}/avaliar`, payload, {
       preserveScroll: true,
@@ -170,7 +171,7 @@ export default function Status({ prazo, professores }) {
     <>
       <Head title={`Status: ${prazo.titulo}`} />
 
-      <div className="max-w-7xl mx-auto space-y-6 p-6">
+      <div className="mx-auto max-w-7xl space-y-6 p-6">
         {/* Cabeçalho */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -205,12 +206,14 @@ export default function Status({ prazo, professores }) {
             </CardContent>
           </Card>
 
-          <Card className="border-0 shadow-sm">
+          <Card className="border-0 text-white shadow-sm">
             <CardContent className="flex items-center p-4">
-              <CheckCircle className="size-8 mr-3 text-green-600" />
+              <CheckCircle className="mr-3 size-8" />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Submeteram</p>
-                <p className="text-3xl font-bold text-green-600">{cumpriram}</p>
+                <CardTitle className="text-sm font-medium">
+                  Submeteram
+                </CardTitle>
+                <p className="text-3xl font-bold">{cumpriram}</p>
               </div>
             </CardContent>
           </Card>
@@ -539,7 +542,10 @@ export default function Status({ prazo, professores }) {
       {/* ============================================================
           DIÁLOGO 1: Rejeitar Submissão
           ============================================================ */}
-      <Dialog open={!!rejectDialog} onOpenChange={(open) => !open && closeRejectDialog()}>
+      <Dialog
+        open={!!rejectDialog}
+        onOpenChange={(open) => !open && closeRejectDialog()}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">

@@ -37,6 +37,7 @@ class CursoTuteladoProfessorController extends Controller
 
         $professores = $cursoTutelado->professores()
             ->with(['user'])
+            ->orderByPivotDesc('created_at')
             ->paginate(5);
 
         return response()->json(

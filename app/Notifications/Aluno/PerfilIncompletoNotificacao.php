@@ -16,7 +16,14 @@ class PerfilIncompletoNotificacao extends Notification implements ShouldQueue, S
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ['mail'];
+    }
+
+    public ?string $domain = null;
+
+    public function __construct()
+    {
+        $this->domain = tenant()?->domains()->first()?->domain;
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -25,7 +32,7 @@ class PerfilIncompletoNotificacao extends Notification implements ShouldQueue, S
             ->subject('Ação necessária: complete o seu perfil')
             ->view('mail.aluno.perfil-incompleto', [
                 'nome'        => $notifiable->nome,
-                'url'         => url('/dashboard/settings/profile'),
+                'url'         => 'http://'.$this->domain.'/dashboard/settings/profile',
                 'instituicao' => $notifiable->instituicao,
             ]);
     }
@@ -33,10 +40,10 @@ class PerfilIncompletoNotificacao extends Notification implements ShouldQueue, S
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'     => 'perfil_incompleto',
-            'titulo'   => 'Complete o seu perfil',
+            'tipo' => 'perfil_incompleto',
+            'titulo' => 'Complete o seu perfil',
             'mensagem' => 'O seu acesso está limitado. Preencha os dados obrigatórios para continuar.',
-            'url'      => '/dashboard/settings/profile',
+            'url' => '/dashboard/settings/profile',
         ];
     }
 }

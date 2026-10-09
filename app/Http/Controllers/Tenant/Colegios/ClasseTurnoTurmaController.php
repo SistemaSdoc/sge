@@ -142,6 +142,7 @@ class ClasseTurnoTurmaController extends Controller
                 'inscricao.candidato:id,nome',
                 'user:id,email,telefone',
             ])
+            ->orderBy('alunos.created_at', 'desc')
             ->paginate(
                 10,
                 ['*'],
@@ -184,6 +185,7 @@ class ClasseTurnoTurmaController extends Controller
         }
 
         $disciplinas = $disciplinasQuery
+            ->latest('created_at')
             ->paginate(
                 5,
                 ['*'],
@@ -205,6 +207,7 @@ class ClasseTurnoTurmaController extends Controller
                 'status',
                 'nota_final'
             )
+            ->latest('created_at')
             ->paginate(
                 5,
                 ['*'],

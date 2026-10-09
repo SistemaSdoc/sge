@@ -54,9 +54,12 @@ export function ClasseTable({
   pagination = {},
   onPageChange,
 }) {
-  const { search, onChange, submit, applied } = useTableSearch(filters?.search, {
-    only: ['classes', 'filters'],
-  });
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['classes', 'filters'],
+    },
+  );
   const lista = classes?.data ?? [];
   const isEmpty = lista.length === 0;
   const hasActionColumn = lista.some(
@@ -84,8 +87,16 @@ export function ClasseTable({
             <EmptyState
               variant="table"
               icon={LayersIcon}
-              title={applied ? 'Nenhuma classe encontrada' : 'Nenhuma classe cadastrada'}
-              description={applied ? 'Tenta ajustar a pesquisa.' : 'Comece adicionando a primeira classe à tabela'}
+              title={
+                applied
+                  ? 'Nenhuma classe encontrada'
+                  : 'Nenhuma classe cadastrada'
+              }
+              description={
+                applied
+                  ? 'Tenta ajustar a pesquisa.'
+                  : 'Comece adicionando a primeira classe à tabela'
+              }
               action={
                 can.create
                   ? {
@@ -114,9 +125,7 @@ export function ClasseTable({
                   <TableRow
                     key={classe.id}
                     className={
-                      classe.can?.view
-                        ? 'hover:cursor-pointer'
-                        : 'opacity-70'
+                      classe.can?.view ? 'hover:cursor-pointer' : 'opacity-70'
                     }
                     onClick={() => {
                       if (classe.can?.view) {
@@ -160,8 +169,8 @@ export function ClasseTable({
                               )}
 
                               {classe.can?.edit && classe.can?.delete && (
-                                  <DropdownMenuSeparator />
-                                )}
+                                <DropdownMenuSeparator />
+                              )}
 
                               {classe.can?.delete && (
                                 <DropdownMenuItem

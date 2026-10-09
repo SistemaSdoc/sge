@@ -6,7 +6,11 @@ import {
   ItemDescription,
   ItemActions,
 } from '@/components/ui/item';
-import { getBadgeVariantForDay, getDayCategory, isAulaHappening } from '@/utils/get-badge-color';
+import {
+  getBadgeVariantForDay,
+  getDayCategory,
+  isAulaHappening,
+} from '@/utils/get-badge-color';
 
 export function AulaItem({ aula }) {
   const happening = isAulaHappening(aula.dia, aula.horario);

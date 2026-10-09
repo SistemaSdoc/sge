@@ -22,6 +22,7 @@ class VerificarPrazos extends Command
 
         if ($tenants->isEmpty()) {
             $this->warn('Nenhum tenant encontrado.');
+
             return self::SUCCESS;
         }
 
@@ -43,9 +44,9 @@ class VerificarPrazos extends Command
 
                 Log::warning('Falha ao verificar prazos do tenant', [
                     'tenant_id' => $tenant->getTenantKey(),
-                    'erro'      => $e->getMessage(),
-                    'linha'     => $e->getLine(),
-                    'ficheiro'  => $e->getFile(),
+                    'erro' => $e->getMessage(),
+                    'linha' => $e->getLine(),
+                    'ficheiro' => $e->getFile(),
                 ]);
 
                 $this->warn("✗ Tenant {$tenant->getTenantKey()} falhou: {$e->getMessage()}");
@@ -94,7 +95,7 @@ class VerificarPrazos extends Command
             } catch (Throwable $e) {
                 Log::error('Falha ao enviar aviso de expiração', [
                     'prazo_id' => $prazo->id,
-                    'erro'     => $e->getMessage(),
+                    'erro' => $e->getMessage(),
                 ]);
 
                 $this->warn("  ✗ Falha no aviso do prazo #{$prazo->id}: {$e->getMessage()}");
@@ -138,7 +139,7 @@ class VerificarPrazos extends Command
             } catch (Throwable $e) {
                 Log::error('Falha ao processar prazo expirado', [
                     'prazo_id' => $prazo->id,
-                    'erro'     => $e->getMessage(),
+                    'erro' => $e->getMessage(),
                 ]);
 
                 $this->warn("  ✗ Falha no prazo #{$prazo->id}: {$e->getMessage()}");

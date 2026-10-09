@@ -32,11 +32,7 @@ export function InstituicaoForm({
   can = {},
 }) {
   const canSubmit = Boolean(
-    can.create ??
-    can.edit ??
-    can.create ??
-    can.update ??
-    true,
+    can.create ?? can.edit ?? can.create ?? can.update ?? true,
   );
 
   const previewUrl = useMemo(() => {

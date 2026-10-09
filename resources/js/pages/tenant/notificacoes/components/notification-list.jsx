@@ -20,12 +20,12 @@ export function NotificationsList({ notificacoes = [] }) {
       className="mx-auto w-full max-w-7xl"
     >
       <TabsList className="h-auto w-auto md:w-md">
-        <TabsTrigger value="nao-lidas">
+        <TabsTrigger value="nao-lidas" className="hover:cursor-pointer">
           Não lidas{' '}
           <span className="font-bold text-secondary">{naoLidas.length}</span>
         </TabsTrigger>
 
-        <TabsTrigger value="lidas">
+        <TabsTrigger value="lidas" className="hover:cursor-pointer">
           Lidas
           <span className="font-bold text-secondary">{lidas.length}</span>
         </TabsTrigger>

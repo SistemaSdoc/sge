@@ -14,31 +14,33 @@ class ResetPasswordNotification extends Notification implements ShouldQueue, Sho
     use Queueable;
     use ReliableNotification;
 
-    public function __construct(public string $token) {}
-
     /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
+     * Get the mail representation of the notification.
      */
+    public ?string $domain = null;
+
+    public function __construct(public string $token)
+    {
+        $this->domain = tenant()?->domains()->first()?->domain;
+    }
+
     public function via(object $notifiable): array
     {
         return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail(object $notifiable): MailMessage
     {
+        $path = route('password.reset', [
+            'token' => $this->token,
+            'email' => $notifiable->getEmailForPasswordReset(),
+        ], false);
+
         return (new MailMessage)
             ->subject('Redefinição da sua password')
             ->view('mail.tenant.reset-password', [
                 'nome' => $notifiable->nome,
-                'url' => route('password.reset', [
-                    'token' => $this->token,
-                    'email' => $notifiable->getEmailForPasswordReset(),
-                ]),
+                'url' => 'http://'.$this->domain.$path,
             ]);
     }
 

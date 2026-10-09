@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('curso_tutelado_secretario')) {
+            return;
+        }
+
         Schema::create('curso_tutelado_secretario', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('curso_tutelado_id')->constrained('curso_tutelado')->cascadeOnDelete();

@@ -36,8 +36,8 @@ class CompleteStudentProfileRequest extends FormRequest
     }
 
     /**
-        * Define os nomes legíveis dos campos usados nas mensagens de validação.
-        *
+     * Define os nomes legíveis dos campos usados nas mensagens de validação.
+     *
      * @return array<string, string>
      */
     public function attributes(): array
@@ -56,8 +56,8 @@ class CompleteStudentProfileRequest extends FormRequest
     }
 
     /**
-        * Define mensagens personalizadas para as regras de validação do perfil.
-        *
+     * Define mensagens personalizadas para as regras de validação do perfil.
+     *
      * @return array<string, string>
      */
     public function messages(): array

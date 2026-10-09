@@ -124,7 +124,7 @@ export default function Show({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6 p-4 md:p-6">
       <Card className="overflow-hidden pt-0!">
         <div className="relative flex h-56 w-full items-end bg-muted">
           <div className="absolute inset-0 bg-black/50" />

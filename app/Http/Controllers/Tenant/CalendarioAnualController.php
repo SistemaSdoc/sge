@@ -26,7 +26,7 @@ class CalendarioAnualController extends Controller
             'calendarios' => CalendarioAnual::query()
                 ->where('ativo', true)
                 ->search($request->string('search')->toString())
-                ->orderByDesc('ano')
+                ->latest('created_at')
                 ->paginate(10, ['id', 'ano', 'ficheiro_nome', 'ativo'])
                 ->withQueryString(),
             'filters' => $request->only('search'),
