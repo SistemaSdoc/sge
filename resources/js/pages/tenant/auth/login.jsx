@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { store as LoginWithEmailAndPassword } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
+import { redirect as googleRedirect } from '@/actions/App/Http/Controllers/Central/Auth/GoogleAuthController';
 import { request } from '@/routes/password';
 import { GoogleButton } from './components/socials-buttons/google-button';
 import { AppleButton } from './components/socials-buttons/apple-button';
@@ -62,7 +63,7 @@ export default function Login({ status, canResetPassword }) {
                 {canResetPassword && (
                   <Link
                     href={request().url}
-                    className="ml-auto text-xs hover:underline text-muted-foreground"
+                    className="ml-auto text-xs text-muted-foreground hover:underline"
                     tabIndex={5}
                   >
                     Esqueceu a senha?
@@ -105,11 +106,14 @@ export default function Login({ status, canResetPassword }) {
             </FieldSeparator>
 
             <Field>
-              <GoogleButton />
-              <AppleButton />
+              <GoogleButton
+                onClick={() => {
+                  const target = `${googleRedirect.url()}?tenant=${encodeURIComponent(window.location.origin)}`;
+                  window.location.assign(target);
+                }}
+              />
               <FacebookButton />
             </Field>
-
           </FieldGroup>
         )}
       </Form>

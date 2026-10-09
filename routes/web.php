@@ -55,12 +55,11 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->middleware('auth:web')
             ->name('central.logout');
 
-        // Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirect'])
-        //     ->middleware('guest')
-        //     ->name('central.google.redirect');
+        Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirect'])
+            ->name('central.google.redirect');
 
-        // Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])
-        //     ->name('central.google.callback');
+        Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])
+            ->name('central.google.callback');
 
         /*
         |--------------------------------------------------------------------------

@@ -15,17 +15,17 @@ class GoogleAuthController extends Controller
 {
     public function __construct(private GoogleAuthService $googleAuthService) {}
 
-    public function redirect(): RedirectResponse
+    public function redirect(Request $request): RedirectResponse
     {
-        return $this->googleAuthService->handleRedirect();
+        return $this->googleAuthService->handleRedirect($request);
     }
 
     public function callback(Request $request): RedirectResponse
     {
         try {
-            $this->googleAuthService->handleCallback($request);
+            $redirectTo = $this->googleAuthService->handleCallback($request);
 
-            return redirect()->intended('/dashboard');
+            return redirect()->to($redirectTo);
 
         } catch (UnauthorizedGoogleUserException) {
             return redirect()->route('tenant.login')->with('toast', [
