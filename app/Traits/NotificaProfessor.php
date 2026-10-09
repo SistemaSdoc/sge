@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
@@ -38,14 +39,16 @@ trait NotificaProfessor
      */
     protected function notificarProfessorAdicionadoAoCurso(
         Professor $professor,
-        CursoTutelado $cursoTutelado
+        CursoTutelado $cursoTutelado,
+        CursoTuteladoProfessor $vinculo
     ): void {
         $user = $professor->user;
 
         if ($user) {
             $user->notify(new ProfessorAdicionadoAoCursoNotification(
                 $professor,
-                $cursoTutelado
+                $cursoTutelado,
+                $vinculo
             ));
         }
     }

@@ -13,7 +13,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -22,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, ClipboardListIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
+import TablePagination from '@/components/table-pagination';
 
 function buildInitialNotas(alunos) {
   const state = {};
@@ -57,15 +57,23 @@ export default function LancamentosRecursoTable({
   onSubmit,
   isPending,
   podeLancarRecurso = true,
+  pagination = {},
+  onPageChange,
 }) {
   const [notas, setNotas] = useState({});
 
   useEffect(() => {
-    const state = {};
-    for (const aluno of alunos) {
-      state[aluno.turma_aluno_id] = aluno.nota_recurso ?? '';
-    }
-    setNotas(state);
+    setNotas((currentNotas) => {
+      const nextNotas = { ...currentNotas };
+
+      for (const aluno of alunos) {
+        if (!Object.hasOwn(nextNotas, aluno.turma_aluno_id)) {
+          nextNotas[aluno.turma_aluno_id] = aluno.nota_recurso ?? '';
+        }
+      }
+
+      return nextNotas;
+    });
   }, [alunos]);
 
   function handleSubmit() {
@@ -172,6 +180,10 @@ export default function LancamentosRecursoTable({
           </Table>
         )}
       </CardContent>
+      <TablePagination
+        pagination={pagination}
+        onPageChange={onPageChange}
+      />
     </Card>
   );
 }

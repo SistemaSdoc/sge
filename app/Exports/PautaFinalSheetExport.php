@@ -120,7 +120,7 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
             $ws->getColumnDimension($cF)->setWidth(4.0);
             $ws->getColumnDimension($cMF)->setWidth(6.5);
         }
-        $ws->getColumnDimension($resColLet)->setWidth(12.0);
+        $ws->getColumnDimension($resColLet)->setWidth(24.0);
 
         // 2. INSÍGNIA + CABEÇALHO INSTITUCIONAL (linhas 1-6)
         foreach ([1 => 15, 2 => 15, 3 => 15, 4 => 16, 5 => 16, 6 => 16] as $r => $h) {
@@ -319,7 +319,7 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
             $aluno = $this->alunos[$i];
             $res = $aluno['resultado'] ?? '';
 
-            $ws->getRowDimension($row)->setRowHeight(14.25);
+            $ws->getRowDimension($row)->setRowHeight(-1);
             $ws->setCellValue("A{$row}", $aluno['numero'] ?? ($i + 1));
             $ws->setCellValue("B{$row}", $aluno['nome'] ?? '');
 
@@ -400,12 +400,17 @@ class PautaFinalSheetExport implements FromArray, WithEvents, WithTitle
             $ws->setCellValue("{$resColLet}{$row}", $res);
             $cRes = match (true) {
                 str_contains($res, 'N/TRANSITA') => self::COR_VERM_TEXTO,
+                str_contains($res, 'RECURSO') => self::COR_AMBAR_TEXTO,
                 str_contains($res, 'TRANSITA') => self::COR_VERDE_TEXTO,
                 default => '000000',
             };
             $ws->getStyle("{$resColLet}{$row}")->applyFromArray([
-                'font' => ['name' => 'Arial', 'size' => 10, 'bold' => true, 'color' => ['rgb' => $cRes]],
-                'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                'font' => ['name' => 'Arial', 'size' => 9, 'bold' => true, 'color' => ['rgb' => $cRes]],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                    'wrapText' => true,
+                ],
                 'borders' => ['outline' => ['borderStyle' => $thin]],
             ]);
 

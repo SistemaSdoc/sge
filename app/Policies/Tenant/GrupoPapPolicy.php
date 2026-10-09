@@ -272,8 +272,6 @@ class GrupoPapPolicy
 
     /**
      * Determina se o utilizador pode aprovar o grupo PAP como tutor.
-     *
-     * Requer que o grupo pertença à sua instituição e que seja tutor do grupo.
      */
     public function aprovarComoTutor(User $user, GrupoPap $grupoPap): bool
     {
@@ -284,8 +282,6 @@ class GrupoPapPolicy
 
     /**
      * Determina se o utilizador pode reprovar o grupo PAP como tutor.
-     *
-     * Requer que o grupo pertença à sua instituição e que seja tutor do grupo.
      */
     public function solicitarMelhoriaComoTutor(User $user, GrupoPap $grupoPap): bool
     {
@@ -402,9 +398,12 @@ class GrupoPapPolicy
             return true;
         }
 
-        // Coordenação da instituição tutora
-        return $user->can('grupopap.aprovar')
-            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
+        // Leitores da instituição do grupo ou da instituição tutora
+        return $user->can('grupopap.view')
+            && (
+                $grupoPap->instituicao()?->id === $user->instituicao_id
+                || $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
+            );
     }
 
     /**
@@ -445,5 +444,10 @@ class GrupoPapPolicy
     {
         return $user->can('grupopap.selecionarAnoLectivo')
             && $user->instituicao_id !== null;
+    }
+
+    private function isPapDirector(User $user): bool
+    {
+        return $user->hasAnyRole(['Director', 'Subdirector']);
     }
 }

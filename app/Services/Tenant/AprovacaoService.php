@@ -17,7 +17,9 @@ class AprovacaoService
             'turma.cursoClasseTurno.cursoClasse.classe',
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
             'turma.turmaDisciplinaProfessor',
-            'notas.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
+            'notas' => fn ($query) => $query
+                ->whereIn('periodo', [1, 2, 3])
+                ->with('turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina'),
         ])->findOrFail($turmaAlunoId);
 
         return $this->regraAcademicaService

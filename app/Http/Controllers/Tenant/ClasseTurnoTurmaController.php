@@ -291,7 +291,11 @@ class ClasseTurnoTurmaController extends Controller
         $temAlunosEmRecurso = ! $user->hasRole('Secretario do Curso') && TurmaAluno::query()
             ->where('turma_id', $turma->id)
             ->where('activo', true)
-            ->whereIn('resultado', ['recurso', 'aprovado_recurso', 'reprovado_recurso'])
+            ->where(function ($query): void {
+                $query
+                    ->whereIn('resultado', ['recurso', 'aprovado_recurso', 'reprovado_recurso'])
+                    ->orWhereHas('notas', fn ($notas) => $notas->where('periodo', 4));
+            })
             ->exists();
 
         $pautaRecurso = $temAlunosEmRecurso

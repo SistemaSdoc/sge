@@ -24,19 +24,6 @@ class PautaService
     {
         $resultadoFinal = $this->regraAcademicaService->resolverSituacaoAcademica($ta);
 
-        if ($resultadoFinal['situacao'] === 'recurso') {
-            $resultadoRecurso = $this->regraAcademicaService->resolverSituacaoRecurso($ta, $resultadoFinal);
-
-            $novoResultado = $resultadoRecurso['situacao'] !== 'pendente'
-                ? $resultadoRecurso['situacao']
-                : 'recurso';
-
-            TurmaAluno::where('id', $ta->id)
-                ->update(['resultado' => $novoResultado]);
-
-            return;
-        }
-
         TurmaAluno::where('id', $ta->id)
             ->update(['resultado' => $resultadoFinal['situacao']]);
     }

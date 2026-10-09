@@ -81,6 +81,8 @@ class TrabalhoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
+        $user = Auth::guard('tenant')->user();
+        abort_unless(! $user->hasAnyRole(['Director', 'Subdirector']), 403);
         $this->authorize('aprovarTrabalhoComoTutor', $grupoPap);
 
         $validated = $request->validate([
@@ -93,7 +95,7 @@ class TrabalhoPapController extends Controller
             return back()->withErrors(['trabalho' => 'O trabalho não está disponível para análise do tutor.']);
         }
 
-        $this->service->aprovarComoTutor($trabalho, Auth::user(), $validated['comentario'] ?? null);
+        $this->service->aprovarComoTutor($trabalho, $user, $validated['comentario'] ?? null);
 
         return back()->with('toast', [
             'type' => 'success',
@@ -333,7 +335,7 @@ class TrabalhoPapController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-        abort_unless($user->can('grupopap.aprovar'), 403);
+        abort_unless($user->can('grupopap.view'), 403);
 
         return $this->withExternalGrupo(
             $colegio,
@@ -368,7 +370,7 @@ class TrabalhoPapController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-        abort_unless($user->can('grupopap.aprovar'), 403);
+        abort_unless($user->can('grupopap.view'), 403);
 
         return $this->withExternalGrupo(
             $colegio,
@@ -410,7 +412,7 @@ class TrabalhoPapController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-        abort_unless($user->can('grupopap.aprovar'), 403);
+        abort_unless($user->can('grupopap.view'), 403);
 
         return $this->withExternalGrupo(
             $colegio,

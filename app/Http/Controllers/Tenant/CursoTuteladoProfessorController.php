@@ -105,7 +105,7 @@ class CursoTuteladoProfessorController extends Controller
             }
         }
 
-        CursoTuteladoProfessor::updateOrCreate(
+        $vinculo = CursoTuteladoProfessor::updateOrCreate(
             [
                 'curso_tutelado_id' => $cursoTutelado->id,
                 'professor_id' => $request->professor_id,
@@ -129,7 +129,7 @@ class CursoTuteladoProfessorController extends Controller
             default => null,
         };
 
-        $this->notificarProfessorAdicionadoAoCurso($professor, $cursoTutelado);
+        $this->notificarProfessorAdicionadoAoCurso($professor, $cursoTutelado, $vinculo);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
             'instituicao' => $instituicao->id,

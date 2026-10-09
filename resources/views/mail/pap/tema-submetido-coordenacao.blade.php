@@ -125,6 +125,7 @@
 
 <body>
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
 
         <hr class="divider">
 

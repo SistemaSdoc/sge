@@ -116,6 +116,7 @@
 
 <body>
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
         <div class="header">
             <h1>Pedido de conversão para tutela própria</h1>
         </div>

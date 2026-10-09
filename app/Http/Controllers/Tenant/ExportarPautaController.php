@@ -12,12 +12,18 @@ use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Models\Tenant\User;
+use App\Services\Tenant\Core\RegraAcademicaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ExportarPautaController extends Controller
 {
+    public function __construct(
+        private readonly RegraAcademicaService $regraAcademicaService,
+    ) {}
+
     public function exportarExcel(
         string $cursoTutelado,
         string $turma,
@@ -195,7 +201,10 @@ class ExportarPautaController extends Controller
 
         $resultado = $isTrimestral
             ? $this->resolverResultadoTrimestral($notas)
-            : $this->resolverResultadoFinal($notas);
+            : $this->resolverResultadoFinal(
+                $this->regraAcademicaService->resolverSituacaoAcademica($ta),
+                $disciplinas,
+            );
 
         return [
             'numero' => $index + 1,
@@ -239,12 +248,14 @@ class ExportarPautaController extends Controller
         $t2 = $p(2);
         $t3 = $p(3);
 
-        // media_final vem de qualquer linha não-nula (é a mesma em todas)
-        $mf = collect([$t1, $t2, $t3])
-            ->filter()
-            ->whereNotNull('media_final')
-            ->first()
-            ?->media_final;
+        $mediasTrimestrais = collect([
+            $t1?->media_trimestral,
+            $t2?->media_trimestral,
+            $t3?->media_trimestral,
+        ]);
+        $mf = $mediasTrimestrais->contains(fn ($media): bool => $media === null)
+            ? null
+            : round($mediasTrimestrais->avg(), 1, PHP_ROUND_HALF_UP);
 
         return [
             $disc['nome'] => [
@@ -284,23 +295,56 @@ class ExportarPautaController extends Controller
     }
 
     /**
-     * Resultado final — lido da situacao_anual.
-     * EEF tem prioridade sobre N/APTO.
+     * Resolve o resultado final sem depender do estado alterado pelas notas de recurso.
      */
-    private function resolverResultadoFinal(array $notas): string
+    private function resolverResultadoFinal(array $resultadoAcademico, Collection $disciplinas): string
     {
-        $lancadas = collect($notas)->filter(
-            fn ($n) => $n && $n['situacao_anual'] !== null
-        );
+        $detalhes = collect($resultadoAcademico['detalhes'] ?? []);
 
-        if ($lancadas->isEmpty()) {
-            return 'INCOMPLETO';
-        }
-
-        return match (true) {
-            $lancadas->contains(fn ($n) => $n['situacao_anual'] === 'EEF') => 'EEF',
-            $lancadas->contains(fn ($n) => $n['situacao_anual'] === 'N/APTO') => 'N/TRANSITA',
-            default => 'TRANSITA',
+        return match ($resultadoAcademico['situacao'] ?? 'incompleto') {
+            'transita' => 'TRANSITA',
+            'transita_com_deficiencia' => $this->resultadoComDisciplinas(
+                'TRANSITA COM DEFICIÊNCIA',
+                $detalhes,
+                $disciplinas,
+                'transita_com_deficiencia',
+            ),
+            'recurso' => $this->resultadoComDisciplinas(
+                'RECURSO',
+                $detalhes,
+                $disciplinas,
+                'recurso',
+            ),
+            'EEF' => 'EEF',
+            'reprovado', 'reprovado_negativas' => 'N/TRANSITA',
+            default => 'INCOMPLETO',
         };
+    }
+
+    private function resultadoComDisciplinas(
+        string $resultado,
+        Collection $detalhes,
+        Collection $disciplinas,
+        string $situacaoDisciplina,
+    ): string {
+        $siglasDisciplinas = $detalhes
+            ->where('situacao', $situacaoDisciplina)
+            ->pluck('disciplina_id')
+            ->map(function (string $disciplinaId) use ($disciplinas): ?string {
+                $disciplina = $disciplinas->firstWhere('id', $disciplinaId);
+
+                if (! $disciplina) {
+                    return null;
+                }
+
+                return mb_strtoupper($disciplina['sigla'] ?? mb_substr($disciplina['nome'], 0, 4));
+            })
+            ->filter(fn (?string $sigla): bool => $sigla !== null && $sigla !== '')
+            ->unique()
+            ->implode(', ');
+
+        return $siglasDisciplinas === ''
+            ? $resultado
+            : "{$resultado}: {$siglasDisciplinas}";
     }
 }

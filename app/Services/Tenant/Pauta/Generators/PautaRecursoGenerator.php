@@ -7,6 +7,8 @@ use App\Models\Tenant\TurmaAluno;
 use App\Services\Tenant\Core\RegraAcademicaService as CoreRegraAcademicaService;
 use App\Services\Tenant\Pauta\Concerns\CarregaDisciplinas;
 use App\Services\Tenant\Pauta\Concerns\ResolveSituacaoNota;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class PautaRecursoGenerator
 {
@@ -20,49 +22,65 @@ class PautaRecursoGenerator
     {
         $disciplinas = $this->carregarDisciplinas($turma);
 
-        $query = TurmaAluno::with([
-            'aluno.inscricao.candidato:id,nome',
-            'notas.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
-            'turma.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
-            'turma.cursoClasseTurno.cursoClasse.classe',
-            'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
-        ])
-            ->where('turma_id', $turma->id)
-            ->where('activo', true)
-            ->whereIn('resultado', ['recurso', 'aprovado_recurso', 'reprovado_recurso']);
+        $turmaAlunos = $this->queryAlunosRecurso($turma)
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->get();
 
-        if ($filtro) {
-            $resultado = $filtro === 'pendente' ? 'recurso' : $filtro;
-            $query->where('resultado', $resultado);
-        }
-
-        $paginator = $query->paginate($perPage, ['*'], 'page_pautas');
-
-        // Cache dos resultados — evita calcular 2x por aluno
         $resultadosCache = [];
         $idsEmRecurso = collect();
 
-        foreach ($paginator->items() as $ta) {
-            $resultadoFinal = $this->regraAcademicaService->resolverSituacaoAcademica($ta);
-            $resultadosCache[$ta->id] = $resultadoFinal;
-            $ids = collect($resultadoFinal['detalhes'])
-                ->where('situacao', 'recurso')
+        $alunosElegiveis = $turmaAlunos->filter(function (TurmaAluno $ta) use (&$resultadosCache, &$idsEmRecurso): bool {
+            $resultadoRecurso = $this->regraAcademicaService->resolverSituacaoRecurso($ta);
+
+            if ($resultadoRecurso['detalhes'] === []) {
+                return false;
+            }
+
+            $resultadosCache[$ta->id] = $resultadoRecurso;
+            $ids = collect($resultadoRecurso['detalhes'])
                 ->pluck('disciplina_id');
             $idsEmRecurso = $idsEmRecurso->merge($ids);
-        }
+
+            return true;
+        })->values();
 
         $disciplinasEmRecurso = $disciplinas
             ->filter(fn ($d) => $idsEmRecurso->unique()->contains($d['id']))
-            ->map(fn ($d) => ['id' => $d['id'], 'sigla' => $d['sigla'], 'nome' => $d['nome']])
+            ->map(fn ($d) => [
+                'id' => $d['id'],
+                'classe_turno_disciplina_id' => $d['classe_turno_disciplina_id'],
+                'sigla' => $d['sigla'],
+                'nome' => $d['nome'],
+                'professor' => $d['professor'] ?? null, // ✅ adicionar
+            ])
             ->values();
 
-        $offset = 0;
-        $alunos = $paginator->through(
-            function ($ta) use ($disciplinas, $resultadosCache, &$offset) {
-                $offset++;
-
-                return $this->montarAluno($ta, $offset, $disciplinas, $resultadosCache[$ta->id]);
-            }
+        $linhasAlunos = $alunosElegiveis
+            ->values()
+            ->map(fn (TurmaAluno $ta, int $index) => $this->montarAluno(
+                $ta,
+                $index + 1,
+                $disciplinas,
+                $resultadosCache[$ta->id],
+            ));
+        $filtroResultado = in_array($filtro, ['pendente', 'recurso'], true)
+            ? 'pendente'
+            : $filtro;
+        $alunosFiltrados = $filtroResultado
+            ? $linhasAlunos->where('resultado', $filtroResultado)->values()
+            : $linhasAlunos;
+        $pagina = LengthAwarePaginator::resolveCurrentPage('page_pautas');
+        $alunos = new LengthAwarePaginator(
+            $alunosFiltrados->forPage($pagina, $perPage)->values(),
+            $alunosFiltrados->count(),
+            $perPage,
+            $pagina,
+            [
+                'path' => LengthAwarePaginator::resolveCurrentPath(),
+                'query' => request()->query(),
+                'pageName' => 'page_pautas',
+            ],
         );
 
         return [
@@ -70,18 +88,14 @@ class PautaRecursoGenerator
             'periodo' => 4,
             'tipo' => 'recurso',
             'disciplinas' => $disciplinasEmRecurso,
-            'resumo' => $this->calcularResumo($turma),
+            'resumo' => $this->calcularResumo($linhasAlunos),
             'alunos' => $alunos,
         ];
     }
 
-    private function montarAluno($ta, int $numero, $disciplinas, array $resultadoFinal): array
+    private function montarAluno($ta, int $numero, $disciplinas, array $resultadoRecurso): array
     {
-        // resultadoFinal já vem do cache — sem query extra
-        $resultadoRecurso = $this->regraAcademicaService->resolverSituacaoRecurso($ta, $resultadoFinal);
-
-        $disciplinasNegativas = collect($resultadoFinal['detalhes'])
-            ->where('situacao', 'recurso')
+        $disciplinasNegativas = collect($resultadoRecurso['detalhes'])
             ->keyBy('disciplina_id');
 
         $notasPeriodo4 = $ta->notas
@@ -90,20 +104,19 @@ class PautaRecursoGenerator
 
         $notas = $disciplinas
             ->filter(fn ($d) => $disciplinasNegativas->has($d['id']))
-            ->mapWithKeys(function ($d) use ($ta, $notasPeriodo4, $disciplinasNegativas, $resultadoRecurso) {
+            ->mapWithKeys(function ($d) use ($ta, $notasPeriodo4, $disciplinasNegativas) {
                 $notasDisciplina = $ta->notas->where('turma_disciplina_professor_id', $d['tdp_id']);
                 $nota4 = $notasPeriodo4->get($d['tdp_id']);
-                $detFinal = $disciplinasNegativas->get($d['id']);
-                $detRecurso = collect($resultadoRecurso['detalhes'])->firstWhere('disciplina_id', $d['id']);
+                $detRecurso = $disciplinasNegativas->get($d['id']);
 
                 return [
                     $d['id'] => [
                         't1' => $this->arredondarNota($notasDisciplina->firstWhere('periodo', 1)?->media_trimestral),
                         't2' => $this->arredondarNota($notasDisciplina->firstWhere('periodo', 2)?->media_trimestral),
                         't3' => $this->arredondarNota($notasDisciplina->firstWhere('periodo', 3)?->media_trimestral),
-                        'mf' => $this->arredondarNota($detFinal['media_final'] ?? null),
+                        'mf' => $this->arredondarNota($detRecurso['media_final'] ?? null),
                         'nota_recurso' => $this->arredondarNota($nota4?->media_trimestral),
-                        'situacao' => $this->resolverSituacao($nota4?->media_trimestral, $detRecurso['situacao'] ?? null),
+                        'situacao' => $detRecurso['situacao'] ?? $this->resolverSituacao($nota4?->media_trimestral, null),
                     ],
                 ];
             });
@@ -118,20 +131,28 @@ class PautaRecursoGenerator
         ];
     }
 
-    private function calcularResumo(Turma $turma): array
+    private function calcularResumo(Collection $alunos): array
     {
-        $counts = TurmaAluno::where('turma_id', $turma->id)
-            ->where('activo', true)
-            ->whereIn('resultado', ['recurso', 'aprovado_recurso', 'reprovado_recurso'])
-            ->selectRaw('resultado, COUNT(*) as total')
-            ->groupBy('resultado')
-            ->pluck('total', 'resultado');
+        $counts = $alunos->countBy('resultado');
 
         return [
-            'total' => $counts->sum(),
+            'total' => $alunos->count(),
             'transita' => $counts->get('aprovado_recurso', 0),
             'nao_transita' => $counts->get('reprovado_recurso', 0),
-            'incompletos' => $counts->get('recurso', 0),
+            'incompletos' => $counts->get('pendente', 0),
         ];
+    }
+
+    private function queryAlunosRecurso(Turma $turma)
+    {
+        return TurmaAluno::with([
+            'aluno.inscricao.candidato:id,nome',
+            'notas.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
+            'turma.turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
+            'turma.cursoClasseTurno.cursoClasse.classe',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado',
+        ])
+            ->where('turma_id', $turma->id)
+            ->where('activo', true);
     }
 }

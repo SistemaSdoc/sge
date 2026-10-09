@@ -149,6 +149,7 @@
 
 <body>
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
 
         <hr class="divider">
 
@@ -165,10 +166,19 @@
         <p class="section-label">Detalhes do curso</p>
 
         <div class="credential-item">
-            
+
             <div class="item-text">
                 <div class="label">Curso</div>
                 <div class="sublabel">{{ $nomeCurso }}</div>
+            </div>
+        </div>
+
+        <div class="credential-item">
+            <div class="item-text">
+                <div class="label">Funções</div>
+                @foreach ($papeis as $papel)
+                    <div class="sublabel">{{ $papel }}</div>
+                @endforeach
             </div>
         </div>
 

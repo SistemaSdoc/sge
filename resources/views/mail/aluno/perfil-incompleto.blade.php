@@ -188,15 +188,9 @@
 <body>
 
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
 
-        {{-- Header --}}
-        <div class="header">
-            <h1>Complete o seu perfil</h1>
-            <div class="account-badge">
-                {{ $instituicao->nome ?? 'SGE' }}
-            </div>
-        </div>
-
+        
         <hr class="divider">
 
         {{-- Greeting --}}

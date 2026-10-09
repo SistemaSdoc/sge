@@ -30,7 +30,11 @@ class RegraAcademicaService
     {
         $contexto = $this->contexto->forAluno($turmaAluno);
 
-        $notasPeriodo3 = $turmaAluno->notas
+        $notasTrimestrais = $turmaAluno->notas
+            ->whereIn('periodo', [1, 2, 3]);
+        $notasPorDisciplina = $notasTrimestrais
+            ->groupBy('turma_disciplina_professor_id');
+        $notasPeriodo3 = $notasTrimestrais
             ->where('periodo', 3);
 
         $disciplinasEsperadas = $turmaAluno->turma
@@ -47,20 +51,15 @@ class RegraAcademicaService
             );
         }
 
-        $disciplinasComNotaPeriodo3 = $notasPeriodo3
-            ->pluck('turma_disciplina_professor_id')
-            ->unique()
-            ->values();
+        $disciplinasPendentes = $disciplinasEsperadas
+            ->filter(function (string $turmaDisciplinaProfessorId) use ($notasPorDisciplina): bool {
+                $notas = $notasPorDisciplina->get($turmaDisciplinaProfessorId, collect());
 
-        $faltamNotasDisciplinas = $disciplinasEsperadas
-            ->diff($disciplinasComNotaPeriodo3)
+                return collect([1, 2, 3])->contains(
+                    fn (int $periodo): bool => $notas->firstWhere('periodo', $periodo)?->media_trimestral === null
+                );
+            })
             ->count();
-
-        $faltamNotasComMediaFinal = $notasPeriodo3
-            ->whereNull('media_final')
-            ->count();
-
-        $disciplinasPendentes = $faltamNotasDisciplinas + $faltamNotasComMediaFinal;
 
         if ($disciplinasPendentes > 0) {
             return $this->resultado->construir(
@@ -70,8 +69,7 @@ class RegraAcademicaService
             );
         }
 
-        $notasFinais = $notasPeriodo3
-            ->whereNotNull('media_final');
+        $notasFinais = $notasPeriodo3;
 
         // ── EEF ───────────────────────────────────────────────────
 
@@ -117,7 +115,7 @@ class RegraAcademicaService
                 continue;
             }
 
-            $mediaFinal = (float) $nota->media_final;
+            $mediaFinal = $this->mediaFinalBase($turmaAluno, $nota);
 
             $avaliacao = $this->disciplina->avaliar(
                 disciplinaId: $disciplina->id,
@@ -170,14 +168,10 @@ class RegraAcademicaService
      * @param  TurmaAluno  $turmaAluno  Aluno cuja nota de recurso vai ser processada.
      * @return array<string, mixed> Resultado final após a análise do recurso.
      */
-    public function resolverSituacaoRecurso(TurmaAluno $turmaAluno, ?array $resultadoFinal = null): array
+    public function resolverSituacaoRecurso(TurmaAluno $turmaAluno): array
     {
-        $resultadoFinal ??= $this->resolverSituacaoAcademica($turmaAluno);
-
         $avaliacaoRecurso = $this->recurso->avaliar(
             turmaAluno: $turmaAluno,
-            resultadoFinal: $resultadoFinal,
-            regraAplicavel: $this->regraAplicavel,
         );
 
         return $this->resultado->construir(
@@ -185,5 +179,17 @@ class RegraAcademicaService
             $avaliacaoRecurso['mensagem'],
             $avaliacaoRecurso['detalhes'],
         );
+    }
+
+    private function mediaFinalBase(TurmaAluno $turmaAluno, Nota $notaPeriodo3): float
+    {
+        $notasDisciplina = $turmaAluno->notas
+            ->where('turma_disciplina_professor_id', $notaPeriodo3->turma_disciplina_professor_id)
+            ->whereIn('periodo', [1, 2, 3]);
+
+        $mediasTrimestrais = collect([1, 2, 3])
+            ->map(fn (int $periodo) => $notasDisciplina->firstWhere('periodo', $periodo)?->media_trimestral);
+
+        return round($mediasTrimestrais->avg(), 1, PHP_ROUND_HALF_UP);
     }
 }

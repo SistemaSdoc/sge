@@ -152,6 +152,7 @@
 
 <body>
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
         <hr class="divider">
 
         <p style="padding: 0 24px; font-size: 14px; line-height: 1.6; color: #202124;">

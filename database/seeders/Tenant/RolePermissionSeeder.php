@@ -116,9 +116,6 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.update',
                 'grupopap.delete',
                 'grupopap.definirData',
-                'grupopap.aprovar',
-                'grupopap.reprovar',
-                'grupopap.solicitarMelhoria',
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
 

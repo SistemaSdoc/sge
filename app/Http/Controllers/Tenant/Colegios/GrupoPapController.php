@@ -270,9 +270,10 @@ class GrupoPapController extends Controller
             && $grupoPap->podeSerAprovado();
         $canDefineDefenseDate = $user?->can('grupopap.definirData')
             && $grupoPap->status_aprovacao === GrupoPap::APROVACAO_APROVADO;
-        $canManageWorkAsCoordination = $user?->can('grupopap.aprovar')
+        $canManageWorkAsCoordination = ! $user->hasAnyRole(['Director', 'Subdirector'])
+            && $user?->can('grupopap.aprovar')
             && $trabalho?->podeSerAnalisadoPelaCoordenacao();
-        $canViewWorkVersions = $user?->can('grupopap.aprovar')
+        $canViewWorkVersions = $user?->can('grupopap.view')
             && $trabalho !== null;
 
         $banca = $grupoPap->jurados()
@@ -392,7 +393,7 @@ class GrupoPapController extends Controller
                     'solicitarCorrecaoComoTutor' => false,
                     'aprovarComoCoordenacao' => ! $isReadOnlyCourseSecretary && $canManageWorkAsCoordination,
                     'solicitarCorrecaoComoCoordenacao' => ! $isReadOnlyCourseSecretary && $canManageWorkAsCoordination,
-                    'downloadVersao' => ! $isReadOnlyCourseSecretary && $canManageWorkAsCoordination,
+                    'downloadVersao' => ! $isReadOnlyCourseSecretary && $canViewWorkVersions,
                     'elementos' => [
                         'create' => false,
                         'atualizarNota' => ! $isReadOnlyCourseSecretary && $user?->can('elementogrupopap.atualizarNota')

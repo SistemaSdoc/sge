@@ -215,6 +215,22 @@ class CrossTenantAccessService
      */
     private function validarAcessoDoProfessorAoCurso(User $tutor, CursoTuteladoShared $vinculo): void
     {
+        $cursoQuery = CursoTutelado::query()
+            ->whereHas(
+                'instituicaoCurso',
+                fn ($query) => $query
+                    ->where('instituicao_id', $tutor->instituicao_id)
+                    ->where('curso_id', $vinculo->curso_id)
+            );
+
+        if ($tutor->hasAnyRole(['Director', 'Subdirector']) && $tutor->can('grupopap.view')) {
+            if ($vinculo->curso_id && $cursoQuery->exists()) {
+                return;
+            }
+
+            throw new AuthorizationException('O curso PAP não pertence à instituição do Director.');
+        }
+
         if (! $vinculo->curso_id || ! $tutor->professor) {
             throw new AuthorizationException('O professor não está associado ao curso tutor.');
         }
@@ -224,26 +240,19 @@ class CrossTenantAccessService
             'Membro do Grupo Disciplinar',
         ]);
 
-        $autorizado = CursoTutelado::query()
-            ->whereHas(
-                'instituicaoCurso',
-                fn ($query) => $query
-                    ->where('instituicao_id', $tutor->instituicao_id)
-                    ->where('curso_id', $vinculo->curso_id)
-            )
-            ->whereHas(
-                'professores',
-                function ($query) use ($tutor, $ehGrupoDisciplinar): void {
-                    $query->where('professor_id', $tutor->professor->getKey())
-                        ->where(function ($membershipQuery) use ($ehGrupoDisciplinar): void {
-                            $membershipQuery->where('coordenador', true);
+        $autorizado = $cursoQuery->whereHas(
+            'professores',
+            function ($query) use ($tutor, $ehGrupoDisciplinar): void {
+                $query->where('professor_id', $tutor->professor->getKey())
+                    ->where(function ($membershipQuery) use ($ehGrupoDisciplinar): void {
+                        $membershipQuery->where('coordenador', true);
 
-                            if ($ehGrupoDisciplinar) {
-                                $membershipQuery->orWhereIn('grupo_disciplinar', ['membro', 'coordenador']);
-                            }
-                        });
-                }
-            )
+                        if ($ehGrupoDisciplinar) {
+                            $membershipQuery->orWhereIn('grupo_disciplinar', ['membro', 'coordenador']);
+                        }
+                    });
+            }
+        )
             ->exists();
 
         if (! $autorizado) {
