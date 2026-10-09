@@ -15,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PlanificacaoController extends Controller
 {
