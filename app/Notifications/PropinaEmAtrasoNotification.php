@@ -117,7 +117,7 @@ class PropinaEmAtrasoNotification extends Notification implements ShouldQueue, S
             ->line('A sua situação financeira na instituição necessita de atenção.');
 
         // Adicionar conteúdo HTML enriquecido
-        $mail->view('emails.propina-em-atraso', [
+        $mail->view('mail.aluno.propina-em-atraso', [
             'instituicaoNome' => $instituicaoNome,
             'instituicaoLogotipo' => $instituicaoLogotipo,
             'alunoNome' => $aluno?->user?->nome ?? 'Aluno',
@@ -132,8 +132,8 @@ class PropinaEmAtrasoNotification extends Notification implements ShouldQueue, S
             'multaTotal' => $multaTotal,
             'valorTotal' => $this->valorTotal,
             'urlPagamento' => $this->alunoId
-                ? route('pagamentos.create', ['aluno_id' => $this->alunoId])
-                : route('pagamentos.index'),
+                ? route('tenant.dashboard.pagamentos.create', ['aluno_id' => $this->alunoId])
+                : route('tenant.dashboard.pagamentos.index'),
         ]);
 
         return $mail;

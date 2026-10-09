@@ -50,7 +50,7 @@ class SincronizarDocumentosPapTutelados implements ShouldQueue
             $tutor = CursoTutelado::query()
                 ->where('tipo_tutela', 'propria')
                 ->whereHas('instituicaoCurso', fn ($q) => $q->where('curso_id', $this->cursoId))
-                ->first(['criterios_pap_path', 'manual_pt_path', 'estrutura_trabalho_pap_path', 'sugestoes_temas_pap_path']);
+                ->first(['criterios_pap_path', 'manual_pt_path', 'estrutura_trabalho_pap_path']);
 
             if (! $tutor) {
                 return [];
@@ -60,7 +60,6 @@ class SincronizarDocumentosPapTutelados implements ShouldQueue
                 'criterios_pap_path' => 'criterios-pap',
                 'manual_pt_path' => 'manual-pt',
                 'estrutura_trabalho_pap_path' => 'estrutura-trabalho-pap',
-                'sugestoes_temas_pap_path' => 'sugestoes-temas-pap',
             ];
 
             $resultado = [];
