@@ -53,6 +53,13 @@ export function AcademicData({ data }) {
               name="turma"
               value={data.academic.turma}
             />
+
+                        <ReadOnlyField
+              label="Sala"
+              name="sala"
+              value={data.academic.sala || 'Por definir'}
+            />
+
             <ReadOnlyField
               label="Ano lectivo"
               name="ano_lectivo"
