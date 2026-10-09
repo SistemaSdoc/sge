@@ -149,6 +149,7 @@ export function TurmaTable({
                 <TableHead className="px-4">Nome</TableHead>
                 <TableHead className="px-4">Curso</TableHead>
                 <TableHead className="px-4">Classe</TableHead>
+                <TableHead className="px-4">Sala</TableHead>
                 <TableHead className="px-4">Turno</TableHead>
                 {hasActionColumn && (
                   <TableHead className="px-4 text-right">Acções</TableHead>
@@ -186,6 +187,10 @@ export function TurmaTable({
 
                   <TableCell className="px-4 font-medium">
                     {turma?.classe?.nome}
+                  </TableCell>
+
+                  <TableCell className="px-4 font-medium">
+                    {turma.sala || 'Por definir'}
                   </TableCell>
 
                   <TableCell className="px-4 font-medium">

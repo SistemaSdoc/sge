@@ -277,7 +277,7 @@ class GrupoPapController extends Controller
 
         $banca = $grupoPap->jurados()
             ->with('professor.user:id,nome,email')
-            ->orderByPivotDesc('created_at')
+            ->orderByDesc('created_at')
             ->paginate(10, ['*'], 'page_banca');
 
         $elementos = $grupoPap->elementos()

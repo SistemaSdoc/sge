@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable([
     'curso_classe_turno_id',
     'nome',
+    'sala',
     'max_alunos',
     'ano_lectivo_id',
 ])]

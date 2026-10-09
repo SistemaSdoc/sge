@@ -13,6 +13,7 @@ export default function Create({
 }) {
   const { data, setData, post, processing, errors } = useForm({
     nome: '',
+    sala: '',
     max_alunos: '',
     ano_lectivo_id: anoLectivoId,
   });

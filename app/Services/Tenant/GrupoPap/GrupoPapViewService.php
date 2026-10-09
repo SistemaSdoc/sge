@@ -475,7 +475,7 @@ class GrupoPapViewService
         return [
             'banca' => $grupoPap->jurados()
                 ->with('professor.user:id,nome,email')
-                ->orderByPivotDesc('created_at')
+                ->orderByDesc('created_at')
                 ->paginate(10, ['*'], 'page_banca'),
             'elementos' => $grupoPap->elementos()
                 ->with('aluno.inscricao.candidato:id,nome,email', 'aluno:id,user_id,matricula,inscricao_id')

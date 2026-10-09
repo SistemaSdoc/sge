@@ -453,6 +453,7 @@ export default function Show({
                           <TableHeader>
                             <TableRow className="bg-muted/72">
                               <TableHead className="px-4">Nome</TableHead>
+                              <TableHead className="px-4">Sala</TableHead>
                               <TableHead className="text-center">
                                 Alunos
                               </TableHead>
@@ -489,6 +490,10 @@ export default function Show({
                               >
                                 <TableCell className="px-4 font-medium">
                                   {turma.nome}
+                                </TableCell>
+
+                                <TableCell className="px-4 font-medium">
+                                  {turma.sala || 'Por definir'}
                                 </TableCell>
 
                                 <TableCell className="text-center">

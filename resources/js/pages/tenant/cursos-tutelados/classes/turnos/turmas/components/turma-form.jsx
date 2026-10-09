@@ -88,6 +88,18 @@ export function TurmaForm({
                 </Field>
 
                 <Field>
+                  <FieldLabel htmlFor="sala">Sala</FieldLabel>
+                  <Input
+                    id="sala"
+                    type="text"
+                    placeholder="Ex.: Sala 10"
+                    value={data.sala}
+                    onChange={(e) => setData('sala', e.target.value)}
+                  />
+                  {errors.sala && <FieldError>{errors.sala}</FieldError>}
+                </Field>
+
+                <Field>
                   <FieldLabel htmlFor="max_alunos">Máximo de alunos</FieldLabel>
                   <Input
                     id="max_alunos"

@@ -13,6 +13,7 @@ class TurmaShowResource extends JsonResource
         return [
             'id' => $this->id,
             'nome' => $this->nome,
+            'sala' => $this->sala,
             'max_alunos' => $this->max_alunos,
             'classe' => $cct ? [
                 'nome' => $cct->cursoClasse->classe->nome,

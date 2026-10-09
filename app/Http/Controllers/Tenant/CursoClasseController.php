@@ -64,6 +64,7 @@ class CursoClasseController extends Controller
                     return [
                         'id' => $turma->id,
                         'nome' => $turma->nome,
+                        'sala' => $turma->sala,
                         'alunos_activos_count' => $turma->alunosActivos()->count(),
                         'can' => [
                             'view' => $user->can('view', $turma),

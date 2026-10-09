@@ -23,6 +23,7 @@ class CursoTuteladoResourceShow extends JsonResource
             ->map(fn ($turma) => [
                 'id' => $turma->id,
                 'nome' => $turma->nome,
+                'sala' => $turma->sala,
                 'max_alunos' => $turma->max_alunos,
                 'curso_classe_turno_id' => $turma->cursoClasseTurno->id,
                 'classe' => [
@@ -32,6 +33,9 @@ class CursoTuteladoResourceShow extends JsonResource
                 'turno' => [
                     'id' => $turma->cursoClasseTurno->turno->id,
                     'nome' => $turma->cursoClasseTurno->turno->nome,
+                ],
+                'can' => [
+                    'edit' => $request->user()?->can('update', $turma) ?? false,
                 ],
             ]);
 
@@ -48,7 +52,6 @@ class CursoTuteladoResourceShow extends JsonResource
                 'delete' => $request->user()?->can('delete', $this->resource) ?? false,
             ],
         ]);
-        
 
         $turmas = new LengthAwarePaginator(
             $turmasCollection->forPage($currentPageTurmas, $perPage)->values(),
@@ -164,7 +167,7 @@ class CursoTuteladoResourceShow extends JsonResource
             'estrutura_trabalho_pap_url' => $docs['estrutura_trabalho_pap_path']
                 ? $this->publicStorageUrl($docs['estrutura_trabalho_pap_path'])
                 : null,
-                
+
             'can' => [
                 'update' => $request->user()?->can('update', $this->resource) ?? false,
                 'delete' => $request->user()?->can('delete', $this->resource) ?? false,
