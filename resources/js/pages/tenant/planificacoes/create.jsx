@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/select';
 
 export default function Create({
+  cursos = [],
   disciplinas = [],
   classes = [],
   anosLectivos = [],
@@ -37,6 +38,7 @@ export default function Create({
 }) {
   const { data, setData, post, processing, errors } = useForm({
     ano_letivo_id: anoAtivoId ?? '',
+    curso_id: '',
     disciplina_id: '',
     classe_id: '',
     periodo: '',
@@ -47,23 +49,23 @@ export default function Create({
 
   const [nomeFicheiro, setNomeFicheiro] = useState('');
 
-const submit = (e) => {
-  e.preventDefault();
+  const submit = (e) => {
+    e.preventDefault();
 
-  post('/dashboard/planificacoes', {
-    preserveScroll: true,
-    onSuccess: () => {
-      toast.success('Planificação publicada', {
-        description: 'Os professores e alunos foram notificados.',
-      });
-    },
-    onError: (errs) => {
-      console.error('=== ERROS ===', errs);
-      const primeiro = Object.values(errs)[0];
-      toast.error('Erro ao publicar', { description: primeiro });
-    },
-  });
-};
+    post('/dashboard/planificacoes', {
+      preserveScroll: true,
+      onSuccess: () => {
+        toast.success('Planificação publicada', {
+          description: 'Os professores e alunos foram notificados.',
+        });
+      },
+      onError: (errs) => {
+        console.error('=== ERROS ===', errs);
+        const primeiro = Object.values(errs)[0];
+        toast.error('Erro ao publicar', { description: primeiro });
+      },
+    });
+  };
 
   const handleFile = (e) => {
     const f = e.target.files?.[0] ?? null;
@@ -92,8 +94,8 @@ const submit = (e) => {
           <CardHeader className="border-b">
             <CardTitle className="text-xl">Publicar planificação</CardTitle>
             <CardDescription>
-              Selecione o ano letivo, disciplina, classe e período. Se já existir,
-              será criada uma nova versão.
+              Selecione o ano letivo, curso, disciplina, classe e período. Se já
+              existir, será criada uma nova versão.
             </CardDescription>
           </CardHeader>
 
@@ -121,6 +123,31 @@ const submit = (e) => {
                 </Select>
                 {errors.ano_letivo_id && (
                   <p className="text-sm text-destructive">{errors.ano_letivo_id}</p>
+                )}
+              </div>
+
+              {/* Curso */}
+              <div className="space-y-1.5">
+                <Label htmlFor="curso_id">
+                  Curso <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={data.curso_id}
+                  onValueChange={(v) => setData('curso_id', v)}
+                >
+                  <SelectTrigger id="curso_id" className="w-full">
+                    <SelectValue placeholder="Selecione o curso" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cursos.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.nome}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.curso_id && (
+                  <p className="text-sm text-destructive">{errors.curso_id}</p>
                 )}
               </div>
 

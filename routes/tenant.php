@@ -175,6 +175,38 @@ Route::middleware([
             require base_path('routes/modules/notas.php');
             require base_path('routes/settings.php');
 
+            // ─────────────────────────────────────────────────────────────
+// Planificações
+// ─────────────────────────────────────────────────────────────
+Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
+
+    // ─── Estáticas (ordem importa) ───
+    Route::get('/', [PlanificacaoController::class, 'index'])
+        ->name('index');
+
+    Route::get('/create', [PlanificacaoController::class, 'create'])
+        ->name('create');
+
+    Route::post('/', [PlanificacaoController::class, 'store'])
+        ->name('store');
+
+    Route::get('/por-disciplina/{disciplina}', [PlanificacaoController::class, 'porDisciplina'])
+        ->name('por-disciplina');
+
+    Route::get('/versao/{versao}/preview', [PlanificacaoController::class, 'preview'])
+        ->name('preview');
+
+    Route::get('/versao/{versao}/download', [PlanificacaoController::class, 'download'])
+        ->name('download');
+
+    // ─── Dinâmicas (por último) ───
+    Route::get('/{planificacao}', [PlanificacaoController::class, 'show'])
+        ->name('show');
+
+    Route::delete('/{planificacao}', [PlanificacaoController::class, 'destroy'])
+        ->name('destroy');
+});
+
             Route::resource('users', UserController::class)->except(['show']);
 
             Route::get('users/{user}/permissions', [UserPermissionController::class, 'create'])
@@ -852,33 +884,6 @@ Route::middleware([
             Route::post('historico/{aluno}/confirmar', [PreencherHistoricoController::class, 'confirmar'])
                 ->name('preencher-historico.confirmar');
 
-                // ─────────────────────────────────────────────────────────────
-// Planificações
-// ─────────────────────────────────────────────────────────────
-Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
-    Route::get('/', [PlanificacaoController::class, 'index'])
-        ->name('index');
-
-    Route::get('/create', [PlanificacaoController::class, 'create'])
-        ->name('create');
-
-    Route::post('/', [PlanificacaoController::class, 'store'])
-        ->name('store');
-
-    // Preview e download da versão (não da planificação)
-    Route::get('/versao/{versao}/preview', [PlanificacaoController::class, 'preview'])
-        ->name('preview');
-
-    Route::get('/versao/{versao}/download', [PlanificacaoController::class, 'download'])
-        ->name('download');
-
-    // Dinâmicas por último
-    Route::get('/{planificacao}', [PlanificacaoController::class, 'show'])
-        ->name('show');
-
-    Route::delete('/{planificacao}', [PlanificacaoController::class, 'destroy'])
-        ->name('destroy');
-});
         });
 
     /*

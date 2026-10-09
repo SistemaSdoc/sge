@@ -30,6 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { PeriodoBadge } from '@/components/periodo-badge';
 import { useState } from 'react';
 
 export default function Show({ planificacao, can = {} }) {
@@ -37,8 +38,8 @@ export default function Show({ planificacao, can = {} }) {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const versaoAtual = planificacao.versoes.find((v) => v.is_atual)
-    ?? planificacao.versoes[0];
+  const versaoAtual =
+    planificacao.versoes.find((v) => v.is_atual) ?? planificacao.versoes[0];
 
   const handleDelete = () => {
     setDeleting(true);
@@ -66,7 +67,7 @@ export default function Show({ planificacao, can = {} }) {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <Badge variant="secondary">{planificacao.periodo}</Badge>
+                  <PeriodoBadge periodo={planificacao.periodo} />
                   <Badge variant="outline">v{planificacao.versao_atual}</Badge>
                 </div>
                 <CardTitle className="text-xl">
@@ -129,7 +130,9 @@ export default function Show({ planificacao, can = {} }) {
         {versaoAtual && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Versão atual (v{versaoAtual.versao})</CardTitle>
+              <CardTitle className="text-base">
+                Versão atual (v{versaoAtual.versao})
+              </CardTitle>
               <CardDescription>{versaoAtual.nome_original}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -173,14 +176,21 @@ export default function Show({ planificacao, can = {} }) {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <Badge variant={v.is_atual ? 'default' : 'outline'} className="text-[10px]">
+                      <Badge
+                        variant={v.is_atual ? 'default' : 'outline'}
+                        className="text-[10px]"
+                      >
                         v{v.versao}
                       </Badge>
                       {v.is_atual && (
-                        <span className="text-xs font-medium text-primary">Atual</span>
+                        <span className="text-xs font-medium text-primary">
+                          Atual
+                        </span>
                       )}
                     </div>
-                    <p className="mt-1 truncate text-sm font-medium">{v.nome_original}</p>
+                    <p className="mt-1 truncate text-sm font-medium">
+                      {v.nome_original}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       {v.tamanho} • {v.uploaded_by ?? '—'} • {v.uploaded_em}
                     </p>
@@ -210,7 +220,10 @@ export default function Show({ planificacao, can = {} }) {
       </div>
 
       {/* Dialog preview PDF */}
-      <Dialog open={!!previewVersao} onOpenChange={(o) => !o && setPreviewVersao(null)}>
+      <Dialog
+        open={!!previewVersao}
+        onOpenChange={(o) => !o && setPreviewVersao(null)}
+      >
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>{previewVersao?.nome_original}</DialogTitle>
@@ -231,7 +244,9 @@ export default function Show({ planificacao, can = {} }) {
             </Button>
             {previewVersao && (
               <Button asChild>
-                <a href={`/dashboard/planificacoes/versao/${previewVersao.id}/download`}>
+                <a
+                  href={`/dashboard/planificacoes/versao/${previewVersao.id}/download`}
+                >
                   <Download className="mr-1.5 size-4" />
                   Descarregar
                 </a>

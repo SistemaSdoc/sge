@@ -1,17 +1,16 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  FileText,
-  Plus,
-  Search,
-  Filter,
-  Download,
-  Eye,
-  Calendar,
   BookOpen,
-  GraduationCap,
+  Plus,
+  Filter,
+  ChevronRight,
+  Hash,
   Clock,
-  CheckCircle2,
+  Layers,
+  Search,
+  X,
+  GraduationCap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,27 +39,40 @@ import {
 import {
   index as planificacoesIndex,
   create as planificacoesCreate,
-  show as planificacoesShow,
 } from '@/actions/App/Http/Controllers/Tenant/PlanificacaoController';
 
 export default function Index({
-  planificacoes,
-  filters = {},
   disciplinas = [],
+  cursos = [],
+  filters = {},
   classes = [],
   anosLectivos = [],
   anoAtivoId,
   periodos = [],
+  userRole = 'staff',
   can = {},
 }) {
   const [filtros, setFiltros] = useState({
     ano_letivo_id: filters.ano_letivo_id ?? anoAtivoId ?? '',
+    curso_id: filters.curso_id ?? '',
     disciplina_id: filters.disciplina_id ?? '',
     classe_id: filters.classe_id ?? '',
     periodo: filters.periodo ?? '',
   });
 
-  const items = planificacoes?.data ?? [];
+  const [busca, setBusca] = useState('');
+
+  const isAluno = userRole === 'aluno';
+
+  const disciplinasFiltradas = useMemo(() => {
+    const termo = busca.trim().toLowerCase();
+    if (!termo) return disciplinas;
+
+    return disciplinas.filter((d) =>
+      (d.nome ?? '').toLowerCase().includes(termo) ||
+      (d.sigla ?? '').toLowerCase().includes(termo)
+    );
+  }, [disciplinas, busca]);
 
   const aplicarFiltros = () => {
     router.get(planificacoesIndex().url, filtros, {
@@ -72,12 +84,18 @@ export default function Index({
   const limparFiltros = () => {
     setFiltros({
       ano_letivo_id: anoAtivoId ?? '',
+      curso_id: '',
       disciplina_id: '',
       classe_id: '',
       periodo: '',
     });
+    setBusca('');
     router.get(planificacoesIndex().url, {}, { preserveScroll: true });
   };
+
+  const filtrosAtivos =
+    filtros.curso_id || filtros.disciplina_id || filtros.classe_id || filtros.periodo ||
+    filtros.ano_letivo_id !== (anoAtivoId ?? '');
 
   return (
     <>
@@ -89,7 +107,9 @@ export default function Index({
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Planificações</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Consulte as planificações das disciplinas por classe e período.
+              {isAluno
+                ? 'Consulte as planificações das suas disciplinas.'
+                : 'Selecione uma disciplina para ver as planificações.'}
             </p>
           </div>
 
@@ -104,72 +124,30 @@ export default function Index({
         </div>
 
         {/* Filtros */}
-        <Card>
-          <CardContent className="grid grid-cols-1 gap-3 pt-6 sm:grid-cols-2 lg:grid-cols-5">
-            <Select
-              value={filtros.ano_letivo_id}
-              onValueChange={(v) =>
-                setFiltros((prev) => ({ ...prev, ano_letivo_id: v }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Ano letivo" />
-              </SelectTrigger>
-              <SelectContent>
-                {anosLectivos.map((a) => (
-                  <SelectItem key={a.id} value={a.id}>
-                    {a.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {isAluno ? (
+          <div className="flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 p-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Filter className="size-4" />
+              <span className="font-medium">Filtrar por período:</span>
+            </div>
 
             <Select
-              value={filtros.disciplina_id}
-              onValueChange={(v) =>
-                setFiltros((prev) => ({ ...prev, disciplina_id: v }))
-              }
+              value={filtros.periodo || 'todos'}
+              onValueChange={(v) => {
+                const periodo = v === 'todos' ? '' : v;
+                setFiltros((prev) => ({ ...prev, periodo }));
+                router.get(
+                  planificacoesIndex().url,
+                  { ...filtros, periodo },
+                  { preserveScroll: true, preserveState: true }
+                );
+              }}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Disciplina" />
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Todos os períodos" />
               </SelectTrigger>
               <SelectContent>
-                {disciplinas.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>
-                    {d.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filtros.classe_id}
-              onValueChange={(v) =>
-                setFiltros((prev) => ({ ...prev, classe_id: v }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Classe" />
-              </SelectTrigger>
-              <SelectContent>
-                {classes.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filtros.periodo}
-              onValueChange={(v) =>
-                setFiltros((prev) => ({ ...prev, periodo: v }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Período" />
-              </SelectTrigger>
-              <SelectContent>
+                <SelectItem value="todos">Todos os períodos</SelectItem>
                 {periodos.map((p) => (
                   <SelectItem key={p} value={p}>
                     {p}
@@ -177,101 +155,189 @@ export default function Index({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="space-y-3 pt-6">
+              {/* Pesquisa */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Pesquisar disciplina por nome ou sigla..."
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  className="pl-9 pr-9"
+                />
+                {busca && (
+                  <button
+                    type="button"
+                    onClick={() => setBusca('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-muted"
+                  >
+                    <X className="size-4 text-muted-foreground" />
+                  </button>
+                )}
+              </div>
 
-            <div className="flex gap-2">
-              <Button onClick={aplicarFiltros} className="flex-1">
-                <Filter className="mr-1 size-4" />
-                Filtrar
-              </Button>
-              <Button variant="outline" onClick={limparFiltros}>
-                Limpar
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              {/* Filtros */}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                <Select
+                  value={filtros.ano_letivo_id}
+                  onValueChange={(v) => setFiltros((prev) => ({ ...prev, ano_letivo_id: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Ano letivo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {anosLectivos.map((a) => (
+                      <SelectItem key={a.id} value={a.id}>{a.nome}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={filtros.curso_id}
+                  onValueChange={(v) => setFiltros((prev) => ({ ...prev, curso_id: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Curso" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cursos.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={filtros.classe_id}
+                  onValueChange={(v) => setFiltros((prev) => ({ ...prev, classe_id: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Classe" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {classes.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={filtros.periodo}
+                  onValueChange={(v) => setFiltros((prev) => ({ ...prev, periodo: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Período" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {periodos.map((p) => (
+                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <div className="flex gap-2">
+                  <Button onClick={aplicarFiltros} className="flex-1">
+                    <Filter className="mr-1 size-4" />
+                    Filtrar
+                  </Button>
+                  {filtrosAtivos && (
+                    <Button variant="outline" onClick={limparFiltros}>
+                      Limpar
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Resumo */}
+        {busca && !isAluno && (
+          <p className="text-sm text-muted-foreground">
+            {disciplinasFiltradas.length === 0
+              ? 'Nenhuma disciplina corresponde à pesquisa.'
+              : `${disciplinasFiltradas.length} de ${disciplinas.length} disciplinas`}
+          </p>
+        )}
 
         {/* Lista */}
-        {items.length === 0 ? (
+        {disciplinasFiltradas.length === 0 ? (
           <Empty>
             <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <FileText />
-              </EmptyMedia>
-              <EmptyTitle>Sem planificações</EmptyTitle>
+              <EmptyMedia variant="icon"><BookOpen /></EmptyMedia>
+              <EmptyTitle>
+                {busca ? 'Sem resultados' : 'Sem planificações'}
+              </EmptyTitle>
               <EmptyDescription>
-                {can.create
-                  ? 'Ainda não foi criada nenhuma planificação para os filtros atuais.'
-                  : 'Ainda não há planificações disponíveis para si.'}
+                {busca
+                  ? 'Tente ajustar a pesquisa ou limpar os filtros.'
+                  : can.create
+                    ? 'Ainda não foi criada nenhuma planificação para os filtros atuais.'
+                    : 'Ainda não há planificações disponíveis para si.'}
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((p) => (
-              <Card key={p.id} className="flex flex-col hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <Badge variant="outline" className="text-[10px]">
-                      v{p.versao}
-                    </Badge>
-                    <Badge variant="secondary" className="text-[10px]">
-                      {p.periodo}
-                    </Badge>
-                  </div>
-                  <CardTitle className="mt-2 text-base leading-tight">
-                    {p.titulo}
-                  </CardTitle>
-                  <CardDescription className="flex items-center gap-1 text-xs">
-                    <Clock className="size-3" />
-                    {p.atualizada_em}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="flex-1 space-y-2 text-sm">
-                  <p className="flex items-center gap-2">
-                    <BookOpen className="size-4 text-muted-foreground" />
-                    <strong>{p.disciplina?.nome ?? '—'}</strong>
-                  </p>
-
-                  <p className="flex items-center gap-2 text-muted-foreground">
-                    <GraduationCap className="size-4" />
-                    {p.classe?.nome ?? '—'}
-                  </p>
-
-                  <p className="flex items-center gap-2 text-muted-foreground">
-                    <Calendar className="size-4" />
-                    {p.ano_letivo ?? '—'}
-                  </p>
-                </CardContent>
-
-                <div className="border-t p-3">
-                  <Button variant="outline" asChild className="w-full">
-                    <Link href={planificacoesShow(p.id).url}>
-                      <Eye className="mr-1.5 size-4" />
-                      Ver detalhes
-                    </Link>
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {/* Paginação */}
-        {planificacoes?.links && planificacoes.links.length > 3 && (
-          <div className="flex flex-wrap justify-center gap-1">
-            {planificacoes.links.map((link, i) => (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {disciplinasFiltradas.map((d) => (
               <Link
-                key={i}
-                href={link.url || '#'}
-                className={`rounded px-3 py-1 text-sm ${
-                  link.active
-                    ? 'bg-primary text-primary-foreground'
-                    : 'hover:bg-muted'
-                } ${!link.url ? 'pointer-events-none opacity-50' : ''}`}
-                dangerouslySetInnerHTML={{ __html: link.label }}
-                preserveScroll
-              />
+                key={d.id}
+                href={`/dashboard/planificacoes/por-disciplina/${d.id}`}
+                className="group"
+              >
+                <Card className="flex h-full flex-col transition-all group-hover:border-primary/50 group-hover:shadow-md">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                          <BookOpen className="size-5 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <CardTitle className="truncate text-base">
+                            {d.nome}
+                          </CardTitle>
+                          {d.sigla && (
+                            <CardDescription className="text-xs">
+                              {d.sigla}
+                            </CardDescription>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="size-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="flex-1 space-y-2 pb-4">
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="secondary" className="gap-1">
+                        <Layers className="size-3" />
+                        {d.total} {d.total === 1 ? 'planificação' : 'planificações'}
+                      </Badge>
+                      {d.total_classes > 0 && (
+                        <Badge variant="outline" className="gap-1">
+                          <Hash className="size-3" />
+                          {d.total_classes} {d.total_classes === 1 ? 'classe' : 'classes'}
+                        </Badge>
+                      )}
+                      {d.total_cursos > 0 && (
+                        <Badge variant="outline" className="gap-1">
+                          <GraduationCap className="size-3" />
+                          {d.total_cursos} {d.total_cursos === 1 ? 'curso' : 'cursos'}
+                        </Badge>
+                      )}
+                    </div>
+                  </CardContent>
+
+                  <div className="border-t px-4 py-2.5">
+                    <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <Clock className="size-3" />
+                      Última atualização: {d.ultima_atualizacao ?? '—'}
+                    </p>
+                  </div>
+                </Card>
+              </Link>
             ))}
           </div>
         )}

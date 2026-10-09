@@ -4,6 +4,7 @@ namespace App\Models\Tenant;
 
 use App\Models\Central\AnoLectivo;
 use App\Models\Central\Disciplina;
+use App\Models\Tenant\CursoTutelado;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'instituicao_id',
     'ano_letivo_id',
     'disciplina_id',
+    'curso_id',
     'classe_id',
     'periodo',
     'titulo',
@@ -74,4 +76,8 @@ class Planificacao extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+    public function curso(): BelongsTo
+{
+    return $this->belongsTo(CursoTutelado::class, 'curso_id');
+}
 }
