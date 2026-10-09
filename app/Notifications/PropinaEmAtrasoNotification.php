@@ -131,9 +131,9 @@ class PropinaEmAtrasoNotification extends Notification implements ShouldQueue, S
             'valorBaseTotal' => $valorBaseTotal,
             'multaTotal' => $multaTotal,
             'valorTotal' => $this->valorTotal,
-            'urlPagamento' => $this->alunoId
+            /*'urlPagamento' => $this->alunoId
                 ? route('tenant.dashboard.pagamentos.create', ['aluno_id' => $this->alunoId])
-                : route('tenant.dashboard.pagamentos.index'),
+                : route('tenant.dashboard.pagamentos.index'),*/
         ]);
 
         return $mail;
