@@ -145,12 +145,13 @@
         <hr class="divider">
 
         <br>
-        <p style="padding: 0 24px; font-size: 14px; line-height: 1.6; color: #202124;">
-            Olá, <strong>{{ $nome }}</strong>!
+
+	 <p style="padding: 0 24px; font-size: 14px; line-height: 1.6; color: #202124;">
+            Olá, <strong>{{ $alunoNome }}</strong>!
         </p>
 
         <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
-            Tem <strong>{{ $totalMeses }} mês(es)</strong> de propina em atraso {{ $artigoInstituicao }} <strong>{{ $instituicao->nome }}</strong>.
+            Tem <strong>{{ $totalMeses }} mês(es)</strong> de propina em atraso na instituição <strong>{{ $instituicaoNome }}</strong>.
             Por favor, regularize a sua situação o mais breve possível.
         </p>
 
@@ -166,7 +167,7 @@
         <div class="credential-item">
             <div class="item-text">
                 <div class="label-danger">Total em dívida</div>
-                <div class="sublabel">{{ $valorTotal }} AOA</div>
+	        <div class="sublabel">{{ number_format($valorTotal, 2, ',', '.') }} AOA</div>
             </div>
         </div>
 
