@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Tenant\Auth\GoogleAuthErrorController;
 use App\Http\Controllers\Tenant\Auth\NewPasswordController;
 use App\Http\Controllers\Tenant\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Tenant\AvaliacaoProvaController;
@@ -108,6 +109,10 @@ Route::middleware([
     Route::get('/', [AuthenticatedSessionController::class, 'create'])
         ->middleware('guest:tenant')
         ->name('tenant.login');
+
+    Route::get('auth/google/error', GoogleAuthErrorController::class)
+        ->middleware('signed:relative')
+        ->name('tenant.google.error');
 
     Route::post('/', [AuthenticatedSessionController::class, 'store'])
         ->middleware('guest:tenant')

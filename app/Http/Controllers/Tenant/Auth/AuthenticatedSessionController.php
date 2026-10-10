@@ -13,13 +13,13 @@ use Stancl\Tenancy\Features\UserImpersonation;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Apresenta o formulário de login do tenant.
-     *
-     * Inclui os dados da instituição e ativa o link de recuperação de password.
+     * Mostra o formulário de login do tenant.
      */
-    public function create()
+    public function create(Request $request)
     {
         $instituicao = Instituicao::first();
+
+        $googleError = $request->session()->pull('googleError');
 
         return Inertia::render('tenant/auth/login', [
             'instituicao' => [
@@ -27,6 +27,7 @@ class AuthenticatedSessionController extends Controller
                 'logo_url' => $instituicao?->logo_url,
             ],
             'canResetPassword' => true,
+            'googleError' => $googleError,
         ]);
     }
 

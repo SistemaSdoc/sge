@@ -4,6 +4,7 @@ import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Field,
   FieldDescription,
@@ -13,6 +14,7 @@ import {
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
+import { AlertCircleIcon } from 'lucide-react';
 import { store as LoginWithEmailAndPassword } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
 import { redirect as googleRedirect } from '@/actions/App/Http/Controllers/Central/Auth/GoogleAuthController';
 import { request } from '@/routes/password';
@@ -20,7 +22,7 @@ import { GoogleButton } from './components/socials-buttons/google-button';
 import { AppleButton } from './components/socials-buttons/apple-button';
 import { FacebookButton } from './components/socials-buttons/facebook-button';
 
-export default function Login({ status, canResetPassword }) {
+export default function Login({ status, canResetPassword, googleError }) {
   return (
     <>
       <Head title="Login" />
@@ -40,6 +42,15 @@ export default function Login({ status, canResetPassword }) {
                 Introduza o seu email e a sua senha para aceder à sua conta.
               </p>
             </div>
+
+            {googleError && (
+              <Alert variant="destructive" className="border border-border/20">
+                <AlertTitle>Falha na autenticação</AlertTitle>
+                <AlertDescription className="text-xs">
+                  {googleError}
+                </AlertDescription>
+              </Alert>
+            )}
 
             <Field data-invalid={Boolean(errors.email)}>
               <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -84,7 +95,7 @@ export default function Login({ status, canResetPassword }) {
             </Field>
 
             <Field orientation="horizontal" className="items-center">
-              <Checkbox id="remember" name="remember" tabIndex={3} />
+              <Checkbox className='size-3' id="remember" name="remember" tabIndex={3} />
               <FieldLabel htmlFor="remember">Lembrar-me</FieldLabel>
             </Field>
 
@@ -97,7 +108,7 @@ export default function Login({ status, canResetPassword }) {
                 data-test="login-button"
               >
                 {processing && <Spinner data-icon="inline-start" />}
-                Entrar
+                Iniciar sessão
               </Button>
             </Field>
 
@@ -108,8 +119,12 @@ export default function Login({ status, canResetPassword }) {
             <Field>
               <GoogleButton
                 onClick={() => {
-                  const target = `${googleRedirect.url()}?tenant=${encodeURIComponent(window.location.origin)}`;
-                  window.location.assign(target);
+                  const authUrl = import.meta.env.DEV
+                    ? new URL('http://localhost:8001/auth/google/redirect')
+                    : new URL(googleRedirect.url(), window.location.origin);
+
+                  authUrl.searchParams.set('tenant', window.location.origin);
+                  window.location.assign(authUrl.toString());
                 }}
               />
               <FacebookButton />

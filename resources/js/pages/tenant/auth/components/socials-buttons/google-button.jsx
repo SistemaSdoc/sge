@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 /**
  * Botão de login com Google
  *
- * Redireciona '/auth/google/redirect' para OAuth
+ * Redireciona para '/auth/google/redirect' do central domain para a autenticação OAuth Google. O central domain redireciona de volta para o tenant com um código allowlisted de sucesso ou falha.
  */
 export function GoogleButton({ isLoading, onClick, disabled }) {
   return (

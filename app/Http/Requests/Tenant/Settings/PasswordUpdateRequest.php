@@ -28,4 +28,20 @@ class PasswordUpdateRequest extends FormRequest
 
         return $rules;
     }
+
+    /**
+     * Get the validation messages that apply to the request.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'current_password.required' => 'A senha atual é obrigatória.',
+            'current_password.current_password' => 'A senha atual está incorreta.',
+            'password.required' => 'A nova senha é obrigatória.',
+            'password.confirmed' => 'A confirmação da nova senha não corresponde.',
+            'password.min' => 'A nova senha deve ter pelo menos :min caracteres.',
+        ];
+    }
 }

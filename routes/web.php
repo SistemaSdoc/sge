@@ -136,3 +136,8 @@ foreach (config('tenancy.central_domains') as $domain) {
             });
     });
 }
+
+Route::domain('localhost')->group(function () {
+    Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirect']);
+    Route::get('auth/google/callback', [GoogleAuthController::class, 'callback']);
+});
