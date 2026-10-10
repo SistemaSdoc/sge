@@ -19,7 +19,7 @@ class AlunoCriadoNotification extends Notification implements ShouldQueue, Shoul
 
     public function __construct(
         public User $user,
-        public string $passwordPlain = '12345678',
+        public string $passwordPlain,
         public ?string $loginUrl = null,
     ) {}
 

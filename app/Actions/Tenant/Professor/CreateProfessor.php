@@ -7,12 +7,11 @@ use App\Models\Tenant\User;
 use App\Notifications\Professor\ProfessorCriadoNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
 class CreateProfessor
 {
-    private const INITIAL_PASSWORD = '123456';
-
     /**
      * Cria a conta de usuario, atribui a role Professor e cria o perfil académico.
      *
@@ -21,12 +20,14 @@ class CreateProfessor
     public function handle(User $actor, array $validated): Professor
     {
         return DB::transaction(function () use ($actor, $validated): Professor {
+            $password = Str::password(12);
+
             $user = User::create([
                 'nome' => $validated['nome'],
                 'email' => $validated['email'],
                 'bi' => $validated['bi'],
                 'telefone' => $validated['telefone'],
-                'password' => Hash::make(self::INITIAL_PASSWORD),
+                'password' => Hash::make($password),
                 'instituicao_id' => $actor->instituicao_id,
             ]);
 
@@ -43,7 +44,7 @@ class CreateProfessor
                 'nivel_academico' => $validated['nivel_academico'] ?? null,
             ]);
 
-            $user->notify(new ProfessorCriadoNotification($user, self::INITIAL_PASSWORD));
+            $user->notify(new ProfessorCriadoNotification($user, $password));
 
             return $professor->load('user');
         });

@@ -2,20 +2,19 @@
 
 namespace App\Console\Commands;
 
-use App\Mail\AccessCredentialsMail;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\User;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 
 #[Signature('mail:resend-access-credentials
     {--dry-run : Mostra os totais sem enviar emails}
     {--tenant= : Limita o reenvio a um tenant específico (pelo ID)}
     {--chunk=100 : Número de usuários processados por vez}'
 )]
-#[Description('Reenvia o email de credenciais de acesso a todos os usuários de todos os tenants')]
+#[Description('Envia links para redefinir a senha de usuários de todos os tenants')]
 class ResendAccessCredentialsMail extends Command
 {
     public function handle(): int
@@ -68,18 +67,15 @@ class ResendAccessCredentialsMail extends Command
                             return;
                         }
 
-                        Mail::to($user->email)->queue(
-                            new AccessCredentialsMail(
-                                nome: $user->nome,
-                                email: $user->email,
-                                password: 12345678,
-                                url: 'https://'.tenant()->domains->first()?->domain,
-                                instituicao: $user->instituicao,
-                                artigoInstituicao: 'da',
-                            )
-                        );
+                        $status = Password::broker('tenant_users')->sendResetLink([
+                            'email' => $user->email,
+                        ]);
 
-                        $enviados++;
+                        if ($status === Password::RESET_LINK_SENT) {
+                            $enviados++;
+                        } else {
+                            $this->warn("  - Não foi possível enviar para {$user->email}: {$status}");
+                        }
                     });
 
                 $this->line("  - {$enviados} emails despachados");
