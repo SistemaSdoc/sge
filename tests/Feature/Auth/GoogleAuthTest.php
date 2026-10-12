@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\Tenant\Settings\SecurityController;
 use App\Models\Central\Tenant;
 use App\Models\Central\User;
 use App\Models\Tenant\User as TenantUser;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
@@ -266,6 +269,119 @@ test('unregistered google email is rejected without creating a user', function (
     $this->assertDatabaseMissing('users', ['email' => 'john@example.com']);
     $this->assertGuest();
     $tenant->database()->manager()->deleteDatabase($tenant);
+});
+
+test('google callback links the provider identity to the tenant user who started linking', function () {
+    ['tenant' => $tenant, 'user' => $user] = createGoogleAuthTenantFixture('tenant-google-link-profile', [
+        'email' => 'john@example.com',
+    ]);
+
+    try {
+        Socialite::fake('google', SocialiteUser::fake([
+            'id' => 'google-profile-123',
+            'name' => 'John Doe',
+            'email' => 'different-google-email@example.com',
+            'email_verified' => true,
+        ]));
+
+        $state = Crypt::encryptString((string) json_encode([
+            'tenant_id' => $tenant->getKey(),
+            'user_id' => $user->getKey(),
+            'exp' => now()->addMinutes(10)->timestamp,
+        ]));
+
+        $response = $this->withSession([
+            'google_tenant_id' => $tenant->getKey(),
+            'google_tenant_login_url' => 'http://sge.localhost/',
+            'google_link_state' => $state,
+            'google_link_return_url' => '/dashboard/users/'.$user->getKey().'/security',
+        ])->get('http://localhost/auth/google/callback');
+
+        $redirectUrl = parse_url($response->headers->get('Location'));
+        parse_str($redirectUrl['query'] ?? '', $query);
+
+        expect($tenant->run(fn () => $user->fresh()->google_id))->toBe('google-profile-123')
+            ->and($redirectUrl['path'] ?? null)->toBe('/dashboard/users/'.$user->getKey().'/security')
+            ->and($query['google_link'] ?? null)->toBe('success');
+    } finally {
+        deleteGoogleAuthTenantFixture($tenant);
+    }
+});
+
+test('tenant user can start google linking without exposing the user id in the redirect URL', function () {
+    ['tenant' => $tenant, 'user' => $user] = createGoogleAuthTenantFixture(
+        'tenant-google-link-start',
+        ['email' => 'john@example.com'],
+    );
+
+    try {
+        tenancy()->initialize($tenant);
+        $this->be($user, 'tenant');
+
+        $request = Request::create(
+            'http://sge.localhost/dashboard/settings/security/google/redirect?return_to=%2Fdashboard%2Fusers%2F'.$user->getKey().'%2Fsecurity',
+            'GET',
+        );
+        $response = app(SecurityController::class)->beginGoogleLink($request);
+
+        $redirectUrl = parse_url($response->getTargetUrl());
+        parse_str($redirectUrl['query'] ?? '', $query);
+
+        expect($query['tenant'] ?? null)->toBe('http://sge.localhost')
+            ->and($query['link_state'] ?? null)->not->toBeNull()
+            ->and(str_contains((string) $query['link_state'], 'user_id'))->toBeFalse()
+            ->and($query['return_to'] ?? null)->toBe('/dashboard/users/'.$user->getKey().'/security');
+
+        tenancy()->end();
+        Socialite::fake('google');
+
+        $this->get(route('central.google.redirect', [
+            'tenant' => $query['tenant'],
+            'link_state' => $query['link_state'],
+            'return_to' => $query['return_to'],
+        ]))->assertRedirect();
+
+        expect(session('google_link_state'))->toBe($query['link_state'])
+            ->and(session('google_link_return_url'))->toBe($query['return_to']);
+    } finally {
+        deleteGoogleAuthTenantFixture($tenant);
+    }
+});
+
+test('google callback preserves an existing link when a different account is selected', function () {
+    ['tenant' => $tenant, 'user' => $user] = createGoogleAuthTenantFixture(
+        'tenant-google-link-conflict',
+        ['google_id' => 'google-existing'],
+    );
+
+    try {
+        Socialite::fake('google', SocialiteUser::fake([
+            'id' => 'google-different',
+            'email' => 'another-email@example.com',
+            'email_verified' => true,
+        ]));
+
+        $state = Crypt::encryptString((string) json_encode([
+            'tenant_id' => $tenant->getKey(),
+            'user_id' => $user->getKey(),
+            'exp' => now()->addMinutes(10)->timestamp,
+        ]));
+
+        $response = $this->withSession([
+            'google_tenant_id' => $tenant->getKey(),
+            'google_tenant_login_url' => 'http://sge.localhost/',
+            'google_link_state' => $state,
+            'google_link_return_url' => '/dashboard/users/'.$user->getKey().'/security',
+        ])->get('http://localhost/auth/google/callback');
+
+        $redirectUrl = parse_url($response->headers->get('Location'));
+        parse_str($redirectUrl['query'] ?? '', $query);
+
+        expect($tenant->run(fn () => $user->fresh()->google_id))->toBe('google-existing')
+            ->and($query['google_link'] ?? null)->toBe('error');
+    } finally {
+        deleteGoogleAuthTenantFixture($tenant);
+    }
 });
 
 test('google email that is not verified is rejected', function () {

@@ -19,7 +19,7 @@ use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
-test('coordenador vê todas as turmas dos cursos que coordena', function () {
+test('coordenador vê todas as turmas dos cursos que coordena por ordem alfabética', function () {
     $instituicao = Instituicao::create([
         'nome' => 'Instituição Teste',
         'sigla' => 'IT',
@@ -50,15 +50,15 @@ test('coordenador vê todas as turmas dos cursos que coordena', function () {
         'data_inicio' => now()->startOfYear(),
         'data_fim' => now()->endOfYear(),
     ]);
+    $turmaZ = Turma::create([
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'ano_lectivo_id' => $anoLectivo->id,
+        'nome' => 'Turma Z',
+    ]);
     $turmaA = Turma::create([
         'curso_classe_turno_id' => $cursoClasseTurno->id,
         'ano_lectivo_id' => $anoLectivo->id,
         'nome' => 'Turma A',
-    ]);
-    $turmaB = Turma::create([
-        'curso_classe_turno_id' => $cursoClasseTurno->id,
-        'ano_lectivo_id' => $anoLectivo->id,
-        'nome' => 'Turma B',
     ]);
 
     $user = User::factory()->create(['instituicao_id' => $instituicao->id]);
@@ -77,6 +77,6 @@ test('coordenador vê todas as turmas dos cursos que coordena', function () {
     $response->assertOk();
     $response->assertInertia(fn (AssertableInertia $page) => $page
         ->where('turmas.data.0.id', $turmaA->id)
-        ->where('turmas.data.1.id', $turmaB->id)
+        ->where('turmas.data.1.id', $turmaZ->id)
     );
 });

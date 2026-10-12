@@ -1,4 +1,5 @@
-import { Form } from '@inertiajs/react';
+import { Form, router } from '@inertiajs/react';
+import { Link } from 'lucide-react';
 import { useRef } from 'react';
 import SecurityController from '@/actions/App/Http/Controllers/Tenant/Settings/SecurityController';
 import PasswordInput from '@/components/password-input';
@@ -16,19 +17,63 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { GoogleIcon } from '@/components/google-icon';
+import { FacebookIcon } from '@/components/facebook-icon';
 
 export function SecurityData(props) {
   const passwordInput = useRef(null);
   const currentPasswordInput = useRef(null);
 
+  const accounts = [
+    {
+      provider: 'google',
+      name: 'Google',
+      description: props.googleConnected ? 'Conectada' : 'Não conectada',
+      connected: props.googleConnected,
+      icon: <GoogleIcon aria-hidden="true" className="size-4" />,
+      connect: () =>
+        window.location.assign(
+          SecurityController.beginGoogleLink.url({
+            query: { return_to: window.location.pathname },
+          }),
+        ),
+    },
+    {
+      provider: 'facebook',
+      name: 'Facebook',
+      description: props.facebookConnected ? 'Conectada' : 'Não conectada',
+      connected: props.facebookConnected,
+      icon: <FacebookIcon aria-hidden="true" className="size-4" />,
+      connect: () =>
+        window.location.assign(
+          SecurityController.beginFacebookLink.url({
+            query: { return_to: window.location.pathname },
+          }),
+        ),
+    },
+  ];
+
+  const connectedAccounts = accounts.filter(
+    (account) => account.connected,
+  ).length;
+
   return (
-    <>
+    <div className="space-y-6">
       <div className="mx-auto w-full max-w-5xl">
         <Card>
           <CardHeader>
             <CardTitle>
               {props.hasPassword ? 'Actualizar senha' : 'Definir senha'}
             </CardTitle>
+
             <CardDescription>
               {props.hasPassword
                 ? 'Certifique-se de que sua conta esteja usando uma senha longa e aleatória para permanecer segura'
@@ -128,6 +173,93 @@ export function SecurityData(props) {
         </Card>
       </div>
 
+      <div className="mx-auto w-full max-w-5xl">
+        <Card className="gap-0 pb-0">
+          <CardHeader className="border-b">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <CardTitle className="flex items-center gap-2">
+                <Link
+                  aria-hidden="true"
+                  className="size-4 text-muted-foreground"
+                />
+                Contas conectadas
+              </CardTitle>
+
+              <span className="text-xs text-muted-foreground">
+                {connectedAccounts}/2 conectadas
+              </span>
+            </div>
+
+            <CardDescription>
+              Associe as suas contas para iniciar sessão com Google ou Facebook.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="p-0!">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="px-4">Conta</TableHead>
+                  <TableHead className="px-4 text-right">Acções</TableHead>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody>
+                {accounts.map((account) => {
+                  return (
+                    <TableRow
+                      key={account.name}
+                      className="hover:bg-transparent"
+                    >
+                      <TableCell className="px-4">
+                        <div className="flex items-center gap-1 md:gap-3">
+                          <span className="flex size-9 items-center justify-center bg-background">
+                            {account.icon}
+                          </span>
+
+                          <span className="flex flex-col">
+                            <span className="font-medium">{account.name}</span>
+
+                            <span className="text-xs text-muted-foreground">
+                              {account.description}
+                            </span>
+                          </span>
+                        </div>
+                      </TableCell>
+
+                      <TableCell className="px-4 text-right">
+                        <Button
+                          type="button"
+                          size="xs"
+                          variant="outline"
+                          className="hover:cursor-pointer"
+                          onClick={() => {
+                            if (account.connected) {
+                              router.delete(
+                                SecurityController.disconnectSocialAccount.url(
+                                  account.provider,
+                                ),
+                                { preserveScroll: true },
+                              );
+
+                              return;
+                            }
+
+                            account.connect();
+                          }}
+                        >
+                          <Link />
+                          {account.connected ? 'Desconectar' : 'Conectar'}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
       {/* <ManageTwoFactor
         canManageTwoFactor={props.canManageTwoFactor}
         requiresConfirmation={props.requiresConfirmation}
@@ -138,6 +270,6 @@ export function SecurityData(props) {
         canManagePasskeys={props.canManagePasskeys}
         passkeys={props.passkeys}
       /> */}
-    </>
+    </div>
   );
 }

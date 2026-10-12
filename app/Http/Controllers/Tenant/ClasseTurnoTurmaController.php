@@ -12,6 +12,7 @@ use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
@@ -230,7 +231,12 @@ class ClasseTurnoTurmaController extends Controller
             ->wherePivot('activo', true)
             ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
-            ->orderBy('alunos.created_at', 'desc')
+            ->orderBy(
+                Inscricao::query()
+                    ->select('candidatos.nome')
+                    ->join('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+                    ->whereColumn('inscricoes.id', 'alunos.inscricao_id')
+            )
             ->paginate(10, ['*'], 'page_alunos');
 
         // Adiciona isto:

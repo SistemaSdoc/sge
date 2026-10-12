@@ -119,6 +119,8 @@ class UserProfileService
         return [
             'user' => $this->profileData($user),
             'hasPassword' => ! is_null($user->password),
+            'googleConnected' => filled($user->google_id),
+            'facebookConnected' => filled($user->facebook_id),
             'canManageTwoFactor' => $canManageTwoFactor,
             'canManagePasskeys' => $canManagePasskeys,
             'passkeys' => $canManagePasskeys

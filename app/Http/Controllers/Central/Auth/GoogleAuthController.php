@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Central\Auth;
 
 use App\Actions\Central\Auth\BeginTenantGoogleLogin;
+use App\Actions\Central\Auth\CompleteTenantGoogleAccountLink;
 use App\Actions\Central\Auth\CompleteTenantGoogleLogin;
 use App\Enums\Auth\GoogleAuthError;
 use App\Exceptions\UnauthorizedGoogleUserException;
@@ -22,10 +23,12 @@ class GoogleAuthController extends Controller
     /**
      * @param  BeginTenantGoogleLogin  $beginTenantGoogleLogin  Inicia o OAuth após validar o tenant de origem.
      * @param  CompleteTenantGoogleLogin  $completeTenantGoogleLogin  Valida a identidade e emite o token tenant.
+     * @param  CompleteTenantGoogleAccountLink  $completeTenantGoogleAccountLink  Associa a identidade ao utilizador atual.
      */
     public function __construct(
         private readonly BeginTenantGoogleLogin $beginTenantGoogleLogin,
         private readonly CompleteTenantGoogleLogin $completeTenantGoogleLogin,
+        private readonly CompleteTenantGoogleAccountLink $completeTenantGoogleAccountLink,
     ) {}
 
     /**
@@ -45,16 +48,34 @@ class GoogleAuthController extends Controller
     public function callback(Request $request): RedirectResponse
     {
         $tenantLoginUrl = $request->session()->get('google_tenant_login_url');
+        $isGoogleLink = filled($request->session()->get('google_link_state'));
+        $googleLinkReturnUrl = $this->normalizeGoogleLinkReturnUrl(
+            (string) $request->session()->get('google_link_return_url', '')
+        );
 
         try {
             /** O utilizador cancelou o consentimento; regressa com o alerta de cancelamento. */
             if ($request->query('error') === 'access_denied') {
+                if ($isGoogleLink) {
+                    return $this->redirectWithGoogleLinkResult($tenantLoginUrl, $googleLinkReturnUrl, 'cancelled');
+                }
+
                 return $this->redirectWithGoogleError($tenantLoginUrl, GoogleAuthError::DENIED);
             }
 
             /** Outros erros enviados pelo provider não devem ser passados ao browser como texto livre. */
             if ($request->filled('error')) {
+                if ($isGoogleLink) {
+                    return $this->redirectWithGoogleLinkResult($tenantLoginUrl, $googleLinkReturnUrl, 'error');
+                }
+
                 return $this->redirectWithGoogleError($tenantLoginUrl, GoogleAuthError::FAILED);
+            }
+
+            if ($isGoogleLink) {
+                $this->completeTenantGoogleAccountLink->handle((string) $request->session()->get('google_link_state'));
+
+                return $this->redirectWithGoogleLinkResult($tenantLoginUrl, $googleLinkReturnUrl, 'success');
             }
 
             $redirectTo = $this->completeTenantGoogleLogin->handle($request);
@@ -63,6 +84,10 @@ class GoogleAuthController extends Controller
 
         } catch (UnauthorizedGoogleUserException) {
             /** Recusa esperada de conta/tenant; apresenta o alerta genérico sem detalhes internos. */
+            if ($isGoogleLink) {
+                return $this->redirectWithGoogleLinkResult($tenantLoginUrl, $googleLinkReturnUrl, 'error');
+            }
+
             return $this->redirectWithGoogleError($tenantLoginUrl, GoogleAuthError::ACCOUNT);
 
         } catch (InvalidStateException $e) {
@@ -70,6 +95,10 @@ class GoogleAuthController extends Controller
             Log::warning('[Google Auth Controller] InvalidStateException apanhada', [
                 'message' => $e->getMessage(),
             ]);
+
+            if ($isGoogleLink) {
+                return $this->redirectWithGoogleLinkResult($tenantLoginUrl, $googleLinkReturnUrl, 'error');
+            }
 
             return $this->redirectWithGoogleError($tenantLoginUrl, GoogleAuthError::STATE);
 
@@ -80,14 +109,46 @@ class GoogleAuthController extends Controller
                 'message' => $e->getMessage(),
             ]);
 
+            if ($isGoogleLink) {
+                return $this->redirectWithGoogleLinkResult($tenantLoginUrl, $googleLinkReturnUrl, 'error');
+            }
+
             return $this->redirectWithGoogleError($tenantLoginUrl, GoogleAuthError::FAILED);
         } finally {
             /** Remove o contexto temporário tanto em sucesso como em qualquer ramo de erro. */
             $request->session()->forget([
                 'google_tenant_id',
                 'google_tenant_login_url',
+                'google_link_state',
+                'google_link_return_url',
             ]);
         }
+    }
+
+    private function redirectWithGoogleLinkResult(
+        ?string $tenantLoginUrl,
+        string $returnUrl,
+        string $result
+    ): RedirectResponse {
+        if (blank($tenantLoginUrl)) {
+            return redirect()->route('central.login');
+        }
+
+        $tenantBaseUrl = rtrim($tenantLoginUrl, '/');
+        $returnUrl = $this->normalizeGoogleLinkReturnUrl($returnUrl);
+
+        return redirect()->to("{$tenantBaseUrl}{$returnUrl}?google_link={$result}");
+    }
+
+    private function normalizeGoogleLinkReturnUrl(string $returnUrl): string
+    {
+        $returnUrl = trim($returnUrl);
+
+        if ($returnUrl === '' || ! str_starts_with($returnUrl, '/') || str_starts_with($returnUrl, '//')) {
+            return '/dashboard/settings/security';
+        }
+
+        return $returnUrl;
     }
 
     /**

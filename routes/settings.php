@@ -25,6 +25,15 @@ Route::middleware(['auth:tenant', 'verified'])->group(function () {
     Route::get('settings/security', [SecurityController::class, 'edit'])
         ->name('security.edit');
 
+    Route::get('settings/security/facebook/redirect', [SecurityController::class, 'beginFacebookLink'])
+        ->name('security.facebook.redirect');
+
+    Route::get('settings/security/google/redirect', [SecurityController::class, 'beginGoogleLink'])
+        ->name('security.google.redirect');
+
+    Route::delete('settings/security/social/{provider}', [SecurityController::class, 'disconnectSocialAccount'])
+        ->name('security.social.disconnect');
+
     Route::put('settings/password', [SecurityController::class, 'update'])
         ->middleware('throttle:6,1')
         ->name('user-password.update');

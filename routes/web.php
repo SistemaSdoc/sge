@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Central\AnoLectivoController;
 use App\Http\Controllers\Central\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Central\Auth\FacebookAuthController;
 use App\Http\Controllers\Central\Auth\GoogleAuthController;
 use App\Http\Controllers\Central\Auth\RegisteredController;
 use App\Http\Controllers\Central\CalendarioAnualController;
@@ -60,6 +61,12 @@ foreach (config('tenancy.central_domains') as $domain) {
 
         Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])
             ->name('central.google.callback');
+
+        Route::get('auth/facebook/redirect', [FacebookAuthController::class, 'redirect'])
+            ->name('central.facebook.redirect');
+
+        Route::get('auth/facebook/callback', [FacebookAuthController::class, 'callback'])
+            ->name('central.facebook.callback');
 
         /*
         |--------------------------------------------------------------------------
@@ -140,4 +147,6 @@ foreach (config('tenancy.central_domains') as $domain) {
 Route::domain('localhost')->group(function () {
     Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirect']);
     Route::get('auth/google/callback', [GoogleAuthController::class, 'callback']);
+    Route::get('auth/facebook/redirect', [FacebookAuthController::class, 'redirect']);
+    Route::get('auth/facebook/callback', [FacebookAuthController::class, 'callback']);
 });

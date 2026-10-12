@@ -17,12 +17,13 @@ import { Spinner } from '@/components/ui/spinner';
 import { AlertCircleIcon } from 'lucide-react';
 import { store as LoginWithEmailAndPassword } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
 import { redirect as googleRedirect } from '@/actions/App/Http/Controllers/Central/Auth/GoogleAuthController';
+import { redirect as facebookRedirect } from '@/actions/App/Http/Controllers/Central/Auth/FacebookAuthController';
 import { request } from '@/routes/password';
 import { GoogleButton } from './components/socials-buttons/google-button';
 import { AppleButton } from './components/socials-buttons/apple-button';
 import { FacebookButton } from './components/socials-buttons/facebook-button';
 
-export default function Login({ status, canResetPassword, googleError }) {
+export default function Login({ status, canResetPassword, googleError, facebookError }) {
   return (
     <>
       <Head title="Login" />
@@ -48,6 +49,15 @@ export default function Login({ status, canResetPassword, googleError }) {
                 <AlertTitle>Falha na autenticação</AlertTitle>
                 <AlertDescription className="text-xs">
                   {googleError}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {facebookError && (
+              <Alert variant="destructive" className="border border-border/20">
+                <AlertTitle>Falha na autenticação</AlertTitle>
+                <AlertDescription className="text-xs">
+                  {facebookError}
                 </AlertDescription>
               </Alert>
             )}
@@ -127,7 +137,16 @@ export default function Login({ status, canResetPassword, googleError }) {
                   window.location.assign(authUrl.toString());
                 }}
               />
-              <FacebookButton />
+              <FacebookButton
+                onClick={() => {
+                  const authUrl = import.meta.env.DEV
+                    ? new URL('http://localhost:8001/auth/facebook/redirect')
+                    : new URL(facebookRedirect.url(), window.location.origin);
+
+                  authUrl.searchParams.set('tenant', window.location.origin);
+                  window.location.assign(authUrl.toString());
+                }}
+              />
             </Field>
           </FieldGroup>
         )}

@@ -20,6 +20,7 @@ class AuthenticatedSessionController extends Controller
         $instituicao = Instituicao::first();
 
         $googleError = $request->session()->pull('googleError');
+        $facebookError = $request->session()->pull('facebookError');
 
         return Inertia::render('tenant/auth/login', [
             'instituicao' => [
@@ -28,6 +29,7 @@ class AuthenticatedSessionController extends Controller
             ],
             'canResetPassword' => true,
             'googleError' => $googleError,
+            'facebookError' => $facebookError,
         ]);
     }
 

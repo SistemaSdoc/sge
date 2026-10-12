@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Central\AnoLectivo;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Candidato;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\Curso;
@@ -7,10 +10,12 @@ use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Disciplina;
+use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
+use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
@@ -21,7 +26,7 @@ use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
-test('professor sees only the disciplines he teaches in the turma show response', function () {
+test('professor sees assigned disciplines and alphabetical students in the turma show response', function () {
     $instituicao = Instituicao::create(['nome' => 'Instituição Teste']);
     $curso = Curso::create(['nome' => 'Curso Teste', 'duracao_anos' => 3, 'status' => 1]);
     $instituicaoCurso = InstituicaoCurso::create([
@@ -44,10 +49,15 @@ test('professor sees only the disciplines he teaches in the turma show response'
         'curso_classe_id' => $cursoClasse->id,
         'turno_id' => $turno->id,
     ]);
+    $anoLectivo = AnoLectivo::create([
+        'data_inicio' => now()->startOfYear(),
+        'data_fim' => now()->endOfYear(),
+    ]);
     $turma = Turma::create([
         'curso_classe_turno_id' => $cursoClasseTurno->id,
         'nome' => 'Turma A',
         'max_alunos' => 30,
+        'ano_lectivo_id' => $anoLectivo->id,
     ]);
 
     $disciplinaAutorizada = Disciplina::create(['nome' => 'Matemática', 'sigla' => 'MAT']);
@@ -84,6 +94,32 @@ test('professor sees only the disciplines he teaches in the turma show response'
         'professor_id' => $professor->id,
     ]);
 
+    foreach (['Zara', 'Ana'] as $index => $nome) {
+        $candidato = Candidato::create([
+            'nome' => $nome,
+            'bi' => '123456789LA0'.($index + 1),
+            'numero_estudante' => '100'.($index + 1),
+        ]);
+        $inscricao = Inscricao::create([
+            'curso_classe_turno_id' => $cursoClasseTurno->id,
+            'candidato_id' => $candidato->id,
+            'ano_lectivo_id' => $anoLectivo->id,
+            'status' => 'aprovado',
+        ]);
+        $aluno = Aluno::create([
+            'inscricao_id' => $inscricao->id,
+            'user_id' => User::factory()->create()->id,
+            'matricula' => 'MAT-TESTE-00'.($index + 1),
+            'situacao' => 'activo',
+        ]);
+
+        TurmaAluno::create([
+            'aluno_id' => $aluno->id,
+            'turma_id' => $turma->id,
+            'activo' => true,
+        ]);
+    }
+
     $response = $this->actingAs($user)->get(route('turmas.show', [
         'instituicao' => $instituicao->id,
         'cursoTutelado' => $cursoTutelado->id,
@@ -97,6 +133,8 @@ test('professor sees only the disciplines he teaches in the turma show response'
         ->where('turma.data.id', $turma->id)
         ->has('disciplinas.data', 1)
         ->where('disciplinas.data.0.nome', $disciplinaAutorizada->nome)
+        ->where('alunos.data.0.nome', 'Ana')
+        ->where('alunos.data.1.nome', 'Zara')
     );
 });
 
