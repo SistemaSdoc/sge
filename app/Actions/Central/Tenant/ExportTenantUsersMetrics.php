@@ -23,7 +23,7 @@ class ExportTenantUsersMetrics
 
         $instituicao = $tenantService->getInstituicao($tenant);
         $responsavel = $tenantService->getTenantAdminUser($tenant);
-        $logoPath = public_path('images/tunganetu-02.jpg.jpeg');
+        $logoPath = public_path('images/tunganetu-02.png');
         $logoData = file_get_contents($logoPath);
 
         $html = view('templates.tenant-relatorio', [
