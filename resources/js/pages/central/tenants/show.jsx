@@ -9,7 +9,7 @@ export default function Show({ tenant, metrics = {} }) {
       <Header tenant={tenant} />
 
       {/* Métricas */}
-      <UsersMetrics data={metrics} />
+      <UsersMetrics data={metrics} tenantId={tenant.id} />
 
       <DatabaseMetrics tenant={tenant} metrics={metrics.database} />
     </div>

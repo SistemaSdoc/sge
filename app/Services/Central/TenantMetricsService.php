@@ -13,16 +13,23 @@ class TenantMetricsService
     public function getMetrics(): array
     {
         return [
-            'users' => $this->getUserMetrics(),
-            'logins_semana' => $this->getLoginsPerDay(),
+            ...$this->getUserMetrics(),
             'database' => $this->getDatabaseMetrics(),
+        ];
+    }
+
+    public function getUserMetrics(): array
+    {
+        return [
+            'users' => $this->getUserMetricsData(),
+            'logins_semana' => $this->getLoginsPerDay(),
         ];
     }
 
     /**
      * Métricas de utilizadores
      */
-    private function getUserMetrics(): array
+    private function getUserMetricsData(): array
     {
         $total = User::count();
 
