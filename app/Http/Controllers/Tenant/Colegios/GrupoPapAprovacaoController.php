@@ -37,6 +37,14 @@ class GrupoPapAprovacaoController extends Controller
         private CrossTenantAccessService $crossTenantAccessService,
     ) {}
 
+    private function autorizarDecisaoPap(User $user, string $permission): void
+    {
+        abort_unless(
+            ! $user->hasAnyRole(['Director', 'Subdirector']) && $user->can($permission),
+            403,
+        );
+    }
+
     /**
      * Listar temas PAP pendentes de aprovação
      * para o coordenador do curso.
@@ -145,6 +153,8 @@ class GrupoPapAprovacaoController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
+        $user = Auth::guard('tenant')->user();
+        abort_unless(! $user->hasAnyRole(['Director', 'Subdirector']), 403);
         $this->authorize('aprovarComoTutor', $grupoPap);
 
         $validated = $request->validate([

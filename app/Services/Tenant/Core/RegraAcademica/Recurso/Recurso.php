@@ -3,7 +3,6 @@
 namespace App\Services\Tenant\Core\RegraAcademica\Recurso;
 
 use App\Models\Tenant\TurmaAluno;
-use App\Services\Tenant\Core\RegraAcademica\RegraAplicavel\RegraAplicavel;
 
 /**
  * Entry point para resolver a fase de recurso do aluno.
@@ -18,17 +17,10 @@ class Recurso
     /**
      * Resolve o resultado do recurso para o aluno com base nas notas lançadas.
      */
-    public function avaliar(
-        TurmaAluno $turmaAluno,
-        array $resultadoFinal,
-        RegraAplicavel $regraAplicavel,
-    ): array {
+    public function avaliar(TurmaAluno $turmaAluno): array
+    {
         $turmaAluno = $this->notasRecursoLoader->carregar($turmaAluno);
 
-        return $this->statusResolver->resolver(
-            turmaAluno: $turmaAluno,
-            resultadoFinal: $resultadoFinal,
-            regraAplicavel: $regraAplicavel,
-        );
+        return $this->statusResolver->resolver($turmaAluno);
     }
 }

@@ -35,7 +35,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 
 uses(RefreshDatabase::class);
 
-test('grupo pap show exposes granular permissions for elements and banca actions', function () {
+test('grupo pap show exposes work versions after tutor requests correction', function () {
     $instituicao = Instituicao::create([
         'nome' => 'Instituição Teste',
         'sigla' => 'IT',
@@ -96,8 +96,14 @@ test('grupo pap show exposes granular permissions for elements and banca actions
         'status' => 'Em análise',
     ]);
 
+    TrabalhoPap::create([
+        'grupo_pap_id' => $grupoPap->id,
+        'status' => TrabalhoPap::STATUS_CORRECAO_TUTOR,
+    ]);
+
     $user = User::factory()->create(['instituicao_id' => $instituicao->id]);
     $user->givePermissionTo([
+        'grupopap.view',
         'elementogrupopap.create',
         'elementogrupopap.atualizarNota',
         'elementogrupopap.delete',
@@ -123,6 +129,7 @@ test('grupo pap show exposes granular permissions for elements and banca actions
         ->where('can.banca.create', true)
         ->where('can.banca.update', true)
         ->where('can.banca.delete', true)
+        ->where('can.downloadVersao', true)
     );
 });
 

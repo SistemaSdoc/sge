@@ -100,10 +100,12 @@ class NotaService
                 $dados
             );
 
-            $this->recalcularFinal(
-                $turmaAlunoId,
-                $tdpId
-            );
+            if ($periodo !== 4) {
+                $this->recalcularFinal(
+                    $turmaAlunoId,
+                    $tdpId
+                );
+            }
         }
     }
 
@@ -200,6 +202,7 @@ class NotaService
 
         $notas = Nota::where('turma_aluno_id', $turmaAlunoId)
             ->where('turma_disciplina_professor_id', $tdpId)
+            ->whereIn('periodo', [1, 2, 3])
             ->get()
             ->keyBy('periodo');
 
@@ -235,26 +238,6 @@ class NotaService
         $situacaoAnual = $this->situacaoAnual($mediaFinal, $temEEF);
 
         // ──────────────────────────────────────────────
-        // RECURSO (PERÍODO 4)
-        // ──────────────────────────────────────────────
-
-        $mediaFinalEfectiva = $mediaFinal;
-
-        if (
-            isset($notas[4]) &&
-            ! is_null($notas[4]->media_trimestral)
-        ) {
-            $mediaRecurso = (float) $notas[4]->media_trimestral;
-
-            $situacaoAnual = $mediaRecurso >= Nota::NOTA_MINIMA_APTO
-                ? 'APTO'
-                : 'N/APTO';
-
-            // media_final passa a reflectir a nota do recurso
-            $mediaFinalEfectiva = $mediaRecurso;
-        }
-
-        // ──────────────────────────────────────────────
         // ACTUALIZAR TODOS OS REGISTOS
         // ──────────────────────────────────────────────
 
@@ -264,7 +247,7 @@ class NotaService
             }
 
             $nota->fill([
-                'media_final' => $mediaFinalEfectiva,
+                'media_final' => $mediaFinal,
                 'situacao_anual' => $nota->periodo === 3
                     ? $situacaoAnual
                     : null,
@@ -384,10 +367,12 @@ class NotaService
         $nota->save();
 
         // Recalcular final
-        $this->recalcularFinal(
-            $nota->turma_aluno_id,
-            $nota->turma_disciplina_professor_id
-        );
+        if ($nota->periodo !== 4) {
+            $this->recalcularFinal(
+                $nota->turma_aluno_id,
+                $nota->turma_disciplina_professor_id
+            );
+        }
     }
 
     // ──────────────────────────────────────────────

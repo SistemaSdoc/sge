@@ -17,12 +17,12 @@ class ProfessorCriadoNotification extends Notification implements ShouldQueue, S
 
     public function __construct(
         public User $user,
-        public string $passwordPlain = '123456'
+        public string $passwordPlain
     ) {}
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ['mail'];
     }
 
     public function toMail(object $notifiable): MailMessage

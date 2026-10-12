@@ -151,6 +151,8 @@ class InscricaoService
             throw new InvalidArgumentException('Não foi possível determinar a instituição da inscrição.');
         }
 
+        $password = Str::password(12);
+
         $user = User::firstOrCreate(
             ['bi' => $inscricao->candidato->bi],
             [
@@ -158,7 +160,7 @@ class InscricaoService
                 'email' => $inscricao->candidato->email,
                 'telefone' => $inscricao->candidato->telefone,
                 'instituicao_id' => $instituicaoId,
-                'password' => Hash::make('12345678'),
+                'password' => Hash::make($password),
             ]
         );
 
@@ -175,7 +177,7 @@ class InscricaoService
         ]);
 
         if ($user->wasRecentlyCreated) {
-            $this->notificarAlunoCriado($user, '12345678');
+            $this->notificarAlunoCriado($user, $password);
 
             $user->notify(new PerfilIncompletoNotificacao);
         }

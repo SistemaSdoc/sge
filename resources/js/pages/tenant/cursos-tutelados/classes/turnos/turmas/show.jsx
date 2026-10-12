@@ -117,7 +117,7 @@ export default function Show({
         {totalRecurso > 0 && (
           <TabsContent value="recurso" className="mt-2 space-y-4">
             <TabRecurso
-              disciplinas={disciplinas.data}
+              disciplinas={pautaRecurso?.disciplinas ?? []}
               params={params}
               pagination={disciplinas.meta}
               onPageChange={recursosPagination.handlePageChange}

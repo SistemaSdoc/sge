@@ -120,7 +120,7 @@ class CursoTuteladoProfessorController extends Controller
         }
 
         // ── Cria/atualiza o vínculo ──
-        CursoTuteladoProfessor::updateOrCreate(
+        $vinculo = CursoTuteladoProfessor::updateOrCreate(
             [
                 'curso_tutelado_id' => $cursoTutelado->id,
                 'professor_id'      => $request->professor_id,
@@ -129,7 +129,8 @@ class CursoTuteladoProfessorController extends Controller
                 'tipo'              => $request->tipo,
                 'coordenador'       => $request->boolean('coordenador'),
                 'opap'              => $request->boolean('opap'),
-                'grupo_disciplinar' => $request->grupo_disciplinar ?? 'nenhum',
+                'grupo_disciplinar' => $
+        CursoTuteladoProfessor::updateOrCreate(request->grupo_disciplinar ?? 'nenhum',
             ]
         );
 
@@ -137,7 +138,7 @@ class CursoTuteladoProfessorController extends Controller
         $professor = Professor::find($request->professor_id);
         $this->sincronizarRolesGrupoDisciplinar($professor->user, $request->grupo_disciplinar);
 
-        $this->notificarProfessorAdicionadoAoCurso($professor, $cursoTutelado);
+        $this->notificarProfessorAdicionadoAoCurso($professor, $cursoTutelado, $vinculo);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
             'instituicao'   => $instituicao->id,

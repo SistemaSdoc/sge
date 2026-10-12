@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Central\Tenant\ExportTenantUsersMetrics;
 use App\Http\Controllers\Central\AnoLectivoController;
 use App\Http\Controllers\Central\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Central\Auth\GoogleAuthController;
@@ -82,30 +83,13 @@ foreach (config('tenancy.central_domains') as $domain) {
 
                 require base_path('routes/central-settings.php');
 
+                /*
+                |--------------------------------------------------------------------------
+                | Tenants
+                |--------------------------------------------------------------------------
+                */
+
                 Route::resource('tenants', TenantController::class);
-
-                Route::resource('cursos', CursoController::class)->withTrashed(['show']);
-
-                Route::resource('anos-lectivos', AnoLectivoController::class)
-                    ->only(['index', 'create', 'store'])
-                    ->parameters(['anos-lectivos' => 'anoLectivo']);
-
-                Route::post('anos-lectivos/{anoLectivo}/arquivar', [AnoLectivoController::class, 'archive'])
-                    ->name('anos-lectivos.archive');
-
-                Route::post('anos-lectivos/{anoLectivo}/restaurar', [AnoLectivoController::class, 'restore'])
-                    ->withTrashed()
-                    ->name('anos-lectivos.restore');
-
-                Route::post('cursos/{curso}/restore', [CursoController::class, 'restore'])
-                    ->withTrashed()
-                    ->name('cursos.restore');
-
-                Route::resource('disciplinas', DisciplinaController::class)->withTrashed(['show']);
-
-                Route::post('disciplinas/{disciplina}/restore', [DisciplinaController::class, 'restore'])
-                    ->withTrashed()
-                    ->name('disciplinas.restore');
 
                 Route::post('tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
                     ->name('tenants.toggle-status');
@@ -119,7 +103,63 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::get('tenants/{tenant}/tables/records', [TenantController::class, 'showTablesRecords'])
                     ->name('tenants.tables.records');
 
+                Route::get('tenants/{tenant}/users/metrics/export', ExportTenantUsersMetrics::class)
+                    ->name('tenants.users.metrics.export');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Cursos
+                |--------------------------------------------------------------------------
+                */
+
+                Route::resource('cursos', CursoController::class)->withTrashed(['show']);
+
+                Route::post('cursos/{curso}/restore', [CursoController::class, 'restore'])
+                    ->withTrashed()
+                    ->name('cursos.restore');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Anos Lectivos
+                |--------------------------------------------------------------------------
+                */
+
+                Route::resource('anos-lectivos', AnoLectivoController::class)
+                    ->parameters(['anos-lectivos' => 'anoLectivo'])
+                    ->only(['index', 'create', 'store']);
+
+                Route::post('anos-lectivos/{anoLectivo}/arquivar', [AnoLectivoController::class, 'archive'])
+                    ->name('anos-lectivos.archive');
+
+                Route::post('anos-lectivos/{anoLectivo}/restaurar', [AnoLectivoController::class, 'restore'])
+                    ->withTrashed()
+                    ->name('anos-lectivos.restore');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Disciplinas
+                |--------------------------------------------------------------------------
+                */
+
+                Route::resource('disciplinas', DisciplinaController::class)->withTrashed(['show']);
+
+                Route::post('disciplinas/{disciplina}/restore', [DisciplinaController::class, 'restore'])
+                    ->withTrashed()
+                    ->name('disciplinas.restore');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Users
+                |--------------------------------------------------------------------------
+                */
+
                 Route::resource('users', UserController::class);
+
+                /*
+                |--------------------------------------------------------------------------
+                | Calendários
+                |--------------------------------------------------------------------------
+                */
 
                 Route::resource('calendarios-anuais', CalendarioAnualController::class)
                     ->only(['index', 'store', 'update', 'destroy'])
@@ -133,7 +173,6 @@ foreach (config('tenancy.central_domains') as $domain) {
 
                 Route::get('calendario-anual', [CalendarioAnualController::class, 'index'])
                     ->name('calendario-anual');
-
             });
     });
 }

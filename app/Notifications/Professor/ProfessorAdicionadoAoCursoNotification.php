@@ -3,6 +3,7 @@
 namespace App\Notifications\Professor;
 
 use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Professor;
 use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
@@ -19,7 +20,8 @@ class ProfessorAdicionadoAoCursoNotification extends Notification implements Sho
 
     public function __construct(
         public Professor $professor,
-        public CursoTutelado $cursoTutelado
+        public CursoTutelado $cursoTutelado,
+        public ?CursoTuteladoProfessor $vinculo = null
     ) {}
 
     public function via(object $notifiable): array
@@ -37,6 +39,7 @@ class ProfessorAdicionadoAoCursoNotification extends Notification implements Sho
                 'nome' => $this->professor->user->nome,
                 'nomeCurso' => $this->cursoTutelado->instituicaoCurso?->curso?->nome,
                 'instituicao' => $instituicao,
+                'papeis' => $this->papeis(),
                 'artigoInstituicao' => match ($instituicao->tipo) {
                     'instituto', 'colegio' => 'ao',
                     default => 'à',
@@ -46,10 +49,13 @@ class ProfessorAdicionadoAoCursoNotification extends Notification implements Sho
 
     public function toArray(object $notifiable): array
     {
+        $papeis = $this->papeis();
+
         return [
             'tipo' => 'professor_adicionado_curso',
             'titulo' => 'Adicionado a um curso',
-            'mensagem' => "Foi adicionado ao curso \"{$this->cursoTutelado->instituicaoCurso?->curso?->nome}\".",
+            'mensagem' => "Foi adicionado ao curso \"{$this->cursoTutelado->instituicaoCurso?->curso?->nome}\" com os papéis: ".implode(', ', $papeis).'.',
+            'papeis' => $papeis,
         ];
     }
 
@@ -60,4 +66,36 @@ class ProfessorAdicionadoAoCursoNotification extends Notification implements Sho
     //         'mensagem' => "Foi adicionado ao curso \"{$this->cursoTutelado->instituicaoCurso?->curso?->nome}\".",
     //     ]);
     // }
+    private function papeis(): array
+    {
+        if ($this->vinculo === null) {
+            return ['Professor'];
+        }
+
+        $papeis = [match ($this->vinculo->tipo) {
+            'principal' => 'Professor principal',
+            'colaborador' => 'Professor colaborador',
+            default => 'Professor',
+        }];
+
+        if ((bool) $this->vinculo->coordenador) {
+            $papeis[] = 'Coordenador do curso';
+        }
+
+        if ((bool) $this->vinculo->opap) {
+            $papeis[] = 'OPAP';
+        }
+
+        $papelGrupoDisciplinar = match ($this->vinculo->grupo_disciplinar) {
+            'membro' => 'Membro do Grupo Disciplinar',
+            'coordenador' => 'Coordenador do Grupo Disciplinar',
+            default => null,
+        };
+
+        if ($papelGrupoDisciplinar !== null) {
+            $papeis[] = $papelGrupoDisciplinar;
+        }
+
+        return $papeis;
+    }
 }

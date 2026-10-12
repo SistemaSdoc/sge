@@ -183,7 +183,9 @@ class TrabalhoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('aprovarTrabalhoComoTutor', $grupoPap);
+        $user = Auth::guard('tenant')->user();
+        abort_unless(! $user->hasAnyRole(['Director', 'Subdirector']), 403);
+        Gate::forUser($user)->authorize('aprovarTrabalhoComoTutor', $grupoPap);
 
         $validated = $request->validate([
             'comentario' => ['nullable', 'string', 'max:2000'],
@@ -197,7 +199,7 @@ class TrabalhoPapController extends Controller
             ]);
         }
 
-        $this->service->aprovarComoTutor($trabalho, Auth::user(), $validated['comentario'] ?? null);
+        $this->service->aprovarComoTutor($trabalho, $user, $validated['comentario'] ?? null);
 
         return back()->with('toast', [
             'type' => 'success',
@@ -261,7 +263,10 @@ class TrabalhoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('aprovarTrabalhoComoCoordenacao', $grupoPap);
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        abort_unless(! $user->hasAnyRole(['Director', 'Subdirector']), 403);
+        Gate::forUser($user)->authorize('aprovarTrabalhoComoCoordenacao', $grupoPap);
 
         $validated = $request->validate([
             'comentario' => ['nullable', 'string', 'max:2000'],
@@ -275,7 +280,7 @@ class TrabalhoPapController extends Controller
             ]);
         }
 
-        $this->service->aprovarComoCoordenacao($trabalho, Auth::user(), $validated['comentario'] ?? null);
+        $this->service->aprovarComoCoordenacao($trabalho, $user, $validated['comentario'] ?? null);
 
         return back()->with('toast', [
             'type' => 'success',
@@ -295,7 +300,9 @@ class TrabalhoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('solicitarCorrecaoTrabalhoComoCoordenacao', $grupoPap);
+        $user = Auth::guard('tenant')->user();
+        abort_unless(! $user->hasAnyRole(['Director', 'Subdirector']), 403);
+        Gate::forUser($user)->authorize('solicitarCorrecaoTrabalhoComoCoordenacao', $grupoPap);
 
         $validated = $request->validate([
             'comentario' => ['required', 'string', 'min:10', 'max:2000'],
@@ -312,7 +319,7 @@ class TrabalhoPapController extends Controller
 
         $this->service->solicitarCorrecaoComoCoordenacao(
             $trabalho,
-            Auth::user(),
+            $user,
             $validated['comentario'],
             $request->file('ficheiro'),
         );

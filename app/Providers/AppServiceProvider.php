@@ -13,6 +13,7 @@ use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\User;
 use App\Models\Tenant\Planificacao;
 use App\Policies\Tenant\PlanificacaoPolicy;
+use App\Notifications\Channels\InstitutionLogoMailChannel;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Observers\PagamentoObserver;
 use App\Policies\Tenant\AcessManagementPolicy;
@@ -31,6 +32,7 @@ use App\Policies\Tenant\SubmissaoProvaPolicy;
 use App\Policies\Tenant\UserPolicy;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -57,6 +59,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Event::listen(Registered::class, RegisteredListener::class);
+
+        $this->app->make(ChannelManager::class)->extend(
+            'mail',
+            fn ($app) => $app->make(InstitutionLogoMailChannel::class)
+        );
 
         Inertia::handleExceptionsUsing(function (ExceptionResponse $response): ?ExceptionResponse {
             if (app()->environment(['local', 'testing'])) {

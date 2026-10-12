@@ -13,6 +13,9 @@ export default function CentralDashboard({ metricas = {}, tenants = [] }) {
   const greeting = getGreeting();
   const todayFormatted = getTodayFormatted();
   const { auth } = usePage().props;
+  const acoesComPendencias = ACCOES.filter(
+    (acao) => Number(acao.count) > 0,
+  );
 
   return (
     <div className="space-y-6 p-6">
@@ -22,13 +25,13 @@ export default function CentralDashboard({ metricas = {}, tenants = [] }) {
         todayFormatted={todayFormatted}
       />
 
-      <DashboardSummary />
+      <DashboardSummary items={acoesComPendencias} />
 
       <MetricsBar metrics={metricas} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <DashboardPanel title="Ações Pendentes" colSpan="lg:col-span-2">
-          <ActionFeed />
+          <ActionFeed items={acoesComPendencias} />
         </DashboardPanel>
 
         <DashboardPanel title="Próximos Eventos" colSpan="lg:col-span-1">

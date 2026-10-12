@@ -6,7 +6,6 @@ use App\Actions\Tenant\CursoTutelado\UpdateCursoTutelado;
 use App\Enums\TutelaStatus;
 use App\Http\Controllers\Tenant\ExportarPautaController;
 use App\Http\Controllers\Tenant\NotificacaoController;
-use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Resources\Tenant\GrupoPap\BancaResource;
 use App\Http\Resources\Tenant\GrupoPap\ShowResource;
 use App\Jobs\Tenant\Tutela\SincronizarAssociacaoTutela;
@@ -230,7 +229,7 @@ test('o colegio usa os documentos do curso tutelado da instituicao tutora quando
     });
 });
 
-test('apenas o coordenador do curso central consegue operar no grupo remoto', function (): void {
+test('coordenador e director podem ler grupo remoto mas outro professor sem vinculo e bloqueado', function (): void {
     $fixture = createPapFixtureForIsolationTest($this->tenantColegio, $this->vinculo->id);
     $this->vinculo->update([
         'curso_tutelado_tutelado_id' => $fixture['cursoTutelado']->id,
@@ -281,7 +280,28 @@ test('apenas o coordenador do curso central consegue operar no grupo remoto', fu
         $this->vinculo->id,
     );
 
-    expect(true)->toBeTrue();
+    $director = $this->tenantTutor->run(function () use ($instituicaoTutora): User {
+        $role = Role::findOrCreate('Director', 'tenant');
+        $role->givePermissionTo(Permission::findOrCreate('grupopap.view', 'tenant'));
+
+        $director = User::create([
+            'nome' => 'Director Tutor',
+            'email' => 'director-tutor@example.test',
+            'password' => 'password',
+            'instituicao_id' => $instituicaoTutora->id,
+        ]);
+        $director->assignRole($role);
+
+        return $director;
+    });
+
+    $this->actingAs($director, 'tenant');
+    app(CrossTenantAccessService::class)->validarAcessoAoGrupoPap(
+        $director,
+        $this->tenantColegio,
+        $fixture['grupo']->id,
+        $this->vinculo->id,
+    );
 
     $outroProfessor = $this->tenantTutor->run(function () use ($instituicaoTutora): User {
         $curso = Curso::create([

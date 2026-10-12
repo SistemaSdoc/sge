@@ -6,10 +6,10 @@ use App\Notifications\Professor\ProfessorCriadoNotification;
 use Illuminate\Support\Facades\Storage;
 
 it('includes the institution logo as base64 in the professor created email', function () {
-    Storage::fake(config('filesystems.default'));
+    Storage::fake('public');
 
     $logoPath = 'logos/instituicao.png';
-    Storage::disk(config('filesystems.default'))->put($logoPath, 'fake-image-data');
+    Storage::disk('public')->put($logoPath, 'fake-image-data');
 
     $instituicao = new Instituicao([
         'nome' => 'Instituição Teste',

@@ -28,7 +28,9 @@ export function RecursoPautaBody({ alunos, disciplinas }) {
             return (
               <Fragment key={disciplina.id}>
                 <TableCell className="border-r px-4 text-center">
-                  <span className={corNota(nota?.mf)}>{nota?.mf ?? '—'}</span>
+                  <span className={corNota(nota?.nota_recurso)}>
+                    {nota?.nota_recurso ?? '—'}
+                  </span>
                 </TableCell>
               </Fragment>
             );

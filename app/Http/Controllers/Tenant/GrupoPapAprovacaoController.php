@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
+use App\Models\Tenant\User;
 use App\Rules\EstudoCasoPapUnico;
 use App\Rules\TemaPapUnico;
 use App\Services\Tenant\AprovacaoTemaService;
@@ -22,16 +23,26 @@ class GrupoPapAprovacaoController extends Controller
         private AprovacaoTemaService $service
     ) {}
 
+    private function autorizarDecisaoPap(): User
+    {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        abort_unless(! $user->hasAnyRole(['Director', 'Subdirector']), 403);
+
+        return $user;
+    }
+
     /**
      * Listar temas PAP pendentes de aprovação
      * para o coordenador do curso.
      */
     public function pendentes()
     {
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
         // O utilizador precisa estar associado a um professor
-        if (! $user->professor) {
+        if ($user->hasAnyRole(['Director', 'Subdirector']) || ! $user->professor) {
             return inertia('tenant/pap/PendentesAprovacao', [
                 'temasPendentes' => [],
                 'rotaAprovar' => null,
@@ -60,7 +71,8 @@ class GrupoPapAprovacaoController extends Controller
 
     public function aprovarTutor(Request $request, GrupoPap $grupoPap)
     {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('aprovarComoTutor', $grupoPap);
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('aprovarComoTutor', $grupoPap);
 
         $validated = $request->validate([
             'comentario' => 'nullable|string|max:2000',
@@ -136,7 +148,8 @@ class GrupoPapAprovacaoController extends Controller
      */
     public function aprovar(Request $request, GrupoPap $grupoPap)
     {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('aprovar', $grupoPap);
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('aprovar', $grupoPap);
 
         // Verificar se pode ser aprovado
         if (! $grupoPap->podeSerAprovado()) {
@@ -151,7 +164,7 @@ class GrupoPapAprovacaoController extends Controller
 
         $resultado = $this->service->aprovar(
             $grupoPap,
-            Auth::guard('tenant')->user(),
+            $user,
             $validated['comentario'] ?? null
         );
 
@@ -175,7 +188,8 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('reprovar', $grupoPap);
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('reprovar', $grupoPap);
 
         // O motivo da reprovação é obrigatório
         $validated = $request->validate([
@@ -190,7 +204,7 @@ class GrupoPapAprovacaoController extends Controller
         // Executar reprovação
         $resultado = $this->service->reprovar(
             $grupoPap,
-            Auth::guard('tenant')->user(),
+            $user,
             $validated['motivo']
         );
 
@@ -255,7 +269,8 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('solicitarMelhoria', $grupoPap);
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('solicitarMelhoria', $grupoPap);
 
         // A recomendação é obrigatória
         $validated = $request->validate([
@@ -270,7 +285,7 @@ class GrupoPapAprovacaoController extends Controller
         // Executar solicitação de melhoria
         $resultado = $this->service->solicitarMelhoria(
             $grupoPap,
-            Auth::guard('tenant')->user(),
+            $user,
             $validated['recomendacao']
         );
 
