@@ -7,6 +7,7 @@ use App\Models\Tenant\JustificativaNaoSubmissao;
 use App\Models\Tenant\PrazoProva;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\SubmissaoProva;
+use App\Models\Tenant\Turma;
 use App\Services\Tenant\PrazoNotificacaoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,79 +20,84 @@ class ProfessorJustificativaController extends Controller
         private PrazoNotificacaoService $notificacaoService
     ) {}
 
-    /**
-     * Retorna o instituicao_id do utilizador autenticado.
-     */
     private function getInstituicaoId(): ?string
     {
         return auth()->user()->instituicao_id;
     }
 
-    /**
-     * Exibe o formulário para justificar a não submissão.
-     */
-    public function create(PrazoProva $prazo)
+    // ============================================================
+    // CRIAR / MOSTRAR FORMULÁRIO
+    // ============================================================
+
+    public function create(PrazoProva $prazo, Turma $turma)
     {
-        //   Verificar que o prazo pertence à mesma instituição
         if ($prazo->instituicao_id !== $this->getInstituicaoId()) {
             abort(403, 'Este prazo não pertence à sua instituição.');
         }
-
-        Log::info('📝 ProfessorJustificativaController@create chamado', [
-            'prazo_id' => $prazo->id,
-            'instituicao_id' => $prazo->instituicao_id,
-            'user_id' => auth()->id(),
-        ]);
 
         $professor = $this->getProfessorAutenticado();
         if (! $professor) {
             abort(403, 'Perfil de professor não encontrado.');
         }
 
-        if ($this->jaSubmeteu($prazo, $professor)) {
-            return redirect()->route('tenant.dashboard.professor.provas.index')
-                ->with('error', 'Você já submeteu uma prova para este prazo.');
+        if (! $this->professorLecionaNaTurma($prazo, $professor, $turma->id)) {
+            abort(403, 'Não leciona esta turma para esta disciplina.');
         }
 
-        if (! $this->professorPodeJustificar($prazo, $professor)) {
-            abort(403, 'Você não está autorizado a justificar para esta disciplina.');
+        // Bloqueia só se já submeteu para ESTA turma
+        if ($this->jaSubmeteuNaTurma($prazo, $professor, $turma->id)) {
+            return redirect()
+                ->route('tenant.dashboard.professor.provas.index')
+                ->with('error', "Já submeteu prova para a turma {$turma->nome} neste prazo.");
         }
 
-        $justificativa = $this->buscarJustificativa($prazo, $professor);
+        // Justificativa existente desta turma
+        $justificativa = JustificativaNaoSubmissao::where('prazo_prova_id', $prazo->id)
+            ->where('professor_id', $professor->id)
+            ->where('turma_id', $turma->id)
+            ->first();
+
+        Log::info('📝 ProfessorJustificativaController@create', [
+            'prazo_id'   => $prazo->id,
+            'turma_id'   => $turma->id,
+            'turma_nome' => $turma->nome,
+            'user_id'    => auth()->id(),
+        ]);
 
         return Inertia::render('tenant/professores/justificativas/create', [
             'prazo' => [
-                'id' => $prazo->id,
-                'titulo' => $prazo->titulo ?? $prazo->tipo_prova,
+                'id'          => $prazo->id,
+                'titulo'      => $prazo->titulo ?? $prazo->tipo_prova,
                 'data_limite' => $prazo->data_limite->format('d/m/Y H:i'),
+                'disciplina'  => $prazo->disciplina?->nome,
+                'classe'      => $prazo->classe?->nome,
+                'status'      => $prazo->status,
+            ],
+            'turma' => [
+                'id'   => $turma->id,
+                'nome' => $turma->nome,
             ],
             'justificativa' => $justificativa ? [
-                'id' => $justificativa->id,
-                'motivo' => $justificativa->motivo,
-                'status' => $justificativa->status,
+                'id'           => $justificativa->id,
+                'motivo'       => $justificativa->motivo,
+                'status'       => $justificativa->status,
                 'status_label' => $justificativa->status_label,
             ] : null,
         ]);
     }
 
-    /**
-     * Armazena ou atualiza a justificativa no banco.
-     */
-    public function store(Request $request, PrazoProva $prazo)
+    // ============================================================
+    // GUARDAR JUSTIFICATIVA
+    // ============================================================
+
+    public function store(Request $request, PrazoProva $prazo, Turma $turma)
     {
-        //   Verificar instituição
         if ($prazo->instituicao_id !== $this->getInstituicaoId()) {
             return back()->with('error', 'Este prazo não pertence à sua instituição.');
         }
 
-        Log::info('📝 ProfessorJustificativaController@store chamado', [
-            'prazo_id' => $prazo->id,
-            'instituicao_id' => $prazo->instituicao_id,
-            'user_id' => auth()->id(),
-        ]);
-
         $request->validate([
-            'motivo' => 'required|string|max:1000',
+            'motivo' => 'required|string|min:10|max:1000',
         ]);
 
         $professor = $this->getProfessorAutenticado();
@@ -99,16 +105,19 @@ class ProfessorJustificativaController extends Controller
             return back()->with('error', 'Perfil de professor não encontrado.');
         }
 
-        if ($this->jaSubmeteu($prazo, $professor)) {
-            return back()->with('error', 'Você já submeteu uma prova para este prazo.');
+        if (! $this->professorLecionaNaTurma($prazo, $professor, $turma->id)) {
+            return back()->with('error', 'Não leciona esta turma para esta disciplina.');
         }
 
-        if (! $this->professorPodeJustificar($prazo, $professor)) {
-            return back()->with('error', 'Você não está autorizado a justificar para esta disciplina.');
+        if ($this->jaSubmeteuNaTurma($prazo, $professor, $turma->id)) {
+            return back()->with('error', "Já submeteu prova para a turma {$turma->nome}.");
         }
 
         try {
-            $existente = $this->buscarJustificativa($prazo, $professor);
+            $existente = JustificativaNaoSubmissao::where('prazo_prova_id', $prazo->id)
+                ->where('professor_id', $professor->id)
+                ->where('turma_id', $turma->id)
+                ->first();
 
             if ($existente && $existente->status !== 'pendente') {
                 return back()->with('error', 'Esta justificativa já foi avaliada e não pode ser alterada.');
@@ -117,44 +126,44 @@ class ProfessorJustificativaController extends Controller
             $justificativa = JustificativaNaoSubmissao::updateOrCreate(
                 [
                     'prazo_prova_id' => $prazo->id,
-                    'professor_id' => $professor->id,
+                    'professor_id'   => $professor->id,
+                    'turma_id'       => $turma->id,
                 ],
                 [
-                    'motivo' => $request->motivo,
-                    'status' => 'pendente',
+                    'motivo'             => $request->motivo,
+                    'status'             => 'pendente',
                     'data_justificativa' => now(),
                 ]
             );
 
-            $justificativa->load(['professor.user', 'prazo.disciplina', 'prazo.classe']);
+            $justificativa->load(['professor.user', 'prazo.disciplina', 'prazo.classe', 'turma']);
             $this->notificacaoService->notificarDiretoresJustificativa($justificativa);
 
             Log::info('Justificativa enviada', [
                 'justificativa_id' => $justificativa->id,
-                'professor_id' => $professor->id,
-                'prazo_id' => $prazo->id,
-                'instituicao_id' => $prazo->instituicao_id,
+                'prazo_id'         => $prazo->id,
+                'turma_id'         => $turma->id,
+                'professor_id'     => $professor->id,
             ]);
 
-            return redirect()->route('tenant.dashboard.professor.provas.index')
-                ->with('success', 'Justificativa enviada com sucesso! Aguarde a avaliação do diretor.');
-
+            return redirect()
+                ->route('tenant.dashboard.professor.provas.index')
+                ->with('success', "Justificativa enviada para a turma {$turma->nome}.");
         } catch (\Exception $e) {
             Log::error('Erro ao salvar justificativa', [
-                'message' => $e->getMessage(),
+                'message'  => $e->getMessage(),
                 'prazo_id' => $prazo->id,
-                'professor_id' => $professor->id,
-                'instituicao_id' => $prazo->instituicao_id,
+                'turma_id' => $turma->id,
             ]);
 
             return back()->with('error', 'Erro ao enviar justificativa. Tente novamente.');
         }
     }
 
-    /**
-     * Lista as justificativas do professor logado.
-     *   Filtrado pela instituição do prazo.
-     */
+    // ============================================================
+    // LISTAR JUSTIFICATIVAS DO PROFESSOR
+    // ============================================================
+
     public function index()
     {
         $professor = $this->getProfessorAutenticado();
@@ -162,22 +171,21 @@ class ProfessorJustificativaController extends Controller
             abort(403, 'Perfil de professor não encontrado.');
         }
 
-        $instituicaoId = $this->getInstituicaoId(); //
+        $instituicaoId = $this->getInstituicaoId();
 
         $justificativas = JustificativaNaoSubmissao::where('professor_id', $professor->id)
-            ->whereHas('prazo', fn ($q) => $q->where('instituicao_id', $instituicaoId))  //   FILTRO
-            ->with('prazo')
+            ->whereHas('prazo', fn ($q) => $q->where('instituicao_id', $instituicaoId))
+            ->with(['prazo', 'turma'])
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($justificativa) {
-                return [
-                    'id' => $justificativa->id,
-                    'prazo_titulo' => $justificativa->prazo->titulo ?? $justificativa->prazo->tipo_prova,
-                    'motivo' => $justificativa->motivo,
-                    'status_label' => $justificativa->status_label,
-                    'data' => $justificativa->created_at->format('d/m/Y H:i'),
-                ];
-            });
+            ->map(fn ($j) => [
+                'id'           => $j->id,
+                'prazo_titulo' => $j->prazo->titulo ?? $j->prazo->tipo_prova,
+                'turma_nome'   => $j->turma?->nome,
+                'motivo'       => $j->motivo,
+                'status_label' => $j->status_label,
+                'data'         => $j->created_at->format('d/m/Y H:i'),
+            ]);
 
         return Inertia::render('tenant/professores/justificativas/index', [
             'justificativas' => $justificativas,
@@ -185,7 +193,7 @@ class ProfessorJustificativaController extends Controller
     }
 
     // ============================================================
-    // MÉTODOS PRIVADOS AUXILIARES
+    // AUXILIARES
     // ============================================================
 
     private function getProfessorAutenticado(): ?Professor
@@ -193,38 +201,27 @@ class ProfessorJustificativaController extends Controller
         return Professor::where('user_id', auth()->id())->first();
     }
 
-    private function jaSubmeteu(PrazoProva $prazo, Professor $professor): bool
+    private function jaSubmeteuNaTurma(PrazoProva $prazo, Professor $professor, string $turmaId): bool
     {
         return SubmissaoProva::where('prazo_prova_id', $prazo->id)
             ->where('professor_id', $professor->id)
+            ->where('turma_id', $turmaId)
             ->exists();
     }
 
-    private function professorPodeJustificar(PrazoProva $prazo, Professor $professor): bool
+    private function professorLecionaNaTurma(PrazoProva $prazo, Professor $professor, string $turmaId): bool
     {
-        //   Verificação de instituição
-        if ($prazo->instituicao_id !== $this->getInstituicaoId()) {
-            return false;
-        }
-
-        if (is_null($prazo->disciplina_id)) {
-            return true;
-        }
-
-        return DB::table('turma_disciplina_professor')
+        $query = DB::table('turma_disciplina_professor')
             ->join('classe_turno_disciplina', 'turma_disciplina_professor.classe_turno_disciplina_id', '=', 'classe_turno_disciplina.id')
             ->join('curso_classe_turno', 'classe_turno_disciplina.curso_classe_turno_id', '=', 'curso_classe_turno.id')
-            ->join('curso_classe', 'curso_classe_turno.curso_classe_id', '=', 'curso_classe.id')
-            ->where('classe_turno_disciplina.disciplina_id', $prazo->disciplina_id)
+            ->join('turmas', 'curso_classe_turno.id', '=', 'turmas.curso_classe_turno_id')
             ->where('turma_disciplina_professor.professor_id', $professor->id)
-            ->when($prazo->classe_id, fn ($query) => $query->where('curso_classe.classe_id', $prazo->classe_id))
-            ->exists();
-    }
+            ->where('turmas.id', $turmaId);
 
-    private function buscarJustificativa(PrazoProva $prazo, Professor $professor): ?JustificativaNaoSubmissao
-    {
-        return JustificativaNaoSubmissao::where('prazo_prova_id', $prazo->id)
-            ->where('professor_id', $professor->id)
-            ->first();
+        if ($prazo->disciplina_id) {
+            $query->where('classe_turno_disciplina.disciplina_id', $prazo->disciplina_id);
+        }
+
+        return $query->exists();
     }
 }

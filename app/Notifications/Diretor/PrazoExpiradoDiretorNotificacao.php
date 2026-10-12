@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Diretor;
 
 use App\Models\Tenant\PrazoProva;
 use App\Notifications\Concerns\ReliableNotification;
@@ -20,7 +20,8 @@ class PrazoExpiradoDiretorNotificacao extends Notification implements ShouldQueu
         public int $totalProfessores,
         public int $submeteram,
         public int $naoSubmeteram,
-        public int $justificaram
+        public int $justificaram,
+        public array $atribuicoes = []
     ) {}
 
     public function via(object $notifiable): array
@@ -40,12 +41,13 @@ class PrazoExpiradoDiretorNotificacao extends Notification implements ShouldQueu
                 'dataLimite' => $this->prazo->data_limite?->format('d/m/Y H:i') ?? '—',
                 'periodo' => $this->prazo->periodo,
                 'totalProfessores' => $this->totalProfessores,
-                'submeteram' => $this->submeteram,
-                'naoSubmeteram' => $this->naoSubmeteram,
-                'justificaram' => $this->justificaram,
-                'taxaCumprimento' => $this->taxaCumprimento(),
-                'url' => url("/dashboard/diretor/prazos/{$this->prazo->id}/status"),
-                'instituicao' => $notifiable->instituicao,
+                'submeteram'       => $this->submeteram,
+                'naoSubmeteram'    => $this->naoSubmeteram,
+                'justificaram'     => $this->justificaram,
+                'taxaCumprimento'  => $this->taxaCumprimento(),
+                'atribuicoes'      => $this->atribuicoes,
+                'url'              => url("/dashboard/diretor/prazos/{$this->prazo->id}/status"),
+                'instituicao'      => $notifiable->instituicao,
             ]);
     }
 

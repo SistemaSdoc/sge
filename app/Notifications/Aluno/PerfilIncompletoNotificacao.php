@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Aluno;
 
 use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;

@@ -1,10 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
 import {
-  Clock,
   FileText,
   CheckCircle,
   XCircle,
   AlertCircle,
+  Users,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -35,12 +35,13 @@ export default function Index({ justificativas }) {
   return (
     <>
       <Head title="Minhas Justificativas" />
-      <div className="mx-auto max-w-5xl p-6">
-        <div className="mb-6 flex items-center justify-between">
+
+      <div className="max-w-5xl mx-auto p-6">
+        <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Minhas Justificativas</h1>
           <Link
-            href="/professor/provas"
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            href="/dashboard/professor/provas"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             ← Voltar para provas
           </Link>
@@ -49,10 +50,8 @@ export default function Index({ justificativas }) {
         {justificativas.length === 0 ? (
           <Card className="shadow-sm">
             <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <FileText className="mb-3 size-12 opacity-50" />
-              <p className="text-lg font-medium">
-                Nenhuma justificativa enviada
-              </p>
+              <FileText className="size-12 mb-3 opacity-50" />
+              <p className="text-lg font-medium">Nenhuma justificativa enviada</p>
               <p className="text-sm">
                 Você ainda não enviou justificativas para nenhum prazo.
               </p>
@@ -72,6 +71,7 @@ export default function Index({ justificativas }) {
                 <TableHeader>
                   <TableRow className="bg-muted/50">
                     <TableHead className="px-4">Prazo</TableHead>
+                    <TableHead className="px-4">Turma</TableHead>
                     <TableHead className="px-4">Motivo</TableHead>
                     <TableHead className="px-4 text-center">Status</TableHead>
                     <TableHead className="px-4 text-center">Data</TableHead>
@@ -83,12 +83,26 @@ export default function Index({ justificativas }) {
                       <TableCell className="px-4 font-medium">
                         {just.prazo_titulo}
                       </TableCell>
+
+                      {/* ✅ Nova coluna: Turma */}
+                      <TableCell className="px-4">
+                        {just.turma_nome ? (
+                          <span className="flex items-center gap-1 text-sm font-medium text-primary">
+                            <Users className="size-3.5" />
+                            {just.turma_nome}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">—</span>
+                        )}
+                      </TableCell>
+
                       <TableCell
-                        className="max-w-xs truncate px-4"
+                        className="px-4 max-w-xs truncate"
                         title={just.motivo}
                       >
                         {just.motivo}
                       </TableCell>
+
                       <TableCell className="px-4 text-center">
                         <Badge
                           variant="outline"

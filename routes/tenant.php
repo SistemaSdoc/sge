@@ -42,6 +42,7 @@ use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PagamentoController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PeriodoLancamentoNotasController;
+use App\Http\Controllers\Tenant\PlanificacaoController;
 use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\PreencherHistoricoController;
 use App\Http\Controllers\Tenant\ProfessorController as ProfessorControllerGeral;
@@ -176,6 +177,38 @@ Route::middleware([
             require base_path('routes/modules/pautas.php');
             require base_path('routes/modules/notas.php');
             require base_path('routes/settings.php');
+
+            // ─────────────────────────────────────────────────────────────
+            // Planificações
+            // ─────────────────────────────────────────────────────────────
+            Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
+
+                // ─── Estáticas (ordem importa) ───
+                Route::get('/', [PlanificacaoController::class, 'index'])
+                    ->name('index');
+
+                Route::get('/create', [PlanificacaoController::class, 'create'])
+                    ->name('create');
+
+                Route::post('/', [PlanificacaoController::class, 'store'])
+                    ->name('store');
+
+                Route::get('/por-disciplina/{disciplina}', [PlanificacaoController::class, 'porDisciplina'])
+                    ->name('por-disciplina');
+
+                Route::get('/versao/{versao}/preview', [PlanificacaoController::class, 'preview'])
+                    ->name('preview');
+
+                Route::get('/versao/{versao}/download', [PlanificacaoController::class, 'download'])
+                    ->name('download');
+
+                // ─── Dinâmicas (por último) ───
+                Route::get('/{planificacao}', [PlanificacaoController::class, 'show'])
+                    ->name('show');
+
+                Route::delete('/{planificacao}', [PlanificacaoController::class, 'destroy'])
+                    ->name('destroy');
+            });
 
             Route::resource('users', UserController::class)->except(['show']);
 
@@ -705,7 +738,9 @@ Route::middleware([
             Route::post('notificacoes/{notification}/tutela/rejeitar', [NotificacaoController::class, 'rejeitarTutela'])
                 ->name('notificacoes.tutela.rejeitar');
 
-            // ===== DIRETOR =====
+            Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
+                ->name('notificacoes.ler');
+
             // ===== DIRETOR =====
             Route::prefix('diretor')->name('diretor.')->group(function () {
                 Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
@@ -722,8 +757,8 @@ Route::middleware([
                 Route::get('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'create'])->name('provas.submeter');
                 Route::post('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'store'])->name('provas.store');
                 Route::get('provas/{submissao}/arquivo/{tipo}', [SubmissaoProvaController::class, 'arquivo'])->name('provas.arquivo');
-                Route::get('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
-                Route::post('/prazos/{prazo}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
+                Route::get('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
+                Route::post('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
                 Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
             });
 
@@ -848,6 +883,7 @@ Route::middleware([
 
             Route::post('historico/{aluno}/confirmar', [PreencherHistoricoController::class, 'confirmar'])
                 ->name('preencher-historico.confirmar');
+
         });
 
     /*

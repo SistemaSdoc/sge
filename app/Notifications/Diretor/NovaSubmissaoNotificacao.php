@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Diretor;
 
 use App\Models\Tenant\SubmissaoProva;
 use App\Notifications\Concerns\ReliableNotification;

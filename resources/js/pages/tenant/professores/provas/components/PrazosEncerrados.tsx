@@ -6,6 +6,7 @@ import {
   MessageSquare,
   CheckCircle,
   XCircle,
+  GraduationCap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +19,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
+// ─────────────────────────────────────────────────────────────
+// Tipos
+// ─────────────────────────────────────────────────────────────
 interface Justificativa {
   id: string;
   motivo: string;
@@ -44,9 +48,10 @@ interface PrazosEncerradosProps {
   prazos: PrazoEncerrado[];
 }
 
-export default function PrazosEncerrados({
-  prazos = [],
-}: PrazosEncerradosProps) {
+// ─────────────────────────────────────────────────────────────
+// Componente
+// ─────────────────────────────────────────────────────────────
+export default function PrazosEncerrados({ prazos = [] }: PrazosEncerradosProps) {
   if (prazos.length === 0) {
     return (
       <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-4 text-muted-foreground">
@@ -78,19 +83,26 @@ export default function PrazosEncerrados({
                 </Badge>
               </CardDescription>
             </CardHeader>
+
             <CardContent className="space-y-1 text-sm">
               <p className="flex items-center gap-2">
                 <BookOpen className="size-4 text-muted-foreground" />
                 <strong>Disciplina:</strong> {prazo.disciplina?.nome || 'Todas'}
               </p>
               <p className="flex items-center gap-2">
-                <BookOpen className="size-4 text-muted-foreground" />
+                <GraduationCap className="size-4 text-muted-foreground" />
                 <strong>Classe:</strong> {prazo.classe?.nome || 'Todas'}
               </p>
+
+              {/* TURMA em destaque */}
               <p className="flex items-center gap-2">
-                <Users className="size-4 text-muted-foreground" />
-                <strong>Turma:</strong> {prazo.turma_nome || 'Todas'}
+                <Users className="size-4 text-primary" />
+                <strong>Turma:</strong>{' '}
+                <span className="font-semibold text-primary">
+                  {prazo.turma_nome || '—'}
+                </span>
               </p>
+
               {prazo.justificativa && (
                 <div className="mt-2 rounded bg-muted/30 p-2 text-xs">
                   <strong>Justificativa:</strong> {prazo.justificativa.motivo}
@@ -100,16 +112,17 @@ export default function PrazosEncerrados({
                   </Badge>
                 </div>
               )}
+
               {prazo.bloqueado && (
                 <div className="mt-2 rounded border border-red-200 bg-red-50 p-2 dark:border-red-800 dark:bg-red-950/20">
                   <p className="flex items-center gap-1 text-xs text-red-700 dark:text-red-400">
                     <XCircle className="size-3" />
-                    <strong>Justificativa recusada.</strong> Não pode
-                    justificar.
+                    <strong>Justificativa recusada.</strong> Não pode justificar.
                   </p>
                 </div>
               )}
             </CardContent>
+
             <CardFooter>
               {prazo.bloqueado ? (
                 <Badge variant="destructive" className="w-full justify-center">
@@ -119,7 +132,7 @@ export default function PrazosEncerrados({
               ) : !prazo.submeteu ? (
                 !jaJustificou ? (
                   <Button variant="outline" asChild className="w-full">
-                    <Link href={prazo.url_justificar || '#'}>
+                    <Link href={prazo.url_justificar}>
                       <MessageSquare className="mr-1 size-4" />
                       Justificar não submissão
                     </Link>

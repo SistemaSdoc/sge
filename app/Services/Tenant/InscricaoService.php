@@ -8,7 +8,7 @@ use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
-use App\Notifications\PerfilIncompletoNotificacao;
+use App\Notifications\Aluno\PerfilIncompletoNotificacao;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Traits\NotificaAluno;
 use Illuminate\Support\Facades\DB;

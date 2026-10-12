@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\SubmissaoProva;
-use App\Notifications\SubmissaoAvaliadaNotificacao;
+use App\Notifications\Professor\SubmissaoAvaliadaNotificacao;
 use App\Services\Tenant\ProvaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

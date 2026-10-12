@@ -7,6 +7,7 @@ import {
   Calendar,
   BookOpen,
   Users,
+  GraduationCap,
   Clock,
   AlertCircle,
   CheckCircle,
@@ -26,7 +27,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
-export default function Create({ prazo, justificativa }) {
+export default function Create({ prazo, turma, justificativa }) {
   const [motivo, setMotivo] = useState(justificativa?.motivo || '');
   const [loading, setLoading] = useState(false);
 
@@ -48,7 +49,8 @@ export default function Create({ prazo, justificativa }) {
       },
       recusada: {
         label: 'Recusada',
-        className: 'border-red-500 text-red-700 bg-red-50 dark:bg-red-950/20',
+        className:
+          'border-red-500 text-red-700 bg-red-50 dark:bg-red-950/20',
       },
     };
     const config = configs[status] || configs.pendente;
@@ -68,6 +70,7 @@ export default function Create({ prazo, justificativa }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (!motivo.trim()) {
       toast.error('Por favor, informe o motivo da não submissão.');
       return;
@@ -78,19 +81,22 @@ export default function Create({ prazo, justificativa }) {
     }
 
     setLoading(true);
+
+    // ✅ URL CORRETO — com prazo + turma
     router.post(
-      `/dashboard/professor/prazos/${prazo.id}/justificar`,
+      `/dashboard/professor/prazos/${prazo.id}/turmas/${turma.id}/justificar`,
       { motivo: motivo.trim() },
       {
         onSuccess: () => {
           toast.success(
-            'Justificativa enviada com sucesso! Aguarde a avaliação do diretor.',
+            `Justificativa enviada para a turma ${turma.nome}. Aguarde a avaliação.`
           );
           router.visit('/dashboard/professor/provas');
         },
         onError: (errors) => {
           const msg =
-            errors?.motivo || 'Erro ao enviar justificativa. Tente novamente.';
+            errors?.motivo ||
+            'Erro ao enviar justificativa. Tente novamente.';
           toast.error(msg);
         },
         onFinish: () => setLoading(false),
@@ -101,8 +107,8 @@ export default function Create({ prazo, justificativa }) {
   return (
     <>
       <Head title="Justificar não submissão" />
-      <div className="mx-auto max-w-3xl p-4 sm:p-6">
-        {/* Botão voltar */}
+
+      <div className="max-w-3xl mx-auto p-4 sm:p-6">
         <Button variant="ghost" size="sm" asChild className="mb-4">
           <Link href="/dashboard/professor/provas">
             <ArrowLeft className="mr-1 size-4" />
@@ -110,9 +116,9 @@ export default function Create({ prazo, justificativa }) {
           </Link>
         </Button>
 
-        <Card className="border-border/50 shadow-lg">
-          {/* Cabeçalho com cor de fundo */}
-          <div className="rounded-t-lg border-b bg-primary/5 dark:bg-primary/10">
+        <Card className="shadow-lg border-border/50">
+          {/* ── Header ── */}
+          <div className="bg-primary/5 dark:bg-primary/10 rounded-t-lg border-b">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
@@ -135,25 +141,42 @@ export default function Create({ prazo, justificativa }) {
             </CardHeader>
           </div>
 
-          {/* Informações do prazo */}
-          <div className="border-b border-border/50 bg-muted/30 px-6 py-4">
-            <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+          {/* ── Faixa da TURMA em destaque ── */}
+          <div className="bg-blue-50 dark:bg-blue-950/20 border-b border-blue-200 dark:border-blue-800 px-6 py-3">
+            <p className="text-sm text-blue-800 dark:text-blue-300 flex items-center gap-2">
+              <Users className="size-4" />
+              A justificar para a turma <strong>{turma.nome}</strong>
+            </p>
+          </div>
+
+          {/* ── Info do prazo ── */}
+          <div className="bg-muted/30 px-6 py-4 border-b border-border/50">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2">
                 <BookOpen className="size-4 text-muted-foreground" />
                 <span className="font-medium">Disciplina:</span>
-                <span>{prazo.disciplina?.nome || 'Todas'}</span>
+                <span>{prazo.disciplina || 'Todas'}</span>
               </div>
+
               <div className="flex items-center gap-2">
-                <Users className="size-4 text-muted-foreground" />
-                <span className="font-medium">Turma:</span>
-                <span>{prazo.classe?.nome || 'Todas'}</span>
+                <GraduationCap className="size-4 text-muted-foreground" />
+                <span className="font-medium">Classe:</span>
+                <span>{prazo.classe || 'Todas'}</span>
               </div>
+
+              <div className="flex items-center gap-2">
+                <Users className="size-4 text-primary" />
+                <span className="font-medium">Turma:</span>
+                <span className="font-semibold text-primary">{turma.nome}</span>
+              </div>
+
               <div className="flex items-center gap-2">
                 <Calendar className="size-4 text-muted-foreground" />
                 <span className="font-medium">Data limite:</span>
                 <span>{prazo.data_limite}</span>
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-2 sm:col-span-2">
                 <Clock className="size-4 text-muted-foreground" />
                 <span className="font-medium">Status do prazo:</span>
                 <Badge
@@ -168,7 +191,7 @@ export default function Create({ prazo, justificativa }) {
 
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-6 pt-6">
-              {/* Aviso se o prazo estiver encerrado */}
+              {/* Aviso se prazo encerrado */}
               {prazoEncerrado && (
                 <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
                   <AlertCircle className="mt-0.5 size-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
@@ -177,18 +200,18 @@ export default function Create({ prazo, justificativa }) {
                       Prazo encerrado
                     </p>
                     <p className="text-xs text-amber-700 dark:text-amber-400">
-                      Este prazo já foi encerrado. A justificativa ainda pode
-                      ser enviada para análise do diretor.
+                      Este prazo já foi encerrado. A justificativa ainda pode ser
+                      enviada para análise do diretor.
                     </p>
                   </div>
                 </div>
               )}
 
-              {/* Campo do motivo */}
+              {/* Campo motivo */}
               <div className="space-y-2">
                 <label
                   htmlFor="motivo"
-                  className="flex items-center gap-1 text-sm font-medium"
+                  className="text-sm font-medium flex items-center gap-1"
                 >
                   Motivo da não submissão{' '}
                   <span className="text-destructive">*</span>
@@ -209,7 +232,7 @@ export default function Create({ prazo, justificativa }) {
                 </p>
               </div>
 
-              {/* Justificativa existente com status */}
+              {/* Justificativa existente */}
               {justificativa && (
                 <>
                   <Separator />
@@ -226,11 +249,11 @@ export default function Create({ prazo, justificativa }) {
                       </p>
                     )}
                     {justificativa.motivo && (
-                      <div className="mt-2 rounded border border-border/30 bg-background p-2">
-                        <p className="text-xs font-medium text-muted-foreground">
+                      <div className="mt-2 p-2 bg-background rounded border border-border/30">
+                        <p className="text-xs text-muted-foreground font-medium">
                           Motivo enviado:
                         </p>
-                        <p className="mt-0.5 text-sm">{justificativa.motivo}</p>
+                        <p className="text-sm mt-0.5">{justificativa.motivo}</p>
                       </div>
                     )}
                   </div>
