@@ -79,72 +79,71 @@ class CursoTuteladoProfessorController extends Controller
     // STORE
     // ============================================================
 
-    public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
-    {
-        $this->authorize('manageProfessores', $cursoTutelado);
+public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
+{
+    $this->authorize('manageProfessores', $cursoTutelado);
 
-        $request->validate([
-            'professor_id'      => 'required|exists:professores,id',
-            'tipo'              => 'required|in:principal,colaborador',
-            'coordenador'       => 'boolean',
-            'opap'              => 'boolean',
-            'grupo_disciplinar' => 'nullable|in:nenhum,membro,coordenador',
-        ]);
+    $request->validate([
+        'professor_id'      => 'required|exists:professores,id',
+        'tipo'              => 'required|in:principal,colaborador',
+        'coordenador'       => 'boolean',
+        'opap'              => 'boolean',
+        'grupo_disciplinar' => 'nullable|in:nenhum,membro,coordenador',
+    ]);
 
-        // ── Validação: já tem coordenador de curso? ──
-        if ($request->boolean('coordenador')) {
-            $jaTemCoordenador = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
-                ->where('professor_id', '!=', $request->professor_id)
-                ->where('coordenador', true)
-                ->exists();
+    // ── Validação: já tem coordenador de curso? ──
+    if ($request->boolean('coordenador')) {
+        $jaTemCoordenador = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
+            ->where('professor_id', '!=', $request->professor_id)
+            ->where('coordenador', true)
+            ->exists();
 
-            if ($jaTemCoordenador) {
-                return back()->withErrors([
-                    'coordenador' => 'Este curso tutelado já tem um coordenador definido.',
-                ]);
-            }
+        if ($jaTemCoordenador) {
+            return back()->withErrors([
+                'coordenador' => 'Este curso tutelado já tem um coordenador definido.',
+            ]);
         }
-
-        // ── Validação: já tem coordenador de grupo disciplinar? ──
-        if ($request->grupo_disciplinar === 'coordenador') {
-            $jaTemCoordenadorGrupo = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
-                ->where('professor_id', '!=', $request->professor_id)
-                ->where('grupo_disciplinar', 'coordenador')
-                ->exists();
-
-            if ($jaTemCoordenadorGrupo) {
-                return back()->withErrors([
-                    'grupo_disciplinar' => 'Este curso já tem um coordenador do grupo disciplinar.',
-                ]);
-            }
-        }
-
-        // ── Cria/atualiza o vínculo ──
-        $vinculo = CursoTuteladoProfessor::updateOrCreate(
-            [
-                'curso_tutelado_id' => $cursoTutelado->id,
-                'professor_id'      => $request->professor_id,
-            ],
-            [
-                'tipo'              => $request->tipo,
-                'coordenador'       => $request->boolean('coordenador'),
-                'opap'              => $request->boolean('opap'),
-                'grupo_disciplinar' => $
-        CursoTuteladoProfessor::updateOrCreate(request->grupo_disciplinar ?? 'nenhum',
-            ]
-        );
-
-        // ── Sincroniza os roles do Spatie ──
-        $professor = Professor::find($request->professor_id);
-        $this->sincronizarRolesGrupoDisciplinar($professor->user, $request->grupo_disciplinar);
-
-        $this->notificarProfessorAdicionadoAoCurso($professor, $cursoTutelado, $vinculo);
-
-        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
-            'instituicao'   => $instituicao->id,
-            'cursoTutelado' => $cursoTutelado->id,
-        ]);
     }
+
+    // ── Validação: já tem coordenador de grupo disciplinar? ──
+    if ($request->grupo_disciplinar === 'coordenador') {
+        $jaTemCoordenadorGrupo = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
+            ->where('professor_id', '!=', $request->professor_id)
+            ->where('grupo_disciplinar', 'coordenador')
+            ->exists();
+
+        if ($jaTemCoordenadorGrupo) {
+            return back()->withErrors([
+                'grupo_disciplinar' => 'Este curso já tem um coordenador do grupo disciplinar.',
+            ]);
+        }
+    }
+
+    // ── Cria/atualiza o vínculo ──
+    $vinculo = CursoTuteladoProfessor::updateOrCreate(
+        [
+            'curso_tutelado_id' => $cursoTutelado->id,
+            'professor_id'      => $request->professor_id,
+        ],
+        [
+            'tipo'              => $request->tipo,
+            'coordenador'       => $request->boolean('coordenador'),
+            'opap'              => $request->boolean('opap'),
+            'grupo_disciplinar' => $request->grupo_disciplinar ?? 'nenhum',
+        ]
+    );
+
+    // ── Sincroniza os roles do Spatie ──
+    $professor = Professor::find($request->professor_id);
+    $this->sincronizarRolesGrupoDisciplinar($professor->user, $request->grupo_disciplinar);
+
+    $this->notificarProfessorAdicionadoAoCurso($professor, $cursoTutelado, $vinculo);
+
+    return to_route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
+        'instituicao'   => $instituicao->id,
+        'cursoTutelado' => $cursoTutelado->id,
+    ]);
+}
 
     // ============================================================
     // SHOW (não usado)
