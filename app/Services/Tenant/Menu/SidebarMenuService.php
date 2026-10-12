@@ -73,13 +73,13 @@ final class SidebarMenuService
                     can: true,
                 ),
 
-                new MenuItem(
+                /*new MenuItem(
                     key: 'instituicoes',
                     title: 'Instituições',
                     href: action([InstituicaoController::class, 'index']),
                     icon: 'Building2',
                     can: fn () => $gate->allows('viewAny', Instituicao::class),
-                ),
+                ),*/
 
                 new MenuItem(
                     key: 'minha-instituicao',
@@ -167,7 +167,9 @@ final class SidebarMenuService
                     title: 'Grelha Curricular',
                     href: action([GrelhaCurricularController::class, 'index']),
                     icon: 'LayoutList',
-                    can: fn () => $gate->allows('grelha-curricular.viewAny'),
+                    can: fn () => ! $user->isSuperAdmin()
+                        && $user->hasRole('Aluno')
+                        && $gate->allows('grelha-curricular.viewAny'),
                 ),
 
                 new MenuItem(
@@ -175,7 +177,9 @@ final class SidebarMenuService
                     title: 'Minhas Notas',
                     href: action([NotaAlunoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn () => $gate->allows('viewAny', Nota::class)
+                    can: fn () => ! $user->isSuperAdmin()
+                        && $user->hasRole('Aluno')
+                        && $gate->allows('viewAny', Nota::class)
                 ),
 
                 new MenuItem(
@@ -183,7 +187,9 @@ final class SidebarMenuService
                     title: 'Horários',
                     href: route('tenant.dashboard.horarios'),
                     icon: 'CalendarClock',
-                    can: fn () => $gate->allows('horarios.viewAny')
+                    can: fn () => ! $user->isSuperAdmin()
+                        && $user->hasRole('Aluno')
+                        && $gate->allows('horarios.viewAny')
                 ),
 
                 new MenuItem(

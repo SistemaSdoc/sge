@@ -44,10 +44,12 @@ export function Header({ can, disciplina, params }) {
                   {can.curso.view ? (
                     <Link
                       className="text-sm font-semibold text-primary hover:text-primary/80"
-                      href={showCurso({
-                        instituicao: params.instituicao.id,
-                        cursoTutelado: params.cursoTutelado.id,
-                      }).url}
+                      href={
+                        showCurso({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                        }).url
+                      }
                     >
                       {params.cursoTutelado.nome}
                     </Link>
@@ -66,11 +68,13 @@ export function Header({ can, disciplina, params }) {
                   {can.classe.view ? (
                     <Link
                       className="text-sm font-semibold text-primary hover:text-primary/80"
-                      href={showClasse({
-                        instituicao: params.instituicao.id,
-                        cursoTutelado: params.cursoTutelado.id,
-                        cursoClasse: params.cursoClasse.id,
-                      }).url}
+                      href={
+                        showClasse({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                          cursoClasse: params.cursoClasse.id,
+                        }).url
+                      }
                     >
                       {params.cursoClasse.nome}
                     </Link>
@@ -89,11 +93,13 @@ export function Header({ can, disciplina, params }) {
                   {can.turno.view ? (
                     <Link
                       className="text-sm font-semibold text-primary hover:text-primary/80"
-                      href={showClasse({
-                        instituicao: params.instituicao.id,
-                        cursoTutelado: params.cursoTutelado.id,
-                        cursoClasse: params.cursoClasse.id,
-                      }).url}
+                      href={
+                        showClasse({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                          cursoClasse: params.cursoClasse.id,
+                        }).url
+                      }
                       data={{ turno: params.cursoClasseTurno.id }}
                     >
                       {params.cursoClasseTurno.nome}
@@ -113,13 +119,15 @@ export function Header({ can, disciplina, params }) {
                   {can.turma.view ? (
                     <Link
                       className="text-sm font-semibold text-primary hover:text-primary/80"
-                      href={showTurma({
-                        instituicao: params.instituicao.id,
-                        cursoTutelado: params.cursoTutelado.id,
-                        cursoClasse: params.cursoClasse.id,
-                        cursoClasseTurno: params.cursoClasseTurno.id,
-                        turma: params.turma.id,
-                      }).url}
+                      href={
+                        showTurma({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                          cursoClasse: params.cursoClasse.id,
+                          cursoClasseTurno: params.cursoClasseTurno.id,
+                          turma: params.turma.id,
+                        }).url
+                      }
                     >
                       {params.turma.nome}
                     </Link>

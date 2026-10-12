@@ -118,7 +118,6 @@ Route::middleware([
         ->name('tenant.logout');
 
     Route::get('token/{token}', [AuthenticatedSessionController::class, 'token'])
-        ->middleware('guest:tenant')
         ->name('tenant.login.token');
 
     /*

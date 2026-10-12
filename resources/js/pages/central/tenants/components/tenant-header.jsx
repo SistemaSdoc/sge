@@ -9,10 +9,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import { Link, router } from '@inertiajs/react';
-import { ArrowUpLeft, ArrowUpRight } from 'lucide-react';
+import { ArrowUpLeft, ArrowUpRight, LogIn } from 'lucide-react';
 import {
   index,
   edit,
+  impersonate,
 } from '@/actions/App/Http/Controllers/Central/TenantController';
 import { StatusBadge } from './status-badge';
 
@@ -27,7 +28,7 @@ export function Header({ can, tenant }) {
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
                     <Link
-                      className="text-sm font-semibold text-primary hover:text-primary/80"
+                      className="text-sm font-semibold text-primary hover:text-primary/80 dark:text-foreground dark:hover:text-foreground/80"
                       href={index().url}
                     >
                       <span className="line-clamp-1">Instituições</span>
@@ -50,7 +51,7 @@ export function Header({ can, tenant }) {
             <Button
               variant="outline"
               size="sm"
-              className="w-full sm:w-auto"
+              className="w-full hover:cursor-pointer sm:w-auto"
               onClick={() => router.visit(index().url)}
             >
               <ArrowUpLeft className="shrink-0" />
@@ -59,7 +60,20 @@ export function Header({ can, tenant }) {
 
             <Button
               size="sm"
-              className="w-full sm:w-auto"
+              variant="outline"
+              className="w-full hover:cursor-pointer sm:w-auto"
+              disabled={!tenant.canImpersonate}
+              onClick={() =>
+                router.post(impersonate({ tenant: tenant.id }).url)
+              }
+            >
+              <LogIn className="shrink-0" />
+              Entrar no tenant
+            </Button>
+
+            <Button
+              size="sm"
+              className="w-full hover:cursor-pointer sm:w-auto"
               onClick={(e) => {
                 e.stopPropagation();
                 router.visit(edit({ tenant: tenant.id }).url);
@@ -109,7 +123,7 @@ export function Header({ can, tenant }) {
             <Link
               href={`http://${tenant.domain}`}
               target="_blank"
-              className="line-clamp-1"
+              className="line-clamp-1 dark:text-foreground dark:hover:text-foreground/80"
             >
               http://{tenant?.domain}{' '}
               <ArrowUpRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />

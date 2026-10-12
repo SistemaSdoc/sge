@@ -54,7 +54,7 @@ export function AcademicData({ data }) {
               value={data.academic.turma}
             />
 
-                        <ReadOnlyField
+            <ReadOnlyField
               label="Sala"
               name="sala"
               value={data.academic.sala || 'Por definir'}

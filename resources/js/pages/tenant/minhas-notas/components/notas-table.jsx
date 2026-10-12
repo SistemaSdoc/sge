@@ -100,7 +100,7 @@ export function NotasTable({
           <CardTitle>Minhas Notas</CardTitle>
           <CardDescription>{descricao}</CardDescription>
         </div>
-        
+
         <CardAction className="flex w-full flex-col gap-2 self-stretch md:w-auto md:flex-row md:self-center">
           <Select value={classeId ?? ''} onValueChange={handleClasseChange}>
             <SelectTrigger id="classe" className="w-full md:w-fit">
@@ -199,7 +199,7 @@ export function NotasTable({
 
                           <TableCell className="px-4 text-center">
                             {trimData.faltas !== null &&
-                              trimData.faltas !== undefined
+                            trimData.faltas !== undefined
                               ? trimData.faltas
                               : '-'}
                           </TableCell>

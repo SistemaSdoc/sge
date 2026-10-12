@@ -1,9 +1,18 @@
 import { router } from '@inertiajs/react';
 import {
-  Card, CardContent, CardDescription, CardHeader, CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from '@/components/ui/table';
 import { Minus, BookIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
@@ -19,8 +28,12 @@ function routeId(value) {
   return value;
 }
 
-export function TabRecurso({ disciplinas = [], params, pagination, onPageChange }) {
-
+export function TabRecurso({
+  disciplinas = [],
+  params,
+  pagination,
+  onPageChange,
+}) {
   function handleClick(disciplina) {
     if (!disciplina.professor) {
       toast.warning('Esta disciplina ainda não tem professor atribuído.');

@@ -26,7 +26,7 @@ export default function AnoLectivoForm({
   onSubmit,
 }) {
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-6">
+    <div className="mx-auto w-full max-w-2xl p-4 md:p-6">
       <form onSubmit={onSubmit}>
         <Card>
           <CardHeader className="border-b">
@@ -56,7 +56,11 @@ export default function AnoLectivoForm({
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={processing}>
+                  <Button
+                    type="submit"
+                    disabled={processing}
+                    className="hover:cursor-pointer"
+                  >
                     Guardar ano lectivo
                   </Button>
 
@@ -65,6 +69,7 @@ export default function AnoLectivoForm({
                     variant="outline"
                     disabled={processing}
                     onClick={() => window.history.back()}
+                    className="hover:cursor-pointer"
                   >
                     <ArrowUpLeft />
                     Voltar

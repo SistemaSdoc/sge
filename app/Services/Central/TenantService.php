@@ -91,6 +91,29 @@ class TenantService
     }
 
     /**
+     * Obtém a conta de suporte central criada na base do tenant.
+     */
+    public function getTenantCentralSupportUser(Tenant $tenant): ?User
+    {
+        try {
+            return $tenant->run(fn (): ?User => User::query()
+                ->where('email', User::CENTRAL_SUPPORT_EMAIL)
+                ->first());
+        } catch (TenantDatabaseDoesNotExistException|QueryException $exception) {
+            if (! $this->isMissingTenantDatabase($exception)) {
+                throw $exception;
+            }
+
+            Log::warning('Tenant database unavailable while reading central support account.', [
+                'tenant_id' => $tenant->getTenantKey(),
+                'exception' => $exception,
+            ]);
+
+            return null;
+        }
+    }
+
+    /**
      * Lista tenants disponíveis para tutela externa.
      *
      * @return array<int, array{id: string, nome: string}>

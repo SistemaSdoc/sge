@@ -144,7 +144,7 @@ export default function Index({ anosLectivos, filters }) {
   return (
     <>
       <Head title="Anos Lectivos" />
-      <div className="mx-auto w-full max-w-7xl p-6">
+      <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
         <Card className="gap-0 pb-0">
           <CardHeader className="border-b">
             <CardTitle>Anos Lectivos</CardTitle>
@@ -228,6 +228,7 @@ export default function Index({ anosLectivos, filters }) {
                               variant="outline"
                               size="xs"
                               onClick={() => handleRestore(anoLectivo)}
+                              className="hover:cursor-pointer"
                             >
                               Restaurar
                             </Button>
@@ -236,6 +237,7 @@ export default function Index({ anosLectivos, filters }) {
                               variant="destructive"
                               size="xs"
                               onClick={() => handleArchive(anoLectivo)}
+                              className="hover:cursor-pointer"
                             >
                               Arquivar
                             </Button>

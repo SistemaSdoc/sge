@@ -61,7 +61,7 @@ export function TenantTable({
   );
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <Card className="gap-0">
         <CardHeader className="border-b">
           <CardTitle>Instituições</CardTitle>
@@ -135,9 +135,9 @@ export function TenantTable({
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
+                            variant="outline"
+                            size="icon-sm"
+                            className="hover:cursor-pointer"
                           >
                             <MoreHorizontalIcon />
                             <span className="sr-only">Open menu</span>
@@ -150,6 +150,7 @@ export function TenantTable({
                               e.stopPropagation();
                               router.visit(edit(tenant.id).url);
                             }}
+                            className="hover:cursor-pointer"
                           >
                             Editar
                           </DropdownMenuItem>
@@ -177,6 +178,7 @@ export function TenantTable({
                               e.stopPropagation();
                               handleToggleStatus(tenant, e);
                             }}
+                            className="hover:cursor-pointer"
                           >
                             Alterar status
                           </DropdownMenuItem>
@@ -189,6 +191,7 @@ export function TenantTable({
                               e.stopPropagation();
                               deleteFn(tenant.id);
                             }}
+                            className="hover:cursor-pointer"
                           >
                             Remover
                           </DropdownMenuItem>

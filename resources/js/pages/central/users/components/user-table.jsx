@@ -122,7 +122,11 @@ export default function UserTable({
                   <TableCell className="px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          className="hover:cursor-pointer"
+                        >
                           <MoreHorizontalIcon />
                           <span className="sr-only">Abrir menu</span>
                         </Button>
@@ -131,6 +135,7 @@ export default function UserTable({
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() => router.visit(edit(user.id).url)}
+                          className="hover:cursor-pointer"
                         >
                           Editar
                         </DropdownMenuItem>
@@ -138,6 +143,7 @@ export default function UserTable({
                         <DropdownMenuItem
                           variant="destructive"
                           onClick={() => deleteFn(user.id)}
+                          className="hover:cursor-pointer"
                         >
                           Remover
                         </DropdownMenuItem>

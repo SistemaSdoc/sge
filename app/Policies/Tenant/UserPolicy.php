@@ -43,6 +43,10 @@ class UserPolicy
      */
     public function view(User $user, User $target): bool
     {
+        if ($target->isCentralSupport()) {
+            return false;
+        }
+
         if ($user->is($target)) {
             return true;
         }
@@ -68,6 +72,10 @@ class UserPolicy
      */
     public function update(User $user, User $target): bool
     {
+        if ($target->isCentralSupport()) {
+            return false;
+        }
+
         if (
             ($target->isDirector() && ! $user->isSuperAdmin() && ! $user->is($target))
             || ($user->isSubdirector() && $user->is($target))
@@ -84,6 +92,10 @@ class UserPolicy
      */
     public function managePermissions(User $user, User $target): bool
     {
+        if ($target->isCentralSupport()) {
+            return false;
+        }
+
         if (
             ($target->isDirector() && ! $user->isSuperAdmin() && ! $user->is($target))
             || ($user->isSubdirector() && $user->is($target))
@@ -100,6 +112,10 @@ class UserPolicy
      */
     public function delete(User $user, User $target): bool
     {
+        if ($target->isCentralSupport()) {
+            return false;
+        }
+
         // só director (ou super admin) pode remover
         if (! $user->isDirector() && ! $user->isSuperAdmin()) {
             return false;

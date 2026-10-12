@@ -28,11 +28,13 @@ class AccessManagementController extends Controller
 
         Gate::forUser($user)->authorize('acessos.viewAny');
 
-        $users = User::with([
-            'roles:id,name',
-            'roles.permissions:id,name',
-            'permissions:id,name',
-        ])
+        $users = User::query()
+            ->visibleInTenantUserLists()
+            ->with([
+                'roles:id,name',
+                'roles.permissions:id,name',
+                'permissions:id,name',
+            ])
             ->when(! $user->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $user->instituicao_id))
             ->search($request->string('search')->toString())
             ->latest('created_at')

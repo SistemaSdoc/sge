@@ -13,12 +13,10 @@ export default function CentralDashboard({ metricas = {}, tenants = [] }) {
   const greeting = getGreeting();
   const todayFormatted = getTodayFormatted();
   const { auth } = usePage().props;
-  const acoesComPendencias = ACCOES.filter(
-    (acao) => Number(acao.count) > 0,
-  );
+  const acoesComPendencias = ACCOES.filter((acao) => Number(acao.count) > 0);
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 md:p-6">
       <GreetingHeader
         greeting={greeting}
         userName={auth.user?.nome}

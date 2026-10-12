@@ -82,11 +82,9 @@ export function ResultadoFinal({ resultado }) {
         <CardContent className="flex flex-col gap-2">
           {resultado.disciplinas
             .filter((disciplina) =>
-              [
-                'transita_com_deficiencia',
-                'recurso',
-                'reprovado',
-              ].includes(disciplina.situacao),
+              ['transita_com_deficiencia', 'recurso', 'reprovado'].includes(
+                disciplina.situacao,
+              ),
             )
             .map((disciplina) => {
               const situacao =

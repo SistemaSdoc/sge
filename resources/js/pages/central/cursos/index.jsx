@@ -65,7 +65,7 @@ export default function Index({ cursos, filters }) {
   return (
     <>
       <Head title="Cursos" />
-      <div className="mx-auto w-full max-w-7xl p-6">
+      <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
         <Card className="gap-0 pb-0">
           <CardHeader className="border-b">
             <CardTitle>Cursos</CardTitle>
@@ -136,6 +136,7 @@ export default function Index({ cursos, filters }) {
                                 variant="destructive"
                                 size="xs"
                                 onClick={() => handleDelete(curso)}
+                                className="hover:cursor-pointer"
                               >
                                 Suspender
                               </Button>
@@ -147,6 +148,7 @@ export default function Index({ cursos, filters }) {
                               variant="outline"
                               size="xs"
                               onClick={() => handleRestore(curso)}
+                              className="hover:cursor-pointer"
                             >
                               Restaurar
                             </Button>

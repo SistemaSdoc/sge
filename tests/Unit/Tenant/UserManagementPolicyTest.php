@@ -13,6 +13,7 @@ it('allows managing a user from the same institution', function (): void {
     $actor->shouldReceive('can')->with('usuarios.gerir')->andReturnTrue();
     $actor->shouldReceive('isSuperAdmin')->andReturnFalse();
     $actor->shouldReceive('isSubdirector')->andReturnFalse();
+    $target->shouldReceive('isCentralSupport')->andReturnFalse();
     $target->shouldReceive('isDirector')->andReturnFalse();
 
     expect((new UserPolicy)->update($actor, $target))->toBeTrue();
@@ -28,9 +29,22 @@ it('denies managing a user from another institution', function (): void {
     $actor->shouldReceive('can')->with('usuarios.gerir')->andReturnTrue();
     $actor->shouldReceive('isSuperAdmin')->andReturnFalse();
     $actor->shouldReceive('isSubdirector')->andReturnFalse();
+    $target->shouldReceive('isCentralSupport')->andReturnFalse();
     $target->shouldReceive('isDirector')->andReturnFalse();
 
     expect((new UserPolicy)->update($actor, $target))->toBeFalse();
+});
+
+it('denies tenant users access to the central support account', function (): void {
+    $actor = Mockery::mock(User::class);
+    $target = Mockery::mock(User::class);
+
+    $target->shouldReceive('isCentralSupport')->andReturnTrue();
+
+    expect((new UserPolicy)->view($actor, $target))->toBeFalse()
+        ->and((new UserPolicy)->update($actor, $target))->toBeFalse()
+        ->and((new UserPolicy)->managePermissions($actor, $target))->toBeFalse()
+        ->and((new UserPolicy)->delete($actor, $target))->toBeFalse();
 });
 
 it('does not allow deleting the authenticated user', function (): void {
@@ -39,8 +53,10 @@ it('does not allow deleting the authenticated user', function (): void {
 
     $actor->shouldReceive('getKey')->andReturn('user-a');
     $target->shouldReceive('getKey')->andReturn('user-a');
+    $actor->shouldReceive('isDirector')->andReturnFalse();
     $actor->shouldReceive('isSuperAdmin')->andReturnFalse();
     $actor->shouldReceive('isSubdirector')->andReturnFalse();
+    $target->shouldReceive('isCentralSupport')->andReturnFalse();
     $target->shouldReceive('isDirector')->andReturnFalse();
     $actor->shouldReceive('can')->with('usuarios.delete')->andReturnTrue();
 
@@ -56,6 +72,7 @@ it('allows managing permissions for a same-institution target', function (): voi
     $actor->shouldReceive('can')->with('usuarios.gerir')->andReturnTrue();
     $actor->shouldReceive('isSuperAdmin')->andReturnFalse();
     $actor->shouldReceive('isSubdirector')->andReturnFalse();
+    $target->shouldReceive('isCentralSupport')->andReturnFalse();
     $target->shouldReceive('isDirector')->andReturnFalse();
 
     expect((new UserPolicy)->managePermissions($actor, $target))->toBeTrue();
@@ -65,6 +82,7 @@ it('does not allow a subdirector to manage their own permissions', function (): 
     $actor = Mockery::mock(User::class)->makePartial();
 
     $actor->instituicao_id = 'institution-a';
+    $actor->shouldReceive('isCentralSupport')->andReturnFalse();
     $actor->shouldReceive('isDirector')->andReturnFalse();
     $actor->shouldReceive('isSubdirector')->andReturnTrue();
     $actor->shouldReceive('is')->with($actor)->andReturnTrue();

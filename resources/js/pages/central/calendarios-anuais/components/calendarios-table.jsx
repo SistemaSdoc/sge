@@ -52,7 +52,7 @@ export default function CalendariosTable({
   const isEmpty = calendarios.length === 0;
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <Card className="gap-0 pb-0">
         <CardHeader className="border-b">
           <CardTitle>Calendários Publicados</CardTitle>
@@ -61,7 +61,11 @@ export default function CalendariosTable({
           </CardDescription>
 
           <CardAction>
-            <Button type="button" onClick={onAdd}>
+            <Button
+              type="button"
+              onClick={onAdd}
+              className="hover:cursor-pointer"
+            >
               Adicionar
             </Button>
           </CardAction>
@@ -107,15 +111,18 @@ export default function CalendariosTable({
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
+                            variant="outline"
+                            size="icon-sm"
+                            className="hover:cursor-pointer"
                           >
                             <MoreHorizontalIcon />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
+                          <DropdownMenuItem
+                            asChild
+                            className="hover:cursor-pointer"
+                          >
                             <a
                               href={view(calendario.id).url}
                               target="_blank"
@@ -124,22 +131,32 @@ export default function CalendariosTable({
                               Visualizar
                             </a>
                           </DropdownMenuItem>
+
                           <DropdownMenuItem
                             onClick={() => onToggle(calendario)}
+                            className="hover:cursor-pointer"
                           >
                             {calendario.ativo ? 'Desactivar' : 'Activar'}
                           </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
+
+                          <DropdownMenuItem
+                            asChild
+                            className="hover:cursor-pointer"
+                          >
                             <a href={download(calendario.id).url}>Baixar</a>
                           </DropdownMenuItem>
+
                           <DropdownMenuItem
                             onClick={() => onReplace(calendario)}
+                            className="hover:cursor-pointer"
                           >
                             Substituir
                           </DropdownMenuItem>
+
                           <DropdownMenuItem
                             variant="destructive"
                             onClick={() => onDelete(calendario)}
+                            className="hover:cursor-pointer"
                           >
                             Eliminar
                           </DropdownMenuItem>

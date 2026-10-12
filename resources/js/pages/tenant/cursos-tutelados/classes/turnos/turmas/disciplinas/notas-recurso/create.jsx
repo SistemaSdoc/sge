@@ -33,10 +33,7 @@ export default function Create() {
 
   const handleSubmit = (payload) => {
     form.transform(() => payload);
-    form.post(
-      indexRecurso({ ...params }).url,
-      { preserveScroll: true },
-    );
+    form.post(indexRecurso({ ...params }).url, { preserveScroll: true });
   };
 
   if (!alunos?.data || alunos.data.length === 0) {

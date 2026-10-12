@@ -8,6 +8,7 @@ use App\Traits\HasUuid;
 use Database\Factories\Tenant\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -46,6 +47,8 @@ class User extends Authenticatable implements PasskeyUser
 {
     use HasFactory, HasRoles, HasSearch, HasUuid, Notifiable, PasskeyAuthenticatable, SoftDeletes, TwoFactorAuthenticatable;
 
+    public const CENTRAL_SUPPORT_EMAIL = 'suporte@app.pge.edu.ao';
+
     protected array $searchable = ['nome', 'email'];
 
     protected $guard = 'tenant';
@@ -61,6 +64,21 @@ class User extends Authenticatable implements PasskeyUser
             $this->professor,
             $this->candidato,
         ]);
+    }
+
+    public function isCentralSupport(): bool
+    {
+        return $this->email === self::CENTRAL_SUPPORT_EMAIL;
+    }
+
+    public function scopeVisibleInTenantUserLists(Builder $query): Builder
+    {
+        return $query->withoutCentralSupport();
+    }
+
+    public function scopeWithoutCentralSupport(Builder $query): Builder
+    {
+        return $query->where($this->qualifyColumn('email'), '!=', self::CENTRAL_SUPPORT_EMAIL);
     }
 
     public function sendPasswordResetNotification($token): void
