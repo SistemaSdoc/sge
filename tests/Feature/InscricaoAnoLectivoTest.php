@@ -238,10 +238,10 @@ test('removing a student deletes empty inscriptions and blocks students with pay
             'instituicao_id' => $instituicao->id,
         ]);
 
-        return [$alunoUser, $inscricao, $aluno];
+        return [$alunoUser, $inscricao, $aluno, $candidato];
     };
 
-    [$utilizadorSemPagamento, $inscricaoSemPagamento, $alunoSemPagamento] = $criarAluno('Aluno Sem Pagamento', '101');
+    [$utilizadorSemPagamento, $inscricaoSemPagamento, $alunoSemPagamento, $candidatoSemPagamento] = $criarAluno('Aluno Sem Pagamento', '101');
     [$utilizadorComPagamento, $inscricaoComPagamento, $alunoComPagamento] = $criarAluno('Aluno Com Pagamento', '102');
     $turma = Turma::create([
         'nome' => 'Turma sem histórico',
@@ -279,6 +279,9 @@ test('removing a student deletes empty inscriptions and blocks students with pay
         ->and($alunoComPagamento->podeSerRemovido()['bloqueios'])->toContain('pagamentos')
         ->and($superAdmin->can('delete', $alunoComPagamento))->toBeFalse();
 
+    $alunoSemPagamento->delete();
+    $candidatoSemPagamento->delete();
+
     app(DeleteUser::class)->handle($utilizadorSemPagamento);
 
     expect(fn () => app(DeleteUser::class)->handle($utilizadorComPagamento))
@@ -312,8 +315,9 @@ test('removing a student deletes empty inscriptions and blocks students with pay
             ->where('pagamento.aluno', 'Aluno Com Pagamento'));
 
     $this->assertDatabaseMissing('alunos', ['id' => $alunoSemPagamento->id]);
+    $this->assertDatabaseMissing('candidatos', ['id' => $candidatoSemPagamento->id]);
+    $this->assertDatabaseMissing('users', ['id' => $utilizadorSemPagamento->id]);
     $this->assertDatabaseMissing('turma_aluno', ['aluno_id' => $alunoSemPagamento->id]);
-    $this->assertSoftDeleted('users', ['id' => $utilizadorSemPagamento->id]);
     $this->assertDatabaseMissing('inscricoes', ['id' => $inscricaoSemPagamento->id]);
     $this->assertDatabaseHas('users', ['id' => $utilizadorComPagamento->id, 'deleted_at' => null]);
     $this->assertDatabaseHas('alunos', ['id' => $alunoComPagamento->id, 'deleted_at' => null]);

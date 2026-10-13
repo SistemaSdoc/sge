@@ -31,6 +31,7 @@ use App\Http\Controllers\Tenant\GrelhaCurricularController;
 use App\Http\Controllers\Tenant\GrupoPapAprovacaoController;
 use App\Http\Controllers\Tenant\GrupoPapController;
 use App\Http\Controllers\Tenant\GrupoPapTemaController;
+use App\Http\Controllers\Tenant\HorarioController;
 use App\Http\Controllers\Tenant\InscricaoController;
 use App\Http\Controllers\Tenant\InstituicaoController;
 use App\Http\Controllers\Tenant\InstituicaoCurso\TurmaDisciplinaProfessorController;
@@ -501,6 +502,8 @@ Route::middleware([
             | Horários de Disciplinas de Turmas
             |--------------------------------------------------------------------------
             */
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios/create', [ClasseTurnoDisciplinaHorarioController::class, 'create'])
+                ->name('turma.disciplinas.horarios.create');
 
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store'])
                 ->name('turma.disciplinas.horarios.store');
@@ -794,7 +797,7 @@ Route::middleware([
             |--------------------------------------------------------------------------
             */
 
-            Route::get('horarios', fn () => inertia('tenant/horarios/index'))
+            Route::get('horarios', [HorarioController::class, 'index'])
                 ->middleware('can:horarios.viewAny')
                 ->name('horarios');
 

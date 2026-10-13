@@ -43,7 +43,7 @@ class Professor extends Model implements HasUserCleanup
             ->where('status', 'pendente')
             ->delete();
 
-        $this->delete();
+        $this->forceDelete();
     }
 
     protected array $searchable = ['especialidade', 'nivel_academico', 'user.nome'];

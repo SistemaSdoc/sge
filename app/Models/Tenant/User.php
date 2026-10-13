@@ -60,9 +60,9 @@ class User extends Authenticatable implements PasskeyUser
     public function profiles(): array
     {
         return array_filter([
-            $this->aluno,
-            $this->professor,
-            $this->candidato,
+            $this->aluno()->withTrashed()->first(),
+            $this->professor()->withTrashed()->first(),
+            $this->candidato()->withTrashed()->first(),
         ]);
     }
 
