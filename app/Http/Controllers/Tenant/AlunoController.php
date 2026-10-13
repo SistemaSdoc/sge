@@ -53,7 +53,11 @@ class AlunoController extends Controller
             ->unique()
             ->values();
 
-        $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
+        $alunos = Aluno::query()
+            ->select('alunos.*')
+            ->leftJoin('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
+            ->leftJoin('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->whereIn('alunos.situacao', ['activo', 'finalista', 'reprovado'])
             ->doAnoLectivo($anoLectivoId)
             ->search($request->string('search')->toString())
             ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
@@ -89,7 +93,8 @@ class AlunoController extends Controller
                     fn ($q) => $q->whereIn('turmas.id', $user->professor->turmas()->pluck('turmas.id'))
                 )
             )
-            ->latest('created_at')
+            ->orderBy('candidatos.nome')
+            ->orderBy('alunos.id')
             ->paginate(10)
             ->withQueryString();
 

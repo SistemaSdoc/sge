@@ -247,7 +247,7 @@ final class SidebarMenuService
             ]),
 
             // ===== NOVO GRUPO: AVALIAÇÃO (Provas) =====
-            new MenuGroup('Avaliação', [
+           /* new MenuGroup('Avaliação', [
                 new MenuItem(
                     key: 'prazos-provas',
                     title: 'Prazos de Provas',
@@ -271,7 +271,7 @@ final class SidebarMenuService
                     can: fn() => $gate->allows('viewAny', Planificacao::class),
                 ),
 
-            ]),
+            ]),*/
 
 
             new MenuGroup('Matrículas', [

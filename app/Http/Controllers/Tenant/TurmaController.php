@@ -112,7 +112,7 @@ class TurmaController extends Controller
             }
         }
 
-        $turmas = $query->latest('created_at')->with([
+        $turmas = $query->orderBy('turmas.nome')->orderBy('turmas.id')->with([
             'cursoClasseTurno.turno:id,nome',
             'cursoClasseTurno.cursoClasse.classe:id,nome',
             'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',

@@ -233,7 +233,10 @@ class ClasseTurnoTurmaController extends Controller
             ->wherePivot('activo', true)
             ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
-            ->orderBy('alunos.created_at', 'desc')
+            ->leftJoin('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
+            ->leftJoin('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->orderBy('candidatos.nome')
+            ->orderBy('alunos.id')
             ->paginate(10, ['*'], 'page_alunos');
 
         // Adiciona isto:
