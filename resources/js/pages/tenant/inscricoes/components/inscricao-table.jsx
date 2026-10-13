@@ -57,6 +57,8 @@ import TablePagination from '@/components/table-pagination';
 import { TableSearch } from '@/components/table-search';
 import { useTableSearch } from '@/hooks/use-table-search';
 import { destroy } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
+import { edit } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
+
 import {
   Select,
   SelectContent,

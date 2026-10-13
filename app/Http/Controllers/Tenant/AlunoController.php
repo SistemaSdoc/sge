@@ -8,6 +8,7 @@ use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class AlunoController extends Controller
@@ -320,7 +322,7 @@ class AlunoController extends Controller
         $anoLectivoId = $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         $aluno->load([
-            'inscricao.candidato:id,nome,bi,email,telefone',
+            'inscricao.candidato:id,user_id,nome,bi,email',
             'inscricao.cursoClasseTurno.turno:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
@@ -328,12 +330,89 @@ class AlunoController extends Controller
                 ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
         ]);
 
-        $turmas = Turma::where('curso_classe_turno_id', $aluno->inscricao->curso_classe_turno_id)
-            ->where('ano_lectivo_id', $anoLectivoId)
-            ->with('cursoClasseTurno.cursoClasse.classe:id,nome')
-            ->get();
-
         $turmaAtual = $aluno->turmas()->wherePivot('activo', true)->first();
+        $cursoTuteladoId = $turmaAtual?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id
+            ?? $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id;
+
+        $cursoClasseIdAtual = $turmaAtual?->cursoClasseTurno?->curso_classe_id
+            ?? $aluno->inscricao?->cursoClasseTurno?->curso_classe_id;
+
+        $cursoClasseTurnoIdAtual = $turmaAtual?->curso_classe_turno_id
+            ?? $aluno->inscricao?->cursoClasseTurno?->id;
+
+        $user = Auth::guard('tenant')->user();
+        $cursosQuery = CursoTutelado::query()
+            ->with('instituicaoCurso.curso:id,nome,deleted_at');
+
+        if ($user?->instituicao_id) {
+            $cursosQuery->whereHas(
+                'instituicaoCurso',
+                fn ($query) => $query->where('instituicao_id', $user->instituicao_id),
+            );
+        } elseif ($cursoTuteladoId) {
+            $cursosQuery->whereKey($cursoTuteladoId);
+        }
+
+        if ($user?->hasRole('Secretario do Curso')) {
+            $cursosQuery->whereHas(
+                'secretarios',
+                fn ($query) => $query->whereKey($user->getKey()),
+            );
+        }
+
+        $cursos = $cursosQuery->get()
+            ->reject(fn (CursoTutelado $cursoTutelado) => $cursoTutelado->instituicaoCurso?->curso?->trashed())
+            ->map(fn (CursoTutelado $cursoTutelado) => [
+                'id' => $cursoTutelado->id,
+                'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome ?? 'Curso',
+            ])
+            ->values();
+
+        $cursoTuteladoIds = $cursos->pluck('id');
+
+        $classes = $cursoTuteladoIds->isNotEmpty()
+            ? CursoClasse::query()
+                ->whereIn('curso_tutelado_id', $cursoTuteladoIds)
+                ->with('classe:id,nome')
+                ->get()
+                ->map(fn ($cursoClasse) => [
+                    'id' => $cursoClasse->id,
+                    'nome' => $cursoClasse->classe?->nome,
+                    'curso_tutelado_id' => $cursoClasse->curso_tutelado_id,
+                ])
+            : [];
+
+        $turnos = $cursoTuteladoIds->isNotEmpty()
+            ? CursoClasseTurno::query()
+                ->whereHas('cursoClasse', fn ($query) => $query->whereIn('curso_tutelado_id', $cursoTuteladoIds))
+                ->with('turno:id,nome')
+                ->get()
+                ->map(fn ($cursoClasseTurno) => [
+                    'id' => $cursoClasseTurno->id,
+                    'nome' => $cursoClasseTurno->turno?->nome,
+                    'curso_classe_id' => $cursoClasseTurno->curso_classe_id,
+                ])
+            : [];
+
+        $turmas = $cursoTuteladoIds->isNotEmpty()
+            ? Turma::query()
+                ->whereHas('cursoClasseTurno.cursoClasse', fn ($query) => $query->whereIn('curso_tutelado_id', $cursoTuteladoIds))
+                ->where('ano_lectivo_id', $anoLectivoId)
+                ->with([
+                    'cursoClasseTurno.turno:id,nome',
+                    'cursoClasseTurno.cursoClasse.classe:id,nome',
+                ])
+                ->orderBy('nome')
+                ->get()
+                ->map(fn ($turma) => [
+                    'id' => $turma->id,
+                    'nome' => $turma->nome,
+                    'curso_classe_id' => $turma->cursoClasseTurno?->curso_classe_id,
+                    'curso_classe_turno_id' => $turma->curso_classe_turno_id,
+                    'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
+                    'turno' => $turma->cursoClasseTurno?->turno?->nome,
+                ])
+            : [];
 
         return Inertia::render('tenant/alunos/edit', [
             'aluno' => [
@@ -342,13 +421,16 @@ class AlunoController extends Controller
                 'numero_processo' => $aluno->numero_processo,
                 'nome' => $aluno->inscricao?->candidato?->nome,
                 'bi' => $aluno->inscricao?->candidato?->bi,
+                'email' => $aluno->inscricao?->candidato?->email,
+                'curso_tutelado_id' => $cursoTuteladoId,
+                'curso_classe_id' => $cursoClasseIdAtual,
+                'curso_classe_turno_id' => $cursoClasseTurnoIdAtual,
+                'turma_id' => $turmaAtual?->id,
             ],
-            'turmas' => $turmas->map(fn ($turma) => [
-                'id' => $turma->id,
-                'nome' => $turma->nome,
-                'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
-            ]),
-            'turmaAtual' => $turmaAtual?->id,
+            'cursos' => $cursos,
+            'classes' => $classes,
+            'turnos' => $turnos,
+            'turmas' => $turmas,
         ]);
     }
 
@@ -356,18 +438,47 @@ class AlunoController extends Controller
     {
         Gate::authorize('update', $aluno);
 
+        $candidato = $aluno->inscricao?->candidato;
+        abort_if($candidato === null, 404);
+
+        $uniqueUserBi = Rule::unique('users', 'bi');
+        $uniqueUserEmail = Rule::unique('users', 'email');
+
+        if ($candidato->user_id !== null) {
+            $uniqueUserBi->ignore($candidato->user_id);
+            $uniqueUserEmail->ignore($candidato->user_id);
+        }
+
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
-            'bi' => 'required|string|max:20',
-            'matricula' => 'nullable|string|max:255|unique:alunos,matricula,'.$aluno->id,
+            'bi' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('candidatos', 'bi')->ignore($candidato),
+                $uniqueUserBi,
+            ],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('candidatos', 'email')->ignore($candidato),
+                $uniqueUserEmail,
+            ],
             'turma_id' => 'nullable|exists:turmas,id',
         ]);
 
-        $aluno->update(['matricula' => $dados['matricula']]);
-
-        $aluno->inscricao->candidato->update([
+        $dadosCandidato = [
             'nome' => $dados['nome'],
             'bi' => $dados['bi'],
+            'email' => $dados['email'],
+        ];
+
+        $candidato->update($dadosCandidato);
+        $candidato->user?->update([
+            'nome' => $dadosCandidato['nome'],
+            'bi' => $dadosCandidato['bi'],
+            'email' => $dadosCandidato['email'],
         ]);
 
         if ($dados['turma_id'] ?? null) {
@@ -387,6 +498,13 @@ class AlunoController extends Controller
                         'activo' => true,
                     ],
                 ]);
+
+                if ($aluno->inscricao && $aluno->inscricao->curso_classe_turno_id !== $turma->curso_classe_turno_id) {
+                    $aluno->inscricao->update([
+                        'curso_classe_turno_id' => $turma->curso_classe_turno_id,
+                    ]);
+                }
+
                 $this->notificarAlunoTransferidoTurma($aluno, $turma);
             }
         }
