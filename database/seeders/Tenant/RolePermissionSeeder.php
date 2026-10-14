@@ -488,6 +488,7 @@ class RolePermissionSeeder extends Seeder
                 'turmas.view',
                 'turmas.create',
                 'turmas.update',
+                'turmas.delete',
 
                 'pautas.viewAny',
                 'pautas.view',

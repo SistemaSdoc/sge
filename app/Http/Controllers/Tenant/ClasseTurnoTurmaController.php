@@ -15,12 +15,14 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
+use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Models\Tenant\User;
 use App\Rules\CentralAnoLectivoExists;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\Pauta\PautaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -494,11 +496,41 @@ class ClasseTurnoTurmaController extends Controller
             ]);
         }
 
-        $turma->delete();
+        if ($turma->turmaDisciplinaProfessor()->whereNotNull('professor_id')->exists()) {
+            return back()->withErrors([
+                'turma' => 'Não é possível remover uma turma que tem disciplinas ou professores associados.',
+            ]);
+        }
 
-        // Preservar filtro no redirect usando o ano da turma
-        $anoLectivoParam = $turma->ano_lectivo_id ? ['ano_lectivo_id' => $turma->ano_lectivo_id] : [];
+        $atribuicoesSemProfessor = $turma->turmaDisciplinaProfessor()
+            ->whereNull('professor_id')
+            ->get();
 
-        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.index', $anoLectivoParam);
+        if ($atribuicoesSemProfessor->contains(
+            fn (TurmaDisciplinaProfessor $atribuicao): bool => $atribuicao->temHistorico()
+        )) {
+            return back()->withErrors([
+                'turma' => 'Não é possível remover uma turma que tem histórico académico associado às disciplinas.',
+            ]);
+        }
+
+        if ($turma->gruposPap()->exists()) {
+            return back()->withErrors([
+                'turma' => 'Não é possível remover uma turma que tem grupos PAP associados.',
+            ]);
+        }
+
+        DB::transaction(function () use ($atribuicoesSemProfessor, $turma): void {
+            foreach ($atribuicoesSemProfessor as $atribuicao) {
+                $atribuicao->solicitacoesEdicaoPauta()->delete();
+                $atribuicao->pautaStatuses()->delete();
+                $atribuicao->notas()->delete();
+                $atribuicao->delete();
+            }
+
+            $turma->delete();
+        });
+
+        return back()->with('success', 'Turma removida com sucesso.');
     }
 }

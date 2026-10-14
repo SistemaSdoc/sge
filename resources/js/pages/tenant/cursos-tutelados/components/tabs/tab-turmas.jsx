@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Minus, UsersIcon } from 'lucide-react';
+import { Minus, Trash2, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import TablePagination from '@/components/table-pagination';
 import {
@@ -31,6 +31,7 @@ export function TabTurmas({
   pagination = {},
   onPageChange,
   anoLectivoId,
+  deleteFn,
 }) {
   const isEmpty = !turmas.data || turmas.data.length === 0;
 
@@ -124,6 +125,21 @@ export function TabTurmas({
                           }}
                         >
                           Editar
+                        </Button>
+                      )}
+
+                      {turma.can?.delete && (
+                        <Button
+                          variant="destructive"
+                          size="xs"
+                          className="text-[10px]"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteFn?.(turma);
+                          }}
+                        >
+               
+                          Remover
                         </Button>
                       )}
                     </div>
