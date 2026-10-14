@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { useState, useMemo } from 'react';
 import {
   ArrowLeft,
   Download,
@@ -11,6 +12,10 @@ import {
   User,
   Trash2,
   History,
+  CalendarDays,
+  Hash,
+  FileCheck2,
+  Layers,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -30,8 +35,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { PeriodoBadge } from '@/components/periodo-badge';
-import { useState } from 'react';
 
 export default function Show({ planificacao, can = {} }) {
   const [previewVersao, setPreviewVersao] = useState(null);
@@ -41,101 +51,170 @@ export default function Show({ planificacao, can = {} }) {
   const versaoAtual =
     planificacao.versoes.find((v) => v.is_atual) ?? planificacao.versoes[0];
 
+  const versoesOrdenadas = useMemo(
+    () => [...planificacao.versoes].sort((a, b) => b.versao - a.versao),
+    [planificacao.versoes]
+  );
+
   const handleDelete = () => {
     setDeleting(true);
     router.delete(`/dashboard/planificacoes/${planificacao.id}`, {
       onFinish: () => setDeleting(false),
+      onSuccess: () => {
+        toast.success('Planificação apagada', {
+          description: 'Todas as versões foram removidas.',
+        });
+      },
+      onError: () => {
+        toast.error('Não foi possível apagar', {
+          description: 'Tente novamente em alguns instantes.',
+        });
+      },
     });
   };
 
+  const metaInfo = [
+    {
+      icon: BookOpen,
+      label: 'Disciplina',
+      value: planificacao.disciplina?.nome ?? '—',
+    },
+    {
+      icon: GraduationCap,
+      label: 'Classe',
+      value: planificacao.classe?.nome ?? '—',
+    },
+    {
+      icon: CalendarDays,
+      label: 'Ano letivo',
+      value: planificacao.ano_letivo?.nome ?? '—',
+    },
+    {
+      icon: User,
+      label: 'Publicada por',
+      value: planificacao.criada_por ?? '—',
+    },
+    {
+      icon: Clock,
+      label: 'Atualizada em',
+      value: planificacao.atualizada_em,
+    },
+    {
+      icon: Layers,
+      label: 'Versões',
+      value: `${planificacao.versoes.length}`,
+    },
+  ];
+
   return (
-    <>
+    <TooltipProvider>
       <Head title={planificacao.titulo ?? 'Planificação'} />
 
       <div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
         {/* Voltar */}
-        <Button variant="ghost" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild className="-ml-2">
           <Link href="/dashboard/planificacoes">
             <ArrowLeft className="mr-1 size-4" />
             Voltar às planificações
           </Link>
         </Button>
 
-        {/* Header */}
-        <Card>
-          <CardHeader className="border-b">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="mb-2 flex flex-wrap items-center gap-2">
+        {/* Hero */}
+        <div className="relative overflow-hidden border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
+          <div
+            className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-primary/10 blur-3xl"
+            aria-hidden
+          />
+
+          <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex size-14 shrink-0 items-center justify-center   bg-primary/15 ring-1 ring-primary/20">
+                <FileCheck2 className="size-7 text-primary" />
+              </div>
+              <div className="min-w-0 space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <PeriodoBadge periodo={planificacao.periodo} />
-                  <Badge variant="outline">v{planificacao.versao_atual}</Badge>
+                  <Badge variant="outline" className="font-mono text-[11px]">
+                    v{planificacao.versao_atual}
+                  </Badge>
+                  {planificacao.versoes.length > 1 && (
+                    <Badge variant="secondary" className="gap-1 font-normal">
+                      <History className="size-3" />
+                      {planificacao.versoes.length} versões
+                    </Badge>
+                  )}
                 </div>
-                <CardTitle className="text-xl">
+
+                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
                   {planificacao.titulo ?? 'Planificação'}
-                </CardTitle>
+                </h1>
+
                 {planificacao.descricao && (
-                  <CardDescription className="mt-2">
+                  <p className="text-sm leading-relaxed text-muted-foreground">
                     {planificacao.descricao}
-                  </CardDescription>
+                  </p>
                 )}
               </div>
-
-              {can.delete && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setDeleteDialog(true)}
-                >
-                  <Trash2 className="mr-1 size-4" />
-                  Apagar
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-
-          <CardContent className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2">
-            <div className="flex items-center gap-2 text-sm">
-              <BookOpen className="size-4 text-muted-foreground" />
-              <span className="font-medium">Disciplina:</span>
-              <span>{planificacao.disciplina?.nome ?? '—'}</span>
             </div>
 
-            <div className="flex items-center gap-2 text-sm">
-              <GraduationCap className="size-4 text-muted-foreground" />
-              <span className="font-medium">Classe:</span>
-              <span>{planificacao.classe?.nome ?? '—'}</span>
-            </div>
+            {can.delete && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDeleteDialog(true)}
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Trash2 className="mr-1.5 size-4" />
+                Apagar
+              </Button>
+            )}
+          </div>
 
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="size-4 text-muted-foreground" />
-              <span className="font-medium">Ano letivo:</span>
-              <span>{planificacao.ano_letivo?.nome ?? '—'}</span>
-            </div>
+          {/* Meta grid */}
+          <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {metaInfo.map(({ icon: Icon, label, value }) => (
+              <div
+                key={label}
+                className="  border bg-background/60 p-3 backdrop-blur-sm"
+              >
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <Icon className="size-3.5" />
+                  <span className="text-[11px] font-medium uppercase tracking-wide">
+                    {label}
+                  </span>
+                </div>
+                <p className="mt-1 truncate text-sm font-semibold" title={value}>
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
 
-            <div className="flex items-center gap-2 text-sm">
-              <User className="size-4 text-muted-foreground" />
-              <span className="font-medium">Publicada por:</span>
-              <span>{planificacao.criada_por ?? '—'}</span>
-            </div>
-
-            <div className="flex items-center gap-2 text-sm">
-              <Clock className="size-4 text-muted-foreground" />
-              <span className="font-medium">Atualizada em:</span>
-              <span>{planificacao.atualizada_em}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Versão atual */}
+        {/* Versão atual — destaque */}
         {versaoAtual && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                Versão atual (v{versaoAtual.versao})
-              </CardTitle>
-              <CardDescription>{versaoAtual.nome_original}</CardDescription>
+          <Card className="overflow-hidden border-primary/30">
+            <CardHeader className="border-b bg-primary/5">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-lg bg-primary/15 ring-1 ring-primary/20">
+                  <FileText className="size-5 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base">
+                      Versão atual
+                    </CardTitle>
+                    <Badge variant="default" className="font-mono text-[10px]">
+                      v{versaoAtual.versao}
+                    </Badge>
+                  </div>
+                  <CardDescription className="mt-0.5 truncate">
+                    {versaoAtual.nome_original}
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="flex flex-wrap gap-2">
                 {versaoAtual.eh_pdf && (
                   <Button
@@ -160,57 +239,108 @@ export default function Show({ planificacao, can = {} }) {
         )}
 
         {/* Histórico de versões */}
-        {planificacao.versoes.length > 1 && (
+        {versoesOrdenadas.length > 1 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <History className="size-4" />
                 Histórico de versões
+                <Badge variant="secondary" className="ml-1 font-mono text-[10px]">
+                  {versoesOrdenadas.length}
+                </Badge>
               </CardTitle>
+              <CardDescription>
+                Todas as versões submetidas para esta planificação.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              {planificacao.versoes.map((v) => (
+              {versoesOrdenadas.map((v) => (
                 <div
                   key={v.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded border p-3"
+                  className={`group flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 transition-colors ${
+                    v.is_atual
+                      ? 'border-primary/30 bg-primary/5'
+                      : 'hover:border-primary/30 hover:bg-muted/40'
+                  }`}
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={v.is_atual ? 'default' : 'outline'}
-                        className="text-[10px]"
-                      >
-                        v{v.versao}
-                      </Badge>
-                      {v.is_atual && (
-                        <span className="text-xs font-medium text-primary">
-                          Atual
-                        </span>
-                      )}
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <div
+                      className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${
+                        v.is_atual
+                          ? 'bg-primary/15 text-primary'
+                          : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      <FileText className="size-4" />
                     </div>
-                    <p className="mt-1 truncate text-sm font-medium">
-                      {v.nome_original}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {v.tamanho} • {v.uploaded_by ?? '—'} • {v.uploaded_em}
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge
+                          variant={v.is_atual ? 'default' : 'outline'}
+                          className="font-mono text-[10px]"
+                        >
+                          v{v.versao}
+                        </Badge>
+                        {v.is_atual && (
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-primary">
+                            Atual
+                          </span>
+                        )}
+                      </div>
+                      <p
+                        className="mt-1 truncate text-sm font-medium"
+                        title={v.nome_original}
+                      >
+                        {v.nome_original}
+                      </p>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                        <span className="inline-flex items-center gap-1">
+                          <Hash className="size-3" />
+                          {v.tamanho}
+                        </span>
+                        <span aria-hidden>•</span>
+                        <span className="inline-flex items-center gap-1">
+                          <User className="size-3" />
+                          {v.uploaded_by ?? '—'}
+                        </span>
+                        <span aria-hidden>•</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="size-3" />
+                          {v.uploaded_em}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex gap-1">
+                  <div className="flex shrink-0 gap-1">
                     {v.eh_pdf && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setPreviewVersao(v)}
-                      >
-                        <Eye className="size-4" />
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setPreviewVersao(v)}
+                            aria-label="Pré-visualizar"
+                          >
+                            <Eye className="size-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Pré-visualizar</TooltipContent>
+                      </Tooltip>
                     )}
-                    <Button variant="ghost" size="sm" asChild>
-                      <a href={`/dashboard/planificacoes/versao/${v.id}/download`}>
-                        <Download className="size-4" />
-                      </a>
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" asChild>
+                          <a
+                            href={`/dashboard/planificacoes/versao/${v.id}/download`}
+                            aria-label="Descarregar"
+                          >
+                            <Download className="size-4" />
+                          </a>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Descarregar</TooltipContent>
+                    </Tooltip>
                   </div>
                 </div>
               ))}
@@ -226,11 +356,14 @@ export default function Show({ planificacao, can = {} }) {
       >
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>{previewVersao?.nome_original}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="size-4 text-primary" />
+              <span className="truncate">{previewVersao?.nome_original}</span>
+            </DialogTitle>
             <DialogDescription>Pré-visualização do documento</DialogDescription>
           </DialogHeader>
           {previewVersao && (
-            <div className="h-[70vh] w-full overflow-hidden rounded border">
+            <div className="h-[70vh] w-full overflow-hidden rounded-lg border bg-muted/30">
               <iframe
                 src={`/dashboard/planificacoes/versao/${previewVersao.id}/preview`}
                 className="h-full w-full"
@@ -260,10 +393,13 @@ export default function Show({ planificacao, can = {} }) {
       <Dialog open={deleteDialog} onOpenChange={setDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Apagar planificação?</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Trash2 className="size-4 text-destructive" />
+              Apagar planificação?
+            </DialogTitle>
             <DialogDescription>
-              Todas as versões serão removidas permanentemente. Esta ação não pode
-              ser desfeita.
+              Todas as versões serão removidas permanentemente. Esta ação não
+              pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -275,11 +411,11 @@ export default function Show({ planificacao, can = {} }) {
               onClick={handleDelete}
               disabled={deleting}
             >
-              {deleting ? 'A apagar...' : 'Apagar definitivamente'}
+              {deleting ? 'A apagar…' : 'Apagar definitivamente'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </TooltipProvider>
   );
 }

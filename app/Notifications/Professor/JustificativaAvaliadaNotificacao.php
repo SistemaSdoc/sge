@@ -29,33 +29,49 @@ class JustificativaAvaliadaNotificacao extends Notification implements ShouldQue
         $aceita = $this->status() === 'aceita';
         $prazo = $this->justificativa->prazo;
 
+        $prazoExtraAte = $aceita && $this->justificativa->prazo_prorrogado_ate
+            ? $this->justificativa->prazo_prorrogado_ate->format('d/m/Y H:i')
+            : null;
+
         return (new MailMessage)
             ->subject($aceita ? 'Justificativa aceite' : 'Justificativa recusada')
             ->view('mail.professor.justificativa-avaliada', [
-                'nome' => $notifiable->nome,
-                'aceita' => $aceita,
-                'statusLabel' => $this->statusLabel(),
-                'prazoTitulo' => $prazo?->titulo,
-                'disciplina' => $prazo?->disciplina?->nome,
-                'classe' => $prazo?->classe?->nome,
-                'turmaNome' => $this->justificativa->turma?->nome,
+                'nome'          => $notifiable->nome,
+                'aceita'        => $aceita,
+                'statusLabel'   => $this->statusLabel(),
+                'prazoTitulo'   => $prazo?->titulo,
+                'disciplina'    => $prazo?->disciplina?->nome,
+                'classe'        => $prazo?->classe?->nome,
+                'turmaNome'     => $this->justificativa->turma?->nome,
                 'dataAvaliacao' => $this->justificativa->updated_at?->format('d/m/Y H:i') ?? '—',
-                'motivo' => $this->justificativa->motivo,
-                'parecer' => $this->justificativa->parecer_diretor,
-                'url' => url('/dashboard/professor/provas'),
-                'instituicao' => $notifiable->instituicao,
+                'motivo'        => $this->justificativa->motivo,
+                'parecer'       => $this->justificativa->parecer_diretor,
+                'prazoExtraAte' => $prazoExtraAte,
+                'diasRestantes' => $this->justificativa->diasRestantes(),
+                'url'           => url('/dashboard/professor/provas'),
+                'instituicao'   => $notifiable->instituicao,
             ]);
     }
 
     public function toArray(object $notifiable): array
     {
         $aceita = $this->status() === 'aceita';
+        $prazoExtra = $aceita && $this->justificativa->prazo_prorrogado_ate
+            ? $this->justificativa->prazo_prorrogado_ate->format('d/m/Y H:i')
+            : null;
+
+        $mensagem = "A sua justificativa para \"{$this->justificativa->prazo?->titulo}\" foi {$this->statusLabel()}.";
+
+        if ($prazoExtra) {
+            $mensagem .= " Tem até {$prazoExtra} para submeter.";
+        }
 
         return [
-            'tipo' => 'justificativa_avaliada',
-            'titulo' => $aceita ? 'Justificativa aceite' : 'Justificativa recusada',
-            'mensagem' => "A sua justificativa para \"{$this->justificativa->prazo?->titulo}\" foi {$this->statusLabel()}.",
-            'url' => '/dashboard/professor/provas',
+            'tipo'             => 'justificativa_avaliada',
+            'titulo'           => $aceita ? 'Justificativa aceite' : 'Justificativa recusada',
+            'mensagem'         => $mensagem,
+            'nova_data_limite' => $prazoExtra,
+            'url'              => '/dashboard/professor/provas',
         ];
     }
 
@@ -69,9 +85,9 @@ class JustificativaAvaliadaNotificacao extends Notification implements ShouldQue
     private function statusLabel(): string
     {
         return match ($this->status()) {
-            'aceita' => 'aceite',
+            'aceita'   => 'aceite',
             'recusada' => 'recusada',
-            default => $this->status(),
+            default    => $this->status(),
         };
     }
 }

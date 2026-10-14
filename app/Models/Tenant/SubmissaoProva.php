@@ -34,6 +34,7 @@ class SubmissaoProva extends Model
         'estado',
         'turma_id',
         'parecer_diretor',
+        'prazo_reenvio_ate',
         'data_submissao',
     ];
 
@@ -42,6 +43,7 @@ class SubmissaoProva extends Model
      */
     protected $casts = [
         'data_submissao' => 'datetime',
+        'prazo_reenvio_ate' => 'datetime',
         'versao' => 'integer',
     ];
 

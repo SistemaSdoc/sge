@@ -7,6 +7,12 @@ import {
   X,
   Loader2,
   CheckCircle2,
+  Sparkles,
+  CalendarDays,
+  BookOpen,
+  GraduationCap,
+  Clock,
+  Info,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -27,6 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 
 export default function Create({
   cursos = [],
@@ -48,6 +55,7 @@ export default function Create({
   });
 
   const [nomeFicheiro, setNomeFicheiro] = useState('');
+  const [aArrastar, setAArrastar] = useState(false);
 
   const submit = (e) => {
     e.preventDefault();
@@ -67,10 +75,20 @@ export default function Create({
     });
   };
 
-  const handleFile = (e) => {
-    const f = e.target.files?.[0] ?? null;
+  const handleFile = (f) => {
+    if (!f) return;
     setData('ficheiro', f);
-    setNomeFicheiro(f?.name ?? '');
+    setNomeFicheiro(f.name);
+  };
+
+  const onInputChange = (e) => {
+    handleFile(e.target.files?.[0] ?? null);
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    setAArrastar(false);
+    handleFile(e.dataTransfer.files?.[0] ?? null);
   };
 
   const limparFicheiro = () => {
@@ -78,28 +96,65 @@ export default function Create({
     setNomeFicheiro('');
   };
 
+  const temErro = Object.keys(errors).length > 0;
+
   return (
     <>
       <Head title="Nova planificação" />
 
-      <div className="mx-auto w-full max-w-3xl p-4 sm:p-6">
-        <Button variant="ghost" size="sm" asChild className="mb-4">
+      <div className="mx-auto w-full max-w-3xl space-y-6 p-4 sm:p-6">
+        <Button variant="ghost" size="sm" asChild className="-ml-2">
           <Link href="/dashboard/planificacoes">
             <ArrowLeft className="mr-1 size-4" />
-            Voltar
+            Voltar às planificações
           </Link>
         </Button>
 
-        <Card>
-          <CardHeader className="border-b">
-            <CardTitle className="text-xl">Publicar planificação</CardTitle>
-            <CardDescription>
-              Selecione o ano letivo, curso, disciplina, classe e período. Se já
-              existir, será criada uma nova versão.
-            </CardDescription>
-          </CardHeader>
+        {/* Hero */}
+        <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
+          <div
+            className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-primary/10 blur-3xl"
+            aria-hidden
+          />
+          <div className="relative flex items-start gap-4">
+            <div className="flex size-14 shrink-0 items-center justify-center   bg-primary/15 ring-1 ring-primary/20">
+              <Sparkles className="size-7 text-primary" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Publicar
+              </p>
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                Nova planificação
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Selecione os dados e anexe o ficheiro. Se já existir uma
+                planificação com os mesmos parâmetros, será criada uma nova
+                versão.
+              </p>
+            </div>
+          </div>
+        </div>
 
-          <form onSubmit={submit}>
+        <form onSubmit={submit} className="space-y-6">
+          {/* Contexto académico */}
+          <Card>
+            <CardHeader className="border-b">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+                  <CalendarDays className="size-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <CardTitle className="text-base">
+                    Contexto académico
+                  </CardTitle>
+                  <CardDescription>
+                    Ano letivo, curso, disciplina, classe e período.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+
             <CardContent className="space-y-5 pt-6">
               {/* Ano letivo */}
               <div className="space-y-1.5">
@@ -122,7 +177,9 @@ export default function Create({
                   </SelectContent>
                 </Select>
                 {errors.ano_letivo_id && (
-                  <p className="text-sm text-destructive">{errors.ano_letivo_id}</p>
+                  <p className="text-sm text-destructive">
+                    {errors.ano_letivo_id}
+                  </p>
                 )}
               </div>
 
@@ -173,7 +230,9 @@ export default function Create({
                     </SelectContent>
                   </Select>
                   {errors.disciplina_id && (
-                    <p className="text-sm text-destructive">{errors.disciplina_id}</p>
+                    <p className="text-sm text-destructive">
+                      {errors.disciplina_id}
+                    </p>
                   )}
                 </div>
 
@@ -197,7 +256,9 @@ export default function Create({
                     </SelectContent>
                   </Select>
                   {errors.classe_id && (
-                    <p className="text-sm text-destructive">{errors.classe_id}</p>
+                    <p className="text-sm text-destructive">
+                      {errors.classe_id}
+                    </p>
                   )}
                 </div>
               </div>
@@ -226,10 +287,33 @@ export default function Create({
                   <p className="text-sm text-destructive">{errors.periodo}</p>
                 )}
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Título */}
+          {/* Detalhes */}
+          <Card>
+            <CardHeader className="border-b">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+                  <BookOpen className="size-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <CardTitle className="text-base">Detalhes</CardTitle>
+                  <CardDescription>
+                    Título e descrição são opcionais.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-5 pt-6">
               <div className="space-y-1.5">
-                <Label htmlFor="titulo">Título (opcional)</Label>
+                <Label htmlFor="titulo">
+                  Título{' '}
+                  <span className="text-xs font-normal text-muted-foreground">
+                    (opcional)
+                  </span>
+                </Label>
                 <Input
                   id="titulo"
                   value={data.titulo}
@@ -238,84 +322,148 @@ export default function Create({
                 />
               </div>
 
-              {/* Descrição */}
               <div className="space-y-1.5">
-                <Label htmlFor="descricao">Descrição (opcional)</Label>
+                <Label htmlFor="descricao">
+                  Descrição{' '}
+                  <span className="text-xs font-normal text-muted-foreground">
+                    (opcional)
+                  </span>
+                </Label>
                 <Textarea
                   id="descricao"
                   rows={3}
                   value={data.descricao}
                   onChange={(e) => setData('descricao', e.target.value)}
-                  placeholder="Notas sobre esta planificação..."
+                  placeholder="Notas sobre esta planificação…"
                 />
               </div>
-
-              {/* Ficheiro */}
-              <div className="space-y-1.5">
-                <Label htmlFor="ficheiro">
-                  Ficheiro <span className="text-destructive">*</span>
-                </Label>
-
-                {!nomeFicheiro ? (
-                  <label
-                    htmlFor="ficheiro"
-                    className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/25 p-8 text-sm text-muted-foreground hover:border-primary/50 hover:bg-muted/30 transition-colors"
-                  >
-                    <Upload className="size-5" />
-                    <span>Clique para escolher ficheiro (PDF, DOC, DOCX • até 20MB)</span>
-                    <input
-                      id="ficheiro"
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleFile}
-                      className="hidden"
-                    />
-                  </label>
-                ) : (
-                  <div className="flex items-center justify-between rounded-lg border p-3">
-                    <div className="flex min-w-0 items-center gap-2">
-                      <FileText className="size-5 shrink-0 text-primary" />
-                      <span className="truncate text-sm font-medium">
-                        {nomeFicheiro}
-                      </span>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={limparFicheiro}
-                    >
-                      <X className="size-4" />
-                    </Button>
-                  </div>
-                )}
-
-                {errors.ficheiro && (
-                  <p className="text-sm text-destructive">{errors.ficheiro}</p>
-                )}
-              </div>
             </CardContent>
+          </Card>
 
-            <div className="flex flex-col-reverse gap-2 border-t p-4 sm:flex-row sm:justify-end">
+          {/* Ficheiro */}
+          <Card>
+            <CardHeader className="border-b">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+                  <FileText className="size-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <CardTitle className="text-base">Ficheiro</CardTitle>
+                  <CardDescription>
+                    PDF, DOC ou DOCX — até 20 MB.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent className="pt-6">
+              {!nomeFicheiro ? (
+                <label
+                  htmlFor="ficheiro"
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setAArrastar(true);
+                  }}
+                  onDragLeave={() => setAArrastar(false)}
+                  onDrop={onDrop}
+                  className={`flex cursor-pointer flex-col items-center justify-center gap-3   border-2 border-dashed p-10 text-center transition-all ${
+                    aArrastar
+                      ? 'border-primary bg-primary/5 scale-[1.01]'
+                      : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/30'
+                  }`}
+                >
+                  <div
+                    className={`flex size-14 items-center justify-center   transition-colors ${
+                      aArrastar
+                        ? 'bg-primary/15 text-primary'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    <Upload className="size-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">
+                      {aArrastar
+                        ? 'Solte o ficheiro aqui'
+                        : 'Arraste e solte, ou clique para escolher'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      PDF, DOC, DOCX • máximo 20 MB
+                    </p>
+                  </div>
+                  <input
+                    id="ficheiro"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={onInputChange}
+                    className="hidden"
+                  />
+                </label>
+              ) : (
+                <div className="flex items-center gap-3   border bg-muted/20 p-4">
+                  <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                    <FileText className="size-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className="truncate text-sm font-medium"
+                      title={nomeFicheiro}
+                    >
+                      {nomeFicheiro}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Pronto para publicar
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={limparFicheiro}
+                    aria-label="Remover ficheiro"
+                  >
+                    <X className="size-4" />
+                  </Button>
+                </div>
+              )}
+
+              {errors.ficheiro && (
+                <p className="mt-2 text-sm text-destructive">
+                  {errors.ficheiro}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Footer sticky-like com resumo + ações */}
+          <div className="flex flex-col-reverse gap-2  border bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Info className="size-3.5 shrink-0" />
+              <span>
+                Campos com <span className="text-destructive">*</span> são
+                obrigatórios.
+              </span>
+            </div>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row">
               <Button type="button" variant="outline" asChild>
                 <Link href="/dashboard/planificacoes">Cancelar</Link>
               </Button>
-              <Button type="submit" disabled={processing}>
+              <Button type="submit" disabled={processing} className="shadow-sm">
                 {processing ? (
                   <>
                     <Loader2 className="mr-1.5 size-4 animate-spin" />
-                    A publicar...
+                    A publicar…
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="mr-1.5 size-4" />
-                    Publicar
+                    Publicar planificação
                   </>
                 )}
               </Button>
             </div>
-          </form>
-        </Card>
+          </div>
+        </form>
       </div>
     </>
   );
