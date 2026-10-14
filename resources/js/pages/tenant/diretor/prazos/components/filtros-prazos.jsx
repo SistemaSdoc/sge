@@ -19,7 +19,6 @@ export default function FiltrosPrazos({
   };
 
   return (
-    <div className="border border-border bg-card p-4 shadow-sm">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Status */}
         <div className="space-y-1.5">
@@ -89,6 +88,5 @@ export default function FiltrosPrazos({
           </Button>
         </div>
       </div>
-    </div>
   );
 }
