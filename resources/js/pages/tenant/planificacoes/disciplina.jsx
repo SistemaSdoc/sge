@@ -114,12 +114,12 @@ export default function Disciplina({
         {/* Hero da disciplina */}
         <div className="relative overflow-hidden border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
           <div
-            className="pointer-events-none absolute -right-16 -top-16 size-56  -full bg-primary/10 blur-3xl"
+            className="pointer-events-none absolute -right-16 -top-16 size-56  bg-primary/10 blur-3xl"
             aria-hidden
           />
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center   bg-primary/15 ring-1 ring-primary/20">
+              <div className="flex size-14 shrink-0 items-center justify-center  bg-primary/15 ring-1 ring-primary/20">
                 <BookOpen className="size-7 text-primary" />
               </div>
               <div className="space-y-1">
@@ -150,7 +150,7 @@ export default function Disciplina({
           {/* Stats */}
           {planificacoes.length > 0 && (
             <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <div className="   border bg-background/60 p-3 backdrop-blur-sm">
+              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <FileText className="size-3.5" />
                   <span className="text-[11px] font-medium uppercase tracking-wide">
@@ -160,7 +160,7 @@ export default function Disciplina({
                 <p className="mt-1 text-2xl font-bold">{stats.total}</p>
               </div>
 
-              <div className="   border bg-background/60 p-3 backdrop-blur-sm">
+              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Layers className="size-3.5" />
                   <span className="text-[11px] font-medium uppercase tracking-wide">
@@ -171,7 +171,7 @@ export default function Disciplina({
               </div>
 
               {stats.ultima && (
-                <div className="col-span-2    border bg-background/60 p-3 backdrop-blur-sm sm:col-span-1">
+                <div className="col-span-2  border bg-background/60 p-3 backdrop-blur-sm sm:col-span-1">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <TrendingUp className="size-3.5" />
                     <span className="text-[11px] font-medium uppercase tracking-wide">
@@ -202,7 +202,7 @@ export default function Disciplina({
 
         {/* Lista */}
         {planificacoes.length === 0 ? (
-          <Empty className=" -2xl border border-dashed">
+          <Empty className=" border border-dashed">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <BookOpen />
@@ -223,7 +223,7 @@ export default function Disciplina({
             )}
           </Empty>
         ) : grupos.length === 0 ? (
-          <Empty className=" -2xl border border-dashed">
+          <Empty className=" border border-dashed">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <Search />
@@ -247,7 +247,7 @@ export default function Disciplina({
               <section key={classe.id} className="space-y-4">
                 {/* Header da classe */}
                 <div className="flex items-center gap-3 border-b pb-3">
-                  <div className="flex size-9 items-center justify-center  -lg bg-primary/10">
+                  <div className="flex size-9 items-center justify-center bg-primary/10">
                     <GraduationCap className="size-4.5 text-primary" />
                   </div>
                   <div className="flex-1">
@@ -306,13 +306,13 @@ export default function Disciplina({
                       <CardContent className="flex-1 pb-3">
                         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                           {p.ano_letivo && (
-                            <span className="inline-flex items-center gap-1  -md bg-muted/60 px-2 py-1">
+                            <span className="inline-flex items-center gap-1  bg-muted/60 px-2 py-1">
                               <Calendar className="size-3" />
                               {p.ano_letivo}
                             </span>
                           )}
                           {p.classe?.nome && (
-                            <span className="inline-flex items-center gap-1  -md bg-muted/60 px-2 py-1">
+                            <span className="inline-flex items-center gap-1  bg-muted/60 px-2 py-1">
                               <GraduationCap className="size-3" />
                               {p.classe.nome}
                             </span>

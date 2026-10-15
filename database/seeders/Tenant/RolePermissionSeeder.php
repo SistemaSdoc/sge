@@ -612,6 +612,7 @@ class RolePermissionSeeder extends Seeder
                 // Pautas
                 // 'pautas.viewAny',
                 'pautas.view',
+                'submissao-prova.viewAny',
 
                 // Notas
                 'notas.create',
