@@ -31,6 +31,7 @@ use App\Http\Controllers\Tenant\GrelhaCurricularController;
 use App\Http\Controllers\Tenant\GrupoPapAprovacaoController;
 use App\Http\Controllers\Tenant\GrupoPapController;
 use App\Http\Controllers\Tenant\GrupoPapTemaController;
+use App\Http\Controllers\Tenant\HorarioController;
 use App\Http\Controllers\Tenant\InscricaoController;
 use App\Http\Controllers\Tenant\InstituicaoController;
 use App\Http\Controllers\Tenant\InstituicaoCurso\TurmaDisciplinaProfessorController;
@@ -794,9 +795,9 @@ Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
             |--------------------------------------------------------------------------
             */
 
-            Route::get('horarios', fn () => inertia('tenant/horarios/index'))
-                ->middleware('can:horarios.viewAny')
-                ->name('horarios');
+            Route::get('horarios', [HorarioController::class, 'index'])
+    ->middleware('can:horarios.viewAny')
+    ->name('horarios');
 
             Route::inertia('propinas/bloqueio', 'tenant/propinas/bloqueio')
                 ->name('propinas.divida');

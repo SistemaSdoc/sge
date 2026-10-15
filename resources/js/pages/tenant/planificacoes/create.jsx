@@ -111,13 +111,13 @@ export default function Create({
         </Button>
 
         {/* Hero */}
-        <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
+        <div className="relative overflow-hidden  border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
           <div
-            className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-primary/10 blur-3xl"
+            className="pointer-events-none absolute -right-20 -top-20 size-64 bg-primary/10 blur-3xl"
             aria-hidden
           />
           <div className="relative flex items-start gap-4">
-            <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/20">
+            <div className="flex size-14 shrink-0 items-center justify-center  bg-primary/15 ring-1 ring-primary/20">
               <Sparkles className="size-7 text-primary" />
             </div>
             <div className="space-y-1">
@@ -141,7 +141,7 @@ export default function Create({
           <Card>
             <CardHeader className="border-b">
               <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+                <div className="flex size-10 items-center justify-center bg-muted">
                   <CalendarDays className="size-5 text-muted-foreground" />
                 </div>
                 <div>
@@ -294,7 +294,7 @@ export default function Create({
           <Card>
             <CardHeader className="border-b">
               <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+                <div className="flex size-10 items-center justify-center bg-muted">
                   <BookOpen className="size-5 text-muted-foreground" />
                 </div>
                 <div>
@@ -344,7 +344,7 @@ export default function Create({
           <Card>
             <CardHeader className="border-b">
               <div className="flex items-center gap-3">
-                <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+                <div className="flex size-10 items-center justify-center bg-muted">
                   <FileText className="size-5 text-muted-foreground" />
                 </div>
                 <div>
@@ -366,14 +366,14 @@ export default function Create({
                   }}
                   onDragLeave={() => setAArrastar(false)}
                   onDrop={onDrop}
-                  className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-10 text-center transition-all ${
+                  className={`flex cursor-pointer flex-col items-center justify-center gap-3  border-2 border-dashed p-10 text-center transition-all ${
                     aArrastar
                       ? 'border-primary bg-primary/5 scale-[1.01]'
                       : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/30'
                   }`}
                 >
                   <div
-                    className={`flex size-14 items-center justify-center rounded-xl transition-colors ${
+                    className={`flex size-14 items-center justify-center  transition-colors ${
                       aArrastar
                         ? 'bg-primary/15 text-primary'
                         : 'bg-muted text-muted-foreground'
@@ -400,8 +400,8 @@ export default function Create({
                   />
                 </label>
               ) : (
-                <div className="flex items-center gap-3 rounded-xl border bg-muted/20 p-4">
-                  <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                <div className="flex items-center gap-3  border bg-muted/20 p-4">
+                  <div className="flex size-11 shrink-0 items-center justify-center bg-primary/15 text-primary">
                     <FileText className="size-5" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -436,7 +436,7 @@ export default function Create({
           </Card>
 
           {/* Footer sticky-like com resumo + ações */}
-          <div className="flex flex-col-reverse gap-2 rounded-xl border bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col-reverse gap-2  border bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Info className="size-3.5 shrink-0" />
               <span>

@@ -165,14 +165,14 @@ export default function Index({
 
       <div className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
         {/* Hero */}
-        <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
+        <div className="relative overflow-hidden  border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
           <div
-            className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-primary/10 blur-3xl"
+            className="pointer-events-none absolute -right-20 -top-20 size-64 bg-primary/10 blur-3xl"
             aria-hidden
           />
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/20">
+              <div className="flex size-14 shrink-0 items-center justify-center  bg-primary/15 ring-1 ring-primary/20">
                 <BookOpen className="size-7 text-primary" />
               </div>
               <div className="space-y-1">
@@ -203,7 +203,7 @@ export default function Index({
           {/* Stats */}
           {!isAluno && disciplinas.length > 0 && (
             <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="rounded-xl border bg-background/60 p-3 backdrop-blur-sm">
+              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <BookOpen className="size-3.5" />
                   <span className="text-[11px] font-medium uppercase tracking-wide">
@@ -213,7 +213,7 @@ export default function Index({
                 <p className="mt-1 text-2xl font-bold">{stats.disciplinas}</p>
               </div>
 
-              <div className="rounded-xl border bg-background/60 p-3 backdrop-blur-sm">
+              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Layers className="size-3.5" />
                   <span className="text-[11px] font-medium uppercase tracking-wide">
@@ -223,7 +223,7 @@ export default function Index({
                 <p className="mt-1 text-2xl font-bold">{stats.planificacoes}</p>
               </div>
 
-              <div className="rounded-xl border bg-background/60 p-3 backdrop-blur-sm">
+              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Hash className="size-3.5" />
                   <span className="text-[11px] font-medium uppercase tracking-wide">
@@ -233,7 +233,7 @@ export default function Index({
                 <p className="mt-1 text-2xl font-bold">{stats.classes}</p>
               </div>
 
-              <div className="rounded-xl border bg-background/60 p-3 backdrop-blur-sm">
+              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <GraduationCap className="size-3.5" />
                   <span className="text-[11px] font-medium uppercase tracking-wide">
@@ -248,7 +248,7 @@ export default function Index({
 
         {/* Filtros — Aluno */}
         {isAluno ? (
-          <div className="flex flex-wrap items-center gap-3 rounded-xl border bg-muted/30 p-3">
+          <div className="flex flex-wrap items-center gap-3  border bg-muted/30 p-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Filter className="size-4" />
               <span className="font-medium">Filtrar por período:</span>
@@ -296,7 +296,7 @@ export default function Index({
                     <button
                       type="button"
                       onClick={() => setBusca('')}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 hover:bg-muted"
+                      className="absolute right-2 top-1/2 -translate-y-1/2  p-1 hover:bg-muted"
                     >
                       <X className="size-4 text-muted-foreground" />
                     </button>
@@ -313,7 +313,7 @@ export default function Index({
                   {filtrosAtivos && (
                     <Badge
                       variant="default"
-                      className="ml-2 h-5 min-w-5 rounded-full px-1.5 text-[10px]"
+                      className="ml-2 h-5 min-w-5  px-1.5 text-[10px]"
                     >
                       {chipsFiltros.length || 1}
                     </Badge>
@@ -334,7 +334,7 @@ export default function Index({
                       <button
                         type="button"
                         onClick={() => removerChip(chip.key)}
-                        className="rounded-full p-0.5 hover:bg-background/60"
+                        className=" p-0.5 hover:bg-background/60"
                         aria-label={`Remover filtro ${chip.label}`}
                       >
                         <X className="size-3" />
@@ -472,7 +472,7 @@ export default function Index({
 
         {/* Lista */}
         {disciplinasFiltradas.length === 0 ? (
-          <Empty className="rounded-2xl border border-dashed">
+          <Empty className=" border border-dashed">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 {busca ? <Search /> : <Sparkles />}
@@ -512,7 +512,7 @@ export default function Index({
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 transition-colors group-hover:bg-primary/15">
+                        <div className="flex size-11 shrink-0 items-center justify-center bg-primary/10 transition-colors group-hover:bg-primary/15">
                           <BookOpen className="size-5 text-primary" />
                         </div>
                         <div className="min-w-0">

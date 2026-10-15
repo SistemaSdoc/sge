@@ -1,0 +1,44 @@
+[90m= [39m[34;4mIlluminate\Database\Eloquent\Collection[39;24m {#9662
+    [34mall[39m: [
+      [34;4mSpatie\Permission\Models\Role[39;24m {#9678
+        [34mid[39m: [35m6[39m,
+        [34mname[39m: [32m"[39m[32mAluno[39m[32m"[39m,
+        [34mguard_name[39m: [32m"[39m[32mtenant[39m[32m"[39m,
+      },
+      [34;4mSpatie\Permission\Models\Role[39;24m {#9669
+        [34mid[39m: [35m4[39m,
+        [34mname[39m: [32m"[39m[32mCoordenador[39m[32m"[39m,
+        [34mguard_name[39m: [32m"[39m[32mtenant[39m[32m"[39m,
+      },
+      [34;4mSpatie\Permission\Models\Role[39;24m {#9668
+        [34mid[39m: [35m8[39m,
+        [34mname[39m: [32m"[39m[32mCoordenador do Grupo Disciplinar[39m[32m"[39m,
+        [34mguard_name[39m: [32m"[39m[32mtenant[39m[32m"[39m,
+      },
+      [34;4mSpatie\Permission\Models\Role[39;24m {#9667
+        [34mid[39m: [35m1[39m,
+        [34mname[39m: [32m"[39m[32mDirector[39m[32m"[39m,
+        [34mguard_name[39m: [32m"[39m[32mtenant[39m[32m"[39m,
+      },
+      [34;4mSpatie\Permission\Models\Role[39;24m {#9666
+        [34mid[39m: [35m7[39m,
+        [34mname[39m: [32m"[39m[32mMembro do Grupo Disciplinar[39m[32m"[39m,
+        [34mguard_name[39m: [32m"[39m[32mtenant[39m[32m"[39m,
+      },
+      [34;4mSpatie\Permission\Models\Role[39;24m {#9665
+        [34mid[39m: [35m5[39m,
+        [34mname[39m: [32m"[39m[32mProfessor[39m[32m"[39m,
+        [34mguard_name[39m: [32m"[39m[32mtenant[39m[32m"[39m,
+      },
+      [34;4mSpatie\Permission\Models\Role[39;24m {#9664
+        [34mid[39m: [35m3[39m,
+        [34mname[39m: [32m"[39m[32mSecretaria[39m[32m"[39m,
+        [34mguard_name[39m: [32m"[39m[32mtenant[39m[32m"[39m,
+      },
+      [34;4mSpatie\Permission\Models\Role[39;24m {#9663
+        [34mid[39m: [35m2[39m,
+        [34mname[39m: [32m"[39m[32mSubdirector[39m[32m"[39m,
+        [34mguard_name[39m: [32m"[39m[32mtenant[39m[32m"[39m,
+      },
+    ],
+  }

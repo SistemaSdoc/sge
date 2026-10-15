@@ -169,7 +169,7 @@ final class SidebarMenuService
                     title: 'Grelha Curricular',
                     href: action([GrelhaCurricularController::class, 'index']),
                     icon: 'LayoutList',
-                    can: fn () => ! $user->isSuperAdmin()
+                    can: fn() => ! $user->isSuperAdmin()
                         && $user->hasRole('Aluno')
                         && $gate->allows('grelha-curricular.viewAny'),
                 ),
@@ -179,7 +179,7 @@ final class SidebarMenuService
                     title: 'Minhas Notas',
                     href: action([NotaAlunoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn () => ! $user->isSuperAdmin()
+                    can: fn() => ! $user->isSuperAdmin()
                         && $user->hasRole('Aluno')
                         && $gate->allows('viewAny', Nota::class)
                 ),
@@ -189,7 +189,7 @@ final class SidebarMenuService
                     title: 'Horários',
                     href: route('tenant.dashboard.horarios'),
                     icon: 'CalendarClock',
-                    can: fn () => ! $user->isSuperAdmin()
+                    can: fn() => ! $user->isSuperAdmin()
                         && $user->hasAnyRole(['Aluno', 'Professor'])
                         && $gate->allows('horarios.viewAny')
                 ),
@@ -253,7 +253,7 @@ final class SidebarMenuService
                     title: 'Prazos de Provas',
                     href: action([PrazoProvaController::class, 'index']),
                     icon: 'FileText',
-                    can: fn() => Gate::allows('prazo-prova.viewAny')
+                    can: fn() => $gate->allows('prazo-prova.viewAny')
                 ),
 
                 new MenuItem(
@@ -261,7 +261,8 @@ final class SidebarMenuService
                     title: 'Submeter Provas',
                     href: action([SubmissaoProvaController::class, 'index']),
                     icon: 'FileText',
-                    can: fn() => Gate::allows('submissao-prova.create')
+                    can: fn() => $user->hasRole('Professor')
+                        && $gate->allows('submissao-prova.viewAny'),
                 ),
                 new MenuItem(
                     key: 'planificacoes',
