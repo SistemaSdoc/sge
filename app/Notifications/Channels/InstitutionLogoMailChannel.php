@@ -57,6 +57,8 @@ class InstitutionLogoMailChannel extends MailChannel
                 }
             }
 
+            $message->viewData['instituicao'] = $instituicao;
+
             $logo = $this->institutionMailLogo->image(
                 $instituicao instanceof Instituicao ? $instituicao : null
             );

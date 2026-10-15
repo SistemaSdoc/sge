@@ -99,6 +99,10 @@ class CursoTuteladoResourceShow extends JsonResource
             'titulo' => data_get($sugestao, 'titulo'),
             'descricao' => data_get($sugestao, 'descricao'),
             'ativo' => (bool) data_get($sugestao, 'ativo'),
+            'estado_aprovacao' => data_get($sugestao, 'estado_aprovacao', 'pendente'),
+            'observacao_aprovacao' => data_get($sugestao, 'observacao_aprovacao'),
+            'aprovado_por' => data_get($sugestao, 'aprovadoPor.nome'),
+            'aprovado_em' => data_get($sugestao, 'aprovado_em'),
         ]);
         $paginaSugestoes = min(
             max(1, (int) $request->input('page_sugestoes', 1)),
@@ -181,6 +185,8 @@ class CursoTuteladoResourceShow extends JsonResource
                 'uploadCriteriosPap' => $request->user()?->can('uploadDocumentosPap', $this->resource) ?? false,
                 'uploadManualPt' => $request->user()?->can('uploadDocumentosPap', $this->resource) ?? false,
                 'uploadEstruturaTrabalhoPap' => $request->user()?->can('uploadDocumentosPap', $this->resource) ?? false,
+                'gerirSugestoesTemas' => $request->user()?->can('gerirSugestoesTemas', $this->resource) ?? false,
+                'aprovarSugestaoTema' => $request->user()?->can('sugestaotema.aprovar') ?? false, // ← novo
             ],
         ];
     }

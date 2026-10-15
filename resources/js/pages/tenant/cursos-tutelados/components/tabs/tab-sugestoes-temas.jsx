@@ -37,7 +37,33 @@ import {
   destroySugestaoTema,
   storeSugestaoTema,
   updateSugestaoTema,
+  aprovarSugestaoTema,
+  rejeitarSugestaoTema,
+  solicitarMelhoriaSugestaoTema,
+  resubmeterSugestaoTema,
 } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
+
+const ESTADO_CONFIG = {
+  pendente: { label: 'Pendente', variant: 'secondary' },
+  aprovada: { label: 'Aprovada', variant: 'default' },
+  rejeitada: { label: 'Rejeitada', variant: 'destructive' },
+  melhoria_solicitada: { label: 'Melhoria solicitada', variant: 'warning' },
+};
+
+const MODAL_CONFIG = {
+  rejeitar: {
+    titulo: 'Rejeitar sugestão',
+    descricao: 'Indique o motivo da rejeição. Esta informação será visível para quem gere as sugestões.',
+    label: 'Motivo da rejeição',
+    confirmar: 'Rejeitar',
+  },
+  melhoria: {
+    titulo: 'Solicitar melhoria',
+    descricao: 'Indique o que deve ser melhorado nesta sugestão de tema.',
+    label: 'O que deve ser melhorado',
+    confirmar: 'Solicitar melhoria',
+  },
+};
 
 export function TabSugestoesTemas({
   params,
@@ -45,16 +71,27 @@ export function TabSugestoesTemas({
   pagination = {},
   onPageChange,
   canManage = false,
+  canAprovar = false,
   tutelaExterna = false,
 }) {
   const [formularioAberto, setFormularioAberto] = useState(false);
   const [sugestaoEmEdicao, setSugestaoEmEdicao] = useState(null);
+  const [modalObservacao, setModalObservacao] = useState(null); // { tipo: 'rejeitar'|'melhoria', sugestao }
+  const [observacao, setObservacao] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [processando, setProcessando] = useState(false);
+
   const { deleteConfirm } = useDialog();
   const { data, setData, post, put, processing, errors, reset, clearErrors } =
-    useForm({
-      titulo: '',
-      descricao: '',
-    });
+    useForm({ titulo: '', descricao: '' });
+
+  const paramsSugestao = (sugestao) => ({
+    instituicao: params.instituicao.id,
+    cursoTutelado: params.cursoTutelado.id,
+    sugestao: sugestao.id,
+  });
+
+  // ── Formulário de criação/edição ─────────────────────────────────────────
 
   const fecharFormulario = () => {
     setFormularioAberto(false);
@@ -79,46 +116,85 @@ export function TabSugestoesTemas({
 
   const submeterSugestao = (event) => {
     event.preventDefault();
-    const paramsSugestao = {
+    const base = {
       instituicao: params.instituicao.id,
       cursoTutelado: params.cursoTutelado.id,
     };
-    const options = {
-      preserveScroll: true,
-      onSuccess: fecharFormulario,
-    };
+    const options = { preserveScroll: true, onSuccess: fecharFormulario };
 
     if (sugestaoEmEdicao) {
-      put(
-        updateSugestaoTema({
-          ...paramsSugestao,
-          sugestao: sugestaoEmEdicao.id,
-        }).url,
-        options,
-      );
-
+      put(updateSugestaoTema({ ...base, sugestao: sugestaoEmEdicao.id }).url, options);
       return;
     }
 
-    post(storeSugestaoTema(paramsSugestao).url, options);
+    post(storeSugestaoTema(base).url, options);
   };
 
   const removerSugestao = (sugestao) => {
     deleteConfirm({
       title: 'Remover sugestão?',
-      description: `A sugestão “${sugestao.titulo}” deixará de estar disponível para este curso.`,
+      description: `A sugestão "${sugestao.titulo}" deixará de estar disponível para este curso.`,
       confirmLabel: 'Remover',
       confirmFn: () =>
-        router.delete(
-          destroySugestaoTema({
-            instituicao: params.instituicao.id,
-            cursoTutelado: params.cursoTutelado.id,
-            sugestao: sugestao.id,
-          }).url,
-          { preserveScroll: true },
-        ),
+        router.delete(destroySugestaoTema(paramsSugestao(sugestao)).url, {
+          preserveScroll: true,
+        }),
     });
   };
+
+  // ── Acções de aprovação ──────────────────────────────────────────────────
+
+  const aprovar = (sugestao) => {
+    router.post(
+      aprovarSugestaoTema(paramsSugestao(sugestao)).url,
+      {},
+      { preserveScroll: true },
+    );
+  };
+
+  const resubmeter = (sugestao) => {
+    router.post(
+      resubmeterSugestaoTema(paramsSugestao(sugestao)).url,
+      {},
+      { preserveScroll: true },
+    );
+  };
+
+  const abrirModalObservacao = (tipo, sugestao) => {
+    setModalObservacao({ tipo, sugestao });
+    setObservacao('');
+    setSubmitted(false);
+  };
+
+  const fecharModalObservacao = () => {
+    setModalObservacao(null);
+    setObservacao('');
+    setSubmitted(false);
+  };
+
+  const submeterObservacao = () => {
+    setSubmitted(true);
+    if (!observacao.trim()) return;
+
+    const url = modalObservacao.tipo === 'rejeitar'
+      ? rejeitarSugestaoTema(paramsSugestao(modalObservacao.sugestao)).url
+      : solicitarMelhoriaSugestaoTema(paramsSugestao(modalObservacao.sugestao)).url;
+
+    setProcessando(true);
+    router.post(
+      url,
+      { observacao },
+      {
+        preserveScroll: true,
+        onSuccess: fecharModalObservacao,
+        onFinish: () => setProcessando(false),
+      },
+    );
+  };
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  const mostrarColunaAccoes = canManage || canAprovar;
 
   return (
     <>
@@ -167,49 +243,107 @@ export function TabSugestoesTemas({
                   <TableHead className="px-4">Tema sugerido</TableHead>
                   <TableHead>Descrição</TableHead>
                   <TableHead>Estado</TableHead>
-                  {canManage && (
+                  {mostrarColunaAccoes && (
                     <TableHead className="px-4 text-right">Acções</TableHead>
                   )}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sugestoes.map((sugestao) => (
-                  <TableRow key={sugestao.id}>
-                    <TableCell className="px-4 font-medium">
-                      {sugestao.titulo}
-                    </TableCell>
-                    <TableCell className="max-w-xl whitespace-normal text-muted-foreground">
-                      {sugestao.descricao || '—'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={sugestao.ativo ? 'default' : 'secondary'}>
-                        {sugestao.ativo ? 'Activa' : 'Inactiva'}
-                      </Badge>
-                    </TableCell>
-                    {canManage && (
-                      <TableCell className="px-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="xs"
-                            className="text-[10px]"
-                            onClick={() => abrirFormularioEdicao(sugestao)}
-                          >
-                            Editar
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="xs"
-                            className="text-[10px]"
-                            onClick={() => removerSugestao(sugestao)}
-                          >
-                            Remover
-                          </Button>
-                        </div>
+                {sugestoes.map((sugestao) => {
+                  const estado = ESTADO_CONFIG[sugestao.estado_aprovacao] ?? ESTADO_CONFIG.pendente;
+
+                  return (
+                    <TableRow key={sugestao.id}>
+                      <TableCell className="px-4 font-medium">
+                        {sugestao.titulo}
                       </TableCell>
-                    )}
-                  </TableRow>
-                ))}
+                      <TableCell className="max-w-xl whitespace-normal text-muted-foreground">
+                        {sugestao.descricao || '—'}
+                        {sugestao.observacao_aprovacao && (
+                          <p className="mt-1 text-xs text-muted-foreground italic">
+                            Sugestão de Melhoria: {sugestao.observacao_aprovacao}
+                          </p>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={estado.variant}>
+                          {estado.label}
+                        </Badge>
+                      </TableCell>
+                      {mostrarColunaAccoes && (
+                        <TableCell className="px-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            {/* Acções de quem gere */}
+                            {canManage && (
+                              <>
+                                {sugestao.estado_aprovacao === 'melhoria_solicitada' && (
+                                  <Button
+                                    variant="outline"
+                                    size="xs"
+                                    className="text-[10px]"
+                                    onClick={() => resubmeter(sugestao)}
+                                  >
+                                    Resubmeter
+                                  </Button>
+                                )}
+                                {sugestao.estado_aprovacao !== 'aprovada' && (
+                                  <Button
+                                    variant="outline"
+                                    size="xs"
+                                    className="text-[10px]"
+                                    onClick={() => abrirFormularioEdicao(sugestao)}
+                                  >
+                                    Editar
+                                  </Button>
+                                )}
+                                {sugestao.estado_aprovacao !== 'pendente' && (
+                                  <Button
+                                    variant="destructive"
+                                    size="xs"
+                                    className="text-[10px]"
+                                    onClick={() => removerSugestao(sugestao)}
+                                  >
+                                    Remover
+                                  </Button>
+                                )}
+                              </>
+                            )}
+
+                            {/* Acções de quem aprova */}
+                            {canAprovar && sugestao.estado_aprovacao === 'pendente' && (
+                              <>
+                                <Button
+                                  variant="default"
+                                  size="xs"
+                                  className="text-[10px]"
+                                  onClick={() => aprovar(sugestao)}
+                                >
+                                  Aprovar
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="xs"
+                                  className="text-[10px]"
+                                  onClick={() => abrirModalObservacao('melhoria', sugestao)}
+                                >
+                                  Solicitar melhoria
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="xs"
+                                  className="text-[10px]"
+                                  onClick={() => abrirModalObservacao('rejeitar', sugestao)}
+                                >
+                                  Rejeitar
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
@@ -217,26 +351,18 @@ export function TabSugestoesTemas({
         <TablePagination pagination={pagination} onPageChange={onPageChange} />
       </Card>
 
+      {/* Modal criação/edição */}
       <Dialog
         open={formularioAberto}
-        onOpenChange={(open) => {
-          if (!open) {
-            fecharFormulario();
-          } else {
-            setFormularioAberto(true);
-          }
-        }}
+        onOpenChange={(open) => (!open ? fecharFormulario() : setFormularioAberto(true))}
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {sugestaoEmEdicao
-                ? 'Editar sugestão de tema'
-                : 'Nova sugestão de tema'}
+              {sugestaoEmEdicao ? 'Editar sugestão de tema' : 'Nova sugestão de tema'}
             </DialogTitle>
             <DialogDescription>
-              Cadastre um tema de referência para os trabalhos da PAP deste
-              curso.
+              Cadastre um tema de referência para os trabalhos da PAP deste curso.
             </DialogDescription>
           </DialogHeader>
 
@@ -246,7 +372,7 @@ export function TabSugestoesTemas({
               <Input
                 id="sugestao-titulo"
                 value={data.titulo}
-                onChange={(event) => setData('titulo', event.target.value)}
+                onChange={(e) => setData('titulo', e.target.value)}
                 maxLength={255}
                 required
                 autoFocus
@@ -261,7 +387,7 @@ export function TabSugestoesTemas({
               <Textarea
                 id="sugestao-descricao"
                 value={data.descricao}
-                onChange={(event) => setData('descricao', event.target.value)}
+                onChange={(e) => setData('descricao', e.target.value)}
                 rows={4}
               />
               {errors.descricao && (
@@ -270,12 +396,7 @@ export function TabSugestoesTemas({
             </div>
 
             <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={fecharFormulario}
-                disabled={processing}
-              >
+              <Button type="button" variant="outline" onClick={fecharFormulario} disabled={processing}>
                 Cancelar
               </Button>
               <Button type="submit" disabled={processing}>
@@ -287,6 +408,54 @@ export function TabSugestoesTemas({
               </Button>
             </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal rejeitar / solicitar melhoria */}
+      <Dialog
+        open={!!modalObservacao}
+        onOpenChange={(open) => (!open ? fecharModalObservacao() : null)}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {modalObservacao && MODAL_CONFIG[modalObservacao.tipo].titulo}
+            </DialogTitle>
+            <DialogDescription>
+              {modalObservacao && MODAL_CONFIG[modalObservacao.tipo].descricao}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <Label htmlFor="observacao">
+              {modalObservacao && MODAL_CONFIG[modalObservacao.tipo].label}
+            </Label>
+            <Textarea
+              id="observacao"
+              value={observacao}
+              onChange={(e) => setObservacao(e.target.value)}
+              rows={4}
+              autoFocus
+            />
+            {submitted && !observacao.trim() && (
+              <p className="text-sm text-destructive">Este campo é obrigatório.</p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={fecharModalObservacao} disabled={processando}>
+              Cancelar
+            </Button>
+            <Button
+              variant={modalObservacao?.tipo === 'rejeitar' ? 'destructive' : 'default'}
+              onClick={submeterObservacao}
+              disabled={processando}
+            >
+              {processando
+                ? 'A guardar…'
+                : modalObservacao && MODAL_CONFIG[modalObservacao.tipo].confirmar}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

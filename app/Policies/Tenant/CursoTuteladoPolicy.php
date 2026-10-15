@@ -144,6 +144,17 @@ class CursoTuteladoPolicy
         return (string) $user->instituicao_id === (string) $cursoTutelado->instituicaoCurso?->instituicao_id;
     }
 
+    public function gerirSugestoesTemas(User $user, CursoTutelado $cursoTutelado): bool
+    {
+        if (! $user->can('sugestaotema.gerir') || $user->instituicao_id === null || $cursoTutelado->tipo_tutela === 'externa') {
+            return false;
+        }
+
+        $cursoTutelado->loadMissing('instituicaoCurso');
+
+        return (string) $user->instituicao_id === (string) $cursoTutelado->instituicaoCurso?->instituicao_id;
+    }
+
     private function externalTutelaPendingOrClosed(CursoTutelado $cursoTutelado): bool
     {
         if (! $cursoTutelado->curso_tutelado_shared_id) {

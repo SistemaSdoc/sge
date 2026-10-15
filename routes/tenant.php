@@ -353,6 +353,18 @@ Route::middleware([
             Route::delete('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}', [CursoTuteladoController::class, 'destroySugestaoTema'])
                 ->name('instituicoes.cursos-tutelados.sugestoes-temas.destroy');
 
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/aprovar', [CursoTuteladoController::class, 'aprovarSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.aprovar');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/rejeitar', [CursoTuteladoController::class, 'rejeitarSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.rejeitar');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/solicitar-melhoria', [CursoTuteladoController::class, 'solicitarMelhoriaSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.solicitar-melhoria');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/resubmeter', [CursoTuteladoController::class, 'resubmeterSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.resubmeter');
+
             /*
             |--------------------------------------------------------------------------
             | Professores de Cursos Tutelados

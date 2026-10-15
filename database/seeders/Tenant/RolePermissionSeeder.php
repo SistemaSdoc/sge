@@ -119,6 +119,9 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
 
+                // Sugestões de Temas PAP
+                'sugestaotema.gerir',
+
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
                 'bancajuripap.view',
@@ -266,6 +269,9 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.definirData',
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
+
+                // Sugestões de Temas PAP
+                'sugestaotema.gerir',
 
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
@@ -517,6 +523,10 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
 
+                // Sugestões de temas PAP
+                'sugestaotema.gerir',
+                'sugestaotema.aprovar',
+
                 'elementogrupopap.viewAny',
                 'elementogrupopap.view',
                 'elementogrupopap.create',
@@ -561,6 +571,15 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
 
+                'instituicoes.view',
+                // Sugestões de temas PAP
+                'sugestaotema.gerir',
+                'sugestaotema.aprovar',
+
+                // Cursos Tutelados
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
+
             ],
 
             'Membro do Grupo Disciplinar' => [
@@ -571,6 +590,15 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.solicitarMelhoria',
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
+
+                'instituicoes.view',
+                // Cursos Tutelados
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
+                'curso-tutelado.update',
+
+                // Sugestões de temas PAP
+                'sugestaotema.gerir',
             ],
 
             'Professor' => [

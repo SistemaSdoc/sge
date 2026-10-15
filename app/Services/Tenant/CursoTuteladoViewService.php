@@ -309,7 +309,7 @@ class CursoTuteladoViewService
                 $query->with('user:id,nome,instituicao_id')
                     ->orderBy('created_at', 'desc');
             },
-            'sugestoesTemas' => fn ($query) => $query->orderBy('titulo'),
+            'sugestoesTemas' => fn ($query) => $query->with('aprovadoPor:id,nome')->orderBy('titulo'),
             'secretarios:id,nome,email',
         ]);
     }
