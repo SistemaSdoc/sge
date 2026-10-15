@@ -159,3 +159,117 @@ test('professor cannot access notes for a discipline he does not teach', functio
 
     $response->assertForbidden();
 });
+
+test('turma removal returns an error when discipline professor assignments exist', function () {
+    $instituicao = Instituicao::create(['nome' => 'Instituição Teste']);
+    $curso = Curso::create(['nome' => 'Curso Teste', 'duracao_anos' => 3, 'status' => 1]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'instituicao_id' => $instituicao->id,
+        'curso_id' => $curso->id,
+        'duracao_anos' => 3,
+    ]);
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'nome' => 'Curso Tutelado Teste',
+    ]);
+    $classe = Classe::create(['nome' => '12ª']);
+    $cursoClasse = CursoClasse::create([
+        'curso_tutelado_id' => $cursoTutelado->id,
+        'classe_id' => $classe->id,
+    ]);
+    $turno = Turno::create(['nome' => 'Manhã']);
+    $cursoClasseTurno = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasse->id,
+        'turno_id' => $turno->id,
+    ]);
+    $turma = Turma::create([
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'nome' => 'Turma A',
+        'max_alunos' => 30,
+    ]);
+    $disciplina = Disciplina::create(['nome' => 'Matemática', 'sigla' => 'MAT']);
+    $classeTurnoDisciplina = ClasseTurnoDisciplina::create([
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'disciplina_id' => $disciplina->id,
+        'carga_horaria' => '4',
+        'tem_professor' => true,
+    ]);
+    $user = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $professor = Professor::create(['user_id' => $user->id, 'especialidade' => 'Matemática']);
+
+    Permission::create(['name' => 'turmas.update']);
+    Permission::create(['name' => 'turmas.delete']);
+    $user->givePermissionTo(['turmas.update', 'turmas.delete']);
+
+    TurmaDisciplinaProfessor::create([
+        'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
+        'turma_id' => $turma->id,
+        'professor_id' => $professor->id,
+    ]);
+
+    $response = $this->actingAs($user, 'tenant')->delete(
+        "/dashboard/instituicoes/{$instituicao->id}/cursos-tutelados/{$cursoTutelado->id}/classes/{$cursoClasse->id}/turnos/{$cursoClasseTurno->id}/turmas/{$turma->id}"
+    );
+
+    $response->assertSessionHasErrors([
+        'turma' => 'Não é possível remover uma turma que tem disciplinas ou professores associados.',
+    ]);
+    $this->assertDatabaseHas('turmas', ['id' => $turma->id]);
+});
+
+test('turma removal clears unassigned discipline rows without academic history', function () {
+    $instituicao = Instituicao::create(['nome' => 'Instituição Teste']);
+    $curso = Curso::create(['nome' => 'Curso Teste', 'duracao_anos' => 3, 'status' => 1]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'instituicao_id' => $instituicao->id,
+        'curso_id' => $curso->id,
+        'duracao_anos' => 3,
+    ]);
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'nome' => 'Curso Tutelado Teste',
+    ]);
+    $classe = Classe::create(['nome' => '12ª']);
+    $cursoClasse = CursoClasse::create([
+        'curso_tutelado_id' => $cursoTutelado->id,
+        'classe_id' => $classe->id,
+    ]);
+    $turno = Turno::create(['nome' => 'Manhã']);
+    $cursoClasseTurno = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasse->id,
+        'turno_id' => $turno->id,
+    ]);
+    $turma = Turma::create([
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'nome' => 'Turma A',
+        'max_alunos' => 30,
+    ]);
+    $disciplina = Disciplina::create(['nome' => 'Matemática', 'sigla' => 'MAT']);
+    $classeTurnoDisciplina = ClasseTurnoDisciplina::create([
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'disciplina_id' => $disciplina->id,
+        'carga_horaria' => '4',
+        'tem_professor' => false,
+    ]);
+    $user = User::factory()->create(['instituicao_id' => $instituicao->id]);
+
+    Permission::create(['name' => 'turmas.update']);
+    Permission::create(['name' => 'turmas.delete']);
+    $user->givePermissionTo(['turmas.update', 'turmas.delete']);
+
+    $atribuicao = TurmaDisciplinaProfessor::create([
+        'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
+        'turma_id' => $turma->id,
+        'professor_id' => null,
+    ]);
+
+    $response = $this->actingAs($user, 'tenant')->delete(
+        "/dashboard/instituicoes/{$instituicao->id}/cursos-tutelados/{$cursoTutelado->id}/classes/{$cursoClasse->id}/turnos/{$cursoClasseTurno->id}/turmas/{$turma->id}"
+    );
+
+    $response->assertRedirect();
+    $this->assertDatabaseMissing('turmas', ['id' => $turma->id]);
+    $this->assertDatabaseMissing('turma_disciplina_professor', ['id' => $atribuicao->id]);
+});

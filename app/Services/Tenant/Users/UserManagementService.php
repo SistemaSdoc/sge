@@ -11,6 +11,7 @@ class UserManagementService
     public function index(User $actor, ?string $search = null): LengthAwarePaginator
     {
         return User::query()
+            ->visibleInTenantUserLists()
             ->with([
                 'roles:id,name',
                 'roles.permissions:id,name',

@@ -9,7 +9,7 @@ export function ProximasAulas({ data = [] }) {
       <div className="overflow-hidden">
         <EmptyState
           icon={BookText}
-          title="Sem aulas hoje"
+          title="Sem aulas agendadas"
           description="Não há aulas agendadas para os próximos dias."
           variant="table"
         />

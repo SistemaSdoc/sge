@@ -30,7 +30,7 @@ export default function Index({ users, can, filters }) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <Head title="Usuários" />
       <UserTable
         can={can}

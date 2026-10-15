@@ -36,6 +36,7 @@ class CursoTuteladoResourceShow extends JsonResource
                 ],
                 'can' => [
                     'edit' => $request->user()?->can('update', $turma) ?? false,
+                    'delete' => $request->user()?->can('delete', $turma) ?? false,
                 ],
             ]);
 

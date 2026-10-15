@@ -91,6 +91,9 @@ foreach (config('tenancy.central_domains') as $domain) {
 
                 Route::resource('tenants', TenantController::class);
 
+                Route::post('tenants/{tenant}/impersonate', [TenantController::class, 'impersonate'])
+                    ->name('tenants.impersonate');
+
                 Route::post('tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
                     ->name('tenants.toggle-status');
 

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ChevronDownIcon, Search, UsersIcon } from 'lucide-react';
+import { ChevronDownIcon, Search, Trash2, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { router } from '@inertiajs/react';
 
@@ -55,7 +55,9 @@ export function TurmaTable({
   const lista = Array.isArray(turmas) ? turmas : (turmas?.data ?? []);
   const isEmpty = lista.length === 0;
 
-  const hasActionColumn = lista.some((turma) => turma.can?.view);
+  const hasActionColumn = lista.some(
+    (turma) => turma.can?.view || turma.can?.delete,
+  );
 
   return (
     <Card className="gap-0">
@@ -217,6 +219,25 @@ export function TurmaTable({
                           }}
                         >
                           Ver detalhes
+                        </Button>
+                      )}
+                      {turma.can?.delete && (
+                        <Button
+                          variant="destructive"
+                          size="xs"
+                          className="ml-2 hover:cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteFn?.({
+                              instituicao: turma.instituicao.id,
+                              cursoTutelado: turma.curso.id,
+                              cursoClasse: turma.classe.id,
+                              cursoClasseTurno: turma.turno.id,
+                              turma: turma.id,
+                            });
+                          }}
+                        >
+                          Remover
                         </Button>
                       )}
                     </TableCell>

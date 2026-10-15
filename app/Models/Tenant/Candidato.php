@@ -31,7 +31,13 @@ class Candidato extends Model implements HasUserCleanup
 
     public function cleanupOnUserRemoval(): void
     {
-        $this->delete();
+        if ($this->inscricoes()->exists()) {
+            $this->delete();
+
+            return;
+        }
+
+        $this->forceDelete();
     }
 
     protected $table = 'candidatos';

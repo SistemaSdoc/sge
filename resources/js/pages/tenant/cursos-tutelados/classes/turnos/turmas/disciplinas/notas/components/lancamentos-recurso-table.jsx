@@ -180,10 +180,7 @@ export default function LancamentosRecursoTable({
           </Table>
         )}
       </CardContent>
-      <TablePagination
-        pagination={pagination}
-        onPageChange={onPageChange}
-      />
+      <TablePagination pagination={pagination} onPageChange={onPageChange} />
     </Card>
   );
 }

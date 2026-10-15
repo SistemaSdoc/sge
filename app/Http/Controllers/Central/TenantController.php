@@ -11,6 +11,7 @@ use App\Models\Central\Tenant;
 use App\Services\Central\TenantMetricsService;
 use App\Services\Central\TenantService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class TenantController extends Controller
@@ -102,6 +103,7 @@ class TenantController extends Controller
         $instituicao = $this->tenantService->getInstituicao($tenant);
 
         $adminUser = $this->tenantService->getTenantAdminUser($tenant);
+        $supportUser = $this->tenantService->getTenantCentralSupportUser($tenant);
 
         $metrics = $this->getTenantMetrics($tenant);
 
@@ -110,6 +112,9 @@ class TenantController extends Controller
                 'id' => $tenant->id,
                 'status' => $tenant->status,
                 'domain' => $tenant->domains?->first()?->domain,
+                'canImpersonate' => $tenant->canAccess()
+                    && $supportUser !== null
+                    && $tenant->domains->isNotEmpty(),
                 'instituicao' => [
                     'nome' => $instituicao?->nome,
                     'sigla' => $instituicao?->sigla,
@@ -158,6 +163,42 @@ class TenantController extends Controller
 
         return redirect()->route('central.dashboard.tenants.show', $tenant)
             ->with('success', 'Tenant actualizado!');
+    }
+
+    /**
+     * Inicia uma sessão no tenant como a conta de suporte central.
+     */
+    public function impersonate(Request $request, Tenant $tenant)
+    {
+        if (! $tenant->canAccess()) {
+            return back()->with('error', 'Só é possível aceder a tenants activos ou em período de teste.');
+        }
+
+        $tenant->loadMissing('domains');
+        $domain = $tenant->domains->first()?->domain;
+        $supportUser = $this->tenantService->getTenantCentralSupportUser($tenant);
+
+        if (! $domain || ! $supportUser) {
+            return back()->with('error', 'O tenant ainda não tem a conta de suporte central disponível.');
+        }
+
+        $token = tenancy()->impersonate(
+            $tenant,
+            (string) $supportUser->getKey(),
+            '/dashboard',
+            'tenant',
+        );
+
+        Log::info('Central administrator started tenant impersonation.', [
+            'central_user_id' => $request->user('web')?->getAuthIdentifier(),
+            'tenant_id' => $tenant->getTenantKey(),
+            'tenant_support_user_id' => $supportUser->getAuthIdentifier(),
+            'ip' => $request->ip(),
+        ]);
+
+        $path = route('tenant.login.token', ['token' => $token->token], false);
+
+        return Inertia::location(sprintf('%s://%s%s', $request->getScheme(), $domain, $path));
     }
 
     /**

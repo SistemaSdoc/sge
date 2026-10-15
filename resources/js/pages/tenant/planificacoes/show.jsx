@@ -120,7 +120,7 @@ export default function Show({ planificacao, can = {} }) {
         </Button>
 
         {/* Hero */}
-        <div className="relative overflow-hidden border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
+        <div className="relative overflow-hidden rounded-2xl border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
           <div
             className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-primary/10 blur-3xl"
             aria-hidden
@@ -128,7 +128,7 @@ export default function Show({ planificacao, can = {} }) {
 
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center   bg-primary/15 ring-1 ring-primary/20">
+              <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary/15 ring-1 ring-primary/20">
                 <FileCheck2 className="size-7 text-primary" />
               </div>
               <div className="min-w-0 space-y-2">
@@ -175,7 +175,7 @@ export default function Show({ planificacao, can = {} }) {
             {metaInfo.map(({ icon: Icon, label, value }) => (
               <div
                 key={label}
-                className="  border bg-background/60 p-3 backdrop-blur-sm"
+                className="rounded-xl border bg-background/60 p-3 backdrop-blur-sm"
               >
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   <Icon className="size-3.5" />

@@ -65,7 +65,7 @@ export default function Index({ disciplinas, filters }) {
   return (
     <>
       <Head title="Disciplinas" />
-      <div className="mx-auto w-full max-w-7xl p-6">
+      <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
         <Card className="gap-0 pb-0">
           <CardHeader className="border-b">
             <CardTitle>Disciplinas</CardTitle>
@@ -134,20 +134,24 @@ export default function Index({ disciplinas, filters }) {
                                   Editar
                                 </Link>
                               </Button>
+
                               <Button
                                 variant="destructive"
                                 size="xs"
                                 onClick={() => handleDelete(disciplina)}
+                                className="hover:cursor-pointer"
                               >
                                 Arquivar
                               </Button>
                             </>
                           )}
+
                           {disciplina.deleted_at && (
                             <Button
                               variant="outline"
                               size="xs"
                               onClick={() => handleRestore(disciplina)}
+                              className="hover:cursor-pointer"
                             >
                               Restaurar
                             </Button>

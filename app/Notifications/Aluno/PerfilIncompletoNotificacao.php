@@ -31,8 +31,8 @@ class PerfilIncompletoNotificacao extends Notification implements ShouldQueue, S
         return (new MailMessage)
             ->subject('Ação necessária: complete o seu perfil')
             ->view('mail.aluno.perfil-incompleto', [
-                'nome'        => $notifiable->nome,
-                'url'         => 'http://'.$this->domain.'/dashboard/settings/profile',
+                'nome' => $notifiable->nome,
+                'url' => 'http://'.$this->domain.'/dashboard/settings/profile',
                 'instituicao' => $notifiable->instituicao,
             ]);
     }

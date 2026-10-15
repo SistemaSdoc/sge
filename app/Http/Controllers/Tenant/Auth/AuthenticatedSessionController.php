@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Auth\LoginRequest;
 use App\Models\Tenant\Instituicao;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -45,9 +46,13 @@ class AuthenticatedSessionController extends Controller
     /**
      * Autentica um utilizador do tenant através de um token de impersonação.
      */
-    public function token(string $token)
+    public function token(Request $request, string $token): RedirectResponse
     {
-        return UserImpersonation::makeResponse($token);
+        $response = UserImpersonation::makeResponse($token);
+
+        $request->session()->regenerate();
+
+        return $response;
     }
 
     /**

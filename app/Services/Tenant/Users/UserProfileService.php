@@ -31,7 +31,7 @@ class UserProfileService
     {
         $user->loadMissing('aluno.inscricao.candidato');
 
-        if (!$user->hasRole('Aluno')) {
+        if (! $user->hasRole('Aluno')) {
             return [
                 'isAluno' => false,
                 'basic' => [
@@ -119,7 +119,7 @@ class UserProfileService
 
         return [
             'user' => $this->profileData($user),
-            'hasPassword' => !is_null($user->password),
+            'hasPassword' => ! is_null($user->password),
             'canManageTwoFactor' => $canManageTwoFactor,
             'canManagePasskeys' => $canManagePasskeys,
             'passkeys' => $canManagePasskeys
@@ -127,7 +127,7 @@ class UserProfileService
                     ->select(['id', 'name', 'credential', 'created_at', 'last_used_at'])
                     ->latest()
                     ->get()
-                    ->map(fn($passkey): array => [
+                    ->map(fn ($passkey): array => [
                         'id' => $passkey->id,
                         'name' => $passkey->name,
                         'authenticator' => $passkey->authenticator,

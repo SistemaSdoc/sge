@@ -32,7 +32,7 @@ export function AppSidebarHeader({
   return (
     <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/80">
       <div className="flex h-full items-center gap-2">
-        <SidebarTrigger className="-ml-1 bg-transparent hover:cursor-pointer" />
+        <SidebarTrigger className="-ml-1 bg-transparent hover:cursor-pointer dark:bg-transparent" />
         <Separator orientation="vertical" className="mx-1 h-full" />
         <Breadcrumbs breadcrumbs={breadcrumbs} />
       </div>

@@ -23,8 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Minus, MoreHorizontalIcon, BookIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { HorariosForm } from '../horarios/horarios-form';
-import { store as storeHorario } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaHorarioController';
+import { create as createHorarios } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaHorarioController';
 import {
   create as createDisciplina,
   destroy,
@@ -50,39 +49,24 @@ export function TabDisciplinas({
 }) {
   const isEmpty = disciplinas.length === 0;
   const canCreate = Boolean(can.create);
+  const { deleteConfirm } = useDialog();
 
-  const { openForm, closeDialog, deleteConfirm } = useDialog();
-
-  const abrirHorariosDialog = (disciplina, e) => {
+  const abrirHorarios = (disciplina, e) => {
     e.stopPropagation();
-    const action = storeHorario.form({
-      instituicao: params.instituicao.id,
-      cursoTutelado: params.cursoTutelado.id,
-      cursoClasse: params.cursoClasse.id,
-      cursoClasseTurno: params.cursoClasseTurno.id,
-      turma: params.turma,
-      classeTurnoDisciplina: disciplina.id,
-    }).action;
 
-    openForm({
-      title: `Horários de ${disciplina?.nome}`,
-      description: disciplina?.can?.manage_schedule
-        ? 'Configure os horários de aulas para esta disciplina'
-        : 'Consulte os horários de aulas desta disciplina',
-      content: (
-        <HorariosForm
-          defaultValues={disciplina?.horarios}
-          readOnly={!disciplina?.can?.manage_schedule}
-          onSubmit={(payload) => {
-            router.post(
-              action,
-              { horarios: payload },
-              { onSuccess: () => closeDialog() },
-            );
-          }}
-        />
-      ),
-    });
+    router.visit(
+      createHorarios(
+        {
+          instituicao: params.instituicao.id,
+          cursoTutelado: params.cursoTutelado.id,
+          cursoClasse: params.cursoClasse.id,
+          cursoClasseTurno: params.cursoClasseTurno.id,
+          turma: params.turma,
+          classeTurnoDisciplina: disciplina.id,
+        },
+        { query: { ano_lectivo_id: anoLectivoId } },
+      ).url,
+    );
   };
 
   const handleDeleteDisciplina = (disciplinaId) => {
@@ -295,13 +279,11 @@ export function TabDisciplinas({
                             </DropdownMenuItem>
                           )}
 
-                          <DropdownMenuItem
-                            onClick={(e) => abrirHorariosDialog(disciplina, e)}
-                          >
-                            {disciplina?.can?.manage_schedule
-                              ? 'Definir horários'
-                              : 'Visualizar horários'}
-                          </DropdownMenuItem>
+<DropdownMenuItem onClick={(e) => abrirHorarios(disciplina, e)}>
+  {disciplina?.can?.manage_schedule
+    ? 'Definir horários'
+    : 'Visualizar horários'}
+</DropdownMenuItem>
 
                           {disciplina.professor &&
                             disciplina?.can?.detach_professor && (

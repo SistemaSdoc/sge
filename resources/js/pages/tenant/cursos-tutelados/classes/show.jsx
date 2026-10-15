@@ -31,13 +31,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { BookOpenIcon, UsersIcon, Haze } from 'lucide-react';
+import { BookOpenIcon, Haze, Trash2, UsersIcon } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
 import { create as createDisciplina } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
-import { destroy } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
+import { destroy as destroyDisciplina } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoDisciplinaController';
 import {
   show as showTurma,
   create as createTurma,
+  destroy as destroyTurma,
   edit as editTurma,
 } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import {
@@ -119,7 +120,7 @@ export default function Show({
       confirmLabel: 'Remover',
       confirmFn: () =>
         router.delete(
-          destroy[
+          destroyDisciplina[
             '/dashboard/instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/disciplinas/{classeTurnoDisciplina}'
           ]({
             ...params,
@@ -139,6 +140,20 @@ export default function Show({
             },
           },
         ),
+    });
+  };
+
+  const handleRemoverTurma = (turma) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description:
+        'A turma só pode ser removida se não tiver alunos associados.',
+      confirmLabel: 'Remover',
+      confirmFn: () =>
+        router.delete(destroyTurma({ ...params, turma: turma.id }).url, {
+          onError: (errors) =>
+            toast.error(errors.turma ?? 'Não foi possível remover a turma.'),
+        }),
     });
   };
 
@@ -526,6 +541,19 @@ export default function Show({
                                       }}
                                     >
                                       Editar
+                                    </Button>
+                                  )}
+                                  {turma?.can?.delete && (
+                                    <Button
+                                      variant="destructive"
+                                      size="xs"
+                                      className="ml-2 text-[10px] hover:cursor-pointer"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRemoverTurma(turma);
+                                      }}
+                                    >
+                                      Remover
                                     </Button>
                                   )}
                                 </TableCell>

@@ -30,8 +30,10 @@ class Aluno extends Model implements HasUserCleanup
         'matricula',
         'numero_processo',
         'inscricao.candidato.nome',
+        'inscricao.cursoClasseTurno.turno.nome',
         'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso.nome',
         'turmas.nome',
+        'turmas.cursoClasseTurno.cursoClasse.classe.nome',
     ];
 
     protected $table = 'alunos';

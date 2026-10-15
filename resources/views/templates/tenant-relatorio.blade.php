@@ -125,15 +125,14 @@
       <header style="display: flex; justify-content: space-between; align-items: center">
         <div style="display: flex; align-items: center; gap: 12px">
           <img src="{{ $logoDataUri }}" alt="TungaNetu" style="width: 170px; height: auto" />
-          <div style="font-size: 12px; font-weight: 600">{{ $instituicao }}</div>
         </div>
         <div class="muted" style="font-size: 10px; text-align: right">
-          Relatório de utilização<br />Emitido em {{ $dataEmissao }}
+          Emitido em {{ $dataEmissao }}
         </div>
       </header>
 
       <section style="margin-top: 56px">
-        <h1 class="accent" style="margin: 0; font-family: Georgia, serif; font-size: 34px; font-weight: 400; line-height: 1.15">
+        <h1 class="" style="margin: 0; font-family: Georgia, serif; font-size: 34px; font-weight: 400; line-height: 1.15">
           Relatório de Utilização
         </h1>
         <div class="accent" style="margin-top: 12px; font-size: 14px; font-weight: 600">
@@ -223,31 +222,13 @@
         </div>
       </section>
 
-      <section style="margin-top: 34px">
-        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px">
-          <h2 class="accent" style="margin: 0; font-family: Georgia, serif; font-size: 16px">
-            Logins nos últimos 7 dias
-          </h2>
-          <span class="muted" style="font-size: 10px">{{ $loginTotal }} utilizadores</span>
-        </div>
-        <div style="height: 126px; padding: 12px 16px 0; display: flex; align-items: flex-end; justify-content: space-between; border-top: 1px solid #d9dedb; border-bottom: 1px solid #d9dedb">
-          @foreach ($logins as $dia)
-            <div style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px">
-              <span style="font-size: 10px; font-weight: 600">{{ $dia['logins'] }}</span>
-              <div class="login-bar" style="height: {{ $maxLogins > 0 ? max(4, ($dia['logins'] / $maxLogins) * 76) : 4 }}px"></div>
-              <span class="muted" style="font-size: 10px">{{ $dia['dia'] }}</span>
-            </div>
-          @endforeach
-        </div>
-      </section>
-
       <aside style="margin-top: 28px; padding: 12px 16px; background: #fbf3e8; color: #8a7a64; font-size: 11px">
         Os dados apresentados correspondem aos registos disponíveis nesta instituição no momento da emissão.
       </aside>
 
       <footer class="muted" style="margin-top: auto; padding-top: 10px; display: flex; justify-content: space-between; font-size: 10px">
-        <span>TungaNetu | {{ $instituicao }}</span>
-        <span>Confidencial | {{ $dataEmissao }}</span>
+        <span>TungaNetu</span>
+        <span>{{ $dataEmissao }}</span>
       </footer>
     </main>
   </body>

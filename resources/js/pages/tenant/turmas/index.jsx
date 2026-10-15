@@ -3,6 +3,9 @@ import { Head, router } from '@inertiajs/react';
 import { TurmaForm } from './components/turma-form';
 import { TurmaTable } from './components/turma-table';
 import { index } from '@/actions/App/Http/Controllers/Tenant/TurmaController';
+import { destroy } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
+import { useDialog } from '@/hooks/use-dialog';
+import { toast } from 'sonner';
 
 export default function Index({
   can,
@@ -15,6 +18,20 @@ export default function Index({
   anosLectivos = [],
 }) {
   const { openForm, closeDrawer } = useDrawer();
+  const { deleteConfirm } = useDialog();
+
+  const handleRemoverTurma = (turma) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description: 'Esta acção é irreversível. A turma será removida.',
+      confirmLabel: 'Remover',
+      confirmFn: () =>
+        router.delete(destroy(turma).url, {
+          onError: (errors) =>
+            toast.error(errors.turma ?? 'Não foi possível remover a turma.'),
+        }),
+    });
+  };
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
@@ -65,6 +82,7 @@ export default function Index({
         anoLectivoActual={anoLectivoActual}
         onAnoLectivoChange={handleAnoLectivoChange}
         handleAdicionarTurma={handleAdicionarTurma}
+        deleteFn={handleRemoverTurma}
       />
     </div>
   );

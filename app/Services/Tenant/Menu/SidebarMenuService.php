@@ -16,6 +16,7 @@ use App\Http\Controllers\Tenant\InstituicaoController;
 use App\Http\Controllers\Tenant\NotaAlunoController;
 use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PautaController;
+use App\Http\Controllers\Tenant\PlanificacaoController;
 use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\ProfessorController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
@@ -25,8 +26,6 @@ use App\Http\Controllers\Tenant\SubmissaoProvaController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
-use App\Http\Controllers\Tenant\PlanificacaoController;
-use App\Models\Tenant\Planificacao;
 use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Aviso;
@@ -35,6 +34,7 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Nota;
+use App\Models\Tenant\Planificacao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\RegraAvaliacao;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
@@ -75,13 +75,13 @@ final class SidebarMenuService
                     can: true,
                 ),
 
-                new MenuItem(
+                /*new MenuItem(
                     key: 'instituicoes',
                     title: 'Instituições',
                     href: action([InstituicaoController::class, 'index']),
                     icon: 'Building2',
-                    can: fn() => $gate->allows('viewAny', Instituicao::class),
-                ),
+                    can: fn () => $gate->allows('viewAny', Instituicao::class),
+                ),*/
 
                 new MenuItem(
                     key: 'minha-instituicao',
@@ -169,7 +169,9 @@ final class SidebarMenuService
                     title: 'Grelha Curricular',
                     href: action([GrelhaCurricularController::class, 'index']),
                     icon: 'LayoutList',
-                    can: fn() => $gate->allows('grelha-curricular.viewAny'),
+                    can: fn () => ! $user->isSuperAdmin()
+                        && $user->hasRole('Aluno')
+                        && $gate->allows('grelha-curricular.viewAny'),
                 ),
 
                 new MenuItem(
@@ -177,7 +179,9 @@ final class SidebarMenuService
                     title: 'Minhas Notas',
                     href: action([NotaAlunoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn() => $gate->allows('viewAny', Nota::class)
+                    can: fn () => ! $user->isSuperAdmin()
+                        && $user->hasRole('Aluno')
+                        && $gate->allows('viewAny', Nota::class)
                 ),
 
                 new MenuItem(
@@ -185,7 +189,9 @@ final class SidebarMenuService
                     title: 'Horários',
                     href: route('tenant.dashboard.horarios'),
                     icon: 'CalendarClock',
-                    can: fn() => $gate->allows('horarios.viewAny')
+                    can: fn () => ! $user->isSuperAdmin()
+                        && $user->hasAnyRole(['Aluno', 'Professor'])
+                        && $gate->allows('horarios.viewAny')
                 ),
 
                 new MenuItem(

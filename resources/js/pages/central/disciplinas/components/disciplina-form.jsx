@@ -35,7 +35,7 @@ export function DisciplinaForm({
   onSubmit,
 }) {
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-6">
+    <div className="mx-auto w-full max-w-2xl p-4 md:p-6">
       <form onSubmit={onSubmit}>
         <Card>
           <CardHeader className="border-b">
@@ -141,14 +141,20 @@ export function DisciplinaForm({
                 </div>
 
                 <Field>
-                  <Button type="submit" disabled={processing}>
-                    Guardar disciplina
+                  <Button
+                    type="submit"
+                    disabled={processing}
+                    className="hover:cursor-pointer"
+                  >
+                    Adicionar disciplina
                   </Button>
+
                   <Button
                     type="button"
                     variant="outline"
                     disabled={processing}
                     onClick={() => window.history.back()}
+                    className="hover:cursor-pointer"
                   >
                     <ArrowUpLeft />
                     Voltar

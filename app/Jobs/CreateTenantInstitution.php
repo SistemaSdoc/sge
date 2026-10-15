@@ -7,6 +7,7 @@ use App\Models\Central\Tenant;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
 use App\Notifications\TenantActivadoNotification;
+use Database\Seeders\Tenant\CentralSupportUserSeeder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -85,6 +86,8 @@ class CreateTenantInstitution implements ShouldQueue
                 if (! $user->hasRole('Director')) {
                     $user->assignRole('Director');
                 }
+
+                app(CentralSupportUserSeeder::class)->run();
 
                 $user->notify(new TenantActivadoNotification(
                     nomeInstituicao: $instituicao->nome,

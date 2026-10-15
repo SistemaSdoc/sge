@@ -12,8 +12,10 @@ import {
   show as showCurso,
 } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import { destroy } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
+import { destroy as destroyTurma } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import { destroy as destroySecretario } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoSecretarioController';
 import { useDialog } from '@/hooks/use-dialog';
+import { toast } from 'sonner';
 import {
   Select,
   SelectContent,
@@ -71,6 +73,28 @@ export default function Show({
             secretario: userId,
           }).url,
           { preserveScroll: true },
+        ),
+    });
+  };
+
+  const handleRemoverTurma = (turma) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description:
+        'A turma só pode ser removida se não tiver alunos associados.',
+      confirmLabel: 'Remover',
+      confirmFn: () =>
+        router.delete(
+          destroyTurma({
+            ...params,
+            cursoClasse: turma.classe.id,
+            cursoClasseTurno: turma.curso_classe_turno_id,
+            turma: turma.id,
+          }).url,
+          {
+            onError: (errors) =>
+              toast.error(errors.turma ?? 'Não foi possível remover a turma.'),
+          },
         ),
     });
   };
@@ -169,6 +193,7 @@ export default function Show({
             anoLectivoId={anoLectivoId}
             pagination={cursoTutelado?.turmas}
             onPageChange={handlePageChange('page_turmas')}
+            deleteFn={handleRemoverTurma}
           />
         </TabsContent>
 
