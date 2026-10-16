@@ -4,7 +4,10 @@ import { cn } from '@/lib/utils';
 export function FaltasTrimestre({ assiduidade }) {
   const porTri = assiduidade?.por_trimestre ?? [];
   const temAlgum = porTri.some((v) => v !== null && v !== undefined && v > 0);
-  const max = Math.max(1, ...porTri.filter((v) => v !== null && v !== undefined));
+  const max = Math.max(
+    1,
+    ...porTri.filter((v) => v !== null && v !== undefined),
+  );
 
   return (
     <Card>
@@ -26,17 +29,23 @@ export function FaltasTrimestre({ assiduidade }) {
                 const vazio = faltas === null || faltas === undefined;
                 const altura = vazio ? 6 : Math.max(6, (faltas / max) * 100);
                 return (
-                  <div key={i} className="flex flex-1 flex-col items-center gap-2">
+                  <div
+                    key={i}
+                    className="flex flex-1 flex-col items-center gap-2"
+                  >
                     <span
                       className={cn(
                         'text-[10px] font-medium',
-                        vazio && 'text-muted-foreground'
+                        vazio && 'text-muted-foreground',
                       )}
                     >
                       {vazio ? '—' : faltas}
                     </span>
                     <div
-                      className={cn('w-12', vazio ? 'bg-muted' : 'bg-amber-500')}
+                      className={cn(
+                        'w-12',
+                        vazio ? 'bg-muted' : 'bg-amber-500',
+                      )}
                       style={{ height: `${altura}%` }}
                     />
                   </div>

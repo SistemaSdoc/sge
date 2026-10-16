@@ -2,8 +2,8 @@
 
 namespace App\Services\Tenant;
 
-use App\Models\Tenant\Aluno;
 use App\Models\Central\AnoLectivo;
+use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\TurmaAluno;
@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\DB;
 class DesempenhoAlunoService
 {
     private const NOTA_MINIMA = 10;
+
     private const PERIODOS = [1, 2, 3];
+
     private const LIMITE_FALTAS = 30;
 
     public function gerar(Aluno $aluno, ?string $anoLectivoId = null): array
@@ -125,6 +127,7 @@ class DesempenhoAlunoService
         // Média geral por trimestre
         $mediasTrimestre = collect(self::PERIODOS)->map(function ($p, $i) use ($disciplinas) {
             $vals = $disciplinas->pluck("trimestres.$i")->filter(fn ($v) => $v !== null);
+
             return $vals->isNotEmpty() ? round($vals->avg(), 1) : null;
         })->all();
 
@@ -138,6 +141,7 @@ class DesempenhoAlunoService
         // Faltas por trimestre
         $faltasTrimestre = collect(self::PERIODOS)->map(function ($p, $i) use ($disciplinas) {
             $vals = $disciplinas->pluck("faltas.$i")->filter(fn ($v) => $v !== null);
+
             return $vals->isNotEmpty() ? (int) $vals->sum() : null;
         })->all();
 

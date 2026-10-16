@@ -21,15 +21,16 @@ class PlanificacaoVersao extends Model
     use HasUuid;
 
     protected $table = 'planificacao_versoes';
-    
+
     public $incrementing = false;
+
     protected $primaryKey = 'id';
 
     protected function casts(): array
     {
         return [
-            'versao'         => 'integer',
-            'tamanho_bytes'  => 'integer',
+            'versao' => 'integer',
+            'tamanho_bytes' => 'integer',
         ];
     }
 
@@ -50,11 +51,17 @@ class PlanificacaoVersao extends Model
     {
         $bytes = $this->tamanho_bytes;
 
-        if ($bytes < 1024) return $bytes . ' B';
-        if ($bytes < 1048576) return round($bytes / 1024, 1) . ' KB';
-        if ($bytes < 1073741824) return round($bytes / 1048576, 1) . ' MB';
+        if ($bytes < 1024) {
+            return $bytes.' B';
+        }
+        if ($bytes < 1048576) {
+            return round($bytes / 1024, 1).' KB';
+        }
+        if ($bytes < 1073741824) {
+            return round($bytes / 1048576, 1).' MB';
+        }
 
-        return round($bytes / 1073741824, 1) . ' GB';
+        return round($bytes / 1073741824, 1).' GB';
     }
 
     /**

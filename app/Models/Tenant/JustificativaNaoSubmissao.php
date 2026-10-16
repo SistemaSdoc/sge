@@ -51,7 +51,6 @@ class JustificativaNaoSubmissao extends Model
         };
     }
 
-
     /**
      * Verifica se a justificativa está aceite e o prazo extra ainda está válido.
      */
@@ -80,6 +79,7 @@ class JustificativaNaoSubmissao extends Model
 
         return (int) ceil(now()->diffInDays($this->prazo_prorrogado_ate, false));
     }
+
     /**
      * Relacionamento com o prazo da prova.
      */
@@ -96,14 +96,12 @@ class JustificativaNaoSubmissao extends Model
         return $this->belongsTo(Professor::class);
     }
 
-
     /**
      * Relacionamento com a turma.
      */
-
     public function turma()
     {
-        return $this->belongsTo(\App\Models\Tenant\Turma::class);
+        return $this->belongsTo(Turma::class);
     }
 
     /**

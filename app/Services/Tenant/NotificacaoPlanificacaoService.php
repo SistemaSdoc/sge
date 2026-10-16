@@ -31,7 +31,7 @@ class NotificacaoPlanificacaoService
         }
 
         $professores = $this->professoresInteressados($planificacao);
-        $alunos      = $this->alunosInteressados($planificacao);
+        $alunos = $this->alunosInteressados($planificacao);
 
         $notificacao = new PlanificacaoPublicadaNotificacao(
             $planificacao,
@@ -49,17 +49,17 @@ class NotificacaoPlanificacaoService
 
         Log::info('Planificação publicada — notificações enviadas', [
             'planificacao_id' => $planificacao->id,
-            'curso_id'        => $planificacao->curso_id,
-            'disciplina_id'   => $planificacao->disciplina_id,
-            'classe_id'       => $planificacao->classe_id,
-            'versao'          => $versao,
-            'professores'     => $professores->count(),
-            'alunos'          => $alunos->count(),
+            'curso_id' => $planificacao->curso_id,
+            'disciplina_id' => $planificacao->disciplina_id,
+            'classe_id' => $planificacao->classe_id,
+            'versao' => $versao,
+            'professores' => $professores->count(),
+            'alunos' => $alunos->count(),
         ]);
 
         return [
             'professores' => $professores->count(),
-            'alunos'      => $alunos->count(),
+            'alunos' => $alunos->count(),
         ];
     }
 

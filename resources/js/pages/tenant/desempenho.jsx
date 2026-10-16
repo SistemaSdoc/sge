@@ -29,7 +29,7 @@ export default function Desempenho({
         preserveScroll: true,
         preserveState: false,
         onFinish: () => setLoading(false),
-      }
+      },
     );
   };
 
@@ -37,7 +37,7 @@ export default function Desempenho({
     <>
       <Head title="Meu Desempenho" />
 
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-6">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:p-6">
         <Cabecalho
           filtrosDisponiveis={filtrosDisponiveis}
           filtrosActivos={filtrosActivos}
@@ -47,7 +47,7 @@ export default function Desempenho({
         <div
           className={cn(
             'grid grid-cols-1 gap-4 lg:grid-cols-2',
-            loading && 'pointer-events-none opacity-40'
+            loading && 'pointer-events-none opacity-40',
           )}
         >
           <EvolucaoMedia trimestres={evolucao?.trimestres} />

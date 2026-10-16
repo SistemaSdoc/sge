@@ -12,7 +12,6 @@ class StoreClasseTurnoDisciplinaHorarioRequest extends FormRequest
         return true;
     }
 
-
     public function after(): array
     {
         return [

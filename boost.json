@@ -20,6 +20,8 @@
         "wayfinder-development",
         "inertia-react-development",
         "tailwindcss-development",
+        "echo-react-development",
+        "echo-development",
         "laravel-excel",
         "laravel-permission-development"
     ]

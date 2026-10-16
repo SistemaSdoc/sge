@@ -10,7 +10,7 @@ export function Cabecalho({ filtrosDisponiveis, filtrosActivos, onTrocarAno }) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="flex flex-col gap-1">
-        <h1 className="font-heading text-2xl font-medium leading-tight">
+        <h1 className="font-heading text-2xl leading-tight font-medium">
           Meu Desempenho
         </h1>
         <p className="text-xs text-muted-foreground">

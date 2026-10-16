@@ -4,7 +4,6 @@ namespace App\Policies\Tenant;
 
 use App\Models\Tenant\Planificacao;
 use App\Models\Tenant\User;
-use Illuminate\Auth\Access\Response;
 use Illuminate\Support\Facades\DB;
 
 class PlanificacaoPolicy

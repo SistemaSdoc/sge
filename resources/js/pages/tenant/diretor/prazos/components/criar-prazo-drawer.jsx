@@ -26,15 +26,17 @@ export default function CriarPrazoDrawer({
     tipo_prova: 'Prova-Trimestral',
     disciplina_ids: [],
     classe_ids: [],
-    periodo: '',          // ← agora string singular
+    periodo: '', // ← agora string singular
     data_inicio: '',
     data_limite: '',
     observacoes: '',
     permite_reenvio: true,
   });
 
-  const disciplinaOptions = disciplinas?.map((d) => ({ value: d.id, label: d.nome })) || [];
-  const classeOptions = classes?.map((c) => ({ value: c.id, label: c.nome })) || [];
+  const disciplinaOptions =
+    disciplinas?.map((d) => ({ value: d.id, label: d.nome })) || [];
+  const classeOptions =
+    classes?.map((c) => ({ value: c.id, label: c.nome })) || [];
   const periodoOptions = periodos ?? [];
 
   const submit = (e) => {
@@ -152,7 +154,9 @@ export default function CriarPrazoDrawer({
             Obrigatório — selecione pelo menos uma classe
           </p>
         )}
-        {errors.classe_ids && <p className="text-sm text-destructive">{errors.classe_ids}</p>}
+        {errors.classe_ids && (
+          <p className="text-sm text-destructive">{errors.classe_ids}</p>
+        )}
       </div>
 
       {/* Período — DROPDOWN SIMPLES */}
@@ -180,7 +184,9 @@ export default function CriarPrazoDrawer({
             Obrigatório — selecione um período
           </p>
         )}
-        {errors.periodo && <p className="text-sm text-destructive">{errors.periodo}</p>}
+        {errors.periodo && (
+          <p className="text-sm text-destructive">{errors.periodo}</p>
+        )}
       </div>
 
       {/* Datas */}
@@ -242,7 +248,7 @@ export default function CriarPrazoDrawer({
       </div>
 
       {/* Botões */}
-      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
+      <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
         <Button
           type="button"
           variant="outline"

@@ -4,7 +4,6 @@ namespace App\Models\Tenant;
 
 use App\Models\Central\AnoLectivo;
 use App\Models\Central\Disciplina;
-use App\Models\Tenant\CursoTutelado;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -30,6 +29,7 @@ class Planificacao extends Model
     protected $table = 'planificacoes';
 
     public $incrementing = false;
+
     protected $primaryKey = 'id';
 
     protected function casts(): array
@@ -76,8 +76,9 @@ class Planificacao extends Model
     {
         return $this->belongsTo(User::class, 'created_by');
     }
+
     public function curso(): BelongsTo
-{
-    return $this->belongsTo(CursoTutelado::class, 'curso_id');
-}
+    {
+        return $this->belongsTo(CursoTutelado::class, 'curso_id');
+    }
 }

@@ -220,32 +220,32 @@ class ClasseTurnoTurmaController extends Controller
 
         Redirect::setIntendedUrl(request()->fullUrl());
 
-    $anoLectivoId = filled(request('ano_lectivo_id'))
-        ? request('ano_lectivo_id')
-        : $turma->ano_lectivo_id;
+        $anoLectivoId = filled(request('ano_lectivo_id'))
+            ? request('ano_lectivo_id')
+            : $turma->ano_lectivo_id;
 
-    $turma->load([
-        'cursoClasseTurno.cursoClasse.classe:id,nome',
-        'cursoClasseTurno.turno:id,nome',
-        'anoLectivo:id,nome',
-        'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
-    ]);
-
-    $alunos = $turma->alunos()
-        ->wherePivot('activo', true)
-        ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
-        ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
-        ->paginate(10, ['*'], 'page_alunos');
-
-    $disciplinasQuery = $turma->cursoClasseTurno
-        ->classeTurnoDisciplinas()
-        ->where('ano_lectivo_id', $turma->ano_lectivo_id)
-        ->with([
-            'disciplina:id,nome,sigla',
-            'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
-            'turmaDisciplinaProfessores.professor.user:id,nome',
-            'horarios',
+        $turma->load([
+            'cursoClasseTurno.cursoClasse.classe:id,nome',
+            'cursoClasseTurno.turno:id,nome',
+            'anoLectivo:id,nome',
+            'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
         ]);
+
+        $alunos = $turma->alunos()
+            ->wherePivot('activo', true)
+            ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
+            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
+            ->paginate(10, ['*'], 'page_alunos');
+
+        $disciplinasQuery = $turma->cursoClasseTurno
+            ->classeTurnoDisciplinas()
+            ->where('ano_lectivo_id', $turma->ano_lectivo_id)
+            ->with([
+                'disciplina:id,nome,sigla',
+                'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
+                'turmaDisciplinaProfessores.professor.user:id,nome',
+                'horarios',
+            ]);
 
         $searchAlunos = trim($request->string('search_alunos')->toString());
         $searchDisciplinas = trim($request->string('search_disciplinas')->toString());

@@ -23,10 +23,10 @@ export function EvolucaoAnos({ anos }) {
           <div className="flex flex-col gap-2">
             <div className="relative flex h-40 items-end justify-around border-b px-2">
               <div
-                className="absolute left-2 right-2 border-t border-dashed border-amber-500"
+                className="absolute right-2 left-2 border-t border-dashed border-amber-500"
                 style={{ bottom: '50%' }}
               >
-                <span className="absolute right-0 -top-3.5 bg-card px-1 text-[9px] font-medium text-amber-600">
+                <span className="absolute -top-3.5 right-0 bg-card px-1 text-[9px] font-medium text-amber-600">
                   mínimo 10
                 </span>
               </div>
@@ -34,11 +34,14 @@ export function EvolucaoAnos({ anos }) {
                 const vazio = a.media === null || a.media === undefined;
                 const altura = vazio ? 6 : Math.min(100, (a.media / 20) * 100);
                 return (
-                  <div key={i} className="flex flex-1 flex-col items-center gap-2">
+                  <div
+                    key={i}
+                    className="flex flex-1 flex-col items-center gap-2"
+                  >
                     <span
                       className={cn(
                         'text-[10px] font-medium',
-                        vazio && 'text-muted-foreground'
+                        vazio && 'text-muted-foreground',
                       )}
                     >
                       {vazio ? '—' : fmt(a.media)}
@@ -46,7 +49,11 @@ export function EvolucaoAnos({ anos }) {
                     <div
                       className={cn(
                         'w-12',
-                        vazio ? 'bg-muted' : a.activo ? 'bg-blue-600' : 'bg-blue-400'
+                        vazio
+                          ? 'bg-muted'
+                          : a.activo
+                            ? 'bg-blue-600'
+                            : 'bg-blue-400',
                       )}
                       style={{ height: `${altura}%` }}
                     />

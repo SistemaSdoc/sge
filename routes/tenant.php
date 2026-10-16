@@ -24,6 +24,8 @@ use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\CursoTuteladoProfessorController;
 use App\Http\Controllers\Tenant\CursoTuteladoSecretarioController;
 use App\Http\Controllers\Tenant\DashboardController;
+use App\Http\Controllers\Tenant\DesempenhoAlunoController;
+use App\Http\Controllers\Tenant\DesempenhoProfessorController;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FichaMatriculaController;
@@ -60,8 +62,6 @@ use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
-use App\Http\Controllers\Tenant\DesempenhoProfessorController;
-use App\Http\Controllers\Tenant\DesempenhoAlunoController;
 use App\Http\Controllers\Tenant\UserPermissionController;
 use App\Http\Controllers\Tenant\UserProfileController;
 use App\Http\Middleware\CheckTenantStatus;
@@ -516,7 +516,7 @@ Route::middleware([
 
             Route::get('/professor/desempenho', [DesempenhoProfessorController::class, 'index'])
                 ->name('professor.desempenho');
-    
+
             Route::get('/aluno/desempenho', [DesempenhoAlunoController::class, 'index'])
                 ->name('aluno.desempenho');
             /*
@@ -764,28 +764,7 @@ Route::middleware([
             Route::post('notificacoes/{notification}/tutela/rejeitar', [NotificacaoController::class, 'rejeitarTutela'])
                 ->name('notificacoes.tutela.rejeitar');
 
-            // ===== DIRETOR ===== 
-            Route::prefix('diretor')->name('diretor.')->group(function () {
-                Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
-                Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');
-                Route::post('prazos/{prazo}/fechar', [PrazoProvaController::class, 'fechar'])->name('prazos.fechar');
-                Route::get('prazos/{prazo}/status', [PrazoProvaController::class, 'status'])->name('prazos.status');
-                Route::patch('justificativas/{justificativa}/avaliar', [PrazoProvaController::class, 'avaliar'])->name('justificativas.avaliar');
-                Route::patch('submissoes/{submissao}/avaliar', [AvaliacaoProvaController::class, 'update'])->name('submissoes.avaliar');
-            });
-
-            // ===== PROFESSOR =====
-            Route::prefix('professor')->name('professor.')->group(function () {
-                Route::get('provas', [SubmissaoProvaController::class, 'index'])->name('provas.index');
-                Route::get('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'create'])->name('provas.submeter');
-                Route::post('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'store'])->name('provas.store');
-                Route::get('provas/{submissao}/arquivo/{tipo}', [SubmissaoProvaController::class, 'arquivo'])->name('provas.arquivo');
-                Route::get('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
-                Route::post('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
-                Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
-            });
-
-            // ===== DIRETOR ===== 
+            // ===== DIRETOR =====
             Route::prefix('diretor')->name('diretor.')->group(function () {
                 Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
                 Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');

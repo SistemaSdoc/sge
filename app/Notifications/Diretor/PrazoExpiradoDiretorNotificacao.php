@@ -41,13 +41,13 @@ class PrazoExpiradoDiretorNotificacao extends Notification implements ShouldQueu
                 'dataLimite' => $this->prazo->data_limite?->format('d/m/Y H:i') ?? '—',
                 'periodo' => $this->prazo->periodo,
                 'totalProfessores' => $this->totalProfessores,
-                'submeteram'       => $this->submeteram,
-                'naoSubmeteram'    => $this->naoSubmeteram,
-                'justificaram'     => $this->justificaram,
-                'taxaCumprimento'  => $this->taxaCumprimento(),
-                'atribuicoes'      => $this->atribuicoes,
-                'url'              => url("/dashboard/diretor/prazos/{$this->prazo->id}/status"),
-                'instituicao'      => $notifiable->instituicao,
+                'submeteram' => $this->submeteram,
+                'naoSubmeteram' => $this->naoSubmeteram,
+                'justificaram' => $this->justificaram,
+                'taxaCumprimento' => $this->taxaCumprimento(),
+                'atribuicoes' => $this->atribuicoes,
+                'url' => url("/dashboard/diretor/prazos/{$this->prazo->id}/status"),
+                'instituicao' => $notifiable->instituicao,
             ]);
     }
 

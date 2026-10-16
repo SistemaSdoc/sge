@@ -49,8 +49,7 @@ export default function Create({ prazo, turma, justificativa }) {
       },
       recusada: {
         label: 'Recusada',
-        className:
-          'border-red-500 text-red-700 bg-red-50 dark:bg-red-950/20',
+        className: 'border-red-500 text-red-700 bg-red-50 dark:bg-red-950/20',
       },
     };
     const config = configs[status] || configs.pendente;
@@ -89,14 +88,13 @@ export default function Create({ prazo, turma, justificativa }) {
       {
         onSuccess: () => {
           toast.success(
-            `Justificativa enviada para a turma ${turma.nome}. Aguarde a avaliação.`
+            `Justificativa enviada para a turma ${turma.nome}. Aguarde a avaliação.`,
           );
           router.visit('/dashboard/professor/provas');
         },
         onError: (errors) => {
           const msg =
-            errors?.motivo ||
-            'Erro ao enviar justificativa. Tente novamente.';
+            errors?.motivo || 'Erro ao enviar justificativa. Tente novamente.';
           toast.error(msg);
         },
         onFinish: () => setLoading(false),
@@ -108,7 +106,7 @@ export default function Create({ prazo, turma, justificativa }) {
     <>
       <Head title="Justificar não submissão" />
 
-      <div className="max-w-3xl mx-auto p-4 sm:p-6">
+      <div className="mx-auto max-w-3xl p-4 sm:p-6">
         <Button variant="ghost" size="sm" asChild className="mb-4">
           <Link href="/dashboard/professor/provas">
             <ArrowLeft className="mr-1 size-4" />
@@ -116,9 +114,9 @@ export default function Create({ prazo, turma, justificativa }) {
           </Link>
         </Button>
 
-        <Card className="shadow-lg border-border/50">
+        <Card className="border-border/50 shadow-lg">
           {/* ── Header ── */}
-          <div className="bg-primary/5 dark:bg-primary/10 rounded-t-lg border-b">
+          <div className="rounded-t-lg border-b bg-primary/5 dark:bg-primary/10">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
@@ -142,16 +140,16 @@ export default function Create({ prazo, turma, justificativa }) {
           </div>
 
           {/* ── Faixa da TURMA em destaque ── */}
-          <div className="bg-blue-50 dark:bg-blue-950/20 border-b border-blue-200 dark:border-blue-800 px-6 py-3">
-            <p className="text-sm text-blue-800 dark:text-blue-300 flex items-center gap-2">
-              <Users className="size-4" />
-              A justificar para a turma <strong>{turma.nome}</strong>
+          <div className="border-b border-blue-200 bg-blue-50 px-6 py-3 dark:border-blue-800 dark:bg-blue-950/20">
+            <p className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-300">
+              <Users className="size-4" />A justificar para a turma{' '}
+              <strong>{turma.nome}</strong>
             </p>
           </div>
 
           {/* ── Info do prazo ── */}
-          <div className="bg-muted/30 px-6 py-4 border-b border-border/50">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div className="border-b border-border/50 bg-muted/30 px-6 py-4">
+            <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
               <div className="flex items-center gap-2">
                 <BookOpen className="size-4 text-muted-foreground" />
                 <span className="font-medium">Disciplina:</span>
@@ -200,8 +198,8 @@ export default function Create({ prazo, turma, justificativa }) {
                       Prazo encerrado
                     </p>
                     <p className="text-xs text-amber-700 dark:text-amber-400">
-                      Este prazo já foi encerrado. A justificativa ainda pode ser
-                      enviada para análise do diretor.
+                      Este prazo já foi encerrado. A justificativa ainda pode
+                      ser enviada para análise do diretor.
                     </p>
                   </div>
                 </div>
@@ -211,7 +209,7 @@ export default function Create({ prazo, turma, justificativa }) {
               <div className="space-y-2">
                 <label
                   htmlFor="motivo"
-                  className="text-sm font-medium flex items-center gap-1"
+                  className="flex items-center gap-1 text-sm font-medium"
                 >
                   Motivo da não submissão{' '}
                   <span className="text-destructive">*</span>
@@ -249,11 +247,11 @@ export default function Create({ prazo, turma, justificativa }) {
                       </p>
                     )}
                     {justificativa.motivo && (
-                      <div className="mt-2 p-2 bg-background rounded border border-border/30">
-                        <p className="text-xs text-muted-foreground font-medium">
+                      <div className="mt-2 rounded border border-border/30 bg-background p-2">
+                        <p className="text-xs font-medium text-muted-foreground">
                           Motivo enviado:
                         </p>
-                        <p className="text-sm mt-0.5">{justificativa.motivo}</p>
+                        <p className="mt-0.5 text-sm">{justificativa.motivo}</p>
                       </div>
                     )}
                   </div>

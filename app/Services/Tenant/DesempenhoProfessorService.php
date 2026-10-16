@@ -7,19 +7,24 @@ use App\Models\Tenant\Nota;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
+use Illuminate\Database\ConnectionInterface;
 use Illuminate\Support\Collection;
 
 class DesempenhoProfessorService
 {
     private const NOTA_COLUNA_VALOR = 'media_trimestral';
+
     private const NOTA_COLUNA_PERIODO = 'periodo';
+
     private const NOTA_MINIMA_APROVACAO = 10; // escala 0-20
 
     private const PERIODOS = [1, 2, 3];
 
     /** Variações aceites para cada resultado em turma_aluno.resultado_academico */
     private const RESULTADOS_APROVADO = ['aprovado', 'aprovada'];
+
     private const RESULTADOS_REPROVADO = ['reprovado', 'reprovada'];
+
     private const RESULTADOS_EXCLUIDO = ['excluido_falta', 'excluido_faltas', 'excluido_por_faltas', 'excluido', 'excluida'];
 
     /**
@@ -95,7 +100,7 @@ class DesempenhoProfessorService
     // ------------------------------------------------------------
 
     /** Conexão do tenant (a mesma usada pelos models do tenant). */
-    private function conexao(): \Illuminate\Database\ConnectionInterface
+    private function conexao(): ConnectionInterface
     {
         return (new Nota)->getConnection();
     }
@@ -142,7 +147,7 @@ class DesempenhoProfessorService
             ->whereIn('turma_disciplina_professor_id', $atribuicaoIds)
             ->where('status', 'finalizada')
             ->get(['turma_disciplina_professor_id', 'periodo'])
-            ->mapWithKeys(fn ($p) => [$p->turma_disciplina_professor_id . '|' . $p->periodo => true]);
+            ->mapWithKeys(fn ($p) => [$p->turma_disciplina_professor_id.'|'.$p->periodo => true]);
 
         return Nota::query()
             ->whereIn('turma_disciplina_professor_id', $atribuicaoIds)
@@ -150,8 +155,8 @@ class DesempenhoProfessorService
             ->when($periodo, fn ($q) => $q->where(self::NOTA_COLUNA_PERIODO, $periodo))
             ->get()
             ->filter(fn ($n) => ! $n->is_rascunho
-                || $finalizadas->has($n->turma_disciplina_professor_id . '|' . $n->periodo))
-            ->groupBy(fn ($n) => $n->turma_disciplina_professor_id . '|' . $n->turma_aluno_id)
+                || $finalizadas->has($n->turma_disciplina_professor_id.'|'.$n->periodo))
+            ->groupBy(fn ($n) => $n->turma_disciplina_professor_id.'|'.$n->turma_aluno_id)
             ->map(function ($grupo) {
                 $primeira = $grupo->first();
 

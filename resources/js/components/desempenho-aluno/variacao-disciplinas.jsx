@@ -56,7 +56,10 @@ function Linha({ item, maxAbs }) {
 
   return (
     <div className="grid grid-cols-[7rem_1fr] items-center gap-3 text-xs">
-      <span className="truncate text-right text-muted-foreground" title={item.disciplina}>
+      <span
+        className="truncate text-right text-muted-foreground"
+        title={item.disciplina}
+      >
         {item.disciplina}
       </span>
       <div className="relative h-6">
@@ -66,7 +69,7 @@ function Linha({ item, maxAbs }) {
             'absolute top-1/2 h-3 -translate-y-1/2',
             positivo && 'bg-green-600',
             negativo && 'bg-destructive',
-            !positivo && !negativo && 'bg-muted-foreground'
+            !positivo && !negativo && 'bg-muted-foreground',
           )}
           style={{
             left: positivo ? '50%' : `${50 - largura}%`,
@@ -77,7 +80,7 @@ function Linha({ item, maxAbs }) {
           className={cn(
             'absolute top-1/2 -translate-y-1/2 text-[10px] font-medium',
             positivo && 'text-green-600',
-            negativo && 'text-destructive'
+            negativo && 'text-destructive',
           )}
           style={{
             left: positivo ? `calc(50% + ${largura}% + 6px)` : undefined,

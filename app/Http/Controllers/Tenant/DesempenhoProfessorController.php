@@ -10,9 +10,7 @@ use Inertia\Inertia;
 
 class DesempenhoProfessorController extends Controller
 {
-    public function __construct(private DesempenhoProfessorService $service)
-    {
-    }
+    public function __construct(private DesempenhoProfessorService $service) {}
 
     public function index(Request $request)
     {

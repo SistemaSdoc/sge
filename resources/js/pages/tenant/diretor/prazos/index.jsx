@@ -10,7 +10,13 @@ import FiltrosPrazos from './components/filtros-prazos';
 import CriarPrazoDrawer from './components/criar-prazo-drawer';
 import PrazosTable from './components/prazos-table';
 
-export default function Index({ prazos, filters, disciplinas, periodos, classes }) {
+export default function Index({
+  prazos,
+  filters,
+  disciplinas,
+  periodos,
+  classes,
+}) {
   const [openCriar, setOpenCriar] = useState(false);
 
   const [filtros, setFiltros] = useState({
@@ -56,18 +62,18 @@ export default function Index({ prazos, filters, disciplinas, periodos, classes 
       <Head title="Gestão de Prazos de Provas" />
 
       <div className="mx-auto w-full max-w-7xl space-y-6 p-6">
-          <FiltrosPrazos
-            filtros={filtros}
-            disciplinas={disciplinas}
-            onChange={(novos) => {
-              setFiltros(novos);
-              aplicarFiltros(novos);
-            }}
-            onLimpar={() => {
-              setFiltros({ status: '', disciplina_id: '', ano_letivo: '' });
-              aplicarFiltros({ status: '', disciplina_id: '', ano_letivo: '' });
-            }}
-          />
+        <FiltrosPrazos
+          filtros={filtros}
+          disciplinas={disciplinas}
+          onChange={(novos) => {
+            setFiltros(novos);
+            aplicarFiltros(novos);
+          }}
+          onLimpar={() => {
+            setFiltros({ status: '', disciplina_id: '', ano_letivo: '' });
+            aplicarFiltros({ status: '', disciplina_id: '', ano_letivo: '' });
+          }}
+        />
 
         <PrazosTable
           prazos={prazos.data}
@@ -81,23 +87,23 @@ export default function Index({ prazos, filters, disciplinas, periodos, classes 
         />
       </div>
 
-{/*  MODAL CENTRALIZADO */}
-<Dialog open={openCriar} onOpenChange={setOpenCriar}>
-  <DialogContent className="w-[95vw] max-w-2xl sm:w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
-    <DialogHeader>
-      <DialogTitle>Novo Prazo de Provas</DialogTitle>
-    </DialogHeader>
-    {openCriar && (
-      <CriarPrazoDrawer
-        disciplinas={disciplinas}
-        periodos={periodos} 
-        classes={classes}
-        onSuccess={fecharCriarPrazo}
-        onCancel={fecharCriarPrazo}
-      />
-    )}
-  </DialogContent>
-</Dialog>
+      {/*  MODAL CENTRALIZADO */}
+      <Dialog open={openCriar} onOpenChange={setOpenCriar}>
+        <DialogContent className="max-h-[90vh] w-[95vw] max-w-2xl overflow-y-auto p-4 sm:w-full sm:p-6">
+          <DialogHeader>
+            <DialogTitle>Novo Prazo de Provas</DialogTitle>
+          </DialogHeader>
+          {openCriar && (
+            <CriarPrazoDrawer
+              disciplinas={disciplinas}
+              periodos={periodos}
+              classes={classes}
+              onSuccess={fecharCriarPrazo}
+              onCancel={fecharCriarPrazo}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

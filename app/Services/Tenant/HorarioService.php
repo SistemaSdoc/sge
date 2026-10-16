@@ -17,7 +17,7 @@ class HorarioService
     public function doProfessor(Professor $professor, $anoLectivoId): Collection
     {
         return $professor->turmaDisciplinaProfessor()
-            ->whereHas('turma', fn($q) => $q->where('ano_lectivo_id', $anoLectivoId))
+            ->whereHas('turma', fn ($q) => $q->where('ano_lectivo_id', $anoLectivoId))
             ->with([
                 'classeTurnoDisciplina.disciplina',
                 'classeTurnoDisciplina.horarios',
@@ -30,7 +30,7 @@ class HorarioService
 
                 return $disciplina->horarios
                     ->where('turma_id', $turma->id) // só esta turma, sem fallback null
-                    ->map(fn($horario) => $this->formatar($horario, $disciplina, $turma));
+                    ->map(fn ($horario) => $this->formatar($horario, $disciplina, $turma));
             })
             ->values();
     }
@@ -55,10 +55,10 @@ class HorarioService
             ->whereNotNull('professor_id')
             ->with('professor.user') // AJUSTAR: onde está o nome do professor
             ->get()
-            ->keyBy(fn($tdp) => $tdp->turma_id . '|' . $tdp->classe_turno_disciplina_id);
+            ->keyBy(fn ($tdp) => $tdp->turma_id.'|'.$tdp->classe_turno_disciplina_id);
 
         return $horarios->map(function ($horario) use ($professores) {
-            $tdp = $professores->get($horario->turma_id . '|' . $horario->classe_turno_disciplina_id);
+            $tdp = $professores->get($horario->turma_id.'|'.$horario->classe_turno_disciplina_id);
 
             return $this->formatar(
                 $horario,

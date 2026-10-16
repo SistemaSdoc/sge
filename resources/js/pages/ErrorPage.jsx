@@ -9,14 +9,12 @@ const ERROR_CONTENT = {
   },
   403: {
     title: 'Sem permissão',
-    description:
-      'A página que tentou acessar não lhe é autorizada.',
+    description: 'A página que tentou acessar não lhe é autorizada.',
     action: { label: 'Voltar ao início', href: '/' },
   },
   404: {
     title: 'Ops, não encontramos o que procura',
-    description:
-      ' O conteúdo que tentou acessar não está disponível.',
+    description: ' O conteúdo que tentou acessar não está disponível.',
     action: { label: 'Voltar ao início', href: '/' },
   },
   422: {
@@ -33,8 +31,7 @@ const ERROR_CONTENT = {
   },
   500: {
     title: 'Ups, algo correu mal do nosso lado',
-    description:
-      'Estamos trabalhando para resolver o problema.',
+    description: 'Estamos trabalhando para resolver o problema.',
     action: { label: 'Voltar ao início', href: '/' },
   },
   503: {
@@ -52,7 +49,7 @@ export default function ErrorPage({ status, homeUrl }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-6 py-16">
       <div className="w-full max-w-md rounded-2xl border border-border bg-background p-10 text-center shadow-lg">
-        <div className="mx-auto mb-2 text-[72px] font-extrabold leading-none text-primary">
+        <div className="mx-auto mb-2 text-[72px] leading-none font-extrabold text-primary">
           {status}
         </div>
 

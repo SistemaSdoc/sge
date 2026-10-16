@@ -24,7 +24,7 @@ export function DashboardPanel({
             </div>
             {headerAction && <div className="shrink-0">{headerAction}</div>}
           </div>
-        </CardHeader> 
+        </CardHeader>
 
         <CardContent className="flex-1 overflow-y-auto pt-4">
           {children}

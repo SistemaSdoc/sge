@@ -9,10 +9,9 @@ use App\Models\Tenant\Documento;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
+use App\Models\Tenant\Planificacao;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\User;
-use App\Models\Tenant\Planificacao;
-use App\Policies\Tenant\PlanificacaoPolicy;
 use App\Notifications\Channels\InstitutionLogoMailChannel;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Observers\PagamentoObserver;
@@ -26,6 +25,7 @@ use App\Policies\Tenant\GrupoPapPolicy;
 use App\Policies\Tenant\HorarioPolicy;
 use App\Policies\Tenant\ItemPagavelPolicy;
 use App\Policies\Tenant\PautaPolicy;
+use App\Policies\Tenant\PlanificacaoPolicy;
 use App\Policies\Tenant\PrazoProvaPolicy;
 use App\Policies\Tenant\RolePolicy;
 use App\Policies\Tenant\SubmissaoProvaPolicy;
@@ -40,8 +40,6 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
-use Inertia\ExceptionResponse;
-use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -138,19 +136,18 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('submissao-prova.avaliar', [SubmissaoProvaPolicy::class, 'avaliar']);
         Gate::define('submissao-prova.visualizarArquivo', [SubmissaoProvaPolicy::class, 'visualizarArquivo']);
 
-
         Gate::policy(Planificacao::class, PlanificacaoPolicy::class);
         // Registrar observadores de modelos
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
         Pagamento::observe(PagamentoObserver::class);
 
         Inertia::handleExceptionsUsing(function (ExceptionResponse $response) {
-    if (in_array($response->statusCode(), [403, 404, 500, 503])) {
-        return $response->render('ErrorPage', [
-            'status' => $response->statusCode(),
-        ])->withSharedData();
-    }
-});
+            if (in_array($response->statusCode(), [403, 404, 500, 503])) {
+                return $response->render('ErrorPage', [
+                    'status' => $response->statusCode(),
+                ])->withSharedData();
+            }
+        });
     }
 
     /**
@@ -165,13 +162,13 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Password::defaults(
-            fn(): ?Password => app()->isProduction()
+            fn (): ?Password => app()->isProduction()
                 ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
                 : null,
         );
     }
