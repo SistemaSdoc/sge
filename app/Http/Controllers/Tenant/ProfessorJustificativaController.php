@@ -58,29 +58,29 @@ class ProfessorJustificativaController extends Controller
             ->first();
 
         Log::info('📝 ProfessorJustificativaController@create', [
-            'prazo_id'   => $prazo->id,
-            'turma_id'   => $turma->id,
+            'prazo_id' => $prazo->id,
+            'turma_id' => $turma->id,
             'turma_nome' => $turma->nome,
-            'user_id'    => auth()->id(),
+            'user_id' => auth()->id(),
         ]);
 
         return Inertia::render('tenant/professores/justificativas/create', [
             'prazo' => [
-                'id'          => $prazo->id,
-                'titulo'      => $prazo->titulo ?? $prazo->tipo_prova,
+                'id' => $prazo->id,
+                'titulo' => $prazo->titulo ?? $prazo->tipo_prova,
                 'data_limite' => $prazo->data_limite->format('d/m/Y H:i'),
-                'disciplina'  => $prazo->disciplina?->nome,
-                'classe'      => $prazo->classe?->nome,
-                'status'      => $prazo->status,
+                'disciplina' => $prazo->disciplina?->nome,
+                'classe' => $prazo->classe?->nome,
+                'status' => $prazo->status,
             ],
             'turma' => [
-                'id'   => $turma->id,
+                'id' => $turma->id,
                 'nome' => $turma->nome,
             ],
             'justificativa' => $justificativa ? [
-                'id'           => $justificativa->id,
-                'motivo'       => $justificativa->motivo,
-                'status'       => $justificativa->status,
+                'id' => $justificativa->id,
+                'motivo' => $justificativa->motivo,
+                'status' => $justificativa->status,
                 'status_label' => $justificativa->status_label,
             ] : null,
         ]);
@@ -126,12 +126,12 @@ class ProfessorJustificativaController extends Controller
             $justificativa = JustificativaNaoSubmissao::updateOrCreate(
                 [
                     'prazo_prova_id' => $prazo->id,
-                    'professor_id'   => $professor->id,
-                    'turma_id'       => $turma->id,
+                    'professor_id' => $professor->id,
+                    'turma_id' => $turma->id,
                 ],
                 [
-                    'motivo'             => $request->motivo,
-                    'status'             => 'pendente',
+                    'motivo' => $request->motivo,
+                    'status' => 'pendente',
                     'data_justificativa' => now(),
                 ]
             );
@@ -141,9 +141,9 @@ class ProfessorJustificativaController extends Controller
 
             Log::info('Justificativa enviada', [
                 'justificativa_id' => $justificativa->id,
-                'prazo_id'         => $prazo->id,
-                'turma_id'         => $turma->id,
-                'professor_id'     => $professor->id,
+                'prazo_id' => $prazo->id,
+                'turma_id' => $turma->id,
+                'professor_id' => $professor->id,
             ]);
 
             return redirect()
@@ -151,7 +151,7 @@ class ProfessorJustificativaController extends Controller
                 ->with('success', "Justificativa enviada para a turma {$turma->nome}.");
         } catch (\Exception $e) {
             Log::error('Erro ao salvar justificativa', [
-                'message'  => $e->getMessage(),
+                'message' => $e->getMessage(),
                 'prazo_id' => $prazo->id,
                 'turma_id' => $turma->id,
             ]);
@@ -179,12 +179,12 @@ class ProfessorJustificativaController extends Controller
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(fn ($j) => [
-                'id'           => $j->id,
+                'id' => $j->id,
                 'prazo_titulo' => $j->prazo->titulo ?? $j->prazo->tipo_prova,
-                'turma_nome'   => $j->turma?->nome,
-                'motivo'       => $j->motivo,
+                'turma_nome' => $j->turma?->nome,
+                'motivo' => $j->motivo,
                 'status_label' => $j->status_label,
-                'data'         => $j->created_at->format('d/m/Y H:i'),
+                'data' => $j->created_at->format('d/m/Y H:i'),
             ]);
 
         return Inertia::render('tenant/professores/justificativas/index', [

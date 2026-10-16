@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -16,7 +16,8 @@ return new class extends Migration
             "SHOW INDEX FROM `{$table}` WHERE Key_name = ?",
             [$indexName]
         );
-        return !empty($result);
+
+        return ! empty($result);
     }
 
     /**
@@ -25,14 +26,15 @@ return new class extends Migration
     private function foreignExists(string $table, string $fkName): bool
     {
         $result = DB::connection('tenant')->select(
-            "SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
+            'SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
              WHERE TABLE_SCHEMA = DATABASE()
                AND TABLE_NAME = ?
                AND CONSTRAINT_NAME = ?
-               AND REFERENCED_TABLE_NAME IS NOT NULL",
+               AND REFERENCED_TABLE_NAME IS NOT NULL',
             [$table, $fkName]
         );
-        return !empty($result);
+
+        return ! empty($result);
     }
 
     public function up(): void
@@ -45,8 +47,8 @@ return new class extends Migration
         $fksToDrop = [
             "{$table}_prazo_prova_id_foreign",
             "{$table}_professor_id_foreign",
-            "justificativas_nao_submissao_prazo_prova_id_foreign",
-            "justificativas_nao_submissao_professor_id_foreign",
+            'justificativas_nao_submissao_prazo_prova_id_foreign',
+            'justificativas_nao_submissao_professor_id_foreign',
         ];
 
         foreach ($fksToDrop as $fk) {
@@ -80,7 +82,7 @@ return new class extends Migration
         // ────────────────────────────────────────────────────────
         // 4. Criar novo unique com turma_id (se não existir)
         // ────────────────────────────────────────────────────────
-        if (!$this->indexExists($table, 'justificativas_prazo_professor_turma_unique')) {
+        if (! $this->indexExists($table, 'justificativas_prazo_professor_turma_unique')) {
             Schema::table($table, function (Blueprint $t) {
                 $t->unique(
                     ['prazo_prova_id', 'professor_id', 'turma_id'],
@@ -94,21 +96,21 @@ return new class extends Migration
         // ────────────────────────────────────────────────────────
         $fksToCreate = [
             [
-                'name'       => "{$table}_prazo_prova_id_foreign",
-                'column'     => 'prazo_prova_id',
-                'ref_table'  => 'prazos_provas',
+                'name' => "{$table}_prazo_prova_id_foreign",
+                'column' => 'prazo_prova_id',
+                'ref_table' => 'prazos_provas',
                 'ref_column' => 'id',
             ],
             [
-                'name'       => "{$table}_professor_id_foreign",
-                'column'     => 'professor_id',
-                'ref_table'  => 'professores',
+                'name' => "{$table}_professor_id_foreign",
+                'column' => 'professor_id',
+                'ref_table' => 'professores',
                 'ref_column' => 'id',
             ],
         ];
 
         foreach ($fksToCreate as $fk) {
-            if (!$this->foreignExists($table, $fk['name'])) {
+            if (! $this->foreignExists($table, $fk['name'])) {
                 Schema::table($table, function (Blueprint $t) use ($fk) {
                     $t->foreign($fk['column'], $fk['name'])
                         ->references($fk['ref_column'])
@@ -140,7 +142,7 @@ return new class extends Migration
         }
 
         // Recriar unique antigo
-        if (!$this->indexExists($table, 'justificativas_prazo_professor_unique')) {
+        if (! $this->indexExists($table, 'justificativas_prazo_professor_unique')) {
             Schema::table($table, function (Blueprint $t) {
                 $t->unique(
                     ['prazo_prova_id', 'professor_id'],
@@ -156,7 +158,7 @@ return new class extends Migration
         ];
 
         foreach ($fksToCreate as $fk) {
-            if (!$this->foreignExists($table, $fk['name'])) {
+            if (! $this->foreignExists($table, $fk['name'])) {
                 Schema::table($table, function (Blueprint $t) use ($fk) {
                     $t->foreign($fk['column'], $fk['name'])
                         ->references('id')

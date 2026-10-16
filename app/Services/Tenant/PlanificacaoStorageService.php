@@ -34,12 +34,12 @@ class PlanificacaoStorageService
         );
 
         $versao = $planificacao->versoes()->create([
-            'versao'          => $proximaVersao,
-            'caminho_ficheiro'=> $caminho,
-            'nome_original'   => $ficheiro->getClientOriginalName(),
-            'tamanho_bytes'   => $ficheiro->getSize(),
-            'mime_type'       => $ficheiro->getMimeType() ?? 'application/octet-stream',
-            'uploaded_by'     => $userId,
+            'versao' => $proximaVersao,
+            'caminho_ficheiro' => $caminho,
+            'nome_original' => $ficheiro->getClientOriginalName(),
+            'tamanho_bytes' => $ficheiro->getSize(),
+            'mime_type' => $ficheiro->getMimeType() ?? 'application/octet-stream',
+            'uploaded_by' => $userId,
         ]);
 
         $planificacao->update(['versao_atual' => $proximaVersao]);

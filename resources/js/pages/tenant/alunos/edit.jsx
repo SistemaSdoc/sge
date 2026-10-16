@@ -8,7 +8,13 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
 
 export default function Edit() {
-  const { aluno, cursos = [], classes = [], turnos = [], turmas = [] } = usePage().props;
+  const {
+    aluno,
+    cursos = [],
+    classes = [],
+    turnos = [],
+    turmas = [],
+  } = usePage().props;
 
   const [cursoId, setCursoId] = useState(
     aluno.curso_tutelado_id ? String(aluno.curso_tutelado_id) : undefined,
@@ -18,7 +24,9 @@ export default function Edit() {
     aluno.curso_classe_id ? String(aluno.curso_classe_id) : undefined,
   );
   const [cursoClasseTurnoId, setCursoClasseTurnoId] = useState(
-    aluno.curso_classe_turno_id ? String(aluno.curso_classe_turno_id) : undefined,
+    aluno.curso_classe_turno_id
+      ? String(aluno.curso_classe_turno_id)
+      : undefined,
   );
   const [turmaId, setTurmaId] = useState(
     aluno.turma_id ? String(aluno.turma_id) : undefined,

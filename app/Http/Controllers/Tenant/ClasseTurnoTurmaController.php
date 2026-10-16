@@ -220,32 +220,32 @@ class ClasseTurnoTurmaController extends Controller
 
         Redirect::setIntendedUrl(request()->fullUrl());
 
-    $anoLectivoId = filled(request('ano_lectivo_id'))
-        ? request('ano_lectivo_id')
-        : $turma->ano_lectivo_id;
+        $anoLectivoId = filled(request('ano_lectivo_id'))
+            ? request('ano_lectivo_id')
+            : $turma->ano_lectivo_id;
 
-    $turma->load([
-        'cursoClasseTurno.cursoClasse.classe:id,nome',
-        'cursoClasseTurno.turno:id,nome',
-        'anoLectivo:id,nome',
-        'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
-    ]);
-
-    $alunos = $turma->alunos()
-        ->wherePivot('activo', true)
-        ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
-        ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
-        ->paginate(10, ['*'], 'page_alunos');
-
-    $disciplinasQuery = $turma->cursoClasseTurno
-        ->classeTurnoDisciplinas()
-        ->where('ano_lectivo_id', $turma->ano_lectivo_id)
-        ->with([
-            'disciplina:id,nome,sigla',
-            'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
-            'turmaDisciplinaProfessores.professor.user:id,nome',
-            'horarios',
+        $turma->load([
+            'cursoClasseTurno.cursoClasse.classe:id,nome',
+            'cursoClasseTurno.turno:id,nome',
+            'anoLectivo:id,nome',
+            'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
         ]);
+
+        $alunos = $turma->alunos()
+            ->wherePivot('activo', true)
+            ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
+            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
+            ->paginate(10, ['*'], 'page_alunos');
+
+        $disciplinasQuery = $turma->cursoClasseTurno
+            ->classeTurnoDisciplinas()
+            ->where('ano_lectivo_id', $turma->ano_lectivo_id)
+            ->with([
+                'disciplina:id,nome,sigla',
+                'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
+                'turmaDisciplinaProfessores.professor.user:id,nome',
+                'horarios',
+            ]);
 
         $searchAlunos = trim($request->string('search_alunos')->toString());
         $searchDisciplinas = trim($request->string('search_disciplinas')->toString());
@@ -420,57 +420,6 @@ class ClasseTurnoTurmaController extends Controller
 
         ]);
     }
-
-    $disciplinas = $disciplinasQuery->paginate(5, ['*'], 'page_disciplinas');
-
-    $grupos = $turma->gruposPap()
-        ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final')
-        ->paginate(5, ['*'], 'page_grupos');
-
-    $pautaRecurso = $this->pautaService->gerarPauta($turma, 4, 5);
-    $podeLancarRecurso = $user->hasAnyRole(['Director', 'Subdirector'])
-        || collect($pautaRecurso['alunos'] ?? [])
-            ->contains(fn ($aluno) => is_null($aluno['nota_recurso'] ?? null));
-
-    return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/show', [
-        'instituicao' => $instituicao->only('id'),
-        'cursoTutelado' => [
-            'id' => $cursoTutelado->only('id'),
-            'nome' => $cursoTutelado->instituicaoCurso->curso->nome,
-        ],
-        'cursoClasse' => [
-            'id' => $cursoClasse->only('id'),
-            'nome' => $cursoClasse->classe->nome,
-        ],
-        'cursoClasseTurno' => [
-            'id' => $cursoClasseTurno->id,
-            'nome' => $cursoClasseTurno->turno->nome,
-        ],
-        'turma' => new TurmaShowResource($turma),
-        'anoLectivoId' => $anoLectivoId,
-        'anosLectivos' => AnoLectivo::query()
-            ->select('id', 'nome')
-            ->orderByDesc('data_inicio')
-            ->get(),
-
-        'can' => [
-            'curso' => ['view' => $user->can('view', $cursoTutelado)],
-            'classe' => ['view' => $user->can('view', $cursoClasse)],
-            'turno' => ['view' => $user->can('view', $cursoClasseTurno)],
-            'alunos' => ['create' => $user->can('create', Aluno::class)],
-            'disciplinas' => ['create' => $user->can('create', ClasseTurnoDisciplina::class)],
-            'grupos' => ['create' => $user->can('create', GrupoPap::class)],
-            // TEMPORÁRIO: a Policy de ConfirmacaoMatricula esgota a memória
-            'confirmarMatricula' => ['viewAny' => false],
-        ],
-
-        'alunos' => AlunoTurmaResource::collection($alunos),
-        'disciplinas' => ClasseTurnoDisciplinaResource::collection($disciplinas),
-        'pautaRecurso' => $pautaRecurso,
-        'pode_lancar_recurso' => $podeLancarRecurso,
-        'grupos' => GrupoPapIndexResource::collection($grupos),
-    ]);
-}
 
     public function edit(
         Instituicao $instituicao,

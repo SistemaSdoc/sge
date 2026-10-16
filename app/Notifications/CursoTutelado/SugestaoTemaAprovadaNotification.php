@@ -23,18 +23,18 @@ class SugestaoTemaAprovadaNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $cursoTutelado = $this->sugestao->cursoTutelado;
-        $instituicao   = $cursoTutelado->instituicaoCurso->instituicao;
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
         $url = route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
-            'instituicao'   => $instituicao->id,
+            'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ]);
 
         return (new MailMessage)
             ->subject('Sugestão de tema PAP aprovada')
             ->view('mail.curso-tutelado.aprovada', [
-                'sugestao'    => $this->sugestao,
-                'url'         => $url,
+                'sugestao' => $this->sugestao,
+                'url' => $url,
                 'instituicao' => $instituicao,
             ]);
     }
@@ -42,9 +42,9 @@ class SugestaoTemaAprovadaNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'             => 'sugestao_tema_aprovada',
-            'titulo'           => 'Sugestão de tema aprovada',
-            'mensagem'         => "A tua sugestão de tema \"{$this->sugestao->titulo}\" foi aprovada.",
+            'tipo' => 'sugestao_tema_aprovada',
+            'titulo' => 'Sugestão de tema aprovada',
+            'mensagem' => "A tua sugestão de tema \"{$this->sugestao->titulo}\" foi aprovada.",
             'sugestao_tema_id' => $this->sugestao->id,
         ];
     }

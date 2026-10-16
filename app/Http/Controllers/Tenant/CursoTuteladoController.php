@@ -350,7 +350,7 @@ class CursoTuteladoController extends Controller
         ]);
 
         $this->notificarSugestaoTemaAprovada($sugestao);
-        
+
         return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão aprovada.']);
     }
 
@@ -428,7 +428,7 @@ class CursoTuteladoController extends Controller
             'aprovado_em' => null,
             'observacao_aprovacao' => null,
         ]);
-        
+
         return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão resubmetida para aprovação.']);
     }
 }

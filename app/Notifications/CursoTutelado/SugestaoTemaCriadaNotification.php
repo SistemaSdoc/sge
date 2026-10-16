@@ -25,19 +25,19 @@ class SugestaoTemaCriadaNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $cursoTutelado = $this->sugestao->cursoTutelado;
-        $instituicao   = $cursoTutelado->instituicaoCurso->instituicao;
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
         $url = route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
-            'instituicao'   => $instituicao->id,
+            'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ]);
 
         return (new MailMessage)
             ->subject('Nova sugestão de tema PAP submetida')
             ->view('mail.curso-tutelado.criada', [
-                'sugestao'    => $this->sugestao,
-                'criadoPor'   => $this->criadoPor,
-                'url'         => $url,
+                'sugestao' => $this->sugestao,
+                'criadoPor' => $this->criadoPor,
+                'url' => $url,
                 'instituicao' => $instituicao,
             ]);
     }
@@ -45,9 +45,9 @@ class SugestaoTemaCriadaNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'             => 'sugestao_tema_criada',
-            'titulo'           => 'Nova sugestão de tema PAP',
-            'mensagem'         => "Uma nova sugestão de tema foi submetida: \"{$this->sugestao->titulo}\".",
+            'tipo' => 'sugestao_tema_criada',
+            'titulo' => 'Nova sugestão de tema PAP',
+            'mensagem' => "Uma nova sugestão de tema foi submetida: \"{$this->sugestao->titulo}\".",
             'sugestao_tema_id' => $this->sugestao->id,
         ];
     }

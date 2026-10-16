@@ -50,40 +50,51 @@ export default function Status({ prazo, professores }) {
   const [motivoRejeicao, setMotivoRejeicao] = useState('');
 
   const [justificativaDialog, setJustificativaDialog] = useState(null);
-  const [motivoRecusaJustificativa, setMotivoRecusaJustificativa] = useState('');
+  const [motivoRecusaJustificativa, setMotivoRecusaJustificativa] =
+    useState('');
   const [diasPrazoExtra, setDiasPrazoExtra] = useState(3);
 
   // ============================================================
   // 1. AVALIAR SUBMISSÃO
   // ============================================================
-  const handleAvaliarSubmissao = useCallback((submissaoId, acao, motivo = null) => {
-    setProcessing((prev) => ({ ...prev, [`sub_${submissaoId}`]: true }));
+  const handleAvaliarSubmissao = useCallback(
+    (submissaoId, acao, motivo = null) => {
+      setProcessing((prev) => ({ ...prev, [`sub_${submissaoId}`]: true }));
 
-    const payload = { acao };
-    if (motivo) payload.parecer = motivo;
+      const payload = { acao };
+      if (motivo) payload.parecer = motivo;
 
-    router.patch(`/dashboard/diretor/submissoes/${submissaoId}/avaliar`, payload, {
-      preserveScroll: true,
-      preserveState: false,   // ✅ NOVO
-      onSuccess: () => {
-        toast.success(
-          acao === 'aprovar' ? 'Submissão aprovada' : 'Submissão rejeitada',
-          { description: 'O professor foi notificado.' }
-        );
-        router.reload({
-          only: ['professores'],
+      router.patch(
+        `/dashboard/diretor/submissoes/${submissaoId}/avaliar`,
+        payload,
+        {
           preserveScroll: true,
-          preserveState: false,   // ✅ NOVO
-        });
-      },
-      onError: () => {
-        toast.error('Erro ao avaliar submissão');
-      },
-      onFinish: () => {
-        setProcessing((prev) => ({ ...prev, [`sub_${submissaoId}`]: false }));
-      },
-    });
-  }, []);
+          preserveState: false, // ✅ NOVO
+          onSuccess: () => {
+            toast.success(
+              acao === 'aprovar' ? 'Submissão aprovada' : 'Submissão rejeitada',
+              { description: 'O professor foi notificado.' },
+            );
+            router.reload({
+              only: ['professores'],
+              preserveScroll: true,
+              preserveState: false, // ✅ NOVO
+            });
+          },
+          onError: () => {
+            toast.error('Erro ao avaliar submissão');
+          },
+          onFinish: () => {
+            setProcessing((prev) => ({
+              ...prev,
+              [`sub_${submissaoId}`]: false,
+            }));
+          },
+        },
+      );
+    },
+    [],
+  );
 
   // ============================================================
   // 2. AVALIAR JUSTIFICATIVA
@@ -107,7 +118,7 @@ export default function Status({ prazo, professores }) {
         payload,
         {
           preserveScroll: true,
-          preserveState: false,   // ✅ NOVO
+          preserveState: false, // ✅ NOVO
           onSuccess: () => {
             if (status === 'aceita') {
               toast.success('Justificativa aceite', {
@@ -121,21 +132,24 @@ export default function Status({ prazo, professores }) {
             router.reload({
               only: ['professores'],
               preserveScroll: true,
-              preserveState: false,   // ✅ NOVO
+              preserveState: false, // ✅ NOVO
             });
           },
           onError: () => {
             toast.error('Erro ao avaliar justificativa');
           },
           onFinish: () => {
-            setProcessing((prev) => ({ ...prev, [`just_${justificativaId}`]: false }));
+            setProcessing((prev) => ({
+              ...prev,
+              [`just_${justificativaId}`]: false,
+            }));
             setJustificativaDialog(null);
             setDiasPrazoExtra(3);
           },
-        }
+        },
       );
     },
-    []
+    [],
   );
 
   // ============================================================
@@ -168,10 +182,15 @@ export default function Status({ prazo, professores }) {
   const confirmRejectJustificativa = () => {
     if (!justificativaDialog) return;
     const { id, professorNome, turmaNome } = justificativaDialog;
-    handleAvaliarJustificativa(id, 'recusada', motivoRecusaJustificativa.trim() || null, {
-      professorNome,
-      turmaNome,
-    });
+    handleAvaliarJustificativa(
+      id,
+      'recusada',
+      motivoRecusaJustificativa.trim() || null,
+      {
+        professorNome,
+        turmaNome,
+      },
+    );
   };
 
   const confirmAceitar = () => {
@@ -188,7 +207,7 @@ export default function Status({ prazo, professores }) {
       'aceita',
       null,
       { professorNome, turmaNome },
-      diasPrazoExtra
+      diasPrazoExtra,
     );
   };
 
@@ -211,7 +230,8 @@ export default function Status({ prazo, professores }) {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground">
-              Status do Prazo: <span className="text-primary">{prazo.titulo}</span>
+              Status do Prazo:{' '}
+              <span className="text-primary">{prazo.titulo}</span>
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {prazo.disciplina?.nome ?? 'Todas as disciplinas'}
@@ -233,7 +253,9 @@ export default function Status({ prazo, professores }) {
             <CardContent className="flex items-center p-4">
               <Users className="mr-3 size-8 text-muted-foreground" />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Total
+                </p>
                 <p className="text-3xl font-bold">{total}</p>
               </div>
             </CardContent>
@@ -243,7 +265,9 @@ export default function Status({ prazo, professores }) {
             <CardContent className="flex items-center p-4">
               <CheckCircle className="mr-3 size-8 text-green-600" />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Submeteram</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Submeteram
+                </p>
                 <p className="text-3xl font-bold text-green-600">{cumpriram}</p>
               </div>
             </CardContent>
@@ -253,8 +277,12 @@ export default function Status({ prazo, professores }) {
             <CardContent className="flex items-center p-4">
               <XCircle className="mr-3 size-8 text-red-600" />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Não submeteram</p>
-                <p className="text-3xl font-bold text-red-600">{naoCumpriram}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Não submeteram
+                </p>
+                <p className="text-3xl font-bold text-red-600">
+                  {naoCumpriram}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -265,7 +293,8 @@ export default function Status({ prazo, professores }) {
           <CardHeader>
             <CardTitle>Lista de Professores</CardTitle>
             <CardDescription>
-              Uma linha por professor e turma. Aceitar justificativa concede prazo extra automaticamente.
+              Uma linha por professor e turma. Aceitar justificativa concede
+              prazo extra automaticamente.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
@@ -284,7 +313,10 @@ export default function Status({ prazo, professores }) {
               <TableBody>
                 {professores.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                    <TableCell
+                      colSpan={7}
+                      className="py-8 text-center text-muted-foreground"
+                    >
                       Nenhum professor atribuído a este prazo.
                     </TableCell>
                   </TableRow>
@@ -299,14 +331,20 @@ export default function Status({ prazo, professores }) {
                     return (
                       <TableRow
                         key={rowKey}
-                        className={!prof.submeteu ? 'bg-yellow-50 dark:bg-yellow-950/20' : ''}
+                        className={
+                          !prof.submeteu
+                            ? 'bg-yellow-50 dark:bg-yellow-950/20'
+                            : ''
+                        }
                       >
                         <TableCell className="px-4">
                           <div className="flex items-center gap-2">
                             <div className="flex size-8 items-center justify-center rounded-full bg-muted">
                               <User className="size-4 text-muted-foreground" />
                             </div>
-                            <span className="font-medium">{prof.professor_nome}</span>
+                            <span className="font-medium">
+                              {prof.professor_nome}
+                            </span>
                           </div>
                         </TableCell>
 
@@ -317,14 +355,19 @@ export default function Status({ prazo, professores }) {
                               {prof.turma_nome}
                             </Badge>
                           ) : (
-                            <span className="text-sm text-muted-foreground">—</span>
+                            <span className="text-sm text-muted-foreground">
+                              —
+                            </span>
                           )}
                         </TableCell>
 
                         <TableCell className="px-4">
                           {prof.submeteu ? (
                             <div className="flex flex-wrap items-center gap-1">
-                              <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                              <Badge
+                                variant="default"
+                                className="bg-green-600 hover:bg-green-700"
+                              >
                                 <CheckCircle className="mr-1 size-3" />
                                 Submeteu
                               </Badge>
@@ -339,8 +382,12 @@ export default function Status({ prazo, professores }) {
                                         : 'border-yellow-500 text-yellow-700'
                                   }
                                 >
-                                  {prof.estado === 'aprovado' && <Check className="mr-1 size-3" />}
-                                  {prof.estado === 'rejeitado' && <X className="mr-1 size-3" />}
+                                  {prof.estado === 'aprovado' && (
+                                    <Check className="mr-1 size-3" />
+                                  )}
+                                  {prof.estado === 'rejeitado' && (
+                                    <X className="mr-1 size-3" />
+                                  )}
                                   {prof.estado_label}
                                 </Badge>
                               )}
@@ -394,7 +441,9 @@ export default function Status({ prazo, professores }) {
                               </p>
                             </div>
                           ) : (
-                            <span className="text-sm text-muted-foreground">—</span>
+                            <span className="text-sm text-muted-foreground">
+                              —
+                            </span>
                           )}
                         </TableCell>
 
@@ -406,7 +455,12 @@ export default function Status({ prazo, professores }) {
                                 variant="default"
                                 size="sm"
                                 className="bg-green-600 hover:bg-green-700"
-                                onClick={() => handleAvaliarSubmissao(prof.submissao_id, 'aprovar')}
+                                onClick={() =>
+                                  handleAvaliarSubmissao(
+                                    prof.submissao_id,
+                                    'aprovar',
+                                  )
+                                }
                                 disabled={isSubmiting}
                               >
                                 {isSubmiting ? (
@@ -422,7 +476,11 @@ export default function Status({ prazo, professores }) {
                                 variant="destructive"
                                 size="sm"
                                 onClick={() =>
-                                  openRejectDialog(prof.submissao_id, prof.professor_nome, prof.turma_nome)
+                                  openRejectDialog(
+                                    prof.submissao_id,
+                                    prof.professor_nome,
+                                    prof.turma_nome,
+                                  )
                                 }
                                 disabled={isSubmiting}
                               >
@@ -476,7 +534,7 @@ export default function Status({ prazo, professores }) {
                                       openRejectJustificativaDialog(
                                         prof.justificativa.id,
                                         prof.professor_nome,
-                                        prof.turma_nome
+                                        prof.turma_nome,
                                       )
                                     }
                                     disabled={isJustifying}
@@ -502,7 +560,9 @@ export default function Status({ prazo, professores }) {
                             )}
 
                           {!prof.submeteu && !prof.justificativa && (
-                            <span className="text-sm text-muted-foreground">Sem justificativa</span>
+                            <span className="text-sm text-muted-foreground">
+                              Sem justificativa
+                            </span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -516,7 +576,10 @@ export default function Status({ prazo, professores }) {
       </div>
 
       {/* Diálogo: Rejeitar submissão */}
-      <Dialog open={!!rejectDialog} onOpenChange={(open) => !open && closeRejectDialog()}>
+      <Dialog
+        open={!!rejectDialog}
+        onOpenChange={(open) => !open && closeRejectDialog()}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -540,8 +603,12 @@ export default function Status({ prazo, professores }) {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeRejectDialog}>Cancelar</Button>
-            <Button variant="destructive" onClick={confirmReject}>Rejeitar</Button>
+            <Button variant="outline" onClick={closeRejectDialog}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmReject}>
+              Rejeitar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -558,7 +625,8 @@ export default function Status({ prazo, professores }) {
               Recusar Justificativa
             </DialogTitle>
             <DialogDescription>
-              <strong>{justificativaDialog?.professorNome}</strong> • {justificativaDialog?.turmaNome}
+              <strong>{justificativaDialog?.professorNome}</strong> •{' '}
+              {justificativaDialog?.turmaNome}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-2">
@@ -572,7 +640,9 @@ export default function Status({ prazo, professores }) {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={closeJustificativaDialog}>Cancelar</Button>
+            <Button variant="outline" onClick={closeJustificativaDialog}>
+              Cancelar
+            </Button>
             <Button variant="destructive" onClick={confirmRejectJustificativa}>
               Recusar
             </Button>
@@ -592,7 +662,8 @@ export default function Status({ prazo, professores }) {
               Aceitar Justificativa
             </DialogTitle>
             <DialogDescription>
-              <strong>{justificativaDialog?.professorNome}</strong> • {justificativaDialog?.turmaNome}
+              <strong>{justificativaDialog?.professorNome}</strong> •{' '}
+              {justificativaDialog?.turmaNome}
             </DialogDescription>
           </DialogHeader>
 
@@ -622,7 +693,9 @@ export default function Status({ prazo, professores }) {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={closeJustificativaDialog}>Cancelar</Button>
+            <Button variant="outline" onClick={closeJustificativaDialog}>
+              Cancelar
+            </Button>
             <Button
               className="bg-green-600 hover:bg-green-700"
               onClick={confirmAceitar}

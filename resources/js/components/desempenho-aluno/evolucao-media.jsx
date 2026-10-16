@@ -10,7 +10,8 @@ export function EvolucaoMedia({ trimestres }) {
   const PAD_X = 24;
   const PAD_Y = 24;
 
-  const x = (i) => PAD_X + (i * (W - PAD_X * 2)) / Math.max(1, dados.length - 1);
+  const x = (i) =>
+    PAD_X + (i * (W - PAD_X * 2)) / Math.max(1, dados.length - 1);
   const y = (v) => H - PAD_Y - ((v ?? 0) / 20) * (H - PAD_Y * 2);
   const yMin = y(10);
 
@@ -62,7 +63,12 @@ export function EvolucaoMedia({ trimestres }) {
               )}
               {pontosValidos.map((p) => (
                 <g key={p.i}>
-                  <circle cx={x(p.i)} cy={y(p.v)} r="4" className="fill-blue-600" />
+                  <circle
+                    cx={x(p.i)}
+                    cy={y(p.v)}
+                    r="4"
+                    className="fill-blue-600"
+                  />
                   <text
                     x={x(p.i)}
                     y={y(p.v) - 10}
@@ -79,7 +85,9 @@ export function EvolucaoMedia({ trimestres }) {
                 <span key={i}>{t.periodo}.º Trimestre</span>
               ))}
             </div>
-            <div className="text-right text-[10px] text-amber-600">Mínimo 10</div>
+            <div className="text-right text-[10px] text-amber-600">
+              Mínimo 10
+            </div>
           </div>
         )}
       </CardContent>

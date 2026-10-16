@@ -38,7 +38,7 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
             ->orderBy('dia_semana')
             ->orderBy('hora_inicio')
             ->get()
-            ->map(fn($h) => [
+            ->map(fn ($h) => [
                 'dia_semana' => (int) $h->dia_semana,
                 'hora_inicio' => $this->formatarHora($h->hora_inicio),
                 'hora_fim' => $this->formatarHora($h->hora_fim),
@@ -61,7 +61,7 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
             ],
             'horarios' => $horarios,
             'anoLectivoId' => $request->input('ano_lectivo_id'),
-            'readOnly' => !$podeGerir,
+            'readOnly' => ! $podeGerir,
         ]);
     }
 
@@ -84,7 +84,7 @@ class ClasseTurnoDisciplinaHorarioController extends Controller
 
         // Criar novos horários
         $horarios = collect($request->validated()['horarios'])
-            ->map(fn($horario) => array_merge($horario, [
+            ->map(fn ($horario) => array_merge($horario, [
                 'id' => (string) Str::uuid7(),
                 'classe_turno_disciplina_id' => $classeTurnoDisciplina->id,
                 'turma_id' => $turma->id,

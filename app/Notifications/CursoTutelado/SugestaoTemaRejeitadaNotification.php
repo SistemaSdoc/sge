@@ -23,19 +23,19 @@ class SugestaoTemaRejeitadaNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $cursoTutelado = $this->sugestao->cursoTutelado;
-        $instituicao   = $cursoTutelado->instituicaoCurso->instituicao;
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
         $url = route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
-            'instituicao'   => $instituicao->id,
+            'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ]);
 
         return (new MailMessage)
             ->subject('Sugestão de tema PAP rejeitada')
             ->view('mail.curso-tutelado.rejeitada', [
-                'sugestao'    => $this->sugestao,
-                'observacao'  => $this->sugestao->observacao_aprovacao,
-                'url'         => $url,
+                'sugestao' => $this->sugestao,
+                'observacao' => $this->sugestao->observacao_aprovacao,
+                'url' => $url,
                 'instituicao' => $instituicao,
             ]);
     }
@@ -43,9 +43,9 @@ class SugestaoTemaRejeitadaNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'             => 'sugestao_tema_rejeitada',
-            'titulo'           => 'Sugestão de tema rejeitada',
-            'mensagem'         => "A tua sugestão de tema \"{$this->sugestao->titulo}\" foi rejeitada.",
+            'tipo' => 'sugestao_tema_rejeitada',
+            'titulo' => 'Sugestão de tema rejeitada',
+            'mensagem' => "A tua sugestão de tema \"{$this->sugestao->titulo}\" foi rejeitada.",
             'sugestao_tema_id' => $this->sugestao->id,
         ];
     }

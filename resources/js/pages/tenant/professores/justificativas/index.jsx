@@ -36,12 +36,12 @@ export default function Index({ justificativas }) {
     <>
       <Head title="Minhas Justificativas" />
 
-      <div className="max-w-5xl mx-auto p-6">
-        <div className="flex items-center justify-between mb-6">
+      <div className="mx-auto max-w-5xl p-6">
+        <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Minhas Justificativas</h1>
           <Link
             href="/dashboard/professor/provas"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             ← Voltar para provas
           </Link>
@@ -50,8 +50,10 @@ export default function Index({ justificativas }) {
         {justificativas.length === 0 ? (
           <Card className="shadow-sm">
             <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <FileText className="size-12 mb-3 opacity-50" />
-              <p className="text-lg font-medium">Nenhuma justificativa enviada</p>
+              <FileText className="mb-3 size-12 opacity-50" />
+              <p className="text-lg font-medium">
+                Nenhuma justificativa enviada
+              </p>
               <p className="text-sm">
                 Você ainda não enviou justificativas para nenhum prazo.
               </p>
@@ -92,12 +94,14 @@ export default function Index({ justificativas }) {
                             {just.turma_nome}
                           </span>
                         ) : (
-                          <span className="text-muted-foreground text-sm">—</span>
+                          <span className="text-sm text-muted-foreground">
+                            —
+                          </span>
                         )}
                       </TableCell>
 
                       <TableCell
-                        className="px-4 max-w-xs truncate"
+                        className="max-w-xs truncate px-4"
                         title={just.motivo}
                       >
                         {just.motivo}

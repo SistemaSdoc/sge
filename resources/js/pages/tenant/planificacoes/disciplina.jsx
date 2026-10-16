@@ -50,7 +50,7 @@ export default function Disciplina({
             (p.titulo ?? '').toLowerCase().includes(termo) ||
             (p.periodo ?? '').toLowerCase().includes(termo) ||
             (p.classe?.nome ?? '').toLowerCase().includes(termo) ||
-            (p.ano_letivo ?? '').toLowerCase().includes(termo)
+            (p.ano_letivo ?? '').toLowerCase().includes(termo),
         )
       : planificacoes;
 
@@ -71,11 +71,11 @@ export default function Disciplina({
 
     const lista = Array.from(mapa.values());
     lista.forEach((g) =>
-      g.items.sort((a, b) => (a.periodo ?? '').localeCompare(b.periodo ?? ''))
+      g.items.sort((a, b) => (a.periodo ?? '').localeCompare(b.periodo ?? '')),
     );
 
     return lista.sort((a, b) =>
-      (a.classe.nome ?? '').localeCompare(b.classe.nome ?? '')
+      (a.classe.nome ?? '').localeCompare(b.classe.nome ?? ''),
     );
   }, [planificacoes, busca]);
 
@@ -83,14 +83,14 @@ export default function Disciplina({
   const stats = useMemo(() => {
     const total = planificacoes.length;
     const classes = new Set(
-      planificacoes.map((p) => p.classe?.id ?? 'sem-classe')
+      planificacoes.map((p) => p.classe?.id ?? 'sem-classe'),
     ).size;
     const ultima = [...planificacoes]
       .filter((p) => p.atualizada_em)
       .sort(
         (a, b) =>
           new Date(b.atualizada_em).getTime() -
-          new Date(a.atualizada_em).getTime()
+          new Date(a.atualizada_em).getTime(),
       )[0];
 
     return { total, classes, ultima };
@@ -114,16 +114,16 @@ export default function Disciplina({
         {/* Hero da disciplina */}
         <div className="relative overflow-hidden border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
           <div
-            className="pointer-events-none absolute -right-16 -top-16 size-56  bg-primary/10 blur-3xl"
+            className="pointer-events-none absolute -top-16 -right-16 size-56 bg-primary/10 blur-3xl"
             aria-hidden
           />
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center  bg-primary/15 ring-1 ring-primary/20">
+              <div className="flex size-14 shrink-0 items-center justify-center bg-primary/15 ring-1 ring-primary/20">
                 <BookOpen className="size-7 text-primary" />
               </div>
               <div className="space-y-1">
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
                   Disciplina
                 </p>
                 <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
@@ -150,20 +150,20 @@ export default function Disciplina({
           {/* Stats */}
           {planificacoes.length > 0 && (
             <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
+              <div className="border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <FileText className="size-3.5" />
-                  <span className="text-[11px] font-medium uppercase tracking-wide">
+                  <span className="text-[11px] font-medium tracking-wide uppercase">
                     Planificações
                   </span>
                 </div>
                 <p className="mt-1 text-2xl font-bold">{stats.total}</p>
               </div>
 
-              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
+              <div className="border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Layers className="size-3.5" />
-                  <span className="text-[11px] font-medium uppercase tracking-wide">
+                  <span className="text-[11px] font-medium tracking-wide uppercase">
                     Classes
                   </span>
                 </div>
@@ -171,10 +171,10 @@ export default function Disciplina({
               </div>
 
               {stats.ultima && (
-                <div className="col-span-2  border bg-background/60 p-3 backdrop-blur-sm sm:col-span-1">
+                <div className="col-span-2 border bg-background/60 p-3 backdrop-blur-sm sm:col-span-1">
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <TrendingUp className="size-3.5" />
-                    <span className="text-[11px] font-medium uppercase tracking-wide">
+                    <span className="text-[11px] font-medium tracking-wide uppercase">
                       Última atualização
                     </span>
                   </div>
@@ -190,7 +190,7 @@ export default function Disciplina({
         {/* Busca — só se há conteúdo */}
         {planificacoes.length > 0 && (
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
@@ -202,7 +202,7 @@ export default function Disciplina({
 
         {/* Lista */}
         {planificacoes.length === 0 ? (
-          <Empty className=" border border-dashed">
+          <Empty className="border border-dashed">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <BookOpen />
@@ -223,7 +223,7 @@ export default function Disciplina({
             )}
           </Empty>
         ) : grupos.length === 0 ? (
-          <Empty className=" border border-dashed">
+          <Empty className="border border-dashed">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <Search />
@@ -251,14 +251,12 @@ export default function Disciplina({
                     <GraduationCap className="size-4.5 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-base font-semibold leading-none">
+                    <h2 className="text-base leading-none font-semibold">
                       {classe.nome}
                     </h2>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {items.length}{' '}
-                      {items.length === 1
-                        ? 'planificação'
-                        : 'planificações'}
+                      {items.length === 1 ? 'planificação' : 'planificações'}
                     </p>
                   </div>
                   <Badge variant="secondary" className="font-mono">
@@ -306,13 +304,13 @@ export default function Disciplina({
                       <CardContent className="flex-1 pb-3">
                         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                           {p.ano_letivo && (
-                            <span className="inline-flex items-center gap-1  bg-muted/60 px-2 py-1">
+                            <span className="inline-flex items-center gap-1 bg-muted/60 px-2 py-1">
                               <Calendar className="size-3" />
                               {p.ano_letivo}
                             </span>
                           )}
                           {p.classe?.nome && (
-                            <span className="inline-flex items-center gap-1  bg-muted/60 px-2 py-1">
+                            <span className="inline-flex items-center gap-1 bg-muted/60 px-2 py-1">
                               <GraduationCap className="size-3" />
                               {p.classe.nome}
                             </span>

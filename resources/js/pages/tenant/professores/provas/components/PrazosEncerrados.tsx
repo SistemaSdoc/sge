@@ -65,7 +65,9 @@ interface PrazosEncerradosProps {
   prazos: PrazoEncerrado[];
 }
 
-export default function PrazosEncerrados({ prazos = [] }: PrazosEncerradosProps) {
+export default function PrazosEncerrados({
+  prazos = [],
+}: PrazosEncerradosProps) {
   if (prazos.length === 0) {
     return (
       <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-4 text-muted-foreground">
@@ -88,7 +90,9 @@ export default function PrazosEncerrados({ prazos = [] }: PrazosEncerradosProps)
           <Card
             key={prazo.id}
             className={`border-border shadow-sm transition-shadow hover:shadow-md ${
-              foiRejeitada && !podeSubmeter ? 'border-red-300 dark:border-red-800' : ''
+              foiRejeitada && !podeSubmeter
+                ? 'border-red-300 dark:border-red-800'
+                : ''
             }`}
           >
             <CardHeader>
@@ -131,7 +135,8 @@ export default function PrazosEncerrados({ prazos = [] }: PrazosEncerradosProps)
                   </div>
 
                   <p className="text-xs text-red-700 dark:text-red-300">
-                    <strong>Enviada em:</strong> {prazo.submissao.data_submissao}
+                    <strong>Enviada em:</strong>{' '}
+                    {prazo.submissao.data_submissao}
                   </p>
 
                   {prazo.submissao.parecer_diretor && (
@@ -139,7 +144,7 @@ export default function PrazosEncerrados({ prazos = [] }: PrazosEncerradosProps)
                       <p className="text-[11px] font-medium text-red-800 dark:text-red-300">
                         Parecer do diretor:
                       </p>
-                      <p className="mt-0.5 text-xs italic text-red-700 dark:text-red-200">
+                      <p className="mt-0.5 text-xs text-red-700 italic dark:text-red-200">
                         "{prazo.submissao.parecer_diretor}"
                       </p>
                     </div>
@@ -147,11 +152,11 @@ export default function PrazosEncerrados({ prazos = [] }: PrazosEncerradosProps)
 
                   {podeSubmeter ? (
                     <p className="mt-2 text-[11px] font-medium text-red-700 dark:text-red-300">
-                       Submeta uma nova versão corrigida.
+                      Submeta uma nova versão corrigida.
                     </p>
                   ) : (
                     <p className="mt-2 text-[11px] font-medium text-red-700 dark:text-red-300">
-                       O prazo terminou. Contacte o diretor para reabrir.
+                      O prazo terminou. Contacte o diretor para reabrir.
                     </p>
                   )}
                 </div>
@@ -225,14 +230,16 @@ export default function PrazosEncerrados({ prazos = [] }: PrazosEncerradosProps)
                 </div>
               )}
 
-              {prazo.justificativa?.status === 'pendente' && !prazo.submeteu && (
-                <div className="mt-2 rounded border border-yellow-200 bg-yellow-50 p-2 dark:border-yellow-800 dark:bg-yellow-950/20">
-                  <p className="flex items-center gap-1 text-xs text-yellow-700 dark:text-yellow-400">
-                    <AlertCircle className="size-3" />
-                    <strong>Justificativa pendente.</strong> Aguarda avaliação.
-                  </p>
-                </div>
-              )}
+              {prazo.justificativa?.status === 'pendente' &&
+                !prazo.submeteu && (
+                  <div className="mt-2 rounded border border-yellow-200 bg-yellow-50 p-2 dark:border-yellow-800 dark:bg-yellow-950/20">
+                    <p className="flex items-center gap-1 text-xs text-yellow-700 dark:text-yellow-400">
+                      <AlertCircle className="size-3" />
+                      <strong>Justificativa pendente.</strong> Aguarda
+                      avaliação.
+                    </p>
+                  </div>
+                )}
             </CardContent>
 
             <CardFooter>
@@ -249,14 +256,20 @@ export default function PrazosEncerrados({ prazos = [] }: PrazosEncerradosProps)
                   </Link>
                 </Button>
               ) : podeSubmeter ? (
-                <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
+                <Button
+                  asChild
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
                   <Link href={prazo.url_submeter || '#'}>
                     <Send className="mr-1 size-4" />
                     Submeter prova
                   </Link>
                 </Button>
               ) : foiAprovada ? (
-                <Badge variant="default" className="w-full justify-center bg-green-600">
+                <Badge
+                  variant="default"
+                  className="w-full justify-center bg-green-600"
+                >
                   <CheckCircle className="mr-1 size-3" />
                   Submeteu e foi aprovada
                 </Badge>

@@ -34,7 +34,7 @@ class PrazoNotificacaoService
 
         if ($diretores->isEmpty()) {
             Log::warning('Nenhum diretor para notificar sobre nova submissão', [
-                'submissao_id'   => $submissao->id,
+                'submissao_id' => $submissao->id,
                 'instituicao_id' => $prazo->instituicao_id,
             ]);
 
@@ -49,17 +49,17 @@ class PrazoNotificacaoService
                 $enviadas++;
             } catch (\Throwable $e) {
                 Log::error('Erro ao notificar diretor sobre nova submissão', [
-                    'diretor_id'    => $diretor->id,
-                    'submissao_id'  => $submissao->id,
-                    'error'         => $e->getMessage(),
+                    'diretor_id' => $diretor->id,
+                    'submissao_id' => $submissao->id,
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         Log::info('Diretores notificados sobre nova submissão', [
-            'submissao_id'   => $submissao->id,
+            'submissao_id' => $submissao->id,
             'instituicao_id' => $prazo->instituicao_id,
-            'quantidade'     => $enviadas,
+            'quantidade' => $enviadas,
         ]);
 
         return $enviadas;
@@ -76,7 +76,7 @@ class PrazoNotificacaoService
         if ($professores->isEmpty()) {
             Log::info('Nenhum professor elegível para notificar', [
                 'prazo_id' => $prazo->id,
-                'tipo'     => $tipo,
+                'tipo' => $tipo,
             ]);
 
             return 0;
@@ -94,19 +94,19 @@ class PrazoNotificacaoService
                 $enviadas++;
             } catch (\Throwable $e) {
                 Log::error('Erro ao notificar professor', [
-                    'prazo_id'     => $prazo->id,
+                    'prazo_id' => $prazo->id,
                     'professor_id' => $professor->id,
-                    'user_id'      => $professor->user->id,
-                    'error'        => $e->getMessage(),
+                    'user_id' => $professor->user->id,
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         Log::info('Notificações enviadas', [
-            'prazo_id'   => $prazo->id,
-            'tipo'       => $tipo,
+            'prazo_id' => $prazo->id,
+            'tipo' => $tipo,
             'quantidade' => $enviadas,
-            'total'      => $professores->count(),
+            'total' => $professores->count(),
         ]);
 
         return $enviadas;
@@ -154,16 +154,16 @@ class PrazoNotificacaoService
             } catch (\Throwable $e) {
                 Log::error('Erro ao notificar diretor sobre prazo expirado', [
                     'diretor_id' => $diretor->id,
-                    'prazo_id'   => $prazo->id,
-                    'error'      => $e->getMessage(),
+                    'prazo_id' => $prazo->id,
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         Log::info('Diretores notificados sobre prazo expirado', [
-            'prazo_id'   => $prazo->id,
+            'prazo_id' => $prazo->id,
             'quantidade' => $enviadas,
-            'stats'      => $stats,
+            'stats' => $stats,
         ]);
 
         return $enviadas;
@@ -196,16 +196,16 @@ class PrazoNotificacaoService
                 $enviadas++;
             } catch (\Throwable $e) {
                 Log::error('Erro ao notificar diretor sobre justificativa', [
-                    'diretor_id'       => $diretor->id,
+                    'diretor_id' => $diretor->id,
                     'justificativa_id' => $justificativa->id,
-                    'error'            => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         Log::info('Diretores notificados sobre justificativa', [
             'justificativa_id' => $justificativa->id,
-            'quantidade'       => $enviadas,
+            'quantidade' => $enviadas,
         ]);
 
         return $enviadas;
@@ -290,10 +290,10 @@ class PrazoNotificacaoService
         $naoSubmeteram = $total - $submeteram;
 
         return [
-            'total'          => $total,
-            'submeteram'     => $submeteram,
+            'total' => $total,
+            'submeteram' => $submeteram,
             'nao_submeteram' => $naoSubmeteram,
-            'justificaram'   => $justificaram,
+            'justificaram' => $justificaram,
         ];
     }
 
@@ -333,22 +333,22 @@ class PrazoNotificacaoService
         $submissoes = SubmissaoProva::where('prazo_prova_id', $prazo->id)
             ->where('estado', '!=', 'substituido')
             ->get()
-            ->groupBy(fn ($s) => $s->professor_id . '|' . $s->turma_id)
+            ->groupBy(fn ($s) => $s->professor_id.'|'.$s->turma_id)
             ->map(fn ($g) => $g->sortByDesc('versao')->first());
 
         // Justificativas: por (professor + turma)
         $justificativas = JustificativaNaoSubmissao::where('prazo_prova_id', $prazo->id)
             ->get()
-            ->groupBy(fn ($j) => $j->professor_id . '|' . $j->turma_id)
+            ->groupBy(fn ($j) => $j->professor_id.'|'.$j->turma_id)
             ->map(fn ($g) => $g->first());
 
         return $atribuicoes->map(function ($atr) use ($submissoes, $justificativas) {
-            $key = $atr->professor_id . '|' . $atr->turma_id;
+            $key = $atr->professor_id.'|'.$atr->turma_id;
 
             return [
-                'professor_nome'       => $atr->professor_nome,
-                'turma_nome'           => $atr->turma_nome,
-                'submeteu'             => $submissoes->has($key),
+                'professor_nome' => $atr->professor_nome,
+                'turma_nome' => $atr->turma_nome,
+                'submeteu' => $submissoes->has($key),
                 'justificativa_status' => $justificativas->get($key)?->status,
             ];
         })->toArray();

@@ -71,8 +71,7 @@ export function useHorarios(defaultValues = null) {
   // O novo tempo começa quando o anterior termina
   const addSlot = (id) =>
     setHorarios((prev) => {
-      const inicio =
-        prev[id].at(-1)?.hora_fim || DEFAULT_HORARIO.hora_inicio;
+      const inicio = prev[id].at(-1)?.hora_fim || DEFAULT_HORARIO.hora_inicio;
 
       return {
         ...prev,

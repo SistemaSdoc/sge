@@ -146,7 +146,7 @@ export function HorarioTable({
   const turmaNome = turmas.find((t) => t.id === turmaFiltro)?.nome;
 
   return (
-    <Card className="gap-0 mb-0">
+    <Card className="mb-0 gap-0">
       <CardHeader className="border-b">
         <CardTitle>Horário</CardTitle>
         <CardDescription>

@@ -73,7 +73,8 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {prazos.map((prazo) => {
-        const temJustificativaPendente = prazo.justificativa?.status === 'pendente';
+        const temJustificativaPendente =
+          prazo.justificativa?.status === 'pendente';
         const foiRejeitada = prazo.foi_rejeitada && prazo.submissao;
 
         return (
@@ -126,7 +127,8 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
 
                   <div className="space-y-1 text-xs text-red-700 dark:text-red-300">
                     <p>
-                      <strong>Enviada em:</strong> {prazo.submissao.data_submissao}
+                      <strong>Enviada em:</strong>{' '}
+                      {prazo.submissao.data_submissao}
                     </p>
                   </div>
 
@@ -135,14 +137,14 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
                       <p className="text-[11px] font-medium text-red-800 dark:text-red-300">
                         Parecer do diretor:
                       </p>
-                      <p className="mt-0.5 text-xs italic text-red-700 dark:text-red-200">
+                      <p className="mt-0.5 text-xs text-red-700 italic dark:text-red-200">
                         "{prazo.submissao.parecer_diretor}"
                       </p>
                     </div>
                   )}
 
                   <p className="mt-2 text-[11px] font-medium text-red-700 dark:text-red-300">
-                     Submeta uma nova versão corrigida.
+                    Submeta uma nova versão corrigida.
                   </p>
                 </div>
               )}
@@ -151,7 +153,8 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
                 <div className="mt-2 rounded border border-yellow-200 bg-yellow-50 p-2 dark:border-yellow-800 dark:bg-yellow-950/20">
                   <p className="flex items-center gap-1 text-xs text-yellow-700 dark:text-yellow-400">
                     <AlertCircle className="size-3" />
-                    <strong>Justificativa pendente.</strong> Aguarda avaliação do diretor.
+                    <strong>Justificativa pendente.</strong> Aguarda avaliação
+                    do diretor.
                   </p>
                 </div>
               )}

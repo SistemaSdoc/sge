@@ -11,8 +11,7 @@ export function AMelhorar({ disciplinas }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-sm">
-          <span className="inline-block size-2.5 bg-destructive" />
-          A melhorar
+          <span className="inline-block size-2.5 bg-destructive" />A melhorar
         </CardTitle>
         <p className="text-xs text-muted-foreground">
           Disciplinas com pior média no ano lectivo

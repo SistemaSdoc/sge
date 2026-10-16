@@ -24,6 +24,8 @@ use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\CursoTuteladoProfessorController;
 use App\Http\Controllers\Tenant\CursoTuteladoSecretarioController;
 use App\Http\Controllers\Tenant\DashboardController;
+use App\Http\Controllers\Tenant\DesempenhoAlunoController;
+use App\Http\Controllers\Tenant\DesempenhoProfessorController;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FichaMatriculaController;
@@ -44,6 +46,7 @@ use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PagamentoController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PeriodoLancamentoNotasController;
+use App\Http\Controllers\Tenant\PlanificacaoController;
 use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\PreencherHistoricoController;
 use App\Http\Controllers\Tenant\ProfessorController as ProfessorControllerGeral;
@@ -59,8 +62,6 @@ use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
-use App\Http\Controllers\Tenant\DesempenhoProfessorController;
-use App\Http\Controllers\Tenant\DesempenhoAlunoController;
 use App\Http\Controllers\Tenant\UserPermissionController;
 use App\Http\Controllers\Tenant\UserProfileController;
 use App\Http\Middleware\CheckTenantStatus;
@@ -70,7 +71,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-use App\Http\Controllers\Tenant\PlanificacaoController;
+
 /*
 |--------------------------------------------------------------------------
 | Tenant Routes
@@ -183,8 +184,8 @@ Route::middleware([
             require base_path('routes/settings.php');
 
             // ─────────────────────────────────────────────────────────────
-// Planificações
-// ─────────────────────────────────────────────────────────────
+            // Planificações
+            // ─────────────────────────────────────────────────────────────
             Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
 
                 // ─── Estáticas (ordem importa) ───
@@ -515,7 +516,7 @@ Route::middleware([
 
             Route::get('/professor/desempenho', [DesempenhoProfessorController::class, 'index'])
                 ->name('professor.desempenho');
-    
+
             Route::get('/aluno/desempenho', [DesempenhoAlunoController::class, 'index'])
                 ->name('aluno.desempenho');
             /*
@@ -523,6 +524,9 @@ Route::middleware([
             | Horários de Disciplinas de Turmas
             |--------------------------------------------------------------------------
             */
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'create'])
+                ->name('turma.disciplinas.horarios.create');
 
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store'])
                 ->name('turma.disciplinas.horarios.store');
@@ -760,10 +764,7 @@ Route::middleware([
             Route::post('notificacoes/{notification}/tutela/rejeitar', [NotificacaoController::class, 'rejeitarTutela'])
                 ->name('notificacoes.tutela.rejeitar');
 
-            Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
-                ->name('notificacoes.ler');
-
-            // ===== DIRETOR ===== 
+            // ===== DIRETOR =====
             Route::prefix('diretor')->name('diretor.')->group(function () {
                 Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
                 Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');

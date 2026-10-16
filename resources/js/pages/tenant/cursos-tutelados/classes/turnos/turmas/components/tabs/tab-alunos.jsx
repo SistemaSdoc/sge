@@ -57,9 +57,11 @@ export function TabAlunos({
                 href={
                   exportarLista({
                     instituicao: params.instituicao?.id ?? params.instituicao,
-                    cursoTutelado: params.cursoTutelado?.id ?? params.cursoTutelado,
+                    cursoTutelado:
+                      params.cursoTutelado?.id ?? params.cursoTutelado,
                     cursoClasse: params.cursoClasse?.id ?? params.cursoClasse,
-                    cursoClasseTurno: params.cursoClasseTurno?.id ?? params.cursoClasseTurno,
+                    cursoClasseTurno:
+                      params.cursoClasseTurno?.id ?? params.cursoClasseTurno,
                     turma: params.turma?.id ?? params.turma,
                   }).url
                 }

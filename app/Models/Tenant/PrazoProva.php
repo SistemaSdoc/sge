@@ -97,9 +97,6 @@ class PrazoProva extends Model
         return $this->hasMany(SubmissaoProva::class, 'prazo_prova_id');
     }
 
-
-
-    
     /**
      * Submissões atuais (excluindo versões substituídas).
      */

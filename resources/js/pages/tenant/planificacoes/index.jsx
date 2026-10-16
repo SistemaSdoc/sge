@@ -75,7 +75,7 @@ export default function Index({
     return disciplinas.filter(
       (d) =>
         (d.nome ?? '').toLowerCase().includes(termo) ||
-        (d.sigla ?? '').toLowerCase().includes(termo)
+        (d.sigla ?? '').toLowerCase().includes(termo),
     );
   }, [disciplinas, busca]);
 
@@ -109,15 +109,15 @@ export default function Index({
   const stats = useMemo(() => {
     const totalPlanificacoes = disciplinas.reduce(
       (acc, d) => acc + (d.total ?? 0),
-      0
+      0,
     );
     const totalClasses = disciplinas.reduce(
       (acc, d) => acc + (d.total_classes ?? 0),
-      0
+      0,
     );
     const totalCursos = disciplinas.reduce(
       (acc, d) => acc + (d.total_cursos ?? 0),
-      0
+      0,
     );
     return {
       disciplinas: disciplinas.length,
@@ -165,18 +165,18 @@ export default function Index({
 
       <div className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
         {/* Hero */}
-        <div className="relative overflow-hidden  border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
+        <div className="relative overflow-hidden border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
           <div
-            className="pointer-events-none absolute -right-20 -top-20 size-64 bg-primary/10 blur-3xl"
+            className="pointer-events-none absolute -top-20 -right-20 size-64 bg-primary/10 blur-3xl"
             aria-hidden
           />
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center  bg-primary/15 ring-1 ring-primary/20">
+              <div className="flex size-14 shrink-0 items-center justify-center bg-primary/15 ring-1 ring-primary/20">
                 <BookOpen className="size-7 text-primary" />
               </div>
               <div className="space-y-1">
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
                   {isAluno ? 'As minhas disciplinas' : 'Gestão'}
                 </p>
                 <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
@@ -203,40 +203,40 @@ export default function Index({
           {/* Stats */}
           {!isAluno && disciplinas.length > 0 && (
             <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
+              <div className="border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <BookOpen className="size-3.5" />
-                  <span className="text-[11px] font-medium uppercase tracking-wide">
+                  <span className="text-[11px] font-medium tracking-wide uppercase">
                     Disciplinas
                   </span>
                 </div>
                 <p className="mt-1 text-2xl font-bold">{stats.disciplinas}</p>
               </div>
 
-              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
+              <div className="border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Layers className="size-3.5" />
-                  <span className="text-[11px] font-medium uppercase tracking-wide">
+                  <span className="text-[11px] font-medium tracking-wide uppercase">
                     Planificações
                   </span>
                 </div>
                 <p className="mt-1 text-2xl font-bold">{stats.planificacoes}</p>
               </div>
 
-              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
+              <div className="border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Hash className="size-3.5" />
-                  <span className="text-[11px] font-medium uppercase tracking-wide">
+                  <span className="text-[11px] font-medium tracking-wide uppercase">
                     Classes
                   </span>
                 </div>
                 <p className="mt-1 text-2xl font-bold">{stats.classes}</p>
               </div>
 
-              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
+              <div className="border bg-background/60 p-3 backdrop-blur-sm">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <GraduationCap className="size-3.5" />
-                  <span className="text-[11px] font-medium uppercase tracking-wide">
+                  <span className="text-[11px] font-medium tracking-wide uppercase">
                     Cursos
                   </span>
                 </div>
@@ -248,7 +248,7 @@ export default function Index({
 
         {/* Filtros — Aluno */}
         {isAluno ? (
-          <div className="flex flex-wrap items-center gap-3  border bg-muted/30 p-3">
+          <div className="flex flex-wrap items-center gap-3 border bg-muted/30 p-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Filter className="size-4" />
               <span className="font-medium">Filtrar por período:</span>
@@ -262,7 +262,7 @@ export default function Index({
                 router.get(
                   planificacoesIndex().url,
                   { ...filtros, periodo },
-                  { preserveScroll: true, preserveState: true }
+                  { preserveScroll: true, preserveState: true },
                 );
               }}
             >
@@ -285,18 +285,18 @@ export default function Index({
               {/* Pesquisa + toggle filtros */}
               <div className="flex flex-col gap-2 sm:flex-row">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Pesquisar disciplina por nome ou sigla…"
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
-                    className="pl-9 pr-9"
+                    className="pr-9 pl-9"
                   />
                   {busca && (
                     <button
                       type="button"
                       onClick={() => setBusca('')}
-                      className="absolute right-2 top-1/2 -translate-y-1/2  p-1 hover:bg-muted"
+                      className="absolute top-1/2 right-2 -translate-y-1/2 p-1 hover:bg-muted"
                     >
                       <X className="size-4 text-muted-foreground" />
                     </button>
@@ -313,7 +313,7 @@ export default function Index({
                   {filtrosAtivos && (
                     <Badge
                       variant="default"
-                      className="ml-2 h-5 min-w-5  px-1.5 text-[10px]"
+                      className="ml-2 h-5 min-w-5 px-1.5 text-[10px]"
                     >
                       {chipsFiltros.length || 1}
                     </Badge>
@@ -328,13 +328,13 @@ export default function Index({
                     <Badge
                       key={chip.key}
                       variant="secondary"
-                      className="gap-1 py-1 pl-2 pr-1"
+                      className="gap-1 py-1 pr-1 pl-2"
                     >
                       {chip.label}
                       <button
                         type="button"
                         onClick={() => removerChip(chip.key)}
-                        className=" p-0.5 hover:bg-background/60"
+                        className="p-0.5 hover:bg-background/60"
                         aria-label={`Remover filtro ${chip.label}`}
                       >
                         <X className="size-3" />
@@ -472,7 +472,7 @@ export default function Index({
 
         {/* Lista */}
         {disciplinasFiltradas.length === 0 ? (
-          <Empty className=" border border-dashed">
+          <Empty className="border border-dashed">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 {busca ? <Search /> : <Sparkles />}
@@ -489,7 +489,11 @@ export default function Index({
               </EmptyDescription>
             </EmptyHeader>
             {(busca || filtrosAtivos) && (
-              <Button variant="outline" className="mt-4" onClick={limparFiltros}>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={limparFiltros}
+              >
                 Limpar filtros e pesquisa
               </Button>
             )}

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Central\Tenant;
 use App\Models\Tenant\User;
+use App\Services\Tenant\Menu\SidebarMenuService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -11,7 +12,8 @@ use Spatie\Permission\Models\Role;
 
 class DebugMenus extends Command
 {
-    protected $signature   = 'debug:menus {--email= : Filtrar por email de utilizador}';
+    protected $signature = 'debug:menus {--email= : Filtrar por email de utilizador}';
+
     protected $description = 'Debug de roles, permissões e gates dos menus';
 
     public function handle(): void
@@ -20,15 +22,16 @@ class DebugMenus extends Command
 
         if (! $tenant) {
             $this->error('Nenhum tenant encontrado.');
+
             return;
         }
 
         tenancy()->initialize($tenant);
 
         $this->newLine();
-        $this->info("═══════════════════════════════════════════════");
+        $this->info('═══════════════════════════════════════════════');
         $this->info("  TENANT: {$tenant->id} ({$tenant->tenancy_db_name})");
-        $this->info("═══════════════════════════════════════════════");
+        $this->info('═══════════════════════════════════════════════');
 
         // ── Roles ────────────────────────────────────────────
         $this->newLine();
@@ -108,8 +111,8 @@ class DebugMenus extends Command
         $this->newLine();
         $this->info('▸ GATES');
 
-        $prof  = $profs->first();
-        $dir   = $dirs->first();
+        $prof = $profs->first();
+        $dir = $dirs->first();
         $coord = $coords->first();
 
         $abilities = [
@@ -120,9 +123,15 @@ class DebugMenus extends Command
 
         foreach ($abilities as $ability) {
             $this->line("  ▸ {$ability}");
-            if ($prof)  $this->line('      Professor  : ' . (Gate::forUser($prof)->allows($ability) ? '✅' : '❌'));
-            if ($dir)   $this->line('      Director   : ' . (Gate::forUser($dir)->allows($ability) ? '✅' : '❌'));
-            if ($coord) $this->line('      Coordenador: ' . (Gate::forUser($coord)->allows($ability) ? '✅' : '❌'));
+            if ($prof) {
+                $this->line('      Professor  : '.(Gate::forUser($prof)->allows($ability) ? '✅' : '❌'));
+            }
+            if ($dir) {
+                $this->line('      Director   : '.(Gate::forUser($dir)->allows($ability) ? '✅' : '❌'));
+            }
+            if ($coord) {
+                $this->line('      Coordenador: '.(Gate::forUser($coord)->allows($ability) ? '✅' : '❌'));
+            }
         }
 
         // ── Utilizador específico ────────────────────────────
@@ -135,18 +144,19 @@ class DebugMenus extends Command
             if (! $u) {
                 $this->error('  Não encontrado.');
                 tenancy()->end();
+
                 return;
             }
 
-            $this->line('  Email: ' . $u->email);
-            $this->line('  Roles: ' . ($u->getRoleNames()->implode(', ') ?: '—'));
-            $this->line('  isProfessor: ' . ($u->professor()->exists() ? '✅' : '❌'));
-            $this->line('  isAluno:     ' . ($u->aluno()->exists() ? '✅' : '❌'));
+            $this->line('  Email: '.$u->email);
+            $this->line('  Roles: '.($u->getRoleNames()->implode(', ') ?: '—'));
+            $this->line('  isProfessor: '.($u->professor()->exists() ? '✅' : '❌'));
+            $this->line('  isAluno:     '.($u->aluno()->exists() ? '✅' : '❌'));
 
             $this->newLine();
             $this->info('  Gates (avaliadas como este utilizador):');
             foreach ($abilities as $ability) {
-                $this->line("    {$ability}: " . (Gate::forUser($u)->allows($ability) ? '✅' : '❌'));
+                $this->line("    {$ability}: ".(Gate::forUser($u)->allows($ability) ? '✅' : '❌'));
             }
 
             // ── Menu real ────────────────────────────────────
@@ -156,7 +166,7 @@ class DebugMenus extends Command
             auth('tenant')->setUser($u);
 
             try {
-                $menu = app(\App\Services\Tenant\Menu\SidebarMenuService::class)->build();
+                $menu = app(SidebarMenuService::class)->build();
 
                 foreach ($menu as $group) {
                     $this->line("    ▸ {$group['title']}");
@@ -168,10 +178,10 @@ class DebugMenus extends Command
                 // Condições específicas do item
                 $this->newLine();
                 $this->info('    ▸ Condições do item "submeter-provas":');
-                $this->line('        hasRole(Professor): ' . ($u->hasRole('Professor') ? '✅' : '❌'));
-                $this->line('        Gate submissao-prova.viewAny: ' . (Gate::forUser($u)->allows('submissao-prova.viewAny') ? '✅' : '❌'));
+                $this->line('        hasRole(Professor): '.($u->hasRole('Professor') ? '✅' : '❌'));
+                $this->line('        Gate submissao-prova.viewAny: '.(Gate::forUser($u)->allows('submissao-prova.viewAny') ? '✅' : '❌'));
             } catch (\Throwable $e) {
-                $this->error('    Erro ao construir menu: ' . $e->getMessage());
+                $this->error('    Erro ao construir menu: '.$e->getMessage());
             }
         }
 
