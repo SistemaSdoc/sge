@@ -2,7 +2,11 @@ import { Link, router } from '@inertiajs/react';
 import { ArrowUpRight, Check, Dot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { marcarLida, show } from "@/actions/App/Http/Controllers/Tenant/NotificacaoController";
+import {
+  markAsRead,
+  show,
+} from '@/actions/App/Http/Controllers/Tenant/NotificacaoController';
+
 export function NotificationItem({ notificacao }) {
   const handleMarcarLida = () => {
     router.post(markAsRead(notificacao.id).url, {}, { preserveScroll: true });
