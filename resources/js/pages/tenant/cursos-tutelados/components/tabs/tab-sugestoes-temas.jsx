@@ -257,131 +257,157 @@ export function TabSugestoesTemas({
               }
             />
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/72">
-                  <TableHead className="px-4">Tema sugerido</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead className="px-4 text-right">Acções</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sugestoes.map((sugestao) => {
-                  const estado =
-                    ESTADO_CONFIG[sugestao.estado_aprovacao] ??
-                    ESTADO_CONFIG.pendente;
+            <>
+              <TableSearch
+                value={search}
+                onChange={onChange}
+                onSubmit={submit}
+              />
 
-                  return (
-                    <TableRow key={sugestao.id}>
-                      <TableCell className="px-4 font-medium">
-                        {sugestao.titulo}
-                      </TableCell>
+              {sugestoes.length === 0 ? (
+                <EmptyState
+                  variant="table"
+                  icon={BookOpenText}
+                  title="Nenhuma sugestão encontrada"
+                  description="Tente ajustar a pesquisa."
+                />
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/72">
+                      <TableHead className="px-4">Tema sugerido</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead className="px-4 text-right">Acções</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sugestoes.map((sugestao) => {
+                      const estado =
+                        ESTADO_CONFIG[sugestao.estado_aprovacao] ??
+                        ESTADO_CONFIG.pendente;
 
-                      <TableCell>
-                        <Badge variant={estado.variant}>{estado.label}</Badge>
-                      </TableCell>
+                      return (
+                        <TableRow key={sugestao.id}>
+                          <TableCell className="px-4 font-medium">
+                            {sugestao.titulo}
+                          </TableCell>
 
-                      <TableCell className="px-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="xs"
-                            className="text-[10px]"
-                            onClick={() => setSugestaoEmVisualizacao(sugestao)}
-                          >
-                            Ver detalhes
-                          </Button>
+                          <TableCell>
+                            <Badge variant={estado.variant}>
+                              {estado.label}
+                            </Badge>
+                          </TableCell>
 
-                          {mostrarColunaAccoes && (
-                            <>
-                              {/* Acções de quem gere */}
-                              {canManage && (
+                          <TableCell className="px-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="outline"
+                                size="xs"
+                                className="text-[10px]"
+                                onClick={() =>
+                                  setSugestaoEmVisualizacao(sugestao)
+                                }
+                              >
+                                Ver detalhes
+                              </Button>
+
+                              {mostrarColunaAccoes && (
                                 <>
-                                  {sugestao.estado_aprovacao ===
-                                    'melhoria_solicitada' && (
-                                    <Button
-                                      variant="outline"
-                                      size="xs"
-                                      className="text-[10px]"
-                                      onClick={() => resubmeter(sugestao)}
-                                    >
-                                      Resubmeter
-                                    </Button>
+                                  {/* Acções de quem gere */}
+                                  {canManage && (
+                                    <>
+                                      {sugestao.estado_aprovacao ===
+                                        'melhoria_solicitada' && (
+                                        <Button
+                                          variant="outline"
+                                          size="xs"
+                                          className="text-[10px]"
+                                          onClick={() => resubmeter(sugestao)}
+                                        >
+                                          Resubmeter
+                                        </Button>
+                                      )}
+                                      {sugestao.estado_aprovacao !==
+                                        'aprovada' && (
+                                        <Button
+                                          variant="outline"
+                                          size="xs"
+                                          className="text-[10px]"
+                                          onClick={() =>
+                                            abrirFormularioEdicao(sugestao)
+                                          }
+                                        >
+                                          Editar
+                                        </Button>
+                                      )}
+                                      {sugestao.estado_aprovacao !==
+                                        'pendente' && (
+                                        <Button
+                                          variant="destructive"
+                                          size="xs"
+                                          className="text-[10px]"
+                                          onClick={() =>
+                                            removerSugestao(sugestao)
+                                          }
+                                        >
+                                          Remover
+                                        </Button>
+                                      )}
+                                    </>
                                   )}
-                                  {sugestao.estado_aprovacao !== 'aprovada' && (
-                                    <Button
-                                      variant="outline"
-                                      size="xs"
-                                      className="text-[10px]"
-                                      onClick={() =>
-                                        abrirFormularioEdicao(sugestao)
-                                      }
-                                    >
-                                      Editar
-                                    </Button>
-                                  )}
-                                  {sugestao.estado_aprovacao !== 'pendente' && (
-                                    <Button
-                                      variant="destructive"
-                                      size="xs"
-                                      className="text-[10px]"
-                                      onClick={() => removerSugestao(sugestao)}
-                                    >
-                                      Remover
-                                    </Button>
-                                  )}
+
+                                  {/* Acções de quem aprova */}
+                                  {canAprovar &&
+                                    sugestao.estado_aprovacao ===
+                                      'pendente' && (
+                                      <>
+                                        <Button
+                                          variant="default"
+                                          size="xs"
+                                          className="text-[10px]"
+                                          onClick={() => aprovar(sugestao)}
+                                        >
+                                          Aprovar
+                                        </Button>
+                                        <Button
+                                          variant="outline"
+                                          size="xs"
+                                          className="text-[10px]"
+                                          onClick={() =>
+                                            abrirModalObservacao(
+                                              'melhoria',
+                                              sugestao,
+                                            )
+                                          }
+                                        >
+                                          Solicitar melhoria
+                                        </Button>
+                                        <Button
+                                          variant="destructive"
+                                          size="xs"
+                                          className="text-[10px]"
+                                          onClick={() =>
+                                            abrirModalObservacao(
+                                              'rejeitar',
+                                              sugestao,
+                                            )
+                                          }
+                                        >
+                                          Rejeitar
+                                        </Button>
+                                      </>
+                                    )}
                                 </>
                               )}
-
-                              {/* Acções de quem aprova */}
-                              {canAprovar &&
-                                sugestao.estado_aprovacao === 'pendente' && (
-                                  <>
-                                    <Button
-                                      variant="default"
-                                      size="xs"
-                                      className="text-[10px]"
-                                      onClick={() => aprovar(sugestao)}
-                                    >
-                                      Aprovar
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="xs"
-                                      className="text-[10px]"
-                                      onClick={() =>
-                                        abrirModalObservacao(
-                                          'melhoria',
-                                          sugestao,
-                                        )
-                                      }
-                                    >
-                                      Solicitar melhoria
-                                    </Button>
-                                    <Button
-                                      variant="destructive"
-                                      size="xs"
-                                      className="text-[10px]"
-                                      onClick={() =>
-                                        abrirModalObservacao(
-                                          'rejeitar',
-                                          sugestao,
-                                        )
-                                      }
-                                    >
-                                      Rejeitar
-                                    </Button>
-                                  </>
-                                )}
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              )}
+            </>
           )}
         </CardContent>
         <TablePagination pagination={pagination} onPageChange={onPageChange} />
