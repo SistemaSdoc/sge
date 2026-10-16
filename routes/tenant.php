@@ -60,6 +60,8 @@ use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
+use App\Http\Controllers\Tenant\DesempenhoProfessorController;
+use App\Http\Controllers\Tenant\DesempenhoAlunoController;
 use App\Http\Controllers\Tenant\UserPermissionController;
 use App\Http\Controllers\Tenant\UserProfileController;
 use App\Http\Middleware\CheckTenantStatus;
@@ -511,14 +513,20 @@ Route::middleware([
             */
             Route::get('/relatorios', [RelatorioController::class, 'index'])
                 ->name('relatorios.index');
+
+            Route::get('/professor/desempenho', [DesempenhoProfessorController::class, 'index'])
+                ->name('professor.desempenho');
+    
+            Route::get('/aluno/desempenho', [DesempenhoAlunoController::class, 'index'])
+                ->name('aluno.desempenho');
             /*
             |--------------------------------------------------------------------------
             | Horários de Disciplinas de Turmas
             |--------------------------------------------------------------------------
             */
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios/create', [ClasseTurnoDisciplinaHorarioController::class, 'create'])
-                ->name('instituicoes.cursos-tutelados.classes.turnos.turmas.disciplinas.horarios.create');
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'create'])
+                ->name('turma.disciplinas.horarios.create');
 
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store'])
                 ->name('turma.disciplinas.horarios.store');
@@ -756,10 +764,7 @@ Route::middleware([
             Route::post('notificacoes/{notification}/tutela/rejeitar', [NotificacaoController::class, 'rejeitarTutela'])
                 ->name('notificacoes.tutela.rejeitar');
 
-            Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
-                ->name('notificacoes.ler');
-
-            // ===== DIRETOR =====
+            // ===== DIRETOR ===== 
             Route::prefix('diretor')->name('diretor.')->group(function () {
                 Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
                 Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');

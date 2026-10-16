@@ -383,7 +383,23 @@ final class SidebarMenuService
                     icon: 'BarChart3',
                     can: fn() => $user && ! $user->hasRole(['Aluno', 'Professor']),
                 ),
-            ]),
+           
+                new MenuItem(
+                    key: 'meu-desempenho',
+                    title: 'Meu Desempenho',
+                    href: route('tenant.dashboard.professor.desempenho'),
+                    icon: 'BarChart3',
+                    can: fn () => $user && $user->hasRole('Professor'),
+                    ),
+
+                new MenuItem(
+                    key: 'meu-desempenho-aluno',
+                    title: 'Meu Desempenho',
+                    href: route('tenant.dashboard.aluno.desempenho'),
+                    icon: 'BarChart3',
+                    can: fn () => $user && $user->hasRole('Aluno'),
+                ),
+           ]),
         ];
 
         $menuGroups = array_values(array_filter(
