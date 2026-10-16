@@ -123,7 +123,6 @@ class ExportarListaAlunosTurmaController extends Controller
                 'inscricao.candidato:id,nome,genero,data_nascimento,telefone',
                 'user:id,telefone',
             ])
-            ->orderBy('alunos.created_at', 'desc')
             ->get()
             ->values()
             ->map(fn ($aluno, $index) => [

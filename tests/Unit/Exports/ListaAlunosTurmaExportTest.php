@@ -7,14 +7,14 @@ use Tests\TestCase;
 uses(TestCase::class);
 
 it('fills the roster template and extends it for classes with more than 22 students', function (): void {
-    $alunos = array_map(fn (int $numero) => [
+    $alunos = array_reverse(array_map(fn (int $numero) => [
         'numero' => $numero,
         'nome' => "Aluno {$numero}",
         'processo' => str_pad((string) $numero, 5, '0', STR_PAD_LEFT),
         'idade' => 18,
         'sexo' => 'Masculino',
         'contacto' => '923000000',
-    ], range(1, 24));
+    ], range(1, 24)));
 
     $path = (new ListaAlunosTurmaExport)->gerar([
         'instituicao' => 'Instituto de Teste',
@@ -41,6 +41,7 @@ it('fills the roster template and extends it for classes with more than 22 stude
         expect($sheet->getCell('A13')->getValue())->toBe('10ª CLASSE ; TURMA: 10A ; SALA: 2');
         expect($sheet->getCell('C13')->getValue())->toBe('ANO LECTIVO: 2025/26');
         expect($sheet->getCell('B16')->getValue())->toBe('Aluno 1');
+        expect($sheet->getCell('A16')->getValue())->toBe(1);
         expect($sheet->getCell('C16')->getValue())->toBe('00001');
         expect($sheet->getCell('D16')->getValue())->toBe(18);
         expect($sheet->getCell('E16')->getValue())->toBe('Masculino');
@@ -49,6 +50,7 @@ it('fills the roster template and extends it for classes with more than 22 stude
         expect($sheet->getCell('B38')->getStyle()->getAlignment()->getHorizontal())->toBe('left');
         expect($sheet->getCell('B39')->getStyle()->getAlignment()->getHorizontal())->toBe('left');
         expect($sheet->getCell('B39')->getValue())->toBe('Aluno 24');
+        expect($sheet->getCell('A39')->getValue())->toBe(24);
         expect($sheet->getPageSetup()->getPrintArea())->toBe('A1:G39');
         expect($sheet->getDrawingCollection())->toHaveCount(1);
     } finally {

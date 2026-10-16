@@ -18,6 +18,12 @@ class ListaAlunosTurmaExport
      */
     public function gerar(array $cabecalho, array $alunos): string
     {
+        $alunos = collect($alunos)
+            ->sortBy('nome', SORT_NATURAL | SORT_FLAG_CASE)
+            ->values()
+            ->map(fn (array $aluno, int $index): array => [...$aluno, 'numero' => $index + 1])
+            ->all();
+
         $spreadsheet = IOFactory::load(resource_path('templates/Lista_alunos_turma.xlsx'));
         $sheet = $spreadsheet->getActiveSheet();
 
