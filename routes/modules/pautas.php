@@ -3,7 +3,6 @@
 use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\ExportarMiniPautaController;
 use App\Http\Controllers\Tenant\ExportarPautaController;
-use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,24 +14,6 @@ use Illuminate\Support\Facades\Route;
 | Rotas para gerenciar e visualizar pautas de turmas e solicitações de edição.
 |
 */
-
-/**
- * Mostra a lista de cursos tutelados da instituição do user logado
- */
-Route::get('pautas/cursos', [PautaController::class, 'indexCursos'])
-    ->name('pautas.cursos');
-
-/**
- * Mostra a lista de turmas de um curso tutelado
- */
-Route::get('pautas/cursos/{cursoTutelado}/turmas', [PautaController::class, 'indexTurmas'])
-    ->name('pautas.cursos.turmas');
-
-/**
- * Mostra a pauta de uma turma de um curso tutelado
- */
-Route::get('pautas/cursos/{cursoTutelado}/turmas/{turma}/pauta', [PautaController::class, 'pauta'])
-    ->name('pautas.cursos.turmas.pauta');
 
 /**
  * Exporta a mini-pauta de uma disciplina de uma turma.

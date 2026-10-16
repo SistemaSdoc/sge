@@ -25,7 +25,9 @@ return [
     | - /usr/local/bin/node (instalações personalizadas)
     |
     */
-    'node_binary' => env('BROWSERSHOT_NODE_BINARY', '/usr/bin/node'),
+    'node_binary' => env('BROWSERSHOT_NODE_BINARY', env('NODE_BINARY', '/usr/bin/node')),
+
+    'npm_binary' => env('BROWSERSHOT_NPM_BINARY', env('NPM_BINARY', '/usr/bin/npm')),
 
     /*
     |--------------------------------------------------------------------------
@@ -41,7 +43,7 @@ return [
     | - /Applications/Google Chrome.app/Contents/MacOS/Google Chrome (macOS)
     |
     */
-    'chrome_path' => env('BROWSERSHOT_CHROME_PATH', '/opt/google/chrome/chrome'),
+    'chrome_path' => env('BROWSERSHOT_CHROME_PATH', env('CHROME_PATH', '/opt/google/chrome/chrome')),
 
     /*
     |--------------------------------------------------------------------------

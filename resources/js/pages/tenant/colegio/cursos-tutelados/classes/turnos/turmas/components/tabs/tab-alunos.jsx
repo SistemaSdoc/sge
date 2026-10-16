@@ -22,9 +22,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Minus, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
+import { Download, Minus, MoreHorizontalIcon, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { show } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
+import { exportar as exportarLista } from '@/actions/App/Http/Controllers/Tenant/Colegios/ExportarListaAlunosTurmaController';
 import { useCertificado } from '../../hooks/use-certificado';
 import TablePagination from '@/components/table-pagination';
 
@@ -37,6 +38,7 @@ export function TabAlunos({
 }) {
   const { gerarCertificado } = useCertificado(params);
   const canCreate = Boolean(can.create);
+  const isCoordenador = Boolean(can.coordenador);
   const isEmpty = alunos.length === 0;
 
   return (
@@ -44,6 +46,16 @@ export function TabAlunos({
       <CardHeader className="border-b">
         <CardTitle>Alunos</CardTitle>
         <CardDescription>Alunos inscritos nesta turma</CardDescription>
+        {can.exportar && (
+          <CardAction>
+            <Button variant="outline" size="sm" asChild>
+              <a href={exportarLista(params).url}>
+                <Download className="size-4" />
+                Exportar lista
+              </a>
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -68,11 +80,17 @@ export function TabAlunos({
 
             <TableBody>
               {alunos.map((aluno) => {
+                const canView = Boolean(aluno.can?.view);
                 return (
                   <TableRow
                     key={aluno.id}
-                    className="hover:cursor-pointer"
-                    onClick={() => router.visit(show(aluno.id).url)}
+                    className={canView ? 'hover:cursor-pointer' : 'opacity-70'}
+                    aria-disabled={!canView}
+                    onClick={() => {
+                      if (canView) {
+                        router.visit(show(aluno.id).url);
+                      }
+                    }}
                   >
                     <TableCell className="px-4 font-medium">
                       {aluno?.nome}

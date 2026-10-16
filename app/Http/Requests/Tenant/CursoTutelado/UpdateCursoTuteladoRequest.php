@@ -36,11 +36,13 @@ class UpdateCursoTuteladoRequest extends FormRequest
      */
     public function rules(): array
     {
+        $hasTutor = filled($this->input('tenant_tutor_id'));
+
         return [
             'tenant_tutor_id' => ['nullable', 'string'],
-            'nivel_ensino_id' => ['required', 'uuid', 'exists:niveis_ensino,id'],
+            'nivel_ensino_id' => ['required', 'uuid', ...($hasTutor ? [] : ['exists:niveis_ensino,id'])],
             'classes' => ['required', 'array', 'min:1'],
-            'classes.*' => ['string', 'exists:classes,id'],
+            'classes.*' => ['string', ...($hasTutor ? [] : ['exists:classes,id'])],
         ];
     }
 

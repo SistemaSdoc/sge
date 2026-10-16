@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Tenant\InstituicaoCurso;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\InstituicaoCurso\StoreProfessorRequest;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
@@ -13,6 +13,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
+use App\Rules\CentralAnoLectivoExists;
 use App\Traits\NotificaProfessor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -79,11 +80,12 @@ class TurmaDisciplinaProfessorController extends Controller
         Gate::authorize('definirProfessor', new TurmaDisciplinaProfessor);
 
         $request->validate([
-            'ano_lectivo_id' => 'nullable|exists:ano_lectivos,id',
+            'ano_lectivo_id' => ['nullable', 'uuid', new CentralAnoLectivoExists],
         ]);
 
         $jaExisteNaTurma = TurmaDisciplinaProfessor::where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
             ->where('turma_id', $turma->id)
+            ->whereNotNull('professor_id')
             ->exists();
 
         if ($jaExisteNaTurma && ! $request->boolean('force')) {
@@ -100,6 +102,7 @@ class TurmaDisciplinaProfessorController extends Controller
         DB::transaction(function () use ($request, $classeTurnoDisciplina, $turma) {
             $turmaDisciplinaProfessor = TurmaDisciplinaProfessor::where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
                 ->where('turma_id', $turma->id)
+                ->whereNotNull('professor_id')
                 ->first();
 
             if ($turmaDisciplinaProfessor) {
@@ -128,7 +131,40 @@ class TurmaDisciplinaProfessorController extends Controller
             'cursoClasse' => $cursoClasse->id,
             'cursoClasseTurno' => $cursoClasseTurno->id,
             'turma' => $turma->id,
-            'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
+            // 'classeTurnoDisciplina' => $classeTurnoDisciplina->id,
         ] + $anoLectivoParam)->with('success', 'Professor associado com sucesso.');
+    }
+
+    public function destroy(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        ClasseTurnoDisciplina $classeTurnoDisciplina
+    ) {
+        $relacao = TurmaDisciplinaProfessor::query()
+            ->where('turma_id', $turma->id)
+            ->where('classe_turno_disciplina_id', $classeTurnoDisciplina->id)
+            ->whereNotNull('professor_id')
+            ->firstOrFail();
+
+        Gate::authorize('delete', $relacao);
+
+        if ($relacao->temHistorico()) {
+            return back()->withErrors([
+                'message' => 'Não é possível desassociar este professor porque já existe histórico académico.',
+            ]);
+        }
+        DB::transaction(function () use ($relacao, $classeTurnoDisciplina): void {
+            $relacao->pautaStatuses()->delete();
+            $relacao->delete();
+
+            if (! $classeTurnoDisciplina->turmaDisciplinaProfessores()->whereNotNull('professor_id')->exists()) {
+                $classeTurnoDisciplina->update(['tem_professor' => false]);
+            }
+        });
+
+        return back()->with('success', 'Professor desassociado com sucesso.');
     }
 }

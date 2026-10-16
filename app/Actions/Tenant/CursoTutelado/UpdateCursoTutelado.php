@@ -4,8 +4,11 @@ namespace App\Actions\Tenant\CursoTutelado;
 
 use App\Enums\TutelaStatus;
 use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
+use App\Models\Tenant\Classe;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\NivelEnsino;
 use App\Services\Tenant\Tutela\TutelaService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -22,9 +25,16 @@ class UpdateCursoTutelado
      *
      * @param  array{tenant_tutor_id?: string|null, nivel_ensino_id: string, classes: array<int, string>}  $validated
      */
-    public function handle(Instituicao $instituicao, CursoTutelado $cursoTutelado, array $validated): void
-    {
-        DB::transaction(function () use ($instituicao, $cursoTutelado, $validated): void {
+    public function handle(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        array $validated
+    ): void {
+        DB::transaction(function () use (
+            $instituicao,
+            $cursoTutelado,
+            $validated
+        ): void {
             $tenantTutorId = $validated['tenant_tutor_id'] ?? null;
             $tutelaPendente = false;
             $tutorAtualId = $cursoTutelado->tipo_tutela === 'externa'
@@ -44,9 +54,24 @@ class UpdateCursoTutelado
                         ->where('status', TutelaStatus::ACTIVO)
                         ->latest('updated_at')
                         ->value('id');
-                    $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
-                    $sharedProposto = $this->tutelaService->publicarSemAssociarCurso($cursoTutelado, $instituicaoTutora);
-                    $this->tutelaService->notificarTrocaTutela($cursoTutelado->fresh(), $tutorAtualId, $sharedAnteriorId, $sharedProposto);
+
+                    $instituicaoTutora = $this->tutelaService->validarTutelaExterna(
+                        $instituicao,
+                        $tenantTutorId
+                    );
+
+                    $sharedProposto = $this->tutelaService->publicarSemAssociarCurso(
+                        $cursoTutelado,
+                        $instituicaoTutora
+                    );
+
+                    $this->tutelaService->notificarTrocaTutela(
+                        $cursoTutelado->fresh(),
+                        $tutorAtualId,
+                        $sharedAnteriorId,
+                        $sharedProposto
+                    );
+
                     $this->tutelaService->notificarTrocaPendente(
                         $sharedProposto,
                         $tutorAtualId,
@@ -57,8 +82,15 @@ class UpdateCursoTutelado
                 }
 
                 if (! $tutelaPendente) {
-                    $instituicaoTutora = $this->tutelaService->validarTutelaExterna($instituicao, $tenantTutorId);
-                    $this->tutelaService->publicarEAssociarCurso($cursoTutelado, $instituicaoTutora);
+                    $instituicaoTutora = $this->tutelaService->validarTutelaExterna(
+                        $instituicao,
+                        $tenantTutorId
+                    );
+
+                    $this->tutelaService->publicarEAssociarCurso(
+                        $cursoTutelado,
+                        $instituicaoTutora
+                    );
                 }
             } elseif ($tenantTutorId === null && $cursoTutelado->tipo_tutela === 'externa') {
                 $sharedActual = CursoTuteladoShared::on(
@@ -88,22 +120,57 @@ class UpdateCursoTutelado
                         )->find($cursoTutelado->curso_tutelado_shared_id)
                         : null;
 
-                    if ($sharedAssociado && ! in_array($sharedAssociado->status, [
-                        TutelaStatus::REJEITADO,
-                        TutelaStatus::ENCERRADO,
-                    ], true)) {
+                    if (
+                        $sharedAssociado && ! in_array($sharedAssociado->status, [
+                            TutelaStatus::REJEITADO,
+                            TutelaStatus::ENCERRADO,
+                        ], true)
+                    ) {
                         throw ValidationException::withMessages([
                             'tenant_tutor_id' => 'A solicitação de tutela ainda aguarda decisão do instituto tutor.',
                         ]);
                     }
 
                     $this->tutelaService->encerrarVinculoRejeitado($cursoTutelado);
+
                     $this->tutelaService->converterParaTutelaPropria(
                         $cursoTutelado,
                         (string) $instituicao->getKey(),
                     );
                 }
 
+            }
+            if ($tenantTutorId) {
+                $tenantTutor = Tenant::query()->findOrFail($tenantTutorId);
+
+                $dadosTutor = $tenantTutor->run(function () use ($validated): array {
+                    return [
+                        'classes' => Classe::query()
+                            ->whereIn('id', $validated['classes'])
+                            ->get(['id', 'nome', 'nivel_ensino']),
+                        'nivelEnsino' => NivelEnsino::query()
+                            ->find($validated['nivel_ensino_id'], ['id', 'nome']),
+                    ];
+                });
+
+                // Nível — busca pelo nome localmente e substitui o ID
+                if ($dadosTutor['nivelEnsino']) {
+                    $nivelLocal = NivelEnsino::query()->firstOrCreate(
+                        ['nome' => $dadosTutor['nivelEnsino']->nome],
+                    );
+                    $validated['nivel_ensino_id'] = (string) $nivelLocal->getKey();
+                }
+
+                // Classes — busca pelo nome localmente e substitui os IDs
+                $classeIds = [];
+                foreach ($dadosTutor['classes'] as $classe) {
+                    $classeLocal = Classe::query()->firstOrCreate(
+                        ['nome' => $classe->nome],
+                        ['nivel_ensino' => $classe->nivel_ensino],
+                    );
+                    $classeIds[] = (string) $classeLocal->getKey();
+                }
+                $validated['classes'] = $classeIds;
             }
 
             $cursoTutelado->classes()->sync(

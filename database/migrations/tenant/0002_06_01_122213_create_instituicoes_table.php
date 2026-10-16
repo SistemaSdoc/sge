@@ -94,7 +94,6 @@ return new class extends Migration
             $table->uuid('curso_classe_turno_id');
             $table->foreign('curso_classe_turno_id')->references('id')->on('curso_classe_turno');
             $table->uuid('disciplina_id');
-            $table->foreign('disciplina_id')->references('id')->on('disciplinas');
             $table->string('carga_horaria')->nullable();
             $table->uuid('ano_lectivo_id');
             $table->foreign('ano_lectivo_id')->references('id')->on('ano_lectivos');

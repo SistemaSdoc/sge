@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Tenant\GrupoPap;
 
+use App\Rules\EstudoCasoPapUnico;
 use App\Rules\ProfessorTitularDoCurso;
+use App\Rules\TemaPapUnico;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -31,12 +33,30 @@ class StoreRequest extends FormRequest
             //     new ProfessorTitularDoCurso($this->route('cursoTutelado')),
             // ],
             'nome_grupo' => 'required|string|max:255',
-            'tema_grupo' => 'nullable|string|max:255',
+            'tema_grupo' => [
+                'nullable',
+                'string',
+                'max:255',
+                new TemaPapUnico(
+                    (string) $this->route('cursoTutelado')->getKey(),
+                    (string) $this->route('turma')->ano_lectivo_id,
+                    (string) $this->route('cursoClasseTurno')->getKey(),
+                ),
+            ],
             'problema' => 'nullable|string',
             'objectivos' => 'nullable|string',
             'alunos' => 'required|array|min:1',
             'alunos.*' => 'exists:alunos,id',
-            'estudo_caso' => 'nullable|string',
+            'estudo_caso' => [
+                'nullable',
+                'string',
+                new EstudoCasoPapUnico(
+                    (string) $this->route('cursoTutelado')->getKey(),
+                    (string) $this->route('turma')->ano_lectivo_id,
+                    (string) $this->route('cursoClasseTurno')->getKey(),
+                    $this->input('tema_grupo'),
+                ),
+            ],
             'nota_final' => 'nullable|numeric|min:0|max:20',
             'data_defesa' => 'nullable|date',
         ];

@@ -3,13 +3,17 @@
 namespace App\Notifications\Pauta;
 
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SolicitacaoEdicaoPautaProfessorNotification extends Notification
+class SolicitacaoEdicaoPautaProfessorNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public SolicitacaoEdicaoPauta $solicitacao

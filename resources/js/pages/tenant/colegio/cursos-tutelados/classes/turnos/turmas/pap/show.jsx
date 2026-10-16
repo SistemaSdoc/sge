@@ -45,6 +45,7 @@ export default function Show({
   cursoClasseTurno,
   turma,
   grupoPap,
+  currentUserId,
   trabalho,
   historico,
   banca,
@@ -264,6 +265,24 @@ export default function Show({
               </a>
             </div>
           )}
+
+          {grupoPap?.sugestoes_temas_pap_url && (
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Sugestões de Temas PAP
+              </p>
+
+              <a
+                href={grupoPap.sugestoes_temas_pap_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 font-medium text-primary hover:underline"
+              >
+                <FileText className="size-4" />
+                Ver documento
+              </a>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -416,6 +435,7 @@ export default function Show({
             pagination={elementos}
             onPageChange={elementosPagination.handlePageChange}
             can={can}
+            currentUserId={currentUserId}
           />
         </TabsContent>
         {can?.verBanca && (
@@ -427,11 +447,17 @@ export default function Show({
               pagination={banca}
               onPageChange={bancaPagination.handlePageChange}
               can={can}
+              currentUserId={currentUserId}
             />
           </TabsContent>
         )}
         <TabsContent value="aprovacao">
-          <TabAprovacao params={params} grupoPap={grupoPap} can={can} />
+          <TabAprovacao
+            params={params}
+            grupoPap={grupoPap}
+            turma={turma}
+            can={can}
+          />
         </TabsContent>
 
         {/* ← NOVO */}

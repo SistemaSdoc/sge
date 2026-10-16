@@ -16,14 +16,18 @@
     "laravel/chisel": "^0.1.0",
     "laravel/fortify": "^1.37.2",
     "laravel/framework": "^13.7",
+    "laravel/reverb": "^1.12",
     "laravel/socialite": "*",
     "laravel/tinker": "^3.0",
     "laravel/wayfinder": "^0.1.14",
+    "league/flysystem-aws-s3-v3": "^3.0",
+    "league/flysystem-path-prefixing": "^3.0",
     "maatwebsite/excel": "^4.0",
     "opcodesio/log-viewer": "^3.24",
     "phpoffice/phpword": "^1.4",
     "spatie/browsershot": "^5.4",
     "spatie/laravel-permission": "^8.3",
+    "stancl/jobpipeline": "^1.9",
     "stancl/tenancy": "^3.10"
   },
   "require-dev": {
@@ -72,7 +76,7 @@
     ],
     "dev": [
       "Composer\\Config::disableProcessTimeout",
-      "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#34d399\" \"php artisan serve --port=8001\" \"php artisan queue:work --tries=1 --timeout=19800\" \"php artisan schedule:work\" \"npm run dev\" --names=server,queue,scheduler,vite"
+      "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#34d399,#fbbf24\" \"php artisan serve --port=8001\" \"php artisan queue:work --tries=1 --timeout=19800\" \"php artisan schedule:work\" \"php artisan reverb:start --debug\" \"npm run dev\" --names=server,queue,scheduler,reverb,vite"
     ],
     "lint": [
       "pint --parallel"

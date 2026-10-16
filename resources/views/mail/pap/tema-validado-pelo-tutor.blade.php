@@ -156,6 +156,7 @@
 <body>
 
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
 
         {{-- Header --}}
         <div class="header">
@@ -177,6 +178,11 @@
 
         {{-- Info Card --}}
         <div class="info-card">
+            <div class="card-item">
+                <div class="card-label">Instituição</div>
+                <div class="card-value">{{ $nomeInstituicao }}</div>
+            </div>
+
             <div class="card-item">
                 <div class="card-label">Grupo</div>
                 <div class="card-value">{{ $nomeGrupo }}</div>

@@ -6,8 +6,10 @@ class BrowsershotHelper
 {
     public static function getChromePath(): string
     {
-        if (env('CHROME_PATH') && file_exists(env('CHROME_PATH'))) {
-            return env('CHROME_PATH');
+        $configuredPath = (string) config('browsershot.chrome_path', '');
+
+        if ($configuredPath && file_exists($configuredPath)) {
+            return $configuredPath;
         }
 
         $candidates = [
@@ -35,8 +37,10 @@ class BrowsershotHelper
 
     public static function getNodeBinary(): string
     {
-        if (env('NODE_BINARY') && file_exists(env('NODE_BINARY'))) {
-            return env('NODE_BINARY');
+        $configuredPath = (string) config('browsershot.node_binary', '');
+
+        if ($configuredPath && file_exists($configuredPath)) {
+            return $configuredPath;
         }
 
         $candidates = [
@@ -61,8 +65,10 @@ class BrowsershotHelper
 
     public static function getNpmBinary(): string
     {
-        if (env('NPM_BINARY') && file_exists(env('NPM_BINARY'))) {
-            return env('NPM_BINARY');
+        $configuredPath = (string) config('browsershot.npm_binary', '');
+
+        if ($configuredPath && file_exists($configuredPath)) {
+            return $configuredPath;
         }
 
         $candidates = [

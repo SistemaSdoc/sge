@@ -28,13 +28,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('disciplinas', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('nome');
-            $table->string('sigla')->nullable();
-            $table->enum('componente', ['sociocultural', 'cientifica', 'tecnica'])->nullable();
-            $table->timestamps();
-        });
     }
 
     /**
@@ -44,6 +37,5 @@ return new class extends Migration
     {
         Schema::dropIfExists('classes');
         Schema::dropIfExists('turnos');
-        Schema::dropIfExists('disciplinas');
     }
 };

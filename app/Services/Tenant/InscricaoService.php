@@ -4,14 +4,17 @@ namespace App\Services\Tenant;
 
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Candidato;
+use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
+use App\Notifications\Aluno\PerfilIncompletoNotificacao;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Traits\NotificaAluno;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Spatie\Permission\Models\Role;
 
@@ -30,22 +33,40 @@ class InscricaoService
      */
     public function criar(array $dados, ?Instituicao $instituicao = null): Inscricao
     {
-        return DB::transaction(function () use ($dados) {
+        return DB::transaction(function () use ($dados, $instituicao) {
+            $cursoClasseTurno = CursoClasseTurno::query()
+                ->with('cursoClasse.cursoTutelado.instituicaoCurso')
+                ->findOrFail($dados['curso_classe_turno_id']);
+
+            $cursoInstituicaoId = $cursoClasseTurno
+                ->cursoClasse
+                ?->cursoTutelado
+                ?->instituicaoCurso
+                ?->instituicao_id;
+
+            if ($instituicao !== null && (string) $instituicao->getKey() !== (string) $cursoInstituicaoId) {
+                throw new InvalidArgumentException('A instituição não corresponde ao curso seleccionado.');
+            }
+
             $candidato = Candidato::create([
                 'nome' => $dados['nome'],
                 'bi' => $dados['bi'],
-                'numero_estudante' => $dados['numero_estudante'] ?? null,
-                'telefone' => $dados['telefone'] ?? null,
                 'email' => $dados['email'],
-                'morada' => $dados['morada'] ?? null,
-                'genero' => $dados['genero'] ?? null,
-                'nacionalidade' => $dados['nacionalidade'] ?? null,
-                'naturalidade' => $dados['naturalidade'] ?? null,
-                'filiacao' => $dados['filiacao'] ?? null,
-                'data_nascimento' => $dados['data_nascimento'],
-                'municipio' => $dados['municipio'],
-            ]);
 
+                // preenchidos depois pelo próprio aluno
+                'numero_estudante' => 'INS-'.now()->year.'-'.Str::ulid()->toString(),
+                'telefone' => null,
+                'morada' => null,
+                'genero' => null,
+                'nacionalidade' => null,
+                'naturalidade' => null,
+                'filiacao' => null,
+                'data_nascimento' => null,
+                'municipio' => null,
+
+                // ─── Controlo ───
+                'perfil_completo' => false,
+            ]);
             $anoLectivoId = $dados['ano_lectivo_id'] ?? $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
             if (! $anoLectivoId) {
@@ -130,16 +151,27 @@ class InscricaoService
             throw new InvalidArgumentException('Não foi possível determinar a instituição da inscrição.');
         }
 
-        $user = User::firstOrCreate(
-            ['bi' => $inscricao->candidato->bi],
-            [
+        $password = Str::password(12);
+
+        $user = User::where('bi', $inscricao->candidato->bi)
+            ->orWhere('email', $inscricao->candidato->email)
+            ->first();
+
+        $wasRecentlyCreated = false;
+
+        if (! $user) {
+            $user = User::create([
                 'nome' => $inscricao->candidato->nome,
+                'bi' => $inscricao->candidato->bi,
                 'email' => $inscricao->candidato->email,
                 'telefone' => $inscricao->candidato->telefone,
                 'instituicao_id' => $instituicaoId,
-                'password' => Hash::make('12345678'),
-            ]
-        );
+                'password' => Hash::make($password),
+            ]);
+            $wasRecentlyCreated = true;
+        }
+
+        $inscricao->candidato->update(['user_id' => $user->id]);
 
         $role = Role::where('name', 'Aluno')->firstOrFail();
         $user->assignRole($role);
@@ -151,8 +183,9 @@ class InscricaoService
             'matricula' => $this->gerarMatriculaUnica(),
         ]);
 
-        if ($user->wasRecentlyCreated) {
-            $this->notificarAlunoCriado($user, '12345678');
+        if ($wasRecentlyCreated) {
+            $this->notificarAlunoCriado($user, $password);
+            $user->notify(new PerfilIncompletoNotificacao);
         }
 
         if ($turmaId) {

@@ -2,8 +2,12 @@
 
 namespace App\Http\Requests\Tenant\AccessManagement;
 
+use App\Models\Tenant\User;
+use App\Services\Tenant\RoleManagementService;
+use App\Services\Tenant\Users\UserManagementService;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRoleAndPermissionRequest extends FormRequest
 {
@@ -12,7 +16,13 @@ class StoreRoleAndPermissionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        /** @var User|null $actor */
+        $actor = $this->user('tenant');
+        $target = $this->route('user');
+
+        return $actor instanceof User
+            && $target instanceof User
+            && $actor->can('managePermissions', $target);
     }
 
     /**
@@ -24,10 +34,44 @@ class StoreRoleAndPermissionRequest extends FormRequest
     {
         return [
             'roles' => ['array'],
-            'roles.*' => ['string', 'exists:roles,name'],
+            'roles.*' => [
+                'string',
+                Rule::in($this->allowedRoles()),
+            ],
             'directPermissions' => ['array'],
-            'directPermissions.*' => ['string', 'exists:permissions,name'],
+            'directPermissions.*' => [
+                'string',
+                'distinct',
+                Rule::in($this->allowedPermissions()),
+            ],
         ];
+    }
+
+    /** @return array<int, string> */
+    private function allowedRoles(): array
+    {
+        /** @var User|null $actor */
+        $actor = $this->user('tenant');
+        $target = $this->route('user');
+
+        if (! $actor instanceof User || ! $target instanceof User) {
+            return [];
+        }
+
+        return collect(app(UserManagementService::class)->roles($actor, $target))
+            ->pluck('name')
+            ->all();
+    }
+
+    /** @return array<int, string> */
+    private function allowedPermissions(): array
+    {
+        /** @var User|null $actor */
+        $actor = $this->user('tenant');
+
+        return $actor instanceof User
+            ? collect(app(RoleManagementService::class)->permissions($actor))->pluck('value')->all()
+            : [];
     }
 
     public function messages(): array

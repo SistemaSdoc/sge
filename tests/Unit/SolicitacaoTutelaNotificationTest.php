@@ -2,6 +2,7 @@
 
 use App\Notifications\SolicitacaoTutelaNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 
 it('prepara uma notificação interna para uma solicitação de tutela', function (): void {
     $notification = new SolicitacaoTutelaNotification(
@@ -12,7 +13,9 @@ it('prepara uma notificação interna para uma solicitação de tutela', functio
 
     expect($notification->via((object) ['email' => null]))->toBe(['database'])
         ->and($notification)->toBeInstanceOf(ShouldQueue::class)
-        ->and($notification->afterCommit)->toBeTrue()
+        ->and($notification)->toBeInstanceOf(ShouldQueueAfterCommit::class)
+        ->and($notification->tries)->toBe(3)
+        ->and($notification->backoff())->toBe([60, 300, 900])
         ->and($notification->toDatabase((object) []))->toMatchArray([
             'tipo' => 'solicitacao_tutela',
             'titulo' => 'Nova solicitação de tutela',

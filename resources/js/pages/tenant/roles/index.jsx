@@ -6,7 +6,7 @@ import {
 import { useDialog } from '@/hooks/use-dialog';
 import { RoleTable } from './components/role-table';
 
-export default function Index({ roles }) {
+export default function Index({ roles, filters }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (role) => {
@@ -20,7 +20,10 @@ export default function Index({ roles }) {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      },
       preserveScroll: true,
     });
   };
@@ -29,9 +32,10 @@ export default function Index({ roles }) {
     <>
       <Head title="Funções" />
 
-      <div className="mx-auto w-full max-w-7xl p-6">
+      <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
         <RoleTable
           roles={roles}
+          filters={filters}
           pagination={roles}
           onPageChange={handlePageChange}
           deleteFn={handleDelete}

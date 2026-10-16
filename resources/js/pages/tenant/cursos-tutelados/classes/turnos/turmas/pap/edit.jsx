@@ -16,6 +16,8 @@ export default function Edit() {
     grupoPap,
   } = usePage().props;
 
+  const [nomeGrupo, setNomeGrupo] = useState(form.grupoPap.nome_grupo ?? '');
+
   const [professorTutorId, setProfessorTutorId] = useState(
     form.grupoPap.professor_tutor_id,
   );
@@ -36,6 +38,7 @@ export default function Edit() {
       })}
       transform={(data) => ({
         ...data,
+        nome_grupo: nomeGrupo,
         professor_tutor_id: professorTutorId,
         alunos: alunoIds,
       })}
@@ -54,10 +57,21 @@ export default function Edit() {
       {({ errors, processing }) => (
         <GrupoPapForm
           title="Editar grupo PAP"
+          turmaUrl={
+            show({
+              instituicao: instituicao.id,
+              cursoTutelado: cursoTutelado.id,
+              cursoClasse: cursoClasse.id,
+              cursoClasseTurno: cursoClasseTurno.id,
+              turma: turma.id,
+            }).url
+          }
           errors={errors}
           processing={processing}
           professores={form.professores}
           alunos={form.alunos}
+          nomeGrupo={nomeGrupo}
+          setNomeGrupo={setNomeGrupo}
           professorTutorId={professorTutorId}
           setProfessorTutorId={setProfessorTutorId}
           alunoIds={alunoIds}

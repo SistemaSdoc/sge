@@ -11,10 +11,12 @@ export default function DirectorDashboard({
   metricas = [],
   accoes = [],
   eventos = [],
+  can = {},
 }) {
   const greeting = getGreeting();
   const todayFormatted = getTodayFormatted();
   const { auth } = usePage().props;
+  const acoesComPendencias = accoes.filter((acao) => Number(acao.count) > 0);
 
   return (
     <div className="space-y-6 p-6">
@@ -24,13 +26,13 @@ export default function DirectorDashboard({
         todayFormatted={todayFormatted}
       />
 
-      <DashboardSummary items={accoes} isLoading={false} />
+      <DashboardSummary items={acoesComPendencias} />
 
-      <MetricsBar metrics={metricas} />
+      <MetricsBar metrics={metricas} canViewProfessores={can.viewProfessores} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <DashboardPanel title="Ações Pendentes" colSpan="lg:col-span-2">
-          <ActionFeed items={accoes} isLoading={false} />
+          <ActionFeed items={acoesComPendencias} />
         </DashboardPanel>
 
         <DashboardPanel title="Próximos Eventos" colSpan="lg:col-span-1">

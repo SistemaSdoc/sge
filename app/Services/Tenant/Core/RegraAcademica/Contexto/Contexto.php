@@ -3,12 +3,16 @@
 namespace App\Services\Tenant\Core\RegraAcademica\Contexto;
 
 use App\Models\Tenant\TurmaAluno;
+use Illuminate\Support\Collection;
 
 /**
  * Carrega o contexto académico necessário para avaliar o aluno.
  */
 class Contexto
 {
+    /** @var array<string, Collection|null> */
+    private array $disciplinasProximaClasseCache = [];
+
     public function __construct(
         private readonly ContextoLoader $contextoLoader,
         private readonly DisciplinasProximaClasseResolver $disciplinasProximaClasseResolver,
@@ -33,10 +37,16 @@ class Contexto
             ->cursoClasse
             ->cursoTutelado;
 
-        $disciplinasProximaClasse = $this->disciplinasProximaClasseResolver->resolver(
-            $cursoTutelado->id,
-            $classeActual->ordem,
-        );
+        $cacheKey = $cursoTutelado->id.':'.$classeActual->ordem;
+
+        if (! array_key_exists($cacheKey, $this->disciplinasProximaClasseCache)) {
+            $this->disciplinasProximaClasseCache[$cacheKey] = $this->disciplinasProximaClasseResolver->resolver(
+                $cursoTutelado->id,
+                $classeActual->ordem,
+            );
+        }
+
+        $disciplinasProximaClasse = $this->disciplinasProximaClasseCache[$cacheKey];
 
         return [
             'classe_actual' => $classeActual,

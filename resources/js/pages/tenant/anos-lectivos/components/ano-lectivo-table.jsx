@@ -1,24 +1,13 @@
-import { Link, router } from '@inertiajs/react';
-import { MoreHorizontalIcon, LayersIcon } from 'lucide-react';
+import { LayersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { Button } from '@/components/ui/button';
 
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 import {
   Table,
@@ -29,10 +18,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
-import {
-  create,
-  edit,
-} from '@/actions/App/Http/Controllers/Tenant/AnoLectivoController';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 const ESTADO_CONFIG = {
   planeado: {
@@ -97,15 +84,16 @@ function formatarData(data) {
 
 export default function AnoLectivoTable({
   anosLectivos = [],
-  can,
-  deleteFn,
+  filters,
   pagination = {},
   onPageChange,
 }) {
-  const hasAnyAction = anosLectivos.some(
-    (anoLectivo) => anoLectivo.can.update || anoLectivo.can.delete,
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['anosLectivos', 'filters'],
+    },
   );
-
   const isEmpty = !anosLectivos || anosLectivos.length === 0;
 
   return (
@@ -116,20 +104,20 @@ export default function AnoLectivoTable({
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title="Nenhum ano lectivo cadastrado"
-            description="Comece adicionando o primeiro ano lectivo à tabela"
-            action={
-              can?.create
-                ? {
-                    label: 'Adicionar ano lectivo',
-                    href: create().url,
-                    variant: 'outline',
-                  }
-                : undefined
+            title={
+              applied
+                ? 'Nenhum ano lectivo encontrado'
+                : 'Nenhum ano lectivo cadastrado'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Os anos lectivos são geridos na aplicação central.'
             }
           />
         ) : (

@@ -80,7 +80,7 @@ export function RoleForm({
   };
 
   return (
-    <div className="mx-auto w-full max-w-sm px-4 py-2 md:max-w-md md:px-6 lg:max-w-3xl lg:px-8">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-3xl">
       <form onSubmit={submit}>
         <Card className="overflow-hidden">
           <CardHeader className="border-b">
@@ -175,7 +175,11 @@ export function RoleForm({
                 </Field>
 
                 <Field className="mt-4">
-                  <Button type="submit" disabled={processing}>
+                  <Button
+                    type="submit"
+                    disabled={processing}
+                    className="hover:cursor-pointer"
+                  >
                     {processing ? (
                       <>
                         <Spinner />

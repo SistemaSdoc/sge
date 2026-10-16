@@ -36,6 +36,8 @@ import { editar as editarTema } from '@/actions/App/Http/Controllers/Tenant/Grup
 import { create as createTema } from '@/actions/App/Http/Controllers/Tenant/GrupoPapTemaController';
 import { TabTrabalho } from './components/tabs/tab-trabalho';
 import { FileText } from 'lucide-react';
+import { show as showUser } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
+import { show as showProfessor } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 
 export default function Show({
   instituicao,
@@ -44,6 +46,7 @@ export default function Show({
   cursoClasseTurno,
   turma,
   grupoPap,
+  currentUserId,
   trabalho,
   historico,
   banca,
@@ -121,7 +124,7 @@ export default function Show({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6 p-4 md:p-6">
       <Card className="overflow-hidden pt-0!">
         <div className="relative flex h-56 w-full items-end bg-muted">
           <div className="absolute inset-0 bg-black/50" />
@@ -134,6 +137,9 @@ export default function Show({
               <h2 className="md:text-1xl text-2xl font-semibold">
                 Tema: {grupoPap?.tema_grupo}
               </h2>
+              <p className="max-w-3xl text-sm text-white/90">
+                Estudo de caso: {grupoPap?.estudo_caso || 'Não definido'}
+              </p>
             </div>
 
             {/* {hasAnyAction && (*/}
@@ -183,12 +189,23 @@ export default function Show({
             <p className="text-sm text-muted-foreground">Professor tutor</p>
             <p className="font-medium">
               {grupoPap?.professor ? (
-                <Link
-                  href={`/dashboard/professores/${grupoPap.professor.id}`}
-                  className="hover:underline"
-                >
-                  {grupoPap.professor.nome}
-                </Link>
+                grupoPap.professor.can_view ? (
+                  <Link
+                    href={
+                      String(currentUserId) ===
+                      String(grupoPap.professor.user_id)
+                        ? showUser.url({ user: grupoPap.professor.user_id })
+                        : showProfessor.url({
+                            professor: grupoPap.professor.id,
+                          })
+                    }
+                    className="hover:underline"
+                  >
+                    {grupoPap.professor.nome}
+                  </Link>
+                ) : (
+                  grupoPap.professor.nome
+                )
               ) : (
                 <Minus size={15} className="text-muted-foreground" />
               )}
@@ -272,6 +289,24 @@ export default function Show({
 
               <a
                 href={grupoPap.estrutura_trabalho_pap_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 font-medium text-primary hover:underline"
+              >
+                <FileText className="size-4" />
+                Ver documento
+              </a>
+            </div>
+          )}
+
+          {grupoPap?.sugestoes_temas_pap_url && (
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Sugestões de Temas PAP
+              </p>
+
+              <a
+                href={grupoPap.sugestoes_temas_pap_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 font-medium text-primary hover:underline"
@@ -437,6 +472,7 @@ export default function Show({
             actualizarNotaFn={actualizarNotaFn}
             removerIntegranteFn={removerIntegranteFn}
             can={can}
+            currentUserId={currentUserId}
           />
         </TabsContent>
 
@@ -449,6 +485,7 @@ export default function Show({
               pagination={banca}
               onPageChange={bancaPagination.handlePageChange}
               can={can}
+              currentUserId={currentUserId}
             />
           </TabsContent>
         )}

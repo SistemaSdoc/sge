@@ -67,10 +67,8 @@
 
 <body>
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
         <div class="header">
-            @if (! empty($logoUrl))
-                <img class="logo" src="{{ $logoUrl }}" alt="{{ $instituicao?->nome ?? config('app.name') }}">
-            @endif
         </div>
 
         <hr class="divider">

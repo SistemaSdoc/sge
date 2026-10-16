@@ -8,7 +8,10 @@ use App\Actions\Tenant\Role\UpdateRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Role\StoreRoleRequest;
 use App\Http\Requests\Tenant\Role\UpdateRoleRequest;
+use App\Models\Tenant\User;
 use App\Services\Tenant\RoleManagementService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
@@ -22,57 +25,97 @@ class RoleController extends Controller
         private readonly DeleteRole $deleteRole,
     ) {}
 
-    public function index()
+    /**
+     * Mostra a lista de funções e permissões disponíveis.
+     */
+    public function index(Request $request)
     {
-        Gate::authorize('viewAny', Role::class);
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('viewAny', Role::class);
 
         return Inertia::render('tenant/roles/index', [
-            'roles' => $this->roleManagementService->index(),
-            'permissions' => $this->roleManagementService->permissions(),
-            'groupedPermissions' => $this->roleManagementService->groupedPermissions(),
+            'roles' => $this->roleManagementService->index($request->string('search')->toString()),
+            'filters' => $request->only('search'),
+            'permissions' => $this->roleManagementService->permissions($actor),
+            'groupedPermissions' => $this->roleManagementService->groupedPermissions($actor),
         ]);
     }
 
+    /**
+     * Mostra o formulário para criar uma nova função.
+     */
     public function create()
     {
-        Gate::authorize('create', Role::class);
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('create', Role::class);
 
         return Inertia::render('tenant/roles/create', [
-            'permissions' => $this->roleManagementService->permissions(),
-            'groupedPermissions' => $this->roleManagementService->groupedPermissions(),
+            'permissions' => $this->roleManagementService->permissions($actor),
+            'groupedPermissions' => $this->roleManagementService->groupedPermissions($actor),
         ]);
     }
 
+    /**
+     * Guarda uma nova função no tenant actual.
+     */
     public function store(StoreRoleRequest $request)
     {
-        Gate::authorize('create', Role::class);
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('create', Role::class);
+
         $this->createRole->handle($request->validated());
 
         return to_route('tenant.dashboard.roles.index')->with('success', 'Role criada com sucesso.');
     }
 
+    /**
+     * Mostra o formulário para editar uma função específica.
+     */
     public function edit(Role $role)
     {
-        Gate::authorize('update', $role);
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('update', $role);
 
         return Inertia::render('tenant/roles/edit', [
             'role' => $role->load('permissions:id,name,label')->only('id', 'name', 'permissions'),
-            'permissions' => $this->roleManagementService->permissions(),
-            'groupedPermissions' => $this->roleManagementService->groupedPermissions(),
+            'permissions' => $this->roleManagementService->permissions($actor),
+            'groupedPermissions' => $this->roleManagementService->groupedPermissions($actor),
         ]);
     }
 
+    /**
+     * Actualiza uma função específica.
+     */
     public function update(UpdateRoleRequest $request, Role $role)
     {
-        Gate::authorize('update', $role);
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('update', $role);
+
         $this->updateRole->handle($role, $request->validated());
 
         return to_route('tenant.dashboard.roles.index')->with('success', 'Role actualizada com sucesso.');
     }
 
+    /**
+     * Remove uma função específica.
+     */
     public function destroy(Role $role)
     {
-        Gate::authorize('delete', $role);
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
+
+        Gate::forUser($actor)->authorize('delete', $role);
+
         $this->deleteRole->handle($role);
 
         return to_route('tenant.dashboard.roles.index')->with('success', 'Role removida com sucesso.');

@@ -2,17 +2,20 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Informa o colégio sobre a decisão da conversão para tutela própria.
  */
-class ConversaoTutelaPropriaResultadoNotification extends Notification implements ShouldQueue
+class ConversaoTutelaPropriaResultadoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public string $instituicaoDecisora,
@@ -20,9 +23,7 @@ class ConversaoTutelaPropriaResultadoNotification extends Notification implement
         public string $sharedId,
         public string $resultado,
         public string $url = '',
-    ) {
-        $this->afterCommit();
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

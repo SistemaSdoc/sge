@@ -2,20 +2,26 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Exceptions\UserRemovalBlockedException;
 use App\Http\Controllers\Controller;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\PreencherHistoricoService;
 use App\Services\Tenant\VerificadorPropinaService;
 use App\Traits\NotificaAluno;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class AlunoController extends Controller
@@ -24,7 +30,7 @@ class AlunoController extends Controller
 
     public function __construct(private readonly AnoLectivoResolverService $anoLectivoResolverService) {}
 
-    public function index(VerificadorPropinaService $verificador)
+    public function index(Request $request, VerificadorPropinaService $verificador)
     {
         Gate::authorize('viewAny', Aluno::class);
 
@@ -34,9 +40,28 @@ class AlunoController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
+        $isCourseSecretary = $user->hasRole('Secretario do Curso');
 
-        $alunos = Aluno::whereIn('situacao', ['activo', 'finalista', 'reprovado'])
+        $cursosCoordenados = $user->professor
+            ? DB::table('curso_tutelado_professor')
+                ->where('professor_id', $user->professor->id)
+                ->where('coordenador', true)
+                ->pluck('curso_tutelado_id')
+            : collect();
+
+        $ehCoordenador = $cursosCoordenados->isNotEmpty();
+        $cursosComAcesso = $cursosCoordenados
+            ->merge($isCourseSecretary ? $user->cursosSecretariados()->pluck('curso_tutelado.id') : collect())
+            ->unique()
+            ->values();
+
+        $alunos = Aluno::query()
+            ->select('alunos.*')
+            ->leftJoin('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
+            ->leftJoin('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->whereIn('alunos.situacao', ['activo', 'finalista', 'reprovado'])
             ->doAnoLectivo($anoLectivoId)
+            ->search($request->string('search')->toString())
             ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
             ->with([
                 'inscricao.candidato:id,nome,bi,email,telefone',
@@ -57,23 +82,28 @@ class AlunoController extends Controller
                 )
             )
             ->when(
-                $user->hasRole('Professor'),
+                $isCourseSecretary || $ehCoordenador,
                 fn ($q) => $q->whereHas(
-                    'turmas',
-                    fn ($q) => $q->whereIn(
-                        'turmas.id',
-                        $user->professor->turmas()->pluck('turmas.id')
-                    )
+                    'inscricao.cursoClasseTurno.cursoClasse',
+                    fn ($q) => $q->whereIn('curso_tutelado_id', $cursosComAcesso)
                 )
             )
-            ->latest()
-            ->paginate(10);
+            ->when(
+                ! $ehCoordenador && ! $isCourseSecretary && $user->hasRole('Professor'),
+                fn ($q) => $q->whereHas(
+                    'turmas',
+                    fn ($q) => $q->whereIn('turmas.id', $user->professor->turmas()->pluck('turmas.id'))
+                )
+            )
+            ->orderBy('candidatos.nome')
+            ->orderBy('alunos.id')
+            ->paginate(10)
+            ->withQueryString();
 
         $alunos->getCollection()->transform(function ($aluno) use ($user) {
             $aluno->can = [
                 'view' => $user->can('view', $aluno),
                 'update' => $user->can('update', $aluno),
-                'delete' => $user->can('delete', $aluno),
             ];
 
             return $aluno;
@@ -113,6 +143,7 @@ class AlunoController extends Controller
                 ];
             }),
             'anoLectivoId' => $anoLectivoId,
+            'filters' => $request->only('search'),
             'anosLectivos' => AnoLectivo::query()
                 ->select('id', 'nome')
                 ->orderByDesc('data_inicio')
@@ -134,11 +165,6 @@ class AlunoController extends Controller
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
-        // Calcular pendentes ANTES do load() que polui as relações em memória
-        $historicoService = app(PreencherHistoricoService::class);
-        $pendentes = $historicoService->obterClassesFaltando($aluno);
-
-        // Só depois faz o load() para a view
         $aluno->load([
             'inscricao.candidato:id,nome,bi,email,telefone,genero,nacionalidade,naturalidade,morada,filiacao,data_nascimento',
             'inscricao.cursoClasseTurno.turno:id,nome',
@@ -168,8 +194,10 @@ class AlunoController extends Controller
                 ->first();
         }
 
-        $historicoService = app(PreencherHistoricoService::class);
-        $pendentes = $historicoService->obterClassesFaltando($aluno);
+        $canManageHistorico = $user->can('manageHistorico', $aluno);
+        $pendentes = $canManageHistorico
+            ? app(PreencherHistoricoService::class)->obterClassesFaltando($aluno)
+            : [];
 
         $aluno2 = Aluno::find($aluno->id);
 
@@ -180,6 +208,20 @@ class AlunoController extends Controller
         $cursoClasseActual = $inscricao?->cursoClasseTurno?->cursoClasse;
         $ordemActual = $cursoClasseActual?->classe?->ordem;
         $cursoTuteladoId = $cursoClasseActual?->curso_tutelado_id;
+        if ($canManageHistorico && $cursoTuteladoId) {
+            $pendingClassIds = collect($pendentes)->pluck('curso_classe_id');
+            $historicoClassIds = CursoClasse::query()
+                ->where('curso_tutelado_id', $cursoTuteladoId)
+                ->whereIn('id', $pendingClassIds)
+                ->pluck('id')
+                ->map(fn ($id): string => (string) $id)
+                ->all();
+
+            $pendentes = collect($pendentes)
+                ->filter(fn (array $pending): bool => in_array((string) $pending['curso_classe_id'], $historicoClassIds, true))
+                ->values()
+                ->all();
+        }
 
         $anosLectivos = AnoLectivo::where('activo', false)
             ->orderBy('data_fim', 'desc')
@@ -195,6 +237,13 @@ class AlunoController extends Controller
             fn () => $request->filled('ano_lectivo_id') && $request->filled('curso_classe_id')
                 ? CursoClasseTurno::query()
                     ->where('curso_classe_id', $request->query('curso_classe_id'))
+                    ->when(
+                        $canManageHistorico,
+                        fn ($query) => $query->whereHas(
+                            'cursoClasse',
+                            fn ($query) => $query->where('curso_tutelado_id', $cursoTuteladoId),
+                        ),
+                    )
                     ->with('turno:id,nome')
                     ->get()
                     ->map(fn ($cct) => [
@@ -209,6 +258,13 @@ class AlunoController extends Controller
                 ? Turma::query()
                     ->where('ano_lectivo_id', $request->query('ano_lectivo_id'))
                     ->where('curso_classe_turno_id', $request->query('curso_classe_turno_id'))
+                    ->when(
+                        $canManageHistorico,
+                        fn ($query) => $query->whereHas(
+                            'cursoClasseTurno.cursoClasse',
+                            fn ($query) => $query->where('curso_tutelado_id', $cursoTuteladoId),
+                        ),
+                    )
                     ->get()
                     ->map(fn ($t) => [
                         'id' => $t->id,
@@ -221,6 +277,7 @@ class AlunoController extends Controller
             'aluno' => [
                 'id' => $aluno->id,
                 'matricula' => $aluno->matricula,
+                'inscricao_id' => $aluno->inscricao_id,
                 'numero_processo' => $aluno->numero_processo,
                 'nome' => $aluno->inscricao?->candidato?->nome,
                 'bi' => $aluno->inscricao?->candidato?->bi,
@@ -244,7 +301,11 @@ class AlunoController extends Controller
                     'view' => $user->can('view', $aluno),
                     'update' => $user->can('update', $aluno),
                     'delete' => $user->can('delete', $aluno),
+                    'cancelar_matricula' => $aluno->inscricao !== null
+                        && $user->can('cancelar', $aluno->inscricao),
+                    'manageHistorico' => $canManageHistorico,
                 ],
+                'remocao' => $user->isSuperAdmin() ? $aluno->podeSerRemovido() : null,
             ],
             'historicoPendente' => $pendentes,
             'classesFaltando' => $pendentes,
@@ -261,7 +322,7 @@ class AlunoController extends Controller
         $anoLectivoId = $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         $aluno->load([
-            'inscricao.candidato:id,nome,bi,email,telefone',
+            'inscricao.candidato:id,user_id,nome,bi,email',
             'inscricao.cursoClasseTurno.turno:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
             'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
@@ -269,12 +330,89 @@ class AlunoController extends Controller
                 ->with('cursoClasseTurno.cursoClasse.classe:id,nome'),
         ]);
 
-        $turmas = Turma::where('curso_classe_turno_id', $aluno->inscricao->curso_classe_turno_id)
-            ->where('ano_lectivo_id', $anoLectivoId)
-            ->with('cursoClasseTurno.cursoClasse.classe:id,nome')
-            ->get();
-
         $turmaAtual = $aluno->turmas()->wherePivot('activo', true)->first();
+        $cursoTuteladoId = $turmaAtual?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id
+            ?? $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id;
+
+        $cursoClasseIdAtual = $turmaAtual?->cursoClasseTurno?->curso_classe_id
+            ?? $aluno->inscricao?->cursoClasseTurno?->curso_classe_id;
+
+        $cursoClasseTurnoIdAtual = $turmaAtual?->curso_classe_turno_id
+            ?? $aluno->inscricao?->cursoClasseTurno?->id;
+
+        $user = Auth::guard('tenant')->user();
+        $cursosQuery = CursoTutelado::query()
+            ->with('instituicaoCurso.curso:id,nome,deleted_at');
+
+        if ($user?->instituicao_id) {
+            $cursosQuery->whereHas(
+                'instituicaoCurso',
+                fn ($query) => $query->where('instituicao_id', $user->instituicao_id),
+            );
+        } elseif ($cursoTuteladoId) {
+            $cursosQuery->whereKey($cursoTuteladoId);
+        }
+
+        if ($user?->hasRole('Secretario do Curso')) {
+            $cursosQuery->whereHas(
+                'secretarios',
+                fn ($query) => $query->whereKey($user->getKey()),
+            );
+        }
+
+        $cursos = $cursosQuery->get()
+            ->reject(fn (CursoTutelado $cursoTutelado) => $cursoTutelado->instituicaoCurso?->curso?->trashed())
+            ->map(fn (CursoTutelado $cursoTutelado) => [
+                'id' => $cursoTutelado->id,
+                'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome ?? 'Curso',
+            ])
+            ->values();
+
+        $cursoTuteladoIds = $cursos->pluck('id');
+
+        $classes = $cursoTuteladoIds->isNotEmpty()
+            ? CursoClasse::query()
+                ->whereIn('curso_tutelado_id', $cursoTuteladoIds)
+                ->with('classe:id,nome')
+                ->get()
+                ->map(fn ($cursoClasse) => [
+                    'id' => $cursoClasse->id,
+                    'nome' => $cursoClasse->classe?->nome,
+                    'curso_tutelado_id' => $cursoClasse->curso_tutelado_id,
+                ])
+            : [];
+
+        $turnos = $cursoTuteladoIds->isNotEmpty()
+            ? CursoClasseTurno::query()
+                ->whereHas('cursoClasse', fn ($query) => $query->whereIn('curso_tutelado_id', $cursoTuteladoIds))
+                ->with('turno:id,nome')
+                ->get()
+                ->map(fn ($cursoClasseTurno) => [
+                    'id' => $cursoClasseTurno->id,
+                    'nome' => $cursoClasseTurno->turno?->nome,
+                    'curso_classe_id' => $cursoClasseTurno->curso_classe_id,
+                ])
+            : [];
+
+        $turmas = $cursoTuteladoIds->isNotEmpty()
+            ? Turma::query()
+                ->whereHas('cursoClasseTurno.cursoClasse', fn ($query) => $query->whereIn('curso_tutelado_id', $cursoTuteladoIds))
+                ->where('ano_lectivo_id', $anoLectivoId)
+                ->with([
+                    'cursoClasseTurno.turno:id,nome',
+                    'cursoClasseTurno.cursoClasse.classe:id,nome',
+                ])
+                ->orderBy('nome')
+                ->get()
+                ->map(fn ($turma) => [
+                    'id' => $turma->id,
+                    'nome' => $turma->nome,
+                    'curso_classe_id' => $turma->cursoClasseTurno?->curso_classe_id,
+                    'curso_classe_turno_id' => $turma->curso_classe_turno_id,
+                    'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
+                    'turno' => $turma->cursoClasseTurno?->turno?->nome,
+                ])
+            : [];
 
         return Inertia::render('tenant/alunos/edit', [
             'aluno' => [
@@ -283,13 +421,16 @@ class AlunoController extends Controller
                 'numero_processo' => $aluno->numero_processo,
                 'nome' => $aluno->inscricao?->candidato?->nome,
                 'bi' => $aluno->inscricao?->candidato?->bi,
+                'email' => $aluno->inscricao?->candidato?->email,
+                'curso_tutelado_id' => $cursoTuteladoId,
+                'curso_classe_id' => $cursoClasseIdAtual,
+                'curso_classe_turno_id' => $cursoClasseTurnoIdAtual,
+                'turma_id' => $turmaAtual?->id,
             ],
-            'turmas' => $turmas->map(fn ($turma) => [
-                'id' => $turma->id,
-                'nome' => $turma->nome,
-                'classe' => $turma->cursoClasseTurno?->cursoClasse?->classe?->nome,
-            ]),
-            'turmaAtual' => $turmaAtual?->id,
+            'cursos' => $cursos,
+            'classes' => $classes,
+            'turnos' => $turnos,
+            'turmas' => $turmas,
         ]);
     }
 
@@ -297,18 +438,47 @@ class AlunoController extends Controller
     {
         Gate::authorize('update', $aluno);
 
+        $candidato = $aluno->inscricao?->candidato;
+        abort_if($candidato === null, 404);
+
+        $uniqueUserBi = Rule::unique('users', 'bi');
+        $uniqueUserEmail = Rule::unique('users', 'email');
+
+        if ($candidato->user_id !== null) {
+            $uniqueUserBi->ignore($candidato->user_id);
+            $uniqueUserEmail->ignore($candidato->user_id);
+        }
+
         $dados = $request->validate([
             'nome' => 'required|string|max:255',
-            'bi' => 'required|string|max:20',
-            'matricula' => 'nullable|string|max:255|unique:alunos,matricula,'.$aluno->id,
+            'bi' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('candidatos', 'bi')->ignore($candidato),
+                $uniqueUserBi,
+            ],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('candidatos', 'email')->ignore($candidato),
+                $uniqueUserEmail,
+            ],
             'turma_id' => 'nullable|exists:turmas,id',
         ]);
 
-        $aluno->update(['matricula' => $dados['matricula']]);
-
-        $aluno->inscricao->candidato->update([
+        $dadosCandidato = [
             'nome' => $dados['nome'],
             'bi' => $dados['bi'],
+            'email' => $dados['email'],
+        ];
+
+        $candidato->update($dadosCandidato);
+        $candidato->user?->update([
+            'nome' => $dadosCandidato['nome'],
+            'bi' => $dadosCandidato['bi'],
+            'email' => $dadosCandidato['email'],
         ]);
 
         if ($dados['turma_id'] ?? null) {
@@ -328,6 +498,13 @@ class AlunoController extends Controller
                         'activo' => true,
                     ],
                 ]);
+
+                if ($aluno->inscricao && $aluno->inscricao->curso_classe_turno_id !== $turma->curso_classe_turno_id) {
+                    $aluno->inscricao->update([
+                        'curso_classe_turno_id' => $turma->curso_classe_turno_id,
+                    ]);
+                }
+
                 $this->notificarAlunoTransferidoTurma($aluno, $turma);
             }
         }
@@ -338,11 +515,39 @@ class AlunoController extends Controller
         ]);
     }
 
-    public function destroy(Aluno $aluno)
+    public function destroy(Aluno $aluno): RedirectResponse
     {
-        Gate::authorize('delete', $aluno);
+        $authorization = Gate::inspect('delete', $aluno);
 
-        $aluno->delete();
+        if ($authorization->denied()) {
+            abort_unless(Auth::guard('tenant')->user()->isSuperAdmin(), 403);
+
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => $authorization->message(),
+            ]);
+
+            return back();
+        }
+
+        try {
+            DB::transaction(function () use ($aluno): void {
+                $user = $aluno->user;
+                $candidato = $aluno->inscricao?->candidato;
+
+                $aluno->cleanupOnUserRemoval();
+                $candidato?->delete();
+
+                $user?->removeRole('Aluno');
+            });
+        } catch (UserRemovalBlockedException $exception) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => $exception->getMessage(),
+            ]);
+
+            return back();
+        }
 
         return to_route('tenant.dashboard.alunos.index')->with('toast', [
             'type' => 'success',

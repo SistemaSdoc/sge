@@ -1,5 +1,5 @@
 import { Item, ItemMedia, ItemContent } from '@/components/ui/item';
-import { CheckCircle2 } from 'lucide-react';
+import { AlertCircle, BadgeCheck } from 'lucide-react';
 import { getUrgencyConfig } from '@/utils/urgency';
 
 export function DashboardSummary({ items = [] }) {
@@ -10,7 +10,7 @@ export function DashboardSummary({ items = [] }) {
         className="border-emerald-200 bg-emerald-50 dark:border-emerald-900/30 dark:bg-emerald-950/20"
       >
         <ItemMedia variant="icon">
-          <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+          <BadgeCheck className="size-4 text-emerald-600 dark:text-emerald-400" />
         </ItemMedia>
 
         <ItemContent>

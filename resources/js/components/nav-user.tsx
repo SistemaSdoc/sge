@@ -28,7 +28,7 @@ export function NavUser() {
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild className="hover:cursor-pointer">
             <SidebarMenuButton
               size="lg"
               className="group text-sidebar-foreground hover:text-sidebar-foreground data-[state=open]:bg-sidebar-accent"

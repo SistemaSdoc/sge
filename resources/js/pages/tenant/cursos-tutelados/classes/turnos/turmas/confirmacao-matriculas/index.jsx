@@ -12,12 +12,16 @@ export default function Index() {
     anosLectivos,
     anoLectivoProximo,
     turmasPorAno,
+    filters,
   } = usePage().props;
   const { openForm, closeDialog } = useDialog();
 
   const handlePageChange = (page) => {
     router.visit(index(params).url, {
-      data: { page },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      },
       only: ['alunos'],
       preserveScroll: true,
       preserveState: true,
@@ -37,7 +41,7 @@ export default function Index() {
           params={params}
           anosLectivos={anosLectivos}
           anoLectivoProximo={anoLectivoProximo}
-          turmasPorAno={turmasPorAno}
+          turmasPorAno={aluno.turmas_destino ?? turmasPorAno}
           onCancel={() => closeDialog()}
           onSuccess={() => closeDialog()}
         />
@@ -50,6 +54,7 @@ export default function Index() {
       data={alunos.data}
       onConfirmar={abrirConfirmacaoMatriculaDialog}
       turma={turma}
+      filters={filters}
       pagination={{
         current_page: alunos.current_page,
         last_page: alunos.last_page,

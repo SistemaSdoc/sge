@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'PGE'),
 
     /*
     |--------------------------------------------------------------------------
@@ -53,6 +53,18 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Domain
+    |--------------------------------------------------------------------------
+    |
+    | This domain is used for generating tenant subdomains and multi-tenancy
+    | routing. Extract the domain from APP_URL or use APP_DOMAIN directly.
+    |
+    */
+
+    'domain' => env('APP_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST) ?? 'localhost'),
 
     /*
     |--------------------------------------------------------------------------

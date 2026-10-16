@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ArrowUpLeft } from 'lucide-react';
+import { Spinner } from '@/components/spinner';
 
 export function CursoForm({
   title,
@@ -34,9 +35,11 @@ export function CursoForm({
   errors,
   processing,
   onSubmit,
+  submitLabel = 'Adicionar curso',
+  processingLabel = 'Adicionando curso',
 }) {
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-6">
+    <div className="mx-auto w-full max-w-2xl p-4 md:p-6">
       <form onSubmit={onSubmit}>
         <Card>
           <CardHeader className="border-b">
@@ -117,8 +120,18 @@ export function CursoForm({
                 </div>
 
                 <Field>
-                  <Button type="submit" disabled={processing}>
-                    Guardar curso
+                  <Button
+                    type="submit"
+                    className="w-full hover:cursor-pointer"
+                    disabled={processing}
+                  >
+                    {processing ? (
+                      <>
+                        <Spinner className="size-4" /> {processingLabel}{' '}
+                      </>
+                    ) : (
+                      submitLabel
+                    )}
                   </Button>
 
                   <Button
@@ -126,6 +139,7 @@ export function CursoForm({
                     variant="outline"
                     disabled={processing}
                     onClick={() => window.history.back()}
+                    className="hover:cursor-pointer"
                   >
                     <ArrowUpLeft />
                     Voltar

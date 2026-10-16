@@ -2,8 +2,10 @@
 
 namespace App\Http\Resources\Tenant\GrupoPap;
 
+use App\Models\Tenant\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class IndexResource extends JsonResource
 {
@@ -11,6 +13,8 @@ class IndexResource extends JsonResource
 
     public function toArray(Request $request): array
     {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
         $cursoClasseTurno = $this->turma?->cursoClasseTurno;
         $cursoClasse = $cursoClasseTurno?->cursoClasse;
         $cursoTutelado = $cursoClasse?->cursoTutelado;
@@ -26,6 +30,9 @@ class IndexResource extends JsonResource
             'data_defesa' => $this->data_defesa,
             'professor' => $this->professor ? [
                 'id' => $this->professor->id,
+                'user_id' => $this->professor->user_id,
+                'is_current_user' => $user?->is($this->professor->user),
+                'can_view' => $user?->can('view', $this->professor),
                 'nome' => $this->professor->user?->nome,
             ] : null,
             'instituicao' => [
@@ -51,6 +58,9 @@ class IndexResource extends JsonResource
             'num_elementos' => $this->elementos->count(),
             'elementos' => $this->elementos->map(fn ($el) => [
                 'id' => $el->aluno->id,
+                'user_id' => $el->aluno->user_id,
+                'is_current_user' => $user?->is($el->aluno->user),
+                'can_view' => $user?->can('view', $el->aluno),
                 'nome' => $el->aluno?->inscricao?->candidato?->nome,
             ])->filter(fn ($el) => $el['nome'])->values(),
             'can' => [

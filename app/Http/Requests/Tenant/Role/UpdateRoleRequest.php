@@ -2,8 +2,11 @@
 
 namespace App\Http\Requests\Tenant\Role;
 
+use App\Models\Tenant\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
 
 class UpdateRoleRequest extends FormRequest
 {
@@ -12,7 +15,13 @@ class UpdateRoleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        /** @var User|null $actor */
+        $actor = Auth::guard('tenant')->user();
+        $role = $this->route('role');
+
+        return $actor instanceof User
+            && $role instanceof Role
+            && $actor->can('update', $role);
     }
 
     /**

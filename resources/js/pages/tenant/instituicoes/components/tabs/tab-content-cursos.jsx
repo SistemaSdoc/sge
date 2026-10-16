@@ -56,17 +56,24 @@ export function TabContentCursos({
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
       <CardHeader className="border-b">
-        <CardTitle>Cursos</CardTitle>
-        <CardDescription>
-          Cursos lecionados por esta instituição
-        </CardDescription>
-        {canCreate && (
-          <CardAction>
-            <Button asChild>
-              <Link href={create(instituicaoId).url}>Adicionar</Link>
-            </Button>
-          </CardAction>
-        )}
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          {/* Título e Descrição */}
+          <div className="min-w-0 space-y-1">
+            <CardTitle>Cursos</CardTitle>
+            <CardDescription>
+              Cursos lecionados por esta instituição
+            </CardDescription>
+          </div>
+
+          {/* Botão */}
+          {canCreate && (
+            <CardAction className="w-full md:w-auto">
+              <Button asChild className="w-full">
+                <Link href={create(instituicaoId).url}>Adicionar</Link>
+              </Button>
+            </CardAction>
+          )}
+        </div>
       </CardHeader>
 
       <CardContent className="p-0!">

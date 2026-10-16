@@ -2,32 +2,51 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\Professor\CreateProfessor;
+use App\Actions\Tenant\Professor\DeleteProfessor;
+use App\Actions\Tenant\Professor\UpdateProfessor;
+use App\Exceptions\UserRemovalBlockedException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Professor\StoreProfessoresRequest;
 use App\Http\Requests\Tenant\Professor\UpdateProfessoresRequest;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
-use App\Traits\NotificaProfessor;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Role;
 
 class ProfessorController extends Controller
 {
-    use NotificaProfessor;
+    public function __construct(
+        private readonly CreateProfessor $createProfessor,
+        private readonly UpdateProfessor $updateProfessor,
+        private readonly DeleteProfessor $deleteProfessor,
+    ) {}
 
-    public function index()
+    /**
+     * Mostra a lista de professores da instituição do usuario.
+     */
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Professor::class);
 
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
         $instituicaoId = $user?->instituicaoFiltro();
 
-        $professores = Professor::select(['id', 'user_id', 'especialidade', 'nivel_academico', 'created_at'])
+        $professores = Professor::select([
+            'id',
+            'user_id',
+            'especialidade',
+            'nivel_academico',
+            'created_at',
+        ])
             ->with(['user:id,nome,telefone'])
+            ->search($request->string('search')->toString())
             ->when(
                 $instituicaoId,
                 fn ($q) => $q->whereHas(
@@ -35,14 +54,19 @@ class ProfessorController extends Controller
                     fn ($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
-            ->orderBy('created_at', 'asc')
-            ->paginate(10);
+            ->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('tenant/professores/index', [
             'professores' => $professores,
+            'filters' => $request->only('search'),
         ]);
     }
 
+    /**
+     * Mostra o formulário para criar um novo professor.
+     */
     public function create()
     {
         $this->authorize('create', Professor::class);
@@ -50,32 +74,20 @@ class ProfessorController extends Controller
         return Inertia::render('tenant/professores/create');
     }
 
+    /**
+     * Guarda um novo professor no tenant actual.
+     */
     public function store(StoreProfessoresRequest $request)
     {
         $this->authorize('create', Professor::class);
 
-        $request->validated();
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
 
-        $user = User::create([
-            'nome' => $request->nome,
-            'email' => $request->email,
-            'bi' => $request->bi,
-            'telefone' => $request->telefone,
-            'password' => Hash::make('123456'),
-            'instituicao_id' => Auth::guard('tenant')->user()->instituicao_id,
-        ]);
-
-        $role = Role::where('name', 'Professor')->firstOrFail();
-
-        $user->assignRole($role);
-
-        Professor::create([
-            'user_id' => $user->id,
-            'especialidade' => $request->especialidade,
-            'nivel_academico' => $request->nivel_academico,
-        ]);
-
-        $this->notificarProfessorCriado($user, '123456');
+        $this->createProfessor->handle(
+            $user,
+            $request->validated(),
+        );
 
         return to_route('tenant.dashboard.professores.index')->with('toast', [
             'type' => 'success',
@@ -83,6 +95,9 @@ class ProfessorController extends Controller
         ]);
     }
 
+    /**
+     * Mostra os dados, cursos e turmas de um professor.
+     */
     public function show(Professor $professor)
     {
         $this->authorize('view', $professor);
@@ -121,11 +136,14 @@ class ProfessorController extends Controller
             'professor' => $professor,
             'cursos' => $cursos,
             'turmas' => $turmas,
-            'anoLectivoId' => $anoLectivoId,       // ← adicionado
+            'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => AnoLectivo::all(),
         ]);
     }
 
+    /**
+     * Mostra o formulário para editar um professor específico.
+     */
     public function edit(Professor $professor)
     {
         $this->authorize('update', $professor);
@@ -135,24 +153,14 @@ class ProfessorController extends Controller
         ]);
     }
 
+    /**
+     * Actualiza os dados de um professor específico.
+     */
     public function update(UpdateProfessoresRequest $request, Professor $professor)
     {
         $this->authorize('update', $professor);
 
-        $request->validated();
-
-        // Query Builder — não sofre do bug do $incrementing = false
-        User::where('id', $professor->user_id)->update([
-            'nome' => $request->nome,
-            'email' => $request->email,
-            'bi' => $request->bi,
-            'telefone' => $request->telefone,
-        ]);
-
-        $professor->update([
-            'especialidade' => $request->especialidade,
-            'nivel_academico' => $request->nivel_academico,
-        ]);
+        $this->updateProfessor->handle($professor, $request->validated());
 
         return to_route('tenant.dashboard.professores.index')->with('toast', [
             'type' => 'success',
@@ -160,15 +168,29 @@ class ProfessorController extends Controller
         ]);
     }
 
-    public function destroy(Professor $professor)
+    /**
+     * Remove um professor específico.
+     */
+    public function destroy(Professor $professor): RedirectResponse
     {
-        $this->authorize('delete', $professor);
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('delete', $professor);
 
-        $professor->delete($professor->id);
+        try {
+            $this->deleteProfessor->handle($professor);
+        } catch (UserRemovalBlockedException $e) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => $e->getMessage(),
+            ]);
 
-        return to_route('tenant.dashboard.professores.index')->with('toast', [
+            return back();
+        }
+
+        Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Professor removido com sucesso.',
         ]);
+
+        return to_route('tenant.dashboard.professores.index');
     }
 }

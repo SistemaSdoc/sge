@@ -2,13 +2,21 @@
 
 namespace App\Models\Tenant;
 
+use App\Notifications\Tenant\ResetPasswordNotification;
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
-use Database\Factories\UserFactory;
+use Database\Factories\Tenant\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -34,15 +42,49 @@ use Spatie\Permission\Traits\HasRoles;
     'remember_token',
 ])]
 
+/** @use HasFactory<UserFactory> */
 class User extends Authenticatable implements PasskeyUser
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, HasUuid, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory, HasRoles, HasSearch, HasUuid, Notifiable, PasskeyAuthenticatable, SoftDeletes, TwoFactorAuthenticatable;
+
+    public const CENTRAL_SUPPORT_EMAIL = 'suporte@app.pge.edu.ao';
+
+    protected array $searchable = ['nome', 'email'];
 
     protected $guard = 'tenant';
 
     // Propriedade que o Spatie usa
     protected $guard_name = 'tenant';
+
+    /** Perfis ligados ao user que precisam de limpeza ao remover. */
+    public function profiles(): array
+    {
+        return array_filter([
+            $this->aluno()->withTrashed()->first(),
+            $this->professor()->withTrashed()->first(),
+            $this->candidato()->withTrashed()->first(),
+        ]);
+    }
+
+    public function isCentralSupport(): bool
+    {
+        return $this->email === self::CENTRAL_SUPPORT_EMAIL;
+    }
+
+    public function scopeVisibleInTenantUserLists(Builder $query): Builder
+    {
+        return $query->withoutCentralSupport();
+    }
+
+    public function scopeWithoutCentralSupport(Builder $query): Builder
+    {
+        return $query->where($this->qualifyColumn('email'), '!=', self::CENTRAL_SUPPORT_EMAIL);
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
 
     protected function casts(): array
     {
@@ -53,9 +95,40 @@ class User extends Authenticatable implements PasskeyUser
         ];
     }
 
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (blank($this->avatar)) {
+            return null;
+        }
+
+        if (Str::startsWith($this->avatar, ['http://', 'https://'])) {
+            return $this->avatar;
+        }
+
+        $path = ltrim($this->avatar, '/');
+        $publicPrefix = trim((string) config('filesystems.disks.public.prefix', 'public'), '/');
+
+        if (Str::startsWith($path, $publicPrefix.'/')) {
+            $path = Str::after($path, $publicPrefix.'/');
+        }
+
+        /** @var FilesystemAdapter $publicDisk */
+        $publicDisk = Storage::disk('public');
+
+        return $publicDisk->url($path);
+    }
+
     public function professor()
     {
         return $this->hasOne(Professor::class);
+    }
+
+    public function cursosSecretariados(): BelongsToMany
+    {
+        return $this->belongsToMany(CursoTutelado::class, 'curso_tutelado_secretario', 'user_id', 'curso_tutelado_id')
+            ->using(CursoTuteladoSecretario::class)
+            ->withPivot('id')
+            ->withTimestamps();
     }
 
     public function aluno()
@@ -66,6 +139,12 @@ class User extends Authenticatable implements PasskeyUser
     public function candidato()
     {
         return $this->hasOne(Candidato::class);
+    }
+
+    /** Resolve o candidato diretamente ligado ao usuário ou pela inscrição do aluno. */
+    public function candidatoDoAluno(): ?Candidato
+    {
+        return $this->candidato ?? $this->aluno?->inscricao?->candidato;
     }
 
     public function isSuperAdmin(): bool

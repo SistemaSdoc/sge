@@ -4,6 +4,7 @@ namespace App\Actions\Tenant\GrupoPap;
 
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Turma;
+use App\Services\Tenant\TemaPapUnicidadeService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -11,15 +12,28 @@ use Illuminate\Support\Facades\DB;
  */
 class CreateGrupoPap
 {
+    public function __construct(private readonly TemaPapUnicidadeService $temaPapUnicidadeService) {}
+
     /**
      * @param  array<string, mixed>  $validated
      */
     public function handle(Turma $turma, array $validated): GrupoPap
     {
         return DB::transaction(function () use ($turma, $validated): GrupoPap {
+            $turma->loadMissing('cursoClasseTurno.cursoClasse');
+            $cursoTuteladoId = (string) $turma->cursoClasseTurno?->cursoClasse?->curso_tutelado_id;
+            $cursoClasseTurnoId = (string) $turma->curso_classe_turno_id;
+
+            $this->temaPapUnicidadeService->validarUnicidade(
+                $validated,
+                $cursoTuteladoId,
+                (string) $turma->ano_lectivo_id,
+                $cursoClasseTurnoId,
+            );
+
             $grupoPap = GrupoPap::create([
                 'turma_id' => $turma->getKey(),
-                // 'professor_tutor_id' => $validated['professor_tutor_id'] ?? null,
+                'professor_tutor_id' => $validated['professor_tutor_id'] ?? null,
                 'nome_grupo' => $validated['nome_grupo'],
                 'status_aprovacao' => GrupoPap::APROVACAO_RASCUNHO,
                 'tema_grupo' => $validated['tema_grupo'] ?? null,

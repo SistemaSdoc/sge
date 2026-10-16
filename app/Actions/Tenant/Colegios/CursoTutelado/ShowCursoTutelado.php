@@ -2,9 +2,9 @@
 
 namespace App\Actions\Tenant\Colegios\CursoTutelado;
 
+use App\Models\Central\AnoLectivo;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
@@ -43,8 +43,13 @@ class ShowCursoTutelado
 
         $instituicaoTutor = Instituicao::query()->findOrFail($user->instituicao_id);
 
-        return $tenantColegio->run(function () use ($instituicaoTutor, $colegio, $cursoTutelado): array {
+        return $tenantColegio->run(function () use (
+            $instituicaoTutor,
+            $colegio,
+            $cursoTutelado
+        ): array {
             $colegioModel = Instituicao::query()->findOrFail($colegio);
+
             $curso = CursoTutelado::query()
                 ->whereKey($cursoTutelado)
                 ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->getKey()))

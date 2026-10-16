@@ -9,13 +9,18 @@ export default function Permissions({
   currentUser,
 }) {
   const inheritedPermissions = new Set(user?.inheritedPermissions ?? []);
+  const delegablePermissions = new Set(
+    (allPermissions ?? []).map((permission) => permission.value),
+  );
 
   const form = useForm({
     permissions: Array.from(
-      new Set([
-        ...(user.directPermissions ?? []),
-        ...(user.inheritedPermissions ?? []),
-      ]),
+      new Set(
+        [
+          ...(user.directPermissions ?? []),
+          ...(user.inheritedPermissions ?? []),
+        ].filter((permission) => delegablePermissions.has(permission)),
+      ),
     ),
   });
 

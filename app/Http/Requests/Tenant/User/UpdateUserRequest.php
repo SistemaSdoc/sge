@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Tenant\User;
 
 use App\Models\Tenant\User;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
@@ -14,7 +15,13 @@ class UpdateUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        /** @var User|null $actor */
+        $actor = $this->user('tenant');
+        $target = $this->route('user');
+
+        return $actor instanceof User
+            && $target instanceof User
+            && $actor->can('update', $target);
     }
 
     /**
@@ -36,21 +43,62 @@ class UpdateUserRequest extends FormRequest
         ];
     }
 
-    /** @return array<int, string> */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            /** @var User|null $actor */
+            $actor = $this->user('tenant');
+            $target = $this->route('user');
+            $hasRoleErrors = collect($validator->errors()->keys())
+                ->contains(fn (string $key): bool => $key === 'roles' || str_starts_with($key, 'roles.'));
+
+            if (
+                ! $actor instanceof User
+                || ! $target instanceof User
+                || ! $actor->is($target)
+                || ! $target->isDirector()
+                || ! $this->exists('roles')
+                || $hasRoleErrors
+            ) {
+                return;
+            }
+
+            $requestedRoles = collect($this->input('roles'))
+                ->filter(fn ($role): bool => is_string($role))
+                ->sort()
+                ->values()
+                ->all();
+
+            if (! in_array('Director', $requestedRoles, true)) {
+                $validator->errors()->add(
+                    'roles',
+                    'Não pode remover o papel Director da própria conta.'
+                );
+            }
+        });
+    }
+
     private function allowedRoles(): array
     {
         /** @var User $actor */
         $actor = auth()->guard('tenant')->user();
+        $user = $this->route('user');
 
         $query = Role::query()
             ->where('guard_name', 'tenant')
-            ->whereNotIn('name', ['SuperAdmin', 'Aluno', 'Candidato']);
+            ->whereNotIn('name', ['SuperAdmin']);
 
         if ($actor?->isSubdirector()) {
             $query->whereNotIn('name', ['Director', 'Subdirector']);
         }
 
-        return $query->pluck('name')->all();
+        $currentRoleNames = $user->roles->pluck('name')->all();
+
+        return $query->pluck('name')
+            ->merge($currentRoleNames)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**

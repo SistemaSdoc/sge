@@ -13,7 +13,7 @@ return new class extends Migration
     {
         $tableNames = config('permission.table_names');
 
-        if (! empty($tableNames['permissions'])) {
+        if (! empty($tableNames['permissions']) && ! Schema::hasColumn($tableNames['permissions'], 'label')) {
             Schema::table($tableNames['permissions'], function (Blueprint $table) {
                 $table->string('label')->nullable()->after('name');
             });

@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
@@ -20,6 +21,9 @@ use Illuminate\Support\Facades\Notification;
 
 trait NotificaProfessor
 {
+    /**
+     * Notifica o professor com as credenciais da conta recém-criada.
+     */
     protected function notificarProfessorCriado(
         User $user,
         string $passwordPlain
@@ -30,20 +34,28 @@ trait NotificaProfessor
         ));
     }
 
+    /**
+     * Informa o professor de que foi adicionado a um curso tutelado.
+     */
     protected function notificarProfessorAdicionadoAoCurso(
         Professor $professor,
-        CursoTutelado $cursoTutelado
+        CursoTutelado $cursoTutelado,
+        CursoTuteladoProfessor $vinculo
     ): void {
         $user = $professor->user;
 
         if ($user) {
             $user->notify(new ProfessorAdicionadoAoCursoNotification(
                 $professor,
-                $cursoTutelado
+                $cursoTutelado,
+                $vinculo
             ));
         }
     }
 
+    /**
+     * Informa o professor de que lhe foi atribuída uma disciplina numa turma.
+     */
     protected function notificarProfessorAtribuidoADisciplina(
         Professor $professor,
         Turma $turma,
@@ -60,6 +72,9 @@ trait NotificaProfessor
         }
     }
 
+    /**
+     * Notifica os professores sobre um prazo de lançamento de notas.
+     */
     protected function notificarPrazoLancamentoNotas(PeriodoLancamentoNotas $periodo): void
     {
         $professores = Professor::whereHas(
@@ -79,6 +94,9 @@ trait NotificaProfessor
         );
     }
 
+    /**
+     * Envia uma solicitação de edição de pauta ao professor e aos diretores.
+     */
     protected function notificarSolicitacaoEdicaoPauta(
         SolicitacaoEdicaoPauta $solicitacao
     ): void {
@@ -100,6 +118,9 @@ trait NotificaProfessor
         }
     }
 
+    /**
+     * Informa o professor sobre a decisão relativa à edição da pauta.
+     */
     protected function notificarDecisaoEdicaoPauta(
         SolicitacaoEdicaoPauta $solicitacao
     ): void {

@@ -15,7 +15,16 @@ import {
   FieldSet,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { ArrowUpLeft, Loader } from 'lucide-react';
+import { ArrowUpLeft } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export function TurmaForm({
   title,
@@ -27,12 +36,13 @@ export function TurmaForm({
   errors,
   processing,
   onSubmit,
+  anosLectivos = [],
   can = {},
 }) {
   const canSubmit = Boolean(can.create ?? can.update ?? true);
 
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
       <form onSubmit={onSubmit}>
         <Card className="gap-0 overflow-visible">
           <CardHeader className="border-b">
@@ -41,17 +51,21 @@ export function TurmaForm({
           </CardHeader>
 
           {/* Cards de contexto */}
-          <div className="grid grid-cols-3 divide-x border-b bg-muted/50 text-center">
-            <div className="px-4 py-4">
-              <p className="text-sm font-bold">{params.cursoTutelado.nome}</p>
+          <div className="grid grid-cols-1 divide-y border-b bg-muted/50 text-center sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-3">
+            <div className="min-w-0 px-3 py-3 sm:px-4 sm:py-4">
+              <p className="text-sm font-bold wrap-break-word">
+                {params.cursoTutelado.nome}
+              </p>
               <p className="text-xs text-muted-foreground">Curso</p>
             </div>
-            <div className="px-4 py-4">
-              <p className="text-sm font-bold">{params.cursoClasse.nome}</p>
+            <div className="min-w-0 bg-muted/90 px-3 py-3 sm:px-4 sm:py-4">
+              <p className="text-sm font-bold wrap-break-word">
+                {params.cursoClasse.nome}
+              </p>
               <p className="text-xs text-muted-foreground">Classe</p>
             </div>
-            <div className="px-4 py-4">
-              <p className="text-sm font-bold">
+            <div className="min-w-0 px-3 py-3 sm:px-4 sm:py-4">
+              <p className="text-sm font-bold wrap-break-word">
                 {params.cursoClasseTurno.nome}
               </p>
               <p className="text-xs text-muted-foreground">Classe</p>
@@ -74,6 +88,18 @@ export function TurmaForm({
                 </Field>
 
                 <Field>
+                  <FieldLabel htmlFor="sala">Sala</FieldLabel>
+                  <Input
+                    id="sala"
+                    type="text"
+                    placeholder="Ex.: Sala 10"
+                    value={data.sala}
+                    onChange={(e) => setData('sala', e.target.value)}
+                  />
+                  {errors.sala && <FieldError>{errors.sala}</FieldError>}
+                </Field>
+
+                <Field>
                   <FieldLabel htmlFor="max_alunos">Máximo de alunos</FieldLabel>
                   <Input
                     id="max_alunos"
@@ -88,9 +114,38 @@ export function TurmaForm({
                 </Field>
 
                 <Field>
+                  <FieldLabel htmlFor="ano_lectivo_id">Ano Lectivo</FieldLabel>
+                  <Select
+                    id="ano_lectivo_id"
+                    value={data.ano_lectivo_id ?? ''}
+                    onValueChange={(value) =>
+                      setData('ano_lectivo_id', value || null)
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Selecione ano lectivo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Anos lectivos</SelectLabel>
+                        {anosLectivos.map((anoLectivo) => (
+                          <SelectItem key={anoLectivo.id} value={anoLectivo.id}>
+                            {anoLectivo.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  {errors.ano_lectivo_id && (
+                    <FieldError>{errors.ano_lectivo_id}</FieldError>
+                  )}
+                </Field>
+
+                <Field>
                   <Button
                     type="submit"
                     disabled={processing || !canSubmit || !data.nome}
+                    className="hover:cursor-pointer"
                   >
                     {processing ? <Spinner className="size-4" /> : null}
                     {submitLabel}
@@ -101,6 +156,7 @@ export function TurmaForm({
                     variant={'outline'}
                     disabled={processing}
                     onClick={() => window.history.back()}
+                    className="hover:cursor-pointer"
                   >
                     <ArrowUpLeft />
                     Voltar

@@ -39,11 +39,17 @@ export function UserForm({
   submitLabel = 'Salvar',
   processingLabel = 'Salvando as alterações',
   currentUser = {},
+  rolesDisabled,
 }) {
   const [infoOpen, setInfoOpen] = useState(false);
 
   const isLockedSelfRoleAssignment = Boolean(
     currentUser?.isSubdirector && currentUser?.id === data?.id,
+  );
+  const isLockedOwnDirectorRoles = Boolean(
+    currentUser?.isDirector &&
+    currentUser?.id === data?.id &&
+    (data.roles ?? []).includes('Director'),
   );
   const isProtectedDirectorUser = Boolean(
     data?.isDirector &&
@@ -57,7 +63,7 @@ export function UserForm({
   }));
 
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-2xl">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-2xl">
       <form onSubmit={submit}>
         <Card className="overflow-visible">
           <CardHeader className="border-b">
@@ -181,7 +187,9 @@ export function UserForm({
                     value={selectedRoles}
                     disabled={
                       isLockedSelfRoleAssignment ||
+                      isLockedOwnDirectorRoles ||
                       isProtectedDirectorUser ||
+                      rolesDisabled ||
                       processing
                     }
                     onChange={(options) =>
@@ -192,11 +200,15 @@ export function UserForm({
                     }
                   />
 
-                  {(isLockedSelfRoleAssignment || isProtectedDirectorUser) && (
+                  {(isLockedSelfRoleAssignment ||
+                    isLockedOwnDirectorRoles ||
+                    isProtectedDirectorUser) && (
                     <p className="mt-2 text-xs text-muted-foreground">
                       {isProtectedDirectorUser
                         ? 'Este utilizador é o Director e não pode ser alterado por um subdiretor.'
-                        : 'Como subdiretor, não pode alterar as suas próprias funções.'}
+                        : isLockedOwnDirectorRoles
+                          ? 'Não pode remover o papel Director da própria conta.'
+                          : 'Como subdiretor, não pode alterar as suas próprias funções.'}
                     </p>
                   )}
 
@@ -207,6 +219,7 @@ export function UserForm({
                   <Button
                     type="submit"
                     disabled={processing || isProtectedDirectorUser}
+                    className="hover:cursor-pointer"
                   >
                     {processing ? (
                       <>

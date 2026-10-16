@@ -1,27 +1,20 @@
 import { Link } from '@inertiajs/react';
-import { MoreHorizontalIcon, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import {
   edit,
   create,
 } from '@/actions/App/Http/Controllers/Tenant/UserController';
+import { create as managePermissions } from '@/actions/App/Http/Controllers/Tenant/UserPermissionController';
 import { EmptyState } from '@/components/empty-state';
 import TablePagination from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -33,30 +26,55 @@ import {
 } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
-export function UserTable({ users, pagination, onPageChange, deleteFn }) {
+export function UserTable({
+  users,
+  filters,
+  pagination,
+  onPageChange,
+  deleteFn,
+}) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['users', 'filters'],
+    },
+  );
   const isEmpty = !users?.data?.length;
   const getInitials = useInitials();
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
-      <CardHeader className="border-b">
-        <CardTitle>Usuários</CardTitle>
-        <CardDescription>Lista de usuários cadastrados</CardDescription>
-        <CardAction>
-          <Button asChild>
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <CardTitle>Usuários</CardTitle>
+          <CardDescription>Lista de usuários cadastrados</CardDescription>
+        </div>
+        <div className="w-full sm:w-auto">
+          <Button asChild className="w-full sm:w-auto">
             <Link href={create().url}>Adicionar usuário</Link>
           </Button>
-        </CardAction>
+        </div>
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={Users}
-            title="Nenhum usuário cadastrado"
-            description="Clique no botão abaixo para adicionar um usuário."
+            title={
+              applied
+                ? 'Nenhum usuário encontrado'
+                : 'Nenhum usuário cadastrado'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Clique no botão abaixo para adicionar um usuário.'
+            }
             action={{
               label: 'Adicionar usuário',
               href: create().url,
@@ -79,7 +97,8 @@ export function UserTable({ users, pagination, onPageChange, deleteFn }) {
                   user.roles.length - visibleRoles.length,
                   0,
                 );
-                const canEditUser = Boolean(user.can?.update);
+                const isAluno = user.roles.some((r) => r === 'Aluno');
+                const canEditUser = Boolean(user.can?.update) && !isAluno;
                 const canDeleteUser = Boolean(user.can?.delete);
                 const canManagePermissions = Boolean(
                   user.can?.manage_permissions,
@@ -121,7 +140,7 @@ export function UserTable({ users, pagination, onPageChange, deleteFn }) {
                           </>
                         ) : (
                           <span className="text-muted-foreground">
-                            Sem role
+                            Sem funções atribuídas
                           </span>
                         )}
                       </div>
@@ -131,9 +150,7 @@ export function UserTable({ users, pagination, onPageChange, deleteFn }) {
                       <div className="flex items-center justify-end gap-2">
                         {canManagePermissions && (
                           <Button variant="outline" size="xs">
-                            <Link
-                              href={`/dashboard/users/${user.id}/permissions`}
-                            >
+                            <Link href={managePermissions(user.id).url}>
                               Gerir permissões
                             </Link>
                           </Button>
@@ -150,6 +167,7 @@ export function UserTable({ users, pagination, onPageChange, deleteFn }) {
                             variant="destructive"
                             size="xs"
                             onClick={() => deleteFn(user)}
+                            className="hover:cursor-pointer"
                           >
                             Remover
                           </Button>

@@ -7,7 +7,7 @@ import { index } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
 import { atribuirTurma } from '@/actions/App/Http/Controllers/Tenant/TurmaController';
 
 export default function Index() {
-  const { alunos, can, anoLectivoId, anosLectivos } = usePage().props;
+  const { alunos, can, anoLectivoId, anosLectivos, filters } = usePage().props;
   const { openForm, closeDialog } = useDialog();
   const { post, data, setData, processing, errors } = useForm({
     turma_id: '',
@@ -15,14 +15,23 @@ export default function Index() {
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page, ano_lectivo_id: anoLectivoId },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+        ano_lectivo_id: anoLectivoId,
+      },
       preserveScroll: true,
     });
   };
 
   const handleAnoLectivoChange = (value) => {
+    const params = Object.fromEntries(
+      new URLSearchParams(window.location.search),
+    );
+    delete params.page;
+
     router.visit(index().url, {
-      data: { ano_lectivo_id: value },
+      data: { ...params, ano_lectivo_id: value },
       preserveScroll: true,
     });
   };
@@ -51,15 +60,18 @@ export default function Index() {
   };
 
   return (
-    <AlunoTable
-      data={alunos.data}
-      can={can}
-      pagination={alunos}
-      onPageChange={handlePageChange}
-      anoLectivoActual={anoLectivoId}
-      anosLectivos={anosLectivos}
-      onAnoLectivoChange={handleAnoLectivoChange}
-      atribuirTurmaFn={handleAtribuirTurma}
-    />
+    <>
+      <AlunoTable
+        data={alunos.data}
+        can={can}
+        pagination={alunos}
+        onPageChange={handlePageChange}
+        anoLectivoActual={anoLectivoId}
+        anosLectivos={anosLectivos}
+        onAnoLectivoChange={handleAnoLectivoChange}
+        atribuirTurmaFn={handleAtribuirTurma}
+        filters={filters}
+      />
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import { ArrowUpLeft, Loader2 } from 'lucide-react';
+import { ArrowUpLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -16,6 +16,15 @@ import {
 } from '@/components/ui/field';
 import MultipleSelect from '@/components/multiple-select';
 import { Spinner } from '@/components/spinner';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectLabel,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function DisciplinaForm({
   params,
@@ -24,9 +33,12 @@ export default function DisciplinaForm({
   setDisciplinaIds,
   errors,
   processing,
+  anosLectivos,
+  anoLectivoId,
+  setAnoLectivoId,
 }) {
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
       <Card className="gap-0 overflow-visible">
         <CardHeader className="border-b">
           <CardTitle>Adicionar Disciplinas</CardTitle>
@@ -39,17 +51,23 @@ export default function DisciplinaForm({
         </CardHeader>
 
         {/* Cards de contexto */}
-        <div className="grid grid-cols-3 divide-x border-b bg-muted/50 text-center">
-          <div className="px-4 py-4">
-            <p className="text-sm font-bold">{params.cursoTutelado.nome}</p>
+        <div className="grid grid-cols-1 divide-y border-b bg-muted/50 text-center sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-3">
+          <div className="min-w-0 px-3 py-3 sm:px-4 sm:py-4">
+            <p className="text-sm font-bold wrap-break-word">
+              {params.cursoTutelado.nome}
+            </p>
             <p className="text-xs text-muted-foreground">Curso</p>
           </div>
-          <div className="px-4 py-4">
-            <p className="text-sm font-bold">{params.cursoClasse.nome}</p>
+          <div className="min-w-0 px-3 py-3 sm:px-4 sm:py-4">
+            <p className="text-sm font-bold wrap-break-word">
+              {params.cursoClasse.nome}
+            </p>
             <p className="text-xs text-muted-foreground">Classe</p>
           </div>
-          <div className="px-4 py-4">
-            <p className="text-sm font-bold">{params.cursoClasseTurno.nome}</p>
+          <div className="min-w-0 px-3 py-3 sm:px-4 sm:py-4">
+            <p className="text-sm font-bold wrap-break-word">
+              {params.cursoClasseTurno.nome}
+            </p>
             <p className="text-xs text-muted-foreground">Classe</p>
           </div>
         </div>
@@ -57,9 +75,36 @@ export default function DisciplinaForm({
         <CardContent className="pt-6">
           <FieldGroup>
             <FieldSet>
+              {/* ANO LECTIVO */}
+
+              <Field>
+                <FieldLabel>Ano Lectivo</FieldLabel>
+                <Select
+                  value={anoLectivoId ?? ''}
+                  onValueChange={(value) => setAnoLectivoId(value || null)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione ano lectivo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Anos lectivos</SelectLabel>
+                      {anosLectivos?.map((a) => (
+                        <SelectItem key={a.id} value={a.id}>
+                          {a.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {errors.ano_lectivo_id && (
+                  <FieldError>{errors.ano_lectivo_id}</FieldError>
+                )}
+              </Field>
+
+              {/* DISCIPLINAS */}
               <Field>
                 <FieldLabel>Disciplinas</FieldLabel>
-
                 <MultipleSelect
                   placeholder="Selecione as disciplinas"
                   items={disciplinas.map((d) => ({
@@ -74,7 +119,6 @@ export default function DisciplinaForm({
                     label: disciplinas.find((d) => d.id === id)?.nome ?? id,
                   }))}
                 />
-
                 {errors.disciplina_ids && (
                   <FieldError>{errors.disciplina_ids}</FieldError>
                 )}
@@ -84,6 +128,7 @@ export default function DisciplinaForm({
                 <Button
                   type="submit"
                   disabled={processing || disciplinaIds.length === 0}
+                  className="hover:cursor-pointer"
                 >
                   {processing ? <Spinner className="size-4" /> : null}
                   Adicionar Disciplinas
@@ -91,12 +136,12 @@ export default function DisciplinaForm({
 
                 <Button
                   type="button"
-                  variant={'outline'}
+                  variant="outline"
                   disabled={processing}
                   onClick={() => window.history.back()}
+                  className="hover:cursor-pointer"
                 >
-                  <ArrowUpLeft />
-                  Voltar
+                  <ArrowUpLeft /> Voltar
                 </Button>
               </Field>
             </FieldSet>

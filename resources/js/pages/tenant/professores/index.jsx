@@ -6,28 +6,31 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 import { useDialog } from '@/hooks/use-dialog';
 
-export default function Index({ professores }) {
+export default function Index({ professores, filters }) {
   const { deleteConfirm } = useDialog();
 
   const handleDelete = (professorId) => {
     deleteConfirm({
       title: 'Tens a certeza?',
       description:
-        'Esta acção é irreversível. O professor será eliminado permanentemente.',
-      confirmLabel: 'Eliminar',
+        'A remoção só é possível se o professor não estiver associado a cursos, disciplinas/turmas ou grupos de PAP.',
+      confirmLabel: 'Remover',
       confirmFn: () => router.delete(destroy(professorId).url),
     });
   };
 
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      },
       preserveScroll: true,
     });
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <ProfessorTable
         pagination={{
           current_page: professores.current_page,
@@ -35,6 +38,7 @@ export default function Index({ professores }) {
         }}
         onPageChange={handlePageChange}
         professores={professores}
+        filters={filters}
         deleteFn={handleDelete}
       />
     </div>

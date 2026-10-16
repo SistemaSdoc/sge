@@ -18,7 +18,7 @@ class DesempenhoAlunoController extends Controller
     {
         $aluno = Aluno::where('user_id', $request->user()->id)->firstOrFail();
 
-        return Inertia::render('tenant/aluno/desempenho', [
+        return Inertia::render('tenant/desempenho', [
             ...$this->service->gerar($aluno, $request->input('ano_lectivo_id') ?: null),
             'rotaIndex' => route('tenant.dashboard.aluno.desempenho'),
         ]);

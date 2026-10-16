@@ -1,4 +1,5 @@
-import { Loader2 } from 'lucide-react';
+import { Link } from '@inertiajs/react';
+import { ArrowUpLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -18,32 +19,64 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function ProfessorForm({
-  professores,
+  // modo
+  mode = 'create', // 'create' | 'edit'
+  // create
+  professores = [],
   professorId,
   setProfessorId,
+  // edit
+  professorNome,
+  // partilhado
   tipo,
   setTipo,
   coordenador,
   setCoordenador,
+  opap,
+  setOpap,
+  grupo_disciplinar,
+  setGrupoDisciplinar,
   errors,
   processing,
+  courseUrl,
 }) {
-  return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
-      <Card className="overflow-visible">
-        <CardHeader className="border-b">
-          <div className="flex items-center justify-between">
-            <CardTitle>Associar Professor</CardTitle>
+  const hasAvailableProfessores = mode !== 'create' || professores.length > 0;
 
-            <Field orientation="horizontal" className="w-fit">
+  return (
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
+      <Card className="overflow-visible">
+        <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-center md:justify-between">
+          <CardTitle>
+            {mode === 'create' ? 'Associar Professor' : 'Editar Professor'}
+          </CardTitle>
+
+          <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center md:w-auto">
+            <Field
+              orientation="horizontal"
+              className="flex w-full flex-row items-center justify-between sm:w-fit sm:gap-2"
+            >
               <FieldLabel htmlFor="coordenador">Coordenador</FieldLabel>
               <Switch
                 size="sm"
                 id="coordenador"
                 checked={coordenador}
                 onCheckedChange={setCoordenador}
+              />
+            </Field>
+
+            <Field
+              orientation="horizontal"
+              className="flex w-full flex-row items-center justify-between sm:w-fit sm:gap-2"
+            >
+              <FieldLabel htmlFor="opap">OPAP</FieldLabel>
+              <Switch
+                size="sm"
+                id="opap"
+                checked={opap}
+                onCheckedChange={setOpap}
               />
             </Field>
           </div>
@@ -54,21 +87,39 @@ export default function ProfessorForm({
             <FieldSet>
               <Field>
                 <FieldLabel htmlFor="professor_id">Professor</FieldLabel>
-                <Select value={professorId} onValueChange={setProfessorId}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecione o professor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Professores</SelectLabel>
-                      {professores.map((p) => (
-                        <SelectItem key={p.id} value={String(p.id)}>
-                          {p.user?.nome || `Professor ${p.id}`}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                {mode === 'create' ? (
+                  <Select
+                    value={professorId}
+                    onValueChange={setProfessorId}
+                    disabled={!hasAvailableProfessores}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue
+                        placeholder={
+                          hasAvailableProfessores
+                            ? 'Selecione o professor'
+                            : 'Não há professores disponíveis'
+                        }
+                      />
+                    </SelectTrigger>
+                    {hasAvailableProfessores && (
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Professores</SelectLabel>
+                          {professores.map((p) => (
+                            <SelectItem key={p.id} value={String(p.id)}>
+                              {p.user?.nome || `Professor ${p.id}`}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    )}
+                  </Select>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    {professorNome}
+                  </p>
+                )}
                 {errors?.professor_id && (
                   <FieldError>{errors.professor_id}</FieldError>
                 )}
@@ -92,16 +143,57 @@ export default function ProfessorForm({
               </Field>
 
               <Field>
-                <Button type="submit" disabled={processing}>
+                <FieldLabel htmlFor="grupo_disciplinar">
+                  Grupo Disciplinar
+                </FieldLabel>
+                <Select
+                  value={grupo_disciplinar}
+                  onValueChange={setGrupoDisciplinar}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o grupo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Grupo Disciplinar</SelectLabel>
+                      <SelectItem value="nenhum">Nenhum</SelectItem>
+                      <SelectItem value="membro">Membro</SelectItem>
+                      <SelectItem value="coordenador">Coordenador</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {errors?.grupo_disciplinar && (
+                  <FieldError>{errors.grupo_disciplinar}</FieldError>
+                )}
+              </Field>
+
+              <Field>
+                <Button
+                  type="submit"
+                  disabled={
+                    processing ||
+                    (mode === 'create' &&
+                      (!hasAvailableProfessores || !professorId))
+                  }
+                >
                   {processing ? (
                     <>
                       <Loader2 className="animate-spin" /> A guardar...
                     </>
+                  ) : mode === 'create' ? (
+                    'Associar'
                   ) : (
-                    <>Associar</>
+                    'Guardar'
                   )}
                 </Button>
+                <Button asChild variant="outline">
+                  <Link href={courseUrl}>
+                    <ArrowUpLeft aria-hidden="true" />
+                    Voltar ao curso
+                  </Link>
+                </Button>
               </Field>
+
               {errors?.coordenador && (
                 <FieldError>{errors.coordenador}</FieldError>
               )}

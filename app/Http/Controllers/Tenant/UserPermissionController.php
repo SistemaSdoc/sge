@@ -20,10 +20,11 @@ class UserPermissionController extends Controller
 
     public function create(User $user)
     {
-        Gate::authorize('update', $user);
+        /** @var User $currentUser */
+        $currentUser = Auth::guard('tenant')->user();
 
-        /** @var User $actor */
-        $actor = Auth::guard('tenant')->user();
+        Gate::forUser($currentUser)->authorize('managePermissions', $user);
+
         $user->load('roles:id,name');
 
         return Inertia::render('tenant/users/permissions', [
@@ -35,37 +36,38 @@ class UserPermissionController extends Controller
                 'roles' => $user->getRoleNames()->values()->all(),
                 'directPermissions' => $user->getDirectPermissions()->pluck('name')->values()->all(),
                 'inheritedPermissions' => $user->getPermissionsViaRoles()->pluck('name')->values()->all(),
-                'isSelf' => $user->is($actor),
-                'isSubdirector' => $actor?->isSubdirector(),
+                'isSelf' => $currentUser->is($user),
+                'isSubdirector' => $user?->isSubdirector(),
                 'isDirector' => $user->isDirector(),
             ],
-            'allPermissions' => $this->roleManagementService->permissions($actor),
-            'groupedPermissions' => $this->roleManagementService->groupedPermissions($actor),
+            'allPermissions' => $this->roleManagementService->permissions($currentUser),
+            'groupedPermissions' => $this->roleManagementService->groupedPermissions($currentUser),
             'currentUser' => [
-                'id' => $actor?->id,
-                'isSubdirector' => $actor?->isSubdirector(),
-                'isSuperAdmin' => $actor?->isSuperAdmin(),
+                'id' => $currentUser?->id,
+                'isSubdirector' => $currentUser?->isSubdirector(),
+                'isSuperAdmin' => $currentUser?->isSuperAdmin(),
             ],
         ]);
     }
 
     public function update(UpdateUserPermissionsRequest $request, User $user)
     {
-        Gate::authorize('update', $user);
+        /** @var User $currentUser */
+        $currentUser = Auth::guard('tenant')->user();
 
-        /** @var User $actor */
-        $actor = Auth::guard('tenant')->user();
+        Gate::forUser($currentUser)->authorize('managePermissions', $user);
 
-        if ($actor?->isSubdirector() && $user->is($actor)) {
+        if ($currentUser?->isSubdirector() && $currentUser->is($user)) {
             abort(403, 'Não pode alterar as suas próprias permissões.');
         }
 
         $this->updateUserPermissions->handle(
             $user,
-            $request->validated('permissions', [])
+            $request->validated('permissions', []),
+            $currentUser,
         );
 
         return to_route('tenant.dashboard.users.index')
-            ->with('success', "Permissões atualizadas para {$user->nome}.");
+            ->with('success', "Permissões actualizadas para {$user->nome}.");
     }
 }

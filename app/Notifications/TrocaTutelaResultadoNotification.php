@@ -2,17 +2,20 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Informa o colégio sobre o resultado de uma decisão na troca de tutela.
  */
-class TrocaTutelaResultadoNotification extends Notification implements ShouldQueue
+class TrocaTutelaResultadoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public string $instituicaoDecisora,
@@ -22,9 +25,7 @@ class TrocaTutelaResultadoNotification extends Notification implements ShouldQue
         public string $resultado,
         public string $fase,
         public string $url = '',
-    ) {
-        $this->afterCommit();
-    }
+    ) {}
 
     /**
      * @return array<int, string>

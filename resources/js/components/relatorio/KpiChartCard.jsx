@@ -12,7 +12,13 @@ import {
   YAxis,
 } from 'recharts';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 const DONUT_COLORS = ['#00225a', '#faa106', '#05ba7d', '#ef4444', '#8b5cf6'];
@@ -37,12 +43,22 @@ const DONUT_COLORS = ['#00225a', '#faa106', '#05ba7d', '#ef4444', '#8b5cf6'];
  * @param {React.ReactNode} legend - Opcional: <ChartLegend data={...} /> por baixo do gráfico
  * @param {string} className - Classes adicionais
  */
-export function KpiChartCard({ titulo, descricao, valor, extra, chart, legend, className }) {
+export function KpiChartCard({
+  titulo,
+  descricao,
+  valor,
+  extra,
+  chart,
+  legend,
+  className,
+}) {
   return (
     <Card className={cn('gap-3', className)}>
       <CardHeader className="flex-row items-start justify-between">
         <div>
-          <CardTitle className="font-normal text-muted-foreground">{titulo}</CardTitle>
+          <CardTitle className="font-normal text-muted-foreground">
+            {titulo}
+          </CardTitle>
           {descricao ? <CardDescription>{descricao}</CardDescription> : null}
         </div>
         {extra}
@@ -348,7 +364,8 @@ export function MiniGroupedBarChart({
   series,
   categoryKey = 'classe',
   colors = DONUT_COLORS,
-  formatValor = (valor) => (typeof valor === 'number' ? valor.toLocaleString() : valor),
+  formatValor = (valor) =>
+    typeof valor === 'number' ? valor.toLocaleString() : valor,
 }) {
   if (!data?.length || !series?.length) return <SemDados />;
 
@@ -372,12 +389,17 @@ export function MiniGroupedBarChart({
                 <div className="font-medium text-foreground">{label}</div>
                 <div className="mt-1 flex flex-col gap-1">
                   {payload.map((item) => (
-                    <div key={item.dataKey} className="flex items-center gap-1.5">
+                    <div
+                      key={item.dataKey}
+                      className="flex items-center gap-1.5"
+                    >
                       <span
                         className="h-2 w-2 shrink-0 rounded-[2px]"
                         style={{ backgroundColor: item.color }}
                       />
-                      <span className="text-muted-foreground">{item.dataKey}:</span>
+                      <span className="text-muted-foreground">
+                        {item.dataKey}:
+                      </span>
                       <span className="font-mono font-medium text-foreground tabular-nums">
                         {formatValor(item.value)}
                       </span>
@@ -389,7 +411,12 @@ export function MiniGroupedBarChart({
           }}
         />
         {series.map((nomeSerie, i) => (
-          <Bar key={nomeSerie} dataKey={nomeSerie} fill={colors[i % colors.length]} radius={0} />
+          <Bar
+            key={nomeSerie}
+            dataKey={nomeSerie}
+            fill={colors[i % colors.length]}
+            radius={0}
+          />
         ))}
       </BarChart>
     </ResponsiveContainer>
