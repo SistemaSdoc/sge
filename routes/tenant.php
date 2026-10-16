@@ -44,6 +44,7 @@ use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PagamentoController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PeriodoLancamentoNotasController;
+use App\Http\Controllers\Tenant\PlanificacaoController;
 use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\PreencherHistoricoController;
 use App\Http\Controllers\Tenant\ProfessorController as ProfessorControllerGeral;
@@ -68,7 +69,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-use App\Http\Controllers\Tenant\PlanificacaoController;
+
 /*
 |--------------------------------------------------------------------------
 | Tenant Routes
@@ -181,8 +182,8 @@ Route::middleware([
             require base_path('routes/settings.php');
 
             // ─────────────────────────────────────────────────────────────
-// Planificações
-// ─────────────────────────────────────────────────────────────
+            // Planificações
+            // ─────────────────────────────────────────────────────────────
             Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
 
                 // ─── Estáticas (ordem importa) ───
@@ -516,9 +517,12 @@ Route::middleware([
             |--------------------------------------------------------------------------
             */
 
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios/create', [ClasseTurnoDisciplinaHorarioController::class, 'create'])
+                ->name('instituicoes.cursos-tutelados.classes.turnos.turmas.disciplinas.horarios.create');
+
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store'])
                 ->name('turma.disciplinas.horarios.store');
-
+                
             /*
             |--------------------------------------------------------------------------
             | Grupos PAP
@@ -755,7 +759,7 @@ Route::middleware([
             Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
                 ->name('notificacoes.ler');
 
-            // ===== DIRETOR ===== 
+            // ===== DIRETOR =====
             Route::prefix('diretor')->name('diretor.')->group(function () {
                 Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
                 Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');
