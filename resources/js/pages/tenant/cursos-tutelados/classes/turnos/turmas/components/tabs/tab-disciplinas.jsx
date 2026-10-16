@@ -34,6 +34,8 @@ import {
   destroy as destroyProfessor,
 } from '@/actions/App/Http/Controllers/Tenant/InstituicaoCurso/TurmaDisciplinaProfessorController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import { toast } from 'sonner';
 import { useDialog } from '@/hooks/use-dialog';
 
@@ -42,11 +44,21 @@ export function TabDisciplinas({
   params,
   pagination,
   onPageChange,
+  search = '',
   redirectTo,
   anoLectivoId,
   anoLectivoSelecionado,
   can = {},
 }) {
+  const {
+    search: searchTerm,
+    onChange,
+    submit,
+    applied,
+  } = useTableSearch(search, {
+    searchParam: 'search_disciplinas',
+    pageParam: 'page_disciplinas',
+  });
   const isEmpty = disciplinas.length === 0;
   const canCreate = Boolean(can.create);
   const { deleteConfirm } = useDialog();
@@ -181,12 +193,26 @@ export function TabDisciplinas({
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch
+          value={searchTerm}
+          onChange={onChange}
+          onSubmit={submit}
+          placeholder="Pesquisar por disciplina ou sigla..."
+        />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={BookIcon}
-            title="Nenhuma disciplina nesta turma"
-            description="Comece adicionando disciplinas"
+            title={
+              applied
+                ? 'Nenhuma disciplina encontrada'
+                : 'Nenhuma disciplina nesta turma'
+            }
+            description={
+              applied
+                ? 'Tente ajustar a pesquisa.'
+                : 'Comece adicionando disciplinas'
+            }
             action={{
               label: 'Adicionar Disciplina',
               onClick: () =>
@@ -279,11 +305,13 @@ export function TabDisciplinas({
                             </DropdownMenuItem>
                           )}
 
-<DropdownMenuItem onClick={(e) => abrirHorarios(disciplina, e)}>
-  {disciplina?.can?.manage_schedule
-    ? 'Definir horários'
-    : 'Visualizar horários'}
-</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => abrirHorarios(disciplina, e)}
+                          >
+                            {disciplina?.can?.manage_schedule
+                              ? 'Definir horários'
+                              : 'Visualizar horários'}
+                          </DropdownMenuItem>
 
                           {disciplina.professor &&
                             disciplina?.can?.detach_professor && (

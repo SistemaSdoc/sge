@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Central\AnoLectivo;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Candidato;
 use App\Models\Tenant\Classe;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\Curso;
@@ -7,6 +10,8 @@ use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Disciplina;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\Professor;
@@ -21,7 +26,7 @@ use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
-test('professor sees only the disciplines he teaches in the turma show response', function () {
+test('professor sees assigned disciplines and can search turma lists', function () {
     $instituicao = Instituicao::create(['nome' => 'Instituição Teste']);
     $curso = Curso::create(['nome' => 'Curso Teste', 'duracao_anos' => 3, 'status' => 1]);
     $instituicaoCurso = InstituicaoCurso::create([
@@ -44,8 +49,13 @@ test('professor sees only the disciplines he teaches in the turma show response'
         'curso_classe_id' => $cursoClasse->id,
         'turno_id' => $turno->id,
     ]);
+    $anoLectivo = AnoLectivo::create([
+        'data_inicio' => now()->startOfYear(),
+        'data_fim' => now()->endOfYear(),
+    ]);
     $turma = Turma::create([
         'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'ano_lectivo_id' => $anoLectivo->id,
         'nome' => 'Turma A',
         'max_alunos' => 30,
     ]);
@@ -56,12 +66,14 @@ test('professor sees only the disciplines he teaches in the turma show response'
     $classeTurnoDisciplinaAutorizada = ClasseTurnoDisciplina::create([
         'curso_classe_turno_id' => $cursoClasseTurno->id,
         'disciplina_id' => $disciplinaAutorizada->id,
+        'ano_lectivo_id' => $anoLectivo->id,
         'carga_horaria' => '4',
         'tem_professor' => true,
     ]);
     $classeTurnoDisciplinaNaoAutorizada = ClasseTurnoDisciplina::create([
         'curso_classe_turno_id' => $cursoClasseTurno->id,
         'disciplina_id' => $disciplinaNaoAutorizada->id,
+        'ano_lectivo_id' => $anoLectivo->id,
         'carga_horaria' => '4',
         'tem_professor' => true,
     ]);
@@ -84,7 +96,34 @@ test('professor sees only the disciplines he teaches in the turma show response'
         'professor_id' => $professor->id,
     ]);
 
-    $response = $this->actingAs($user)->get(route('turmas.show', [
+    $candidato = Candidato::create([
+        'nome' => 'Aluna Encontrada',
+        'bi' => '020619207LA055',
+    ]);
+    $inscricao = Inscricao::create([
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'candidato_id' => $candidato->id,
+        'ano_lectivo_id' => $anoLectivo->id,
+        'status' => 'aprovado',
+    ]);
+    $aluno = Aluno::create([
+        'inscricao_id' => $inscricao->id,
+        'instituicao_id' => $instituicao->id,
+        'matricula' => 'MAT-TESTE-123',
+    ]);
+    $aluno->turmas()->attach($turma->id, [
+        'activo' => true,
+        'situacao' => 'activo',
+    ]);
+
+    GrupoPap::create([
+        'turma_id' => $turma->id,
+        'nome_grupo' => 'Grupo Energia',
+        'tema_grupo' => 'Energias renováveis',
+        'status' => 'pendente',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.show', [
         'instituicao' => $instituicao->id,
         'cursoTutelado' => $cursoTutelado->id,
         'cursoClasse' => $cursoClasse->id,
@@ -97,6 +136,43 @@ test('professor sees only the disciplines he teaches in the turma show response'
         ->where('turma.data.id', $turma->id)
         ->has('disciplinas.data', 1)
         ->where('disciplinas.data.0.nome', $disciplinaAutorizada->nome)
+    );
+
+    $searchResponse = $this->actingAs($user)->get(route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.show', [
+        'instituicao' => $instituicao->id,
+        'cursoTutelado' => $cursoTutelado->id,
+        'cursoClasse' => $cursoClasse->id,
+        'cursoClasseTurno' => $cursoClasseTurno->id,
+        'turma' => $turma->id,
+        'search_alunos' => 'Aluna Encontrada',
+        'search_disciplinas' => 'MAT',
+        'search_grupos' => 'renováveis',
+    ]));
+
+    $searchResponse->assertOk();
+    $searchResponse->assertInertia(fn (AssertableInertia $page) => $page
+        ->has('alunos.data', 1)
+        ->where('alunos.data.0.nome', 'Aluna Encontrada')
+        ->has('disciplinas.data', 1)
+        ->where('disciplinas.data.0.nome', $disciplinaAutorizada->nome)
+        ->has('grupos.data', 1)
+        ->where('totalAlunos', 1)
+        ->where('totalDisciplinas', 1)
+    );
+
+    $matriculaResponse = $this->actingAs($user)->get(route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.show', [
+        'instituicao' => $instituicao->id,
+        'cursoTutelado' => $cursoTutelado->id,
+        'cursoClasse' => $cursoClasse->id,
+        'cursoClasseTurno' => $cursoClasseTurno->id,
+        'turma' => $turma->id,
+        'search_alunos' => 'MAT-TESTE-123',
+    ]));
+
+    $matriculaResponse->assertOk();
+    $matriculaResponse->assertInertia(fn (AssertableInertia $page) => $page
+        ->has('alunos.data', 1)
+        ->where('alunos.data.0.matricula', 'MAT-TESTE-123')
     );
 });
 

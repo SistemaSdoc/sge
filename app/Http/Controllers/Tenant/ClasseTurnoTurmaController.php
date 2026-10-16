@@ -196,6 +196,7 @@ class ClasseTurnoTurmaController extends Controller
     }
 
     public function show(
+        Request $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -231,15 +232,29 @@ class ClasseTurnoTurmaController extends Controller
             'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
         ]);
 
-        $alunos = $turma->alunos()
+        $searchAlunos = trim($request->string('search_alunos')->toString());
+        $searchDisciplinas = trim($request->string('search_disciplinas')->toString());
+        $searchGrupos = trim($request->string('search_grupos')->toString());
+
+        $alunosQuery = $turma->alunos()
             ->wherePivot('activo', true)
-            ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
+            ->whereHas('inscricao', fn ($query) => $query->where('status', '!=', 'cancelado'));
+        $totalAlunos = (clone $alunosQuery)->count();
+
+        $alunos = $alunosQuery
             ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
             ->leftJoin('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
             ->leftJoin('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->when($searchAlunos !== '', function ($query) use ($searchAlunos): void {
+                $query->where(function ($query) use ($searchAlunos): void {
+                    $query->where('candidatos.nome', 'like', "%{$searchAlunos}%")
+                        ->orWhere('alunos.matricula', 'like', "%{$searchAlunos}%");
+                });
+            })
             ->orderBy('candidatos.nome')
             ->orderBy('alunos.id')
-            ->paginate(10, ['*'], 'page_alunos');
+            ->paginate(10, ['*'], 'page_alunos')
+            ->withQueryString();
 
         // Adiciona isto:
         $alunos->getCollection()->transform(function ($aluno) use ($user) {
@@ -278,12 +293,31 @@ class ClasseTurnoTurmaController extends Controller
             }
         }
 
-        $disciplinas = $disciplinasQuery->paginate(5, ['*'], 'page_disciplinas');
+        $totalDisciplinas = (clone $disciplinasQuery)->count();
+        $disciplinas = $disciplinasQuery
+            ->when($searchDisciplinas !== '', function ($query) use ($searchDisciplinas): void {
+                $query->whereHas('disciplina', function ($query) use ($searchDisciplinas): void {
+                    $query->withTrashed()
+                        ->where(function ($query) use ($searchDisciplinas): void {
+                            $query->where('nome', 'like', "%{$searchDisciplinas}%")
+                                ->orWhere('sigla', 'like', "%{$searchDisciplinas}%");
+                        });
+                });
+            })
+            ->paginate(5, ['*'], 'page_disciplinas')
+            ->withQueryString();
 
         $grupos = $turma->gruposPap()
             ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final', 'professor_tutor_id')
+            ->when($searchGrupos !== '', function ($query) use ($searchGrupos): void {
+                $query->where(function ($query) use ($searchGrupos): void {
+                    $query->where('nome_grupo', 'like', "%{$searchGrupos}%")
+                        ->orWhere('tema_grupo', 'like', "%{$searchGrupos}%");
+                });
+            })
             ->latest('created_at')
-            ->paginate(5, ['*'], 'page_grupos');
+            ->paginate(5, ['*'], 'page_grupos')
+            ->withQueryString();
 
         $grupos->getCollection()->transform(function ($grupo) use ($user) {
             $grupo->can = [
@@ -328,6 +362,11 @@ class ClasseTurnoTurmaController extends Controller
                 'nome' => $cursoClasseTurno->turno->nome,
             ],
             'turma' => new TurmaShowResource($turma),
+            'totalAlunos' => $totalAlunos,
+            'totalDisciplinas' => $totalDisciplinas,
+            'searchAlunos' => $searchAlunos,
+            'searchDisciplinas' => $searchDisciplinas,
+            'searchGrupos' => $searchGrupos,
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => AnoLectivo::query()
                 ->select('id', 'nome')

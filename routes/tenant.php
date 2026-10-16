@@ -182,34 +182,34 @@ Route::middleware([
             // ─────────────────────────────────────────────────────────────
 // Planificações
 // ─────────────────────────────────────────────────────────────
-Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
+            Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
 
-    // ─── Estáticas (ordem importa) ───
-    Route::get('/', [PlanificacaoController::class, 'index'])
-        ->name('index');
+                // ─── Estáticas (ordem importa) ───
+                Route::get('/', [PlanificacaoController::class, 'index'])
+                    ->name('index');
 
-    Route::get('/create', [PlanificacaoController::class, 'create'])
-        ->name('create');
+                Route::get('/create', [PlanificacaoController::class, 'create'])
+                    ->name('create');
 
-    Route::post('/', [PlanificacaoController::class, 'store'])
-        ->name('store');
+                Route::post('/', [PlanificacaoController::class, 'store'])
+                    ->name('store');
 
-    Route::get('/por-disciplina/{disciplina}', [PlanificacaoController::class, 'porDisciplina'])
-        ->name('por-disciplina');
+                Route::get('/por-disciplina/{disciplina}', [PlanificacaoController::class, 'porDisciplina'])
+                    ->name('por-disciplina');
 
-    Route::get('/versao/{versao}/preview', [PlanificacaoController::class, 'preview'])
-        ->name('preview');
+                Route::get('/versao/{versao}/preview', [PlanificacaoController::class, 'preview'])
+                    ->name('preview');
 
-    Route::get('/versao/{versao}/download', [PlanificacaoController::class, 'download'])
-        ->name('download');
+                Route::get('/versao/{versao}/download', [PlanificacaoController::class, 'download'])
+                    ->name('download');
 
-    // ─── Dinâmicas (por último) ───
-    Route::get('/{planificacao}', [PlanificacaoController::class, 'show'])
-        ->name('show');
+                // ─── Dinâmicas (por último) ───
+                Route::get('/{planificacao}', [PlanificacaoController::class, 'show'])
+                    ->name('show');
 
-    Route::delete('/{planificacao}', [PlanificacaoController::class, 'destroy'])
-        ->name('destroy');
-});
+                Route::delete('/{planificacao}', [PlanificacaoController::class, 'destroy'])
+                    ->name('destroy');
+            });
 
             Route::resource('users', UserController::class)->except(['show']);
 
@@ -352,6 +352,18 @@ Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
 
             Route::delete('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}', [CursoTuteladoController::class, 'destroySugestaoTema'])
                 ->name('instituicoes.cursos-tutelados.sugestoes-temas.destroy');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/aprovar', [CursoTuteladoController::class, 'aprovarSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.aprovar');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/rejeitar', [CursoTuteladoController::class, 'rejeitarSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.rejeitar');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/solicitar-melhoria', [CursoTuteladoController::class, 'solicitarMelhoriaSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.solicitar-melhoria');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/resubmeter', [CursoTuteladoController::class, 'resubmeterSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.resubmeter');
 
             /*
             |--------------------------------------------------------------------------
@@ -760,7 +772,7 @@ Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
                 Route::get('provas/{submissao}/arquivo/{tipo}', [SubmissaoProvaController::class, 'arquivo'])->name('provas.arquivo');
                 Route::get('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
                 Route::post('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
-               Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
+                Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
             });
 
             /*
@@ -796,8 +808,8 @@ Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
             */
 
             Route::get('horarios', [HorarioController::class, 'index'])
-    ->middleware('can:horarios.viewAny')
-    ->name('horarios');
+                ->middleware('can:horarios.viewAny')
+                ->name('horarios');
 
             Route::inertia('propinas/bloqueio', 'tenant/propinas/bloqueio')
                 ->name('propinas.divida');

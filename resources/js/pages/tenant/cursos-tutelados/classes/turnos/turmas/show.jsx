@@ -18,6 +18,11 @@ export default function Show({
   turma,
   alunos,
   disciplinas,
+  totalAlunos,
+  totalDisciplinas,
+  searchAlunos,
+  searchDisciplinas,
+  searchGrupos,
   pautaRecurso,
   pode_lancar_recurso,
   grupos,
@@ -66,6 +71,8 @@ export default function Show({
         turma={turma.data}
         disciplinas={disciplinas}
         alunos={alunos}
+        totalAlunos={totalAlunos}
+        totalDisciplinas={totalDisciplinas}
         totalRecurso={totalRecurso}
         params={params}
         anoLectivoId={anoLectivoId}
@@ -79,8 +86,10 @@ export default function Show({
 
         <TabsContent value="alunos" className="mt-2 space-y-4">
           <TabAlunos
+            key={searchAlunos ?? ''}
             can={can.alunos}
             alunos={alunos.data}
+            search={searchAlunos}
             params={params}
             pagination={alunos.meta}
             onPageChange={alunosPagination.handlePageChange}
@@ -89,9 +98,11 @@ export default function Show({
 
         <TabsContent value="disciplinas" className="mt-2 space-y-4">
           <TabDisciplinas
+            key={searchDisciplinas ?? ''}
             can={can.disciplinas}
             turma={turma}
             disciplinas={disciplinas.data}
+            search={searchDisciplinas}
             anoLectivoId={anoLectivoId}
             params={params}
             redirectTo={window.location.href}
@@ -104,9 +115,11 @@ export default function Show({
         {classe?.nome === '13ª' && (
           <TabsContent value="grupos-pap" className="mt-2 space-y-4">
             <TabGruposPAP
+              key={searchGrupos ?? ''}
               can={can.grupos}
               turma={turma.data}
               grupos={grupos.data}
+              search={searchGrupos}
               params={params}
               pagination={grupos.meta}
               onPageChange={gruposPagination.handlePageChange}

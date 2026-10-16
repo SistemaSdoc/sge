@@ -32,6 +32,8 @@ export function Header({
   turma,
   disciplinas,
   alunos,
+  totalAlunos,
+  totalDisciplinas,
   anosLectivos,
   anoLectivoId,
   params,
@@ -253,7 +255,11 @@ export function Header({
       <div className="grid grid-cols-2 divide-x bg-muted/50 text-center">
         <div className="px-4 py-4">
           <p className="text-sm font-bold">
-            {alunos?.total ?? turma.alunos?.length ?? 0}
+            {totalAlunos ??
+              alunos?.meta?.total ??
+              alunos?.total ??
+              turma.alunos?.length ??
+              0}
           </p>
 
           <p className="text-xs text-muted-foreground">Alunos nesta turma</p>
@@ -261,7 +267,9 @@ export function Header({
 
         <div className="px-4 py-4">
           <p className="text-sm font-bold">
-            {disciplinas?.total ??
+            {totalDisciplinas ??
+              disciplinas?.meta?.total ??
+              disciplinas?.total ??
               turma.curso_classe_turno?.classe_turno_disciplinas?.length ??
               0}
           </p>

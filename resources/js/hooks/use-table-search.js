@@ -2,14 +2,17 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
-export function useTableSearch(initial = '', { only } = {}) {
+export function useTableSearch(
+  initial = '',
+  { only, searchParam = 'search', pageParam = 'page' } = {},
+) {
   const [search, setSearch] = useState(initial ?? '');
 
   // termo já aplicado (o que está na URL)
   const [applied, setApplied] = useState(() =>
     typeof window === 'undefined'
       ? (initial ?? '')
-      : (new URLSearchParams(window.location.search).get('search') ?? ''),
+      : (new URLSearchParams(window.location.search).get(searchParam) ?? ''),
   );
 
   const run = (value) => {
@@ -18,12 +21,12 @@ export function useTableSearch(initial = '', { only } = {}) {
     );
     const term = value.trim();
 
-    delete params.page;
+    delete params[pageParam];
 
     if (term) {
-      params.search = term;
+      params[searchParam] = term;
     } else {
-      delete params.search;
+      delete params[searchParam];
     }
 
     setApplied(term);
@@ -42,7 +45,7 @@ export function useTableSearch(initial = '', { only } = {}) {
     setSearch(value);
 
     // apagou tudo e havia pesquisa aplicada: volta a listar tudo
-    if (value === '' && applied) {
+    if (value.trim() === '' && applied) {
       run('');
     }
   };

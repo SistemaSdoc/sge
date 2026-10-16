@@ -184,6 +184,12 @@ class CursoTuteladoController extends Controller
             'secretariosDisponiveis' => $secretariosDisponiveis,
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => $this->cursoTuteladoViewService->academicYears(),
+            'filters' => request()->only([
+                'search_turmas',
+                'search_professores',
+                'search_secretarios',
+                'search_sugestoes',
+            ]),
             'can' => [
                 'instituicao' => [
                     'view' => $user->can('view', $instituicao),

@@ -32,6 +32,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useDialog } from '@/hooks/use-dialog';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import TablePagination from '@/components/table-pagination';
 import {
   destroySugestaoTema,
@@ -42,6 +44,7 @@ import {
   solicitarMelhoriaSugestaoTema,
   resubmeterSugestaoTema,
 } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
+import { SugestaoTemaDetailsDialog } from './sugestao-tema-details-dialog';
 
 const ESTADO_CONFIG = {
   pendente: { label: 'Pendente', variant: 'secondary' },
@@ -53,7 +56,8 @@ const ESTADO_CONFIG = {
 const MODAL_CONFIG = {
   rejeitar: {
     titulo: 'Rejeitar sugestão',
-    descricao: 'Indique o motivo da rejeição. Esta informação será visível para quem gere as sugestões.',
+    descricao:
+      'Indique o motivo da rejeição. Esta informação será visível para quem gere as sugestões.',
     label: 'Motivo da rejeição',
     confirmar: 'Rejeitar',
   },
@@ -70,10 +74,19 @@ export function TabSugestoesTemas({
   sugestoes = [],
   pagination = {},
   onPageChange,
+  filters = {},
   canManage = false,
   canAprovar = false,
   tutelaExterna = false,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters.search_sugestoes,
+    {
+      only: ['cursoTutelado', 'filters'],
+      searchParam: 'search_sugestoes',
+      pageParam: 'page_sugestoes',
+    },
+  );
   const [formularioAberto, setFormularioAberto] = useState(false);
   const [sugestaoEmEdicao, setSugestaoEmEdicao] = useState(null);
   const [modalObservacao, setModalObservacao] = useState(null); // { tipo: 'rejeitar'|'melhoria', sugestao }
@@ -81,6 +94,7 @@ export function TabSugestoesTemas({
   const [submitted, setSubmitted] = useState(false);
   const [processando, setProcessando] = useState(false);
 
+  const [sugestaoEmVisualizacao, setSugestaoEmVisualizacao] = useState(null);
   const { deleteConfirm } = useDialog();
   const { data, setData, post, put, processing, errors, reset, clearErrors } =
     useForm({ titulo: '', descricao: '' });
@@ -123,7 +137,10 @@ export function TabSugestoesTemas({
     const options = { preserveScroll: true, onSuccess: fecharFormulario };
 
     if (sugestaoEmEdicao) {
-      put(updateSugestaoTema({ ...base, sugestao: sugestaoEmEdicao.id }).url, options);
+      put(
+        updateSugestaoTema({ ...base, sugestao: sugestaoEmEdicao.id }).url,
+        options,
+      );
       return;
     }
 
@@ -176,9 +193,12 @@ export function TabSugestoesTemas({
     setSubmitted(true);
     if (!observacao.trim()) return;
 
-    const url = modalObservacao.tipo === 'rejeitar'
-      ? rejeitarSugestaoTema(paramsSugestao(modalObservacao.sugestao)).url
-      : solicitarMelhoriaSugestaoTema(paramsSugestao(modalObservacao.sugestao)).url;
+    const url =
+      modalObservacao.tipo === 'rejeitar'
+        ? rejeitarSugestaoTema(paramsSugestao(modalObservacao.sugestao)).url
+        : solicitarMelhoriaSugestaoTema(
+            paramsSugestao(modalObservacao.sugestao),
+          ).url;
 
     setProcessando(true);
     router.post(
@@ -218,7 +238,7 @@ export function TabSugestoesTemas({
         </CardHeader>
 
         <CardContent className="p-0!">
-          {sugestoes.length === 0 ? (
+          {sugestoes.length === 0 && !applied ? (
             <EmptyState
               variant="table"
               icon={BookOpenText}
@@ -241,106 +261,122 @@ export function TabSugestoesTemas({
               <TableHeader>
                 <TableRow className="bg-muted/72">
                   <TableHead className="px-4">Tema sugerido</TableHead>
-                  <TableHead>Descrição</TableHead>
                   <TableHead>Estado</TableHead>
-                  {mostrarColunaAccoes && (
-                    <TableHead className="px-4 text-right">Acções</TableHead>
-                  )}
+                  <TableHead className="px-4 text-right">Acções</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sugestoes.map((sugestao) => {
-                  const estado = ESTADO_CONFIG[sugestao.estado_aprovacao] ?? ESTADO_CONFIG.pendente;
+                  const estado =
+                    ESTADO_CONFIG[sugestao.estado_aprovacao] ??
+                    ESTADO_CONFIG.pendente;
 
                   return (
                     <TableRow key={sugestao.id}>
                       <TableCell className="px-4 font-medium">
                         {sugestao.titulo}
                       </TableCell>
-                      <TableCell className="max-w-xl whitespace-normal text-muted-foreground">
-                        {sugestao.descricao || '—'}
-                        {sugestao.observacao_aprovacao && (
-                          <p className="mt-1 text-xs text-muted-foreground italic">
-                            Sugestão de Melhoria: {sugestao.observacao_aprovacao}
-                          </p>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={estado.variant}>
-                          {estado.label}
-                        </Badge>
-                      </TableCell>
-                      {mostrarColunaAccoes && (
-                        <TableCell className="px-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            {/* Acções de quem gere */}
-                            {canManage && (
-                              <>
-                                {sugestao.estado_aprovacao === 'melhoria_solicitada' && (
-                                  <Button
-                                    variant="outline"
-                                    size="xs"
-                                    className="text-[10px]"
-                                    onClick={() => resubmeter(sugestao)}
-                                  >
-                                    Resubmeter
-                                  </Button>
-                                )}
-                                {sugestao.estado_aprovacao !== 'aprovada' && (
-                                  <Button
-                                    variant="outline"
-                                    size="xs"
-                                    className="text-[10px]"
-                                    onClick={() => abrirFormularioEdicao(sugestao)}
-                                  >
-                                    Editar
-                                  </Button>
-                                )}
-                                {sugestao.estado_aprovacao !== 'pendente' && (
-                                  <Button
-                                    variant="destructive"
-                                    size="xs"
-                                    className="text-[10px]"
-                                    onClick={() => removerSugestao(sugestao)}
-                                  >
-                                    Remover
-                                  </Button>
-                                )}
-                              </>
-                            )}
 
-                            {/* Acções de quem aprova */}
-                            {canAprovar && sugestao.estado_aprovacao === 'pendente' && (
-                              <>
-                                <Button
-                                  variant="default"
-                                  size="xs"
-                                  className="text-[10px]"
-                                  onClick={() => aprovar(sugestao)}
-                                >
-                                  Aprovar
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="xs"
-                                  className="text-[10px]"
-                                  onClick={() => abrirModalObservacao('melhoria', sugestao)}
-                                >
-                                  Solicitar melhoria
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  size="xs"
-                                  className="text-[10px]"
-                                  onClick={() => abrirModalObservacao('rejeitar', sugestao)}
-                                >
-                                  Rejeitar
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </TableCell>
-                      )}
+                      <TableCell>
+                        <Badge variant={estado.variant}>{estado.label}</Badge>
+                      </TableCell>
+
+                      <TableCell className="px-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="xs"
+                            className="text-[10px]"
+                            onClick={() => setSugestaoEmVisualizacao(sugestao)}
+                          >
+                            Ver detalhes
+                          </Button>
+
+                          {mostrarColunaAccoes && (
+                            <>
+                              {/* Acções de quem gere */}
+                              {canManage && (
+                                <>
+                                  {sugestao.estado_aprovacao ===
+                                    'melhoria_solicitada' && (
+                                    <Button
+                                      variant="outline"
+                                      size="xs"
+                                      className="text-[10px]"
+                                      onClick={() => resubmeter(sugestao)}
+                                    >
+                                      Resubmeter
+                                    </Button>
+                                  )}
+                                  {sugestao.estado_aprovacao !== 'aprovada' && (
+                                    <Button
+                                      variant="outline"
+                                      size="xs"
+                                      className="text-[10px]"
+                                      onClick={() =>
+                                        abrirFormularioEdicao(sugestao)
+                                      }
+                                    >
+                                      Editar
+                                    </Button>
+                                  )}
+                                  {sugestao.estado_aprovacao !== 'pendente' && (
+                                    <Button
+                                      variant="destructive"
+                                      size="xs"
+                                      className="text-[10px]"
+                                      onClick={() => removerSugestao(sugestao)}
+                                    >
+                                      Remover
+                                    </Button>
+                                  )}
+                                </>
+                              )}
+
+                              {/* Acções de quem aprova */}
+                              {canAprovar &&
+                                sugestao.estado_aprovacao === 'pendente' && (
+                                  <>
+                                    <Button
+                                      variant="default"
+                                      size="xs"
+                                      className="text-[10px]"
+                                      onClick={() => aprovar(sugestao)}
+                                    >
+                                      Aprovar
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="xs"
+                                      className="text-[10px]"
+                                      onClick={() =>
+                                        abrirModalObservacao(
+                                          'melhoria',
+                                          sugestao,
+                                        )
+                                      }
+                                    >
+                                      Solicitar melhoria
+                                    </Button>
+                                    <Button
+                                      variant="destructive"
+                                      size="xs"
+                                      className="text-[10px]"
+                                      onClick={() =>
+                                        abrirModalObservacao(
+                                          'rejeitar',
+                                          sugestao,
+                                        )
+                                      }
+                                    >
+                                      Rejeitar
+                                    </Button>
+                                  </>
+                                )}
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -354,15 +390,20 @@ export function TabSugestoesTemas({
       {/* Modal criação/edição */}
       <Dialog
         open={formularioAberto}
-        onOpenChange={(open) => (!open ? fecharFormulario() : setFormularioAberto(true))}
+        onOpenChange={(open) =>
+          !open ? fecharFormulario() : setFormularioAberto(true)
+        }
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {sugestaoEmEdicao ? 'Editar sugestão de tema' : 'Nova sugestão de tema'}
+              {sugestaoEmEdicao
+                ? 'Editar sugestão de tema'
+                : 'Nova sugestão de tema'}
             </DialogTitle>
             <DialogDescription>
-              Cadastre um tema de referência para os trabalhos da PAP deste curso.
+              Cadastre um tema de referência para os trabalhos da PAP deste
+              curso.
             </DialogDescription>
           </DialogHeader>
 
@@ -396,7 +437,12 @@ export function TabSugestoesTemas({
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={fecharFormulario} disabled={processing}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={fecharFormulario}
+                disabled={processing}
+              >
                 Cancelar
               </Button>
               <Button type="submit" disabled={processing}>
@@ -438,26 +484,44 @@ export function TabSugestoesTemas({
               autoFocus
             />
             {submitted && !observacao.trim() && (
-              <p className="text-sm text-destructive">Este campo é obrigatório.</p>
+              <p className="text-sm text-destructive">
+                Este campo é obrigatório.
+              </p>
             )}
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={fecharModalObservacao} disabled={processando}>
+            <Button
+              variant="outline"
+              onClick={fecharModalObservacao}
+              disabled={processando}
+            >
               Cancelar
             </Button>
             <Button
-              variant={modalObservacao?.tipo === 'rejeitar' ? 'destructive' : 'default'}
+              variant={
+                modalObservacao?.tipo === 'rejeitar' ? 'destructive' : 'default'
+              }
               onClick={submeterObservacao}
               disabled={processando}
             >
               {processando
                 ? 'A guardar…'
-                : modalObservacao && MODAL_CONFIG[modalObservacao.tipo].confirmar}
+                : modalObservacao &&
+                  MODAL_CONFIG[modalObservacao.tipo].confirmar}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <SugestaoTemaDetailsDialog
+        open={Boolean(sugestaoEmVisualizacao)}
+        sugestao={sugestaoEmVisualizacao}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSugestaoEmVisualizacao(null);
+          }
+        }}
+      />
     </>
   );
 }

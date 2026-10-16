@@ -43,7 +43,7 @@ test('student search matches assigned turma and class and enrollment shift', fun
         'instituicao_curso_id' => $instituicaoCurso->id,
         'instituicao_tutora_id' => $instituicao->id,
     ]);
-    $classe = Classe::create(['nome' => '12ª Classe']);
+    $classe = Classe::create(['nome' => 'CTI']);
     $cursoClasse = CursoClasse::create([
         'curso_tutelado_id' => $cursoTutelado->id,
         'classe_id' => $classe->id,
@@ -77,12 +77,33 @@ test('student search matches assigned turma and class and enrollment shift', fun
         'ano_lectivo_id' => $anoLectivo->id,
         'nome' => 'Turma C',
     ]);
+
+    $classeAntiga = Classe::create(['nome' => 'ATI']);
+    $cursoClasseAntigo = CursoClasse::create([
+        'curso_tutelado_id' => $cursoTutelado->id,
+        'classe_id' => $classeAntiga->id,
+    ]);
+    $cursoClasseTurnoAntigo = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasseAntigo->id,
+        'turno_id' => $turno->id,
+    ]);
+    $turmaAntiga = Turma::create([
+        'curso_classe_turno_id' => $cursoClasseTurnoAntigo->id,
+        'ano_lectivo_id' => $anoLectivo->id,
+        'nome' => 'Turma ATI',
+    ]);
+
+    $aluno->turmas()->attach($turmaAntiga->id, [
+        'activo' => false,
+        'situacao' => 'activo',
+    ]);
     $aluno->turmas()->attach($turma->id, [
         'activo' => true,
         'situacao' => 'activo',
     ]);
 
     expect(Aluno::query()->search('Turma C')->pluck('id')->all())->toBe([$aluno->id]);
-    expect(Aluno::query()->search('12ª Classe')->pluck('id')->all())->toBe([$aluno->id]);
+    expect(Aluno::query()->search('CTI')->pluck('id')->all())->toBe([$aluno->id]);
+    expect(Aluno::query()->search('ATI')->pluck('id')->all())->toBe([]);
     expect(Aluno::query()->search('Noite')->pluck('id')->all())->toBe([$aluno->id]);
 });
