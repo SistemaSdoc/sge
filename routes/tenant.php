@@ -49,6 +49,8 @@ use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
+use App\Http\Controllers\Tenant\DesempenhoProfessorController;
+use App\Http\Controllers\Tenant\DesempenhoAlunoController;
 use App\Http\Controllers\Tenant\UserPermissionController;
 use App\Http\Middleware\CheckTenantStatus;
 use Illuminate\Support\Facades\Route;
@@ -372,6 +374,12 @@ Route::middleware([
             */
             Route::get('/relatorios', [RelatorioController::class, 'index'])
                 ->name('relatorios.index');
+
+            Route::get('/professor/desempenho', [DesempenhoProfessorController::class, 'index'])
+                ->name('professor.desempenho');
+    
+            Route::get('/aluno/desempenho', [DesempenhoAlunoController::class, 'index'])
+                ->name('aluno.desempenho');
             /*
             |--------------------------------------------------------------------------
             | Horários de Disciplinas de Turmas
