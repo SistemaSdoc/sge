@@ -23,6 +23,7 @@ class UpdatePersonalProfile
         ): void {
             $user->fill([
                 'nome' => $validated['nome'],
+                'bi' => $validated['bi'] ?? null,
                 'email' => $validated['email'],
                 'telefone' => $validated['telefone'] ?? null,
             ]);

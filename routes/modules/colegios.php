@@ -6,6 +6,7 @@ use App\Http\Controllers\Tenant\Colegios\ColegioController;
 use App\Http\Controllers\Tenant\Colegios\CursoClasseController;
 use App\Http\Controllers\Tenant\Colegios\CursoTuteladoController;
 use App\Http\Controllers\Tenant\Colegios\ElementoGrupoPapController;
+use App\Http\Controllers\Tenant\Colegios\ExportarListaAlunosTurmaController;
 use App\Http\Controllers\Tenant\Colegios\GrupoPapAprovacaoController;
 use App\Http\Controllers\Tenant\Colegios\GrupoPapController;
 use App\Http\Controllers\Tenant\Colegios\NotaDisciplinaController;
@@ -99,6 +100,9 @@ Route::prefix('colegios')->group(function () {
 
         Route::get('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}', [ClasseTurnoTurmaController::class, 'show'])
             ->name('colegios.cursos.classes.turnos.turmas.show');
+
+        Route::get('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/alunos/exportar', [ExportarListaAlunosTurmaController::class, 'exportar'])
+            ->name('colegios.cursos.classes.turnos.turmas.alunos.exportar');
 
         Route::get('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/notas', [NotaDisciplinaController::class, 'index'])
             ->name('colegios.cursos.classes.turnos.turmas.disciplinas.notas.index');

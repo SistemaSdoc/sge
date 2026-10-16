@@ -16,6 +16,7 @@ use App\Http\Controllers\Tenant\ClasseController as ClasseControllerGeral;
 use App\Http\Controllers\Tenant\ClasseTurnoDisciplinaController;
 use App\Http\Controllers\Tenant\ClasseTurnoDisciplinaHorarioController;
 use App\Http\Controllers\Tenant\ClasseTurnoTurmaController;
+use App\Http\Controllers\Tenant\Colegios\ExportarListaAlunosTurmaController;
 use App\Http\Controllers\Tenant\CompletarPerfilController;
 use App\Http\Controllers\Tenant\CursoClasseController;
 use App\Http\Controllers\Tenant\CursoClasseTurnoController;
@@ -884,6 +885,9 @@ Route::middleware([
 
             Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}', [ClasseTurnoTurmaController::class, 'show'])
                 ->name('instituicoes.cursos-tutelados.classes.turnos.turmas.show');
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/alunos/exportar', [ExportarListaAlunosTurmaController::class, 'exportarLocal'])
+                ->name('instituicoes.cursos-tutelados.classes.turnos.turmas.alunos.exportar');
 
             Route::post('inscricoes', [InscricaoController::class, 'store'])
                 ->name('inscricoes.store');

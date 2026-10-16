@@ -385,6 +385,7 @@ class ClasseTurnoTurmaController extends Controller
                 ],
                 'alunos' => [
                     'create' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),
+                    'exportar' => $user->can('view', $turma),
                 ],
                 'disciplinas' => [
                     'create' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Coordenador']),

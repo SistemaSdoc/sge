@@ -153,16 +153,23 @@ class InscricaoService
 
         $password = Str::password(12);
 
-        $user = User::firstOrCreate(
-            ['bi' => $inscricao->candidato->bi],
-            [
+        $user = User::where('bi', $inscricao->candidato->bi)
+            ->orWhere('email', $inscricao->candidato->email)
+            ->first();
+
+        $wasRecentlyCreated = false;
+
+        if (! $user) {
+            $user = User::create([
                 'nome' => $inscricao->candidato->nome,
+                'bi' => $inscricao->candidato->bi,
                 'email' => $inscricao->candidato->email,
                 'telefone' => $inscricao->candidato->telefone,
                 'instituicao_id' => $instituicaoId,
                 'password' => Hash::make($password),
-            ]
-        );
+            ]);
+            $wasRecentlyCreated = true;
+        }
 
         $inscricao->candidato->update(['user_id' => $user->id]);
 
@@ -176,9 +183,8 @@ class InscricaoService
             'matricula' => $this->gerarMatriculaUnica(),
         ]);
 
-        if ($user->wasRecentlyCreated) {
+        if ($wasRecentlyCreated) {
             $this->notificarAlunoCriado($user, $password);
-
             $user->notify(new PerfilIncompletoNotificacao);
         }
 

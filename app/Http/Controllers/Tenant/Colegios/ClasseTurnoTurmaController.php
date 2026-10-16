@@ -368,6 +368,7 @@ class ClasseTurnoTurmaController extends Controller
                             'create',
                             Aluno::class
                         ),
+                        'exportar' => $user->can('pautas.view'),
                     ],
 
                     'disciplinas' => [
