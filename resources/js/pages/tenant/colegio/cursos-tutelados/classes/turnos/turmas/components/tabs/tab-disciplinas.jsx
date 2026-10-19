@@ -37,13 +37,13 @@ export function TabDisciplinas({
   const canCreate = Boolean(can.create);
 
   return (
-    <Card className="gap-0">
+    <Card className="w-full min-w-0 gap-0">
       <CardHeader className="border-b">
         <CardTitle>Disciplinas</CardTitle>
         <CardDescription>Disciplinas lecionadas nesta turma</CardDescription>
       </CardHeader>
 
-      <CardContent className="p-0!">
+      <CardContent className="min-w-0 p-0!">
         {isEmpty ? (
           <EmptyState
             variant="table"
@@ -52,11 +52,11 @@ export function TabDisciplinas({
             description="Comece adicionando disciplinas"
           />
         ) : (
-          <Table>
+          <Table className="min-w-0">
             <TableHeader>
               <TableRow className="bg-muted/72">
-                <TableHead className="px-4">Nome</TableHead>
-                <TableHead>Professor</TableHead>
+                <TableHead className="px-2 max-md:whitespace-normal sm:px-4">Nome</TableHead>
+                <TableHead className="max-md:whitespace-normal">Professor</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -85,11 +85,11 @@ export function TabDisciplinas({
                       }
                     }}
                   >
-                    <TableCell className="px-4 font-medium">
+                    <TableCell className="px-2 font-medium max-md:whitespace-normal sm:px-4 wrap-anywhere">
                       {disciplina?.nome}
                     </TableCell>
 
-                    <TableCell>
+                    <TableCell className="max-md:whitespace-normal wrap-anywhere">
                       {disciplina.professor?.nome ?? (
                         <Minus size={15} className="text-muted-foreground" />
                       )}

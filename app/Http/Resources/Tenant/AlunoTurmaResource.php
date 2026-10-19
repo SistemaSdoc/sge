@@ -20,6 +20,7 @@ class AlunoTurmaResource extends JsonResource
             'nome' => $this->inscricao?->candidato?->nome,
             'email' => $this->user?->email,
             'telefone' => $this->user?->telefone,
+            'avatar' => $this->user?->avatar_url,
             'can' => [
                 'view' => $request->user('tenant')?->can('view', $this->resource) ?? false,
             ],

@@ -44,7 +44,7 @@ class AccessManagementController extends Controller
                 'id' => $u->id,
                 'nome' => $u->nome,
                 'email' => $u->email,
-                'avatar' => $u->avatar,
+                'avatar' => $u->avatar_url,
                 'roles' => $u->getRoleNames(),
                 'directPermissions' => $u->permissions->pluck('name')->values()->all(),
                 'inheritedPermissions' => $u->roles

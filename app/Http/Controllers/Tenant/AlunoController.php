@@ -34,11 +34,6 @@ class AlunoController extends Controller
     {
         Gate::authorize('viewAny', Aluno::class);
 
-        Inertia::flash('toast', [
-            'type' => 'error',
-            'message' => 'Não é possível remover o aluno, pois existem registos associados que impedem a sua remoção.',
-        ]);
-
         /** @var User $user */
         $user = Auth::user();
 

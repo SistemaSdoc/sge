@@ -49,6 +49,7 @@ class PrepareAlunoIndex
             ->whereHas('inscricao', fn ($query) => $query->where('status', '!=', 'cancelado'))
             ->with([
                 'inscricao.candidato:id,nome,bi,email,telefone',
+                'user:id,avatar',
                 'inscricao.cursoClasseTurno.turno:id,nome',
                 'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
                 'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
@@ -115,6 +116,7 @@ class PrepareAlunoIndex
                     'bi' => $aluno->inscricao?->candidato?->bi,
                     'email' => $aluno->inscricao?->candidato?->email,
                     'telefone' => $aluno->inscricao?->candidato?->telefone,
+                    'avatar' => $aluno->user?->avatar_url,
                     'curso' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
                     'instituicao' => $aluno->inscricao?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao?->nome,
                     'turno' => $aluno->inscricao?->cursoClasseTurno?->turno?->nome,

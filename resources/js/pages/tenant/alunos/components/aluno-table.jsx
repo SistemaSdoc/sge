@@ -30,6 +30,7 @@ import { TableSearch } from '@/components/table-search';
 import { useTableSearch } from '@/hooks/use-table-search';
 import { edit } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
 import { create } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
+import { ProfileAvatarPreview } from '@/components/profile-avatar-preview';
 
 export function AlunoTable({
   data,
@@ -158,14 +159,29 @@ export function AlunoTable({
                       aluno.can?.view ? 'hover:cursor-pointer' : 'opacity-70'
                     }
                     aria-disabled={!aluno.can?.view}
-                    onClick={() => {
+                    onClick={(event) => {
+                      if (
+                        event.target instanceof Element
+                        && event.target.closest(
+                          '[data-profile-avatar-preview], [data-slot="dialog-overlay"]',
+                        )
+                      ) {
+                        return;
+                      }
+
                       if (aluno.can?.view) {
                         router.visit(`/dashboard/alunos/${aluno.id}`);
                       }
                     }}
                   >
                     <TableCell className="px-4 font-medium">
-                      {aluno.nome}
+                      <div className="flex items-center gap-3">
+                        <ProfileAvatarPreview
+                          src={aluno.avatar}
+                          name={aluno.nome}
+                        />
+                        <span>{aluno.nome}</span>
+                      </div>
                     </TableCell>
                     <TableCell className="px-4 font-medium">
                       {aluno.curso}

@@ -24,10 +24,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useInitials } from '@/hooks/use-initials';
 import { TableSearch } from '@/components/table-search';
 import { useTableSearch } from '@/hooks/use-table-search';
+import { ProfileAvatarPreview } from '@/components/profile-avatar-preview';
 
 export function UserTable({
   users,
@@ -43,7 +42,6 @@ export function UserTable({
     },
   );
   const isEmpty = !users?.data?.length;
-  const getInitials = useInitials();
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
@@ -108,12 +106,10 @@ export function UserTable({
                   <TableRow key={user.id}>
                     <TableCell className="px-4 font-medium">
                       <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage src={user.avatar} alt={user.nome} />
-                          <AvatarFallback>
-                            {getInitials(user.nome)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <ProfileAvatarPreview
+                          src={user.avatar}
+                          name={user.nome}
+                        />
 
                         <div className="flex flex-col">
                           <span className="text-xs">{user.nome}</span>

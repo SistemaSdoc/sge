@@ -234,7 +234,7 @@ class ClasseTurnoTurmaController extends Controller
         $alunos = $turma->alunos()
             ->wherePivot('activo', true)
             ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
-            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
+            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone,avatar'])
             ->paginate(10, ['*'], 'page_alunos');
 
         $disciplinasQuery = $turma->cursoClasseTurno
@@ -257,7 +257,7 @@ class ClasseTurnoTurmaController extends Controller
         $totalAlunos = (clone $alunosQuery)->count();
 
         $alunos = $alunosQuery
-            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
+            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone,avatar'])
             ->leftJoin('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
             ->leftJoin('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
             ->when($searchAlunos !== '', function ($query) use ($searchAlunos): void {

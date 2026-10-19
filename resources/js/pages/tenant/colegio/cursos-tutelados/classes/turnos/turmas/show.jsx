@@ -68,10 +68,10 @@ export default function Show({
         deleteFn={handleDelete}
       />
 
-      <Tabs defaultValue="alunos" className="w-full">
+      <Tabs defaultValue="alunos" className="w-full min-w-0">
         <TurmaTabsList classe={classe} totalRecurso={totalRecurso} />
 
-        <TabsContent value="alunos" className="mt-2">
+        <TabsContent value="alunos" className="mt-2 min-w-0">
           <TabAlunos
             alunos={alunos.data}
             pagination={alunos.meta}
@@ -81,7 +81,7 @@ export default function Show({
           />
         </TabsContent>
 
-        <TabsContent value="disciplinas" className="mt-2">
+        <TabsContent value="disciplinas" className="mt-2 min-w-0">
           <TabDisciplinas
             disciplinas={disciplinas.data}
             turma={turma}

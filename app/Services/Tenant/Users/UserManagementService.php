@@ -29,7 +29,7 @@ class UserManagementService
                     'nome' => $user->nome,
                     'email' => $user->email,
                     'telefone' => $user->telefone,
-                    'avatar' => $user->avatar,
+                    'avatar' => $user->avatar_url,
                     'instituicao_id' => $user->instituicao_id,
                     'aluno_matricula' => $user->aluno?->matricula,
                     'roles' => $user->getRoleNames()->values()->all(),
