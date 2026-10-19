@@ -110,7 +110,7 @@ class ElementoGrupoPapController extends Controller
 
         $this->deleteElementoGrupoPap->handle($elementoGrupoPap);
 
-        return to_route('pap.show', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

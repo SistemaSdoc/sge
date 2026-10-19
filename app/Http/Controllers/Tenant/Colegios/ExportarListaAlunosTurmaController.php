@@ -107,8 +107,8 @@ class ExportarListaAlunosTurmaController extends Controller
             ->cursoTutelado
             ->instituicaoCurso
             ->instituicao;
-        $director = $instituicao->users()
-            ->whereHas('roles', fn ($query) => $query->where('name', 'Director'))
+        $subdirector = $instituicao->users()
+            ->whereHas('roles', fn ($query) => $query->where('name', 'Subdirector'))
             ->first();
         $curso = $turma->cursoClasseTurno
             ->cursoClasse
@@ -137,7 +137,7 @@ class ExportarListaAlunosTurmaController extends Controller
 
         $path = $this->export->gerar([
             'instituicao' => $instituicao->nome,
-            'director' => $director?->nome ?? '',
+            'subdirector' => $subdirector?->nome ?? '',
             'curso' => $curso?->nome ?? '',
             'ano_lectivo' => $turma->anoLectivo?->nome ?? now()->year.'/'.(now()->year + 1),
             'classe' => $classe?->nome ?? '',

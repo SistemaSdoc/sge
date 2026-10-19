@@ -6111,16 +6111,16 @@
         },
         {
             "name": "spatie/browsershot",
-            "version": "5.4.0",
+            "version": "5.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/browsershot.git",
-                "reference": "dcf7a65fd1d0fc8fd113739b84982377728d0b2f"
+                "reference": "ac49e212c5ef4b9725589dd95bff7a5f0f92a0b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/browsershot/zipball/dcf7a65fd1d0fc8fd113739b84982377728d0b2f",
-                "reference": "dcf7a65fd1d0fc8fd113739b84982377728d0b2f",
+                "url": "https://api.github.com/repos/spatie/browsershot/zipball/ac49e212c5ef4b9725589dd95bff7a5f0f92a0b3",
+                "reference": "ac49e212c5ef4b9725589dd95bff7a5f0f92a0b3",
                 "shasum": ""
             },
             "require": {
@@ -6131,7 +6131,7 @@
                 "symfony/process": "^6.0|^7.0|^8.0"
             },
             "require-dev": {
-                "pestphp/pest": "^3.0|^4.0",
+                "pestphp/pest": "^3.0|^4.0|^5.0",
                 "spatie/image": "^3.6",
                 "spatie/pdf-to-text": "^1.52",
                 "spatie/phpunit-snapshot-assertions": "^5.0"
@@ -6167,7 +6167,7 @@
                 "webpage"
             ],
             "support": {
-                "source": "https://github.com/spatie/browsershot/tree/5.4.0"
+                "source": "https://github.com/spatie/browsershot/tree/5.4.1"
             },
             "funding": [
                 {
@@ -6175,7 +6175,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-05-26T13:13:33+00:00"
+            "time": "2026-10-19T07:49:39+00:00"
         },
         {
             "name": "spatie/laravel-package-tools",
@@ -6240,16 +6240,16 @@
         },
         {
             "name": "spatie/laravel-permission",
-            "version": "8.3.0",
+            "version": "8.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-permission.git",
-                "reference": "60e8ed5b2fbf043c2264433fc2680c76b8b66aa6"
+                "reference": "1ab5d33f9db4ee6d5509e5c012a8f37f7e22bc84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/60e8ed5b2fbf043c2264433fc2680c76b8b66aa6",
-                "reference": "60e8ed5b2fbf043c2264433fc2680c76b8b66aa6",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/1ab5d33f9db4ee6d5509e5c012a8f37f7e22bc84",
+                "reference": "1ab5d33f9db4ee6d5509e5c012a8f37f7e22bc84",
                 "shasum": ""
             },
             "require": {
@@ -6266,8 +6266,8 @@
                 "laravel/passport": "^13.0",
                 "laravel/pint": "^1.0",
                 "orchestra/testbench": "^10.0|^11.0",
-                "pestphp/pest": "^3.0|^4.0",
-                "pestphp/pest-plugin-laravel": "^3.0|^4.1",
+                "pestphp/pest": "^4.7.8|^5.3.3",
+                "pestphp/pest-plugin-laravel": "^4.1|^5.0.1",
                 "phpstan/phpstan": "^2.1"
             },
             "type": "library",
@@ -6316,7 +6316,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-permission/issues",
-                "source": "https://github.com/spatie/laravel-permission/tree/8.3.0"
+                "source": "https://github.com/spatie/laravel-permission/tree/8.3.1"
             },
             "funding": [
                 {
@@ -6324,7 +6324,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-07-03T15:36:01+00:00"
+            "time": "2026-10-19T12:22:20+00:00"
         },
         {
             "name": "spatie/temporary-directory",

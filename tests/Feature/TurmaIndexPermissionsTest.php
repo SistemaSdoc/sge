@@ -80,3 +80,54 @@ test('coordenador vê todas as turmas dos cursos que coordena', function () {
         ->where('turmas.data.1.id', $turmaB->id)
     );
 });
+
+test('subdirector vê as turmas da sua instituição sem perfil de professor', function () {
+    $instituicao = Instituicao::create([
+        'nome' => 'Instituição Teste',
+        'sigla' => 'IT',
+        'tipo' => 'instituto',
+        'status' => 1,
+    ]);
+    $curso = Curso::create(['nome' => 'Curso Teste', 'duracao_anos' => 3, 'status' => 1]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'instituicao_id' => $instituicao->id,
+        'curso_id' => $curso->id,
+        'duracao_anos' => 3,
+    ]);
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+    ]);
+    $classe = Classe::create(['nome' => '10ª Classe']);
+    $cursoClasse = CursoClasse::create([
+        'curso_tutelado_id' => $cursoTutelado->id,
+        'classe_id' => $classe->id,
+    ]);
+    $turno = Turno::create(['nome' => 'Manhã']);
+    $cursoClasseTurno = CursoClasseTurno::create([
+        'curso_classe_id' => $cursoClasse->id,
+        'turno_id' => $turno->id,
+    ]);
+    $anoLectivo = AnoLectivo::create([
+        'data_inicio' => now()->startOfYear(),
+        'data_fim' => now()->endOfYear(),
+    ]);
+    $turma = Turma::create([
+        'curso_classe_turno_id' => $cursoClasseTurno->id,
+        'ano_lectivo_id' => $anoLectivo->id,
+        'nome' => 'Turma A',
+    ]);
+
+    $user = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $role = Role::create(['name' => 'Subdirector', 'guard_name' => 'tenant']);
+    $permission = Permission::create(['name' => 'turmas.viewAny', 'guard_name' => 'tenant']);
+    $role->givePermissionTo($permission);
+    $user->assignRole($role);
+
+    $response = $this->actingAs($user, 'tenant')->get(route('turmas.index'));
+
+    $response->assertOk();
+    $response->assertInertia(fn (AssertableInertia $page) => $page
+        ->where('turmas.data.0.id', $turma->id)
+    );
+});

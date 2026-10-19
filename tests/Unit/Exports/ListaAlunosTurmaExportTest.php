@@ -18,7 +18,7 @@ it('fills the roster template and extends it for classes with more than 22 stude
 
     $path = (new ListaAlunosTurmaExport)->gerar([
         'instituicao' => 'Instituto de Teste',
-        'director' => 'Ana Directora',
+        'subdirector' => 'Ana Subdirectora',
         'curso' => 'Informática',
         'ano_lectivo' => '2025/26',
         'classe' => '10ª',
@@ -36,7 +36,8 @@ it('fills the roster template and extends it for classes with more than 22 stude
         expect($sheet->getStyle('B15')->getFont()->getBold())->toBeTrue();
         expect($sheet->getStyle('B16')->getFont()->getSize())->toBe(10.0);
         expect($sheet->getStyle('B16')->getFont()->getBold())->toBeFalse();
-        expect($sheet->getCell('A8')->getValue())->toBe('Ana Directora');
+        expect($sheet->getCell('A7')->getValue())->toBe('VISTO DO SUBDIRECTOR');
+        expect($sheet->getCell('A8')->getValue())->toBe('Ana Subdirectora');
         expect($sheet->getCell('A12')->getValue())->toBe('INFORMÁTICA');
         expect($sheet->getCell('A13')->getValue())->toBe('10ª CLASSE ; TURMA: 10A ; SALA: 2');
         expect($sheet->getCell('C13')->getValue())->toBe('ANO LECTIVO: 2025/26');

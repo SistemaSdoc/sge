@@ -77,7 +77,7 @@ class TurmaController extends Controller
 
         if ($isCourseSecretary) {
             // The course filter above is the secretary's complete scope.
-        } elseif (! $user?->isSuperAdmin() && ! $user?->isDirector()) {
+        } elseif (! $user?->isSuperAdmin() && ! $user?->isDirector() && ! $user?->isSubdirector()) {
             if (! $professor) {
                 return Inertia::render('tenant/turmas/index', [
                     'turmas' => [

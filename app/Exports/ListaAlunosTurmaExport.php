@@ -13,7 +13,7 @@ use Throwable;
 class ListaAlunosTurmaExport
 {
     /**
-     * @param  array{instituicao: string, director: string, curso: string, ano_lectivo: string, classe: string, turma: string, sala: string}  $cabecalho
+     * @param  array{instituicao: string, subdirector: string, curso: string, ano_lectivo: string, classe: string, turma: string, sala: string}  $cabecalho
      * @param  list<array{numero: int, nome: string, processo: string, idade: int|string, sexo: string, contacto: string}>  $alunos
      */
     public function gerar(array $cabecalho, array $alunos): string
@@ -28,8 +28,8 @@ class ListaAlunosTurmaExport
         $sheet = $spreadsheet->getActiveSheet();
 
         $sheet->setCellValue('A4', mb_strtoupper($cabecalho['instituicao'], 'UTF-8'));
-        $sheet->setCellValue('A7', 'VISTO DO DIRECTOR');
-        $sheet->setCellValue('A8', $cabecalho['director'] !== '' ? $cabecalho['director'] : '________________________');
+        $sheet->setCellValue('A7', 'VISTO DO SUBDIRECTOR');
+        $sheet->setCellValue('A8', $cabecalho['subdirector'] !== '' ? $cabecalho['subdirector'] : '________________________');
         $sheet->setCellValue('A12', mb_strtoupper($cabecalho['curso'], 'UTF-8'));
         $sheet->setCellValue(
             'A13',
