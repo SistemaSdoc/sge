@@ -1,88 +1,20 @@
 import { createInertiaApp } from '@inertiajs/react';
-import { configureEcho } from '@laravel/echo-react';
-import { useEffect, useState } from 'react';
-import { ClientToaster } from '@/components/client-toaster';
-import { TooltipProvider } from '@/components/ui/tooltip'; // ← import direto (não lazy)
+import { ClientProviders } from '@/components/client-providers';
 import { initializeTheme } from '@/hooks/use-appearance';
-import { useFlashToast } from '@/hooks/use-flash-toast';
-import AppLayout from '@/layouts/app-layout';
-import AuthLayout from '@/layouts/auth-layout';
-import SettingsLayout from '@/layouts/settings/layout';
-import UserProfileLayout from '@/layouts/user-profile/layout';
-
-configureEcho({
-  broadcaster: 'reverb',
-  key: import.meta.env.VITE_REVERB_APP_KEY,
-  wsHost: import.meta.env.VITE_REVERB_HOST,
-  wsPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
-  wssPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
-  forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
-  enabledTransports: ['ws', 'wss'],
-});
+import { resolvePageLayout } from '@/layouts/resolve-page-layout';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
-function ClientOnly({ children }: { children: React.ReactNode }) {
-  const [hasMounted, setHasMounted] = useState(false);
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  if (!hasMounted) {
-    return null;
-  }
-
-  return <>{children}</>;
-}
-
-function AppProviders({ children }: { children: React.ReactNode }) {
-  useFlashToast();
-
-  return (
-    // TooltipProvider agora é renderizado tanto no servidor quanto no cliente
-    <TooltipProvider delayDuration={0}>
-      {children}
-      {/* Apenas o Toaster fica no cliente */}
-      <ClientOnly>
-        <ClientToaster />
-      </ClientOnly>
-    </TooltipProvider>
-  );
-}
-
 createInertiaApp({
   title: (title) => (title ? `${title} - ${appName}` : appName),
-  layout: (name) => {
-    if (name.startsWith('errors/')) {
-      return null;
-    }
-
-    switch (true) {
-      case name === 'central/welcome/index' ||
-        name === 'tenant/certificado/show' ||
-        name === 'tenant/access-denied':
-        return null;
-      case name.startsWith('central/auth/') || name.startsWith('tenant/auth/'):
-        return AuthLayout;
-      case name === 'tenant/users/profile/show' ||
-        name === 'tenant/users/profile/academic' ||
-        name === 'tenant/users/profile/security':
-        return [AppLayout, UserProfileLayout];
-      case name.startsWith('tenant/settings/'):
-        return [AppLayout, SettingsLayout];
-      default:
-        return AppLayout;
-    }
-  },
+  layout: resolvePageLayout,
   strictMode: true,
   withApp(app) {
-    return <AppProviders>{app}</AppProviders>;
+    return <ClientProviders>{app}</ClientProviders>;
   },
   progress: {
     color: '#F8941F',
   },
 });
 
-// Inicializa o tema (cliente-only, usa useEffect)
 initializeTheme();
