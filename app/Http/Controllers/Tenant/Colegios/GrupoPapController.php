@@ -285,6 +285,7 @@ class GrupoPapController extends Controller
             ->with([
                 'aluno.inscricao.candidato:id,nome,email',
                 'aluno:id,user_id,matricula,inscricao_id',
+                'aluno.user:id,avatar',
             ])
             ->latest('created_at')
             ->paginate(10, ['*'], 'page_elementos');

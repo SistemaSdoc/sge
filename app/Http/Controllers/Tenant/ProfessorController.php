@@ -45,7 +45,7 @@ class ProfessorController extends Controller
             'nivel_academico',
             'created_at',
         ])
-            ->with(['user:id,nome,telefone'])
+            ->with(['user:id,nome,email,telefone,avatar'])
             ->search($request->string('search')->toString())
             ->when(
                 $instituicaoId,
@@ -57,6 +57,10 @@ class ProfessorController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10)
             ->withQueryString();
+
+        $professores->getCollection()->each(function (Professor $professor): void {
+            $professor->user?->append('avatar_url');
+        });
 
         return Inertia::render('tenant/professores/index', [
             'professores' => $professores,

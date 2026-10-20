@@ -22,6 +22,7 @@ class ElementoResource extends JsonResource
                 || $user?->can('view', $this->aluno),
             'nome' => $this->aluno?->inscricao?->candidato?->nome,
             'email' => $this->aluno?->inscricao?->candidato?->email,
+            'avatar' => $this->aluno?->user?->avatar_url,
             'matricula' => $this->aluno?->matricula,
             'nota_individual' => $this->nota_individual,
         ];

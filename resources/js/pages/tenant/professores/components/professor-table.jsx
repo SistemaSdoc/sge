@@ -37,6 +37,7 @@ import {
 import TablePagination from '@/components/table-pagination';
 import { TableSearch } from '@/components/table-search';
 import { useTableSearch } from '@/hooks/use-table-search';
+import { ProfileAvatarPreview } from '@/components/profile-avatar-preview';
 
 export function ProfessorTable({
   professores,
@@ -102,10 +103,32 @@ export function ProfessorTable({
                 <TableRow
                   key={professor.id}
                   className="hover:cursor-pointer"
-                  onClick={() => router.visit(show(professor.id).url)}
+                  onClick={(event) => {
+                    if (
+                      event.target instanceof Element
+                      && event.target.closest(
+                        '[data-profile-avatar-preview], [data-slot="dialog-overlay"]',
+                      )
+                    ) {
+                      return;
+                    }
+
+                    router.visit(show(professor.id).url);
+                  }}
                 >
                   <TableCell className="px-4 font-medium">
-                    {professor.user.nome}
+                    <div className="flex items-center gap-3">
+                      <ProfileAvatarPreview
+                        src={professor.user.avatar_url}
+                        name={professor.user.nome}
+                      />
+                      <div className="flex min-w-0 flex-col">
+                        <span className="text-xs">{professor.user.nome}</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {professor.user.email}
+                        </span>
+                      </div>
+                    </div>
                   </TableCell>
 
                   <TableCell className="px-4 font-medium">
