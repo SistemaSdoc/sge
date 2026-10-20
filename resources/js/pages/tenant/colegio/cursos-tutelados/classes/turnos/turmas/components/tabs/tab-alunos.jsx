@@ -41,15 +41,20 @@ export function TabAlunos({
   const isEmpty = alunos.length === 0;
 
   return (
+    <Card className="w-full min-w-0 gap-0">
       <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
         <div>
           <CardTitle>Alunos</CardTitle>
           <CardDescription>Alunos inscritos nesta turma</CardDescription>
         </div>
-        <CardDescription>Alunos inscritos nesta turma</CardDescription>
+        {can.exportar && (
           <div className="w-full sm:w-auto">
-            <Button variant="outline" size="sm" className="w-full sm:w-auto" asChild>
-            <Button variant="outline" size="sm" className="w-full sm:w-auto" asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full sm:w-auto"
+              asChild
+            >
               <a href={exportarLista(params).url}>
                 <Download className="size-4" />
                 Exportar lista
@@ -71,10 +76,18 @@ export function TabAlunos({
           <Table className="min-w-0">
             <TableHeader>
               <TableRow className="bg-muted/72">
-                <TableHead className="px-2 max-md:whitespace-normal sm:px-4">Nome</TableHead>
-                <TableHead className="max-md:whitespace-normal">Email</TableHead>
-                <TableHead className="max-md:whitespace-normal">Telefone</TableHead>
-                <TableHead className="px-2 text-right max-md:whitespace-normal sm:px-4">Acções</TableHead>
+                <TableHead className="px-2 max-md:whitespace-normal sm:px-4">
+                  Nome
+                </TableHead>
+                <TableHead className="max-md:whitespace-normal">
+                  Email
+                </TableHead>
+                <TableHead className="max-md:whitespace-normal">
+                  Telefone
+                </TableHead>
+                <TableHead className="px-2 text-right max-md:whitespace-normal sm:px-4">
+                  Acções
+                </TableHead>
               </TableRow>
             </TableHeader>
 
@@ -88,8 +101,8 @@ export function TabAlunos({
                     aria-disabled={!canView}
                     onClick={(event) => {
                       if (
-                        event.target instanceof Element
-                        && event.target.closest(
+                        event.target instanceof Element &&
+                        event.target.closest(
                           '[data-profile-avatar-preview], [data-slot="dialog-overlay"]',
                         )
                       ) {
@@ -108,7 +121,7 @@ export function TabAlunos({
                           name={aluno.nome}
                         />
                         <div className="flex min-w-0 flex-col">
-                          <span className="min-w-0 wrap-anywhere text-xs">
+                          <span className="min-w-0 text-xs wrap-anywhere">
                             {aluno?.nome}
                           </span>
                           <span className="text-[10px] text-muted-foreground">
@@ -118,13 +131,13 @@ export function TabAlunos({
                       </div>
                     </TableCell>
 
-                    <TableCell className="max-md:whitespace-normal wrap-anywhere">
+                    <TableCell className="wrap-anywhere max-md:whitespace-normal">
                       {aluno?.email ?? (
                         <Minus size={15} className="text-muted-foreground" />
                       )}
                     </TableCell>
 
-                    <TableCell className="max-md:whitespace-normal wrap-anywhere">
+                    <TableCell className="wrap-anywhere max-md:whitespace-normal">
                       {aluno?.telefone ?? (
                         <Minus size={15} className="text-muted-foreground" />
                       )}
