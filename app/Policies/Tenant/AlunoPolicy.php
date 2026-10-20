@@ -141,7 +141,7 @@ class AlunoPolicy
      */
     public function update(User $user, Aluno $aluno): bool
     {
-        return $user->can('alunos.update') && $aluno->user->instituicao_id === $user->instituicao_id;
+        return $user->can('alunos.update') && $aluno->instituicao_id === $user->instituicao_id;
 
     }
 
