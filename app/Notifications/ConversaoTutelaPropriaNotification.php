@@ -56,7 +56,7 @@ class ConversaoTutelaPropriaNotification extends Notification implements ShouldQ
     {
         return (new MailMessage)
             ->subject('Pedido de conversão para tutela própria')
-            ->markdown('mail.conversao-tutela-propria-notification', [
+            ->view('mail.conversao-tutela-propria-notification', [
                 'nomeInstituicaoSolicitante' => $this->instituicaoSolicitante,
                 'nomeCurso' => $this->cursoNome,
                 'url' => $this->url ?: config('app.url').'/dashboard',

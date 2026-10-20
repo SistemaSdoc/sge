@@ -82,7 +82,7 @@ class TrocaTutelaResultadoNotification extends Notification implements ShouldQue
             ->subject($this->resultado === 'pendente'
                 ? 'Troca de tutela pendente'
                 : ($this->resultado === 'aprovada' ? 'Actualização da troca de tutela' : 'Tutela rejeitada'))
-            ->markdown('mail.troca-tutela-resultado-notification', [
+            ->view('mail.troca-tutela-resultado-notification', [
                 'nomeInstituicaoDecisora' => $this->instituicaoDecisora,
                 'nomeInstituicaoProposta' => $this->instituicaoProposta,
                 'nomeCurso' => $this->cursoNome,

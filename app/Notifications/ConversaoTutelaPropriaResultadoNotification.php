@@ -72,7 +72,7 @@ class ConversaoTutelaPropriaResultadoNotification extends Notification implement
                 'aprovada' => 'Tutela própria aprovada',
                 default => 'Conversão para tutela própria rejeitada',
             })
-            ->markdown('mail.conversao-tutela-propria-resultado-notification', [
+            ->view('mail.conversao-tutela-propria-resultado-notification', [
                 'nomeInstituicaoDecisora' => $this->instituicaoDecisora,
                 'nomeCurso' => $this->cursoNome,
                 'resultado' => $this->resultado,

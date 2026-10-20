@@ -42,7 +42,7 @@ class TenantPendenteNotification extends Notification implements ShouldQueue, Sh
     {
         return (new MailMessage)
             ->subject('Registo recebido — aguarda aprovação')
-            ->markdown('mail.tenant-pendente-notification', [
+            ->view('mail.tenant-pendente-notification', [
                 'nomeInstituicao' => $this->nomeInstituicao,
                 'nomeUser' => $this->nomeUser,
                 'subdomain' => $this->subdomain,

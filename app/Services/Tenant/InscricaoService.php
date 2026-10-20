@@ -27,9 +27,9 @@ class InscricaoService
     /**
      * Cria um registro em inscrições para o candidato.
      *
-     * Para instituições do tipo "colegio" a inscrição é imediatamente aprovada
-     * sem necessidade de nota de teste.
-     * Para instituições do tipo "instituto" o estado é calculado com base na nota.
+     * No colégio, a inscrição sem nota é aprovada porque o candidato pode não
+     * estar sujeito a uma prova de admissão. Quando há nota, o estado depende
+     * do resultado; nos institutos, a nota é exigida pela validação do pedido.
      */
     public function criar(array $dados, ?Instituicao $instituicao = null): Inscricao
     {
@@ -72,10 +72,11 @@ class InscricaoService
             if (! $anoLectivoId) {
                 throw new InvalidArgumentException('Nenhum ano lectivo activo encontrado.');
             }
-
             $hasNota = isset($dados['nota_teste']) && $dados['nota_teste'] !== '' && $dados['nota_teste'] !== null;
             $nota = $hasNota ? (float) $dados['nota_teste'] : null;
-            $status = $hasNota ? ($nota >= 10 ? 'aprovado' : 'reprovado') : 'pendente';
+            $status = $hasNota
+                ? ($nota >= 10 ? 'aprovado' : 'reprovado')
+                : ($instituicao?->tipo === 'colegio' ? 'aprovado' : 'pendente');
 
             $inscricao = Inscricao::create([
                 'candidato_id' => $candidato->id,

@@ -71,7 +71,7 @@ class SolicitacaoTutelaNotification extends Notification implements ShouldQueue,
 
         return (new MailMessage)
             ->subject('Nova solicitação de tutela')
-            ->markdown('mail.solicitacao-tutela-notification', [
+            ->view('mail.solicitacao-tutela-notification', [
                 'nomeInstituicao' => $this->instituicaoTutelada,
                 'nomeCurso' => $this->cursoNome,
                 'url' => $finalUrl,  // ← Já construída, sem chamar url()
