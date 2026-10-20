@@ -155,7 +155,7 @@ export function AlunoHeader({ aluno }) {
           </span>
         </div>
 
-        {temHistorico && (
+        {/* {temHistorico && (
           <Alert variant="warning" className="mt-4 max-w-2xl text-left">
             <AlertTriangle />
             <AlertTitle>Não é possível remover este aluno</AlertTitle>
@@ -164,7 +164,7 @@ export function AlunoHeader({ aluno }) {
               vez de remover o aluno.
             </AlertDescription>
           </Alert>
-        )}
+        )} */}
       </div>
     </Card>
   );
