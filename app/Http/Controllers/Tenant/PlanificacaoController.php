@@ -214,10 +214,23 @@ class PlanificacaoController extends Controller
     // STORE
     // ============================================================
 
-    public function store(Request $request)
-    {
-        $instituicaoId = $this->getInstituicaoId();
+public function store(Request $request)
+{
+    // ─── LOG 1: o que chega ───────────────────────────────
+    Log::info('[PLANIFICACAO STORE] Início', [
+        'user_id' => auth()->id(),
+        'instituicao_id' => $this->getInstituicaoId(),
+        'payload' => $request->except(['ficheiro']),
+        'ficheiro' => $request->hasFile('ficheiro') ? [
+            'name' => $request->file('ficheiro')->getClientOriginalName(),
+            'size' => $request->file('ficheiro')->getSize(),
+            'mime' => $request->file('ficheiro')->getMimeType(),
+        ] : 'SEM FICHEIRO',
+    ]);
 
+    $instituicaoId = $this->getInstituicaoId();
+
+    try {
         $validated = $request->validate([
             'ano_letivo_id' => ['required', 'uuid'],
             'curso_id'      => ['required', 'uuid', 'exists:curso_tutelado,id'],
@@ -238,77 +251,111 @@ class PlanificacaoController extends Controller
             'ficheiro.mimes'         => 'Apenas ficheiros PDF, DOC ou DOCX são aceites.',
             'ficheiro.max'           => 'O ficheiro não pode ter mais de 20 MB.',
         ]);
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::warning('[PLANIFICACAO STORE] Validação falhou', [
+            'errors' => $e->errors(),
+        ]);
+        throw $e;
+    }
 
+    // ─── LOG 2: validação passou ──────────────────────────
+    Log::info('[PLANIFICACAO STORE] Validação OK', $validated);
+
+    try {
+        $resultado = DB::transaction(function () use ($validated, $instituicaoId, $request) {
+            Log::info('[PLANIFICACAO STORE] A criar/encontrar planificação...');
+
+            $planificacao = Planificacao::firstOrNew([
+                'ano_letivo_id' => $validated['ano_letivo_id'],
+                'curso_id'      => $validated['curso_id'],
+                'disciplina_id' => $validated['disciplina_id'],
+                'classe_id'     => $validated['classe_id'],
+                'periodo'       => $validated['periodo'],
+            ]);
+
+            $primeiraVersao = ! $planificacao->exists;
+
+            Log::info('[PLANIFICACAO STORE] Planificação:', [
+                'primeira_versao' => $primeiraVersao,
+                'id'              => $planificacao->id,
+            ]);
+
+            if ($primeiraVersao) {
+                $planificacao->fill([
+                    'instituicao_id' => $instituicaoId,
+                    'titulo'         => $validated['titulo'] ?? null,
+                    'descricao'      => $validated['descricao'] ?? null,
+                    'versao_atual'   => 0,
+                    'created_by'     => auth()->id(),
+                ])->save();
+            } else {
+                $planificacao->fill([
+                    'titulo'    => $validated['titulo'] ?? $planificacao->titulo,
+                    'descricao' => $validated['descricao'] ?? $planificacao->descricao,
+                ])->save();
+            }
+
+            Log::info('[PLANIFICACAO STORE] A guardar versão...');
+
+            $versao = $this->storage->guardarNovaVersao(
+                $planificacao,
+                $request->file('ficheiro'),
+                auth()->id()
+            );
+
+            Log::info('[PLANIFICACAO STORE] Versão guardada', [
+                'versao_id' => $versao->id,
+                'versao'    => $versao->versao,
+            ]);
+
+            return [
+                'planificacao'   => $planificacao,
+                'versao'         => $versao,
+                'primeiraVersao' => $primeiraVersao,
+            ];
+        });
+
+        // ─── LOG 3: transação commitou ────────────────────
+        Log::info('[PLANIFICACAO STORE] Transação commitou OK', [
+            'planificacao_id' => $resultado['planificacao']->id,
+        ]);
+
+        // Notificação (opcional — se falhar, não deve impedir o sucesso)
         try {
-            $resultado = DB::transaction(function () use ($validated, $instituicaoId, $request) {
-                $planificacao = Planificacao::firstOrNew([
-                    'ano_letivo_id' => $validated['ano_letivo_id'],
-                    'curso_id'      => $validated['curso_id'],
-                    'disciplina_id' => $validated['disciplina_id'],
-                    'classe_id'     => $validated['classe_id'],
-                    'periodo'       => $validated['periodo'],
-                ]);
-
-                $primeiraVersao = ! $planificacao->exists;
-
-                if ($primeiraVersao) {
-                    $planificacao->fill([
-                        'instituicao_id' => $instituicaoId,
-                        'titulo'         => $validated['titulo'] ?? null,
-                        'descricao'      => $validated['descricao'] ?? null,
-                        'versao_atual'   => 0,
-                        'created_by'     => auth()->id(),
-                    ])->save();
-                } else {
-                    $planificacao->fill([
-                        'titulo'    => $validated['titulo'] ?? $planificacao->titulo,
-                        'descricao' => $validated['descricao'] ?? $planificacao->descricao,
-                    ])->save();
-                }
-
-                $versao = $this->storage->guardarNovaVersao(
-                    $planificacao,
-                    $request->file('ficheiro'),
-                    auth()->id()
-                );
-
-                return [
-                    'planificacao'   => $planificacao,
-                    'versao'         => $versao,
-                    'primeiraVersao' => $primeiraVersao,
-                ];
-            });
-
             $this->notificacao->notificarPublicacao(
                 $resultado['planificacao']->fresh(['disciplina', 'classe', 'anoLectivo', 'curso.instituicaoCurso.curso']),
                 $resultado['versao']->versao,
                 $resultado['primeiraVersao']
             );
-
-            Log::info('Planificação guardada', [
-                'planificacao_id' => $resultado['planificacao']->id,
-                'curso_id'        => $resultado['planificacao']->curso_id,
-                'versao'          => $resultado['versao']->versao,
-                'primeira'        => $resultado['primeiraVersao'],
-                'user_id'         => auth()->id(),
-            ]);
-
-            return redirect()
-                ->route('tenant.dashboard.planificacoes.show', $resultado['planificacao']->id)
-                ->with('success', $resultado['primeiraVersao']
-                    ? 'Planificação publicada com sucesso.'
-                    : 'Nova versão publicada com sucesso.');
+            Log::info('[PLANIFICACAO STORE] Notificação enviada');
         } catch (\Throwable $e) {
-            Log::error('Erro ao guardar planificação', [
-                'erro'  => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+            Log::warning('[PLANIFICACAO STORE] Notificação falhou (não crítico)', [
+                'erro' => $e->getMessage(),
             ]);
-
-            return back()
-                ->with('error', 'Erro ao guardar planificação: ' . $e->getMessage())
-                ->withInput();
+            // continua — planificação foi criada
         }
+
+        return redirect()
+            ->route('tenant.dashboard.planificacoes.show', $resultado['planificacao']->id)
+            ->with('success', $resultado['primeiraVersao']
+                ? 'Planificação publicada com sucesso.'
+                : 'Nova versão publicada com sucesso.');
+
+    } catch (\Throwable $e) {
+        // ─── LOG 4: o erro REAL ──────────────────────────
+        Log::error('[PLANIFICACAO STORE] ERRO REAL', [
+            'tipo'      => get_class($e),
+            'mensagem'  => $e->getMessage(),
+            'ficheiro'  => $e->getFile() . ':' . $e->getLine(),
+            'trace'     => $e->getTraceAsString(),
+        ]);
+
+        //  Devolver como ERRO de validação (o frontend apanha no onError)
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            'geral' => 'Erro ao guardar: ' . $e->getMessage(),
+        ]);
     }
+}
 
     // ============================================================
     // SHOW / PREVIEW / DOWNLOAD / DESTROY

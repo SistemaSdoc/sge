@@ -11,15 +11,22 @@ import {
   Search,
   X,
   GraduationCap,
-  CalendarDays,
   Sparkles,
-  SlidersHorizontal,
 } from 'lucide-react';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -32,13 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty';
+import { EmptyState } from '@/components/empty-state';
 import {
   index as planificacoesIndex,
   create as planificacoesCreate,
@@ -64,8 +65,6 @@ export default function Index({
   });
 
   const [busca, setBusca] = useState('');
-  const [filtrosExpandidos, setFiltrosExpandidos] = useState(false);
-
   const isAluno = userRole === 'aluno';
 
   const disciplinasFiltradas = useMemo(() => {
@@ -75,62 +74,51 @@ export default function Index({
     return disciplinas.filter(
       (d) =>
         (d.nome ?? '').toLowerCase().includes(termo) ||
-        (d.sigla ?? '').toLowerCase().includes(termo)
+        (d.sigla ?? '').toLowerCase().includes(termo),
     );
   }, [disciplinas, busca]);
 
-  const aplicarFiltros = () => {
-    router.get(planificacoesIndex().url, filtros, {
+  const aplicarFiltros = (novos = filtros) => {
+    router.get(planificacoesIndex().url, novos, {
       preserveScroll: true,
       preserveState: true,
     });
   };
 
   const limparFiltros = () => {
-    setFiltros({
+    const limpos = {
       ano_letivo_id: anoAtivoId ?? '',
       curso_id: '',
       disciplina_id: '',
       classe_id: '',
       periodo: '',
-    });
+    };
+    setFiltros(limpos);
     setBusca('');
     router.get(planificacoesIndex().url, {}, { preserveScroll: true });
   };
 
-  const filtrosAtivos =
+  const filtrosAtivos = Boolean(
     filtros.curso_id ||
-    filtros.disciplina_id ||
-    filtros.classe_id ||
-    filtros.periodo ||
-    filtros.ano_letivo_id !== (anoAtivoId ?? '');
+      filtros.disciplina_id ||
+      filtros.classe_id ||
+      filtros.periodo ||
+      filtros.ano_letivo_id !== (anoAtivoId ?? ''),
+  );
 
-  // Estatísticas agregadas
   const stats = useMemo(() => {
     const totalPlanificacoes = disciplinas.reduce(
       (acc, d) => acc + (d.total ?? 0),
-      0
-    );
-    const totalClasses = disciplinas.reduce(
-      (acc, d) => acc + (d.total_classes ?? 0),
-      0
-    );
-    const totalCursos = disciplinas.reduce(
-      (acc, d) => acc + (d.total_cursos ?? 0),
-      0
+      0,
     );
     return {
       disciplinas: disciplinas.length,
       planificacoes: totalPlanificacoes,
-      classes: totalClasses,
-      cursos: totalCursos,
     };
   }, [disciplinas]);
 
-  // Chips de filtros ativos
   const chipsFiltros = useMemo(() => {
     const chips = [];
-
     if (filtros.ano_letivo_id && filtros.ano_letivo_id !== (anoAtivoId ?? '')) {
       const ano = anosLectivos.find((a) => a.id === filtros.ano_letivo_id);
       if (ano) chips.push({ label: ano.nome, key: 'ano_letivo_id' });
@@ -146,146 +134,128 @@ export default function Index({
     if (filtros.periodo) {
       chips.push({ label: filtros.periodo, key: 'periodo' });
     }
-
     return chips;
   }, [filtros, anosLectivos, cursos, classes, anoAtivoId]);
 
   const removerChip = (key) => {
     const novos = { ...filtros, [key]: '' };
     setFiltros(novos);
-    router.get(planificacoesIndex().url, novos, {
-      preserveScroll: true,
-      preserveState: true,
-    });
+    aplicarFiltros(novos);
   };
 
   return (
     <>
       <Head title="Planificações" />
 
-      <div className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
-        {/* Hero */}
-        <div className="relative overflow-hidden  border bg-gradient-to-br from-primary/5 via-background to-background p-6 sm:p-8">
-          <div
-            className="pointer-events-none absolute -right-20 -top-20 size-64 bg-primary/10 blur-3xl"
-            aria-hidden
-          />
-          <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-4">
-              <div className="flex size-14 shrink-0 items-center justify-center  bg-primary/15 ring-1 ring-primary/20">
-                <BookOpen className="size-7 text-primary" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {isAluno ? 'As minhas disciplinas' : 'Gestão'}
-                </p>
-                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                  Planificações
-                </h1>
-                <p className="text-sm text-muted-foreground">
+      <div className="mx-auto w-full max-w-7xl space-y-4 p-4 sm:p-6">
+        {/* Header + Filtros */}
+        <Card className="gap-0! overflow-visible pb-0">
+          <CardHeader className="border-b border-foreground/10">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="min-w-0 md:flex-1">
+                <Breadcrumb>
+                  <BreadcrumbList className="flex-wrap">
+                    <BreadcrumbItem className="min-w-0">
+                      <BreadcrumbLink asChild>
+                        <span className="line-clamp-2 text-sm font-semibold text-primary">
+                          {isAluno ? 'Aluno' : 'Gestão'}
+                        </span>
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem className="min-w-0">
+                      <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
+                        Planificações
+                      </BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+                <CardDescription>
                   {isAluno
                     ? 'Consulte as planificações das suas disciplinas.'
                     : 'Selecione uma disciplina para ver as planificações.'}
-                </p>
+                </CardDescription>
               </div>
+
+              <CardAction className="flex flex-wrap items-center gap-2 self-stretch md:self-center">
+                {!isAluno && disciplinas.length > 0 && (
+                  <>
+                    <Badge variant="secondary" className="text-[10px]">
+                      {stats.disciplinas}{' '}
+                      {stats.disciplinas === 1 ? 'disciplina' : 'disciplinas'}
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px]">
+                      {stats.planificacoes}{' '}
+                      {stats.planificacoes === 1
+                        ? 'planificação'
+                        : 'planificações'}
+                    </Badge>
+                  </>
+                )}
+                {can.create && (
+                  <Button asChild size="sm" className="hover:cursor-pointer">
+                    <Link href={planificacoesCreate().url}>
+                      <Plus className="mr-1.5 size-4" />
+                      Nova planificação
+                    </Link>
+                  </Button>
+                )}
+              </CardAction>
+            </div>
+          </CardHeader>
+
+          {/* Filtros */}
+          <CardContent className="space-y-3 p-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold whitespace-nowrap">
+                Filtros
+              </h2>
+              {filtrosAtivos && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={limparFiltros}
+                  className="hover:cursor-pointer"
+                >
+                  Limpar
+                </Button>
+              )}
             </div>
 
-            {can.create && (
-              <Button asChild size="lg" className="shadow-sm">
-                <Link href={planificacoesCreate().url}>
-                  <Plus className="mr-1.5 size-4" />
-                  Nova planificação
-                </Link>
-              </Button>
-            )}
-          </div>
-
-          {/* Stats */}
-          {!isAluno && disciplinas.length > 0 && (
-            <div className="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <BookOpen className="size-3.5" />
-                  <span className="text-[11px] font-medium uppercase tracking-wide">
-                    Disciplinas
-                  </span>
+            {isAluno ? (
+              /* Aluno: só período */
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Filter className="size-4" />
+                  <span className="font-medium">Período:</span>
                 </div>
-                <p className="mt-1 text-2xl font-bold">{stats.disciplinas}</p>
+                <Select
+                  value={filtros.periodo || 'todos'}
+                  onValueChange={(v) => {
+                    const periodo = v === 'todos' ? '' : v;
+                    const novos = { ...filtros, periodo };
+                    setFiltros(novos);
+                    aplicarFiltros(novos);
+                  }}
+                >
+                  <SelectTrigger className="w-full sm:w-56">
+                    <SelectValue placeholder="Todos os períodos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os períodos</SelectItem>
+                    {periodos.map((p) => (
+                      <SelectItem key={p} value={p}>
+                        {p}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-
-              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Layers className="size-3.5" />
-                  <span className="text-[11px] font-medium uppercase tracking-wide">
-                    Planificações
-                  </span>
-                </div>
-                <p className="mt-1 text-2xl font-bold">{stats.planificacoes}</p>
-              </div>
-
-              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Hash className="size-3.5" />
-                  <span className="text-[11px] font-medium uppercase tracking-wide">
-                    Classes
-                  </span>
-                </div>
-                <p className="mt-1 text-2xl font-bold">{stats.classes}</p>
-              </div>
-
-              <div className=" border bg-background/60 p-3 backdrop-blur-sm">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <GraduationCap className="size-3.5" />
-                  <span className="text-[11px] font-medium uppercase tracking-wide">
-                    Cursos
-                  </span>
-                </div>
-                <p className="mt-1 text-2xl font-bold">{stats.cursos}</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Filtros — Aluno */}
-        {isAluno ? (
-          <div className="flex flex-wrap items-center gap-3  border bg-muted/30 p-3">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Filter className="size-4" />
-              <span className="font-medium">Filtrar por período:</span>
-            </div>
-
-            <Select
-              value={filtros.periodo || 'todos'}
-              onValueChange={(v) => {
-                const periodo = v === 'todos' ? '' : v;
-                setFiltros((prev) => ({ ...prev, periodo }));
-                router.get(
-                  planificacoesIndex().url,
-                  { ...filtros, periodo },
-                  { preserveScroll: true, preserveState: true }
-                );
-              }}
-            >
-              <SelectTrigger className="w-[220px]">
-                <SelectValue placeholder="Todos os períodos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos os períodos</SelectItem>
-                {periodos.map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {p}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        ) : (
-          <Card className="overflow-hidden">
-            <CardContent className="space-y-3 pt-6">
-              {/* Pesquisa + toggle filtros */}
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            ) : (
+              /* Staff */
+              <>
+                <div className="relative">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Pesquisar disciplina por nome ou sigla…"
                     value={busca}
@@ -296,168 +266,138 @@ export default function Index({
                     <button
                       type="button"
                       onClick={() => setBusca('')}
-                      className="absolute right-2 top-1/2 -translate-y-1/2  p-1 hover:bg-muted"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted"
                     >
                       <X className="size-4 text-muted-foreground" />
                     </button>
                   )}
                 </div>
 
-                <Button
-                  variant={filtrosExpandidos ? 'secondary' : 'outline'}
-                  onClick={() => setFiltrosExpandidos((v) => !v)}
-                  className="sm:w-auto"
-                >
-                  <SlidersHorizontal className="mr-1.5 size-4" />
-                  Filtros
-                  {filtrosAtivos && (
-                    <Badge
-                      variant="default"
-                      className="ml-2 h-5 min-w-5  px-1.5 text-[10px]"
-                    >
-                      {chipsFiltros.length || 1}
-                    </Badge>
-                  )}
-                </Button>
-              </div>
-
-              {/* Chips de filtros ativos */}
-              {chipsFiltros.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2">
-                  {chipsFiltros.map((chip) => (
-                    <Badge
-                      key={chip.key}
-                      variant="secondary"
-                      className="gap-1 py-1 pl-2 pr-1"
-                    >
-                      {chip.label}
-                      <button
-                        type="button"
-                        onClick={() => removerChip(chip.key)}
-                        className=" p-0.5 hover:bg-background/60"
-                        aria-label={`Remover filtro ${chip.label}`}
+                {chipsFiltros.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {chipsFiltros.map((chip) => (
+                      <Badge
+                        key={chip.key}
+                        variant="secondary"
+                        className="gap-1 py-1 pl-2 pr-1"
                       >
-                        <X className="size-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={limparFiltros}
-                    className="h-6 px-2 text-xs text-muted-foreground"
+                        {chip.label}
+                        <button
+                          type="button"
+                          onClick={() => removerChip(chip.key)}
+                          className="p-0.5 hover:bg-background/60"
+                          aria-label={`Remover filtro ${chip.label}`}
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <Select
+                    value={filtros.ano_letivo_id}
+                    onValueChange={(v) =>
+                      setFiltros((prev) => ({ ...prev, ano_letivo_id: v }))
+                    }
                   >
-                    Limpar tudo
+                    <SelectTrigger className="w-full sm:w-44">
+                      <SelectValue placeholder="Ano lectivo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {anosLectivos.map((a) => (
+                        <SelectItem key={a.id} value={a.id}>
+                          {a.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={filtros.curso_id || 'todos'}
+                    onValueChange={(v) =>
+                      setFiltros((prev) => ({
+                        ...prev,
+                        curso_id: v === 'todos' ? '' : v,
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-full sm:w-48">
+                      <SelectValue placeholder="Curso" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos os cursos</SelectItem>
+                      {cursos.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={filtros.classe_id || 'todas'}
+                    onValueChange={(v) =>
+                      setFiltros((prev) => ({
+                        ...prev,
+                        classe_id: v === 'todas' ? '' : v,
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-full sm:w-44">
+                      <SelectValue placeholder="Classe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todas">Todas as classes</SelectItem>
+                      {classes.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={filtros.periodo || 'todos'}
+                    onValueChange={(v) =>
+                      setFiltros((prev) => ({
+                        ...prev,
+                        periodo: v === 'todos' ? '' : v,
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-full sm:w-40">
+                      <SelectValue placeholder="Período" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos os períodos</SelectItem>
+                      {periodos.map((p) => (
+                        <SelectItem key={p} value={p}>
+                          {p}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Button
+                    onClick={() => aplicarFiltros()}
+                    className="w-full hover:cursor-pointer sm:w-auto"
+                  >
+                    <Filter className="mr-1.5 size-4" />
+                    Aplicar
                   </Button>
                 </div>
-              )}
-
-              {/* Filtros detalhados */}
-              <div
-                className={`grid transition-all duration-200 ${
-                  filtrosExpandidos
-                    ? 'grid-rows-[1fr] opacity-100'
-                    : 'grid-rows-[0fr] opacity-0'
-                }`}
-              >
-                <div className="overflow-hidden">
-                  <div className="grid grid-cols-1 gap-3 pt-1 sm:grid-cols-2 lg:grid-cols-5">
-                    <Select
-                      value={filtros.ano_letivo_id}
-                      onValueChange={(v) =>
-                        setFiltros((prev) => ({ ...prev, ano_letivo_id: v }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <CalendarDays className="mr-2 size-3.5 text-muted-foreground" />
-                        <SelectValue placeholder="Ano letivo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {anosLectivos.map((a) => (
-                          <SelectItem key={a.id} value={a.id}>
-                            {a.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <Select
-                      value={filtros.curso_id}
-                      onValueChange={(v) =>
-                        setFiltros((prev) => ({ ...prev, curso_id: v }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Curso" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {cursos.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <Select
-                      value={filtros.classe_id}
-                      onValueChange={(v) =>
-                        setFiltros((prev) => ({ ...prev, classe_id: v }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Classe" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {classes.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <Select
-                      value={filtros.periodo}
-                      onValueChange={(v) =>
-                        setFiltros((prev) => ({ ...prev, periodo: v }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Período" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {periodos.map((p) => (
-                          <SelectItem key={p} value={p}>
-                            {p}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <div className="flex gap-2">
-                      <Button onClick={aplicarFiltros} className="flex-1">
-                        <Filter className="mr-1 size-4" />
-                        Aplicar
-                      </Button>
-                      {filtrosAtivos && (
-                        <Button variant="outline" onClick={limparFiltros}>
-                          Limpar
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Resumo da busca */}
         {busca && !isAluno && (
           <p className="text-sm text-muted-foreground">
             {disciplinasFiltradas.length === 0 ? (
-              <>Nenhuma disciplina corresponde à pesquisa.</>
+              'Nenhuma disciplina corresponde à pesquisa.'
             ) : (
               <>
                 A mostrar{' '}
@@ -472,28 +412,18 @@ export default function Index({
 
         {/* Lista */}
         {disciplinasFiltradas.length === 0 ? (
-          <Empty className=" border border-dashed">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                {busca ? <Search /> : <Sparkles />}
-              </EmptyMedia>
-              <EmptyTitle>
-                {busca ? 'Sem resultados' : 'Sem planificações'}
-              </EmptyTitle>
-              <EmptyDescription>
-                {busca
-                  ? 'Tente ajustar a pesquisa ou limpar os filtros.'
-                  : can.create
-                    ? 'Ainda não foi criada nenhuma planificação para os filtros atuais.'
-                    : 'Ainda não há planificações disponíveis para si.'}
-              </EmptyDescription>
-            </EmptyHeader>
-            {(busca || filtrosAtivos) && (
-              <Button variant="outline" className="mt-4" onClick={limparFiltros}>
-                Limpar filtros e pesquisa
-              </Button>
-            )}
-          </Empty>
+          <EmptyState
+            variant="table"
+            icon={busca ? Search : Sparkles}
+            title={busca ? 'Sem resultados' : 'Sem planificações'}
+            description={
+              busca
+                ? 'Tente ajustar a pesquisa ou limpar os filtros.'
+                : can.create
+                  ? 'Ainda não foi criada nenhuma planificação para os filtros atuais.'
+                  : 'Ainda não há planificações disponíveis para si.'
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {disciplinasFiltradas.map((d) => (
@@ -502,17 +432,11 @@ export default function Index({
                 href={`/dashboard/planificacoes/por-disciplina/${d.id}`}
                 className="group"
               >
-                <Card className="relative flex h-full flex-col overflow-hidden transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:shadow-lg">
-                  {/* Faixa lateral decorativa */}
-                  <div
-                    className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-primary/60 to-primary/20 opacity-0 transition-opacity group-hover:opacity-100"
-                    aria-hidden
-                  />
-
+                <Card className="flex h-full flex-col transition-shadow hover:shadow-md">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex size-11 shrink-0 items-center justify-center bg-primary/10 transition-colors group-hover:bg-primary/15">
+                        <div className="flex size-11 shrink-0 items-center justify-center bg-primary/10">
                           <BookOpen className="size-5 text-primary" />
                         </div>
                         <div className="min-w-0">
@@ -558,7 +482,7 @@ export default function Index({
                     <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                       <Clock className="size-3 shrink-0" />
                       <span className="truncate">
-                        Última atualização: {d.ultima_atualizacao ?? '—'}
+                        Última actualização: {d.ultima_atualizacao ?? '—'}
                       </span>
                     </p>
                   </div>

@@ -44,16 +44,16 @@ export default function PrazosTable({
   const isEmpty = prazos.length === 0;
 
   return (
-    <Card className="mx-auto w-full max-w-7xl gap-0">
-      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
-        <div>
+    <Card className="mx-auto w-full max-w-7xl gap-0 pb-0">
+      <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0 md:flex-1">
           <CardTitle>Prazos de Provas</CardTitle>
           <CardDescription>
             Lista de prazos criados para submissão de provas.
           </CardDescription>
         </div>
-        <CardAction className="w-full sm:w-auto">
-          <Button onClick={onCreate} className="w-full sm:w-auto">
+        <CardAction className="w-full md:w-auto">
+          <Button onClick={onCreate} className="w-full md:w-auto">
             <PlusIcon className="mr-1.5 size-4" />
             Novo Prazo
           </Button>
@@ -74,20 +74,25 @@ export default function PrazosTable({
             }}
           />
         ) : (
-          // Scroll horizontal em mobile
           <div className="w-full overflow-x-auto">
-            <Table className="min-w-[800px]">
+            <Table>
               <TableHeader>
                 <TableRow className="bg-muted/72">
-                  <TableHead className="px-4">Título</TableHead>
-                  <TableHead className="px-4">Disciplina</TableHead>
-                  <TableHead className="px-4">Classe</TableHead>
-                  <TableHead className="px-4 text-center">
+                  <TableHead className="min-w-48 px-4">Título</TableHead>
+                  <TableHead className="min-w-40 px-4">Disciplina</TableHead>
+                  <TableHead className="min-w-32 px-4">Classe</TableHead>
+                  <TableHead className="min-w-36 px-4 text-center">
                     Data Limite
                   </TableHead>
-                  <TableHead className="px-4 text-center">Status</TableHead>
-                  <TableHead className="px-4 text-center">Submissões</TableHead>
-                  <TableHead className="px-4 text-right">Ações</TableHead>
+                  <TableHead className="min-w-32 px-4 text-center">
+                    Status
+                  </TableHead>
+                  <TableHead className="min-w-32 px-4 text-center">
+                    Submissões
+                  </TableHead>
+                  <TableHead className="min-w-20 px-4 text-right">
+                    Ações
+                  </TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -109,7 +114,7 @@ export default function PrazosTable({
                     <TableCell className="px-4">
                       {prazo.classe?.nome || 'Todas'}
                     </TableCell>
-                    <TableCell className="px-4 text-center">
+                    <TableCell className="px-4 text-center whitespace-nowrap font-mono text-xs tabular-nums">
                       {prazo.data_limite}
                     </TableCell>
                     <TableCell className="px-4 text-center">
@@ -131,7 +136,7 @@ export default function PrazosTable({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="size-8"
+                            className="size-8 hover:cursor-pointer"
                           >
                             <MoreHorizontalIcon className="size-4" />
                             <span className="sr-only">Abrir menu</span>
@@ -146,6 +151,7 @@ export default function PrazosTable({
                                 `/dashboard/diretor/prazos/${prazo.id}`,
                               );
                             }}
+                            className="hover:cursor-pointer"
                           >
                             <EyeIcon className="mr-2 size-4" />
                             Ver detalhes
@@ -158,6 +164,7 @@ export default function PrazosTable({
                                 `/dashboard/diretor/prazos/${prazo.id}/edit`,
                               );
                             }}
+                            className="hover:cursor-pointer"
                           >
                             <EditIcon className="mr-2 size-4" />
                             Editar
@@ -171,6 +178,7 @@ export default function PrazosTable({
                                   e.stopPropagation();
                                   onFechar(prazo.id);
                                 }}
+                                className="hover:cursor-pointer"
                               >
                                 <XCircleIcon className="mr-2 size-4" />
                                 Encerrar prazo
@@ -185,11 +193,16 @@ export default function PrazosTable({
             </Table>
           </div>
         )}
-      </CardContent>
 
-      {pagination && (
-        <TablePagination pagination={pagination} onPageChange={onPageChange} />
-      )}
+        {pagination && pagination.last_page > 1 && (
+          <div className="border-t">
+            <TablePagination
+              pagination={pagination}
+              onPageChange={onPageChange}
+            />
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 }

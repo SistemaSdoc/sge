@@ -1,10 +1,24 @@
 import { Head, useForm, Link } from '@inertiajs/react';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from '@/components/ui/field';
 import {
   Select,
   SelectContent,
@@ -14,12 +28,13 @@ import {
 } from '@/components/ui/select';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Spinner } from '@/components/spinner';
 
 export default function Edit({ prazo, disciplinas, classes }) {
   const { data, setData, put, processing, errors } = useForm({
@@ -36,233 +51,281 @@ export default function Edit({ prazo, disciplinas, classes }) {
 
   const submit = (e) => {
     e.preventDefault();
-    put(`/dashboard/diretor/prazos/${prazo.id}`, {
-      onSuccess: () => {
-        // redireciona para os detalhes
-      },
-    });
+    put(`/dashboard/diretor/prazos/${prazo.id}`);
   };
-
-  const hasErrors = Object.keys(errors).length > 0;
 
   return (
     <>
       <Head title={`Editar: ${prazo.titulo}`} />
 
-      <div className="w-full space-y-6 p-6">
-        {/* Cabeçalho */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold text-foreground">Editar Prazo</h1>
-          <Button variant="outline" asChild>
-            <Link href={`/dashboard/diretor/prazos/${prazo.id}`}>
-              <ArrowLeft className="mr-1.5 size-4" />
-              Cancelar
-            </Link>
-          </Button>
-        </div>
-
-        {/* Formulário */}
-        <Card className="border-border shadow-sm">
-          <CardHeader>
-            <CardTitle>Editar Prazo de Provas</CardTitle>
-            <CardDescription>Atualize as informações do prazo.</CardDescription>
+      <div className="mx-auto w-full max-w-4xl space-y-4 p-4 sm:p-6">
+        <Card className="gap-0 pb-0">
+          <CardHeader className="border-b border-foreground/10">
+            <div className="min-w-0 space-y-1">
+              <Breadcrumb>
+                <BreadcrumbList className="flex-wrap">
+                  <BreadcrumbItem className="min-w-0">
+                    <BreadcrumbLink asChild>
+                      <Link
+                        href="/dashboard/diretor/prazos"
+                        className="line-clamp-2 text-sm font-semibold text-primary"
+                      >
+                        Prazos
+                      </Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem className="min-w-0">
+                    <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
+                      Editar
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+              <CardDescription>
+                Atualize as informações do prazo de submissão.
+              </CardDescription>
+            </div>
+            <CardAction>
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/dashboard/diretor/prazos/${prazo.id}`}>
+                  <ArrowLeft className="mr-1.5 size-4" />
+                  Voltar
+                </Link>
+              </Button>
+            </CardAction>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={submit} className="space-y-6">
-              {hasErrors && (
-                <Alert variant="destructive">
-                  <AlertDescription>
-                    <ul className="list-disc space-y-1 pl-4 text-sm">
-                      {Object.values(errors).map((msg, i) => (
-                        <li key={i}>{msg}</li>
-                      ))}
-                    </ul>
-                  </AlertDescription>
-                </Alert>
-              )}
 
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {/* Título */}
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="titulo">Título (opcional)</Label>
-                  <Input
-                    id="titulo"
-                    value={data.titulo}
-                    onChange={(e) => setData('titulo', e.target.value)}
-                    placeholder="Ex: Exame Final 1º Trimestre"
-                  />
-                </div>
+          <CardContent className="p-4 sm:p-6">
+            <form onSubmit={submit}>
+              <FieldGroup>
+                <FieldSet>
+                  {/* Título */}
+                  <Field>
+                    <FieldLabel htmlFor="titulo">
+                      Título{' '}
+                      <span className="text-xs font-normal text-muted-foreground">
+                        (opcional)
+                      </span>
+                    </FieldLabel>
+                    <Input
+                      id="titulo"
+                      value={data.titulo}
+                      onChange={(e) => setData('titulo', e.target.value)}
+                      placeholder="Ex: Exame Final 1º Trimestre"
+                      disabled={processing}
+                    />
+                    {errors.titulo && <FieldError>{errors.titulo}</FieldError>}
+                  </Field>
 
-                {/* Tipo de Prova */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="tipo_prova"
-                    className="after:ml-0.5 after:text-destructive after:content-['*']"
-                  >
-                    Tipo de Prova
-                  </Label>
-                  <Select
-                    value={data.tipo_prova}
-                    onValueChange={(value) => setData('tipo_prova', value)}
-                  >
-                    <SelectTrigger id="tipo_prova">
-                      <SelectValue placeholder="Selecione o tipo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Prova-Trimestral">
-                        Prova Trimestral
-                      </SelectItem>
-                      <SelectItem value="Exame-especial">
-                        Exame Especial
-                      </SelectItem>
-                      <SelectItem value="Recurso">Recurso</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.tipo_prova && (
-                    <p className="text-sm text-destructive">
-                      {errors.tipo_prova}
-                    </p>
-                  )}
-                </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {/* Tipo de Prova */}
+                    <Field>
+                      <FieldLabel htmlFor="tipo_prova">
+                        Tipo de Prova{' '}
+                        <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <Select
+                        value={data.tipo_prova}
+                        onValueChange={(value) => setData('tipo_prova', value)}
+                        disabled={processing}
+                      >
+                        <SelectTrigger id="tipo_prova" className="w-full">
+                          <SelectValue placeholder="Selecione o tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Prova-Trimestral">
+                            Prova Trimestral
+                          </SelectItem>
+                          <SelectItem value="Exame-especial">
+                            Exame Especial
+                          </SelectItem>
+                          <SelectItem value="Recurso">Recurso</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {errors.tipo_prova && (
+                        <FieldError>{errors.tipo_prova}</FieldError>
+                      )}
+                    </Field>
 
-                {/* Disciplina */}
-                <div className="space-y-2">
-                  <Label htmlFor="disciplina_id">Disciplina (opcional)</Label>
-                  <Select
-                    value={data.disciplina_id}
-                    onValueChange={(value) => setData('disciplina_id', value)}
-                  >
-                    <SelectTrigger id="disciplina_id">
-                      <SelectValue placeholder="Todas" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Todas</SelectItem>
-                      {disciplinas?.map((d) => (
-                        <SelectItem key={d.id} value={d.id}>
-                          {d.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    {/* Período */}
+                    <Field>
+                      <FieldLabel htmlFor="periodo">
+                        Período <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <Input
+                        id="periodo"
+                        value={data.periodo}
+                        onChange={(e) => setData('periodo', e.target.value)}
+                        placeholder="Ex: 1º Trimestre"
+                        disabled={processing}
+                        required
+                      />
+                      {errors.periodo && (
+                        <FieldError>{errors.periodo}</FieldError>
+                      )}
+                    </Field>
 
-                {/* Classe */}
-                <div className="space-y-2">
-                  <Label htmlFor="classe_id">Classe (opcional)</Label>
-                  <Select
-                    value={data.classe_id}
-                    onValueChange={(value) => setData('classe_id', value)}
-                  >
-                    <SelectTrigger id="classe_id">
-                      <SelectValue placeholder="Todas" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Todas</SelectItem>
-                      {classes?.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>
-                          {c.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    {/* Disciplina */}
+                    <Field>
+                      <FieldLabel htmlFor="disciplina_id">
+                        Disciplina{' '}
+                        <span className="text-xs font-normal text-muted-foreground">
+                          (opcional)
+                        </span>
+                      </FieldLabel>
+                      <Select
+                        value={data.disciplina_id || 'todas'}
+                        onValueChange={(value) =>
+                          setData(
+                            'disciplina_id',
+                            value === 'todas' ? '' : value,
+                          )
+                        }
+                        disabled={processing}
+                      >
+                        <SelectTrigger id="disciplina_id" className="w-full">
+                          <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="todas">Todas</SelectItem>
+                          {disciplinas?.map((d) => (
+                            <SelectItem key={d.id} value={d.id}>
+                              {d.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.disciplina_id && (
+                        <FieldError>{errors.disciplina_id}</FieldError>
+                      )}
+                    </Field>
 
-                {/* Data Início */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="data_inicio"
-                    className="after:ml-0.5 after:text-destructive after:content-['*']"
-                  >
-                    Data de Início
-                  </Label>
-                  <Input
-                    id="data_inicio"
-                    type="datetime-local"
-                    value={data.data_inicio}
-                    onChange={(e) => setData('data_inicio', e.target.value)}
-                    required
-                  />
-                  {errors.data_inicio && (
-                    <p className="text-sm text-destructive">
-                      {errors.data_inicio}
-                    </p>
-                  )}
-                </div>
+                    {/* Classe */}
+                    <Field>
+                      <FieldLabel htmlFor="classe_id">
+                        Classe{' '}
+                        <span className="text-xs font-normal text-muted-foreground">
+                          (opcional)
+                        </span>
+                      </FieldLabel>
+                      <Select
+                        value={data.classe_id || 'todas'}
+                        onValueChange={(value) =>
+                          setData('classe_id', value === 'todas' ? '' : value)
+                        }
+                        disabled={processing}
+                      >
+                        <SelectTrigger id="classe_id" className="w-full">
+                          <SelectValue placeholder="Todas" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="todas">Todas</SelectItem>
+                          {classes?.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.classe_id && (
+                        <FieldError>{errors.classe_id}</FieldError>
+                      )}
+                    </Field>
 
-                {/* Data Limite */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="data_limite"
-                    className="after:ml-0.5 after:text-destructive after:content-['*']"
-                  >
-                    Data Limite
-                  </Label>
-                  <Input
-                    id="data_limite"
-                    type="datetime-local"
-                    value={data.data_limite}
-                    onChange={(e) => setData('data_limite', e.target.value)}
-                    required
-                  />
-                  {errors.data_limite && (
-                    <p className="text-sm text-destructive">
-                      {errors.data_limite}
-                    </p>
-                  )}
-                </div>
+                    {/* Data Início */}
+                    <Field>
+                      <FieldLabel htmlFor="data_inicio">
+                        Data de Início{' '}
+                        <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <Input
+                        id="data_inicio"
+                        type="datetime-local"
+                        value={data.data_inicio}
+                        onChange={(e) =>
+                          setData('data_inicio', e.target.value)
+                        }
+                        disabled={processing}
+                        required
+                      />
+                      {errors.data_inicio && (
+                        <FieldError>{errors.data_inicio}</FieldError>
+                      )}
+                    </Field>
 
-                {/* Período */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="periodo"
-                    className="after:ml-0.5 after:text-destructive after:content-['*']"
-                  >
-                    Período
-                  </Label>
-                  <Input
-                    id="periodo"
-                    value={data.periodo}
-                    onChange={(e) => setData('periodo', e.target.value)}
-                    placeholder="Ex: 1º Trimestre"
-                    required
-                  />
-                  {errors.periodo && (
-                    <p className="text-sm text-destructive">{errors.periodo}</p>
-                  )}
-                </div>
+                    {/* Data Limite */}
+                    <Field>
+                      <FieldLabel htmlFor="data_limite">
+                        Data Limite <span className="text-destructive">*</span>
+                      </FieldLabel>
+                      <Input
+                        id="data_limite"
+                        type="datetime-local"
+                        value={data.data_limite}
+                        onChange={(e) =>
+                          setData('data_limite', e.target.value)
+                        }
+                        disabled={processing}
+                        required
+                      />
+                      {errors.data_limite && (
+                        <FieldError>{errors.data_limite}</FieldError>
+                      )}
+                    </Field>
+                  </div>
 
-                {/* Observações */}
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="observacoes">Observações</Label>
-                  <Textarea
-                    id="observacoes"
-                    rows={3}
-                    value={data.observacoes}
-                    onChange={(e) => setData('observacoes', e.target.value)}
-                  />
-                </div>
+                  {/* Observações */}
+                  <Field>
+                    <FieldLabel htmlFor="observacoes">
+                      Observações{' '}
+                      <span className="text-xs font-normal text-muted-foreground">
+                        (opcional)
+                      </span>
+                    </FieldLabel>
+                    <Textarea
+                      id="observacoes"
+                      rows={3}
+                      value={data.observacoes}
+                      onChange={(e) => setData('observacoes', e.target.value)}
+                      disabled={processing}
+                    />
+                    {errors.observacoes && (
+                      <FieldError>{errors.observacoes}</FieldError>
+                    )}
+                  </Field>
 
-                {/* Permite reenvio (Switch) */}
-                <div className="flex items-center space-x-2 md:col-span-2">
-                  <Switch
-                    id="permiteReenvio"
-                    checked={data.permite_reenvio}
-                    onCheckedChange={(checked) =>
-                      setData('permite_reenvio', checked)
-                    }
-                  />
-                  <Label
-                    htmlFor="permiteReenvio"
-                    className="text-sm font-normal"
-                  >
-                    Permite reenvio
-                  </Label>
-                </div>
-              </div>
+                  {/* Permite reenvio */}
+                  <Field>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="permiteReenvio"
+                        checked={data.permite_reenvio}
+                        onCheckedChange={(checked) =>
+                          setData('permite_reenvio', checked)
+                        }
+                        disabled={processing}
+                      />
+                      <FieldLabel
+                        htmlFor="permiteReenvio"
+                        className="text-sm font-normal"
+                      >
+                        Permite reenvio
+                      </FieldLabel>
+                    </div>
+                  </Field>
+                </FieldSet>
+              </FieldGroup>
 
               {/* Botões */}
-              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:space-x-2">
-                <Button variant="outline" asChild className="w-full sm:w-auto">
+              <div className="mt-6 flex flex-col-reverse gap-2 border-t pt-4 sm:flex-row sm:justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  asChild
+                  disabled={processing}
+                  className="w-full hover:cursor-pointer sm:w-auto"
+                >
                   <Link href={`/dashboard/diretor/prazos/${prazo.id}`}>
                     Cancelar
                   </Link>
@@ -270,15 +333,15 @@ export default function Edit({ prazo, disciplinas, classes }) {
                 <Button
                   type="submit"
                   disabled={processing}
-                  className="w-full sm:w-auto"
+                  className="w-full hover:cursor-pointer sm:w-auto"
                 >
                   {processing ? (
                     <>
-                      <Loader2 className="mr-1.5 size-4 animate-spin" />
-                      Salvando...
+                      <Spinner />
+                      A guardar...
                     </>
                   ) : (
-                    'Salvar Alterações'
+                    'Guardar alterações'
                   )}
                 </Button>
               </div>

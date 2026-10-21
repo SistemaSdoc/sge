@@ -7,6 +7,7 @@ use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Tenant\Auth\NewPasswordController;
 use App\Http\Controllers\Tenant\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Tenant\AulaController;
 use App\Http\Controllers\Tenant\AvaliacaoProvaController;
 use App\Http\Controllers\Tenant\AvisoController;
 use App\Http\Controllers\Tenant\BancaJuriPapController;
@@ -43,6 +44,7 @@ use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PagamentoController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PeriodoLancamentoNotasController;
+use App\Http\Controllers\Tenant\PlanificacaoController;
 use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\PreencherHistoricoController;
 use App\Http\Controllers\Tenant\ProfessorController as ProfessorControllerGeral;
@@ -67,7 +69,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
-use App\Http\Controllers\Tenant\PlanificacaoController;
+
 /*
 |--------------------------------------------------------------------------
 | Tenant Routes
@@ -135,10 +137,8 @@ Route::middleware([
     |--------------------------------------------------------------------------
     | Conclusão do Perfil do Aluno
     |--------------------------------------------------------------------------
-    |
-    | Rotas para o aluno completar os dados pessoais obrigatórios.
-    |
     */
+
     Route::middleware([
         'auth:tenant',
         'tenant.status',
@@ -180,11 +180,10 @@ Route::middleware([
             require base_path('routes/settings.php');
 
             // ─────────────────────────────────────────────────────────────
-// Planificações
-// ─────────────────────────────────────────────────────────────
+            // Planificações
+            // ─────────────────────────────────────────────────────────────
             Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
 
-                // ─── Estáticas (ordem importa) ───
                 Route::get('/', [PlanificacaoController::class, 'index'])
                     ->name('index');
 
@@ -203,13 +202,19 @@ Route::middleware([
                 Route::get('/versao/{versao}/download', [PlanificacaoController::class, 'download'])
                     ->name('download');
 
-                // ─── Dinâmicas (por último) ───
                 Route::get('/{planificacao}', [PlanificacaoController::class, 'show'])
                     ->name('show');
 
                 Route::delete('/{planificacao}', [PlanificacaoController::class, 'destroy'])
                     ->name('destroy');
             });
+
+            // ─────────────────────────────────────────────────────────────
+            // AULAS / SUMÁRIOS — rotas partilhadas (professor / aluno / direção)
+            // O controller ramifica por perfil dentro do index()
+            // ─────────────────────────────────────────────────────────────
+            Route::get('aulas',        [AulaController::class, 'index'])->name('aulas.index');
+            Route::get('aulas/{aula}', [AulaController::class, 'show']) ->name('aulas.show');
 
             Route::resource('users', UserController::class)->except(['show']);
 
@@ -509,6 +514,7 @@ Route::middleware([
             */
             Route::get('/relatorios', [RelatorioController::class, 'index'])
                 ->name('relatorios.index');
+
             /*
             |--------------------------------------------------------------------------
             | Horários de Disciplinas de Turmas
@@ -550,7 +556,6 @@ Route::middleware([
                 Route::post('/', [GrupoPapController::class, 'storeIndependente'])
                     ->name('grupos-pap.store');
 
-                /* Cascata — auxiliares do formulário independente */
                 Route::get('classes', [GrupoPapController::class, 'classes'])
                     ->name('grupos-pap.classes');
                 Route::get('turnos', [GrupoPapController::class, 'turnos'])
@@ -766,13 +771,26 @@ Route::middleware([
 
             // ===== PROFESSOR =====
             Route::prefix('professor')->name('professor.')->group(function () {
+                // Provas
                 Route::get('provas', [SubmissaoProvaController::class, 'index'])->name('provas.index');
                 Route::get('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'create'])->name('provas.submeter');
                 Route::post('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'store'])->name('provas.store');
                 Route::get('provas/{submissao}/arquivo/{tipo}', [SubmissaoProvaController::class, 'arquivo'])->name('provas.arquivo');
+
+                // Justificativas
                 Route::get('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
                 Route::post('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
                 Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
+
+                // ── AULAS / SUMÁRIOS (ações de escrita do professor) ─────
+                Route::get('aulas',                  [AulaController::class, 'index'])   ->name('aulas.index');
+                Route::get('aulas/create',           [AulaController::class, 'create'])  ->name('aulas.create');
+                Route::post('aulas',                 [AulaController::class, 'store'])   ->name('aulas.store');
+                Route::get('aulas/{aula}/edit',      [AulaController::class, 'edit'])    ->name('aulas.edit');
+                Route::put('aulas/{aula}',           [AulaController::class, 'update'])  ->name('aulas.update');
+                Route::delete('aulas/{aula}',        [AulaController::class, 'destroy']) ->name('aulas.destroy');
+                Route::post('aulas/{aula}/publicar', [AulaController::class, 'publicar'])->name('aulas.publicar');
+                Route::post('aulas/{aula}/cancelar', [AulaController::class, 'cancelar'])->name('aulas.cancelar');
             });
 
             /*
@@ -896,12 +914,11 @@ Route::middleware([
 
             Route::post('historico/{aluno}/confirmar', [PreencherHistoricoController::class, 'confirmar'])
                 ->name('preencher-historico.confirmar');
-
         });
 
     /*
       |--------------------------------------------------------------------------
-      | Routas para acessar os documentos do curso tutelado
+      | Rotas para acessar os documentos do curso tutelado
       |--------------------------------------------------------------------------
       */
     Route::get('/storage/{path}', function (string $path) {

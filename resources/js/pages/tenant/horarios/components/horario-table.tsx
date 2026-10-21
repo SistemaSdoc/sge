@@ -1,5 +1,11 @@
 import { useMemo, useState } from 'react';
-import { CalendarClock, ChevronDownIcon } from 'lucide-react';
+import { Link } from '@inertiajs/react';
+import {
+  CalendarClock,
+  ChevronDownIcon,
+  FileText,
+  Pencil,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -37,12 +43,7 @@ const DIAS = [
   { id: 7, nome: 'Domingo' },
 ];
 
-const hoje = () => {
-  const d = new Date().getDay(); // 0 = domingo
-  return d === 0 ? 7 : d;
-};
-
-// Uma disciplina por bloco, com as turmas agrupadas por baixo
+// Agrupa por disciplina (mantém o comportamento atual, agora com sumários)
 const agruparPorDisciplina = (lista) => {
   const mapa = new Map();
 
@@ -51,7 +52,14 @@ const agruparPorDisciplina = (lista) => {
       disciplina: a.disciplina,
       turmas: [],
     };
-    grupo.turmas.push({ id: a.turma.id, nome: a.turma.nome, sala: a.sala });
+    grupo.turmas.push({
+      id: a.turma.id,
+      nome: a.turma.nome,
+      sala: a.sala,
+      aula_ultima: a.aula_ultima,
+      aula_proxima: a.aula_proxima,
+      url_criar: a.url_criar,
+    });
     mapa.set(a.disciplina.nome, grupo);
   });
 
@@ -83,7 +91,7 @@ function FiltroDropdown({ label, titulo, children }) {
 }
 
 export function HorarioTable({
-  aulas,
+  aulas = [],
   perfil,
   anosLectivos = [],
   anoLectivoActual,
@@ -203,12 +211,12 @@ export function HorarioTable({
             description="Ainda não há aulas com horário definido neste ano lectivo."
           />
         ) : (
-          <Table className="min-w-[760px] table-fixed">
+          <Table className="min-w-[840px] table-fixed">
             <TableHeader>
               <TableRow className="bg-muted/72">
                 <TableHead className="w-36 px-4 text-center">Hora</TableHead>
                 {dias.map((d) => (
-                  <TableHead key={d.id} className="px-4 text-center">
+                  <TableHead key={d.id} className="px-3 text-center">
                     {d.nome}
                   </TableHead>
                 ))}
@@ -228,30 +236,17 @@ export function HorarioTable({
                     return (
                       <TableCell
                         key={d.id}
-                        className="px-4 text-center align-middle"
+                        className="px-3 align-middle"
                       >
                         {grupos.length > 0 && (
-                          <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-3">
                             {grupos.map((g) => (
-                              <div
+                              <CelulaGrupo
                                 key={g.disciplina.nome}
-                                title={g.disciplina.nome}
-                                className="flex flex-col gap-1"
-                              >
-                                <p>{g.disciplina.sigla}</p>
-
-                                {mostrarTurma ? (
-                                  <p className="text-xs text-muted-foreground">
-                                    {g.turmas.map((t) => t.nome).join(', ')}
-                                  </p>
-                                ) : (
-                                  g.turmas[0]?.sala && (
-                                    <p className="text-xs text-muted-foreground">
-                                      Sala {g.turmas[0].sala}
-                                    </p>
-                                  )
-                                )}
-                              </div>
+                                grupo={g}
+                                mostrarTurma={mostrarTurma}
+                                isProfessor={isProfessor}
+                              />
                             ))}
                           </div>
                         )}
@@ -265,5 +260,99 @@ export function HorarioTable({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// Célula: disciplina + temas
+// ═══════════════════════════════════════════════════════════
+
+function CelulaGrupo({ grupo, mostrarTurma, isProfessor }) {
+  // Caso multi-turma (ex: professor com 10ªA + 10ªB na mesma disciplina)
+  if (mostrarTurma && grupo.turmas.length > 1) {
+    return (
+      <div className="flex flex-col gap-2">
+        <p
+          className="text-center text-sm font-semibold"
+          title={grupo.disciplina.nome}
+        >
+          {grupo.disciplina.sigla}
+        </p>
+        <div className="flex flex-col gap-2">
+          {grupo.turmas.map((t) => (
+            <TurmaComTema
+              key={t.id}
+              turma={t}
+              isProfessor={isProfessor}
+              showTurmaNome
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Caso simples: 1 turma
+  const turma = grupo.turmas[0];
+
+  return (
+    <div className="flex flex-col gap-1 text-center">
+      <p className="text-sm font-semibold" title={grupo.disciplina.nome}>
+        {grupo.disciplina.sigla}
+      </p>
+      {turma?.sala && (
+        <p className="text-[10px] text-muted-foreground">Sala {turma.sala}</p>
+      )}
+      <TurmaComTema turma={turma} isProfessor={isProfessor} />
+    </div>
+  );
+}
+
+function TurmaComTema({ turma, isProfessor, showTurmaNome = false }) {
+  if (!turma) return null;
+
+  const ultima = turma.aula_ultima;
+  const proxima = turma.aula_proxima;
+
+  return (
+    <div className="flex flex-col gap-1  border border-border/40 bg-muted/20 px-2 py-1.5">
+      {showTurmaNome && (
+        <p className="text-[10px] font-medium text-muted-foreground">
+          {turma.nome}
+        </p>
+      )}
+
+      {/* Tema da última aula registada OU botão de criar */}
+      {ultima?.titulo ? (
+        <Link
+          href={ultima.url_ver}
+          className="group inline-flex items-start gap-1 text-[11px] leading-tight text-primary hover:underline"
+          title={ultima.titulo}
+        >
+          <FileText className="mt-0.5 size-3 shrink-0" />
+          <span className="line-clamp-2 text-left">{ultima.titulo}</span>
+        </Link>
+      ) : isProfessor && turma.url_criar ? (
+        <Link
+          href={turma.url_criar}
+          className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 hover:underline dark:text-amber-400"
+        >
+          <Pencil className="size-3" />
+          Escrever sumário
+        </Link>
+      ) : (
+        <p className="text-[11px] italic text-muted-foreground">Sem sumário</p>
+      )}
+
+      {/* Próxima aula (aluno + professor) */}
+      {proxima?.titulo && (
+        <p
+          className="line-clamp-1 text-[10px] text-muted-foreground"
+          title={`Próximo: ${proxima.titulo}`}
+        >
+          <span className="font-medium">Próximo:</span> {proxima.titulo}
+        </p>
+      )}
+    </div>
   );
 }

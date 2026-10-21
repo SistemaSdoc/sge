@@ -4,20 +4,21 @@ namespace App\Providers;
 
 use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Aula;
 use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Documento;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
+use App\Models\Tenant\Planificacao;
 use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\User;
-use App\Models\Tenant\Planificacao;
-use App\Policies\Tenant\PlanificacaoPolicy;
 use App\Notifications\Channels\InstitutionLogoMailChannel;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Observers\PagamentoObserver;
 use App\Policies\Tenant\AcessManagementPolicy;
 use App\Policies\Tenant\AnoLectivoPolicy;
+use App\Policies\Tenant\AulaPolicy;
 use App\Policies\Tenant\ColegioPolicy;
 use App\Policies\Tenant\ConfirmacaoMatriculaPolicy;
 use App\Policies\Tenant\DocumentoPolicy;
@@ -26,6 +27,7 @@ use App\Policies\Tenant\GrupoPapPolicy;
 use App\Policies\Tenant\HorarioPolicy;
 use App\Policies\Tenant\ItemPagavelPolicy;
 use App\Policies\Tenant\PautaPolicy;
+use App\Policies\Tenant\PlanificacaoPolicy;
 use App\Policies\Tenant\PrazoProvaPolicy;
 use App\Policies\Tenant\RolePolicy;
 use App\Policies\Tenant\SubmissaoProvaPolicy;
@@ -83,6 +85,10 @@ class AppServiceProvider extends ServiceProvider
             ])->withSharedData();
         });
 
+        // ══════════════════════════════════════════════════════════
+        // GATES E POLICIES
+        // ══════════════════════════════════════════════════════════
+
         Gate::define('pauta.viewAny', [PautaPolicy::class, 'viewAny']);
         Gate::define('pauta.view', [PautaPolicy::class, 'view']);
         Gate::define('pauta.viewAnyCurso', [PautaPolicy::class, 'viewAnyCurso']);
@@ -93,12 +99,12 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::policy(ItemPagavel::class, ItemPagavelPolicy::class);
         Gate::policy(AnoLectivo::class, AnoLectivoPolicy::class);
-
         Gate::policy(Documento::class, DocumentoPolicy::class);
         Gate::policy(TurmaAluno::class, ConfirmacaoMatriculaPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(GrupoPap::class, GrupoPapPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
+        Gate::policy(Planificacao::class, PlanificacaoPolicy::class);
 
         Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);
 
@@ -120,7 +126,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('confirmacoes.matricula.viewAny', [ConfirmacaoMatriculaPolicy::class, 'viewAny']);
         Gate::define('confirmacoes.matricula.confirmar', [ConfirmacaoMatriculaPolicy::class, 'confirmar']);
 
-        // PRAZO PROVA
+        // ── PRAZO PROVA ───────────────────────────────────────────
         Gate::define('prazo-prova.viewAny', [PrazoProvaPolicy::class, 'viewAny']);
         Gate::define('prazo-prova.view', [PrazoProvaPolicy::class, 'view']);
         Gate::define('prazo-prova.create', [PrazoProvaPolicy::class, 'create']);
@@ -129,7 +135,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('prazo-prova.prorrogar', [PrazoProvaPolicy::class, 'prorrogar']);
         Gate::define('prazo-prova.fechar', [PrazoProvaPolicy::class, 'fechar']);
 
-        // SUBMISSÃO PROVA
+        // ── SUBMISSÃO PROVA ───────────────────────────────────────
         Gate::define('submissao-prova.viewAny', [SubmissaoProvaPolicy::class, 'viewAny']);
         Gate::define('submissao-prova.view', [SubmissaoProvaPolicy::class, 'view']);
         Gate::define('submissao-prova.create', [SubmissaoProvaPolicy::class, 'create']);
@@ -138,9 +144,21 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('submissao-prova.avaliar', [SubmissaoProvaPolicy::class, 'avaliar']);
         Gate::define('submissao-prova.visualizarArquivo', [SubmissaoProvaPolicy::class, 'visualizarArquivo']);
 
+        // ── AULAS / SUMÁRIOS ──────────────────────────────────────
+        // Abilities nomeadas — usadas pelo SidebarMenuService e testes
+        Gate::define('aula.viewAny',  [AulaPolicy::class, 'viewAny']);
+        Gate::define('aula.view',     [AulaPolicy::class, 'view']);
+        Gate::define('aula.create',   [AulaPolicy::class, 'create']);
+        Gate::define('aula.update',   [AulaPolicy::class, 'update']);
+        Gate::define('aula.delete',   [AulaPolicy::class, 'delete']);
+        Gate::define('aula.publicar', [AulaPolicy::class, 'publicar']);
+        Gate::define('aula.cancelar', [AulaPolicy::class, 'cancelar']);
 
-        Gate::policy(Planificacao::class, PlanificacaoPolicy::class);
-        // Registrar observadores de modelos
+        // OBRIGATÓRIO: registar a policy para o authorizeResource do controller
+        // Sem isto, o AulaController devolve 403 em todas as ações (index, show, etc.)
+        Gate::policy(Aula::class, AulaPolicy::class);
+
+        // ── OBSERVERS ─────────────────────────────────────────────
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
         Pagamento::observe(PagamentoObserver::class);
     }
@@ -157,13 +175,13 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Password::defaults(
-            fn(): ?Password => app()->isProduction()
+            fn (): ?Password => app()->isProduction()
                 ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
                 : null,
         );
     }

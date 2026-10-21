@@ -1,8 +1,10 @@
 import { createInertiaApp } from '@inertiajs/react';
 import { configureEcho } from '@laravel/echo-react';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { useEffect, useState } from 'react';
 import { ClientToaster } from '@/components/client-toaster';
-import { TooltipProvider } from '@/components/ui/tooltip'; // ← import direto (não lazy)
+import { ErrorBoundary } from '@/components/error-boundary';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
 import { useFlashToast } from '@/hooks/use-flash-toast';
 import AppLayout from '@/layouts/app-layout';
@@ -29,10 +31,7 @@ function ClientOnly({ children }: { children: React.ReactNode }) {
     setHasMounted(true);
   }, []);
 
-  if (!hasMounted) {
-    return null;
-  }
-
+  if (!hasMounted) return null;
   return <>{children}</>;
 }
 
@@ -40,10 +39,8 @@ function AppProviders({ children }: { children: React.ReactNode }) {
   useFlashToast();
 
   return (
-    // TooltipProvider agora é renderizado tanto no servidor quanto no cliente
     <TooltipProvider delayDuration={0}>
       {children}
-      {/* Apenas o Toaster fica no cliente */}
       <ClientOnly>
         <ClientToaster />
       </ClientOnly>
@@ -53,6 +50,14 @@ function AppProviders({ children }: { children: React.ReactNode }) {
 
 createInertiaApp({
   title: (title) => (title ? `${title} - ${appName}` : appName),
+
+  // ✅ Resolve .tsx primeiro, depois .jsx (coexistem no projeto)
+  resolve: (name) =>
+    resolvePageComponent(
+      [`./pages/${name}.tsx`, `./pages/${name}.jsx`],
+      import.meta.glob('./pages/**/*.{jsx,tsx}'),
+    ),
+
   layout: (name) => {
     if (name.startsWith('errors/')) {
       return null;
@@ -63,26 +68,37 @@ createInertiaApp({
         name === 'tenant/certificado/show' ||
         name === 'tenant/access-denied':
         return null;
+
       case name.startsWith('central/auth/') || name.startsWith('tenant/auth/'):
         return AuthLayout;
+
       case name === 'tenant/users/profile/show' ||
         name === 'tenant/users/profile/academic' ||
         name === 'tenant/users/profile/security':
         return [AppLayout, UserProfileLayout];
+
       case name.startsWith('tenant/settings/'):
         return [AppLayout, SettingsLayout];
+
       default:
         return AppLayout;
     }
   },
+
   strictMode: true,
+
+  // ✅ ErrorBoundary global — apanha erros de qualquer página/layout
   withApp(app) {
-    return <AppProviders>{app}</AppProviders>;
+    return (
+      <ErrorBoundary>
+        <AppProviders>{app}</AppProviders>
+      </ErrorBoundary>
+    );
   },
+
   progress: {
     color: '#F8941F',
   },
 });
 
-// Inicializa o tema (cliente-only, usa useEffect)
 initializeTheme();

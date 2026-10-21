@@ -1,9 +1,15 @@
 import { useForm } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from '@/components/ui/field';
 import {
   Select,
   SelectContent,
@@ -12,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import MultipleSelector from '@/components/ui/multiselect';
+import { Spinner } from '@/components/spinner';
 import { toast } from 'sonner';
 
 export default function CriarPrazoDrawer({
@@ -26,15 +33,17 @@ export default function CriarPrazoDrawer({
     tipo_prova: 'Prova-Trimestral',
     disciplina_ids: [],
     classe_ids: [],
-    periodo: '',          // ← agora string singular
+    periodo: '',
     data_inicio: '',
     data_limite: '',
     observacoes: '',
     permite_reenvio: true,
   });
 
-  const disciplinaOptions = disciplinas?.map((d) => ({ value: d.id, label: d.nome })) || [];
-  const classeOptions = classes?.map((c) => ({ value: c.id, label: c.nome })) || [];
+  const disciplinaOptions =
+    disciplinas?.map((d) => ({ value: d.id, label: d.nome })) || [];
+  const classeOptions =
+    classes?.map((c) => ({ value: c.id, label: c.nome })) || [];
   const periodoOptions = periodos ?? [];
 
   const submit = (e) => {
@@ -76,187 +85,208 @@ export default function CriarPrazoDrawer({
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      {/* Título */}
-      <div className="space-y-1.5">
-        <Label htmlFor="titulo">Título (opcional)</Label>
-        <Input
-          id="titulo"
-          type="text"
-          placeholder="Ex: Exame Final 1º Trimestre"
-          value={data.titulo}
-          onChange={(e) => setData('titulo', e.target.value)}
-        />
-      </div>
+      <FieldGroup>
+        <FieldSet>
+          {/* Título */}
+          <Field>
+            <FieldLabel htmlFor="titulo">Título (opcional)</FieldLabel>
+            <Input
+              id="titulo"
+              type="text"
+              placeholder="Ex: Exame Final 1º Trimestre"
+              value={data.titulo}
+              onChange={(e) => setData('titulo', e.target.value)}
+              disabled={processing}
+            />
+            {errors.titulo && <FieldError>{errors.titulo}</FieldError>}
+          </Field>
 
-      {/* Tipo de Prova */}
-      <div className="space-y-1.5">
-        <Label htmlFor="tipo_prova">
-          Tipo de Prova <span className="text-destructive"></span>
-        </Label>
-        <Select
-          value={data.tipo_prova}
-          onValueChange={(value) => setData('tipo_prova', value)}
-        >
-          <SelectTrigger id="tipo_prova" className="w-full">
-            <SelectValue placeholder="Selecione o tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Prova-Trimestral">Prova Trimestral</SelectItem>
-            <SelectItem value="Recurso">Recurso</SelectItem>
-            <SelectItem value="Exame-especial">Exame Especial</SelectItem>
-          </SelectContent>
-        </Select>
-        {errors.tipo_prova && (
-          <p className="text-sm text-destructive">{errors.tipo_prova}</p>
-        )}
-      </div>
+          {/* Tipo de Prova */}
+          <Field>
+            <FieldLabel htmlFor="tipo_prova">
+              Tipo de Prova <span className="text-destructive">*</span>
+            </FieldLabel>
+            <Select
+              value={data.tipo_prova}
+              onValueChange={(value) => setData('tipo_prova', value)}
+              disabled={processing}
+            >
+              <SelectTrigger id="tipo_prova" className="w-full">
+                <SelectValue placeholder="Selecione o tipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Prova-Trimestral">
+                  Prova Trimestral
+                </SelectItem>
+                <SelectItem value="Recurso">Recurso</SelectItem>
+                <SelectItem value="Exame-especial">Exame Especial</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.tipo_prova && (
+              <FieldError>{errors.tipo_prova}</FieldError>
+            )}
+          </Field>
 
-      {/* Disciplinas */}
-      <div className="space-y-1.5">
-        <Label>
-          Disciplinas <span className="text-destructive"></span>
-        </Label>
-        <MultipleSelector
-          value={data.disciplina_ids}
-          onChange={(newSelected) => setData('disciplina_ids', newSelected)}
-          options={disciplinaOptions}
-          placeholder="Selecione pelo menos uma disciplina..."
-          emptyIndicator="Nenhuma disciplina encontrada"
-          className="w-full"
-        />
-        {data.disciplina_ids.length === 0 && (
-          <p className="text-xs text-muted-foreground">
-            Obrigatório — selecione pelo menos uma disciplina
-          </p>
-        )}
-        {errors.disciplina_ids && (
-          <p className="text-sm text-destructive">{errors.disciplina_ids}</p>
-        )}
-      </div>
+          {/* Disciplinas */}
+          <Field>
+            <FieldLabel>
+              Disciplinas <span className="text-destructive">*</span>
+            </FieldLabel>
+            <MultipleSelector
+              value={data.disciplina_ids}
+              onChange={(newSelected) => setData('disciplina_ids', newSelected)}
+              options={disciplinaOptions}
+              placeholder="Selecione pelo menos uma disciplina..."
+              emptyIndicator="Nenhuma disciplina encontrada"
+              className="w-full"
+              disabled={processing}
+            />
+            {errors.disciplina_ids && (
+              <FieldError>{errors.disciplina_ids}</FieldError>
+            )}
+          </Field>
 
-      {/* Classes */}
-      <div className="space-y-1.5">
-        <Label>
-          Classes <span className="text-destructive"></span>
-        </Label>
-        <MultipleSelector
-          value={data.classe_ids}
-          onChange={(newSelected) => setData('classe_ids', newSelected)}
-          options={classeOptions}
-          placeholder="Selecione pelo menos uma classe..."
-          emptyIndicator="Nenhuma classe encontrada"
-          className="w-full"
-        />
-        {data.classe_ids.length === 0 && (
-          <p className="text-xs text-muted-foreground">
-            Obrigatório — selecione pelo menos uma classe
-          </p>
-        )}
-        {errors.classe_ids && <p className="text-sm text-destructive">{errors.classe_ids}</p>}
-      </div>
+          {/* Classes */}
+          <Field>
+            <FieldLabel>
+              Classes <span className="text-destructive">*</span>
+            </FieldLabel>
+            <MultipleSelector
+              value={data.classe_ids}
+              onChange={(newSelected) => setData('classe_ids', newSelected)}
+              options={classeOptions}
+              placeholder="Selecione pelo menos uma classe..."
+              emptyIndicator="Nenhuma classe encontrada"
+              className="w-full"
+              disabled={processing}
+            />
+            {errors.classe_ids && (
+              <FieldError>{errors.classe_ids}</FieldError>
+            )}
+          </Field>
 
-      {/* Período — DROPDOWN SIMPLES */}
-      <div className="space-y-1.5">
-        <Label htmlFor="periodo">
-          Período <span className="text-destructive"></span>
-        </Label>
-        <Select
-          value={data.periodo}
-          onValueChange={(value) => setData('periodo', value)}
-        >
-          <SelectTrigger id="periodo" className="w-full">
-            <SelectValue placeholder="Selecione o período" />
-          </SelectTrigger>
-          <SelectContent>
-            {periodoOptions.map((p) => (
-              <SelectItem key={p.value} value={p.value}>
-                {p.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {!data.periodo && (
-          <p className="text-xs text-muted-foreground">
-            Obrigatório — selecione um período
-          </p>
-        )}
-        {errors.periodo && <p className="text-sm text-destructive">{errors.periodo}</p>}
-      </div>
+          {/* Período */}
+          <Field>
+            <FieldLabel htmlFor="periodo">
+              Período <span className="text-destructive">*</span>
+            </FieldLabel>
+            <Select
+              value={data.periodo}
+              onValueChange={(value) => setData('periodo', value)}
+              disabled={processing}
+            >
+              <SelectTrigger id="periodo" className="w-full">
+                <SelectValue placeholder="Selecione o período" />
+              </SelectTrigger>
+              <SelectContent>
+                {periodoOptions.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>
+                    {p.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.periodo && <FieldError>{errors.periodo}</FieldError>}
+          </Field>
 
-      {/* Datas */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label htmlFor="data_inicio">
-            Data de Início <span className="text-destructive"></span>
-          </Label>
-          <Input
-            id="data_inicio"
-            type="datetime-local"
-            value={data.data_inicio}
-            onChange={(e) => setData('data_inicio', e.target.value)}
-            required
-          />
-          {errors.data_inicio && (
-            <p className="text-sm text-destructive">{errors.data_inicio}</p>
-          )}
-        </div>
+          {/* Datas */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field>
+              <FieldLabel htmlFor="data_inicio">
+                Data de Início <span className="text-destructive">*</span>
+              </FieldLabel>
+              <Input
+                id="data_inicio"
+                type="datetime-local"
+                value={data.data_inicio}
+                onChange={(e) => setData('data_inicio', e.target.value)}
+                disabled={processing}
+                required
+              />
+              {errors.data_inicio && (
+                <FieldError>{errors.data_inicio}</FieldError>
+              )}
+            </Field>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="data_limite">
-            Data Limite <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="data_limite"
-            type="datetime-local"
-            value={data.data_limite}
-            onChange={(e) => setData('data_limite', e.target.value)}
-            required
-          />
-          {errors.data_limite && (
-            <p className="text-sm text-destructive">{errors.data_limite}</p>
-          )}
-        </div>
-      </div>
+            <Field>
+              <FieldLabel htmlFor="data_limite">
+                Data Limite <span className="text-destructive">*</span>
+              </FieldLabel>
+              <Input
+                id="data_limite"
+                type="datetime-local"
+                value={data.data_limite}
+                onChange={(e) => setData('data_limite', e.target.value)}
+                disabled={processing}
+                required
+              />
+              {errors.data_limite && (
+                <FieldError>{errors.data_limite}</FieldError>
+              )}
+            </Field>
+          </div>
 
-      {/* Observações */}
-      <div className="space-y-1.5">
-        <Label htmlFor="observacoes">Observações</Label>
-        <Textarea
-          id="observacoes"
-          rows={3}
-          value={data.observacoes}
-          onChange={(e) => setData('observacoes', e.target.value)}
-        />
-      </div>
+          {/* Observações */}
+          <Field>
+            <FieldLabel htmlFor="observacoes">Observações</FieldLabel>
+            <Textarea
+              id="observacoes"
+              rows={3}
+              value={data.observacoes}
+              onChange={(e) => setData('observacoes', e.target.value)}
+              disabled={processing}
+            />
+            {errors.observacoes && (
+              <FieldError>{errors.observacoes}</FieldError>
+            )}
+          </Field>
 
-      {/* Permite reenvio */}
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="permiteReenvio"
-          checked={data.permite_reenvio}
-          onCheckedChange={(checked) => setData('permite_reenvio', checked)}
-        />
-        <Label htmlFor="permiteReenvio" className="text-sm font-normal">
-          Permite reenvio
-        </Label>
-      </div>
+          {/* Permite reenvio */}
+          <Field>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="permiteReenvio"
+                checked={data.permite_reenvio}
+                onCheckedChange={(checked) =>
+                  setData('permite_reenvio', checked)
+                }
+                disabled={processing}
+              />
+              <FieldLabel
+                htmlFor="permiteReenvio"
+                className="text-sm font-normal"
+              >
+                Permite reenvio
+              </FieldLabel>
+            </div>
+          </Field>
+        </FieldSet>
+      </FieldGroup>
 
       {/* Botões */}
-      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
+      <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
-          className="w-full sm:w-auto"
+          disabled={processing}
+          className="w-full hover:cursor-pointer sm:w-auto"
         >
           Cancelar
         </Button>
         <Button
           type="submit"
           disabled={processing}
-          className="w-full sm:w-auto"
+          className="w-full hover:cursor-pointer sm:w-auto"
         >
-          {processing ? 'Salvando...' : 'Criar Prazo'}
+          {processing ? (
+            <>
+              <Spinner />
+              A criar...
+            </>
+          ) : (
+            'Criar Prazo'
+          )}
         </Button>
       </div>
     </form>

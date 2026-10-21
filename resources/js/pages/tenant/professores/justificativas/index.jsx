@@ -6,9 +6,18 @@ import {
   AlertCircle,
   Users,
 } from 'lucide-react';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -22,114 +31,144 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { EmptyState } from '@/components/empty-state';
 
-export default function Index({ justificativas }) {
-  const getStatusIcon = (statusLabel) => {
-    if (statusLabel === 'Aceite')
-      return <CheckCircle className="size-4 text-green-600" />;
-    if (statusLabel === 'Recusada')
-      return <XCircle className="size-4 text-red-600" />;
-    return <AlertCircle className="size-4 text-yellow-600" />;
+export default function Index({ justificativas = [] }) {
+  const statusBadge = (statusLabel) => {
+    if (statusLabel === 'Aceite') {
+      return (
+        <Badge variant="outline" className="border-green-500 text-green-700">
+          <CheckCircle className="mr-1 size-3" />
+          Aceite
+        </Badge>
+      );
+    }
+    if (statusLabel === 'Recusada') {
+      return (
+        <Badge variant="outline" className="border-red-500 text-red-700">
+          <XCircle className="mr-1 size-3" />
+          Recusada
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="border-amber-500 text-amber-700">
+        <AlertCircle className="mr-1 size-3" />
+        {statusLabel}
+      </Badge>
+    );
   };
 
   return (
     <>
       <Head title="Minhas Justificativas" />
 
-      <div className="max-w-5xl mx-auto p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Minhas Justificativas</h1>
-          <Link
-            href="/dashboard/professor/provas"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ← Voltar para provas
-          </Link>
-        </div>
-
-        {justificativas.length === 0 ? (
-          <Card className="shadow-sm">
-            <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <FileText className="size-12 mb-3 opacity-50" />
-              <p className="text-lg font-medium">Nenhuma justificativa enviada</p>
-              <p className="text-sm">
-                Você ainda não enviou justificativas para nenhum prazo.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card className="shadow-sm">
-            <CardHeader>
-              <CardTitle>Histórico de Justificativas</CardTitle>
+      <div className="mx-auto w-full max-w-7xl space-y-4 p-4 sm:p-6">
+        {/* Header + Tabela no mesmo Card */}
+        <Card className="gap-0 pb-0">
+          <CardHeader className="flex flex-col gap-3 border-b border-foreground/10 md:flex-row md:items-center">
+            <div className="min-w-0 md:flex-1">
+              <Breadcrumb>
+                <BreadcrumbList className="flex-wrap">
+                  <BreadcrumbItem className="min-w-0">
+                    <BreadcrumbLink asChild>
+                      <Link
+                        href="/dashboard/professor/provas"
+                        className="line-clamp-2 text-sm font-semibold text-primary"
+                      >
+                        Provas
+                      </Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem className="min-w-0">
+                    <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
+                      Minhas Justificativas
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
               <CardDescription>
-                Lista de todas as justificativas de não submissão que você
+                Histórico de todas as justificativas de não submissão que
                 enviou.
               </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="px-4">Prazo</TableHead>
-                    <TableHead className="px-4">Turma</TableHead>
-                    <TableHead className="px-4">Motivo</TableHead>
-                    <TableHead className="px-4 text-center">Status</TableHead>
-                    <TableHead className="px-4 text-center">Data</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {justificativas.map((just) => (
-                    <TableRow key={just.id}>
-                      <TableCell className="px-4 font-medium">
-                        {just.prazo_titulo}
-                      </TableCell>
+            </div>
+            <CardAction>
+              <Badge variant="secondary">
+                {justificativas.length}{' '}
+                {justificativas.length === 1 ? 'justificativa' : 'justificativas'}
+              </Badge>
+            </CardAction>
+          </CardHeader>
 
-                      {/* ✅ Nova coluna: Turma */}
-                      <TableCell className="px-4">
-                        {just.turma_nome ? (
-                          <span className="flex items-center gap-1 text-sm font-medium text-primary">
-                            <Users className="size-3.5" />
-                            {just.turma_nome}
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">—</span>
-                        )}
-                      </TableCell>
-
-                      <TableCell
-                        className="px-4 max-w-xs truncate"
-                        title={just.motivo}
-                      >
-                        {just.motivo}
-                      </TableCell>
-
-                      <TableCell className="px-4 text-center">
-                        <Badge
-                          variant="outline"
-                          className={
-                            just.status_label === 'Aceite'
-                              ? 'border-green-500 text-green-700'
-                              : just.status_label === 'Recusada'
-                                ? 'border-red-500 text-red-700'
-                                : 'border-yellow-500 text-yellow-700'
-                          }
-                        >
-                          <span className="flex items-center gap-1">
-                            {getStatusIcon(just.status_label)}
-                            {just.status_label}
-                          </span>
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="px-4 text-center">
-                        {just.data}
-                      </TableCell>
+          <CardContent className="p-0!">
+            {justificativas.length === 0 ? (
+              <EmptyState
+                variant="table"
+                icon={FileText}
+                title="Nenhuma justificativa enviada"
+                description="Ainda não enviou justificativas para nenhum prazo."
+              />
+            ) : (
+              <div className="w-full overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/72">
+                      <TableHead className="min-w-48 px-4">Prazo</TableHead>
+                      <TableHead className="min-w-32 px-4">Turma</TableHead>
+                      <TableHead className="min-w-64 px-4">Motivo</TableHead>
+                      <TableHead className="min-w-32 px-4 text-center">
+                        Estado
+                      </TableHead>
+                      <TableHead className="min-w-28 px-4 text-center">
+                        Data
+                      </TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        )}
+                  </TableHeader>
+                  <TableBody>
+                    {justificativas.map((just) => (
+                      <TableRow key={just.id}>
+                        <TableCell className="px-4 font-medium">
+                          <span className="line-clamp-2">
+                            {just.prazo_titulo}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-4">
+                          {just.turma_nome ? (
+                            <span className="flex items-center gap-1 text-sm font-medium text-primary">
+                              <Users className="size-3.5 shrink-0" />
+                              <span className="line-clamp-1">
+                                {just.turma_nome}
+                              </span>
+                            </span>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              —
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell
+                          className="px-4 max-w-xs"
+                          title={just.motivo}
+                        >
+                          <span className="line-clamp-2 text-sm">
+                            {just.motivo}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-4 text-center">
+                          {statusBadge(just.status_label)}
+                        </TableCell>
+                        <TableCell className="px-4 text-center text-xs text-muted-foreground whitespace-nowrap">
+                          {just.data}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </>
   );

@@ -274,6 +274,35 @@ final class SidebarMenuService
 
             ]),
 
+            new MenuGroup('Diário de Aulas', [
+                new MenuItem(
+                    key: 'minhas-aulas',
+                    title: 'As minhas aulas',
+                    href: route('tenant.dashboard.professor.aulas.index'),
+                    icon: 'BookOpen',
+                    can: fn() => $user->hasRole('Professor')
+                        && $gate->allows('aula.viewAny'),
+                ),
+
+                new MenuItem(
+                    key: 'sumarios-aluno',
+                    title: 'Sumários',
+                    href: route('tenant.dashboard.aulas.index'),
+                    icon: 'BookOpen',
+                    can: fn() => $user->hasRole('Aluno')
+                        && $gate->allows('aula.viewAny'),
+                ),
+
+                new MenuItem(                                                    // ← NOVO
+                    key: 'aulas-direcao',
+                    title: 'Aulas & Sumários',
+                    href: route('tenant.dashboard.aulas.index'),
+                    icon: 'BookOpen',
+                    can: fn() => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Coordenador'])
+                        && $gate->allows('aula.viewAny'),
+                ),
+            ]),
+
 
             new MenuGroup('Matrículas', [
                 new MenuItem(
