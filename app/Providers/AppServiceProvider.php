@@ -159,8 +159,18 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Aula::class, AulaPolicy::class);
 
         // ── OBSERVERS ─────────────────────────────────────────────
+        Gate::policy(Planificacao::class, PlanificacaoPolicy::class);
+        // Registrar observadores de modelos
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
         Pagamento::observe(PagamentoObserver::class);
+
+        // Inertia::handleExceptionsUsing(function (ExceptionResponse $response) {
+        //     if (\in_array($response->statusCode(), [403, 404, 500, 503])) {
+        //         return $response->render('ErrorPage', [
+        //             'status' => $response->statusCode(),
+        //         ])->withSharedData();
+        //     }
+        // });
     }
 
     /**

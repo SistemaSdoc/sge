@@ -1,7 +1,7 @@
 import { MetricItem } from './item';
 import { METRICS_CONFIG } from '@/utils/metrics';
 
-export function   MetricsBar({ metrics, canViewProfessores = true }) {
+export function MetricsBar({ metrics, canViewProfessores = true }) {
   if (!metrics) return null;
 
   return (

@@ -32,6 +32,8 @@ export function TurmaForm({
     curso_classe_id: '',
     curso_classe_turno_id: '',
     nome: '',
+    sala: '',
+    max_alunos: '',
     ano_lectivo_id: anoLectivoActual,
   });
 
@@ -102,7 +104,8 @@ export function TurmaForm({
     data.curso_tutelado_id &&
     data.curso_classe_id &&
     data.curso_classe_turno_id &&
-    data.nome.trim();
+    data.nome.trim() &&
+    data.sala.trim();
 
   return (
     <form onSubmit={handleSubmit}>
@@ -193,6 +196,53 @@ export function TurmaForm({
           )}
         </Field>
 
+        {/* Nome */}
+        <Field data-invalid={!!errors.nome}>
+          <FieldLabel htmlFor="nome">Nome da Turma</FieldLabel>
+          <Input
+            id="nome"
+            type="text"
+            placeholder="ex: ATI"
+            value={data.nome}
+            onChange={(e) => setData('nome', e.target.value)}
+            disabled={!data.curso_classe_turno_id}
+            aria-invalid={!!errors.nome}
+          />
+          {errors.nome && <FieldError>{errors.nome}</FieldError>}
+        </Field>
+
+        {/* Sala */}
+        <Field data-invalid={!!errors.sala}>
+          <FieldLabel htmlFor="sala">Sala</FieldLabel>
+          <Input
+            id="sala"
+            type="text"
+            placeholder="Ex.: Sala 10"
+            value={data.sala}
+            onChange={(e) => setData('sala', e.target.value)}
+            disabled={!data.curso_classe_turno_id}
+            required
+            aria-invalid={!!errors.sala}
+          />
+          {errors.sala && <FieldError>{errors.sala}</FieldError>}
+        </Field>
+
+        {/* Máximo de alunos */}
+        <Field data-invalid={!!errors.max_alunos}>
+          <FieldLabel htmlFor="max_alunos">Máximo de alunos</FieldLabel>
+          <Input
+            id="max_alunos"
+            type="number"
+            min="1"
+            placeholder="Ex.: 30"
+            value={data.max_alunos}
+            onChange={(e) => setData('max_alunos', e.target.value)}
+            disabled={!data.curso_classe_turno_id}
+            aria-invalid={!!errors.max_alunos}
+          />
+          {errors.max_alunos && <FieldError>{errors.max_alunos}</FieldError>}
+        </Field>
+
         {/* Ano Lectivo */}
         <Field data-invalid={!!errors.ano_lectivo_id}>
           <FieldLabel htmlFor="ano_lectivo_id">Ano Lectivo</FieldLabel>
@@ -217,21 +267,6 @@ export function TurmaForm({
           {errors.ano_lectivo_id && (
             <FieldError>{errors.ano_lectivo_id}</FieldError>
           )}
-        </Field>
-
-        {/* Nome */}
-        <Field data-invalid={!!errors.nome}>
-          <FieldLabel htmlFor="nome">Nome da Turma</FieldLabel>
-          <Input
-            id="nome"
-            type="text"
-            placeholder="ex: ATI"
-            value={data.nome}
-            onChange={(e) => setData('nome', e.target.value)}
-            disabled={!data.curso_classe_turno_id}
-            aria-invalid={!!errors.nome}
-          />
-          {errors.nome && <FieldError>{errors.nome}</FieldError>}
         </Field>
 
         {/* Botões de acção */}

@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -32,7 +32,7 @@ return new class extends Migration
 
         // 4. Backfill: preencher curso_id nas planificações existentes
         //    Assumindo que a classe+disciplina só existe num curso (senão fica NULL)
-        DB::statement("
+        DB::statement('
             UPDATE planificacoes p
             SET curso_id = (
                 SELECT DISTINCT cc.curso_tutelado_id
@@ -44,7 +44,7 @@ return new class extends Migration
                 LIMIT 1
             )
             WHERE p.curso_id IS NULL
-        ");
+        ');
     }
 
     public function down(): void

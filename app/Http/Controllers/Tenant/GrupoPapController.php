@@ -32,6 +32,7 @@ use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\GrupoPap\GrupoPapService;
 use App\Services\Tenant\GrupoPap\GrupoPapViewService;
 use App\Traits\NotificaGrupoPap;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -346,13 +347,22 @@ class GrupoPapController extends Controller
     /**
      * Remove um grupo PAP e os seus registos dependentes.
      */
-    public function destroy(GrupoPap $grupoPap)
-    {
+    public function destroy(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): RedirectResponse {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('delete', $grupoPap);
 
         $this->deleteGrupoPap->handle($grupoPap);
 
-        return response()->json(['message' => 'Grupo PAP removido com sucesso.']);
+        return to_route('tenant.dashboard.grupos-pap.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Grupo PAP removido com sucesso.',
+        ]);
     }
 
     /**

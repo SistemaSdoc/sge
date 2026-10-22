@@ -101,8 +101,7 @@ export default function Create({ prazo, turma, justificativa }) {
         },
         onError: (errors) => {
           const msg =
-            errors?.motivo ||
-            'Erro ao enviar justificativa. Tente novamente.';
+            errors?.motivo || 'Erro ao enviar justificativa. Tente novamente.';
           toast.error(msg);
         },
         onFinish: () => setLoading(false),

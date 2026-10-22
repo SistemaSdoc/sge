@@ -4,16 +4,15 @@ namespace App\Traits;
 
 use App\Models\Tenant\SugestaoTemaPap;
 use App\Models\Tenant\User;
-use App\Notifications\CursoTutelado\SugestaoTemaCriadaNotification;
 use App\Notifications\CursoTutelado\SugestaoTemaAprovadaNotification;
-use App\Notifications\CursoTutelado\SugestaoTemaRejeitadaNotification;
+use App\Notifications\CursoTutelado\SugestaoTemaCriadaNotification;
 use App\Notifications\CursoTutelado\SugestaoTemaMelhoriaSolicitadaNotification;
-use Illuminate\Support\Facades\Notification;
+use App\Notifications\CursoTutelado\SugestaoTemaRejeitadaNotification;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Notification;
 
 trait NotificaSugestaoTemaPap
 {
-
     private function destinatariosSugestaoTema(SugestaoTemaPap $sugestao): Collection
     {
         $cursoTutelado = $sugestao->cursoTutelado;
@@ -27,7 +26,7 @@ trait NotificaSugestaoTemaPap
             ->map->user
             ->filter();
 
-        $directores = User::whereHas('roles', fn($q) => $q->where('name', 'Director'))
+        $directores = User::whereHas('roles', fn ($q) => $q->where('name', 'Director'))
             ->where('instituicao_id', $cursoTutelado->instituicao_tutora_id)
             ->get();
 

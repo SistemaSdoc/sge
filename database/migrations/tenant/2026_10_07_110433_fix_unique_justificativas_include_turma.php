@@ -2,122 +2,45 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Verifica se um índice existe na tabela.
-     */
-    private function indexExists(string $table, string $indexName): bool
-    {
-        $result = DB::connection('tenant')->select(
-            "SHOW INDEX FROM `{$table}` WHERE Key_name = ?",
-            [$indexName]
-        );
-        return !empty($result);
-    }
+public function up(): void
+{
+    $tabela = 'justificativas_nao_submissao';
 
-    /**
-     * Verifica se uma foreign key existe na tabela.
-     */
-    private function foreignExists(string $table, string $fkName): bool
-    {
-        $result = DB::connection('tenant')->select(
-            "SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
-             WHERE TABLE_SCHEMA = DATABASE()
-               AND TABLE_NAME = ?
-               AND CONSTRAINT_NAME = ?
-               AND REFERENCED_TABLE_NAME IS NOT NULL",
-            [$table, $fkName]
-        );
-        return !empty($result);
-    }
-
-    public function up(): void
-    {
-        $table = 'justificativas_nao_submissao';
-
-        // ────────────────────────────────────────────────────────
-        // 1. Remover foreign keys (para libertar índices)
-        // ────────────────────────────────────────────────────────
-        $fksToDrop = [
-            "{$table}_prazo_prova_id_foreign",
-            "{$table}_professor_id_foreign",
-            "justificativas_nao_submissao_prazo_prova_id_foreign",
-            "justificativas_nao_submissao_professor_id_foreign",
-        ];
-
-        foreach ($fksToDrop as $fk) {
-            if ($this->foreignExists($table, $fk)) {
-                Schema::table($table, function (Blueprint $t) use ($fk) {
-                    $t->dropForeign($fk);
-                });
-            }
+    // índices temporários para as FKs não perderem suporte durante o drop do unique antigo
+    Schema::table($tabela, function (Blueprint $table) use ($tabela) {
+        if (! Schema::hasIndex($tabela, 'tmp_prazo_idx')) {
+            $table->index('prazo_prova_id', 'tmp_prazo_idx');
         }
-
-        // ────────────────────────────────────────────────────────
-        // 2. Remover índices temporários (se existirem)
-        // ────────────────────────────────────────────────────────
-        foreach (['tmp_prazo_idx', 'tmp_professor_idx'] as $idx) {
-            if ($this->indexExists($table, $idx)) {
-                Schema::table($table, function (Blueprint $t) use ($idx) {
-                    $t->dropIndex($idx);
-                });
-            }
+        if (! Schema::hasIndex($tabela, 'justificativas_professor_idx')
+            && ! Schema::hasIndex($tabela, 'tmp_professor_idx')) {
+            $table->index('professor_id', 'justificativas_professor_idx');
         }
+    });
 
-        // ────────────────────────────────────────────────────────
-        // 3. Remover unique antigo (se existir)
-        // ────────────────────────────────────────────────────────
-        if ($this->indexExists($table, 'justificativas_prazo_professor_unique')) {
-            Schema::table($table, function (Blueprint $t) {
-                $t->dropUnique('justificativas_prazo_professor_unique');
-            });
+    Schema::table($tabela, function (Blueprint $table) use ($tabela) {
+        if (Schema::hasIndex($tabela, 'justificativas_prazo_professor_unique')) {
+            $table->dropUnique('justificativas_prazo_professor_unique');
         }
-
-        // ────────────────────────────────────────────────────────
-        // 4. Criar novo unique com turma_id (se não existir)
-        // ────────────────────────────────────────────────────────
-        if (!$this->indexExists($table, 'justificativas_prazo_professor_turma_unique')) {
-            Schema::table($table, function (Blueprint $t) {
-                $t->unique(
-                    ['prazo_prova_id', 'professor_id', 'turma_id'],
-                    'justificativas_prazo_professor_turma_unique'
-                );
-            });
+        if (! Schema::hasIndex($tabela, 'justificativas_prazo_professor_turma_unique')) {
+            $table->unique(
+                ['prazo_prova_id', 'professor_id', 'turma_id'],
+                'justificativas_prazo_professor_turma_unique'
+            );
         }
+    });
 
-        // ────────────────────────────────────────────────────────
-        // 5. Recriar foreign keys (se não existirem)
-        // ────────────────────────────────────────────────────────
-        $fksToCreate = [
-            [
-                'name'       => "{$table}_prazo_prova_id_foreign",
-                'column'     => 'prazo_prova_id',
-                'ref_table'  => 'prazos_provas',
-                'ref_column' => 'id',
-            ],
-            [
-                'name'       => "{$table}_professor_id_foreign",
-                'column'     => 'professor_id',
-                'ref_table'  => 'professores',
-                'ref_column' => 'id',
-            ],
-        ];
-
-        foreach ($fksToCreate as $fk) {
-            if (!$this->foreignExists($table, $fk['name'])) {
-                Schema::table($table, function (Blueprint $t) use ($fk) {
-                    $t->foreign($fk['column'], $fk['name'])
-                        ->references($fk['ref_column'])
-                        ->on($fk['ref_table'])
-                        ->onDelete('cascade');
-                });
-            }
+    // só o tmp_prazo_idx é redundante (o novo unique cobre prazo_prova_id)
+    Schema::table($tabela, function (Blueprint $table) use ($tabela) {
+        if (Schema::hasIndex($tabela, 'tmp_prazo_idx')) {
+            $table->dropIndex('tmp_prazo_idx');
         }
-    }
+    });
+}
 
     public function down(): void
     {
@@ -140,7 +63,7 @@ return new class extends Migration
         }
 
         // Recriar unique antigo
-        if (!$this->indexExists($table, 'justificativas_prazo_professor_unique')) {
+        if (! $this->indexExists($table, 'justificativas_prazo_professor_unique')) {
             Schema::table($table, function (Blueprint $t) {
                 $t->unique(
                     ['prazo_prova_id', 'professor_id'],
@@ -156,7 +79,7 @@ return new class extends Migration
         ];
 
         foreach ($fksToCreate as $fk) {
-            if (!$this->foreignExists($table, $fk['name'])) {
+            if (! $this->foreignExists($table, $fk['name'])) {
                 Schema::table($table, function (Blueprint $t) use ($fk) {
                     $t->foreign($fk['column'], $fk['name'])
                         ->references('id')

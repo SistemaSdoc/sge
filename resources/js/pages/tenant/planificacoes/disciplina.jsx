@@ -239,7 +239,7 @@ export default function Disciplina({
                     <GraduationCap className="size-4 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-base font-semibold leading-none">
+                    <h2 className="text-base leading-none font-semibold">
                       {classe.nome}
                     </h2>
                     <p className="mt-1 text-xs text-muted-foreground">

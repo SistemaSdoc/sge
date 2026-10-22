@@ -80,11 +80,11 @@ export default function Show({
         deleteFn={handleDelete}
       />
 
-      <Tabs defaultValue="disciplinas" className="w-full">
+      <Tabs defaultValue="disciplinas" className="w-full min-w-0">
         {/* Wrapper com scroll smooth no mobile */}
         <TurmaTabsList classe={classe} totalRecurso={totalRecurso} />
 
-        <TabsContent value="alunos" className="mt-2 space-y-4">
+        <TabsContent value="alunos" className="mt-2 min-w-0 space-y-4">
           <TabAlunos
             key={searchAlunos ?? ''}
             can={can.alunos}
@@ -96,7 +96,7 @@ export default function Show({
           />
         </TabsContent>
 
-        <TabsContent value="disciplinas" className="mt-2 space-y-4">
+        <TabsContent value="disciplinas" className="mt-2 min-w-0 space-y-4">
           <TabDisciplinas
             key={searchDisciplinas ?? ''}
             can={can.disciplinas}

@@ -161,7 +161,7 @@ export default function PrazosEncerrados({
                       <p className="text-[11px] font-medium text-red-800 dark:text-red-300">
                         Parecer do director:
                       </p>
-                      <p className="mt-0.5 text-xs italic text-red-700 dark:text-red-200">
+                      <p className="mt-0.5 text-xs text-red-700 italic dark:text-red-200">
                         "{prazo.submissao.parecer_diretor}"
                       </p>
                     </div>
@@ -256,17 +256,17 @@ export default function PrazosEncerrados({
 
               {prazo.justificativa?.status === 'pendente' &&
                 !prazo.submeteu && (
+
                   <div className="mt-2 border border-amber-200 bg-amber-50 p-2 dark:border-amber-800 dark:bg-amber-950/20">
                     <p className="flex items-center gap-1 text-xs text-amber-700 dark:text-amber-400">
                       <AlertCircle className="size-3" />
-                      <span>
                         <strong>Justificativa pendente.</strong> Aguarda
                         avaliação.
                       </span>
-                    </p>
-                  </div>
-                )}
-            </CardContent>
+
+                  <div className="mt-2 rounded border border-yellow-200 bg-yellow-50 p-2 dark:border-yellow-800 dark:bg-yellow-950/20">
+                    <p className="flex items-center gap-1 text-xs text-yellow-700 dark:text-yellow-400">
+                      <AlertCircle className="size-3" />
 
             <CardFooter>
               {prazo.bloqueado ? (

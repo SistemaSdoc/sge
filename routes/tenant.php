@@ -17,6 +17,7 @@ use App\Http\Controllers\Tenant\ClasseController as ClasseControllerGeral;
 use App\Http\Controllers\Tenant\ClasseTurnoDisciplinaController;
 use App\Http\Controllers\Tenant\ClasseTurnoDisciplinaHorarioController;
 use App\Http\Controllers\Tenant\ClasseTurnoTurmaController;
+use App\Http\Controllers\Tenant\Colegios\ExportarListaAlunosTurmaController;
 use App\Http\Controllers\Tenant\CompletarPerfilController;
 use App\Http\Controllers\Tenant\CursoClasseController;
 use App\Http\Controllers\Tenant\CursoClasseTurnoController;
@@ -24,6 +25,8 @@ use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\CursoTuteladoProfessorController;
 use App\Http\Controllers\Tenant\CursoTuteladoSecretarioController;
 use App\Http\Controllers\Tenant\DashboardController;
+use App\Http\Controllers\Tenant\DesempenhoAlunoController;
+use App\Http\Controllers\Tenant\DesempenhoProfessorController;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FichaMatriculaController;
@@ -515,15 +518,23 @@ Route::middleware([
             Route::get('/relatorios', [RelatorioController::class, 'index'])
                 ->name('relatorios.index');
 
+            Route::get('/professor/desempenho', [DesempenhoProfessorController::class, 'index'])
+                ->name('professor.desempenho');
+
+            Route::get('/aluno/desempenho', [DesempenhoAlunoController::class, 'index'])
+                ->name('aluno.desempenho');
             /*
             |--------------------------------------------------------------------------
             | Horários de Disciplinas de Turmas
             |--------------------------------------------------------------------------
             */
 
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'create'])
+                ->name('turma.disciplinas.horarios.create');
+
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store'])
                 ->name('turma.disciplinas.horarios.store');
-
+                
             /*
             |--------------------------------------------------------------------------
             | Grupos PAP
@@ -756,10 +767,7 @@ Route::middleware([
             Route::post('notificacoes/{notification}/tutela/rejeitar', [NotificacaoController::class, 'rejeitarTutela'])
                 ->name('notificacoes.tutela.rejeitar');
 
-            Route::post('notificacoes/{id}/ler', [NotificacaoController::class, 'marcarLida'])
-                ->name('notificacoes.ler');
-
-            // ===== DIRETOR ===== 
+            // ===== DIRETOR =====
             Route::prefix('diretor')->name('diretor.')->group(function () {
                 Route::resource('prazos', PrazoProvaController::class)->except(['destroy']);
                 Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');
@@ -902,6 +910,9 @@ Route::middleware([
 
             Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}', [ClasseTurnoTurmaController::class, 'show'])
                 ->name('instituicoes.cursos-tutelados.classes.turnos.turmas.show');
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/alunos/exportar', [ExportarListaAlunosTurmaController::class, 'exportarLocal'])
+                ->name('instituicoes.cursos-tutelados.classes.turnos.turmas.alunos.exportar');
 
             Route::post('inscricoes', [InscricaoController::class, 'store'])
                 ->name('inscricoes.store');

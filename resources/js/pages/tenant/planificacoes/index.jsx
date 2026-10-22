@@ -260,7 +260,7 @@ export default function Index({
                     placeholder="Pesquisar disciplina por nome ou sigla…"
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
-                    className="pl-9 pr-9"
+                    className="pr-9 pl-9"
                   />
                   {busca && (
                     <button

@@ -2,7 +2,9 @@
 
 use App\Models\Central\Tenant;
 use App\Models\Central\User;
+use App\Services\Central\TenantMetricsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Role;
@@ -21,6 +23,7 @@ beforeEach(function (): void {
 
     Schema::connection('tenant')->create('users', function ($table): void {
         $table->string('id')->primary();
+        $table->string('email');
         $table->timestamp('last_login_at')->nullable();
         $table->softDeletes();
     });
@@ -46,6 +49,33 @@ afterEach(function (): void {
     if (isset($this->tenant)) {
         File::delete(database_path($this->tenant->database()->getName()));
     }
+});
+
+test('tenant metrics count users assigned the Subdirector role', function (): void {
+    $tenant = Tenant::query()->findOrFail('tenant-users-metrics-export-test');
+
+    $metrics = $tenant->run(function (): array {
+        DB::connection('tenant')->table('users')->insert([
+            'id' => 'subdirector-user',
+            'email' => 'subdirector@metrics.test',
+            'last_login_at' => null,
+            'deleted_at' => null,
+        ]);
+        DB::connection('tenant')->table('roles')->insert([
+            'id' => 1,
+            'name' => 'Subdirector',
+            'guard_name' => 'tenant',
+        ]);
+        DB::connection('tenant')->table('model_has_roles')->insert([
+            'role_id' => 1,
+            'model_type' => App\Models\Tenant\User::class,
+            'model_id' => 'subdirector-user',
+        ]);
+
+        return (new TenantMetricsService)->getUserMetrics();
+    });
+
+    expect($metrics['users']['subdiretores'])->toBe(1);
 });
 
 test('superadmin can download the tenant user metrics report as a PDF', function (): void {

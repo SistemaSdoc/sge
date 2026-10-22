@@ -18,6 +18,8 @@ class StoreInscricaoRequest extends FormRequest
 
     public function rules(): array
     {
+        $temNotaTeste = $this->user('tenant')?->instituicao?->tipo !== 'colegio';
+
         return [
             // ─── Obrigatórios na inscrição ───
             'nome' => 'required|string|max:255',
@@ -47,7 +49,7 @@ class StoreInscricaoRequest extends FormRequest
             ],
 
             'nota_teste' => [
-                'required',
+                $temNotaTeste ? 'required' : 'nullable',
                 'numeric',
                 'min:0',
                 'max:20',

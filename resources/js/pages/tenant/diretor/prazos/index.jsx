@@ -19,7 +19,13 @@ import FiltrosPrazos from './components/filtros-prazos';
 import CriarPrazoDrawer from './components/criar-prazo-drawer';
 import PrazosTable from './components/prazos-table';
 
-export default function Index({ prazos, filters, disciplinas, periodos, classes }) {
+export default function Index({
+  prazos,
+  filters,
+  disciplinas,
+  periodos,
+  classes,
+}) {
   const [openCriar, setOpenCriar] = useState(false);
 
   const [filtros, setFiltros] = useState({

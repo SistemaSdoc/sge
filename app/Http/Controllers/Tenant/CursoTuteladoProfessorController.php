@@ -22,6 +22,7 @@ class CursoTuteladoProfessorController extends Controller
      * Roles do grupo disciplinar (constant para evitar typos).
      */
     private const ROLE_MEMBRO = 'Membro do Grupo Disciplinar';
+
     private const ROLE_COORDENADOR = 'Coordenador do Grupo Disciplinar';
 
     // ============================================================
@@ -42,12 +43,12 @@ class CursoTuteladoProfessorController extends Controller
 
         return response()->json(
             $professores->through(fn ($prof) => [
-                'id'                => $prof->id,
-                'nome'              => $prof->user?->nome,
-                'email'             => $prof->user?->email,
-                'tipo'              => $prof->pivot->tipo,
-                'coordenador'       => $prof->pivot->coordenador,
-                'opap'              => $prof->pivot->opap,
+                'id' => $prof->id,
+                'nome' => $prof->user?->nome,
+                'email' => $prof->user?->email,
+                'tipo' => $prof->pivot->tipo,
+                'coordenador' => $prof->pivot->coordenador,
+                'opap' => $prof->pivot->opap,
                 'grupo_disciplinar' => $prof->pivot->grupo_disciplinar,
             ])
         );
@@ -69,8 +70,8 @@ class CursoTuteladoProfessorController extends Controller
             ->get();
 
         return Inertia::render('tenant/cursos-tutelados/professores/create', [
-            'professores'     => $professores,
-            'instituicaoId'   => $instituicao->id,
+            'professores' => $professores,
+            'instituicaoId' => $instituicao->id,
             'cursoTuteladoId' => $cursoTutelado->id,
         ]);
     }
@@ -79,71 +80,71 @@ class CursoTuteladoProfessorController extends Controller
     // STORE
     // ============================================================
 
-public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
-{
-    $this->authorize('manageProfessores', $cursoTutelado);
+    public function store(Request $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
+    {
+        $this->authorize('manageProfessores', $cursoTutelado);
 
-    $request->validate([
-        'professor_id'      => 'required|exists:professores,id',
-        'tipo'              => 'required|in:principal,colaborador',
-        'coordenador'       => 'boolean',
-        'opap'              => 'boolean',
-        'grupo_disciplinar' => 'nullable|in:nenhum,membro,coordenador',
-    ]);
+        $request->validate([
+            'professor_id' => 'required|exists:professores,id',
+            'tipo' => 'required|in:principal,colaborador',
+            'coordenador' => 'boolean',
+            'opap' => 'boolean',
+            'grupo_disciplinar' => 'nullable|in:nenhum,membro,coordenador',
+        ]);
 
-    // ── Validação: já tem coordenador de curso? ──
-    if ($request->boolean('coordenador')) {
-        $jaTemCoordenador = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
-            ->where('professor_id', '!=', $request->professor_id)
-            ->where('coordenador', true)
-            ->exists();
+        // ── Validação: já tem coordenador de curso? ──
+        if ($request->boolean('coordenador')) {
+            $jaTemCoordenador = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
+                ->where('professor_id', '!=', $request->professor_id)
+                ->where('coordenador', true)
+                ->exists();
 
-        if ($jaTemCoordenador) {
-            return back()->withErrors([
-                'coordenador' => 'Este curso tutelado já tem um coordenador definido.',
-            ]);
+            if ($jaTemCoordenador) {
+                return back()->withErrors([
+                    'coordenador' => 'Este curso tutelado já tem um coordenador definido.',
+                ]);
+            }
         }
-    }
 
-    // ── Validação: já tem coordenador de grupo disciplinar? ──
-    if ($request->grupo_disciplinar === 'coordenador') {
-        $jaTemCoordenadorGrupo = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
-            ->where('professor_id', '!=', $request->professor_id)
-            ->where('grupo_disciplinar', 'coordenador')
-            ->exists();
+        // ── Validação: já tem coordenador de grupo disciplinar? ──
+        if ($request->grupo_disciplinar === 'coordenador') {
+            $jaTemCoordenadorGrupo = CursoTuteladoProfessor::where('curso_tutelado_id', $cursoTutelado->id)
+                ->where('professor_id', '!=', $request->professor_id)
+                ->where('grupo_disciplinar', 'coordenador')
+                ->exists();
 
-        if ($jaTemCoordenadorGrupo) {
-            return back()->withErrors([
-                'grupo_disciplinar' => 'Este curso já tem um coordenador do grupo disciplinar.',
-            ]);
+            if ($jaTemCoordenadorGrupo) {
+                return back()->withErrors([
+                    'grupo_disciplinar' => 'Este curso já tem um coordenador do grupo disciplinar.',
+                ]);
+            }
         }
+
+        // ── Cria/atualiza o vínculo ──
+        $vinculo = CursoTuteladoProfessor::updateOrCreate(
+            [
+                'curso_tutelado_id' => $cursoTutelado->id,
+                'professor_id' => $request->professor_id,
+            ],
+            [
+                'tipo' => $request->tipo,
+                'coordenador' => $request->boolean('coordenador'),
+                'opap' => $request->boolean('opap'),
+                'grupo_disciplinar' => $request->grupo_disciplinar ?? 'nenhum',
+            ]
+        );
+
+        // ── Sincroniza os roles do Spatie ──
+        $professor = Professor::find($request->professor_id);
+        $this->sincronizarRolesGrupoDisciplinar($professor->user, $request->grupo_disciplinar);
+
+        $this->notificarProfessorAdicionadoAoCurso($professor, $cursoTutelado, $vinculo);
+
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+        ]);
     }
-
-    // ── Cria/atualiza o vínculo ──
-    $vinculo = CursoTuteladoProfessor::updateOrCreate(
-        [
-            'curso_tutelado_id' => $cursoTutelado->id,
-            'professor_id'      => $request->professor_id,
-        ],
-        [
-            'tipo'              => $request->tipo,
-            'coordenador'       => $request->boolean('coordenador'),
-            'opap'              => $request->boolean('opap'),
-            'grupo_disciplinar' => $request->grupo_disciplinar ?? 'nenhum',
-        ]
-    );
-
-    // ── Sincroniza os roles do Spatie ──
-    $professor = Professor::find($request->professor_id);
-    $this->sincronizarRolesGrupoDisciplinar($professor->user, $request->grupo_disciplinar);
-
-    $this->notificarProfessorAdicionadoAoCurso($professor, $cursoTutelado, $vinculo);
-
-    return to_route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
-        'instituicao'   => $instituicao->id,
-        'cursoTutelado' => $cursoTutelado->id,
-    ]);
-}
 
     // ============================================================
     // SHOW (não usado)
@@ -169,15 +170,15 @@ public function store(Request $request, Instituicao $instituicao, CursoTutelado 
 
         return Inertia::render('tenant/cursos-tutelados/professores/edit', [
             'vinculo' => [
-                'id'                => $vinculo->id,
-                'professor_id'      => $vinculo->professor_id,
-                'nome'              => $vinculo->professor?->user?->nome,
-                'tipo'              => $vinculo->tipo,
-                'coordenador'       => (bool) $vinculo->coordenador,
-                'opap'              => (bool) $vinculo->opap,
+                'id' => $vinculo->id,
+                'professor_id' => $vinculo->professor_id,
+                'nome' => $vinculo->professor?->user?->nome,
+                'tipo' => $vinculo->tipo,
+                'coordenador' => (bool) $vinculo->coordenador,
+                'opap' => (bool) $vinculo->opap,
                 'grupo_disciplinar' => $vinculo->grupo_disciplinar ?? 'nenhum',
             ],
-            'instituicaoId'   => $instituicao->id,
+            'instituicaoId' => $instituicao->id,
             'cursoTuteladoId' => $cursoTutelado->id,
         ]);
     }
@@ -191,9 +192,9 @@ public function store(Request $request, Instituicao $instituicao, CursoTutelado 
         $this->authorize('manageProfessores', $cursoTutelado);
 
         $request->validate([
-            'tipo'              => 'required|in:principal,colaborador',
-            'coordenador'       => 'boolean',
-            'opap'              => 'boolean',
+            'tipo' => 'required|in:principal,colaborador',
+            'coordenador' => 'boolean',
+            'opap' => 'boolean',
             'grupo_disciplinar' => 'nullable|in:nenhum,membro,coordenador',
         ]);
 
@@ -213,9 +214,9 @@ public function store(Request $request, Instituicao $instituicao, CursoTutelado 
         $vinculo = CursoTuteladoProfessor::findOrFail($professore);
 
         $vinculo->update([
-            'tipo'              => $request->tipo,
-            'coordenador'       => $request->boolean('coordenador'),
-            'opap'              => $request->boolean('opap'),
+            'tipo' => $request->tipo,
+            'coordenador' => $request->boolean('coordenador'),
+            'opap' => $request->boolean('opap'),
             'grupo_disciplinar' => $request->grupo_disciplinar ?? 'nenhum',
         ]);
 
@@ -259,7 +260,6 @@ public function store(Request $request, Instituicao $instituicao, CursoTutelado 
      * - Cria os roles automaticamente se não existirem (evita RoleDoesNotExist).
      * - Remove com segurança apenas os roles que o utilizador tem.
      *
-     * @param  User    $user
      * @param  string  $grupoDisciplinar  'nenhum' | 'membro' | 'coordenador' | null
      */
     private function sincronizarRolesGrupoDisciplinar(User $user, ?string $grupoDisciplinar): void
@@ -284,9 +284,9 @@ public function store(Request $request, Instituicao $instituicao, CursoTutelado 
 
         // 3. Atribuir o novo (se aplicável)
         match ($grupoDisciplinar) {
-            'membro'      => $user->assignRole($roleMembro),
+            'membro' => $user->assignRole($roleMembro),
             'coordenador' => $user->assignRole($roleCoordenador),
-            default       => null,
+            default => null,
         };
     }
 }

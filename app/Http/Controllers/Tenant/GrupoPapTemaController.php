@@ -302,7 +302,7 @@ class GrupoPapTemaController extends Controller
         }
         Notification::send($destinatarios, new TemaDefinidoNotification($grupoPap));
 
-        return to_route('tenant.dashboard.pap.show', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $cursoClasse->id,

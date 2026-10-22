@@ -146,7 +146,7 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
                       <p className="text-[11px] font-medium text-red-800 dark:text-red-300">
                         Parecer do director:
                       </p>
-                      <p className="mt-0.5 text-xs italic text-red-700 dark:text-red-200">
+                      <p className="mt-0.5 text-xs text-red-700 italic dark:text-red-200">
                         "{prazo.submissao.parecer_diretor}"
                       </p>
                     </div>
@@ -166,15 +166,11 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
                       <strong>Justificativa pendente.</strong> Aguarda avaliação
                       do director.
                     </span>
-                  </p>
+
                 </div>
               )}
             </CardContent>
 
-            <CardFooter>
-              {prazo.bloqueado ? (
-                <Badge
-                  variant="destructive"
                   className="w-full justify-center"
                 >
                   <XCircle className="mr-1 size-3" />

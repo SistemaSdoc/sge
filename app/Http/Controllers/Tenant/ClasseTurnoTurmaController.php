@@ -220,7 +220,6 @@ class ClasseTurnoTurmaController extends Controller
 
         Redirect::setIntendedUrl(request()->fullUrl());
 
-        /** @var User $user */
         $anoLectivoId = filled(request('ano_lectivo_id'))
             ? request('ano_lectivo_id')
             : $turma->ano_lectivo_id;
@@ -232,6 +231,22 @@ class ClasseTurnoTurmaController extends Controller
             'gruposPap:id,turma_id,nome_grupo,tema_grupo,status,nota_final',
         ]);
 
+        $alunos = $turma->alunos()
+            ->wherePivot('activo', true)
+            ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
+            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone,avatar'])
+            ->paginate(10, ['*'], 'page_alunos');
+
+        $disciplinasQuery = $turma->cursoClasseTurno
+            ->classeTurnoDisciplinas()
+            ->where('ano_lectivo_id', $turma->ano_lectivo_id)
+            ->with([
+                'disciplina:id,nome,sigla',
+                'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
+                'turmaDisciplinaProfessores.professor.user:id,nome',
+                'horarios',
+            ]);
+
         $searchAlunos = trim($request->string('search_alunos')->toString());
         $searchDisciplinas = trim($request->string('search_disciplinas')->toString());
         $searchGrupos = trim($request->string('search_grupos')->toString());
@@ -242,7 +257,7 @@ class ClasseTurnoTurmaController extends Controller
         $totalAlunos = (clone $alunosQuery)->count();
 
         $alunos = $alunosQuery
-            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
+            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone,avatar'])
             ->leftJoin('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
             ->leftJoin('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
             ->when($searchAlunos !== '', function ($query) use ($searchAlunos): void {
@@ -385,6 +400,7 @@ class ClasseTurnoTurmaController extends Controller
                 ],
                 'alunos' => [
                     'create' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),
+                    'exportar' => $user->can('view', $turma),
                 ],
                 'disciplinas' => [
                     'create' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Coordenador']),

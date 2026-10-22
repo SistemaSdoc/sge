@@ -63,7 +63,7 @@ class TrocaTutelaRejeitadaNotification extends Notification implements ShouldQue
 
         return (new MailMessage)
             ->subject('Troca de tutela rejeitada')
-            ->markdown('mail.troca-tutela-rejeitada-notification', [
+            ->view('mail.troca-tutela-rejeitada-notification', [
                 'nomeInstituicaoRejeitou' => $this->instituicaoRejeitou,
                 'nomeInstituicaoProposta' => $this->instituicaoProposta,
                 'nomeCurso' => $this->cursoNome,
