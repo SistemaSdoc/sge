@@ -361,12 +361,17 @@ class GrupoPapController extends Controller
                         'created_at' => $item->created_at?->toIso8601String(),
                         'utilizador' => [
                             // ← mesmo padrão: utilizador null quando externo
-                            'nome' => PapHelper::nomeAprovador(
-                                $item->utilizador,
-                                $instituicaoTutoraModel,
-                                $nomeCurso,
-                                $item->utilizador_externo_tenant_id ?? null,
-                            ),
+                            'nome' => in_array($item->estado_novo, [
+                                GrupoPap::APROVACAO_MELHORIA_TUTOR,
+                                GrupoPap::APROVACAO_SUBMETIDO,
+                            ], true)
+                                ? ($item->utilizador?->nome ?? $item->utilizador_nome ?? '—')
+                                : PapHelper::nomeAprovador(
+                                    $item->utilizador,
+                                    $instituicaoTutoraModel,
+                                    $nomeCurso,
+                                    $item->utilizador_externo_tenant_id ?? null,
+                                ),
                         ],
                     ];
                 })->values(),
