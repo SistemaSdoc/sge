@@ -166,11 +166,15 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
                       <strong>Justificativa pendente.</strong> Aguarda avaliação
                       do director.
                     </span>
-
+                  </p>
                 </div>
               )}
             </CardContent>
 
+            <CardFooter>
+              {prazo.bloqueado ? (
+                <Badge
+                  variant="secondary"
                   className="w-full justify-center"
                 >
                   <XCircle className="mr-1 size-3" />
