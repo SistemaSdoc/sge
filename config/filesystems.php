@@ -22,11 +22,11 @@ return [
         | symlink. O PlanificacaoStorageService tenta este disk primeiro.
         |
         */
-        'tenant-storage' => [
+        'local' => [
             'driver' => 'local',
-            'root' => env('TENANT_STORAGE_ROOT', '/tmp/sge/tenant-cs-app/app'),
-      
-            'throw' => true,
+            'root' => storage_path('app/private'),
+            'serve' => true,
+            'throw' => false,
         ],
 
         'private' => env('AWS_BUCKET') ? [

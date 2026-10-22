@@ -197,7 +197,7 @@ export default function Submeter({
                       className="cursor-pointer file:mr-3 file:cursor-pointer file:border-0 file:bg-muted file:px-3 file:py-1 file:text-xs file:font-medium file:text-foreground"
                     />
                     <p className="text-xs text-muted-foreground">
-                      PDF, DOC ou DOCX • máximo 10 MB
+                      PDF, DOC ou DOCX • máximo 50 MB
                     </p>
                     {errors.arquivo_prova && (
                       <FieldError>{errors.arquivo_prova}</FieldError>
@@ -226,7 +226,7 @@ export default function Submeter({
                       className="cursor-pointer file:mr-3 file:cursor-pointer file:border-0 file:bg-muted file:px-3 file:py-1 file:text-xs file:font-medium file:text-foreground"
                     />
                     <p className="text-xs text-muted-foreground">
-                      PDF, DOC ou DOCX • máximo 10 MB
+                      PDF, DOC ou DOCX • máximo 50 MB
                     </p>
                     {errors.arquivo_chave && (
                       <FieldError>{errors.arquivo_chave}</FieldError>

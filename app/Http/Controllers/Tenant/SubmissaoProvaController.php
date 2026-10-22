@@ -9,10 +9,10 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\SubmissaoProva;
 use App\Services\Tenant\PrazoNotificacaoService;
 use App\Services\Tenant\ProvaService;
+use App\Services\Tenant\ProvaStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class SubmissaoProvaController extends Controller
@@ -21,7 +21,8 @@ class SubmissaoProvaController extends Controller
 
     public function __construct(
         ProvaService $provaService,
-        private PrazoNotificacaoService $notificacaoService
+        private PrazoNotificacaoService $notificacaoService,
+        private ProvaStorageService $provaStorageService,
     ) {
         $this->provaService = $provaService;
         $this->authorizeResource(SubmissaoProva::class, 'submissao');
@@ -48,10 +49,6 @@ class SubmissaoProvaController extends Controller
             'total_prazos_instituicao' => PrazoProva::where('status', 'aberto')
                 ->where('instituicao_id', auth()->user()->instituicao_id)
                 ->count(),
-            'total_com_data_ok' => PrazoProva::where('status', 'aberto')
-                ->where('instituicao_id', auth()->user()->instituicao_id)
-                ->where('data_limite', '>=', now())
-                ->count(),
         ]);
 
         if (! $professor) {
@@ -60,14 +57,14 @@ class SubmissaoProvaController extends Controller
 
         $instituicaoId = $this->getInstituicaoId();
 
-        $prazosAbertos = $this->getPrazosAbertosParaProfessor($professor, $instituicaoId);
+        $prazosAbertos    = $this->getPrazosAbertosParaProfessor($professor, $instituicaoId);
         $prazosEncerrados = $this->getPrazosEncerradosParaProfessor($professor, $instituicaoId);
-        $historico = $this->getHistoricoSubmissoes($professor, $instituicaoId);
+        $historico        = $this->getHistoricoSubmissoes($professor, $instituicaoId);
 
         return Inertia::render('tenant/professores/provas/index', [
-            'prazos_abertos' => $prazosAbertos,
+            'prazos_abertos'    => $prazosAbertos,
             'prazos_encerrados' => $prazosEncerrados,
-            'historico' => $historico,
+            'historico'         => $historico,
         ]);
     }
 
@@ -94,14 +91,12 @@ class SubmissaoProvaController extends Controller
             ? $this->ultimaSubmissao($prazo, $professor, $turmaId)
             : null;
 
-        // Bloqueia se já submeteu para esta turma e a última NÃO foi rejeitada
         if ($ultima && $ultima->estado !== 'rejeitado') {
             return redirect()->route('tenant.dashboard.professor.provas.index')
                 ->with('error', 'Já submeteu uma prova para esta turma. Aguarde avaliação ou rejeição para reenviar.');
         }
 
-        // ✅ Aceita: prazo aberto OU prazo extra (justificativa) OU janela de reenvio (rejeição)
-        $temExtra = $turmaId && $this->temPrazoExtraValido($prazo, $professor, $turmaId);
+        $temExtra   = $turmaId && $this->temPrazoExtraValido($prazo, $professor, $turmaId);
         $temReenvio = $this->temJanelaReenvio($ultima);
 
         if (! $prazo->isAberto() && ! $temExtra && ! $temReenvio) {
@@ -112,8 +107,8 @@ class SubmissaoProvaController extends Controller
         $turmas = $this->getTurmasDoProfessor($prazo, $professor);
 
         return Inertia::render('tenant/professores/provas/submeter', [
-            'prazo' => $this->formatarPrazoParaSubmissao($prazo),
-            'turmas' => $turmas,
+            'prazo'             => $this->formatarPrazoParaSubmissao($prazo),
+            'turmas'            => $turmas,
             'turma_selecionada' => $turmaId,
             'tem_janela_reenvio' => $temReenvio,
             'prazo_reenvio_ate' => $ultima?->prazo_reenvio_ate?->format('d/m/Y H:i'),
@@ -138,21 +133,19 @@ class SubmissaoProvaController extends Controller
         $this->verificarPermissaoSubmissao($prazo, $professor);
 
         $dadosValidados = $request->validate([
-            'turma_id' => 'required|uuid|exists:turmas,id',
-            'arquivo_prova' => 'required|file|mimes:pdf,doc,docx|max:10240',
-            'arquivo_chave' => 'required|file|mimes:pdf,doc,docx|max:10240',
-            'comentario' => 'nullable|string|max:500',
+            'turma_id'      => 'required|uuid|exists:turmas,id',
+            'arquivo_prova' => 'required|file|mimes:pdf,doc,docx|max:51200',   // 50 MB
+            'arquivo_chave' => 'required|file|mimes:pdf,doc,docx|max:51200',   // 50 MB
+            'comentario'    => 'nullable|string|max:500',
         ]);
 
         $ultima = $this->ultimaSubmissao($prazo, $professor, $dadosValidados['turma_id']);
 
-        // Bloqueia se já submeteu para esta turma e a última NÃO foi rejeitada
         if ($ultima && $ultima->estado !== 'rejeitado') {
             return back()->with('error', 'Já submeteu uma prova para esta turma. Aguarde avaliação ou rejeição para reenviar.');
         }
 
-        // ✅ Aceita: prazo aberto OU prazo extra (justificativa) OU janela de reenvio (rejeição)
-        $temExtra = $this->temPrazoExtraValido($prazo, $professor, $dadosValidados['turma_id']);
+        $temExtra   = $this->temPrazoExtraValido($prazo, $professor, $dadosValidados['turma_id']);
         $temReenvio = $this->temJanelaReenvio($ultima);
 
         if (! $prazo->isAberto() && ! $temExtra && ! $temReenvio) {
@@ -163,7 +156,6 @@ class SubmissaoProvaController extends Controller
             return back()->with('error', 'Você não leciona nesta turma para esta disciplina.');
         }
 
-        // Bloqueia se justificativa recusada
         $justificativa = JustificativaNaoSubmissao::where('prazo_prova_id', $prazo->id)
             ->where('professor_id', $professor->id)
             ->where('turma_id', $dadosValidados['turma_id'])
@@ -181,30 +173,34 @@ class SubmissaoProvaController extends Controller
                 $dadosValidados['arquivo_prova'],
                 $dadosValidados['arquivo_chave'],
                 $dadosValidados['comentario'] ?? null,
-                $temExtra || $temReenvio,   // ✅ permite fora do prazo (extra OU reenvio)
+                $temExtra || $temReenvio,
             );
 
             $submissao->load(['professor.user', 'prazo.disciplina', 'prazo.classe', 'turma']);
             $this->notificacaoService->notificarDiretoresNovaSubmissao($submissao);
 
             Log::info('Nova submissão criada', [
-                'submissao_id' => $submissao->id,
-                'professor_id' => $professor->id,
-                'prazo_id' => $prazo->id,
-                'turma_id' => $dadosValidados['turma_id'],
-                'tem_prazo_extra' => $temExtra,
-                'tem_reenvio' => $temReenvio,
-                'instituicao_id' => $prazo->instituicao_id,
+                'submissao_id'      => $submissao->id,
+                'professor_id'      => $professor->id,
+                'prazo_id'          => $prazo->id,
+                'turma_id'          => $dadosValidados['turma_id'],
+                'tem_prazo_extra'   => $temExtra,
+                'tem_reenvio'       => $temReenvio,
+                'encriptado'        => $submissao->encriptado,
+                'comprimido'        => $submissao->comprimido,
+                'tamanho_original'  => $submissao->tamanho_original_bytes,
+                'tamanho_final'     => $submissao->tamanho_bytes,
+                'instituicao_id'    => $prazo->instituicao_id,
             ]);
 
             return redirect()->route('tenant.dashboard.professor.provas.index')
                 ->with('success', "Prova submetida com sucesso! (Versão {$submissao->versao})");
         } catch (\Exception $e) {
             Log::error('Erro ao submeter prova', [
-                'prazo_id' => $prazo->id,
+                'prazo_id'     => $prazo->id,
                 'professor_id' => $professor->id,
-                'turma_id' => $dadosValidados['turma_id'],
-                'message' => $e->getMessage(),
+                'turma_id'     => $dadosValidados['turma_id'],
+                'message'      => $e->getMessage(),
             ]);
 
             return back()->with('error', $e->getMessage())->withInput();
@@ -212,7 +208,7 @@ class SubmissaoProvaController extends Controller
     }
 
     // ============================================================
-    // DOWNLOAD DE ARQUIVOS
+    // DOWNLOAD DE ARQUIVOS (com desencriptação)
     // ============================================================
 
     public function arquivo(SubmissaoProva $submissao, string $tipo)
@@ -225,17 +221,39 @@ class SubmissaoProvaController extends Controller
             default => abort(404),
         };
 
-        $privateDisk = Storage::disk('local');
-        if ($privateDisk->exists($path)) {
-            return response()->download($privateDisk->path($path));
+        // O service lida com ficheiros novos (.enc) e antigos (.pdf/.doc)
+        $conteudo = $this->provaStorageService->conteudo(
+            $path,
+            (bool) $submissao->encriptado
+        );
+
+        if ($conteudo === null) {
+            Log::warning('[SubmissaoProvaController] Ficheiro não encontrado ou falha na desencriptação', [
+                'submissao_id' => $submissao->id,
+                'tipo'         => $tipo,
+                'encriptado'   => $submissao->encriptado,
+                'path'         => $path,
+            ]);
+            abort(404, 'Ficheiro não encontrado.');
         }
 
-        $legacyPath = storage_path('app/public/'.$path);
-        if (is_file($legacyPath)) {
-            return response()->download($legacyPath);
-        }
+        // Nome sugerido para o download
+        $extensao = $tipo === 'prova' ? 'pdf' : 'pdf';
+        $nomeOriginal = "{$tipo}_v{$submissao->versao}.{$extensao}";
 
-        abort(404);
+        Log::info('[SubmissaoProvaController] Download', [
+            'submissao_id' => $submissao->id,
+            'tipo'         => $tipo,
+            'bytes'        => strlen($conteudo),
+            'encriptado'   => $submissao->encriptado,
+            'comprimido'   => $submissao->comprimido,
+        ]);
+
+        return response()->streamDownload(
+            fn() => print($conteudo),
+            $nomeOriginal,
+            ['Content-Type' => 'application/pdf'],
+        );
     }
 
     // ============================================================
@@ -250,15 +268,12 @@ class SubmissaoProvaController extends Controller
     private function renderDashboardVazio()
     {
         return Inertia::render('tenant/professores/provas/index', [
-            'prazos_abertos' => [],
+            'prazos_abertos'    => [],
             'prazos_encerrados' => [],
-            'historico' => SubmissaoProva::whereRaw('1 = 0')->paginate(15),
+            'historico'         => SubmissaoProva::whereRaw('1 = 0')->paginate(15),
         ]);
     }
 
-    /**
-     * Verifica se existe justificativa aceite com prazo extra válido para ESTA turma.
-     */
     private function temPrazoExtraValido(PrazoProva $prazo, Professor $professor, string $turmaId): bool
     {
         return JustificativaNaoSubmissao::where('prazo_prova_id', $prazo->id)
@@ -270,10 +285,6 @@ class SubmissaoProvaController extends Controller
             ->exists();
     }
 
-    /**
-     * Verifica se a última submissão rejeitada ainda tem janela de reenvio válida.
-     * Concedida automaticamente pelo ProvaService ao rejeitar.
-     */
     private function temJanelaReenvio(?SubmissaoProva $ultima): bool
     {
         return $ultima !== null
@@ -304,7 +315,7 @@ class SubmissaoProvaController extends Controller
             ->distinct()
             ->orderBy('turmas.nome')
             ->get()
-            ->map(fn ($t) => ['id' => $t->id, 'nome' => $t->nome])
+            ->map(fn($t) => ['id' => $t->id, 'nome' => $t->nome])
             ->toArray();
     }
 
@@ -329,9 +340,6 @@ class SubmissaoProvaController extends Controller
         return $query->exists();
     }
 
-    /**
-     * Devolve a última submissão do professor para uma turma (ou null).
-     */
     private function ultimaSubmissao(PrazoProva $prazo, Professor $professor, string $turmaId): ?SubmissaoProva
     {
         return SubmissaoProva::where('prazo_prova_id', $prazo->id)
@@ -351,14 +359,11 @@ class SubmissaoProvaController extends Controller
 
         $prazos = PrazoProva::where('instituicao_id', $instituicaoId)
             ->where(function ($q) use ($professor) {
-                // (A) Prazos normais abertos
                 $q->where(function ($sub) {
                     $sub->where('status', 'aberto')
                         ->where('data_inicio', '<=', now())
                         ->where('data_limite', '>=', now());
                 })
-                // (B) OU prazos já fechados, mas com janela de reenvio ativa
-                //     para este professor (submissão rejeitada + prazo_reenvio_ate futuro)
                     ->orWhere(function ($sub) use ($professor) {
                         $sub->whereExists(function ($inner) use ($professor) {
                             $inner->select(DB::raw(1))
@@ -407,9 +412,8 @@ class SubmissaoProvaController extends Controller
                     ->first();
 
                 $bloqueado = $justificativa && $justificativa->status === 'recusada';
-                $ultima = $this->ultimaSubmissao($prazo, $professor, $turma['id']);
+                $ultima    = $this->ultimaSubmissao($prazo, $professor, $turma['id']);
 
-                // Não mostra em abertos se já submeteu (a não ser que a última tenha sido rejeitada)
                 if ($ultima !== null && $ultima->estado !== 'rejeitado') {
                     continue;
                 }
@@ -419,31 +423,28 @@ class SubmissaoProvaController extends Controller
                 }
 
                 $foiRejeitada = $ultima?->estado === 'rejeitado';
-                $temReenvio = $this->temJanelaReenvio($ultima);
+                $temReenvio   = $this->temJanelaReenvio($ultima);
 
-                // Se foi rejeitada e a janela de reenvio expirou, não mostra em abertos
-                // (vai aparecer em encerrados pela lógica global)
                 if ($foiRejeitada && ! $temReenvio && ! $prazo->isAberto()) {
                     continue;
                 }
 
                 $resultados[] = [
-                    'id' => $prazo->id.'-'.$turma['id'],
-                    'prazo_id' => $prazo->id,
-                    'titulo' => $prazo->titulo ?? $prazo->tipo_prova,
-                    'disciplina' => $prazo->disciplina ? $prazo->disciplina->only(['id', 'nome', 'sigla']) : null,
-                    'classe' => $prazo->classe ? $prazo->classe->only(['id', 'nome']) : null,
+                    'id'          => $prazo->id . '-' . $turma['id'],
+                    'prazo_id'    => $prazo->id,
+                    'titulo'      => $prazo->titulo ?? $prazo->tipo_prova,
+                    'disciplina'  => $prazo->disciplina ? $prazo->disciplina->only(['id', 'nome', 'sigla']) : null,
+                    'classe'      => $prazo->classe ? $prazo->classe->only(['id', 'nome']) : null,
                     'data_limite' => $prazo->data_limite->format('d/m/Y H:i'),
 
-                    'turma_id' => $turma['id'],
+                    'turma_id'   => $turma['id'],
                     'turma_nome' => $turma['nome'],
 
-                    'ja_submeteu' => false,
-                    'bloqueado' => false,
-                    'foi_rejeitada' => $foiRejeitada,
+                    'ja_submeteu'    => false,
+                    'bloqueado'      => false,
+                    'foi_rejeitada'  => $foiRejeitada,
                     'motivo_reenvio' => $foiRejeitada ? 'rejeitado' : null,
 
-                    // ✅ Info da janela de reenvio pessoal
                     'prazo_reenvio_ate' => $ultima?->prazo_reenvio_ate?->format('d/m/Y H:i'),
                     'dias_reenvio_restantes' => $ultima?->prazo_reenvio_ate && $ultima->prazo_reenvio_ate->isFuture()
                         ? (int) now()->diffInDays($ultima->prazo_reenvio_ate, false)
@@ -451,23 +452,28 @@ class SubmissaoProvaController extends Controller
                     'prazo_global_fechado' => ! $prazo->isAberto(),
 
                     'submissao' => $ultima ? [
-                        'id' => $ultima->id,
-                        'versao' => $ultima->versao,
-                        'estado' => $ultima->estado,
-                        'estado_label' => $ultima->estado_label,
+                        'id'              => $ultima->id,
+                        'versao'          => $ultima->versao,
+                        'estado'          => $ultima->estado,
+                        'estado_label'    => $ultima->estado_label,
                         'parecer_diretor' => $ultima->parecer_diretor,
-                        'data_submissao' => $ultima->data_submissao?->format('d/m/Y H:i'),
+                        'data_submissao'  => $ultima->data_submissao?->format('d/m/Y H:i'),
+                        'tamanho'         => $ultima->tamanho_formatado,
+                        'tamanho_original' => $ultima->tamanho_original_formatado,
+                        'reducao_percentual' => $ultima->reducao_percentual,
+                        'encriptado'      => (bool) $ultima->encriptado,
+                        'comprimido'      => (bool) $ultima->comprimido,
                     ] : null,
 
                     'justificativa' => $justificativa ? [
-                        'id' => $justificativa->id,
-                        'motivo' => $justificativa->motivo,
-                        'status' => $justificativa->status,
+                        'id'           => $justificativa->id,
+                        'motivo'       => $justificativa->motivo,
+                        'status'       => $justificativa->status,
                         'status_label' => $justificativa->status_label,
                     ] : null,
 
                     'url_submeter' => route('tenant.dashboard.professor.provas.submeter', [
-                        'prazo' => $prazo->id,
+                        'prazo'    => $prazo->id,
                         'turma_id' => $turma['id'],
                     ]),
 
@@ -533,33 +539,29 @@ class SubmissaoProvaController extends Controller
 
                 $bloqueado = $justificativa && $justificativa->status === 'recusada';
 
-                $ultima = $this->ultimaSubmissao($prazo, $professor, $turma['id']);
+                $ultima   = $this->ultimaSubmissao($prazo, $professor, $turma['id']);
                 $submeteu = $ultima !== null;
 
-                // Prazo extra válido
                 $temExtra = $justificativa
                     && $justificativa->status === 'aceita'
                     && $justificativa->prazo_prorrogado_ate
                     && $justificativa->prazo_prorrogado_ate->isFuture();
 
-                // Janela de reenvio válida (novo)
                 $temReenvio = $this->temJanelaReenvio($ultima);
 
-                $podeSubmeter = false;
+                $podeSubmeter  = false;
                 $motivoReenvio = null;
 
                 if (! $submeteu) {
-                    // Nunca submeteu: só se tem prazo extra
                     if ($temExtra && ! $bloqueado) {
                         $podeSubmeter = true;
                     }
                 } else {
-                    // Já submeteu: só reenvia se a última foi REJEITADA
                     if ($ultima->estado === 'rejeitado' && ! $bloqueado) {
                         $prazoPermiteReenvio = $prazo->isAberto() || $temExtra || $temReenvio;
 
                         if ($prazoPermiteReenvio) {
-                            $podeSubmeter = true;
+                            $podeSubmeter  = true;
                             $motivoReenvio = 'rejeitado';
                         }
                     }
@@ -568,50 +570,55 @@ class SubmissaoProvaController extends Controller
                 $urlSubmeter = null;
                 if ($podeSubmeter) {
                     $urlSubmeter = route('tenant.dashboard.professor.provas.submeter', [
-                        'prazo' => $prazo->id,
+                        'prazo'    => $prazo->id,
                         'turma_id' => $turma['id'],
                     ]);
                 }
 
                 $resultados[] = [
-                    'id' => $prazo->id.'-'.$turma['id'],
-                    'prazo_id' => $prazo->id,
-                    'titulo' => $prazo->titulo ?? $prazo->tipo_prova,
-                    'disciplina' => $prazo->disciplina ? $prazo->disciplina->only(['id', 'nome', 'sigla']) : null,
-                    'classe' => $prazo->classe ? $prazo->classe->only(['id', 'nome']) : null,
-                    'data_limite' => $prazo->data_limite->format('d/m/Y H:i'),
-                    'status' => $prazo->status,
+                    'id'           => $prazo->id . '-' . $turma['id'],
+                    'prazo_id'     => $prazo->id,
+                    'titulo'       => $prazo->titulo ?? $prazo->tipo_prova,
+                    'disciplina'   => $prazo->disciplina ? $prazo->disciplina->only(['id', 'nome', 'sigla']) : null,
+                    'classe'       => $prazo->classe ? $prazo->classe->only(['id', 'nome']) : null,
+                    'data_limite'  => $prazo->data_limite->format('d/m/Y H:i'),
+                    'status'       => $prazo->status,
                     'status_label' => $prazo->status_label,
 
-                    'turma_id' => $turma['id'],
+                    'turma_id'   => $turma['id'],
                     'turma_nome' => $turma['nome'],
 
-                    'submeteu' => $submeteu,
-                    'bloqueado' => $bloqueado,
-                    'aceite' => $temExtra,
-                    'pode_submeter' => $podeSubmeter,
+                    'submeteu'       => $submeteu,
+                    'bloqueado'      => $bloqueado,
+                    'aceite'         => $temExtra,
+                    'pode_submeter'  => $podeSubmeter,
                     'motivo_reenvio' => $motivoReenvio,
 
                     'submissao' => $ultima ? [
-                        'id' => $ultima->id,
-                        'versao' => $ultima->versao,
-                        'estado' => $ultima->estado,
-                        'estado_label' => $ultima->estado_label,
+                        'id'              => $ultima->id,
+                        'versao'          => $ultima->versao,
+                        'estado'          => $ultima->estado,
+                        'estado_label'    => $ultima->estado_label,
                         'parecer_diretor' => $ultima->parecer_diretor,
-                        'data_submissao' => $ultima->data_submissao?->format('d/m/Y H:i'),
+                        'data_submissao'  => $ultima->data_submissao?->format('d/m/Y H:i'),
+                        'tamanho'         => $ultima->tamanho_formatado,
+                        'tamanho_original' => $ultima->tamanho_original_formatado,
+                        'reducao_percentual' => $ultima->reducao_percentual,
+                        'encriptado'      => (bool) $ultima->encriptado,
+                        'comprimido'      => (bool) $ultima->comprimido,
                     ] : null,
 
                     'prazo_extra_ate' => $justificativa?->prazo_prorrogado_ate?->format('d/m/Y H:i'),
-                    'dias_restantes' => $justificativa?->diasRestantes(),
+                    'dias_restantes'  => $justificativa?->diasRestantes(),
 
                     'justificativa' => $justificativa ? [
-                        'id' => $justificativa->id,
-                        'motivo' => $justificativa->motivo,
-                        'status' => $justificativa->status,
+                        'id'           => $justificativa->id,
+                        'motivo'       => $justificativa->motivo,
+                        'status'       => $justificativa->status,
                         'status_label' => $justificativa->status_label,
                     ] : null,
 
-                    'url_submeter' => $urlSubmeter,
+                    'url_submeter'   => $urlSubmeter,
                     'url_justificar' => route('tenant.dashboard.professor.justificar.create', [
                         'prazo' => $prazo->id,
                         'turma' => $turma['id'],
@@ -630,25 +637,32 @@ class SubmissaoProvaController extends Controller
     private function getHistoricoSubmissoes(Professor $professor, string $instituicaoId)
     {
         return SubmissaoProva::where('professor_id', $professor->id)
-            ->whereHas('prazo', fn ($q) => $q->where('instituicao_id', $instituicaoId))
+            ->whereHas('prazo', fn($q) => $q->where('instituicao_id', $instituicaoId))
             ->with(['prazo', 'disciplina', 'classe', 'turma'])
             ->orderBy('created_at', 'desc')
             ->paginate(15)
             ->through(function ($submissao) {
                 return [
-                    'id' => $submissao->id,
-                    'prazo' => $submissao->prazo?->titulo ?? $submissao->prazo?->tipo_prova ?? 'N/A',
-                    'disciplina' => $submissao->disciplina?->nome ?? 'Todas',
-                    'classe' => $submissao->classe?->nome,
-                    'turma_nome' => $submissao->turma?->nome ?? $submissao->classe?->nome ?? 'N/A',
-                    'versao' => $submissao->versao,
-                    'estado' => $submissao->estado,
-                    'estado_label' => $submissao->estado_label,
-                    'badge_class' => $submissao->estado_badge_class,
+                    'id'             => $submissao->id,
+                    'prazo'          => $submissao->prazo?->titulo ?? $submissao->prazo?->tipo_prova ?? 'N/A',
+                    'disciplina'     => $submissao->disciplina?->nome ?? 'Todas',
+                    'classe'         => $submissao->classe?->nome,
+                    'turma_nome'     => $submissao->turma?->nome ?? $submissao->classe?->nome ?? 'N/A',
+                    'versao'         => $submissao->versao,
+                    'estado'         => $submissao->estado,
+                    'estado_label'   => $submissao->estado_label,
+                    'badge_class'    => $submissao->estado_badge_class,
                     'data_submissao' => $submissao->data_submissao->format('d/m/Y H:i'),
-                    'parecer' => $submissao->parecer_diretor,
-                    'url_prova' => $submissao->url_prova,
-                    'url_chave' => $submissao->url_chave,
+                    'parecer'        => $submissao->parecer_diretor,
+                    'url_prova'      => $submissao->url_prova,
+                    'url_chave'      => $submissao->url_chave,
+
+                    // Metadata
+                    'tamanho'            => $submissao->tamanho_formatado,
+                    'tamanho_original'   => $submissao->tamanho_original_formatado,
+                    'reducao_percentual' => $submissao->reducao_percentual,
+                    'encriptado'         => (bool) $submissao->encriptado,
+                    'comprimido'         => (bool) $submissao->comprimido,
                 ];
             });
     }
@@ -674,7 +688,7 @@ class SubmissaoProvaController extends Controller
             ->join('curso_classe', 'curso_classe_turno.curso_classe_id', '=', 'curso_classe.id')
             ->where('classe_turno_disciplina.disciplina_id', $prazo->disciplina_id)
             ->where('professores.id', $professor->id)
-            ->when($prazo->classe_id, fn ($query) => $query->where('curso_classe.classe_id', $prazo->classe_id))
+            ->when($prazo->classe_id, fn($query) => $query->where('curso_classe.classe_id', $prazo->classe_id))
             ->exists();
 
         if (! $leciona) {
@@ -689,11 +703,11 @@ class SubmissaoProvaController extends Controller
     private function formatarPrazoParaSubmissao(PrazoProva $prazo): array
     {
         return [
-            'id' => $prazo->id,
-            'titulo' => $prazo->titulo ?? $prazo->tipo_prova,
-            'disciplina' => $prazo->disciplina ? $prazo->disciplina->only(['id', 'nome']) : null,
-            'classe' => $prazo->classe ? $prazo->classe->only(['id', 'nome']) : null,
-            'data_limite' => $prazo->data_limite->format('d/m/Y H:i'),
+            'id'              => $prazo->id,
+            'titulo'          => $prazo->titulo ?? $prazo->tipo_prova,
+            'disciplina'      => $prazo->disciplina ? $prazo->disciplina->only(['id', 'nome']) : null,
+            'classe'          => $prazo->classe ? $prazo->classe->only(['id', 'nome']) : null,
+            'data_limite'     => $prazo->data_limite->format('d/m/Y H:i'),
             'permite_reenvio' => (bool) $prazo->permite_reenvio,
         ];
     }
