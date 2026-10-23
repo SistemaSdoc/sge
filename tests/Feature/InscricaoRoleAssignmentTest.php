@@ -13,7 +13,9 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Notifications\Aluno\InscricaoEstadoNotification;
 use App\Services\Tenant\InscricaoService;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
@@ -119,8 +121,27 @@ test('approval flows keep existing and new student profiles linked', function ()
         ->and(Aluno::where('inscricao_id', $inscricao->id)->count())->toBe(1);
 
     $service->cancelar($inscricao);
+    Notification::assertSentTo($professorUser, InscricaoEstadoNotification::class, function (
+        InscricaoEstadoNotification $notification,
+        array $channels,
+    ): bool {
+        return $channels === ['mail']
+            && $notification->nomeAluno === 'Candidato Teste'
+            && $notification->estado === 'cancelada';
+    });
+
     $aluno->update(['user_id' => null]);
     $service->reativar($inscricao);
+
+    Notification::assertSentOnDemand(InscricaoEstadoNotification::class, function (
+        InscricaoEstadoNotification $notification,
+        array $channels,
+        AnonymousNotifiable $notifiable,
+    ) use ($candidato): bool {
+        return $channels === ['mail']
+            && $notification->estado === 'reativada'
+            && $notifiable->routes['mail'] === $candidato->email;
+    });
 
     expect($aluno->refresh()->user_id)->toBe($professorUser->id);
 

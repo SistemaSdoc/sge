@@ -67,6 +67,11 @@ class SolicitacaoEdicaoPautaController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::guard('tenant')->user();
+
+        abort_if($user->hasAnyRole(['Director', 'Subdirector']), 403);
+        abort_unless($user->can('pautas.solicitarEdicao'), 403);
+
         $validated = $request->validate([
             'tdp_id' => 'required|exists:turma_disciplina_professor,id',
             'periodo' => 'required|integer|in:1,2,3,4',

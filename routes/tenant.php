@@ -66,6 +66,7 @@ use App\Http\Controllers\Tenant\UserController;
 use App\Http\Controllers\Tenant\UserPermissionController;
 use App\Http\Controllers\Tenant\UserProfileController;
 use App\Http\Middleware\CheckTenantStatus;
+use App\Http\Middleware\Tenant\EnsureEnrollmentNotCancelled;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
@@ -87,7 +88,7 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
     InitializeTenancyByDomain::class,
 ])->group(function () {
-    Broadcast::routes(['middleware' => ['web', 'auth:tenant']]);
+    Broadcast::routes(['middleware' => ['web', 'auth:tenant', EnsureEnrollmentNotCancelled::class]]);
 
     /*
     |--------------------------------------------------------------------------
@@ -144,6 +145,7 @@ Route::middleware([
 
     Route::middleware([
         'auth:tenant',
+        EnsureEnrollmentNotCancelled::class,
         'tenant.status',
         'role:Aluno',
     ])->group(function () {
@@ -161,11 +163,12 @@ Route::middleware([
     */
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware(['auth:tenant', 'tenant.status', 'perfil.completo'])
+        ->middleware(['auth:tenant', EnsureEnrollmentNotCancelled::class, 'tenant.status', 'perfil.completo'])
         ->name('tenant.dashboard');
 
     Route::middleware([
         'auth:tenant',
+        EnsureEnrollmentNotCancelled::class,
         'verified',
         'role:SuperAdmin|Director|Subdirector|Secretaria|Secretario do Curso|Professor|Aluno',
         CheckTenantStatus::class,
@@ -534,7 +537,7 @@ Route::middleware([
 
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store'])
                 ->name('turma.disciplinas.horarios.store');
-                
+
             /*
             |--------------------------------------------------------------------------
             | Grupos PAP
@@ -858,6 +861,7 @@ Route::middleware([
 
     Route::middleware([
         'auth:tenant',
+        EnsureEnrollmentNotCancelled::class,
         'verified',
         'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno|Secretario do Curso|Coordenador',
         CheckTenantStatus::class,
@@ -874,6 +878,7 @@ Route::middleware([
 
     Route::middleware([
         'auth:tenant',
+        EnsureEnrollmentNotCancelled::class,
         'verified',
         'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno|Secretario do Curso|Coordenador',
         CheckTenantStatus::class,

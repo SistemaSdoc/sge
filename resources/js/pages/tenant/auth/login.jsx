@@ -24,7 +24,7 @@ export default function Login({ status, canResetPassword }) {
 
   return (
     <>
-      <Head title="Login" />
+      <Head title="Iniciar sessão" />
 
       {/*<div className="flex flex-col gap-2">
         <GoogleButton
@@ -52,21 +52,21 @@ export default function Login({ status, canResetPassword }) {
                   autoFocus
                   tabIndex={1}
                   autoComplete="email"
-                  placeholder="email@example.com"
+                  placeholder="email@exemplo.com"
                 />
                 <InputError message={errors.email} />
               </div>
 
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Senha</Label>
+                  <Label htmlFor="password">Palavra-passe</Label>
                   {canResetPassword && (
                     <TextLink
                       href={request().url}
                       className="ml-auto text-sm"
                       tabIndex={5}
                     >
-                      Esqueceu sua senha?
+                      Esqueceu-se da palavra-passe?
                     </TextLink>
                   )}
                 </div>
@@ -76,7 +76,7 @@ export default function Login({ status, canResetPassword }) {
                   required
                   tabIndex={2}
                   autoComplete="current-password"
-                  placeholder="Senha"
+                  placeholder="Palavra-passe"
                 />
                 <InputError message={errors.password} />
               </div>
@@ -94,7 +94,7 @@ export default function Login({ status, canResetPassword }) {
                 data-test="login-button"
               >
                 {processing && <Spinner />}
-                Log in
+                Iniciar sessão
               </Button>
             </div>
 
@@ -119,5 +119,5 @@ export default function Login({ status, canResetPassword }) {
 
 Login.layout = {
   title: 'Inicie sessão na sua conta',
-  description: 'Insira suas credenciais para acessar sua conta',
+  description: 'Introduza as suas credenciais para aceder à sua conta.',
 };

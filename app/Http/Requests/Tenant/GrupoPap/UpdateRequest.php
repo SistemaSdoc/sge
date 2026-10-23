@@ -52,7 +52,7 @@ class UpdateRequest extends FormRequest
             'status' => 'sometimes|string',
             'nota_final' => 'nullable|numeric|min:0|max:20',
             'data_defesa' => 'nullable|date',
-            'professor_tutor_id' => 'sometimes|exists:professores,id',
+            // 'professor_tutor_id' => 'sometimes|exists:professores,id',
             'alunos' => 'sometimes|array|min:1',
             'alunos.*' => [
                 'exists:alunos,id',
@@ -72,7 +72,7 @@ class UpdateRequest extends FormRequest
             'nota_final.min' => 'A nota final deve ser no mínimo 0.',
             'nota_final.max' => 'A nota final deve ser no máximo 20.',
             'data_defesa.date' => 'A data de defesa deve ser uma data válida.',
-            'professor_tutor_id.exists' => 'O professor selecionado não existe.',
+            // 'professor_tutor_id.exists' => 'O professor selecionado não existe.',
             'alunos.array' => 'Os alunos devem ser uma lista.',
             'alunos.min' => 'Seleciona pelo menos um aluno.',
             'alunos.*.exists' => 'Um dos alunos selecionados não existe.',

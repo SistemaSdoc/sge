@@ -215,6 +215,9 @@ export default function LancamentosTable({
     };
   };
 
+  const inputNota = 'w-20 min-w-20 text-center';
+  
+
   return (
     <>
       <Dialog open={modalSolicitacao} onOpenChange={setModalSolicitacao}>
@@ -418,16 +421,16 @@ export default function LancamentosTable({
               }
             />
           ) : (
-            <Table>
+            <Table className="min-w-[760px]">
               <TableHeader>
                 <TableRow className="bg-muted/72">
                   <TableHead className="w-1! px-4">#</TableHead>
                   <TableHead className="w-48 px-4">Aluno</TableHead>
-                  <TableHead className="w-1 text-center">MAC</TableHead>
-                  <TableHead className="w-1 text-center">NPP</TableHead>
-                  <TableHead className="w-1 text-center">NPT</TableHead>
+                  <TableHead className={inputNota}>MAC</TableHead>
+                  <TableHead className={inputNota}>NPP</TableHead>
+                  <TableHead className={inputNota}>NPT</TableHead>
                   <TableHead className="w-1 text-center">MT</TableHead>
-                  <TableHead className="w-1 text-center">F.I</TableHead>
+                  <TableHead className={inputNota}>F.I</TableHead>
                   <TableHead className="w-8 px-2" />
                   <TableHead className="w-20 px-4 text-end">
                     Resultado

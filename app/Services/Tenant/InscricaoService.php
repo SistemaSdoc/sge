@@ -8,12 +8,14 @@ use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
+use App\Notifications\Aluno\InscricaoEstadoNotification;
 use App\Notifications\Aluno\PerfilIncompletoNotificacao;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Traits\NotificaAluno;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Spatie\Permission\Models\Role;
@@ -221,6 +223,49 @@ class InscricaoService
         }
 
         $inscricao->update(['status' => 'cancelado']);
+        $this->notificarEstado($inscricao, 'cancelada');
+    }
+
+    private function notificarEstado(Inscricao $inscricao, string $estado): void
+    {
+        $inscricao->load([
+            'aluno.user',
+            'aluno.instituicao',
+            'candidato',
+            'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
+        ]);
+
+        $alunoUser = $inscricao->aluno?->user;
+        $candidato = $inscricao->candidato;
+        $instituicao = $inscricao->aluno?->instituicao
+            ?? $inscricao->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao;
+        $nomeAluno = $alunoUser?->nome ?? $candidato?->nome ?? 'estudante';
+        $notification = new InscricaoEstadoNotification(
+            nomeAluno: $nomeAluno,
+            estado: $estado,
+            nomeInstituicao: $instituicao?->nome,
+            artigoInstituicao: match ($instituicao?->tipo) {
+                'instituto', 'colegio' => 'ao',
+                default => 'à',
+            },
+        );
+
+        if (filled($alunoUser?->email)) {
+            $alunoUser->notify($notification);
+
+            return;
+        }
+
+        if (filled($candidato?->email)) {
+            Notification::route('mail', $candidato->email)->notify($notification);
+
+            return;
+        }
+
+        Log::warning('Inscrição sem email disponível para notificar o aluno sobre a mudança de estado.', [
+            'inscricao_id' => $inscricao->getKey(),
+            'estado' => $estado,
+        ]);
     }
 
     public function reativar(Inscricao $inscricao): void
@@ -230,5 +275,6 @@ class InscricaoService
         }
 
         $inscricao->update(['status' => 'aprovado']);
+        $this->notificarEstado($inscricao, 'reativada');
     }
 }
