@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,6 +42,7 @@ function contarPautas(turmas, periodo) {
 }
 
 export default function GraficosDesempenho({ turmas = [], periodo }) {
+  const [posTooltip, setPosTooltip] = useState();
   const medias = mediasPorDisciplina(turmas);
   const pautas = contarPautas(turmas, periodo);
   const totalPautas = pautas.finalizada + pautas.em_curso + pautas.por_iniciar;
@@ -102,7 +104,16 @@ export default function GraficosDesempenho({ turmas = [], periodo }) {
             </p>
           ) : (
             <div className="flex flex-col items-center gap-4">
-              <div className="relative h-64 w-full max-w-xs">
+              <div
+                className="relative h-64 w-full max-w-xs"
+                onMouseMove={(e) => {
+                  const r = e.currentTarget.getBoundingClientRect();
+                  setPosTooltip({
+                    x: e.clientX - r.left + 12,
+                    y: e.clientY - r.top + 12,
+                  });
+                }}
+              >
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -118,10 +129,15 @@ export default function GraficosDesempenho({ turmas = [], periodo }) {
                         <Cell key={i.chave} fill={COR_PAUTA[i.chave]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(v, nome) => [v, nome]} />
+                    <Tooltip
+                      position={posTooltip}
+                      allowEscapeViewBox={{ x: true, y: true }}
+                      wrapperStyle={{ zIndex: 50, pointerEvents: 'none' }}
+                      formatter={(v, nome) => [v, nome]}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                <div className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center">
                   <span className="text-2xl font-semibold">{totalPautas}</span>
                   <span className="text-xs text-muted-foreground">pautas</span>
                 </div>

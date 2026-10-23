@@ -26,8 +26,13 @@ export default function GraficoTurmas({ turmas = [], totalTurmas = 0 }) {
 
   return (
     <Card className="gap-0 overflow-hidden pb-0">
-      <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
-        <CardTitle>Turmas</CardTitle>
+  <CardHeader className="flex flex-row items-center justify-between border-b pb-4">
+    <div className="flex flex-col items-start gap-1">
+      <CardTitle>Turmas</CardTitle>
+      <p className="text-left text-xs text-muted-foreground">
+        Número de turmas atribuídas ao professor
+      </p>
+    </div>
         <span className="text-xs text-muted-foreground">
           {totalTurmas} {totalTurmas === 1 ? 'turma' : 'turmas'} · alunos por
           turma

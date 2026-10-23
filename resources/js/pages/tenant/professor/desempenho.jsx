@@ -1,6 +1,5 @@
 import { Head, router } from '@inertiajs/react';
 import { BarChart3, X } from 'lucide-react';
-
 import FiltrosDesempenho from '@/components/desempenho/filtros-desempenho';
 import GraficoTurmas from '@/components/desempenho/grafico-turmas';
 import GraficosDesempenho from '@/components/desempenho/graficos-desempenho';
@@ -70,16 +69,16 @@ export default function DesempenhoProfessor({
         <GraficosDesempenho turmas={turmas} periodo={filtrosActivos.periodo} />
 
         <TabelaTurmas
-          turmas={turmas}
-          filtros={
-            <FiltrosDesempenho
-              disponiveis={filtrosDisponiveis}
-              activos={filtrosActivos}
-              onChnge={aplicar}
-            />
-          }
-        />
-
+        turmas={turmas}
+        filtros={
+          <FiltrosDesempenho
+            disponiveis={filtrosDisponiveis}
+            activos={filtrosActivos}
+            onChange={aplicar}
+          />
+        }
+      />
+        
         <PainelPap pap={pap} />
       </div>
     </div>

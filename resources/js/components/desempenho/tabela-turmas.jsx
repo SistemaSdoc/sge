@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { GraduationCap } from 'lucide-react';
+import TablePagination from '@/components/table-pagination';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -11,7 +13,19 @@ import {
 } from '@/components/ui/table';
 import BadgePauta from './badge-pauta';
 
+const POR_PAGINA = 10;
+
 export default function TabelaTurmas({ turmas, filtros }) {
+  const [pagina, setPagina] = useState(1);
+
+  // volta à página 1 quando os dados mudam (filtros)
+  useEffect(() => {
+    setPagina(1);
+  }, [turmas]);
+
+  const lastPage = Math.max(1, Math.ceil(turmas.length / POR_PAGINA));
+  const visiveis = turmas.slice((pagina - 1) * POR_PAGINA, pagina * POR_PAGINA);
+
   return (
     <Card className="gap-0 overflow-hidden pb-0">
       <CardHeader className="border-b pb-4">
@@ -48,7 +62,7 @@ export default function TabelaTurmas({ turmas, filtros }) {
                 </TableCell>
               </TableRow>
             )}
-            {turmas.map((t, i) => (
+            {visiveis.map((t, i) => (
               <TableRow key={`${t.turma}-${t.disciplina}-${i}`}>
                 <TableCell className="pl-4 font-medium">
                   {t.turma ?? '—'}
@@ -68,6 +82,13 @@ export default function TabelaTurmas({ turmas, filtros }) {
           </TableBody>
         </Table>
       </CardContent>
+
+      {turmas.length > POR_PAGINA && (
+        <TablePagination
+          pagination={{ current_page: pagina, last_page: lastPage }}
+          onPageChange={setPagina}
+        />
+      )}
     </Card>
   );
 }
