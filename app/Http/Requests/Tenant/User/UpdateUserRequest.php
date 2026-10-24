@@ -37,8 +37,8 @@ class UpdateUserRequest extends FormRequest
             'nome' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user)],
             'telefone' => ['nullable', 'string', 'max:15'],
-            'password' => ['nullable', 'string', 'min:8'],
-            'roles' => ['nullable', 'array'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'roles' => ['sometimes', 'nullable', 'array'],
             'roles.*' => [Rule::in($this->allowedRoles())],
         ];
     }
@@ -118,6 +118,7 @@ class UpdateUserRequest extends FormRequest
             'telefone.max' => 'O telefone não pode ultrapassar 15 caracteres.',
             'password.string' => 'A palavra-passe deve ser um texto válido.',
             'password.min' => 'A palavra-passe deve ter pelo menos 8 caracteres.',
+            'password.confirmed' => 'A confirmação da palavra-passe não corresponde.',
             'roles.array' => 'A lista de roles deve ser válida.',
             'roles.*.exists' => 'Uma das roles selecionadas não existe.',
         ];

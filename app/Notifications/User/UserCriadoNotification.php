@@ -19,6 +19,7 @@ class UserCriadoNotification extends Notification implements ShouldQueue, Should
     public function __construct(
         public User $user,
         public string $passwordPlain,
+        public ?string $loginUrl = null,
     ) {}
 
     public function via(object $notifiable): array
@@ -34,7 +35,7 @@ class UserCriadoNotification extends Notification implements ShouldQueue, Should
                 'nome' => $this->user->nome,
                 'email' => $this->user->email,
                 'password' => $this->passwordPlain,
-                'url' => route('tenant.login'),
+                'url' => $this->loginUrl ?? route('tenant.login'),
                 'instituicao' => $this->user->instituicao,
                 'artigoInstituicao' => match ($this->user->instituicao?->tipo ?? 'instituto') {
                     'instituto' => 'ao',

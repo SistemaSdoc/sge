@@ -11,6 +11,7 @@ export default function Edit({ user, roles, currentUser }) {
     email: user.email,
     telefone: user.telefone ?? '',
     password: '',
+    password_confirmation: '',
     roles: user.roles
       .map((role) => role.name)
       .filter((name) => allowedRoleNames.has(name)),
@@ -19,6 +20,7 @@ export default function Edit({ user, roles, currentUser }) {
   const hasProtectedRole = user.roles.some(
     (r) => !roles.some((allowed) => allowed.name === r.name),
   );
+  const isAluno = user.roles.some((r) => r.name === 'Aluno');
 
   return (
     <>
@@ -33,6 +35,7 @@ export default function Edit({ user, roles, currentUser }) {
         submitLabel="Salvar alterações"
         processingLabel="Salvando alterações"
         rolesDisabled={hasProtectedRole}
+        hideRoles={isAluno}
         submit={(event) => {
           event.preventDefault();
           form.put(update(user.id).url);

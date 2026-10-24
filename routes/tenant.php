@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
+use App\Http\Controllers\Tenant\AulaController;
 use App\Http\Controllers\Tenant\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Tenant\Auth\NewPasswordController;
 use App\Http\Controllers\Tenant\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Tenant\AulaController;
 use App\Http\Controllers\Tenant\AvaliacaoProvaController;
 use App\Http\Controllers\Tenant\AvisoController;
 use App\Http\Controllers\Tenant\BancaJuriPapController;
@@ -219,8 +219,8 @@ Route::middleware([
             // AULAS / SUMÁRIOS — rotas partilhadas (professor / aluno / direção)
             // O controller ramifica por perfil dentro do index()
             // ─────────────────────────────────────────────────────────────
-            Route::get('aulas',        [AulaController::class, 'index'])->name('aulas.index');
-            Route::get('aulas/{aula}', [AulaController::class, 'show']) ->name('aulas.show');
+            Route::get('aulas', [AulaController::class, 'index'])->name('aulas.index');
+            Route::get('aulas/{aula}', [AulaController::class, 'show'])->name('aulas.show');
 
             Route::resource('users', UserController::class)->except(['show']);
 
@@ -238,7 +238,7 @@ Route::middleware([
 
             Route::post('users/{user}/avatar', [UserProfileController::class, 'updateAvatar'])
                 ->name('users.avatar.update');
-
+                
             Route::get('users/{user}/security', [UserProfileController::class, 'security'])
                 ->name('users.security');
 
@@ -794,12 +794,12 @@ Route::middleware([
                 Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
 
                 // ── AULAS / SUMÁRIOS (ações de escrita do professor) ─────
-                Route::get('aulas',                  [AulaController::class, 'index'])   ->name('aulas.index');
-                Route::get('aulas/create',           [AulaController::class, 'create'])  ->name('aulas.create');
-                Route::post('aulas',                 [AulaController::class, 'store'])   ->name('aulas.store');
-                Route::get('aulas/{aula}/edit',      [AulaController::class, 'edit'])    ->name('aulas.edit');
-                Route::put('aulas/{aula}',           [AulaController::class, 'update'])  ->name('aulas.update');
-                Route::delete('aulas/{aula}',        [AulaController::class, 'destroy']) ->name('aulas.destroy');
+                Route::get('aulas', [AulaController::class, 'index'])->name('aulas.index');
+                Route::get('aulas/create', [AulaController::class, 'create'])->name('aulas.create');
+                Route::post('aulas', [AulaController::class, 'store'])->name('aulas.store');
+                Route::get('aulas/{aula}/edit', [AulaController::class, 'edit'])->name('aulas.edit');
+                Route::put('aulas/{aula}', [AulaController::class, 'update'])->name('aulas.update');
+                Route::delete('aulas/{aula}', [AulaController::class, 'destroy'])->name('aulas.destroy');
                 Route::post('aulas/{aula}/publicar', [AulaController::class, 'publicar'])->name('aulas.publicar');
                 Route::post('aulas/{aula}/cancelar', [AulaController::class, 'cancelar'])->name('aulas.cancelar');
             });

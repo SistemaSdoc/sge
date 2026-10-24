@@ -26,6 +26,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import PasswordInput from '@/components/password-input';
 
 export function UserForm({
   data,
@@ -40,6 +41,7 @@ export function UserForm({
   processingLabel = 'Salvando as alterações',
   currentUser = {},
   rolesDisabled,
+  hideRoles = false,
 }) {
   const [infoOpen, setInfoOpen] = useState(false);
 
@@ -132,26 +134,26 @@ export function UserForm({
                   {errors.email && <FieldError>{errors.email}</FieldError>}
                 </Field>
 
+                <Field>
+                  <FieldLabel htmlFor="telefone">Telefone</FieldLabel>
+
+                  <Input
+                    id="telefone"
+                    type="tel"
+                    placeholder="Ex.: 950000000"
+                    disabled={processing}
+                    value={data.telefone}
+                    onChange={(event) =>
+                      setData('telefone', event.target.value)
+                    }
+                  />
+
+                  {errors.telefone && (
+                    <FieldError>{errors.telefone}</FieldError>
+                  )}
+                </Field>
+
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <Field>
-                    <FieldLabel htmlFor="telefone">Telefone</FieldLabel>
-
-                    <Input
-                      id="telefone"
-                      type="tel"
-                      placeholder="Ex.: 950000000"
-                      disabled={processing}
-                      value={data.telefone}
-                      onChange={(event) =>
-                        setData('telefone', event.target.value)
-                      }
-                    />
-
-                    {errors.telefone && (
-                      <FieldError>{errors.telefone}</FieldError>
-                    )}
-                  </Field>
-
                   <Field>
                     <FieldLabel htmlFor="password">
                       {data.id
@@ -159,61 +161,85 @@ export function UserForm({
                         : 'Palavra-passe'}
                     </FieldLabel>
 
-                    <Input
+                    <PasswordInput
                       id="password"
-                      type="password"
+                      autoComplete="new-password"
                       disabled={processing}
                       value={data.password}
                       onChange={(event) =>
                         setData('password', event.target.value)
                       }
+                      aria-invalid={Boolean(errors.password)}
                     />
 
                     {errors.password && (
                       <FieldError>{errors.password}</FieldError>
                     )}
                   </Field>
+
+                  <Field>
+                    <FieldLabel htmlFor="password_confirmation">
+                      Confirmar palavra-passe
+                    </FieldLabel>
+
+                    <PasswordInput
+                      id="password_confirmation"
+                      autoComplete="new-password"
+                      disabled={processing}
+                      value={data.password_confirmation ?? ''}
+                      onChange={(event) =>
+                        setData('password_confirmation', event.target.value)
+                      }
+                      aria-invalid={Boolean(errors.password_confirmation)}
+                    />
+
+                    {errors.password_confirmation && (
+                      <FieldError>{errors.password_confirmation}</FieldError>
+                    )}
+                  </Field>
                 </div>
 
-                <Field>
-                  <FieldLabel>Papéis</FieldLabel>
+                {!hideRoles && (
+                  <Field>
+                    <FieldLabel>Papéis</FieldLabel>
 
-                  <MultipleSelect
-                    placeholder="Selecione as funções"
-                    items={roles.map((role) => ({
-                      value: role.name,
-                      label: role.name,
-                    }))}
-                    value={selectedRoles}
-                    disabled={
-                      isLockedSelfRoleAssignment ||
+                    <MultipleSelect
+                      placeholder="Selecione as funções"
+                      items={roles.map((role) => ({
+                        value: role.name,
+                        label: role.name,
+                      }))}
+                      value={selectedRoles}
+                      disabled={
+                        isLockedSelfRoleAssignment ||
+                        isLockedOwnDirectorRoles ||
+                        isProtectedDirectorUser ||
+                        rolesDisabled ||
+                        processing
+                      }
+                      onChange={(options) =>
+                        setData(
+                          'roles',
+                          options.map((option) => String(option.value)),
+                        )
+                      }
+                    />
+
+                    {(isLockedSelfRoleAssignment ||
                       isLockedOwnDirectorRoles ||
-                      isProtectedDirectorUser ||
-                      rolesDisabled ||
-                      processing
-                    }
-                    onChange={(options) =>
-                      setData(
-                        'roles',
-                        options.map((option) => String(option.value)),
-                      )
-                    }
-                  />
+                      isProtectedDirectorUser) && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {isProtectedDirectorUser
+                          ? 'Este utilizador é o Director e não pode ser alterado por um subdiretor.'
+                          : isLockedOwnDirectorRoles
+                            ? 'Não pode remover o papel Director da própria conta.'
+                            : 'Como subdiretor, não pode alterar as suas próprias funções.'}
+                      </p>
+                    )}
 
-                  {(isLockedSelfRoleAssignment ||
-                    isLockedOwnDirectorRoles ||
-                    isProtectedDirectorUser) && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      {isProtectedDirectorUser
-                        ? 'Este utilizador é o Director e não pode ser alterado por um subdiretor.'
-                        : isLockedOwnDirectorRoles
-                          ? 'Não pode remover o papel Director da própria conta.'
-                          : 'Como subdiretor, não pode alterar as suas próprias funções.'}
-                    </p>
-                  )}
-
-                  {errors.roles && <FieldError>{errors.roles}</FieldError>}
-                </Field>
+                    {errors.roles && <FieldError>{errors.roles}</FieldError>}
+                  </Field>
+                )}
 
                 <Field>
                   <Button
