@@ -1,12 +1,6 @@
 import { Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -16,7 +10,6 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import FiltrosPrazos from './components/filtros-prazos';
-import CriarPrazoDrawer from './components/criar-prazo-drawer';
 import PrazosTable from './components/prazos-table';
 
 const normalizar = (v) => {
@@ -36,15 +29,7 @@ const buildQuery = (obj) => {
   return qs ? `?${qs}` : '';
 };
 
-export default function Index({
-  prazos,
-  filters,
-  disciplinas,
-  periodos,
-  classes,
-}) {
-  const [openCriar, setOpenCriar] = useState(false);
-
+export default function Index({ prazos, filters, disciplinas }) {
   const [filtros, setFiltros] = useState({
     status: normalizar(filters?.status),
     disciplina_id: normalizar(filters?.disciplina_id),
@@ -65,8 +50,10 @@ export default function Index({
     );
   };
 
-  const abrirCriarPrazo = () => setOpenCriar(true);
-  const fecharCriarPrazo = () => setOpenCriar(false);
+  // Agora navega para a página create em vez de abrir modal
+  const abrirCriarPrazo = () => {
+    router.visit('/dashboard/diretor/prazos/create');
+  };
 
   const fecharPrazo = (id) => {
     if (confirm('Tem certeza que deseja encerrar este prazo?')) {
@@ -143,23 +130,6 @@ export default function Index({
           onCreate={abrirCriarPrazo}
         />
       </div>
-
-      <Dialog open={openCriar} onOpenChange={setOpenCriar}>
-        <DialogContent className="max-h-[90vh] w-[95vw] max-w-2xl overflow-y-auto p-4 sm:w-full sm:p-6">
-          <DialogHeader>
-            <DialogTitle>Novo Prazo de Provas</DialogTitle>
-          </DialogHeader>
-          {openCriar && (
-            <CriarPrazoDrawer
-              disciplinas={disciplinas}
-              periodos={periodos}
-              classes={classes}
-              onSuccess={fecharCriarPrazo}
-              onCancel={fecharCriarPrazo}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

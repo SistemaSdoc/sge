@@ -83,16 +83,16 @@ class PrazoProvaController extends Controller
         ]);
     }
 
-    public function create()
-    {
-        $this->authorize('create', PrazoProva::class);
+public function create()
+{
+    $this->authorize('create', PrazoProva::class);
 
-        return Inertia::render('tenant/diretor/prazos/create', [
-            'disciplinas' => Disciplina::orderBy('nome')->get(['id', 'nome', 'sigla']),
-            'classes' => Classe::orderBy('nome')->get(['id', 'nome', 'nivel_ensino']),
-            'periodos' => $this->periodosOptions(),
-        ]);
-    }
+    return Inertia::render('tenant/diretor/prazos/create', [
+        'disciplinas' => Disciplina::orderBy('nome')->get(['id', 'nome', 'sigla']),
+        'classes' => Classe::orderBy('nome')->get(['id', 'nome', 'nivel_ensino']),
+        'periodos' => $this->periodosOptions(),
+    ]);
+}
 
     /**
      * Cria múltiplos prazos (produto cartesiano disciplinas × classes × períodos).

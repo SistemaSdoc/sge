@@ -776,6 +776,7 @@ Route::middleware([
                 Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');
                 Route::post('prazos/{prazo}/fechar', [PrazoProvaController::class, 'fechar'])->name('prazos.fechar');
                 Route::get('prazos/{prazo}/status', [PrazoProvaController::class, 'status'])->name('prazos.status');
+                Route::get('prazos/create', [PrazoProvaController::class, 'create'])->name('prazos.create');
                 Route::patch('justificativas/{justificativa}/avaliar', [PrazoProvaController::class, 'avaliar'])->name('justificativas.avaliar');
                 Route::patch('submissoes/{submissao}/avaliar', [AvaliacaoProvaController::class, 'update'])->name('submissoes.avaliar');
             });

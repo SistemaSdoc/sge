@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { EmptyState } from '@/components/empty-state';
+import TablePagination from '@/components/table-pagination';
 
 interface SubmissaoHistorico {
   id: string;
@@ -34,6 +35,10 @@ interface HistoricoSubmissoesProps {
     links: any[];
     current_page: number;
     last_page: number;
+    total: number;
+    per_page: number;
+    from: number | null;
+    to: number | null;
   };
   onPageChange: (page: number) => void;
 }
@@ -45,7 +50,7 @@ export default function HistoricoSubmissoes({
   const isEmpty = !historico?.data || historico.data.length === 0;
 
   return (
-    <Card className="gap-0 pb-0">
+    <Card className="gap-0">
       <CardContent className="p-0!">
         {isEmpty ? (
           <EmptyState
@@ -148,6 +153,13 @@ export default function HistoricoSubmissoes({
           </div>
         )}
       </CardContent>
+
+      {historico?.total > 0 && (
+        <TablePagination
+          pagination={historico}
+          onPageChange={onPageChange}
+        />
+      )}
     </Card>
   );
 }

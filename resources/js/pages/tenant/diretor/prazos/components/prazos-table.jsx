@@ -48,11 +48,11 @@ export default function PrazosTable({
             Lista de prazos criados para submissão de provas.
           </CardDescription>
         </div>
-        <CardAction className="w-full md:w-auto">
-          <Button onClick={onCreate} className="w-full md:w-auto">
-            Novo Prazo
-          </Button>
-        </CardAction>
+<CardAction className="w-full md:w-auto">
+  <Button onClick={onCreate} className="w-full md:w-auto">
+    Novo Prazo
+  </Button>
+</CardAction>
       </CardHeader>
 
       <CardContent className="p-0!">
