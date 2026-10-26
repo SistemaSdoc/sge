@@ -176,6 +176,8 @@ Route::middleware([
             require base_path('routes/modules/acess-management.php');
             require base_path('routes/modules/certificado.php');
             require base_path('routes/modules/pautas.php');
+            // Geração e exportação usam o grupo tenant autenticado acima.
+            require base_path('routes/modules/quadro-honra.php');
             require base_path('routes/modules/notas.php');
             require base_path('routes/settings.php');
 

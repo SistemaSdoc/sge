@@ -8,10 +8,8 @@ import {
 import { CardFooter } from '@/components/ui/card';
 
 /**
- * @param {Object}   pagination              - Objeto de paginação do Laravel (via Inertia props)
- * @param {number}   pagination.current_page
- * @param {number}   pagination.last_page
- * @param {Function} onPageChange            - Callback chamado com o número da página destino
+ * Renderiza a navegação da página atual e comunica a página pedida ao componente pai.
+ * @param {{ pagination: { current_page: number, last_page: number }, onPageChange: (page: number) => void }} props
  */
 export default function TablePagination({ pagination, onPageChange }) {
   if (!pagination?.current_page) return null;

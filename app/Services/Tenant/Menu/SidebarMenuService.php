@@ -19,6 +19,7 @@ use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PlanificacaoController;
 use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\ProfessorController;
+use App\Http\Controllers\Tenant\QuadroHonraController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
 use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
@@ -36,6 +37,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\Planificacao;
 use App\Models\Tenant\Professor;
+use App\Models\Tenant\QuadroHonra;
 use App\Models\Tenant\RegraAvaliacao;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\Turma;
@@ -162,6 +164,15 @@ final class SidebarMenuService
                     href: action([PautaController::class, 'index']),
                     icon: 'FileText',
                     can: fn () => $gate->allows('pauta.viewAny')
+                ),
+
+                // A policy mantém a visibilidade do menu alinhada com a autorização das rotas.
+                new MenuItem(
+                    key: 'quadro-honra',
+                    title: 'Quadro de Honra',
+                    href: action([QuadroHonraController::class, 'index']),
+                    icon: 'Trophy',
+                    can: fn () => $gate->allows('viewAny', QuadroHonra::class),
                 ),
 
                 new MenuItem(
@@ -395,6 +406,7 @@ final class SidebarMenuService
                 'grupos-pap',
                 'turmas',
                 'pautas',
+                'quadro-honra',
                 'inscricoes',
                 'alunos',
             ];
