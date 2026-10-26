@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
     'situacao_trimestral',
     'situacao_anual',
     'observacao',
+    'is_rascunho',
 ])]
 
 class Nota extends Model

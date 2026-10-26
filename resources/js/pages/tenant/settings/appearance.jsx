@@ -1,7 +1,23 @@
 import { Head } from '@inertiajs/react';
 import AppearanceTabs from '@/components/appearance-tabs';
 import Heading from '@/components/heading';
-import { edit as editAppearance } from '@/routes/tenant/dashboard/appearance';
+import { edit as centralAppearanceEdit } from '@/routes/central/dashboard/appearance';
+import { edit as tenantAppearanceEdit } from '@/routes/tenant/dashboard/appearance';
+
+const currentAppearanceEdit = () => {
+  if (typeof window === 'undefined') {
+    return tenantAppearanceEdit();
+  }
+
+  const centralUrl = new URL(
+    centralAppearanceEdit().url,
+    window.location.origin,
+  );
+
+  return centralUrl.host === window.location.host
+    ? centralAppearanceEdit()
+    : tenantAppearanceEdit();
+};
 
 export default function Appearance() {
   return (
@@ -26,7 +42,7 @@ Appearance.layout = {
   breadcrumbs: [
     {
       title: 'Configurações de aparência',
-      href: editAppearance(),
+      href: currentAppearanceEdit(),
     },
   ],
 };

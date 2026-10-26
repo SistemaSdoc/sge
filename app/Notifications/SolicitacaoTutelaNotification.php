@@ -2,26 +2,29 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Notifica o administrador tutor sobre uma nova solicitação.
  */
-class SolicitacaoTutelaNotification extends Notification implements ShouldQueue
+class SolicitacaoTutelaNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public string $instituicaoTutelada,
         public string $cursoNome,
         public string $sharedId,
         public string $url = '',
-    ) {
-        $this->afterCommit();
-    }
+        public bool $trocaTutelaFinal = false,
+        public ?string $cursoTuteladoSharedAnteriorId = null,
+    ) {}
 
     /**
      * @return array<int, string>
@@ -42,26 +45,33 @@ class SolicitacaoTutelaNotification extends Notification implements ShouldQueue
      */
     public function toDatabase(object $notifiable): array
     {
-        return [
+        $data = [
             'tipo' => 'solicitacao_tutela',
             'titulo' => 'Nova solicitação de tutela',
-            'mensagem' => "A instituição {$this->instituicaoTutelada} solicita tutela para o curso {$this->cursoNome}.",
+            'mensagem' => "O {$this->instituicaoTutelada} solicita tutela para o curso {$this->cursoNome}.",
             'curso_nome' => $this->cursoNome,
             'instituicao_tutelada' => $this->instituicaoTutelada,
             'curso_tutelado_shared_id' => $this->sharedId,
         ];
+
+        if ($this->trocaTutelaFinal) {
+            $data['troca_tutela_final'] = true;
+            $data['curso_tutelado_shared_anterior_id'] = $this->cursoTuteladoSharedAnteriorId;
+        }
+
+        return $data;
     }
 
     public function toMail(object $notifiable): MailMessage
     {
-        // 🔥 NÃO USAR url() helper aqui!
+        // NÃO USAR url() helper aqui!
         // Se $url não foi passado, usa um fallback seguro
         $defaultUrl = config('app.url').'/dashboard';
         $finalUrl = $this->url ?: $defaultUrl;
 
         return (new MailMessage)
             ->subject('Nova solicitação de tutela')
-            ->markdown('mail.solicitacao-tutela-notification', [
+            ->view('mail.solicitacao-tutela-notification', [
                 'nomeInstituicao' => $this->instituicaoTutelada,
                 'nomeCurso' => $this->cursoNome,
                 'url' => $finalUrl,  // ← Já construída, sem chamar url()

@@ -1,6 +1,7 @@
-import { Link, router } from '@inertiajs/react';
-import { LogOut, Settings2 } from 'lucide-react';
-import { edit } from '@/actions/App/Http/Controllers/Tenant/Settings/ProfileController';
+import { Link, router, usePage } from '@inertiajs/react';
+import { LogOut, Settings2, UserCircleIcon } from 'lucide-react';
+import { destroy as centralLogout } from '@/actions/App/Http/Controllers/Central/Auth/AuthenticatedSessionController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
 import {
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -9,7 +10,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
-import { logout } from '@/routes/tenant';
+import { edit as centralAppearanceEdit } from '@/routes/central/dashboard/appearance';
+import { logout as tenantLogout } from '@/routes/tenant';
+import { edit as tenantAppearanceEdit } from '@/routes/tenant/dashboard/appearance';
 import type { User } from '@/types';
 
 type Props = {
@@ -18,6 +21,11 @@ type Props = {
 
 export function UserMenuContent({ user }: Props) {
   const cleanup = useMobileNavigation();
+  const { isTenant } = usePage<{ isTenant: boolean }>().props;
+  const logout = isTenant ? tenantLogout : centralLogout;
+  const appearanceEdit = isTenant
+    ? tenantAppearanceEdit
+    : centralAppearanceEdit;
 
   const handleLogout = () => {
     cleanup();
@@ -38,7 +46,7 @@ export function UserMenuContent({ user }: Props) {
         <DropdownMenuItem asChild>
           <Link
             className="block w-full cursor-pointer"
-            href={edit()}
+            href={appearanceEdit()}
             prefetch
             onClick={cleanup}
           >
@@ -46,6 +54,22 @@ export function UserMenuContent({ user }: Props) {
             Configurações
           </Link>
         </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        {isTenant && (
+          <DropdownMenuItem asChild>
+            <Link
+              className="block w-full cursor-pointer"
+              href={show(user.id)}
+              prefetch
+              onClick={cleanup}
+            >
+              <UserCircleIcon className="mr-2" />
+              Meu Perfil
+            </Link>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuGroup>
 
       <DropdownMenuSeparator />

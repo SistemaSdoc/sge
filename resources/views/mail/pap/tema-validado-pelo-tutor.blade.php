@@ -156,6 +156,7 @@
 <body>
 
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
 
         {{-- Header --}}
         <div class="header">
@@ -178,6 +179,11 @@
         {{-- Info Card --}}
         <div class="info-card">
             <div class="card-item">
+                <div class="card-label">Instituição</div>
+                <div class="card-value">{{ $nomeInstituicao }}</div>
+            </div>
+
+            <div class="card-item">
                 <div class="card-label">Grupo</div>
                 <div class="card-value">{{ $nomeGrupo }}</div>
             </div>
@@ -199,18 +205,6 @@
                 Ver tema
             </a>
         </div>
-
-        {{-- Access Link --}}
-        <p class="access-link">
-            Se o botão acima não funcionar, copie e cole o seguinte endereço
-            no seu navegador:
-
-            <br><br>
-
-            <a href="{{ $url }}" target="_blank">
-                {{ $url }}
-            </a>
-        </p>
 
         {{-- Footer --}}
         <div class="footer">

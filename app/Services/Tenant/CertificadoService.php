@@ -154,19 +154,33 @@ class CertificadoService
 
         $html = view('certificados.certificado', $dados)->render();
 
+        $homeDir = sys_get_temp_dir().'/browsershot-home';
+        $userDataDir = sys_get_temp_dir().'/browsershot-chrome';
+
+        foreach ([$homeDir, $userDataDir] as $dir) {
+            if (! is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+        }
+
+        putenv('HOME='.$homeDir);
+
         return Browsershot::html($html)
             ->setChromePath(BrowsershotHelper::getChromePath())
             ->setNodeBinary(BrowsershotHelper::getNodeBinary())
             ->setNpmBinary(BrowsershotHelper::getNpmBinary())
-            ->addChromiumArguments([
-                '--no-sandbox', '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage', '--disable-gpu',
-                '--headless=new', '--no-zygote', '--single-process',
-            ])
+            ->userDataDir($userDataDir)
             ->timeout(60000)
             ->format('A4')
             ->portrait()
-            ->noSandbox()
+            ->setOption('args', [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--disable-crash-reporter',
+                '--no-zygote',
+            ])
             ->waitUntilNetworkIdle()
             ->margins(0, 0, 0, 0)
             ->pdf();
@@ -181,12 +195,27 @@ class CertificadoService
 
         $chave = (int) round($numero);
         $mapa = [
-            0 => 'Zero', 1 => 'Um', 2 => 'Dois', 3 => 'Três',
-            4 => 'Quatro', 5 => 'Cinco', 6 => 'Seis', 7 => 'Sete',
-            8 => 'Oito', 9 => 'Nove', 10 => 'Dez', 11 => 'Onze',
-            12 => 'Doze', 13 => 'Treze', 14 => 'Catorze', 15 => 'Quinze',
-            16 => 'Dezasseis', 17 => 'Dezassete', 18 => 'Dezoito',
-            19 => 'Dezanove', 20 => 'Vinte',
+            0 => 'Zero',
+            1 => 'Um',
+            2 => 'Dois',
+            3 => 'Três',
+            4 => 'Quatro',
+            5 => 'Cinco',
+            6 => 'Seis',
+            7 => 'Sete',
+            8 => 'Oito',
+            9 => 'Nove',
+            10 => 'Dez',
+            11 => 'Onze',
+            12 => 'Doze',
+            13 => 'Treze',
+            14 => 'Catorze',
+            15 => 'Quinze',
+            16 => 'Dezasseis',
+            17 => 'Dezassete',
+            18 => 'Dezoito',
+            19 => 'Dezanove',
+            20 => 'Vinte',
         ];
 
         return ($mapa[$chave] ?? (string) $chave).' Valores';

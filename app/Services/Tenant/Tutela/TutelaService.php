@@ -2,6 +2,7 @@
 
 namespace App\Services\Tenant\Tutela;
 
+use App\Enums\TutelaStatus;
 use App\Jobs\Tenant\Tutela\SincronizarAssociacaoTutela;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Tenant\CursoTutelado;
@@ -38,7 +39,10 @@ class TutelaService
         Instituicao $instituicaoTutelada,
         string $tenantTutorId
     ): InstituicaoTutoraData {
-        return $this->validator->validarTutelaExterna($instituicaoTutelada, $tenantTutorId);
+        return $this->validator->validarTutelaExterna(
+            $instituicaoTutelada,
+            $tenantTutorId
+        );
     }
 
     /**
@@ -73,7 +77,8 @@ class TutelaService
      */
     public function publicarEAssociarCurso(
         CursoTutelado $cursoTutelado,
-        InstituicaoTutoraData $instituicaoTutora
+        InstituicaoTutoraData $instituicaoTutora,
+        bool $notificarSolicitacao = true,
     ): CursoTuteladoShared {
         Log::info('Iniciando publicação e associação de tutela', [
             'curso_tutelado_id' => $cursoTutelado->id,
@@ -87,7 +92,10 @@ class TutelaService
         );
 
         try {
-            $this->tenantService->associarTutelaExterna($cursoTutelado, $shared);
+            $this->tenantService->associarTutelaExterna(
+                $cursoTutelado,
+                $shared
+            );
         } catch (Throwable $exception) {
             Log::error('Falha ao associar tutela no tenant tutelado.', [
                 'shared_id' => $shared->getKey(),
@@ -112,12 +120,19 @@ class TutelaService
             throw $exception;
         }
 
-        Log::info('Associação de tutela completada; enviando notificação', [
-            'shared_id' => $shared->getKey(),
-            'tenant_tutor_id' => $shared->tenant_tutor_id,
-        ]);
+        if ($notificarSolicitacao) {
+            Log::info('Associação de tutela completada; enviando notificação', [
+                'shared_id' => $shared->getKey(),
+                'tenant_tutor_id' => $shared->tenant_tutor_id,
+            ]);
 
-        $this->notificationService->notificarNovaSolicitacao($shared);
+            $this->notificationService->notificarNovaSolicitacao($shared);
+        } else {
+            Log::info('Associação de tutela completada; espera da aprovação do tutor antigo', [
+                'shared_id' => $shared->getKey(),
+                'tenant_tutor_id' => $shared->tenant_tutor_id,
+            ]);
+        }
 
         Log::info('Fluxo de publicação e associação completado com sucesso', [
             'shared_id' => $shared->getKey(),
@@ -127,9 +142,80 @@ class TutelaService
         return $shared;
     }
 
+    public function publicarSemAssociarCurso(
+        CursoTutelado $cursoTutelado,
+        InstituicaoTutoraData $instituicaoTutora,
+    ): CursoTuteladoShared {
+        $shared = $this->centralService->criarOuActualizarVinculo(
+            $cursoTutelado,
+            $instituicaoTutora,
+            TutelaStatus::PENDENTE_TROCA,
+        );
+
+        Log::info('Proposta de troca criada sem alterar o vínculo local do curso', [
+            'curso_tutelado_id' => $cursoTutelado->id,
+            'shared_id' => $shared->getKey(),
+            'tenant_tutor_id' => $shared->tenant_tutor_id,
+        ]);
+
+        return $shared;
+    }
+
     /**
      * Remove da base central o vínculo associado ao curso.
      */
+    public function notificarTrocaTutela(
+        CursoTutelado $cursoTutelado,
+        ?string $tenantTutorAnteriorId,
+        ?string $cursoTuteladoSharedAnteriorId = null,
+        ?CursoTuteladoShared $sharedProposto = null,
+    ): void {
+        if (! $tenantTutorAnteriorId) {
+            return;
+        }
+
+        $this->notificationService->notificarTrocaTutela(
+            $cursoTutelado,
+            $tenantTutorAnteriorId,
+            $cursoTuteladoSharedAnteriorId,
+            $sharedProposto,
+        );
+    }
+
+    public function notificarTrocaPendente(
+        CursoTuteladoShared $shared,
+        string $tenantTutorActualId,
+    ): void {
+        $this->notificationService->notificarTrocaPendente(
+            $shared,
+            $tenantTutorActualId,
+        );
+    }
+
+    public function notificarConversaoTutelaPropria(
+        CursoTutelado $cursoTutelado,
+        string $tenantTutorAnteriorId,
+        string $sharedId,
+    ): void {
+        $this->notificationService->notificarConversaoTutelaPropria(
+            $cursoTutelado,
+            $tenantTutorAnteriorId,
+            $sharedId,
+        );
+    }
+
+    public function notificarResultadoConversaoTutelaPropria(
+        CursoTuteladoShared $shared,
+        string $tenantDecisorId,
+        string $resultado,
+    ): void {
+        $this->notificationService->notificarResultadoConversaoTutelaPropria(
+            $shared,
+            $tenantDecisorId,
+            $resultado,
+        );
+    }
+
     public function removerVinculo(CursoTutelado $cursoTutelado): void
     {
         Log::info('Iniciando remoção de vínculo', [
@@ -188,5 +274,10 @@ class TutelaService
         Log::info('Encerramento de tutela completado', [
             'curso_tutelado_id' => $cursoTutelado->id,
         ]);
+    }
+
+    public function encerrarVinculoRejeitado(CursoTutelado $cursoTutelado): void
+    {
+        $this->centralService->encerrarVinculoRejeitado($cursoTutelado);
     }
 }

@@ -40,6 +40,7 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import TablePagination from '@/components/table-pagination';
+import { TutelaStatusBadge } from '../../../cursos-tutelados/components/tutela-status-badge';
 
 export function TabContentCursos({
   data,
@@ -55,17 +56,24 @@ export function TabContentCursos({
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
       <CardHeader className="border-b">
-        <CardTitle>Cursos</CardTitle>
-        <CardDescription>
-          Cursos lecionados por esta instituição
-        </CardDescription>
-        {canCreate && (
-          <CardAction>
-            <Button asChild>
-              <Link href={create(instituicaoId).url}>Adicionar</Link>
-            </Button>
-          </CardAction>
-        )}
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          {/* Título e Descrição */}
+          <div className="min-w-0 space-y-1">
+            <CardTitle>Cursos</CardTitle>
+            <CardDescription>
+              Cursos lecionados por esta instituição
+            </CardDescription>
+          </div>
+
+          {/* Botão */}
+          {canCreate && (
+            <CardAction className="w-full md:w-auto">
+              <Button asChild className="w-full">
+                <Link href={create(instituicaoId).url}>Adicionar</Link>
+              </Button>
+            </CardAction>
+          )}
+        </div>
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -91,6 +99,7 @@ export function TabContentCursos({
               <TableRow className="bg-muted/72">
                 <TableHead className="px-4">Nome</TableHead>
                 <TableHead>Tutelado por</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead className="px-4 text-right">Acções</TableHead>
               </TableRow>
             </TableHeader>
@@ -117,10 +126,24 @@ export function TabContentCursos({
                     {curso.nome}
                   </TableCell>
                   <TableCell>
-                    {curso.instituicao_tutora ? (
-                      curso.instituicao_tutora
+                    <div className="flex flex-col gap-1">
+                      <span>
+                        {curso.instituicao_tutora || (
+                          <Minus size={15} className="text-muted-foreground" />
+                        )}
+                      </span>
+                      {curso.instituicao_tutora_pendente && (
+                        <span className="w-fit rounded border border-muted-foreground/25 px-2 py-0.5 text-xs text-muted-foreground">
+                          Troca pendente: {curso.instituicao_tutora_pendente}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {curso.status ? (
+                      <TutelaStatusBadge status={curso.status} />
                     ) : (
-                      <Minus size={15} className="text-muted-foreground" />
+                      '__'
                     )}
                   </TableCell>
                   <TableCell className="px-4 text-right">

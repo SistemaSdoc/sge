@@ -1,26 +1,24 @@
-import { useDialog } from '@/hooks/use-dialog';
 import { Head, router } from '@inertiajs/react';
 import AnoLectivoTable from './components/ano-lectivo-table';
-import {
-  index,
-  destroy,
-} from '@/actions/App/Http/Controllers/Tenant/AvisoController';
+import { index } from '@/actions/App/Http/Controllers/Tenant/AnoLectivoController';
 
-export default function Index({ anosLectivos = {}, can }) {
+export default function Index({ anosLectivos = {}, filters }) {
   const handlePageChange = (page) => {
     router.visit(index().url, {
-      data: { page },
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+      },
       preserveScroll: true,
     });
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <Head title="Anos Lectivos" />
-
       <AnoLectivoTable
-        can={can}
         anosLectivos={anosLectivos.data}
+        filters={filters}
         pagination={{
           current_page: anosLectivos.current_page,
           last_page: anosLectivos.last_page,

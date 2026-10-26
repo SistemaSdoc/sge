@@ -215,6 +215,9 @@ export default function LancamentosTable({
     };
   };
 
+  const inputNota = 'w-20 min-w-20 text-center';
+  
+
   return (
     <>
       <Dialog open={modalSolicitacao} onOpenChange={setModalSolicitacao}>
@@ -271,115 +274,102 @@ export default function LancamentosTable({
 
       <Card className="gap-0">
         <CardHeader className="border-b">
-          <div>
-            <CardTitle>{data?.disciplina?.nome}</CardTitle>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            {/* Título + descrição */}
+            <div className="min-w-0 space-y-1">
+              <CardTitle>{data?.disciplina?.nome}</CardTitle>
+              <CardDescription>
+                {finalizadaAutomaticamente
+                  ? 'Esta pauta foi encerrada automaticamente devido ao término do prazo estabelecido para o lançamento das notas.'
+                  : estaFinalizada
+                    ? can?.notas?.overrideLockedPeriods
+                      ? 'Esta pauta encontra-se encerrada. No entanto, possui permissão para efetuar alterações.'
+                      : 'Esta pauta encontra-se encerrada. Para realizar alterações, é necessária a autorização da Direção.'
+                    : !dentroDoPrazo?.[periodo] &&
+                        !can?.notas?.overrideLockedPeriods
+                      ? 'O período de lançamento das notas para este trimestre encontra-se encerrado.'
+                      : 'Preencha as classificações dos alunos correspondentes ao trimestre selecionado.'}
 
-            <CardDescription>
-              {finalizadaAutomaticamente
-                ? 'Esta pauta foi encerrada automaticamente devido ao término do prazo estabelecido para o lançamento das notas.'
-                : estaFinalizada
-                  ? can?.notas?.overrideLockedPeriods
-                    ? 'Esta pauta encontra-se encerrada. No entanto, possui permissão para efetuar alterações.'
-                    : 'Esta pauta encontra-se encerrada. Para realizar alterações, é necessária a autorização da Direção.'
-                  : !dentroDoPrazo?.[periodo] &&
-                      !can?.notas?.overrideLockedPeriods
-                    ? 'O período de lançamento das notas para este trimestre encontra-se encerrado.'
-                    : 'Preencha as classificações dos alunos correspondentes ao trimestre selecionado.'}
+                {tempoRestante && (
+                  <p className="mt-1 flex items-center gap-2 text-sm font-medium text-sky-600">
+                    <Clock className="size-4" />
+                    <strong>Tempo restante para edição:</strong> {tempoRestante}
+                  </p>
+                )}
+              </CardDescription>
 
-              {tempoRestante && (
-                <p className="mt-1 flex items-center gap-2 text-sm font-medium text-sky-600">
-                  <Clock className="size-4" />{' '}
-                  <strong>Tempo restante para edição:</strong> {tempoRestante}
+              {errors?.periodo && (
+                <p className="mt-2 text-sm text-destructive">
+                  {errors.periodo}
                 </p>
               )}
-            </CardDescription>
+            </div>
 
-            {errors?.periodo && (
-              <p className="mt-2 text-sm text-destructive">{errors.periodo}</p>
-            )}
+            {/* Acções */}
+            <div className="flex shrink-0 flex-wrap gap-2 sm:flex-row sm:items-center">
+              {!isEmpty && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleTodos}
+                >
+                  {todosAbertos ? (
+                    <>
+                      <LockKeyhole className="mr-1 size-4" />
+                      Fechar todos
+                    </>
+                  ) : (
+                    <>
+                      <LockKeyholeOpen className="mr-1 size-4" />
+                      Abrir todos
+                    </>
+                  )}
+                </Button>
+              )}
+
+              {podeGuardar && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() => onSubmit('guardar', recolherDados())}
+                >
+                  Guardar rascunho
+                </Button>
+              )}
+
+              {podeFinalizar && (
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() => onSubmit('finalizar', recolherDados())}
+                >
+                  Finalizar lançamento
+                </Button>
+              )}
+
+              {podeSolicitarEdicao && !temSolicitacaoPendente?.[periodo] && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => setModalSolicitacao(true)}
+                >
+                  Solicitar edição ao director
+                </Button>
+              )}
+
+              {podeSolicitarEdicao && temSolicitacaoPendente?.[periodo] && (
+                <Badge className="bg-yellow-50 px-3 py-1 text-yellow-700">
+                  Solicitação pendente
+                </Badge>
+              )}
+            </div>
           </div>
-
-          <CardAction className="flex items-center gap-3">
-            {!isEmpty && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={toggleTodos}
-              >
-                {todosAbertos ? (
-                  <>
-                    <LockKeyhole className="mr-1 size-4" />
-                    Fechar todos
-                  </>
-                ) : (
-                  <>
-                    <LockKeyholeOpen className="mr-1 size-4" />
-                    Abrir todos
-                  </>
-                )}
-              </Button>
-            )}
-            <Select>
-              <SelectContent>
-                <SelectItem value="1">1º Trimestre</SelectItem>
-                <SelectItem
-                  value="2"
-                  disabled={!podeOverride && !periodosDisponiveis?.[2]}
-                >
-                  2º Trimestre
-                </SelectItem>
-                <SelectItem
-                  value="3"
-                  disabled={!podeOverride && !periodosDisponiveis?.[3]}
-                >
-                  3º Trimestre
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <input type="hidden" name="tdp_id" value={data?.tdp_id ?? ''} />
-
-            <input type="hidden" name="periodo" value={parseInt(periodo)} />
-
-            {podeGuardar && (
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isPending}
-                onClick={() => onSubmit('guardar', recolherDados())}
-              >
-                Guardar rascunho
-              </Button>
-            )}
-
-            {podeFinalizar && (
-              <Button
-                type="button"
-                disabled={isPending}
-                onClick={() => onSubmit('finalizar', recolherDados())}
-              >
-                Finalizar lançamento
-              </Button>
-            )}
-
-            {podeSolicitarEdicao && !temSolicitacaoPendente?.[periodo] && (
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => setModalSolicitacao(true)}
-              >
-                Solicitar edição ao director
-              </Button>
-            )}
-
-            {podeSolicitarEdicao && temSolicitacaoPendente?.[periodo] && (
-              <Badge className="bg-yellow-50 px-3 py-1 text-yellow-700">
-                Solicitação pendente
-              </Badge>
-            )}
-          </CardAction>
         </CardHeader>
-
         {/* Filtros */}
         <div className="border-b bg-muted/30 px-4 py-3">
           <div className="flex justify-end gap-3">
@@ -420,23 +410,27 @@ export default function LancamentosTable({
               icon={ClipboardListIcon}
               title="Nenhum lançamento"
               description="Nenhuma nota para registar"
-              action={{
-                label: 'Lançar Notas',
-                href: '#',
-                variant: 'outline',
-              }}
+              action={
+                can?.notas?.create
+                  ? {
+                      label: 'Lançar Notas',
+                      href: '#',
+                      variant: 'outline',
+                    }
+                  : undefined
+              }
             />
           ) : (
-            <Table>
+            <Table className="min-w-[760px]">
               <TableHeader>
                 <TableRow className="bg-muted/72">
                   <TableHead className="w-1! px-4">#</TableHead>
                   <TableHead className="w-48 px-4">Aluno</TableHead>
-                  <TableHead className="w-1 text-center">MAC</TableHead>
-                  <TableHead className="w-1 text-center">NPP</TableHead>
-                  <TableHead className="w-1 text-center">NPT</TableHead>
+                  <TableHead className={inputNota}>MAC</TableHead>
+                  <TableHead className={inputNota}>NPP</TableHead>
+                  <TableHead className={inputNota}>NPT</TableHead>
                   <TableHead className="w-1 text-center">MT</TableHead>
-                  <TableHead className="w-1 text-center">F.I</TableHead>
+                  <TableHead className={inputNota}>F.I</TableHead>
                   <TableHead className="w-8 px-2" />
                   <TableHead className="w-20 px-4 text-end">
                     Resultado
@@ -581,19 +575,21 @@ export default function LancamentosTable({
                       </TableCell>
 
                       <TableCell className="px-2">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={() => toggleAluno(aluno.turma_aluno_id)}
-                        >
-                          {aberto ? (
-                            <LockKeyholeOpen className="size-4" />
-                          ) : (
-                            <LockKeyhole className="size-4" />
-                          )}
-                        </Button>
+                        {can?.notas?.create && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => toggleAluno(aluno.turma_aluno_id)}
+                          >
+                            {aberto ? (
+                              <LockKeyholeOpen className="size-4" />
+                            ) : (
+                              <LockKeyhole className="size-4" />
+                            )}
+                          </Button>
+                        )}
                       </TableCell>
 
                       <TableCell className="px-4 text-end">

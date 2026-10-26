@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Requests\Tenant\CursoTutelado\StoreCursoTuteladoRequest;
+use App\Http\Requests\Tenant\CursoTutelado\UpdateCursoTuteladoRequest;
 use ReflectionMethod;
 
 it('normalizes tutela propria to an empty tutor id before validation', function () {
@@ -19,4 +20,11 @@ it('normalizes tutela propria to an empty tutor id before validation', function 
     $method->invoke($request);
 
     expect($request->input('tenant_tutor_id'))->toBe('');
+});
+
+it('does not expose central course fields in the update contract', function () {
+    $rules = (new UpdateCursoTuteladoRequest)->rules();
+
+    expect($rules)->toHaveKeys(['tenant_tutor_id', 'nivel_ensino_id', 'classes'])
+        ->not->toHaveKeys(['nome', 'duracao_anos']);
 });

@@ -13,24 +13,33 @@ class TenantMetricsService
     public function getMetrics(): array
     {
         return [
-            'users' => $this->getUserMetrics(),
-            'logins_semana' => $this->getLoginsPerDay(),
+            ...$this->getUserMetrics(),
             'database' => $this->getDatabaseMetrics(),
+        ];
+    }
+
+    public function getUserMetrics(): array
+    {
+        return [
+            'users' => $this->getUserMetricsData(),
+            'logins_semana' => $this->getLoginsPerDay(),
         ];
     }
 
     /**
      * Métricas de utilizadores
      */
-    private function getUserMetrics(): array
+    private function getUserMetricsData(): array
     {
-        $total = User::count();
+        $total = User::withoutCentralSupport()->count();
 
         // Activos: login nos últimos 30 dias
-        $ativos = User::where('last_login_at', '>=', now()->subDays(30))->count();
+        $ativos = User::withoutCentralSupport()
+            ->where('last_login_at', '>=', now()->subDays(30))
+            ->count();
 
         // Inactivos: sem login há mais de 30 dias OU nunca fez login
-        $inactivos = User::where(function ($query) {
+        $inactivos = User::withoutCentralSupport()->where(function ($query) {
             $query->where('last_login_at', '<', now()->subDays(30))->orWhereNull('last_login_at');
         })->count();
 
@@ -38,10 +47,10 @@ class TenantMetricsService
         $suspensos = 0;
 
         // Tipos de users — por role
-        $diretores = User::whereHas('roles', fn ($q) => $q->where('name', 'Director'))->count();
-        $subdiretores = User::whereHas('roles', fn ($q) => $q->where('name', 'Subdiretor'))->count();
-        $professores = User::whereHas('roles', fn ($q) => $q->where('name', 'Professor'))->count();
-        $alunos = User::whereHas('roles', fn ($q) => $q->where('name', 'Aluno'))->count();
+        $diretores = User::withoutCentralSupport()->whereHas('roles', fn ($q) => $q->where('name', 'Director'))->count();
+        $subdiretores = User::withoutCentralSupport()->whereHas('roles', fn ($q) => $q->where('name', 'Subdirector'))->count();
+        $professores = User::withoutCentralSupport()->whereHas('roles', fn ($q) => $q->where('name', 'Professor'))->count();
+        $alunos = User::withoutCentralSupport()->whereHas('roles', fn ($q) => $q->where('name', 'Aluno'))->count();
 
         return [
             'total' => $total,
@@ -68,7 +77,9 @@ class TenantMetricsService
             $inicio = $data->clone()->startOfDay();
             $fim = $data->clone()->endOfDay();
 
-            $count = User::whereBetween('last_login_at', [$inicio, $fim])->count();
+            $count = User::withoutCentralSupport()
+                ->whereBetween('last_login_at', [$inicio, $fim])
+                ->count();
 
             $resultado[] = [
                 'dia' => $dias[$data->dayOfWeek === 0 ? 6 : $data->dayOfWeek - 1],
@@ -194,7 +205,8 @@ class TenantMetricsService
      */
     public function getLastActivity(): ?\DateTime
     {
-        $lastLogin = User::whereNotNull('last_login_at')
+        $lastLogin = User::withoutCentralSupport()
+            ->whereNotNull('last_login_at')
             ->latest('last_login_at')
             ->first();
 

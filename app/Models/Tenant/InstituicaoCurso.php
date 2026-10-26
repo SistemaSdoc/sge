@@ -2,8 +2,11 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\Central\Curso;
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 #[Fillable([
@@ -14,7 +17,13 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class InstituicaoCurso extends Pivot
 {
-    use HasUuid;
+    use HasSearch, HasUuid;
+
+    protected array $searchable = [
+        'curso.nome',                                          // Central, directa
+        'cursoTutelado.instituicaoTutora.nome',                // Central, 2 níveis
+        'cursoTutelado.cursoTuteladoShared.tenant_tutor_nome', // Tenant, whereHas normal
+    ];
 
     protected $table = 'instituicao_curso';
 
@@ -27,9 +36,9 @@ class InstituicaoCurso extends Pivot
         return $this->belongsTo(Instituicao::class);
     }
 
-    public function curso()
+    public function curso(): BelongsTo
     {
-        return $this->belongsTo(Curso::class);
+        return $this->belongsTo(Curso::class)->withTrashed();
     }
 
     public function cursoTutelado()

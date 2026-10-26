@@ -8,7 +8,7 @@ use App\Models\Tenant\User;
 class RegraAvaliacaoPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determina se o usuário pode listar regras de avaliação.
      */
     public function viewAny(User $user): bool
     {
@@ -16,7 +16,7 @@ class RegraAvaliacaoPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determina se o usuário pode consultar uma regra de avaliação.
      */
     public function view(User $user, RegraAvaliacao $regraAvaliacao): bool
     {
@@ -24,7 +24,7 @@ class RegraAvaliacaoPolicy
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determina se o usuário pode criar regras de avaliação.
      */
     public function create(User $user): bool
     {
@@ -32,7 +32,7 @@ class RegraAvaliacaoPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determina se o usuário pode actualizar uma regra de avaliação.
      */
     public function update(User $user, RegraAvaliacao $regraAvaliacao): bool
     {
@@ -40,7 +40,7 @@ class RegraAvaliacaoPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determina se o usuário pode eliminar uma regra de avaliação.
      */
     public function delete(User $user, RegraAvaliacao $regraAvaliacao): bool
     {
@@ -48,7 +48,7 @@ class RegraAvaliacaoPolicy
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determina se o usuário pode restaurar uma regra de avaliação.
      */
     public function restore(User $user, RegraAvaliacao $regraAvaliacao): bool
     {
@@ -56,7 +56,7 @@ class RegraAvaliacaoPolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determina se o usuário pode eliminar permanentemente uma regra de avaliação.
      */
     public function forceDelete(User $user, RegraAvaliacao $regraAvaliacao): bool
     {

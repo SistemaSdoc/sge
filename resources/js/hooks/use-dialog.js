@@ -19,6 +19,7 @@ export function useDialog() {
   const confirm = (options) =>
     openDialog({
       type: 'confirm',
+      confirmFn: null,
       confirmLabel: 'Confirmar',
       cancelLabel: 'Cancelar',
       ...options,
@@ -46,6 +47,7 @@ export function useDialog() {
   const alert = (options) =>
     openDialog({
       type: 'alert',
+      confirmFn: null,
       confirmLabel: 'OK',
       ...options,
     });

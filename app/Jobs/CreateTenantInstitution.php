@@ -7,6 +7,7 @@ use App\Models\Central\Tenant;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
 use App\Notifications\TenantActivadoNotification;
+use Database\Seeders\Tenant\CentralSupportUserSeeder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -86,16 +87,17 @@ class CreateTenantInstitution implements ShouldQueue
                     $user->assignRole('Director');
                 }
 
-                if ($userCreated) {
-                    $user->notify(new TenantActivadoNotification(
-                        nomeInstituicao: $instituicao->nome,
-                        nomeUser: $user->nome,
-                        email: $user->email,
-                        subdomain: $this->tenant->id,
-                        url: 'http://'.$this->tenant->id.'.'.env('APP_DOMAIN', 'localhost'),
-                        sigla: $pending->sigla,
-                    ));
-                }
+                app(CentralSupportUserSeeder::class)->run();
+
+                $user->notify(new TenantActivadoNotification(
+                    nomeInstituicao: $instituicao->nome,
+                    nomeUser: $user->nome,
+                    email: $user->email,
+                    subdomain: $this->tenant->id,
+                    url: 'http://'.$this->tenant->id.'.'.env('APP_DOMAIN', 'localhost'),
+                    sigla: $pending->sigla,
+                    password: $userCreated ? '12345678' : null,
+                ));
 
                 $this->tenant->update([
                     'instituicao_id' => $instituicao->id,

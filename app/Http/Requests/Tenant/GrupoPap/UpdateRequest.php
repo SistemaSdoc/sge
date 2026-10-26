@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Tenant\GrupoPap;
 
 use App\Rules\AlunoNaoPertencenteAoGrupo;
+use App\Rules\EstudoCasoPapUnico;
+use App\Rules\TemaPapUnico;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,12 +27,32 @@ class UpdateRequest extends FormRequest
     {
         return [
             'nome_grupo' => 'sometimes|string|max:255',
-            'tema_grupo' => 'sometimes|string|max:255',
-            'estudo_caso' => 'nullable|string',
+            'tema_grupo' => [
+                'sometimes',
+                'string',
+                'max:255',
+                new TemaPapUnico(
+                    (string) $this->route('cursoTutelado')->getKey(),
+                    (string) $this->route('turma')->ano_lectivo_id,
+                    (string) $this->route('cursoClasseTurno')->getKey(),
+                    (string) $this->route('grupoPap')->getKey(),
+                ),
+            ],
+            'estudo_caso' => [
+                'nullable',
+                'string',
+                new EstudoCasoPapUnico(
+                    (string) $this->route('cursoTutelado')->getKey(),
+                    (string) $this->route('turma')->ano_lectivo_id,
+                    (string) $this->route('cursoClasseTurno')->getKey(),
+                    $this->input('tema_grupo', $this->route('grupoPap')?->tema_grupo),
+                    (string) $this->route('grupoPap')->getKey(),
+                ),
+            ],
             'status' => 'sometimes|string',
             'nota_final' => 'nullable|numeric|min:0|max:20',
             'data_defesa' => 'nullable|date',
-            'professor_tutor_id' => 'sometimes|exists:professores,id',
+            // 'professor_tutor_id' => 'sometimes|exists:professores,id',
             'alunos' => 'sometimes|array|min:1',
             'alunos.*' => [
                 'exists:alunos,id',
@@ -50,7 +72,7 @@ class UpdateRequest extends FormRequest
             'nota_final.min' => 'A nota final deve ser no mínimo 0.',
             'nota_final.max' => 'A nota final deve ser no máximo 20.',
             'data_defesa.date' => 'A data de defesa deve ser uma data válida.',
-            'professor_tutor_id.exists' => 'O professor selecionado não existe.',
+            // 'professor_tutor_id.exists' => 'O professor selecionado não existe.',
             'alunos.array' => 'Os alunos devem ser uma lista.',
             'alunos.min' => 'Seleciona pelo menos um aluno.',
             'alunos.*.exists' => 'Um dos alunos selecionados não existe.',

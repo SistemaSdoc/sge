@@ -1,7 +1,7 @@
 import { MetricItem } from './item';
 import { METRICS_CONFIG } from '@/utils/metrics';
 
-export function MetricsBar({ metrics }) {
+export function MetricsBar({ metrics, canViewProfessores = true }) {
   if (!metrics) return null;
 
   return (
@@ -12,6 +12,7 @@ export function MetricsBar({ metrics }) {
           label={label}
           value={metrics[id] ?? 0}
           href={href}
+          disabled={id === 'totalProfessores' && !canViewProfessores}
         />
       ))}
     </div>

@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ArrowUpLeft } from 'lucide-react';
 
 export function UserForm({
   title,
@@ -38,7 +39,7 @@ export function UserForm({
   roles = [],
 }) {
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-6">
+    <div className="mx-auto w-full max-w-2xl p-4 md:p-6">
       <form onSubmit={submitFn}>
         <Card>
           <CardHeader className="border-b">
@@ -133,15 +134,32 @@ export function UserForm({
                   </Field>
                 )}
 
-                <Button type="submit" className="w-full" disabled={processing}>
-                  {processing ? (
-                    <>
-                      <Spinner className="size-4" /> {processingLabel}{' '}
-                    </>
-                  ) : (
-                    submitLabel
-                  )}
-                </Button>
+                <Field>
+                  <Button
+                    type="submit"
+                    className="w-full hover:cursor-pointer"
+                    disabled={processing}
+                  >
+                    {processing ? (
+                      <>
+                        <Spinner className="size-4" /> {processingLabel}{' '}
+                      </>
+                    ) : (
+                      submitLabel
+                    )}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    disabled={processing}
+                    variant={'outline'}
+                    className="w-full hover:cursor-pointer"
+                    onClick={() => window.history.back()}
+                  >
+                    <ArrowUpLeft />
+                    Voltar
+                  </Button>
+                </Field>
               </FieldSet>
             </FieldGroup>
           </CardContent>

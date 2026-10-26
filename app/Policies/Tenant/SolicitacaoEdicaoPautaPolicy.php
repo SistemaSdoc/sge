@@ -8,7 +8,7 @@ use App\Models\Tenant\User;
 class SolicitacaoEdicaoPautaPolicy
 {
     /**
-     * Determine whether the user can view any models.
+     * Determina se o usuário pode listar pedidos de edição de pauta.
      */
     public function viewAny(User $user): bool
     {
@@ -16,7 +16,7 @@ class SolicitacaoEdicaoPautaPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determina se o usuário pode consultar um pedido de edição de pauta.
      */
     public function view(User $user, SolicitacaoEdicaoPauta $solicitacaoEdicaoPauta): bool
     {
@@ -24,7 +24,7 @@ class SolicitacaoEdicaoPautaPolicy
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determina se o usuário pode criar um pedido de edição de pauta.
      */
     public function create(User $user): bool
     {
@@ -32,7 +32,7 @@ class SolicitacaoEdicaoPautaPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determina se o usuário pode actualizar um pedido de edição de pauta.
      */
     public function update(User $user, SolicitacaoEdicaoPauta $solicitacaoEdicaoPauta): bool
     {
@@ -40,7 +40,7 @@ class SolicitacaoEdicaoPautaPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determina se o usuário pode eliminar um pedido de edição de pauta.
      */
     public function delete(User $user, SolicitacaoEdicaoPauta $solicitacaoEdicaoPauta): bool
     {
@@ -48,7 +48,7 @@ class SolicitacaoEdicaoPautaPolicy
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determina se o usuário pode restaurar um pedido de edição de pauta.
      */
     public function restore(User $user, SolicitacaoEdicaoPauta $solicitacaoEdicaoPauta): bool
     {
@@ -56,7 +56,7 @@ class SolicitacaoEdicaoPautaPolicy
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determina se o usuário pode eliminar permanentemente um pedido de edição de pauta.
      */
     public function forceDelete(User $user, SolicitacaoEdicaoPauta $solicitacaoEdicaoPauta): bool
     {

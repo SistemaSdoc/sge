@@ -29,13 +29,10 @@ class DocumentosController extends Controller
             abort(response()->json(['message' => 'O certificado só pode ser emitido para alunos da 13ª classe.']));
         }
 
-        // Verifica se tem notas
-        $dados = $this->declaracaoComNotaService->calcularDados($aluno, $turma);
-        $todasDisciplinas = array_merge(
-            $dados['notas']['sociocultural'] ?? [],
-            $dados['notas']['cientifica'] ?? [],
-            $dados['notas']['tecnica'] ?? [],
-        );
+        // Usa o CertificadoService (agrega todas as turmas do aluno)
+        $calc = $this->certificadoService->calcular($aluno, $turma);
+
+        $todasDisciplinas = array_merge(...array_values($calc['notas']));
 
         if (empty($todasDisciplinas)) {
             abort(response()->json(['message' => 'O aluno não tem notas lançadas para gerar o certificado.']));
@@ -111,7 +108,96 @@ class DocumentosController extends Controller
         return $outDir.'/'.pathinfo($docx, PATHINFO_FILENAME).'.pdf';
     }
 
+    // private function emitirCertificado(Aluno $aluno, Turma $turma, $candidato, string $classeNome): mixed
+    // {
+    //     if (!str_contains($classeNome, '13ª')) {
+    //         abort(response()->json(['message' => 'O certificado só pode ser emitido para alunos da 13ª classe.']));
+    //     }
+
+    //     // Verifica se tem notas
+    //     $dados = $this->declaracaoComNotaService->calcularDados($aluno, $turma);
+    //     $todasDisciplinas = array_merge(
+    //         $dados['notas']['sociocultural'] ?? [],
+    //         $dados['notas']['cientifica'] ?? [],
+    //         $dados['notas']['tecnica'] ?? [],
+    //     );
+
+    //     if (empty($todasDisciplinas)) {
+    //         abort(response()->json(['message' => 'O aluno não tem notas lançadas para gerar o certificado.']));
+    //     }
+
+    //     $pdf = $this->certificadoService->gerarPdf($aluno, $turma);
+
+    //     return response($pdf)
+    //         ->header('Content-Type', 'application/pdf')
+    //         ->header('Content-Disposition', 'attachment; filename="Certificado_' . str_replace(' ', '_', $candidato->nome) . '.pdf"');
+    // }
+
+    // private function emitirDeclaracaoSemNotas(Aluno $aluno, Turma $turma, $candidato, string $classeNome, ?string $efeito): mixed
+    // {
+    //     if (str_contains($classeNome, '13ª')) {
+    //         abort(response()->json(['message' => 'A declaração sem notas não pode ser emitida para alunos da 13ª classe.']));
+    //     }
+
+    //     $cct = $turma->cursoClasseTurno;
+    //     $cc = $cct->cursoClasse;
+    //     $ct = $cc->cursoTutelado;
+    //     $inst = $ct->instituicaoCurso->instituicao;
+
+    //     $docx = $this->declaracaoService->gerar($inst, $ct, $cc, $cct, $turma, $aluno, $efeito);
+    //     $pdf = $this->converterParaPdf($docx);
+
+    //     return response()
+    //         ->download($pdf, 'Declaracao_Sem_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf', ['Content-Type' => 'application/pdf'])
+    //         ->deleteFileAfterSend(true);
+    // }
+
+    // private function emitirDeclaracaoComNotas(Aluno $aluno, Turma $turma, $candidato, string $classeNome, ?string $efeito): mixed
+    // {
+    //     if (str_contains($classeNome, '13ª')) {
+    //         abort(response()->json(['message' => 'A declaração com notas não pode ser emitida para alunos da 13ª classe.']));
+    //     }
+
+    //     // Verifica se tem notas
+    //     $dados = $this->declaracaoComNotaService->calcularDados($aluno, $turma);
+    //     $todasDisciplinas = array_merge(
+    //         $dados['notas']['sociocultural'] ?? [],
+    //         $dados['notas']['cientifica'] ?? [],
+    //         $dados['notas']['tecnica'] ?? [],
+    //     );
+
+    //     if (empty($todasDisciplinas)) {
+    //         abort(response()->json(['message' => 'O aluno não tem notas lançadas para gerar a declaração com notas.']));
+    //     }
+
+    //     $docx = $this->declaracaoComNotaService->gerar($aluno, $turma, $efeito);
+    //     $pdf = $this->converterParaPdf($docx);
+
+    //     return response()
+    //         ->download($pdf, 'Declaracao_Com_Notas_' . str_replace(' ', '_', $candidato->nome) . '.pdf', ['Content-Type' => 'application/pdf'])
+    //         ->deleteFileAfterSend(true);
+    // }
+
+    // private function converterParaPdf(string $docx): string
+    // {
+    //     $outDir = sys_get_temp_dir();
+    //     $process = new Process([
+    //         '/usr/bin/soffice',
+    //         '--headless',
+    //         '--convert-to',
+    //         'pdf',
+    //         '--outdir',
+    //         $outDir,
+    //         $docx,
+    //     ]);
+    //     $process->setTimeout(30);
+    //     $process->run();
+
+    //     return $outDir . '/' . pathinfo($docx, PATHINFO_FILENAME) . '.pdf';
+    // }
+
     // ── Listagem ──────────────────────────────────────────────────────────
+
     public function index()
     {
         /** @var User $user */
@@ -120,7 +206,8 @@ class DocumentosController extends Controller
         $documentos = ItemPagavel::where('instituicao_id', $user->instituicao_id)
             ->where('tipo', 'documento')
             ->where('ativo', 1)
-            ->with('documento') // ← adiciona
+            ->with('documento')
+            ->orderBy('created_at', 'desc')
             ->get(['id', 'nome', 'curso_classe_id', 'valor'])
             ->map(fn ($item) => [
                 'id' => $item->id,
@@ -145,13 +232,21 @@ class DocumentosController extends Controller
         $user = Auth::guard('tenant')->user();
 
         $q = trim($request->query('q', ''));
+        $subtipo = $request->query('subtipo');
 
-        if (strlen($q) < 3) {
+        if ($q === '') {
             return response()->json([]);
         }
 
         $alunos = Aluno::query()
             ->where('instituicao_id', $user->instituicao_id)
+            ->when(
+                $subtipo === 'certificado',
+                fn ($query) => $query->whereHas(
+                    'turmaActual.cursoClasseTurno.cursoClasse.classe',
+                    fn ($classeQuery) => $classeQuery->where('nome', 'like', '13%')
+                )
+            )
             ->where(function ($query) use ($q) {
                 $query->where('matricula', 'like', "%{$q}%")
                     ->orWhere('numero_processo', 'like', "%{$q}%")

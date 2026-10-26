@@ -7,6 +7,7 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
 
 import { useDialog } from '@/hooks/use-dialog';
+import { index } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
 
 export default function Index() {
   const {
@@ -17,18 +18,29 @@ export default function Index() {
     entity_label: entityLabel,
     entity_label_plural: entityLabelPlural,
     tem_nota_teste: temNotaTeste,
+    filters,
+    cursosParaMatricula = [],
   } = usePage().props;
 
   const handlePageChange = (page) => {
-    router.visit('/dashboard/inscricoes', {
-      data: { page, ano_lectivo_id: anoLectivoActual },
+    router.visit(index().url, {
+      data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
+        page,
+        ano_lectivo_id: anoLectivoActual,
+      },
       preserveScroll: true,
     });
   };
 
   const handleAnoLectivoChange = (value) => {
-    router.visit('/dashboard/inscricoes', {
-      data: { ano_lectivo_id: value },
+    const params = Object.fromEntries(
+      new URLSearchParams(window.location.search),
+    );
+    delete params.page;
+
+    router.visit(index().url, {
+      data: { ...params, ano_lectivo_id: value },
       preserveScroll: true,
     });
   };
@@ -60,7 +72,7 @@ export default function Index() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl p-6">
+    <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
       <InscricaoTable
         inscricoes={inscricoes.data}
         can={can}
@@ -80,6 +92,8 @@ export default function Index() {
         entityLabel={entityLabel}
         entityLabelPlural={entityLabelPlural}
         temNotaTeste={temNotaTeste}
+        filters={filters}
+        cursosParaMatricula={cursosParaMatricula}
       />
     </div>
   );

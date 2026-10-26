@@ -170,6 +170,7 @@
 <body>
 
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
 
         {{-- Header --}}
         <div class="header">
@@ -190,7 +191,7 @@
 
         <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
             O <strong>{{ $solicitadoPor }}</strong> solicitou melhorias no tema do vosso grupo PAP.
-            Por favor, revejam o feedback, façam as alterações necessárias e reenviem o tema para aprovação.
+            Por favor, revejam as recomendações, façam as alterações necessárias e reenviem o tema para aprovação.
         </p>
 
         {{-- Grupo e tema --}}
@@ -211,7 +212,7 @@
         {{-- Feedback --}}
         @if (!empty($comentario))
             <div class="feedback-box">
-                <div class="feedback-label">Feedback</div>
+                <div class="feedback-label">Recomendações</div>
                 <p>{{ $comentario }}</p>
             </div>
         @endif
@@ -224,24 +225,8 @@
             </a>
 
         </div>
-
-        {{-- Access Link --}}
-        <p class="access-link">
-
-            Se o botão acima não funcionar, copie e cole o seguinte endereço
-            no seu navegador:
-
-            <br><br>
-
-            <a href="{{ $url }}" target="_blank">
-                {{ $url }}
-            </a>
-
-        </p>
-
+        
         {{-- Footer --}}
-        <div class="footer">
-
             <p>
                 Este email foi enviado automaticamente pela plataforma
                 {{ config('app.name') }}.

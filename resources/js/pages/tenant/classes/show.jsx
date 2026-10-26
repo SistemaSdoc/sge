@@ -12,7 +12,7 @@ import { Link } from '@inertiajs/react';
 import { edit } from '@/actions/App/Http/Controllers/Tenant/ClasseController';
 
 export default function Show({ classe, can = {} }) {
-  const canEdit = Boolean(can?.edit_classe || can?.update);
+  const canEdit = Boolean(can?.edit);
 
   return (
     <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md md:py-40 lg:max-w-2xl">

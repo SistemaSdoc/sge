@@ -41,7 +41,7 @@ import {
   create,
   show,
   edit,
-} from '@/actions/App/Http/Controllers/Tenant/CursosController';
+} from '@/actions/App/Http/Controllers/Central/CursoController';
 import TablePagination from '@/components/table-pagination';
 
 export default function CursoTable({

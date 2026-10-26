@@ -44,11 +44,19 @@ export function EditarAcessoDrawer({ usuario, roles, allPermissions }) {
     );
   }
 
-  // Permissões disponíveis para adicionar — exclui as já directas e herdadas
+  const resolvePermissionLabel = (permissionName) => {
+    const permission = (allPermissions ?? []).find(
+      (permission) =>
+        permission.value === permissionName || permission === permissionName,
+    );
+
+    return permission?.label ?? permissionName;
+  };
+
+  // Permissões disponíveis para adicionar — exclui apenas as directas,
+  // permitindo que uma permissão herdada seja adicionada como override direto.
   const permissoesDisponiveis = (allPermissions ?? []).filter(
-    (p) =>
-      !data.directPermissions.includes(p) &&
-      !usuario.inheritedPermissions?.includes(p),
+    (p) => !data.directPermissions.includes(p.value ?? p),
   );
 
   return (
@@ -117,7 +125,7 @@ export function EditarAcessoDrawer({ usuario, roles, allPermissions }) {
                     className="flex items-center gap-2 bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground"
                   >
                     <Lock size={11} />
-                    {p}
+                    {resolvePermissionLabel(p)}
                   </div>
                 ))
               ) : (
@@ -137,7 +145,7 @@ export function EditarAcessoDrawer({ usuario, roles, allPermissions }) {
                   key={p}
                   className="flex items-center justify-between rounded-md border px-3 py-1.5 text-xs"
                 >
-                  <span>{p}</span>
+                  <span>{resolvePermissionLabel(p)}</span>
                   <button
                     type="button"
                     onClick={() => removerPermissao(p)}
@@ -154,12 +162,17 @@ export function EditarAcessoDrawer({ usuario, roles, allPermissions }) {
 
             {/* Selector para adicionar permissões */}
             <MultiSelectorField
-              items={permissoesDisponiveis.map((p) => ({ value: p, label: p }))}
+              items={permissoesDisponiveis.map((p) => ({
+                value: p.value ?? p,
+                label: p.label ?? p.value ?? p,
+              }))}
               value={[]}
               onChange={(selected) =>
                 setData('directPermissions', [
-                  ...data.directPermissions,
-                  ...selected.map((s) => s.value),
+                  ...new Set([
+                    ...data.directPermissions,
+                    ...selected.map((s) => s.value),
+                  ]),
                 ])
               }
               placeholder="Selecionar permissão..."

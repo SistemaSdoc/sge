@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Actions\Tenant\User;
+
+use App\Models\Tenant\User;
+use App\Notifications\User\UserCriadoNotification;
+use App\Services\Tenant\Users\UserRoleProfileService;
+use Illuminate\Support\Facades\DB;
+
+class CreateUser
+{
+    public function __construct(private readonly UserRoleProfileService $userProfileService) {}
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    public function handle(array $validated): User
+    {
+        return DB::transaction(function () use ($validated): User {
+            $roles = $validated['roles'] ?? [];
+            $passwordPlain = $validated['password'] ?? null;
+            unset($validated['roles']);
+            unset($validated['password_confirmation']);
+            $user = User::create($validated);
+            $user->syncRoles($roles);
+            $this->userProfileService->syncRoleProfiles($user, $roles);
+
+            $user->notify(new UserCriadoNotification(
+                $user,
+                (string) $passwordPlain,
+                route('tenant.login'),
+            ));
+
+            if (! blank($passwordPlain)) {
+                $user->notify(new UserCriadoNotification($user, (string) $passwordPlain));
+            }
+
+            return $user->load('roles:id,name');
+        });
+    }
+}

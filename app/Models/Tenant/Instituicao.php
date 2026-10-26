@@ -3,12 +3,15 @@
 namespace App\Models\Tenant;
 
 use App\Models\Central\Tenant;
+use App\Traits\HasSearch;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 #[Fillable([
     'nome',
@@ -26,7 +29,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Instituicao extends Model
 {
-    use HasFactory, HasUuid, SoftDeletes;
+    use HasFactory, HasSearch, HasUuid, SoftDeletes;
+
+    protected array $searchable = ['nome', 'sigla', 'tipo'];
 
     protected $table = 'instituicoes';
 
@@ -34,7 +39,7 @@ class Instituicao extends Model
 
     public function getLogoUrlAttribute(): ?string
     {
-        return $this->logo ? tenant_asset($this->logo) : null;
+        return $this->logo ? Storage::disk(config('filesystems.default'))->url($this->logo) : null;
     }
 
     public function tenant(): BelongsTo
@@ -94,5 +99,22 @@ class Instituicao extends Model
     public function permiteMatricula(): bool
     {
         return in_array($this->tipo, ['colegio', 'instituicao', 'instituto']);
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function (Instituicao $instituicao): void {
+            if (! tenant() || ! ($instituicao->wasRecentlyCreated || $instituicao->wasChanged('nome'))) {
+                return;
+            }
+
+            try {
+                Tenant::query()
+                    ->whereKey(tenant('id'))
+                    ->update(['instituicao_nome' => $instituicao->nome]);
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        });
     }
 }

@@ -7,10 +7,10 @@ use App\Http\Resources\Tenant\AlunoTurmaResource;
 use App\Http\Resources\Tenant\ClasseTurnoDisciplinaResource;
 use App\Http\Resources\Tenant\GrupoPapIndexResource;
 use App\Http\Resources\Tenant\Turma\TurmaShowResource;
+use App\Models\Central\AnoLectivo;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
@@ -140,8 +140,9 @@ class ClasseTurnoTurmaController extends Controller
             ->wherePivot('activo', true)
             ->with([
                 'inscricao.candidato:id,nome',
-                'user:id,email,telefone',
+                'user:id,email,telefone,avatar',
             ])
+            ->orderBy('alunos.created_at', 'desc')
             ->paginate(
                 10,
                 ['*'],
@@ -184,6 +185,7 @@ class ClasseTurnoTurmaController extends Controller
         }
 
         $disciplinas = $disciplinasQuery
+            ->latest('created_at')
             ->paginate(
                 5,
                 ['*'],
@@ -205,6 +207,7 @@ class ClasseTurnoTurmaController extends Controller
                 'status',
                 'nota_final'
             )
+            ->latest('created_at')
             ->paginate(
                 5,
                 ['*'],
@@ -365,6 +368,7 @@ class ClasseTurnoTurmaController extends Controller
                             'create',
                             Aluno::class
                         ),
+                        'exportar' => $user->can('pautas.view'),
                     ],
 
                     'disciplinas' => [

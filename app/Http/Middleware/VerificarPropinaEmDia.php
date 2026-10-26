@@ -134,7 +134,7 @@ class VerificarPropinaEmDia
             'previous_url' => $previousUrl,
         ]);
 
-        return Inertia::render('propinas/bloqueio', [
+        return Inertia::render('tenant/propinas/bloqueio', [
             'pendencias' => $pendencias,
             'total' => count($pendencias),
             'previousUrl' => $previousUrl,

@@ -2,27 +2,48 @@
 
 namespace App\Providers;
 
+use App\Models\Central\AnoLectivo;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Aula;
 use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Documento;
+use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
+use App\Models\Tenant\Planificacao;
+use App\Models\Tenant\TurmaAluno;
+use App\Models\Tenant\User;
+use App\Notifications\Channels\InstitutionLogoMailChannel;
 use App\Observers\CursoTuteladoProfessorObserver;
 use App\Observers\PagamentoObserver;
 use App\Policies\Tenant\AcessManagementPolicy;
+use App\Policies\Tenant\AnoLectivoPolicy;
+use App\Policies\Tenant\AulaPolicy;
 use App\Policies\Tenant\ColegioPolicy;
 use App\Policies\Tenant\ConfirmacaoMatriculaPolicy;
 use App\Policies\Tenant\DocumentoPolicy;
 use App\Policies\Tenant\GrelhaCurricularPolicy;
+use App\Policies\Tenant\GrupoPapPolicy;
 use App\Policies\Tenant\HorarioPolicy;
 use App\Policies\Tenant\ItemPagavelPolicy;
 use App\Policies\Tenant\PautaPolicy;
+use App\Policies\Tenant\PlanificacaoPolicy;
+use App\Policies\Tenant\PrazoProvaPolicy;
+use App\Policies\Tenant\RolePolicy;
+use App\Policies\Tenant\SubmissaoProvaPolicy;
+use App\Policies\Tenant\UserPolicy;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Inertia\ExceptionResponse;
+use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,7 +60,34 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Event::listen(Registered::class, RegisteredListener::class);
+        // Event::listen(Registered::class, RegisteredListener::class);
+
+        $this->app->make(ChannelManager::class)->extend(
+            'mail',
+            fn ($app) => $app->make(InstitutionLogoMailChannel::class)
+        );
+
+        Inertia::handleExceptionsUsing(function (ExceptionResponse $response): ?ExceptionResponse {
+            if (app()->environment(['local', 'testing'])) {
+                return null;
+            }
+
+            if (! in_array($response->statusCode(), [403, 404, 500, 503], true)) {
+                return null;
+            }
+
+            if ($response->response->headers->has('X-Inertia')) {
+                return null;
+            }
+
+            return $response->render('errors/error-page', [
+                'status' => $response->statusCode(),
+            ])->withSharedData();
+        });
+
+        // ══════════════════════════════════════════════════════════
+        // GATES E POLICIES
+        // ══════════════════════════════════════════════════════════
 
         Gate::define('pauta.viewAny', [PautaPolicy::class, 'viewAny']);
         Gate::define('pauta.view', [PautaPolicy::class, 'view']);
@@ -50,21 +98,79 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('horarios.viewAny', [HorarioPolicy::class, 'viewAny']);
 
         Gate::policy(ItemPagavel::class, ItemPagavelPolicy::class);
-
+        Gate::policy(AnoLectivo::class, AnoLectivoPolicy::class);
         Gate::policy(Documento::class, DocumentoPolicy::class);
+        Gate::policy(TurmaAluno::class, ConfirmacaoMatriculaPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(GrupoPap::class, GrupoPapPolicy::class);
+        Gate::policy(Role::class, RolePolicy::class);
+        Gate::policy(Planificacao::class, PlanificacaoPolicy::class);
 
         Gate::define('colegios.viewAny', [ColegioPolicy::class, 'viewAny']);
 
-        Gate::before(function ($user, $ability) {
+        Gate::before(function ($user, $ability, array $arguments) {
+            if ($ability === 'delete' && ($arguments[0] ?? null) instanceof Aluno) {
+                return null;
+            }
+
             return $user->hasRole('SuperAdmin') ? true : null;
         });
 
-        Gate::define('confirmacao-matricula.viewAny', [ConfirmacaoMatriculaPolicy::class, 'viewAny']);
-        Gate::define('confirmacao-matricula.view', [ConfirmacaoMatriculaPolicy::class, 'view']);
-        Gate::define('confirmacao-matricula.create', [ConfirmacaoMatriculaPolicy::class, 'create']);
+        ResetPassword::createUrlUsing(function ($user, string $token) {
+            $domain = tenant()?->domains()->first()?->domain;
 
+            return 'http://'.$domain.'/reset-password/'.$token
+                .'?email='.urlencode($user->getEmailForPasswordReset());
+        });
+
+        Gate::define('confirmacoes.matricula.viewAny', [ConfirmacaoMatriculaPolicy::class, 'viewAny']);
+        Gate::define('confirmacoes.matricula.confirmar', [ConfirmacaoMatriculaPolicy::class, 'confirmar']);
+
+        // ── PRAZO PROVA ───────────────────────────────────────────
+        Gate::define('prazo-prova.viewAny', [PrazoProvaPolicy::class, 'viewAny']);
+        Gate::define('prazo-prova.view', [PrazoProvaPolicy::class, 'view']);
+        Gate::define('prazo-prova.create', [PrazoProvaPolicy::class, 'create']);
+        Gate::define('prazo-prova.update', [PrazoProvaPolicy::class, 'update']);
+        Gate::define('prazo-prova.delete', [PrazoProvaPolicy::class, 'delete']);
+        Gate::define('prazo-prova.prorrogar', [PrazoProvaPolicy::class, 'prorrogar']);
+        Gate::define('prazo-prova.fechar', [PrazoProvaPolicy::class, 'fechar']);
+
+        // ── SUBMISSÃO PROVA ───────────────────────────────────────
+        Gate::define('submissao-prova.viewAny', [SubmissaoProvaPolicy::class, 'viewAny']);
+        Gate::define('submissao-prova.view', [SubmissaoProvaPolicy::class, 'view']);
+        Gate::define('submissao-prova.create', [SubmissaoProvaPolicy::class, 'create']);
+        Gate::define('submissao-prova.update', [SubmissaoProvaPolicy::class, 'update']);
+        Gate::define('submissao-prova.delete', [SubmissaoProvaPolicy::class, 'delete']);
+        Gate::define('submissao-prova.avaliar', [SubmissaoProvaPolicy::class, 'avaliar']);
+        Gate::define('submissao-prova.visualizarArquivo', [SubmissaoProvaPolicy::class, 'visualizarArquivo']);
+
+        // ── AULAS / SUMÁRIOS ──────────────────────────────────────
+        // Abilities nomeadas — usadas pelo SidebarMenuService e testes
+        Gate::define('aula.viewAny',  [AulaPolicy::class, 'viewAny']);
+        Gate::define('aula.view',     [AulaPolicy::class, 'view']);
+        Gate::define('aula.create',   [AulaPolicy::class, 'create']);
+        Gate::define('aula.update',   [AulaPolicy::class, 'update']);
+        Gate::define('aula.delete',   [AulaPolicy::class, 'delete']);
+        Gate::define('aula.publicar', [AulaPolicy::class, 'publicar']);
+        Gate::define('aula.cancelar', [AulaPolicy::class, 'cancelar']);
+
+        // OBRIGATÓRIO: registar a policy para o authorizeResource do controller
+        // Sem isto, o AulaController devolve 403 em todas as ações (index, show, etc.)
+        Gate::policy(Aula::class, AulaPolicy::class);
+
+        // ── OBSERVERS ─────────────────────────────────────────────
+        Gate::policy(Planificacao::class, PlanificacaoPolicy::class);
+        // Registrar observadores de modelos
         CursoTuteladoProfessor::observe(CursoTuteladoProfessorObserver::class);
         Pagamento::observe(PagamentoObserver::class);
+
+        // Inertia::handleExceptionsUsing(function (ExceptionResponse $response) {
+        //     if (\in_array($response->statusCode(), [403, 404, 500, 503])) {
+        //         return $response->render('ErrorPage', [
+        //             'status' => $response->statusCode(),
+        //         ])->withSharedData();
+        //     }
+        // });
     }
 
     /**
@@ -80,13 +186,13 @@ class AppServiceProvider extends ServiceProvider
 
         Password::defaults(
             fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
-            : null,
+                ? Password::min(12)
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
+                : null,
         );
     }
 }

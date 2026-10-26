@@ -13,6 +13,7 @@ use App\Models\Tenant\HistoricoAprovacaoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
+use App\Rules\TemaPapUnico;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Services\Tenant\CrossTenantAccessService;
 use App\Services\Tenant\Tutela\TutelaService;
@@ -36,6 +37,14 @@ class GrupoPapAprovacaoController extends Controller
         private CrossTenantAccessService $crossTenantAccessService,
     ) {}
 
+    private function autorizarDecisaoPap(User $user, string $permission): void
+    {
+        abort_unless(
+            ! $user->hasAnyRole(['Director', 'Subdirector']) && $user->can($permission),
+            403,
+        );
+    }
+
     /**
      * Listar temas PAP pendentes de aprovação
      * para o coordenador do curso.
@@ -44,7 +53,7 @@ class GrupoPapAprovacaoController extends Controller
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.aprovar'), 403);
 
         // O utilizador precisa estar associado a um professor
@@ -60,7 +69,7 @@ class GrupoPapAprovacaoController extends Controller
         // Buscar apenas os temas dos cursos
         // onde o professor é coordenador.
         $temasPendentes = $this->service->temasPendentesParaCoordenador(
-            $user->professor->id
+            $user
         );
 
         return inertia('tenant/pap/PendentesAprovacao', [
@@ -96,7 +105,7 @@ class GrupoPapAprovacaoController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.aprovar'), 403);
 
         $validated = $request->validate([
@@ -144,6 +153,8 @@ class GrupoPapAprovacaoController extends Controller
         Turma $turma,
         GrupoPap $grupoPap
     ) {
+        $user = Auth::guard('tenant')->user();
+        abort_unless(! $user->hasAnyRole(['Director', 'Subdirector']), 403);
         $this->authorize('aprovarComoTutor', $grupoPap);
 
         $validated = $request->validate([
@@ -231,7 +242,7 @@ class GrupoPapAprovacaoController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.reprovar'), 403);
 
         // O motivo da reprovação é obrigatório
@@ -287,7 +298,18 @@ class GrupoPapAprovacaoController extends Controller
 
         $validated = $request->validate([
             'nome_grupo' => ['required', 'string', 'max:255'],
-            'tema_grupo' => ['required', 'string', 'max:255'],
+            'tema_grupo' => [
+                'required',
+                'string',
+                'max:255',
+                new TemaPapUnico(
+                    (string) $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
+                    (string) $grupoPap->turma?->ano_lectivo_id,
+                    (string) $grupoPap->turma?->curso_classe_turno_id,
+                    (string) $grupoPap->getKey(),
+                    $request->input('estudo_caso', $grupoPap->estudo_caso),
+                ),
+            ],
             'problema' => ['nullable', 'string', 'max:2000'],
             'objectivos' => ['nullable', 'string', 'max:2000'],
         ]);
@@ -314,7 +336,7 @@ class GrupoPapAprovacaoController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-
+        abort_if($user->hasRole('Secretario do Curso'), 403);
         abort_unless($user->can('grupopap.solicitarMelhoria'), 403);
 
         // A recomendação é obrigatória
@@ -425,11 +447,23 @@ class GrupoPapAprovacaoController extends Controller
         Request $request,
         GrupoPap $grupoPap
     ) {
-        // $this->authorize('reenviarTema', $grupoPap);
+        abort_if(Auth::guard('tenant')->user()?->hasRole('Secretario do Curso'), 403);
+        $this->authorize('reenviarTema', $grupoPap);
 
         $dados = $request->validate([
             'nome_grupo' => ['required', 'string', 'max:255'],
-            'tema_grupo' => ['required', 'string', 'max:255'],
+            'tema_grupo' => [
+                'required',
+                'string',
+                'max:255',
+                new TemaPapUnico(
+                    (string) $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
+                    (string) $grupoPap->turma?->ano_lectivo_id,
+                    (string) $grupoPap->turma?->curso_classe_turno_id,
+                    (string) $grupoPap->getKey(),
+                    $request->input('estudo_caso', $grupoPap->estudo_caso),
+                ),
+            ],
         ]);
 
         $resultado = $this->service->reenviar(

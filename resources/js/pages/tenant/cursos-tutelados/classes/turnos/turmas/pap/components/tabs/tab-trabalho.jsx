@@ -115,14 +115,20 @@ const getStatus = (status) =>
 
 // ── VersaoCard ───────────────────────────────────────────────────────────────
 
-function VersaoCard({ versao, canDownload, downloadUrl, visualizarUrl, params }) {
+function VersaoCard({
+  versao,
+  canDownload,
+  downloadUrl,
+  visualizarUrl,
+  params,
+}) {
   const [expandido, setExpandido] = useState(false);
 
   return (
-    <div className="border bg-card p-4 space-y-3">
-      <div className="flex items-center justify-between flex-wrap gap-2">
+    <div className="space-y-3 border bg-card p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 shrink-0">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
             <span className="text-xs font-semibold text-primary">
               v{versao.numero_versao}
             </span>
@@ -142,7 +148,7 @@ function VersaoCard({ versao, canDownload, downloadUrl, visualizarUrl, params })
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Visualizar — abre numa nova aba */}
           {canDownload && (
             <Button variant="outline" size="sm" asChild>
@@ -181,17 +187,14 @@ function VersaoCard({ versao, canDownload, downloadUrl, visualizarUrl, params })
       </div>
 
       {expandido && versao.feedbacks?.length > 0 && (
-        <div className="space-y-2 pt-2 border-t">
+        <div className="space-y-2 border-t pt-2">
           {versao.feedbacks.map((feedback) => {
             const config = FEEDBACK_CONFIG[feedback.tipo] ?? {};
             const Icon = config.icon ?? AlertCircle;
 
             return (
-              <div
-                key={feedback.id}
-                className={`border p-3 ${config.bg}`}
-              >
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <div key={feedback.id} className={`border p-3 ${config.bg}`}>
+                <div className="mb-1 flex flex-wrap items-center gap-2">
                   <Icon className={`size-4 ${config.color} shrink-0`} />
                   <span className={`text-xs font-medium ${config.color}`}>
                     {config.label}
@@ -207,30 +210,32 @@ function VersaoCard({ versao, canDownload, downloadUrl, visualizarUrl, params })
                   </span>
                 </div>
                 {feedback.comentario && (
-                  <p className="text-sm text-foreground/80 mt-1">
+                  <p className="mt-1 text-sm text-foreground/80">
                     {feedback.comentario}
                   </p>
                 )}
                 {/* ← adiciona aqui */}
                 {feedback.tem_ficheiro_correcao && (
                   <a
-                    href={downloadCorrecao.url({ ...params, feedbackId: feedback.id })}
+                    href={downloadCorrecao.url({
+                      ...params,
+                      feedbackId: feedback.id,
+                    })}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-primary underline-offset-2 hover:underline mt-1"
+                    className="mt-1 inline-flex items-center gap-1 text-xs text-primary underline-offset-2 hover:underline"
                   >
                     <Download className="size-3" />
-                    {feedback.nome_original_correcao ?? 'Descarregar PDF com correções'}
+                    {feedback.nome_original_correcao ??
+                      'Descarregar PDF com correções'}
                   </a>
-                )
-                }
+                )}
               </div>
             );
           })}
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 }
 
@@ -244,14 +249,16 @@ function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
   const MODAL_CONFIG = {
     aprovarTutor: {
       titulo: 'Enviar para a coordenação',
-      descricao: 'O trabalho será enviado para análise da coordenação do curso.',
+      descricao:
+        'O trabalho será enviado para análise da coordenação do curso.',
       obrigatorio: false,
       confirmLabel: 'Enviar para coordenação',
       confirmVariant: 'default',
     },
     correcaoTutor: {
       titulo: 'Solicitar correção ao aluno',
-      descricao: 'Descreve as correções necessárias. O aluno receberá este feedback e deverá submeter uma nova versão.',
+      descricao:
+        'Descreve as correções necessárias. O aluno receberá este feedback e deverá submeter uma nova versão.',
       obrigatorio: true,
       confirmLabel: 'Solicitar correção',
       confirmVariant: 'outline',
@@ -265,14 +272,16 @@ function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
     },
     correcaoCoordenacao: {
       titulo: 'Solicitar correção ao aluno',
-      descricao: 'O trabalho voltará ao aluno. Após correcção, passará novamente pelo tutor antes de chegar à coordenação.',
+      descricao:
+        'O trabalho voltará ao aluno. Após correcção, passará novamente pelo tutor antes de chegar à coordenação.',
       obrigatorio: true,
       confirmLabel: 'Solicitar correção',
       confirmVariant: 'outline',
     },
     reprovarCoordenacao: {
       titulo: 'Reprovar trabalho',
-      descricao: 'O trabalho será reprovado definitivamente. Esta acção não pode ser revertida.',
+      descricao:
+        'O trabalho será reprovado definitivamente. Esta acção não pode ser revertida.',
       obrigatorio: true,
       confirmLabel: 'Reprovar',
       confirmVariant: 'destructive',
@@ -281,13 +290,16 @@ function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
 
   const config = MODAL_CONFIG[action] ?? {};
 
-  const pedeFicheiro = ['correcaoTutor', 'correcaoCoordenacao'].includes(action);
+  const pedeFicheiro = ['correcaoTutor', 'correcaoCoordenacao'].includes(
+    action,
+  );
 
-  const comentarioError = config.obrigatorio && submitted && comentario.trim().length < 10
-    ? comentario.trim().length === 0
-      ? 'Este campo é obrigatório.'
-      : 'Este campo deve conter pelo menos 10 caracteres.'
-    : null;
+  const comentarioError =
+    config.obrigatorio && submitted && comentario.trim().length < 10
+      ? comentario.trim().length === 0
+        ? 'Este campo é obrigatório.'
+        : 'Este campo deve conter pelo menos 10 caracteres.'
+      : null;
 
   const handleClose = () => {
     if (loading) return;
@@ -303,7 +315,12 @@ function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) handleClose();
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{config.titulo}</DialogTitle>
@@ -316,7 +333,8 @@ function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
           {pedeFicheiro && (
             <div className="space-y-1.5">
               <Label htmlFor="ficheiro-correcao">
-                PDF com correções <span className="text-muted-foreground">(opcional)</span>
+                PDF com correções{' '}
+                <span className="text-muted-foreground">(opcional)</span>
               </Label>
               <Input
                 id="ficheiro-correcao"
@@ -326,7 +344,8 @@ function ModalDecisao({ open, onClose, action, onConfirmar, loading }) {
               />
               {ficheiro && (
                 <p className="text-xs text-muted-foreground">
-                  {ficheiro.name} ({(ficheiro.size / 1024 / 1024).toFixed(2)} MB)
+                  {ficheiro.name} ({(ficheiro.size / 1024 / 1024).toFixed(2)}{' '}
+                  MB)
                 </p>
               )}
             </div>
@@ -393,7 +412,7 @@ export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
   if (!trabalho) {
     return (
       <Card>
-        <CardContent className="py-12 flex flex-col items-center gap-3 text-center">
+        <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
           <FileText className="size-10 text-muted-foreground/40" />
           <p className="text-sm text-muted-foreground">
             O trabalho ainda não está disponível.
@@ -494,7 +513,6 @@ export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
 
   return (
     <div className="w-full space-y-6">
-
       {/* ── Card de estado atual ─────────────────────────────────────────── */}
       <Card className="gap-0">
         <CardHeader className="border-b">
@@ -510,10 +528,11 @@ export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
           </div>
         </CardHeader>
 
-        <CardContent className="pt-6 space-y-4">
-
+        <CardContent className="space-y-4 pt-6">
           {/* Banner — correcção pendente */}
-          {['correcao_tutor', 'correcao_coordenacao'].includes(trabalho.status) &&
+          {['correcao_tutor', 'correcao_coordenacao'].includes(
+            trabalho.status,
+          ) &&
             ultimaCorrecao && (
               <Alert variant="default">
                 <AlertCircle className="h-4 w-4" />
@@ -545,7 +564,9 @@ export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
           {trabalho.status === 'aprovado' && (
             <Alert>
               <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-700">Trabalho aprovado</AlertTitle>
+              <AlertTitle className="text-green-700">
+                Trabalho aprovado
+              </AlertTitle>
               <AlertDescription className="text-sm text-green-600">
                 Aprovado pelo {trabalho.aprovado_por} em{' '}
                 {new Date(trabalho.data_aprovacao).toLocaleString('pt-PT', {
@@ -586,13 +607,12 @@ export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
                 />
                 {ficheiro && (
                   <p className="text-xs text-muted-foreground">
-                    {ficheiro.name} ({(ficheiro.size / 1024 / 1024).toFixed(2)} MB)
+                    {ficheiro.name} ({(ficheiro.size / 1024 / 1024).toFixed(2)}{' '}
+                    MB)
                   </p>
                 )}
                 {errors.ficheiro && (
-                  <p className="text-sm text-destructive">
-                    {errors.ficheiro}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.ficheiro}</p>
                 )}
               </div>
               <div className="flex justify-end">
@@ -609,12 +629,13 @@ export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
 
           {/* ── Área de decisão — Tutor ────────────────────────────────── */}
           {trabalho.status === 'em_analise_tutor' &&
-            (can?.aprovarTrabalhoComoTutor || can?.solicitarCorrecaoComoTutor) && (
-              <div className="border p-4 space-y-3">
+            (can?.aprovarTrabalhoComoTutor ||
+              can?.solicitarCorrecaoComoTutor) && (
+              <div className="space-y-3 border p-4">
                 <p className="text-sm text-muted-foreground">
                   Analisa o trabalho submetido e toma uma decisão.
                 </p>
-                <div className="flex justify-end gap-2 flex-wrap">
+                <div className="flex flex-wrap justify-end gap-2">
                   {can?.solicitarCorrecaoComoTutor && (
                     <Button
                       variant="outline"
@@ -636,12 +657,13 @@ export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
 
           {/* ── Área de decisão — Coordenação ─────────────────────────── */}
           {trabalho.status === 'em_analise_coordenacao' &&
-            (can?.aprovarComoCoordenacao || can?.solicitarCorrecaoComoCoordenacao) && (
-              <div className="border p-4 space-y-3">
+            (can?.aprovarComoCoordenacao ||
+              can?.solicitarCorrecaoComoCoordenacao) && (
+              <div className="space-y-3 border p-4">
                 <p className="text-sm text-muted-foreground">
                   Analisa o trabalho e toma uma decisão.
                 </p>
-                <div className="flex justify-end gap-2 flex-wrap">
+                <div className="flex flex-wrap justify-end gap-2">
                   {can?.solicitarCorrecaoComoCoordenacao && (
                     <Button
                       variant="outline"
@@ -696,7 +718,6 @@ export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
                 O trabalho está em análise pela coordenação.
               </p>
             )}
-
         </CardContent>
       </Card>
 
@@ -704,20 +725,26 @@ export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
       {trabalho.versoes?.length > 0 && (
         <Card>
           <CardHeader className="border-b">
-            <CardTitle className="text-base flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-base">
               <FileText className="size-4" />
               Versões submetidas
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-6 space-y-3">
+          <CardContent className="space-y-3 pt-6">
             {versoesMostradas.map((versao) => (
               <VersaoCard
                 key={versao.id}
                 versao={versao}
                 params={params}
                 canDownload={can?.downloadVersao}
-                visualizarUrl={visualizar.url({ ...params, numeroVersao: versao.numero_versao })}
-                downloadUrl={download.url({ ...params, numeroVersao: versao.numero_versao })}
+                visualizarUrl={visualizar.url({
+                  ...params,
+                  numeroVersao: versao.numero_versao,
+                })}
+                downloadUrl={download.url({
+                  ...params,
+                  numeroVersao: versao.numero_versao,
+                })}
               />
             ))}
 
@@ -730,7 +757,11 @@ export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
                 {verTodasVersoes
                   ? 'Ver menos'
                   : `Ver mais ${versoesOrdenadas.length - VERSOES_VISIVEIS} versão(ões) anteriores`}
-                {verTodasVersoes ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+                {verTodasVersoes ? (
+                  <ChevronUp className="size-4" />
+                ) : (
+                  <ChevronDown className="size-4" />
+                )}
               </Button>
             )}
           </CardContent>
@@ -745,6 +776,6 @@ export function TabTrabalho({ params, grupoPap, trabalho, can, errors = {} }) {
         onConfirmar={confirmarDecisao}
         loading={loadingDecisao}
       />
-    </div >
+    </div>
   );
 }

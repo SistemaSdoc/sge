@@ -1,7 +1,10 @@
 import { usePage } from '@inertiajs/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Minus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
 import { formatStatusInscricao } from '@/utils/format-status';
+import { pdf as fichaMatriculaPdf } from '@/actions/App/Http/Controllers/Tenant/FichaMatriculaController';
 
 export default function Show() {
   const {
@@ -18,6 +21,15 @@ export default function Show() {
     }
 
     return value;
+  };
+
+  const renderDate = (value) => {
+    if (!value) return <Minus size={15} className="text-muted-foreground" />;
+    return new Date(value).toLocaleDateString('pt-AO', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
   };
 
   const splitFiliacao = (value) => {
@@ -94,7 +106,7 @@ export default function Show() {
           <div>
             <p className="text-sm text-muted-foreground">Data de nascimento</p>
             <p className="font-medium">
-              {renderValue(candidato.data_nascimento)}
+              {renderDate(candidato.data_nascimento)}
             </p>
           </div>
 
@@ -151,6 +163,26 @@ export default function Show() {
             </p>
             <p className="font-medium">{inscricao.created_at}</p>
           </div>
+
+          {inscricao?.aluno_id && (
+            <div className="mt-6 flex justify-end border-t pt-4 md:col-span-3">
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-sm transition hover:opacity-90"
+                onClick={() =>
+                  window.open(
+                    fichaMatriculaPdf.url(inscricao.aluno_id),
+                    '_blank',
+                  )
+                }
+              >
+                <Download className="size-4" />
+                Ficha de Matrícula (PDF)
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -5,20 +5,23 @@ namespace App\Notifications\Professor;
 use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
+use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ProfessorAtribuidoADisciplinaNotification extends Notification
+class ProfessorAtribuidoADisciplinaNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
 {
     use Queueable;
+    use ReliableNotification;
 
     public function __construct(
         public Professor $professor,
         public Turma $turma,
         public ClasseTurnoDisciplina $classeTurnoDisciplina
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

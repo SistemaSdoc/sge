@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { store as LoginWithEmailAndPassword } from '@/actions/App/Http/Controllers/Tenant/Auth/AuthenticatedSessionController';
+import { request } from '@/routes/password';
 //import { redirect as LoginWithGoogle } from '@/actions/App/Http/Controllers/Tenant/Auth/GoogleAuthController';
 
 export default function Login({ status, canResetPassword }) {
@@ -23,18 +24,18 @@ export default function Login({ status, canResetPassword }) {
 
   return (
     <>
-      <Head title="Login" />
+      <Head title="Iniciar sessão" />
 
-      <div className="flex flex-col gap-2">
-        {/*<GoogleButton
+      {/*<div className="flex flex-col gap-2">
+        <GoogleButton
           isLoading={googleLoading}
           onClick={handleGoogleConfirmation}
-        />*/}
-        <PasskeyVerify /*separator="Ou continue com email e senha"*/ />
-      </div>
+        />
+        <PasskeyVerify /*separator="Ou continue com email e senha" />
+      </div>*/}
 
       <Form
-        {...LoginWithEmailAndPassword.form()}
+        {...LoginWithEmailAndPassword.post()}
         resetOnSuccess={['password']}
         className="flex flex-col gap-6"
       >
@@ -51,23 +52,23 @@ export default function Login({ status, canResetPassword }) {
                   autoFocus
                   tabIndex={1}
                   autoComplete="email"
-                  placeholder="email@example.com"
+                  placeholder="email@exemplo.com"
                 />
                 <InputError message={errors.email} />
               </div>
 
               <div className="grid gap-2">
                 <div className="flex items-center">
-                  <Label htmlFor="password">Senha</Label>
-                  {/* {canResetPassword && (
+                  <Label htmlFor="password">Palavra-passe</Label>
+                  {canResetPassword && (
                     <TextLink
-                      href={request()}
+                      href={request().url}
                       className="ml-auto text-sm"
                       tabIndex={5}
                     >
-                      Esqueceu sua senha?
+                      Esqueceu-se da palavra-passe?
                     </TextLink>
-                  )}*/}
+                  )}
                 </div>
                 <PasswordInput
                   id="password"
@@ -75,7 +76,7 @@ export default function Login({ status, canResetPassword }) {
                   required
                   tabIndex={2}
                   autoComplete="current-password"
-                  placeholder="Senha"
+                  placeholder="Palavra-passe"
                 />
                 <InputError message={errors.password} />
               </div>
@@ -93,7 +94,7 @@ export default function Login({ status, canResetPassword }) {
                 data-test="login-button"
               >
                 {processing && <Spinner />}
-                Log in
+                Iniciar sessão
               </Button>
             </div>
 
@@ -118,5 +119,5 @@ export default function Login({ status, canResetPassword }) {
 
 Login.layout = {
   title: 'Inicie sessão na sua conta',
-  description: 'Insira suas credenciais para acessar sua conta',
+  description: 'Introduza as suas credenciais para aceder à sua conta.',
 };

@@ -2,16 +2,18 @@
 
 namespace App\Models\Tenant;
 
+use App\Traits\HasSearch;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ItemPagavel extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasSearch, HasUuids, SoftDeletes;
+
+    protected array $searchable = ['nome', 'descricao', 'tipo', 'frequencia', 'cursoClasse.classe.nome'];
 
     protected $table = 'itens_pagaveis';
 
@@ -48,11 +50,6 @@ class ItemPagavel extends Model
     public function cursoClasse(): BelongsTo
     {
         return $this->belongsTo(CursoClasse::class, 'curso_classe_id');
-    }
-
-    public function periodosPagos(): HasMany
-    {
-        return $this->hasMany(PagamentoPeriodo::class);
     }
 
     public function scopeAtivos(Builder $query): Builder

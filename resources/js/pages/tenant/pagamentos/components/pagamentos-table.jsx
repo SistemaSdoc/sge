@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -31,6 +30,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import {
   create,
   show,
@@ -60,36 +61,50 @@ export default function PagamentosTable({
   exportarReciboFn,
   pagination = {},
   onPageChange,
+  filters,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['pagamentos', 'filters'],
+    },
+  );
   const isEmpty = pagamentos.length === 0;
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
-      <CardHeader className="border-b">
-        <CardTitle>Pagamentos</CardTitle>
-        <CardDescription>
-          Registos de propinas e outros encargos escolares.
-        </CardDescription>
-
-        <CardAction className="flex items-center gap-2">
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <CardTitle>Pagamentos</CardTitle>
+          <CardDescription>
+            Registos de propinas e outros encargos escolares.
+          </CardDescription>
+        </div>
+        <div className="w-full sm:w-auto">
           {can?.create && (
-            <Button asChild>
-              <Link href={create().url}>
-                <PlusIcon className="mr-1.5 size-4" />
-                Adicionar Pagamento
-              </Link>
+            <Button asChild className="w-full sm:w-auto">
+              <Link href={create().url}>Adicionar Pagamento</Link>
             </Button>
           )}
-        </CardAction>
+        </div>
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title="Nenhum pagamento registado"
-            description="Comece por registar o primeiro pagamento."
+            title={
+              applied
+                ? 'Nenhum pagamento encontrado'
+                : 'Nenhum pagamento registado'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Comece por registar o primeiro pagamento.'
+            }
             action={
               can?.create
                 ? {

@@ -15,7 +15,7 @@ class ConfirmacaoMatriculaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('confirmacoes.viewAny') && $user->instituicao_id !== null;
+        return $user->can('confirmacoes.matricula.viewAny') && $user->instituicao_id !== null;
     }
 
     /**
@@ -39,6 +39,9 @@ class ConfirmacaoMatriculaPolicy
             ?->instituicaoCurso
             ?->instituicao_id;
 
-        return $user->can('confirmacoes.confirmar') && $instituicaoId === $user->instituicao_id;
+        $podeConfirmar = $user->hasRole('Director')
+            || $user->can('confirmacoes.matricula.confirmar');
+
+        return $podeConfirmar && $instituicaoId === $user->instituicao_id;
     }
 }

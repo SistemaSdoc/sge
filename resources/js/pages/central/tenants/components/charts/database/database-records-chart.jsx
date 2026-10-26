@@ -49,7 +49,7 @@ export function DatabaseRecordsChart({ tenant, tabelas = [] }) {
           <Button
             variant="outline"
             size="sm"
-            className="w-full justify-center sm:w-auto"
+            className="w-full justify-center hover:cursor-pointer sm:w-auto"
             onClick={() =>
               router.visit(showTablesRecords({ tenant: tenant.id }).url)
             }

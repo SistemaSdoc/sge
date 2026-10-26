@@ -5,45 +5,64 @@ namespace App\Services\Tenant\Menu;
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\AvisoController;
+use App\Http\Controllers\Tenant\CalendarioAnualController;
 use App\Http\Controllers\Tenant\ClasseController;
 use App\Http\Controllers\Tenant\Colegios\ColegioController;
-use App\Http\Controllers\Tenant\CursosController;
 use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\GrelhaCurricularController;
-use App\Http\Controllers\Tenant\GrupoPapController;
 use App\Http\Controllers\Tenant\InscricaoController;
 use App\Http\Controllers\Tenant\InstituicaoController;
 use App\Http\Controllers\Tenant\NotaAlunoController;
+use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PautaController;
+use App\Http\Controllers\Tenant\PlanificacaoController;
+use App\Http\Controllers\Tenant\PrazoProvaController;
 use App\Http\Controllers\Tenant\ProfessorController;
 use App\Http\Controllers\Tenant\RegraAvaliacaoController;
+use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
+use App\Http\Controllers\Tenant\SubmissaoProvaController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
+use App\Http\Controllers\Tenant\UserController;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\Aviso;
 use App\Models\Tenant\Classe;
-use App\Models\Tenant\Curso;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Nota;
+use App\Models\Tenant\Planificacao;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\RegraAvaliacao;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
+use App\Models\Tenant\User;
+use App\Services\Tenant\GrupoPap\GrupoPapNavigationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Models\Role;
 
 final class SidebarMenuService
 {
+    public function __construct(
+        private readonly GrupoPapNavigationService $grupoPapNavigationService,
+    ) {}
+
     public function build(): array
     {
+        /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
+        if (! $user instanceof User) {
+            return [];
+        }
+
         $gate = Gate::forUser($user);
+        $grupoPapNavigation = $this->grupoPapNavigationService->resolve($user);
 
         $groups = [
 
@@ -56,13 +75,13 @@ final class SidebarMenuService
                     can: true,
                 ),
 
-                new MenuItem(
+                /*new MenuItem(
                     key: 'instituicoes',
                     title: 'Instituições',
                     href: action([InstituicaoController::class, 'index']),
                     icon: 'Building2',
                     can: fn () => $gate->allows('viewAny', Instituicao::class),
-                ),
+                ),*/
 
                 new MenuItem(
                     key: 'minha-instituicao',
@@ -82,7 +101,9 @@ final class SidebarMenuService
 
                         $instituicao = Instituicao::find($user?->instituicao_id, ['id']);
 
-                        return $instituicao && $gate->allows('view', $instituicao);
+                        return ! $user->hasRole('Secretario do Curso')
+                            && $instituicao
+                            && $gate->allows('view', $instituicao);
                     },
                 ),
 
@@ -96,7 +117,7 @@ final class SidebarMenuService
                             ? action([CursoTuteladoController::class, 'index'], ['instituicao' => $id])
                             : '#';
                     })(),
-                    icon: 'Building2',
+                    icon: 'BookIcon',
                     can: function () use ($user, $gate) {
                         if (! $user?->instituicao_id) {
                             return false;
@@ -104,16 +125,11 @@ final class SidebarMenuService
 
                         $instituicao = Instituicao::find($user?->instituicao_id, ['id']);
 
-                        return $instituicao && $gate->allows('view', $instituicao);
+                        return $instituicao
+                            && ($gate->allows('view', $instituicao)
+                                || ($user->hasRole('Secretario do Curso')
+                                    && $user->cursosSecretariados()->exists()));
                     },
-                ),
-
-                new MenuItem(
-                    key: 'cursos',
-                    title: 'Cursos',
-                    href: action([CursosController::class, 'index']),
-                    icon: 'BookOpen',
-                    can: $gate->allows('viewAny', Curso::class)
                 ),
 
                 new MenuItem(
@@ -143,7 +159,7 @@ final class SidebarMenuService
                 new MenuItem(
                     key: 'pautas',
                     title: 'Pautas',
-                    href: action([PautaController::class, 'indexCursos']),
+                    href: action([PautaController::class, 'index']),
                     icon: 'FileText',
                     can: fn () => $gate->allows('pauta.viewAny')
                 ),
@@ -153,7 +169,9 @@ final class SidebarMenuService
                     title: 'Grelha Curricular',
                     href: action([GrelhaCurricularController::class, 'index']),
                     icon: 'LayoutList',
-                    can: fn () => $gate->allows('grelha-curricular.viewAny'),
+                    can: fn () => ! $user->isSuperAdmin()
+                        && $user->hasRole('Aluno')
+                        && $gate->allows('grelha-curricular.viewAny'),
                 ),
 
                 new MenuItem(
@@ -161,7 +179,9 @@ final class SidebarMenuService
                     title: 'Minhas Notas',
                     href: action([NotaAlunoController::class, 'index']),
                     icon: 'FileTextIcon',
-                    can: fn () => $gate->allows('viewAny', Nota::class)
+                    can: fn () => ! $user->isSuperAdmin()
+                        && $user->hasRole('Aluno')
+                        && $gate->allows('viewAny', Nota::class)
                 ),
 
                 new MenuItem(
@@ -169,15 +189,20 @@ final class SidebarMenuService
                     title: 'Horários',
                     href: route('tenant.dashboard.horarios'),
                     icon: 'CalendarClock',
-                    can: fn () => $gate->allows('horarios.viewAny')
+                    can: fn () => ! $user->isSuperAdmin()
+                        && $user->hasAnyRole(['Aluno', 'Professor'])
+                        && $gate->allows('horarios.viewAny')
                 ),
 
                 new MenuItem(
                     key: 'grupos-pap',
-                    title: 'Grupos PAP',
-                    href: action([GrupoPapController::class, 'index']),
+                    title: $grupoPapNavigation['title'],
+                    href: $grupoPapNavigation['href'],
                     icon: 'Users',
-                    can: fn () => $gate->allows('viewAny', GrupoPap::class),
+                    can: $grupoPapNavigation['visible']
+                        && ($user?->hasRole('Aluno') === true
+                            || $user?->hasRole('Secretario do Curso') === true
+                            || $gate->allows('viewAny', GrupoPap::class)),
                 ),
 
                 new MenuItem(
@@ -197,6 +222,14 @@ final class SidebarMenuService
                 ),
 
                 new MenuItem(
+                    key: 'calendario-anual',
+                    title: 'Calendários',
+                    href: action([CalendarioAnualController::class, 'index']),
+                    icon: 'Calendar1',
+                    can: true,
+                ),
+
+                new MenuItem(
                     key: 'solicitacao-lancamento-notas',
                     title: 'Solicitações de Lançamentos',
                     href: action([SolicitacaoEdicaoPautaController::class, 'index']),
@@ -213,6 +246,64 @@ final class SidebarMenuService
                 ),
             ]),
 
+            // ===== NOVO GRUPO: AVALIAÇÃO (Provas) =====
+            new MenuGroup('Avaliação', [
+                new MenuItem(
+                    key: 'prazos-provas',
+                    title: 'Prazos de Provas',
+                    href: action([PrazoProvaController::class, 'index']),
+                    icon: 'FileText',
+                    can: fn () => $gate->allows('prazo-prova.viewAny')
+                ),
+
+                new MenuItem(
+                    key: 'submeter-provas',
+                    title: 'Submeter Provas',
+                    href: action([SubmissaoProvaController::class, 'index']),
+                    icon: 'FileText',
+                    can: fn () => $user->hasRole('Professor')
+                        && $gate->allows('submissao-prova.viewAny'),
+                ),
+                new MenuItem(
+                    key: 'planificacoes',
+                    title: 'Planificações',
+                    href: action([PlanificacaoController::class, 'index']),
+                    icon: 'FileText',
+                    can: fn () => $gate->allows('viewAny', Planificacao::class),
+                ),
+
+            ]),
+
+            new MenuGroup('Diário de Aulas', [
+                new MenuItem(
+                    key: 'minhas-aulas',
+                    title: 'As minhas aulas',
+                    href: route('tenant.dashboard.professor.aulas.index'),
+                    icon: 'BookOpen',
+                    can: fn() => $user->hasRole('Professor')
+                        && $gate->allows('aula.viewAny'),
+                ),
+
+                new MenuItem(
+                    key: 'sumarios-aluno',
+                    title: 'Sumários',
+                    href: route('tenant.dashboard.aulas.index'),
+                    icon: 'BookOpen',
+                    can: fn() => $user->hasRole('Aluno')
+                        && $gate->allows('aula.viewAny'),
+                ),
+
+                new MenuItem(                                                    // ← NOVO
+                    key: 'aulas-direcao',
+                    title: 'Aulas e Sumários',
+                    href: route('tenant.dashboard.aulas.index'),
+                    icon: 'BookOpen',
+                    can: fn() => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Coordenador'])
+                        && $gate->allows('aula.viewAny'),
+                ),
+            ]),
+
+
             new MenuGroup('Matrículas', [
                 new MenuItem(
                     key: 'inscricoes',
@@ -225,18 +316,36 @@ final class SidebarMenuService
 
             new MenuGroup('Usuários', [
                 new MenuItem(
+                    key: 'usuarios',
+                    title: 'Usuários',
+                    href: action([UserController::class, 'index']),
+                    icon: 'UserCog',
+                    can: fn () => $gate->allows('viewAny', User::class),
+                ),
+
+                new MenuItem(
+                    key: 'roles',
+                    title: 'Funções e permissões',
+                    href: action([RoleController::class, 'index']),
+                    icon: 'ShieldCheck',
+                    can: fn () => $gate->allows('viewAny', Role::class),
+                ),
+
+                new MenuItem(
                     key: 'professores',
                     title: 'Professores',
                     href: action([ProfessorController::class, 'index']),
                     icon: 'Users',
-                    can: fn () => $gate->allows('viewAny', Professor::class),
+                    can: fn () => $gate->allows('viewAny', Professor::class)
+                        || $user->hasRole('Secretario do Curso'),
+                    disabled: ! $gate->allows('viewAny', Professor::class),
                 ),
 
                 new MenuItem(
                     key: 'alunos',
                     title: 'Alunos',
                     href: action([AlunoController::class, 'index']),
-                    icon: 'GraduationCap',
+                    icon: 'Users',
                     can: fn () => $gate->allows('viewAny', Aluno::class),
                 ),
             ]),
@@ -254,7 +363,7 @@ final class SidebarMenuService
                     })(),
                     icon: 'Building2',
                     can: fn () => $gate->allows('colegios.viewAny')
-                    && $user?->instituicao?->tipo === 'instituto',
+                        && $user?->instituicao?->tipo === 'instituto',
                 ),
             ]),
 
@@ -273,11 +382,19 @@ final class SidebarMenuService
                     href: route('tenant.dashboard.pagamentos.index'),
                     icon: 'CreditCard',
                     can: fn () => $gate->allows('pagamentos.viewAny')
-                    && $user?->instituicao?->tipo === 'colegio',
+                        && $user?->instituicao?->tipo === 'colegio',
                 ),
             ]),
 
             new MenuGroup('Comunicação', [
+                new MenuItem(
+                    key: 'notificacoes',
+                    title: 'Central de Notificações',
+                    href: action([NotificacaoController::class, 'index']),
+                    icon: 'BellDot',
+                    can: true,
+                ),
+
                 new MenuItem(
                     key: 'avisos',
                     title: 'Avisos',
@@ -286,10 +403,68 @@ final class SidebarMenuService
                     can: fn () => $gate->allows('viewAny', Aviso::class),
                 ),
             ]),
+
+            new MenuGroup('Relatórios', [
+                new MenuItem(
+                    key: 'relatorios',
+                    title: 'Relatórios',
+                    href: route('tenant.dashboard.relatorios.index'),
+                    icon: 'BarChart3',
+                    can: fn () => $user && ! $user->hasRole(['Aluno', 'Professor']),
+                ),
+
+                new MenuItem(
+                    key: 'meu-desempenho',
+                    title: 'Meu Desempenho',
+                    href: route('tenant.dashboard.professor.desempenho'),
+                    icon: 'BarChart3',
+                    can: fn () => $user && $user->hasRole('Professor'),
+                ),
+
+                new MenuItem(
+                    key: 'meu-desempenho-aluno',
+                    title: 'Meu Desempenho',
+                    href: route('tenant.dashboard.aluno.desempenho'),
+                    icon: 'BarChart3',
+                    can: fn () => $user && $user->hasRole('Aluno'),
+                ),
+            ]),
         ];
 
-        return array_values(array_filter(
+        $menuGroups = array_values(array_filter(
             array_map(fn (MenuGroup $group) => $group->toArray(), $groups),
         ));
+
+        if ($user->hasRole('Secretario do Curso')) {
+            $allowedKeys = [
+                'dashboard',
+                'meus-cursos',
+                'grupos-pap',
+                'turmas',
+                'pautas',
+                'inscricoes',
+                'alunos',
+            ];
+
+            return array_values(array_map(
+                function (array $group) use ($allowedKeys): array {
+                    $group['items'] = array_values(array_filter(
+                        $group['items'],
+                        fn (array $item): bool => in_array($item['key'], $allowedKeys, true),
+                    ));
+
+                    return $group;
+                },
+                array_filter(
+                    $menuGroups,
+                    fn (array $group): bool => count(array_intersect(
+                        $allowedKeys,
+                        array_column($group['items'], 'key'),
+                    )) > 0,
+                ),
+            ));
+        }
+
+        return $menuGroups;
     }
 }

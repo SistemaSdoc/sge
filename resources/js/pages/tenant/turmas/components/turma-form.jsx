@@ -25,13 +25,15 @@ export function TurmaForm({
   closeDrawer,
   instituicaoId,
 }) {
-  const { anoLectivoActual, turnos = [], auth } = usePage().props;
+  const { anoLectivoActual, anosLectivos = [], turnos = [] } = usePage().props;
 
   const { data, setData, post, processing, errors } = useForm({
     curso_tutelado_id: '',
     curso_classe_id: '',
     curso_classe_turno_id: '',
     nome: '',
+    sala: '',
+    max_alunos: '',
     ano_lectivo_id: anoLectivoActual,
   });
 
@@ -58,7 +60,10 @@ export function TurmaForm({
     }));
 
     router.visit(index().url, {
-      data: { curso_classe_id: value },
+      data: {
+        curso_classe_id: value,
+        ano_lectivo_id: data.ano_lectivo_id,
+      },
       only: ['turnos'],
       preserveState: true,
       preserveScroll: true,
@@ -99,7 +104,8 @@ export function TurmaForm({
     data.curso_tutelado_id &&
     data.curso_classe_id &&
     data.curso_classe_turno_id &&
-    data.nome.trim();
+    data.nome.trim() &&
+    data.sala.trim();
 
   return (
     <form onSubmit={handleSubmit}>
@@ -205,13 +211,80 @@ export function TurmaForm({
           {errors.nome && <FieldError>{errors.nome}</FieldError>}
         </Field>
 
+        {/* Sala */}
+        <Field data-invalid={!!errors.sala}>
+          <FieldLabel htmlFor="sala">Sala</FieldLabel>
+          <Input
+            id="sala"
+            type="text"
+            placeholder="Ex.: Sala 10"
+            value={data.sala}
+            onChange={(e) => setData('sala', e.target.value)}
+            disabled={!data.curso_classe_turno_id}
+            required
+            aria-invalid={!!errors.sala}
+          />
+          {errors.sala && <FieldError>{errors.sala}</FieldError>}
+        </Field>
+
+        {/* Máximo de alunos */}
+        <Field data-invalid={!!errors.max_alunos}>
+          <FieldLabel htmlFor="max_alunos">Máximo de alunos</FieldLabel>
+          <Input
+            id="max_alunos"
+            type="number"
+            min="1"
+            placeholder="Ex.: 30"
+            value={data.max_alunos}
+            onChange={(e) => setData('max_alunos', e.target.value)}
+            disabled={!data.curso_classe_turno_id}
+            aria-invalid={!!errors.max_alunos}
+          />
+          {errors.max_alunos && <FieldError>{errors.max_alunos}</FieldError>}
+        </Field>
+
+        {/* Ano Lectivo */}
+        <Field data-invalid={!!errors.ano_lectivo_id}>
+          <FieldLabel htmlFor="ano_lectivo_id">Ano Lectivo</FieldLabel>
+          <Select
+            value={data.ano_lectivo_id ?? ''}
+            onValueChange={(value) => setData('ano_lectivo_id', value)}
+          >
+            <SelectTrigger
+              id="ano_lectivo_id"
+              aria-invalid={!!errors.ano_lectivo_id}
+            >
+              <SelectValue placeholder="Selecione o ano lectivo" />
+            </SelectTrigger>
+            <SelectContent>
+              {anosLectivos.map((ano) => (
+                <SelectItem key={ano.id} value={String(ano.id)}>
+                  {ano.nome}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.ano_lectivo_id && (
+            <FieldError>{errors.ano_lectivo_id}</FieldError>
+          )}
+        </Field>
+
         {/* Botões de acção */}
         <Field>
-          <Button type="submit" disabled={!isFormValid || processing}>
+          <Button
+            type="submit"
+            disabled={!isFormValid || processing}
+            className="hover:cursor-pointer"
+          >
             {processing ? 'A criar...' : 'Criar Turma'}
           </Button>
 
-          <Button variant="outline" onClick={closeDrawer} disabled={processing}>
+          <Button
+            variant="outline"
+            onClick={closeDrawer}
+            disabled={processing}
+            className="hover:cursor-pointer"
+          >
             Cancelar
           </Button>
         </Field>

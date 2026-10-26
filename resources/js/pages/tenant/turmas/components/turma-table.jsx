@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ChevronDownIcon, Search, UsersIcon } from 'lucide-react';
+import { ChevronDownIcon, Search, Trash2, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { router } from '@inertiajs/react';
 
@@ -33,9 +33,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { show } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
-
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 export function TurmaTable({
   turmas,
+  filters,
   can = {},
   deleteFn,
   pagination = {},
@@ -45,9 +47,17 @@ export function TurmaTable({
   onAnoLectivoChange,
   handleAdicionarTurma,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    { only: ['turmas', 'filters'] },
+  );
+
   const lista = Array.isArray(turmas) ? turmas : (turmas?.data ?? []);
   const isEmpty = lista.length === 0;
-  const hasActionColumn = lista.some((turma) => turma.can?.view);
+
+  const hasActionColumn = lista.some(
+    (turma) => turma.can?.view || turma.can?.delete,
+  );
 
   return (
     <Card className="gap-0">
@@ -58,14 +68,16 @@ export function TurmaTable({
             <CardDescription>
               Lista de turmas cadastradas no ano lectivo{' '}
               <span className="font-semibold">
-                {anosLectivos.find((ano) => ano.id === anoLectivoActual).nome}
+                {anosLectivos.find((ano) => ano.id === anoLectivoActual)
+                  ?.nome ?? 'seleccionado'}
               </span>
             </CardDescription>
           </div>
+
           <CardAction className="w-full sm:w-auto">
             {can?.create && (
               <Button
-                className="w-full sm:w-auto"
+                className="w-full hover:cursor-pointer sm:w-auto"
                 onClick={handleAdicionarTurma}
               >
                 Adicionar Turma
@@ -77,10 +89,14 @@ export function TurmaTable({
 
       <CardContent className="p-0!">
         <div className="flex justify-end border-b bg-muted/30 px-4 py-3">
-          <div className="flex max-w-sm gap-0.5">
+          <div className="flex w-full max-w-sm flex-col gap-2 md:w-auto md:max-w-none md:flex-row md:gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" aria-label="Filter">
+                <Button
+                  variant="outline"
+                  aria-label="Filter"
+                  className="w-full hover:cursor-pointer md:w-auto"
+                >
                   {anoLectivoActual
                     ? anosLectivos.find((a) => a.id === anoLectivoActual)?.nome
                     : 'Filtrar'}
@@ -88,25 +104,28 @@ export function TurmaTable({
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="start" className="w-48">
+              <DropdownMenuContent align="start" className="md:w-48">
                 <DropdownMenuLabel>Anos Lectivos</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {anosLectivos.map((ano) => (
                   <DropdownMenuItem
                     key={ano.id}
                     onClick={() => onAnoLectivoChange(ano.id)}
-                    className={anoLectivoActual === ano.id ? 'bg-muted' : ''}
+                    className={`${anoLectivoActual === ano.id ? 'bg-muted' : ''} hover:cursor-pointer`}
                   >
                     {ano.nome}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Input placeholder="Pesquisar..." className="" />
-            <Button variant="outline" size="icon">
-              <Search />
-              <span className="sr-only">Pesquisar</span>
-            </Button>
+
+            <TableSearch
+              bare
+              buttonGroupClassName="max-w-none md:max-w-xs"
+              value={search}
+              onChange={onChange}
+              onSubmit={submit}
+            />
           </div>
         </div>
 
@@ -114,8 +133,16 @@ export function TurmaTable({
           <EmptyState
             variant="table"
             icon={UsersIcon}
-            title="Nenhuma turma adicionada, ainda"
-            description="Ainda não cadrastou nenhum turma neste ano lectivo."
+            title={
+              applied
+                ? 'Nenhuma turma encontrada'
+                : 'Nenhuma turma adicionada, ainda'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Ainda não cadastrou nenhuma turma neste ano lectivo.'
+            }
           />
         ) : (
           <Table>
@@ -124,6 +151,7 @@ export function TurmaTable({
                 <TableHead className="px-4">Nome</TableHead>
                 <TableHead className="px-4">Curso</TableHead>
                 <TableHead className="px-4">Classe</TableHead>
+                <TableHead className="px-4">Sala</TableHead>
                 <TableHead className="px-4">Turno</TableHead>
                 {hasActionColumn && (
                   <TableHead className="px-4 text-right">Acções</TableHead>
@@ -164,6 +192,10 @@ export function TurmaTable({
                   </TableCell>
 
                   <TableCell className="px-4 font-medium">
+                    {turma.sala || 'Por definir'}
+                  </TableCell>
+
+                  <TableCell className="px-4 font-medium">
                     {turma?.turno?.nome}
                   </TableCell>
                   {hasActionColumn && (
@@ -172,6 +204,7 @@ export function TurmaTable({
                         <Button
                           variant="outline"
                           size="xs"
+                          className="hover:cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
                             router.visit(
@@ -185,7 +218,26 @@ export function TurmaTable({
                             );
                           }}
                         >
-                          Ver detalher
+                          Ver detalhes
+                        </Button>
+                      )}
+                      {turma.can?.delete && (
+                        <Button
+                          variant="destructive"
+                          size="xs"
+                          className="ml-2 hover:cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteFn?.({
+                              instituicao: turma.instituicao.id,
+                              cursoTutelado: turma.curso.id,
+                              cursoClasse: turma.classe.id,
+                              cursoClasseTurno: turma.turno.id,
+                              turma: turma.id,
+                            });
+                          }}
+                        >
+                          Remover
                         </Button>
                       )}
                     </TableCell>

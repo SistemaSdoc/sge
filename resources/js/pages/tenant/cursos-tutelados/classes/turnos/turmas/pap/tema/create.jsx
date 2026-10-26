@@ -50,9 +50,9 @@ export default function Create() {
           errors={errors}
           processing={processing}
           professores={form.professores}
+          sugestoesTemas={form.sugestoes_temas}
           professorTutorId={professorTutorId}
           setProfessorTutorId={setProfessorTutorId}
-
         />
       )}
     </Form>

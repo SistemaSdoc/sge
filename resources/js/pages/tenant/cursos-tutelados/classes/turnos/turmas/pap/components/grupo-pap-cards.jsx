@@ -4,6 +4,8 @@ import {
   index,
   show,
 } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { show as showAluno } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
+import { show as showUser } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
 import {
   Card,
   CardAction,
@@ -24,7 +26,14 @@ import {
 import { MoreHorizontalIcon, ArrowUpRightIcon, Users2 } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 
-export function GrupoPapCards({ params, grupos = [], deleteGrupoFn, can }) {
+export function GrupoPapCards({
+  params,
+  grupos = [],
+  deleteGrupoFn,
+  can,
+  emptyTitle = 'Nenhum Grupo PAP definido',
+  emptyDescription = 'Ainda não existem grupos PAP para esta turma.',
+}) {
   return (
     <div className="space-y-4">
       {grupos.length > 0 ? (
@@ -97,10 +106,22 @@ export function GrupoPapCards({ params, grupos = [], deleteGrupoFn, can }) {
                           onClick={(e) => e.stopPropagation()}
                           className="hover:underline"
                         >
-                          <Link href={`/dashboard/alunos/${elemento.id}`}>
-                            {elemento.nome?.split(' ').slice(0, 2).join(' ')}{' '}
-                            <ArrowUpRightIcon size={10} />
-                          </Link>
+                          {elemento.can_view ? (
+                            <Link
+                              href={
+                                elemento.is_current_user
+                                  ? showUser.url({ user: elemento.user_id })
+                                  : showAluno.url({ aluno: elemento.id })
+                              }
+                            >
+                              {elemento.nome?.split(' ').slice(0, 2).join(' ')}{' '}
+                              <ArrowUpRightIcon size={10} />
+                            </Link>
+                          ) : (
+                            <span>
+                              {elemento.nome?.split(' ').slice(0, 2).join(' ')}
+                            </span>
+                          )}
                         </Badge>
                       ))
                     ) : (
@@ -135,7 +156,8 @@ export function GrupoPapCards({ params, grupos = [], deleteGrupoFn, can }) {
       ) : (
         <EmptyState
           icon={Users2}
-          title="Nenhum Grupo PAP definido"
+          title={emptyTitle}
+          description={emptyDescription}
           variant="compact"
           action={
             can?.create

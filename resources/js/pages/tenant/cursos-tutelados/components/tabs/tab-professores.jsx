@@ -3,7 +3,6 @@ import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -20,39 +19,73 @@ import {
 
 import { Minus, BookOpenIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
-import { create } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
+import {
+  create,
+  edit as editProfessor,
+} from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
 import { show } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 
 import TablePagination from '@/components/table-pagination';
-import { useState } from 'react';
-import EditProfessorModal from './edit-professor-modal';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function TabProfessores({
   params,
   professores,
   pagination = {},
   onPageChange,
+  filters = {},
   deleteFn,
   can = {},
+  canAttachSecretario = false,
+  onAddSecretario,
 }) {
-  const [editVinculo, setEditVinculo] = useState(null);
-  const isEmpty = !professores.data || professores.data.length === 0;
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters.search_professores,
+    {
+      only: ['cursoTutelado', 'filters'],
+      searchParam: 'search_professores',
+      pageParam: 'page_professores',
+    },
+  );
+  const hasNoProfessores = !professores.data || professores.data.length === 0;
+  const isEmpty = hasNoProfessores && !applied;
   const hasAnyAction = can?.update || can?.delete;
 
   return (
     <>
       <Card className="gap-0">
-        <CardHeader className="border-b">
-          <CardTitle>
-            Professores ({params.cursoTutelado.contadores?.professores ?? 0})
-          </CardTitle>
-          <CardDescription>Professores associados a este curso</CardDescription>
-          {can?.attachProfessor && (
-            <CardAction>
-              <Button asChild>
-                <Link href={create({ ...params }).url}>Adicionar</Link>
-              </Button>
-            </CardAction>
+        <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-start md:justify-between">
+          <div className="min-w-0">
+            <CardTitle>
+              Professores ({params.cursoTutelado.contadores?.professores ?? 0})
+            </CardTitle>
+            <CardDescription>
+              Professores associados a este curso
+            </CardDescription>
+          </div>
+          {(can?.attachProfessor || canAttachSecretario) && (
+            <div className="w-full md:w-auto">
+              <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row">
+                {can?.attachProfessor && (
+                  <Button asChild className="w-full md:w-auto">
+                    <Link href={create({ ...params }).url}>
+                      Adicionar Professor
+                    </Link>
+                  </Button>
+                )}
+                {canAttachSecretario && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full md:w-auto"
+                    onClick={onAddSecretario}
+                  >
+                    Adicionar Secretário
+                  </Button>
+                )}
+              </div>
+            </div>
           )}
         </CardHeader>
 
@@ -72,88 +105,118 @@ export function TabProfessores({
               }
             />
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/72">
-                  <TableHead className="px-4">Nome</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  {hasAnyAction && (
-                    <TableHead className="px-4 text-right">Acções</TableHead>
-                  )}
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {professores.data.map((professor) => (
-                  <TableRow
-                    key={professor.id}
-                    className="hover:cursor-pointer"
-                    onClick={() =>
-                      router.visit(show({ professor: professor.id }).url)
-                    }
-                  >
-                    <TableCell className="px-4 font-medium">
-                      {professor.nome}
-                    </TableCell>
-
-                    <TableCell>
-                      {professor.tipo ?? (
-                        <Minus size={15} className="text-muted-foreground" />
+            <>
+              <TableSearch
+                value={search}
+                onChange={onChange}
+                onSubmit={submit}
+              />
+              {hasNoProfessores ? (
+                <EmptyState
+                  variant="table"
+                  icon={BookOpenIcon}
+                  title="Nenhum professor encontrado"
+                  description="Tente ajustar a pesquisa."
+                />
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/72">
+                      <TableHead className="px-4">Nome</TableHead>
+                      <TableHead>Tipo</TableHead>
+                      {hasAnyAction && (
+                        <TableHead className="px-4 text-right">
+                          Acções
+                        </TableHead>
                       )}
-                    </TableCell>
+                    </TableRow>
+                  </TableHeader>
 
-                    {hasAnyAction && (
-                      <TableCell className="px-4 text-right">
-                        {(professor.can?.update || professor.can?.delete) && (
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="outline"
-                              size="xs"
-                              className="text-[10px]"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditVinculo({
-                                  ...professor,
-                                  ...params,
-                                });
-                              }}
-                            >
-                              Editar do Curso
-                            </Button>
+                  <TableBody>
+                    {professores.data.map((professor) => (
+                      <TableRow
+                        key={professor.id}
+                        aria-disabled={!professor.can?.view}
+                        title={
+                          professor.can?.view
+                            ? undefined
+                            : 'Não tem permissão para abrir este perfil'
+                        }
+                        className={
+                          professor.can?.view
+                            ? 'cursor-pointer'
+                            : 'cursor-not-allowed opacity-60'
+                        }
+                        onClick={
+                          professor.can?.view
+                            ? () =>
+                                router.visit(
+                                  show({ professor: professor.id }).url,
+                                )
+                            : undefined
+                        }
+                      >
+                        <TableCell className="px-4 font-medium">
+                          {professor.nome}
+                        </TableCell>
 
-                            <Button
-                              variant="destructive"
-                              size="xs"
-                              className="text-[10px]"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteFn(professor.vinculo_id);
-                              }}
-                            >
-                              Remover do curso
-                            </Button>
-                          </div>
+                        <TableCell>
+                          {professor.tipo ?? (
+                            <Minus
+                              size={15}
+                              className="text-muted-foreground"
+                            />
+                          )}
+                        </TableCell>
+
+                        {hasAnyAction && (
+                          <TableCell className="px-4 text-right">
+                            {(professor.can?.update ||
+                              professor.can?.delete) && (
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="xs"
+                                  className="text-[10px]"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.visit(
+                                      editProfessor({
+                                        ...params,
+                                        professor: professor.vinculo_id,
+                                      }).url,
+                                    );
+                                  }}
+                                >
+                                  Editar do Curso
+                                </Button>
+
+                                <Button
+                                  variant="destructive"
+                                  size="xs"
+                                  className="text-[10px]"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteFn(professor.vinculo_id);
+                                  }}
+                                >
+                                  Remover do curso
+                                </Button>
+                              </div>
+                            )}
+                          </TableCell>
                         )}
-                      </TableCell>
-                    )}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </>
           )}
         </CardContent>
 
         <TablePagination pagination={pagination} onPageChange={onPageChange} />
       </Card>
-
-      {editVinculo && (
-        <EditProfessorModal
-          params={params}
-          vinculo={editVinculo}
-          open={!!editVinculo}
-          onClose={() => setEditVinculo(null)}
-        />
-      )}
     </>
   );
 }

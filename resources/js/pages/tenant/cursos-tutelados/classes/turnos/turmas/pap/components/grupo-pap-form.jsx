@@ -1,4 +1,5 @@
-import { Loader2 } from 'lucide-react';
+import { Link } from '@inertiajs/react';
+import { ArrowUpLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -27,14 +28,17 @@ export default function GrupoPapForm({
   processing,
   professores = [],
   alunos = [],
+  nomeGrupo,
+  setNomeGrupo,
   professorTutorId,
   setProfessorTutorId,
   alunoIds,
   setAlunoIds,
   grupoPap,
+  turmaUrl,
 }) {
   return (
-    <div className="mx-auto w-full max-w-sm px-6 py-6 md:max-w-md lg:max-w-195">
+    <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
       <Card className="overflow-visible">
         <CardHeader className="border-b">
           <CardTitle>{title}</CardTitle>
@@ -50,7 +54,8 @@ export default function GrupoPapForm({
                     name="nome_grupo"
                     disabled={processing}
                     placeholder="Ex.: Grupo Alpha"
-                    defaultValue={grupoPap?.nome_grupo ?? ''}
+                    value={nomeGrupo}
+                    onChange={(event) => setNomeGrupo(event.target.value)}
                   />
                   {errors.nome_grupo && (
                     <FieldError>{errors.nome_grupo}</FieldError>
@@ -79,7 +84,7 @@ export default function GrupoPapForm({
                     ))}
                 </Field>
 
-              {/* <Field>
+                {/* <Field>
                   <FieldLabel>Professor tutor</FieldLabel>
                   <Select
                     value={professorTutorId || undefined}
@@ -103,12 +108,15 @@ export default function GrupoPapForm({
                   {errors.professor_tutor_id && (
                     <FieldError>{errors.professor_tutor_id}</FieldError>
                   )}
-                </Field>*/} 
-
+                </Field>*/}
               </div>
 
               <Field>
-                <Button type="submit" disabled={processing}>
+                <Button
+                  type="submit"
+                  disabled={processing}
+                  className="hover:cursor-pointer"
+                >
                   {processing ? (
                     <>
                       <Loader2 className="animate-spin" /> A guardar...
@@ -116,6 +124,12 @@ export default function GrupoPapForm({
                   ) : (
                     <>Guardar</>
                   )}
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href={turmaUrl}>
+                    <ArrowUpLeft aria-hidden="true" />
+                    Voltar à turma
+                  </Link>
                 </Button>
               </Field>
             </FieldSet>

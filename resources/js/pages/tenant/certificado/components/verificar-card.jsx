@@ -61,7 +61,7 @@ export default function VerificarCard({ certificado }) {
 
         {/* Título */}
         <h1 className="text-base font-semibold">
-          Verificação de Autenticidade de Certificadosss
+          Verificação de Autenticidade de Certificado
         </h1>
       </div>
 

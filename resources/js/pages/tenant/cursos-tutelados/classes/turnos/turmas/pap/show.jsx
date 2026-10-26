@@ -25,8 +25,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/BancaJuriPapController';
 import { destroy as destroyIntegrante } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
-import { edit } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
-import { definirData } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import {
+  destroy as destroyGrupoPap,
+  edit,
+  definirData,
+} from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import { actualizarNota } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
 import { FieldError } from '@/components/ui/field';
 import { usePagination } from '@/hooks/use-pagination';
@@ -36,6 +39,9 @@ import { editar as editarTema } from '@/actions/App/Http/Controllers/Tenant/Grup
 import { create as createTema } from '@/actions/App/Http/Controllers/Tenant/GrupoPapTemaController';
 import { TabTrabalho } from './components/tabs/tab-trabalho';
 import { FileText } from 'lucide-react';
+import { show as showUser } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
+import { show as showProfessor } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
+import { useDialog } from '@/hooks/use-dialog';
 
 export default function Show({
   instituicao,
@@ -44,6 +50,7 @@ export default function Show({
   cursoClasseTurno,
   turma,
   grupoPap,
+  currentUserId,
   trabalho,
   historico,
   banca,
@@ -53,6 +60,7 @@ export default function Show({
 }) {
   const [notas, setNotas] = useState({});
   const [dialogDataAberto, setDialogDataAberto] = useState(false);
+  const { deleteConfirm } = useDialog();
   const bancaPagination = usePagination('banca');
   const elementosPagination = usePagination('elementos');
   //const hasAnyAction = Boolean(can?.update || can?.definirData);
@@ -76,9 +84,32 @@ export default function Show({
     local_defesa: grupoPap?.local_defesa ?? '',
   });
 
-  const removerIntegranteFn = (elementoGrupoPap) => {
-    router.delete(destroyIntegrante.url({ ...params, elementoGrupoPap }), {
-      onSuccess: () => router.reload(),
+  const removerIntegranteFn = (elemento) => {
+    deleteConfirm({
+      title: 'Remover aluno do grupo?',
+      description: `${elemento.nome} deixará de fazer parte deste grupo PAP.`,
+      confirmLabel: 'Remover do grupo',
+      confirmFn: () =>
+        router.delete(
+          destroyIntegrante.url({
+            ...params,
+            elementoGrupoPap: elemento.id,
+          }),
+          { onSuccess: () => router.reload() },
+        ),
+    });
+  };
+
+  const removerGrupoFn = () => {
+    deleteConfirm({
+      title: 'Remover grupo PAP?',
+      description:
+        'Esta acção é irreversível. O grupo PAP e os seus registos dependentes serão removidos.',
+      confirmLabel: 'Remover grupo',
+      confirmFn: () =>
+        router.delete(destroyGrupoPap.url(params), {
+          preserveScroll: true,
+        }),
     });
   };
 
@@ -121,7 +152,7 @@ export default function Show({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 p-6">
+    <div className="mx-auto w-full max-w-6xl space-y-6 p-4 md:p-6">
       <Card className="overflow-hidden pt-0!">
         <div className="relative flex h-56 w-full items-end bg-muted">
           <div className="absolute inset-0 bg-black/50" />
@@ -134,6 +165,9 @@ export default function Show({
               <h2 className="md:text-1xl text-2xl font-semibold">
                 Tema: {grupoPap?.tema_grupo}
               </h2>
+              <p className="max-w-3xl text-sm text-white/90">
+                Estudo de caso: {grupoPap?.estudo_caso || 'Não definido'}
+              </p>
             </div>
 
             {/* {hasAnyAction && (*/}
@@ -172,6 +206,15 @@ export default function Show({
                     Definir data da defesa
                   </DropdownMenuItem>
                 )}
+
+                {can?.delete && (
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={removerGrupoFn}
+                  >
+                    Remover grupo PAP
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
             {/* )} */}
@@ -183,12 +226,23 @@ export default function Show({
             <p className="text-sm text-muted-foreground">Professor tutor</p>
             <p className="font-medium">
               {grupoPap?.professor ? (
-                <Link
-                  href={`/dashboard/professores/${grupoPap.professor.id}`}
-                  className="hover:underline"
-                >
-                  {grupoPap.professor.nome}
-                </Link>
+                grupoPap.professor.can_view ? (
+                  <Link
+                    href={
+                      String(currentUserId) ===
+                      String(grupoPap.professor.user_id)
+                        ? showUser.url({ user: grupoPap.professor.user_id })
+                        : showProfessor.url({
+                            professor: grupoPap.professor.id,
+                          })
+                    }
+                    className="hover:underline"
+                  >
+                    {grupoPap.professor.nome}
+                  </Link>
+                ) : (
+                  grupoPap.professor.nome
+                )
               ) : (
                 <Minus size={15} className="text-muted-foreground" />
               )}
@@ -264,12 +318,32 @@ export default function Show({
             </div>
           )}
 
-             {grupoPap?.estrutura_trabalho_pap_url && (
+          {grupoPap?.estrutura_trabalho_pap_url && (
             <div>
-              <p className="text-sm text-muted-foreground">Estrutura do Trabalho PAP</p>
+              <p className="text-sm text-muted-foreground">
+                Estrutura do Trabalho PAP
+              </p>
 
               <a
                 href={grupoPap.estrutura_trabalho_pap_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 font-medium text-primary hover:underline"
+              >
+                <FileText className="size-4" />
+                Ver documento
+              </a>
+            </div>
+          )}
+
+          {grupoPap?.sugestoes_temas_pap_url && (
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Sugestões de Temas PAP
+              </p>
+
+              <a
+                href={grupoPap.sugestoes_temas_pap_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 font-medium text-primary hover:underline"
@@ -355,8 +429,7 @@ export default function Show({
       </Dialog>
 
       {/* Banner de ação — reprovado ou melhoria solicitada */}
-      {
-        can?.corrigirTema &&
+      {can?.corrigirTema &&
         [
           'reprovado',
           'melhoria-solicitada',
@@ -383,7 +456,8 @@ export default function Show({
               <Button
                 size="sm"
                 variant={
-                  (grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'
+                  (grupoPap.status_aprovacao || '').toLowerCase() ===
+                  'reprovado'
                     ? 'destructive'
                     : 'default'
                 }
@@ -435,6 +509,7 @@ export default function Show({
             actualizarNotaFn={actualizarNotaFn}
             removerIntegranteFn={removerIntegranteFn}
             can={can}
+            currentUserId={currentUserId}
           />
         </TabsContent>
 
@@ -447,6 +522,7 @@ export default function Show({
               pagination={banca}
               onPageChange={bancaPagination.handlePageChange}
               can={can}
+              currentUserId={currentUserId}
             />
           </TabsContent>
         )}

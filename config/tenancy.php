@@ -9,6 +9,7 @@ use Stancl\Tenancy\Bootstrappers\QueueTenancyBootstrapper;
 use Stancl\Tenancy\Database\Models\Domain;
 use Stancl\Tenancy\Database\Models\Tenant;
 use Stancl\Tenancy\Features\UserImpersonation;
+use Stancl\Tenancy\Features\ViteBundler;
 use Stancl\Tenancy\TenantDatabaseManagers\MySQLDatabaseManager;
 use Stancl\Tenancy\TenantDatabaseManagers\PostgreSQLDatabaseManager;
 use Stancl\Tenancy\TenantDatabaseManagers\SQLiteDatabaseManager;
@@ -111,8 +112,6 @@ return [
         'suffix_base' => 'tenant',
         'disks' => [
             'local',
-            'public',
-            'private',
         ],
 
         /**
@@ -123,8 +122,6 @@ return [
         'root_override' => [
             // Disks whose roots should be overridden after storage_path() is suffixed.
             'local' => '%storage_path%/app/',
-            'public' => '%storage_path%/app/public/',
-            'private' => '%storage_path%/app/private/',
         ],
 
         /**
@@ -178,7 +175,7 @@ return [
         // Stancl\Tenancy\Features\UniversalRoutes::class,
         // Stancl\Tenancy\Features\TenantConfig::class, // https://tenancyforlaravel.com/docs/v3/features/tenant-config
         // Stancl\Tenancy\Features\CrossDomainRedirect::class, // https://tenancyforlaravel.com/docs/v3/features/cross-domain-redirect
-        // Stancl\Tenancy\Features\ViteBundler::class,
+        ViteBundler::class,
     ],
 
     /**
@@ -204,6 +201,6 @@ return [
      */
     'seeder_parameters' => [
         '--class' => 'Database\Seeders\Tenant\TenantDatabaseSeeder', // root seeder class
-        // '--force' => true, // This needs to be true to seed tenant databases in production
+        '--force' => true, // This needs to be true to seed tenant databases in production
     ],
 ];

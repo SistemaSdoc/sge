@@ -5,41 +5,62 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\AccessManagement\StoreRoleAndPermissionRequest;
 use App\Models\Tenant\User;
+use App\Services\Tenant\RoleManagementService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class AccessManagementController extends Controller
 {
+    public function __construct(
+        private readonly RoleManagementService $roleManagementService,
+    ) {}
+
     /**
      * Lista todos os usuários com suas roles e permissões, além de todas as roles e permissões disponíveis.
      */
-    public function index()
+    public function index(Request $request)
     {
-        Gate::authorize('acessos.viewAny');
-
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
 
-        $users = User::with('roles', 'permissions')
-            ->where('instituicao_id', $user->instituicao_id)
+        Gate::forUser($user)->authorize('acessos.viewAny');
+
+        $users = User::query()
+            ->visibleInTenantUserLists()
+            ->with([
+                'roles:id,name',
+                'roles.permissions:id,name',
+                'permissions:id,name',
+            ])
+            ->when(! $user->isSuperAdmin(), fn ($query) => $query->where('instituicao_id', $user->instituicao_id))
+            ->search($request->string('search')->toString())
+            ->latest('created_at')
             ->paginate(10)
+            ->withQueryString()
             ->through(fn (User $u) => [
                 'id' => $u->id,
                 'nome' => $u->nome,
                 'email' => $u->email,
-                'avatar' => $u->avatar,
+                'avatar' => $u->avatar_url,
                 'roles' => $u->getRoleNames(),
-                'directPermissions' => $u->getDirectPermissions()->pluck('name'),
-                'inheritedPermissions' => $u->getPermissionsViaRoles()->pluck('name'),
+                'directPermissions' => $u->permissions->pluck('name')->values()->all(),
+                'inheritedPermissions' => $u->roles
+                    ->flatMap(fn ($role) => $role->permissions)
+                    ->pluck('name')
+                    ->unique()
+                    ->values()
+                    ->all(),
             ]);
 
         return Inertia::render('tenant/gestao-acessos/index', [
             'users' => $users,
-            'roles' => Role::whereNotIn('name', ['SuperAdmin'])->get()->pluck('name'),
-            'allPermissions' => Permission::all()->pluck('name'),
+            'filters' => $request->only('search'),
+            'roles' => Role::where('guard_name', 'tenant')->whereNotIn('name', ['SuperAdmin'])->orderBy('name')->get()->pluck('name'),
+            'allPermissions' => $this->roleManagementService->permissions(),
+            'groupedPermissions' => $this->roleManagementService->groupedPermissions(),
         ]);
     }
 
@@ -48,11 +69,14 @@ class AccessManagementController extends Controller
      */
     public function store(StoreRoleAndPermissionRequest $request, User $user)
     {
-        Gate::authorize('acessos.create');
+        /** @var User $actor */
+        $actor = Auth::guard('tenant')->user();
 
-        $user->syncRoles($request->roles);
+        Gate::forUser($actor)->authorize('managePermissions', $user);
 
-        $user->syncPermissions($request->directPermissions);
+        $user->syncRoles($request->validated('roles', []));
+
+        $user->syncPermissions($request->validated('directPermissions', []));
 
         return back()->with('success', "Roles e permissões atualizados para {$user->nome}.");
     }

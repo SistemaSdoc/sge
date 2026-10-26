@@ -160,6 +160,7 @@
 <body>
 
     <div class="email-wrapper">
+        @include('mail.partials.institution-logo')
 
         {{-- Header --}}
         <div class="header">
@@ -198,7 +199,7 @@
             <div class="card-row">
                 <div class="card-label">Nota individual</div>
                 <div class="card-value nota">
-                    {{ $nota }} <span>valores</span>
+                    {{ rtrim(rtrim(number_format((float) $nota, 2, ',', ''), '0'), ',') }} <span>valores</span>
                 </div>
             </div>
 
@@ -212,20 +213,6 @@
             </a>
 
         </div>
-
-        {{-- Access Link --}}
-        <p class="access-link">
-
-            Se o botão acima não funcionar, copie e cole o seguinte endereço
-            no seu navegador:
-
-            <br><br>
-
-            <a href="{{ $url }}" target="_blank">
-                {{ $url }}
-            </a>
-
-        </p>
 
         {{-- Footer --}}
         <div class="footer">

@@ -5,6 +5,7 @@ namespace App\Services\Tenant;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\CursoClasseRecord;
 use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\Nota;
 use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
@@ -113,7 +114,13 @@ class PreencherHistoricoService
                 continue;
             }
 
-            $todasFinalizadas = $this->verificarSeTodasPautasFinalizadas($ta->turma->id);
+            $todasFinalizadas = $this->verificarSeTodasPautasFinalizadas($ta->turma->id, $ta->id);
+
+            \Log::debug('[Historico] verificacao', [
+                'turma_id' => $ta->turma->id,
+                'ta_id' => $ta->id,
+                'todas_finalizadas' => $todasFinalizadas,
+            ]);
 
             if ($todasFinalizadas) {
                 // Completo — oculta
@@ -127,7 +134,8 @@ class PreencherHistoricoService
                 'ordem' => $cc->classe->ordem,
                 'turma_aluno_id' => $ta->id,
                 'em_curso' => true,
-                'tem_notas' => $ta->notas->isNotEmpty(),
+                'tem_notas' => $ta->notas->isNotEmpty(), // ← true se há rascunho
+
             ];
         }
 
@@ -168,7 +176,7 @@ class PreencherHistoricoService
      * - Para o período 2: TODAS as disciplinas têm pauta finalizada
      * - Para o período 3: TODAS as disciplinas têm pauta finalizada
      */
-    private function verificarSeTodasPautasFinalizadas(string $turmaId): bool
+    private function verificarSeTodasPautasFinalizadas(string $turmaId, string $turmaAlunoId): bool
     {
         $tdps = TurmaDisciplinaProfessor::where('turma_id', $turmaId)
             ->pluck('id');
@@ -179,17 +187,41 @@ class PreencherHistoricoService
 
         $numDisciplinas = $tdps->count();
 
-        // Verifica cada período (1, 2, 3)
-        for ($periodo = 1; $periodo <= 3; $periodo++) {
-            $pautasFinalizadasNestePeriodo = PautaStatus::whereIn('turma_disciplina_professor_id', $tdps)
-                ->where('periodo', $periodo)
-                ->where('status', 'finalizada')
-                ->count();
+        $isHistorico = TurmaAluno::where('id', $turmaAlunoId)
+            ->value('is_historico');
 
-            // Se não tem o mesmo número de pautas finalizadas que disciplinas,
-            // significa que faltam disciplinas neste período
-            if ($pautasFinalizadasNestePeriodo !== $numDisciplinas) {
-                return false;
+        for ($periodo = 1; $periodo <= 3; $periodo++) {
+            if ($isHistorico) {
+                // Histórico: verifica notas não rascunho
+                $notasFinalizadas = Nota::where('turma_aluno_id', $turmaAlunoId)
+                    ->whereIn('turma_disciplina_professor_id', $tdps)
+                    ->where('periodo', $periodo)
+                    ->where('is_rascunho', false)
+                    ->count();
+
+                if ($notasFinalizadas !== $numDisciplinas) {
+                    return false;
+                }
+            } else {
+                // Turma normal: lógica original
+                $pautasFinalizadas = PautaStatus::whereIn('turma_disciplina_professor_id', $tdps)
+                    ->where('periodo', $periodo)
+                    ->where('status', 'finalizada')
+                    ->count();
+
+                if ($pautasFinalizadas !== $numDisciplinas) {
+                    return false;
+                }
+
+                $notasAluno = Nota::where('turma_aluno_id', $turmaAlunoId)
+                    ->whereIn('turma_disciplina_professor_id', $tdps)
+                    ->where('periodo', $periodo)
+                    ->whereNotNull('media_trimestral')
+                    ->count();
+
+                if ($notasAluno !== $numDisciplinas) {
+                    return false;
+                }
             }
         }
 
@@ -284,6 +316,7 @@ class PreencherHistoricoService
             'ano_lectivo_id' => $turma->ano_lectivo_id,
             'activo' => true,
             'situacao' => 'concluido',
+            'is_historico' => true,
         ]);
     }
 }

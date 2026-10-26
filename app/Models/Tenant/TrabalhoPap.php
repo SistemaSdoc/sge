@@ -69,7 +69,7 @@ class TrabalhoPap extends Model
 
     public function aprovadoPor()
     {
-        return $this->belongsTo(User::class, 'aprovado_por_id');
+        return $this->belongsTo(User::class, 'aprovado_por_id')->withTrashed();
     }
 
     // ── Scopes ──────────────────────────────────────────────

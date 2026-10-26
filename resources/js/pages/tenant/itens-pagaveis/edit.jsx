@@ -8,7 +8,6 @@ export default function Edit({
   cursosClasse = [],
   instituicaoTipo,
 }) {
-  // Inicializa com valores vazios
   const { put, data, setData, processing, errors } = useForm({
     nome: itemPagavel.nome ?? '',
     tipo: itemPagavel.tipo ?? '',
@@ -21,42 +20,9 @@ export default function Edit({
         ? String(itemPagavel.curso_classe_id)
         : '',
     ativo: itemPagavel.ativo ?? true,
+    multa_dias_tolerancia: itemPagavel.multa_dias_tolerancia ?? '',
+    multa_valor: itemPagavel.multa_valor ?? '',
   });
-
-  //  ESSENCIAL: sincroniza quando itemPagavel for carregado
-  useEffect(() => {
-    if (itemPagavel) {
-      setData({
-        multa_dias_tolerancia: '',
-        multa_valor: '',
-        nome: itemPagavel.nome ?? '',
-        tipo: itemPagavel.tipo ?? '',
-        subtipo: itemPagavel.subtipo ?? '', // ← adiciona
-        descricao: itemPagavel.descricao ?? '',
-        valor: itemPagavel.valor ?? '',
-        frequencia: itemPagavel.frequencia ?? 'mensal',
-        curso_classe_id:
-          itemPagavel.curso_classe_id != null
-            ? String(itemPagavel.curso_classe_id)
-            : '',
-        ativo: itemPagavel.ativo ?? true,
-        multa_dias_tolerancia: itemPagavel.multa_dias_tolerancia ?? '',
-        multa_valor: itemPagavel.multa_valor ?? '',
-      });
-    }
-  }, [itemPagavel]);
-
-  //  Logs para diagnóstico (remove depois)
-  console.log('[Edit] itemPagavel:', itemPagavel);
-  console.log(
-    '[Edit] cursosClasse IDs:',
-    cursosClasse.map((c) => String(c.id)),
-  );
-  console.log(
-    '[Edit] data.curso_classe_id (tipo):',
-    typeof data.curso_classe_id,
-    data.curso_classe_id,
-  );
 
   return (
     <ItensForm
@@ -70,12 +36,7 @@ export default function Edit({
       instituicaoTipo={instituicaoTipo}
       submitFn={(e) => {
         e.preventDefault();
-        console.log('[Edit] submit — data a enviar:', data);
-        put(update(itemPagavel.id).url, {
-          onSuccess: (page) => console.log('[Edit] onSuccess', page),
-          onError: (errs) => console.log('[Edit] onError', errs),
-          onFinish: () => console.log('[Edit] onFinish, processing=false'),
-        });
+        put(update(itemPagavel.id).url);
       }}
     />
   );

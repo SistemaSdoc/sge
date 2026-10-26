@@ -2,6 +2,7 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\Central\AnoLectivo;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
     'ano_lectivo_id',
     'estado_matricula',
     'resultado_academico',
+    'is_historico',
 ])]
 class TurmaAluno extends Pivot
 {
@@ -48,13 +50,6 @@ class TurmaAluno extends Pivot
 
     public function anoLectivo()
     {
-        return $this->hasOneThrough(
-            AnoLectivo::class,
-            Turma::class,
-            'id',
-            'id',
-            'turma_id',
-            'ano_lectivo_id'
-        );
+        return $this->belongsTo(AnoLectivo::class, 'ano_lectivo_id');
     }
 }

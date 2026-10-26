@@ -1,8 +1,14 @@
 <?php
 
+use App\Actions\Central\Tenant\ExportTenantUsersMetrics;
+use App\Http\Controllers\Central\AnoLectivoController;
 use App\Http\Controllers\Central\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Central\Auth\GoogleAuthController;
 use App\Http\Controllers\Central\Auth\RegisteredController;
+use App\Http\Controllers\Central\CalendarioAnualController;
+use App\Http\Controllers\Central\CursoController;
 use App\Http\Controllers\Central\DashboardController;
+use App\Http\Controllers\Central\DisciplinaController;
 use App\Http\Controllers\Central\TenantController;
 use App\Http\Controllers\Central\UserController;
 use Illuminate\Support\Facades\Route;
@@ -24,19 +30,6 @@ foreach (config('tenancy.central_domains') as $domain) {
         |--------------------------------------------------------------------------
         */
         Route::inertia('/', 'central/welcome/index')->name('home');
-
-        Route::get('/test-email', function () {
-            return new \App\Mail\AccountNotificationMail(
-                userName: 'Joaquim Chiaca Ronildo',
-                userEmail: 'ronildojoaquimchiaca87@gmail.com',
-                featureName: 'Iniciar sessão com Google',
-                actionAt: now()->toIso8601String(),
-                ctaUrl: url('/'),
-                ctaLabel: 'Aceder à sua Conta',
-            );
-        });
-        ;
-
         /*
         |--------------------------------------------------------------------------
         | Rotas de Autenticação Central
@@ -63,6 +56,13 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->middleware('auth:web')
             ->name('central.logout');
 
+        // Route::get('auth/google/redirect', [GoogleAuthController::class, 'redirect'])
+        //     ->middleware('guest')
+        //     ->name('central.google.redirect');
+
+        // Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])
+        //     ->name('central.google.callback');
+
         /*
         |--------------------------------------------------------------------------
         | Rotas Internas do central (Dashboard Routes)
@@ -81,7 +81,18 @@ foreach (config('tenancy.central_domains') as $domain) {
             ->name('central.dashboard.')
             ->group(function () {
 
+                require base_path('routes/central-settings.php');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Tenants
+                |--------------------------------------------------------------------------
+                */
+
                 Route::resource('tenants', TenantController::class);
+
+                Route::post('tenants/{tenant}/impersonate', [TenantController::class, 'impersonate'])
+                    ->name('tenants.impersonate');
 
                 Route::post('tenants/{tenant}/toggle-status', [TenantController::class, 'toggleStatus'])
                     ->name('tenants.toggle-status');
@@ -95,7 +106,76 @@ foreach (config('tenancy.central_domains') as $domain) {
                 Route::get('tenants/{tenant}/tables/records', [TenantController::class, 'showTablesRecords'])
                     ->name('tenants.tables.records');
 
+                Route::get('tenants/{tenant}/users/metrics/export', ExportTenantUsersMetrics::class)
+                    ->name('tenants.users.metrics.export');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Cursos
+                |--------------------------------------------------------------------------
+                */
+
+                Route::resource('cursos', CursoController::class)->withTrashed(['show']);
+
+                Route::post('cursos/{curso}/restore', [CursoController::class, 'restore'])
+                    ->withTrashed()
+                    ->name('cursos.restore');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Anos Lectivos
+                |--------------------------------------------------------------------------
+                */
+
+                Route::resource('anos-lectivos', AnoLectivoController::class)
+                    ->parameters(['anos-lectivos' => 'anoLectivo'])
+                    ->only(['index', 'create', 'store']);
+
+                Route::post('anos-lectivos/{anoLectivo}/arquivar', [AnoLectivoController::class, 'archive'])
+                    ->name('anos-lectivos.archive');
+
+                Route::post('anos-lectivos/{anoLectivo}/restaurar', [AnoLectivoController::class, 'restore'])
+                    ->withTrashed()
+                    ->name('anos-lectivos.restore');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Disciplinas
+                |--------------------------------------------------------------------------
+                */
+
+                Route::resource('disciplinas', DisciplinaController::class)->withTrashed(['show']);
+
+                Route::post('disciplinas/{disciplina}/restore', [DisciplinaController::class, 'restore'])
+                    ->withTrashed()
+                    ->name('disciplinas.restore');
+
+                /*
+                |--------------------------------------------------------------------------
+                | Users
+                |--------------------------------------------------------------------------
+                */
+
                 Route::resource('users', UserController::class);
+
+                /*
+                |--------------------------------------------------------------------------
+                | Calendários
+                |--------------------------------------------------------------------------
+                */
+
+                Route::resource('calendarios-anuais', CalendarioAnualController::class)
+                    ->only(['index', 'store', 'update', 'destroy'])
+                    ->parameters(['calendarios-anuais' => 'calendarioAnual']);
+
+                Route::get('calendarios-anuais/{calendarioAnual}/download', [CalendarioAnualController::class, 'download'])
+                    ->name('calendarios-anuais.download');
+
+                Route::get('calendarios-anuais/{calendarioAnual}/view', [CalendarioAnualController::class, 'view'])
+                    ->name('calendarios-anuais.view');
+
+                Route::get('calendario-anual', [CalendarioAnualController::class, 'index'])
+                    ->name('calendario-anual');
             });
     });
 }

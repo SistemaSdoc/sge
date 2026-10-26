@@ -16,9 +16,20 @@ import { ArrowUpLeft } from 'lucide-react';
 import { show as showCurso } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import { Button } from '@/components/ui/button';
 import { Link, router } from '@inertiajs/react';
-import { create } from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
+import {
+  create,
+  edit as editTurno,
+} from '@/actions/App/Http/Controllers/Tenant/CursoClasseTurnoController';
 
-export function Header({ can, params, anoLectivoAtualNome, turnos }) {
+export function Header({
+  can,
+  params,
+  anoLectivoAtualNome,
+  turnos,
+  instituicao,
+  cursoTutelado,
+  cursoClasse,
+}) {
   return (
     <Card className="mb-0 gap-0 overflow-visible pb-0">
       <CardHeader className="border-b border-foreground/10">
@@ -72,7 +83,7 @@ export function Header({ can, params, anoLectivoAtualNome, turnos }) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full justify-center sm:w-auto"
+                  className="w-full justify-center hover:cursor-pointer sm:w-auto"
                   onClick={() =>
                     router.visit(
                       showCurso({
@@ -87,10 +98,29 @@ export function Header({ can, params, anoLectivoAtualNome, turnos }) {
                 </Button>
               )}
 
-              {can.turno.create && turnos.length < 3 && (
+              {can.turno?.edit && (
                 <Button
                   size="sm"
-                  className="w-full justify-center sm:w-auto"
+                  variant="outline"
+                  className="hover:cursor-pointer"
+                  onClick={() =>
+                    router.visit(
+                      editTurno({
+                        instituicao: params.instituicao.id,
+                        cursoTutelado: params.cursoTutelado.id,
+                        cursoClasse: params.cursoClasse.id,
+                      }).url,
+                    )
+                  }
+                >
+                  Editar turnos da classe
+                </Button>
+              )}
+
+              {can.turno?.create && turnos.length < 3 && (
+                <Button
+                  size="sm"
+                  className="w-full justify-center hover:cursor-pointer sm:w-auto"
                   onClick={() =>
                     router.visit(
                       create({

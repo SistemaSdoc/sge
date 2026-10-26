@@ -51,7 +51,7 @@ class NotaDisciplinaController extends Controller
             return back()->with('warning', 'Ainda não existe uma associação de professor para esta disciplina neste ano lectivo.');
         }
 
-        // Gate::authorize('view', $tdp);
+        Gate::authorize('view', $tdp);
         $periodosLancados = $this->notaService->periodosLancados($tdp->id);
         $periodosDisponiveis = $this->notaService->periodosDisponiveis($tdp->id);
         $podeLancarNotas = Auth::guard('tenant')->user()->hasAnyRole(['Director', 'Subdirector'])
@@ -90,7 +90,7 @@ class NotaDisciplinaController extends Controller
                         ->where('turma_aluno.activo', true);
                 })->orWhere('turma_aluno.situacao', 'concluido');
             })
-            ->orderBy('candidatos.nome')
+            ->latest('turma_aluno.created_at')
             ->paginate(20, ['*'], 'page_alunos');
 
         $professorDono = Auth::guard('tenant')->user()->professor?->id === $tdp->professor_id;
@@ -226,7 +226,7 @@ class NotaDisciplinaController extends Controller
                         ->where('turma_aluno.activo', true);
                 })->orWhere('turma_aluno.situacao', 'concluido');
             })
-            ->orderBy('candidatos.nome')
+            ->latest('turma_aluno.created_at')
             ->paginate(20, ['*'], 'page_alunos');
 
         $alunosMapeados = $turmaAlunos->getCollection()->map(fn ($ta) => [
@@ -258,10 +258,11 @@ class NotaDisciplinaController extends Controller
                 'create' => $user->can('create', [Nota::class, $tdp]),
                 'overrideLockedPeriods' => $isDirecao,
                 'finalizar' => $user->can('pautas.finalizar'),
-                'solicitarEdicao' => $user->can('pautas.solicitarEdicao'),
+                'solicitarEdicao' => ! $isDirecao && $user->can('pautas.solicitarEdicao'),
                 'exportar' => $user->can('export', [Nota::class, $tdp]),
             ],
         ];
+        $tdp->load(['classeTurnoDisciplina.disciplina' => fn ($q) => $q->withTrashed()]);
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/disciplinas/notas/create', [
             'instituicao' => [
@@ -285,15 +286,15 @@ class NotaDisciplinaController extends Controller
             ],
             'classeTurnoDisciplina' => [
                 'id' => $classeTurnoDisciplina->id,
-                'nome' => $classeTurnoDisciplina->disciplina->nome,
+                'nome' => $classeTurnoDisciplina->disciplina?->nome ?? 'Disciplina arquivada',
             ],
             'can' => $permissions,
             'data' => [
                 'tdp_id' => $tdp->id,
                 'disciplina' => [
                     'id' => $classeTurnoDisciplina->id,
-                    'nome' => $tdp->classeTurnoDisciplina->disciplina->nome,
-                    'sigla' => $tdp->classeTurnoDisciplina->disciplina->sigla,
+                    'nome' => $tdp->classeTurnoDisciplina->disciplina?->nome ?? 'Disciplina arquivada',
+                    'sigla' => $tdp->classeTurnoDisciplina->disciplina?->sigla ?? '—',
                 ],
                 'alunos' => [
                     'data' => $alunosMapeados,

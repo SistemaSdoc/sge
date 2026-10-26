@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenant\AnoLectivo;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Traits\NotificaProfessor;

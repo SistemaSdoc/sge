@@ -13,7 +13,8 @@ class GrupoPapPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('grupopap.viewAny');
+        return $user->hasRole('Secretario do Curso')
+            || (! $user->hasRole('Aluno') && $user->can('grupopap.viewAny'));
     }
 
     /**
@@ -22,10 +23,26 @@ class GrupoPapPolicy
      * Staff com permission vê apenas grupos da sua instituição.
      * Aluno vê apenas o seu próprio grupo.
      */
-    public function view(User $user, GrupoPap $grupoPap): bool
+    public function view(User $user, GrupoPap $grupo): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            if ($grupo->getAttribute('secretaria_course_access') === true) {
+                return $user->can('grupopap.view');
+            }
+
+            $cursoTuteladoId = $grupo->turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id;
+
+            return $user->can('grupopap.view')
+                && $cursoTuteladoId !== null
+                && $user->cursosSecretariados()->whereKey($cursoTuteladoId)->exists();
+        }
+
+        if ($user->hasAnyRole(['Director', 'Subdirector'])) {
+            return true;
+        }
+
         if ($user->hasRole('Aluno')) {
-            return $grupoPap->alunos()
+            return $grupo->alunos()
                 ->where('aluno_id', $user->aluno?->id)
                 ->exists();
         }
@@ -33,37 +50,42 @@ class GrupoPapPolicy
         if ($user->hasRole('Professor')) {
             $professor = $user->professor;
 
-            // Coordenador: acesso por permissão, sem restrição de turma/tutor/jurado
+            if (! $professor) {
+                return false;
+            }
+
+            // Tutor
+            if ($grupo->professor_tutor_id === $professor->id) {
+                return true;
+            }
+
+            if ($user->hasAnyRole(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])) {
+                return $user->hasPermissionTo('grupopap.view')
+                    && (
+                        $grupo->instituicao()?->id === $user->instituicao_id
+                        || $grupo->instituicaoTutora()?->id === $user->instituicao_id
+                    );
+            }
+
+            // Coordenador do curso tutelado ou do grupo disciplinar, mesmo sem a role específica
             if ($user->hasPermissionTo('grupopap.view')) {
-                $ehCoordenador = CursoTuteladoProfessor::where('professor_id', $professor?->id)
+                $ehCoordenador = CursoTuteladoProfessor::where('professor_id', $professor->id)
                     ->where('coordenador', true)
                     ->exists();
 
                 if ($ehCoordenador) {
-                    return $grupoPap->instituicao()?->id === $user->instituicao_id
-                        || $grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
+                    return $grupo->instituicao()?->id === $user->instituicao_id
+                        || $grupo->instituicaoTutora()?->id === $user->instituicao_id;
                 }
             }
 
-            $daFturma = $grupoPap->turma
-                ->professores()
-                ->where('professores.id', $professor?->id)
-                ->exists();
-
-            $ehJurado = $grupoPap->jurados()
-                ->where('professor_id', $professor?->id)
-                ->exists();
-
-            $ehTutor = $grupoPap->professor_tutor_id === $professor?->id;
-
-            return ($daFturma || $ehJurado || $ehTutor)
-                && $grupoPap->instituicao()?->id === $user->instituicao_id;
+            return false;
         }
 
         return $user->hasPermissionTo('grupopap.view')
             && (
-                $grupoPap->instituicao()?->id === $user->instituicao_id
-                || $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
+                $grupo->instituicao()?->id === $user->instituicao_id
+                || $grupo->instituicaoTutora()?->id === $user->instituicao_id
             );
     }
 
@@ -72,7 +94,8 @@ class GrupoPapPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('grupopap.create')
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('grupopap.create')
             && $user->instituicao_id !== null;
     }
 
@@ -83,6 +106,10 @@ class GrupoPapPolicy
      */
     public function update(User $user, GrupoPap $grupoPap): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
         if (! $user->hasRole('Professor')) {
             return $user->hasPermissionTo('grupopap.update')
                 && $grupoPap->instituicao()?->id === $user->instituicao_id;
@@ -90,15 +117,9 @@ class GrupoPapPolicy
 
         $professor = $user->professor;
 
-        // ✅ Só professor DA TURMA ou TUTOR (não jurado)
-        $daFturma = $grupoPap->turma
-            ->professores()
-            ->where('professores.id', $professor?->id)
-            ->exists();
-
         $ehTutor = $grupoPap->professor_tutor_id === $professor?->id;
 
-        return ($daFturma || $ehTutor)
+        return $ehTutor
             && $grupoPap->instituicao()?->id === $user->instituicao_id;
     }
 
@@ -109,6 +130,10 @@ class GrupoPapPolicy
      */
     public function corrigirTema(User $user, GrupoPap $grupoPap): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
         if (! $grupoPap->podeSerEditado()) {
             return false;
         }
@@ -123,6 +148,53 @@ class GrupoPapPolicy
             ->exists();
     }
 
+    public function atualizarTema(User $user, GrupoPap $grupoPap): bool
+    {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
+        if ($user->hasRole('Aluno')) {
+            return $this->corrigirTema($user, $grupoPap);
+        }
+
+        return $user->can('grupopap.update')
+            && $grupoPap->instituicao()?->id === $user->instituicao_id;
+    }
+
+    public function reenviarTema(User $user, GrupoPap $grupoPap): bool
+    {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
+        if (! $grupoPap->podeSerReenviado()) {
+            return false;
+        }
+
+        if ($user->hasRole('Aluno')) {
+            return $user->can('grupopap.corrigirTema')
+                && $grupoPap->elementos()
+                    ->whereHas('aluno', fn ($query) => $query->where('user_id', $user->id))
+                    ->exists();
+        }
+
+        return $user->can('grupopap.update')
+            && $grupoPap->instituicao()?->id === $user->instituicao_id;
+    }
+
+    public function viewHistorico(User $user, GrupoPap $grupoPap): bool
+    {
+        return $this->view($user, $grupoPap);
+    }
+
+    public function viewMelhorias(User $user): bool
+    {
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('grupopap.solicitarMelhoria')
+            && $user->instituicao_id !== null;
+    }
+
     /**
      * Determina se o utilizador pode atualizar a nota do grupo PAP.
      *
@@ -130,7 +202,8 @@ class GrupoPapPolicy
      */
     public function aprovar(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('grupopap.aprovar')
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('grupopap.aprovar')
             && $grupoPap->podeSerAprovado()
             && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id; // ← adicionar
     }
@@ -142,7 +215,8 @@ class GrupoPapPolicy
      */
     public function reprovar(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('grupopap.reprovar')
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('grupopap.reprovar')
             && $grupoPap->podeSerAprovado()
             && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id; // ← adicionar
     }
@@ -154,7 +228,8 @@ class GrupoPapPolicy
      */
     public function solicitarMelhoria(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('grupopap.solicitarMelhoria')
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('grupopap.solicitarMelhoria')
             && $grupoPap->podeSerAprovado()
             && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id; // ← adicionar
     }
@@ -166,7 +241,7 @@ class GrupoPapPolicy
      */
     public function definirData(User $user, GrupoPap $grupoPap): bool
     {
-        if ($grupoPap->status_aprovacao !== 'aprovado') {
+        if ($user->hasRole('Secretario do Curso') || $grupoPap->status_aprovacao !== 'aprovado') {
             return false;
         }
 
@@ -181,7 +256,7 @@ class GrupoPapPolicy
      */
     public function definirTema(User $user, GrupoPap $grupoPap): bool
     {
-        if (! $grupoPap->podeDefinirTema()) {
+        if ($user->hasRole('Secretario do Curso') || ! $grupoPap->podeDefinirTema()) {
             return false;
         }
 
@@ -197,23 +272,21 @@ class GrupoPapPolicy
 
     /**
      * Determina se o utilizador pode aprovar o grupo PAP como tutor.
-     *
-     * Requer que o grupo pertença à sua instituição e que seja tutor do grupo.
      */
     public function aprovarComoTutor(User $user, GrupoPap $grupoPap): bool
     {
-        return $grupoPap->podeSerAprovadoPeloTutor()
+        return ! $user->hasRole('Secretario do Curso')
+            && $grupoPap->podeSerAprovadoPeloTutor()
             && $grupoPap->professor_tutor_id === $user->professor?->id;
     }
 
     /**
      * Determina se o utilizador pode reprovar o grupo PAP como tutor.
-     *
-     * Requer que o grupo pertença à sua instituição e que seja tutor do grupo.
      */
     public function solicitarMelhoriaComoTutor(User $user, GrupoPap $grupoPap): bool
     {
-        return $grupoPap->podeSerAprovadoPeloTutor() // status === 'submetido'
+        return ! $user->hasRole('Secretario do Curso')
+            && $grupoPap->podeSerAprovadoPeloTutor() // status === 'submetido'
             && $grupoPap->professor_tutor_id === $user->professor?->id;
     }
 
@@ -225,6 +298,10 @@ class GrupoPapPolicy
      */
     public function submeterTrabalho(User $user, GrupoPap $grupoPap): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
         $trabalho = $grupoPap->trabalhoPap;
 
         if (! $trabalho || ! $trabalho->podeSerSubmetido()) {
@@ -241,6 +318,10 @@ class GrupoPapPolicy
      */
     public function aprovarTrabalhoComoTutor(User $user, GrupoPap $grupoPap): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
         $trabalho = $grupoPap->trabalhoPap;
 
         return $trabalho?->podeSerAnalisadoPeloTutor()
@@ -252,6 +333,10 @@ class GrupoPapPolicy
      */
     public function solicitarCorrecaoTrabalhoComoTutor(User $user, GrupoPap $grupoPap): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
         $trabalho = $grupoPap->trabalhoPap;
 
         return $trabalho?->podeSerAnalisadoPeloTutor()
@@ -263,6 +348,10 @@ class GrupoPapPolicy
      */
     public function aprovarTrabalhoComoCoordenacao(User $user, GrupoPap $grupoPap): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
         $trabalho = $grupoPap->trabalhoPap;
 
         return $trabalho?->podeSerAnalisadoPelaCoordenacao()
@@ -275,6 +364,10 @@ class GrupoPapPolicy
      */
     public function solicitarCorrecaoTrabalhoComoCoordenacao(User $user, GrupoPap $grupoPap): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
         $trabalho = $grupoPap->trabalhoPap;
 
         return $trabalho?->podeSerAnalisadoPelaCoordenacao()
@@ -305,9 +398,12 @@ class GrupoPapPolicy
             return true;
         }
 
-        // Coordenação da instituição tutora
-        return $user->can('grupopap.aprovar')
-            && $grupoPap->instituicaoTutora()?->id === $user->instituicao_id;
+        // Leitores da instituição do grupo ou da instituição tutora
+        return $user->can('grupopap.view')
+            && (
+                $grupoPap->instituicao()?->id === $user->instituicao_id
+                || $grupoPap->instituicaoTutora()?->id === $user->instituicao_id
+            );
     }
 
     /**
@@ -317,7 +413,8 @@ class GrupoPapPolicy
      */
     public function delete(User $user, GrupoPap $grupoPap): bool
     {
-        return $user->can('grupopap.delete')
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('grupopap.delete')
             && $grupoPap->instituicao()?->id === $user->instituicao_id;
     }
 
@@ -335,5 +432,22 @@ class GrupoPapPolicy
     public function forceDelete(User $user, GrupoPap $grupoPap): bool
     {
         return false;
+    }
+
+    public function selecionarInstituicao(User $user): bool
+    {
+        return $user->can('grupopap.selecionarInstituicao')
+            && $user->instituicao_id !== null;
+    }
+
+    public function selecionarAnoLectivo(User $user): bool
+    {
+        return $user->can('grupopap.selecionarAnoLectivo')
+            && $user->instituicao_id !== null;
+    }
+
+    private function isPapDirector(User $user): bool
+    {
+        return $user->hasAnyRole(['Director', 'Subdirector']);
     }
 }

@@ -38,6 +38,10 @@ class BancaJuriPapPolicy
      */
     public function create(User $user, GrupoPap $grupoPap): bool
     {
+        if ($user->hasRole('Secretario do Curso')) {
+            return false;
+        }
+
         // Tem de ter data de defesa definida
         if (is_null($grupoPap->data_defesa)) {
             return false;
@@ -52,7 +56,8 @@ class BancaJuriPapPolicy
      */
     public function update(User $user, BancaJuriPap $bancaJuriPap): bool
     {
-        return $user->can('bancajuripap.update')
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('bancajuripap.update')
             && $this->pertenceAoGrupoOuTutela($user, $bancaJuriPap->grupoPap);
     }
 
@@ -61,7 +66,8 @@ class BancaJuriPapPolicy
      */
     public function delete(User $user, BancaJuriPap $bancaJuriPap): bool
     {
-        return $user->can('bancajuripap.delete')
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('bancajuripap.delete')
             && $this->pertenceAoGrupoOuTutela($user, $bancaJuriPap->grupoPap);
     }
 

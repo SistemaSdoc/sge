@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Tenant;
 
-use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
-use App\Rules\ProfessorTitularDoCurso;
+use App\Rules\EstudoCasoPapUnico;
+use App\Rules\TemaPapUnico;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -26,27 +26,41 @@ class StoreIndependenteRequest extends FormRequest
      */
     public function rules(): array
     {
-        $cursoTutelado = $this->input('curso_tutelado_id')
-            ? CursoTutelado::find($this->input('curso_tutelado_id'))
-            : null;
+        $turma = $this->turma();
+        $cursoTuteladoId = $turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id;
+        $anoLectivoId = $turma?->ano_lectivo_id;
+        $cursoClasseTurnoId = $turma?->curso_classe_turno_id;
 
         return [
             'curso_tutelado_id' => ['required', 'exists:curso_tutelado,id'],
             'curso_classe_id' => ['nullable', 'exists:curso_classe,id'],
             'curso_classe_turno_id' => ['nullable', 'exists:curso_classe_turno,id'],
             'turma_id' => ['required', 'exists:turmas,id'],
-            'professor_tutor_id' => [
-                'required',
-                'exists:professores,id',
-                $cursoTutelado ? new ProfessorTitularDoCurso($cursoTutelado) : null,
-            ],
             'nome_grupo' => 'required|string|max:255',
-            'tema_grupo' => 'nullable|string|max:255',
+            'tema_grupo' => [
+                'nullable',
+                'string',
+                'max:255',
+                ...($cursoTuteladoId && $anoLectivoId && $cursoClasseTurnoId
+                    ? [new TemaPapUnico((string) $cursoTuteladoId, (string) $anoLectivoId, (string) $cursoClasseTurnoId)]
+                    : []),
+            ],
             'problema' => 'nullable|string',
             'objectivos' => 'nullable|string',
             'alunos' => 'required|array|min:1',
             'alunos.*' => 'exists:alunos,id',
-            'estudo_caso' => 'nullable|string',
+            'estudo_caso' => [
+                'nullable',
+                'string',
+                ...($cursoTuteladoId && $anoLectivoId && $cursoClasseTurnoId
+                    ? [new EstudoCasoPapUnico(
+                        (string) $cursoTuteladoId,
+                        (string) $anoLectivoId,
+                        (string) $cursoClasseTurnoId,
+                        $this->input('tema_grupo'),
+                    )]
+                    : []),
+            ],
             'nota_final' => 'nullable|numeric|min:0|max:20',
             'data_defesa' => 'nullable|date',
         ];
@@ -59,8 +73,6 @@ class StoreIndependenteRequest extends FormRequest
             'curso_tutelado_id.exists' => 'O curso selecionado não existe.',
             'turma_id.required' => 'Selecione uma turma.',
             'turma_id.exists' => 'A turma selecionada não existe.',
-            'professor_tutor_id.required' => 'Selecione um professor tutor.',
-            'professor_tutor_id.exists' => 'O professor selecionado não existe.',
             'nome_grupo.required' => 'O nome do grupo é obrigatório.',
             'alunos.required' => 'Seleciona pelo menos um aluno.',
             'alunos.min' => 'Seleciona pelo menos um aluno.',
@@ -77,12 +89,24 @@ class StoreIndependenteRequest extends FormRequest
                 return;
             }
 
-            $turma = Turma::with('cursoClasseTurno.cursoClasse.classe')->find($turmaId);
+            $turma = $this->turma();
             $classeNome = $turma?->cursoClasseTurno?->cursoClasse?->classe?->nome ?? '';
 
             if (! str_contains(strtolower($classeNome), '13')) {
                 $afterValidator->errors()->add('turma_id', 'Os grupos PAP só podem ser criados para turmas da 13ª classe.');
             }
+
+            $cursoTuteladoId = $turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id;
+
+            if ($cursoTuteladoId && (string) $cursoTuteladoId !== (string) $this->input('curso_tutelado_id')) {
+                $afterValidator->errors()->add('curso_tutelado_id', 'O curso seleccionado não corresponde à turma.');
+            }
         });
+    }
+
+    private function turma(): ?Turma
+    {
+        return Turma::with('cursoClasseTurno.cursoClasse.classe')
+            ->find($this->input('turma_id'));
     }
 }

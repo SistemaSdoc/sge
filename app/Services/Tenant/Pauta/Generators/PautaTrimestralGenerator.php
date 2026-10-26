@@ -121,8 +121,8 @@ class PautaTrimestralGenerator
 
         return [
             'numero' => $numero,
-            'aluno_id' => $ta->aluno->id,
-            'nome' => $ta->aluno->inscricao?->candidato?->nome,
+            'aluno_id' => $ta->aluno?->id,
+            'nome' => $ta->aluno?->inscricao?->candidato?->nome,
             'situacao' => $ta->situacao,
             'notas' => $notas,
             'resultado' => $resultado,

@@ -106,7 +106,7 @@ export default function LancamentosHistoricoTable({
   };
 
   // monta payload no formato que o store espera
-  const recolherDados = () => {
+  const recolherDados = (accao) => {
     const notas = {};
     disciplinas.forEach((d) => {
       notas[d.tdp_id] = {
@@ -119,9 +119,11 @@ export default function LancamentosHistoricoTable({
     return {
       turma_aluno_id: turmaAluno.id,
       periodo: parseInt(periodo),
+      accao, // ← aqui
       notas,
     };
   };
+  const inputNota = 'w-18 min-w-18 text-center';
 
   // ── render ─────────────────────────────────────────────────────────────────
 
@@ -204,26 +206,18 @@ export default function LancamentosHistoricoTable({
                   type="button"
                   variant="outline"
                   disabled={isPending}
-                  onClick={() => onSubmit('guardar', recolherDados())}
+                  onClick={() => onSubmit('guardar', recolherDados('guardar'))}
                 >
-                  {isPending && (
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                  )}
                   Guardar rascunho
                 </Button>
+
                 <Button
                   type="button"
                   disabled={isPending || !temNotasPreenchidas()}
-                  title={
-                    !temNotasPreenchidas()
-                      ? 'Preencha pelo menos uma nota antes de finalizar'
-                      : ''
+                  onClick={() =>
+                    onSubmit('finalizar', recolherDados('finalizar'))
                   }
-                  onClick={() => onSubmit('finalizar', recolherDados())}
                 >
-                  {isPending && (
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                  )}
                   Finalizar trimestre
                 </Button>
               </>
@@ -237,11 +231,11 @@ export default function LancamentosHistoricoTable({
               <TableRow className="bg-muted/72">
                 <TableHead className="w-1 px-4">#</TableHead>
                 <TableHead className="w-48 px-4">Disciplina</TableHead>
-                <TableHead className="w-1 text-center">MAC</TableHead>
-                <TableHead className="w-1 text-center">NPP</TableHead>
-                <TableHead className="w-1 text-center">NPT</TableHead>
+                <TableHead className={inputNota}>MAC</TableHead>
+                <TableHead className={inputNota}>NPP</TableHead>
+                <TableHead className={inputNota}>NPT</TableHead>
                 <TableHead className="w-1 text-center">MT</TableHead>
-                <TableHead className="w-1 text-center">F.I</TableHead>
+                <TableHead className={inputNota}>F.I</TableHead>
                 <TableHead className="w-8 px-2" />
                 <TableHead className="w-20 px-4 text-end">Resultado</TableHead>
               </TableRow>

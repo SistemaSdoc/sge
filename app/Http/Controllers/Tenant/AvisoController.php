@@ -15,7 +15,7 @@ use Inertia\Inertia;
 class AvisoController extends Controller
 {
     // GET /api/avisos — painel admin
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Aviso::class);
 
@@ -28,8 +28,10 @@ class AvisoController extends Controller
             $instituicaoId,
             fn ($q) => $q->where('instituicao_id', $instituicaoId)
         )
+            ->search($request->string('search')->toString())
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         $avisos->getCollection()->transform(function ($aviso) use ($user) {
             return [
@@ -43,6 +45,7 @@ class AvisoController extends Controller
 
         return Inertia::render('tenant/avisos/index', [
             'avisos' => $avisos,
+            'filters' => $request->only('search'),
             'can' => [
                 'create' => $user->can('create', Aviso::class),
             ],

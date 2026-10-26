@@ -20,6 +20,13 @@ class RolePermissionSeeder extends Seeder
                 'instituicoes.update',
                 'colegios.viewAny',
 
+                // usuários
+                'usuarios.viewAny',
+                'usuarios.view',
+                'usuarios.create',
+                'usuarios.update',
+                'usuarios.delete',
+
                 // solicitacao-edicao-pauta
                 'solicitacao-edicao-pauta.viewAny',
                 'solicitacao-edicao-pauta.view',
@@ -44,13 +51,6 @@ class RolePermissionSeeder extends Seeder
                 'turmas.update',
                 'turmas.delete',
 
-                // Turnos
-                // 'turnos.viewAny',
-                // 'turnos.view',
-                // 'turnos.create',
-                // 'turnos.update',
-                // 'turnos.delete',
-
                 // Inscrições
                 'inscricoes.viewAny',
                 'inscricoes.view',
@@ -72,6 +72,8 @@ class RolePermissionSeeder extends Seeder
                 'classeturnodisciplina.create',
                 'classeturnodisciplina.update',
                 'classeturnodisciplina.delete',
+                'classeturnodisciplina.definirProfessor',
+                'classeturnodisciplina.gerirHorarios',
 
                 // Curso Classe Turno
                 'cursoclasseturno.viewAny',
@@ -114,9 +116,11 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.update',
                 'grupopap.delete',
                 'grupopap.definirData',
-                'grupopap.aprovar',
-                'grupopap.reprovar',
-                'grupopap.solicitarMelhoria',
+                'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
+
+                // Sugestões de Temas PAP
+                'sugestaotema.gerir',
 
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
@@ -133,20 +137,6 @@ class RolePermissionSeeder extends Seeder
                 'elementogrupopap.delete',
                 'elementogrupopap.atualizarNota',
 
-                // Classes
-                // 'classes.viewAny',
-                // 'classes.view',
-                // 'classes.create',
-                // 'classes.update',
-                // 'classes.delete',
-
-                // Cursos
-                // 'cursos.viewAny',
-                // 'cursos.view',
-                // 'cursos.create',
-                // 'cursos.update',
-                // 'cursos.delete',
-
                 // Cursos Tutelados
                 'curso-tutelado.viewAny',
                 'curso-tutelado.view',
@@ -158,7 +148,7 @@ class RolePermissionSeeder extends Seeder
                 'notas.export',
 
                 // Outros
-                'utilizadores.gerir',
+                'usuarios.gerir',
                 'acessos.viewAny',
                 'acessos.create',
                 'relatorios.view',
@@ -184,14 +174,21 @@ class RolePermissionSeeder extends Seeder
                 'documentos.exportar',
 
                 // Confirmação de Matrícula
-                'confirmacoes.viewAny',
-                'confirmacoes.confirmar',
+                'confirmacoes.matricula.viewAny',
+                'confirmacoes.matricula.confirmar',
             ],
 
             'Subdirector' => [
                 // Instituições
                 'instituicoes.view',
-                'instituicoes.update',
+
+                // usuários
+                'usuarios.viewAny',
+                'usuarios.view',
+                'usuarios.create',
+                'usuarios.update',
+                'usuarios.delete',
+                'usuarios.gerir',
 
                 // Regra de Avaliação
                 'regra-avaliacao.viewAny',
@@ -233,6 +230,8 @@ class RolePermissionSeeder extends Seeder
                 'classeturnodisciplina.create',
                 'classeturnodisciplina.update',
                 'classeturnodisciplina.delete',
+                'classeturnodisciplina.definirProfessor',
+                'classeturnodisciplina.gerirHorarios',
 
                 // Curso Classe Turno
                 'cursoclasseturno.viewAny',
@@ -268,6 +267,11 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.update',
                 'grupopap.delete',
                 'grupopap.definirData',
+                'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
+
+                // Sugestões de Temas PAP
+                'sugestaotema.gerir',
 
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
@@ -290,13 +294,6 @@ class RolePermissionSeeder extends Seeder
                 // 'classes.create',
                 // 'classes.update',
                 // 'classes.delete',
-
-                // Cursos
-                // 'cursos.viewAny',
-                // 'cursos.view',
-                // 'cursos.create',
-                // 'cursos.update',
-                // 'cursos.delete',
 
                 // Cursos Tutelados
                 'curso-tutelado.viewAny',
@@ -338,8 +335,8 @@ class RolePermissionSeeder extends Seeder
                 'relatorios.view',
 
                 // Confirmação de Matrícula
-                'confirmacoes.viewAny',
-                'confirmacoes.confirmar',
+                'confirmacoes.matricula.viewAny',
+                'confirmacoes.matricula.confirmar',
             ],
 
             'Secretaria' => [
@@ -371,6 +368,8 @@ class RolePermissionSeeder extends Seeder
                 // classeturnodisciplina
                 'classeturnodisciplina.viewAny',
                 'classeturnodisciplina.view',
+                'classeturnodisciplina.definirProfessor',
+                'classeturnodisciplina.gerirHorarios',
 
                 // Curso Classe Turno
                 'cursoclasseturno.viewAny',
@@ -406,6 +405,8 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.update',
                 'grupopap.delete',
                 'grupopap.definirData',
+                'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
 
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
@@ -417,12 +418,6 @@ class RolePermissionSeeder extends Seeder
                 'elementogrupopap.view',
                 'elementogrupopap.create',
                 'elementogrupopap.update',
-
-                // Cursos
-                // 'cursos.viewAny',
-                // 'cursos.view',
-                // 'cursos.create',
-                // 'cursos.update',
 
                 // Classes
                 // 'classes.viewAny',
@@ -450,11 +445,37 @@ class RolePermissionSeeder extends Seeder
                 'itemspagaveis.update',
 
                 // Confirmação de Matrícula
-                'confirmacoes.viewAny',
-                'confirmacoes.confirmar',
+                'confirmacoes.matricula.viewAny',
+                'confirmacoes.matricula.confirmar',
+            ],
+
+            'Secretario do Curso' => [
+                'historico.manage',
+                'grupopap.viewAny',
+                'grupopap.view',
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
+                'cursoclasse.viewAny',
+                'cursoclasse.view',
+                'cursoclasseturno.viewAny',
+                'cursoclasseturno.view',
+                'turmas.viewAny',
+                'turmas.view',
+                'classeturnodisciplina.viewAny',
+                'classeturnodisciplina.view',
+                'inscricoes.create',
+                'inscricoes.viewAny',
+                'inscricoes.view',
+                'alunos.viewAny',
+                'alunos.view',
+                'pautas.viewAny',
+                'pautas.view',
             ],
 
             'Coordenador' => [
+
+                'curso.secretarios.manage',
+                'historico.manage',
 
                 'instituicoes.view',
                 'instituicoes.update',
@@ -473,6 +494,7 @@ class RolePermissionSeeder extends Seeder
                 'turmas.view',
                 'turmas.create',
                 'turmas.update',
+                'turmas.delete',
 
                 'pautas.viewAny',
                 'pautas.view',
@@ -498,6 +520,12 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.reprovar',
                 'grupopap.definirData',
                 'grupopap.solicitarMelhoria',
+                'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
+
+                // Sugestões de temas PAP
+                'sugestaotema.gerir',
+                'sugestaotema.aprovar',
 
                 'elementogrupopap.viewAny',
                 'elementogrupopap.view',
@@ -514,18 +542,68 @@ class RolePermissionSeeder extends Seeder
                 'curso-tutelado.view',
                 'curso-tutelado.update',
 
+                // Curso Classe
+                'cursoclasse.viewAny',
+                'cursoclasse.view',
+
+                // classeturnodisciplina
+                'classeturnodisciplina.viewAny',
+                'classeturnodisciplina.view',
+                'classeturnodisciplina.create',
+                'classeturnodisciplina.update',
+                'classeturnodisciplina.delete',
+                'classeturnodisciplina.definirProfessor',
+                'classeturnodisciplina.gerirHorarios',
+
                 // Confirmação de Matrícula
-                'confirmacoes.viewAny',
-                'confirmacoes.confirmar',
+                'confirmacoes.matricula.viewAny',
+                'confirmacoes.matricula.confirmar',
+            ],
+
+            'Coordenador do Grupo Disciplinar' => [
+                'grupopap.viewAny',
+                'grupopap.view',
+                'grupopap.aprovar',
+                'grupopap.reprovar',
+                'grupopap.solicitarMelhoria',
+                'elementogrupopap.viewAny',
+                'elementogrupopap.view',
+                'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
+
+                'instituicoes.view',
+                // Sugestões de temas PAP
+                'sugestaotema.gerir',
+                'sugestaotema.aprovar',
+
+                // Cursos Tutelados
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
+
+            ],
+
+            'Membro do Grupo Disciplinar' => [
+                'grupopap.viewAny',
+                'grupopap.view',
+                'grupopap.aprovar',
+                'grupopap.reprovar',
+                'grupopap.solicitarMelhoria',
+                'grupopap.selecionarInstituicao',
+                'grupopap.selecionarAnoLectivo',
+
+                'instituicoes.view',
+                // Cursos Tutelados
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
+                'curso-tutelado.update',
+
+                // Sugestões de temas PAP
+                'sugestaotema.gerir',
             ],
 
             'Professor' => [
-                // Alunos
-                // 'alunos.viewAny',
-                // 'alunos.view',
-
-                // Professores
-                'professores.view',
+                // Usuários
+                'usuarios.view',
 
                 // Turmas
                 'turmas.viewAny',
@@ -534,23 +612,22 @@ class RolePermissionSeeder extends Seeder
                 // Pautas
                 // 'pautas.viewAny',
                 'pautas.view',
+                'submissao-prova.viewAny',
 
                 // Notas
                 'notas.create',
                 'notas.update',
 
-                // Professor e Coordenador (já têm notas.create/update)
                 'pautas.solicitarEdicao',
                 'pautas.finalizar',
 
                 // Avisos
-                // 'avisos.viewAny',
+                'avisos.viewAny',
                 'avisos.view',
 
                 // Grupo PAP
                 'grupopap.viewAny',
                 'grupopap.view',
-                'grupopap.create',
                 'grupopap.update',
 
                 // Elemento Grupo PAP
@@ -568,16 +645,17 @@ class RolePermissionSeeder extends Seeder
             ],
 
             'Aluno' => [
+                // Notas
                 'notas.viewAny',
+
+                // Grelha Curricular
                 'grelha.viewAny',
 
-                'grupopap.viewAny',
+                // PAP
                 'grupopap.view',
                 'grupopap.corrigirTema',
                 'grupopap.definirTema',
             ],
-
-            'Candidato' => [],
         ];
 
         // Garante que todas as permissões existem no guard correto antes de sincronizar
@@ -590,8 +668,14 @@ class RolePermissionSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         foreach ($mapa as $roleName => $permissions) {
-            Role::findByName($roleName, 'tenant')->syncPermissions(
-                Permission::whereIn('name', $permissions)->where('guard_name', 'tenant')->get()
+            $role = Role::firstOrCreate(
+                ['name' => $roleName, 'guard_name' => 'tenant']
+            );
+
+            $role->syncPermissions(
+                Permission::whereIn('name', $permissions)
+                    ->where('guard_name', 'tenant')
+                    ->get()
             );
         }
 

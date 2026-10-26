@@ -2,7 +2,17 @@ import { router } from '@inertiajs/react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreHorizontalIcon, Minus, Pencil, Dot } from 'lucide-react';
+import {
+  AlertTriangle,
+  MoreHorizontalIcon,
+  Minus,
+  Pencil,
+  Dot,
+} from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { destroy as destroyAluno } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
+import { destroy as cancelarInscricao } from '@/actions/App/Http/Controllers/Tenant/InscricaoController';
+import { useDialog } from '@/hooks/use-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +32,32 @@ function getInitials(nome = '') {
 }
 
 export function AlunoHeader({ aluno }) {
-  const hasAnyAction = aluno.can?.update || aluno.can?.delete;
+  const { confirm, deleteConfirm } = useDialog();
+  const bloqueios = aluno.remocao?.bloqueios ?? [];
+  const temHistorico = bloqueios.length > 0;
+  const hasAnyAction =
+    aluno.can?.view ||
+    aluno.can?.update ||
+    aluno.can?.delete ||
+    aluno.can?.cancelar_matricula;
+
+  function removerAluno() {
+    deleteConfirm({
+      title: 'Remover aluno?',
+      description: `Isto vai apagar também a inscrição ${aluno.matricula || aluno.inscricao_id} e as ligações sem histórico. Esta acção não pode ser desfeita.`,
+      confirmLabel: 'Apagar aluno',
+      confirmFn: () => router.delete(destroyAluno.url(aluno.id)),
+    });
+  }
+
+  function anularMatricula() {
+    confirm({
+      title: 'Anular matrícula?',
+      description: `A remoção está bloqueada por: ${bloqueios.join(', ')}. A matrícula será anulada e estes registos serão preservados.`,
+      confirmLabel: 'Anular matrícula',
+      confirmFn: () => router.delete(cancelarInscricao.url(aluno.inscricao_id)),
+    });
+  }
 
   return (
     <Card className="overflow-hidden pt-0!">
@@ -39,7 +74,7 @@ export function AlunoHeader({ aluno }) {
         <div className="absolute inset-0 bg-black/20" />
 
         {hasAnyAction && (
-          <div className="absolute top-4 right-4 z-10">
+          <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -64,14 +99,15 @@ export function AlunoHeader({ aluno }) {
                 {aluno.can?.update && aluno.can?.delete && (
                   <DropdownMenuSeparator />
                 )}
+                {aluno.can?.cancelar_matricula && (
+                  <DropdownMenuItem onClick={anularMatricula}>
+                    Anular matrícula
+                  </DropdownMenuItem>
+                )}
                 {aluno.can?.delete && (
                   <DropdownMenuItem
                     variant="destructive"
-                    onClick={() =>
-                      router.delete(`/dashboard/alunos/${aluno.id}`, {
-                        onSuccess: () => router.visit('/dashboard/alunos'),
-                      })
-                    }
+                    onClick={removerAluno}
                   >
                     Remover
                   </DropdownMenuItem>
@@ -110,9 +146,25 @@ export function AlunoHeader({ aluno }) {
           </span>
 
           <span className="flex items-center gap-1">
-            Turma: {aluno.turma.nome || <Minus size={14} />}
+            Turma: {aluno.turma.nome || <Minus size={14} />} <Dot />
+          </span>
+
+          {/* Número de processo */}
+          <span className="flex items-center gap-1">
+            Nº Proc.: {aluno.numero_processo || <Minus size={14} />}
           </span>
         </div>
+
+        {/* {temHistorico && (
+          <Alert variant="warning" className="mt-4 max-w-2xl text-left">
+            <AlertTriangle />
+            <AlertTitle>Não é possível remover este aluno</AlertTitle>
+            <AlertDescription>
+              Existem registos de {bloqueios.join(', ')}. Anule a matrícula em
+              vez de remover o aluno.
+            </AlertDescription>
+          </Alert>
+        )} */}
       </div>
     </Card>
   );

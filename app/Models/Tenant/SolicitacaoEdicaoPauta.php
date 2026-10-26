@@ -43,6 +43,6 @@ class SolicitacaoEdicaoPauta extends Model
 
     public function decididoPor()
     {
-        return $this->belongsTo(User::class, 'decidido_por');
+        return $this->belongsTo(User::class, 'decidido_por')->withTrashed();
     }
 }

@@ -2,205 +2,140 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\Notificacao\DecidirTutela as DecidirTutelaAction;
+use App\Actions\Tenant\Notificacao\MarkAllNotificationsAsRead;
+use App\Actions\Tenant\Notificacao\MarkNotificationAsRead;
 use App\Enums\TutelaStatus;
 use App\Http\Controllers\Controller;
-use App\Models\Central\CursoTuteladoShared;
-use App\Notifications\PropinaEmAtrasoNotification;
-use App\Services\Tenant\VerificadorPropinaService;
+use App\Models\Tenant\User;
+use App\Services\Tenant\NotificacaoService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class NotificacaoController extends Controller
 {
     public function __construct(
-        private readonly VerificadorPropinaService $verificador
+        private readonly NotificacaoService $notificacaoService,
+        private readonly MarkNotificationAsRead $markNotificationAsRead,
+        private readonly MarkAllNotificationsAsRead $markAllNotificationsAsRead,
+        private readonly DecidirTutelaAction $decidirTutelaAction,
     ) {}
 
+    /**
+     * Mostra a lista de notificações do usuário autenticado.
+     */
     public function index(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user('tenant');
 
-        $this->limparNotificacoesResolvidas($user);
-
-        $notificacoes = $user->notifications()
-            ->latest()
-            ->limit(20)
-            ->get()
-            ->map(fn ($n) => [
-                'id' => $n->id,
-                'tipo' => $n->data['tipo'] ?? null,
-                'titulo' => $n->data['titulo'] ?? '',
-                'mensagem' => $n->data['mensagem'] ?? '',
-                'meses' => $n->data['meses'] ?? [],
-                'valor_total' => $n->data['valor_total'] ?? null,
-                'lida' => $n->read_at !== null,
-                'criada_em' => $n->created_at->diffForHumans(),
-            ]);
-
-        Log::debug('NotificacaoController@index', [
-            'user_id' => $user->id,
-            'total' => $notificacoes->count(),
-        ]);
-
-        $payload = [
-            'notificacoes' => $notificacoes,
-            'nao_lidas' => $user->unreadNotifications()->count(),
-        ];
-
-        if ($request->expectsJson()) {
-            return response()->json($payload);
-        }
+        abort_unless($user instanceof User, 401);
 
         return Inertia::render('tenant/notificacoes/index', [
-            'notificacoes' => $user->notifications()->latest()->paginate(20)->through(
-                fn ($notification): array => $this->serializar($notification)
-            ),
-            'naoLidas' => $payload['nao_lidas'],
+            'notificacoes' => Inertia::scroll(fn () => $this->notificacaoService->pagina($user)
+                ->through(fn (DatabaseNotification $notificacao) => $this->notificacaoService->formatarNotificacao($notificacao))),
+            'naoLidas' => $this->notificacaoService->naoLidas($user),
         ]);
     }
 
-    public function show(Request $request, string $notification)
+    public function sino(Request $request)
     {
-        $item = $request->user()->notifications()->findOrFail($notification);
+        $user = $request->user('tenant');
+        abort_unless($user instanceof User, 401);
 
-        return $this->renderShow($item);
-    }
+        if (! $request->expectsJson()) {
+            return redirect()->route('tenant.dashboard.notificacoes.index');
+        }
 
-    public function showTutela(Request $request, string $shared)
-    {
-        $item = $request->user()->notifications()
-            ->get()
-            ->first(fn ($notification): bool => ($notification->data['tipo'] ?? null) === 'solicitacao_tutela'
-                && ($notification->data['curso_tutelado_shared_id'] ?? null) === $shared);
-
-        abort_unless($item, 404);
-
-        return $this->renderShow($item);
-    }
-
-    private function renderShow(object $item)
-    {
-        $item->markAsRead();
-
-        return Inertia::render('tenant/notificacoes/show', [
-            'notificacao' => $this->serializar($item, true),
+        return response()->json([
+            'notificacoes' => $this->notificacaoService->sino($user)
+                ->map(fn (DatabaseNotification $notificacao) => $this->notificacaoService->formatarNotificacao($notificacao))
+                ->values(),
+            'nao_lidas' => $this->notificacaoService->naoLidas($user),
         ]);
-    }
-
-    public function aprovarTutela(Request $request, string $notification)
-    {
-        return $this->decidirTutela($request, $notification, TutelaStatus::ACTIVO);
-    }
-
-    public function rejeitarTutela(Request $request, string $notification)
-    {
-        return $this->decidirTutela($request, $notification, TutelaStatus::REJEITADO);
     }
 
     /**
-     * Remove notificações de propina em atraso cuja dívida já foi paga.
-     * Corre a cada carregamento do sino — barato, porque só há um aluno
-     * por user e a verificação já é usada no middleware.
+     * Mostra os detalhes de uma notificação específica.
      */
-    private function limparNotificacoesResolvidas($user): void
+    public function show(Request $request, string $notification): Response
     {
-        $aluno = $user->aluno;
+        $user = $request->user('tenant');
+        abort_unless($user instanceof User, 401);
 
-        if (! $aluno) {
-            return;
-        }
+        $item = $user->notifications()->findOrFail($notification);
 
-        $pendenciasAtuais = $this->verificador->pendenciasDoAluno($aluno);
-        $assinaturaAtual = md5(count($pendenciasAtuais).'-'.collect($pendenciasAtuais)->sum('valor'));
-
-        $notificacoesPropina = $user->notifications()
-            ->where('type', PropinaEmAtrasoNotification::class)
-            ->get();
-
-        foreach ($notificacoesPropina as $n) {
-            $assinaturaNotificacao = $n->data['assinatura'] ?? null;
-
-            // Se já não há pendências, ou se a assinatura da notificação
-            // não bate com o estado actual da dívida, está resolvida.
-            $resolvida = empty($pendenciasAtuais) || $assinaturaNotificacao !== $assinaturaAtual;
-
-            if ($resolvida) {
-                Log::debug('[NotificacaoController] a apagar notificação resolvida', [
-                    'user_id' => $user->id,
-                    'notificacao_id' => $n->id,
-                    'assinatura_notificacao' => $assinaturaNotificacao,
-                    'assinatura_atual' => $assinaturaAtual,
-                ]);
-                $n->delete();
-            }
-        }
-    }
-
-    public function marcarLida(Request $request, string $id)
-    {
-        $notificacao = $request->user()->notifications()->findOrFail($id);
-        $notificacao->markAsRead();
-
-        Log::debug('NotificacaoController@marcarLida', ['notificacao_id' => $id]);
-
-        return response()->noContent();
-    }
-
-    public function marcarTodasLidas(Request $request)
-    {
-        $request->user()->unreadNotifications->markAsRead();
-
-        Log::debug('NotificacaoController@marcarTodasLidas', ['user_id' => $request->user()->id]);
-
-        return response()->noContent();
-    }
-
-    private function serializar(object $notification, bool $detalhada = false): array
-    {
-        $data = $notification->data;
-
-        if (($data['tipo'] ?? null) === 'solicitacao_tutela' && ! empty($data['curso_tutelado_shared_id'])) {
-            $centralConnection = config('tenancy.database.central_connection', config('database.default'));
-            $data['status'] = CursoTuteladoShared::on($centralConnection)
-                ->whereKey($data['curso_tutelado_shared_id'])
-                ->value('status');
-        }
-
-        return [
-            'id' => $notification->id,
-            'tipo' => $notification->data['tipo'] ?? null,
-            'titulo' => $notification->data['titulo'] ?? '',
-            'mensagem' => $notification->data['mensagem'] ?? '',
-            'dados' => $detalhada ? $data : [],
-            'lida' => $notification->read_at !== null,
-            'criada_em' => $notification->created_at->diffForHumans(),
-            'criada_em_iso' => $notification->created_at->toISOString(),
-        ];
-    }
-
-    private function decidirTutela(Request $request, string $notification, TutelaStatus $status)
-    {
-        $item = $request->user()->notifications()->findOrFail($notification);
-        abort_unless(($item->data['tipo'] ?? null) === 'solicitacao_tutela', 404);
-
-        $sharedId = $item->data['curso_tutelado_shared_id'] ?? null;
-        $centralConnection = config('tenancy.database.central_connection', config('database.default'));
-        $shared = CursoTuteladoShared::on($centralConnection)->findOrFail($sharedId);
-
-        abort_unless($shared->tenant_tutor_id === (string) tenancy()->tenant->getTenantKey(), 403);
-        abort_if($shared->status !== TutelaStatus::PENDENTE, 422, 'Esta solicitação já foi decidida.');
-
-        $shared->update(['status' => $status]);
         $item->markAsRead();
 
-        return Redirect::route('tenant.dashboard.notificacoes.show', $item->id)
-            ->with('toast', [
-                'type' => 'success',
-                'message' => $status === TutelaStatus::ACTIVO
-                    ? 'Tutela aprovada com sucesso.'
-                    : 'Solicitação de tutela rejeitada.',
-            ]);
+        return Inertia::render('tenant/notificacoes/show', [
+            'notificacao' => $this->notificacaoService->serializar($item, true),
+        ]);
+    }
+
+    /**
+     * Marca uma notificação do usuário autenticado como lida.
+     */
+    public function markAsRead(Request $request, string $id): RedirectResponse
+    {
+        $user = $request->user('tenant');
+
+        abort_unless($user instanceof User, 401);
+
+        $this->markNotificationAsRead->handle($user, $id);
+
+        return Redirect::back();
+    }
+
+    /**
+     * Marca todas as notificações do usuário autenticado como lidas.
+     */
+    public function markAllAsRead(Request $request): RedirectResponse
+    {
+        $user = $request->user('tenant');
+
+        abort_unless($user instanceof User, 401);
+
+        $this->markAllNotificationsAsRead->handle($user);
+
+        return Redirect::back();
+    }
+
+    /**
+     * Aprova a decisão de tutela associada à notificação.
+     */
+    public function aprovarTutela(Request $request, string $notification): RedirectResponse
+    {
+        $user = $request->user('tenant');
+        abort_unless($user instanceof User, 401);
+
+        $result = $this->decidirTutelaAction->handle(
+            $user,
+            $notification,
+            TutelaStatus::ACTIVO
+        );
+
+        return Redirect::route('tenant.dashboard.notificacoes.show', $result['notificationId'])
+            ->with('toast', $result['toast']);
+    }
+
+    /**
+     * Rejeita a decisão de tutela associada à notificação.
+     */
+    public function rejeitarTutela(Request $request, string $notification): RedirectResponse
+    {
+        $user = $request->user('tenant');
+        abort_unless($user instanceof User, 401);
+
+        $result = $this->decidirTutelaAction->handle(
+            $user,
+            $notification,
+            TutelaStatus::REJEITADO
+        );
+
+        return Redirect::route('tenant.dashboard.notificacoes.show', $result['notificationId'])
+            ->with('toast', $result['toast']);
     }
 }

@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Link } from '@inertiajs/react';
-import { edit } from '@/actions/App/Http/Controllers/Tenant/CursosController';
+import { edit } from '@/actions/App/Http/Controllers/Central/CursoController';
 
 export default function Show({ curso, can = {} }) {
   const canEdit = Boolean(can?.update_curso || can?.update);

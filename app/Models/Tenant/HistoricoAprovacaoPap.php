@@ -41,6 +41,6 @@ class HistoricoAprovacaoPap extends Model
         return $this->belongsTo(
             User::class,
             'utilizador_id'
-        );
+        )->withTrashed();
     }
 }

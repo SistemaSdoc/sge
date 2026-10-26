@@ -12,9 +12,7 @@ export default function Create({
   const { post, data, setData, processing, errors } = useForm({
     curso_id: '',
     nivel_ensino_id: '',
-    classe_ids: [],
-    nome: '',
-    duracao_anos: '',
+    classes: [],
     tenant_tutor_id: '',
   });
 
@@ -26,7 +24,7 @@ export default function Create({
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-6">
+    <div className="mx-auto w-full max-w-5xl p-4 md:p-6">
       <CursoForm
         title="Adicionar Curso"
         instituicao={instituicao}

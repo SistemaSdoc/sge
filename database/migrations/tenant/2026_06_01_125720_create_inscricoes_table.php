@@ -57,6 +57,7 @@ return new class extends Migration
             $table->foreign('aluno_id')->references('id')->on('alunos');
             $table->boolean('activo')->default(true);
             $table->enum('situacao', ['activo', 'recurso', 'pap_concluido', 'concluido'])->default('activo');
+            $table->boolean('is_historico')->default(false);
             $table->timestamps();
         });
     }

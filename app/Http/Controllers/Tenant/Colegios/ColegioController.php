@@ -23,6 +23,7 @@ class ColegioController extends Controller
      */
     public function index(Request $request, Instituicao $instituicao)
     {
+        $search = $request->string('search')->toString();
         $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
         $shared = CursoTuteladoShared::query()
             ->where('tenant_tutor_id', $tenantTutorId)
@@ -31,6 +32,7 @@ class ColegioController extends Controller
 
         $colegios = $shared
             ->groupBy('tenant_tutelado_id')
+            ->sortByDesc(fn ($vinculos) => $vinculos->max(fn ($vinculo) => $vinculo->created_at?->getTimestamp()) ?? 0)
             ->map(function ($vinculos, string $tenantTuteladoId): array {
                 $tenant = Tenant::query()->find($tenantTuteladoId);
                 $colegio = $tenant ? $this->tenantService->getInstituicao($tenant) : null;
@@ -40,12 +42,17 @@ class ColegioController extends Controller
                     'nome' => $colegio?->nome ?? $tenantTuteladoId,
                     'tipo' => $colegio?->tipo,
                     'tenant_id' => $tenantTuteladoId,
-                    'total_cursos' => $vinculos->count(),
+                    'total_cursos' => $vinculos->unique('curso_tutelado_tutelado_id')->count(),
                     'cursos' => [],
                 ];
             })
             ->filter(fn (array $colegio): bool => $colegio['tipo'] === 'colegio')
-            ->sortBy('nome')
+            ->when(filled($search), function ($items) use ($search) {
+                $term = mb_strtolower($search);
+
+                return $items->filter(fn (array $colegio): bool => str_contains(mb_strtolower($colegio['nome']), $term)
+                    || str_contains(mb_strtolower((string) $colegio['tenant_id']), $term));
+            })
             ->values();
 
         $perPage = 5;
@@ -64,6 +71,7 @@ class ColegioController extends Controller
                 'nome' => $instituicao->nome,
             ],
             'colegios' => $colegios,
+            'filters' => $request->only('search'),
         ]);
     }
 
@@ -80,23 +88,25 @@ class ColegioController extends Controller
         $tenantTutelado = Tenant::query()
             ->where('instituicao_id', $colegio)
             ->firstOrFail();
-        $sharedIds = CursoTuteladoShared::query()
+        $shared = CursoTuteladoShared::query()
             ->where('tenant_tutor_id', $tenantTutorId)
             ->where('tenant_tutelado_id', $tenantTutelado->getTenantKey())
             ->where('status', 'activo')
-            ->pluck('id');
+            ->get(['id', 'curso_tutelado_tutelado_id', 'status']);
+        $sharedCursoIds = $shared->pluck('curso_tutelado_tutelado_id');
+        $sharedPorCurso = $shared->keyBy('curso_tutelado_tutelado_id');
 
-        $colegioData = $tenantTutelado->run(function () use ($colegio, $sharedIds): array {
+        $colegioData = $tenantTutelado->run(function () use ($colegio, $sharedCursoIds, $sharedPorCurso): array {
             $colegio = Instituicao::findOrFail($colegio);
             $cursos = InstituicaoCurso::where('instituicao_id', $colegio->id)
-                ->whereHas('cursoTutelado', fn ($query) => $query->whereIn('curso_tutelado_shared_id', $sharedIds))
+                ->whereHas('cursoTutelado', fn ($query) => $query->whereIn('id', $sharedCursoIds))
                 ->with(['curso:id,nome', 'cursoTutelado:id,instituicao_curso_id,curso_tutelado_shared_id', 'cursoTutelado.cursoTuteladoShared:id,status'])
                 ->get()
                 ->map(fn ($ic): array => [
                     'id' => $ic->cursoTutelado->id,
                     'nome' => $ic->curso->nome,
-                    'status' => $ic->cursoTutelado?->cursoTuteladoShared?->status?->value
-                        ?? $ic->cursoTutelado?->cursoTuteladoShared?->status,
+                    'status' => $sharedPorCurso[(string) $ic->cursoTutelado->id]?->status?->value
+                        ?? $sharedPorCurso[(string) $ic->cursoTutelado->id]?->status,
                     'curso_tutelado_id' => $ic->cursoTutelado->id,
                 ])
                 ->values();

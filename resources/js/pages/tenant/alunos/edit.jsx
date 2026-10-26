@@ -8,10 +8,67 @@ import {
 } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
 
 export default function Edit() {
-  const { aluno, turmas } = usePage().props;
+  const {
+    aluno,
+    cursos = [],
+    classes = [],
+    turnos = [],
+    turmas = [],
+  } = usePage().props;
+
+  const [cursoId, setCursoId] = useState(
+    aluno.curso_tutelado_id ? String(aluno.curso_tutelado_id) : undefined,
+  );
+
+  const [classeId, setClasseId] = useState(
+    aluno.curso_classe_id ? String(aluno.curso_classe_id) : undefined,
+  );
+  const [cursoClasseTurnoId, setCursoClasseTurnoId] = useState(
+    aluno.curso_classe_turno_id
+      ? String(aluno.curso_classe_turno_id)
+      : undefined,
+  );
   const [turmaId, setTurmaId] = useState(
     aluno.turma_id ? String(aluno.turma_id) : undefined,
   );
+
+  const classesFiltradas = cursoId
+    ? classes.filter(
+        (cursoClasse) =>
+          String(cursoClasse.curso_tutelado_id) === String(cursoId),
+      )
+    : [];
+
+  const turnosFiltrados = classeId
+    ? turnos.filter(
+        (turno) => String(turno.curso_classe_id) === String(classeId),
+      )
+    : [];
+
+  const turmasFiltradas = cursoClasseTurnoId
+    ? turmas.filter(
+        (turma) =>
+          String(turma.curso_classe_turno_id) === String(cursoClasseTurnoId),
+      )
+    : [];
+
+  const handleClasseChange = (value) => {
+    setClasseId(value);
+    setCursoClasseTurnoId(undefined);
+    setTurmaId(undefined);
+  };
+
+  const handleCursoChange = (value) => {
+    setCursoId(value);
+    setClasseId(undefined);
+    setCursoClasseTurnoId(undefined);
+    setTurmaId(undefined);
+  };
+
+  const handleTurnoChange = (value) => {
+    setCursoClasseTurnoId(value);
+    setTurmaId(undefined);
+  };
 
   return (
     <Form
@@ -24,12 +81,22 @@ export default function Edit() {
         <AlunoForm
           errors={errors}
           processing={processing}
-          turmas={turmas}
+          cursos={cursos}
+          cursoId={cursoId}
+          setCursoId={handleCursoChange}
+          classes={classesFiltradas}
+          turnos={turnosFiltrados}
+          turmas={turmasFiltradas}
+          classeId={classeId}
+          setClasseId={handleClasseChange}
+          cursoClasseTurnoId={cursoClasseTurnoId}
+          setCursoClasseTurnoId={handleTurnoChange}
           turmaId={turmaId}
           setTurmaId={setTurmaId}
           defaultValues={{
             nome: aluno.nome,
             bi: aluno.bi,
+            email: aluno.email,
             matricula: aluno.matricula,
           }}
         />

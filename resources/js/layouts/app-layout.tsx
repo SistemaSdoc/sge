@@ -1,5 +1,6 @@
 import { AppDialog } from '@/components/app-dialog';
 import { AppDrawer } from '@/components/app-drawer';
+import { ErrorBoundary } from '@/components/error-boundary';
 import AppLayoutTemplate from '@/layouts/app/app-sidebar-layout';
 import type { BreadcrumbItem } from '@/types';
 
@@ -11,10 +12,12 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AppLayoutTemplate breadcrumbs={breadcrumbs}>
-      {children}
-      <AppDialog />
-      <AppDrawer />
-    </AppLayoutTemplate>
+    <ErrorBoundary>
+      <AppLayoutTemplate breadcrumbs={breadcrumbs}>
+        {children}
+        <AppDialog />
+        <AppDrawer />
+      </AppLayoutTemplate>
+    </ErrorBoundary>
   );
 }

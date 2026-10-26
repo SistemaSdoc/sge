@@ -1,4 +1,10 @@
-import { XIcon, ShoppingCartIcon, TriangleAlert } from 'lucide-react';
+import { Link } from '@inertiajs/react';
+import {
+  ArrowUpLeft,
+  XIcon,
+  ShoppingCartIcon,
+  TriangleAlert,
+} from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -20,6 +26,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { formatMoney, MONTH_LABELS } from '@/lib/pagamentos';
+import { index } from '@/actions/App/Http/Controllers/Tenant/PagamentoController';
 
 export function CartSummary({
   student,
@@ -193,14 +200,23 @@ export function CartSummary({
       </CardContent>
 
       <CardFooter className="border-nones">
-        <Button
-          className="w-full"
-          disabled={!canSubmit || processing}
-          onClick={onSubmit}
-        >
-          {processing && <Spinner data-icon="inline-start" />}
-          {processing ? 'A processar...' : 'Confirmar pagamento'}
-        </Button>
+        <div className="flex w-full flex-col gap-2">
+          <Button
+            className="w-full"
+            disabled={!canSubmit || processing}
+            onClick={onSubmit}
+          >
+            {processing && <Spinner data-icon="inline-start" />}
+            {processing ? 'A processar...' : 'Confirmar pagamento'}
+          </Button>
+
+          <Button asChild variant="outline" className="w-full">
+            <Link href={index().url}>
+              <ArrowUpLeft aria-hidden="true" />
+              Voltar à lista de pagamentos
+            </Link>
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

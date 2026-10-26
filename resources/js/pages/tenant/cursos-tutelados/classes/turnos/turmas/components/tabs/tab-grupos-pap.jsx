@@ -2,7 +2,6 @@ import { router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -19,8 +18,9 @@ import {
 import { Minus, Users2Icon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Link } from '@inertiajs/react';
-import { usePagination } from '@/hooks/use-pagination';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import {
   create,
   show,
@@ -33,24 +33,33 @@ export function TabGruposPAP({
   grupos,
   pagination,
   onPageChange,
+  search = '',
   can,
   params,
 }) {
-  const turmaId = turma.id;
+  const {
+    search: searchTerm,
+    onChange,
+    submit,
+    applied,
+  } = useTableSearch(search, {
+    searchParam: 'search_grupos',
+    pageParam: 'page_grupos',
+  });
   const isEmpty = grupos.length === 0;
-
-  const baseUrl = `/dashboard/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
 
   return (
     <Card className="gap-0 pb-0">
-      <CardHeader className="border-b">
-        <CardTitle>Grupos para PAP</CardTitle>
-        <CardDescription>
-          Grupos de aptidão profissional desta turma
-        </CardDescription>
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <CardTitle>Grupos para PAP</CardTitle>
+          <CardDescription>
+            Grupos de aptidão profissional desta turma
+          </CardDescription>
+        </div>
         {can?.create && (
-          <CardAction>
-            <Button asChild>
+          <div className="w-full sm:w-auto">
+            <Button asChild className="w-full sm:w-auto">
               <Link
                 href={create({
                   instituicao: params.instituicao.id,
@@ -63,17 +72,29 @@ export function TabGruposPAP({
                 Criar grupo
               </Link>
             </Button>
-          </CardAction>
+          </div>
         )}
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch
+          value={searchTerm}
+          onChange={onChange}
+          onSubmit={submit}
+          placeholder="Pesquisar por grupo ou tema..."
+        />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={Users2Icon}
-            title="Nenhum grupo criado, ainda"
-            description="Comece adicionando grupos"
+            title={
+              applied ? 'Nenhum grupo encontrado' : 'Nenhum grupo criado, ainda'
+            }
+            description={
+              applied
+                ? 'Tente ajustar a pesquisa.'
+                : 'Comece adicionando grupos'
+            }
             action={
               can?.create
                 ? {
@@ -101,38 +122,51 @@ export function TabGruposPAP({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {grupos.map((grupo) => (
-                <TableRow
-                  key={grupo.id}
-                  className="hover:cursor-pointer"
-                  onClick={() =>
-                    router.visit(
-                      show({
-                        instituicao: params.instituicao.id,
-                        cursoTutelado: params.cursoTutelado.id,
-                        cursoClasse: params.cursoClasse.id,
-                        cursoClasseTurno: params.cursoClasseTurno.id,
-                        turma: params.turma,
-                        grupoPap: grupo.id,
-                      }),
-                    )
-                  }
-                >
-                  <TableCell className="px-4 font-medium">
-                    {grupo.nome}
-                  </TableCell>
+              {grupos.map((grupo) => {
+                const canView = Boolean(grupo.can?.view);
+                return (
+                  <TableRow
+                    key={grupo.id}
+                    className={canView ? 'hover:cursor-pointer' : 'opacity-70'}
+                    aria-disabled={!canView}
+                    onClick={() => {
+                      if (!canView) {
+                        return;
+                      }
 
-                  <TableCell>{grupo.tema}</TableCell>
+                      router.visit(
+                        show({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                          cursoClasse: params.cursoClasse.id,
+                          cursoClasseTurno: params.cursoClasseTurno.id,
+                          turma: params.turma,
+                          grupoPap: grupo.id,
+                        }),
+                      );
+                    }}
+                  >
+                    <TableCell className="px-4 font-medium">
+                      {grupo.nome}
+                    </TableCell>
 
-                  <TableCell>{grupo.status}</TableCell>
+                    <TableCell>{grupo.tema}</TableCell>
 
-                  <TableCell className="text-end">
-                    <Button variant="outline" size="xs" className="text-[10px]">
-                      Ver detalhes
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    <TableCell>{grupo.status}</TableCell>
+
+                    <TableCell className="text-end">
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        className="text-[10px]"
+                        disabled={!canView}
+                      >
+                        Ver detalhes
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}

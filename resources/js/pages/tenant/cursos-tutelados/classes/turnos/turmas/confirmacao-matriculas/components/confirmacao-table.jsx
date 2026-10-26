@@ -24,9 +24,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Field } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import { ResultadoBadge } from '@/pages/tenant/pautas/components/pauta-table/resultado-badge';
 
 export function ConfirmacaoTable({
@@ -35,7 +35,14 @@ export function ConfirmacaoTable({
   onPageChange,
   onConfirmar,
   turma,
+  filters,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['alunos', 'filters'],
+    },
+  );
   const isEmpty = !data || data.length === 0;
 
   return (
@@ -50,31 +57,35 @@ export function ConfirmacaoTable({
         }
       `}</style>
 
-      <div className="mx-auto w-full max-w-7xl p-6">
+      <div className="mx-auto w-full max-w-7xl p-4 md:p-6">
         <Card className="gap-0">
           <CardHeader className="border-b">
-            <CardTitle>Confirmação de matrículas</CardTitle>
-            <CardDescription>
-              Lista de alunos por confirmar a sua matrícula
-            </CardDescription>
-
-            <CardAction className="flex gap-3">
-              <Field>
-                <div className="flex gap-2">
-                  <Input placeholder="Digite para pesquisar..." />
-                  <Button variant="outline">Pesquisar</Button>
-                </div>
-              </Field>
-            </CardAction>
+            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              {/* Título e Descrição */}
+              <div className="min-w-0 space-y-1">
+                <CardTitle>Confirmação de matrículas</CardTitle>
+                <CardDescription>
+                  Lista de alunos por confirmar a sua matrícula
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
-
           <CardContent className="p-0!">
+            <TableSearch value={search} onChange={onChange} onSubmit={submit} />
             {isEmpty ? (
               <EmptyState
                 variant="table"
                 icon={UsersIcon}
-                title="Nenhuma aluno por confirmar matrícula"
-                description="Não existem alunos por confirmar a sua matrícula."
+                title={
+                  applied
+                    ? 'Nenhum aluno encontrado'
+                    : 'Nenhum aluno por confirmar matrícula'
+                }
+                description={
+                  applied
+                    ? 'Tenta ajustar a pesquisa.'
+                    : 'Não existem alunos por confirmar a sua matrícula.'
+                }
               />
             ) : (
               <Table>
@@ -112,7 +123,11 @@ export function ConfirmacaoTable({
                       <TableCell className="px-4 font-medium">
                         <ResultadoBadge resultado={aluno.status} />
                       </TableCell>
-                      <TableCell className="px-4 text-right">
+                      <TableCell
+                        className="px-4 text-right"
+                        onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                      >
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -125,13 +140,22 @@ export function ConfirmacaoTable({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-auto">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                onConfirmar(aluno, e);
-                              }}
-                            >
-                              Confirmar matrícula
-                            </DropdownMenuItem>
+                            {aluno.aguarda_resultado_recurso ? (
+                              <DropdownMenuItem disabled>
+                                Aguardar resultado do recurso
+                              </DropdownMenuItem>
+                            ) : (
+                              <DropdownMenuItem
+                                disabled={!aluno.can?.confirmar_matricula}
+                                onClick={(e) => {
+                                  onConfirmar(aluno, e);
+                                }}
+                              >
+                                {aluno.status === 'incompleto'
+                                  ? 'Notas incompletas'
+                                  : 'Confirmar matrícula'}
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

@@ -10,6 +10,7 @@ use App\Jobs\ProvisionTenantJob;
 use App\Models\Central\PendingTenantData;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\User;
 use App\Notifications\TenantPendenteNotification;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -25,11 +26,18 @@ class TenantService
     /**
      * Lista tenants com as instituições carregadas.
      */
-    public function getTenantsWithInstituicoes(LengthAwarePaginator $tenants): LengthAwarePaginator
+    public function getTenantsWithInstituicoes(?string $search = null): LengthAwarePaginator
     {
-        return $tenants->through(function (Tenant $tenant): Tenant {
-            return $tenant->setRelation('instituicao', $this->getInstituicao($tenant));
-        });
+        return Tenant::query()
+            ->with('domains')
+            ->search($search)
+            ->latest('created_at')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn (Tenant $tenant): Tenant => $tenant->setRelation(
+                'instituicao',
+                $this->getInstituicao($tenant),
+            ));
     }
 
     /**
@@ -83,11 +91,34 @@ class TenantService
     }
 
     /**
+     * Obtém a conta de suporte central criada na base do tenant.
+     */
+    public function getTenantCentralSupportUser(Tenant $tenant): ?User
+    {
+        try {
+            return $tenant->run(fn (): ?User => User::query()
+                ->where('email', User::CENTRAL_SUPPORT_EMAIL)
+                ->first());
+        } catch (TenantDatabaseDoesNotExistException|QueryException $exception) {
+            if (! $this->isMissingTenantDatabase($exception)) {
+                throw $exception;
+            }
+
+            Log::warning('Tenant database unavailable while reading central support account.', [
+                'tenant_id' => $tenant->getTenantKey(),
+                'exception' => $exception,
+            ]);
+
+            return null;
+        }
+    }
+
+    /**
      * Lista tenants disponíveis para tutela externa.
      *
      * @return array<int, array{id: string, nome: string}>
      */
-    public function getAvailableTutors(string $currentTenantId): array
+    public function getAvailableTutors(string $currentTenantId, ?string $cursoId = null): array
     {
         return Tenant::query()
             ->where('id', '!=', $currentTenantId)
@@ -103,8 +134,37 @@ class TenantService
                 ];
             })
             ->filter(fn (array $tenant): bool => $tenant['tipo'] === 'instituto')
+            ->filter(function (array $tenant) use ($cursoId): bool {
+                if (! $cursoId) {
+                    return true;
+                }
+
+                return $this->tutorOffersCourse($tenant['id'], $cursoId);
+            })
             ->values()
             ->all();
+    }
+
+    /**
+     * Confirma que um instituto activo oferece o curso indicado.
+     */
+    public function tutorOffersCourse(string $tenantId, string $cursoId): bool
+    {
+        $tenant = Tenant::query()
+            ->whereKey($tenantId)
+            ->whereIn('status', [TenantStatus::ACTIVE, TenantStatus::TRIAL])
+            ->first();
+
+        if (! $tenant) {
+            return false;
+        }
+
+        return (bool) $tenant->run(
+            fn (): bool => InstituicaoCurso::query()
+                ->where('curso_id', $cursoId)
+                ->whereHas('instituicao', fn ($query) => $query->where('tipo', 'instituto'))
+                ->exists()
+        );
     }
 
     private function isMissingTenantDatabase(TenantDatabaseDoesNotExistException|QueryException $exception): bool
@@ -126,12 +186,13 @@ class TenantService
     {
         $tenant = DB::transaction(function () use ($data): Tenant {
             $subdomain = $data['domain'];
-            $baseDomain = env('APP_DOMAIN', 'localhost');
+            $baseDomain = config('app.domain');
             $domain = "{$subdomain}.{$baseDomain}";
 
             $tenant = Tenant::create([
                 'id' => $subdomain,
                 'status' => TenantStatus::PENDING,
+                'instituicao_nome' => $data['nome'],
             ]);
 
             $tenant->domains()->create([
@@ -157,7 +218,7 @@ class TenantService
             nomeInstituicao: $data['nome'],
             nomeUser: $data['user_nome'],
             subdomain: $data['domain'],
-            url: 'http://'.$tenant->id.'.'.env('APP_DOMAIN', 'localhost'),
+            url: 'http://'.$tenant->id.'.'.config('app.domain'),
             sigla: $data['sigla'],
         ));
 

@@ -25,17 +25,52 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Tenant/ClasseController';
 import TablePagination from '@/components/table-pagination';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useInitials } from '@/hooks/use-initials';
+import { ProfileAvatarPreview } from '@/components/profile-avatar-preview';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 
 export function UsuariosTable({
   usuarios,
+  filters,
   pagination = {},
   onPageChange,
   editarAcessoFn,
 }) {
-  const getInitials = useInitials();
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['users', 'filters'],
+    },
+  );
   const isEmpty = usuarios?.data?.length === 0;
+
+  const renderRolesBadge = (roles = []) => {
+    const safeRoles = Array.isArray(roles) ? roles : [];
+    const visibleRoles = safeRoles.slice(0, 3);
+    const hiddenCount = Math.max(safeRoles.length - visibleRoles.length, 0);
+
+    return (
+      <div
+        className="flex flex-wrap items-center gap-1"
+        title={safeRoles.join(', ')}
+      >
+        {visibleRoles.map((role, index) => (
+          <span
+            key={`${role}-${index}`}
+            className="inline-flex rounded-full border border-orange-200 bg-orange-50 px-2 py-0.5 text-[10px] font-medium text-orange-700"
+          >
+            {role}
+          </span>
+        ))}
+
+        {hiddenCount > 0 && (
+          <span className="inline-flex rounded-full border border-muted bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+            +{hiddenCount}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="mx-auto w-full max-w-7xl p-6">
@@ -51,12 +86,21 @@ export function UsuariosTable({
         </CardHeader>
 
         <CardContent className="p-0!">
+          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
           {isEmpty ? (
             <EmptyState
               variant="table"
               icon={LayersIcon}
-              title="Nenhum usuário cadastrado"
-              description="Comece adicionando o primeiro usuário à tabela"
+              title={
+                applied
+                  ? 'Nenhum usuário encontrado'
+                  : 'Nenhum usuário cadastrado'
+              }
+              description={
+                applied
+                  ? 'Tenta ajustar a pesquisa.'
+                  : 'Comece adicionando o primeiro usuário à tabela'
+              }
               action={{
                 label: 'Adicionar Usuário',
                 href: create().url,
@@ -82,16 +126,11 @@ export function UsuariosTable({
                   >
                     <TableCell className="px-4 font-medium">
                       <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage
-                            src={usuario.avatar}
-                            alt={usuario.nome}
-                            className="grayscale"
-                          />
-                          <AvatarFallback>
-                            {getInitials(usuario.nome)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <ProfileAvatarPreview
+                          src={usuario.avatar}
+                          name={usuario.nome}
+                          className="grayscale"
+                        />
 
                         <div className="flex flex-col">
                           <span className="text-xs">{usuario.nome}</span>
@@ -103,7 +142,7 @@ export function UsuariosTable({
                     </TableCell>
 
                     <TableCell className="px-4">
-                      {usuario.roles.join(', ')}
+                      {renderRolesBadge(usuario.roles)}
                     </TableCell>
 
                     <TableCell

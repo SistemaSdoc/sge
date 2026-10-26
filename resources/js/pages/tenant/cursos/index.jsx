@@ -3,7 +3,7 @@ import CursoTable from './components/curso-table';
 import {
   index,
   destroy,
-} from '@/actions/App/Http/Controllers/Tenant/CursosController';
+} from '@/actions/App/Http/Controllers/Central/CursoController';
 import { useDialog } from '@/hooks/use-dialog';
 
 export default function Index({ cursos, can }) {

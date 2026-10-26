@@ -49,10 +49,11 @@ class GrupoPapService
     /**
      * Devolve as turmas do turno indicado, ordenadas por nome.
      */
-    public function turmas(string $cursoClasseTurnoId): Collection
+    public function turmas(string $cursoClasseTurnoId, ?string $anoLectivoId = null): Collection
     {
         return Turma::query()
             ->where('curso_classe_turno_id', $cursoClasseTurnoId)
+            ->when($anoLectivoId, fn ($query) => $query->where('ano_lectivo_id', $anoLectivoId))
             ->orderBy('nome')
             ->get(['id', 'nome'])
             ->values();

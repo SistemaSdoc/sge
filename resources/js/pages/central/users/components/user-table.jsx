@@ -26,6 +26,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import {
   create,
   edit,
@@ -33,10 +35,17 @@ import {
 
 export default function UserTable({
   users,
+  filters,
   deleteFn,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['users', 'filters'],
+    },
+  );
   const isEmpty = !users || users.length === 0;
 
   return (
@@ -52,12 +61,21 @@ export default function UserTable({
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={UsersIcon}
-            title="Nenhum utilizador registado"
-            description="Comece adicionando o primeiro usuário"
+            title={
+              applied
+                ? 'Nenhum utilizador encontrado'
+                : 'Nenhum utilizador registado'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Comece adicionando o primeiro usuário'
+            }
             action={{
               label: 'Adicionar usuário',
               href: create().url,
@@ -104,7 +122,11 @@ export default function UserTable({
                   <TableCell className="px-4 text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8">
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          className="hover:cursor-pointer"
+                        >
                           <MoreHorizontalIcon />
                           <span className="sr-only">Abrir menu</span>
                         </Button>
@@ -113,6 +135,7 @@ export default function UserTable({
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           onClick={() => router.visit(edit(user.id).url)}
+                          className="hover:cursor-pointer"
                         >
                           Editar
                         </DropdownMenuItem>
@@ -120,6 +143,7 @@ export default function UserTable({
                         <DropdownMenuItem
                           variant="destructive"
                           onClick={() => deleteFn(user.id)}
+                          className="hover:cursor-pointer"
                         >
                           Remover
                         </DropdownMenuItem>

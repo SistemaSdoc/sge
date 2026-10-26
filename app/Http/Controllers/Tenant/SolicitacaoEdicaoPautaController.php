@@ -7,6 +7,7 @@ use App\Models\Tenant\PautaStatus;
 use App\Models\Tenant\PeriodoLancamentoNotas;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\User;
+use App\Traits\NotificaProfessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -14,6 +15,8 @@ use Inertia\Inertia;
 
 class SolicitacaoEdicaoPautaController extends Controller
 {
+    use NotificaProfessor;
+
     /**
      * Display a listing of the resource.
      */
@@ -45,8 +48,9 @@ class SolicitacaoEdicaoPautaController extends Controller
                 'professor' => $s->professor->nome ?? '—',
                 'disciplina' => $s->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->nome ?? '—',
                 'turma' => $s->turmaDisciplinaProfessor->turma->nome ?? '—',
-                'link_prazos' => route('prazos-lancamento-notas.edit', [
-                    'instituicao' => $s->turmaDisciplinaProfessor->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_tutora_id,
+                'link_prazos' => route('tenant.dashboard.instituicoes.prazos-lancamento-notas.edit', [
+                    'instituicao' => $s->turmaDisciplinaProfessor->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicaoCurso?->instituicao_id
+                        ?? $s->turmaDisciplinaProfessor->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_tutora_id,
                 ]),
             ]);
 
@@ -63,6 +67,11 @@ class SolicitacaoEdicaoPautaController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::guard('tenant')->user();
+
+        abort_if($user->hasAnyRole(['Director', 'Subdirector']), 403);
+        abort_unless($user->can('pautas.solicitarEdicao'), 403);
+
         $validated = $request->validate([
             'tdp_id' => 'required|exists:turma_disciplina_professor,id',
             'periodo' => 'required|integer|in:1,2,3,4',
@@ -91,7 +100,7 @@ class SolicitacaoEdicaoPautaController extends Controller
 
         abort_if($jaExiste, 422, 'Já tens um pedido pendente deste tipo para este período.');
 
-        SolicitacaoEdicaoPauta::create([
+        $solicitacao = SolicitacaoEdicaoPauta::create([
             'turma_disciplina_professor_id' => $validated['tdp_id'],
             'periodo' => $validated['periodo'],
             'tipo' => $validated['tipo'],
@@ -99,6 +108,15 @@ class SolicitacaoEdicaoPautaController extends Controller
             'motivo' => $validated['motivo'],
             'status' => 'pendente',
         ]);
+
+        // Carregar relações necessárias antes de notificar
+        $solicitacao->load([
+            'professor',
+            'turmaDisciplinaProfessor.turma.cursoClasseTurno.cursoClasse.cursoTutelado',
+            'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
+        ]);
+
+        $this->notificarSolicitacaoEdicaoPauta($solicitacao);
 
         return back()->with('success', 'Pedido enviado ao director.');
     }
@@ -122,8 +140,12 @@ class SolicitacaoEdicaoPautaController extends Controller
             'prazo_edicao_ate' => $validated['prazo_edicao_ate'] ?? null,
         ]);
 
+        $solicitacao->refresh();
+
+        // Notificar professor da decisão (aprovada ou rejeitada)
+        $this->notificarDecisaoEdicaoPauta($solicitacao);
+
         if ($validated['decisao'] === 'aprovada') {
-            // Reverter pauta para rascunho em ambos os casos
             PautaStatus::where('turma_disciplina_professor_id', $solicitacao->turma_disciplina_professor_id)
                 ->where('periodo', $solicitacao->periodo)
                 ->whereIn('status', ['finalizada', 'expirada'])
@@ -137,7 +159,6 @@ class SolicitacaoEdicaoPautaController extends Controller
                 $instituicaoId = $solicitacao->turmaDisciplinaProfessor
                     ->turma->cursoClasseTurno->cursoClasse->cursoTutelado->instituicao_tutora_id;
 
-                // Actualizar data_limite do período com o prazo definido pelo director
                 PeriodoLancamentoNotas::where('instituicao_id', $instituicaoId)
                     ->where('periodo', $solicitacao->periodo)
                     ->update(['data_limite' => $validated['prazo_edicao_ate']]);
@@ -145,9 +166,7 @@ class SolicitacaoEdicaoPautaController extends Controller
                 return back()->with('success', "Extensão aprovada até {$validated['prazo_edicao_ate']}. O professor já pode lançar.");
             }
 
-            if ($solicitacao->tipo === 'reabertura_edicao') {
-                return back()->with('success', 'Reabertura aprovada. O professor pode editar até o prazo definido.');
-            }
+            return back()->with('success', 'Reabertura aprovada. O professor pode editar até o prazo definido.');
         }
 
         return back()->with('success', 'Decisão registada.');

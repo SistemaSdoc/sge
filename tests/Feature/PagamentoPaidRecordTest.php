@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 
 it('inclui itens anuais e unicos com mes zero no paid record', function () {
-    $controller = new PagamentoController;
+    $controller = app(PagamentoController::class);
     $method = new ReflectionMethod($controller, 'paidRecordDoAluno');
     $method->setAccessible(true);
 
@@ -23,7 +23,7 @@ it('inclui itens anuais e unicos com mes zero no paid record', function () {
     $query->shouldReceive('whereHas')->andReturnSelf();
     $query->shouldReceive('get')->andReturn($collection);
 
-    Mockery::mock('alias:App\\Models\\PagamentoItem')
+    Mockery::mock('alias:App\\Models\\Tenant\\PagamentoItem')
         ->shouldReceive('query')->andReturn($query);
 
     $paidRecord = $method->invoke($controller, $alunoId);

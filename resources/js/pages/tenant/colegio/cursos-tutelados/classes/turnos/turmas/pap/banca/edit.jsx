@@ -20,6 +20,7 @@ export default function Edit() {
 
   const { data, setData, errors, processing } = useForm({
     professor_id: bancaJuriPap.professor_id ?? '',
+    professor_externo_tenant_id: bancaJuriPap.professor_externo_tenant_id ?? '',
     funcao: bancaJuriPap.funcao ?? '',
   });
 
@@ -37,6 +38,7 @@ export default function Edit() {
       transform={(formData) => ({
         ...formData,
         professor_id: data.professor_id,
+        professor_externo_tenant_id: data.professor_externo_tenant_id,
         funcao: data.funcao,
       })}
       onSuccess={() =>

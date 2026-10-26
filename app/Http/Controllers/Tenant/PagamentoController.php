@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Tenant;
 
+use App\Actions\Tenant\Pagamento\GerarRecibo;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\Pagamento\StorePagamentoRequest;
 use App\Http\Requests\Tenant\Pagamento\UpdatePagamentoRequest;
+use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aluno;
-use App\Models\Tenant\AnoLectivo;
 use App\Models\Tenant\ItemPagavel;
 use App\Models\Tenant\Pagamento;
 use App\Models\Tenant\PagamentoItem;
@@ -27,6 +28,7 @@ class PagamentoController extends Controller
     public function __construct(
         private readonly VerificadorPropinaService $verificador,
         private readonly PropinaNotificacaoService $notificador,
+        private readonly GerarRecibo $gerarRecibo,
     ) {}
 
     public function index(Request $request)
@@ -40,8 +42,9 @@ class PagamentoController extends Controller
 
         $pagamentos = Pagamento::query()
             ->where('instituicao_id', $instituicaoId)
+            ->search($request->string('search')->toString())
             ->with(['aluno.user:id,nome,instituicao_id'])
-            ->orderByDesc('data_pagamento')
+            ->latest('created_at')
             ->paginate(15)
             ->withQueryString()
             ->through(function (Pagamento $p) use ($request) {
@@ -54,6 +57,10 @@ class PagamentoController extends Controller
                     ->implode(', ');
 
                 $podeApagar = $request->user()->can('delete', $p);
+                $aluno = $p->aluno;
+                $nomeAluno = $aluno?->trashed()
+                    ? 'Aluno removido'
+                    : ($aluno?->user?->nome ?? 'Aluno removido');
 
                 Log::debug('PagamentoController@index - verificação can.delete', [
                     'pagamento_id' => $p->id,
@@ -67,7 +74,7 @@ class PagamentoController extends Controller
 
                 return [
                     'id' => $p->id,
-                    'aluno' => $p->aluno->user->nome,
+                    'aluno' => $nomeAluno,
                     'valor_total' => $p->valor_total,
                     'metodo' => $p->metodo,
                     'referencia' => $p->referencia,
@@ -102,6 +109,7 @@ class PagamentoController extends Controller
 
         return Inertia::render('tenant/pagamentos/index', [
             'pagamentos' => $pagamentos,
+            'filters' => $request->only('search'),
             'turmas' => $turmas,
             'can' => [
                 'create' => Auth::guard('tenant')->user()->can('create', Pagamento::class),
@@ -193,74 +201,67 @@ class PagamentoController extends Controller
         Log::info('PagamentoController@create - início', [
             'instituicao_id' => $instituicaoId,
             'aluno_id' => $request->query('aluno_id'),
-            'query_params' => $request->query(),
         ]);
 
-        // Buscar aluno e turma
         $aluno = null;
-        $turma = null;
-        $cursoClasseId = null;
-        $classeId = null;
+        $cursoClasseIds = collect();
+        $classeIds = collect();
 
         if ($request->filled('aluno_id')) {
-            $aluno = Aluno::with('turmaActual')->find($request->aluno_id);
-            if ($aluno) {
-                $turma = $aluno->turmaActual->first();
-                if ($turma) {
-                    $turma->loadMissing(['cursoClasseTurno.cursoClasse']);
-                    $cursoClasseId = $turma->curso_classe_id
-                        ?? $turma->cursoClasseTurno->curso_classe_id
-                        ?? null;
-                    $classeId = $turma->classe_id
-                        ?? $turma->cursoClasseTurno->cursoClasse->classe_id
-                        ?? null;
+            $aluno = Aluno::with([
+                'user:id,nome,instituicao_id',
+                'turmas' => fn ($q) => $q->wherePivot('is_historico', false)
+                    ->with(['anoLectivo', 'cursoClasseTurno.cursoClasse']),
+            ])->find($request->aluno_id);
 
-                    Log::debug('PagamentoController@create - turma do aluno', [
-                        'aluno_id' => $aluno->id,
-                        'turma_id' => $turma->id,
-                        'curso_classe_id' => $cursoClasseId,
-                        'classe_id' => $classeId,
-                    ]);
-                } else {
-                    Log::debug('PagamentoController@create - aluno sem turma', ['aluno_id' => $aluno->id]);
-                }
+            if ($aluno) {
+                $cursoClasseIds = $aluno->turmas
+                    ->map(fn ($t) => $t->cursoClasseTurno?->curso_classe_id)
+                    ->filter()
+                    ->unique()
+                    ->values();
+
+                $classeIds = $aluno->turmas
+                    ->map(fn ($t) => $t->cursoClasseTurno?->cursoClasse?->classe_id)
+                    ->filter()
+                    ->unique()
+                    ->values();
+
+                Log::debug('PagamentoController@create - turmas do aluno', [
+                    'aluno_id' => $aluno->id,
+                    'total_turmas' => $aluno->turmas->count(),
+                    'curso_classe_ids' => $cursoClasseIds->toArray(),
+                    'classe_ids' => $classeIds->toArray(),
+                ]);
             } else {
                 Log::warning('PagamentoController@create - aluno não encontrado', ['aluno_id' => $request->aluno_id]);
             }
         }
 
-        // Query de itens ativos
+        // Query de itens — abrange todas as classes do histórico do aluno
         $itensQuery = ItemPagavel::query()
             ->where('instituicao_id', $instituicaoId)
             ->ativos();
 
-        if ($turma && ($cursoClasseId || $classeId)) {
-            $itensQuery->where(function ($q) use ($cursoClasseId, $classeId) {
-                // 1. Itens universais
+        if ($cursoClasseIds->isNotEmpty() || $classeIds->isNotEmpty()) {
+            $itensQuery->where(function ($q) use ($cursoClasseIds, $classeIds) {
                 $q->whereNull('curso_classe_id');
 
-                // 2. Diretamente vinculados ao curso_classe da turma
-                if ($cursoClasseId) {
-                    $q->orWhere('curso_classe_id', $cursoClasseId);
+                if ($cursoClasseIds->isNotEmpty()) {
+                    $q->orWhereIn('curso_classe_id', $cursoClasseIds);
                 }
 
-                // 3. Vinculados a um curso_classe com a mesma classe_id da turma
-                if ($classeId) {
-                    $q->orWhereExists(function ($sub) use ($classeId) {
+                if ($classeIds->isNotEmpty()) {
+                    $q->orWhereExists(function ($sub) use ($classeIds) {
                         $sub->from('curso_classe')
                             ->whereColumn('curso_classe.id', 'itens_pagaveis.curso_classe_id')
-                            ->where('curso_classe.classe_id', $classeId);
+                            ->whereIn('curso_classe.classe_id', $classeIds);
                     });
                 }
             });
-
-            Log::debug('PagamentoController@create - filtro aplicado (com vínculo)', [
-                'curso_classe_id' => $cursoClasseId,
-                'classe_id' => $classeId,
-            ]);
         } else {
             $itensQuery->whereNull('curso_classe_id');
-            Log::debug('PagamentoController@create - sem vínculo – a mostrar apenas itens universais');
+            Log::debug('PagamentoController@create - sem turmas — só itens universais');
         }
 
         $itensPagaveis = $itensQuery->get(['id', 'nome', 'valor', 'frequencia', 'curso_classe_id', 'multa_dias_tolerancia', 'multa_valor']);
@@ -272,17 +273,13 @@ class PagamentoController extends Controller
                 'item_nome' => $item->nome,
                 'curso_classe_id' => $item->curso_classe_id,
                 'classe_associada' => $item->cursoClasse?->classe?->nome ?? 'Nenhuma',
-                'curso_associado' => $item->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome ?? 'Nenhum',
                 'frequencia' => $item->frequencia,
                 'valor' => $item->valor,
-                'multa_dias_tolerancia' => $item->multa_dias_tolerancia,
-                'multa_valor' => $item->multa_valor,
             ]);
         });
 
         Log::info('PagamentoController@create - total de itens retornados', [
             'total' => $itensPagaveis->count(),
-            'ids' => $itensPagaveis->pluck('id')->toArray(),
         ]);
 
         $alunos = Aluno::query()
@@ -300,15 +297,11 @@ class PagamentoController extends Controller
 
         if ($request->filled('aluno_id') && $aluno) {
             $paidRecord = $this->paidRecordDoAluno($request->aluno_id);
-            Log::debug('PagamentoController@create - paidRecord', ['paidRecord' => $paidRecord]);
 
-            // Pendências reais do aluno (com valor base + multa já calculados),
-            // para o frontend saber exactamente quanto cobrar por cada mês em
-            // atraso, sem ter de recalcular a multa no lado do cliente.
             $pendencias = $this->verificador->pendenciasDoAluno($aluno);
 
             $pendenciasComMulta = collect($pendencias)
-                ->filter(fn ($p) => $p['mes'] !== null) // só mensais têm multa
+                ->filter(fn ($p) => $p['mes'] !== null)
                 ->groupBy('item_pagavel_id')
                 ->map(fn ($porItem) => $porItem->map(fn ($p) => [
                     'mes' => $p['mes'],
@@ -319,9 +312,9 @@ class PagamentoController extends Controller
                 ])->values())
                 ->toArray();
 
-            Log::debug('PagamentoController@create - pendências com multa calculadas', [
+            Log::debug('PagamentoController@create - pendências com multa', [
                 'aluno_id' => $aluno->id,
-                'pendenciasComMulta' => $pendenciasComMulta,
+                'total' => count($pendenciasComMulta),
             ]);
         }
 
@@ -359,7 +352,7 @@ class PagamentoController extends Controller
             'itens_count' => count($request->input('itens', [])),
         ]);
 
-        DB::transaction(function () use ($request) {
+        $pagamento = DB::transaction(function () use ($request): Pagamento {
             $valorTotal = 0;
             $linhasParaCriar = [];
 
@@ -437,14 +430,17 @@ class PagamentoController extends Controller
                 'itens_quantidade' => count($linhasParaCriar),
             ]);
 
-            $aluno = Aluno::with('user')->find($request->input('aluno_id'));
-            if ($aluno?->user) {
-                $this->notificarPagamentoRegistado($aluno->user, $pagamento);
-            }
-
-            $this->resolverNotificacoesSePropinaEmDia($request->input('aluno_id'));
-
+            return $pagamento;
         });
+
+        $this->gerarRecibo->handle($pagamento);
+
+        $aluno = Aluno::with('user')->find($request->input('aluno_id'));
+        if ($aluno?->user) {
+            $this->notificarPagamentoRegistado($aluno->user, $pagamento);
+        }
+
+        $this->resolverNotificacoesSePropinaEmDia($request->input('aluno_id'));
 
         return redirect()->route('tenant.dashboard.pagamentos.index')->with('success', 'Pagamento registado com sucesso.');
     }
@@ -481,6 +477,10 @@ class PagamentoController extends Controller
         Log::info('PagamentoController@show - início', ['pagamento_id' => $pagamento->id]);
 
         $pagamento->load(['aluno.user:id,nome', 'registadoPor:id,nome']);
+        $aluno = $pagamento->aluno;
+        $nomeAluno = $aluno?->trashed()
+            ? 'Aluno removido'
+            : ($aluno?->user?->nome ?? 'Aluno removido');
 
         $itens = $pagamento->itens()
             ->with('itemPagavel:id,nome,frequencia,valor')
@@ -518,7 +518,7 @@ class PagamentoController extends Controller
         return Inertia::render('tenant/pagamentos/show', [
             'pagamento' => [
                 'id' => $pagamento->id,
-                'aluno' => $pagamento->aluno->user->nome,
+                'aluno' => $nomeAluno,
                 'registado_por' => $pagamento->registadoPor->nome,
                 'data_pagamento' => $pagamento->data_pagamento->format('d/m/Y'),
                 'valor_total' => $pagamento->valor_total,

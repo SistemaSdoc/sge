@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -29,6 +28,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import {
   create,
   edit,
@@ -47,36 +48,54 @@ const frequenciaLabels = {
 
 export default function ItensTable({
   itens = [],
+  filters,
   can,
   pagination = {},
   onPageChange,
 }) {
+  const { search, onChange, submit, applied } = useTableSearch(
+    filters?.search,
+    {
+      only: ['itens', 'filters'],
+    },
+  );
   const hasAnyAction = itens.some((i) => i.can?.update || i.can?.delete);
   const isEmpty = !itens || itens.length === 0;
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
-      <CardHeader className="border-b">
-        <CardTitle>Emolumentos Escolares</CardTitle>
-        <CardDescription>
-          Emolumentos utilizados para cobrar encargos escolares
-        </CardDescription>
-        <CardAction>
+      <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <CardTitle>Emolumentos Escolares</CardTitle>
+          <CardDescription>
+            Emolumentos utilizados para cobrar encargos escolares
+          </CardDescription>
+        </div>
+        <div className="w-full sm:w-auto">
           {can?.create && (
-            <Button asChild>
+            <Button asChild className="w-full sm:w-auto">
               <Link href={create().url}>Novo emolumento</Link>
             </Button>
           )}
-        </CardAction>
+        </div>
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={LayersIcon}
-            title="Nenhum emolumento encontrado"
-            description="Adicione emolumentos para começar a cobrar"
+            title={
+              applied
+                ? 'Nenhum emolumento encontrado'
+                : 'Nenhum emolumento cadastrado'
+            }
+            description={
+              applied
+                ? 'Tenta ajustar a pesquisa.'
+                : 'Adicione emolumentos para começar a cobrar'
+            }
             action={
               can?.create
                 ? {

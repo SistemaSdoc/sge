@@ -6,16 +6,11 @@ use App\Enums\TenantStatus;
 use App\Models\Central\Tenant;
 use App\Services\Central\TenantService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
-/**
- * Valida os dados para criar um curso tutelado.
- */
 class StoreCursoTuteladoRequest extends FormRequest
 {
-    /**
-     * Normaliza valores antigos do formulário para o contrato da API.
-     */
     protected function prepareForValidation(): void
     {
         if ($this->input('tenant_tutor_id') === 'propria') {
@@ -23,44 +18,39 @@ class StoreCursoTuteladoRequest extends FormRequest
         }
     }
 
-    /**
-     * A autorização final é feita pela policy do controller.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Obtém as regras de criação e tutela externa.
-     *
-     * @return array<string, array<int, mixed>>
-     */
     public function rules(): array
     {
-        $id = $this->cursos?->id;
+        $hasTutor = filled($this->input('tenant_tutor_id'))
+            && $this->input('tenant_tutor_id') !== 'propria';
 
         $rules = [
-            // 'curso_id' => ['nullable', 'uuid', 'exists:cursos,id'],
-            'nome' => ['nullable', 'string', 'min:2', 'max:255', 'unique:cursos,nome,'.$id],
-            'duracao_anos' => ['nullable', 'integer', 'min:1', 'max:10'],
-            'nivel_ensino_id' => ['required', 'uuid', 'exists:niveis_ensino,id'],
-            'classe_ids' => ['required', 'array', 'min:1'],
-            'classe_ids.*' => ['uuid', 'exists:classes,id'],
+            'curso_id' => [
+                'required',
+                'uuid',
+                Rule::exists(config('tenancy.database.central_connection').'.cursos', 'id')
+                    ->where('status', 1),
+            ],
             'tenant_tutor_id' => ['nullable', 'string'],
         ];
 
-        // if (empty($this->curso_id)) {
-        //     $rules['nome'] = ['required', 'string', 'min:2', 'max:255'];
-        //     $rules['duracao_anos'] = ['required', 'integer', 'min:1', 'max:10'];
-        // }
+        if ($hasTutor) {
+            $rules['nivel_ensino_id'] = ['required', 'uuid'];
+            $rules['classes'] = ['required', 'array', 'min:1'];
+            $rules['classes.*'] = ['uuid'];
+        } else {
+            $rules['nivel_ensino_id'] = ['required', 'uuid', 'exists:niveis_ensino,id'];
+            $rules['classes'] = ['required', 'array', 'min:1'];
+            $rules['classes.*'] = ['uuid', 'exists:classes,id'];
+        }
 
         return $rules;
     }
 
-    /**
-     * Acrescenta validações dependentes do tenant tutor escolhido.
-     */
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
@@ -107,26 +97,17 @@ class StoreCursoTuteladoRequest extends FormRequest
         });
     }
 
-    /**
-     * Mensagens apresentadas ao utilizador durante a validação.
-     *
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [
-            // 'curso_id.uuid' => 'O curso seleccionado é inválido.',
-            'nome.unique' => 'Já existe um curso com este nome.',
-            'nome.required' => 'O nome do curso é obrigatório.',
-            'nome.min' => 'O nome do curso deve ter pelo menos 2 caracteres.',
-            'duracao_anos.required' => 'A duração é obrigatória.',
-            'duracao_anos.min' => 'A duração deve ser pelo menos 1 ano.',
+            'curso_id.required' => 'Seleccione um curso do catálogo central.',
+            'curso_id.exists' => 'O curso seleccionado não está disponível.',
             'nivel_ensino_id.required' => 'Seleccione o nível de ensino.',
             'nivel_ensino_id.exists' => 'O nível de ensino seleccionado não existe.',
-            'classe_ids.required' => 'Seleccione pelo menos uma classe.',
-            'classe_ids.min' => 'Seleccione pelo menos uma classe.',
-            'classe_ids.*.uuid' => 'Uma ou mais classes seleccionadas são inválidas.',
-            'classe_ids.*.exists' => 'Uma ou mais classes seleccionadas não existem.',
+            'classes.required' => 'Seleccione pelo menos uma classe.',
+            'classes.min' => 'Seleccione pelo menos uma classe.',
+            'classes.*.uuid' => 'Uma ou mais classes seleccionadas são inválidas.',
+            'classes.*.exists' => 'Uma ou mais classes seleccionadas não existem.',
         ];
     }
 }
