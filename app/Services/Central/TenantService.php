@@ -26,11 +26,15 @@ class TenantService
     /**
      * Lista tenants com as instituições carregadas.
      */
-    public function getTenantsWithInstituicoes(?string $search = null): LengthAwarePaginator
+    public function getTenantsWithInstituicoes(?string $search = null, ?string $tipo = null): LengthAwarePaginator
     {
         return Tenant::query()
             ->with('domains')
             ->search($search)
+            ->when(
+                in_array($tipo, ['colegio', 'instituto'], true),
+                fn ($query) => $query->where('instituicao_tipo', $tipo)
+            )
             ->latest('created_at')
             ->paginate(10)
             ->withQueryString()
@@ -193,6 +197,7 @@ class TenantService
                 'id' => $subdomain,
                 'status' => TenantStatus::PENDING,
                 'instituicao_nome' => $data['nome'],
+                'instituicao_tipo' => $data['tipo'],
             ]);
 
             $tenant->domains()->create([

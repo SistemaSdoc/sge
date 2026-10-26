@@ -10,12 +10,13 @@ export function TableSearch({
   onChange,
   onSubmit,
   placeholder = 'Pesquisar...',
+  children,
   bare = false,
   buttonGroupClassName,
 }) {
   const form = (
     <form
-      className={bare ? 'flex' : 'flex justify-end'}
+      className={bare ? 'flex' : 'flex flex-wrap items-center justify-end gap-3'}
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();
@@ -38,6 +39,7 @@ export function TableSearch({
           <span className="sr-only">Pesquisar</span>
         </Button>
       </ButtonGroup>
+      {children}
     </form>
   );
 

@@ -28,14 +28,15 @@ class TenantController extends Controller
         $tenantsPagineted = TenantIndexResource::collection(
             $this->tenantService->getTenantsWithInstituicoes(
                 $request->string('search')->toString(),
+                $request->string('tipo')->toString(),
             )
         );
 
         return Inertia::render('central/tenants/index', [
             'tenants' => $tenantsPagineted,
-            'filters' => $request->only('search'),
+            'filters' => $request->only('search', 'tipo'),
         ]);
-    }
+    } 
 
     /**
      * Exibe formulário de criação de tenant.

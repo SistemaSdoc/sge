@@ -29,10 +29,18 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  index,
   show,
   create,
   edit,
 } from '@/actions/App/Http/Controllers/Central/TenantController';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import TablePagination from '@/components/table-pagination';
 import { StatusBadge } from './status-badge';
 import { TableSearch } from '@/components/table-search';
@@ -56,6 +64,17 @@ export function TenantTable({
   );
   const isEmpty = tenants?.length === 0;
 
+  const filtrarTipo = (valor) => {
+  router.get(
+    index().url,
+    {
+      search: filters?.search || undefined,
+      tipo: valor === 'todos' ? undefined : valor,
+    },
+    { preserveState: true, preserveScroll: true, replace: true },
+  );
+    };
+
   const hasActionColumn = tenants.some(
     (tenants) => tenants.can?.edit || tenants.can?.delete || true,
   );
@@ -74,7 +93,18 @@ export function TenantTable({
         </CardHeader>
 
         <CardContent className="p-0!">
-          <TableSearch value={search} onChange={onChange} onSubmit={submit} />
+        <TableSearch value={search} onChange={onChange} onSubmit={submit}>
+        <Select value={filters?.tipo || 'todos'} onValueChange={filtrarTipo}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Tipo" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos</SelectItem>
+            <SelectItem value="colegio">Colégios</SelectItem>
+            <SelectItem value="instituto">Institutos</SelectItem>
+          </SelectContent>
+        </Select>
+      </TableSearch>
           {isEmpty ? (
             <EmptyState
               variant="table"

@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table';
 import BadgePauta from './badge-pauta';
 
-const POR_PAGINA = 10;
+const POR_PAGINA = 8;
 
 export default function TabelaTurmas({ turmas, filtros }) {
   const [pagina, setPagina] = useState(1);
