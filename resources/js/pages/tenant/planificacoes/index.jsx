@@ -1,16 +1,9 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import {
-  BookOpen,
-  Plus,
   Filter,
-  ChevronRight,
-  Hash,
-  Clock,
-  Layers,
   Search,
   X,
-  GraduationCap,
   Sparkles,
 } from 'lucide-react';
 import {
@@ -83,19 +76,6 @@ export default function Index({
       preserveScroll: true,
       preserveState: true,
     });
-  };
-
-  const limparFiltros = () => {
-    const limpos = {
-      ano_letivo_id: anoAtivoId ?? '',
-      curso_id: '',
-      disciplina_id: '',
-      classe_id: '',
-      periodo: '',
-    };
-    setFiltros(limpos);
-    setBusca('');
-    router.get(planificacoesIndex().url, {}, { preserveScroll: true });
   };
 
   const filtrosAtivos = Boolean(
@@ -195,7 +175,6 @@ export default function Index({
                 {can.create && (
                   <Button asChild size="sm" className="hover:cursor-pointer">
                     <Link href={planificacoesCreate().url}>
-                      <Plus className="mr-1.5 size-4" />
                       Nova planificação
                     </Link>
                   </Button>
@@ -210,16 +189,6 @@ export default function Index({
               <h2 className="text-sm font-semibold whitespace-nowrap">
                 Filtros
               </h2>
-              {filtrosAtivos && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={limparFiltros}
-                  className="hover:cursor-pointer"
-                >
-                  Limpar
-                </Button>
-              )}
             </div>
 
             {isAluno ? (
@@ -430,47 +399,41 @@ export default function Index({
               <Link
                 key={d.id}
                 href={`/dashboard/planificacoes/por-disciplina/${d.id}`}
-                className="group"
+                className="group block h-full"
               >
-                <Card className="flex h-full flex-col transition-shadow hover:shadow-md">
+                <Card className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md">
                   <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex size-11 shrink-0 items-center justify-center bg-muted">
-                          <BookOpen className="size-5 text-muted-foreground" />
-                        </div>
-                        <div className="min-w-0">
-                          <CardTitle className="truncate text-base leading-tight">
-                            {d.nome}
-                          </CardTitle>
-                          {d.sigla && (
-                            <CardDescription className="mt-0.5 font-mono text-xs">
-                              {d.sigla}
-                            </CardDescription>
-                          )}
-                        </div>
+                    <div className="flex min-w-0 items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <CardTitle
+                          className="truncate text-base leading-tight"
+                          title={d.nome}
+                        >
+                          {d.nome}
+                        </CardTitle>
+                        {d.sigla && (
+                          <CardDescription className="mt-0.5 truncate font-mono text-xs">
+                            {d.sigla}
+                          </CardDescription>
+                        )}
                       </div>
-                      <ChevronRight className="size-5 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5" />
                     </div>
                   </CardHeader>
 
                   <CardContent className="flex-1 space-y-2 pb-4">
                     <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="outline" className="gap-1 font-normal">
-                        <Layers className="size-3" />
+                      <Badge variant="outline" className="font-normal">
                         {d.total}{' '}
                         {d.total === 1 ? 'planificação' : 'planificações'}
                       </Badge>
                       {d.total_classes > 0 && (
-                        <Badge variant="outline" className="gap-1 font-normal">
-                          <Hash className="size-3" />
+                        <Badge variant="outline" className="font-normal">
                           {d.total_classes}{' '}
                           {d.total_classes === 1 ? 'classe' : 'classes'}
                         </Badge>
                       )}
                       {d.total_cursos > 0 && (
-                        <Badge variant="outline" className="gap-1 font-normal">
-                          <GraduationCap className="size-3" />
+                        <Badge variant="outline" className="font-normal">
                           {d.total_cursos}{' '}
                           {d.total_cursos === 1 ? 'curso' : 'cursos'}
                         </Badge>
@@ -479,11 +442,8 @@ export default function Index({
                   </CardContent>
 
                   <div className="border-t bg-muted/20 px-4 py-2.5">
-                    <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                      <Clock className="size-3 shrink-0" />
-                      <span className="truncate">
-                        Última atualização: {d.ultima_atualizacao ?? '—'}
-                      </span>
+                    <p className="truncate text-[11px] text-muted-foreground">
+                      Última atualização: {d.ultima_atualizacao ?? '—'}
                     </p>
                   </div>
                 </Card>

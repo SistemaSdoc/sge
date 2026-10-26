@@ -1,12 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
-import {
-  CheckCircle2,
-  Clock,
-  FileText,
-  Lock,
-  Pencil,
-  XCircle,
-} from 'lucide-react';
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -125,7 +118,6 @@ export default function Show({
                     variant="outline"
                     className="gap-1 border-white/20 bg-white/10 text-[10px] text-white backdrop-blur-sm"
                   >
-                    <Lock className="size-3" />
                     Bloqueado
                   </Badge>
                   
@@ -194,7 +186,6 @@ export default function Show({
                 className="hover:cursor-pointer"
               >
                 <Link href={aula.urls.editar}>
-                  <Pencil className="mr-1.5 size-4" />
                   Editar
                 </Link>
               </Button>
@@ -206,7 +197,6 @@ export default function Show({
         {cancelada && (
           <Card className="gap-0 border pb-0">
             <CardContent className="flex items-start gap-3 p-4">
-              <XCircle className="size-5 shrink-0 text-muted-foreground" />
               <div className="text-sm">
                 <p className="font-medium">Esta aula foi cancelada.</p>
                 {aula.observacoes && (
@@ -222,7 +212,6 @@ export default function Show({
         {rascunho && (
           <Card className="gap-0 border pb-0">
             <CardContent className="flex items-start gap-3 p-4">
-              <FileText className="size-5 shrink-0 text-muted-foreground" />
               <div className="text-sm">
                 <p className="font-medium">
                   Rascunho — ainda não visível aos alunos.
@@ -271,7 +260,6 @@ export default function Show({
           !cancelada && (
             <Card className="gap-0 border-dashed pb-0">
               <CardContent className="py-8 text-center text-sm text-muted-foreground">
-                <FileText className="mx-auto mb-2 size-8 opacity-50" />
                 Sumário ainda não escrito.
               </CardContent>
             </Card>

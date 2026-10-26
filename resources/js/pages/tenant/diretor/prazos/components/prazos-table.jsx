@@ -1,10 +1,7 @@
 import { router } from '@inertiajs/react';
 import {
-  PlusIcon,
   LayersIcon,
   MoreHorizontalIcon,
-  EyeIcon,
-  EditIcon,
   XCircleIcon,
 } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
@@ -43,7 +40,7 @@ export default function PrazosTable({
   const isEmpty = prazos.length === 0;
 
   return (
-    <Card className="mx-auto w-full max-w-7xl gap-0 pb-0">
+    <Card className="mx-auto w-full max-w-7xl gap-0">
       <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-center md:justify-between">
         <div className="min-w-0 md:flex-1">
           <CardTitle>Prazos de Provas</CardTitle>
@@ -53,7 +50,6 @@ export default function PrazosTable({
         </div>
         <CardAction className="w-full md:w-auto">
           <Button onClick={onCreate} className="w-full md:w-auto">
-            <PlusIcon className="mr-1.5 size-4" />
             Novo Prazo
           </Button>
         </CardAction>
@@ -120,9 +116,7 @@ export default function PrazosTable({
                       {prazo.status_label}
                     </TableCell>
                     <TableCell className="px-4 text-center">
-                      
-                        {prazo.total_submissoes || 0}
-                      
+                      {prazo.total_submissoes || 0}
                     </TableCell>
                     <TableCell className="px-4 text-right">
                       <DropdownMenu>
@@ -150,8 +144,7 @@ export default function PrazosTable({
                             }}
                             className="hover:cursor-pointer"
                           >
-                            <EyeIcon className="mr-2 size-4" />
-                            Ver detalhes
+                            Visualizar
                           </DropdownMenuItem>
 
                           <DropdownMenuItem
@@ -163,7 +156,6 @@ export default function PrazosTable({
                             }}
                             className="hover:cursor-pointer"
                           >
-                            <EditIcon className="mr-2 size-4" />
                             Editar
                           </DropdownMenuItem>
 
@@ -189,16 +181,14 @@ export default function PrazosTable({
             </Table>
           </div>
         )}
-
-        {pagination && pagination.last_page > 1 && (
-          <div className="border-t">
-            <TablePagination
-              pagination={pagination}
-              onPageChange={onPageChange}
-            />
-          </div>
-        )}
       </CardContent>
+
+      {pagination && pagination.total > 0 && (
+        <TablePagination
+          pagination={pagination}
+          onPageChange={onPageChange}
+        />
+      )}
     </Card>
   );
 }

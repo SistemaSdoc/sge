@@ -14,27 +14,18 @@ export default function FiltrosPrazos({
   onLimpar,
 }) {
   const handleChange = (field, value) => {
-    onChange({ ...filtros, [field]: value });
+    const normalizado = value === 'todos' || value === 'todas' ? '' : value;
+    onChange({ ...filtros, [field]: normalizado });
   };
 
   const temFiltrosAtivos =
-    (filtros.status && filtros.status !== 'todos') ||
-    (filtros.disciplina_id && filtros.disciplina_id !== 'todas');
+    Boolean(filtros.status) || Boolean(filtros.disciplina_id);
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold whitespace-nowrap">Filtros</h2>
-        {temFiltrosAtivos && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onLimpar}
-            className="hover:cursor-pointer"
-          >
-            Limpar
-          </Button>
-        )}
+
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

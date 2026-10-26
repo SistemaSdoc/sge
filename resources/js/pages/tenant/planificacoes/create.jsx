@@ -6,7 +6,6 @@ import {
   FileText,
   X,
   CheckCircle2,
-  CalendarDays,
   BookOpen,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -155,7 +154,6 @@ export default function Create({
           <Card className="gap-0 pb-0">
             <CardHeader className="border-b">
               <CardTitle className="flex items-center gap-2 text-base">
-                <CalendarDays className="size-4 text-muted-foreground" />
                 Contexto académico
               </CardTitle>
               <CardDescription>
@@ -293,7 +291,6 @@ export default function Create({
           <Card className="gap-0 pb-0">
             <CardHeader className="border-b">
               <CardTitle className="flex items-center gap-2 text-base">
-                <BookOpen className="size-4 text-muted-foreground" />
                 Detalhes
               </CardTitle>
               <CardDescription>
@@ -351,7 +348,6 @@ export default function Create({
           <Card className="gap-0 pb-0">
             <CardHeader className="border-b">
               <CardTitle className="flex items-center gap-2 text-base">
-                <FileText className="size-4 text-muted-foreground" />
                 Arquivo
               </CardTitle>
               <CardDescription>PDF, DOC ou DOCX — até 20 MB.</CardDescription>
@@ -403,7 +399,7 @@ export default function Create({
               ) : (
                 <div className="flex items-center gap-3 border bg-muted/20 p-4">
                   <div className="flex size-11 shrink-0 items-center justify-center bg-muted text-muted-foreground">
-                    <FileText className="size-5" />
+                  
                   </div>
                   <div className="min-w-0 flex-1">
                     <p
@@ -458,7 +454,6 @@ export default function Create({
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="mr-1.5 size-4" />
                   Publicar planificação
                 </>
               )}

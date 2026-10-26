@@ -19,6 +19,23 @@ import FiltrosPrazos from './components/filtros-prazos';
 import CriarPrazoDrawer from './components/criar-prazo-drawer';
 import PrazosTable from './components/prazos-table';
 
+const normalizar = (v) => {
+  if (!v || v === 'todos' || v === 'todas') return '';
+  return v;
+};
+
+const buildQuery = (obj) => {
+  const params = new URLSearchParams();
+  Object.keys(obj).forEach((key) => {
+    const v = obj[key];
+    if (v && v !== 'todos' && v !== 'todas') {
+      params.append(key, v);
+    }
+  });
+  const qs = params.toString();
+  return qs ? `?${qs}` : '';
+};
+
 export default function Index({
   prazos,
   filters,
@@ -29,26 +46,23 @@ export default function Index({
   const [openCriar, setOpenCriar] = useState(false);
 
   const [filtros, setFiltros] = useState({
-    status: filters?.status || '',
-    disciplina_id: filters?.disciplina_id || '',
-    ano_letivo: filters?.ano_letivo || '',
+    status: normalizar(filters?.status),
+    disciplina_id: normalizar(filters?.disciplina_id),
+    ano_letivo: normalizar(filters?.ano_letivo),
   });
 
   const aplicarFiltros = (novosFiltros) => {
-    const params = new URLSearchParams();
-    Object.keys(novosFiltros).forEach((key) => {
-      if (novosFiltros[key]) params.append(key, novosFiltros[key]);
-    });
-    router.visit('/dashboard/diretor/prazos?' + params.toString(), {
-      preserveScroll: true,
-    });
+    router.visit(
+      '/dashboard/diretor/prazos' + buildQuery(novosFiltros),
+      { preserveScroll: true },
+    );
   };
 
   const handlePageChange = (page) => {
-    router.visit('/dashboard/diretor/prazos', {
-      data: { page, ...filtros },
-      preserveScroll: true,
-    });
+    router.visit(
+      '/dashboard/diretor/prazos' + buildQuery({ page, ...filtros }),
+      { preserveScroll: true },
+    );
   };
 
   const abrirCriarPrazo = () => setOpenCriar(true);

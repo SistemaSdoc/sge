@@ -1,16 +1,6 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  Info,
-  Lock,
-  Save,
-  Send,
-  Users,
-  XCircle,
-} from 'lucide-react';
+
 import { toast } from 'sonner';
 import {
   Breadcrumb,
@@ -254,7 +244,7 @@ export default function Form({
             <CardAction className="flex flex-wrap items-center gap-2 self-stretch sm:self-start">
               {turmaNome && (
                 <Badge variant="secondary" className="gap-1 text-[10px]">
-                  <Users className="size-3" />
+                
                   {turmaNome}
                 </Badge>
               )}
@@ -263,7 +253,6 @@ export default function Form({
                   variant="outline"
                   className="gap-1 font-mono text-[10px]"
                 >
-                  <Clock className="size-3" />
                   {horaInicio}–{horaFim}
                 </Badge>
               )}
@@ -278,13 +267,12 @@ export default function Form({
           <div className="flex items-center justify-between gap-2 px-4 py-2">
             <Button variant="ghost" size="sm" asChild className="hover:cursor-pointer">
               <Link href="/dashboard/professor/aulas">
-                <ArrowLeft className="mr-1 size-4" />
-                Voltar
+  Voltar
               </Link>
             </Button>
             {editando && aula?.publicado_em && (
               <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                <Info className="size-3 shrink-0" />
+      
                 <span>
                   Publicado em {aula.publicado_em}
                   {aula.horas_restantes_edicao !== null &&
@@ -299,8 +287,7 @@ export default function Form({
         {bloqueado && (
           <Card className="gap-0 border pb-0">
             <CardContent className="flex items-start gap-3 p-4">
-              <Lock className="size-5 shrink-0 text-muted-foreground" />
-              <div className="text-sm">
+                 <div className="text-sm">
                 <p className="font-medium">Fora da janela de edição.</p>
                 <p className="mt-1 text-muted-foreground">
                   Esta aula foi publicada há mais de 48 horas. Não pode mais
@@ -555,7 +542,7 @@ export default function Form({
           <Card className="gap-0 pb-0">
             <CardContent className="flex flex-col-reverse gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Info className="size-3.5 shrink-0" />
+              
                 {editando && aula?.publicado_em ? (
                   <span>
                     Publicado em {aula.publicado_em}
@@ -577,7 +564,6 @@ export default function Form({
                     onClick={() => setCancelarDialog(true)}
                     className="hover:cursor-pointer"
                   >
-                    <XCircle className="mr-1.5 size-4" />
                     Cancelar aula
                   </Button>
                 )}
@@ -596,7 +582,6 @@ export default function Form({
                       </>
                     ) : (
                       <>
-                        <Save className="mr-1.5 size-4" />
                         {editando ? 'Salvar' : 'Salvar rascunho'}
                       </>
                     )}
@@ -617,7 +602,6 @@ export default function Form({
                       </>
                     ) : (
                       <>
-                        <Send className="mr-1.5 size-4" />
                         Publicar para alunos
                       </>
                     )}
@@ -626,7 +610,6 @@ export default function Form({
 
                 {publicado && (
                   <Badge variant="secondary" className="justify-center">
-                    <CheckCircle2 className="mr-1 size-3" />
                     Publicado
                   </Badge>
                 )}
@@ -641,7 +624,6 @@ export default function Form({
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <XCircle className="size-4 text-muted-foreground" />
               Cancelar esta aula?
             </DialogTitle>
             <DialogDescription>

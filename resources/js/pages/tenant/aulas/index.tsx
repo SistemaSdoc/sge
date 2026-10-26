@@ -2,9 +2,6 @@ import { Head, Link, router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import {
   Calendar,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
   Search,
 } from 'lucide-react';
 import {
@@ -42,6 +39,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { EmptyState } from '@/components/empty-state';
+import TablePagination from '@/components/table-pagination';
 
 interface Aula {
   id: string;
@@ -83,12 +81,6 @@ interface Props {
   disciplinas?: { id: string; nome: string }[];
 }
 
-const formatarData = (data: string | null | undefined): string => {
-  if (!data) return '—';
-  const [year, month, day] = data.split('-');
-  return `${day}/${month}/${year}`;
-};
-
 export default function Index({
   aulas,
   filtros = {},
@@ -117,17 +109,12 @@ export default function Index({
     aplicarFiltros(novos);
   };
 
-  const limparFiltros = () => {
-    const limpos = {
-      de: '',
-      ate: '',
-      disciplina_id: '',
-      professor_id: '',
-      estado: '',
-    };
-    setFiltrosLocais(limpos);
-    setBusca('');
-    router.get('/dashboard/aulas', limpos, { preserveScroll: true });
+  const handlePageChange = (page: number) => {
+    router.get(
+      '/dashboard/aulas',
+      { ...filtrosLocais, page },
+      { preserveScroll: true, preserveState: true },
+    );
   };
 
   const filtrosAtivos = Boolean(
@@ -161,6 +148,22 @@ export default function Index({
     const canceladas = aulas.data.filter((a) => a.estado === 'cancelado').length;
     return { comSumario, pendentes, canceladas };
   }, [aulas.data]);
+
+  // Objeto de paginação no formato esperado pelo TablePagination
+  const pagination = useMemo(() => {
+    const perPage = aulas.per_page ?? 20;
+    return {
+      current_page: aulas.current_page,
+      last_page: aulas.last_page,
+      total: aulas.total,
+      per_page: perPage,
+      from:
+        aulas.total > 0
+          ? (aulas.current_page - 1) * perPage + 1
+          : 0,
+      to: Math.min(aulas.current_page * perPage, aulas.total),
+    };
+  }, [aulas.current_page, aulas.last_page, aulas.total, aulas.per_page]);
 
   return (
     <>
@@ -199,16 +202,6 @@ export default function Index({
               <h2 className="text-sm font-semibold whitespace-nowrap">
                 Filtros
               </h2>
-              {filtrosAtivos && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={limparFiltros}
-                  className="hover:cursor-pointer"
-                >
-                  Limpar
-                </Button>
-              )}
             </div>
 
             <div className="relative">
@@ -297,7 +290,7 @@ export default function Index({
         </Card>
 
         {/* ── Tabela de aulas ────────────────────────────── */}
-        <Card className="gap-0 pb-0">
+        <Card className="gap-0">
           <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-center">
             <div className="min-w-0 md:flex-1">
               <CardTitle>Aulas</CardTitle>
@@ -342,7 +335,6 @@ export default function Index({
                         Disciplina
                       </TableHead>
                       <TableHead className="min-w-32 px-4">Turma</TableHead>
-                     
                       <TableHead className="min-w-64 px-4">Aula</TableHead>
                       <TableHead className="min-w-28 px-4 text-center">
                         Estado
@@ -360,7 +352,6 @@ export default function Index({
                           aula.estado === 'cancelado' ? 'opacity-60' : ''
                         }
                       >
-                  
                         <TableCell className="px-4 text-center font-mono text-xs tabular-nums whitespace-nowrap">
                           {aula.hora_inicio}–{aula.hora_fim}
                         </TableCell>
@@ -374,7 +365,6 @@ export default function Index({
                             {aula.turma_nome}
                           </span>
                         </TableCell>
-                        
                         <TableCell className="px-4">
                           {aula.titulo && (
                             <div className="line-clamp-1 font-medium">
@@ -396,10 +386,6 @@ export default function Index({
                             <Badge variant="secondary" className="text-[10px]">
                               ✓ {aula.estado_label}
                             </Badge>
-                          ) : aula.estado === 'cancelado' ? (
-                            <Badge variant="outline" className="text-[10px]">
-                              {aula.estado_label}
-                            </Badge>
                           ) : (
                             <Badge variant="outline" className="text-[10px]">
                               {aula.estado_label}
@@ -408,14 +394,12 @@ export default function Index({
                         </TableCell>
                         <TableCell className="px-4 text-center">
                           <Button
-                            variant="ghost"
-                            size="icon"
+                            variant="outline"
+                            size="sm"
                             asChild
                             className="hover:cursor-pointer"
                           >
-                            <Link href={aula.urls.ver}>
-                              <Eye className="size-4" />
-                            </Link>
+                            <Link href={aula.urls.ver}>Visualizar</Link>
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -424,56 +408,14 @@ export default function Index({
                 </Table>
               </div>
             )}
-
-            {aulas.last_page > 1 && aulasFiltradas.length > 0 && (
-              <div className="flex items-center justify-between border-t px-4 py-3">
-                <p className="text-xs text-muted-foreground">
-                  Página {aulas.current_page} de {aulas.last_page} ·{' '}
-                  {aulas.total} no total
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={aulas.current_page === 1}
-                    onClick={() =>
-                      router.get(
-                        '/dashboard/aulas',
-                        {
-                          ...filtrosLocais,
-                          page: aulas.current_page - 1,
-                        },
-                        { preserveScroll: true, preserveState: true },
-                      )
-                    }
-                    className="hover:cursor-pointer"
-                  >
-                    <ChevronLeft className="size-4" />
-                    Anterior
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={aulas.current_page === aulas.last_page}
-                    onClick={() =>
-                      router.get(
-                        '/dashboard/aulas',
-                        {
-                          ...filtrosLocais,
-                          page: aulas.current_page + 1,
-                        },
-                        { preserveScroll: true, preserveState: true },
-                      )
-                    }
-                    className="hover:cursor-pointer"
-                  >
-                    Próxima
-                    <ChevronRight className="size-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
           </CardContent>
+
+          {pagination.total > 0 && (
+            <TablePagination
+              pagination={pagination}
+              onPageChange={handlePageChange}
+            />
+          )}
         </Card>
       </div>
     </>

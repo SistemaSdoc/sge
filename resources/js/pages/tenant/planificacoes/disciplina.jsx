@@ -89,7 +89,7 @@ export default function Disciplina({
       <Head title={`Planificações — ${disciplina.nome}`} />
 
       <div className="mx-auto w-full max-w-7xl space-y-4 p-4 sm:p-6">
-        {/* Header */}
+        {/* Header — só breadcrumb + ações */}
         <Card className="gap-0 pb-0">
           <CardHeader className="flex flex-col gap-3 border-b border-foreground/10 md:flex-row md:items-center">
             <div className="min-w-0 md:flex-1">
@@ -133,39 +133,45 @@ export default function Disciplina({
               )}
             </CardAction>
           </CardHeader>
+        </Card>
 
-          {/* Stats — sem ícones */}
-          {planificacoes.length > 0 && (
-            <CardContent className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
-              <div>
+        {/* Stats — 3 cards irmãos (fora do Card do header) */}
+        {planificacoes.length > 0 && (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <Card className="gap-0 pb-0">
+              <CardContent className="p-4">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                   Planificações
                 </p>
-                <p className="text-xl font-bold">{stats.total}</p>
-              </div>
+                <p className="mt-1 text-xl font-bold">{stats.total}</p>
+              </CardContent>
+            </Card>
 
-              <div>
+            <Card className="gap-0 pb-0">
+              <CardContent className="p-4">
                 <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                   Classes
                 </p>
-                <p className="text-xl font-bold">{stats.classes}</p>
-              </div>
+                <p className="mt-1 text-xl font-bold">{stats.classes}</p>
+              </CardContent>
+            </Card>
 
-              {stats.ultima && (
-                <div className="min-w-0">
+            {stats.ultima && (
+              <Card className="gap-0 pb-0">
+                <CardContent className="min-w-0 p-4">
                   <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                     Última atualização
                   </p>
-                  <p className="truncate text-sm font-semibold">
+                  <p className="mt-1 truncate text-sm font-semibold">
                     {stats.ultima.atualizada_em}
                   </p>
-                </div>
-              )}
-            </CardContent>
-          )}
-        </Card>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
 
-        {/* Busca — sem ícone */}
+        {/* Busca */}
         {planificacoes.length > 0 && (
           <Card className="gap-0 pb-0">
             <CardContent className="p-4">
@@ -195,7 +201,6 @@ export default function Disciplina({
           <div className="space-y-6">
             {grupos.map(({ classe, items }) => (
               <section key={classe.id} className="space-y-3">
-                {/* Header da classe — sem ícone */}
                 <div className="flex items-center gap-3 border-b pb-2">
                   <div className="flex-1">
                     <h2 className="text-base leading-none font-semibold">
@@ -206,12 +211,9 @@ export default function Disciplina({
                       {items.length === 1 ? 'planificação' : 'planificações'}
                     </p>
                   </div>
-                  <Badge variant="outline" className="font-mono">
-                    {items.length}
-                  </Badge>
+                 
                 </div>
 
-                {/* Grid */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {items.map((p) => (
                     <Card

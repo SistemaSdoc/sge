@@ -5,10 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  Edit3,
-  Eye,
   Lock,
-  Plus,
   Search,
 } from 'lucide-react';
 import {
@@ -188,18 +185,14 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
     0,
   );
   const comSumario = totalAulas - semSumario;
-  const percConcluido =
-    totalAulas > 0 ? Math.round((comSumario / totalAulas) * 100) : 0;
 
   return (
     <>
       <Head title="As minhas aulas" />
 
       <div className="mx-auto w-full max-w-6xl space-y-4 p-4 sm:p-6">
-        {/* ── Header + Filtros ───────────────── */}
-        <Card className="gap-0! overflow-hidden pb-0">
-     
-
+        {/* ── Card 1: Header ───────────────────────────── */}
+        <Card className="gap-0 pb-0">
           <CardHeader className="border-b border-foreground/10">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 space-y-1">
@@ -207,7 +200,7 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                   <BreadcrumbList className="flex-wrap">
                     <BreadcrumbItem className="min-w-0">
                       <BreadcrumbLink asChild>
-                        <span className="line-clamp-2 text-sm text-primary font-semibold">
+                        <span className="line-clamp-2 text-sm font-semibold text-primary">
                           Professor
                         </span>
                       </BreadcrumbLink>
@@ -228,15 +221,16 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
 
               <Button asChild className="hover:cursor-pointer">
                 <Link href="/dashboard/professor/aulas/create">
-                  <Plus className="mr-1.5 size-4" />
                   Aula extra
                 </Link>
               </Button>
             </div>
           </CardHeader>
+        </Card>
 
-          {/* Stats compactas + busca + navegação */}
-          <div className="space-y-3 px-4 py-3">
+        {/* ── Card 2: Stats + Busca + Navegação ────────── */}
+        <Card className="gap-0 pb-0">
+          <CardContent className="space-y-3 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-3 text-xs">
                 <span className="inline-flex items-center gap-1.5">
@@ -253,9 +247,7 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                   <span className="font-semibold tabular-nums">
                     {comSumario}
                   </span>
-                  <span className="text-muted-foreground">
-                    com sumário
-                  </span>
+                  <span className="text-muted-foreground">com sumário</span>
                 </span>
                 {semSumario > 0 && (
                   <span className="inline-flex items-center gap-1.5">
@@ -263,9 +255,7 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                     <span className="font-semibold tabular-nums">
                       {semSumario}
                     </span>
-                    <span className="text-muted-foreground">
-                      sem sumário
-                    </span>
+                    <span className="text-muted-foreground">sem sumário</span>
                   </span>
                 )}
               </div>
@@ -309,7 +299,7 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                 className="pl-9"
               />
             </div>
-          </div>
+          </CardContent>
         </Card>
 
         {/* ── Agenda por dia ───────────────────────────── */}
@@ -341,13 +331,11 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                     dia.is_passado && 'opacity-70',
                   )}
                 >
-                  {/* Day header sticky */}
+                  {/* Day header */}
                   <div
                     className={cn(
-                      'sticky top-0 z-10 flex items-center gap-3 border-b px-4 py-3 backdrop-blur',
-                      dia.is_hoje
-                        ? 'bg-muted/80'
-                        : 'bg-background/90',
+                      'flex items-center gap-3 border-b px-4 py-3',
+                      dia.is_hoje ? 'bg-muted/50' : 'bg-transparent',
                     )}
                   >
                     {/* Bloco do dia */}
@@ -417,66 +405,55 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
             <CardHeader className="border-b px-5 py-3 sm:px-6">
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <CardTitle className="text-sm">Fora do horário</CardTitle>
+                  <CardTitle className="text-sm">Aulas extra</CardTitle>
                   <CardDescription className="mt-0.5 text-xs">
-                    Aulas extra / reposições
+                    Aulas extra
                   </CardDescription>
                 </div>
-                <Badge variant="outline" className="text-[10px]">
-                  {extras.length}
-                </Badge>
+               
               </div>
             </CardHeader>
 
-            <CardContent className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-2">
+            <CardContent className="divide-y p-0!">
               {extras.map((aula) => {
                 const p = partesData(aula.data);
                 return (
                   <div
                     key={aula.id}
-                    className="flex flex-col border bg-background transition-colors hover:bg-muted/30"
+                    className="flex flex-col gap-2 px-4 py-3 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center"
                   >
-                    <div className="flex items-center justify-between gap-2 border-b bg-muted/30 px-3 py-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-semibold tabular-nums">
-                          {p.dia}/{p.mes}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">
-                          {aula.hora_inicio} – {aula.hora_fim}
-                        </span>
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <span className="shrink-0 text-[11px] font-semibold tabular-nums">
+                        {p.dia}/{p.mes}
+                      </span>
+                      <span className="shrink-0 text-[10px] text-muted-foreground">
+                        {aula.hora_inicio} – {aula.hora_fim}
+                      </span>
+
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold leading-tight">
+                          {aula.disciplina_nome}
+                        </p>
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                          {aula.turma_nome}
+                        </p>
                       </div>
-                      <Badge variant="outline" className="text-[10px]">
+
+                      <Badge variant="outline" className="shrink-0 text-[10px]">
                         {aula.estado_label}
                       </Badge>
                     </div>
-                    <div className="flex-1 px-3 py-2">
-                      <p className="truncate text-sm font-semibold leading-tight">
-                        {aula.disciplina_nome}
-                      </p>
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                        {aula.turma_nome}
-                      </p>
-                      {aula.tem_sumario ? (
-                        <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">
-                          {aula.sumario}
-                        </p>
-                      ) : (
-                        <p className="mt-2 text-xs italic text-muted-foreground">
-                          Sem sumário escrito
-                        </p>
-                      )}
-                    </div>
-                    <div className="border-t px-3 py-2">
+
+                    <div className="shrink-0 sm:ml-2">
                       <Button
                         asChild
                         variant="outline"
                         size="sm"
-                        className="h-7 w-full text-xs hover:cursor-pointer"
+                        className="h-7 text-xs hover:cursor-pointer"
                       >
                         <Link
                           href={`/dashboard/professor/aulas/${aula.id}/edit`}
                         >
-                          <Edit3 className="mr-1.5 size-3" />
                           Editar
                         </Link>
                       </Button>
@@ -541,7 +518,6 @@ function CardAulaRow({
             </p>
           </div>
 
-          {/* Badge de estado */}
           <div className="shrink-0">
             {semRegisto && !isPassado && (
               <Badge variant="outline" className="text-[10px]">
@@ -571,7 +547,6 @@ function CardAulaRow({
           </div>
         </div>
 
-        {/* Título / Sumário */}
         {aula?.titulo && (
           <p className="mt-2 text-xs font-medium leading-snug">
             {aula.titulo}
@@ -583,13 +558,10 @@ function CardAulaRow({
           </p>
         ) : (
           <p className="mt-1 text-xs italic text-muted-foreground">
-            {isPassado
-              ? 'Sumário não foi escrito.'
-              : 'Sumário a escrever.'}
+            {isPassado ? 'Sumário não foi escrito.' : 'Sumário a escrever.'}
           </p>
         )}
 
-        {/* Meta + ações */}
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
             {publicado && aula?.horas_restantes_edicao !== null && (
@@ -617,7 +589,6 @@ function CardAulaRow({
                 <Link
                   href={`/dashboard/professor/aulas/create?slot_id=${slot.id}&data=${data}`}
                 >
-                  <Plus className="mr-1 size-3" />
                   Escrever
                 </Link>
               </Button>
@@ -631,7 +602,6 @@ function CardAulaRow({
                     className="h-7 text-xs hover:cursor-pointer"
                   >
                     <Link href={`/dashboard/professor/aulas/${aula.id}/edit`}>
-                      <Edit3 className="mr-1 size-3" />
                       Editar
                     </Link>
                   </Button>
@@ -648,13 +618,13 @@ function CardAulaRow({
                 )}
                 {aula && (
                   <Button
-                    asChild
-                    variant="ghost"
-                    size="icon"
-                    className="size-7 hover:cursor-pointer"
+                        asChild
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs hover:cursor-pointer"
                   >
                     <Link href={`/dashboard/aulas/${aula.id}`}>
-                      <Eye className="size-3.5" />
+                      Visualizar
                     </Link>
                   </Button>
                 )}

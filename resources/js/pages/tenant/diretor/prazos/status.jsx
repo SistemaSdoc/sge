@@ -1,19 +1,6 @@
 import { Head, router, Link } from '@inertiajs/react';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
-import {
-  ArrowLeft,
-  Users,
-  CheckCircle,
-  XCircle,
-  User,
-  Check,
-  X,
-  Clock,
-  AlertCircle,
-  CalendarClock,
-  AlertTriangle,
-} from 'lucide-react';
 
 import {
   Breadcrumb,
@@ -54,8 +41,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { EmptyState } from '@/components/empty-state';
 import { Spinner } from '@/components/spinner';
+import TablePagination from '@/components/table-pagination';
 
-export default function Status({ prazo, professores }) {
+const POR_PAGINA = 15;
+
+export default function Status({ prazo, professores = [] }) {
   const [processing, setProcessing] = useState({});
 
   const [rejectDialog, setRejectDialog] = useState(null);
@@ -231,6 +221,29 @@ export default function Status({ prazo, professores }) {
   const cumpriram = professores.filter((p) => p.submeteu).length;
   const naoCumpriram = total - cumpriram;
 
+  // ────────────────────────────────────────────────────────
+  // 5. PAGINAÇÃO (client-side)
+  // ────────────────────────────────────────────────────────
+  const [pagina, setPagina] = useState(1);
+
+  const professoresPaginados = useMemo(() => {
+    const inicio = (pagina - 1) * POR_PAGINA;
+    return professores.slice(inicio, inicio + POR_PAGINA);
+  }, [professores, pagina]);
+
+  const pagination = useMemo(() => {
+    const lastPage = Math.max(1, Math.ceil(professores.length / POR_PAGINA));
+    return {
+      current_page: pagina,
+      last_page: lastPage,
+      total: professores.length,
+      per_page: POR_PAGINA,
+      from:
+        professores.length > 0 ? (pagina - 1) * POR_PAGINA + 1 : 0,
+      to: Math.min(pagina * POR_PAGINA, professores.length),
+    };
+  }, [professores.length, pagina]);
+
   return (
     <>
       <Head title={`Status: ${prazo.titulo}`} />
@@ -280,55 +293,45 @@ export default function Status({ prazo, professores }) {
             <CardAction>
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/diretor/prazos/${prazo.id}`}>
-                  <ArrowLeft className="mr-1.5 size-4" />
                   Voltar
                 </Link>
               </Button>
             </CardAction>
           </CardHeader>
-
-          {/* Stats como grid de meta — sem cores */}
-          <CardContent className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center bg-muted">
-                <Users className="size-5 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Total
-                </p>
-                <p className="text-xl font-bold">{total}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center bg-muted">
-                <CheckCircle className="size-5 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Submeteram
-                </p>
-                <p className="text-xl font-bold">{cumpriram}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center bg-muted">
-                <XCircle className="size-5 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Não submeteram
-                </p>
-                <p className="text-xl font-bold">{naoCumpriram}</p>
-              </div>
-            </div>
-          </CardContent>
         </Card>
 
+        {/* ── Stats ─────────────────────────────────────── */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Card className="gap-0 pb-0">
+            <CardContent className="p-4">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Total
+              </p>
+              <p className="mt-1 text-xl font-bold">{total}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="gap-0 pb-0">
+            <CardContent className="p-4">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Submetido
+              </p>
+              <p className="mt-1 text-xl font-bold">{cumpriram}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="gap-0 pb-0">
+            <CardContent className="p-4">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Não submetido
+              </p>
+              <p className="mt-1 text-xl font-bold">{naoCumpriram}</p>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* ── Tabela ─────────────────────────────────────── */}
-        <Card className="gap-0 pb-0">
+        <Card className="gap-0">
           <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-center">
             <div className="min-w-0 md:flex-1">
               <CardTitle>Lista de Professores</CardTitle>
@@ -343,7 +346,6 @@ export default function Status({ prazo, professores }) {
             {professores.length === 0 ? (
               <EmptyState
                 variant="table"
-                icon={Users}
                 title="Sem professores"
                 description="Nenhum professor atribuído a este prazo."
               />
@@ -354,10 +356,7 @@ export default function Status({ prazo, professores }) {
                     <TableRow className="bg-muted/72">
                       <TableHead className="min-w-48 px-4">Professor</TableHead>
                       <TableHead className="min-w-32 px-4">Turma</TableHead>
-                      <TableHead className="min-w-36 px-4">Submissão</TableHead>
-                      <TableHead className="min-w-20 px-4 text-center">
-                        Versão
-                      </TableHead>
+                      <TableHead className="min-w-36 px-4">Submetido</TableHead>
                       <TableHead className="min-w-32 px-4 text-center">
                         Data
                       </TableHead>
@@ -370,7 +369,7 @@ export default function Status({ prazo, professores }) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {professores.map((prof) => {
+                    {professoresPaginados.map((prof) => {
                       const rowKey = `${prof.professor_id}-${prof.turma_id ?? 'sem-turma'}`;
                       const isSubmiting =
                         processing[`sub_${prof.submissao_id}`];
@@ -381,20 +380,14 @@ export default function Status({ prazo, professores }) {
                       return (
                         <TableRow key={rowKey}>
                           <TableCell className="px-4 font-medium">
-                            <div className="flex items-center gap-2">
-                              <div className="flex size-8 items-center justify-center bg-muted">
-                                <User className="size-4 text-muted-foreground" />
-                              </div>
-                              <span className="truncate">
-                                {prof.professor_nome}
-                              </span>
-                            </div>
+                            <span className="truncate">
+                              {prof.professor_nome}
+                            </span>
                           </TableCell>
 
                           <TableCell className="px-4">
                             {prof.turma_nome && prof.turma_nome !== '—' ? (
-                              <Badge variant="outline" className="gap-1">
-                                <Users className="size-3" />
+                              <Badge variant="outline">
                                 {prof.turma_nome}
                               </Badge>
                             ) : (
@@ -407,32 +400,16 @@ export default function Status({ prazo, professores }) {
                           <TableCell className="px-4">
                             {prof.submeteu ? (
                               <div className="flex flex-wrap items-center gap-1">
-                                <Badge variant="outline">
-                                  <CheckCircle className="mr-1 size-3" />
-                                  Submeteu
-                                </Badge>
+                                <Badge variant="outline">Submetido</Badge>
                                 {prof.estado && (
                                   <Badge variant="outline">
-                                    {prof.estado === 'aprovado' && (
-                                      <Check className="mr-1 size-3" />
-                                    )}
-                                    {prof.estado === 'rejeitado' && (
-                                      <X className="mr-1 size-3" />
-                                    )}
                                     {prof.estado_label}
                                   </Badge>
                                 )}
                               </div>
                             ) : (
-                              <Badge variant="outline">
-                                <XCircle className="mr-1 size-3" />
-                                Não submeteu
-                              </Badge>
+                              <Badge variant="outline">Não submetido</Badge>
                             )}
-                          </TableCell>
-
-                          <TableCell className="px-4 text-center font-mono text-xs tabular-nums">
-                            {prof.versao ? `v${prof.versao}` : '—'}
                           </TableCell>
 
                           <TableCell className="px-4 text-center text-xs text-muted-foreground whitespace-nowrap">
@@ -443,24 +420,12 @@ export default function Status({ prazo, professores }) {
                             {prof.justificativa ? (
                               <div className="space-y-1">
                                 <Badge variant="outline">
-                                  {prof.justificativa.status ===
-                                    'pendente' && (
-                                    <AlertCircle className="mr-1 size-3" />
-                                  )}
-                                  {prof.justificativa.status === 'aceita' && (
-                                    <CheckCircle className="mr-1 size-3" />
-                                  )}
-                                  {prof.justificativa.status ===
-                                    'recusada' && (
-                                    <XCircle className="mr-1 size-3" />
-                                  )}
                                   {prof.justificativa.status_label}
                                 </Badge>
                                 <p className="line-clamp-2 text-xs text-muted-foreground">
                                   {prof.justificativa.motivo}
                                 </p>
-                                <p className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                                  <Clock className="size-3" />
+                                <p className="text-[10px] text-muted-foreground">
                                   {prof.justificativa.data_justificativa}
                                 </p>
                               </div>
@@ -486,14 +451,7 @@ export default function Status({ prazo, professores }) {
                                   disabled={isSubmiting}
                                   className="hover:cursor-pointer"
                                 >
-                                  {isSubmiting ? (
-                                    <Spinner />
-                                  ) : (
-                                    <>
-                                      <Check className="mr-1 size-4" />
-                                      Aprovar
-                                    </>
-                                  )}
+                                  {isSubmiting ? <Spinner /> : 'Aprovar'}
                                 </Button>
                                 <Button
                                   variant="outline"
@@ -508,15 +466,13 @@ export default function Status({ prazo, professores }) {
                                   disabled={isSubmiting}
                                   className="hover:cursor-pointer"
                                 >
-                                  <X className="mr-1 size-4" />
                                   Rejeitar
                                 </Button>
                               </div>
                             )}
 
                             {prof.submeteu && prof.estado !== 'pendente' && (
-                              <span className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-                                <CheckCircle className="size-4" />
+                              <span className="text-xs text-muted-foreground">
                                 Avaliado
                               </span>
                             )}
@@ -539,14 +495,7 @@ export default function Status({ prazo, professores }) {
                                     }
                                     disabled={isJustifying}
                                   >
-                                    {isJustifying ? (
-                                      <Spinner />
-                                    ) : (
-                                      <>
-                                        <Check className="mr-1 size-3" />
-                                        Aceitar
-                                      </>
-                                    )}
+                                    {isJustifying ? <Spinner /> : 'Aceitar'}
                                   </Button>
                                   <Button
                                     size="sm"
@@ -561,7 +510,6 @@ export default function Status({ prazo, professores }) {
                                     }
                                     disabled={isJustifying}
                                   >
-                                    <X className="mr-1 size-3" />
                                     Recusar
                                   </Button>
                                 </div>
@@ -570,12 +518,7 @@ export default function Status({ prazo, professores }) {
                             {!prof.submeteu &&
                               prof.justificativa &&
                               prof.justificativa.status !== 'pendente' && (
-                                <span className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-                                  {prof.justificativa.status === 'aceita' ? (
-                                    <CheckCircle className="size-4" />
-                                  ) : (
-                                    <XCircle className="size-4" />
-                                  )}
+                                <span className="text-xs text-muted-foreground">
                                   {prof.justificativa.status_label}
                                 </span>
                               )}
@@ -594,6 +537,13 @@ export default function Status({ prazo, professores }) {
               </div>
             )}
           </CardContent>
+
+          {pagination.total > 0 && (
+            <TablePagination
+              pagination={pagination}
+              onPageChange={setPagina}
+            />
+          )}
         </Card>
       </div>
 
@@ -604,10 +554,7 @@ export default function Status({ prazo, professores }) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <XCircle className="size-5 text-muted-foreground" />
-              Rejeitar Submissão
-            </DialogTitle>
+            <DialogTitle>Rejeitar Submissão</DialogTitle>
             <DialogDescription>
               <strong>Professor:</strong> {rejectDialog?.professorNome}
               <br />
@@ -648,10 +595,7 @@ export default function Status({ prazo, professores }) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <XCircle className="size-5 text-muted-foreground" />
-              Recusar Justificativa
-            </DialogTitle>
+            <DialogTitle>Recusar Justificativa</DialogTitle>
             <DialogDescription>
               <strong>{justificativaDialog?.professorNome}</strong> •{' '}
               {justificativaDialog?.turmaNome}
@@ -698,10 +642,7 @@ export default function Status({ prazo, professores }) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CalendarClock className="size-5 text-muted-foreground" />
-              Aceitar Justificativa
-            </DialogTitle>
+            <DialogTitle>Aceitar Justificativa</DialogTitle>
             <DialogDescription>
               <strong>{justificativaDialog?.professorNome}</strong> •{' '}
               {justificativaDialog?.turmaNome}
@@ -710,12 +651,9 @@ export default function Status({ prazo, professores }) {
 
           <div className="space-y-3">
             <div className="border bg-muted/50 p-3">
-              <p className="flex items-start gap-2 text-sm text-muted-foreground">
-                <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-                <span>
-                  Ao aceitar, será concedido um prazo extra para o professor
-                  submeter a prova <strong>desta turma</strong>.
-                </span>
+              <p className="text-sm text-muted-foreground">
+                Ao aceitar, será concedido um prazo extra para o professor
+                submeter a prova <strong>desta turma</strong>.
               </p>
             </div>
 
@@ -747,7 +685,6 @@ export default function Status({ prazo, professores }) {
               onClick={confirmAceitar}
               className="hover:cursor-pointer"
             >
-              <Check className="mr-1.5 size-4" />
               Aceitar e conceder {diasPrazoExtra} dias
             </Button>
           </DialogFooter>

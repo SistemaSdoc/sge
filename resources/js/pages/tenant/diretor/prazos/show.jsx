@@ -198,13 +198,11 @@ export default function Show({ prazo, submissoes }) {
               </CardDescription>
             </div>
             <CardAction className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className="gap-1">
-                {prazo.status_label}
-              </Badge>
+
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/diretor/prazos/${prazo.id}/status`}>
-                 
-                  Status
+
+                  Relatório
                 </Link>
               </Button>
               <Button variant="outline" size="sm" asChild>
@@ -226,6 +224,7 @@ export default function Show({ prazo, submissoes }) {
                 {prazo.tipo_prova}
               </p>
             </div>
+
             <div className="min-w-0">
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Disciplina
@@ -234,6 +233,7 @@ export default function Show({ prazo, submissoes }) {
                 {prazo.disciplina?.nome || 'Todas'}
               </p>
             </div>
+
             <div className="min-w-0">
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Classe
@@ -242,6 +242,7 @@ export default function Show({ prazo, submissoes }) {
                 {prazo.classe?.nome || 'Todas'}
               </p>
             </div>
+
             <div className="min-w-0">
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Início
@@ -250,6 +251,7 @@ export default function Show({ prazo, submissoes }) {
                 {prazo.data_inicio}
               </p>
             </div>
+
             <div className="min-w-0">
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Limite
@@ -258,6 +260,7 @@ export default function Show({ prazo, submissoes }) {
                 {prazo.data_limite}
               </p>
             </div>
+
             <div className="min-w-0">
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Ano Letivo
@@ -266,12 +269,23 @@ export default function Show({ prazo, submissoes }) {
                 {prazo.ano_letivo}
               </p>
             </div>
+
             <div className="min-w-0">
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Período
               </p>
               <p className="truncate text-sm font-medium">{prazo.periodo}</p>
             </div>
+
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Estado
+              </p>
+              <p className="truncate text-sm font-medium">
+                {prazo.status_label}
+              </p>
+            </div>
+
             <div className="col-span-1 min-w-0 sm:col-span-2 md:col-span-4">
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Observações
