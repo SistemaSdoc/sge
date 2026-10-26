@@ -1,21 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
-import {
-  BookOpen,
-  CalendarDays,
-  CheckCircle2,
-  Clock,
-  Eye,
-  FileText,
-  GraduationCap,
-  Lock,
-  NotebookPen,
-  Pencil,
-  Send,
-  Trash2,
-  UserCheck,
-  XCircle,
-} from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Breadcrumb,
@@ -43,11 +27,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Field,
-  FieldLabel,
-} from '@/components/ui/field';
+import { Field, FieldLabel } from '@/components/ui/field';
 import { Spinner } from '@/components/spinner';
+import { formatarDataHumana } from '@/utils/format-date';
 
 interface Aula {
   id: string;
@@ -162,7 +144,7 @@ export default function Show({
     });
   };
 
-  const temAcoes = podePublicar || podeCancelar || podeApagar;
+  const temAcoes = podeEditar || podePublicar || podeCancelar || podeApagar;
 
   return (
     <>
@@ -191,29 +173,17 @@ export default function Show({
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* Card principal: Hero + Meta + Acções */}
+        {/* Card principal */}
         <Card className="overflow-hidden pt-0!">
-          <div className="relative flex h-56 w-full items-end bg-gradient-to-br from-primary/20 via-primary/10 to-muted">
+          <div className="relative flex h-56 w-full items-end bg-muted">
             <div className="absolute inset-0 bg-black/40" aria-hidden />
 
             <div className="relative z-10 space-y-2 p-6 text-white">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge
-                  variant={
-                    cancelada
-                      ? 'destructive'
-                      : publicado
-                        ? 'default'
-                        : 'secondary'
-                  }
-                  className={
-                    publicado
-                      ? 'bg-green-600 text-[10px] text-white hover:bg-green-600'
-                      : 'border-white/20 bg-white/10 text-[10px] text-white backdrop-blur-sm'
-                  }
+                  variant="outline"
+                  className="border-white/20 bg-white/10 text-[10px] text-white backdrop-blur-sm"
                 >
-                  {cancelada && <XCircle className="mr-1 size-3" />}
-                  {publicado && <CheckCircle2 className="mr-1 size-3" />}
                   {aula.estado_label}
                 </Badge>
 
@@ -229,9 +199,8 @@ export default function Show({
                 {publicado && aula.horas_restantes_edicao !== null && (
                   <Badge
                     variant="outline"
-                    className="gap-1 border-white/20 bg-white/10 text-[10px] text-white backdrop-blur-sm"
+                    className="border-white/20 bg-white/10 text-[10px] text-white backdrop-blur-sm"
                   >
-                    <Clock className="size-3" />
                     {aula.horas_restantes_edicao}h para editar
                   </Badge>
                 )}
@@ -239,9 +208,8 @@ export default function Show({
                 {publicado && !aula.esta_editavel && (
                   <Badge
                     variant="outline"
-                    className="gap-1 border-white/20 bg-white/10 text-[10px] text-white backdrop-blur-sm"
+                    className="border-white/20 bg-white/10 text-[10px] text-white backdrop-blur-sm"
                   >
-                    <Lock className="size-3" />
                     Bloqueado
                   </Badge>
                 )}
@@ -261,7 +229,9 @@ export default function Show({
           <CardContent className="grid grid-cols-1 gap-6 py-6 md:grid-cols-3">
             <div>
               <p className="text-sm text-muted-foreground">Data</p>
-              <p className="font-medium capitalize">{aula.data_humana}</p>
+              <p className="font-medium capitalize">
+                {formatarDataHumana(aula.data)}
+              </p>
             </div>
 
             <div>
@@ -298,7 +268,7 @@ export default function Show({
             )}
           </CardContent>
 
-          {/* Footer de acções — professor */}
+          {/* Footer de ações — professor */}
           {temAcoes && (
             <div className="flex flex-wrap items-center justify-end gap-2 border-t px-4 py-3">
               {podeEditar && aula.esta_editavel && !cancelada && (
@@ -307,10 +277,7 @@ export default function Show({
                   variant="outline"
                   className="hover:cursor-pointer"
                 >
-                  <Link href={aula.urls.editar}>
-                    <Pencil className="mr-1.5 size-4" />
-                    Editar
-                  </Link>
+                  <Link href={aula.urls.editar}>Editar</Link>
                 </Button>
               )}
 
@@ -323,13 +290,10 @@ export default function Show({
                   {processando ? (
                     <>
                       <Spinner />
-                      A publicar…
+                      Publicando...
                     </>
                   ) : (
-                    <>
-                      <Send className="mr-1.5 size-4" />
-                      Publicar para alunos
-                    </>
+                    'Publicar para alunos'
                   )}
                 </Button>
               )}
@@ -339,9 +303,8 @@ export default function Show({
                   variant="ghost"
                   onClick={() => setCancelarDialog(true)}
                   disabled={processando}
-                  className="text-destructive hover:bg-destructive/10 hover:text-destructive hover:cursor-pointer"
+                  className="hover:cursor-pointer"
                 >
-                  <XCircle className="mr-1.5 size-4" />
                   Cancelar aula
                 </Button>
               )}
@@ -351,9 +314,8 @@ export default function Show({
                   variant="ghost"
                   onClick={() => setApagarDialog(true)}
                   disabled={processando}
-                  className="text-destructive hover:bg-destructive/10 hover:text-destructive hover:cursor-pointer"
+                  className="hover:cursor-pointer"
                 >
-                  <Trash2 className="mr-1.5 size-4" />
                   Apagar rascunho
                 </Button>
               )}
@@ -361,37 +323,29 @@ export default function Show({
           )}
         </Card>
 
-        {/* Avisos */}
+        {/* Avisos neutros */}
         {cancelada && (
-          <Card className="gap-0 border-red-200 pb-0 dark:border-red-800">
-            <CardContent className="flex items-start gap-3 p-4">
-              <XCircle className="size-5 shrink-0 text-red-600 dark:text-red-400" />
-              <div className="text-sm">
-                <p className="font-medium text-red-800 dark:text-red-300">
-                  Esta aula foi cancelada.
+          <Card className="gap-0 border pb-0">
+            <CardContent className="p-4 text-sm">
+              <p className="font-medium">Esta aula foi cancelada.</p>
+              {aula.observacoes && (
+                <p className="mt-1 text-muted-foreground">
+                  {aula.observacoes}
                 </p>
-                {aula.observacoes && (
-                  <p className="mt-1 text-red-700 dark:text-red-400">
-                    {aula.observacoes}
-                  </p>
-                )}
-              </div>
+              )}
             </CardContent>
           </Card>
         )}
 
         {rascunho && (
-          <Card className="gap-0 border-amber-200 pb-0 dark:border-amber-800">
-            <CardContent className="flex items-start gap-3 p-4">
-              <FileText className="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
-              <div className="text-sm">
-                <p className="font-medium text-amber-800 dark:text-amber-300">
-                  Rascunho — ainda não visível aos alunos.
-                </p>
-                <p className="mt-1 text-amber-700 dark:text-amber-400">
-                  Publica para que os alunos possam consultar.
-                </p>
-              </div>
+          <Card className="gap-0 border pb-0">
+            <CardContent className="p-4 text-sm">
+              <p className="font-medium">
+                Rascunho — ainda não visível aos alunos.
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                Publique para que os alunos possam consultar.
+              </p>
             </CardContent>
           </Card>
         )}
@@ -399,21 +353,14 @@ export default function Show({
         {/* Conteúdo previsto */}
         {aula.conteudo_previsto && (
           <Card className="gap-0 pb-0">
-            <CardHeader className="border-b">
-              <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center bg-primary/10">
-                  <NotebookPen className="size-4 text-primary" />
-                </div>
-                <div>
-                  <CardTitle className="text-base">Conteúdo previsto</CardTitle>
-                  <CardDescription>
-                    O que estava planeado dar nesta aula.
-                  </CardDescription>
-                </div>
-              </div>
+            <CardHeader className="border-b px-5 py-4 sm:px-6">
+              <CardTitle className="text-base">Conteúdo previsto</CardTitle>
+              <CardDescription>
+                O que estava planejado dar nesta aula.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="pt-4">
-              <p className="whitespace-pre-wrap text-sm">
+            <CardContent className="space-y-1.5 p-5 sm:p-6">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed">
                 {aula.conteudo_previsto}
               </p>
             </CardContent>
@@ -422,21 +369,14 @@ export default function Show({
 
         {/* Sumário */}
         {aula.tem_sumario ? (
-          <Card className="gap-0 border-primary/30 pb-0">
-            <CardHeader className="border-b bg-primary/5">
-              <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center bg-primary/15">
-                  <FileText className="size-4 text-primary" />
-                </div>
-                <div>
-                  <CardTitle className="text-base">Sumário</CardTitle>
-                  <CardDescription>
-                    Registo do que foi dado nesta aula.
-                  </CardDescription>
-                </div>
-              </div>
+          <Card className="gap-0 border pb-0">
+            <CardHeader className="border-b bg-muted/30 px-5 py-4 sm:px-6">
+              <CardTitle className="text-base">Sumário</CardTitle>
+              <CardDescription>
+                Registro do que foi dado nesta aula.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="pt-4">
+            <CardContent className="space-y-1.5 p-5 sm:p-6">
               <p className="whitespace-pre-wrap text-sm leading-relaxed">
                 {aula.sumario}
               </p>
@@ -446,7 +386,6 @@ export default function Show({
           !cancelada && (
             <Card className="gap-0 border-dashed pb-0">
               <CardContent className="py-8 text-center text-sm text-muted-foreground">
-                <FileText className="mx-auto mb-2 size-8 opacity-50" />
                 Sumário ainda não escrito.
               </CardContent>
             </Card>
@@ -455,49 +394,33 @@ export default function Show({
 
         {/* TPC */}
         {aula.tpc && (
-          <Card className="gap-0 border-amber-300/50 pb-0">
-            <CardHeader className="border-b bg-amber-50/50 dark:bg-amber-950/20">
-              <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center bg-amber-100 dark:bg-amber-950/40">
-                  <BookOpen className="size-4 text-amber-700 dark:text-amber-400" />
-                </div>
-                <div>
-                  <CardTitle className="text-base text-amber-700 dark:text-amber-400">
-                    Trabalho para casa
-                  </CardTitle>
-                  <CardDescription>TPC desta aula.</CardDescription>
-                </div>
-              </div>
+          <Card className="gap-0 border pb-0">
+            <CardHeader className="border-b bg-muted/30 px-5 py-4 sm:px-6">
+              <CardTitle className="text-base">Trabalho para casa</CardTitle>
+              <CardDescription>TPC desta aula.</CardDescription>
             </CardHeader>
-            <CardContent className="pt-4">
-              <p className="whitespace-pre-wrap text-sm">{aula.tpc}</p>
+            <CardContent className="space-y-1.5 p-5 sm:p-6">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                {aula.tpc}
+              </p>
             </CardContent>
           </Card>
         )}
 
         {/* Observações internas */}
         {aula.observacoes && !cancelada && (
-          <Card className="gap-0 border-muted pb-0">
-            <CardHeader className="border-b">
-              <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center bg-muted">
-                  <Lock className="size-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <CardTitle className="flex items-center gap-2 text-base text-muted-foreground">
-                    Observações internas
-                    <Badge variant="outline" className="text-[10px]">
-                      não visível ao aluno
-                    </Badge>
-                  </CardTitle>
-                  <CardDescription>
-                    Notas internas do professor.
-                  </CardDescription>
-                </div>
-              </div>
+          <Card className="gap-0 border pb-0">
+            <CardHeader className="border-b px-5 py-4 sm:px-6">
+              <CardTitle className="flex flex-wrap items-center gap-2 text-base">
+                Observações internas
+                <Badge variant="outline" className="text-[10px]">
+                  não visível ao aluno
+                </Badge>
+              </CardTitle>
+              <CardDescription>Notas internas do professor.</CardDescription>
             </CardHeader>
-            <CardContent className="pt-4">
-              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+            <CardContent className="space-y-1.5 p-5 sm:p-6">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
                 {aula.observacoes}
               </p>
             </CardContent>
@@ -509,10 +432,7 @@ export default function Show({
       <Dialog open={cancelarDialog} onOpenChange={setCancelarDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <XCircle className="size-4 text-destructive" />
-              Cancelar esta aula?
-            </DialogTitle>
+            <DialogTitle>Cancelar esta aula?</DialogTitle>
             <DialogDescription>
               A aula será marcada como cancelada. Os alunos não a verão.
             </DialogDescription>
@@ -538,7 +458,7 @@ export default function Show({
               Voltar
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               onClick={confirmarCancelamento}
               disabled={processando}
               className="hover:cursor-pointer"
@@ -546,7 +466,7 @@ export default function Show({
               {processando ? (
                 <>
                   <Spinner />
-                  A cancelar…
+                  Cancelando...
                 </>
               ) : (
                 'Cancelar aula'
@@ -560,10 +480,7 @@ export default function Show({
       <Dialog open={apagarDialog} onOpenChange={setApagarDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Trash2 className="size-4 text-destructive" />
-              Apagar rascunho?
-            </DialogTitle>
+            <DialogTitle>Apagar rascunho?</DialogTitle>
             <DialogDescription>
               Esta ação não pode ser desfeita.
             </DialogDescription>
@@ -578,7 +495,7 @@ export default function Show({
               Voltar
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               onClick={confirmarApagar}
               disabled={processando}
               className="hover:cursor-pointer"
@@ -586,7 +503,7 @@ export default function Show({
               {processando ? (
                 <>
                   <Spinner />
-                  A apagar…
+                  Apagando...
                 </>
               ) : (
                 'Apagar definitivamente'

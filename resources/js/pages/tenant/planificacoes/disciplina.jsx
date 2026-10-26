@@ -1,19 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import {
-  Plus,
-  BookOpen,
-  GraduationCap,
-  Clock,
-  Eye,
-  Calendar,
-  Search,
-  FileText,
-  Layers,
-  TrendingUp,
-  ArrowLeft,
-} from 'lucide-react';
-import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -135,15 +122,11 @@ export default function Disciplina({
             </div>
             <CardAction className="flex flex-wrap items-center gap-2">
               <Button variant="outline" size="sm" asChild>
-                <Link href="/dashboard/planificacoes">
-                  <ArrowLeft className="mr-1.5 size-4" />
-                  Voltar
-                </Link>
+                <Link href="/dashboard/planificacoes">Voltar</Link>
               </Button>
               {can.create && (
                 <Button asChild size="sm" className="hover:cursor-pointer">
                   <Link href={planificacoesCreate().url}>
-                    <Plus className="mr-1.5 size-4" />
                     Nova planificação
                   </Link>
                 </Button>
@@ -151,65 +134,46 @@ export default function Disciplina({
             </CardAction>
           </CardHeader>
 
-          {/* Stats */}
+          {/* Stats — sem ícones */}
           {planificacoes.length > 0 && (
             <CardContent className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center bg-muted">
-                  <FileText className="size-5 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                    Planificações
-                  </p>
-                  <p className="text-xl font-bold">{stats.total}</p>
-                </div>
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Planificações
+                </p>
+                <p className="text-xl font-bold">{stats.total}</p>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="flex size-10 shrink-0 items-center justify-center bg-muted">
-                  <Layers className="size-5 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                    Classes
-                  </p>
-                  <p className="text-xl font-bold">{stats.classes}</p>
-                </div>
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Classes
+                </p>
+                <p className="text-xl font-bold">{stats.classes}</p>
               </div>
 
               {stats.ultima && (
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center bg-muted">
-                    <TrendingUp className="size-5 text-muted-foreground" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                      Última actualização
-                    </p>
-                    <p className="truncate text-sm font-semibold">
-                      {stats.ultima.atualizada_em}
-                    </p>
-                  </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                    Última atualização
+                  </p>
+                  <p className="truncate text-sm font-semibold">
+                    {stats.ultima.atualizada_em}
+                  </p>
                 </div>
               )}
             </CardContent>
           )}
         </Card>
 
-        {/* Busca */}
+        {/* Busca — sem ícone */}
         {planificacoes.length > 0 && (
           <Card className="gap-0 pb-0">
             <CardContent className="p-4">
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                  placeholder="Buscar por título, período, classe ou ano lectivo…"
-                  className="pl-9"
-                />
-              </div>
+              <Input
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Buscar por título, período, classe ou ano letivo…"
+              />
             </CardContent>
           </Card>
         )}
@@ -218,14 +182,12 @@ export default function Disciplina({
         {planificacoes.length === 0 ? (
           <EmptyState
             variant="table"
-            icon={BookOpen}
             title="Sem planificações"
             description="Esta disciplina ainda não tem planificações publicadas."
           />
         ) : grupos.length === 0 ? (
           <EmptyState
             variant="table"
-            icon={Search}
             title="Sem resultados"
             description={`Nenhuma planificação corresponde a "${busca}".`}
           />
@@ -233,11 +195,8 @@ export default function Disciplina({
           <div className="space-y-6">
             {grupos.map(({ classe, items }) => (
               <section key={classe.id} className="space-y-3">
-                {/* Header da classe */}
+                {/* Header da classe — sem ícone */}
                 <div className="flex items-center gap-3 border-b pb-2">
-                  <div className="flex size-9 shrink-0 items-center justify-center bg-primary/10">
-                    <GraduationCap className="size-4 text-primary" />
-                  </div>
                   <div className="flex-1">
                     <h2 className="text-base leading-none font-semibold">
                       {classe.nome}
@@ -247,7 +206,7 @@ export default function Disciplina({
                       {items.length === 1 ? 'planificação' : 'planificações'}
                     </p>
                   </div>
-                  <Badge variant="secondary" className="font-mono">
+                  <Badge variant="outline" className="font-mono">
                     {items.length}
                   </Badge>
                 </div>
@@ -277,23 +236,20 @@ export default function Disciplina({
                           {p.titulo}
                         </CardTitle>
 
-                        <CardDescription className="flex items-center gap-1.5 text-xs">
-                          <Clock className="size-3 shrink-0" />
-                          <span className="truncate">{p.atualizada_em}</span>
+                        <CardDescription className="truncate text-xs">
+                          {p.atualizada_em}
                         </CardDescription>
                       </CardHeader>
 
                       <CardContent className="flex-1 pb-3">
                         <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                           {p.ano_letivo && (
-                            <span className="inline-flex items-center gap-1 bg-muted/60 px-2 py-1">
-                              <Calendar className="size-3" />
+                            <span className="inline-flex items-center bg-muted/60 px-2 py-1">
                               {p.ano_letivo}
                             </span>
                           )}
                           {p.classe?.nome && (
-                            <span className="inline-flex items-center gap-1 bg-muted/60 px-2 py-1">
-                              <GraduationCap className="size-3" />
+                            <span className="inline-flex items-center bg-muted/60 px-2 py-1">
                               {p.classe.nome}
                             </span>
                           )}
@@ -307,7 +263,6 @@ export default function Disciplina({
                           className="w-full hover:cursor-pointer"
                         >
                           <Link href={`/dashboard/planificacoes/${p.id}`}>
-                            <Eye className="mr-1.5 size-4" />
                             Ver detalhes
                           </Link>
                         </Button>

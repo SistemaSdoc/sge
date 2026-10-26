@@ -1,10 +1,7 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
   ArrowLeft,
-  Users,
   Lock,
-  Upload,
-  FileText,
 } from 'lucide-react';
 import {
   Breadcrumb,
@@ -72,7 +69,6 @@ export default function Submeter({
       <Head title={`Submeter: ${prazo.titulo}`} />
 
       <div className="mx-auto w-full max-w-3xl space-y-4 p-4 sm:p-6">
-        {/* Header */}
         <Card className="gap-0 pb-0">
           <CardHeader className="flex flex-col gap-3 border-b border-foreground/10 md:flex-row md:items-center">
             <div className="min-w-0 md:flex-1">
@@ -117,12 +113,8 @@ export default function Submeter({
                 <FieldSet>
                   {/* Turma */}
                   <Field>
-                    <FieldLabel
-                      htmlFor="turma_id"
-                      className="flex items-center gap-2"
-                    >
-                      <Users className="size-4" />
-                      Turma <span className="text-destructive">*</span>
+                    <FieldLabel htmlFor="turma_id">
+                      Turma *
                     </FieldLabel>
 
                     {turmaVemDoCard ? (
@@ -168,7 +160,7 @@ export default function Submeter({
                     <p className="text-xs text-muted-foreground">
                       {turmaVemDoCard
                         ? 'A turma foi selecionada a partir do card do prazo.'
-                        : 'Selecione a turma para a qual está a submeter.'}
+                        : 'Selecione a turma para a qual está submetendo.'}
                     </p>
 
                     {errors.turma_id && (
@@ -178,12 +170,8 @@ export default function Submeter({
 
                   {/* Arquivo da Prova */}
                   <Field>
-                    <FieldLabel
-                      htmlFor="arquivo_prova"
-                      className="flex items-center gap-2"
-                    >
-                      <Upload className="size-4" />
-                      Arquivo da Prova <span className="text-destructive">*</span>
+                    <FieldLabel htmlFor="arquivo_prova">
+                      Arquivo da Prova *
                     </FieldLabel>
                     <Input
                       id="arquivo_prova"
@@ -206,13 +194,8 @@ export default function Submeter({
 
                   {/* Chave / Gabarito */}
                   <Field>
-                    <FieldLabel
-                      htmlFor="arquivo_chave"
-                      className="flex items-center gap-2"
-                    >
-                      <FileText className="size-4" />
-                      Chave / Gabarito{' '}
-                      <span className="text-destructive">*</span>
+                    <FieldLabel htmlFor="arquivo_chave">
+                      Chave / Gabarito *
                     </FieldLabel>
                     <Input
                       id="arquivo_chave"
@@ -278,7 +261,7 @@ export default function Submeter({
                   {processing ? (
                     <>
                       <Spinner />
-                      A enviar...
+                      Enviando...
                     </>
                   ) : (
                     'Submeter prova'

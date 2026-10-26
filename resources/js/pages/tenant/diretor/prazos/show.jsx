@@ -4,12 +4,6 @@ import { toast } from 'sonner';
 import {
   ArrowLeft,
   BarChart3,
-  Calendar,
-  Clock,
-  BookOpen,
-  Users,
-  Tag,
-  MessageSquare,
   FileText,
   Lock,
   ClockArrowUp,
@@ -46,7 +40,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { EmptyState } from '@/components/empty-state';
 import { Spinner } from '@/components/spinner';
@@ -204,12 +198,12 @@ export default function Show({ prazo, submissoes }) {
               </CardDescription>
             </div>
             <CardAction className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline" className={prazo.badge_class}>
+              <Badge variant="outline" className="gap-1">
                 {prazo.status_label}
               </Badge>
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/diretor/prazos/${prazo.id}/status`}>
-                  <BarChart3 className="mr-1.5 size-4" />
+                 
                   Status
                 </Link>
               </Button>
@@ -222,88 +216,69 @@ export default function Show({ prazo, submissoes }) {
             </CardAction>
           </CardHeader>
 
-          <CardContent className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 md:grid-cols-4">
-            <div className="flex items-start gap-2 text-sm">
-              <Tag className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Tipo
-                </p>
-                <p className="truncate font-medium">{prazo.tipo_prova}</p>
-              </div>
+          {/* Informações do prazo — sem ícones e sem cores */}
+          <CardContent className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-4">
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Tipo
+              </p>
+              <p className="truncate text-sm font-medium">
+                {prazo.tipo_prova}
+              </p>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <BookOpen className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Disciplina
-                </p>
-                <p className="truncate font-medium">
-                  {prazo.disciplina?.nome || 'Todas'}
-                </p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Disciplina
+              </p>
+              <p className="truncate text-sm font-medium">
+                {prazo.disciplina?.nome || 'Todas'}
+              </p>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <Users className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Classe
-                </p>
-                <p className="truncate font-medium">
-                  {prazo.classe?.nome || 'Todas'}
-                </p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Classe
+              </p>
+              <p className="truncate text-sm font-medium">
+                {prazo.classe?.nome || 'Todas'}
+              </p>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <Calendar className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Início
-                </p>
-                <p className="truncate font-medium whitespace-nowrap">
-                  {prazo.data_inicio}
-                </p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Início
+              </p>
+              <p className="truncate text-sm font-medium whitespace-nowrap">
+                {prazo.data_inicio}
+              </p>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <Clock className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Limite
-                </p>
-                <p className="truncate font-medium whitespace-nowrap">
-                  {prazo.data_limite}
-                </p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Limite
+              </p>
+              <p className="truncate text-sm font-medium whitespace-nowrap">
+                {prazo.data_limite}
+              </p>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <Calendar className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Ano Letivo
-                </p>
-                <p className="truncate font-medium">{prazo.ano_letivo}</p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Ano Letivo
+              </p>
+              <p className="truncate text-sm font-medium">
+                {prazo.ano_letivo}
+              </p>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <Clock className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Período
-                </p>
-                <p className="truncate font-medium">{prazo.periodo}</p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Período
+              </p>
+              <p className="truncate text-sm font-medium">{prazo.periodo}</p>
             </div>
-            <div className="col-span-1 flex items-start gap-2 text-sm sm:col-span-2 md:col-span-4">
-              <MessageSquare className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Observações
-                </p>
-                <p className="whitespace-pre-wrap font-medium">
-                  {prazo.observacoes || 'Nenhuma'}
-                </p>
-              </div>
+            <div className="col-span-1 min-w-0 sm:col-span-2 md:col-span-4">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Observações
+              </p>
+              <p className="whitespace-pre-wrap text-sm font-medium">
+                {prazo.observacoes || 'Nenhuma'}
+              </p>
             </div>
           </CardContent>
 
@@ -311,7 +286,7 @@ export default function Show({ prazo, submissoes }) {
           <div className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
             {prazo.status === 'aberto' && (
               <Button
-                variant="destructive"
+                variant="outline"
                 onClick={handleFecharPrazo}
                 disabled={algumLoading}
                 className="hover:cursor-pointer"
@@ -319,7 +294,7 @@ export default function Show({ prazo, submissoes }) {
                 {loadingFechar ? (
                   <>
                     <Spinner />
-                    A encerrar...
+                    Encerrando...
                   </>
                 ) : (
                   <>
@@ -339,7 +314,7 @@ export default function Show({ prazo, submissoes }) {
               {loadingProrrogar ? (
                 <>
                   <Spinner />
-                  A prorrogar...
+                  Prorrogando...
                 </>
               ) : (
                 <>
@@ -356,7 +331,6 @@ export default function Show({ prazo, submissoes }) {
           <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-center">
             <div className="min-w-0 md:flex-1">
               <CardTitle className="flex items-center gap-2">
-                <FileText className="size-5" />
                 Submissões
               </CardTitle>
               <CardDescription>
@@ -364,7 +338,7 @@ export default function Show({ prazo, submissoes }) {
               </CardDescription>
             </div>
             <CardAction>
-              <Badge variant="secondary">{submissoes.length}</Badge>
+              {submissoes.length}
             </CardAction>
           </CardHeader>
 
@@ -385,7 +359,6 @@ export default function Show({ prazo, submissoes }) {
                   return (
                     <div key={sub.id} className="p-4">
                       <div className="flex flex-wrap items-center gap-3">
-                        {/* Professor */}
                         <div className="flex min-w-[180px] items-center gap-3">
                           <div className="flex size-10 items-center justify-center bg-muted">
                             <User className="size-5 text-muted-foreground" />
@@ -400,12 +373,8 @@ export default function Show({ prazo, submissoes }) {
                           </div>
                         </div>
 
-                        {/* Estado */}
-                        <Badge variant="outline" className={sub.badge_class}>
-                          {sub.estado_label}
-                        </Badge>
+                        <Badge variant="outline">{sub.estado_label}</Badge>
 
-                        {/* Ficheiros */}
                         <div className="flex gap-1">
                           <Button variant="outline" size="sm" asChild>
                             <a
@@ -429,23 +398,22 @@ export default function Show({ prazo, submissoes }) {
                           </Button>
                         </div>
 
-                        {/* Ações */}
                         <div className="ml-auto flex items-center gap-2">
                           {sub.estado === 'pendente' && (
                             <>
                               <Button
                                 variant="default"
                                 size="sm"
-                                className="bg-green-600 hover:bg-green-700 hover:cursor-pointer"
                                 onClick={() =>
                                   handleAvaliar(sub.id, 'aprovar')
                                 }
                                 disabled={algumLoading}
+                                className="hover:cursor-pointer"
                               >
                                 {estaAvaliando && acaoAtual === 'aprovar' ? (
                                   <>
                                     <Spinner />
-                                    A aprovar...
+                                    Aprovando...
                                   </>
                                 ) : (
                                   <>
@@ -455,7 +423,7 @@ export default function Show({ prazo, submissoes }) {
                                 )}
                               </Button>
                               <Button
-                                variant="destructive"
+                                variant="outline"
                                 size="sm"
                                 onClick={() => openRejectDialog(sub.id)}
                                 disabled={algumLoading}
@@ -464,7 +432,7 @@ export default function Show({ prazo, submissoes }) {
                                 {estaAvaliando && acaoAtual === 'rejeitar' ? (
                                   <>
                                     <Spinner />
-                                    A rejeitar...
+                                    Rejeitando...
                                   </>
                                 ) : (
                                   <>
@@ -478,9 +446,9 @@ export default function Show({ prazo, submissoes }) {
                           {sub.estado !== 'pendente' && (
                             <span className="flex items-center gap-1 text-sm text-muted-foreground">
                               {sub.estado === 'aprovado' ? (
-                                <Check className="size-4 text-green-600" />
+                                <Check className="size-4" />
                               ) : (
-                                <X className="size-4 text-red-600" />
+                                <X className="size-4" />
                               )}
                               Avaliado
                             </span>
@@ -545,7 +513,7 @@ export default function Show({ prazo, submissoes }) {
               {loadingProrrogar ? (
                 <>
                   <Spinner />
-                  A prorrogar...
+                  Prorrogando...
                 </>
               ) : (
                 'Prorrogar'
@@ -592,7 +560,7 @@ export default function Show({ prazo, submissoes }) {
               Cancelar
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               onClick={confirmReject}
               className="hover:cursor-pointer"
             >

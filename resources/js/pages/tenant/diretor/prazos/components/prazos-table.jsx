@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardAction,
@@ -118,14 +117,12 @@ export default function PrazosTable({
                       {prazo.data_limite}
                     </TableCell>
                     <TableCell className="px-4 text-center">
-                      <Badge variant="outline" className={prazo.badge_class}>
-                        {prazo.status_label}
-                      </Badge>
+                      {prazo.status_label}
                     </TableCell>
                     <TableCell className="px-4 text-center">
-                      <Badge variant="secondary">
+                      
                         {prazo.total_submissoes || 0}
-                      </Badge>
+                      
                     </TableCell>
                     <TableCell className="px-4 text-right">
                       <DropdownMenu>
@@ -173,7 +170,6 @@ export default function PrazosTable({
                           {prazo.status === 'aberto' &&
                             prazo.status_label !== 'Expirado' && (
                               <DropdownMenuItem
-                                variant="destructive"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onFechar(prazo.id);

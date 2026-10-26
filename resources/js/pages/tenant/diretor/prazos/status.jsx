@@ -137,7 +137,7 @@ export default function Status({ prazo, professores }) {
           preserveState: false,
           onSuccess: () => {
             if (status === 'aceita') {
-              toast.success('Justificativa aceite', {
+              toast.success('Justificativa aceita', {
                 description: `${professorNome} • ${turmaNome} • ${diasUsados} dias de prazo extra`,
               });
             } else {
@@ -257,7 +257,7 @@ export default function Status({ prazo, professores }) {
                     <BreadcrumbLink asChild>
                       <Link
                         href={`/dashboard/diretor/prazos/${prazo.id}`}
-                        className="line-clamp-2 text-sm font-semibold text-primary"
+                        className="line-clamp-2 text-sm font-semibold text-secondary"
                       >
                         {prazo.titulo}
                       </Link>
@@ -287,7 +287,7 @@ export default function Status({ prazo, professores }) {
             </CardAction>
           </CardHeader>
 
-          {/* Stats como grid de meta */}
+          {/* Stats como grid de meta — sem cores */}
           <CardContent className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
             <div className="flex items-center gap-3">
               <div className="flex size-10 shrink-0 items-center justify-center bg-muted">
@@ -302,28 +302,26 @@ export default function Status({ prazo, professores }) {
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center bg-green-100 dark:bg-green-950/40">
-                <CheckCircle className="size-5 text-green-600" />
+              <div className="flex size-10 shrink-0 items-center justify-center bg-muted">
+                <CheckCircle className="size-5 text-muted-foreground" />
               </div>
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                   Submeteram
                 </p>
-                <p className="text-xl font-bold text-green-600">{cumpriram}</p>
+                <p className="text-xl font-bold">{cumpriram}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center bg-red-100 dark:bg-red-950/40">
-                <XCircle className="size-5 text-red-600" />
+              <div className="flex size-10 shrink-0 items-center justify-center bg-muted">
+                <XCircle className="size-5 text-muted-foreground" />
               </div>
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                   Não submeteram
                 </p>
-                <p className="text-xl font-bold text-red-600">
-                  {naoCumpriram}
-                </p>
+                <p className="text-xl font-bold">{naoCumpriram}</p>
               </div>
             </div>
           </CardContent>
@@ -381,12 +379,7 @@ export default function Status({ prazo, professores }) {
                         : false;
 
                       return (
-                        <TableRow
-                          key={rowKey}
-                          className={
-                            !prof.submeteu ? 'bg-amber-50/60 dark:bg-amber-950/10' : ''
-                          }
-                        >
+                        <TableRow key={rowKey}>
                           <TableCell className="px-4 font-medium">
                             <div className="flex items-center gap-2">
                               <div className="flex size-8 items-center justify-center bg-muted">
@@ -414,21 +407,12 @@ export default function Status({ prazo, professores }) {
                           <TableCell className="px-4">
                             {prof.submeteu ? (
                               <div className="flex flex-wrap items-center gap-1">
-                                <Badge className="bg-green-600 hover:bg-green-600">
+                                <Badge variant="outline">
                                   <CheckCircle className="mr-1 size-3" />
                                   Submeteu
                                 </Badge>
                                 {prof.estado && (
-                                  <Badge
-                                    variant="outline"
-                                    className={
-                                      prof.estado === 'aprovado'
-                                        ? 'border-green-600 text-green-700'
-                                        : prof.estado === 'rejeitado'
-                                          ? 'border-red-600 text-red-700'
-                                          : 'border-amber-500 text-amber-700'
-                                    }
-                                  >
+                                  <Badge variant="outline">
                                     {prof.estado === 'aprovado' && (
                                       <Check className="mr-1 size-3" />
                                     )}
@@ -440,7 +424,7 @@ export default function Status({ prazo, professores }) {
                                 )}
                               </div>
                             ) : (
-                              <Badge variant="destructive">
+                              <Badge variant="outline">
                                 <XCircle className="mr-1 size-3" />
                                 Não submeteu
                               </Badge>
@@ -458,16 +442,7 @@ export default function Status({ prazo, professores }) {
                           <TableCell className="px-4">
                             {prof.justificativa ? (
                               <div className="space-y-1">
-                                <Badge
-                                  variant="outline"
-                                  className={
-                                    prof.justificativa.status === 'pendente'
-                                      ? 'border-amber-500 text-amber-700'
-                                      : prof.justificativa.status === 'aceita'
-                                        ? 'border-green-500 text-green-700'
-                                        : 'border-red-500 text-red-700'
-                                  }
-                                >
+                                <Badge variant="outline">
                                   {prof.justificativa.status ===
                                     'pendente' && (
                                     <AlertCircle className="mr-1 size-3" />
@@ -502,7 +477,6 @@ export default function Status({ prazo, professores }) {
                               <div className="flex justify-center gap-1">
                                 <Button
                                   size="sm"
-                                  className="bg-green-600 hover:bg-green-700 hover:cursor-pointer"
                                   onClick={() =>
                                     handleAvaliarSubmissao(
                                       prof.submissao_id,
@@ -510,6 +484,7 @@ export default function Status({ prazo, professores }) {
                                     )
                                   }
                                   disabled={isSubmiting}
+                                  className="hover:cursor-pointer"
                                 >
                                   {isSubmiting ? (
                                     <Spinner />
@@ -521,7 +496,7 @@ export default function Status({ prazo, professores }) {
                                   )}
                                 </Button>
                                 <Button
-                                  variant="destructive"
+                                  variant="outline"
                                   size="sm"
                                   onClick={() =>
                                     openRejectDialog(
@@ -553,7 +528,7 @@ export default function Status({ prazo, professores }) {
                                 <div className="flex justify-center gap-1">
                                   <Button
                                     size="sm"
-                                    className="h-7 bg-green-600 text-xs hover:bg-green-700 hover:cursor-pointer"
+                                    className="h-7 text-xs hover:cursor-pointer"
                                     onClick={() =>
                                       setJustificativaDialog({
                                         id: prof.justificativa.id,
@@ -575,7 +550,7 @@ export default function Status({ prazo, professores }) {
                                   </Button>
                                   <Button
                                     size="sm"
-                                    variant="destructive"
+                                    variant="outline"
                                     className="h-7 text-xs hover:cursor-pointer"
                                     onClick={() =>
                                       openRejectJustificativaDialog(
@@ -597,9 +572,9 @@ export default function Status({ prazo, professores }) {
                               prof.justificativa.status !== 'pendente' && (
                                 <span className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
                                   {prof.justificativa.status === 'aceita' ? (
-                                    <CheckCircle className="size-4 text-green-600" />
+                                    <CheckCircle className="size-4" />
                                   ) : (
-                                    <XCircle className="size-4 text-red-600" />
+                                    <XCircle className="size-4" />
                                   )}
                                   {prof.justificativa.status_label}
                                 </span>
@@ -630,7 +605,7 @@ export default function Status({ prazo, professores }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <XCircle className="size-5 text-destructive" />
+              <XCircle className="size-5 text-muted-foreground" />
               Rejeitar Submissão
             </DialogTitle>
             <DialogDescription>
@@ -640,9 +615,7 @@ export default function Status({ prazo, professores }) {
             </DialogDescription>
           </DialogHeader>
           <Field>
-            <FieldLabel>
-              Motivo <span className="text-destructive">*</span>
-            </FieldLabel>
+            <FieldLabel>Motivo *</FieldLabel>
             <Textarea
               rows={3}
               value={motivoRejeicao}
@@ -658,7 +631,7 @@ export default function Status({ prazo, professores }) {
               Cancelar
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               onClick={confirmReject}
               className="hover:cursor-pointer"
             >
@@ -676,7 +649,7 @@ export default function Status({ prazo, professores }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <XCircle className="size-5 text-destructive" />
+              <XCircle className="size-5 text-muted-foreground" />
               Recusar Justificativa
             </DialogTitle>
             <DialogDescription>
@@ -708,7 +681,7 @@ export default function Status({ prazo, professores }) {
               Cancelar
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               onClick={confirmRejectJustificativa}
               className="hover:cursor-pointer"
             >
@@ -726,7 +699,7 @@ export default function Status({ prazo, professores }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CalendarClock className="size-5 text-green-600" />
+              <CalendarClock className="size-5 text-muted-foreground" />
               Aceitar Justificativa
             </DialogTitle>
             <DialogDescription>
@@ -736,8 +709,8 @@ export default function Status({ prazo, professores }) {
           </DialogHeader>
 
           <div className="space-y-3">
-            <div className="border border-green-200 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/20">
-              <p className="flex items-start gap-2 text-sm text-green-800 dark:text-green-300">
+            <div className="border bg-muted/50 p-3">
+              <p className="flex items-start gap-2 text-sm text-muted-foreground">
                 <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                 <span>
                   Ao aceitar, será concedido um prazo extra para o professor
@@ -747,10 +720,7 @@ export default function Status({ prazo, professores }) {
             </div>
 
             <Field>
-              <FieldLabel>
-                Dias de prazo extra{' '}
-                <span className="text-destructive">*</span>
-              </FieldLabel>
+              <FieldLabel>Dias de prazo extra *</FieldLabel>
               <Input
                 type="number"
                 min={1}
@@ -773,8 +743,9 @@ export default function Status({ prazo, professores }) {
               Cancelar
             </Button>
             <Button
-              className="bg-green-600 hover:bg-green-700 hover:cursor-pointer"
+              variant="default"
               onClick={confirmAceitar}
+              className="hover:cursor-pointer"
             >
               <Check className="mr-1.5 size-4" />
               Aceitar e conceder {diasPrazoExtra} dias

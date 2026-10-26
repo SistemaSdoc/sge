@@ -4,8 +4,6 @@ import {
   ArrowLeft,
   CheckCircle2,
   Clock,
-  FileText,
-  GraduationCap,
   Info,
   Lock,
   Save,
@@ -158,8 +156,8 @@ export default function Form({
     if (editando && aula) {
       put(`/dashboard/professor/aulas/${aula.id}`, {
         preserveScroll: true,
-        onSuccess: () => toast.success('Sumário guardado.'),
-        onError: () => toast.error('Erro ao guardar.'),
+        onSuccess: () => toast.success('Sumário salvo.'),
+        onError: () => toast.error('Erro ao salvar.'),
       });
     } else {
       post('/dashboard/professor/aulas', {
@@ -175,7 +173,7 @@ export default function Form({
 
   const publicar = () => {
     if (!aula) {
-      toast.error('Guarda o rascunho primeiro antes de publicar.');
+      toast.error('Salve o rascunho primeiro antes de publicar.');
       return;
     }
 
@@ -229,10 +227,10 @@ export default function Form({
               <Breadcrumb>
                 <BreadcrumbList className="flex-wrap">
                   <BreadcrumbItem className="min-w-0">
-                    <BreadcrumbLink asChild>
+                    <BreadcrumbLink asChild text-primary>
                       <Link
                         href="/dashboard/professor/aulas"
-                        className="line-clamp-2 text-sm font-semibold text-primary hover:underline"
+                        className="line-clamp-2 text-sm font-semibold" 
                       >
                         As minhas aulas
                       </Link>
@@ -270,18 +268,7 @@ export default function Form({
                 </Badge>
               )}
               {editando && aula && (
-                <Badge
-                  variant={
-                    cancelado
-                      ? 'destructive'
-                      : publicado
-                        ? 'default'
-                        : 'secondary'
-                  }
-                  className={
-                    publicado ? 'bg-green-600 text-[10px] hover:bg-green-600' : 'text-[10px]'
-                  }
-                >
+                <Badge variant="outline" className="text-[10px]">
                   {aula.estado_label}
                 </Badge>
               )}
@@ -308,18 +295,16 @@ export default function Form({
           </div>
         </Card>
 
-        {/* Aviso bloqueado */}
+        {/* Aviso bloqueado — neutro */}
         {bloqueado && (
-          <Card className="gap-0 border-red-200 pb-0 dark:border-red-800">
+          <Card className="gap-0 border pb-0">
             <CardContent className="flex items-start gap-3 p-4">
-              <Lock className="size-5 shrink-0 text-red-600 dark:text-red-400" />
+              <Lock className="size-5 shrink-0 text-muted-foreground" />
               <div className="text-sm">
-                <p className="font-medium text-red-800 dark:text-red-300">
-                  Fora da janela de edição.
-                </p>
-                <p className="mt-1 text-red-700 dark:text-red-400">
-                  Esta aula foi publicada há mais de 48 horas. Já não pode ser
-                  editada.
+                <p className="font-medium">Fora da janela de edição.</p>
+                <p className="mt-1 text-muted-foreground">
+                  Esta aula foi publicada há mais de 48 horas. Não pode mais
+                  ser editada.
                 </p>
               </div>
             </CardContent>
@@ -328,23 +313,16 @@ export default function Form({
 
         {/* Formulário */}
         <form onSubmit={guardar} className="space-y-4">
-          {/* Contexto */}
+          {/* Contexto — sem ícone */}
           <Card className="gap-0 pb-0">
-            <CardHeader className="border-b">
-              <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center bg-muted">
-                  <GraduationCap className="size-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <CardTitle className="text-base">Contexto</CardTitle>
-                  <CardDescription>
-                    Dados da aula — alguns vêm do horário.
-                  </CardDescription>
-                </div>
-              </div>
+            <CardHeader className="border-b px-5 py-4 sm:px-6">
+              <CardTitle className="text-base">Contexto</CardTitle>
+              <CardDescription>
+                Dados da aula — alguns vêm do horário.
+              </CardDescription>
             </CardHeader>
 
-            <CardContent className="pt-4">
+            <CardContent className="p-5 sm:p-6">
               <FieldGroup>
                 <FieldSet>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -384,9 +362,7 @@ export default function Form({
                     {!slot && !editando && (
                       <>
                         <Field className="sm:col-span-2">
-                          <FieldLabel htmlFor="turma_id">
-                            Turma
-                          </FieldLabel>
+                          <FieldLabel htmlFor="turma_id">Turma</FieldLabel>
                           <Select
                             value={data.turma_id}
                             onValueChange={(v) => setData('turma_id', v)}
@@ -470,23 +446,16 @@ export default function Form({
             </CardContent>
           </Card>
 
-          {/* Conteúdo */}
+          {/* Conteúdo — sem ícone */}
           <Card className="gap-0 pb-0">
-            <CardHeader className="border-b">
-              <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center bg-muted">
-                  <FileText className="size-4 text-muted-foreground" />
-                </div>
-                <div>
-                  <CardTitle className="text-base">Conteúdo da aula</CardTitle>
-                  <CardDescription>
-                    Escreve o que foi dado. O aluno só vê depois de publicares.
-                  </CardDescription>
-                </div>
-              </div>
+            <CardHeader className="border-b px-5 py-4 sm:px-6">
+              <CardTitle className="text-base">Conteúdo da aula</CardTitle>
+              <CardDescription>
+                Escreva o que foi dado. O aluno só vê depois de publicar.
+              </CardDescription>
             </CardHeader>
 
-            <CardContent className="pt-4">
+            <CardContent className="p-5 sm:p-6">
               <FieldGroup>
                 <FieldSet>
                   <Field>
@@ -519,7 +488,7 @@ export default function Form({
                       onChange={(e) =>
                         setData('conteudo_previsto', e.target.value)
                       }
-                      placeholder="O que planeias dar nesta aula…"
+                      placeholder="O que planeja dar nesta aula…"
                       disabled={bloqueado || cancelado}
                     />
                   </Field>
@@ -536,7 +505,7 @@ export default function Form({
                       rows={5}
                       value={data.sumario}
                       onChange={(e) => setData('sumario', e.target.value)}
-                      placeholder="Descreve o que foi dado nesta aula…"
+                      placeholder="Descreva o que foi dado nesta aula…"
                       disabled={bloqueado || cancelado}
                     />
                     {errors.sumario && (
@@ -573,7 +542,7 @@ export default function Form({
                       rows={2}
                       value={data.observacoes}
                       onChange={(e) => setData('observacoes', e.target.value)}
-                      placeholder="Notas só para ti ou para a direção…"
+                      placeholder="Notas só para você ou para a direção…"
                       disabled={bloqueado}
                     />
                   </Field>
@@ -594,26 +563,19 @@ export default function Form({
                       ` · ${aula.horas_restantes_edicao}h para editar`}
                   </span>
                 ) : (
-                  <span>Rascunho visível apenas para ti.</span>
+                  <span>Rascunho visível apenas para você.</span>
                 )}
               </div>
 
               <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
-                <Button
-                  type="button"
-                  variant="outline"
-                  asChild
-                  className="hover:cursor-pointer"
-                >
-                  <Link href="/dashboard/professor/aulas">Cancelar</Link>
-                </Button>
+               
 
                 {editando && !cancelado && !bloqueado && (
                   <Button
                     type="button"
                     variant="ghost"
                     onClick={() => setCancelarDialog(true)}
-                    className="text-destructive hover:bg-destructive/10 hover:text-destructive hover:cursor-pointer"
+                    className="hover:cursor-pointer"
                   >
                     <XCircle className="mr-1.5 size-4" />
                     Cancelar aula
@@ -630,12 +592,12 @@ export default function Form({
                     {processing ? (
                       <>
                         <Spinner />
-                        A guardar…
+                        Salvando...
                       </>
                     ) : (
                       <>
                         <Save className="mr-1.5 size-4" />
-                        {editando ? 'Guardar' : 'Guardar rascunho'}
+                        {editando ? 'Salvar' : 'Salvar rascunho'}
                       </>
                     )}
                   </Button>
@@ -651,7 +613,7 @@ export default function Form({
                     {processing ? (
                       <>
                         <Spinner />
-                        A publicar…
+                        Publicando...
                       </>
                     ) : (
                       <>
@@ -663,7 +625,7 @@ export default function Form({
                 )}
 
                 {publicado && (
-                  <Badge className="justify-center bg-green-600 hover:bg-green-600">
+                  <Badge variant="secondary" className="justify-center">
                     <CheckCircle2 className="mr-1 size-3" />
                     Publicado
                   </Badge>
@@ -679,7 +641,7 @@ export default function Form({
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <XCircle className="size-4 text-destructive" />
+              <XCircle className="size-4 text-muted-foreground" />
               Cancelar esta aula?
             </DialogTitle>
             <DialogDescription>
@@ -708,7 +670,7 @@ export default function Form({
               Voltar
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               onClick={confirmarCancelamento}
               disabled={processing}
               className="hover:cursor-pointer"
@@ -716,7 +678,7 @@ export default function Form({
               {processing ? (
                 <>
                   <Spinner />
-                  A cancelar…
+                  Cancelando...
                 </>
               ) : (
                 'Cancelar aula'

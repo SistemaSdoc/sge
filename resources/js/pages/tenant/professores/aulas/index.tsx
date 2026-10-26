@@ -7,8 +7,6 @@ import {
   Clock,
   Edit3,
   Eye,
-  FileText,
-  GraduationCap,
   Lock,
   Plus,
   Search,
@@ -87,6 +85,46 @@ interface Props {
   filtros: { de: string; ate: string };
 }
 
+// ─────────────────────────────────────────────────────────
+// Helper — partes da data em PT-BR
+// ─────────────────────────────────────────────────────────
+function partesData(iso: string): {
+  diaSemana: string;
+  dia: string;
+  mes: string;
+  mesCompleto: string;
+  ano: string;
+} {
+  const d = new Date(iso + 'T12:00:00');
+  if (Number.isNaN(d.getTime())) {
+    return {
+      diaSemana: '—',
+      dia: '—',
+      mes: '—',
+      mesCompleto: '—',
+      ano: '—',
+    };
+  }
+  return {
+    diaSemana: d.toLocaleDateString('pt-BR', { weekday: 'long' }),
+    dia: String(d.getDate()).padStart(2, '0'),
+    mes: d
+      .toLocaleDateString('pt-BR', { month: 'short' })
+      .replace('.', '')
+      .toUpperCase(),
+    mesCompleto: d.toLocaleDateString('pt-BR', { month: 'long' }),
+    ano: String(d.getFullYear()),
+  };
+}
+
+function formatarDataHumana(iso: string): string {
+  const p = partesData(iso);
+  return `${p.diaSemana}, ${p.dia} de ${p.mesCompleto} de ${p.ano}`;
+}
+
+// ─────────────────────────────────────────────────────────
+// Componente principal
+// ─────────────────────────────────────────────────────────
 export default function Index({ agenda = [], extras = [], filtros }: Props) {
   const [busca, setBusca] = useState('');
 
@@ -136,6 +174,7 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
     );
   };
 
+  // Estatísticas
   const totalAulas = agenda.reduce((acc, d) => acc + d.aulas.length, 0);
   const semSumario = agenda.reduce(
     (acc, d) =>
@@ -148,14 +187,19 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
       ).length,
     0,
   );
+  const comSumario = totalAulas - semSumario;
+  const percConcluido =
+    totalAulas > 0 ? Math.round((comSumario / totalAulas) * 100) : 0;
 
   return (
     <>
       <Head title="As minhas aulas" />
 
-      <div className="mx-auto w-full max-w-7xl space-y-4 p-4 sm:p-6">
-        {/* Header + Filtros */}
-        <Card className="gap-0! overflow-visible pb-0">
+      <div className="mx-auto w-full max-w-6xl space-y-4 p-4 sm:p-6">
+        {/* ── Header + Filtros ───────────────── */}
+        <Card className="gap-0! overflow-hidden pb-0">
+     
+
           <CardHeader className="border-b border-foreground/10">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 space-y-1">
@@ -163,7 +207,7 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                   <BreadcrumbList className="flex-wrap">
                     <BreadcrumbItem className="min-w-0">
                       <BreadcrumbLink asChild>
-                        <span className="line-clamp-2 text-sm font-semibold text-primary">
+                        <span className="line-clamp-2 text-sm text-primary font-semibold">
                           Professor
                         </span>
                       </BreadcrumbLink>
@@ -177,8 +221,8 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                   </BreadcrumbList>
                 </Breadcrumb>
                 <CardDescription>
-                  Escreve o sumário depois de cada aula. Publica para os alunos
-                  verem.
+                  Escreva o sumário depois de cada aula. Publique para os
+                  alunos verem.
                 </CardDescription>
               </div>
 
@@ -191,20 +235,68 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
             </div>
           </CardHeader>
 
+          {/* Stats compactas + busca + navegação */}
           <div className="space-y-3 px-4 py-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-sm font-semibold whitespace-nowrap">
-                Filtros
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="text-[10px]">
-                  {totalAulas} {totalAulas === 1 ? 'aula' : 'aulas'} no período
-                </Badge>
+              <div className="flex flex-wrap items-center gap-3 text-xs">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="size-1.5 rounded-full bg-foreground" />
+                  <span className="font-semibold tabular-nums">
+                    {totalAulas}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {totalAulas === 1 ? 'aula' : 'aulas'}
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="size-1.5 rounded-full bg-foreground/60" />
+                  <span className="font-semibold tabular-nums">
+                    {comSumario}
+                  </span>
+                  <span className="text-muted-foreground">
+                    com sumário
+                  </span>
+                </span>
                 {semSumario > 0 && (
-                  <Badge variant="outline" className="text-[10px]">
-                    {semSumario} sem sumário
-                  </Badge>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="size-1.5 rounded-full border border-foreground" />
+                    <span className="font-semibold tabular-nums">
+                      {semSumario}
+                    </span>
+                    <span className="text-muted-foreground">
+                      sem sumário
+                    </span>
+                  </span>
                 )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navegarDia(-7)}
+                  className="h-8 hover:cursor-pointer"
+                  aria-label="Semana anterior"
+                >
+                  <ChevronLeft className="size-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={irParaHoje}
+                  className="h-8 hover:cursor-pointer"
+                >
+                  Hoje
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navegarDia(7)}
+                  className="h-8 hover:cursor-pointer"
+                  aria-label="Próxima semana"
+                >
+                  <ChevronRight className="size-4" />
+                </Button>
               </div>
             </div>
 
@@ -217,39 +309,10 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                 className="pl-9"
               />
             </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navegarDia(-7)}
-                className="hover:cursor-pointer"
-              >
-                <ChevronLeft className="size-4" />
-                Semana anterior
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={irParaHoje}
-                className="hover:cursor-pointer"
-              >
-                Hoje
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navegarDia(7)}
-                className="hover:cursor-pointer"
-              >
-                Próxima semana
-                <ChevronRight className="size-4" />
-              </Button>
-            </div>
           </div>
         </Card>
 
-        {/* Agenda por dia */}
+        {/* ── Agenda por dia ───────────────────────────── */}
         {filtrosAplicados.length === 0 ? (
           <Card className="gap-0 pb-0">
             <CardContent className="p-0!">
@@ -266,122 +329,161 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {filtrosAplicados.map((dia) => (
-              <Card key={dia.data} className="gap-0 pb-0">
-                <CardHeader className="border-b">
-                  <div className="flex items-center gap-3">
+          <div className="space-y-3">
+            {filtrosAplicados.map((dia) => {
+              const p = partesData(dia.data);
+
+              return (
+                <Card
+                  key={dia.data}
+                  className={cn(
+                    'gap-0 overflow-hidden pb-0',
+                    dia.is_passado && 'opacity-70',
+                  )}
+                >
+                  {/* Day header sticky */}
+                  <div
+                    className={cn(
+                      'sticky top-0 z-10 flex items-center gap-3 border-b px-4 py-3 backdrop-blur',
+                      dia.is_hoje
+                        ? 'bg-muted/80'
+                        : 'bg-background/90',
+                    )}
+                  >
+                    {/* Bloco do dia */}
                     <div
                       className={cn(
-                        'flex size-9 shrink-0 items-center justify-center',
+                        'flex size-12 shrink-0 flex-col items-center justify-center border',
                         dia.is_hoje
-                          ? 'bg-primary text-primary-foreground'
-                          : dia.is_passado
-                            ? 'bg-muted text-muted-foreground'
-                            : 'bg-primary/10 text-primary',
+                          ? 'border-foreground bg-foreground text-background'
+                          : 'border-border bg-background text-foreground',
                       )}
                     >
-                      <Calendar className="size-4" />
+                      <span className="text-lg font-bold leading-none tabular-nums">
+                        {p.dia}
+                      </span>
+                      <span className="mt-0.5 text-[9px] font-medium uppercase leading-none tracking-wide">
+                        {p.mes}
+                      </span>
                     </div>
-                    <div className="flex-1">
-                      <h2
-                        className={cn(
-                          'text-base font-semibold capitalize leading-none',
-                          dia.is_hoje ? 'text-primary' : '',
+
+                    {/* Info */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-sm font-semibold capitalize leading-tight">
+                          {p.diaSemana}
+                        </h2>
+                        {dia.is_hoje && (
+                          <Badge
+                            variant="secondary"
+                            className="text-[10px] uppercase tracking-wide"
+                          >
+                            Hoje
+                          </Badge>
                         )}
-                      >
-                        {dia.data_humana}
-                      </h2>
-                      <p className="mt-1 text-xs text-muted-foreground">
+                        {dia.is_passado && !dia.is_hoje && (
+                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                            Passado
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
                         {dia.aulas.length}{' '}
                         {dia.aulas.length === 1 ? 'aula' : 'aulas'}
                       </p>
                     </div>
-                    {dia.is_hoje && (
-                      <Badge variant="default" className="text-[10px]">
-                        Hoje
-                      </Badge>
-                    )}
                   </div>
-                </CardHeader>
 
-                <CardContent className="grid grid-cols-1 gap-2 p-3 md:grid-cols-2">
-                  {dia.aulas.map((item, idx) => (
-                    <CardAula
-                      key={item.slot.id + idx}
-                      item={item}
-                      isPassado={dia.is_passado}
-                      data={dia.data}
-                    />
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
+                  {/* Cards horizontais */}
+                  <div className="divide-y">
+                    {dia.aulas.map((item, idx) => (
+                      <CardAulaRow
+                        key={item.slot.id + idx}
+                        item={item}
+                        isPassado={dia.is_passado}
+                        data={dia.data}
+                      />
+                    ))}
+                  </div>
+                </Card>
+              );
+            })}
           </div>
         )}
 
-        {/* Aulas extra */}
+        {/* ── Aulas extra / reposições ─────────────────── */}
         {extras.length > 0 && (
           <Card className="gap-0 pb-0">
-            <CardHeader className="border-b">
-              <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
-                  <FileText className="size-4" />
-                </div>
+            <CardHeader className="border-b px-5 py-3 sm:px-6">
+              <div className="flex items-center justify-between gap-2">
                 <div>
-                  <CardTitle className="text-base leading-none">
+                  <CardTitle className="text-sm">Fora do horário</CardTitle>
+                  <CardDescription className="mt-0.5 text-xs">
                     Aulas extra / reposições
-                  </CardTitle>
-                  <CardDescription className="mt-1 text-xs">
-                    {extras.length} fora do horário
                   </CardDescription>
                 </div>
+                <Badge variant="outline" className="text-[10px]">
+                  {extras.length}
+                </Badge>
               </div>
             </CardHeader>
 
-            <CardContent className="grid grid-cols-1 gap-2 p-3 md:grid-cols-2">
-              {extras.map((aula) => (
-                <div
-                  key={aula.id}
-                  className="flex flex-col border bg-background transition-colors hover:border-primary/30"
-                >
-                  <div className="border-b bg-muted/30 px-3 py-2">
-                    <div className="flex flex-wrap items-center gap-2">
+            <CardContent className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-2">
+              {extras.map((aula) => {
+                const p = partesData(aula.data);
+                return (
+                  <div
+                    key={aula.id}
+                    className="flex flex-col border bg-background transition-colors hover:bg-muted/30"
+                  >
+                    <div className="flex items-center justify-between gap-2 border-b bg-muted/30 px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] font-semibold tabular-nums">
+                          {p.dia}/{p.mes}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {aula.hora_inicio} – {aula.hora_fim}
+                        </span>
+                      </div>
                       <Badge variant="outline" className="text-[10px]">
-                        {aula.data_humana}
-                      </Badge>
-                      <Badge variant="secondary" className="text-[10px]">
                         {aula.estado_label}
                       </Badge>
                     </div>
-                    <p className="mt-1 text-sm font-semibold leading-tight">
-                      {aula.disciplina_nome} · {aula.turma_nome}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {aula.hora_inicio} – {aula.hora_fim}
-                    </p>
-                  </div>
-                  <div className="flex-1 px-3 py-2">
-                    {aula.tem_sumario ? (
-                      <p className="line-clamp-2 text-sm text-muted-foreground">
-                        {aula.sumario}
+                    <div className="flex-1 px-3 py-2">
+                      <p className="truncate text-sm font-semibold leading-tight">
+                        {aula.disciplina_nome}
                       </p>
-                    ) : (
-                      <p className="text-sm italic text-muted-foreground">
-                        Sem sumário escrito
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {aula.turma_nome}
                       </p>
-                    )}
+                      {aula.tem_sumario ? (
+                        <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">
+                          {aula.sumario}
+                        </p>
+                      ) : (
+                        <p className="mt-2 text-xs italic text-muted-foreground">
+                          Sem sumário escrito
+                        </p>
+                      )}
+                    </div>
+                    <div className="border-t px-3 py-2">
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="h-7 w-full text-xs hover:cursor-pointer"
+                      >
+                        <Link
+                          href={`/dashboard/professor/aulas/${aula.id}/edit`}
+                        >
+                          <Edit3 className="mr-1.5 size-3" />
+                          Editar
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
-                  <div className="border-t px-3 py-2">
-                    <Button asChild variant="outline" size="sm" className="w-full">
-                      <Link href={`/dashboard/professor/aulas/${aula.id}/edit`}>
-                        <Edit3 className="mr-1.5 size-4" />
-                        Editar
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </CardContent>
           </Card>
         )}
@@ -391,10 +493,9 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// Card de aula
+// Card horizontal (linha da agenda)
 // ═══════════════════════════════════════════════════════════
-
-function CardAula({
+function CardAulaRow({
   item,
   isPassado,
   data,
@@ -413,139 +514,154 @@ function CardAula({
   return (
     <div
       className={cn(
-        'flex flex-col border bg-background transition-colors hover:border-primary/30',
-        cancelado ? 'opacity-60' : '',
+        'group flex gap-3 px-4 py-3 transition-colors hover:bg-muted/30',
+        cancelado && 'opacity-60',
       )}
     >
-      <div className="border-b bg-muted/30 px-3 py-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-2">
-            <div className="flex size-8 shrink-0 items-center justify-center bg-primary/10">
-              <GraduationCap className="size-4 text-primary" />
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold leading-tight">
-                {slot.disciplina_nome}
-              </p>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                {slot.turma_nome}
-              </p>
-            </div>
-          </div>
-
-          {semRegisto && !isPassado && (
-            <Badge variant="outline" className="shrink-0 text-[10px]">
-              Pendente
-            </Badge>
-          )}
-          {semRegisto && isPassado && (
-            <Badge variant="outline" className="shrink-0 text-[10px]">
-              Sem sumário
-            </Badge>
-          )}
-          {rascunho && (
-            <Badge variant="secondary" className="shrink-0 text-[10px]">
-              Rascunho
-            </Badge>
-          )}
-          {publicado && (
-            <Badge className="shrink-0 bg-green-600 text-[10px] hover:bg-green-600">
-              ✓ Publicado
-            </Badge>
-          )}
-          {cancelado && (
-            <Badge variant="destructive" className="shrink-0 text-[10px]">
-              Cancelado
-            </Badge>
-          )}
-        </div>
-
-        <div className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Clock className="size-3" />
-          <span>
-            {slot.hora_inicio} – {slot.hora_fim}
-          </span>
-        </div>
+      {/* Coluna da hora */}
+      <div className="flex w-14 shrink-0 flex-col items-end pt-0.5">
+        <span className="text-sm font-semibold tabular-nums leading-tight">
+          {slot.hora_inicio}
+        </span>
+        <span className="text-[10px] text-muted-foreground tabular-nums leading-tight">
+          {slot.hora_fim}
+        </span>
+        <div className="mt-2 h-px w-full bg-border" aria-hidden />
       </div>
 
-      <div className="flex-1 px-3 py-2">
+      {/* Conteúdo */}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="truncate text-sm font-semibold leading-tight">
+              {slot.disciplina_nome}
+            </h3>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+              {slot.turma_nome}
+            </p>
+          </div>
+
+          {/* Badge de estado */}
+          <div className="shrink-0">
+            {semRegisto && !isPassado && (
+              <Badge variant="outline" className="text-[10px]">
+                Pendente
+              </Badge>
+            )}
+            {semRegisto && isPassado && (
+              <Badge variant="outline" className="text-[10px]">
+                Sem sumário
+              </Badge>
+            )}
+            {rascunho && (
+              <Badge variant="secondary" className="text-[10px]">
+                Rascunho
+              </Badge>
+            )}
+            {publicado && (
+              <Badge variant="secondary" className="text-[10px]">
+                ✓ Publicado
+              </Badge>
+            )}
+            {cancelado && (
+              <Badge variant="outline" className="text-[10px]">
+                Cancelado
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* Título / Sumário */}
         {aula?.titulo && (
-          <p className="text-sm font-medium leading-tight">{aula.titulo}</p>
+          <p className="mt-2 text-xs font-medium leading-snug">
+            {aula.titulo}
+          </p>
         )}
         {aula?.tem_sumario ? (
-          <p className="mt-1 line-clamp-3 text-sm text-muted-foreground">
+          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
             {aula.sumario}
           </p>
         ) : (
-          <p className="text-sm italic text-muted-foreground">
-            {isPassado ? 'Sumário não foi escrito.' : 'Sumário por escrever.'}
+          <p className="mt-1 text-xs italic text-muted-foreground">
+            {isPassado
+              ? 'Sumário não foi escrito.'
+              : 'Sumário a escrever.'}
           </p>
         )}
 
-        {publicado && aula?.horas_restantes_edicao !== null && (
-          <div className="mt-2 inline-flex items-center gap-1 bg-primary/5 px-2 py-1 text-[10px] text-primary">
-            <Clock className="size-3" />
-            {aula.horas_restantes_edicao}h para editar
+        {/* Meta + ações */}
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {publicado && aula?.horas_restantes_edicao !== null && (
+              <span className="inline-flex items-center gap-1 bg-muted/60 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                <Clock className="size-3" />
+                {aula.horas_restantes_edicao}h para editar
+              </span>
+            )}
+            {publicado && aula?.esta_editavel === false && (
+              <span className="inline-flex items-center gap-1 bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                <Lock className="size-3" />
+                Bloqueado
+              </span>
+            )}
           </div>
-        )}
 
-        {publicado && aula?.esta_editavel === false && (
-          <div className="mt-2 inline-flex items-center gap-1 bg-muted px-2 py-1 text-[10px] text-muted-foreground">
-            <Lock className="size-3" />
-            Bloqueado para edição
-          </div>
-        )}
-      </div>
-
-      <div className="border-t px-3 py-2">
-        {semRegisto ? (
-          <Button
-            asChild
-            variant={isPassado ? 'outline' : 'default'}
-            size="sm"
-            className="w-full hover:cursor-pointer"
-          >
-            <Link
-              href={`/dashboard/professor/aulas/create?slot_id=${slot.id}&data=${data}`}
-            >
-              <Plus className="mr-1.5 size-4" />
-              Escrever sumário
-            </Link>
-          </Button>
-        ) : (
-          <div className="flex gap-2">
-            {aula?.esta_editavel ? (
+          <div className="flex shrink-0 items-center gap-1">
+            {semRegisto ? (
               <Button
                 asChild
-                variant="outline"
+                variant={isPassado ? 'outline' : 'default'}
                 size="sm"
-                className="flex-1 hover:cursor-pointer"
+                className="h-7 text-xs hover:cursor-pointer"
               >
-                <Link href={`/dashboard/professor/aulas/${aula.id}/edit`}>
-                  <Edit3 className="mr-1.5 size-4" />
-                  Editar
+                <Link
+                  href={`/dashboard/professor/aulas/create?slot_id=${slot.id}&data=${data}`}
+                >
+                  <Plus className="mr-1 size-3" />
+                  Escrever
                 </Link>
               </Button>
             ) : (
-              <Button variant="outline" size="sm" className="flex-1" disabled>
-                <Lock className="mr-1.5 size-4" />
-                Bloqueado
-              </Button>
-            )}
-            {aula && (
-              <Button
-                asChild
-                variant="ghost"
-                size="icon"
-                className="hover:cursor-pointer"
-              >
-                <Link href={`/dashboard/aulas/${aula.id}`}>
-                  <Eye className="size-4" />
-                </Link>
-              </Button>
+              <>
+                {aula?.esta_editavel ? (
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs hover:cursor-pointer"
+                  >
+                    <Link href={`/dashboard/professor/aulas/${aula.id}/edit`}>
+                      <Edit3 className="mr-1 size-3" />
+                      Editar
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 text-xs"
+                    disabled
+                  >
+                    <Lock className="mr-1 size-3" />
+                    Bloqueado
+                  </Button>
+                )}
+                {aula && (
+                  <Button
+                    asChild
+                    variant="ghost"
+                    size="icon"
+                    className="size-7 hover:cursor-pointer"
+                  >
+                    <Link href={`/dashboard/aulas/${aula.id}`}>
+                      <Eye className="size-3.5" />
+                    </Link>
+                  </Button>
+                )}
+              </>
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

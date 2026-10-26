@@ -41,7 +41,6 @@ export default function Index({
       <Head title="Submissão de Provas" />
 
       <div className="mx-auto w-full max-w-7xl space-y-4 p-4 sm:p-6">
-        {/* Header */}
         <Card className="gap-0 pb-0">
           <CardHeader className="border-b border-foreground/10">
             <div className="min-w-0 space-y-1">

@@ -27,7 +27,7 @@ export default function FiltrosPrazos({
         <h2 className="text-sm font-semibold whitespace-nowrap">Filtros</h2>
         {temFiltrosAtivos && (
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={onLimpar}
             className="hover:cursor-pointer"
@@ -69,13 +69,6 @@ export default function FiltrosPrazos({
             ))}
           </SelectContent>
         </Select>
-
-        <Button
-          onClick={() => onChange(filtros)}
-          className="w-full hover:cursor-pointer sm:w-auto"
-        >
-          Filtrar
-        </Button>
       </div>
     </div>
   );

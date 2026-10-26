@@ -64,7 +64,7 @@ export default function Create({
     ficheiro: null,
   });
 
-  const [nomeFicheiro, setNomeFicheiro] = useState('');
+  const [nomeArquivo, setNomeArquivo] = useState('');
   const [aArrastar, setAArrastar] = useState(false);
 
   const submit = (e) => {
@@ -86,7 +86,7 @@ export default function Create({
   const handleFile = (f) => {
     if (!f) return;
     setData('ficheiro', f);
-    setNomeFicheiro(f.name);
+    setNomeArquivo(f.name);
   };
 
   const onInputChange = (e) => {
@@ -99,9 +99,9 @@ export default function Create({
     handleFile(e.dataTransfer.files?.[0] ?? null);
   };
 
-  const limparFicheiro = () => {
+  const limparArquivo = () => {
     setData('ficheiro', null);
-    setNomeFicheiro('');
+    setNomeArquivo('');
   };
 
   return (
@@ -134,7 +134,7 @@ export default function Create({
                 </BreadcrumbList>
               </Breadcrumb>
               <CardDescription>
-                Selecione os dados e anexe o ficheiro. Se já existir uma
+                Selecione os dados e anexe o arquivo. Se já existir uma
                 planificação com os mesmos parâmetros, será criada uma nova
                 versão.
               </CardDescription>
@@ -155,11 +155,11 @@ export default function Create({
           <Card className="gap-0 pb-0">
             <CardHeader className="border-b">
               <CardTitle className="flex items-center gap-2 text-base">
-                <CalendarDays className="size-4 text-primary" />
+                <CalendarDays className="size-4 text-muted-foreground" />
                 Contexto académico
               </CardTitle>
               <CardDescription>
-                Ano lectivo, curso, disciplina, classe e período.
+                Ano letivo, curso, disciplina, classe e período.
               </CardDescription>
             </CardHeader>
 
@@ -167,16 +167,14 @@ export default function Create({
               <FieldGroup>
                 <FieldSet>
                   <Field>
-                    <FieldLabel htmlFor="ano_letivo_id">
-                      Ano lectivo <span className="text-destructive">*</span>
-                    </FieldLabel>
+                    <FieldLabel htmlFor="ano_letivo_id">Ano letivo *</FieldLabel>
                     <Select
                       value={data.ano_letivo_id}
                       onValueChange={(v) => setData('ano_letivo_id', v)}
                       disabled={processing}
                     >
                       <SelectTrigger id="ano_letivo_id" className="w-full">
-                        <SelectValue placeholder="Selecione o ano lectivo" />
+                        <SelectValue placeholder="Selecione o ano letivo" />
                       </SelectTrigger>
                       <SelectContent>
                         {anosLectivos.map((a) => (
@@ -192,9 +190,7 @@ export default function Create({
                   </Field>
 
                   <Field>
-                    <FieldLabel htmlFor="curso_id">
-                      Curso <span className="text-destructive">*</span>
-                    </FieldLabel>
+                    <FieldLabel htmlFor="curso_id">Curso *</FieldLabel>
                     <Select
                       value={data.curso_id}
                       onValueChange={(v) => setData('curso_id', v)}
@@ -219,7 +215,7 @@ export default function Create({
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <Field>
                       <FieldLabel htmlFor="disciplina_id">
-                        Disciplina <span className="text-destructive">*</span>
+                        Disciplina *
                       </FieldLabel>
                       <Select
                         value={data.disciplina_id}
@@ -243,9 +239,7 @@ export default function Create({
                     </Field>
 
                     <Field>
-                      <FieldLabel htmlFor="classe_id">
-                        Classe <span className="text-destructive">*</span>
-                      </FieldLabel>
+                      <FieldLabel htmlFor="classe_id">Classe *</FieldLabel>
                       <Select
                         value={data.classe_id}
                         onValueChange={(v) => setData('classe_id', v)}
@@ -269,9 +263,7 @@ export default function Create({
                   </div>
 
                   <Field>
-                    <FieldLabel htmlFor="periodo">
-                      Período <span className="text-destructive">*</span>
-                    </FieldLabel>
+                    <FieldLabel htmlFor="periodo">Período *</FieldLabel>
                     <Select
                       value={data.periodo}
                       onValueChange={(v) => setData('periodo', v)}
@@ -301,7 +293,7 @@ export default function Create({
           <Card className="gap-0 pb-0">
             <CardHeader className="border-b">
               <CardTitle className="flex items-center gap-2 text-base">
-                <BookOpen className="size-4 text-primary" />
+                <BookOpen className="size-4 text-muted-foreground" />
                 Detalhes
               </CardTitle>
               <CardDescription>
@@ -355,22 +347,20 @@ export default function Create({
             </CardContent>
           </Card>
 
-          {/* Ficheiro */}
+          {/* Arquivo */}
           <Card className="gap-0 pb-0">
             <CardHeader className="border-b">
               <CardTitle className="flex items-center gap-2 text-base">
-                <FileText className="size-4 text-primary" />
-                Ficheiro
+                <FileText className="size-4 text-muted-foreground" />
+                Arquivo
               </CardTitle>
-              <CardDescription>
-                PDF, DOC ou DOCX — até 20 MB.
-              </CardDescription>
+              <CardDescription>PDF, DOC ou DOCX — até 20 MB.</CardDescription>
             </CardHeader>
 
             <CardContent className="p-4 sm:p-6">
-              {!nomeFicheiro ? (
+              {!nomeArquivo ? (
                 <label
-                  htmlFor="ficheiro"
+                  htmlFor="arquivo"
                   onDragOver={(e) => {
                     e.preventDefault();
                     setAArrastar(true);
@@ -379,14 +369,14 @@ export default function Create({
                   onDrop={onDrop}
                   className={`flex cursor-pointer flex-col items-center justify-center gap-3 border-2 border-dashed p-10 text-center transition-all ${
                     aArrastar
-                      ? 'border-primary bg-primary/5'
-                      : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/30'
+                      ? 'border-muted-foreground bg-muted/50'
+                      : 'border-muted-foreground/25 hover:bg-muted/30'
                   }`}
                 >
                   <div
                     className={`flex size-14 items-center justify-center transition-colors ${
                       aArrastar
-                        ? 'bg-primary/15 text-primary'
+                        ? 'bg-muted-foreground/15 text-foreground'
                         : 'bg-muted text-muted-foreground'
                     }`}
                   >
@@ -395,7 +385,7 @@ export default function Create({
                   <div className="space-y-1">
                     <p className="text-sm font-medium">
                       {aArrastar
-                        ? 'Solte o ficheiro aqui'
+                        ? 'Solte o arquivo aqui'
                         : 'Arraste e solte, ou clique para escolher'}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -403,7 +393,7 @@ export default function Create({
                     </p>
                   </div>
                   <input
-                    id="ficheiro"
+                    id="arquivo"
                     type="file"
                     accept=".pdf,.doc,.docx"
                     onChange={onInputChange}
@@ -412,15 +402,15 @@ export default function Create({
                 </label>
               ) : (
                 <div className="flex items-center gap-3 border bg-muted/20 p-4">
-                  <div className="flex size-11 shrink-0 items-center justify-center bg-primary/15 text-primary">
+                  <div className="flex size-11 shrink-0 items-center justify-center bg-muted text-muted-foreground">
                     <FileText className="size-5" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p
                       className="truncate text-sm font-medium"
-                      title={nomeFicheiro}
+                      title={nomeArquivo}
                     >
-                      {nomeFicheiro}
+                      {nomeArquivo}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Pronto para publicar
@@ -430,8 +420,8 @@ export default function Create({
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={limparFicheiro}
-                    aria-label="Remover ficheiro"
+                    onClick={limparArquivo}
+                    aria-label="Remover arquivo"
                     className="hover:cursor-pointer"
                   >
                     <X className="size-4" />
@@ -464,7 +454,7 @@ export default function Create({
               {processing ? (
                 <>
                   <Spinner />
-                  A publicar...
+                  Publicando...
                 </>
               ) : (
                 <>

@@ -52,7 +52,7 @@ export default function HistoricoSubmissoes({
             variant="table"
             icon={Clock}
             title="Sem histórico"
-            description="Nenhuma submissão registada até ao momento."
+            description="Nenhuma submissão registrada até o momento."
           />
         ) : (
           <div className="w-full overflow-x-auto">
@@ -72,7 +72,7 @@ export default function HistoricoSubmissoes({
                     Data
                   </TableHead>
                   <TableHead className="min-w-40 px-4 text-center">
-                    Acções
+                    Ações
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -94,9 +94,7 @@ export default function HistoricoSubmissoes({
                       v{sub.versao}
                     </TableCell>
                     <TableCell className="px-4 text-center">
-                      <Badge variant="outline" className={sub.badge_class}>
-                        {sub.estado_label}
-                      </Badge>
+                      <Badge variant="outline">{sub.estado_label}</Badge>
                       {sub.parecer && (
                         <div
                           className="mt-1 line-clamp-2 text-xs text-muted-foreground"

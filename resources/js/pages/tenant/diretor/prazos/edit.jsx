@@ -121,10 +121,7 @@ export default function Edit({ prazo, disciplinas, classes }) {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {/* Tipo de Prova */}
                     <Field>
-                      <FieldLabel htmlFor="tipo_prova">
-                        Tipo de Prova{' '}
-                        <span className="text-destructive">*</span>
-                      </FieldLabel>
+                      <FieldLabel htmlFor="tipo_prova">Tipo de Prova *</FieldLabel>
                       <Select
                         value={data.tipo_prova}
                         onValueChange={(value) => setData('tipo_prova', value)}
@@ -150,9 +147,7 @@ export default function Edit({ prazo, disciplinas, classes }) {
 
                     {/* Período */}
                     <Field>
-                      <FieldLabel htmlFor="periodo">
-                        Período <span className="text-destructive">*</span>
-                      </FieldLabel>
+                      <FieldLabel htmlFor="periodo">Período *</FieldLabel>
                       <Input
                         id="periodo"
                         value={data.periodo}
@@ -236,8 +231,7 @@ export default function Edit({ prazo, disciplinas, classes }) {
                     {/* Data Início */}
                     <Field>
                       <FieldLabel htmlFor="data_inicio">
-                        Data de Início{' '}
-                        <span className="text-destructive">*</span>
+                        Data de Início *
                       </FieldLabel>
                       <Input
                         id="data_inicio"
@@ -257,7 +251,7 @@ export default function Edit({ prazo, disciplinas, classes }) {
                     {/* Data Limite */}
                     <Field>
                       <FieldLabel htmlFor="data_limite">
-                        Data Limite <span className="text-destructive">*</span>
+                        Data Limite *
                       </FieldLabel>
                       <Input
                         id="data_limite"
@@ -338,7 +332,7 @@ export default function Edit({ prazo, disciplinas, classes }) {
                   {processing ? (
                     <>
                       <Spinner />
-                      A guardar...
+                      Salvando...
                     </>
                   ) : (
                     'Guardar alterações'

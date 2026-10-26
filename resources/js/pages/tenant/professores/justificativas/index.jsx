@@ -35,25 +35,16 @@ import { EmptyState } from '@/components/empty-state';
 
 export default function Index({ justificativas = [] }) {
   const statusBadge = (statusLabel) => {
-    if (statusLabel === 'Aceite') {
-      return (
-        <Badge variant="outline" className="border-green-500 text-green-700">
-          <CheckCircle className="mr-1 size-3" />
-          Aceite
-        </Badge>
-      );
-    }
-    if (statusLabel === 'Recusada') {
-      return (
-        <Badge variant="outline" className="border-red-500 text-red-700">
-          <XCircle className="mr-1 size-3" />
-          Recusada
-        </Badge>
-      );
-    }
+    const isAceite = statusLabel === 'Aceite' || statusLabel === 'Aceita';
+    const isRecusada = statusLabel === 'Recusada';
+
     return (
-      <Badge variant="outline" className="border-amber-500 text-amber-700">
-        <AlertCircle className="mr-1 size-3" />
+      <Badge variant="outline">
+        {isAceite && <CheckCircle className="mr-1 size-3" />}
+        {isRecusada && <XCircle className="mr-1 size-3" />}
+        {!isAceite && !isRecusada && (
+          <AlertCircle className="mr-1 size-3" />
+        )}
         {statusLabel}
       </Badge>
     );
@@ -96,7 +87,9 @@ export default function Index({ justificativas = [] }) {
             <CardAction>
               <Badge variant="secondary">
                 {justificativas.length}{' '}
-                {justificativas.length === 1 ? 'justificativa' : 'justificativas'}
+                {justificativas.length === 1
+                  ? 'justificativa'
+                  : 'justificativas'}
               </Badge>
             </CardAction>
           </CardHeader>
@@ -135,12 +128,12 @@ export default function Index({ justificativas = [] }) {
                         </TableCell>
                         <TableCell className="px-4">
                           {just.turma_nome ? (
-                            <span className="flex items-center gap-1 text-sm font-medium text-primary">
-                              <Users className="size-3.5 shrink-0" />
+                            <Badge variant="outline" className="gap-1">
+                              <Users className="size-3" />
                               <span className="line-clamp-1">
                                 {just.turma_nome}
                               </span>
-                            </span>
+                            </Badge>
                           ) : (
                             <span className="text-xs text-muted-foreground">
                               —

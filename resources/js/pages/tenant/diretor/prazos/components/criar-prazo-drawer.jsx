@@ -103,9 +103,7 @@ export default function CriarPrazoDrawer({
 
           {/* Tipo de Prova */}
           <Field>
-            <FieldLabel htmlFor="tipo_prova">
-              Tipo de Prova <span className="text-destructive">*</span>
-            </FieldLabel>
+            <FieldLabel htmlFor="tipo_prova">Tipo de Prova *</FieldLabel>
             <Select
               value={data.tipo_prova}
               onValueChange={(value) => setData('tipo_prova', value)}
@@ -129,9 +127,7 @@ export default function CriarPrazoDrawer({
 
           {/* Disciplinas */}
           <Field>
-            <FieldLabel>
-              Disciplinas <span className="text-destructive">*</span>
-            </FieldLabel>
+            <FieldLabel>Disciplinas *</FieldLabel>
             <MultipleSelector
               value={data.disciplina_ids}
               onChange={(newSelected) => setData('disciplina_ids', newSelected)}
@@ -148,9 +144,7 @@ export default function CriarPrazoDrawer({
 
           {/* Classes */}
           <Field>
-            <FieldLabel>
-              Classes <span className="text-destructive">*</span>
-            </FieldLabel>
+            <FieldLabel>Classes *</FieldLabel>
             <MultipleSelector
               value={data.classe_ids}
               onChange={(newSelected) => setData('classe_ids', newSelected)}
@@ -167,9 +161,7 @@ export default function CriarPrazoDrawer({
 
           {/* Período */}
           <Field>
-            <FieldLabel htmlFor="periodo">
-              Período <span className="text-destructive">*</span>
-            </FieldLabel>
+            <FieldLabel htmlFor="periodo">Período *</FieldLabel>
             <Select
               value={data.periodo}
               onValueChange={(value) => setData('periodo', value)}
@@ -192,9 +184,7 @@ export default function CriarPrazoDrawer({
           {/* Datas */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field>
-              <FieldLabel htmlFor="data_inicio">
-                Data de Início <span className="text-destructive">*</span>
-              </FieldLabel>
+              <FieldLabel htmlFor="data_inicio">Data de Início *</FieldLabel>
               <Input
                 id="data_inicio"
                 type="datetime-local"
@@ -209,9 +199,7 @@ export default function CriarPrazoDrawer({
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="data_limite">
-                Data Limite <span className="text-destructive">*</span>
-              </FieldLabel>
+              <FieldLabel htmlFor="data_limite">Data Limite *</FieldLabel>
               <Input
                 id="data_limite"
                 type="datetime-local"
@@ -282,7 +270,7 @@ export default function CriarPrazoDrawer({
           {processing ? (
             <>
               <Spinner />
-              A criar...
+              Criando ...
             </>
           ) : (
             'Criar Prazo'

@@ -295,7 +295,7 @@ final class SidebarMenuService
 
                 new MenuItem(                                                    // ← NOVO
                     key: 'aulas-direcao',
-                    title: 'Aulas & Sumários',
+                    title: 'Aulas e Sumários',
                     href: route('tenant.dashboard.aulas.index'),
                     icon: 'BookOpen',
                     can: fn() => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Coordenador'])

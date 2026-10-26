@@ -3,11 +3,6 @@ import { useState } from 'react';
 import {
   ArrowLeft,
   Send,
-  Calendar,
-  BookOpen,
-  Users,
-  GraduationCap,
-  Clock,
   AlertCircle,
   CheckCircle,
   XCircle,
@@ -53,22 +48,22 @@ export default function Create({ prazo, turma, justificativa }) {
   const statusBadge = (status) => {
     if (status === 'aceita') {
       return (
-        <Badge variant="outline" className="border-green-500 text-green-700">
+        <Badge variant="outline">
           <CheckCircle className="mr-1 size-3" />
-          Aceite
+          Aceita
         </Badge>
       );
     }
     if (status === 'recusada') {
       return (
-        <Badge variant="outline" className="border-red-500 text-red-700">
+        <Badge variant="outline">
           <XCircle className="mr-1 size-3" />
           Recusada
         </Badge>
       );
     }
     return (
-      <Badge variant="outline" className="border-amber-500 text-amber-700">
+      <Badge variant="outline">
         <AlertCircle className="mr-1 size-3" />
         Pendente
       </Badge>
@@ -154,65 +149,45 @@ export default function Create({ prazo, turma, justificativa }) {
             </CardAction>
           </CardHeader>
 
-          {/* Meta info */}
-          <CardContent className="grid grid-cols-1 gap-3 border-b p-4 sm:grid-cols-2">
-            <div className="flex items-start gap-2 text-sm">
-              <BookOpen className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Disciplina
-                </p>
-                <p className="truncate font-medium">
-                  {prazo.disciplina || 'Todas'}
-                </p>
-              </div>
+          {/* Meta info — sem ícones */}
+          <CardContent className="grid grid-cols-1 gap-4 border-b p-4 sm:grid-cols-2">
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Disciplina
+              </p>
+              <p className="truncate text-sm font-medium">
+                {prazo.disciplina || 'Todas'}
+              </p>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <GraduationCap className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Classe
-                </p>
-                <p className="truncate font-medium">
-                  {prazo.classe || 'Todas'}
-                </p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Classe
+              </p>
+              <p className="truncate text-sm font-medium">
+                {prazo.classe || 'Todas'}
+              </p>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <Users className="mt-0.5 size-4 shrink-0 text-primary" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Turma
-                </p>
-                <p className="truncate font-semibold text-primary">
-                  {turma.nome}
-                </p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Turma
+              </p>
+              <p className="truncate text-sm font-semibold">{turma.nome}</p>
             </div>
-            <div className="flex items-start gap-2 text-sm">
-              <Calendar className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Data limite
-                </p>
-                <p className="truncate font-medium whitespace-nowrap">
-                  {prazo.data_limite}
-                </p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Data limite
+              </p>
+              <p className="truncate text-sm font-medium whitespace-nowrap">
+                {prazo.data_limite}
+              </p>
             </div>
-            <div className="col-span-1 flex items-start gap-2 text-sm sm:col-span-2">
-              <Clock className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                  Estado do prazo
-                </p>
-                <Badge
-                  variant={prazoEncerrado ? 'destructive' : 'default'}
-                  className="mt-0.5 text-[10px]"
-                >
-                  {prazoEncerrado ? 'Encerrado' : 'Aberto'}
-                </Badge>
-              </div>
+            <div className="col-span-1 sm:col-span-2">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Estado do prazo
+              </p>
+              <Badge variant="outline" className="mt-0.5 text-[10px]">
+                {prazoEncerrado ? 'Encerrado' : 'Aberto'}
+              </Badge>
             </div>
           </CardContent>
 
@@ -222,15 +197,15 @@ export default function Create({ prazo, turma, justificativa }) {
               <FieldGroup>
                 <FieldSet>
                   {prazoEncerrado && (
-                    <div className="flex items-start gap-2 border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
-                      <AlertCircle className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                    <div className="flex items-start gap-2 border bg-muted/50 p-3">
+                      <AlertCircle className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
                       <div>
-                        <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+                        <p className="text-sm font-medium">
                           Prazo encerrado
                         </p>
-                        <p className="text-xs text-amber-700 dark:text-amber-400">
+                        <p className="text-xs text-muted-foreground">
                           Este prazo já foi encerrado. A justificativa ainda pode
-                          ser enviada para análise do director.
+                          ser enviada para análise do diretor.
                         </p>
                       </div>
                     </div>
@@ -238,8 +213,7 @@ export default function Create({ prazo, turma, justificativa }) {
 
                   <Field>
                     <FieldLabel htmlFor="motivo">
-                      Motivo da não submissão{' '}
-                      <span className="text-destructive">*</span>
+                      Motivo da não submissão *
                     </FieldLabel>
                     <Textarea
                       id="motivo"
@@ -307,7 +281,7 @@ export default function Create({ prazo, turma, justificativa }) {
                   {loading ? (
                     <>
                       <Spinner />
-                      A enviar...
+                      Enviando...
                     </>
                   ) : (
                     <>

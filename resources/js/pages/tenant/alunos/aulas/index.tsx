@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/card';
 import { EmptyState } from '@/components/empty-state';
 import { cn } from '@/lib/utils';
+import { formatarDataHumana } from '@/utils/format-date';
 
 interface Slot {
   id: string;
@@ -112,15 +113,15 @@ function labelSemanaCurta(de: Date): string {
   const mesmoMes = de.getMonth() === ate.getMonth();
 
   if (mesmoMes) {
-    const mes = ate.toLocaleDateString('pt-PT', { month: 'short' });
+    const mes = ate.toLocaleDateString('pt-BR', { month: 'short' });
     return `${de.getDate()}–${ate.getDate()} ${mes}`;
   }
 
-  const deLabel = de.toLocaleDateString('pt-PT', {
+  const deLabel = de.toLocaleDateString('pt-BR', {
     day: 'numeric',
     month: 'short',
   });
-  const ateLabel = ate.toLocaleDateString('pt-PT', {
+  const ateLabel = ate.toLocaleDateString('pt-BR', {
     day: 'numeric',
     month: 'short',
   });
@@ -132,18 +133,18 @@ function labelSemanaCompleta(de: Date): string {
   ate.setDate(ate.getDate() + 6);
 
   const mesmoMes = de.getMonth() === ate.getMonth();
-  const ano = ate.toLocaleDateString('pt-PT', { year: 'numeric' });
+  const ano = ate.toLocaleDateString('pt-BR', { year: 'numeric' });
 
   if (mesmoMes) {
-    const mes = ate.toLocaleDateString('pt-PT', { month: 'long' });
+    const mes = ate.toLocaleDateString('pt-BR', { month: 'long' });
     return `${de.getDate()} a ${ate.getDate()} de ${mes} de ${ano}`;
   }
 
-  const deLabel = de.toLocaleDateString('pt-PT', {
+  const deLabel = de.toLocaleDateString('pt-BR', {
     day: 'numeric',
     month: 'short',
   });
-  const ateLabel = ate.toLocaleDateString('pt-PT', {
+  const ateLabel = ate.toLocaleDateString('pt-BR', {
     day: 'numeric',
     month: 'short',
   });
@@ -174,19 +175,6 @@ export default function Index({ agenda = [], filtros }: Props) {
       }))
       .filter((dia) => dia.aulas.length > 0);
   }, [agenda, busca]);
-
-  const navegar = (dias: number) => {
-    const de = new Date(filtros.de);
-    const ate = new Date(filtros.ate);
-    de.setDate(de.getDate() + dias);
-    ate.setDate(ate.getDate() + dias);
-
-    router.get(
-      '/dashboard/aulas',
-      { de: toISODate(de), ate: toISODate(ate) },
-      { preserveScroll: true, preserveState: true },
-    );
-  };
 
   const irParaSemana = (de: string, ate: string) => {
     router.get(
@@ -262,7 +250,7 @@ export default function Index({ agenda = [], filtros }: Props) {
       <Head title="Sumários" />
 
       <div className="mx-auto w-full max-w-5xl space-y-4 p-4 sm:p-6">
-        {/* Header + Busca + Semana */}
+        {/* Header + Busca */}
         <Card className="gap-0! overflow-visible pb-0">
           <CardHeader className="border-b border-foreground/10">
             <div className="min-w-0 space-y-1">
@@ -270,21 +258,21 @@ export default function Index({ agenda = [], filtros }: Props) {
                 <BreadcrumbList className="flex-wrap">
                   <BreadcrumbItem className="min-w-0">
                     <BreadcrumbLink asChild>
-                      <span className="line-clamp-2 text-sm font-semibold text-primary">
+                      <span className="line-clamp-2 text-sm text-primary font-semibold">
                         Aluno
                       </span>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem className="min-w-0">
-                    <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
+                    <BreadcrumbPage className="line-clamp-2 text-sm text-secondary font-semibold">
                       Sumários
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
               <CardDescription>
-                Consulta o que foi dado e o que vais dar nas próximas aulas.
+                Consulte o que foi dado e o que vai dar nas próximas aulas.
               </CardDescription>
             </div>
           </CardHeader>
@@ -359,8 +347,8 @@ export default function Index({ agenda = [], filtros }: Props) {
                   className={cn(
                     'min-w-[68px] border px-2 py-1.5 text-center text-[11px] font-medium transition-all',
                     s.isAtual
-                      ? 'border-primary bg-primary text-primary-foreground'
-                      : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted hover:text-foreground',
+                      ? 'border-foreground bg-foreground text-background'
+                      : 'border-border bg-background text-muted-foreground hover:border-foreground/40 hover:bg-muted hover:text-foreground',
                   )}
                 >
                   {s.label}
@@ -396,22 +384,15 @@ export default function Index({ agenda = [], filtros }: Props) {
                       className={cn(
                         'flex size-9 shrink-0 items-center justify-center',
                         dia.is_hoje
-                          ? 'bg-primary text-primary-foreground'
-                          : dia.is_passado
-                            ? 'bg-muted text-muted-foreground'
-                            : 'bg-primary/10 text-primary',
+                          ? 'bg-foreground text-background'
+                          : 'bg-muted text-muted-foreground',
                       )}
                     >
                       <Calendar className="size-4" />
                     </div>
                     <div className="flex-1">
-                      <h2
-                        className={cn(
-                          'text-base font-semibold capitalize leading-none',
-                          dia.is_hoje ? 'text-primary' : '',
-                        )}
-                      >
-                        {dia.data_humana}
+                      <h2 className="text-base font-semibold capitalize leading-none">
+                        {formatarDataHumana(dia.data)}
                       </h2>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {dia.aulas.length}{' '}
@@ -419,7 +400,7 @@ export default function Index({ agenda = [], filtros }: Props) {
                       </p>
                     </div>
                     {dia.is_hoje && (
-                      <Badge variant="default" className="text-[10px]">
+                      <Badge variant="secondary" className="text-[10px]">
                         Hoje
                       </Badge>
                     )}
@@ -464,20 +445,13 @@ function CardAulaAluno({
   return (
     <div
       className={cn(
-        'border bg-background p-3 transition-colors hover:border-primary/30',
+        'border bg-background p-3 transition-colors hover:border-foreground/30',
         cancelada ? 'opacity-60' : '',
       )}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <div
-            className={cn(
-              'flex size-9 shrink-0 items-center justify-center',
-              cancelada
-                ? 'bg-muted text-muted-foreground'
-                : 'bg-primary/10 text-primary',
-            )}
-          >
+          <div className="flex size-9 shrink-0 items-center justify-center bg-muted text-muted-foreground">
             <GraduationCap className="size-4" />
           </div>
           <div className="min-w-0">
@@ -494,7 +468,7 @@ function CardAulaAluno({
         </div>
 
         {cancelada && (
-          <Badge variant="destructive" className="shrink-0 text-[10px]">
+          <Badge variant="outline" className="shrink-0 text-[10px]">
             <XCircle className="mr-1 size-3" />
             Cancelada
           </Badge>
@@ -511,7 +485,7 @@ function CardAulaAluno({
           </Badge>
         )}
         {temSumario && (
-          <Badge className="shrink-0 bg-green-600 text-[10px] hover:bg-green-600">
+          <Badge variant="secondary" className="shrink-0 text-[10px]">
             ✓ Publicado
           </Badge>
         )}
@@ -535,8 +509,8 @@ function CardAulaAluno({
         )}
 
         {temSumario && (
-          <div className="border border-primary/20 bg-primary/5 p-2">
-            <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+          <div className="border bg-muted/50 p-2">
+            <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               <FileText className="size-3" />
               Sumário
             </p>
@@ -545,12 +519,12 @@ function CardAulaAluno({
         )}
 
         {temSumario && aula?.tpc && (
-          <div className="border border-amber-200 bg-amber-50 p-2 dark:border-amber-800 dark:bg-amber-950/20">
-            <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-amber-700 dark:text-amber-400">
+          <div className="border bg-muted/50 p-2">
+            <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               <BookOpen className="size-3" />
               Trabalho para casa
             </p>
-            <p className="mt-1 whitespace-pre-wrap text-sm text-amber-800 dark:text-amber-300">
+            <p className="mt-1 whitespace-pre-wrap text-sm">
               {aula.tpc}
             </p>
           </div>
@@ -564,7 +538,7 @@ function CardAulaAluno({
 
         {!cancelada && !temSumario && isPassado && (
           <p className="text-xs italic text-muted-foreground">
-            Sem sumário registado.
+            Sem sumário registrado.
           </p>
         )}
 
@@ -581,7 +555,7 @@ function CardAulaAluno({
             variant="ghost"
             size="sm"
             asChild
-            className="hover:cursor-pointer hover:text-primary"
+            className="hover:cursor-pointer"
           >
             <Link href={`/dashboard/aulas/${aula.id}`}>
               Ver detalhes

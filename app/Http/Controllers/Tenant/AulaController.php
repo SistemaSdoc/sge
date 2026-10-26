@@ -56,8 +56,9 @@ class AulaController extends Controller
         $professor = $user->professor;
         abort_unless($professor, 403, 'Perfil de professor não encontrado.');
 
-        $de  = $request->date('de')  ?? Carbon::today()->subDays(7);
-        $ate = $request->date('ate') ?? Carbon::today()->addDays(14);
+        // Semana em curso: segunda a domingo
+        $de  = $request->date('de')  ?? Carbon::now()->startOfWeek(Carbon::MONDAY)->startOfDay();
+        $ate = $request->date('ate') ?? Carbon::now()->endOfWeek(Carbon::SUNDAY)->startOfDay();
 
         $slots = $this->slotsDoProfessor($professor);
 

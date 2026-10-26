@@ -180,7 +180,7 @@ export default function Index({
               <CardAction className="flex flex-wrap items-center gap-2 self-stretch md:self-center">
                 {!isAluno && disciplinas.length > 0 && (
                   <>
-                    <Badge variant="secondary" className="text-[10px]">
+                    <Badge variant="outline" className="text-[10px]">
                       {stats.disciplinas}{' '}
                       {stats.disciplinas === 1 ? 'disciplina' : 'disciplinas'}
                     </Badge>
@@ -278,7 +278,7 @@ export default function Index({
                     {chipsFiltros.map((chip) => (
                       <Badge
                         key={chip.key}
-                        variant="secondary"
+                        variant="outline"
                         className="gap-1 py-1 pl-2 pr-1"
                       >
                         {chip.label}
@@ -298,12 +298,14 @@ export default function Index({
                 <div className="flex flex-wrap items-center gap-2">
                   <Select
                     value={filtros.ano_letivo_id}
-                    onValueChange={(v) =>
-                      setFiltros((prev) => ({ ...prev, ano_letivo_id: v }))
-                    }
+                    onValueChange={(v) => {
+                      const novos = { ...filtros, ano_letivo_id: v };
+                      setFiltros(novos);
+                      aplicarFiltros(novos);
+                    }}
                   >
                     <SelectTrigger className="w-full sm:w-44">
-                      <SelectValue placeholder="Ano lectivo" />
+                      <SelectValue placeholder="Ano letivo" />
                     </SelectTrigger>
                     <SelectContent>
                       {anosLectivos.map((a) => (
@@ -316,12 +318,14 @@ export default function Index({
 
                   <Select
                     value={filtros.curso_id || 'todos'}
-                    onValueChange={(v) =>
-                      setFiltros((prev) => ({
-                        ...prev,
+                    onValueChange={(v) => {
+                      const novos = {
+                        ...filtros,
                         curso_id: v === 'todos' ? '' : v,
-                      }))
-                    }
+                      };
+                      setFiltros(novos);
+                      aplicarFiltros(novos);
+                    }}
                   >
                     <SelectTrigger className="w-full sm:w-48">
                       <SelectValue placeholder="Curso" />
@@ -338,12 +342,14 @@ export default function Index({
 
                   <Select
                     value={filtros.classe_id || 'todas'}
-                    onValueChange={(v) =>
-                      setFiltros((prev) => ({
-                        ...prev,
+                    onValueChange={(v) => {
+                      const novos = {
+                        ...filtros,
                         classe_id: v === 'todas' ? '' : v,
-                      }))
-                    }
+                      };
+                      setFiltros(novos);
+                      aplicarFiltros(novos);
+                    }}
                   >
                     <SelectTrigger className="w-full sm:w-44">
                       <SelectValue placeholder="Classe" />
@@ -360,12 +366,14 @@ export default function Index({
 
                   <Select
                     value={filtros.periodo || 'todos'}
-                    onValueChange={(v) =>
-                      setFiltros((prev) => ({
-                        ...prev,
+                    onValueChange={(v) => {
+                      const novos = {
+                        ...filtros,
                         periodo: v === 'todos' ? '' : v,
-                      }))
-                    }
+                      };
+                      setFiltros(novos);
+                      aplicarFiltros(novos);
+                    }}
                   >
                     <SelectTrigger className="w-full sm:w-40">
                       <SelectValue placeholder="Período" />
@@ -379,14 +387,6 @@ export default function Index({
                       ))}
                     </SelectContent>
                   </Select>
-
-                  <Button
-                    onClick={() => aplicarFiltros()}
-                    className="w-full hover:cursor-pointer sm:w-auto"
-                  >
-                    <Filter className="mr-1.5 size-4" />
-                    Aplicar
-                  </Button>
                 </div>
               </>
             )}
@@ -421,7 +421,7 @@ export default function Index({
                 ? 'Tente ajustar a pesquisa ou limpar os filtros.'
                 : can.create
                   ? 'Ainda não foi criada nenhuma planificação para os filtros atuais.'
-                  : 'Ainda não há planificações disponíveis para si.'
+                  : 'Ainda não há planificações disponíveis para você.'
             }
           />
         ) : (
@@ -436,8 +436,8 @@ export default function Index({
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex size-11 shrink-0 items-center justify-center bg-primary/10">
-                          <BookOpen className="size-5 text-primary" />
+                        <div className="flex size-11 shrink-0 items-center justify-center bg-muted">
+                          <BookOpen className="size-5 text-muted-foreground" />
                         </div>
                         <div className="min-w-0">
                           <CardTitle className="truncate text-base leading-tight">
@@ -450,13 +450,13 @@ export default function Index({
                           )}
                         </div>
                       </div>
-                      <ChevronRight className="size-5 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
+                      <ChevronRight className="size-5 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5" />
                     </div>
                   </CardHeader>
 
                   <CardContent className="flex-1 space-y-2 pb-4">
                     <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary" className="gap-1 font-normal">
+                      <Badge variant="outline" className="gap-1 font-normal">
                         <Layers className="size-3" />
                         {d.total}{' '}
                         {d.total === 1 ? 'planificação' : 'planificações'}
@@ -482,7 +482,7 @@ export default function Index({
                     <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                       <Clock className="size-3 shrink-0" />
                       <span className="truncate">
-                        Última actualização: {d.ultima_atualizacao ?? '—'}
+                        Última atualização: {d.ultima_atualizacao ?? '—'}
                       </span>
                     </p>
                   </div>

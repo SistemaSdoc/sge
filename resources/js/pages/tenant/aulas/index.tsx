@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  Filter,
   Search,
 } from 'lucide-react';
 import {
@@ -105,11 +104,17 @@ export default function Index({
     estado: filtros.estado ?? '',
   });
 
-  const aplicarFiltros = () => {
-    router.get('/dashboard/aulas', filtrosLocais, {
+  const aplicarFiltros = (novos = filtrosLocais) => {
+    router.get('/dashboard/aulas', novos, {
       preserveScroll: true,
       preserveState: true,
     });
+  };
+
+  const atualizarFiltro = (campo: string, valor: string) => {
+    const novos = { ...filtrosLocais, [campo]: valor };
+    setFiltrosLocais(novos);
+    aplicarFiltros(novos);
   };
 
   const limparFiltros = () => {
@@ -178,26 +183,25 @@ export default function Index({
                   <BreadcrumbSeparator />
                   <BreadcrumbItem className="min-w-0">
                     <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
-                      Aulas & Sumários
+                      Aulas e Sumários
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
               <CardDescription>
-                Acompanha o registo de aulas de todos os professores.
+                Acompanhe o registro de aulas de todos os professores.
               </CardDescription>
             </div>
           </CardHeader>
 
           <div className="space-y-3 px-4 py-3">
-            {/* Linha do título "Filtros" */}
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold whitespace-nowrap">
                 Filtros
               </h2>
               {filtrosAtivos && (
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   onClick={limparFiltros}
                   className="hover:cursor-pointer"
@@ -207,7 +211,6 @@ export default function Index({
               )}
             </div>
 
-            {/* Busca */}
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -218,14 +221,11 @@ export default function Index({
               />
             </div>
 
-            {/* Filtros em flex-wrap — sem scroll horizontal */}
             <div className="flex flex-wrap items-center gap-2">
               <Input
                 type="date"
                 value={filtrosLocais.de}
-                onChange={(e) =>
-                  setFiltrosLocais((p) => ({ ...p, de: e.target.value }))
-                }
+                onChange={(e) => atualizarFiltro('de', e.target.value)}
                 className="w-full sm:w-40"
                 aria-label="De"
               />
@@ -233,9 +233,7 @@ export default function Index({
               <Input
                 type="date"
                 value={filtrosLocais.ate}
-                onChange={(e) =>
-                  setFiltrosLocais((p) => ({ ...p, ate: e.target.value }))
-                }
+                onChange={(e) => atualizarFiltro('ate', e.target.value)}
                 className="w-full sm:w-40"
                 aria-label="Até"
               />
@@ -243,10 +241,7 @@ export default function Index({
               <Select
                 value={filtrosLocais.disciplina_id || 'todas'}
                 onValueChange={(v) =>
-                  setFiltrosLocais((p) => ({
-                    ...p,
-                    disciplina_id: v === 'todas' ? '' : v,
-                  }))
+                  atualizarFiltro('disciplina_id', v === 'todas' ? '' : v)
                 }
               >
                 <SelectTrigger className="w-full sm:w-48">
@@ -265,10 +260,7 @@ export default function Index({
               <Select
                 value={filtrosLocais.professor_id || 'todos'}
                 onValueChange={(v) =>
-                  setFiltrosLocais((p) => ({
-                    ...p,
-                    professor_id: v === 'todos' ? '' : v,
-                  }))
+                  atualizarFiltro('professor_id', v === 'todos' ? '' : v)
                 }
               >
                 <SelectTrigger className="w-full sm:w-48">
@@ -287,10 +279,7 @@ export default function Index({
               <Select
                 value={filtrosLocais.estado || 'todos'}
                 onValueChange={(v) =>
-                  setFiltrosLocais((p) => ({
-                    ...p,
-                    estado: v === 'todos' ? '' : v,
-                  }))
+                  atualizarFiltro('estado', v === 'todos' ? '' : v)
                 }
               >
                 <SelectTrigger className="w-full sm:w-44">
@@ -303,14 +292,6 @@ export default function Index({
                   <SelectItem value="cancelado">Cancelado</SelectItem>
                 </SelectContent>
               </Select>
-
-              <Button
-                onClick={aplicarFiltros}
-                className="w-full hover:cursor-pointer sm:w-auto"
-              >
-                <Filter className="mr-1.5 size-4" />
-                Aplicar filtros
-              </Button>
             </div>
           </div>
         </Card>
@@ -325,13 +306,13 @@ export default function Index({
               </CardDescription>
             </div>
             <CardAction className="flex flex-wrap gap-2">
-              <Badge className="bg-green-600 hover:bg-green-600">
+              <Badge variant="secondary">
                 ✓ {stats.comSumario} com sumário
               </Badge>
-              <Badge variant="secondary">
+              <Badge variant="outline">
                 {stats.pendentes} sem sumário
               </Badge>
-              <Badge variant="destructive">
+              <Badge variant="outline">
                 {stats.canceladas} canceladas
               </Badge>
             </CardAction>
@@ -346,7 +327,7 @@ export default function Index({
                 description={
                   filtrosAtivos
                     ? 'Nenhuma aula corresponde aos filtros aplicados.'
-                    : 'Ainda não há aulas registadas neste período.'
+                    : 'Ainda não há aulas registradas neste período.'
                 }
               />
             ) : (
@@ -354,7 +335,6 @@ export default function Index({
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/72">
-                      <TableHead className="min-w-28 px-4">Data</TableHead>
                       <TableHead className="min-w-28 px-4 text-center">
                         Hora
                       </TableHead>
@@ -362,15 +342,13 @@ export default function Index({
                         Disciplina
                       </TableHead>
                       <TableHead className="min-w-32 px-4">Turma</TableHead>
-                      <TableHead className="min-w-40 px-4">
-                        Professor
-                      </TableHead>
+                     
                       <TableHead className="min-w-64 px-4">Aula</TableHead>
                       <TableHead className="min-w-28 px-4 text-center">
                         Estado
                       </TableHead>
                       <TableHead className="min-w-20 px-4 text-center">
-                        Acções
+                        Ações
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -382,9 +360,7 @@ export default function Index({
                           aula.estado === 'cancelado' ? 'opacity-60' : ''
                         }
                       >
-                        <TableCell className="px-4 font-medium whitespace-nowrap">
-                          {formatarData(aula.data)}
-                        </TableCell>
+                  
                         <TableCell className="px-4 text-center font-mono text-xs tabular-nums whitespace-nowrap">
                           {aula.hora_inicio}–{aula.hora_fim}
                         </TableCell>
@@ -398,11 +374,7 @@ export default function Index({
                             {aula.turma_nome}
                           </span>
                         </TableCell>
-                        <TableCell className="px-4">
-                          <span className="line-clamp-1 text-sm text-muted-foreground">
-                            {aula.professor_nome ?? '—'}
-                          </span>
-                        </TableCell>
+                        
                         <TableCell className="px-4">
                           {aula.titulo && (
                             <div className="line-clamp-1 font-medium">
@@ -421,15 +393,15 @@ export default function Index({
                         </TableCell>
                         <TableCell className="px-4 text-center">
                           {aula.estado === 'publicado' ? (
-                            <Badge className="bg-green-600 text-[10px] hover:bg-green-600">
+                            <Badge variant="secondary" className="text-[10px]">
                               ✓ {aula.estado_label}
                             </Badge>
                           ) : aula.estado === 'cancelado' ? (
-                            <Badge variant="destructive" className="text-[10px]">
+                            <Badge variant="outline" className="text-[10px]">
                               {aula.estado_label}
                             </Badge>
                           ) : (
-                            <Badge variant="secondary" className="text-[10px]">
+                            <Badge variant="outline" className="text-[10px]">
                               {aula.estado_label}
                             </Badge>
                           )}
