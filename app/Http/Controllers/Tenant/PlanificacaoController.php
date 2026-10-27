@@ -44,10 +44,10 @@ class PlanificacaoController extends Controller
     private function cursosDaInstituicao(?string $instituicaoId): array
     {
         return CursoTutelado::query()
-            ->whereHas('instituicaoCurso', fn ($q) => $q->where('instituicao_id', $instituicaoId))
+            ->whereHas('instituicaoCurso', fn($q) => $q->where('instituicao_id', $instituicaoId))
             ->with('instituicaoCurso.curso:id,nome')
             ->get()
-            ->map(fn ($c) => [
+            ->map(fn($c) => [
                 'id'   => $c->id,
                 'nome' => $c->instituicaoCurso?->curso?->nome ?? 'Curso',
             ])
@@ -139,7 +139,7 @@ class PlanificacaoController extends Controller
             ->orderBy('classe_id')
             ->orderBy('periodo')
             ->get()
-            ->map(fn (Planificacao $p) => $this->formatarParaLista($p))
+            ->map(fn(Planificacao $p) => $this->formatarParaLista($p))
             ->values();
 
         return Inertia::render('tenant/planificacoes/disciplina', [
@@ -311,8 +311,12 @@ class PlanificacaoController extends Controller
     public function show(Planificacao $planificacao)
     {
         $planificacao->load([
-            'disciplina', 'classe', 'anoLectivo', 'criador',
-            'curso.instituicaoCurso.curso', 'versoes.autor',
+            'disciplina',
+            'classe',
+            'anoLectivo',
+            'criador',
+            'curso.instituicaoCurso.curso',
+            'versoes.autor',
         ]);
 
         $user = auth()->user();
@@ -387,7 +391,7 @@ class PlanificacaoController extends Controller
         ]);
 
         return response()->streamDownload(
-            fn () => print($conteudo),
+            fn() => print($conteudo),
             $versao->nome_original,
             ['Content-Type' => $versao->mime_type ?? 'application/octet-stream'],
         );
@@ -427,42 +431,124 @@ class PlanificacaoController extends Controller
     // AUXILIARES
     // ============================================================
 
-    private function aplicarFiltroPorRole($query, $user): void
-    {
-        if ($user->hasRole('Professor')) {
-            $professor = Professor::where('user_id', $user->id)->first();
-            if ($professor) {
-                $query->whereExists(function ($sub) use ($professor) {
-                    $sub->select(DB::raw(1))
-                        ->from('turma_disciplina_professor')
-                        ->join('classe_turno_disciplina', 'turma_disciplina_professor.classe_turno_disciplina_id', '=', 'classe_turno_disciplina.id')
-                        ->join('curso_classe_turno', 'classe_turno_disciplina.curso_classe_turno_id', '=', 'curso_classe_turno.id')
-                        ->join('curso_classe', 'curso_classe_turno.curso_classe_id', '=', 'curso_classe.id')
-                        ->whereColumn('classe_turno_disciplina.disciplina_id', 'planificacoes.disciplina_id')
-                        ->whereColumn('curso_classe.classe_id', 'planificacoes.classe_id')
-                        ->whereColumn('curso_classe.curso_tutelado_id', 'planificacoes.curso_id')
-                        ->where('turma_disciplina_professor.professor_id', $professor->id);
-                });
-            }
-        } elseif ($user->hasRole('Aluno')) {
-            $aluno = $user->aluno;
-            if ($aluno) {
-                $query->whereExists(function ($sub) use ($aluno) {
-                    $sub->select(DB::raw(1))
-                        ->from('turma_aluno')
-                        ->join('turmas', 'turma_aluno.turma_id', '=', 'turmas.id')
-                        ->join('curso_classe_turno', 'turmas.curso_classe_turno_id', '=', 'curso_classe_turno.id')
-                        ->join('curso_classe', 'curso_classe_turno.curso_classe_id', '=', 'curso_classe.id')
-                        ->join('classe_turno_disciplina', 'classe_turno_disciplina.curso_classe_turno_id', '=', 'curso_classe_turno.id')
-                        ->whereColumn('curso_classe.classe_id', 'planificacoes.classe_id')
-                        ->whereColumn('classe_turno_disciplina.disciplina_id', 'planificacoes.disciplina_id')
-                        ->whereColumn('curso_classe.curso_tutelado_id', 'planificacoes.curso_id')
-                        ->where('turma_aluno.aluno_id', $aluno->id)
-                        ->where('turma_aluno.activo', true);
-                });
-            }
+/**
+ * Aplica restrições de visibilidade conforme o role do utilizador.
+ *
+ * - Staff: sem filtro adicional.
+ * - Professor: só vê planificações das disciplinas/turmas/classes que leciona.
+ * - Aluno: só vê planificações do ano letivo em que está matriculado,
+ *          para a sua classe, curso e disciplina.
+ *
+ * Nota de schema:
+ *   - `planificacoes.ano_letivo_id`   (sem "c")
+ *   - `turma_aluno.ano_lectivo_id`    (com "c")
+ *   - `turmas.ano_lectivo_id`         (com "c")
+ *   - `classe_turno_disciplina.ano_lectivo_id` (com "c")
+ */
+private function aplicarFiltroPorRole($query, $user): void
+{
+    // ---------------------------------------------------------
+    // PROFESSOR
+    // ---------------------------------------------------------
+    if ($user->hasRole('Professor')) {
+        $professor = Professor::where('user_id', $user->id)->first();
+
+        if (! $professor) {
+            Log::warning('[PlanificacaoController] Professor sem registo associado', [
+                'user_id' => $user->id,
+            ]);
+
+            // Defesa em profundidade: sem registo, nega tudo.
+            $query->whereRaw('1 = 0');
+            return;
         }
+
+        $query->whereExists(function ($sub) use ($professor) {
+            $sub->select(DB::raw(1))
+                ->from('turma_disciplina_professor')
+                ->join(
+                    'classe_turno_disciplina',
+                    'turma_disciplina_professor.classe_turno_disciplina_id',
+                    '=',
+                    'classe_turno_disciplina.id'
+                )
+                ->join(
+                    'curso_classe_turno',
+                    'classe_turno_disciplina.curso_classe_turno_id',
+                    '=',
+                    'curso_classe_turno.id'
+                )
+                ->join(
+                    'curso_classe',
+                    'curso_classe_turno.curso_classe_id',
+                    '=',
+                    'curso_classe.id'
+                )
+                ->whereColumn('classe_turno_disciplina.disciplina_id', 'planificacoes.disciplina_id')
+                ->whereColumn('curso_classe.classe_id', 'planificacoes.classe_id')
+                ->whereColumn('curso_classe.curso_tutelado_id', 'planificacoes.curso_id')
+                ->where('turma_disciplina_professor.professor_id', $professor->id);
+        });
+
+        return;
     }
+
+    // ---------------------------------------------------------
+    // ALUNO
+    // ---------------------------------------------------------
+    if ($user->hasRole('Aluno')) {
+        $aluno = $user->aluno;
+
+        if (! $aluno) {
+            Log::warning('[PlanificacaoController] Aluno sem registo associado', [
+                'user_id' => $user->id,
+            ]);
+
+            // Defesa em profundidade: sem registo, nega tudo.
+            // Sem isto, o filtro desaparecia e o aluno via TUDO.
+            $query->whereRaw('1 = 0');
+            return;
+        }
+
+        $query->whereExists(function ($sub) use ($aluno) {
+            $sub->select(DB::raw(1))
+                ->from('turma_aluno')
+                ->join('turmas', 'turma_aluno.turma_id', '=', 'turmas.id')
+                ->join(
+                    'curso_classe_turno',
+                    'turmas.curso_classe_turno_id',
+                    '=',
+                    'curso_classe_turno.id'
+                )
+                ->join(
+                    'curso_classe',
+                    'curso_classe_turno.curso_classe_id',
+                    '=',
+                    'curso_classe.id'
+                )
+                ->join(
+                    'classe_turno_disciplina',
+                    'classe_turno_disciplina.curso_classe_turno_id',
+                    '=',
+                    'curso_classe_turno.id'
+                )
+                ->whereColumn('curso_classe.classe_id', 'planificacoes.classe_id')
+                ->whereColumn('classe_turno_disciplina.disciplina_id', 'planificacoes.disciplina_id')
+                ->whereColumn('curso_classe.curso_tutelado_id', 'planificacoes.curso_id')
+                // CORREÇÃO PRINCIPAL:
+                // Só matrículas no MESMO ano letivo da planificação.
+                // turma_aluno → ano_lectivo_id (com "c")
+                // planificacoes → ano_letivo_id  (sem "c")
+                ->whereColumn('turma_aluno.ano_lectivo_id', 'planificacoes.ano_letivo_id')
+                ->where('turma_aluno.aluno_id', $aluno->id)
+                ->where('turma_aluno.activo', true);
+        });
+
+        return;
+    }
+
+    // Staff / outros: sem filtro adicional.
+}
 
     private function formatarParaLista(Planificacao $p): array
     {
@@ -504,7 +590,7 @@ class PlanificacaoController extends Controller
             'criada_por'    => $p->criador?->nome,
             'criada_em'     => $p->created_at?->format('d/m/Y H:i'),
             'atualizada_em' => $p->updated_at?->format('d/m/Y H:i'),
-            'versoes' => $p->versoes->map(fn (PlanificacaoVersao $v) => [
+            'versoes' => $p->versoes->map(fn(PlanificacaoVersao $v) => [
                 'id'                    => $v->id,
                 'versao'                => $v->versao,
                 'nome_original'         => $v->nome_original,
@@ -524,6 +610,3 @@ class PlanificacaoController extends Controller
         ];
     }
 }
-
-
-
