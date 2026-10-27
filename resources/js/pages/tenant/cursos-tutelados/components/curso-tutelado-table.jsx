@@ -185,7 +185,7 @@ export function CursosTuteladosTable({
                           )}
 
                           {/* Botão Remover */}
-                          {curso.can?.delete && (
+                          {/* {curso.can?.delete && (
                             <Button
                               variant="destructive"
                               size="xs"
@@ -197,7 +197,7 @@ export function CursosTuteladosTable({
                             >
                               Remover
                             </Button>
-                          )}
+                          )} */}
                         </div>
                       </TableCell>
                     </TableRow>

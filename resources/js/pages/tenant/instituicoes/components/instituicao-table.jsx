@@ -151,7 +151,7 @@ export function InstituicaoTable({
                                 <DropdownMenuSeparator />
                               )}
 
-                            {instituicao.can?.delete && (
+                            {/* {instituicao.can?.delete && (
                               <DropdownMenuItem
                                 variant="destructive"
                                 onClick={(e) => {
@@ -161,7 +161,7 @@ export function InstituicaoTable({
                               >
                                 Remover
                               </DropdownMenuItem>
-                            )}
+                            )} */}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       )}

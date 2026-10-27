@@ -329,6 +329,16 @@ class GrupoPapPolicy
     }
 
     /**
+     * Determina se o utilizador pode trocar o professor tutor do grupo.
+     */
+    public function alterarTutor(User $user, GrupoPap $grupoPap): bool
+    {
+        return ! $user->hasRole('Secretario do Curso')
+            && $user->can('grupopap.alterarTutor')
+            && $grupoPap->instituicao()?->id === $user->instituicao_id;
+    }
+
+    /**
      * Só o professor tutor do grupo pode solicitar correção como tutor.
      */
     public function solicitarCorrecaoTrabalhoComoTutor(User $user, GrupoPap $grupoPap): bool

@@ -295,7 +295,10 @@ class GrupoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('update', $grupoPap);
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
+        Gate::forUser($user)->authorize('update', $grupoPap);
 
         $options = $this->grupoPapViewService->editOptions($cursoTutelado, $turma, $grupoPap);
 
@@ -312,6 +315,8 @@ class GrupoPapController extends Controller
                 'alunos' => $options['alunos'],
                 'grupoPap' => $grupoPap,
             ]),
+            'podeAlterarTutor' => $grupoPap->professor_tutor_id !== null
+        && $user->can('alterarTutor', $grupoPap),
         ]);
     }
 

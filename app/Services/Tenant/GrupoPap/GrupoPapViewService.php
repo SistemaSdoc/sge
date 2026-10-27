@@ -26,9 +26,7 @@ use Illuminate\Support\Collection as SupportCollection;
  */
 class GrupoPapViewService
 {
-    public function __construct(private readonly CrossTenantAccessService $crossTenantAccessService)
-    {
-    }
+    public function __construct(private readonly CrossTenantAccessService $crossTenantAccessService) {}
 
     public function index(
         User $user,
@@ -53,7 +51,7 @@ class GrupoPapViewService
 
         if ($this->isTutorInstitution($user)) {
             $this->crossTenantAccessService->vinculosVisiveisNoPap($user)
-                ->each(function (CursoTuteladoShared $shared) use (&$groups, $anoLectivoId, $user, $instituicaoIdFiltro, $cursoIdFiltro, $search, $instituicaoIdPadrao, $isInstituteSecretary, ): void {
+                ->each(function (CursoTuteladoShared $shared) use (&$groups, $anoLectivoId, $user, $instituicaoIdFiltro, $cursoIdFiltro, $search, $instituicaoIdPadrao, $isInstituteSecretary): void {
                     $tenant = Tenant::query()->find($shared->tenant_tutelado_id);
 
                     if (! $tenant) {
@@ -414,7 +412,7 @@ class GrupoPapViewService
             'professores' => Professor::query()
                 ->whereHas('cursosTutelados', fn ($query) => $query
                     ->where('curso_tutelado_id', $cursoTutelado->getKey())
-                    ->where('tipo', 'principal'))
+                    ->where('opap', true))
                 ->with('user:id,nome')
                 ->get(),
             'alunos' => $turma->alunos()

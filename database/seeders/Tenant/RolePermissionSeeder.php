@@ -116,6 +116,7 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.update',
                 'grupopap.delete',
                 'grupopap.definirData',
+                'grupopap.alterarTutor', 
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
 
@@ -267,6 +268,7 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.update',
                 'grupopap.delete',
                 'grupopap.definirData',
+                'grupopap.alterarTutor', 
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
 
@@ -405,6 +407,7 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.update',
                 'grupopap.delete',
                 'grupopap.definirData',
+                'grupopap.alterarTutor',
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
 
@@ -519,6 +522,7 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.aprovar',
                 'grupopap.reprovar',
                 'grupopap.definirData',
+                'grupopap.alterarTutor', 
                 'grupopap.solicitarMelhoria',
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
@@ -565,6 +569,7 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.view',
                 'grupopap.aprovar',
                 'grupopap.reprovar',
+                'grupopap.alterarTutor', 
                 'grupopap.solicitarMelhoria',
                 'elementogrupopap.viewAny',
                 'elementogrupopap.view',
@@ -587,6 +592,7 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.view',
                 'grupopap.aprovar',
                 'grupopap.reprovar',
+                'grupopap.alterarTutor', 
                 'grupopap.solicitarMelhoria',
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
