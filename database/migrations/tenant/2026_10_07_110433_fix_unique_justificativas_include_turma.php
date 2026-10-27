@@ -2,45 +2,44 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-public function up(): void
-{
-    $tabela = 'justificativas_nao_submissao';
+    public function up(): void
+    {
+        $tabela = 'justificativas_nao_submissao';
 
-    // índices temporários para as FKs não perderem suporte durante o drop do unique antigo
-    Schema::table($tabela, function (Blueprint $table) use ($tabela) {
-        if (! Schema::hasIndex($tabela, 'tmp_prazo_idx')) {
-            $table->index('prazo_prova_id', 'tmp_prazo_idx');
-        }
-        if (! Schema::hasIndex($tabela, 'justificativas_professor_idx')
-            && ! Schema::hasIndex($tabela, 'tmp_professor_idx')) {
-            $table->index('professor_id', 'justificativas_professor_idx');
-        }
-    });
+        // índices temporários para as FKs não perderem suporte durante o drop do unique antigo
+        Schema::table($tabela, function (Blueprint $table) use ($tabela) {
+            if (! Schema::hasIndex($tabela, 'tmp_prazo_idx')) {
+                $table->index('prazo_prova_id', 'tmp_prazo_idx');
+            }
+            if (! Schema::hasIndex($tabela, 'justificativas_professor_idx')
+                && ! Schema::hasIndex($tabela, 'tmp_professor_idx')) {
+                $table->index('professor_id', 'justificativas_professor_idx');
+            }
+        });
 
-    Schema::table($tabela, function (Blueprint $table) use ($tabela) {
-        if (Schema::hasIndex($tabela, 'justificativas_prazo_professor_unique')) {
-            $table->dropUnique('justificativas_prazo_professor_unique');
-        }
-        if (! Schema::hasIndex($tabela, 'justificativas_prazo_professor_turma_unique')) {
-            $table->unique(
-                ['prazo_prova_id', 'professor_id', 'turma_id'],
-                'justificativas_prazo_professor_turma_unique'
-            );
-        }
-    });
+        Schema::table($tabela, function (Blueprint $table) use ($tabela) {
+            if (Schema::hasIndex($tabela, 'justificativas_prazo_professor_unique')) {
+                $table->dropUnique('justificativas_prazo_professor_unique');
+            }
+            if (! Schema::hasIndex($tabela, 'justificativas_prazo_professor_turma_unique')) {
+                $table->unique(
+                    ['prazo_prova_id', 'professor_id', 'turma_id'],
+                    'justificativas_prazo_professor_turma_unique'
+                );
+            }
+        });
 
-    // só o tmp_prazo_idx é redundante (o novo unique cobre prazo_prova_id)
-    Schema::table($tabela, function (Blueprint $table) use ($tabela) {
-        if (Schema::hasIndex($tabela, 'tmp_prazo_idx')) {
-            $table->dropIndex('tmp_prazo_idx');
-        }
-    });
-}
+        // só o tmp_prazo_idx é redundante (o novo unique cobre prazo_prova_id)
+        Schema::table($tabela, function (Blueprint $table) use ($tabela) {
+            if (Schema::hasIndex($tabela, 'tmp_prazo_idx')) {
+                $table->dropIndex('tmp_prazo_idx');
+            }
+        });
+    }
 
     public function down(): void
     {

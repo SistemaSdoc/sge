@@ -53,7 +53,12 @@ export function TabAlunos({
         </div>
         {can.exportar && (
           <div className="w-full sm:w-auto">
-            <Button variant="outline" size="sm" className="w-full sm:w-auto" asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full sm:w-auto"
+              asChild
+            >
               <a
                 href={
                   exportarLista({
@@ -99,8 +104,12 @@ export function TabAlunos({
           <Table className="min-w-0">
             <TableHeader>
               <TableRow className="bg-muted/72">
-                <TableHead className="px-4 max-md:whitespace-normal">Nome</TableHead>
-                <TableHead className="px-4 text-right max-md:whitespace-normal">Acções</TableHead>
+                <TableHead className="px-4 max-md:whitespace-normal">
+                  Nome
+                </TableHead>
+                <TableHead className="px-4 text-right max-md:whitespace-normal">
+                  Acções
+                </TableHead>
               </TableRow>
             </TableHeader>
 
@@ -114,8 +123,8 @@ export function TabAlunos({
                     aria-disabled={!canView}
                     onClick={(event) => {
                       if (
-                        event.target instanceof Element
-                        && event.target.closest(
+                        event.target instanceof Element &&
+                        event.target.closest(
                           '[data-profile-avatar-preview], [data-slot="dialog-overlay"]',
                         )
                       ) {
@@ -135,7 +144,7 @@ export function TabAlunos({
                           name={aluno.nome}
                         />
                         <div className="flex min-w-0 flex-col">
-                          <span className="min-w-0 wrap-anywhere text-xs">
+                          <span className="min-w-0 text-xs wrap-anywhere">
                             {aluno?.nome}
                           </span>
                           <span className="text-[10px] text-muted-foreground">

@@ -105,8 +105,8 @@ export function ProfessorTable({
                   className="hover:cursor-pointer"
                   onClick={(event) => {
                     if (
-                      event.target instanceof Element
-                      && event.target.closest(
+                      event.target instanceof Element &&
+                      event.target.closest(
                         '[data-profile-avatar-preview], [data-slot="dialog-overlay"]',
                       )
                     ) {

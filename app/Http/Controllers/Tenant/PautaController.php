@@ -39,7 +39,7 @@ class PautaController extends Controller
     }
 
     /**
-     * Mostra a pauta da turma seleccionada.
+     * Mostra a pauta da turma específica.
      */
     public function pauta(string $turma, Request $request): Response
     {

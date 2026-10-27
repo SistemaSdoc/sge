@@ -55,8 +55,12 @@ export function TabDisciplinas({
           <Table className="min-w-0">
             <TableHeader>
               <TableRow className="bg-muted/72">
-                <TableHead className="px-2 max-md:whitespace-normal sm:px-4">Nome</TableHead>
-                <TableHead className="max-md:whitespace-normal">Professor</TableHead>
+                <TableHead className="px-2 max-md:whitespace-normal sm:px-4">
+                  Nome
+                </TableHead>
+                <TableHead className="max-md:whitespace-normal">
+                  Professor
+                </TableHead>
               </TableRow>
             </TableHeader>
 
@@ -85,11 +89,11 @@ export function TabDisciplinas({
                       }
                     }}
                   >
-                    <TableCell className="px-2 font-medium max-md:whitespace-normal sm:px-4 wrap-anywhere">
+                    <TableCell className="px-2 font-medium wrap-anywhere max-md:whitespace-normal sm:px-4">
                       {disciplina?.nome}
                     </TableCell>
 
-                    <TableCell className="max-md:whitespace-normal wrap-anywhere">
+                    <TableCell className="wrap-anywhere max-md:whitespace-normal">
                       {disciplina.professor?.nome ?? (
                         <Minus size={15} className="text-muted-foreground" />
                       )}

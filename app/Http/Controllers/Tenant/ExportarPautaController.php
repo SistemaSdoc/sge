@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Tenant;
 
-use App\Exports\PautaExport;
-use App\Exports\PautaFinalExport;
+use App\Actions\Tenant\Pauta\PreparePautaFinalTemplateExport;
+use App\Actions\Tenant\Pauta\PreparePautaTrimestralTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Disciplina as CentralDisciplina;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\Turma;
@@ -13,6 +14,8 @@ use App\Models\Tenant\TurmaAluno;
 use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Models\Tenant\User;
 use App\Services\Tenant\Core\RegraAcademicaService;
+use App\Services\Tenant\Pauta\NotasClasseAnterior;
+use App\Services\Tenant\Pauta\ResolvePautaTemplatePath;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -22,6 +25,10 @@ class ExportarPautaController extends Controller
 {
     public function __construct(
         private readonly RegraAcademicaService $regraAcademicaService,
+        private readonly NotasClasseAnterior $notasClasseAnterior,
+        private readonly PreparePautaTrimestralTemplateExport $preparePautaTrimestralTemplateExport,
+        private readonly PreparePautaFinalTemplateExport $preparePautaFinalTemplateExport,
+        private readonly ResolvePautaTemplatePath $resolvePautaTemplatePath,
     ) {}
 
     public function exportarExcel(
@@ -74,6 +81,22 @@ class ExportarPautaController extends Controller
 
         $periodo = $request->query('periodo'); // '1', '2', '3' ou null (final)
         $isTrimestral = in_array($periodo, ['1', '2', '3'], true);
+        $isFinal = $periodo === null || $periodo === 'final';
+        $templatePath = match (true) {
+            $isTrimestral => $this->resolvePautaTemplatePath->resolveTrimestral($turma),
+            $isFinal => $this->resolvePautaTemplatePath->resolveFinal($turma),
+            default => null,
+        };
+
+        if ($templatePath !== null && TurmaDisciplinaProfessor::query()->where('turma_id', $turma->getKey())->exists()) {
+            $export = $isTrimestral
+                ? $this->preparePautaTrimestralTemplateExport->handle($turma, (int) $periodo)
+                : $this->preparePautaFinalTemplateExport->handle($turma);
+            $sufixo = $isTrimestral ? "_{$periodo}trim" : '_final';
+            $filename = 'pauta_'.str($turma->nome)->slug().$sufixo.'.xlsx';
+
+            return Excel::download($export, $filename);
+        }
 
         // ── Contexto da turma ──────────────────────────────────
         $turma->loadMissing([
@@ -124,59 +147,41 @@ class ExportarPautaController extends Controller
             ->orderBy('created_at')
             ->get();
 
+        $historicoNotas = $isTrimestral
+            ? ['disciplinas' => [], 'alunos' => []]
+            : $this->notasClasseAnterior->obterTodas(
+                $turma,
+                $turmaAlunos->pluck('aluno_id')->map(fn ($id): string => (string) $id)->all(),
+            );
+        $disciplinasHistoricas = CentralDisciplina::query()
+            ->whereIn('id', array_keys($historicoNotas['disciplinas']))
+            ->get(['id', 'nome', 'sigla'])
+            ->map(fn (CentralDisciplina $disciplina): array => [
+                'id' => (string) $disciplina->getKey(),
+                'nome' => $disciplina->nome,
+                'sigla' => $disciplina->sigla,
+            ]);
+
         // ── Montar dados dos alunos ────────────────────────────
         $alunos = $turmaAlunos
             ->values()
-            ->map(fn ($ta, $index) => $this->montarDadosAluno(
-                ta: $ta,
-                index: $index,
-                disciplinas: $disciplinas,
-                isTrimestral: $isTrimestral,
-            ))
+            ->map(function (TurmaAluno $turmaAluno, int $index) use ($disciplinas, $isTrimestral, $historicoNotas): array {
+                $aluno = $this->montarDadosAluno(
+                    ta: $turmaAluno,
+                    index: $index,
+                    disciplinas: $disciplinas,
+                    isTrimestral: $isTrimestral,
+                );
+
+                if (! $isTrimestral) {
+                    $aluno['notas_historicas'] = $historicoNotas['alunos'][(string) $turmaAluno->aluno_id] ?? [];
+                }
+
+                return $aluno;
+            })
             ->toArray();
 
-        // ── Exportar ───────────────────────────────────────────────────
-        if ($isTrimestral) {
-            $export = new PautaExport(
-                disciplinas: $disciplinas->map(fn ($d) => [
-                    'nome' => $d['nome'],
-                    'sigla' => $d['sigla'] ?? mb_substr($d['nome'], 0, 6),
-                ])->toArray(),
-                alunos: $alunos,
-                curso: $nomeCurso,
-                turma: $turma->nome,
-                anoLetivo: $nomeAnoLectivo,
-                instituicao: $nomeInstituicao,
-                sala: $turma->sala ?? '',
-                classe: $nomeClasse,
-                periodo: (string) $periodo,
-                areaFormacao: $nomeCurso,
-                director: $nomeDirector,
-                logoPath: public_path('images/insignia_angola.png'),
-            );
-        } else {
-            $export = new PautaFinalExport(
-                disciplinas: $disciplinas->map(fn ($d) => [
-                    'nome' => $d['nome'],
-                    'sigla' => $d['sigla'] ?? mb_substr($d['nome'], 0, 4), // fallback
-                ])->toArray(),
-                alunos: $alunos,
-                curso: $nomeCurso,
-                turma: $turma->nome,
-                anoLetivo: $nomeAnoLectivo,
-                instituicao: $nomeInstituicao,
-                sala: '',
-                classe: $nomeClasse,
-                areaFormacao: $nomeCurso,
-                director: $nomeDirector,
-                logoPath: public_path('images/insignia_angola.png'),
-            );
-        }
-
-        $sufixo = $isTrimestral ? "_{$periodo}trim" : '_final';
-        $filename = 'pauta_'.str($turma->nome)->slug().$sufixo.'.xlsx';
-
-        return Excel::download($export, $filename);
+        abort(404, 'Não existe um template Excel válido para esta pauta.');
     }
 
     // ─────────────────────────────────────────────────────────────

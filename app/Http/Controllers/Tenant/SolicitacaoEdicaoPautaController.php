@@ -34,7 +34,7 @@ class SolicitacaoEdicaoPautaController extends Controller
         $solicitacoes = SolicitacaoEdicaoPauta::with([
             'turmaDisciplinaProfessor.turma.cursoClasseTurno.cursoClasse.cursoTutelado',
             'turmaDisciplinaProfessor.classeTurnoDisciplina.disciplina',
-            'professor', // user
+            'professor',
         ])
             ->where('status', 'pendente')
             ->orderByDesc('created_at')

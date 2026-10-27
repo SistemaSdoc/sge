@@ -142,18 +142,16 @@ export function TabIntegrantes({
                         Salvar
                       </Button>
                     </div>
+                  ) : el.nota_individual != null ? (
+                    <span className="text-sm font-medium tabular-nums">
+                      {Number(el.nota_individual) % 1 === 0
+                        ? Number(el.nota_individual).toFixed(0)
+                        : Number(el.nota_individual)}
+                    </span>
                   ) : (
-                      el.nota_individual != null ? (
-                        <span className="text-sm font-medium tabular-nums">
-                          {Number(el.nota_individual) % 1 === 0
-                          ? Number(el.nota_individual).toFixed(0)
-                            : Number(el.nota_individual)}
-                        </span>
-                      ) : (
-                        <div className="flex justify-center">
-                          <Minus size={15} className="text-muted-foreground" />
-                        </div>
-                      )
+                    <div className="flex justify-center">
+                      <Minus size={15} className="text-muted-foreground" />
+                    </div>
                   )}
                 </TableCell>
 

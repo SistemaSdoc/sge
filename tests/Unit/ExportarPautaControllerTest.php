@@ -99,7 +99,8 @@ test('exportacao final apresenta o resultado academico real e as disciplinas cor
             'detalhes' => $detalhes,
         ]);
 
-    $controller = new ExportarPautaController($regraAcademicaService);
+    app()->instance(RegraAcademicaService::class, $regraAcademicaService);
+    $controller = app(ExportarPautaController::class);
     $method = new ReflectionMethod($controller, 'montarDadosAluno');
     $method->setAccessible(true);
 

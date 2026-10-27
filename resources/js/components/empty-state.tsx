@@ -17,12 +17,7 @@ interface Action {
   href?: string;
   onClick?: () => void;
   variant?:
-    | 'default'
-    | 'outline'
-    | 'ghost'
-    | 'destructive'
-    | 'secondary'
-    | 'link';
+    'default' | 'outline' | 'ghost' | 'destructive' | 'secondary' | 'link';
 }
 
 interface EmptyStateProps {

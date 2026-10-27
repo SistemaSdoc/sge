@@ -6,6 +6,7 @@ use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Candidato;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\User;
+use App\Policies\Tenant\AlunoPolicy;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Gate;
@@ -195,4 +196,24 @@ it('updates a student when the candidate is missing its user link', function () 
         'bi' => '1234567890',
         'email' => 'aluno@example.test',
     ]);
+});
+
+it('allows editing a student using the student institution when its user has none', function () {
+    $director = new User;
+    $director->instituicao_id = 'instituicao-1';
+    $gate = Mockery::mock();
+    $gate->shouldReceive('check')
+        ->once()
+        ->with('alunos.update', [])
+        ->andReturnTrue();
+    Gate::shouldReceive('forUser')->once()->with($director)->andReturn($gate);
+
+    $studentUser = new User;
+    $studentUser->instituicao_id = null;
+
+    $aluno = new Aluno;
+    $aluno->instituicao_id = 'instituicao-1';
+    $aluno->setRelation('user', $studentUser);
+
+    expect((new AlunoPolicy)->update($director, $aluno))->toBeTrue();
 });

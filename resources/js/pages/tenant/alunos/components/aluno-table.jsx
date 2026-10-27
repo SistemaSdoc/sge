@@ -161,8 +161,8 @@ export function AlunoTable({
                     aria-disabled={!aluno.can?.view}
                     onClick={(event) => {
                       if (
-                        event.target instanceof Element
-                        && event.target.closest(
+                        event.target instanceof Element &&
+                        event.target.closest(
                           '[data-profile-avatar-preview], [data-slot="dialog-overlay"]',
                         )
                       ) {
