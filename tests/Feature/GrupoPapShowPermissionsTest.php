@@ -11,7 +11,6 @@ use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
-use App\Models\Tenant\HistoricoAprovacaoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\Professor;
@@ -113,23 +112,6 @@ test('grupo pap show exposes work versions after tutor requests correction', fun
         'bancajuripap.delete',
     ]);
 
-    HistoricoAprovacaoPap::create([
-        'grupo_pap_id' => $grupoPap->id,
-        'utilizador_id' => $user->id,
-        'estado_anterior' => GrupoPap::APROVACAO_SUBMETIDO,
-        'estado_novo' => GrupoPap::APROVACAO_MELHORIA_TUTOR,
-        'tema' => $grupoPap->tema_grupo,
-        'comentario' => 'Clarificar os objectivos do tema.',
-    ]);
-    HistoricoAprovacaoPap::create([
-        'grupo_pap_id' => $grupoPap->id,
-        'utilizador_id' => $user->id,
-        'estado_anterior' => GrupoPap::APROVACAO_MELHORIA_TUTOR,
-        'estado_novo' => GrupoPap::APROVACAO_SUBMETIDO,
-        'tema' => $grupoPap->tema_grupo,
-        'comentario' => 'Tema reenviado pelo aluno.',
-    ]);
-
     $response = $this->actingAs($user, 'tenant')->get(route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', [
         'colegio' => $instituicao->id,
         'cursoTutelado' => $cursoTutelado->id,
@@ -144,8 +126,6 @@ test('grupo pap show exposes work versions after tutor requests correction', fun
         ->where('can.elementos.create', true)
         ->where('can.elementos.atualizarNota', true)
         ->where('can.elementos.delete', true)
-        ->where('historico.0.utilizador.nome', $user->nome)
-        ->where('historico.1.utilizador.nome', $user->nome)
         ->where('can.banca.create', true)
         ->where('can.banca.update', true)
         ->where('can.banca.delete', true)

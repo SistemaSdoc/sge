@@ -22,6 +22,9 @@ class HorarioService
                 'classeTurnoDisciplina.disciplina',
                 'classeTurnoDisciplina.horarios',
                 'turma',
+                'turma.cursoClasseTurno.turno',
+                'turma.cursoClasseTurno.cursoClasse.classe',
+                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
             ])
             ->get()
             ->flatMap(function ($tdp) {
@@ -46,7 +49,12 @@ class HorarioService
 
         $horarios = ClasseTurnoDisciplinaHorario::query()
             ->whereIn('turma_id', $turmaIds)
-            ->with(['turma', 'classeTurnoDisciplina.disciplina'])
+            ->with([
+                'turma.cursoClasseTurno.turno',
+                'turma.cursoClasseTurno.cursoClasse.classe',
+                'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
+                'classeTurnoDisciplina.disciplina',
+            ])
             ->get();
 
         // Professor de cada par turma + disciplina, numa só query
@@ -71,6 +79,8 @@ class HorarioService
 
     private function formatar($horario, $classeTurnoDisciplina, $turma, ?string $professor = null): array
     {
+        $cursoClasseTurno = $turma->cursoClasseTurno;
+
         return [
             'id' => $horario->id,
             'dia_semana' => (int) $horario->dia_semana,
@@ -80,7 +90,13 @@ class HorarioService
                 'nome' => $classeTurnoDisciplina->disciplina->nome,
                 'sigla' => $classeTurnoDisciplina->disciplina->sigla,
             ],
-            'turma' => ['id' => $turma->id, 'nome' => $turma->nome],
+            'turma' => [
+                'id' => $turma->id,
+                'nome' => $turma->nome,
+                'curso' => $cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome,
+                'classe' => $cursoClasseTurno?->cursoClasse?->classe?->nome,
+                'turno' => $cursoClasseTurno?->turno?->nome,
+            ],
             'sala' => $turma->sala,
             'professor' => $professor,
         ];

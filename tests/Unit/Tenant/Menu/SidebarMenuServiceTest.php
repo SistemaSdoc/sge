@@ -159,3 +159,35 @@ it('shows the horarios menu item for a professor when access is allowed', functi
 
     expect($keys)->toContain('horarios');
 });
+
+it('shows the horarios menu item for a director when access is allowed', function (): void {
+    $user = Mockery::mock(new User(['instituicao_id' => null]))->makePartial();
+    $user->shouldReceive('hasRole')
+        ->withAnyArgs()
+        ->andReturnUsing(fn ($roles): bool => in_array('Director', (array) $roles, true));
+    $user->shouldReceive('hasAnyRole')
+        ->withAnyArgs()
+        ->andReturnUsing(fn ($roles): bool => in_array('Director', (array) $roles, true));
+    $user->shouldReceive('isSuperAdmin')->andReturnFalse();
+
+    $guard = Mockery::mock();
+    $guard->shouldReceive('user')->once()->andReturn($user);
+    Auth::shouldReceive('guard')->once()->with('tenant')->andReturn($guard);
+
+    $gate = Mockery::mock(GateContract::class);
+    $gate->shouldReceive('allows')->andReturnTrue();
+    Gate::shouldReceive('forUser')->once()->with($user)->andReturn($gate);
+
+    $navigation = Mockery::mock(GrupoPapNavigationService::class);
+    $navigation->shouldReceive('resolve')->once()->with($user)->andReturn([
+        'title' => 'Grupos PAP',
+        'href' => '/dashboard/grupos-pap',
+        'visible' => false,
+    ]);
+
+    $menu = (new SidebarMenuService($navigation))->build();
+    $keys = collect($menu)->flatMap(fn (array $group): array => $group['items'])
+        ->pluck('key');
+
+    expect($keys)->toContain('horarios');
+});

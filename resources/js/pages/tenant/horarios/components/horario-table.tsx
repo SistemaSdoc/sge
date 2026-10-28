@@ -1,4 +1,3 @@
-import { useMemo, useState } from 'react';
 import { Link } from '@inertiajs/react';
 import {
   CalendarClock,
@@ -6,7 +5,18 @@ import {
   FileText,
   Pencil,
 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { EmptyState } from '@/components/empty-state';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from '@/components/ui/combobox';
 import {
   Card,
   CardContent,
@@ -15,14 +25,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -30,7 +32,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { EmptyState } from '@/components/empty-state';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 // 1 = Segunda ... 7 = Domingo
 const DIAS = [
@@ -55,6 +64,9 @@ const agruparPorDisciplina = (lista) => {
     grupo.turmas.push({
       id: a.turma.id,
       nome: a.turma.nome,
+      curso: a.turma.curso,
+      classe: a.turma.classe,
+      turno: a.turma.turno,
       sala: a.sala,
       aula_ultima: a.aula_ultima,
       aula_proxima: a.aula_proxima,
@@ -93,15 +105,23 @@ function FiltroDropdown({ label, titulo, children }) {
 export function HorarioTable({
   aulas = [],
   perfil,
+  professores = [],
+  professorSeleccionado,
+  onProfessorChange,
+  professorNome,
   anosLectivos = [],
   anoLectivoActual,
   onAnoLectivoChange,
 }) {
   const [turmaSeleccionada, setTurmaSeleccionada] = useState('todas');
   const isProfessor = perfil === 'professor';
+  const isDirector = perfil === 'director';
+  const professorActual =
+    professores.find((p) => p.id === professorSeleccionado) ?? null;
 
   const turmas = useMemo(() => {
     const mapa = new Map(aulas.map((a) => [a.turma.id, a.turma.nome]));
+
     return [...mapa]
       .map(([id, nome]) => ({ id, nome }))
       .sort((a, b) => a.nome.localeCompare(b.nome));
@@ -131,6 +151,7 @@ export function HorarioTable({
         { inicio: a.hora_inicio, fim: a.hora_fim },
       ]),
     );
+
     return [...mapa.values()].sort((a, b) => a.inicio.localeCompare(b.inicio));
   }, [aulasVisiveis]);
 
@@ -154,11 +175,16 @@ export function HorarioTable({
   const turmaNome = turmas.find((t) => t.id === turmaFiltro)?.nome;
 
   return (
-    <Card className="mb-0 gap-0">
+    <Card className="w-full gap-0 pb-0">
       <CardHeader className="border-b">
         <CardTitle>Horário</CardTitle>
         <CardDescription>
-          {isProfessor ? 'As tuas aulas' : 'O teu horário'} no ano lectivo{' '}
+          {isDirector
+            ? `Horário de ${professorNome}`
+            : isProfessor
+              ? 'As tuas aulas'
+              : 'O teu horário'}{' '}
+          no ano lectivo{' '}
           <span className="font-semibold">{anoNome}</span>
         </CardDescription>
       </CardHeader>
@@ -166,6 +192,32 @@ export function HorarioTable({
       <CardContent className="p-0!">
         <div className="flex justify-end border-b bg-muted/30 px-4 py-3">
           <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row">
+            {isDirector && (
+              <Combobox
+                items={professores}
+                itemToStringLabel={(p) => p.nome}
+                itemToStringValue={(p) => p.id}
+                value={professorActual}
+                onValueChange={onProfessorChange}
+              >
+                <ComboboxInput
+                  placeholder="Pesquisar professor..."
+                  showClear
+                  className="md:w-56"
+                />
+                <ComboboxContent>
+                  <ComboboxEmpty>Nenhum professor encontrado.</ComboboxEmpty>
+                  <ComboboxList>
+                    {(p) => (
+                      <ComboboxItem key={p.id} value={p}>
+                        {p.nome}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
+            )}
+
             {isProfessor && turmas.length > 1 && (
               <FiltroDropdown
                 titulo="Turmas"
@@ -203,7 +255,13 @@ export function HorarioTable({
           </div>
         </div>
 
-        {slots.length === 0 ? (
+       {isDirector && !professorSeleccionado ? (
+          <EmptyState
+            icon={CalendarClock}
+            title="Seleccione um professor"
+            description="Escolha um professor para consultar o horário semanal."
+          />
+        ) : slots.length === 0 ? (
           <EmptyState
             variant="table"
             icon={CalendarClock}
@@ -246,6 +304,7 @@ export function HorarioTable({
                                 grupo={g}
                                 mostrarTurma={mostrarTurma}
                                 isProfessor={isProfessor}
+                                isDirector={isDirector}
                               />
                             ))}
                           </div>
@@ -267,7 +326,36 @@ export function HorarioTable({
 // Célula: disciplina + temas
 // ═══════════════════════════════════════════════════════════
 
-function CelulaGrupo({ grupo, mostrarTurma, isProfessor }) {
+function CelulaGrupo({ grupo, mostrarTurma, isProfessor, isDirector }) {
+  if (isDirector) {
+    return (
+      <div className="flex flex-col gap-2">
+        {grupo.turmas.map((turma) => (
+          <div
+            key={turma.id}
+            className="flex flex-col gap-1 border border-border/40 bg-muted/20 px-2 py-2 text-left"
+          >
+            <p className="text-xs font-semibold" title={grupo.disciplina.nome}>
+              {grupo.disciplina.sigla}
+            </p>
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <Badge variant="outline">{turma.turno || 'Turno não indicado'}</Badge>
+              <span className="text-[10px] text-muted-foreground">
+                {turma.curso || 'Curso não indicado'}
+              </span>
+            </div>
+            <p className="text-[11px]">
+              {turma.classe || 'Classe não indicada'} · {turma.nome}
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              Sala: {turma.sala || '—'}
+            </p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   // Caso multi-turma (ex: professor com 10ªA + 10ªB na mesma disciplina)
   if (mostrarTurma && grupo.turmas.length > 1) {
     return (
@@ -309,7 +397,9 @@ function CelulaGrupo({ grupo, mostrarTurma, isProfessor }) {
 }
 
 function TurmaComTema({ turma, isProfessor, showTurmaNome = false }) {
-  if (!turma) return null;
+  if (!turma) {
+    return null;
+  }
 
   const ultima = turma.aula_ultima;
   const proxima = turma.aula_proxima;

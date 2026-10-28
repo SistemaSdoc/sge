@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Aula;
+use App\Models\Tenant\Professor;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\HorarioService;
 use Illuminate\Http\Request;
@@ -30,24 +31,47 @@ class HorarioController extends Controller
             ->orderByDesc('data_inicio')
             ->get();
 
-        if ($user->professor) {
+        $professores = collect();
+        $professorSeleccionado = null;
+
+        if ($user->hasRole('Director')) {
+            $perfil = 'director';
+            $professores = $user->instituicao_id
+                ? Professor::query()
+                    ->whereHas('user', fn ($query) => $query->where('instituicao_id', $user->instituicao_id))
+                    ->with('user:id,nome')
+                    ->get()
+                    ->sortBy(fn ($professor) => $professor->user?->nome)
+                    ->values()
+                : collect();
+
+            $professorSeleccionado = $professores->firstWhere('id', $request->input('professor_id'));
+            $aulas = $professorSeleccionado
+                ? $this->horarioService->doProfessor($professorSeleccionado, $anoLectivoId)
+                : collect();
+        } elseif ($user->professor) {
             $perfil = 'professor';
-            $aulas  = $this->horarioService->doProfessor($user->professor, $anoLectivoId);
+            $aulas = $this->horarioService->doProfessor($user->professor, $anoLectivoId);
         } elseif ($user->aluno) {
             $perfil = 'aluno';
-            $aulas  = $this->horarioService->doAluno($user->aluno, $anoLectivoId);
+            $aulas = $this->horarioService->doAluno($user->aluno, $anoLectivoId);
         } else {
             $perfil = 'outro';
-            $aulas  = collect();
+            $aulas = collect();
         }
 
         // ✅ NOVO — enriquece cada slot com sumário / próxima aula / url de criação
         $aulas = $this->enriquecerComSumarios($aulas, $perfil);
 
         return Inertia::render('tenant/horarios/index', [
-            'aulas'            => $aulas,
-            'perfil'           => $perfil,
-            'anosLectivos'     => $anosLectivos,
+            'aulas' => $aulas,
+            'perfil' => $perfil,
+            'professores' => $professores->map(fn ($professor) => [
+                'id' => $professor->id,
+                'nome' => $professor->user?->nome,
+            ])->values(),
+            'professorSeleccionado' => $professorSeleccionado?->id,
+            'anosLectivos' => $anosLectivos,
             'anoLectivoActual' => $anoLectivoId,
         ]);
     }
@@ -90,7 +114,7 @@ class HorarioController extends Controller
             ->where('data', '<=', $hoje)
             ->orderBy('data', 'desc')
             ->get()
-            ->groupBy(fn (Aula $a) => $a->classe_turno_disciplina_horario_id . '|' . $a->turma_id)
+            ->groupBy(fn (Aula $a) => $a->classe_turno_disciplina_horario_id.'|'.$a->turma_id)
             ->map(fn ($grupo) => $grupo->first());
 
         // ── 2. Próximas aulas (publicadas, futuras) ──
@@ -100,24 +124,24 @@ class HorarioController extends Controller
             ->where('data', '>', $hoje)
             ->orderBy('data')
             ->get()
-            ->groupBy(fn (Aula $a) => $a->classe_turno_disciplina_horario_id . '|' . $a->turma_id)
+            ->groupBy(fn (Aula $a) => $a->classe_turno_disciplina_horario_id.'|'.$a->turma_id)
             ->map(fn ($grupo) => $grupo->first());
 
         // ── 3. Enriquecer cada slot ──
         return $aulasArray->map(function ($slot) use ($ultimas, $proximas, $perfil) {
             $slotArray = is_array($slot) ? $slot : $slot->toArray();
 
-            $slotId  = $slotArray['id'] ?? null;
+            $slotId = $slotArray['id'] ?? null;
             $turmaId = $slotArray['turma']['id'] ?? null;
-            $chave   = $slotId . '|' . $turmaId;
+            $chave = $slotId.'|'.$turmaId;
 
-            $ultima  = $ultimas->get($chave);
+            $ultima = $ultimas->get($chave);
             $proxima = $proximas->get($chave);
 
             return array_merge($slotArray, [
-                'aula_ultima'  => $ultima  ? $this->formatarResumoAula($ultima)  : null,
+                'aula_ultima' => $ultima ? $this->formatarResumoAula($ultima) : null,
                 'aula_proxima' => $proxima ? $this->formatarResumoAula($proxima) : null,
-                'url_criar'    => $perfil === 'professor'
+                'url_criar' => $perfil === 'professor'
                     ? $this->urlCriarAula($slotId, $slotArray['dia_semana'] ?? null)
                     : null,
             ]);
@@ -127,16 +151,16 @@ class HorarioController extends Controller
     private function formatarResumoAula(Aula $aula): array
     {
         return [
-            'id'                => $aula->id,
-            'data'              => $aula->data?->format('Y-m-d'),
-            'data_humana'       => $aula->data?->format('d/m/Y'),
-            'titulo'            => $aula->titulo,
-            'sumario'           => $aula->sumario,
+            'id' => $aula->id,
+            'data' => $aula->data?->format('Y-m-d'),
+            'data_humana' => $aula->data?->format('d/m/Y'),
+            'titulo' => $aula->titulo,
+            'sumario' => $aula->sumario,
             'conteudo_previsto' => $aula->conteudo_previsto,
-            'estado'            => $aula->estado,
-            'estado_label'      => $aula->estado_label,
-            'tem_sumario'       => $aula->tem_sumario,
-            'url_ver'           => route('tenant.dashboard.aulas.show', $aula),
+            'estado' => $aula->estado,
+            'estado_label' => $aula->estado_label,
+            'tem_sumario' => $aula->tem_sumario,
+            'url_ver' => route('tenant.dashboard.aulas.show', $aula),
         ];
     }
 
@@ -150,7 +174,7 @@ class HorarioController extends Controller
 
         return route('tenant.dashboard.professor.aulas.create', [
             'slot_id' => $slotId,
-            'data'    => $data,
+            'data' => $data,
         ]);
     }
 

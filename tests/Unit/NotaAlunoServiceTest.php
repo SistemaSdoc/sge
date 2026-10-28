@@ -1,8 +1,19 @@
 <?php
 
+use App\Models\Central\AnoLectivo;
+use App\Models\Tenant\Aluno;
+use App\Models\Tenant\Classe;
+use App\Models\Tenant\Curso;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\Nota;
 use App\Models\Tenant\PautaStatus;
+use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
+use App\Models\Tenant\Turno;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\Core\RegraAcademicaService;
 use App\Services\Tenant\NotaAlunoService;
@@ -10,6 +21,83 @@ use Illuminate\Database\Eloquent\Collection;
 use Tests\TestCase;
 
 uses(TestCase::class);
+
+test('classes disponíveis colocam a classe da matrícula atual primeiro', function (): void {
+    $instituicao = Instituicao::create([
+        'nome' => 'Instituição Teste',
+        'sigla' => 'INST',
+        'tipo' => 'instituto',
+        'status' => 1,
+    ]);
+    $anoLectivo = AnoLectivo::create([
+        'nome' => '2026/2027',
+        'data_inicio' => now()->startOfYear(),
+        'data_fim' => now()->endOfYear(),
+        'activo' => true,
+        'estado' => 'em_curso',
+    ]);
+    $curso = Curso::create(['nome' => 'Curso Teste', 'duracao_anos' => 3, 'status' => 1]);
+    $instituicaoCurso = InstituicaoCurso::create([
+        'instituicao_id' => $instituicao->id,
+        'curso_id' => $curso->id,
+        'duracao_anos' => 3,
+    ]);
+    $cursoTutelado = CursoTutelado::create([
+        'instituicao_curso_id' => $instituicaoCurso->id,
+        'instituicao_tutora_id' => $instituicao->id,
+        'nome' => 'Curso Tutelado Teste',
+    ]);
+    $turno = Turno::create(['nome' => 'Manhã']);
+    $turmas = [];
+
+    foreach ([['10ª', 'Turma Antiga'], ['12ª', 'Turma Atual']] as [$nomeClasse, $nomeTurma]) {
+        $classe = Classe::create(['nome' => $nomeClasse]);
+        $cursoClasse = CursoClasse::create([
+            'curso_tutelado_id' => $cursoTutelado->id,
+            'classe_id' => $classe->id,
+        ]);
+        $cursoClasseTurno = CursoClasseTurno::create([
+            'curso_classe_id' => $cursoClasse->id,
+            'turno_id' => $turno->id,
+        ]);
+        $turmas[$nomeClasse] = Turma::create([
+            'curso_classe_turno_id' => $cursoClasseTurno->id,
+            'ano_lectivo_id' => $anoLectivo->id,
+            'nome' => $nomeTurma,
+        ]);
+    }
+    $aluno = Aluno::create([
+        'instituicao_id' => $instituicao->id,
+        'numero_processo' => '00001',
+        'situacao' => 'activo',
+    ]);
+    TurmaAluno::create([
+        'turma_id' => $turmas['10ª']->id,
+        'aluno_id' => $aluno->id,
+        'activo' => false,
+        'ano_lectivo_id' => $anoLectivo->id,
+        'estado_matricula' => 'concluido',
+    ]);
+    TurmaAluno::create([
+        'turma_id' => $turmas['12ª']->id,
+        'aluno_id' => $aluno->id,
+        'activo' => true,
+        'situacao' => 'recurso',
+        'ano_lectivo_id' => $anoLectivo->id,
+        'estado_matricula' => 'activo',
+    ]);
+
+    $service = new NotaAlunoService(
+        Mockery::mock(AnoLectivoResolverService::class),
+        Mockery::mock(RegraAcademicaService::class),
+    );
+
+    expect($service->classesDisponiveis($aluno))
+        ->toMatchArray([
+            ['nome' => '12ª'],
+            ['nome' => '10ª'],
+        ]);
+});
 
 test('nota de recurso gravada fica visível sem status de pauta', function (): void {
     $service = new NotaAlunoService(

@@ -190,7 +190,7 @@ final class SidebarMenuService
                     href: route('tenant.dashboard.horarios'),
                     icon: 'CalendarClock',
                     can: fn () => ! $user->isSuperAdmin()
-                        && $user->hasAnyRole(['Aluno', 'Professor'])
+                        && $user->hasAnyRole(['Aluno', 'Professor', 'Director'])
                         && $gate->allows('horarios.viewAny')
                 ),
 
@@ -280,7 +280,7 @@ final class SidebarMenuService
                     title: 'As minhas aulas',
                     href: route('tenant.dashboard.professor.aulas.index'),
                     icon: 'BookOpen',
-                    can: fn() => $user->hasRole('Professor')
+                    can: fn () => $user->hasRole('Professor')
                         && $gate->allows('aula.viewAny'),
                 ),
 
@@ -289,7 +289,7 @@ final class SidebarMenuService
                     title: 'Sumários',
                     href: route('tenant.dashboard.aulas.index'),
                     icon: 'BookOpen',
-                    can: fn() => $user->hasRole('Aluno')
+                    can: fn () => $user->hasRole('Aluno')
                         && $gate->allows('aula.viewAny'),
                 ),
 
@@ -298,11 +298,10 @@ final class SidebarMenuService
                     title: 'Aulas e Sumários',
                     href: route('tenant.dashboard.aulas.index'),
                     icon: 'BookOpen',
-                    can: fn() => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Coordenador'])
+                    can: fn () => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Coordenador'])
                         && $gate->allows('aula.viewAny'),
                 ),
             ]),
-
 
             new MenuGroup('Matrículas', [
                 new MenuItem(

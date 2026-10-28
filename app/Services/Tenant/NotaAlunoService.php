@@ -17,7 +17,8 @@ class NotaAlunoService
     public function __construct(
         private readonly AnoLectivoResolverService $anoLectivoResolverService,
         private readonly RegraAcademicaService $regraAcademicaService,
-    ) {}
+    ) {
+    }
 
     public function notas(Aluno $aluno, ?string $classeId = null)
     {
@@ -36,7 +37,7 @@ class NotaAlunoService
     {
         $turmaAluno = $this->obterTurmaAlunoDaClasse($aluno, $classeId);
 
-        if (! $turmaAluno) {
+        if (!$turmaAluno) {
             return [
                 'notas' => collect(),
                 'resultado_final' => null,
@@ -47,11 +48,11 @@ class NotaAlunoService
         $notasVisiveis = $this->notasVisiveis($turmaAluno);
         $turmaAluno->setRelation('notas', $notasVisiveis);
         $notasPorDisciplina = $notasVisiveis
-            ->groupBy(fn ($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id);
+            ->groupBy(fn($nota) => $nota->turmaDisciplinaProfessor->classeTurnoDisciplina->disciplina->id);
 
         return [
             'notas' => $disciplinasDaTurma->map(
-                fn ($tdp) => $this->montarLinhaDisciplina($tdp, $notasPorDisciplina)
+                fn($tdp) => $this->montarLinhaDisciplina($tdp, $notasPorDisciplina)
             )->values(),
             'resultado_final' => $incluirResultadoFinal
                 ? $this->resolverResultadoFinal($turmaAluno, $disciplinasDaTurma, $notasPorDisciplina)
@@ -60,23 +61,22 @@ class NotaAlunoService
     }
 
     public function classesDisponiveis(Aluno $aluno): array
-    {
-        return TurmaAluno::query()
-            ->where('aluno_id', $aluno->id)
-            ->whereHas('turma.cursoClasseTurno.cursoClasse.classe')
-            ->with('turma.cursoClasseTurno.cursoClasse.classe')
-            ->get()
-            ->map(fn (TurmaAluno $turmaAluno) => $turmaAluno->turma?->cursoClasseTurno?->cursoClasse?->classe)
-            ->filter()
-            ->unique('id')
-            ->sortBy('nome')
-            ->map(fn ($classe) => [
-                'id' => $classe->id,
-                'nome' => $classe->nome,
-            ])
-            ->values()
-            ->toArray();
-    }
+{
+    return TurmaAluno::query()
+        ->where('aluno_id', $aluno->id)
+        ->whereHas('turma.cursoClasseTurno.cursoClasse.classe')
+        ->with('turma.cursoClasseTurno.cursoClasse.classe')
+        ->get()
+        ->map(fn (TurmaAluno $turmaAluno) => [
+            'id' => $turmaAluno->turma?->cursoClasseTurno?->cursoClasse?->classe?->id,
+            'nome' => $turmaAluno->turma?->cursoClasseTurno?->cursoClasse?->classe?->nome,
+        ])
+        ->filter(fn ($c) => $c['id'])
+        ->unique('id')
+        ->sortByDesc('nome')  // "13ª" > "10ª" alfabeticamente
+        ->values()
+        ->toArray();
+}
 
     private function obterTurmaAlunoDaClasse(Aluno $aluno, ?string $classeId = null): ?TurmaAluno
     {
@@ -101,8 +101,8 @@ class NotaAlunoService
         return $turma->turmaDisciplinaProfessor()
             ->with(['classeTurnoDisciplina.disciplina:id,nome,sigla'])
             ->get()
-            ->groupBy(fn ($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
-            ->map(fn ($tdps) => $tdps->first());
+            ->groupBy(fn($tdp) => $tdp->classeTurnoDisciplina->disciplina->id)
+            ->map(fn($tdps) => $tdps->first());
     }
 
     private function notasVisiveis(TurmaAluno $turmaAluno): Collection
@@ -116,13 +116,13 @@ class NotaAlunoService
         $statusMap = PautaStatus::whereIn('turma_disciplina_professor_id', $tdpIds)
             ->get()
             ->groupBy('turma_disciplina_professor_id')
-            ->map(fn ($group) => $group->keyBy('periodo'));
+            ->map(fn($group) => $group->keyBy('periodo'));
 
         return $notas
             ->filter(function ($nota) use ($statusMap) {
                 $status = $statusMap
                     ->get($nota->turma_disciplina_professor_id)
-                    ?->get($nota->periodo);
+                        ?->get($nota->periodo);
 
                 return $this->notaVisivelParaAluno($nota, $status);
             })
@@ -151,13 +151,13 @@ class NotaAlunoService
                 $disciplina = $tdp->classeTurnoDisciplina->disciplina;
                 $notas = $notasPorDisciplina->get($disciplina->id, collect());
                 $mediasTrimestrais = collect([1, 2, 3])
-                    ->map(fn (int $periodo) => $notas->firstWhere('periodo', $periodo)?->media_trimestral);
+                    ->map(fn(int $periodo) => $notas->firstWhere('periodo', $periodo)?->media_trimestral);
                 $notaRecurso = $notas->firstWhere('periodo', 4);
                 $detalhe = $detalhesAcademicos->get($disciplina->id, []);
                 $detalheRecurso = $notaRecurso
                     ? $detalhesRecurso->get($disciplina->id)
                     : null;
-                $mfd = $mediasTrimestrais->contains(fn ($media): bool => $media === null)
+                $mfd = $mediasTrimestrais->contains(fn($media): bool => $media === null)
                     ? null
                     : round((float) $mediasTrimestrais->avg(), 0, PHP_ROUND_HALF_UP);
 
