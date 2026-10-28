@@ -28,18 +28,24 @@ class PasswordResetLinkController extends Controller
     {
         $request->validate([
             'email' => ['required', 'email'],
+        ], [
+            'email.required' => 'O email é obrigatório.',
+            'email.email' => 'Introduza um endereço de email válido.',
         ]);
 
         $status = Password::broker('tenant_users')->sendResetLink(
             $request->only('email'),
         );
 
-        if ($status === Password::RESET_LINK_SENT) {
-            return back()->with('status', __($status));
-        }
+        $message = match ($status) {
+            Password::RESET_LINK_SENT => 'Enviámos o link de redefinição da sua palavra-passe para o seu email.',
+            Password::INVALID_USER => 'Não encontrámos uma conta com esse endereço de email.',
+            Password::RESET_THROTTLED => 'Aguarde um pouco antes de pedir outro link de redefinição.',
+            default => 'Não foi possível enviar o link de redefinição. Tente novamente.',
+        };
 
-        return back()->withErrors([
-            'email' => __($status),
-        ]);
+        return $status === Password::RESET_LINK_SENT
+            ? back()->with('status', $message)
+            : back()->withErrors(['email' => $message]);
     }
 }

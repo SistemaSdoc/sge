@@ -24,11 +24,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useInitials } from '@/hooks/use-initials';
 import { TableSearch } from '@/components/table-search';
 import { useTableSearch } from '@/hooks/use-table-search';
-
+import { ProfileAvatarPreview } from '@/components/profile-avatar-preview';
 export function UserTable({
   users,
   filters,
@@ -43,8 +41,6 @@ export function UserTable({
     },
   );
   const isEmpty = !users?.data?.length;
-  const getInitials = useInitials();
-
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
       <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-center sm:justify-between">
@@ -97,23 +93,19 @@ export function UserTable({
                   user.roles.length - visibleRoles.length,
                   0,
                 );
-                const isAluno = user.roles.some((r) => r === 'Aluno');
-                const canEditUser = Boolean(user.can?.update) && !isAluno;
+                const canEditUser = Boolean(user.can?.update);
                 const canDeleteUser = Boolean(user.can?.delete);
                 const canManagePermissions = Boolean(
                   user.can?.manage_permissions,
                 );
-
                 return (
                   <TableRow key={user.id}>
                     <TableCell className="px-4 font-medium">
                       <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage src={user.avatar} alt={user.nome} />
-                          <AvatarFallback>
-                            {getInitials(user.nome)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <ProfileAvatarPreview
+                          src={user.avatar}
+                          name={user.nome}
+                        />
 
                         <div className="flex flex-col">
                           <span className="text-xs">{user.nome}</span>

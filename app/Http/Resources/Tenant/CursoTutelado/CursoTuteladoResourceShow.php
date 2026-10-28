@@ -16,6 +16,14 @@ class CursoTuteladoResourceShow extends JsonResource
         $perPage = 5;
         $currentPageTurmas = $request->input('page_turmas', 1);
         $currentPageProfessores = $request->input('page_professores', 1);
+        $searchTurmas = trim($request->string('search_turmas')->toString());
+        $searchProfessores = trim($request->string('search_professores')->toString());
+        $searchSecretarios = trim($request->string('search_secretarios')->toString());
+        $searchSugestoes = trim($request->string('search_sugestoes')->toString());
+        $matchesSearch = static fn (mixed $value, string $search): bool => str_contains(
+            mb_strtolower((string) $value),
+            mb_strtolower($search),
+        );
 
         $turmasCollection = $this->cursoClasses
             ->flatMap(fn ($cc) => $cc->turnos)
@@ -36,8 +44,17 @@ class CursoTuteladoResourceShow extends JsonResource
                 ],
                 'can' => [
                     'edit' => $request->user()?->can('update', $turma) ?? false,
+                    'delete' => $request->user()?->can('delete', $turma) ?? false,
                 ],
             ]);
+
+        $turmasFiltradas = $searchTurmas === ''
+            ? $turmasCollection
+            : $turmasCollection->filter(fn (array $turma): bool => $matchesSearch($turma['nome'], $searchTurmas)
+                || $matchesSearch($turma['classe']['nome'], $searchTurmas)
+                || $matchesSearch($turma['turno']['nome'], $searchTurmas)
+                || $matchesSearch($turma['sala'], $searchTurmas)
+            )->values();
 
         $professoresCollection = $this->professores->map(fn ($prof) => [
             'id' => $prof->id,
@@ -53,17 +70,23 @@ class CursoTuteladoResourceShow extends JsonResource
             ],
         ]);
 
+        $professoresFiltrados = $searchProfessores === ''
+            ? $professoresCollection
+            : $professoresCollection->filter(fn (array $professor): bool => $matchesSearch($professor['nome'], $searchProfessores)
+                || $matchesSearch($professor['tipo'], $searchProfessores)
+            )->values();
+
         $turmas = new LengthAwarePaginator(
-            $turmasCollection->forPage($currentPageTurmas, $perPage)->values(),
-            $turmasCollection->count(),
+            $turmasFiltradas->forPage($currentPageTurmas, $perPage)->values(),
+            $turmasFiltradas->count(),
             $perPage,
             $currentPageTurmas,
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
         $professores = new LengthAwarePaginator(
-            $professoresCollection->forPage($currentPageProfessores, $perPage)->values(),
-            $professoresCollection->count(),
+            $professoresFiltrados->forPage($currentPageProfessores, $perPage)->values(),
+            $professoresFiltrados->count(),
             $perPage,
             $currentPageProfessores,
             ['path' => $request->url(), 'query' => $request->query()]
@@ -98,7 +121,18 @@ class CursoTuteladoResourceShow extends JsonResource
             'titulo' => data_get($sugestao, 'titulo'),
             'descricao' => data_get($sugestao, 'descricao'),
             'ativo' => (bool) data_get($sugestao, 'ativo'),
+            'estado_aprovacao' => data_get($sugestao, 'estado_aprovacao', 'pendente'),
+            'observacao_aprovacao' => data_get($sugestao, 'observacao_aprovacao'),
+            'aprovado_por' => data_get($sugestao, 'aprovadoPor.nome'),
+            'aprovado_em' => data_get($sugestao, 'aprovado_em'),
         ]);
+        if ($searchSugestoes !== '') {
+            $sugestoesCollection = $sugestoesCollection
+                ->filter(fn (array $sugestao): bool => $matchesSearch($sugestao['titulo'], $searchSugestoes)
+                    || $matchesSearch($sugestao['descricao'], $searchSugestoes)
+                )
+                ->values();
+        }
         $paginaSugestoes = min(
             max(1, (int) $request->input('page_sugestoes', 1)),
             max(1, (int) ceil($sugestoesCollection->count() / $perPage))
@@ -112,6 +146,18 @@ class CursoTuteladoResourceShow extends JsonResource
         );
         $canManageSecretarios = ($request->user()?->hasRole('Coordenador') ?? false)
             && ($request->user()?->can('manageSecretarios', $this->resource) ?? false);
+        $secretarios = $canManageSecretarios
+            ? $this->secretarios->map(fn ($secretario) => [
+                'id' => $secretario->id,
+                'nome' => $secretario->nome,
+            ])
+            : collect();
+
+        if ($searchSecretarios !== '') {
+            $secretarios = $secretarios
+                ->filter(fn (array $secretario): bool => $matchesSearch($secretario['nome'], $searchSecretarios))
+                ->values();
+        }
 
         return [
             'id' => $this->id,
@@ -152,10 +198,7 @@ class CursoTuteladoResourceShow extends JsonResource
                 'turnos' => $cc->turnos->map(fn ($cct) => $cct->turno->nome),
             ]),
             'professores' => $professores->toArray(),
-            'secretarios' => $canManageSecretarios ? $this->secretarios->map(fn ($secretario) => [
-                'id' => $secretario->id,
-                'nome' => $secretario->nome,
-            ])->values() : [],
+            'secretarios' => $secretarios->values(),
             'turmas' => $turmas->toArray(),
             'sugestoes_temas' => $sugestoes->toArray(),
             'criterios_pap_url' => $docs['criterios_pap_path']
@@ -180,6 +223,8 @@ class CursoTuteladoResourceShow extends JsonResource
                 'uploadCriteriosPap' => $request->user()?->can('uploadDocumentosPap', $this->resource) ?? false,
                 'uploadManualPt' => $request->user()?->can('uploadDocumentosPap', $this->resource) ?? false,
                 'uploadEstruturaTrabalhoPap' => $request->user()?->can('uploadDocumentosPap', $this->resource) ?? false,
+                'gerirSugestoesTemas' => $request->user()?->can('gerirSugestoesTemas', $this->resource) ?? false,
+                'aprovarSugestaoTema' => $request->user()?->can('sugestaotema.aprovar') ?? false, // ← novo
             ],
         ];
     }

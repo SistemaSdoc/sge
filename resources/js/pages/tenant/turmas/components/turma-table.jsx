@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ChevronDownIcon, Search, UsersIcon } from 'lucide-react';
+import { ChevronDownIcon, UsersIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { router } from '@inertiajs/react';
 
@@ -30,11 +30,11 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
-import { Input } from '@/components/ui/input';
 import { show } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import TablePagination from '@/components/table-pagination';
 import { TableSearch } from '@/components/table-search';
 import { useTableSearch } from '@/hooks/use-table-search';
+
 export function TurmaTable({
   turmas,
   filters,
@@ -55,7 +55,9 @@ export function TurmaTable({
   const lista = Array.isArray(turmas) ? turmas : (turmas?.data ?? []);
   const isEmpty = lista.length === 0;
 
-  const hasActionColumn = lista.some((turma) => turma.can?.view);
+  const hasActionColumn = lista.some(
+    (turma) => turma.can?.view || turma.can?.delete,
+  );
 
   return (
     <Card className="gap-0">
@@ -64,10 +66,10 @@ export function TurmaTable({
           <div>
             <CardTitle>Turmas</CardTitle>
             <CardDescription>
-              Lista de turmas cadastradas no ano lectivo{' '}
+              Lista de turmas cadastradas no ano letivo{' '}
               <span className="font-semibold">
                 {anosLectivos.find((ano) => ano.id === anoLectivoActual)
-                  ?.nome ?? 'seleccionado'}
+                  ?.nome ?? 'selecionado'}
               </span>
             </CardDescription>
           </div>
@@ -92,7 +94,7 @@ export function TurmaTable({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  aria-label="Filter"
+                  aria-label="Filtrar"
                   className="w-full hover:cursor-pointer md:w-auto"
                 >
                   {anoLectivoActual
@@ -103,7 +105,7 @@ export function TurmaTable({
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="start" className="md:w-48">
-                <DropdownMenuLabel>Anos Lectivos</DropdownMenuLabel>
+                <DropdownMenuLabel>Anos Letivos</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {anosLectivos.map((ano) => (
                   <DropdownMenuItem
@@ -138,8 +140,8 @@ export function TurmaTable({
             }
             description={
               applied
-                ? 'Tenta ajustar a pesquisa.'
-                : 'Ainda não cadastrou nenhuma turma neste ano lectivo.'
+                ? 'Tente ajustar a pesquisa.'
+                : 'Ainda não cadastrou nenhuma turma neste ano letivo.'
             }
           />
         ) : (
@@ -152,7 +154,7 @@ export function TurmaTable({
                 <TableHead className="px-4">Sala</TableHead>
                 <TableHead className="px-4">Turno</TableHead>
                 {hasActionColumn && (
-                  <TableHead className="px-4 text-right">Acções</TableHead>
+                  <TableHead className="px-4 text-right">Ações</TableHead>
                 )}
               </TableRow>
             </TableHeader>
@@ -217,6 +219,25 @@ export function TurmaTable({
                           }}
                         >
                           Ver detalhes
+                        </Button>
+                      )}
+                      {turma.can?.delete && (
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          className="ml-2 hover:cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteFn?.({
+                              instituicao: turma.instituicao.id,
+                              cursoTutelado: turma.curso.id,
+                              cursoClasse: turma.classe.id,
+                              cursoClasseTurno: turma.turno.id,
+                              turma: turma.id,
+                            });
+                          }}
+                        >
+                          Remover
                         </Button>
                       )}
                     </TableCell>

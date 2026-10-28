@@ -7,7 +7,7 @@
     <meta name="x-apple-disable-message-reformatting">
     <title>Registo recebido com sucesso</title>
 
-   <style>
+    <style>
         * {
             margin: 0;
             padding: 0;

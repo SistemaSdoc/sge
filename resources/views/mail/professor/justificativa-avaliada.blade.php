@@ -56,6 +56,7 @@
             padding: 0 24px 12px;
             font-size: 13px;
             color: #202124;
+            font-weight: 500;
         }
 
         .status-badge {
@@ -139,6 +140,67 @@
             line-height: 1.5;
         }
 
+        /* Prazo extra concedido */
+        .prazo-extra {
+            margin: 20px 24px;
+            background: #e6f4ea;
+            border: 1px solid #ceead6;
+            border-radius: 8px;
+            padding: 16px 18px;
+            text-align: center;
+        }
+
+        .prazo-extra .title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #137333;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .prazo-extra .data {
+            font-size: 18px;
+            font-weight: 600;
+            color: #137333;
+            margin-bottom: 4px;
+        }
+
+        .prazo-extra .dias {
+            font-size: 12px;
+            color: #5f6368;
+        }
+
+        .btn-wrapper {
+            text-align: center;
+            padding: 8px 24px 24px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #1a73e8;
+            color: #ffffff !important;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 10px 24px;
+            border-radius: 4px;
+            letter-spacing: 0.25px;
+        }
+
+        .access-link {
+            padding: 0 24px 20px;
+            font-size: 13px;
+            color: #202124;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+
+        .access-link a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+
         .footer {
             padding: 16px 24px;
             border-top: 1px solid #e8eaed;
@@ -168,6 +230,7 @@
     <div class="email-wrapper">
         @include('mail.partials.institution-logo')
 
+        {{-- Header --}}
         <div class="header">
             <h1>Justificativa {{ $statusLabel }}</h1>
             <div class="account-badge">
@@ -177,6 +240,7 @@
 
         <hr class="divider">
 
+        {{-- Saudação --}}
         <br>
         <p style="padding: 0 24px; font-size: 14px; line-height: 1.6; color: #202124;">
             Olá, <strong>{{ $nome }}</strong>!
@@ -186,11 +250,25 @@
             A sua justificativa de não submissão foi avaliada pelo diretor.
         </p>
 
+        {{-- Badge de estado --}}
         <div>
             <div class="status-badge">
                 {{ $aceita ? '✓ Aceite' : '✕ Recusada' }}
             </div>
         </div>
+
+        {{-- Prazo extra (só se aceite e com prazo) --}}
+        @if($aceita && !empty($prazoExtraAte))
+            <div class="prazo-extra">
+                <div class="title">Prazo extra concedido</div>
+                <div class="data">{{ $prazoExtraAte }}</div>
+                @if(!empty($diasRestantes))
+                    <div class="dias">
+                        {{ $diasRestantes }} {{ $diasRestantes === 1 ? 'dia' : 'dias' }} para submeter
+                    </div>
+                @endif
+            </div>
+        @endif
 
         <p class="section-label">Detalhes do prazo</p>
 
@@ -231,6 +309,7 @@
             </div>
         </div>
 
+        {{-- Motivo apresentado --}}
         @if(!empty($motivo))
             <div class="quote-box">
                 <div class="label">Motivo apresentado</div>
@@ -238,6 +317,7 @@
             </div>
         @endif
 
+        {{-- Parecer do diretor --}}
         @if(!empty($parecer))
             <div class="quote-box parecer">
                 <div class="label">Parecer do diretor</div>
@@ -245,13 +325,27 @@
             </div>
         @endif
 
+        {{-- Aviso condicional por estado --}}
         @if($aceita)
-            <div class="security-note">
-                <div class="text">
-                    <div class="title">Informação</div>
-                    <p>A sua justificativa foi aceite. O prazo não será contabilizado como falta de submissão.</p>
+            @if(!empty($prazoExtraAte))
+                <div class="security-note" style="background: #e6f4ea; border-color: #ceead6;">
+                    <div class="text">
+                        <div class="title" style="color: #137333;">Acesso à submissão concedido</div>
+                        <p>
+                            Aceda ao painel e submeta a prova da turma
+                            <strong>{{ $turmaNome ?? '—' }}</strong>
+                            até <strong>{{ $prazoExtraAte }}</strong>.
+                        </p>
+                    </div>
                 </div>
-            </div>
+            @else
+                <div class="security-note">
+                    <div class="text">
+                        <div class="title">Informação</div>
+                        <p>A sua justificativa foi aceite. O prazo não será contabilizado como falta de submissão.</p>
+                    </div>
+                </div>
+            @endif
         @else
             <div class="security-note">
                 <div class="text">
@@ -261,10 +355,39 @@
             </div>
         @endif
 
+        {{-- CTA --}}
+        @if($aceita && !empty($prazoExtraAte))
+            <div class="btn-wrapper">
+                <a href="{{ $url }}" class="btn" target="_blank">
+                    Submeter prova agora
+                </a>
+            </div>
+        @else
+            <div class="btn-wrapper">
+                <a href="{{ $url }}" class="btn" target="_blank">
+                    Ver no painel
+                </a>
+            </div>
+        @endif
+
+        {{-- Link de acesso alternativo --}}
+        <p class="access-link">
+            Se o botão acima não funcionar, copie e cole o seguinte endereço
+            no seu navegador:
+            <br><br>
+            <a href="{{ $url }}" target="_blank">{{ $url }}</a>
+        </p>
+
+        {{-- Footer --}}
         <div class="footer">
-            <p>Este email foi enviado automaticamente pela plataforma {{ $instituicao->nome }}. Por favor, não responda
-                directamente a esta mensagem.</p>
-            <p class="company">© {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.</p>
+            <p>
+                Este email foi enviado automaticamente pela plataforma
+                {{ $instituicao->nome ?? config('app.name') }}.
+                Por favor, não responda directamente a esta mensagem.
+            </p>
+            <p class="company">
+                © {{ date('Y') }} {{ config('app.name') }}. Todos os direitos reservados.
+            </p>
         </div>
 
     </div>

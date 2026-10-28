@@ -67,7 +67,7 @@ class TrocaTutelaNotification extends Notification implements ShouldQueue, Shoul
 
         return (new MailMessage)
             ->subject('Solicitação para troca de tutela')
-            ->markdown('mail.solicitacao-troca-tutela-notification', [
+            ->view('mail.solicitacao-troca-tutela-notification', [
                 'nomeInstituicaoSolicitante' => $this->instituicaoTutelada,
                 'nomeInstituicaoNova' => $this->instituicaoNova,
                 'nomeCurso' => $this->cursoNome,

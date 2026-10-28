@@ -13,6 +13,9 @@ export default function Edit() {
   const [tipo, setTipo] = useState(vinculo.tipo);
   const [coordenador, setCoordenador] = useState(vinculo.coordenador ?? false);
   const [opap, setOpap] = useState(vinculo.opap ?? false);
+  const [grupo_disciplinar, setGrupoDisciplinar] = useState(
+    vinculo.grupo_disciplinar ?? 'nenhum',
+  );
 
   return (
     <Form
@@ -26,6 +29,7 @@ export default function Edit() {
         tipo,
         coordenador,
         opap,
+        grupo_disciplinar,
       })}
       onSuccess={() =>
         router.visit(
@@ -52,6 +56,8 @@ export default function Edit() {
           setCoordenador={setCoordenador}
           opap={opap}
           setOpap={setOpap}
+          grupo_disciplinar={grupo_disciplinar}
+          setGrupoDisciplinar={setGrupoDisciplinar}
           errors={errors}
           processing={processing}
         />

@@ -59,7 +59,7 @@ class Instituicao extends Model
 
     public function cursos()
     {
-        return $this->belongsToMany(
+        return $this->belongsToMany( 
             Curso::class,
             'instituicao_curso',
             'instituicao_id',

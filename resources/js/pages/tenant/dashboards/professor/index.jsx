@@ -1,10 +1,14 @@
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
+import { CalendarDays } from 'lucide-react';
+import { index as horariosIndex } from '@/actions/App/Http/Controllers/Tenant/HorarioController';
 import { GreetingHeader } from './components/greeting-header';
 import { getGreeting, getTodayFormatted } from '@/utils/greeting';
 import { DashboardSummary } from './components/dashboard-summary';
 import { ProximasAulas } from './components/proximas-aulas';
 import { AvisosEventos } from './components/avisos-eventos';
 import { DashboardPanel } from '@/components/dashboard-panel';
+import { ArrowUpRight } from 'lucide-react';
 
 export default function ProfessorDashboard({
   proximasAulas = [],
@@ -29,6 +33,13 @@ export default function ProfessorDashboard({
           title="Próximas Aulas"
           description="Aulas programadas para os próximos dias"
           colSpan="lg:col-span-3"
+          headerAction={
+            <Button asChild variant="outline" size="sm" className="shrink-0">
+              <Link href={horariosIndex().url}>
+                Ver horário <ArrowUpRight />
+              </Link>
+            </Button>
+          }
         >
           <ProximasAulas data={proximasAulas} />
         </DashboardPanel>

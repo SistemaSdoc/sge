@@ -48,8 +48,7 @@ class SubmissaoProvaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(self::ROLE_DIRECTOR)
-            || $user->hasRole(self::ROLE_PROFESSOR);
+        return $user->hasRole(self::ROLE_PROFESSOR);
     }
 
     /**
@@ -87,7 +86,7 @@ class SubmissaoProvaPolicy
             return false;
         }
 
-        // 🔥 Mesma instituição
+        //  Mesma instituição
         if (! $user->hasRole('SuperAdmin') && $prazo->instituicao_id !== $user->instituicao_id) {
             return false;
         }

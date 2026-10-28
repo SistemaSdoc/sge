@@ -51,6 +51,8 @@ class MatriculaConfirmadaNotification extends Notification implements ShouldQueu
             ->subject('Confirmação de matrícula')
             ->view('mail.aluno.matricula-confirmada', [
                 'nome' => $nomeAluno,
+                'estado' => 'confirmada',
+                'nomeInstituicao' => $instituicao?->nome ?? 'instituição',
                 'curso' => $curso,
                 'classe' => $classe,
                 'turno' => $turno,

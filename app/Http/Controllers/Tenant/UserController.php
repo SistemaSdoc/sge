@@ -130,6 +130,7 @@ class UserController extends Controller
         return to_route('tenant.dashboard.users.index')->with('success', 'Usuário actualizado com sucesso.');
     }
 
+
     public function destroy(User $user): RedirectResponse
     {
         /** @var User $currentUser */

@@ -6,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="x-apple-disable-message-reformatting">
 
-    <title>Confirmação de matrícula</title>
+    <title>{{ match ($estado ?? 'confirmada') {
+        'cancelada' => 'Cancelamento da matrícula',
+        'reativada' => 'Reativação da matrícula',
+        default => 'Confirmação de matrícula',
+    } }}</title>
 
     <style>
         * {
@@ -160,11 +164,13 @@
         </p>
 
         <p style="padding: 12px 24px 20px; font-size: 14px; line-height: 1.6; color: #202124;">
-            A sua matrícula {{ $artigoInstituicao }} <strong>{{ $instituicao->nome }}</strong> foi confirmada com
-            sucesso.
+            A sua matrícula {{ $artigoInstituicao }} <strong>{{ $nomeInstituicao ?? $instituicao?->nome ?? 'instituição' }}</strong>
+            foi {{ $estado ?? 'confirmada' }}{{ ($estado ?? 'confirmada') === 'confirmada' ? ' com sucesso' : '' }}.
         </p>
 
-        <p class="section-label">Detalhes da confirmação</p>
+        <p class="section-label">
+            {{ ($estado ?? 'confirmada') === 'confirmada' ? 'Detalhes da confirmação' : 'Estado da matrícula' }}
+        </p>
 
         @if($curso)
             <div class="credential-item">
@@ -193,17 +199,18 @@
             </div>
         @endif
 
-        <div class="credential-item">
-            <div class="item-text">
-                <div class="label">Turma atribuída</div>
-                <div class="sublabel">{{ $nomeTurma }}</div>
+        @if($nomeTurma)
+            <div class="credential-item">
+                <div class="item-text">
+                    <div class="label">Turma atribuída</div>
+                    <div class="sublabel">{{ $nomeTurma }}</div>
+                </div>
             </div>
-        </div>
+        @endif
         <div class="security-note">
             <div class="text">
                 <div class="title">Informação</div>
-                <p>Se tiver alguma dúvida sobre a sua matrícula ou a turma atribuída, contacte a secretaria da
-                    instituição.</p>
+                <p>Se tiver alguma dúvida sobre o estado da sua matrícula, contacte a secretaria da instituição.</p>
             </div>
         </div>
 

@@ -3,26 +3,22 @@
 namespace App\Notifications\Professor;
 
 use App\Models\Tenant\User;
-use App\Notifications\Concerns\ReliableNotification;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ProfessorCriadoNotification extends Notification implements ShouldQueue, ShouldQueueAfterCommit
+class ProfessorCriadoNotification extends Notification
 {
     use Queueable;
-    use ReliableNotification;
 
     public function __construct(
         public User $user,
-        public string $passwordPlain
+        public string $passwordPlain = '123456'
     ) {}
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database', 'mail'];
     }
 
     public function toMail(object $notifiable): MailMessage

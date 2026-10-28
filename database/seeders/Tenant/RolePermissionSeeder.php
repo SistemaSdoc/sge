@@ -116,8 +116,12 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.update',
                 'grupopap.delete',
                 'grupopap.definirData',
+                'grupopap.alterarTutor', 
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
+
+                // Sugestões de Temas PAP
+                'sugestaotema.gerir',
 
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
@@ -264,8 +268,12 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.update',
                 'grupopap.delete',
                 'grupopap.definirData',
+                'grupopap.alterarTutor', 
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
+
+                // Sugestões de Temas PAP
+                'sugestaotema.gerir',
 
                 // Banca de Júri PAP
                 'bancajuripap.viewAny',
@@ -399,6 +407,7 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.update',
                 'grupopap.delete',
                 'grupopap.definirData',
+                'grupopap.alterarTutor',
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
 
@@ -488,6 +497,7 @@ class RolePermissionSeeder extends Seeder
                 'turmas.view',
                 'turmas.create',
                 'turmas.update',
+                'turmas.delete',
 
                 'pautas.viewAny',
                 'pautas.view',
@@ -512,9 +522,14 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.aprovar',
                 'grupopap.reprovar',
                 'grupopap.definirData',
+                'grupopap.alterarTutor', 
                 'grupopap.solicitarMelhoria',
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
+
+                // Sugestões de temas PAP
+                'sugestaotema.gerir',
+                'sugestaotema.aprovar',
 
                 'elementogrupopap.viewAny',
                 'elementogrupopap.view',
@@ -554,11 +569,21 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.view',
                 'grupopap.aprovar',
                 'grupopap.reprovar',
+                'grupopap.alterarTutor', 
                 'grupopap.solicitarMelhoria',
                 'elementogrupopap.viewAny',
                 'elementogrupopap.view',
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
+
+                'instituicoes.view',
+                // Sugestões de temas PAP
+                'sugestaotema.gerir',
+                'sugestaotema.aprovar',
+
+                // Cursos Tutelados
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
 
             ],
 
@@ -567,9 +592,19 @@ class RolePermissionSeeder extends Seeder
                 'grupopap.view',
                 'grupopap.aprovar',
                 'grupopap.reprovar',
+                'grupopap.alterarTutor', 
                 'grupopap.solicitarMelhoria',
                 'grupopap.selecionarInstituicao',
                 'grupopap.selecionarAnoLectivo',
+
+                'instituicoes.view',
+                // Cursos Tutelados
+                'curso-tutelado.viewAny',
+                'curso-tutelado.view',
+                'curso-tutelado.update',
+
+                // Sugestões de temas PAP
+                'sugestaotema.gerir',
             ],
 
             'Professor' => [
@@ -583,6 +618,7 @@ class RolePermissionSeeder extends Seeder
                 // Pautas
                 // 'pautas.viewAny',
                 'pautas.view',
+                'submissao-prova.viewAny',
 
                 // Notas
                 'notas.create',

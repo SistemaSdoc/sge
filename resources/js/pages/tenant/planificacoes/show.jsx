@@ -1,22 +1,19 @@
 import { Head, Link, router } from '@inertiajs/react';
-import {
-  ArrowLeft,
-  Download,
-  Eye,
-  FileText,
-  Calendar,
-  BookOpen,
-  GraduationCap,
-  Clock,
-  User,
-  Trash2,
-  History,
-} from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { toast } from 'sonner';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -31,7 +28,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { PeriodoBadge } from '@/components/periodo-badge';
-import { useState } from 'react';
+import { Spinner } from '@/components/spinner';
 
 export default function Show({ planificacao, can = {} }) {
   const [previewVersao, setPreviewVersao] = useState(null);
@@ -41,116 +38,153 @@ export default function Show({ planificacao, can = {} }) {
   const versaoAtual =
     planificacao.versoes.find((v) => v.is_atual) ?? planificacao.versoes[0];
 
+  const versoesOrdenadas = useMemo(
+    () => [...planificacao.versoes].sort((a, b) => b.versao - a.versao),
+    [planificacao.versoes],
+  );
+
   const handleDelete = () => {
     setDeleting(true);
     router.delete(`/dashboard/planificacoes/${planificacao.id}`, {
       onFinish: () => setDeleting(false),
+      onSuccess: () => {
+        toast.success('Planificação apagada', {
+          description: 'Todas as versões foram removidas.',
+        });
+      },
+      onError: () => {
+        toast.error('Não foi possível remover', {
+          description: 'Tente novamente em alguns instantes.',
+        });
+      },
     });
   };
+
+  const metaInfo = [
+    { label: 'Disciplina', value: planificacao.disciplina?.nome ?? '—' },
+    { label: 'Classe', value: planificacao.classe?.nome ?? '—' },
+    { label: 'Ano letivo', value: planificacao.ano_letivo?.nome ?? '—' },
+    { label: 'Publicada por', value: planificacao.criada_por ?? '—' },
+    { label: 'Atualizada em', value: planificacao.atualizada_em },
+    { label: 'Versões', value: `${planificacao.versoes.length}` },
+  ];
 
   return (
     <>
       <Head title={planificacao.titulo ?? 'Planificação'} />
 
-      <div className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
-        {/* Voltar */}
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/dashboard/planificacoes">
-            <ArrowLeft className="mr-1 size-4" />
-            Voltar às planificações
-          </Link>
-        </Button>
-
+      <div className="mx-auto w-full max-w-5xl space-y-4 p-4 sm:p-6">
         {/* Header */}
-        <Card>
-          <CardHeader className="border-b">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="mb-2 flex flex-wrap items-center gap-2">
-                  <PeriodoBadge periodo={planificacao.periodo} />
-                  <Badge variant="outline">v{planificacao.versao_atual}</Badge>
-                </div>
-                <CardTitle className="text-xl">
-                  {planificacao.titulo ?? 'Planificação'}
-                </CardTitle>
-                {planificacao.descricao && (
-                  <CardDescription className="mt-2">
-                    {planificacao.descricao}
-                  </CardDescription>
+        <Card className="gap-0 pb-0">
+          <CardHeader className="flex flex-col gap-3 border-b border-foreground/10 md:flex-row md:items-start">
+            <div className="min-w-0 md:flex-1">
+              <Breadcrumb>
+                <BreadcrumbList className="flex-wrap">
+                  <BreadcrumbItem className="min-w-0">
+                    <BreadcrumbLink asChild>
+                      <Link
+                        href="/dashboard/planificacoes"
+                        className="line-clamp-2 text-sm font-semibold text-primary"
+                      >
+                        Planificações
+                      </Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem className="min-w-0">
+                    <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
+                      {planificacao.titulo ?? 'Planificação'}
+                    </BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <PeriodoBadge periodo={planificacao.periodo} />
+                <Badge variant="outline" className="font-mono text-[11px]">
+                  v{planificacao.versao_atual}
+                </Badge>
+                {planificacao.versoes.length > 1 && (
+                  <Badge variant="outline" className="gap-1 font-normal">
+                    {planificacao.versoes.length} versões
+                  </Badge>
                 )}
               </div>
 
+              <CardDescription className="mt-2">
+                {planificacao.descricao ??
+                  'Sem descrição adicional para esta planificação.'}
+              </CardDescription>
+            </div>
+
+            <CardAction className="flex flex-wrap items-center gap-2 self-stretch md:self-start">
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/dashboard/planificacoes">Voltar</Link>
+              </Button>
               {can.delete && (
                 <Button
-                  variant="destructive"
+                  variant="outline"
                   size="sm"
                   onClick={() => setDeleteDialog(true)}
+                  className="hover:cursor-pointer"
                 >
-                  <Trash2 className="mr-1 size-4" />
-                  Apagar
+                  Remover
                 </Button>
               )}
-            </div>
+            </CardAction>
           </CardHeader>
 
-          <CardContent className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2">
-            <div className="flex items-center gap-2 text-sm">
-              <BookOpen className="size-4 text-muted-foreground" />
-              <span className="font-medium">Disciplina:</span>
-              <span>{planificacao.disciplina?.nome ?? '—'}</span>
-            </div>
-
-            <div className="flex items-center gap-2 text-sm">
-              <GraduationCap className="size-4 text-muted-foreground" />
-              <span className="font-medium">Classe:</span>
-              <span>{planificacao.classe?.nome ?? '—'}</span>
-            </div>
-
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="size-4 text-muted-foreground" />
-              <span className="font-medium">Ano letivo:</span>
-              <span>{planificacao.ano_letivo?.nome ?? '—'}</span>
-            </div>
-
-            <div className="flex items-center gap-2 text-sm">
-              <User className="size-4 text-muted-foreground" />
-              <span className="font-medium">Publicada por:</span>
-              <span>{planificacao.criada_por ?? '—'}</span>
-            </div>
-
-            <div className="flex items-center gap-2 text-sm">
-              <Clock className="size-4 text-muted-foreground" />
-              <span className="font-medium">Atualizada em:</span>
-              <span>{planificacao.atualizada_em}</span>
-            </div>
+          {/* Meta grid — sem ícones */}
+          <CardContent className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 md:grid-cols-3">
+            {metaInfo.map(({ label, value }) => (
+              <div key={label} className="min-w-0">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  {label}
+                </p>
+                <p className="truncate font-medium" title={value}>
+                  {value}
+                </p>
+              </div>
+            ))}
           </CardContent>
         </Card>
 
         {/* Versão atual */}
         {versaoAtual && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                Versão atual (v{versaoAtual.versao})
-              </CardTitle>
-              <CardDescription>{versaoAtual.nome_original}</CardDescription>
+          <Card className="gap-0 border pb-0">
+            <CardHeader className="border-b bg-muted/30">
+              <div className="flex items-center gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-base">Versão atual</CardTitle>
+                    <Badge
+                      variant="outline"
+                      className="font-mono text-[10px]"
+                    >
+                      v{versaoAtual.versao}
+                    </Badge>
+                  </div>
+                  <CardDescription className="mt-0.5 truncate">
+                    {versaoAtual.nome_original}
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4">
               <div className="flex flex-wrap gap-2">
                 {versaoAtual.eh_pdf && (
                   <Button
                     variant="outline"
                     onClick={() => setPreviewVersao(versaoAtual)}
+                    className="hover:cursor-pointer"
                   >
-                    <Eye className="mr-1.5 size-4" />
                     Pré-visualizar
                   </Button>
                 )}
-                <Button asChild>
+                <Button asChild className="hover:cursor-pointer">
                   <a
                     href={`/dashboard/planificacoes/versao/${versaoAtual.id}/download`}
                   >
-                    <Download className="mr-1.5 size-4" />
                     Descarregar
                   </a>
                 </Button>
@@ -159,61 +193,94 @@ export default function Show({ planificacao, can = {} }) {
           </Card>
         )}
 
-        {/* Histórico de versões */}
-        {planificacao.versoes.length > 1 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <History className="size-4" />
-                Histórico de versões
-              </CardTitle>
+        {/* Histórico */}
+        {versoesOrdenadas.length > 1 && (
+          <Card className="gap-0 pb-0">
+            <CardHeader className="flex flex-col gap-3 border-b md:flex-row md:items-center">
+              <div className="min-w-0 md:flex-1">
+                <CardTitle className="text-base">
+                  Histórico de versões
+                </CardTitle>
+                <CardDescription>
+                  Todas as versões submetidas para esta planificação.
+                </CardDescription>
+              </div>
+              <CardAction>
+                <Badge variant="outline" className="font-mono text-[10px]">
+                  {versoesOrdenadas.length}
+                </Badge>
+              </CardAction>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {planificacao.versoes.map((v) => (
-                <div
-                  key={v.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded border p-3"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={v.is_atual ? 'default' : 'outline'}
-                        className="text-[10px]"
-                      >
-                        v{v.versao}
-                      </Badge>
-                      {v.is_atual && (
-                        <span className="text-xs font-medium text-primary">
-                          Atual
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-1 truncate text-sm font-medium">
-                      {v.nome_original}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {v.tamanho} • {v.uploaded_by ?? '—'} • {v.uploaded_em}
-                    </p>
-                  </div>
 
-                  <div className="flex gap-1">
-                    {v.eh_pdf && (
+            <CardContent className="p-0!">
+              <div className="divide-y">
+                {versoesOrdenadas.map((v) => (
+                  <div
+                    key={v.id}
+                    className={`flex flex-wrap items-center justify-between gap-3 p-3 transition-colors ${
+                      v.is_atual ? 'bg-muted/30' : 'hover:bg-muted/40'
+                    }`}
+                  >
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className="font-mono text-[10px]"
+                          >
+                            v{v.versao}
+                          </Badge>
+                          {v.is_atual && (
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                              Atual
+                            </span>
+                          )}
+                        </div>
+                        <p
+                          className="mt-1 truncate text-sm font-medium"
+                          title={v.nome_original}
+                        >
+                          {v.nome_original}
+                        </p>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                          <span>{v.tamanho}</span>
+                          <span aria-hidden>•</span>
+                          <span>{v.uploaded_by ?? '—'}</span>
+                          <span aria-hidden>•</span>
+                          <span>{v.uploaded_em}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex shrink-0 gap-2">
+                      {v.eh_pdf && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setPreviewVersao(v)}
+                          aria-label="Pré-visualizar"
+                          className="hover:cursor-pointer"
+                        >
+                          Pré-visualizar
+                        </Button>
+                      )}
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        onClick={() => setPreviewVersao(v)}
+                        asChild
+                        className="hover:cursor-pointer"
                       >
-                        <Eye className="size-4" />
+                        <a
+                          href={`/dashboard/planificacoes/versao/${v.id}/download`}
+                          aria-label="Descarregar"
+                        >
+                          Descarregar
+                        </a>
                       </Button>
-                    )}
-                    <Button variant="ghost" size="sm" asChild>
-                      <a href={`/dashboard/planificacoes/versao/${v.id}/download`}>
-                        <Download className="size-4" />
-                      </a>
-                    </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}
@@ -226,11 +293,15 @@ export default function Show({ planificacao, can = {} }) {
       >
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>{previewVersao?.nome_original}</DialogTitle>
-            <DialogDescription>Pré-visualização do documento</DialogDescription>
+            <DialogTitle className="truncate">
+              {previewVersao?.nome_original}
+            </DialogTitle>
+            <DialogDescription>
+              Pré-visualização do documento
+            </DialogDescription>
           </DialogHeader>
           {previewVersao && (
-            <div className="h-[70vh] w-full overflow-hidden rounded border">
+            <div className="h-[70vh] w-full overflow-hidden border bg-muted/30">
               <iframe
                 src={`/dashboard/planificacoes/versao/${previewVersao.id}/preview`}
                 className="h-full w-full"
@@ -239,15 +310,18 @@ export default function Show({ planificacao, can = {} }) {
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setPreviewVersao(null)}>
+            <Button
+              variant="outline"
+              onClick={() => setPreviewVersao(null)}
+              className="hover:cursor-pointer"
+            >
               Fechar
             </Button>
             {previewVersao && (
-              <Button asChild>
+              <Button asChild className="hover:cursor-pointer">
                 <a
                   href={`/dashboard/planificacoes/versao/${previewVersao.id}/download`}
                 >
-                  <Download className="mr-1.5 size-4" />
                   Descarregar
                 </a>
               </Button>
@@ -256,26 +330,38 @@ export default function Show({ planificacao, can = {} }) {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog apagar */}
+      {/* Dialog Remover */}
       <Dialog open={deleteDialog} onOpenChange={setDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Apagar planificação?</DialogTitle>
+            <DialogTitle>Remover planificação?</DialogTitle>
             <DialogDescription>
-              Todas as versões serão removidas permanentemente. Esta ação não pode
-              ser desfeita.
+              Todas as versões serão removidas permanentemente. Esta ação não
+              pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialog(false)}
+              className="hover:cursor-pointer"
+            >
               Cancelar
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               onClick={handleDelete}
               disabled={deleting}
+              className="hover:cursor-pointer"
             >
-              {deleting ? 'A apagar...' : 'Apagar definitivamente'}
+              {deleting ? (
+                <>
+                  <Spinner />
+                  Apagando...
+                </>
+              ) : (
+                'Remover definitivamente'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

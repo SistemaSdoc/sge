@@ -69,6 +69,7 @@ class CursoClasseController extends Controller
                         'can' => [
                             'view' => $user->can('view', $turma),
                             'edit' => $user->can('update', $turma),
+                            'delete' => $user->can('delete', $turma),
                         ],
                     ];
                 })

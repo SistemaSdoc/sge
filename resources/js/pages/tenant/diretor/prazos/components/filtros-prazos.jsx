@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -15,79 +14,52 @@ export default function FiltrosPrazos({
   onLimpar,
 }) {
   const handleChange = (field, value) => {
-    onChange({ ...filtros, [field]: value });
+    const normalizado = value === 'todos' || value === 'todas' ? '' : value;
+    onChange({ ...filtros, [field]: normalizado });
   };
 
+  const temFiltrosAtivos =
+    Boolean(filtros.status) || Boolean(filtros.disciplina_id);
+
   return (
-    <div className="border border-border bg-card p-4 shadow-sm">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Status */}
-        <div className="space-y-1.5">
-          <Label
-            htmlFor="status"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Status
-          </Label>
-          <Select
-            value={filtros.status}
-            onValueChange={(value) => handleChange('status', value)}
-          >
-            <SelectTrigger id="status" className="w-full">
-              <SelectValue placeholder="Todos" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value=" ">Todos</SelectItem>
-              <SelectItem value="aberto">Aberto</SelectItem>
-              <SelectItem value="fechado">Fechado</SelectItem>
-              <SelectItem value="expirado">Expirado</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold whitespace-nowrap">Filtros</h2>
 
-        {/* Disciplina */}
-        <div className="space-y-1.5">
-          <Label
-            htmlFor="disciplina"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Disciplina
-          </Label>
-          <Select
-            value={filtros.disciplina_id}
-            onValueChange={(value) => handleChange('disciplina_id', value)}
-          >
-            <SelectTrigger id="disciplina" className="w-full">
-              <SelectValue placeholder="Todas" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value=" ">Todas</SelectItem>
-              {disciplinas?.map((d) => (
-                <SelectItem key={d.id} value={d.id}>
-                  {d.nome}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      </div>
 
-        {/*  Botões ocupam 2 colunas em desktop */}
-        <div className="flex flex-col items-end gap-2 sm:col-span-2 sm:flex-row lg:col-span-2 lg:justify-end">
-          <Button
-            variant="default"
-            onClick={() => onChange(filtros)}
-            className="w-full sm:w-auto"
-          >
-            Filtrar
-          </Button>
-          <Button
-            variant="outline"
-            onClick={onLimpar}
-            className="w-full sm:w-auto"
-          >
-            Limpar
-          </Button>
-        </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Select
+          value={filtros.status || 'todos'}
+          onValueChange={(value) => handleChange('status', value)}
+        >
+          <SelectTrigger className="w-full sm:w-44">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos os estados</SelectItem>
+            <SelectItem value="aberto">Aberto</SelectItem>
+            <SelectItem value="fechado">Fechado</SelectItem>
+            <SelectItem value="expirado">Expirado</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={filtros.disciplina_id || 'todas'}
+          onValueChange={(value) => handleChange('disciplina_id', value)}
+        >
+          <SelectTrigger className="w-full sm:w-56">
+            <SelectValue placeholder="Disciplina" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todas">Todas as disciplinas</SelectItem>
+            {disciplinas?.map((d) => (
+              <SelectItem key={d.id} value={d.id}>
+                {d.nome}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

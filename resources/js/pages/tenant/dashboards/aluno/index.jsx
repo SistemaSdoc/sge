@@ -3,8 +3,12 @@ import { GreetingHeader } from './components/greeting-header';
 import { getGreeting, getTodayFormatted } from '@/utils/greeting';
 import { ProximasAulas } from './components/proximas-aulas';
 import { AvisosEventos } from './components/avisos-eventos/index';
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { DashboardPanel } from '@/components/dashboard-panel';
+import { Button } from '@/components/ui/button';
+import { CalendarDays } from 'lucide-react';
+import { index as horariosIndex } from '@/actions/App/Http/Controllers/Tenant/HorarioController';
+import { ArrowUpRight } from 'lucide-react';
 
 export default function AlunoDashboard({ proximasAulas = [], avisos = [] }) {
   const { auth } = usePage().props;
@@ -26,6 +30,13 @@ export default function AlunoDashboard({ proximasAulas = [], avisos = [] }) {
           title="Próximas Aulas"
           description="Aulas programadas para os próximos dias"
           colSpan="lg:col-span-3"
+          headerAction={
+            <Button asChild variant="outline" size="sm" className="shrink-0">
+              <Link href={horariosIndex().url}>
+                Ver horário <ArrowUpRight />
+              </Link>
+            </Button>
+          }
         >
           <ProximasAulas data={proximasAulas} />
         </DashboardPanel>

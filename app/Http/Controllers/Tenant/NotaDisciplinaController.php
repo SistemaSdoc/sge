@@ -258,7 +258,7 @@ class NotaDisciplinaController extends Controller
                 'create' => $user->can('create', [Nota::class, $tdp]),
                 'overrideLockedPeriods' => $isDirecao,
                 'finalizar' => $user->can('pautas.finalizar'),
-                'solicitarEdicao' => $user->can('pautas.solicitarEdicao'),
+                'solicitarEdicao' => ! $isDirecao && $user->can('pautas.solicitarEdicao'),
                 'exportar' => $user->can('export', [Nota::class, $tdp]),
             ],
         ];

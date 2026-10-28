@@ -25,8 +25,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/BancaJuriPapController';
 import { destroy as destroyIntegrante } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
-import { edit } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
-import { definirData } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import {
+  destroy as destroyGrupoPap,
+  edit,
+  definirData,
+} from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import { actualizarNota } from '@/actions/App/Http/Controllers/Tenant/ElementoGrupoPapController';
 import { FieldError } from '@/components/ui/field';
 import { usePagination } from '@/hooks/use-pagination';
@@ -38,6 +41,7 @@ import { TabTrabalho } from './components/tabs/tab-trabalho';
 import { FileText } from 'lucide-react';
 import { show as showUser } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
 import { show as showProfessor } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
+import { useDialog } from '@/hooks/use-dialog';
 
 export default function Show({
   instituicao,
@@ -56,6 +60,7 @@ export default function Show({
 }) {
   const [notas, setNotas] = useState({});
   const [dialogDataAberto, setDialogDataAberto] = useState(false);
+  const { deleteConfirm } = useDialog();
   const bancaPagination = usePagination('banca');
   const elementosPagination = usePagination('elementos');
   //const hasAnyAction = Boolean(can?.update || can?.definirData);
@@ -79,9 +84,32 @@ export default function Show({
     local_defesa: grupoPap?.local_defesa ?? '',
   });
 
-  const removerIntegranteFn = (elementoGrupoPap) => {
-    router.delete(destroyIntegrante.url({ ...params, elementoGrupoPap }), {
-      onSuccess: () => router.reload(),
+  const removerIntegranteFn = (elemento) => {
+    deleteConfirm({
+      title: 'Remover aluno do grupo?',
+      description: `${elemento.nome} deixará de fazer parte deste grupo PAP.`,
+      confirmLabel: 'Remover do grupo',
+      confirmFn: () =>
+        router.delete(
+          destroyIntegrante.url({
+            ...params,
+            elementoGrupoPap: elemento.id,
+          }),
+          { onSuccess: () => router.reload() },
+        ),
+    });
+  };
+
+  const removerGrupoFn = () => {
+    deleteConfirm({
+      title: 'Remover grupo PAP?',
+      description:
+        'Esta acção é irreversível. O grupo PAP e os seus registos dependentes serão removidos.',
+      confirmLabel: 'Remover grupo',
+      confirmFn: () =>
+        router.delete(destroyGrupoPap.url(params), {
+          preserveScroll: true,
+        }),
     });
   };
 
@@ -176,6 +204,15 @@ export default function Show({
                 {can?.definirData && (
                   <DropdownMenuItem onClick={() => setDialogDataAberto(true)}>
                     Definir data da defesa
+                  </DropdownMenuItem>
+                )}
+
+                {can?.delete && (
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={removerGrupoFn}
+                  >
+                    Remover grupo PAP
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>

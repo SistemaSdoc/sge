@@ -14,6 +14,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'nome_original',
     'tamanho_bytes',
     'mime_type',
+    'encriptado',
+    'comprimido',
+    'tamanho_original_bytes',
+    'algoritmo_encriptacao',
     'uploaded_by',
 ])]
 class PlanificacaoVersao extends Model
@@ -21,15 +25,19 @@ class PlanificacaoVersao extends Model
     use HasUuid;
 
     protected $table = 'planificacao_versoes';
-    
+
     public $incrementing = false;
+
     protected $primaryKey = 'id';
 
     protected function casts(): array
     {
         return [
-            'versao'         => 'integer',
-            'tamanho_bytes'  => 'integer',
+            'versao'                 => 'integer',
+            'tamanho_bytes'          => 'integer',
+            'tamanho_original_bytes' => 'integer',
+            'encriptado'             => 'boolean',
+            'comprimido'             => 'boolean',
         ];
     }
 
@@ -43,33 +51,65 @@ class PlanificacaoVersao extends Model
         return $this->belongsTo(User::class, 'uploaded_by');
     }
 
-    /**
-     * Tamanho formatado (ex: "2.4 MB")
-     */
+    // ── Tamanho ────────────────────────────────────────────
+
     public function getTamanhoFormatadoAttribute(): string
     {
-        $bytes = $this->tamanho_bytes;
-
-        if ($bytes < 1024) return $bytes . ' B';
-        if ($bytes < 1048576) return round($bytes / 1024, 1) . ' KB';
-        if ($bytes < 1073741824) return round($bytes / 1048576, 1) . ' MB';
-
-        return round($bytes / 1073741824, 1) . ' GB';
+        return $this->humanSize($this->tamanho_bytes);
     }
 
-    /**
-     * Extensão do ficheiro (pdf, doc, docx)
-     */
+    public function getTamanhoOriginalFormatadoAttribute(): ?string
+    {
+        return $this->tamanho_original_bytes === null
+            ? null
+            : $this->humanSize($this->tamanho_original_bytes);
+    }
+
+    public function getReducaoBytesAttribute(): ?int
+    {
+        return $this->tamanho_original_bytes === null
+            ? null
+            : $this->tamanho_original_bytes - $this->tamanho_bytes;
+    }
+
+    public function getReducaoPercentualAttribute(): ?float
+    {
+        if ($this->tamanho_original_bytes === null || $this->tamanho_original_bytes === 0) {
+            return null;
+        }
+
+        return round((1 - $this->tamanho_bytes / $this->tamanho_original_bytes) * 100, 1);
+    }
+
+    // ── Extensão / tipo ───────────────────────────────────
+
     public function getExtensaoAttribute(): string
     {
-        return pathinfo($this->nome_original, PATHINFO_EXTENSION);
+        return strtolower(pathinfo($this->nome_original, PATHINFO_EXTENSION));
     }
 
-    /**
-     * É PDF? (para preview no browser)
-     */
     public function getEhPdfAttribute(): bool
     {
-        return strtolower($this->extensao) === 'pdf';
+        return $this->extensao === 'pdf';
+    }
+
+    // ── Helper ─────────────────────────────────────────────
+
+    private function humanSize(?int $bytes): string
+    {
+        if ($bytes === null) {
+            return '—';
+        }
+        if ($bytes < 1024) {
+            return $bytes . ' B';
+        }
+        if ($bytes < 1048576) {
+            return round($bytes / 1024, 1) . ' KB';
+        }
+        if ($bytes < 1073741824) {
+            return round($bytes / 1048576, 1) . ' MB';
+        }
+
+        return round($bytes / 1073741824, 1) . ' GB';
     }
 }

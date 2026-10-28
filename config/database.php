@@ -44,6 +44,34 @@ return [
             'transaction_mode' => 'DEFERRED',
         ],
 
+        /*
+        |----------------------------------------------------------------------
+        | Conexão Central (stancl/tenancy)
+        |----------------------------------------------------------------------
+        | Esta conexão aponta para o banco central (sge) e NÃO é sequestrada
+        | pelo tenancy quando um tenant é inicializado. É a conexão usada
+        | pela trait CentralConnection nos Models de App\Models\Central.
+        */
+        'central' => [
+            'driver' => 'mysql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'sge'),
+            'username' => env('DB_USERNAME', 'laravel_user'),
+            'password' => env('DB_PASSWORD', 'Sdocadb@2026'),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => env('DB_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),

@@ -1,6 +1,15 @@
 import { Link } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { IconStack } from './ui/icon-stack';
 
 interface Action {
@@ -8,7 +17,12 @@ interface Action {
   href?: string;
   onClick?: () => void;
   variant?:
-    'default' | 'outline' | 'ghost' | 'destructive' | 'secondary' | 'link';
+    | 'default'
+    | 'outline'
+    | 'ghost'
+    | 'destructive'
+    | 'secondary'
+    | 'link';
 }
 
 interface EmptyStateProps {
@@ -30,89 +44,143 @@ export function EmptyState({
   variant = 'default',
   className = '',
 }: EmptyStateProps) {
-  const hasAction = action && (action.href || action.onClick);
+  const isMobile = useIsMobile();
+  const hasAction = Boolean(action && (action.href || action.onClick));
+  const effectiveVariant =
+    isMobile && variant !== 'minimal' ? 'compact' : variant;
 
-  const containerClasses = {
-    default: 'py-16 gap-6',
-    compact: 'py-8 gap-4',
+  const variantClasses = {
+    default: isMobile ? 'py-12 gap-5' : 'py-16 gap-6',
+    compact: isMobile ? 'py-6 gap-3' : 'py-8 gap-4',
     minimal: 'py-4 gap-3',
-    table: 'py-12 gap-4',
+    table: isMobile ? 'py-8 gap-3' : 'py-12 gap-4',
   };
-
-  const iconSizeClasses = {
-    default: 'size-6',
-    compact: 'size-5',
-    minimal: 'size-4',
-    table: 'size-5',
+  const contentGapClasses = {
+    default: 'gap-3',
+    compact: 'gap-2',
+    minimal: 'gap-1.5',
+    table: 'gap-2',
   };
-
   const titleClasses = {
-    default: 'text-base font-semibold',
+    default: isMobile ? 'text-sm font-semibold' : 'text-base font-semibold',
     compact: 'text-sm font-medium',
     minimal: 'text-xs font-medium',
-    table: 'text-sm font-medium',
+    table: isMobile ? 'text-xs font-medium' : 'text-sm font-medium',
   };
-
   const descriptionClasses = {
-    default: 'text-sm',
+    default: isMobile ? 'text-xs' : 'text-sm',
     compact: 'text-xs',
     minimal: 'text-xs',
     table: 'text-xs',
   };
-
-  const buttonSize = variant === 'minimal' ? 'xs' : 'sm';
+  const iconSizeClasses = {
+    default: isMobile ? 'size-5' : 'size-6',
+    compact: 'size-5',
+    minimal: 'size-4',
+    table: isMobile ? 'size-4' : 'size-5',
+  };
+  const buttonSizeClasses = {
+    default: isMobile ? 'xs' : 'sm',
+    compact: isMobile ? 'xs' : 'sm',
+    minimal: 'xs',
+    table: isMobile ? 'xs' : 'sm',
+  } as const;
 
   return (
-    <div
-      className={`flex flex-col items-center justify-center text-center ${containerClasses[variant]} ${className}`}
-    >
-      {Icon && (
-        <div className="flex flex-col items-center gap-3">
-          <IconStack aria-hidden="true">
-            <Icon className={iconSizeClasses[variant]} strokeWidth={1.5} />
-          </IconStack>
+    <Empty className={`${variantClasses[effectiveVariant]} ${className}`}>
+      <style>{`
+        @keyframes slideInFade {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
 
-          <div className="flex flex-col gap-1.5">
-            <p className={titleClasses[variant]}>{title}</p>
-            <p
-              className={`${descriptionClasses[variant]} text-muted-foreground`}
-            >
-              {description}
-            </p>
-          </div>
-        </div>
-      )}
+        @keyframes float {
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+        }
+
+        [data-slot='empty'] {
+          animation: slideInFade 0.5s ease-out;
+        }
+
+        [data-slot='empty-icon'] {
+          animation: float 3s ease-in-out infinite;
+        }
+
+        @media (max-width: 767px) {
+          [data-slot='empty-icon'] {
+            animation: none;
+          }
+        }
+      `}</style>
+
+      <EmptyHeader>
+        {Icon && (
+          <EmptyMedia>
+            <IconStack aria-hidden="true" className="h-16 w-14">
+              <Icon
+                className={`${iconSizeClasses[effectiveVariant]} text-secondary transition-all`}
+                strokeWidth={1.5}
+              />
+            </IconStack>
+          </EmptyMedia>
+        )}
+        <EmptyContent className={contentGapClasses[effectiveVariant]}>
+          <EmptyTitle className={titleClasses[effectiveVariant]}>
+            {title}
+          </EmptyTitle>
+          <EmptyDescription className={descriptionClasses[effectiveVariant]}>
+            {description}
+          </EmptyDescription>
+        </EmptyContent>
+      </EmptyHeader>
 
       {(hasAction || secondaryActions.length > 0) && (
-        <div className="mt-1 flex flex-col items-center gap-3">
+        <div
+          className={`flex flex-col items-center gap-3 ${effectiveVariant === 'minimal' ? 'gap-2' : ''}`}
+          style={{ animation: 'slideInFade 0.5s ease-out 0.2s both' }}
+        >
           {hasAction &&
             (action?.href ? (
               <Button
                 asChild
-                variant={action.variant ?? 'default'}
-                size={buttonSize}
+                variant={action.variant || 'default'}
+                size={buttonSizeClasses[effectiveVariant]}
+                className="w-full max-w-xs md:w-auto"
               >
                 <Link href={action.href}>{action.label}</Link>
               </Button>
             ) : (
               <Button
                 onClick={action?.onClick}
-                variant={action?.variant ?? 'default'}
-                size={buttonSize}
+                variant={action?.variant || 'default'}
+                size={buttonSizeClasses[effectiveVariant]}
+                className="w-full max-w-xs md:w-auto"
               >
                 {action?.label}
               </Button>
             ))}
 
           {secondaryActions.length > 0 && (
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {secondaryActions.map((secondary, idx) => (
+            <div className="flex max-w-xs flex-wrap items-center justify-center gap-2 md:max-w-none">
+              {secondaryActions.map((secondary, index) => (
                 <Button
-                  key={idx}
+                  key={index}
                   asChild
                   variant="ghost"
-                  size={buttonSize}
-                  className="text-muted-foreground hover:text-foreground"
+                  size={buttonSizeClasses[effectiveVariant]}
+                  className="text-center text-muted-foreground hover:text-foreground"
                 >
                   <Link href={secondary.href!}>{secondary.label}</Link>
                 </Button>
@@ -121,6 +189,6 @@ export function EmptyState({
           )}
         </div>
       )}
-    </div>
+    </Empty>
   );
 }

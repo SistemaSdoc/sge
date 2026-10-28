@@ -20,6 +20,7 @@ use App\Models\Tenant\SugestaoTemaPap;
 use App\Models\Tenant\User;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\CursoTuteladoViewService;
+use App\Traits\NotificaSugestaoTemaPap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -30,6 +31,8 @@ use Inertia\Inertia;
  */
 class CursoTuteladoController extends Controller
 {
+    use NotificaSugestaoTemaPap;
+
     public function __construct(
         private readonly AnoLectivoResolverService $anoLectivoResolverService,
         private readonly CursoTuteladoViewService $cursoTuteladoViewService,
@@ -181,11 +184,18 @@ class CursoTuteladoController extends Controller
             'secretariosDisponiveis' => $secretariosDisponiveis,
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => $this->cursoTuteladoViewService->academicYears(),
+            'filters' => request()->only([
+                'search_turmas',
+                'search_professores',
+                'search_secretarios',
+                'search_sugestoes',
+            ]),
             'can' => [
                 'instituicao' => [
                     'view' => $user->can('view', $instituicao),
                 ],
                 'uploadCriteriosPap' => $user->can('uploadDocumentosPap', $cursoTutelado),
+                'aprovarSugestaoTema' => $user->can('aprovar', new SugestaoTemaPap(['curso_tutelado_id' => $cursoTutelado->id])),
             ],
         ]);
     }
@@ -278,9 +288,17 @@ class CursoTuteladoController extends Controller
 
     public function storeSugestaoTema(StoreSugestaoTemaPapRequest $request, Instituicao $instituicao, CursoTutelado $cursoTutelado)
     {
-        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+        Gate::authorize('gerirSugestoesTemas', $cursoTutelado);
         $this->garantirTutelaPropria($cursoTutelado);
-        $cursoTutelado->sugestoesTemas()->create($request->validated());
+        $actor = Auth::guard('tenant')->user();
+        $sugestao = $cursoTutelado->sugestoesTemas()->create([
+            ...$request->validated(),
+            'criado_por' => $actor?->id,
+        ]);
+        $this->notificarSugestaoTemaCriada(
+            $sugestao,
+            $actor,
+        );
 
         return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão cadastrada.']);
     }
@@ -291,7 +309,7 @@ class CursoTuteladoController extends Controller
         CursoTutelado $cursoTutelado,
         SugestaoTemaPap $sugestao
     ) {
-        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+        Gate::authorize('gerirSugestoesTemas', $cursoTutelado);
         $this->garantirTutelaPropria($cursoTutelado);
         abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
 
@@ -302,12 +320,115 @@ class CursoTuteladoController extends Controller
 
     public function destroySugestaoTema(Instituicao $instituicao, CursoTutelado $cursoTutelado, SugestaoTemaPap $sugestao)
     {
-        Gate::authorize('uploadDocumentosPap', $cursoTutelado);
+        Gate::authorize('gerirSugestoesTemas', $cursoTutelado);
         $this->garantirTutelaPropria($cursoTutelado);
         abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
 
         $sugestao->delete();
 
         return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão removida.']);
+    }
+
+    public function aprovarSugestaoTema(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        SugestaoTemaPap $sugestao
+    ) {
+        Gate::authorize('aprovar', $sugestao);
+        $this->garantirTutelaPropria($cursoTutelado);
+        abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
+
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
+        $sugestao->update([
+            'estado_aprovacao' => 'aprovada',
+            'ativo' => true,
+            'aprovado_por' => $user->id,
+            'aprovado_em' => now(),
+            'observacao_aprovacao' => null,
+        ]);
+
+        $this->notificarSugestaoTemaAprovada($sugestao);
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão aprovada.']);
+    }
+
+    public function rejeitarSugestaoTema(
+        Request $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        SugestaoTemaPap $sugestao
+    ) {
+        Gate::authorize('aprovar', $sugestao);
+        $this->garantirTutelaPropria($cursoTutelado);
+        abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
+
+        $request->validate([
+            'observacao' => 'required|string|max:1000',
+        ]);
+
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
+        $sugestao->update([
+            'estado_aprovacao' => 'rejeitada',
+            'ativo' => false,
+            'aprovado_por' => $user->id,
+            'aprovado_em' => now(),
+            'observacao_aprovacao' => $request->observacao,
+        ]);
+        $this->notificarSugestaoTemaRejeitada($sugestao, $user);
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão rejeitada.']);
+    }
+
+    public function solicitarMelhoriaSugestaoTema(
+        Request $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        SugestaoTemaPap $sugestao
+    ) {
+        Gate::authorize('aprovar', $sugestao);
+        $this->garantirTutelaPropria($cursoTutelado);
+        abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
+
+        $request->validate([
+            'observacao' => 'required|string|max:1000',
+        ]);
+
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
+        $sugestao->update([
+            'estado_aprovacao' => 'melhoria_solicitada',
+            'ativo' => false,
+            'aprovado_por' => $user->id,
+            'aprovado_em' => now(),
+            'observacao_aprovacao' => $request->observacao,
+        ]);
+        $this->notificarSugestaoTemaMelhoriaSolicitada($sugestao, $user);
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'Melhoria solicitada.']);
+    }
+
+    public function resubmeterSugestaoTema(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        SugestaoTemaPap $sugestao
+    ) {
+        Gate::authorize('resubmeter', $sugestao);
+        $this->garantirTutelaPropria($cursoTutelado);
+        abort_unless($sugestao->curso_tutelado_id === $cursoTutelado->id, 404);
+
+        $sugestao->update([
+            'estado_aprovacao' => 'pendente',
+            'ativo' => false,
+            'aprovado_por' => null,
+            'aprovado_em' => null,
+            'observacao_aprovacao' => null,
+        ]);
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'Sugestão resubmetida para aprovação.']);
     }
 }

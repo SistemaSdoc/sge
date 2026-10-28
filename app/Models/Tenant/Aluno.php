@@ -30,8 +30,10 @@ class Aluno extends Model implements HasUserCleanup
         'matricula',
         'numero_processo',
         'inscricao.candidato.nome',
+        'inscricao.cursoClasseTurno.turno.nome',
         'inscricao.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso.nome',
-        'turmas.nome',
+        'turmasActivas.nome',
+        'turmasActivas.cursoClasseTurno.cursoClasse.classe.nome',
     ];
 
     protected $table = 'alunos';
@@ -258,6 +260,11 @@ class Aluno extends Model implements HasUserCleanup
             ->using(TurmaAluno::class)
             ->withPivot('activo', 'situacao', 'is_historico', 'resultado', 'created_at')
             ->withTimestamps();
+    }
+
+    public function turmasActivas()
+    {
+        return $this->turmas()->wherePivot('activo', true);
     }
 
     public function turmaActual()

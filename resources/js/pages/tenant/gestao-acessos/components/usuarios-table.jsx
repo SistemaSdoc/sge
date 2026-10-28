@@ -25,8 +25,7 @@ import {
   edit,
 } from '@/actions/App/Http/Controllers/Tenant/ClasseController';
 import TablePagination from '@/components/table-pagination';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useInitials } from '@/hooks/use-initials';
+import { ProfileAvatarPreview } from '@/components/profile-avatar-preview';
 import { TableSearch } from '@/components/table-search';
 import { useTableSearch } from '@/hooks/use-table-search';
 
@@ -43,7 +42,6 @@ export function UsuariosTable({
       only: ['users', 'filters'],
     },
   );
-  const getInitials = useInitials();
   const isEmpty = usuarios?.data?.length === 0;
 
   const renderRolesBadge = (roles = []) => {
@@ -128,16 +126,11 @@ export function UsuariosTable({
                   >
                     <TableCell className="px-4 font-medium">
                       <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage
-                            src={usuario.avatar}
-                            alt={usuario.nome}
-                            className="grayscale"
-                          />
-                          <AvatarFallback>
-                            {getInitials(usuario.nome)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <ProfileAvatarPreview
+                          src={usuario.avatar}
+                          name={usuario.nome}
+                          className="grayscale"
+                        />
 
                         <div className="flex flex-col">
                           <span className="text-xs">{usuario.nome}</span>

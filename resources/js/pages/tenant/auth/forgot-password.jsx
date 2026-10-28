@@ -12,13 +12,11 @@ import { email } from '@/routes/password';
 export default function ForgotPassword({ status }) {
   return (
     <>
-      <Head title="Forgot password" />
+      <Head title="Recuperar palavra-passe" />
 
       {status && (
         <div className="mb-4 text-center text-sm font-medium text-green-600">
-          {status === 'We have emailed your password reset link.'
-            ? 'Enviámos o link de redefinição da sua password para o seu email.'
-            : status}
+          {status}
         </div>
       )}
 
@@ -34,7 +32,7 @@ export default function ForgotPassword({ status }) {
                   name="email"
                   autoComplete="off"
                   autoFocus
-                  placeholder="email@example.com"
+                  placeholder="email@exemplo.com"
                 />
 
                 <InputError message={errors.email} />
@@ -49,7 +47,7 @@ export default function ForgotPassword({ status }) {
                   {processing && (
                     <LoaderCircle className="h-4 w-4 animate-spin" />
                   )}
-                  Enviar link de redefinição de senha
+                  Enviar link de redefinição da palavra-passe
                 </Button>
               </div>
             </>
@@ -57,7 +55,7 @@ export default function ForgotPassword({ status }) {
         </Form>
 
         <div className="space-x-1 text-center text-sm text-muted-foreground">
-          <span>Ou, voltar para o</span>
+          <span>Ou volte para o</span>
           <TextLink href={login()}>login</TextLink>
         </div>
       </div>
@@ -66,6 +64,6 @@ export default function ForgotPassword({ status }) {
 }
 
 ForgotPassword.layout = {
-  title: 'Esqueci a minha senha',
-  description: 'Insira seu email para receber um link de redefinição de senha',
+  title: 'Esqueci-me da palavra-passe',
+  description: 'Introduza o seu email para receber um link de redefinição da palavra-passe.',
 };

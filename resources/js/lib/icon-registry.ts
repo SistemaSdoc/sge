@@ -2,6 +2,7 @@ import {
   Bell,
   BarChart3,
   BookOpen,
+  BookMarked,
   Building2,
   ClipboardList,
   Clock4,
@@ -22,6 +23,12 @@ import {
   UserCog,
   BellDot,
   BookIcon,
+  Trophy,       // 🔴 ADICIONADO: Para o Quadro de Honra
+  Award,        // 🔴 ADICIONADO: Para classificações/prémios
+  School,       // 🔴 ADICIONADO: Para instituições
+  CheckCircle,  // 🔴 ADICIONADO: Para confirmações/aprovações
+  FileCheck,    // 🔴 ADICIONADO: Para validações de documentos
+  Settings,     // 🔴 ADICIONADO: Para configurações
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -30,6 +37,7 @@ export const iconRegistry: Record<string, LucideIcon> = {
   Bell,
   BarChart3,
   BookOpen,
+  BookMarked,
   Building2,
   ClipboardList,
   Clock4,
@@ -49,6 +57,12 @@ export const iconRegistry: Record<string, LucideIcon> = {
   UserCog,
   BellDot,
   BookIcon,
+  Trophy,       // 🔴 ADICIONADO
+  Award,        // 🔴 ADICIONADO
+  School,       // 🔴 ADICIONADO
+  CheckCircle,  // 🔴 ADICIONADO
+  FileCheck,    // 🔴 ADICIONADO
+  Settings,     // 🔴 ADICIONADO
 };
 
 export function resolveIcon(name: string): LucideIcon {

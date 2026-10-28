@@ -157,7 +157,8 @@ class TurmaDisciplinaProfessorController extends Controller
             ]);
         }
         DB::transaction(function () use ($relacao, $classeTurnoDisciplina): void {
-            $relacao->update(['professor_id' => null]);
+            $relacao->pautaStatuses()->delete();
+            $relacao->delete();
 
             if (! $classeTurnoDisciplina->turmaDisciplinaProfessores()->whereNotNull('professor_id')->exists()) {
                 $classeTurnoDisciplina->update(['tem_professor' => false]);

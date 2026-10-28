@@ -32,6 +32,7 @@ use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\GrupoPap\GrupoPapService;
 use App\Services\Tenant\GrupoPap\GrupoPapViewService;
 use App\Traits\NotificaGrupoPap;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -294,7 +295,10 @@ class GrupoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap,
     ) {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('update', $grupoPap);
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+
+        Gate::forUser($user)->authorize('update', $grupoPap);
 
         $options = $this->grupoPapViewService->editOptions($cursoTutelado, $turma, $grupoPap);
 
@@ -311,6 +315,8 @@ class GrupoPapController extends Controller
                 'alunos' => $options['alunos'],
                 'grupoPap' => $grupoPap,
             ]),
+            'podeAlterarTutor' => $grupoPap->professor_tutor_id !== null
+        && $user->can('alterarTutor', $grupoPap),
         ]);
     }
 
@@ -346,13 +352,22 @@ class GrupoPapController extends Controller
     /**
      * Remove um grupo PAP e os seus registos dependentes.
      */
-    public function destroy(GrupoPap $grupoPap)
-    {
+    public function destroy(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): RedirectResponse {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('delete', $grupoPap);
 
         $this->deleteGrupoPap->handle($grupoPap);
 
-        return response()->json(['message' => 'Grupo PAP removido com sucesso.']);
+        return to_route('tenant.dashboard.grupos-pap.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Grupo PAP removido com sucesso.',
+        ]);
     }
 
     /**
@@ -537,7 +552,10 @@ class GrupoPapController extends Controller
         $validated = $request->validated();
         $turma = Turma::with('cursoClasseTurno.cursoClasse')->findOrFail($validated['turma_id']);
 
-        $this->createGrupoPap->handle($turma, $validated);
+        $grupo = $this->createGrupoPap->handle($turma, $validated);
+        $alunosUsers = $grupo->alunos->map->user->filter();
+
+        Notification::send($alunosUsers, new GrupoCriadoNotification($grupo));
 
         return to_route('tenant.dashboard.grupos-pap.index', [
             'ano_lectivo_id' => $turma->ano_lectivo_id,

@@ -8,12 +8,14 @@ use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\Inscricao;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
+use App\Notifications\Aluno\InscricaoEstadoNotification;
 use App\Notifications\Aluno\PerfilIncompletoNotificacao;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Traits\NotificaAluno;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Spatie\Permission\Models\Role;
@@ -27,9 +29,9 @@ class InscricaoService
     /**
      * Cria um registro em inscrições para o candidato.
      *
-     * Para instituições do tipo "colegio" a inscrição é imediatamente aprovada
-     * sem necessidade de nota de teste.
-     * Para instituições do tipo "instituto" o estado é calculado com base na nota.
+     * No colégio, a inscrição sem nota é aprovada porque o candidato pode não
+     * estar sujeito a uma prova de admissão. Quando há nota, o estado depende
+     * do resultado; nos institutos, a nota é exigida pela validação do pedido.
      */
     public function criar(array $dados, ?Instituicao $instituicao = null): Inscricao
     {
@@ -72,10 +74,11 @@ class InscricaoService
             if (! $anoLectivoId) {
                 throw new InvalidArgumentException('Nenhum ano lectivo activo encontrado.');
             }
-
             $hasNota = isset($dados['nota_teste']) && $dados['nota_teste'] !== '' && $dados['nota_teste'] !== null;
             $nota = $hasNota ? (float) $dados['nota_teste'] : null;
-            $status = $hasNota ? ($nota >= 10 ? 'aprovado' : 'reprovado') : 'pendente';
+            $status = $hasNota
+                ? ($nota >= 10 ? 'aprovado' : 'reprovado')
+                : ($instituicao?->tipo === 'colegio' ? 'aprovado' : 'pendente');
 
             $inscricao = Inscricao::create([
                 'candidato_id' => $candidato->id,
@@ -153,16 +156,23 @@ class InscricaoService
 
         $password = Str::password(12);
 
-        $user = User::firstOrCreate(
-            ['bi' => $inscricao->candidato->bi],
-            [
+        $user = User::where('bi', $inscricao->candidato->bi)
+            ->orWhere('email', $inscricao->candidato->email)
+            ->first();
+
+        $wasRecentlyCreated = false;
+
+        if (! $user) {
+            $user = User::create([
                 'nome' => $inscricao->candidato->nome,
+                'bi' => $inscricao->candidato->bi,
                 'email' => $inscricao->candidato->email,
                 'telefone' => $inscricao->candidato->telefone,
                 'instituicao_id' => $instituicaoId,
                 'password' => Hash::make($password),
-            ]
-        );
+            ]);
+            $wasRecentlyCreated = true;
+        }
 
         $inscricao->candidato->update(['user_id' => $user->id]);
 
@@ -176,9 +186,8 @@ class InscricaoService
             'matricula' => $this->gerarMatriculaUnica(),
         ]);
 
-        if ($user->wasRecentlyCreated) {
+        if ($wasRecentlyCreated) {
             $this->notificarAlunoCriado($user, $password);
-
             $user->notify(new PerfilIncompletoNotificacao);
         }
 
@@ -214,6 +223,49 @@ class InscricaoService
         }
 
         $inscricao->update(['status' => 'cancelado']);
+        $this->notificarEstado($inscricao, 'cancelada');
+    }
+
+    private function notificarEstado(Inscricao $inscricao, string $estado): void
+    {
+        $inscricao->load([
+            'aluno.user',
+            'aluno.instituicao',
+            'candidato',
+            'cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao',
+        ]);
+
+        $alunoUser = $inscricao->aluno?->user;
+        $candidato = $inscricao->candidato;
+        $instituicao = $inscricao->aluno?->instituicao
+            ?? $inscricao->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->instituicao;
+        $nomeAluno = $alunoUser?->nome ?? $candidato?->nome ?? 'estudante';
+        $notification = new InscricaoEstadoNotification(
+            nomeAluno: $nomeAluno,
+            estado: $estado,
+            nomeInstituicao: $instituicao?->nome,
+            artigoInstituicao: match ($instituicao?->tipo) {
+                'instituto', 'colegio' => 'ao',
+                default => 'à',
+            },
+        );
+
+        if (filled($alunoUser?->email)) {
+            $alunoUser->notify($notification);
+
+            return;
+        }
+
+        if (filled($candidato?->email)) {
+            Notification::route('mail', $candidato->email)->notify($notification);
+
+            return;
+        }
+
+        Log::warning('Inscrição sem email disponível para notificar o aluno sobre a mudança de estado.', [
+            'inscricao_id' => $inscricao->getKey(),
+            'estado' => $estado,
+        ]);
     }
 
     public function reativar(Inscricao $inscricao): void
@@ -223,5 +275,6 @@ class InscricaoService
         }
 
         $inscricao->update(['status' => 'aprovado']);
+        $this->notificarEstado($inscricao, 'reativada');
     }
 }

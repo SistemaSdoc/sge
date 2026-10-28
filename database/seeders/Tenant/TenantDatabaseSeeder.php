@@ -27,7 +27,7 @@ class TenantDatabaseSeeder extends Seeder
                 NiveisEnsinoSeeder::class,
 
                 // RELACIONAMENTOS ACADÉMICOS
-                InstituicaoCursoSeeder::class,
+                // InstituicaoCursoSeeder::class,
                 // CursoTuteladoSeeder::class,
                 // CursoClasseSeeder::class,
                 // CursoClasseTurnoSeeder::class,

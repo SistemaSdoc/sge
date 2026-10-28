@@ -208,7 +208,7 @@ export function TabIntegrantes({
                           {canRemoverIntegrante && (
                             <DropdownMenuItem
                               variant="destructive"
-                              onClick={() => removerIntegranteFn(el.id)}
+                              onClick={() => removerIntegranteFn(el)}
                             >
                               Remover do grupo
                             </DropdownMenuItem>

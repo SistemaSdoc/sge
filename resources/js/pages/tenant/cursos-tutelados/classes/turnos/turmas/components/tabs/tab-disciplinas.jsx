@@ -34,6 +34,8 @@ import {
   destroy as destroyProfessor,
 } from '@/actions/App/Http/Controllers/Tenant/InstituicaoCurso/TurmaDisciplinaProfessorController';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import { toast } from 'sonner';
 import { useDialog } from '@/hooks/use-dialog';
 
@@ -42,11 +44,21 @@ export function TabDisciplinas({
   params,
   pagination,
   onPageChange,
+  search = '',
   redirectTo,
   anoLectivoId,
   anoLectivoSelecionado,
   can = {},
 }) {
+  const {
+    search: searchTerm,
+    onChange,
+    submit,
+    applied,
+  } = useTableSearch(search, {
+    searchParam: 'search_disciplinas',
+    pageParam: 'page_disciplinas',
+  });
   const isEmpty = disciplinas.length === 0;
   const canCreate = Boolean(can.create);
   const { deleteConfirm } = useDialog();
@@ -150,7 +162,7 @@ export function TabDisciplinas({
   };
 
   return (
-    <Card className="grid grid-rows-[auto_1fr_auto] gap-0">
+    <Card className="grid w-full min-w-0 grid-rows-[auto_1fr_auto] gap-0">
       <CardHeader className="flex flex-col gap-3 border-b sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <CardTitle>Disciplinas</CardTitle>
@@ -180,13 +192,27 @@ export function TabDisciplinas({
         )}
       </CardHeader>
 
-      <CardContent className="p-0!">
+      <CardContent className="min-w-0 p-0!">
+        <TableSearch
+          value={searchTerm}
+          onChange={onChange}
+          onSubmit={submit}
+          placeholder="Pesquisar por disciplina ou sigla..."
+        />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={BookIcon}
-            title="Nenhuma disciplina nesta turma"
-            description="Comece adicionando disciplinas"
+            title={
+              applied
+                ? 'Nenhuma disciplina encontrada'
+                : 'Nenhuma disciplina nesta turma'
+            }
+            description={
+              applied
+                ? 'Tente ajustar a pesquisa.'
+                : 'Comece adicionando disciplinas'
+            }
             action={{
               label: 'Adicionar Disciplina',
               onClick: () =>
@@ -206,12 +232,12 @@ export function TabDisciplinas({
             }}
           />
         ) : (
-          <Table>
+          <Table className="min-w-0">
             <TableHeader>
               <TableRow className="bg-muted/72">
-                <TableHead className="px-4">Nome</TableHead>
-                <TableHead>Professor</TableHead>
-                <TableHead className="px-4 text-right">Acções</TableHead>
+                <TableHead className="px-4 max-md:whitespace-normal">Nome</TableHead>
+                <TableHead className="max-md:whitespace-normal">Professor</TableHead>
+                <TableHead className="px-4 text-right max-md:whitespace-normal">Acções</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -225,8 +251,8 @@ export function TabDisciplinas({
                   className="hover:cursor-pointer aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:hover:bg-transparent"
                   onClick={() => handleDisciplinaClick(disciplina)}
                 >
-                  <TableCell className="px-4 font-medium">
-                    <span>{disciplina?.nome}</span>
+                  <TableCell className="px-2 font-medium max-md:whitespace-normal sm:px-4">
+                    <span className="wrap-anywhere">{disciplina?.nome}</span>
                     {disciplina?.arquivada && (
                       <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
                         Arquivada
@@ -234,13 +260,13 @@ export function TabDisciplinas({
                     )}
                   </TableCell>
 
-                  <TableCell>
+                  <TableCell className="max-md:whitespace-normal wrap-anywhere">
                     {disciplina.professor?.nome ?? (
                       <Minus size={15} className="text-muted-foreground" />
                     )}
                   </TableCell>
 
-                  <TableCell className="px-4 text-right">
+                  <TableCell className="px-2 text-right max-md:whitespace-normal sm:px-4">
                     {!disciplina?.arquivada && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -279,11 +305,13 @@ export function TabDisciplinas({
                             </DropdownMenuItem>
                           )}
 
-<DropdownMenuItem onClick={(e) => abrirHorarios(disciplina, e)}>
-  {disciplina?.can?.manage_schedule
-    ? 'Definir horários'
-    : 'Visualizar horários'}
-</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => abrirHorarios(disciplina, e)}
+                          >
+                            {disciplina?.can?.manage_schedule
+                              ? 'Definir horários'
+                              : 'Visualizar horários'}
+                          </DropdownMenuItem>
 
                           {disciplina.professor &&
                             disciplina?.can?.detach_professor && (

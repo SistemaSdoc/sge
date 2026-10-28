@@ -51,25 +51,18 @@ class GrupoPapViewService
 
         if ($this->isTutorInstitution($user)) {
             $this->crossTenantAccessService->vinculosVisiveisNoPap($user)
-                ->each(function (CursoTuteladoShared $shared) use (
-                    &$groups,
-                    $anoLectivoId,
-                    $user,
-                    $instituicaoIdFiltro,
-                    $cursoIdFiltro,
-                    $search,
-                    $instituicaoIdPadrao,
-                    $isInstituteSecretary,
-                ): void {
+                ->each(function (CursoTuteladoShared $shared) use (&$groups, $anoLectivoId, $user, $instituicaoIdFiltro, $cursoIdFiltro, $search, $instituicaoIdPadrao, $isInstituteSecretary): void {
                     $tenant = Tenant::query()->find($shared->tenant_tutelado_id);
 
                     if (! $tenant) {
                         return;
                     }
 
-                    if ($instituicaoIdFiltro === null
+                    if (
+                        $instituicaoIdFiltro === null
                         && ! $isInstituteSecretary
-                        && $tenant->instituicao_id !== $instituicaoIdPadrao) {
+                        && $tenant->instituicao_id !== $instituicaoIdPadrao
+                    ) {
                         return;
                     }
 
@@ -419,7 +412,7 @@ class GrupoPapViewService
             'professores' => Professor::query()
                 ->whereHas('cursosTutelados', fn ($query) => $query
                     ->where('curso_tutelado_id', $cursoTutelado->getKey())
-                    ->where('tipo', 'principal'))
+                    ->where('opap', true))
                 ->with('user:id,nome')
                 ->get(),
             'alunos' => $turma->alunos()
@@ -451,6 +444,8 @@ class GrupoPapViewService
                 ->where('turma_aluno.activo', true))
             ->with('inscricao.candidato:id,nome')
             ->get()
+            ->sortBy(fn (Aluno $aluno) => $aluno->inscricao?->candidato?->nome)
+            ->values()
             ->toBase()
             ->map(fn (Aluno $aluno): array => [
                 'id' => $aluno->id,
@@ -546,6 +541,10 @@ class GrupoPapViewService
         ?string $siglaInstituto
     ): SupportCollection {
         return $grupoPap->historicoAprovacao->map(function ($item) use ($instituicaoTutoraId, $nomeCurso, $siglaInstituto): array {
+            $mostrarNomeDoUtilizador = in_array($item->estado_novo, [
+                GrupoPap::APROVACAO_MELHORIA_TUTOR,
+                GrupoPap::APROVACAO_SUBMETIDO,
+            ], true);
             $ehTutora = $item->estado_novo !== 'pendente' && (
                 $item->utilizador_externo_tenant_id !== null
                 || ($instituicaoTutoraId !== null && $item->utilizador?->instituicao_id === $instituicaoTutoraId)
@@ -561,11 +560,13 @@ class GrupoPapViewService
                 'objectivos' => $item->objectivos,
                 'created_at' => $item->created_at?->toIso8601String(),
                 'utilizador' => [
-                    'nome' => $ehTutora
-                        ? (filled($nomeCurso)
-                            ? PapHelper::rotuloGrupoDisciplinar($nomeCurso, $siglaInstituto)
-                            : ($siglaInstituto ? "Grupo disciplinar do {$siglaInstituto}" : 'Grupo disciplinar'))
-                        : ($item->utilizador?->nome ?? '—'),
+                    'nome' => $mostrarNomeDoUtilizador
+                        ? ($item->utilizador?->nome ?? $item->utilizador_nome ?? '—')
+                        : ($ehTutora
+                            ? (filled($nomeCurso)
+                                ? PapHelper::rotuloGrupoDisciplinar($nomeCurso, $siglaInstituto)
+                                : ($siglaInstituto ? "Grupo disciplinar do {$siglaInstituto}" : 'Grupo disciplinar'))
+                            : ($item->utilizador?->nome ?? '—')),
                 ],
             ];
         })->values();

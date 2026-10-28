@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
+use App\Http\Controllers\Tenant\AulaController;
 use App\Http\Controllers\Tenant\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Tenant\Auth\NewPasswordController;
 use App\Http\Controllers\Tenant\Auth\PasswordResetLinkController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Tenant\ClasseController as ClasseControllerGeral;
 use App\Http\Controllers\Tenant\ClasseTurnoDisciplinaController;
 use App\Http\Controllers\Tenant\ClasseTurnoDisciplinaHorarioController;
 use App\Http\Controllers\Tenant\ClasseTurnoTurmaController;
+use App\Http\Controllers\Tenant\Colegios\ExportarListaAlunosTurmaController;
 use App\Http\Controllers\Tenant\CompletarPerfilController;
 use App\Http\Controllers\Tenant\CursoClasseController;
 use App\Http\Controllers\Tenant\CursoClasseTurnoController;
@@ -23,6 +25,8 @@ use App\Http\Controllers\Tenant\CursoTuteladoController;
 use App\Http\Controllers\Tenant\CursoTuteladoProfessorController;
 use App\Http\Controllers\Tenant\CursoTuteladoSecretarioController;
 use App\Http\Controllers\Tenant\DashboardController;
+use App\Http\Controllers\Tenant\DesempenhoAlunoController;
+use App\Http\Controllers\Tenant\DesempenhoProfessorController;
 use App\Http\Controllers\Tenant\DocumentosController;
 use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FichaMatriculaController;
@@ -62,6 +66,7 @@ use App\Http\Controllers\Tenant\UserController;
 use App\Http\Controllers\Tenant\UserPermissionController;
 use App\Http\Controllers\Tenant\UserProfileController;
 use App\Http\Middleware\CheckTenantStatus;
+use App\Http\Middleware\Tenant\EnsureEnrollmentNotCancelled;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
@@ -83,7 +88,7 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
     InitializeTenancyByDomain::class,
 ])->group(function () {
-    Broadcast::routes(['middleware' => ['web', 'auth:tenant']]);
+    Broadcast::routes(['middleware' => ['web', 'auth:tenant', EnsureEnrollmentNotCancelled::class]]);
 
     /*
     |--------------------------------------------------------------------------
@@ -120,6 +125,7 @@ Route::middleware([
         ->name('tenant.logout');
 
     Route::get('token/{token}', [AuthenticatedSessionController::class, 'token'])
+        ->middleware('guest:tenant')
         ->name('tenant.login.token');
 
     /*
@@ -135,12 +141,11 @@ Route::middleware([
     |--------------------------------------------------------------------------
     | Conclusão do Perfil do Aluno
     |--------------------------------------------------------------------------
-    |
-    | Rotas para o aluno completar os dados pessoais obrigatórios.
-    |
     */
+
     Route::middleware([
         'auth:tenant',
+        EnsureEnrollmentNotCancelled::class,
         'tenant.status',
         'role:Aluno',
     ])->group(function () {
@@ -158,11 +163,12 @@ Route::middleware([
     */
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->middleware(['auth:tenant', 'tenant.status', 'perfil.completo'])
+        ->middleware(['auth:tenant', EnsureEnrollmentNotCancelled::class, 'tenant.status', 'perfil.completo'])
         ->name('tenant.dashboard');
 
     Route::middleware([
         'auth:tenant',
+        EnsureEnrollmentNotCancelled::class,
         'verified',
         'role:SuperAdmin|Director|Subdirector|Secretaria|Secretario do Curso|Professor|Aluno',
         CheckTenantStatus::class,
@@ -186,7 +192,6 @@ Route::middleware([
             // ─────────────────────────────────────────────────────────────
             Route::prefix('planificacoes')->name('planificacoes.')->group(function () {
 
-                // ─── Estáticas (ordem importa) ───
                 Route::get('/', [PlanificacaoController::class, 'index'])
                     ->name('index');
 
@@ -205,13 +210,19 @@ Route::middleware([
                 Route::get('/versao/{versao}/download', [PlanificacaoController::class, 'download'])
                     ->name('download');
 
-                // ─── Dinâmicas (por último) ───
                 Route::get('/{planificacao}', [PlanificacaoController::class, 'show'])
                     ->name('show');
 
                 Route::delete('/{planificacao}', [PlanificacaoController::class, 'destroy'])
                     ->name('destroy');
             });
+
+            // ─────────────────────────────────────────────────────────────
+            // AULAS / SUMÁRIOS — rotas partilhadas (professor / aluno / direção)
+            // O controller ramifica por perfil dentro do index()
+            // ─────────────────────────────────────────────────────────────
+            Route::get('aulas', [AulaController::class, 'index'])->name('aulas.index');
+            Route::get('aulas/{aula}', [AulaController::class, 'show'])->name('aulas.show');
 
             Route::resource('users', UserController::class)->except(['show']);
 
@@ -229,7 +240,7 @@ Route::middleware([
 
             Route::post('users/{user}/avatar', [UserProfileController::class, 'updateAvatar'])
                 ->name('users.avatar.update');
-
+                
             Route::get('users/{user}/security', [UserProfileController::class, 'security'])
                 ->name('users.security');
 
@@ -354,6 +365,18 @@ Route::middleware([
 
             Route::delete('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}', [CursoTuteladoController::class, 'destroySugestaoTema'])
                 ->name('instituicoes.cursos-tutelados.sugestoes-temas.destroy');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/aprovar', [CursoTuteladoController::class, 'aprovarSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.aprovar');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/rejeitar', [CursoTuteladoController::class, 'rejeitarSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.rejeitar');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/solicitar-melhoria', [CursoTuteladoController::class, 'solicitarMelhoriaSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.solicitar-melhoria');
+
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/sugestoes-temas/{sugestao}/resubmeter', [CursoTuteladoController::class, 'resubmeterSugestaoTema'])
+                ->name('instituicoes.cursos-tutelados.sugestoes-temas.resubmeter');
 
             /*
             |--------------------------------------------------------------------------
@@ -499,12 +522,19 @@ Route::middleware([
             */
             Route::get('/relatorios', [RelatorioController::class, 'index'])
                 ->name('relatorios.index');
+
+            Route::get('/professor/desempenho', [DesempenhoProfessorController::class, 'index'])
+                ->name('professor.desempenho');
+
+            Route::get('/aluno/desempenho', [DesempenhoAlunoController::class, 'index'])
+                ->name('aluno.desempenho');
             /*
             |--------------------------------------------------------------------------
             | Horários de Disciplinas de Turmas
             |--------------------------------------------------------------------------
             */
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios/create', [ClasseTurnoDisciplinaHorarioController::class, 'create'])
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'create'])
                 ->name('turma.disciplinas.horarios.create');
 
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/horarios', [ClasseTurnoDisciplinaHorarioController::class, 'store'])
@@ -542,7 +572,6 @@ Route::middleware([
                 Route::post('/', [GrupoPapController::class, 'storeIndependente'])
                     ->name('grupos-pap.store');
 
-                /* Cascata — auxiliares do formulário independente */
                 Route::get('classes', [GrupoPapController::class, 'classes'])
                     ->name('grupos-pap.classes');
                 Route::get('turnos', [GrupoPapController::class, 'turnos'])
@@ -749,19 +778,33 @@ Route::middleware([
                 Route::post('prazos/{prazo}/prorrogar', [PrazoProvaController::class, 'prorrogar'])->name('prazos.prorrogar');
                 Route::post('prazos/{prazo}/fechar', [PrazoProvaController::class, 'fechar'])->name('prazos.fechar');
                 Route::get('prazos/{prazo}/status', [PrazoProvaController::class, 'status'])->name('prazos.status');
+                Route::get('prazos/create', [PrazoProvaController::class, 'create'])->name('prazos.create');
                 Route::patch('justificativas/{justificativa}/avaliar', [PrazoProvaController::class, 'avaliar'])->name('justificativas.avaliar');
                 Route::patch('submissoes/{submissao}/avaliar', [AvaliacaoProvaController::class, 'update'])->name('submissoes.avaliar');
             });
 
             // ===== PROFESSOR =====
             Route::prefix('professor')->name('professor.')->group(function () {
+                // Provas
                 Route::get('provas', [SubmissaoProvaController::class, 'index'])->name('provas.index');
                 Route::get('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'create'])->name('provas.submeter');
                 Route::post('provas/submeter/{prazo}', [SubmissaoProvaController::class, 'store'])->name('provas.store');
                 Route::get('provas/{submissao}/arquivo/{tipo}', [SubmissaoProvaController::class, 'arquivo'])->name('provas.arquivo');
+
+                // Justificativas
                 Route::get('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'create'])->name('justificar.create');
                 Route::post('/prazos/{prazo}/turmas/{turma}/justificar', [ProfessorJustificativaController::class, 'store'])->name('justificar.store');
                 Route::get('/justificativas', [ProfessorJustificativaController::class, 'index'])->name('justificativas.index');
+
+                // ── AULAS / SUMÁRIOS (ações de escrita do professor) ─────
+                Route::get('aulas', [AulaController::class, 'index'])->name('aulas.index');
+                Route::get('aulas/create', [AulaController::class, 'create'])->name('aulas.create');
+                Route::post('aulas', [AulaController::class, 'store'])->name('aulas.store');
+                Route::get('aulas/{aula}/edit', [AulaController::class, 'edit'])->name('aulas.edit');
+                Route::put('aulas/{aula}', [AulaController::class, 'update'])->name('aulas.update');
+                Route::delete('aulas/{aula}', [AulaController::class, 'destroy'])->name('aulas.destroy');
+                Route::post('aulas/{aula}/publicar', [AulaController::class, 'publicar'])->name('aulas.publicar');
+                Route::post('aulas/{aula}/cancelar', [AulaController::class, 'cancelar'])->name('aulas.cancelar');
             });
 
             /*
@@ -821,6 +864,7 @@ Route::middleware([
 
     Route::middleware([
         'auth:tenant',
+        EnsureEnrollmentNotCancelled::class,
         'verified',
         'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno|Secretario do Curso|Coordenador',
         CheckTenantStatus::class,
@@ -837,6 +881,7 @@ Route::middleware([
 
     Route::middleware([
         'auth:tenant',
+        EnsureEnrollmentNotCancelled::class,
         'verified',
         'role:SuperAdmin|Director|Subdirector|Secretaria|Professor|Aluno|Secretario do Curso|Coordenador',
         CheckTenantStatus::class,
@@ -874,6 +919,9 @@ Route::middleware([
             Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}', [ClasseTurnoTurmaController::class, 'show'])
                 ->name('instituicoes.cursos-tutelados.classes.turnos.turmas.show');
 
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/alunos/exportar', [ExportarListaAlunosTurmaController::class, 'exportarLocal'])
+                ->name('instituicoes.cursos-tutelados.classes.turnos.turmas.alunos.exportar');
+
             Route::post('inscricoes', [InscricaoController::class, 'store'])
                 ->name('inscricoes.store');
 
@@ -885,12 +933,11 @@ Route::middleware([
 
             Route::post('historico/{aluno}/confirmar', [PreencherHistoricoController::class, 'confirmar'])
                 ->name('preencher-historico.confirmar');
-
         });
 
     /*
       |--------------------------------------------------------------------------
-      | Routas para acessar os documentos do curso tutelado
+      | Rotas para acessar os documentos do curso tutelado
       |--------------------------------------------------------------------------
       */
     Route::get('/storage/{path}', function (string $path) {

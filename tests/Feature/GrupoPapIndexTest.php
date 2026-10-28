@@ -14,11 +14,13 @@ use App\Models\Tenant\NivelEnsino;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\GrupoCriadoNotification;
 use App\Services\Tenant\GrupoPap\GrupoPapService;
 use App\Services\Tenant\GrupoPapViewService;
 use App\Services\Tenant\Menu\SidebarMenuService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Notification;
 use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
@@ -230,14 +232,16 @@ test('grupo pap independente pode ser criado sem professor tutor', function () {
     $user = User::factory()->create(['instituicao_id' => $instituicao->id]);
     $user->givePermissionTo('grupopap.create');
 
-    $aluno =
-        Aluno::create([
-            'user_id' => User::factory()->create(['instituicao_id' => $instituicao->id])->id,
-            'inscricao_id' => null,
-            'instituicao_id' => $instituicao->id,
-            'matricula' => 'MAT-001',
-            'situacao' => 'activo',
-        ]);
+    $alunoUser = User::factory()->create(['instituicao_id' => $instituicao->id]);
+    $aluno = Aluno::create([
+        'user_id' => $alunoUser->id,
+        'inscricao_id' => null,
+        'instituicao_id' => $instituicao->id,
+        'matricula' => 'MAT-001',
+        'situacao' => 'activo',
+    ]);
+
+    Notification::fake();
 
     $response = $this->actingAs($user, 'tenant')->post(route('tenant.dashboard.instituicoes.pap.store', ['instituicao' => $instituicao->id]), [
         'curso_tutelado_id' => $cursoTutelado->id,
@@ -251,6 +255,9 @@ test('grupo pap independente pode ser criado sem professor tutor', function () {
         'turma_id' => $turma->id,
         'nome_grupo' => 'Grupo inválido',
     ]);
+    Notification::assertSentTo($alunoUser, GrupoCriadoNotification::class, function (GrupoCriadoNotification $notification, array $channels): bool {
+        return in_array('mail', $channels, true);
+    });
 });
 
 test('example', function () {

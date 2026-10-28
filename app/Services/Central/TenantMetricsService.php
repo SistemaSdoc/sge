@@ -48,7 +48,7 @@ class TenantMetricsService
 
         // Tipos de users — por role
         $diretores = User::withoutCentralSupport()->whereHas('roles', fn ($q) => $q->where('name', 'Director'))->count();
-        $subdiretores = User::withoutCentralSupport()->whereHas('roles', fn ($q) => $q->where('name', 'Subdiretor'))->count();
+        $subdiretores = User::withoutCentralSupport()->whereHas('roles', fn ($q) => $q->where('name', 'Subdirector'))->count();
         $professores = User::withoutCentralSupport()->whereHas('roles', fn ($q) => $q->where('name', 'Professor'))->count();
         $alunos = User::withoutCentralSupport()->whereHas('roles', fn ($q) => $q->where('name', 'Aluno'))->count();
 

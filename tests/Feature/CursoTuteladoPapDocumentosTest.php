@@ -48,6 +48,10 @@ test('o recurso do curso expõe a url das sugestões de temas PAP', function ():
     $cursoTutelado->setRelation('instituicaoCurso', $instituicaoCurso->load(['curso', 'instituicao']));
     $cursoTutelado->setRelation('cursoClasses', collect());
     $cursoTutelado->setRelation('professores', collect());
+    $cursoTutelado->setRelation('sugestoesTemas', collect([
+        ['id' => 'sugestao-1', 'titulo' => 'Energia Solar', 'descricao' => 'Painéis fotovoltaicos', 'ativo' => true],
+        ['id' => 'sugestao-2', 'titulo' => 'Agricultura', 'descricao' => 'Cultivo sustentável', 'ativo' => true],
+    ]));
 
     Storage::disk(config('filesystems.default'))->put('pap/sugestoes-temas-pap.pdf', '%PDF-1.7');
 
@@ -56,4 +60,11 @@ test('o recurso do curso expõe a url das sugestões de temas PAP', function ():
     expect($resource)
         ->toHaveKey('sugestoes_temas_pap_url')
         ->and($resource['sugestoes_temas_pap_url'])->not->toBeNull();
+
+    $filteredResource = (new CursoTuteladoResourceShow($cursoTutelado))->toArray(
+        Request::create('/', 'GET', ['search_sugestoes' => 'solar'])
+    );
+
+    expect($filteredResource['sugestoes_temas']['total'])->toBe(1)
+        ->and($filteredResource['sugestoes_temas']['data'][0]['titulo'])->toBe('Energia Solar');
 });

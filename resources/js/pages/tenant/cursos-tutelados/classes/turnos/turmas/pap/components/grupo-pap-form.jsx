@@ -36,6 +36,7 @@ export default function GrupoPapForm({
   setAlunoIds,
   grupoPap,
   turmaUrl,
+  podeAlterarTutor = false,
 }) {
   return (
     <div className="mx-auto w-full max-w-sm p-4 md:max-w-md md:p-6 lg:max-w-195">
@@ -84,31 +85,35 @@ export default function GrupoPapForm({
                     ))}
                 </Field>
 
-                {/* <Field>
-                  <FieldLabel>Professor tutor</FieldLabel>
-                  <Select
-                    value={professorTutorId || undefined}
-                    onValueChange={setProfessorTutorId}
-                    disabled={processing}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione o professor tutor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Professores</SelectLabel>
-                        {professores.map((p) => (
-                          <SelectItem key={p.id} value={String(p.id)}>
-                            {p.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  {errors.professor_tutor_id && (
-                    <FieldError>{errors.professor_tutor_id}</FieldError>
-                  )}
-                </Field>*/}
+                {grupoPap?.professor_tutor_id && podeAlterarTutor && (
+                  <Field>
+                    <FieldLabel>Professor tutor</FieldLabel>
+                    <Select
+                      value={
+                        professorTutorId ? String(professorTutorId) : undefined
+                      }
+                      onValueChange={setProfessorTutorId}
+                      disabled={processing}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione o professor tutor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Professores</SelectLabel>
+                          {professores.map((p) => (
+                            <SelectItem key={p.id} value={String(p.id)}>
+                              {p.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    {errors.professor_tutor_id && (
+                      <FieldError>{errors.professor_tutor_id}</FieldError>
+                    )}
+                  </Field>
+                )}
               </div>
 
               <Field>

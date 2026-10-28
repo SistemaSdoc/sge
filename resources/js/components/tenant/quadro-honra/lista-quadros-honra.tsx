@@ -31,7 +31,7 @@ type ListaQuadrosHonraProps = {
   filtros: FiltroQuadrosHonra;
 };
 
-/** Mostra os quadros persistidos, o estado vazio e os links para os PDFs. */
+/** Apresenta os quadros de honra registados, o estado vazio e as ligações para os respectivos documentos PDF. */
 export function ListaQuadrosHonra({
   quadros,
   filtros,
@@ -39,18 +39,18 @@ export function ListaQuadrosHonra({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quadros gerados</CardTitle>
+        <CardTitle>Quadros de honra gerados</CardTitle>
         <CardDescription>
-          {quadros.total} quadro(s) registado(s), apresentados do mais recente
-          para o mais antigo.
+          Total de quadros registados: {quadros.total}. Ordenação do mais
+          recente para o mais antigo.
         </CardDescription>
       </CardHeader>
       <CardContent>
         {quadros.data.length === 0 ? (
           <EmptyState
             icon={Trophy}
-            title="Ainda não há quadros gerados"
-            description="Quando um quadro for gerado, aparecerá nesta lista."
+            title="Não existem quadros de honra gerados"
+            description="Os quadros de honra gerados serão apresentados nesta lista."
             variant="table"
           />
         ) : (
@@ -58,11 +58,11 @@ export function ListaQuadrosHonra({
             <TableHeader>
               <TableRow>
                 <TableHead>Ano lectivo</TableHead>
-                <TableHead>Quadro</TableHead>
+                <TableHead>Tipo de quadro</TableHead>
                 <TableHead>Curso</TableHead>
                 <TableHead>Média mínima</TableHead>
-                <TableHead>Alunos</TableHead>
-                <TableHead>Gerado em</TableHead>
+                <TableHead>Nº de alunos</TableHead>
+                <TableHead>Data de geração</TableHead>
                 <TableHead className="text-right">Documento</TableHead>
               </TableRow>
             </TableHeader>

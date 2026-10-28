@@ -55,6 +55,7 @@ export default function ResumoGeral({
           legend={<SeriesLegend series={graficos.alunos_por_classe.series} />}
         />
 
+        {/* Professores: sem legenda (o tooltip mostra especialidade e quantidade) */}
         <KpiChartCard
           titulo="Professores"
           descricao="Distribuição por especialidade"
@@ -65,7 +66,6 @@ export default function ResumoGeral({
               formatValor={(v) => `${v} professor${v === 1 ? '' : 'es'}`}
             />
           }
-          legend={<ChartLegend data={graficos.professores_por_especialidade} />}
         />
 
         <KpiChartCard

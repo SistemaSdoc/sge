@@ -15,12 +15,14 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\TurmaAluno;
+use App\Models\Tenant\TurmaDisciplinaProfessor;
 use App\Models\Tenant\User;
 use App\Rules\CentralAnoLectivoExists;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
 use App\Services\Tenant\Pauta\PautaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -194,6 +196,7 @@ class ClasseTurnoTurmaController extends Controller
     }
 
     public function show(
+        Request $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -217,7 +220,6 @@ class ClasseTurnoTurmaController extends Controller
 
         Redirect::setIntendedUrl(request()->fullUrl());
 
-        /** @var User $user */
         $anoLectivoId = filled(request('ano_lectivo_id'))
             ? request('ano_lectivo_id')
             : $turma->ano_lectivo_id;
@@ -232,12 +234,42 @@ class ClasseTurnoTurmaController extends Controller
         $alunos = $turma->alunos()
             ->wherePivot('activo', true)
             ->whereHas('inscricao', fn ($q) => $q->where('status', '!=', 'cancelado'))
-            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone'])
+            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone,avatar'])
+            ->paginate(10, ['*'], 'page_alunos');
+
+        $disciplinasQuery = $turma->cursoClasseTurno
+            ->classeTurnoDisciplinas()
+            ->where('ano_lectivo_id', $turma->ano_lectivo_id)
+            ->with([
+                'disciplina:id,nome,sigla',
+                'turmaDisciplinaProfessores' => fn ($q) => $q->where('turma_id', $turma->id),
+                'turmaDisciplinaProfessores.professor.user:id,nome',
+                'horarios',
+            ]);
+
+        $searchAlunos = trim($request->string('search_alunos')->toString());
+        $searchDisciplinas = trim($request->string('search_disciplinas')->toString());
+        $searchGrupos = trim($request->string('search_grupos')->toString());
+
+        $alunosQuery = $turma->alunos()
+            ->wherePivot('activo', true)
+            ->whereHas('inscricao', fn ($query) => $query->where('status', '!=', 'cancelado'));
+        $totalAlunos = (clone $alunosQuery)->count();
+
+        $alunos = $alunosQuery
+            ->with(['inscricao.candidato:id,nome', 'user:id,email,telefone,avatar'])
             ->leftJoin('inscricoes', 'inscricoes.id', '=', 'alunos.inscricao_id')
             ->leftJoin('candidatos', 'candidatos.id', '=', 'inscricoes.candidato_id')
+            ->when($searchAlunos !== '', function ($query) use ($searchAlunos): void {
+                $query->where(function ($query) use ($searchAlunos): void {
+                    $query->where('candidatos.nome', 'like', "%{$searchAlunos}%")
+                        ->orWhere('alunos.matricula', 'like', "%{$searchAlunos}%");
+                });
+            })
             ->orderBy('candidatos.nome')
             ->orderBy('alunos.id')
-            ->paginate(10, ['*'], 'page_alunos');
+            ->paginate(10, ['*'], 'page_alunos')
+            ->withQueryString();
 
         // Adiciona isto:
         $alunos->getCollection()->transform(function ($aluno) use ($user) {
@@ -276,12 +308,31 @@ class ClasseTurnoTurmaController extends Controller
             }
         }
 
-        $disciplinas = $disciplinasQuery->paginate(5, ['*'], 'page_disciplinas');
+        $totalDisciplinas = (clone $disciplinasQuery)->count();
+        $disciplinas = $disciplinasQuery
+            ->when($searchDisciplinas !== '', function ($query) use ($searchDisciplinas): void {
+                $query->whereHas('disciplina', function ($query) use ($searchDisciplinas): void {
+                    $query->withTrashed()
+                        ->where(function ($query) use ($searchDisciplinas): void {
+                            $query->where('nome', 'like', "%{$searchDisciplinas}%")
+                                ->orWhere('sigla', 'like', "%{$searchDisciplinas}%");
+                        });
+                });
+            })
+            ->paginate(5, ['*'], 'page_disciplinas')
+            ->withQueryString();
 
         $grupos = $turma->gruposPap()
             ->select('id', 'turma_id', 'nome_grupo', 'tema_grupo', 'status', 'nota_final', 'professor_tutor_id')
+            ->when($searchGrupos !== '', function ($query) use ($searchGrupos): void {
+                $query->where(function ($query) use ($searchGrupos): void {
+                    $query->where('nome_grupo', 'like', "%{$searchGrupos}%")
+                        ->orWhere('tema_grupo', 'like', "%{$searchGrupos}%");
+                });
+            })
             ->latest('created_at')
-            ->paginate(5, ['*'], 'page_grupos');
+            ->paginate(5, ['*'], 'page_grupos')
+            ->withQueryString();
 
         $grupos->getCollection()->transform(function ($grupo) use ($user) {
             $grupo->can = [
@@ -326,6 +377,11 @@ class ClasseTurnoTurmaController extends Controller
                 'nome' => $cursoClasseTurno->turno->nome,
             ],
             'turma' => new TurmaShowResource($turma),
+            'totalAlunos' => $totalAlunos,
+            'totalDisciplinas' => $totalDisciplinas,
+            'searchAlunos' => $searchAlunos,
+            'searchDisciplinas' => $searchDisciplinas,
+            'searchGrupos' => $searchGrupos,
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => AnoLectivo::query()
                 ->select('id', 'nome')
@@ -344,6 +400,7 @@ class ClasseTurnoTurmaController extends Controller
                 ],
                 'alunos' => [
                     'create' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),
+                    'exportar' => $user->can('view', $turma),
                 ],
                 'disciplinas' => [
                     'create' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Coordenador']),
@@ -494,11 +551,41 @@ class ClasseTurnoTurmaController extends Controller
             ]);
         }
 
-        $turma->delete();
+        if ($turma->turmaDisciplinaProfessor()->whereNotNull('professor_id')->exists()) {
+            return back()->withErrors([
+                'turma' => 'Não é possível remover uma turma que tem disciplinas ou professores associados.',
+            ]);
+        }
 
-        // Preservar filtro no redirect usando o ano da turma
-        $anoLectivoParam = $turma->ano_lectivo_id ? ['ano_lectivo_id' => $turma->ano_lectivo_id] : [];
+        $atribuicoesSemProfessor = $turma->turmaDisciplinaProfessor()
+            ->whereNull('professor_id')
+            ->get();
 
-        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.index', $anoLectivoParam);
+        if ($atribuicoesSemProfessor->contains(
+            fn (TurmaDisciplinaProfessor $atribuicao): bool => $atribuicao->temHistorico()
+        )) {
+            return back()->withErrors([
+                'turma' => 'Não é possível remover uma turma que tem histórico académico associado às disciplinas.',
+            ]);
+        }
+
+        if ($turma->gruposPap()->exists()) {
+            return back()->withErrors([
+                'turma' => 'Não é possível remover uma turma que tem grupos PAP associados.',
+            ]);
+        }
+
+        DB::transaction(function () use ($atribuicoesSemProfessor, $turma): void {
+            foreach ($atribuicoesSemProfessor as $atribuicao) {
+                $atribuicao->solicitacoesEdicaoPauta()->delete();
+                $atribuicao->pautaStatuses()->delete();
+                $atribuicao->notas()->delete();
+                $atribuicao->delete();
+            }
+
+            $turma->delete();
+        });
+
+        return back()->with('success', 'Turma removida com sucesso.');
     }
 }

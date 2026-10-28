@@ -136,6 +136,13 @@ class User extends Authenticatable implements PasskeyUser
         return $this->hasOne(Aluno::class);
     }
 
+    public function temInscricaoCancelada(): bool
+    {
+        return $this->aluno()
+            ->whereHas('inscricao', fn (Builder $query) => $query->where('status', 'cancelado'))
+            ->exists();
+    }
+
     public function candidato()
     {
         return $this->hasOne(Candidato::class);

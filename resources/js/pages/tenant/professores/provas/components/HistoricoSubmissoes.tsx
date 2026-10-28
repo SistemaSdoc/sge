@@ -1,6 +1,7 @@
 import { File, FileText, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -9,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { EmptyState } from '@/components/empty-state';
+import TablePagination from '@/components/table-pagination';
 
 interface SubmissaoHistorico {
   id: string;
@@ -32,6 +35,10 @@ interface HistoricoSubmissoesProps {
     links: any[];
     current_page: number;
     last_page: number;
+    total: number;
+    per_page: number;
+    from: number | null;
+    to: number | null;
   };
   onPageChange: (page: number) => void;
 }
@@ -40,81 +47,119 @@ export default function HistoricoSubmissoes({
   historico,
   onPageChange,
 }: HistoricoSubmissoesProps) {
-  if (historico.data.length === 0) {
-    return (
-      <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-4 text-muted-foreground">
-        <Clock className="size-5" />
-        <span>Nenhuma submissão no histórico.</span>
-      </div>
-    );
-  }
+  const isEmpty = !historico?.data || historico.data.length === 0;
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="px-4">Prazo</TableHead>
-              <TableHead className="px-4">Disciplina</TableHead>
-              <TableHead className="px-4">Turma</TableHead>
-              <TableHead className="px-4 text-center">Versão</TableHead>
-              <TableHead className="px-4 text-center">Estado</TableHead>
-              <TableHead className="px-4 text-center">Data</TableHead>
-              <TableHead className="px-4 text-center">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {historico.data.map((sub) => (
-              <TableRow key={sub.id}>
-                <TableCell className="px-4 font-medium">{sub.prazo}</TableCell>
-                <TableCell className="px-4">{sub.disciplina}</TableCell>
-                <TableCell className="px-4">
-                  {sub.turma_nome || sub.classe || 'N/A'}
-                </TableCell>
-                <TableCell className="px-4 text-center">{sub.versao}</TableCell>
-                <TableCell className="px-4 text-center">
-                  <Badge variant="outline" className={sub.badge_class}>
-                    {sub.estado_label}
-                  </Badge>
-                  {sub.parecer && (
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      {sub.parecer}
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell className="px-4 text-center">
-                  {sub.data_submissao}
-                </TableCell>
-                <TableCell className="px-4 text-center">
-                  <div className="flex justify-center gap-1">
-                    <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={sub.url_prova}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <File className="mr-1 size-4" />
-                        Prova
-                      </a>
-                    </Button>
-                    <Button variant="outline" size="sm" asChild>
-                      <a
-                        href={sub.url_chave}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <FileText className="mr-1 size-4" />
-                        Chave
-                      </a>
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+    <Card className="gap-0">
+      <CardContent className="p-0!">
+        {isEmpty ? (
+          <EmptyState
+            variant="table"
+            icon={Clock}
+            title="Sem histórico"
+            description="Nenhuma submissão registrada até o momento."
+          />
+        ) : (
+          <div className="w-full overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/72">
+                  <TableHead className="min-w-48 px-4">Prazo</TableHead>
+                  <TableHead className="min-w-40 px-4">Disciplina</TableHead>
+                  <TableHead className="min-w-32 px-4">Turma</TableHead>
+                  <TableHead className="min-w-20 px-4 text-center">
+                    Versão
+                  </TableHead>
+                  <TableHead className="min-w-40 px-4 text-center">
+                    Estado
+                  </TableHead>
+                  <TableHead className="min-w-32 px-4 text-center">
+                    Data
+                  </TableHead>
+                  <TableHead className="min-w-40 px-4 text-center">
+                    Ações
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {historico.data.map((sub) => (
+                  <TableRow key={sub.id}>
+                    <TableCell className="px-4 font-medium">
+                      <span className="line-clamp-2">{sub.prazo}</span>
+                    </TableCell>
+                    <TableCell className="px-4">
+                      <span className="line-clamp-1">{sub.disciplina}</span>
+                    </TableCell>
+                    <TableCell className="px-4">
+                      <span className="line-clamp-1">
+                        {sub.turma_nome || sub.classe || 'N/A'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-4 text-center font-mono text-xs tabular-nums">
+                      v{sub.versao}
+                    </TableCell>
+                    <TableCell className="px-4 text-center">
+                      <Badge variant="outline">{sub.estado_label}</Badge>
+                      {sub.parecer && (
+                        <div
+                          className="mt-1 line-clamp-2 text-xs text-muted-foreground"
+                          title={sub.parecer}
+                        >
+                          {sub.parecer}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="px-4 text-center text-xs whitespace-nowrap">
+                      {sub.data_submissao}
+                    </TableCell>
+                    <TableCell className="px-4 text-center">
+                      <div className="flex justify-center gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
+                          className="hover:cursor-pointer"
+                        >
+                          <a
+                            href={sub.url_prova}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <File className="mr-1 size-4" />
+                            Prova
+                          </a>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
+                          className="hover:cursor-pointer"
+                        >
+                          <a
+                            href={sub.url_chave}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <FileText className="mr-1 size-4" />
+                            Chave
+                          </a>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </CardContent>
+
+      {historico?.total > 0 && (
+        <TablePagination
+          pagination={historico}
+          onPageChange={onPageChange}
+        />
+      )}
+    </Card>
   );
 }

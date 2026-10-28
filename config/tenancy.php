@@ -48,7 +48,8 @@ return [
      * Database tenancy config. Used by DatabaseTenancyBootstrapper.
      */
     'database' => [
-        'central_connection' => env('DB_CONNECTION', 'central'),
+        // 🔴 ALTERAÇÃO: Fixado em 'central' para garantir que o banco central NUNCA seja sequestrado pelo tenancy.
+        'central_connection' => 'central',
 
         /**
          * Connection used as a "template" for the dynamically created tenant database connection.

@@ -31,28 +31,28 @@ class PlanificacaoPublicadaNotificacao extends Notification implements ShouldQue
         return (new MailMessage)
             ->subject(
                 $this->primeiraVersao
-                    ? 'Planificação disponível: ' . $this->nomeDisciplina()
-                    : 'Planificação atualizada: ' . $this->nomeDisciplina()
+                    ? 'Planificação disponível: '.$this->nomeDisciplina()
+                    : 'Planificação atualizada: '.$this->nomeDisciplina()
             )
             ->view('mail.planificacao.publicada', [
-                'nome'         => $notifiable->nome,
-                'titulo'       => $this->planificacao->titulo ?? 'Planificação',
-                'disciplina'   => $this->nomeDisciplina(),
-                'classe'       => $this->nomeClasse(),
-                'periodo'      => $this->planificacao->periodo,
-                'anoLetivo'    => $this->nomeAnoLetivo(),
-                'versao'       => $this->versao,
-                'primeira'     => $this->primeiraVersao,
-                'url'          => url("/dashboard/planificacoes/{$this->planificacao->id}"),
-                'instituicao'  => $notifiable->instituicao,
+                'nome' => $notifiable->nome,
+                'titulo' => $this->planificacao->titulo ?? 'Planificação',
+                'disciplina' => $this->nomeDisciplina(),
+                'classe' => $this->nomeClasse(),
+                'periodo' => $this->planificacao->periodo,
+                'anoLetivo' => $this->nomeAnoLetivo(),
+                'versao' => $this->versao,
+                'primeira' => $this->primeiraVersao,
+                'url' => url("/dashboard/planificacoes/{$this->planificacao->id}"),
+                'instituicao' => $notifiable->instituicao,
             ]);
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'     => 'planificacao_publicada',
-            'titulo'   => $this->primeiraVersao
+            'tipo' => 'planificacao_publicada',
+            'titulo' => $this->primeiraVersao
                 ? 'Nova planificação disponível'
                 : 'Planificação atualizada',
             'mensagem' => sprintf(
@@ -62,7 +62,7 @@ class PlanificacaoPublicadaNotificacao extends Notification implements ShouldQue
                 $this->planificacao->periodo,
                 $this->versao
             ),
-            'url'      => "/dashboard/planificacoes/{$this->planificacao->id}",
+            'url' => "/dashboard/planificacoes/{$this->planificacao->id}",
         ];
     }
 

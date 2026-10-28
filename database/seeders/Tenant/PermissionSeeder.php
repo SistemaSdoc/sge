@@ -197,6 +197,10 @@ class PermissionSeeder extends Seeder
             'documentos.emitir' => 'Emitir documentos (certificados, declarações, etc.)',
             'documentos.exportar' => 'Exportar documentos',
 
+            // Sugestões de temas PAP
+            'sugestaotema.gerir' => 'Criar, editar e eliminar sugestões de temas PAP',
+            'sugestaotema.aprovar' => 'Aprovar, rejeitar ou solicitar melhoria em sugestões de temas PAP',
+
         ];
 
         foreach ($permissions as $permission => $label) {

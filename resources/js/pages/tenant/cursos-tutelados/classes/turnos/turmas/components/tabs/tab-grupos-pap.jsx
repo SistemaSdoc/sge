@@ -18,8 +18,9 @@ import {
 import { Minus, Users2Icon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Link } from '@inertiajs/react';
-import { usePagination } from '@/hooks/use-pagination';
 import TablePagination from '@/components/table-pagination';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import {
   create,
   show,
@@ -32,13 +33,20 @@ export function TabGruposPAP({
   grupos,
   pagination,
   onPageChange,
+  search = '',
   can,
   params,
 }) {
-  const turmaId = turma.id;
+  const {
+    search: searchTerm,
+    onChange,
+    submit,
+    applied,
+  } = useTableSearch(search, {
+    searchParam: 'search_grupos',
+    pageParam: 'page_grupos',
+  });
   const isEmpty = grupos.length === 0;
-
-  const baseUrl = `/dashboard/instituicoes/${instituicaoId}/cursos-tutelados/${cursoTuteladoId}/classes/${cursoClasseId}/turnos/${cursoClasseTurnoId}/turmas/${turmaId}`;
 
   return (
     <Card className="gap-0 pb-0">
@@ -69,12 +77,24 @@ export function TabGruposPAP({
       </CardHeader>
 
       <CardContent className="p-0!">
+        <TableSearch
+          value={searchTerm}
+          onChange={onChange}
+          onSubmit={submit}
+          placeholder="Pesquisar por grupo ou tema..."
+        />
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={Users2Icon}
-            title="Nenhum grupo criado, ainda"
-            description="Comece adicionando grupos"
+            title={
+              applied ? 'Nenhum grupo encontrado' : 'Nenhum grupo criado, ainda'
+            }
+            description={
+              applied
+                ? 'Tente ajustar a pesquisa.'
+                : 'Comece adicionando grupos'
+            }
             action={
               can?.create
                 ? {

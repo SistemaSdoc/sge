@@ -140,7 +140,7 @@ class ClasseTurnoTurmaController extends Controller
             ->wherePivot('activo', true)
             ->with([
                 'inscricao.candidato:id,nome',
-                'user:id,email,telefone',
+                'user:id,email,telefone,avatar',
             ])
             ->orderBy('alunos.created_at', 'desc')
             ->paginate(
@@ -368,6 +368,7 @@ class ClasseTurnoTurmaController extends Controller
                             'create',
                             Aluno::class
                         ),
+                        'exportar' => $user->can('pautas.view'),
                     ],
 
                     'disciplinas' => [

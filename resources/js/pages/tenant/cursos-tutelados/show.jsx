@@ -12,8 +12,10 @@ import {
   show as showCurso,
 } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoController';
 import { destroy } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoProfessorController';
+import { destroy as destroyTurma } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import { destroy as destroySecretario } from '@/actions/App/Http/Controllers/Tenant/CursoTuteladoSecretarioController';
 import { useDialog } from '@/hooks/use-dialog';
+import { toast } from 'sonner';
 import {
   Select,
   SelectContent,
@@ -32,6 +34,7 @@ export default function Show({
   anoLectivoId,
   anosLectivos = [],
   secretariosDisponiveis = [],
+  filters = {},
   can,
   errors = {},
 }) {
@@ -75,9 +78,32 @@ export default function Show({
     });
   };
 
+  const handleRemoverTurma = (turma) => {
+    deleteConfirm({
+      title: 'Tens a certeza?',
+      description:
+        'A turma só pode ser removida se não tiver alunos associados.',
+      confirmLabel: 'Remover',
+      confirmFn: () =>
+        router.delete(
+          destroyTurma({
+            ...params,
+            cursoClasse: turma.classe.id,
+            cursoClasseTurno: turma.curso_classe_turno_id,
+            turma: turma.id,
+          }).url,
+          {
+            onError: (errors) =>
+              toast.error(errors.turma ?? 'Não foi possível remover a turma.'),
+          },
+        ),
+    });
+  };
+
   const handlePageChange = (param) => (page) => {
     router.visit(showCurso({ ...params }).url, {
       data: {
+        ...Object.fromEntries(new URLSearchParams(window.location.search)),
         page_turmas: cursoTutelado.turmas?.current_page ?? 1,
         page_professores: cursoTutelado.professores?.current_page ?? 1,
         page_sugestoes: cursoTutelado.sugestoes_temas?.current_page ?? 1,
@@ -165,10 +191,12 @@ export default function Show({
           <TabTurmas
             params={params}
             turmas={cursoTutelado.turmas}
+            filters={filters}
             can={cursoTutelado.can}
             anoLectivoId={anoLectivoId}
             pagination={cursoTutelado?.turmas}
             onPageChange={handlePageChange('page_turmas')}
+            deleteFn={handleRemoverTurma}
           />
         </TabsContent>
 
@@ -176,6 +204,7 @@ export default function Show({
           <TabProfessores
             params={params}
             professores={cursoTutelado.professores}
+            filters={filters}
             can={cursoTutelado.can}
             deleteFn={handleDeleteProfessor}
             canAttachSecretario={cursoTutelado.can?.attachSecretario}
@@ -190,6 +219,7 @@ export default function Show({
             <TabSecretarios
               params={params}
               secretarios={cursoTutelado.secretarios ?? []}
+              filters={filters}
               disponiveis={secretariosDisponiveis}
               canAttach={cursoTutelado.can?.attachSecretario}
               removeFn={handleDeleteSecretario}
@@ -214,12 +244,12 @@ export default function Show({
           <TabSugestoesTemas
             params={params}
             sugestoes={cursoTutelado.sugestoes_temas?.data ?? []}
+            filters={filters}
             pagination={cursoTutelado.sugestoes_temas}
             onPageChange={handlePageChange('page_sugestoes')}
             tutelaExterna={cursoTutelado.tipo_tutela === 'externa'}
-            canManage={
-              can?.uploadCriteriosPap && cursoTutelado.tipo_tutela !== 'externa'
-            }
+            canManage={cursoTutelado.can?.gerirSugestoesTemas ?? false}
+            canAprovar={cursoTutelado.can?.aprovarSugestaoTema ?? false}
           />
         </TabsContent>
       </Tabs>

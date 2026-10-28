@@ -20,10 +20,16 @@ class CreateUser
             $roles = $validated['roles'] ?? [];
             $passwordPlain = $validated['password'] ?? null;
             unset($validated['roles']);
-
+            unset($validated['password_confirmation']);
             $user = User::create($validated);
             $user->syncRoles($roles);
             $this->userProfileService->syncRoleProfiles($user, $roles);
+
+            $user->notify(new UserCriadoNotification(
+                $user,
+                (string) $passwordPlain,
+                route('tenant.login'),
+            ));
 
             if (! blank($passwordPlain)) {
                 $user->notify(new UserCriadoNotification($user, (string) $passwordPlain));

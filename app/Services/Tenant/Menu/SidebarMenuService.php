@@ -258,13 +258,13 @@ final class SidebarMenuService
             ]),
 
             // ===== NOVO GRUPO: AVALIAÇÃO (Provas) =====
-            /* new MenuGroup('Avaliação', [
+            new MenuGroup('Avaliação', [
                 new MenuItem(
                     key: 'prazos-provas',
                     title: 'Prazos de Provas',
                     href: action([PrazoProvaController::class, 'index']),
                     icon: 'FileText',
-                    can: fn() => Gate::allows('prazo-prova.viewAny')
+                    can: fn () => $gate->allows('prazo-prova.viewAny')
                 ),
 
                 new MenuItem(
@@ -272,17 +272,48 @@ final class SidebarMenuService
                     title: 'Submeter Provas',
                     href: action([SubmissaoProvaController::class, 'index']),
                     icon: 'FileText',
-                    can: fn() => Gate::allows('submissao-prova.create')
+                    can: fn () => $user->hasRole('Professor')
+                        && $gate->allows('submissao-prova.viewAny'),
                 ),
                 new MenuItem(
                     key: 'planificacoes',
                     title: 'Planificações',
                     href: action([PlanificacaoController::class, 'index']),
                     icon: 'FileText',
-                    can: fn() => $gate->allows('viewAny', Planificacao::class),
+                    can: fn () => $gate->allows('viewAny', Planificacao::class),
                 ),
 
-            ]),*/
+            ]),
+
+            new MenuGroup('Diário de Aulas', [
+                new MenuItem(
+                    key: 'minhas-aulas',
+                    title: 'As minhas aulas',
+                    href: route('tenant.dashboard.professor.aulas.index'),
+                    icon: 'BookOpen',
+                    can: fn() => $user->hasRole('Professor')
+                        && $gate->allows('aula.viewAny'),
+                ),
+
+                new MenuItem(
+                    key: 'sumarios-aluno',
+                    title: 'Sumários',
+                    href: route('tenant.dashboard.aulas.index'),
+                    icon: 'BookOpen',
+                    can: fn() => $user->hasRole('Aluno')
+                        && $gate->allows('aula.viewAny'),
+                ),
+
+                new MenuItem(                                                    // ← NOVO
+                    key: 'aulas-direcao',
+                    title: 'Aulas e Sumários',
+                    href: route('tenant.dashboard.aulas.index'),
+                    icon: 'BookOpen',
+                    can: fn() => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria', 'Coordenador'])
+                        && $gate->allows('aula.viewAny'),
+                ),
+            ]),
+
 
             new MenuGroup('Matrículas', [
                 new MenuItem(
@@ -391,6 +422,22 @@ final class SidebarMenuService
                     href: route('tenant.dashboard.relatorios.index'),
                     icon: 'BarChart3',
                     can: fn () => $user && ! $user->hasRole(['Aluno', 'Professor']),
+                ),
+
+                new MenuItem(
+                    key: 'meu-desempenho',
+                    title: 'Meu Desempenho',
+                    href: route('tenant.dashboard.professor.desempenho'),
+                    icon: 'BarChart3',
+                    can: fn () => $user && $user->hasRole('Professor'),
+                ),
+
+                new MenuItem(
+                    key: 'meu-desempenho-aluno',
+                    title: 'Meu Desempenho',
+                    href: route('tenant.dashboard.aluno.desempenho'),
+                    icon: 'BarChart3',
+                    can: fn () => $user && $user->hasRole('Aluno'),
                 ),
             ]),
         ];

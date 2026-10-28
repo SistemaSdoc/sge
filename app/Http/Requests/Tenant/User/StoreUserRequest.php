@@ -31,7 +31,7 @@ class StoreUserRequest extends FormRequest
             'nome' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'telefone' => ['nullable', 'string', 'max:15'],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'roles' => ['nullable', 'array'],
             'roles.*' => [Rule::in($this->allowedRoles())],
         ];
@@ -71,6 +71,7 @@ class StoreUserRequest extends FormRequest
             'telefone.max' => 'O telefone não pode ultrapassar 15 caracteres.',
             'password.required' => 'Insira uma palavra-passe para o usuário.',
             'password.string' => 'A palavra-passe deve ser um texto válido.',
+            'password.con   firmed' => 'A confirmação da palavra-passe não corresponde.',
             'password.min' => 'A palavra-passe deve ter pelo menos 8 caracteres.',
             'roles.array' => 'A lista de roles deve ser válida.',
             'roles.*.exists' => 'Uma das roles selecionadas não existe.',

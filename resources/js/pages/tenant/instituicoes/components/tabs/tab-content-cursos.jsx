@@ -181,7 +181,7 @@ export function TabContentCursos({
                             <DropdownMenuSeparator />
                           )}
 
-                          {curso.can?.delete && (
+                          {/* {curso.can?.delete && (
                             <DropdownMenuItem
                               variant="destructive"
                               onClick={(e) => {
@@ -191,7 +191,7 @@ export function TabContentCursos({
                             >
                               Remover Curso
                             </DropdownMenuItem>
-                          )}
+                          )} */}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     )}

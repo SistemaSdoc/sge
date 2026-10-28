@@ -1,4 +1,7 @@
 import { useForm } from '@inertiajs/react';
+import { EmptyState } from '@/components/empty-state';
+import { TableSearch } from '@/components/table-search';
+import { useTableSearch } from '@/hooks/use-table-search';
 import { UserRoundPlus, UserRoundX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,10 +25,21 @@ import { store as storeSecretario } from '@/actions/App/Http/Controllers/Tenant/
 export function TabSecretarios({
   params,
   secretarios = [],
+  filters = {},
   disponiveis = [],
   canAttach = false,
   removeFn,
 }) {
+  const {
+    search,
+    onChange,
+    submit: submitSearch,
+    applied,
+  } = useTableSearch(filters.search_secretarios, {
+    only: ['cursoTutelado', 'filters'],
+    searchParam: 'search_secretarios',
+    pageParam: 'page_secretarios',
+  });
   const { data, setData, post, processing, errors, reset } = useForm({
     user_id: '',
   });
@@ -94,7 +108,7 @@ export function TabSecretarios({
       </CardHeader>
 
       <CardContent className="p-0">
-        {secretarios.length === 0 ? (
+        {secretarios.length === 0 && !applied ? (
           <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
             <p className="font-medium">Ainda não há secretários associados</p>
             <p className="text-sm text-muted-foreground">
@@ -106,26 +120,42 @@ export function TabSecretarios({
             </p>
           </div>
         ) : (
-          <ul className="divide-y">
-            {secretarios.map((secretario) => (
-              <li
-                key={secretario.id}
-                className="flex items-center justify-between gap-3 px-4 py-3"
-              >
-                <span className="font-medium">{secretario.nome}</span>
-                {canAttach && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeFn(secretario.id, secretario.nome)}
+          <>
+            <TableSearch
+              value={search}
+              onChange={onChange}
+              onSubmit={submitSearch}
+            />
+            {secretarios.length === 0 ? (
+              <EmptyState
+                variant="table"
+                icon={UserRoundX}
+                title="Nenhum secretário encontrado"
+                description="Tente ajustar a pesquisa."
+              />
+            ) : (
+              <ul className="divide-y">
+                {secretarios.map((secretario) => (
+                  <li
+                    key={secretario.id}
+                    className="flex items-center justify-between gap-3 px-4 py-3"
                   >
-                    Remover
-                  </Button>
-                )}
-              </li>
-            ))}
-          </ul>
+                    <span className="font-medium">{secretario.nome}</span>
+                    {canAttach && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeFn(secretario.id, secretario.nome)}
+                      >
+                        Remover
+                      </Button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

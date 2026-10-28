@@ -34,7 +34,8 @@ class GerarQuadroHonraRequest extends FormRequest
                 fn (TipoQuadroHonra $tipo): string => $tipo->value,
                 TipoQuadroHonra::cases(),
             ))],
-            'ano_lectivo_id' => ['required', 'uuid', 'exists:ano_lectivos,id'],
+            // ALTERAÇÃO AQUI: Força a validação na conexão central
+            'ano_lectivo_id' => ['required', 'uuid', 'exists:central.ano_lectivos,id'],
             'curso_tutelado_id' => [
                 'nullable',
                 'uuid',
