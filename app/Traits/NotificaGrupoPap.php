@@ -4,10 +4,12 @@ namespace App\Traits;
 
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
+use App\Models\Tenant\Aluno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\AlunoRemovidoDoGrupoNotification;
 use App\Notifications\Pap\CorrecaoSolicitadaNotification;
 use App\Notifications\Pap\DataDefesaDefinidaNotification;
 use App\Notifications\Pap\MelhoriasSolicitadasNotification;
@@ -408,6 +410,23 @@ trait NotificaGrupoPap
                 $grupoPap,
                 $elemento
             ));
+        }
+    }
+
+    /**
+     * Notifica o aluno removido do grupo PAP.
+     */
+    protected function notificarAlunoRemovidoDoGrupo(GrupoPap $grupoPap, Aluno $aluno): void
+    {
+        $user = $aluno->user;
+
+        if ($user) {
+            // Força o carregamento da relação antes de entrar na queue
+            $aluno->loadMissing('inscricao.candidato');
+
+            $nomeAluno = $aluno->inscricao?->candidato?->nome ?? 'Aluno';
+
+            $user->notify(new AlunoRemovidoDoGrupoNotification($grupoPap, $nomeAluno));
         }
     }
 }

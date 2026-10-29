@@ -16,10 +16,13 @@ use App\Models\Tenant\ElementoGrupoPap;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
+use App\Traits\NotificaGrupoPap;
 use Inertia\Inertia;
 
 class ElementoGrupoPapController extends Controller
 {
+    use NotificaGrupoPap;
+
     public function __construct(
         private readonly PrepareElementoGrupoPapForm $prepareElementoGrupoPapForm,
         private readonly AddElementosGrupoPap $addElementosGrupoPap,
@@ -108,7 +111,19 @@ class ElementoGrupoPapController extends Controller
     ) {
         $this->authorize('delete', $elementoGrupoPap);
 
+        abort_unless(
+            $grupoPap->elementos()->whereKey($elementoGrupoPap->getKey())->exists(),
+            404,
+        );
+
+        // Guardar antes de apagar — após delete o aluno já não é acessível
+        $aluno = $elementoGrupoPap->aluno;
+
         $this->deleteElementoGrupoPap->handle($elementoGrupoPap);
+
+        if ($aluno !== null) {
+            $this->notificarAlunoRemovidoDoGrupo($grupoPap, $aluno);
+        }
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,

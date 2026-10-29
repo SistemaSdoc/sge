@@ -362,12 +362,23 @@ class GrupoPapController extends Controller
     ): RedirectResponse {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('delete', $grupoPap);
 
+        if ($grupoPap->elementos()->exists()) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => 'Não é possível remover o grupo enquanto tiver alunos. Remova primeiro todos os alunos.',
+            ]);
+
+            return back();
+        }
+
         $this->deleteGrupoPap->handle($grupoPap);
 
-        return to_route('tenant.dashboard.grupos-pap.index')->with('toast', [
+        Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Grupo PAP removido com sucesso.',
         ]);
+
+        return to_route('tenant.dashboard.grupos-pap.index');
     }
 
     /**
