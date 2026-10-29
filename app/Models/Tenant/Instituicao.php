@@ -111,7 +111,10 @@ class Instituicao extends Model
             try {
                 Tenant::query()
                     ->whereKey(tenant('id'))
-                    ->update(['instituicao_nome' => $instituicao->nome]);
+                    ->update(['instituicao_nome' => $instituicao->nome,
+                              'instituicao_tipo' => $instituicao->tipo
+                    ]);
+                    
             } catch (Throwable $exception) {
                 report($exception);
             }

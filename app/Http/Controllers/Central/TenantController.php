@@ -315,7 +315,7 @@ class TenantController extends Controller
                         'nome' => $adminUser?->nome,
                         'email' => $adminUser?->email,
                     ],
-                ],
+                ], 
             ],
             'metrics' => $metrics,
         ]);

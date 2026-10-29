@@ -18,6 +18,7 @@ class Tenant extends BaseTenant implements TenantWithDatabase
     protected array $searchable = [
         'id',
         'instituicao_nome',
+        'instituicao_tipo',
         'domains.domain',
     ];
 
