@@ -70,7 +70,7 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-            ?->cursoTutelado;
+                ?->cursoTutelado;
 
         $isTutelaExterna = $cursoTutelado?->tipo_tutela === 'externa'
             && $cursoTutelado?->curso_tutelado_shared_id;
@@ -110,9 +110,9 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-            ?->cursoTutelado;
+                ?->cursoTutelado;
 
-        if (! $cursoTutelado) {
+        if (!$cursoTutelado) {
             return;
         }
 
@@ -140,13 +140,13 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-            ?->cursoTutelado;
+                ?->cursoTutelado;
 
-        if (! $cursoTutelado) {
+        if (!$cursoTutelado) {
             return;
         }
 
-        if ($cursoTutelado->tipo_tutela !== 'externa' || ! $cursoTutelado->curso_tutelado_shared_id) {
+        if ($cursoTutelado->tipo_tutela !== 'externa' || !$cursoTutelado->curso_tutelado_shared_id) {
             $coordenadores = $cursoTutelado->professores()
                 ->where('coordenador', 1)
                 ->with('user')
@@ -163,7 +163,7 @@ trait NotificaGrupoPap
         $shared = CursoTuteladoShared::query()->find($cursoTutelado->curso_tutelado_shared_id);
         $tenantTutor = $shared ? Tenant::query()->find($shared->tenant_tutor_id) : null;
 
-        if (! $shared || ! $tenantTutor) {
+        if (!$shared || !$tenantTutor) {
             return;
         }
 
@@ -175,7 +175,7 @@ trait NotificaGrupoPap
             $cursoTutor = CursoTutelado::query()
                 ->whereHas(
                     'instituicaoCurso',
-                    fn ($query) => $query->where('curso_id', $shared->curso_id)
+                    fn($query) => $query->where('curso_id', $shared->curso_id)
                 )
                 ->first();
 
@@ -217,7 +217,7 @@ trait NotificaGrupoPap
         $cursoTutelado = $grupoPap->turma
             ?->cursoClasseTurno
             ?->cursoClasse
-            ?->cursoTutelado;
+                ?->cursoTutelado;
 
         $isTutelaExterna = $cursoTutelado?->tipo_tutela === 'externa'
             && $cursoTutelado?->curso_tutelado_shared_id;
@@ -427,6 +427,22 @@ trait NotificaGrupoPap
             $nomeAluno = $aluno->inscricao?->candidato?->nome ?? 'Aluno';
 
             $user->notify(new AlunoRemovidoDoGrupoNotification($grupoPap, $nomeAluno));
+        }
+    }
+
+    protected function notificarAlunosAdicionadosAoGrupo(GrupoPap $grupoPap, array $alunoIds): void
+    {
+        $alunos = \App\Models\Tenant\Aluno::with('inscricao.candidato', 'user')
+            ->whereIn('id', $alunoIds)
+            ->get();
+
+        foreach ($alunos as $aluno) {
+            $user = $aluno->user;
+
+            if ($user) {
+                $nomeAluno = $aluno->inscricao?->candidato?->nome ?? 'Aluno';
+                $user->notify(new \App\Notifications\Pap\AlunoAdicionadoAoGrupoNotification($grupoPap, $nomeAluno));
+            }
         }
     }
 }

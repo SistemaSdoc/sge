@@ -28,7 +28,8 @@ class ElementoGrupoPapController extends Controller
         private readonly AddElementosGrupoPap $addElementosGrupoPap,
         private readonly DeleteElementoGrupoPap $deleteElementoGrupoPap,
         private readonly AssignNotaElementoGrupoPap $assignNotaElementoGrupoPap,
-    ) {}
+    ) {
+    }
 
     /**
      * Mostra o formulário para adicionar um novo elemento a um grupo da PAP.
@@ -70,7 +71,11 @@ class ElementoGrupoPapController extends Controller
     ) {
         $this->authorize('create', ElementoGrupoPap::class);
 
-        $this->addElementosGrupoPap->handle($grupoPap, $request->validated());
+        $validated = $request->validated();
+
+        $this->addElementosGrupoPap->handle($grupoPap, $validated);
+
+        $this->notificarAlunosAdicionadosAoGrupo($grupoPap, $validated['alunos']);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
