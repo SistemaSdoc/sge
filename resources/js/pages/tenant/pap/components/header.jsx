@@ -21,6 +21,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
+import { exportarLista } from '@/routes/tenant/dashboard/grupos-pap';
 
 const normalizeFilterValue = (value) =>
   value === null || value === undefined || value === '' ? '' : String(value);
@@ -38,6 +40,8 @@ export function Header({
   anoLectivoId,
   onAnoLectivoChange,
   onAddGrupo,
+  exportFilters,
+  hasGroups = false,
   search,
   onSearchChange,
   onSearchSubmit,
@@ -54,6 +58,22 @@ export function Header({
     filtroInstituicao &&
     filtroInstituicao !== 'todas' &&
     filtroInstituicao !== String(instituicao?.id ?? '');
+  const canExport = Boolean(
+    hasGroups && filtroInstituicao && filtroCurso && anoLectivoId,
+  );
+
+  const handleExportarLista = () => {
+    window.location.assign(
+      exportarLista({
+        query: {
+          instituicao_id: filtroInstituicao,
+          curso_id: filtroCurso,
+          ano_lectivo_id: anoLectivoId,
+          search: exportFilters?.search,
+        },
+      }).url,
+    );
+  };
 
   return (
     <Card className="gap-0! overflow-visible pb-0">
@@ -86,8 +106,8 @@ export function Header({
             </CardDescription>
           </div>
 
-          {can?.create && !isColegioSelecionado && (
-            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+          <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+            {can?.create && !isColegioSelecionado && (
               <Button
                 size="sm"
                 className="w-full justify-center hover:cursor-pointer sm:w-auto"
@@ -95,8 +115,25 @@ export function Header({
               >
                 Adicionar grupo
               </Button>
-            </div>
-          )}
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full justify-center sm:w-auto"
+              disabled={!canExport}
+              onClick={handleExportarLista}
+              title={
+                hasGroups
+                  ? canExport
+                    ? 'Exportar lista em PDF'
+                    : 'Seleciona uma instituição, curso e ano lectivo'
+                  : 'Não existem grupos para os filtros selecionados'
+              }
+            >
+              <Download />
+              Exportar PDF
+            </Button>
+          </div>
         </div>
       </CardHeader>
 

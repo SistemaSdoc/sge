@@ -34,6 +34,7 @@ class GrupoPapViewService
         ?string $instituicaoIdFiltro = null,
         ?string $cursoIdFiltro = null,
         ?string $search = null,
+        bool $includeExportDetails = false,
     ): Collection {
         $isCourseSecretary = $user->hasRole('Secretario do Curso');
         $isInstituteSecretary = $isCourseSecretary && $this->isTutorInstitution($user);
@@ -46,12 +47,13 @@ class GrupoPapViewService
             $instituicaoIdPadrao,
             $cursoIdFiltro,
             $search,
+            $includeExportDetails,
         );
         $groups = $localGroups;
 
         if ($this->isTutorInstitution($user)) {
             $this->crossTenantAccessService->vinculosVisiveisNoPap($user)
-                ->each(function (CursoTuteladoShared $shared) use (&$groups, $anoLectivoId, $user, $instituicaoIdFiltro, $cursoIdFiltro, $search, $instituicaoIdPadrao, $isInstituteSecretary): void {
+                ->each(function (CursoTuteladoShared $shared) use (&$groups, $anoLectivoId, $user, $instituicaoIdFiltro, $cursoIdFiltro, $search, $instituicaoIdPadrao, $isInstituteSecretary, $includeExportDetails): void {
                     $tenant = Tenant::query()->find($shared->tenant_tutelado_id);
 
                     if (! $tenant) {
@@ -78,6 +80,7 @@ class GrupoPapViewService
                             $instituicaoIdFiltro ?? $instituicaoIdPadrao,
                             $cursoIdFiltro,
                             $search,
+                            $includeExportDetails,
                         )
                     );
                     $remoteGroups->each(function (GrupoPap $grupoPap) use ($isInstituteSecretary): void {
@@ -101,6 +104,7 @@ class GrupoPapViewService
         ?string $instituicaoIdFiltro = null,
         ?string $cursoIdFiltro = null,
         ?string $search = null,
+        bool $includeExportDetails = false,
     ): Collection {
         // Para tenant local: usa o filtro explícito se vier, senão usa o da instituição do user
         $instituicaoId = $sharedId === null
@@ -171,15 +175,29 @@ class GrupoPapViewService
                 fn ($q) => $q->where('curso_id', $cursoIdFiltro)
             ));
 
-        return $query
-            ->with([
-                'professor.user:id,nome',
+        $relations = [
+            'professor.user:id,nome',
+            'turma.cursoClasseTurno.turno:id,nome',
+            'turma.cursoClasseTurno.cursoClasse.classe:id,nome',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
+            'elementos.aluno.inscricao.candidato:id,nome',
+        ];
+
+        if ($includeExportDetails) {
+            $relations = [
+                'professor.user:id,nome,email,telefone',
                 'turma.cursoClasseTurno.turno:id,nome',
                 'turma.cursoClasseTurno.cursoClasse.classe:id,nome',
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
                 'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
-                'elementos.aluno.inscricao.candidato:id,nome',
-            ])
+                'elementos.aluno.inscricao.candidato:id,nome,bi,email,numero_estudante,telefone',
+                'elementos.aluno.user:id,nome,bi,email,telefone',
+            ];
+        }
+
+        return $query
+            ->with($relations)
             ->latest()
             ->get();
     }

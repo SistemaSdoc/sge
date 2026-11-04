@@ -24,6 +24,7 @@ export default function Index({
       only: ['gruposPap', 'filters'],
     },
   );
+  const gruposDaLista = gruposPap.data ?? gruposPap ?? [];
 
   const visitarFiltros = (alteracoes, only = ['gruposPap', 'filters']) => {
     const query = { ...filters, ...alteracoes };
@@ -95,6 +96,8 @@ export default function Index({
         anoLectivoId={filters?.ano_lectivo_id ?? anoLectivoId}
         onAnoLectivoChange={handleAnoLectivoChange}
         onAddGrupo={handleAdicionarGrupo}
+        exportFilters={filters}
+        hasGroups={gruposDaLista.length > 0}
         search={search}
         onSearchChange={onChange}
         onSearchSubmit={submit}
@@ -103,7 +106,7 @@ export default function Index({
       <div className="mt-6">
         <GrupoPapCards
           can={can}
-          grupos={gruposPap.data ?? gruposPap ?? []}
+          grupos={gruposDaLista}
           emptyTitle={
             applied
               ? 'Nenhum grupo PAP encontrado'

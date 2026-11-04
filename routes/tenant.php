@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\Tenant\GrupoPap\ExportarListaGruposPap;
 use App\Http\Controllers\Tenant\AlunoController;
 use App\Http\Controllers\Tenant\AnoLectivoController;
 use App\Http\Controllers\Tenant\AulaController;
@@ -238,7 +239,7 @@ Route::middleware([
 
             Route::post('users/{user}/avatar', [UserProfileController::class, 'updateAvatar'])
                 ->name('users.avatar.update');
-                
+
             Route::get('users/{user}/security', [UserProfileController::class, 'security'])
                 ->name('users.security');
 
@@ -543,6 +544,9 @@ Route::middleware([
             | Grupos PAP
             |--------------------------------------------------------------------------
             */
+
+            Route::get('pap/exportar-lista', ExportarListaGruposPap::class)
+                ->name('grupos-pap.exportar-lista');
 
             Route::get('pap', [GrupoPapController::class, 'index'])
                 ->middleware('propina.em.dia')
