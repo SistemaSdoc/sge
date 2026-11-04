@@ -105,6 +105,7 @@ Route::prefix('colegios')->group(function () {
             ->name('colegios.cursos.classes.turnos.turmas.alunos.exportar');
 
         Route::get('cursos/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/notas', [NotaDisciplinaController::class, 'index'])
+            ->middleware('notes.two-factor:discipline')
             ->name('colegios.cursos.classes.turnos.turmas.disciplinas.notas.index');
 
         // Melhorias e edição — sem grupoPap no prefixo

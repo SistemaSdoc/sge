@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Tenant\NotasTwoFactorController;
 use App\Http\Controllers\Tenant\Settings\ProfileController;
 use App\Http\Controllers\Tenant\Settings\SecurityController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,16 @@ Route::middleware(['auth:tenant', 'verified'])->group(function () {
 
     Route::get('settings/security', [SecurityController::class, 'edit'])
         ->name('security.edit');
+
+    Route::get('notes/two-factor-challenge', [NotasTwoFactorController::class, 'create'])
+        ->name('notes.two-factor.challenge');
+
+    Route::post('notes/two-factor-challenge', [NotasTwoFactorController::class, 'verify'])
+        ->middleware('throttle:6,1')
+        ->name('notes.two-factor.verify');
+
+    Route::post('notes/two-factor-challenge/resend', [NotasTwoFactorController::class, 'resend'])
+        ->name('notes.two-factor.resend');
 
     Route::put('settings/password', [SecurityController::class, 'update'])
         ->middleware('throttle:6,1')
