@@ -104,11 +104,14 @@ class CalcularCandidatosQuadroHonra
     {
         $turma = $turmaAluno->turma;
         $aluno = $turmaAluno->aluno;
+        $classe = $turma?->cursoClasseTurno?->cursoClasse?->classe;
 
         // Qualquer registo de recurso, inclusive uma nota do quarto período, exclui o aluno.
         if (
             ! $turma
             || ! $aluno
+            || ! $classe
+            || $classe->ordem > 12
             || in_array($turmaAluno->resultado, ['recurso', 'aprovado_recurso', 'reprovado_recurso'], true)
             || in_array($turmaAluno->situacao, ['recurso', 'aprovado_recurso', 'reprovado_recurso'], true)
             || $turmaAluno->notas->contains(fn (Nota $nota): bool => $nota->periodo === 4)
@@ -179,10 +182,10 @@ class CalcularCandidatosQuadroHonra
         }
 
         $curso = $turma->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicaoCurso?->curso?->nome;
-        $classe = $turma->cursoClasseTurno?->cursoClasse?->classe?->nome;
+        $nomeClasse = $classe->nome;
         $nomeAluno = $aluno->inscricao?->candidato?->nome;
 
-        if (! $curso || ! $classe || ! $nomeAluno) {
+        if (! $curso || ! $nomeClasse || ! $nomeAluno) {
             return null;
         }
 
@@ -191,7 +194,7 @@ class CalcularCandidatosQuadroHonra
             'aluno_id' => $aluno->id,
             'nome_aluno' => $nomeAluno,
             'matricula' => $aluno->matricula,
-            'classe' => $classe,
+            'classe' => $nomeClasse,
             'curso' => $curso,
             'turma' => $turma->nome,
             'media' => $media,

@@ -4,10 +4,14 @@ namespace App\Actions\Tenant\QuadroHonra;
 
 use App\Enums\TipoQuadroHonra;
 use App\Models\Tenant\QuadroHonra;
+use App\Models\Tenant\QuadroHonraItem;
 use App\Models\Tenant\User;
+use App\Notifications\Aluno\AlunoQuadroHonraNotification;
 use App\Services\Tenant\QuadroHonra\CalcularCandidatosQuadroHonra;
 use App\Services\Tenant\QuadroHonra\ResolverCriteriosQuadroHonra;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 /** Gera ou actualiza o quadro e substitui os seus itens numa única transacção. */
 class GerarQuadroHonra
@@ -38,7 +42,7 @@ class GerarQuadroHonra
             abort(403, 'O utilizador não está associado a uma instituição.');
         }
 
-        return DB::transaction(function () use (
+        $quadro = DB::transaction(function () use (
             $dados,
             $utilizador,
             $tipo,
@@ -53,6 +57,12 @@ class GerarQuadroHonra
                 $criterios['media_minima'],
                 $criterios['limite_alunos'],
             );
+
+            if ($candidatos->isEmpty()) {
+                throw ValidationException::withMessages([
+                    'geracao' => 'Não é possível gerar o Quadro de Honra porque não há alunos elegíveis.',
+                ]);
+            }
 
             $quadro = QuadroHonra::query()->firstOrNew([
                 'ano_lectivo_id' => $dados['ano_lectivo_id'],
@@ -81,5 +91,63 @@ class GerarQuadroHonra
 
             return $quadro->load('itens');
         });
+
+        $this->notificarAlunos($quadro);
+
+        return $quadro;
+    }
+
+    private function notificarAlunos(QuadroHonra $quadro): void
+    {
+        $quadro->loadMissing(['anoLectivo:id,nome', 'itens.aluno.user']);
+
+        $alunosComUtilizador = $quadro->itens
+            ->map(fn (QuadroHonraItem $item): array => [
+                'item' => $item,
+                'user' => $item->aluno?->user,
+            ])
+            ->filter(fn (array $destinatario): bool => $destinatario['user'] instanceof User)
+            ->unique(fn (array $destinatario): string => (string) $destinatario['user']->getKey());
+
+        if ($alunosComUtilizador->isEmpty()) {
+            return;
+        }
+
+        $primeiroUtilizador = $alunosComUtilizador->first()['user'];
+        $utilizadoresJaNotificados = DatabaseNotification::query()
+            ->whereIn('type', [
+                AlunoQuadroHonraNotification::class,
+                'App\\Notifications\\Aluno\\AlunoNoQuadroHonraNotification',
+            ])
+            ->where('notifiable_type', $primeiroUtilizador->getMorphClass())
+            ->where('data->quadro_honra_id', $quadro->getKey())
+            ->whereIn(
+                'notifiable_id',
+                $alunosComUtilizador
+                    ->map(fn (array $destinatario): string => (string) $destinatario['user']->getKey())
+                    ->all(),
+            )
+            ->pluck('notifiable_id')
+            ->map(fn ($id): string => (string) $id)
+            ->all();
+
+        foreach ($alunosComUtilizador as $destinatario) {
+            /** @var User $user */
+            $user = $destinatario['user'];
+
+            if (in_array((string) $user->getKey(), $utilizadoresJaNotificados, true)) {
+                continue;
+            }
+
+            $item = $destinatario['item'];
+            $user->notify(new AlunoQuadroHonraNotification(
+                (string) $quadro->getKey(),
+                $quadro->anoLectivo?->nome ?? 'ano lectivo',
+                $quadro->tipo->value,
+                $item->curso,
+                $item->posicao,
+                (float) $item->media,
+            ));
+        }
     }
 }

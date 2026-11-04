@@ -78,7 +78,7 @@ export function FiltrosQuadrosHonra({
         >
           <SelectTrigger
             className="w-full sm:max-w-xs"
-            aria-label="Filtrar por tipo de quadro"
+            aria-label="Filtrar por tipo de quadro de honra"
           >
             <SelectValue placeholder="Todos os tipos" />
           </SelectTrigger>

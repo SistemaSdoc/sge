@@ -58,7 +58,7 @@ export function ListaQuadrosHonra({
             <TableHeader>
               <TableRow>
                 <TableHead>Ano lectivo</TableHead>
-                <TableHead>Tipo de quadro</TableHead>
+                <TableHead>Tipo de quadro de honra</TableHead>
                 <TableHead>Curso</TableHead>
                 <TableHead>Média mínima</TableHead>
                 <TableHead>Nº de alunos</TableHead>
@@ -69,13 +69,9 @@ export function ListaQuadrosHonra({
             <TableBody>
               {quadros.data.map((quadro) => (
                 <TableRow key={quadro.id}>
-                  <TableCell>{quadro.ano_lectivo ?? '—'}</TableCell>
+                  <TableCell>{quadro.ano_lectivo ?? ' - '}</TableCell>
                   <TableCell>
-                    <Badge
-                      variant={
-                        quadro.tipo === 'geral' ? 'default' : 'secondary'
-                      }
-                    >
+                    <Badge variant="default">
                       {quadro.tipo === 'geral' ? 'Geral' : 'Por curso'}
                     </Badge>
                   </TableCell>
@@ -91,12 +87,22 @@ export function ListaQuadrosHonra({
                       : '—'}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button asChild variant="outline" size="sm">
-                      <a href={quadro.pdf_url} target="_blank" rel="noreferrer">
-                        <Download className="size-4" />
-                        PDF
-                      </a>
-                    </Button>
+                    {quadro.quantidade_alunos > 0 ? (
+                      <Button asChild variant="outline" size="sm">
+                        <a
+                          href={quadro.pdf_url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Download className="size-4" />
+                          PDF
+                        </a>
+                      </Button>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        Sem alunos elegíveis
+                      </span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

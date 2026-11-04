@@ -11,6 +11,24 @@ export type CursoOption = {
 
 export type TipoQuadroHonra = 'geral' | 'curso';
 
+export type CandidatoQuadroHonra = {
+  turma_aluno_id: string;
+  aluno_id: string;
+  nome_aluno: string;
+  matricula: string | null;
+  classe: string;
+  curso: string;
+  turma: string;
+  media: number;
+  faltas_total: number;
+  notas_abaixo_dez: number;
+};
+
+export type PrevisualizacaoQuadroHonra = {
+  candidatos: CandidatoQuadroHonra[];
+  quantidade: number;
+};
+
 export type QuadroHonraResumo = {
   id: string;
   ano_lectivo_id: string;

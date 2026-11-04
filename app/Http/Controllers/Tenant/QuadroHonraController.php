@@ -10,7 +10,9 @@ use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\QuadroHonra as QuadroHonraModel;
 use App\Models\Tenant\User;
+use App\Services\Tenant\QuadroHonra\CalcularCandidatosQuadroHonra;
 use App\Services\Tenant\QuadroHonra\QuadroHonraPdfService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -24,6 +26,7 @@ class QuadroHonraController extends Controller
 {
     public function __construct(
         private readonly GerarQuadroHonra $gerarQuadroHonra,
+        private readonly CalcularCandidatosQuadroHonra $calcularCandidatos,
         private readonly QuadroHonraPdfService $quadroHonraPdfService,
     ) {}
 
@@ -143,9 +146,30 @@ class QuadroHonraController extends Controller
         return back()->with('success', "Quadro de Honra gerado com {$quadro->itens()->count()} aluno(s).");
     }
 
+    public function previsualizar(GerarQuadroHonraRequest $request): JsonResponse
+    {
+        $dados = $request->validated();
+        $utilizador = $request->user('tenant');
+        abort_unless($utilizador instanceof User && $utilizador->instituicao_id !== null, 403);
+
+        $candidatos = $this->calcularCandidatos->calcular(
+            $dados['ano_lectivo_id'],
+            $utilizador->instituicao_id,
+            $dados['tipo'] === TipoQuadroHonra::CURSO->value ? $dados['curso_tutelado_id'] : null,
+            isset($dados['media_minima']) ? (float) $dados['media_minima'] : null,
+            isset($dados['limite_alunos']) ? (int) $dados['limite_alunos'] : null,
+        );
+
+        return response()->json([
+            'candidatos' => $candidatos,
+            'quantidade' => $candidatos->count(),
+        ]);
+    }
+
     public function exportar(QuadroHonraModel $quadroHonra): Response
     {
         $this->authorize('export', $quadroHonra);
+        abort_unless($quadroHonra->itens()->exists(), 404);
 
         return $this->quadroHonraPdfService->download($quadroHonra);
     }

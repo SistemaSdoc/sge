@@ -8,6 +8,9 @@ Route::prefix('quadro-honra')->name('quadro-honra.')->group(function (): void {
     Route::get('/', [QuadroHonraController::class, 'index'])
         ->name('index');
 
+    Route::post('/previsualizar', [QuadroHonraController::class, 'previsualizar'])
+        ->name('previsualizar');
+
     Route::post('/', [QuadroHonraController::class, 'gerar'])
         ->name('gerar');
 

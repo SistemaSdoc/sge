@@ -30,7 +30,8 @@
         $linhas = (int) ceil($itens->count() / 3);
         $instituicao = $quadroHonra->geradoPor?->instituicao;
         $tipo = $quadroHonra->tipo->value === 'geral' ? 'Quadro Geral' : 'Quadro por Curso';
-        $curso = $quadroHonra->itens->first()?->curso;
+        $curso = $quadroHonra->tipo->value === 'curso' ? $quadroHonra->itens->first()?->curso : null;
+        $anoLectivo = $quadroHonra->anoLectivo?->nome ?? $quadroHonra->ano_lectivo_id;
     @endphp
 
     <div class="cabecalho">
@@ -38,8 +39,7 @@
             <p class="instituicao">{{ $instituicao->nome }}</p>
         @endif
         <h1>Quadro de Honra</h1>
-        <p>{{ $tipo }}@if($curso) — {{ $curso }}@endif</p>
-        <p>Ano lectivo {{ $quadroHonra->anoLectivo?->nome ?? $quadroHonra->ano_lectivo_id }}</p>
+        <p>{{ $tipo }}@if($curso) — {{ $curso }}@endif — Ano lectivo {{ $anoLectivo }}</p>
     </div>
 
     <table class="alunos">
