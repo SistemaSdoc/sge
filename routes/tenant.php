@@ -238,7 +238,7 @@ Route::middleware([
 
             Route::post('users/{user}/avatar', [UserProfileController::class, 'updateAvatar'])
                 ->name('users.avatar.update');
-                
+
             Route::get('users/{user}/security', [UserProfileController::class, 'security'])
                 ->name('users.security');
 
@@ -484,7 +484,8 @@ Route::middleware([
                     'turmas' => 'turma',
                     'disciplinas' => 'classeTurnoDisciplina',
                     'notas' => 'notaDisciplina',
-                ])->only(['index', 'create', 'store']);
+                ])->only(['index', 'create', 'store'])
+                ->middleware('notes.two-factor:discipline');
 
             /*
             |--------------------------------------------------------------------------
@@ -493,9 +494,11 @@ Route::middleware([
             */
 
             Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/notas/recurso', [NotaDisciplinaRecursoController::class, 'index'])
+                ->middleware('notes.two-factor:discipline')
                 ->name('turma.disciplinas.notas.recurso.index');
 
             Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/disciplinas/{classeTurnoDisciplina}/notas/recurso', [NotaDisciplinaRecursoController::class, 'store'])
+                ->middleware('notes.two-factor:discipline')
                 ->name('turma.disciplinas.notas.recurso.store');
 
             /*
@@ -906,6 +909,7 @@ Route::middleware([
                 ->name('inscricoes.show');
 
             Route::get('pautas', [PautaController::class, 'index'])
+                ->middleware('notes.two-factor:pauta')
                 ->name('pautas.index');
 
             Route::get('pauta/{turma}', [PautaController::class, 'pauta'])
@@ -924,12 +928,15 @@ Route::middleware([
                 ->name('inscricoes.store');
 
             Route::get('historico/{aluno}/lancar', [PreencherHistoricoController::class, 'create'])
+                ->middleware('notes.two-factor:history')
                 ->name('preencher-historico.create');
 
             Route::post('historico/{aluno}/lancar', [PreencherHistoricoController::class, 'store'])
+                ->middleware('notes.two-factor:history')
                 ->name('preencher-historico.store');
 
             Route::post('historico/{aluno}/confirmar', [PreencherHistoricoController::class, 'confirmar'])
+                ->middleware('notes.two-factor:history')
                 ->name('preencher-historico.confirmar');
         });
 
