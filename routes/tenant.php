@@ -913,6 +913,7 @@ Route::middleware([
                 ->name('pautas.index');
 
             Route::get('pauta/{turma}', [PautaController::class, 'pauta'])
+                ->middleware('notes.two-factor:pauta')
                 ->name('pautas.pauta');
 
             Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}', [CursoClasseController::class, 'show'])
