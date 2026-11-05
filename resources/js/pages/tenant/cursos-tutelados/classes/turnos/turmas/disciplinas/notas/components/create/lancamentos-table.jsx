@@ -125,6 +125,12 @@ export default function LancamentosTable({
   const todosAbertos =
     alunos.length > 0 && alunos.every((a) => expandidos[a.turma_aluno_id]);
 
+  const temNotasAlteradas = alunos.some((aluno) =>
+    ['mac', 'npp', 'npt', 'faltas'].some(
+      (campo) => getValor(aluno.turma_aluno_id, periodo, campo) !== null,
+    ),
+  );
+
   // ── 6. TODOS OS useEffect NO FINAL ─────────────────────────────
   useEffect(() => {
     const tipo =
@@ -328,7 +334,7 @@ export default function LancamentosTable({
                 </Button>
               )}
 
-              {podeGuardar && (
+              {podeGuardar && temNotasAlteradas && (
                 <Button
                   type="button"
                   variant="outline"
@@ -340,7 +346,7 @@ export default function LancamentosTable({
                 </Button>
               )}
 
-              {podeFinalizar && (
+              {podeFinalizar && temNotasAlteradas && (
                 <Button
                   type="button"
                   size="sm"
