@@ -36,7 +36,7 @@ class TenantController extends Controller
             'tenants' => $tenantsPagineted,
             'filters' => $request->only('search', 'tipo'),
         ]);
-    } 
+    }
 
     /**
      * Exibe formulário de criação de tenant.
@@ -136,18 +136,19 @@ class TenantController extends Controller
     public function edit(Tenant $tenant)
     {
         $tenant->load('domains');
-        $instituicao = $this->tenantService->getInstituicao($tenant);
-        $adminUser = $this->tenantService->getTenantAdminUser($tenant);
+        $pendingData = $tenant->pendingData()->first();
+        $instituicao = $pendingData ? null : $this->tenantService->getInstituicao($tenant);
+        $adminUser = $pendingData ? null : $this->tenantService->getTenantAdminUser($tenant);
 
         return Inertia::render('central/tenants/edit', [
             'tenant' => [
                 'id' => $tenant->id,
                 'domain' => $tenant->domains?->first()?->domain,
-                'nome' => $instituicao?->nome,
-                'sigla' => $instituicao?->sigla,
-                'tipo' => $instituicao?->tipo,
-                'user_nome' => $adminUser?->nome,
-                'user_email' => $adminUser?->email,
+                'nome' => $pendingData?->nome ?? $instituicao?->nome,
+                'sigla' => $pendingData?->sigla ?? $instituicao?->sigla,
+                'tipo' => $pendingData?->tipo ?? $instituicao?->tipo,
+                'user_nome' => $pendingData?->user_nome ?? $adminUser?->nome,
+                'user_email' => $pendingData?->user_email ?? $adminUser?->email,
             ],
         ]);
     }
@@ -160,6 +161,7 @@ class TenantController extends Controller
         $validated = $request->validated();
 
         $this->tenantService->updateInstituicao($tenant, $validated);
+        $this->tenantService->updateTenantAdminUser($tenant, $validated);
         $this->tenantService->updateTenant($tenant, $validated);
 
         return redirect()->route('central.dashboard.tenants.show', $tenant)
@@ -315,7 +317,7 @@ class TenantController extends Controller
                         'nome' => $adminUser?->nome,
                         'email' => $adminUser?->email,
                     ],
-                ], 
+                ],
             ],
             'metrics' => $metrics,
         ]);
