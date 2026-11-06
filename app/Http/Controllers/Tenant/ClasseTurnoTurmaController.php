@@ -407,6 +407,7 @@ class ClasseTurnoTurmaController extends Controller
                 ],
                 'grupos' => [
                     'create' => $user->can('create', GrupoPap::class),
+                    'exportar' => $user->can('viewAny', GrupoPap::class),
                 ],
                 'confirmarMatricula' => [
                     'viewAny' => $user->hasAnyRole(['Director', 'Subdirector', 'Secretaria']),

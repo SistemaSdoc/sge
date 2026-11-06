@@ -21,8 +21,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { ChevronDown, Download } from 'lucide-react';
 import { exportarLista } from '@/routes/tenant/dashboard/grupos-pap';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
 
 const normalizeFilterValue = (value) =>
   value === null || value === undefined || value === '' ? '' : String(value);
@@ -62,7 +69,7 @@ export function Header({
     hasGroups && filtroInstituicao && filtroCurso && anoLectivoId,
   );
 
-  const handleExportarLista = () => {
+  const handleExportarLista = (formato) => {
     window.location.assign(
       exportarLista({
         query: {
@@ -70,6 +77,7 @@ export function Header({
           curso_id: filtroCurso,
           ano_lectivo_id: anoLectivoId,
           search: exportFilters?.search,
+          formato,
         },
       }).url,
     );
@@ -116,23 +124,42 @@ export function Header({
                 Adicionar grupo
               </Button>
             )}
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-full justify-center sm:w-auto"
-              disabled={!canExport}
-              onClick={handleExportarLista}
-              title={
-                hasGroups
-                  ? canExport
-                    ? 'Exportar lista em PDF'
-                    : 'Seleciona uma instituição, curso e ano lectivo'
-                  : 'Não existem grupos para os filtros selecionados'
-              }
-            >
-              <Download />
-              Exportar PDF
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild className="hover:cursor-pointer">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full justify-center sm:w-auto"
+                  disabled={!canExport}
+                  title={
+                    hasGroups
+                      ? 'Escolher formato de exportação'
+                      : 'Não existem grupos para os filtros selecionados'
+                  }
+                >
+                  Exportar
+                  <ChevronDown />
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onSelect={() => handleExportarLista('pdf')}
+                  className="hover:cursor-pointer"
+                >
+                  Exportar PDF
+                </DropdownMenuItem>
+
+                <Separator />
+
+                <DropdownMenuItem
+                  onSelect={() => handleExportarLista('excel')}
+                  className="hover:cursor-pointer"
+                >
+                  Exportar Excel
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardHeader>

@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Minus, Users2Icon } from 'lucide-react';
+import { ChevronDown, Download, Users2Icon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Link } from '@inertiajs/react';
 import TablePagination from '@/components/table-pagination';
@@ -25,6 +25,15 @@ import {
   create,
   show,
 } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import exportarListaGruposPap from '@/actions/App/Actions/Tenant/Turma/ExportarListaGruposPap';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { DropdownMenuSeparator } from '@radix-ui/react-dropdown-menu';
+import { Separator } from '@/components/ui/separator';
 //import {create} from '@/routes/cursos-tutelados/classes/turnos/turmas/disciplinas/professores'
 //import {create} from '@/actions/App/Http/Controllers/InstituicaoCurso/TurmaDisciplinaProfessorController'
 
@@ -57,21 +66,76 @@ export function TabGruposPAP({
             Grupos de aptidão profissional desta turma
           </CardDescription>
         </div>
-        {can?.create && (
-          <div className="w-full sm:w-auto">
-            <Button asChild className="w-full sm:w-auto">
-              <Link
-                href={create({
-                  instituicao: params.instituicao.id,
-                  cursoTutelado: params.cursoTutelado.id,
-                  cursoClasse: params.cursoClasse.id,
-                  cursoClasseTurno: params.cursoClasseTurno.id,
-                  turma: params.turma,
-                })}
-              >
-                Criar grupo
-              </Link>
-            </Button>
+        {(can?.create || can?.exportar) && (
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            {can?.exportar && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild className="hover:cursor-pointer">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                  >
+                    Exportar
+                    <ChevronDown />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild className="hover:cursor-pointer">
+                    <a
+                      href={
+                        exportarListaGruposPap({
+                          instituicao: params.instituicao.id,
+                          cursoTutelado: params.cursoTutelado.id,
+                          cursoClasse: params.cursoClasse.id,
+                          cursoClasseTurno: params.cursoClasseTurno.id,
+                          turma: params.turma,
+                        }).url
+                      }
+                    >
+                      Exportar PDF
+                    </a>
+                  </DropdownMenuItem>
+
+                  <Separator />
+
+                  <DropdownMenuItem asChild className="hover:cursor-pointer">
+                    <a
+                      href={
+                        exportarListaGruposPap(
+                          {
+                            instituicao: params.instituicao.id,
+                            cursoTutelado: params.cursoTutelado.id,
+                            cursoClasse: params.cursoClasse.id,
+                            cursoClasseTurno: params.cursoClasseTurno.id,
+                            turma: params.turma,
+                          },
+                          { query: { formato: 'excel' } },
+                        ).url
+                      }
+                    >
+                      Exportar Excel
+                    </a>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            {can?.create && (
+              <Button size={'sm'} className="w-full sm:w-auto" asChild>
+                <Link
+                  href={create({
+                    instituicao: params.instituicao.id,
+                    cursoTutelado: params.cursoTutelado.id,
+                    cursoClasse: params.cursoClasse.id,
+                    cursoClasseTurno: params.cursoClasseTurno.id,
+                    turma: params.turma,
+                  })}
+                >
+                  Criar grupo
+                </Link>
+              </Button>
+            )}
           </div>
         )}
       </CardHeader>
