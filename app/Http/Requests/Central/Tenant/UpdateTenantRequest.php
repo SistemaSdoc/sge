@@ -34,6 +34,8 @@ class UpdateTenantRequest extends FormRequest
             'nome' => ['nullable', 'string', 'max:255'],
             'sigla' => ['nullable', 'string', 'max:10'],
             'tipo' => ['nullable', 'string', 'in:colegio,instituicao,instituto,universidade'],
+            'user_nome' => ['nullable', 'string', 'max:255'],
+            'user_email' => ['nullable', 'email'],
             'email' => ['nullable', 'email'],
             'telefone' => ['nullable', 'string'],
             'provincia' => ['nullable', 'string'],

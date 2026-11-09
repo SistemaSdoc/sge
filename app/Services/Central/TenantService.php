@@ -257,10 +257,56 @@ class TenantService
      */
     public function updateInstituicao(Tenant $tenant, array $data): void
     {
+        $pendingData = PendingTenantData::query()
+            ->where('tenant_id', $tenant->id)
+            ->first();
+
+        if ($pendingData) {
+            $pendingData->update(array_intersect_key($data, array_flip([
+                'nome',
+                'sigla',
+                'tipo',
+            ])));
+
+            return;
+        }
+
         $instituicao = $this->getInstituicao($tenant);
 
         if ($instituicao) {
             $tenant->run(fn () => $instituicao->update($data));
+        }
+    }
+
+    /**
+     * Actualiza o nome e email do administrador do tenant.
+     *
+     * @param  array<string, mixed>  $data  Campos do administrador
+     */
+    public function updateTenantAdminUser(Tenant $tenant, array $data): void
+    {
+        $pendingData = PendingTenantData::query()
+            ->where('tenant_id', $tenant->id)
+            ->first();
+
+        if ($pendingData) {
+            $pendingData->update(array_intersect_key($data, array_flip([
+                'user_nome',
+                'user_email',
+            ])));
+
+            return;
+        }
+
+        $adminUser = $this->getTenantAdminUser($tenant);
+
+        if ($adminUser) {
+            $adminData = array_filter([
+                'nome' => $data['user_nome'] ?? null,
+                'email' => $data['user_email'] ?? null,
+            ], static fn (mixed $value): bool => $value !== null);
+
+            $tenant->run(fn () => $adminUser->update($adminData));
         }
     }
 

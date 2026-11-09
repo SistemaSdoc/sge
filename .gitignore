@@ -8,7 +8,6 @@
 /storage/*.key
 /storage/pail
 /storage/app/public
-/storage/*/
 /resources/js/actions
 /resources/js/routes
 /resources/js/wayfinder

@@ -1,4 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
+import { useCallback, useEffect } from 'react';
 import { AlunoHeader } from './components/show/aluno-header';
 import { AlunoSidebar } from './components/show/aluno-sidebar';
 import { AlunoActivity } from './components/show/aluno-activity';
@@ -17,28 +18,48 @@ export default function Show() {
   const { openForm, closeDialog } = useDialog();
 
   // Chamado pelo botão "Iniciar" — pendente sem turma_aluno ainda
-  const abrirModal = (alunoData, e, pendente) => {
-    e.stopPropagation();
-    openForm({
-      title: 'Preencher Histórico Académico',
-      description: '',
-      size: 'lg',
-      content: (
-        <Preencher
-          aluno={alunoData}
-          // só mostra classes que ainda não têm turma_aluno
-          classesFaltando={classesFaltando.filter((c) => !c.em_curso)}
-          cursoClasseIdInicial={pendente?.curso_classe_id ?? null}
-          anosLectivos={anosLectivos}
-          onCancel={() => closeDialog()}
-          onSuccess={() => {
-            closeDialog();
-            router.reload();
-          }}
-        />
-      ),
-    });
-  };
+  const abrirModal = useCallback(
+    (alunoData, e, pendente) => {
+      e?.stopPropagation?.();
+      openForm({
+        title: 'Preencher Histórico Académico',
+        description: '',
+        size: 'lg',
+        content: (
+          <Preencher
+            aluno={alunoData}
+            classesFaltando={classesFaltando.filter((c) => !c.em_curso)}
+            cursoClasseIdInicial={pendente?.curso_classe_id ?? null}
+            anosLectivos={anosLectivos}
+            onCancel={() => closeDialog()}
+            onSuccess={() => {
+              closeDialog();
+              router.reload();
+            }}
+          />
+        ),
+      });
+    },
+    [anosLectivos, classesFaltando, closeDialog, openForm],
+  );
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+
+    if (url.searchParams.get('iniciar_historico') !== '1') {
+      return;
+    }
+
+    const pendente = classesFaltando.find((classe) => !classe.em_curso);
+
+    if (!pendente) {
+      return;
+    }
+
+    url.searchParams.delete('iniciar_historico');
+    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}`);
+    abrirModal(aluno, null, pendente);
+  }, [aluno, abrirModal, classesFaltando]);
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-4 md:p-6">
@@ -48,7 +69,7 @@ export default function Show() {
         <HistoricoPendenteAlert
           aluno={aluno}
           pendentes={historicoPendente}
-          abrirSelecaoFn={abrirModal}
+          iniciarHistoricoFn={(url) => router.visit(url)}
         />
       )}
 
