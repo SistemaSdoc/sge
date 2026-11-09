@@ -174,15 +174,26 @@ export function TemaForm({
               </Field>
 
               <Field>
-                <FieldLabel>Objectivos</FieldLabel>
-                <Textarea
-                  name="objectivos"
+                <FieldLabel>Objectivo Geral</FieldLabel>
+                <Input
+                  name="objectivo_geral"
                   disabled={processing}
-                  placeholder="Descreve os objectivos geral e específicos..."
-                  defaultValue={grupoPap?.objectivos ?? ''}
+                  placeholder="Ex.: Desenvolver um sistema de gestão escolar"
+                  defaultValue={grupoPap?.objectivo_geral ?? ''}
                 />
-                {errors.objectivos && (
-                  <FieldError>{errors.objectivos}</FieldError>
+                {errors.objectivo_geral && <FieldError>{errors.objectivo_geral}</FieldError>}
+              </Field>
+
+              <Field>
+                <FieldLabel>Objectivos Específicos</FieldLabel>
+                <Textarea
+                  name="objectivos_especificos"
+                  disabled={processing}
+                  placeholder="Descreve os objectivos específicos..."
+                  defaultValue={grupoPap?.objectivos_especificos ?? ''}
+                />
+                {errors.objectivos_especificos && (
+                  <FieldError>{errors.objectivos_especificos}</FieldError>
                 )}
               </Field>
 

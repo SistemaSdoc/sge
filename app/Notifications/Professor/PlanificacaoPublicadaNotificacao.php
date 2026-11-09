@@ -4,6 +4,7 @@ namespace App\Notifications\Professor;
 
 use App\Models\Tenant\Planificacao;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -14,11 +15,13 @@ class PlanificacaoPublicadaNotificacao extends Notification implements ShouldQue
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public Planificacao $planificacao,
         public int $versao,
         public bool $primeiraVersao = true,
+        public ?string $domain = null,
     ) {}
 
     public function via(object $notifiable): array
@@ -43,7 +46,9 @@ class PlanificacaoPublicadaNotificacao extends Notification implements ShouldQue
                 'anoLetivo' => $this->nomeAnoLetivo(),
                 'versao' => $this->versao,
                 'primeira' => $this->primeiraVersao,
-                'url' => url("/dashboard/planificacoes/{$this->planificacao->id}"),
+                'url' => $this->tenantNotificationUrl('tenant.dashboard.planificacoes.show', [
+                    'planificacao' => $this->planificacao->id,
+                ], $this->domain),
                 'instituicao' => $notifiable->instituicao,
             ]);
     }
@@ -62,7 +67,9 @@ class PlanificacaoPublicadaNotificacao extends Notification implements ShouldQue
                 $this->planificacao->periodo,
                 $this->versao
             ),
-            'url' => "/dashboard/planificacoes/{$this->planificacao->id}",
+            'url' => $this->tenantNotificationUrl('tenant.dashboard.planificacoes.show', [
+                'planificacao' => $this->planificacao->id,
+            ], $this->domain),
         ];
     }
 

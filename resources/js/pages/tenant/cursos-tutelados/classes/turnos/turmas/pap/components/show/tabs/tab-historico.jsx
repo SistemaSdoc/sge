@@ -89,10 +89,16 @@ export function TabHistorico({ historico = [] }) {
                               {item.problema}
                             </p>
                           )}
-                          {item.objectivos && (
+                          {item.objectivo_geral && (
                             <p>
-                              <span className="font-medium">Objectivos:</span>{' '}
-                              {item.objectivos}
+                              <span className="font-medium">Objectivo Geral:</span>{' '}
+                              {item.objectivo_geral}
+                            </p>
+                          )}
+                          {item.objectivos_especificos && (
+                            <p>
+                              <span className="font-medium">Objectivos Específicos:</span>{' '}
+                              {item.objectivos_especificos}
                             </p>
                           )}
                         </div>

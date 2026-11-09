@@ -4,6 +4,7 @@ namespace App\Notifications\Professor;
 
 use App\Models\Tenant\PrazoProva;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -14,6 +15,7 @@ class PrazoProvaNotificacao extends Notification implements ShouldQueue, ShouldQ
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public const TIPO_CRIADO = 'criado';
 
@@ -47,7 +49,7 @@ class PrazoProvaNotificacao extends Notification implements ShouldQueue, ShouldQ
                 'classe' => $this->prazo->classe?->nome,
                 'dataLimite' => $this->prazo->data_limite?->format('d/m/Y H:i') ?? '—',
                 'periodo' => $this->prazo->periodo,
-                'url' => url('/dashboard/professor/provas'),
+                'url' => $this->tenantNotificationUrl('tenant.dashboard.professor.provas.index'),
                 'instituicao' => $notifiable->instituicao,
             ]);
     }
@@ -58,7 +60,7 @@ class PrazoProvaNotificacao extends Notification implements ShouldQueue, ShouldQ
             'tipo' => $this->tipo,
             'titulo' => $this->titulo(),
             'mensagem' => $this->mensagem(),
-            'url' => '/dashboard/professor/provas',
+            'url' => $this->tenantNotificationUrl('tenant.dashboard.professor.provas.index'),
         ];
     }
 

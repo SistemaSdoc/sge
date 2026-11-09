@@ -4,6 +4,7 @@ namespace App\Notifications\Professor;
 
 use App\Models\Tenant\SubmissaoProva;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -14,6 +15,7 @@ class SubmissaoAvaliadaNotificacao extends Notification implements ShouldQueue, 
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public SubmissaoProva $submissao
@@ -41,7 +43,7 @@ class SubmissaoAvaliadaNotificacao extends Notification implements ShouldQueue, 
                 'versao' => $this->submissao->versao,
                 'dataSubmissao' => $this->submissao->data_submissao?->format('d/m/Y H:i') ?? '—',
                 'parecer' => $this->submissao->parecer_diretor,
-                'url' => url('/dashboard/professor/provas'),
+                'url' => $this->tenantNotificationUrl('tenant.dashboard.professor.provas.index'),
                 'instituicao' => $notifiable->instituicao,
             ]);
     }
@@ -54,7 +56,7 @@ class SubmissaoAvaliadaNotificacao extends Notification implements ShouldQueue, 
             'tipo' => 'submissao_avaliada',
             'titulo' => $aprovado ? 'Submissão aprovada' : 'Submissão rejeitada',
             'mensagem' => "A sua submissão para \"{$this->submissao->prazo?->titulo}\" foi ".($aprovado ? 'aprovada' : 'rejeitada').'.',
-            'url' => '/dashboard/professor/provas',
+            'url' => $this->tenantNotificationUrl('tenant.dashboard.professor.provas.index'),
         ];
     }
 }

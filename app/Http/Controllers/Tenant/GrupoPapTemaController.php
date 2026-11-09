@@ -132,7 +132,8 @@ class GrupoPapTemaController extends Controller
             ],
             'professor_tutor_id' => ['required', 'exists:professores,id'],
             'problema' => ['required', 'string', 'max:1000'],
-            'objectivos' => ['required', 'string', 'max:1000'],
+            'objectivo_geral' => ['required', 'string', 'max:1000'],
+            'objectivos_especificos' => ['required', 'string', 'max:1000'],
             'estudo_caso' => [
                 'required',
                 'string',
@@ -150,7 +151,8 @@ class GrupoPapTemaController extends Controller
             'professor_tutor_id.required' => 'Seleccione o professor tutor do grupo.',
             'professor_tutor_id.exists' => 'O professor tutor seleccionado não existe.',
             'problema.required' => 'Descreva o problema que o trabalho pretende resolver.',
-            'objectivos.required' => 'Indique os objectivos do trabalho.',
+            'objectivo_geral.required' => 'Indique o objectivo geral do trabalho.',
+            'objectivos_especificos.required' => 'Indique os objectivos específicos do trabalho.',
             'estudo_caso.required' => 'Descreva o estudo de caso do trabalho.',
         ]);
 
@@ -259,7 +261,8 @@ class GrupoPapTemaController extends Controller
             ],
             'professor_tutor_id' => ['required', 'exists:professores,id'],
             'problema' => ['required', 'string', 'max:1000'],
-            'objectivos' => ['required', 'string', 'max:1000'],
+            'objectivo_geral' => ['required', 'string', 'max:1000'],
+            'objectivos_especificos' => ['required', 'string', 'max:1000'],
             'estudo_caso' => [
                 'required',
                 'string',
@@ -276,7 +279,8 @@ class GrupoPapTemaController extends Controller
             'professor_tutor_id.required' => 'Seleccione o professor tutor do grupo.',
             'professor_tutor_id.exists' => 'O professor tutor seleccionado não existe.',
             'problema.required' => 'Descreva o problema que o trabalho pretende resolver.',
-            'objectivos.required' => 'Indique os objectivos do trabalho.',
+            'objectivo_geral.required' => 'Indique o objectivo geral do trabalho.',
+            'objectivos_especificos.required' => 'Indique os objectivos específicos do trabalho.',
             'estudo_caso.required' => 'Descreva o estudo de caso do trabalho.',
         ]);
 

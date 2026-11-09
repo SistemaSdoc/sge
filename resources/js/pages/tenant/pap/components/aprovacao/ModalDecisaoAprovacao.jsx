@@ -97,8 +97,12 @@ export default function ModalDecisaoAprovacao({
               {tema?.problema}
             </p>
             <p>
-              <span className="font-medium">Objectivos: </span>
-              {tema?.objectivos}
+              <span className="font-medium">Objectivo Geral: </span>
+              {tema?.objectivo_geral}
+            </p>
+            <p>
+              <span className="font-medium">Objectivos Específicos: </span>
+              {tema?.objectivos_especificos}
             </p>
           </div>
 

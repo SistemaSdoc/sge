@@ -104,7 +104,8 @@ test('um professor tutor consegue alterar o nome do grupo pap', function (): voi
         'nome_grupo' => 'Grupo Renomeado',
         'tema_grupo' => 'Tema atualizado',
         'problema' => 'Problema atualizado',
-        'objectivos' => 'Objectivos atualizados',
+        'objectivo_geral' => 'Objectivo geral atualizado',
+        'objectivos_especificos' => 'Objectivos específicos atualizados',
     ]);
 
     $response->assertRedirect();
@@ -112,5 +113,7 @@ test('um professor tutor consegue alterar o nome do grupo pap', function (): voi
     $grupoPap->refresh();
 
     expect($grupoPap->nome_grupo)->toBe('Grupo Renomeado')
-        ->and($grupoPap->tema_grupo)->toBe('Tema atualizado');
+        ->and($grupoPap->tema_grupo)->toBe('Tema atualizado')
+        ->and($grupoPap->objectivo_geral)->toBe('Objectivo geral atualizado')
+        ->and($grupoPap->objectivos_especificos)->toBe('Objectivos específicos atualizados');
 });

@@ -231,12 +231,12 @@
         @include('mail.partials.institution-logo')
 
         {{-- Header --}}
-        <div class="header">
+        {{-- <div class="header">
             <h1>Justificativa {{ $statusLabel }}</h1>
             <div class="account-badge">
                 {{ $instituicao->nome ?? 'SGE' }}
             </div>
-        </div>
+        </div> --}}
 
         <hr class="divider">
 

@@ -151,6 +151,11 @@
     <div class="email-wrapper">
         @include('mail.partials.institution-logo')
 
+        <div class="header">
+            <h1>Adicionado a um curso</h1>
+            <div class="account-badge">{{ $instituicao->nome ?? 'SGE' }}</div>
+        </div>
+
         <hr class="divider">
 
         <br>
@@ -187,6 +192,12 @@
                 <div class="title">Informação</div>
                 <p>Já pode aceder à plataforma para consultar os detalhes do curso e os alunos inscritos.</p>
             </div>
+        </div>
+
+        <div style="text-align: center; padding: 8px 24px 24px;">
+            <a href="{{ $url }}" target="_blank" style="display: inline-block; background: #1a73e8; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; padding: 10px 24px; border-radius: 4px;">
+                Aceder ao painel
+            </a>
         </div>
 
         <div class="footer">

@@ -58,7 +58,10 @@ export default function EditarTemaMelhoria({
   const [tema, setTema] = useState(grupoPap?.tema_grupo || '');
   const [nomeGrupo, setNomeGrupo] = useState(grupoPap?.nome_grupo || '');
   const [problema, setProblema] = useState(grupoPap?.problema || '');
-  const [objectivos, setObjectivos] = useState(grupoPap?.objectivos || '');
+  const [objectivoGeral, setObjectivoGeral] = useState(grupoPap?.objectivo_geral || '');
+  const [objectivosEspecificos, setObjectivosEspecificos] = useState(
+    grupoPap?.objectivos_especificos || '',
+  );
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -66,7 +69,13 @@ export default function EditarTemaMelhoria({
     setLoading(true);
     router.put(
       rotaAtualizar.replace(':id', grupoPap.id),
-      { nome_grupo: nomeGrupo, tema_grupo: tema, problema, objectivos },
+      {
+        nome_grupo: nomeGrupo,
+        tema_grupo: tema,
+        problema,
+        objectivo_geral: objectivoGeral,
+        objectivos_especificos: objectivosEspecificos,
+      },
       { onError: setErrors, onFinish: () => setLoading(false) },
     );
   };
@@ -75,7 +84,13 @@ export default function EditarTemaMelhoria({
     setLoading(true);
     router.put(
       rotaReenviar.replace(':id', grupoPap.id),
-      { nome_grupo: nomeGrupo, tema_grupo: tema, problema, objectivos },
+      {
+        nome_grupo: nomeGrupo,
+        tema_grupo: tema,
+        problema,
+        objectivo_geral: objectivoGeral,
+        objectivos_especificos: objectivosEspecificos,
+      },
       { onError: setErrors, onFinish: () => setLoading(false) },
     );
   };
@@ -163,16 +178,30 @@ export default function EditarTemaMelhoria({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="objectivos">Objectivos</Label>
+            <Label htmlFor="objectivo-geral">Objectivo Geral</Label>
             <Textarea
-              id="objectivos"
-              value={objectivos}
-              onChange={(e) => setObjectivos(e.target.value)}
+              id="objectivo-geral"
+              value={objectivoGeral}
+              onChange={(e) => setObjectivoGeral(e.target.value)}
               disabled={loading}
               className="min-h-32"
             />
-            {errors.objectivos && (
-              <p className="text-xs text-red-500">{errors.objectivos}</p>
+            {errors.objectivo_geral && (
+              <p className="text-xs text-red-500">{errors.objectivo_geral}</p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="objectivos-especificos">Objectivos Específicos</Label>
+            <Textarea
+              id="objectivos-especificos"
+              value={objectivosEspecificos}
+              onChange={(e) => setObjectivosEspecificos(e.target.value)}
+              disabled={loading}
+              className="min-h-32"
+            />
+            {errors.objectivos_especificos && (
+              <p className="text-xs text-red-500">{errors.objectivos_especificos}</p>
             )}
           </div>
 
