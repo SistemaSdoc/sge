@@ -215,10 +215,10 @@ export function TabAprovacao({ grupoPap, params, can }) {
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="pt-6 space-y-6">
+        <CardContent className="space-y-6 pt-6">
           <div className="grid grid-cols-1 gap-6">
             <div>
-              <p className="text-xs font-bold uppercase text-muted-foreground">
+              <p className="text-xs font-bold text-muted-foreground uppercase">
                 Tema
               </p>
               <p className="mt-1 text-sm font-medium">
@@ -227,7 +227,7 @@ export function TabAprovacao({ grupoPap, params, can }) {
             </div>
 
             <div>
-              <p className="text-xs font-bold uppercase text-muted-foreground">
+              <p className="text-xs font-bold text-muted-foreground uppercase">
                 Problema
               </p>
               <p className="mt-1 text-sm font-medium">
@@ -236,25 +236,29 @@ export function TabAprovacao({ grupoPap, params, can }) {
             </div>
 
             <div>
-              <p className="text-xs font-medium uppercase text-muted-foreground">
+              <p className="text-xs font-medium text-muted-foreground uppercase">
                 Professor Tutor
               </p>
               <p className="mt-1 text-sm font-medium">
                 {grupoPap.professor?.nome ?? '—'}
               </p>
             </div>
+
             <div>
-              <p className="text-xs font-medium uppercase text-muted-foreground">
+              <p className="text-xs font-medium text-muted-foreground uppercase">
                 Objectivo Geral
               </p>
+
               <p className="mt-1 text-sm font-medium">
                 {grupoPap.objectivo_geral ?? '—'}
               </p>
             </div>
+
             <div>
-              <p className="text-xs font-medium uppercase text-muted-foreground">
+              <p className="text-xs font-medium text-muted-foreground uppercase">
                 Objectivos Específicos
               </p>
+
               <p className="mt-1 text-sm font-medium">
                 {grupoPap.objectivos_especificos ?? '—'}
               </p>

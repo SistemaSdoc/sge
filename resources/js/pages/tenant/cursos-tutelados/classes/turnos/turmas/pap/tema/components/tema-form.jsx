@@ -181,7 +181,9 @@ export function TemaForm({
                   placeholder="Ex.: Desenvolver um sistema de gestão escolar"
                   defaultValue={grupoPap?.objectivo_geral ?? ''}
                 />
-                {errors.objectivo_geral && <FieldError>{errors.objectivo_geral}</FieldError>}
+                {errors.objectivo_geral && (
+                  <FieldError>{errors.objectivo_geral}</FieldError>
+                )}
               </Field>
 
               <Field>

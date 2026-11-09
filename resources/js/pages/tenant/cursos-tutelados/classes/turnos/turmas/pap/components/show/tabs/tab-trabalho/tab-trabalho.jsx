@@ -173,14 +173,14 @@ export function TabTrabalho({ params, trabalho, can, errors = {} }) {
           </div>
         </CardHeader>
 
-        <CardContent className="pt-6 space-y-4">
+        <CardContent className="space-y-4 pt-6">
           {/* Banner — correcção pendente */}
           {['correcao_tutor', 'correcao_coordenacao'].includes(
             trabalho.status,
           ) &&
             ultimaCorrecao && (
               <Alert variant="default">
-                <AlertCircle className="w-4 h-4" />
+                <AlertCircle className="h-4 w-4" />
                 <AlertTitle>
                   {trabalho.status === 'correcao_tutor'
                     ? 'O professor tutor solicitou correções'
@@ -208,7 +208,7 @@ export function TabTrabalho({ params, trabalho, can, errors = {} }) {
           {/* Banner — aprovado */}
           {trabalho.status === 'aprovado' && (
             <Alert>
-              <CheckCircle className="w-4 h-4 text-green-600" />
+              <CheckCircle className="h-4 w-4 text-green-600" />
               <AlertTitle className="text-green-700">
                 Trabalho aprovado
               </AlertTitle>
@@ -226,7 +226,7 @@ export function TabTrabalho({ params, trabalho, can, errors = {} }) {
           {/* Banner — reprovado */}
           {trabalho.status === 'reprovado' && (
             <Alert variant="destructive">
-              <XCircle className="w-4 h-4" />
+              <XCircle className="h-4 w-4" />
               <AlertTitle>Trabalho reprovado</AlertTitle>
               <AlertDescription className="text-sm">
                 {ultimaCorrecao?.comentario ?? 'Sem comentário adicional.'}
@@ -236,7 +236,7 @@ export function TabTrabalho({ params, trabalho, can, errors = {} }) {
 
           {/* ── Área de submissão — aluno ──────────────────────────────── */}
           {podeSubmeter && (
-            <div className="p-4 space-y-3 border">
+            <div className="space-y-3 border p-4">
               <p className="text-sm font-medium">
                 {trabalho.status === 'pendente_entrega'
                   ? 'Submete o trabalho em formato PDF'
@@ -276,7 +276,7 @@ export function TabTrabalho({ params, trabalho, can, errors = {} }) {
           {trabalho.status === 'em_analise_tutor' &&
             (can?.aprovarTrabalhoComoTutor ||
               can?.solicitarCorrecaoComoTutor) && (
-              <div className="p-4 space-y-3 border">
+              <div className="space-y-3 border p-4">
                 <p className="text-sm text-muted-foreground">
                   Analisa o trabalho submetido e toma uma decisão.
                 </p>
@@ -304,7 +304,7 @@ export function TabTrabalho({ params, trabalho, can, errors = {} }) {
           {trabalho.status === 'em_analise_coordenacao' &&
             (can?.aprovarComoCoordenacao ||
               can?.solicitarCorrecaoComoCoordenacao) && (
-              <div className="p-4 space-y-3 border">
+              <div className="space-y-3 border p-4">
                 <p className="text-sm text-muted-foreground">
                   Analisa o trabalho e toma uma decisão.
                 </p>
@@ -375,7 +375,7 @@ export function TabTrabalho({ params, trabalho, can, errors = {} }) {
               Versões submetidas
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-6 space-y-3">
+          <CardContent className="space-y-3 pt-6">
             {versoesMostradas.map((versao) => (
               <VersaoCard
                 key={versao.id}

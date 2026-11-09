@@ -51,7 +51,7 @@ const CONFIG = {
 function CampoTema({ label, value }) {
   return (
     <div className="space-y-2">
-      <p className="text-xs font-bold uppercase text-muted-foreground">
+      <p className="text-xs font-bold text-muted-foreground uppercase">
         {label}
       </p>
       <div className="mt-1 text-sm font-medium">{value || '—'}</div>
@@ -79,8 +79,8 @@ export default function FormularioDecisaoTutor({
   };
 
   return (
-    <main className="w-full max-w-5xl p-4 mx-auto space-y-6 md:p-8">
-      <Card className="gap-0 pb-0 overflow-visible">
+    <main className="mx-auto w-full max-w-5xl space-y-6 p-4 md:p-8">
+      <Card className="gap-0 overflow-visible pb-0">
         <CardHeader className="pb-3">
           <div className="min-w-0 space-y-2">
             <Breadcrumb>
@@ -89,7 +89,7 @@ export default function FormularioDecisaoTutor({
                   <BreadcrumbLink asChild>
                     <Link
                       href={backUrl}
-                      className="text-sm font-semibold line-clamp-2 text-primary"
+                      className="line-clamp-2 text-sm font-semibold text-primary"
                     >
                       {grupoPap.nome_grupo}
                     </Link>
@@ -97,7 +97,7 @@ export default function FormularioDecisaoTutor({
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem className="min-w-0">
-                  <BreadcrumbPage className="text-sm font-semibold line-clamp-2 text-secondary">
+                  <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
                     {config.titulo}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
@@ -135,7 +135,11 @@ export default function FormularioDecisaoTutor({
         <CardContent className="space-y-6">
           <CampoTema label="Tema" value={grupoPap.tema_grupo} />
           <CampoTema label="Problema" value={grupoPap.problema} />
-          <CampoTema label="Objectivos" value={grupoPap.objectivos} />
+          <CampoTema label="Objectivo Geral" value={grupoPap.objectivo_geral} />
+          <CampoTema
+            label="Objectivos Específicos"
+            value={grupoPap.objectivos_especificos}
+          />
         </CardContent>
       </Card>
 
@@ -159,7 +163,7 @@ export default function FormularioDecisaoTutor({
                 id={config.campo}
                 rows={14}
                 maxLength={2000}
-                className="text-base leading-7 resize-y min-h-72"
+                className="min-h-72 resize-y text-base leading-7"
                 value={comentario}
                 onChange={(event) => setData(config.campo, event.target.value)}
                 placeholder={config.placeholder}

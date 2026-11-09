@@ -58,7 +58,9 @@ export default function EditarTemaMelhoria({
   const [tema, setTema] = useState(grupoPap?.tema_grupo || '');
   const [nomeGrupo, setNomeGrupo] = useState(grupoPap?.nome_grupo || '');
   const [problema, setProblema] = useState(grupoPap?.problema || '');
-  const [objectivoGeral, setObjectivoGeral] = useState(grupoPap?.objectivo_geral || '');
+  const [objectivoGeral, setObjectivoGeral] = useState(
+    grupoPap?.objectivo_geral || '',
+  );
   const [objectivosEspecificos, setObjectivosEspecificos] = useState(
     grupoPap?.objectivos_especificos || '',
   );
@@ -192,7 +194,9 @@ export default function EditarTemaMelhoria({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="objectivos-especificos">Objectivos Específicos</Label>
+            <Label htmlFor="objectivos-especificos">
+              Objectivos Específicos
+            </Label>
             <Textarea
               id="objectivos-especificos"
               value={objectivosEspecificos}
@@ -201,7 +205,9 @@ export default function EditarTemaMelhoria({
               className="min-h-32"
             />
             {errors.objectivos_especificos && (
-              <p className="text-xs text-red-500">{errors.objectivos_especificos}</p>
+              <p className="text-xs text-red-500">
+                {errors.objectivos_especificos}
+              </p>
             )}
           </div>
 

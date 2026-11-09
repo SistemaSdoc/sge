@@ -91,7 +91,7 @@ class GrupoPapAprovacaoController extends Controller
         $params = compact('instituicao', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
 
         return Inertia::render('tenant/pap/decisao-tutor/enviar-para-coordenacao', [
-            'grupoPap' => $grupoPap->only('id', 'nome_grupo', 'tema_grupo', 'problema', 'objectivos'),
+            'grupoPap' => $grupoPap->only('id', 'nome_grupo', 'tema_grupo', 'problema', 'objectivo_geral', 'objectivos_especificos'),
             'turma' => $turma->only('nome'),
             'submitUrl' => route('tenant.dashboard.grupo-pap-aprovacao.aprovar-tutor', $params),
             'backUrl' => route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params),
@@ -111,7 +111,7 @@ class GrupoPapAprovacaoController extends Controller
         $params = compact('instituicao', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
 
         return Inertia::render('tenant/pap/decisao-tutor/solicitar-melhoria', [
-            'grupoPap' => $grupoPap->only('id', 'nome_grupo', 'tema_grupo', 'problema', 'objectivos'),
+            'grupoPap' => $grupoPap->only('id', 'nome_grupo', 'tema_grupo', 'problema', 'objectivo_geral', 'objectivos_especificos'),
             'turma' => $turma->only('nome'),
             'submitUrl' => route('tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria-tutor', $params),
             'backUrl' => route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params),
