@@ -59,7 +59,7 @@ class Instituicao extends Model
 
     public function cursos()
     {
-        return $this->belongsToMany( 
+        return $this->belongsToMany(
             Curso::class,
             'instituicao_curso',
             'instituicao_id',
@@ -112,9 +112,9 @@ class Instituicao extends Model
                 Tenant::query()
                     ->whereKey(tenant('id'))
                     ->update(['instituicao_nome' => $instituicao->nome,
-                              'instituicao_tipo' => $instituicao->tipo
+                        'instituicao_tipo' => $instituicao->tipo,
                     ]);
-                    
+
             } catch (Throwable $exception) {
                 report($exception);
             }

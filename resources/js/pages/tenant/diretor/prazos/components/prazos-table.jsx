@@ -1,9 +1,5 @@
 import { router } from '@inertiajs/react';
-import {
-  LayersIcon,
-  MoreHorizontalIcon,
-  XCircleIcon,
-} from 'lucide-react';
+import { LayersIcon, MoreHorizontalIcon, XCircleIcon } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Button } from '@/components/ui/button';
 import {
@@ -48,11 +44,11 @@ export default function PrazosTable({
             Lista de prazos criados para submissão de provas.
           </CardDescription>
         </div>
-<CardAction className="w-full md:w-auto">
-  <Button onClick={onCreate} className="w-full md:w-auto">
-    Novo Prazo
-  </Button>
-</CardAction>
+        <CardAction className="w-full md:w-auto">
+          <Button onClick={onCreate} className="w-full md:w-auto">
+            Novo Prazo
+          </Button>
+        </CardAction>
       </CardHeader>
 
       <CardContent className="p-0!">
@@ -109,7 +105,7 @@ export default function PrazosTable({
                     <TableCell className="px-4">
                       {prazo.classe?.nome || 'Todas'}
                     </TableCell>
-                    <TableCell className="px-4 text-center whitespace-nowrap font-mono text-xs tabular-nums">
+                    <TableCell className="px-4 text-center font-mono text-xs whitespace-nowrap tabular-nums">
                       {prazo.data_limite}
                     </TableCell>
                     <TableCell className="px-4 text-center">
@@ -184,10 +180,7 @@ export default function PrazosTable({
       </CardContent>
 
       {pagination && pagination.total > 0 && (
-        <TablePagination
-          pagination={pagination}
-          onPageChange={onPageChange}
-        />
+        <TablePagination pagination={pagination} onPageChange={onPageChange} />
       )}
     </Card>
   );

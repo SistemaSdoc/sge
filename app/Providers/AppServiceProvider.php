@@ -146,11 +146,11 @@ class AppServiceProvider extends ServiceProvider
 
         // ── AULAS / SUMÁRIOS ──────────────────────────────────────
         // Abilities nomeadas — usadas pelo SidebarMenuService e testes
-        Gate::define('aula.viewAny',  [AulaPolicy::class, 'viewAny']);
-        Gate::define('aula.view',     [AulaPolicy::class, 'view']);
-        Gate::define('aula.create',   [AulaPolicy::class, 'create']);
-        Gate::define('aula.update',   [AulaPolicy::class, 'update']);
-        Gate::define('aula.delete',   [AulaPolicy::class, 'delete']);
+        Gate::define('aula.viewAny', [AulaPolicy::class, 'viewAny']);
+        Gate::define('aula.view', [AulaPolicy::class, 'view']);
+        Gate::define('aula.create', [AulaPolicy::class, 'create']);
+        Gate::define('aula.update', [AulaPolicy::class, 'update']);
+        Gate::define('aula.delete', [AulaPolicy::class, 'delete']);
         Gate::define('aula.publicar', [AulaPolicy::class, 'publicar']);
         Gate::define('aula.cancelar', [AulaPolicy::class, 'cancelar']);
 

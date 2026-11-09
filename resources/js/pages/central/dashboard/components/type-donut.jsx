@@ -24,7 +24,7 @@ export function TypeDonut({ institutos = 0, colegios = 0 }) {
           </PieChart>
         </ResponsiveContainer>
         <span className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold leading-none">{total}</span>
+          <span className="text-3xl leading-none font-bold">{total}</span>
           <span className="mt-1 text-xs text-muted-foreground">Total</span>
         </span>
       </div>

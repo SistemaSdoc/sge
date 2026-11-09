@@ -2,16 +2,19 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\Tenant\AulaController;
 use App\Models\Central\Tenant;
 use App\Models\Tenant\Aluno;
 use App\Models\Tenant\Aula;
 use App\Models\Tenant\ClasseTurnoDisciplinaHorario;
 use App\Models\Tenant\User;
 use Illuminate\Console\Command;
+use Illuminate\Http\Request;
 
 class TestAulas extends Command
 {
-    protected $signature   = 'test:aulas';
+    protected $signature = 'test:aulas';
+
     protected $description = 'Testa a estrutura de aulas/sumários de ponta a ponta';
 
     public function handle(): void
@@ -19,20 +22,22 @@ class TestAulas extends Command
         $tenant = Tenant::first();
         if (! $tenant) {
             $this->error('Sem tenant.');
+
             return;
         }
 
         tenancy()->initialize($tenant);
 
-        $this->info("═══════════════════════════════════════════════════════");
+        $this->info('═══════════════════════════════════════════════════════');
         $this->info("  TENANT: {$tenant->id}");
-        $this->info("═══════════════════════════════════════════════════════");
+        $this->info('═══════════════════════════════════════════════════════');
 
         $profUser = User::whereHas('professor')->first();
 
         if (! $profUser) {
             $this->error('Nenhum professor encontrado. Aborta.');
             tenancy()->end();
+
             return;
         }
 
@@ -65,6 +70,7 @@ class TestAulas extends Command
         if ($slots->isEmpty()) {
             $this->error('Sem slots — não é possível testar mais.');
             tenancy()->end();
+
             return;
         }
 
@@ -82,7 +88,7 @@ class TestAulas extends Command
         } else {
             $this->line("   {$alunoUser->email}");
             $turmasAluno = $alunoUser->aluno?->turmas()->pluck('turmas.id')->toArray() ?? [];
-            $this->line('   → Turmas: ' . count($turmasAluno));
+            $this->line('   → Turmas: '.count($turmasAluno));
             foreach ($turmasAluno as $t) {
                 $this->line("     - {$t}");
             }
@@ -96,13 +102,13 @@ class TestAulas extends Command
 
         try {
             auth('tenant')->setUser($profUser);
-            $request = \Illuminate\Http\Request::create('/dashboard/aulas', 'GET');
+            $request = Request::create('/dashboard/aulas', 'GET');
             $request->setUserResolver(fn () => $profUser);
-            app(\App\Http\Controllers\Tenant\AulaController::class)->index($request);
+            app(AulaController::class)->index($request);
             $this->info('   ✅ correu sem erro');
         } catch (\Throwable $e) {
-            $this->error('   ❌ ' . $e->getMessage());
-            $this->line('      → ' . $e->getFile() . ':' . $e->getLine());
+            $this->error('   ❌ '.$e->getMessage());
+            $this->line('      → '.$e->getFile().':'.$e->getLine());
         }
 
         // ══════════════════════════════════════════════════════
@@ -114,13 +120,13 @@ class TestAulas extends Command
 
             try {
                 auth('tenant')->setUser($alunoUser);
-                $request = \Illuminate\Http\Request::create('/dashboard/aulas', 'GET');
+                $request = Request::create('/dashboard/aulas', 'GET');
                 $request->setUserResolver(fn () => $alunoUser);
-                app(\App\Http\Controllers\Tenant\AulaController::class)->index($request);
+                app(AulaController::class)->index($request);
                 $this->info('   ✅ correu sem erro');
             } catch (\Throwable $e) {
-                $this->error('   ❌ ' . $e->getMessage());
-                $this->line('      → ' . $e->getFile() . ':' . $e->getLine());
+                $this->error('   ❌ '.$e->getMessage());
+                $this->line('      → '.$e->getFile().':'.$e->getLine());
             }
         }
 
@@ -141,20 +147,20 @@ class TestAulas extends Command
         // Criar rascunho
         $aula = Aula::create([
             'classe_turno_disciplina_horario_id' => $slot->id,
-            'turma_id'      => $slot->turma_id,
+            'turma_id' => $slot->turma_id,
             'disciplina_id' => $slot->classeTurnoDisciplina->disciplina_id,
-            'professor_id'  => $profUser->professor->id,
-            'data'          => $data,
-            'hora_inicio'   => $slot->hora_inicio,
-            'hora_fim'      => $slot->hora_fim,
-            'tipo'          => 'normal',
-            'titulo'        => 'Aula de teste',
+            'professor_id' => $profUser->professor->id,
+            'data' => $data,
+            'hora_inicio' => $slot->hora_inicio,
+            'hora_fim' => $slot->hora_fim,
+            'tipo' => 'normal',
+            'titulo' => 'Aula de teste',
             'conteudo_previsto' => 'Conteúdo previsto de teste',
-            'sumario'       => 'Conteúdo dado em teste',
-            'estado'        => 'rascunho',
+            'sumario' => 'Conteúdo dado em teste',
+            'estado' => 'rascunho',
         ]);
         $this->line("   ✅ Rascunho criado: {$aula->id}");
-        $this->line("      estado: {$aula->estado_label} | editável: " . ($aula->esta_editavel ? 'sim' : 'não'));
+        $this->line("      estado: {$aula->estado_label} | editável: ".($aula->esta_editavel ? 'sim' : 'não'));
 
         // Publicar
         $aula->update(['estado' => 'publicado', 'publicado_em' => now()]);
@@ -168,13 +174,13 @@ class TestAulas extends Command
                 ->publicado()
                 ->whereIn('turma_id', $turmasAluno)
                 ->exists();
-            $this->line('   Aluno vê a aula? ' . ($visivelAluno ? '✅ sim' : '❌ não'));
+            $this->line('   Aluno vê a aula? '.($visivelAluno ? '✅ sim' : '❌ não'));
         }
 
         // Cancelar
         $aula->update(['estado' => 'cancelado']);
         $aula->refresh();
-        $this->line("   ✅ Cancelado | editável: " . ($aula->esta_editavel ? 'sim' : 'não'));
+        $this->line('   ✅ Cancelado | editável: '.($aula->esta_editavel ? 'sim' : 'não'));
 
         // Apagar definitivamente
         $aula->forceDelete();

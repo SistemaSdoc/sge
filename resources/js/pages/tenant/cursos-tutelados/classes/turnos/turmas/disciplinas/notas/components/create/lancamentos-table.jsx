@@ -222,7 +222,6 @@ export default function LancamentosTable({
   };
 
   const inputNota = 'w-20 min-w-20 text-center';
-  
 
   return (
     <>

@@ -93,7 +93,7 @@ class ExportarListaGruposPapPdf
                     $tutor?->email,
                     $tutor?->telefone,
                 ]);
-                
+
                 $tutorInfo = $tutorInfo === []
                     ? 'não definido, ainda.'
                     : implode('   ·   ', $tutorInfo);

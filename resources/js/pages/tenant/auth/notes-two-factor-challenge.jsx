@@ -5,7 +5,11 @@ import { useEffect, useState } from 'react';
 import { resend, verify } from '@/routes/tenant/dashboard/notes/two-factor';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from '@/components/ui/input-otp';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 
 export default function NotesTwoFactorChallenge({
@@ -19,18 +23,32 @@ export default function NotesTwoFactorChallenge({
 }) {
   const [code, setCode] = useState('');
   const [now, setNow] = useState(Date.now());
-  const waitToResend = Math.max(0, Math.ceil((canResendAt * 1000 - now) / 1000));
+  const waitToResend = Math.max(
+    0,
+    Math.ceil((canResendAt * 1000 - now) / 1000),
+  );
   const waitMinutes = Math.floor(waitToResend / 60);
   const waitSeconds = waitToResend % 60;
   const waitLabel = `${String(waitMinutes).padStart(2, '0')}:${String(waitSeconds).padStart(2, '0')}`;
   const hasSendError = Boolean(sendError);
-  const isExpiredState = !canVerify && (challengeExpired || sendErrorType === 'limit');
+  const isExpiredState =
+    !canVerify && (challengeExpired || sendErrorType === 'limit');
   const alertVariant = hasSendError
-    ? sendErrorType === 'limit' ? 'warning' : 'destructive'
-    : challengeExpired ? 'warning' : 'info';
+    ? sendErrorType === 'limit'
+      ? 'warning'
+      : 'destructive'
+    : challengeExpired
+      ? 'warning'
+      : 'info';
   const alertTitle = hasSendError
-    ? sendErrorType === 'limit' ? 'Limite de envios atingido' : 'Código não enviado'
-    : challengeExpired ? 'Código expirado' : canVerify ? 'Código enviado' : 'Acesso às notas';
+    ? sendErrorType === 'limit'
+      ? 'Limite de envios atingido'
+      : 'Código não enviado'
+    : challengeExpired
+      ? 'Código expirado'
+      : canVerify
+        ? 'Código enviado'
+        : 'Acesso às notas';
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -52,7 +70,9 @@ export default function NotesTwoFactorChallenge({
           <div className="space-y-5">
             <div className="space-y-2 px-4 py-3 text-center">
               <h2 className="text-sm font-medium text-foreground">
-                {challengeExpired ? 'Código expirado' : 'Limite de envios atingido'}
+                {challengeExpired
+                  ? 'Código expirado'
+                  : 'Limite de envios atingido'}
               </h2>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 {sendErrorType === 'limit'
@@ -67,12 +87,21 @@ export default function NotesTwoFactorChallenge({
                   <input type="hidden" name="scope" value={scope} />
                   <InputError message={errors.resend} />
                   {waitToResend > 0 ? (
-                    <p className="text-sm text-muted-foreground" aria-live="polite">
-                      Poderá pedir outro código em <span className="font-mono tabular-nums">{waitLabel}</span>.
+                    <p
+                      className="text-sm text-muted-foreground"
+                      aria-live="polite"
+                    >
+                      Poderá pedir outro código em{' '}
+                      <span className="font-mono tabular-nums">
+                        {waitLabel}
+                      </span>
+                      .
                     </p>
                   ) : (
                     <Button type="submit" variant="link" disabled={processing}>
-                      {processing ? 'Enviando...' : 'Pedir novo código por e-mail'}
+                      {processing
+                        ? 'Enviando...'
+                        : 'Pedir novo código por e-mail'}
                     </Button>
                   )}
                 </div>
@@ -82,13 +111,16 @@ export default function NotesTwoFactorChallenge({
         ) : (
           <>
             <div className="space-y-2 text-center">
-              <h2 className="text-sm font-medium text-foreground">{alertTitle}</h2>
+              <h2 className="text-sm font-medium text-foreground">
+                {alertTitle}
+              </h2>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 {hasSendError ? (
                   sendError
                 ) : (
                   <>
-                    Enviámos um código para <strong>{email}</strong>. É válido por 10 minutos e só pode ser usado uma vez.
+                    Enviámos um código para <strong>{email}</strong>. É válido
+                    por 10 minutos e só pode ser usado uma vez.
                   </>
                 )}
               </p>
@@ -114,9 +146,12 @@ export default function NotesTwoFactorChallenge({
                         autoFocus
                       >
                         <InputOTPGroup>
-                          {Array.from({ length: OTP_MAX_LENGTH }, (_, index) => (
-                            <InputOTPSlot key={index} index={index} />
-                          ))}
+                          {Array.from(
+                            { length: OTP_MAX_LENGTH },
+                            (_, index) => (
+                              <InputOTPSlot key={index} index={index} />
+                            ),
+                          )}
                         </InputOTPGroup>
                       </InputOTP>
                     </div>
@@ -139,12 +174,20 @@ export default function NotesTwoFactorChallenge({
                   <input type="hidden" name="scope" value={scope} />
                   <InputError message={errors.resend} />
                   {waitToResend > 0 ? (
-                    <p className="text-sm text-muted-foreground" aria-live="polite">
-                      Novo envio disponível em <span className="font-mono tabular-nums">{waitLabel}</span>
+                    <p
+                      className="text-sm text-muted-foreground"
+                      aria-live="polite"
+                    >
+                      Novo envio disponível em{' '}
+                      <span className="font-mono tabular-nums">
+                        {waitLabel}
+                      </span>
                     </p>
                   ) : (
                     <Button type="submit" variant="link" disabled={processing}>
-                      {processing ? 'Enviando...' : 'Reenviar código por e-mail'}
+                      {processing
+                        ? 'Enviando...'
+                        : 'Reenviar código por e-mail'}
                     </Button>
                   )}
                 </div>

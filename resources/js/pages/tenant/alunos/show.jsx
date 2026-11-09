@@ -57,7 +57,11 @@ export default function Show() {
     }
 
     url.searchParams.delete('iniciar_historico');
-    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}`);
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${url.pathname}${url.search}`,
+    );
     abrirModal(aluno, null, pendente);
   }, [aluno, abrirModal, classesFaltando]);
 

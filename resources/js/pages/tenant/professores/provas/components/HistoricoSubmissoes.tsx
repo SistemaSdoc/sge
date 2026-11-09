@@ -155,10 +155,7 @@ export default function HistoricoSubmissoes({
       </CardContent>
 
       {historico?.total > 0 && (
-        <TablePagination
-          pagination={historico}
-          onPageChange={onPageChange}
-        />
+        <TablePagination pagination={historico} onPageChange={onPageChange} />
       )}
     </Card>
   );

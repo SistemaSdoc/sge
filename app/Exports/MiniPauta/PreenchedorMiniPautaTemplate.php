@@ -55,7 +55,7 @@ final class PreenchedorMiniPautaTemplate
         $cabecalho->escrever($folha);
 
         $escritorAlunos = new EscritorLinhasAlunosMiniPauta;
-        
+
         $escritorAlunos->escrever($folha, $this->alunos, self::DATA_START_ROW);
 
         if ($linhaInicioCadeirantes !== null) {

@@ -220,7 +220,7 @@ export default function Form({
                     <BreadcrumbLink asChild text-primary>
                       <Link
                         href="/dashboard/professor/aulas"
-                        className="line-clamp-2 text-sm font-semibold" 
+                        className="line-clamp-2 text-sm font-semibold"
                       >
                         As minhas aulas
                       </Link>
@@ -244,7 +244,6 @@ export default function Form({
             <CardAction className="flex flex-wrap items-center gap-2 self-stretch sm:self-start">
               {turmaNome && (
                 <Badge variant="secondary" className="gap-1 text-[10px]">
-                
                   {turmaNome}
                 </Badge>
               )}
@@ -265,14 +264,16 @@ export default function Form({
           </CardHeader>
 
           <div className="flex items-center justify-between gap-2 px-4 py-2">
-            <Button variant="ghost" size="sm" asChild className="hover:cursor-pointer">
-              <Link href="/dashboard/professor/aulas">
-  Voltar
-              </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="hover:cursor-pointer"
+            >
+              <Link href="/dashboard/professor/aulas">Voltar</Link>
             </Button>
             {editando && aula?.publicado_em && (
               <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-      
                 <span>
                   Publicado em {aula.publicado_em}
                   {aula.horas_restantes_edicao !== null &&
@@ -287,11 +288,11 @@ export default function Form({
         {bloqueado && (
           <Card className="gap-0 border pb-0">
             <CardContent className="flex items-start gap-3 p-4">
-                 <div className="text-sm">
+              <div className="text-sm">
                 <p className="font-medium">Fora da janela de edição.</p>
                 <p className="mt-1 text-muted-foreground">
-                  Esta aula foi publicada há mais de 48 horas. Não pode mais
-                  ser editada.
+                  Esta aula foi publicada há mais de 48 horas. Não pode mais ser
+                  editada.
                 </p>
               </div>
             </CardContent>
@@ -378,7 +379,10 @@ export default function Form({
                             value={data.disciplina_id}
                             onValueChange={(v) => setData('disciplina_id', v)}
                           >
-                            <SelectTrigger id="disciplina_id" className="w-full">
+                            <SelectTrigger
+                              id="disciplina_id"
+                              className="w-full"
+                            >
                               <SelectValue placeholder="Selecione a disciplina" />
                             </SelectTrigger>
                             <SelectContent>
@@ -542,7 +546,6 @@ export default function Form({
           <Card className="gap-0 pb-0">
             <CardContent className="flex flex-col-reverse gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              
                 {editando && aula?.publicado_em ? (
                   <span>
                     Publicado em {aula.publicado_em}
@@ -555,8 +558,6 @@ export default function Form({
               </div>
 
               <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
-               
-
                 {editando && !cancelado && !bloqueado && (
                   <Button
                     type="button"
@@ -581,9 +582,7 @@ export default function Form({
                         Salvando...
                       </>
                     ) : (
-                      <>
-                        {editando ? 'Salvar' : 'Salvar rascunho'}
-                      </>
+                      <>{editando ? 'Salvar' : 'Salvar rascunho'}</>
                     )}
                   </Button>
                 )}
@@ -601,9 +600,7 @@ export default function Form({
                         Publicando...
                       </>
                     ) : (
-                      <>
-                        Publicar para alunos
-                      </>
+                      <>Publicar para alunos</>
                     )}
                   </Button>
                 )}

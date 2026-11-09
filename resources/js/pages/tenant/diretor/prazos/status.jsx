@@ -74,9 +74,7 @@ export default function Status({ prazo, professores = [] }) {
           preserveState: false,
           onSuccess: () => {
             toast.success(
-              acao === 'aprovar'
-                ? 'Submissão aprovada'
-                : 'Submissão rejeitada',
+              acao === 'aprovar' ? 'Submissão aprovada' : 'Submissão rejeitada',
               { description: 'O professor foi notificado.' },
             );
             router.reload({
@@ -238,8 +236,7 @@ export default function Status({ prazo, professores = [] }) {
       last_page: lastPage,
       total: professores.length,
       per_page: POR_PAGINA,
-      from:
-        professores.length > 0 ? (pagina - 1) * POR_PAGINA + 1 : 0,
+      from: professores.length > 0 ? (pagina - 1) * POR_PAGINA + 1 : 0,
       to: Math.min(pagina * POR_PAGINA, professores.length),
     };
   }, [professores.length, pagina]);
@@ -304,7 +301,7 @@ export default function Status({ prazo, professores = [] }) {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Card className="gap-0 pb-0">
             <CardContent className="p-4">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Total
               </p>
               <p className="mt-1 text-xl font-bold">{total}</p>
@@ -313,7 +310,7 @@ export default function Status({ prazo, professores = [] }) {
 
           <Card className="gap-0 pb-0">
             <CardContent className="p-4">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Submetido
               </p>
               <p className="mt-1 text-xl font-bold">{cumpriram}</p>
@@ -322,7 +319,7 @@ export default function Status({ prazo, professores = [] }) {
 
           <Card className="gap-0 pb-0">
             <CardContent className="p-4">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Não submetido
               </p>
               <p className="mt-1 text-xl font-bold">{naoCumpriram}</p>
@@ -387,9 +384,7 @@ export default function Status({ prazo, professores = [] }) {
 
                           <TableCell className="px-4">
                             {prof.turma_nome && prof.turma_nome !== '—' ? (
-                              <Badge variant="outline">
-                                {prof.turma_nome}
-                              </Badge>
+                              <Badge variant="outline">{prof.turma_nome}</Badge>
                             ) : (
                               <span className="text-xs text-muted-foreground">
                                 —
@@ -412,7 +407,7 @@ export default function Status({ prazo, professores = [] }) {
                             )}
                           </TableCell>
 
-                          <TableCell className="px-4 text-center text-xs text-muted-foreground whitespace-nowrap">
+                          <TableCell className="px-4 text-center text-xs whitespace-nowrap text-muted-foreground">
                             {prof.data_submissao || '—'}
                           </TableCell>
 
@@ -539,10 +534,7 @@ export default function Status({ prazo, professores = [] }) {
           </CardContent>
 
           {pagination.total > 0 && (
-            <TablePagination
-              pagination={pagination}
-              onPageChange={setPagina}
-            />
+            <TablePagination pagination={pagination} onPageChange={setPagina} />
           )}
         </Card>
       </div>
@@ -611,9 +603,7 @@ export default function Status({ prazo, professores = [] }) {
             <Textarea
               rows={3}
               value={motivoRecusaJustificativa}
-              onChange={(e) =>
-                setMotivoRecusaJustificativa(e.target.value)
-              }
+              onChange={(e) => setMotivoRecusaJustificativa(e.target.value)}
             />
           </Field>
           <DialogFooter>

@@ -10,11 +10,18 @@ import { UsersTable } from './components/users-table';
 
 const COR_TIPO = { instituto: 'var(--color-warning)' };
 
-const soma = (lista, campo) => lista.reduce((total, item) => total + (item[campo] ?? 0), 0);
+const soma = (lista, campo) =>
+  lista.reduce((total, item) => total + (item[campo] ?? 0), 0);
 
 export default function CentralDashboard({ dashboard = {} }) {
   const { auth } = usePage().props;
-  const { kpis = {}, crescimento = [], utilizadores = {}, logins = null, online = null } = dashboard;
+  const {
+    kpis = {},
+    crescimento = [],
+    utilizadores = {},
+    logins = null,
+    online = null,
+  } = dashboard;
 
   // Actualiza os números sozinho a cada 30 segundos
   usePoll(30000, { only: ['dashboard'] });
@@ -39,25 +46,49 @@ export default function CentralDashboard({ dashboard = {} }) {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
-      <GreetingHeader greeting={getGreeting()} userName={auth.user?.nome} todayFormatted={getTodayFormatted()} />
+      <GreetingHeader
+        greeting={getGreeting()}
+        userName={auth.user?.nome}
+        todayFormatted={getTodayFormatted()}
+      />
 
-      <KpiStrip kpis={kpis} utilizadores={utilizadores} logins={logins} online={online} />
+      <KpiStrip
+        kpis={kpis}
+        utilizadores={utilizadores}
+        logins={logins}
+        online={online}
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 [&>*]:h-full">
-        <DashboardPanel title="Crescimento da plataforma" description="Instituições registadas nos últimos 7 dias, por tipo.">
+        <DashboardPanel
+          title="Crescimento da plataforma"
+          description="Instituições registadas nos últimos 7 dias, por tipo."
+        >
           <GrowthChart data={crescimento} />
         </DashboardPanel>
 
-        <DashboardPanel title="Logins por dia" description="Utilizadores que entraram em cada um dos últimos 7 dias.">
+        <DashboardPanel
+          title="Logins por dia"
+          description="Utilizadores que entraram em cada um dos últimos 7 dias."
+        >
           <LoginsChart data={logins?.por_dia} />
         </DashboardPanel>
 
-        <DashboardPanel title="Utilizadores por instituição" description="Número de utilizadores em cada instituição.">
+        <DashboardPanel
+          title="Utilizadores por instituição"
+          description="Número de utilizadores em cada instituição."
+        >
           <UsersTable items={utilizadoresPorInstituicao} />
         </DashboardPanel>
 
-        <DashboardPanel title="Tipo de instituição" description="Distribuição das instituições por tipo.">
-          <TypeDonut institutos={kpis.institutos ?? 0} colegios={kpis.colegios ?? 0} />
+        <DashboardPanel
+          title="Tipo de instituição"
+          description="Distribuição das instituições por tipo."
+        >
+          <TypeDonut
+            institutos={kpis.institutos ?? 0}
+            colegios={kpis.colegios ?? 0}
+          />
         </DashboardPanel>
       </div>
     </div>

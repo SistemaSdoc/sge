@@ -42,13 +42,13 @@ class SubmissaoProva extends Model
     ];
 
     protected $casts = [
-        'data_submissao'         => 'datetime',
-        'prazo_reenvio_ate'      => 'datetime',
-        'versao'                 => 'integer',
-        'tamanho_bytes'          => 'integer',
+        'data_submissao' => 'datetime',
+        'prazo_reenvio_ate' => 'datetime',
+        'versao' => 'integer',
+        'tamanho_bytes' => 'integer',
         'tamanho_original_bytes' => 'integer',
-        'comprimido'             => 'boolean',
-        'encriptado'             => 'boolean',
+        'comprimido' => 'boolean',
+        'encriptado' => 'boolean',
     ];
 
     // =====================================
@@ -88,7 +88,7 @@ class SubmissaoProva extends Model
     {
         return route('tenant.dashboard.professor.provas.arquivo', [
             'submissao' => $this->id,
-            'tipo'      => 'prova',
+            'tipo' => 'prova',
         ]);
     }
 
@@ -96,7 +96,7 @@ class SubmissaoProva extends Model
     {
         return route('tenant.dashboard.professor.provas.arquivo', [
             'submissao' => $this->id,
-            'tipo'      => 'chave',
+            'tipo' => 'chave',
         ]);
     }
 
@@ -123,6 +123,7 @@ class SubmissaoProva extends Model
         if ($this->tamanho_original_bytes === null || $this->tamanho_bytes === null) {
             return null;
         }
+
         return $this->tamanho_original_bytes - $this->tamanho_bytes;
     }
 
@@ -133,6 +134,7 @@ class SubmissaoProva extends Model
             || $this->tamanho_bytes === null) {
             return null;
         }
+
         return round((1 - $this->tamanho_bytes / $this->tamanho_original_bytes) * 100, 1);
     }
 
@@ -143,24 +145,24 @@ class SubmissaoProva extends Model
     public function getEstadoLabelAttribute(): string
     {
         return match ($this->estado) {
-            'pendente'    => 'Pendente',
-            'em_revisao'  => 'Em Revisão',
-            'aprovado'    => 'Aprovado',
-            'rejeitado'   => 'Rejeitado',
+            'pendente' => 'Pendente',
+            'em_revisao' => 'Em Revisão',
+            'aprovado' => 'Aprovado',
+            'rejeitado' => 'Rejeitado',
             'substituido' => 'Substituído',
-            default       => ucfirst($this->estado ?? '—'),
+            default => ucfirst($this->estado ?? '—'),
         };
     }
 
     public function getEstadoBadgeClassAttribute(): string
     {
         return match ($this->estado) {
-            'pendente'    => 'bg-warning text-dark',
-            'em_revisao'  => 'bg-info text-dark',
-            'aprovado'    => 'bg-success',
-            'rejeitado'   => 'bg-danger',
+            'pendente' => 'bg-warning text-dark',
+            'em_revisao' => 'bg-info text-dark',
+            'aprovado' => 'bg-success',
+            'rejeitado' => 'bg-danger',
             'substituido' => 'bg-secondary',
-            default       => 'bg-light text-dark',
+            default => 'bg-light text-dark',
         };
     }
 
@@ -221,15 +223,16 @@ class SubmissaoProva extends Model
     private function humanSize(int $bytes): string
     {
         if ($bytes < 1024) {
-            return $bytes . ' B';
+            return $bytes.' B';
         }
         if ($bytes < 1048576) {
-            return round($bytes / 1024, 1) . ' KB';
+            return round($bytes / 1024, 1).' KB';
         }
         if ($bytes < 1073741824) {
-            return round($bytes / 1048576, 2) . ' MB';
+            return round($bytes / 1048576, 2).' MB';
         }
-        return round($bytes / 1073741824, 2) . ' GB';
+
+        return round($bytes / 1073741824, 2).' GB';
     }
 
     protected static function boot()

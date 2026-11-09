@@ -258,14 +258,14 @@ export default function Index({ agenda = [], filtros }: Props) {
                 <BreadcrumbList className="flex-wrap">
                   <BreadcrumbItem className="min-w-0">
                     <BreadcrumbLink asChild>
-                      <span className="line-clamp-2 text-sm text-primary font-semibold">
+                      <span className="line-clamp-2 text-sm font-semibold text-primary">
                         Aluno
                       </span>
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
                   <BreadcrumbItem className="min-w-0">
-                    <BreadcrumbPage className="line-clamp-2 text-sm text-secondary font-semibold">
+                    <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
                       Sumários
                     </BreadcrumbPage>
                   </BreadcrumbItem>
@@ -288,7 +288,7 @@ export default function Index({ agenda = [], filtros }: Props) {
             </div>
 
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
@@ -391,7 +391,7 @@ export default function Index({ agenda = [], filtros }: Props) {
                       <Calendar className="size-4" />
                     </div>
                     <div className="flex-1">
-                      <h2 className="text-base font-semibold capitalize leading-none">
+                      <h2 className="text-base leading-none font-semibold capitalize">
                         {formatarDataHumana(dia.data)}
                       </h2>
                       <p className="mt-1 text-xs text-muted-foreground">
@@ -455,7 +455,7 @@ function CardAulaAluno({
             <GraduationCap className="size-4" />
           </div>
           <div className="min-w-0">
-            <h3 className="truncate text-sm font-semibold leading-tight">
+            <h3 className="truncate text-sm leading-tight font-semibold">
               {slot.disciplina_nome}
             </h3>
             <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -498,7 +498,7 @@ function CardAulaAluno({
       <div className="mt-2 space-y-2">
         {temPrevisto && (
           <div className="border bg-muted/30 p-2">
-            <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="flex items-center gap-1.5 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
               <NotebookPen className="size-3" />
               Conteúdo previsto
             </p>
@@ -510,40 +510,38 @@ function CardAulaAluno({
 
         {temSumario && (
           <div className="border bg-muted/50 p-2">
-            <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="flex items-center gap-1.5 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
               <FileText className="size-3" />
               Sumário
             </p>
-            <p className="mt-1 whitespace-pre-wrap text-sm">{aula.sumario}</p>
+            <p className="mt-1 text-sm whitespace-pre-wrap">{aula.sumario}</p>
           </div>
         )}
 
         {temSumario && aula?.tpc && (
           <div className="border bg-muted/50 p-2">
-            <p className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="flex items-center gap-1.5 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
               <BookOpen className="size-3" />
               Trabalho para casa
             </p>
-            <p className="mt-1 whitespace-pre-wrap text-sm">
-              {aula.tpc}
-            </p>
+            <p className="mt-1 text-sm whitespace-pre-wrap">{aula.tpc}</p>
           </div>
         )}
 
         {!cancelada && !temSumario && !temPrevisto && !isPassado && (
-          <p className="text-xs italic text-muted-foreground">
+          <p className="text-xs text-muted-foreground italic">
             O professor ainda não publicou informação para esta aula.
           </p>
         )}
 
         {!cancelada && !temSumario && isPassado && (
-          <p className="text-xs italic text-muted-foreground">
+          <p className="text-xs text-muted-foreground italic">
             Sem sumário registrado.
           </p>
         )}
 
         {cancelada && (
-          <p className="text-xs italic text-muted-foreground">
+          <p className="text-xs text-muted-foreground italic">
             Esta aula foi cancelada.
           </p>
         )}

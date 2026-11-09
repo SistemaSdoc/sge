@@ -35,10 +35,10 @@ class ProvaService
         bool $permitirPrazoExtra = false,
     ): SubmissaoProva {
         Log::info('SERVICE - Iniciando submeterProva', [
-            'prazo_id'             => $prazo->id,
-            'professor_id'         => $professorId,
-            'turma_id'             => $turmaId,
-            'comentario'           => $comentario,
+            'prazo_id' => $prazo->id,
+            'professor_id' => $professorId,
+            'turma_id' => $turmaId,
+            'comentario' => $comentario,
             'permitir_prazo_extra' => $permitirPrazoExtra,
         ]);
 
@@ -46,7 +46,7 @@ class ProvaService
         if (! $permitirPrazoExtra && ! $prazo->isAberto()) {
             Log::warning('SERVICE - Prazo não está aberto', [
                 'prazo_id' => $prazo->id,
-                'status'   => $prazo->status,
+                'status' => $prazo->status,
             ]);
             throw new Exception('Este prazo não está aberto para submissões.');
         }
@@ -61,7 +61,7 @@ class ProvaService
         $novaVersao = $ultimaSubmissao ? $ultimaSubmissao->versao + 1 : 1;
 
         Log::info('SERVICE - Versão calculada', [
-            'versao'             => $novaVersao,
+            'versao' => $novaVersao,
             'submissao_anterior' => $ultimaSubmissao?->id,
         ]);
 
@@ -87,24 +87,24 @@ class ProvaService
 
         // ── 5. Montar dados para a BD ──
         $dados = [
-            'prazo_prova_id'        => $prazo->id,
-            'professor_id'          => $professorId,
-            'disciplina_id'         => $prazo->disciplina_id,
-            'classe_id'             => $prazo->classe_id,
-            'turma_id'              => $turmaId,
-            'caminho_prova'         => $resultado['caminho_prova'],
-            'caminho_chave'         => $resultado['caminho_chave'],
-            'versao'                => $novaVersao,
-            'comentario_professor'  => $comentario,
-            'estado'                => 'pendente',
-            'data_submissao'        => now(),
+            'prazo_prova_id' => $prazo->id,
+            'professor_id' => $professorId,
+            'disciplina_id' => $prazo->disciplina_id,
+            'classe_id' => $prazo->classe_id,
+            'turma_id' => $turmaId,
+            'caminho_prova' => $resultado['caminho_prova'],
+            'caminho_chave' => $resultado['caminho_chave'],
+            'versao' => $novaVersao,
+            'comentario_professor' => $comentario,
+            'estado' => 'pendente',
+            'data_submissao' => now(),
 
             // Metadata de compressão/encriptação
             'tamanho_original_bytes' => $resultado['tamanho_original_bytes'],
-            'tamanho_bytes'          => $resultado['tamanho_bytes'],
-            'comprimido'             => $resultado['comprimido'],
-            'encriptado'             => $resultado['encriptado'],
-            'algoritmo_encriptacao'  => $resultado['algoritmo_encriptacao'],
+            'tamanho_bytes' => $resultado['tamanho_bytes'],
+            'comprimido' => $resultado['comprimido'],
+            'encriptado' => $resultado['encriptado'],
+            'algoritmo_encriptacao' => $resultado['algoritmo_encriptacao'],
         ];
 
         Log::info('SERVICE - Tentando criar SubmissaoProva', $dados);
@@ -122,12 +122,12 @@ class ProvaService
             });
 
             Log::info('SERVICE - Submissão criada', [
-                'id'                => $submissao->id,
-                'versao'            => $submissao->versao,
-                'encriptado'        => $submissao->encriptado,
-                'comprimido'        => $submissao->comprimido,
-                'tamanho_original'  => $submissao->tamanho_original_bytes,
-                'tamanho_final'     => $submissao->tamanho_bytes,
+                'id' => $submissao->id,
+                'versao' => $submissao->versao,
+                'encriptado' => $submissao->encriptado,
+                'comprimido' => $submissao->comprimido,
+                'tamanho_original' => $submissao->tamanho_original_bytes,
+                'tamanho_final' => $submissao->tamanho_bytes,
             ]);
         } catch (Exception $e) {
             // Rollback dos ficheiros físicos
@@ -165,14 +165,14 @@ class ProvaService
         }
 
         $dados = [
-            'estado'          => $acao === 'aprovar' ? 'aprovado' : 'rejeitado',
+            'estado' => $acao === 'aprovar' ? 'aprovado' : 'rejeitado',
             'parecer_diretor' => $parecer,
         ];
 
         if ($acao === 'rejeitar') {
             $dias = $diasReenvio ?? (int) config('provas.dias_reenvio_rejeicao', 7);
 
-            $limiteGlobal  = $submissao->prazo?->data_limite;
+            $limiteGlobal = $submissao->prazo?->data_limite;
             $limiteReenvio = now()->addDays($dias);
 
             $dados['prazo_reenvio_ate'] = $limiteGlobal && $limiteGlobal->isAfter($limiteReenvio)
@@ -180,11 +180,11 @@ class ProvaService
                 : $limiteReenvio;
 
             Log::info('SERVICE - Rejeição com janela de reenvio', [
-                'submissao_id'      => $submissao->id,
-                'prazo_id'          => $submissao->prazo_prova_id,
-                'prazo_global'      => $limiteGlobal?->toDateTimeString(),
+                'submissao_id' => $submissao->id,
+                'prazo_id' => $submissao->prazo_prova_id,
+                'prazo_global' => $limiteGlobal?->toDateTimeString(),
                 'prazo_reenvio_ate' => $dados['prazo_reenvio_ate']->toDateTimeString(),
-                'dias_concedidos'   => $dias,
+                'dias_concedidos' => $dias,
             ]);
         } else {
             // Ao aprovar, limpa qualquer janela de reenvio pendente
@@ -207,7 +207,7 @@ class ProvaService
 
         $prazo->update([
             'data_limite' => $novaDataLimite,
-            'status'      => 'aberto',
+            'status' => 'aberto',
         ]);
 
         return $prazo;
@@ -234,30 +234,30 @@ class ProvaService
             ->get()
             ->map(function ($sub) use ($user) {
                 return [
-                    'id'          => $sub->id,
-                    'professor'   => [
-                        'id'   => $sub->professor_id,
+                    'id' => $sub->id,
+                    'professor' => [
+                        'id' => $sub->professor_id,
                         'nome' => $sub->professor?->user?->nome ?? 'N/A',
                     ],
-                    'disciplina'  => $sub->disciplina ? $sub->disciplina->only(['id', 'nome', 'sigla']) : null,
-                    'classe'      => $sub->classe ? $sub->classe->only(['id', 'nome']) : null,
-                    'turma'       => $sub->turma ? $sub->turma->only(['id', 'nome']) : null,
-                    'versao'      => $sub->versao,
-                    'comentario'  => $sub->comentario_professor,
-                    'estado'      => $sub->estado,
-                    'estado_label'=> $sub->estado_label,
+                    'disciplina' => $sub->disciplina ? $sub->disciplina->only(['id', 'nome', 'sigla']) : null,
+                    'classe' => $sub->classe ? $sub->classe->only(['id', 'nome']) : null,
+                    'turma' => $sub->turma ? $sub->turma->only(['id', 'nome']) : null,
+                    'versao' => $sub->versao,
+                    'comentario' => $sub->comentario_professor,
+                    'estado' => $sub->estado,
+                    'estado_label' => $sub->estado_label,
                     'badge_class' => $sub->estado_badge_class,
                     'data_submissao' => $sub->data_submissao?->format('d/m/Y H:i'),
-                    'url_prova'   => $sub->url_prova,
-                    'url_chave'   => $sub->url_chave,
-                    'parecer'     => $sub->parecer_diretor,
+                    'url_prova' => $sub->url_prova,
+                    'url_chave' => $sub->url_chave,
+                    'parecer' => $sub->parecer_diretor,
 
                     // Metadata de compressão/encriptação
-                    'tamanho'            => $sub->tamanho_formatado,
-                    'tamanho_original'   => $sub->tamanho_original_formatado,
+                    'tamanho' => $sub->tamanho_formatado,
+                    'tamanho_original' => $sub->tamanho_original_formatado,
                     'reducao_percentual' => $sub->reducao_percentual,
-                    'encriptado'         => (bool) $sub->encriptado,
-                    'comprimido'         => (bool) $sub->comprimido,
+                    'encriptado' => (bool) $sub->encriptado,
+                    'comprimido' => (bool) $sub->comprimido,
 
                     'can' => [
                         'avaliar' => $user->can('avaliar', $sub),

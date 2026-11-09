@@ -140,7 +140,7 @@ export default function Disciplina({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <Card className="gap-0 pb-0">
               <CardContent className="p-4">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                   Planificações
                 </p>
                 <p className="mt-1 text-xl font-bold">{stats.total}</p>
@@ -149,7 +149,7 @@ export default function Disciplina({
 
             <Card className="gap-0 pb-0">
               <CardContent className="p-4">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                   Classes
                 </p>
                 <p className="mt-1 text-xl font-bold">{stats.classes}</p>
@@ -159,7 +159,7 @@ export default function Disciplina({
             {stats.ultima && (
               <Card className="gap-0 pb-0">
                 <CardContent className="min-w-0 p-4">
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                     Última atualização
                   </p>
                   <p className="mt-1 truncate text-sm font-semibold">
@@ -211,7 +211,6 @@ export default function Disciplina({
                       {items.length === 1 ? 'planificação' : 'planificações'}
                     </p>
                   </div>
-                 
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

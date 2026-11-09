@@ -28,36 +28,36 @@ class AlunoAdicionadoAoGrupoNotification extends Notification
             ->view('mail.pap.aluno-adicionado-ao-grupo', [
                 'nomeAluno' => $this->nomeAluno,
                 'nomeGrupo' => $this->grupoPap->nome_grupo,
-                'url'       => $this->urlGrupo(),
+                'url' => $this->urlGrupo(),
             ]);
     }
 
     public function toArray(object $notifiable): array
     {
         return [
-            'tipo'        => 'aluno_adicionado_ao_grupo',
-            'titulo'      => 'Adicionado a um grupo PAP',
-            'mensagem'    => "Foste adicionado ao grupo PAP \"{$this->grupoPap->nome_grupo}\".",
+            'tipo' => 'aluno_adicionado_ao_grupo',
+            'titulo' => 'Adicionado a um grupo PAP',
+            'mensagem' => "Foste adicionado ao grupo PAP \"{$this->grupoPap->nome_grupo}\".",
             'grupo_pap_id' => $this->grupoPap->id,
-            'url'         => $this->urlGrupo(),
+            'url' => $this->urlGrupo(),
         ];
     }
 
     private function urlGrupo(): string
     {
-        $turma         = $this->grupoPap->turma;
-        $turno         = $turma->cursoClasseTurno;
-        $classe        = $turno->cursoClasse;
+        $turma = $this->grupoPap->turma;
+        $turno = $turma->cursoClasseTurno;
+        $classe = $turno->cursoClasse;
         $cursoTutelado = $classe->cursoTutelado;
-        $instituicao   = $cursoTutelado->instituicaoCurso->instituicao;
+        $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
         return route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
-            'instituicao'      => $instituicao->id,
-            'cursoTutelado'    => $cursoTutelado->id,
-            'cursoClasse'      => $classe->id,
+            'instituicao' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $classe->id,
             'cursoClasseTurno' => $turno->id,
-            'turma'            => $turma->id,
-            'grupoPap'         => $this->grupoPap->id,
+            'turma' => $turma->id,
+            'grupoPap' => $this->grupoPap->id,
         ]);
     }
 }

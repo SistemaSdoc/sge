@@ -1,8 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import {
-  ArrowLeft,
-  Lock,
-} from 'lucide-react';
+import { ArrowLeft, Lock } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -113,9 +110,7 @@ export default function Submeter({
                 <FieldSet>
                   {/* Turma */}
                   <Field>
-                    <FieldLabel htmlFor="turma_id">
-                      Turma *
-                    </FieldLabel>
+                    <FieldLabel htmlFor="turma_id">Turma *</FieldLabel>
 
                     {turmaVemDoCard ? (
                       <div className="flex items-center gap-2 border bg-muted/40 p-3">
@@ -133,9 +128,7 @@ export default function Submeter({
                     ) : (
                       <Select
                         value={data.turma_id}
-                        onValueChange={(value) =>
-                          setData('turma_id', value)
-                        }
+                        onValueChange={(value) => setData('turma_id', value)}
                         disabled={processing}
                       >
                         <SelectTrigger id="turma_id" className="w-full">
@@ -228,9 +221,7 @@ export default function Submeter({
                       id="comentario"
                       rows={3}
                       value={data.comentario}
-                      onChange={(e) =>
-                        setData('comentario', e.target.value)
-                      }
+                      onChange={(e) => setData('comentario', e.target.value)}
                       placeholder="Observações sobre a prova..."
                       disabled={processing}
                       className="resize-none"

@@ -165,7 +165,9 @@ export default function Create({
               <FieldGroup>
                 <FieldSet>
                   <Field>
-                    <FieldLabel htmlFor="ano_letivo_id">Ano letivo *</FieldLabel>
+                    <FieldLabel htmlFor="ano_letivo_id">
+                      Ano letivo *
+                    </FieldLabel>
                     <Select
                       value={data.ano_letivo_id}
                       onValueChange={(v) => setData('ano_letivo_id', v)}
@@ -315,9 +317,7 @@ export default function Create({
                       placeholder="Ex: Planificação 1º Trimestre 2026/27"
                       disabled={processing}
                     />
-                    {errors.titulo && (
-                      <FieldError>{errors.titulo}</FieldError>
-                    )}
+                    {errors.titulo && <FieldError>{errors.titulo}</FieldError>}
                   </Field>
 
                   <Field>
@@ -398,9 +398,7 @@ export default function Create({
                 </label>
               ) : (
                 <div className="flex items-center gap-3 border bg-muted/20 p-4">
-                  <div className="flex size-11 shrink-0 items-center justify-center bg-muted text-muted-foreground">
-                  
-                  </div>
+                  <div className="flex size-11 shrink-0 items-center justify-center bg-muted text-muted-foreground"></div>
                   <div className="min-w-0 flex-1">
                     <p
                       className="truncate text-sm font-medium"
@@ -453,9 +451,7 @@ export default function Create({
                   Publicando...
                 </>
               ) : (
-                <>
-                  Publicar planificação
-                </>
+                <>Publicar planificação</>
               )}
             </Button>
           </div>

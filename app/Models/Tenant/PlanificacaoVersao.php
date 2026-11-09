@@ -33,11 +33,11 @@ class PlanificacaoVersao extends Model
     protected function casts(): array
     {
         return [
-            'versao'                 => 'integer',
-            'tamanho_bytes'          => 'integer',
+            'versao' => 'integer',
+            'tamanho_bytes' => 'integer',
             'tamanho_original_bytes' => 'integer',
-            'encriptado'             => 'boolean',
-            'comprimido'             => 'boolean',
+            'encriptado' => 'boolean',
+            'comprimido' => 'boolean',
         ];
     }
 
@@ -101,15 +101,15 @@ class PlanificacaoVersao extends Model
             return '—';
         }
         if ($bytes < 1024) {
-            return $bytes . ' B';
+            return $bytes.' B';
         }
         if ($bytes < 1048576) {
-            return round($bytes / 1024, 1) . ' KB';
+            return round($bytes / 1024, 1).' KB';
         }
         if ($bytes < 1073741824) {
-            return round($bytes / 1048576, 1) . ' MB';
+            return round($bytes / 1048576, 1).' MB';
         }
 
-        return round($bytes / 1073741824, 1) . ' GB';
+        return round($bytes / 1073741824, 1).' GB';
     }
 }

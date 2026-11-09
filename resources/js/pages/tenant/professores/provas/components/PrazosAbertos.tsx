@@ -1,11 +1,5 @@
 import { Link } from '@inertiajs/react';
-import {
-  Clock,
-  FileText,
-  XCircle,
-  AlertCircle,
-  RotateCcw,
-} from 'lucide-react';
+import { Clock, FileText, XCircle, AlertCircle, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -77,10 +71,7 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
         const foiRejeitada = prazo.foi_rejeitada && prazo.submissao;
 
         return (
-          <Card
-            key={prazo.id}
-            className="transition-shadow hover:shadow-md"
-          >
+          <Card key={prazo.id} className="transition-shadow hover:shadow-md">
             <CardHeader>
               <CardTitle className="text-lg">
                 <span className="line-clamp-2">{prazo.titulo}</span>
@@ -95,7 +86,7 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
 
             <CardContent className="space-y-2 text-sm">
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                   Disciplina
                 </p>
                 <p className="truncate font-medium">
@@ -103,7 +94,7 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                   Classe
                 </p>
                 <p className="truncate font-medium">
@@ -111,7 +102,7 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                   Turma
                 </p>
                 <p className="truncate font-semibold">
@@ -138,7 +129,7 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
                       <p className="text-[11px] font-medium text-muted-foreground">
                         Parecer do diretor:
                       </p>
-                      <p className="mt-0.5 text-xs italic text-muted-foreground">
+                      <p className="mt-0.5 text-xs text-muted-foreground italic">
                         "{prazo.submissao.parecer_diretor}"
                       </p>
                     </div>
@@ -155,8 +146,8 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
                   <p className="flex items-center gap-1 text-xs text-muted-foreground">
                     <AlertCircle className="size-3" />
                     <span>
-                      <strong>Justificativa pendente.</strong> Aguarda
-                      avaliação do diretor.
+                      <strong>Justificativa pendente.</strong> Aguarda avaliação
+                      do diretor.
                     </span>
                   </p>
                 </div>
@@ -165,18 +156,12 @@ export default function PrazosAbertos({ prazos = [] }: PrazosAbertosProps) {
 
             <CardFooter>
               {prazo.bloqueado ? (
-                <Badge
-                  variant="secondary"
-                  className="w-full justify-center"
-                >
+                <Badge variant="secondary" className="w-full justify-center">
                   <XCircle className="mr-1 size-3" />
                   Acesso negado
                 </Badge>
               ) : foiRejeitada ? (
-                <Button
-                  asChild
-                  className="w-full hover:cursor-pointer"
-                >
+                <Button asChild className="w-full hover:cursor-pointer">
                   <Link href={prazo.url_submeter || '#'}>
                     <RotateCcw className="mr-1 size-4" />
                     Submeter nova versão

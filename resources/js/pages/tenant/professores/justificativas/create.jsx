@@ -41,8 +41,7 @@ export default function Create({ prazo, turma, justificativa }) {
   const [loading, setLoading] = useState(false);
 
   const isBlocked =
-    justificativa?.status === 'aceita' ||
-    justificativa?.status === 'recusada';
+    justificativa?.status === 'aceita' || justificativa?.status === 'recusada';
   const prazoEncerrado = prazo.status !== 'aberto';
 
   const statusBadge = (status) => {
@@ -152,7 +151,7 @@ export default function Create({ prazo, turma, justificativa }) {
           {/* Meta info — sem ícones */}
           <CardContent className="grid grid-cols-1 gap-4 border-b p-4 sm:grid-cols-2">
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Disciplina
               </p>
               <p className="truncate text-sm font-medium">
@@ -160,7 +159,7 @@ export default function Create({ prazo, turma, justificativa }) {
               </p>
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Classe
               </p>
               <p className="truncate text-sm font-medium">
@@ -168,13 +167,13 @@ export default function Create({ prazo, turma, justificativa }) {
               </p>
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Turma
               </p>
               <p className="truncate text-sm font-semibold">{turma.nome}</p>
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Data limite
               </p>
               <p className="truncate text-sm font-medium whitespace-nowrap">
@@ -182,7 +181,7 @@ export default function Create({ prazo, turma, justificativa }) {
               </p>
             </div>
             <div className="col-span-1 sm:col-span-2">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Estado do prazo
               </p>
               <Badge variant="outline" className="mt-0.5 text-[10px]">
@@ -200,12 +199,10 @@ export default function Create({ prazo, turma, justificativa }) {
                     <div className="flex items-start gap-2 border bg-muted/50 p-3">
                       <AlertCircle className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
                       <div>
-                        <p className="text-sm font-medium">
-                          Prazo encerrado
-                        </p>
+                        <p className="text-sm font-medium">Prazo encerrado</p>
                         <p className="text-xs text-muted-foreground">
-                          Este prazo já foi encerrado. A justificativa ainda pode
-                          ser enviada para análise do diretor.
+                          Este prazo já foi encerrado. A justificativa ainda
+                          pode ser enviada para análise do diretor.
                         </p>
                       </div>
                     </div>
@@ -249,7 +246,7 @@ export default function Create({ prazo, turma, justificativa }) {
                       )}
                       {justificativa.motivo && (
                         <div className="mt-2 border bg-background p-2">
-                          <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                          <p className="text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
                             Motivo enviado
                           </p>
                           <p className="mt-0.5 text-sm">

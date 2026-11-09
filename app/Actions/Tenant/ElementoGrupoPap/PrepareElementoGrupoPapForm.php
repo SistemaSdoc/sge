@@ -37,12 +37,12 @@ class PrepareElementoGrupoPapForm
             ->whereNotIn('id', $alunosEmOutrosGrupos)       // excluir já em outros grupos
             ->whereHas(
                 'turmas',
-                fn($query) => $query
+                fn ($query) => $query
                     ->where('turmas.id', $turma->getKey())
                     ->where('turma_aluno.activo', true)
             )
             ->get()
-            ->map(fn(Aluno $aluno): array => [
+            ->map(fn (Aluno $aluno): array => [
                 'id' => $aluno->getKey(),
                 'nome' => $aluno->inscricao?->candidato?->nome ?? 'Sem nome',
             ])

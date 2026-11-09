@@ -17,7 +17,13 @@ export function BarList({ items = [], emptyText = 'Sem dados' }) {
               <span className="font-semibold">{item.value}</span>
             </div>
             <div className="h-2 bg-muted">
-            <div className="h-full" style={{ width: `${(item.value / max) * 100}%`, background: item.color ?? 'var(--color-info)' }} />
+              <div
+                className="h-full"
+                style={{
+                  width: `${(item.value / max) * 100}%`,
+                  background: item.color ?? 'var(--color-info)',
+                }}
+              />
             </div>
           </li>
         ))}

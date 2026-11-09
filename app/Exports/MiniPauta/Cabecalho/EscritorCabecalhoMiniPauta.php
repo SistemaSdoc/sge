@@ -91,9 +91,9 @@ final readonly class EscritorCabecalhoMiniPauta
         $folha->setCellValue('B6', $reprovFalt);
 
         $folha->setCellValue('C4', '');
-        
+
         $folha->setCellValue('C5', 'O Sub-Director');
-        
+
         $folha->setCellValue('C6', '');
     }
 }

@@ -153,9 +153,7 @@ export default function Create({
                       onChange={(e) => setData('titulo', e.target.value)}
                       disabled={processing}
                     />
-                    {errors.titulo && (
-                      <FieldError>{errors.titulo}</FieldError>
-                    )}
+                    {errors.titulo && <FieldError>{errors.titulo}</FieldError>}
                   </Field>
 
                   {/* Tipo de Prova */}
@@ -258,9 +256,7 @@ export default function Create({
                         id="data_inicio"
                         type="datetime-local"
                         value={data.data_inicio}
-                        onChange={(e) =>
-                          setData('data_inicio', e.target.value)
-                        }
+                        onChange={(e) => setData('data_inicio', e.target.value)}
                         disabled={processing}
                         required
                       />
@@ -277,9 +273,7 @@ export default function Create({
                         id="data_limite"
                         type="datetime-local"
                         value={data.data_limite}
-                        onChange={(e) =>
-                          setData('data_limite', e.target.value)
-                        }
+                        onChange={(e) => setData('data_limite', e.target.value)}
                         disabled={processing}
                         required
                       />
@@ -296,9 +290,7 @@ export default function Create({
                       id="observacoes"
                       rows={3}
                       value={data.observacoes}
-                      onChange={(e) =>
-                        setData('observacoes', e.target.value)
-                      }
+                      onChange={(e) => setData('observacoes', e.target.value)}
                       disabled={processing}
                     />
                     {errors.observacoes && (

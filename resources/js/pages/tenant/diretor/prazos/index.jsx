@@ -37,10 +37,9 @@ export default function Index({ prazos, filters, disciplinas }) {
   });
 
   const aplicarFiltros = (novosFiltros) => {
-    router.visit(
-      '/dashboard/diretor/prazos' + buildQuery(novosFiltros),
-      { preserveScroll: true },
-    );
+    router.visit('/dashboard/diretor/prazos' + buildQuery(novosFiltros), {
+      preserveScroll: true,
+    });
   };
 
   const handlePageChange = (page) => {

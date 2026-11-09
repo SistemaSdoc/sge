@@ -78,7 +78,7 @@ export default function Show({
               <BreadcrumbLink asChild>
                 <Link
                   href={url_voltar}
-                  className="line-clamp-2 text-sm text-primary font-semibold hover:underline"
+                  className="line-clamp-2 text-sm font-semibold text-primary hover:underline"
                 >
                   Aulas
                 </Link>
@@ -86,7 +86,7 @@ export default function Show({
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem className="min-w-0">
-              <BreadcrumbPage className="line-clamp-2 text-sm text-secondary font-semibold">
+              <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
                 {aula.titulo ?? 'Detalhe da aula'}
               </BreadcrumbPage>
             </BreadcrumbItem>
@@ -101,8 +101,6 @@ export default function Show({
 
             <div className="relative z-10 space-y-2 p-6 text-white">
               <div className="flex flex-wrap items-center gap-2">
-           
-
                 {aula.tipo !== 'normal' && (
                   <Badge
                     variant="outline"
@@ -112,7 +110,6 @@ export default function Show({
                   </Badge>
                 )}
 
-      
                 {publicado && !aula.esta_editavel && (
                   <Badge
                     variant="outline"
@@ -120,7 +117,6 @@ export default function Show({
                   >
                     Bloqueado
                   </Badge>
-                  
                 )}
               </div>
 
@@ -129,8 +125,8 @@ export default function Show({
               </h1>
 
               <p className="text-sm break-all opacity-90">
-                {aula.disciplina_nome} · {aula.turma_nome} · {aula.hora_inicio}
-                –{aula.hora_fim}
+                {aula.disciplina_nome} · {aula.turma_nome} · {aula.hora_inicio}–
+                {aula.hora_fim}
               </p>
             </div>
           </div>
@@ -185,9 +181,7 @@ export default function Show({
                 variant="outline"
                 className="hover:cursor-pointer"
               >
-                <Link href={aula.urls.editar}>
-                  Editar
-                </Link>
+                <Link href={aula.urls.editar}>Editar</Link>
               </Button>
             </div>
           )}
@@ -234,7 +228,7 @@ export default function Show({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-1.5 p-5 sm:p-6">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
                 {aula.conteudo_previsto}
               </p>
             </CardContent>
@@ -251,7 +245,7 @@ export default function Show({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-1.5 p-5 sm:p-6">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
                 {aula.sumario}
               </p>
             </CardContent>
@@ -274,7 +268,7 @@ export default function Show({
               <CardDescription>TPC desta aula.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-1.5 p-5 sm:p-6">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
                 {aula.tpc}
               </p>
             </CardContent>
@@ -294,7 +288,7 @@ export default function Show({
               <CardDescription>Notas internas do professor.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-1.5 p-5 sm:p-6">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
                 {aula.observacoes}
               </p>
             </CardContent>

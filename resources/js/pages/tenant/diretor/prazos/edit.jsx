@@ -121,7 +121,9 @@ export default function Edit({ prazo, disciplinas, classes }) {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {/* Tipo de Prova */}
                     <Field>
-                      <FieldLabel htmlFor="tipo_prova">Tipo de Prova *</FieldLabel>
+                      <FieldLabel htmlFor="tipo_prova">
+                        Tipo de Prova *
+                      </FieldLabel>
                       <Select
                         value={data.tipo_prova}
                         onValueChange={(value) => setData('tipo_prova', value)}
@@ -237,9 +239,7 @@ export default function Edit({ prazo, disciplinas, classes }) {
                         id="data_inicio"
                         type="datetime-local"
                         value={data.data_inicio}
-                        onChange={(e) =>
-                          setData('data_inicio', e.target.value)
-                        }
+                        onChange={(e) => setData('data_inicio', e.target.value)}
                         disabled={processing}
                         required
                       />
@@ -257,9 +257,7 @@ export default function Edit({ prazo, disciplinas, classes }) {
                         id="data_limite"
                         type="datetime-local"
                         value={data.data_limite}
-                        onChange={(e) =>
-                          setData('data_limite', e.target.value)
-                        }
+                        onChange={(e) => setData('data_limite', e.target.value)}
                         disabled={processing}
                         required
                       />

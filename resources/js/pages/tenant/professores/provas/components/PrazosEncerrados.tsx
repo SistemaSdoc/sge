@@ -87,10 +87,7 @@ export default function PrazosEncerrados({
         const aguardaAvaliacao = prazo.submissao?.estado === 'pendente';
 
         return (
-          <Card
-            key={prazo.id}
-            className="transition-shadow hover:shadow-md"
-          >
+          <Card key={prazo.id} className="transition-shadow hover:shadow-md">
             <CardHeader>
               <CardTitle className="text-lg">
                 <span className="line-clamp-2">{prazo.titulo}</span>
@@ -108,7 +105,7 @@ export default function PrazosEncerrados({
 
             <CardContent className="space-y-2 text-sm">
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                   Disciplina
                 </p>
                 <p className="truncate font-medium">
@@ -116,7 +113,7 @@ export default function PrazosEncerrados({
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                   Classe
                 </p>
                 <p className="truncate font-medium">
@@ -124,7 +121,7 @@ export default function PrazosEncerrados({
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                   Turma
                 </p>
                 <p className="truncate font-semibold">
@@ -151,7 +148,7 @@ export default function PrazosEncerrados({
                       <p className="text-[11px] font-medium text-muted-foreground">
                         Parecer do diretor:
                       </p>
-                      <p className="mt-0.5 text-xs italic text-muted-foreground">
+                      <p className="mt-0.5 text-xs text-muted-foreground italic">
                         "{prazo.submissao.parecer_diretor}"
                       </p>
                     </div>
@@ -280,10 +277,7 @@ export default function PrazosEncerrados({
                   </Link>
                 </Button>
               ) : foiAprovada ? (
-                <Badge
-                  variant="secondary"
-                  className="w-full justify-center"
-                >
+                <Badge variant="secondary" className="w-full justify-center">
                   <CheckCircle className="mr-1 size-3" />
                   Submeteu e foi aprovada
                 </Badge>

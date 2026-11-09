@@ -69,16 +69,16 @@ export default function DesempenhoProfessor({
         <GraficosDesempenho turmas={turmas} periodo={filtrosActivos.periodo} />
 
         <TabelaTurmas
-        turmas={turmas}
-        filtros={
-          <FiltrosDesempenho
-            disponiveis={filtrosDisponiveis}
-            activos={filtrosActivos}
-            onChange={aplicar}
-          />
-        }
-      />
-        
+          turmas={turmas}
+          filtros={
+            <FiltrosDesempenho
+              disponiveis={filtrosDisponiveis}
+              activos={filtrosActivos}
+              onChange={aplicar}
+            />
+          }
+        />
+
         <PainelPap pap={pap} />
       </div>
     </div>

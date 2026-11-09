@@ -25,7 +25,9 @@ export function RecentLogins({ items = [] }) {
               <td className="py-3">
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                    item.sucesso ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+                    item.sucesso
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-red-100 text-red-700'
                   }`}
                 >
                   {item.sucesso ? 'Sucesso' : 'Falhou'}

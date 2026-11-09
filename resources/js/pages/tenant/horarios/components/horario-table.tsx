@@ -1,10 +1,5 @@
 import { Link } from '@inertiajs/react';
-import {
-  CalendarClock,
-  ChevronDownIcon,
-  FileText,
-  Pencil,
-} from 'lucide-react';
+import { CalendarClock, ChevronDownIcon, FileText, Pencil } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { EmptyState } from '@/components/empty-state';
 import { Badge } from '@/components/ui/badge';
@@ -184,8 +179,7 @@ export function HorarioTable({
             : isProfessor
               ? 'As tuas aulas'
               : 'O teu horário'}{' '}
-          no ano lectivo{' '}
-          <span className="font-semibold">{anoNome}</span>
+          no ano lectivo <span className="font-semibold">{anoNome}</span>
         </CardDescription>
       </CardHeader>
 
@@ -255,7 +249,7 @@ export function HorarioTable({
           </div>
         </div>
 
-       {isDirector && !professorSeleccionado ? (
+        {isDirector && !professorSeleccionado ? (
           <EmptyState
             icon={CalendarClock}
             title="Seleccione um professor"
@@ -292,10 +286,7 @@ export function HorarioTable({
                     const grupos = aulasDaCelula(slot, d.id);
 
                     return (
-                      <TableCell
-                        key={d.id}
-                        className="px-3 align-middle"
-                      >
+                      <TableCell key={d.id} className="px-3 align-middle">
                         {grupos.length > 0 && (
                           <div className="flex flex-col gap-3">
                             {grupos.map((g) => (
@@ -339,7 +330,9 @@ function CelulaGrupo({ grupo, mostrarTurma, isProfessor, isDirector }) {
               {grupo.disciplina.sigla}
             </p>
             <div className="flex flex-wrap items-center justify-between gap-1">
-              <Badge variant="outline">{turma.turno || 'Turno não indicado'}</Badge>
+              <Badge variant="outline">
+                {turma.turno || 'Turno não indicado'}
+              </Badge>
               <span className="text-[10px] text-muted-foreground">
                 {turma.curso || 'Curso não indicado'}
               </span>
@@ -405,7 +398,7 @@ function TurmaComTema({ turma, isProfessor, showTurmaNome = false }) {
   const proxima = turma.aula_proxima;
 
   return (
-    <div className="flex flex-col gap-1  border border-border/40 bg-muted/20 px-2 py-1.5">
+    <div className="flex flex-col gap-1 border border-border/40 bg-muted/20 px-2 py-1.5">
       {showTurmaNome && (
         <p className="text-[10px] font-medium text-muted-foreground">
           {turma.nome}
@@ -431,7 +424,7 @@ function TurmaComTema({ turma, isProfessor, showTurmaNome = false }) {
           Escrever sumário
         </Link>
       ) : (
-        <p className="text-[11px] italic text-muted-foreground">Sem sumário</p>
+        <p className="text-[11px] text-muted-foreground italic">Sem sumário</p>
       )}
 
       {/* Próxima aula (aluno + professor) */}

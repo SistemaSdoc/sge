@@ -1,9 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import {
-  Calendar,
-  Search,
-} from 'lucide-react';
+import { Calendar, Search } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -119,10 +116,10 @@ export default function Index({
 
   const filtrosAtivos = Boolean(
     filtrosLocais.disciplina_id ||
-      filtrosLocais.professor_id ||
-      filtrosLocais.estado ||
-      filtrosLocais.de ||
-      filtrosLocais.ate,
+    filtrosLocais.professor_id ||
+    filtrosLocais.estado ||
+    filtrosLocais.de ||
+    filtrosLocais.ate,
   );
 
   const aulasFiltradas = useMemo(() => {
@@ -145,7 +142,9 @@ export default function Index({
     const pendentes = aulas.data.filter(
       (a) => !a.tem_sumario && a.estado !== 'cancelado',
     ).length;
-    const canceladas = aulas.data.filter((a) => a.estado === 'cancelado').length;
+    const canceladas = aulas.data.filter(
+      (a) => a.estado === 'cancelado',
+    ).length;
     return { comSumario, pendentes, canceladas };
   }, [aulas.data]);
 
@@ -157,10 +156,7 @@ export default function Index({
       last_page: aulas.last_page,
       total: aulas.total,
       per_page: perPage,
-      from:
-        aulas.total > 0
-          ? (aulas.current_page - 1) * perPage + 1
-          : 0,
+      from: aulas.total > 0 ? (aulas.current_page - 1) * perPage + 1 : 0,
       to: Math.min(aulas.current_page * perPage, aulas.total),
     };
   }, [aulas.current_page, aulas.last_page, aulas.total, aulas.per_page]);
@@ -205,7 +201,7 @@ export default function Index({
             </div>
 
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
@@ -302,12 +298,8 @@ export default function Index({
               <Badge variant="secondary">
                 ✓ {stats.comSumario} com sumário
               </Badge>
-              <Badge variant="outline">
-                {stats.pendentes} sem sumário
-              </Badge>
-              <Badge variant="outline">
-                {stats.canceladas} canceladas
-              </Badge>
+              <Badge variant="outline">{stats.pendentes} sem sumário</Badge>
+              <Badge variant="outline">{stats.canceladas} canceladas</Badge>
             </CardAction>
           </CardHeader>
 
@@ -352,7 +344,7 @@ export default function Index({
                           aula.estado === 'cancelado' ? 'opacity-60' : ''
                         }
                       >
-                        <TableCell className="px-4 text-center font-mono text-xs tabular-nums whitespace-nowrap">
+                        <TableCell className="px-4 text-center font-mono text-xs whitespace-nowrap tabular-nums">
                           {aula.hora_inicio}–{aula.hora_fim}
                         </TableCell>
                         <TableCell className="px-4">
@@ -376,7 +368,7 @@ export default function Index({
                               {aula.sumario}
                             </div>
                           ) : aula.estado !== 'cancelado' ? (
-                            <div className="text-xs italic text-muted-foreground">
+                            <div className="text-xs text-muted-foreground italic">
                               Sem sumário escrito
                             </div>
                           ) : null}

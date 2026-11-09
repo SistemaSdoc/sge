@@ -388,4 +388,4 @@ class DesempenhoAlunoService
     {
         return $valor === null ? '—' : number_format($valor, 1, ',', '');
     }
-}    
+}

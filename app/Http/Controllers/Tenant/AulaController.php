@@ -11,13 +11,12 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class AulaController extends Controller
 {
-
     public function __construct()
     {
         $this->authorizeResource(Aula::class, 'aula', [
@@ -57,7 +56,7 @@ class AulaController extends Controller
         abort_unless($professor, 403, 'Perfil de professor não encontrado.');
 
         // Semana em curso: segunda a domingo
-        $de  = $request->date('de')  ?? Carbon::now()->startOfWeek(Carbon::MONDAY)->startOfDay();
+        $de = $request->date('de') ?? Carbon::now()->startOfWeek(Carbon::MONDAY)->startOfDay();
         $ate = $request->date('ate') ?? Carbon::now()->endOfWeek(Carbon::SUNDAY)->startOfDay();
 
         $slots = $this->slotsDoProfessor($professor);
@@ -68,7 +67,7 @@ class AulaController extends Controller
             ->with(['professorOriginal.user'])
             ->get()
             ->keyBy(
-                fn(Aula $a) => ($a->classe_turno_disciplina_horario_id ?? 'extra') . '|' . $a->data->format('Y-m-d')
+                fn (Aula $a) => ($a->classe_turno_disciplina_horario_id ?? 'extra').'|'.$a->data->format('Y-m-d')
             );
 
         $agenda = [];
@@ -78,35 +77,36 @@ class AulaController extends Controller
             $diaSemana = (int) $cursor->dayOfWeek;
 
             $slotsDoDia = $slots
-                ->filter(fn($s) => (int) $s['dia_semana'] === $diaSemana)
+                ->filter(fn ($s) => (int) $s['dia_semana'] === $diaSemana)
                 ->sortBy('hora_inicio')
                 ->values();
 
             if ($slotsDoDia->isEmpty()) {
                 $cursor->addDay();
+
                 continue;
             }
 
             $aulasDoDia = [];
 
             foreach ($slotsDoDia as $slot) {
-                $chave    = $slot['id'] . '|' . $cursor->format('Y-m-d');
+                $chave = $slot['id'].'|'.$cursor->format('Y-m-d');
                 $registro = $registos->get($chave);
 
                 $aulasDoDia[] = [
-                    'slot'   => $slot,
-                    'aula'   => $registro ? $this->formatarAula($registro, $professor->id) : null,
+                    'slot' => $slot,
+                    'aula' => $registro ? $this->formatarAula($registro, $professor->id) : null,
                     'estado' => $registro?->estado ?? 'sem_registo',
                 ];
             }
 
             $agenda[] = [
-                'data'        => $cursor->format('Y-m-d'),
+                'data' => $cursor->format('Y-m-d'),
                 'data_humana' => $cursor->translatedFormat('l, d \d\e F'),
-                'dia_semana'  => $diaSemana,
-                'is_hoje'     => $cursor->isToday(),
-                'is_passado'  => $cursor->isPast(),
-                'aulas'       => $aulasDoDia,
+                'dia_semana' => $diaSemana,
+                'is_hoje' => $cursor->isToday(),
+                'is_passado' => $cursor->isPast(),
+                'aulas' => $aulasDoDia,
             ];
 
             $cursor->addDay();
@@ -119,14 +119,14 @@ class AulaController extends Controller
             ->with(['turma', 'disciplina'])
             ->orderBy('data')
             ->get()
-            ->map(fn(Aula $a) => $this->formatarAula($a, $professor->id))
+            ->map(fn (Aula $a) => $this->formatarAula($a, $professor->id))
             ->values();
 
         return Inertia::render('tenant/professores/aulas/index', [
-            'agenda'  => $agenda,
-            'extras'  => $extras,
+            'agenda' => $agenda,
+            'extras' => $extras,
             'filtros' => [
-                'de'  => $de->format('Y-m-d'),
+                'de' => $de->format('Y-m-d'),
                 'ate' => $ate->format('Y-m-d'),
             ],
         ]);
@@ -141,7 +141,7 @@ class AulaController extends Controller
         $aluno = $user->aluno;
         abort_unless($aluno, 403, 'Perfil de aluno não encontrado.');
 
-        $de  = $request->date('de')  ?? Carbon::today()->startOfWeek(Carbon::MONDAY);
+        $de = $request->date('de') ?? Carbon::today()->startOfWeek(Carbon::MONDAY);
         $ate = $request->date('ate') ?? Carbon::today()->endOfWeek(Carbon::SUNDAY);
         $turmaIds = $this->turmasDoAluno($aluno->id);
 
@@ -159,7 +159,7 @@ class AulaController extends Controller
             ->entreDatas($de, $ate)
             ->get()
             ->keyBy(
-                fn(Aula $a) => ($a->classe_turno_disciplina_horario_id ?? 'extra') . '|' . $a->data->format('Y-m-d')
+                fn (Aula $a) => ($a->classe_turno_disciplina_horario_id ?? 'extra').'|'.$a->data->format('Y-m-d')
             );
 
         $agenda = [];
@@ -169,44 +169,45 @@ class AulaController extends Controller
             $diaSemana = (int) $cursor->dayOfWeek;
 
             $slotsDoDia = $slots
-                ->filter(fn($s) => (int) $s->dia_semana === $diaSemana)
+                ->filter(fn ($s) => (int) $s->dia_semana === $diaSemana)
                 ->sortBy('hora_inicio')
                 ->values();
 
             if ($slotsDoDia->isEmpty()) {
                 $cursor->addDay();
+
                 continue;
             }
 
             $aulasDoDia = [];
 
             foreach ($slotsDoDia as $slot) {
-                $chave    = $slot->id . '|' . $cursor->format('Y-m-d');
+                $chave = $slot->id.'|'.$cursor->format('Y-m-d');
                 $registro = $registos->get($chave);
 
                 $aulasDoDia[] = [
-                    'slot'   => $this->formatarSlot($slot),
-                    'aula'   => $registro ? $this->formatarAula($registro, null) : null,
+                    'slot' => $this->formatarSlot($slot),
+                    'aula' => $registro ? $this->formatarAula($registro, null) : null,
                     'estado' => $registro?->estado ?? 'sem_registo',
                 ];
             }
 
             $agenda[] = [
-                'data'        => $cursor->format('Y-m-d'),
+                'data' => $cursor->format('Y-m-d'),
                 'data_humana' => $cursor->translatedFormat('l, d \d\e F'),
-                'dia_semana'  => $diaSemana,
-                'is_hoje'     => $cursor->isToday(),
-                'is_passado'  => $cursor->isPast(),
-                'aulas'       => $aulasDoDia,
+                'dia_semana' => $diaSemana,
+                'is_hoje' => $cursor->isToday(),
+                'is_passado' => $cursor->isPast(),
+                'aulas' => $aulasDoDia,
             ];
 
             $cursor->addDay();
         }
 
         return Inertia::render('tenant/alunos/aulas/index', [
-            'agenda'  => $agenda,
+            'agenda' => $agenda,
             'filtros' => [
-                'de'  => $de->format('Y-m-d'),
+                'de' => $de->format('Y-m-d'),
                 'ate' => $ate->format('Y-m-d'),
             ],
         ]);
@@ -218,7 +219,7 @@ class AulaController extends Controller
 
     private function indexParaDirecao(Request $request, User $user)
     {
-        $de  = $request->date('de')  ?? Carbon::today()->subDays(7);
+        $de = $request->date('de') ?? Carbon::today()->subDays(7);
         $ate = $request->date('ate') ?? Carbon::today()->addDays(7);
 
         $query = Aula::query()
@@ -241,19 +242,19 @@ class AulaController extends Controller
             ->orderBy('data', 'desc')
             ->orderBy('hora_inicio')
             ->paginate(50)
-            ->through(fn(Aula $a) => $this->formatarAula($a, null));
+            ->through(fn (Aula $a) => $this->formatarAula($a, null));
 
         $professores = DB::table('professores')
             ->join('users', 'professores.user_id', '=', 'users.id')
             ->select('professores.id', 'users.email as nome')
             ->orderBy('users.email')
             ->get()
-            ->map(fn($p) => ['id' => $p->id, 'nome' => $p->nome])
+            ->map(fn ($p) => ['id' => $p->id, 'nome' => $p->nome])
             ->toArray();
 
         return Inertia::render('tenant/aulas/index', [
-            'aulas'       => $aulas,
-            'filtros'     => $request->only('de', 'ate', 'disciplina_id', 'professor_id', 'estado'),
+            'aulas' => $aulas,
+            'filtros' => $request->only('de', 'ate', 'disciplina_id', 'professor_id', 'estado'),
             'professores' => $professores,
             'disciplinas' => $this->disciplinasDisponiveis(),
         ]);
@@ -265,12 +266,12 @@ class AulaController extends Controller
 
     public function create(Request $request)
     {
-        $user      = $request->user('tenant');
+        $user = $request->user('tenant');
         $professor = $user->professor;
 
-        $slot          = null;
+        $slot = null;
         $aulaExistente = null;
-        $base          = null;
+        $base = null;
 
         if ($slotId = $request->input('slot_id')) {
             $slot = ClasseTurnoDisciplinaHorario::with([
@@ -290,12 +291,12 @@ class AulaController extends Controller
         }
 
         return Inertia::render('tenant/professores/aulas/form', [
-            'slot'           => $slot ? $this->formatarSlot($slot) : null,
+            'slot' => $slot ? $this->formatarSlot($slot) : null,
             'aula_existente' => $aulaExistente ? $this->formatarAula($aulaExistente, $professor->id) : null,
-            'base'           => $base ? $this->formatarAula($base, $professor->id) : null,
-            'data_sugerida'  => $request->input('data'),
-            'turmas'         => $this->turmasDoProfessor($professor),
-            'disciplinas'    => $this->disciplinasDisponiveis(),
+            'base' => $base ? $this->formatarAula($base, $professor->id) : null,
+            'data_sugerida' => $request->input('data'),
+            'turmas' => $this->turmasDoProfessor($professor),
+            'disciplinas' => $this->disciplinasDisponiveis(),
         ]);
     }
 
@@ -305,32 +306,32 @@ class AulaController extends Controller
 
     public function store(Request $request)
     {
-        $user      = $request->user('tenant');
+        $user = $request->user('tenant');
         $professor = $user->professor;
 
         $dados = $request->validate([
             'classe_turno_disciplina_horario_id' => ['nullable', 'uuid'],
-            'data'          => ['required', 'date'],
-            'turma_id'      => ['required_without:classe_turno_disciplina_horario_id', 'uuid'],
+            'data' => ['required', 'date'],
+            'turma_id' => ['required_without:classe_turno_disciplina_horario_id', 'uuid'],
             'disciplina_id' => ['required_without:classe_turno_disciplina_horario_id', 'uuid'],
-            'hora_inicio'   => ['nullable', 'date_format:H:i'],
-            'hora_fim'      => ['nullable', 'date_format:H:i', 'after:hora_inicio'],
-            'tipo'          => ['required', 'in:normal,substituicao,extra,reposicao'],
-            'titulo'        => ['nullable', 'string', 'max:200'],
+            'hora_inicio' => ['nullable', 'date_format:H:i'],
+            'hora_fim' => ['nullable', 'date_format:H:i', 'after:hora_inicio'],
+            'tipo' => ['required', 'in:normal,substituicao,extra,reposicao'],
+            'titulo' => ['nullable', 'string', 'max:200'],
             'conteudo_previsto' => ['nullable', 'string', 'max:2000'],
-            'sumario'       => ['nullable', 'string', 'max:2000'],
-            'tpc'           => ['nullable', 'string', 'max:1000'],
-            'observacoes'   => ['nullable', 'string', 'max:1000'],
+            'sumario' => ['nullable', 'string', 'max:2000'],
+            'tpc' => ['nullable', 'string', 'max:1000'],
+            'observacoes' => ['nullable', 'string', 'max:1000'],
             'professor_original_id' => ['nullable', 'uuid'],
         ]);
 
         if ($slotId = $dados['classe_turno_disciplina_horario_id'] ?? null) {
             $slot = ClasseTurnoDisciplinaHorario::with('classeTurnoDisciplina')->findOrFail($slotId);
 
-            $dados['turma_id']      = $slot->turma_id;
+            $dados['turma_id'] = $slot->turma_id;
             $dados['disciplina_id'] = $slot->classeTurnoDisciplina->disciplina_id;
-            $dados['hora_inicio']   = $slot->hora_inicio;
-            $dados['hora_fim']      = $slot->hora_fim;
+            $dados['hora_inicio'] = $slot->hora_inicio;
+            $dados['hora_fim'] = $slot->hora_fim;
 
             $existente = Aula::where('classe_turno_disciplina_horario_id', $slotId)
                 ->where('data', $dados['data'])
@@ -362,7 +363,7 @@ class AulaController extends Controller
 
     public function edit(Request $request, Aula $aula)
     {
-        $user      = $request->user('tenant');
+        $user = $request->user('tenant');
         $professor = $user->professor;
 
         $aula->load(['turma', 'disciplina', 'professorOriginal.user']);
@@ -375,13 +376,13 @@ class AulaController extends Controller
         }
 
         return Inertia::render('tenant/professores/aulas/form', [
-            'aula'           => $this->formatarAula($aula, $professor->id),
-            'slot'           => $slotFormatado,
+            'aula' => $this->formatarAula($aula, $professor->id),
+            'slot' => $slotFormatado,
             'aula_existente' => $this->formatarAula($aula, $professor->id),
-            'base'           => null,
-            'data_sugerida'  => $aula->data->format('Y-m-d'),
-            'turmas'         => $this->turmasDoProfessor($professor),
-            'disciplinas'    => $this->disciplinasDisponiveis(),
+            'base' => null,
+            'data_sugerida' => $aula->data->format('Y-m-d'),
+            'turmas' => $this->turmasDoProfessor($professor),
+            'disciplinas' => $this->disciplinasDisponiveis(),
         ]);
     }
 
@@ -392,13 +393,13 @@ class AulaController extends Controller
     public function update(Request $request, Aula $aula)
     {
         $dados = $request->validate([
-            'titulo'            => ['nullable', 'string', 'max:200'],
+            'titulo' => ['nullable', 'string', 'max:200'],
             'conteudo_previsto' => ['nullable', 'string', 'max:2000'],
-            'sumario'           => ['nullable', 'string', 'max:2000'],
-            'tpc'               => ['nullable', 'string', 'max:1000'],
-            'observacoes'       => ['nullable', 'string', 'max:1000'],
-            'hora_inicio'       => ['nullable', 'date_format:H:i'],
-            'hora_fim'          => ['nullable', 'date_format:H:i', 'after:hora_inicio'],
+            'sumario' => ['nullable', 'string', 'max:2000'],
+            'tpc' => ['nullable', 'string', 'max:1000'],
+            'observacoes' => ['nullable', 'string', 'max:1000'],
+            'hora_inicio' => ['nullable', 'date_format:H:i'],
+            'hora_fim' => ['nullable', 'date_format:H:i', 'after:hora_inicio'],
         ]);
 
         $aula->update($dados);
@@ -423,7 +424,7 @@ class AulaController extends Controller
         }
 
         $aula->update([
-            'estado'       => 'publicado',
+            'estado' => 'publicado',
             'publicado_em' => now(),
         ]);
 
@@ -443,7 +444,7 @@ class AulaController extends Controller
         ]);
 
         $aula->update([
-            'estado'      => 'cancelado',
+            'estado' => 'cancelado',
             'observacoes' => $dados['observacoes'] ?? $aula->observacoes,
         ]);
 
@@ -508,7 +509,7 @@ class AulaController extends Controller
             : route('tenant.dashboard.aulas.index');
 
         return Inertia::render('tenant/aulas/show', [
-            'aula'       => $this->formatarAula($aula, $professorId),
+            'aula' => $this->formatarAula($aula, $professorId),
             'podeEditar' => $podeEditar,
             'url_voltar' => $urlVoltar,
         ]);
@@ -542,7 +543,7 @@ class AulaController extends Controller
         $this->authorize('restaurarEstado', $aula);
 
         $aula->update([
-            'estado'      => $aula->publicado_em ? 'publicado' : 'rascunho',
+            'estado' => $aula->publicado_em ? 'publicado' : 'rascunho',
             'publicado_em' => $aula->publicado_em,
         ]);
 
@@ -560,21 +561,21 @@ class AulaController extends Controller
                 'classeTurnoDisciplina.disciplina:id,nome,sigla',
             ])
             ->get()
-            ->map(fn($h) => $this->formatarSlot($h))
+            ->map(fn ($h) => $this->formatarSlot($h))
             ->values();
     }
 
     private function formatarSlot(ClasseTurnoDisciplinaHorario $slot): array
     {
         return [
-            'id'               => $slot->id,
-            'dia_semana'       => (int) $slot->dia_semana,
-            'hora_inicio'      => $this->formatarHora($slot->hora_inicio),
-            'hora_fim'         => $this->formatarHora($slot->hora_fim),
-            'turma_id'         => $slot->turma_id,
-            'turma_nome'       => $slot->turma?->nome,
-            'disciplina_id'    => $slot->classeTurnoDisciplina?->disciplina_id,
-            'disciplina_nome'  => $slot->classeTurnoDisciplina?->disciplina?->nome,
+            'id' => $slot->id,
+            'dia_semana' => (int) $slot->dia_semana,
+            'hora_inicio' => $this->formatarHora($slot->hora_inicio),
+            'hora_fim' => $this->formatarHora($slot->hora_fim),
+            'turma_id' => $slot->turma_id,
+            'turma_nome' => $slot->turma?->nome,
+            'disciplina_id' => $slot->classeTurnoDisciplina?->disciplina_id,
+            'disciplina_nome' => $slot->classeTurnoDisciplina?->disciplina?->nome,
             'disciplina_sigla' => $slot->classeTurnoDisciplina?->disciplina?->sigla,
         ];
     }
@@ -582,39 +583,39 @@ class AulaController extends Controller
     private function formatarAula(Aula $a, ?string $professorId): array
     {
         return [
-            'id'              => $a->id,
-            'data'            => $a->data?->format('Y-m-d'),
-            'data_humana'     => $a->data?->translatedFormat('l, d \d\e F'),
-            'hora_inicio'     => $this->formatarHora($a->hora_inicio),
-            'hora_fim'        => $this->formatarHora($a->hora_fim),
-            'turma_id'        => $a->turma_id,
-            'turma_nome'      => $a->turma?->nome,
-            'disciplina_id'   => $a->disciplina_id,
+            'id' => $a->id,
+            'data' => $a->data?->format('Y-m-d'),
+            'data_humana' => $a->data?->translatedFormat('l, d \d\e F'),
+            'hora_inicio' => $this->formatarHora($a->hora_inicio),
+            'hora_fim' => $this->formatarHora($a->hora_fim),
+            'turma_id' => $a->turma_id,
+            'turma_nome' => $a->turma?->nome,
+            'disciplina_id' => $a->disciplina_id,
             'disciplina_nome' => $a->disciplina?->nome,
-            'professor_nome'  => $a->professor?->user?->email,
+            'professor_nome' => $a->professor?->user?->email,
             'professor_original_nome' => $a->professorOriginal?->user?->email,
-            'tipo'            => $a->tipo,
-            'tipo_label'      => $a->tipo_label,
-            'titulo'          => $a->titulo,
+            'tipo' => $a->tipo,
+            'tipo_label' => $a->tipo_label,
+            'titulo' => $a->titulo,
             'conteudo_previsto' => $a->conteudo_previsto,
-            'sumario'         => $a->sumario,
-            'tpc'             => $a->tpc,
-            'observacoes'     => ($professorId !== null && $professorId === $a->professor_id)
+            'sumario' => $a->sumario,
+            'tpc' => $a->tpc,
+            'observacoes' => ($professorId !== null && $professorId === $a->professor_id)
                 ? $a->observacoes
                 : null,
-            'estado'          => $a->estado,
-            'estado_label'    => $a->estado_label,
-            'publicado_em'    => $a->publicado_em?->format('d/m/Y H:i'),
-            'esta_editavel'   => $a->esta_editavel,
+            'estado' => $a->estado,
+            'estado_label' => $a->estado_label,
+            'publicado_em' => $a->publicado_em?->format('d/m/Y H:i'),
+            'esta_editavel' => $a->esta_editavel,
             'horas_restantes_edicao' => $a->horas_restantes_edicao,
-            'tem_sumario'     => $a->tem_sumario,
+            'tem_sumario' => $a->tem_sumario,
 
             'urls' => [
-                'ver'      => route('tenant.dashboard.aulas.show', $a),
-                'editar'   => route('tenant.dashboard.professor.aulas.edit', $a),
+                'ver' => route('tenant.dashboard.aulas.show', $a),
+                'editar' => route('tenant.dashboard.professor.aulas.edit', $a),
                 'publicar' => route('tenant.dashboard.professor.aulas.publicar', $a),
                 'cancelar' => route('tenant.dashboard.professor.aulas.cancelar', $a),
-                'apagar'   => route('tenant.dashboard.professor.aulas.destroy', $a),
+                'apagar' => route('tenant.dashboard.professor.aulas.destroy', $a),
             ],
         ];
     }
@@ -629,7 +630,7 @@ class AulaController extends Controller
             ->distinct()
             ->orderBy('turmas.nome')
             ->get()
-            ->map(fn($t) => ['id' => $t->id, 'nome' => $t->nome])
+            ->map(fn ($t) => ['id' => $t->id, 'nome' => $t->nome])
             ->toArray();
     }
 

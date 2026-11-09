@@ -11,11 +11,14 @@ use Illuminate\Support\Str;
 
 class PlanificacaoStorageService
 {
-    private const DISK          = 'local';
+    private const DISK = 'local';
+
     private const DISK_FALLBACK = 'local';
 
-    private const CIPHER     = 'aes-256-gcm';
-    private const IV_LENGTH  = 16;
+    private const CIPHER = 'aes-256-gcm';
+
+    private const IV_LENGTH = 16;
+
     private const TAG_LENGTH = 16;
 
     // ═══════════════════════════════════════════════════════════
@@ -32,13 +35,13 @@ class PlanificacaoStorageService
         $extensao = strtolower($ficheiro->getClientOriginalExtension());
 
         Log::info('[PlanificacaoStorage] ═══ INÍCIO ═══', [
-            'planificacao_id'          => $planificacao->id,
-            'versao'                   => $proximaVersao,
-            'nome_original'            => $ficheiro->getClientOriginalName(),
-            'extensao'                 => $extensao,
-            'tamanho_original_bytes'   => $ficheiro->getSize(),
+            'planificacao_id' => $planificacao->id,
+            'versao' => $proximaVersao,
+            'nome_original' => $ficheiro->getClientOriginalName(),
+            'extensao' => $extensao,
+            'tamanho_original_bytes' => $ficheiro->getSize(),
             'tamanho_original_legivel' => $this->humanSize($ficheiro->getSize()),
-            'mime_type'                => $ficheiro->getMimeType(),
+            'mime_type' => $ficheiro->getMimeType(),
         ]);
 
         // ─── Ler conteúdo original ───
@@ -51,13 +54,13 @@ class PlanificacaoStorageService
         $tamanhoComprimido = strlen($conteudo);
 
         Log::info('[PlanificacaoStorage] ✓ Compressão', [
-            'aplicada'       => $compressao['aplicada'],
-            'motivo'         => $compressao['motivo'],
-            'antes_bytes'    => $tamanhoOriginal,
-            'antes_legivel'  => $this->humanSize($tamanhoOriginal),
-            'depois_bytes'   => $tamanhoComprimido,
+            'aplicada' => $compressao['aplicada'],
+            'motivo' => $compressao['motivo'],
+            'antes_bytes' => $tamanhoOriginal,
+            'antes_legivel' => $this->humanSize($tamanhoOriginal),
+            'depois_bytes' => $tamanhoComprimido,
             'depois_legivel' => $this->humanSize($tamanhoComprimido),
-            'reducao_pct'    => $tamanhoOriginal > 0
+            'reducao_pct' => $tamanhoOriginal > 0
                 ? round((1 - $tamanhoComprimido / $tamanhoOriginal) * 100, 2)
                 : 0,
         ]);
@@ -68,10 +71,10 @@ class PlanificacaoStorageService
         $tamanhoFinal = strlen($conteudoFinal);
 
         Log::info('[PlanificacaoStorage] ✓ Encriptação', [
-            'algoritmo'        => self::CIPHER,
-            'antes_bytes'      => $tamanhoComprimido,
-            'depois_bytes'     => $tamanhoFinal,
-            'overhead_bytes'   => $tamanhoFinal - $tamanhoComprimido,
+            'algoritmo' => self::CIPHER,
+            'antes_bytes' => $tamanhoComprimido,
+            'depois_bytes' => $tamanhoFinal,
+            'overhead_bytes' => $tamanhoFinal - $tamanhoComprimido,
             'overhead_legivel' => $this->humanSize($tamanhoFinal - $tamanhoComprimido),
         ]);
 
@@ -81,27 +84,27 @@ class PlanificacaoStorageService
 
         // ─── Metadata na BD ───
         $versao = $planificacao->versoes()->create([
-            'versao'                 => $proximaVersao,
-            'caminho_ficheiro'       => $caminho,
-            'nome_original'          => $ficheiro->getClientOriginalName(),
+            'versao' => $proximaVersao,
+            'caminho_ficheiro' => $caminho,
+            'nome_original' => $ficheiro->getClientOriginalName(),
             'tamanho_original_bytes' => $tamanhoOriginal,
-            'tamanho_bytes'          => $tamanhoFinal,
-            'mime_type'              => $ficheiro->getMimeType() ?? 'application/octet-stream',
-            'comprimido'             => $compressao['aplicada'],
-            'encriptado'             => true,
-            'algoritmo_encriptacao'  => self::CIPHER,
-            'uploaded_by'            => $userId,
+            'tamanho_bytes' => $tamanhoFinal,
+            'mime_type' => $ficheiro->getMimeType() ?? 'application/octet-stream',
+            'comprimido' => $compressao['aplicada'],
+            'encriptado' => true,
+            'algoritmo_encriptacao' => self::CIPHER,
+            'uploaded_by' => $userId,
         ]);
 
         $planificacao->update(['versao_atual' => $proximaVersao]);
 
         Log::info('[PlanificacaoStorage] ═══ FIM ═══', [
-            'versao_id'      => $versao->id,
-            'caminho'        => $caminho,
-            'duracao_ms'     => round((microtime(true) - $inicio) * 1000, 2),
+            'versao_id' => $versao->id,
+            'caminho' => $caminho,
+            'duracao_ms' => round((microtime(true) - $inicio) * 1000, 2),
             'economia_total' => $tamanhoOriginal > 0
                 ? $this->humanSize($tamanhoOriginal - $tamanhoComprimido)
-                . ' (' . round((1 - $tamanhoComprimido / $tamanhoOriginal) * 100, 1) . '%)'
+                .' ('.round((1 - $tamanhoComprimido / $tamanhoOriginal) * 100, 1).'%)'
                 : '0',
         ]);
 
@@ -112,131 +115,131 @@ class PlanificacaoStorageService
     // COMPRESSÃO
     // ═══════════════════════════════════════════════════════════
 
-private function comprimir(string $conteudo, string $extensao, UploadedFile $ficheiro): array
-{
-    if ($extensao !== 'pdf') {
-        return [
-            'conteudo' => $conteudo,
-            'aplicada' => false,
-            'motivo'   => "Extensão '{$extensao}' não suportada para compressão",
-        ];
-    }
-
-    // Verificar binários disponíveis
-    exec('which gs 2>/dev/null', $o1, $gsExit);
-    exec('which qpdf 2>/dev/null', $o2, $qpdfExit);
-    $temGs   = $gsExit === 0;
-    $temQpdf = $qpdfExit === 0;
-
-    if (! $temGs && ! $temQpdf) {
-        return [
-            'conteudo' => $conteudo,
-            'aplicada' => false,
-            'motivo'   => 'Nem Ghostscript nem qpdf instalados',
-        ];
-    }
-
-    try {
-        $tmpOriginal = tempnam(sys_get_temp_dir(), 'pdf_orig_') . '.pdf';
-        $tmpQpdf1    = tempnam(sys_get_temp_dir(), 'pdf_qpdf1_') . '.pdf';
-        $tmpGs       = tempnam(sys_get_temp_dir(), 'pdf_gs_') . '.pdf';
-        $tmpFinal    = tempnam(sys_get_temp_dir(), 'pdf_final_') . '.pdf';
-
-        file_put_contents($tmpOriginal, $conteudo);
-        $atual  = $tmpOriginal;
-        $etapas = [];
-
-        // ─── ETAPA 1: qpdf — otimização estrutural (lossless) ───
-        if ($temQpdf) {
-            $cmd = sprintf(
-                'qpdf --compress-streams=y --object-streams=generate --recompress-flate --compression-level=9 %s %s 2>&1',
-                escapeshellarg($atual),
-                escapeshellarg($tmpQpdf1)
-            );
-            exec($cmd, $out, $exit);
-
-            if ($exit === 0 && file_exists($tmpQpdf1) && filesize($tmpQpdf1) > 0) {
-                $antes  = filesize($atual);
-                $depois = filesize($tmpQpdf1);
-                $etapas[] = sprintf('qpdf: %s → %s', $this->humanSize($antes), $this->humanSize($depois));
-                $atual    = $tmpQpdf1;
-            }
-        }
-
-        // ─── ETAPA 2: Ghostscript — compressão agressiva (lossy) ───
-        if ($temGs) {
-            $cmd = sprintf(
-                'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook ' .
-                '-dNOPAUSE -dQUIET -dBATCH ' .
-                '-dDetectDuplicateImages=true -dCompressFonts=true ' .
-                '-dColorImageDownsampleType=/Bicubic -dColorImageResolution=150 ' .
-                '-dGrayImageDownsampleType=/Bicubic -dGrayImageResolution=150 ' .
-                '-dMonoImageDownsampleType=/Bicubic -dMonoImageResolution=300 ' .
-                '-sOutputFile=%s %s 2>&1',
-                escapeshellarg($tmpGs),
-                escapeshellarg($atual)
-            );
-            exec($cmd, $out, $exit);
-
-            if ($exit === 0 && file_exists($tmpGs) && filesize($tmpGs) > 0) {
-                $antes  = filesize($atual);
-                $depois = filesize($tmpGs);
-                $etapas[] = sprintf('ghostscript: %s → %s', $this->humanSize($antes), $this->humanSize($depois));
-                $atual    = $tmpGs;
-            }
-        }
-
-        // ─── ETAPA 3: qpdf — linearização final (fast web view) ───
-        if ($temQpdf && filesize($atual) > 0) {
-            $cmd = sprintf(
-                'qpdf --linearize --object-streams=generate %s %s 2>&1',
-                escapeshellarg($atual),
-                escapeshellarg($tmpFinal)
-            );
-            exec($cmd, $out, $exit);
-
-            if ($exit === 0 && file_exists($tmpFinal) && filesize($tmpFinal) > 0) {
-                $antes  = filesize($atual);
-                $depois = filesize($tmpFinal);
-                $etapas[] = sprintf('linearize: %s → %s', $this->humanSize($antes), $this->humanSize($depois));
-                $atual    = $tmpFinal;
-            }
-        }
-
-        $comprimido     = file_get_contents($atual);
-        $tamanhoOriginal = strlen($conteudo);
-        $tamanhoFinal    = strlen($comprimido);
-
-        // Limpar temporários
-        foreach ([$tmpOriginal, $tmpQpdf1, $tmpGs, $tmpFinal] as $f) {
-            @unlink($f);
-        }
-
-        if ($comprimido === false || $tamanhoFinal === 0 || $tamanhoFinal >= $tamanhoOriginal) {
+    private function comprimir(string $conteudo, string $extensao, UploadedFile $ficheiro): array
+    {
+        if ($extensao !== 'pdf') {
             return [
                 'conteudo' => $conteudo,
                 'aplicada' => false,
-                'motivo'   => 'Compressão não trouxe benefício',
+                'motivo' => "Extensão '{$extensao}' não suportada para compressão",
             ];
         }
 
-        return [
-            'conteudo' => $comprimido,
-            'aplicada' => true,
-            'motivo'   => implode(' → ', $etapas),
-        ];
-    } catch (\Throwable $e) {
-        Log::warning('[PlanificacaoStorage] Compressão multi-etapa falhou', [
-            'error' => $e->getMessage(),
-        ]);
+        // Verificar binários disponíveis
+        exec('which gs 2>/dev/null', $o1, $gsExit);
+        exec('which qpdf 2>/dev/null', $o2, $qpdfExit);
+        $temGs = $gsExit === 0;
+        $temQpdf = $qpdfExit === 0;
 
-        return [
-            'conteudo' => $conteudo,
-            'aplicada' => false,
-            'motivo'   => 'Erro: ' . $e->getMessage(),
-        ];
+        if (! $temGs && ! $temQpdf) {
+            return [
+                'conteudo' => $conteudo,
+                'aplicada' => false,
+                'motivo' => 'Nem Ghostscript nem qpdf instalados',
+            ];
+        }
+
+        try {
+            $tmpOriginal = tempnam(sys_get_temp_dir(), 'pdf_orig_').'.pdf';
+            $tmpQpdf1 = tempnam(sys_get_temp_dir(), 'pdf_qpdf1_').'.pdf';
+            $tmpGs = tempnam(sys_get_temp_dir(), 'pdf_gs_').'.pdf';
+            $tmpFinal = tempnam(sys_get_temp_dir(), 'pdf_final_').'.pdf';
+
+            file_put_contents($tmpOriginal, $conteudo);
+            $atual = $tmpOriginal;
+            $etapas = [];
+
+            // ─── ETAPA 1: qpdf — otimização estrutural (lossless) ───
+            if ($temQpdf) {
+                $cmd = sprintf(
+                    'qpdf --compress-streams=y --object-streams=generate --recompress-flate --compression-level=9 %s %s 2>&1',
+                    escapeshellarg($atual),
+                    escapeshellarg($tmpQpdf1)
+                );
+                exec($cmd, $out, $exit);
+
+                if ($exit === 0 && file_exists($tmpQpdf1) && filesize($tmpQpdf1) > 0) {
+                    $antes = filesize($atual);
+                    $depois = filesize($tmpQpdf1);
+                    $etapas[] = sprintf('qpdf: %s → %s', $this->humanSize($antes), $this->humanSize($depois));
+                    $atual = $tmpQpdf1;
+                }
+            }
+
+            // ─── ETAPA 2: Ghostscript — compressão agressiva (lossy) ───
+            if ($temGs) {
+                $cmd = sprintf(
+                    'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook '.
+                    '-dNOPAUSE -dQUIET -dBATCH '.
+                    '-dDetectDuplicateImages=true -dCompressFonts=true '.
+                    '-dColorImageDownsampleType=/Bicubic -dColorImageResolution=150 '.
+                    '-dGrayImageDownsampleType=/Bicubic -dGrayImageResolution=150 '.
+                    '-dMonoImageDownsampleType=/Bicubic -dMonoImageResolution=300 '.
+                    '-sOutputFile=%s %s 2>&1',
+                    escapeshellarg($tmpGs),
+                    escapeshellarg($atual)
+                );
+                exec($cmd, $out, $exit);
+
+                if ($exit === 0 && file_exists($tmpGs) && filesize($tmpGs) > 0) {
+                    $antes = filesize($atual);
+                    $depois = filesize($tmpGs);
+                    $etapas[] = sprintf('ghostscript: %s → %s', $this->humanSize($antes), $this->humanSize($depois));
+                    $atual = $tmpGs;
+                }
+            }
+
+            // ─── ETAPA 3: qpdf — linearização final (fast web view) ───
+            if ($temQpdf && filesize($atual) > 0) {
+                $cmd = sprintf(
+                    'qpdf --linearize --object-streams=generate %s %s 2>&1',
+                    escapeshellarg($atual),
+                    escapeshellarg($tmpFinal)
+                );
+                exec($cmd, $out, $exit);
+
+                if ($exit === 0 && file_exists($tmpFinal) && filesize($tmpFinal) > 0) {
+                    $antes = filesize($atual);
+                    $depois = filesize($tmpFinal);
+                    $etapas[] = sprintf('linearize: %s → %s', $this->humanSize($antes), $this->humanSize($depois));
+                    $atual = $tmpFinal;
+                }
+            }
+
+            $comprimido = file_get_contents($atual);
+            $tamanhoOriginal = strlen($conteudo);
+            $tamanhoFinal = strlen($comprimido);
+
+            // Limpar temporários
+            foreach ([$tmpOriginal, $tmpQpdf1, $tmpGs, $tmpFinal] as $f) {
+                @unlink($f);
+            }
+
+            if ($comprimido === false || $tamanhoFinal === 0 || $tamanhoFinal >= $tamanhoOriginal) {
+                return [
+                    'conteudo' => $conteudo,
+                    'aplicada' => false,
+                    'motivo' => 'Compressão não trouxe benefício',
+                ];
+            }
+
+            return [
+                'conteudo' => $comprimido,
+                'aplicada' => true,
+                'motivo' => implode(' → ', $etapas),
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('[PlanificacaoStorage] Compressão multi-etapa falhou', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'conteudo' => $conteudo,
+                'aplicada' => false,
+                'motivo' => 'Erro: '.$e->getMessage(),
+            ];
+        }
     }
-}
 
     // ═══════════════════════════════════════════════════════════
     // ENCRIPTAÇÃO — formato: [IV 16B][TAG 16B][conteúdo]
@@ -245,8 +248,8 @@ private function comprimir(string $conteudo, string $extensao, UploadedFile $fic
     private function encriptar(string $conteudo): array
     {
         $chave = $this->chaveEncriptacao();
-        $iv    = random_bytes(self::IV_LENGTH);
-        $tag   = '';
+        $iv = random_bytes(self::IV_LENGTH);
+        $tag = '';
 
         $encriptado = openssl_encrypt(
             $conteudo,
@@ -260,10 +263,10 @@ private function comprimir(string $conteudo, string $extensao, UploadedFile $fic
         );
 
         if ($encriptado === false) {
-            throw new \RuntimeException('Falha na encriptação: ' . openssl_error_string());
+            throw new \RuntimeException('Falha na encriptação: '.openssl_error_string());
         }
 
-        return ['pacote' => $iv . $tag . $encriptado];
+        return ['pacote' => $iv.$tag.$encriptado];
     }
 
     private function desencriptar(string $pacote): string
@@ -272,8 +275,8 @@ private function comprimir(string $conteudo, string $extensao, UploadedFile $fic
             throw new \RuntimeException('Pacote demasiado pequeno.');
         }
 
-        $iv         = substr($pacote, 0, self::IV_LENGTH);
-        $tag        = substr($pacote, self::IV_LENGTH, self::TAG_LENGTH);
+        $iv = substr($pacote, 0, self::IV_LENGTH);
+        $tag = substr($pacote, self::IV_LENGTH, self::TAG_LENGTH);
         $encriptado = substr($pacote, self::IV_LENGTH + self::TAG_LENGTH);
 
         $plano = openssl_decrypt(
@@ -286,7 +289,7 @@ private function comprimir(string $conteudo, string $extensao, UploadedFile $fic
         );
 
         if ($plano === false) {
-            throw new \RuntimeException('Falha na desencriptação: ' . openssl_error_string());
+            throw new \RuntimeException('Falha na desencriptação: '.openssl_error_string());
         }
 
         return $plano;
@@ -317,8 +320,9 @@ private function comprimir(string $conteudo, string $extensao, UploadedFile $fic
         } catch (\Throwable $e) {
             Log::error('[PlanificacaoStorage] Desencriptação falhou', [
                 'versao_id' => $versao->id,
-                'error'     => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }
@@ -367,7 +371,7 @@ private function comprimir(string $conteudo, string $extensao, UploadedFile $fic
                     $disk->delete($versao->caminho_ficheiro);
                     Log::info('[PlanificacaoStorage] Ficheiro apagado', [
                         'versao_id' => $versao->id,
-                        'caminho'   => $versao->caminho_ficheiro,
+                        'caminho' => $versao->caminho_ficheiro,
                     ]);
                 }
             }
@@ -383,11 +387,11 @@ private function comprimir(string $conteudo, string $extensao, UploadedFile $fic
         $diskPrincipal = Storage::disk(self::DISK);
 
         Log::info('[PlanificacaoStorage] Tentar gravar', [
-            'caminho'   => $caminho,
-            'disk'      => self::DISK,
-            'root'      => $diskPrincipal->path(''),
+            'caminho' => $caminho,
+            'disk' => self::DISK,
+            'root' => $diskPrincipal->path(''),
             'root_real' => realpath($diskPrincipal->path('')) ?: 'desconhecido',
-            'bytes'     => strlen($conteudo),
+            'bytes' => strlen($conteudo),
         ]);
 
         try {
@@ -398,15 +402,16 @@ private function comprimir(string $conteudo, string $extensao, UploadedFile $fic
             $diskPrincipal->put($caminho, $conteudo);
 
             Log::info('[PlanificacaoStorage] ✓ Gravado no disk principal', [
-                'caminho'  => $caminho,
-                'disk'     => self::DISK,
+                'caminho' => $caminho,
+                'disk' => self::DISK,
                 'realpath' => realpath($diskPrincipal->path($caminho)) ?: 'desconhecido',
             ]);
+
             return;
         } catch (\Throwable $e) {
             Log::warning('[PlanificacaoStorage] Disk principal falhou — fallback', [
                 'caminho' => $caminho,
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
         }
 
@@ -420,15 +425,15 @@ private function comprimir(string $conteudo, string $extensao, UploadedFile $fic
 
             Log::warning('[PlanificacaoStorage] ✓ Gravado no fallback', [
                 'caminho' => $caminho,
-                'disk'    => self::DISK_FALLBACK,
+                'disk' => self::DISK_FALLBACK,
             ]);
         } catch (\Throwable $e) {
             Log::error('[PlanificacaoStorage] ✗ Ambos os disks falharam', [
                 'caminho' => $caminho,
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
             throw new \RuntimeException(
-                'Não foi possível guardar o ficheiro. Detalhe: ' . $e->getMessage(),
+                'Não foi possível guardar o ficheiro. Detalhe: '.$e->getMessage(),
                 0,
                 $e
             );
@@ -454,9 +459,16 @@ private function comprimir(string $conteudo, string $extensao, UploadedFile $fic
 
     private function humanSize(int $bytes): string
     {
-        if ($bytes < 1024) return $bytes . ' B';
-        if ($bytes < 1048576) return round($bytes / 1024, 1) . ' KB';
-        if ($bytes < 1073741824) return round($bytes / 1048576, 2) . ' MB';
-        return round($bytes / 1073741824, 2) . ' GB';
+        if ($bytes < 1024) {
+            return $bytes.' B';
+        }
+        if ($bytes < 1048576) {
+            return round($bytes / 1024, 1).' KB';
+        }
+        if ($bytes < 1073741824) {
+            return round($bytes / 1048576, 2).' MB';
+        }
+
+        return round($bytes / 1073741824, 2).' GB';
     }
 }

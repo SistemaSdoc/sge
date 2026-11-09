@@ -1,11 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import {
-  Filter,
-  Search,
-  X,
-  Sparkles,
-} from 'lucide-react';
+import { Filter, Search, X, Sparkles } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -80,10 +75,10 @@ export default function Index({
 
   const filtrosAtivos = Boolean(
     filtros.curso_id ||
-      filtros.disciplina_id ||
-      filtros.classe_id ||
-      filtros.periodo ||
-      filtros.ano_letivo_id !== (anoAtivoId ?? ''),
+    filtros.disciplina_id ||
+    filtros.classe_id ||
+    filtros.periodo ||
+    filtros.ano_letivo_id !== (anoAtivoId ?? ''),
   );
 
   const stats = useMemo(() => {
@@ -224,7 +219,7 @@ export default function Index({
               /* Staff */
               <>
                 <div className="relative">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     placeholder="Pesquisar disciplina por nome ou sigla…"
                     value={busca}
@@ -235,7 +230,7 @@ export default function Index({
                     <button
                       type="button"
                       onClick={() => setBusca('')}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted"
+                      className="absolute top-1/2 right-2 -translate-y-1/2 p-1 hover:bg-muted"
                     >
                       <X className="size-4 text-muted-foreground" />
                     </button>
@@ -248,7 +243,7 @@ export default function Index({
                       <Badge
                         key={chip.key}
                         variant="outline"
-                        className="gap-1 py-1 pl-2 pr-1"
+                        className="gap-1 py-1 pr-1 pl-2"
                       >
                         {chip.label}
                         <button

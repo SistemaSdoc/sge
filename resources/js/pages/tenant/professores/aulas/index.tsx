@@ -214,15 +214,13 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                   </BreadcrumbList>
                 </Breadcrumb>
                 <CardDescription>
-                  Escreva o sumário depois de cada aula. Publique para os
-                  alunos verem.
+                  Escreva o sumário depois de cada aula. Publique para os alunos
+                  verem.
                 </CardDescription>
               </div>
 
               <Button asChild className="hover:cursor-pointer">
-                <Link href="/dashboard/professor/aulas/create">
-                  Aula extra
-                </Link>
+                <Link href="/dashboard/professor/aulas/create">Aula extra</Link>
               </Button>
             </div>
           </CardHeader>
@@ -291,7 +289,7 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
             </div>
 
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
@@ -347,10 +345,10 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                           : 'border-border bg-background text-foreground',
                       )}
                     >
-                      <span className="text-lg font-bold leading-none tabular-nums">
+                      <span className="text-lg leading-none font-bold tabular-nums">
                         {p.dia}
                       </span>
-                      <span className="mt-0.5 text-[9px] font-medium uppercase leading-none tracking-wide">
+                      <span className="mt-0.5 text-[9px] leading-none font-medium tracking-wide uppercase">
                         {p.mes}
                       </span>
                     </div>
@@ -358,19 +356,19 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                     {/* Info */}
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="text-sm font-semibold capitalize leading-tight">
+                        <h2 className="text-sm leading-tight font-semibold capitalize">
                           {p.diaSemana}
                         </h2>
                         {dia.is_hoje && (
                           <Badge
                             variant="secondary"
-                            className="text-[10px] uppercase tracking-wide"
+                            className="text-[10px] tracking-wide uppercase"
                           >
                             Hoje
                           </Badge>
                         )}
                         {dia.is_passado && !dia.is_hoje && (
-                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                          <span className="text-[10px] tracking-wide text-muted-foreground uppercase">
                             Passado
                           </span>
                         )}
@@ -410,7 +408,6 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                     Aulas extra
                   </CardDescription>
                 </div>
-               
               </div>
             </CardHeader>
 
@@ -431,7 +428,7 @@ export default function Index({ agenda = [], extras = [], filtros }: Props) {
                       </span>
 
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold leading-tight">
+                        <p className="truncate text-sm leading-tight font-semibold">
                           {aula.disciplina_nome}
                         </p>
                         <p className="mt-0.5 truncate text-xs text-muted-foreground">
@@ -497,10 +494,10 @@ function CardAulaRow({
     >
       {/* Coluna da hora */}
       <div className="flex w-14 shrink-0 flex-col items-end pt-0.5">
-        <span className="text-sm font-semibold tabular-nums leading-tight">
+        <span className="text-sm leading-tight font-semibold tabular-nums">
           {slot.hora_inicio}
         </span>
-        <span className="text-[10px] text-muted-foreground tabular-nums leading-tight">
+        <span className="text-[10px] leading-tight text-muted-foreground tabular-nums">
           {slot.hora_fim}
         </span>
         <div className="mt-2 h-px w-full bg-border" aria-hidden />
@@ -510,7 +507,7 @@ function CardAulaRow({
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h3 className="truncate text-sm font-semibold leading-tight">
+            <h3 className="truncate text-sm leading-tight font-semibold">
               {slot.disciplina_nome}
             </h3>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
@@ -548,16 +545,14 @@ function CardAulaRow({
         </div>
 
         {aula?.titulo && (
-          <p className="mt-2 text-xs font-medium leading-snug">
-            {aula.titulo}
-          </p>
+          <p className="mt-2 text-xs leading-snug font-medium">{aula.titulo}</p>
         )}
         {aula?.tem_sumario ? (
           <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
             {aula.sumario}
           </p>
         ) : (
-          <p className="mt-1 text-xs italic text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground italic">
             {isPassado ? 'Sumário não foi escrito.' : 'Sumário a escrever.'}
           </p>
         )}
@@ -618,14 +613,12 @@ function CardAulaRow({
                 )}
                 {aula && (
                   <Button
-                        asChild
+                    asChild
                     variant="outline"
                     size="sm"
                     className="h-7 text-xs hover:cursor-pointer"
                   >
-                    <Link href={`/dashboard/aulas/${aula.id}`}>
-                      Visualizar
-                    </Link>
+                    <Link href={`/dashboard/aulas/${aula.id}`}>Visualizar</Link>
                   </Button>
                 )}
               </>

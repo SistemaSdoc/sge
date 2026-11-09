@@ -25,7 +25,6 @@ export default function FiltrosPrazos({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold whitespace-nowrap">Filtros</h2>
-
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

@@ -138,7 +138,7 @@ export default function Show({ planificacao, can = {} }) {
           <CardContent className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 md:grid-cols-3">
             {metaInfo.map(({ label, value }) => (
               <div key={label} className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                   {label}
                 </p>
                 <p className="truncate font-medium" title={value}>
@@ -157,10 +157,7 @@ export default function Show({ planificacao, can = {} }) {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-base">Versão atual</CardTitle>
-                    <Badge
-                      variant="outline"
-                      className="font-mono text-[10px]"
-                    >
+                    <Badge variant="outline" className="font-mono text-[10px]">
                       v{versaoAtual.versao}
                     </Badge>
                   </div>
@@ -231,7 +228,7 @@ export default function Show({ planificacao, can = {} }) {
                             v{v.versao}
                           </Badge>
                           {v.is_atual && (
-                            <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
                               Atual
                             </span>
                           )}
@@ -296,9 +293,7 @@ export default function Show({ planificacao, can = {} }) {
             <DialogTitle className="truncate">
               {previewVersao?.nome_original}
             </DialogTitle>
-            <DialogDescription>
-              Pré-visualização do documento
-            </DialogDescription>
+            <DialogDescription>Pré-visualização do documento</DialogDescription>
           </DialogHeader>
           {previewVersao && (
             <div className="h-[70vh] w-full overflow-hidden border bg-muted/30">

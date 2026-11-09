@@ -42,9 +42,7 @@ export default function Index({ justificativas = [] }) {
       <Badge variant="outline">
         {isAceite && <CheckCircle className="mr-1 size-3" />}
         {isRecusada && <XCircle className="mr-1 size-3" />}
-        {!isAceite && !isRecusada && (
-          <AlertCircle className="mr-1 size-3" />
-        )}
+        {!isAceite && !isRecusada && <AlertCircle className="mr-1 size-3" />}
         {statusLabel}
       </Badge>
     );
@@ -141,7 +139,7 @@ export default function Index({ justificativas = [] }) {
                           )}
                         </TableCell>
                         <TableCell
-                          className="px-4 max-w-xs"
+                          className="max-w-xs px-4"
                           title={just.motivo}
                         >
                           <span className="line-clamp-2 text-sm">
@@ -151,7 +149,7 @@ export default function Index({ justificativas = [] }) {
                         <TableCell className="px-4 text-center">
                           {statusBadge(just.status_label)}
                         </TableCell>
-                        <TableCell className="px-4 text-center text-xs text-muted-foreground whitespace-nowrap">
+                        <TableCell className="px-4 text-center text-xs whitespace-nowrap text-muted-foreground">
                           {just.data}
                         </TableCell>
                       </TableRow>

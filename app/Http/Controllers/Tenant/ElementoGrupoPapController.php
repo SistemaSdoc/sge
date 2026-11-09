@@ -28,8 +28,7 @@ class ElementoGrupoPapController extends Controller
         private readonly AddElementosGrupoPap $addElementosGrupoPap,
         private readonly DeleteElementoGrupoPap $deleteElementoGrupoPap,
         private readonly AssignNotaElementoGrupoPap $assignNotaElementoGrupoPap,
-    ) {
-    }
+    ) {}
 
     /**
      * Mostra o formulário para adicionar um novo elemento a um grupo da PAP.

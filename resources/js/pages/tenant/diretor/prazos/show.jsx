@@ -198,10 +198,8 @@ export default function Show({ prazo, submissoes }) {
               </CardDescription>
             </div>
             <CardAction className="flex flex-wrap items-center gap-2">
-
               <Button variant="outline" size="sm" asChild>
                 <Link href={`/dashboard/diretor/prazos/${prazo.id}/status`}>
-
                   Relatório
                 </Link>
               </Button>
@@ -217,16 +215,14 @@ export default function Show({ prazo, submissoes }) {
           {/* Informações do prazo — sem ícones e sem cores */}
           <CardContent className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-4">
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Tipo
               </p>
-              <p className="truncate text-sm font-medium">
-                {prazo.tipo_prova}
-              </p>
+              <p className="truncate text-sm font-medium">{prazo.tipo_prova}</p>
             </div>
 
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Disciplina
               </p>
               <p className="truncate text-sm font-medium">
@@ -235,7 +231,7 @@ export default function Show({ prazo, submissoes }) {
             </div>
 
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Classe
               </p>
               <p className="truncate text-sm font-medium">
@@ -244,7 +240,7 @@ export default function Show({ prazo, submissoes }) {
             </div>
 
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Início
               </p>
               <p className="truncate text-sm font-medium whitespace-nowrap">
@@ -253,7 +249,7 @@ export default function Show({ prazo, submissoes }) {
             </div>
 
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Limite
               </p>
               <p className="truncate text-sm font-medium whitespace-nowrap">
@@ -262,23 +258,21 @@ export default function Show({ prazo, submissoes }) {
             </div>
 
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Ano Letivo
               </p>
-              <p className="truncate text-sm font-medium">
-                {prazo.ano_letivo}
-              </p>
+              <p className="truncate text-sm font-medium">{prazo.ano_letivo}</p>
             </div>
 
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Período
               </p>
               <p className="truncate text-sm font-medium">{prazo.periodo}</p>
             </div>
 
             <div className="min-w-0">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Estado
               </p>
               <p className="truncate text-sm font-medium">
@@ -287,10 +281,10 @@ export default function Show({ prazo, submissoes }) {
             </div>
 
             <div className="col-span-1 min-w-0 sm:col-span-2 md:col-span-4">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                 Observações
               </p>
-              <p className="whitespace-pre-wrap text-sm font-medium">
+              <p className="text-sm font-medium whitespace-pre-wrap">
                 {prazo.observacoes || 'Nenhuma'}
               </p>
             </div>
@@ -351,9 +345,7 @@ export default function Show({ prazo, submissoes }) {
                 Aprovar ou rejeitar as provas submetidas pelos professores.
               </CardDescription>
             </div>
-            <CardAction>
-              {submissoes.length}
-            </CardAction>
+            <CardAction>{submissoes.length}</CardAction>
           </CardHeader>
 
           <CardContent className="p-0!">
@@ -418,9 +410,7 @@ export default function Show({ prazo, submissoes }) {
                               <Button
                                 variant="default"
                                 size="sm"
-                                onClick={() =>
-                                  handleAvaliar(sub.id, 'aprovar')
-                                }
+                                onClick={() => handleAvaliar(sub.id, 'aprovar')}
                                 disabled={algumLoading}
                                 className="hover:cursor-pointer"
                               >

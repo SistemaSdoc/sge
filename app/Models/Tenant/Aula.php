@@ -33,7 +33,7 @@ class Aula extends Model
     ];
 
     protected $casts = [
-        'data'         => 'date',
+        'data' => 'date',
         'publicado_em' => 'datetime',
     ];
 
@@ -102,21 +102,21 @@ class Aula extends Model
     public function getEstadoLabelAttribute(): string
     {
         return match ($this->estado) {
-            'rascunho'  => 'Rascunho',
+            'rascunho' => 'Rascunho',
             'publicado' => 'Publicado',
             'cancelado' => 'Cancelado',
-            default     => ucfirst($this->estado ?? '—'),
+            default => ucfirst($this->estado ?? '—'),
         };
     }
 
     public function getTipoLabelAttribute(): string
     {
         return match ($this->tipo) {
-            'normal'       => 'Normal',
+            'normal' => 'Normal',
             'substituicao' => 'Substituição',
-            'extra'        => 'Extra',
-            'reposicao'    => 'Reposição',
-            default        => ucfirst($this->tipo ?? '—'),
+            'extra' => 'Extra',
+            'reposicao' => 'Reposição',
+            default => ucfirst($this->tipo ?? '—'),
         };
     }
 
@@ -141,7 +141,7 @@ class Aula extends Model
             return null;
         }
 
-        $horas      = (int) config('aulas.janela_edicao_horas', 48);
+        $horas = (int) config('aulas.janela_edicao_horas', 48);
         $decorridas = $this->publicado_em->diffInHours(now());
 
         return max(0, $horas - $decorridas);

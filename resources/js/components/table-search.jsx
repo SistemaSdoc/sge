@@ -16,7 +16,9 @@ export function TableSearch({
 }) {
   const form = (
     <form
-      className={bare ? 'flex' : 'flex flex-wrap items-center justify-end gap-3'}
+      className={
+        bare ? 'flex' : 'flex flex-wrap items-center justify-end gap-3'
+      }
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();

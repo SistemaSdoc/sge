@@ -10,6 +10,7 @@ use Illuminate\Console\Command;
 class DebugEncriptacao extends Command
 {
     protected $signature = 'debug:encriptacao {tenant=cs.app.pge.edu.ao}';
+
     protected $description = 'Verifica se os uploads de planificações estão encriptados';
 
     public function handle(PlanificacaoStorageService $service): void
@@ -21,6 +22,7 @@ class DebugEncriptacao extends Command
             $this->error("Tenant não encontrado: {$tenantId}");
             $this->line('Tenants disponíveis:');
             Tenant::all()->each(fn ($t) => $this->line("  - {$t->id}"));
+
             return;
         }
 
@@ -31,6 +33,7 @@ class DebugEncriptacao extends Command
 
             if (! $v) {
                 $this->warn("Sem uploads no tenant {$tenant->id}.");
+
                 return;
             }
 
@@ -60,6 +63,7 @@ class DebugEncriptacao extends Command
                 foreach ($candidatos as $c) {
                     $this->line("  - {$c}");
                 }
+
                 return;
             }
 
@@ -74,9 +78,9 @@ class DebugEncriptacao extends Command
                 ['encriptado', $v->encriptado ? 'sim' : 'NÃO'],
                 ['comprimido', $v->comprimido ? 'sim' : 'não'],
                 ['algoritmo', $v->algoritmo_encriptacao ?? '—'],
-                ['original', $v->tamanho_original_bytes . ' bytes'],
-                ['final', $v->tamanho_bytes . ' bytes'],
-                ['redução', $v->reducao_percentual . '%'],
+                ['original', $v->tamanho_original_bytes.' bytes'],
+                ['final', $v->tamanho_bytes.' bytes'],
+                ['redução', $v->reducao_percentual.'%'],
             ]);
 
             // ── 2. Magic bytes ──
@@ -84,29 +88,29 @@ class DebugEncriptacao extends Command
             $this->info('2. Magic bytes no disco:');
             $magic = bin2hex(substr($conteudoDisco, 0, 4));
             $this->line("   4 primeiros: {$magic}");
-            $this->line('   É PDF? ' . ($magic === '25504446' ? 'SIM (NÃO encriptado!)' : 'NÃO (encriptado)'));
+            $this->line('   É PDF? '.($magic === '25504446' ? 'SIM (NÃO encriptado!)' : 'NÃO (encriptado)'));
 
             // ── 3. Tamanho ──
             $this->newLine();
             $this->info('3. Tamanho disco vs BD:');
-            $this->line('   Disco: ' . filesize($caminho) . ' bytes');
+            $this->line('   Disco: '.filesize($caminho).' bytes');
             $this->line("   BD:    {$v->tamanho_bytes} bytes");
-            $this->line('   Bate?  ' . (filesize($caminho) === $v->tamanho_bytes ? 'sim' : 'NÃO'));
+            $this->line('   Bate?  '.(filesize($caminho) === $v->tamanho_bytes ? 'sim' : 'NÃO'));
 
             // ── 4. IV ──
             $this->newLine();
             $this->info('4. IV (16 bytes iniciais):');
-            $this->line('   ' . bin2hex(substr($conteudoDisco, 0, 16)));
+            $this->line('   '.bin2hex(substr($conteudoDisco, 0, 16)));
 
             // ── 5. Desencriptação ──
             $this->newLine();
             $this->info('5. Desencriptação:');
             $plano = $service->conteudo($v);
-            $this->line('   Resultado: ' . ($plano ? 'OK' : 'NULL (falhou)'));
+            $this->line('   Resultado: '.($plano ? 'OK' : 'NULL (falhou)'));
             if ($plano) {
-                $this->line('   Tamanho:   ' . strlen($plano) . ' bytes');
-                $this->line('   Magic:     ' . bin2hex(substr($plano, 0, 4)));
-                $this->line('   É PDF?     ' . (substr($plano, 0, 4) === '%PDF' ? 'SIM' : 'NÃO'));
+                $this->line('   Tamanho:   '.strlen($plano).' bytes');
+                $this->line('   Magic:     '.bin2hex(substr($plano, 0, 4)));
+                $this->line('   É PDF?     '.(substr($plano, 0, 4) === '%PDF' ? 'SIM' : 'NÃO'));
             }
 
             // ── 6. Autenticação GCM ──
@@ -119,7 +123,7 @@ class DebugEncriptacao extends Command
             $resultadoCorrupto = $service->conteudo($v);
             file_put_contents($caminho, $conteudoDisco);
 
-            $this->line('   Corromper 1 byte: ' . ($resultadoCorrupto === null ? 'rejeitou (correto)' : 'aceitou lixo (ERRADO)'));
+            $this->line('   Corromper 1 byte: '.($resultadoCorrupto === null ? 'rejeitou (correto)' : 'aceitou lixo (ERRADO)'));
             $this->line('   (AES-GCM detectou a corrupção via Tag)');
 
             $this->newLine();

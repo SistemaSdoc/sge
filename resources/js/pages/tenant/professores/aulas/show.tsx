@@ -220,8 +220,8 @@ export default function Show({
               </h1>
 
               <p className="text-sm break-all opacity-90">
-                {aula.disciplina_nome} · {aula.turma_nome} · {aula.hora_inicio}
-                –{aula.hora_fim}
+                {aula.disciplina_nome} · {aula.turma_nome} · {aula.hora_inicio}–
+                {aula.hora_fim}
               </p>
             </div>
           </div>
@@ -329,9 +329,7 @@ export default function Show({
             <CardContent className="p-4 text-sm">
               <p className="font-medium">Esta aula foi cancelada.</p>
               {aula.observacoes && (
-                <p className="mt-1 text-muted-foreground">
-                  {aula.observacoes}
-                </p>
+                <p className="mt-1 text-muted-foreground">{aula.observacoes}</p>
               )}
             </CardContent>
           </Card>
@@ -360,7 +358,7 @@ export default function Show({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-1.5 p-5 sm:p-6">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
                 {aula.conteudo_previsto}
               </p>
             </CardContent>
@@ -377,7 +375,7 @@ export default function Show({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-1.5 p-5 sm:p-6">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
                 {aula.sumario}
               </p>
             </CardContent>
@@ -400,7 +398,7 @@ export default function Show({
               <CardDescription>TPC desta aula.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-1.5 p-5 sm:p-6">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
                 {aula.tpc}
               </p>
             </CardContent>
@@ -420,7 +418,7 @@ export default function Show({
               <CardDescription>Notas internas do professor.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-1.5 p-5 sm:p-6">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
                 {aula.observacoes}
               </p>
             </CardContent>

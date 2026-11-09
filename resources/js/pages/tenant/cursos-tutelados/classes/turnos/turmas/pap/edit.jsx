@@ -14,9 +14,9 @@ export default function Edit() {
     turma,
     form,
     grupoPap,
-    podeAlterarTutor, 
+    podeAlterarTutor,
   } = usePage().props;
-console.log({ podeAlterarTutor, grupoPap: form?.grupoPap });
+  console.log({ podeAlterarTutor, grupoPap: form?.grupoPap });
   const [nomeGrupo, setNomeGrupo] = useState(form.grupoPap.nome_grupo ?? '');
 
   const [professorTutorId, setProfessorTutorId] = useState(
@@ -78,7 +78,7 @@ console.log({ podeAlterarTutor, grupoPap: form?.grupoPap });
           alunoIds={alunoIds}
           setAlunoIds={setAlunoIds}
           grupoPap={form.grupoPap}
-           podeAlterarTutor={podeAlterarTutor} 
+          podeAlterarTutor={podeAlterarTutor}
         />
       )}
     </Form>

@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<
             <summary className="cursor-pointer text-xs text-red-500">
               Stack trace (para debug)
             </summary>
-            <pre className="mt-1 max-h-64 overflow-auto whitespace-pre-wrap text-[10px] text-red-500/70">
+            <pre className="mt-1 max-h-64 overflow-auto text-[10px] whitespace-pre-wrap text-red-500/70">
               {this.state.error.stack}
             </pre>
           </details>

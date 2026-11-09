@@ -65,5 +65,6 @@ export default function ForgotPassword({ status }) {
 
 ForgotPassword.layout = {
   title: 'Esqueci-me da palavra-passe',
-  description: 'Introduza o seu email para receber um link de redefinição da palavra-passe.',
+  description:
+    'Introduza o seu email para receber um link de redefinição da palavra-passe.',
 };

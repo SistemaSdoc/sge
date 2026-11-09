@@ -88,63 +88,64 @@ class DashboardService
     }
 
     /**
- * Utilizadores de todos os tenants (sem a conta de suporte central).
- * Em cache 5 minutos, porque percorre a base de cada tenant.
- *
- * @return array{total: int, novos_semana: int, por_instituicao: array<int, array<string, mixed>>}
- */
-private function utilizadores(): array
-{
-    return Cache::remember('central.dashboard.utilizadores', now()->addMinutes(5), function (): array {
-        $lista = Tenant::query()
-            ->whereIn('status', [TenantStatus::ACTIVE, TenantStatus::TRIAL, TenantStatus::SUSPENDED])
-            ->get()
-            ->map(function (Tenant $tenant): ?array {
-                try {
-                    $dados = $tenant->run(function (): array {
-                        $base = User::query()->where('email', '!=', User::CENTRAL_SUPPORT_EMAIL);
+     * Utilizadores de todos os tenants (sem a conta de suporte central).
+     * Em cache 5 minutos, porque percorre a base de cada tenant.
+     *
+     * @return array{total: int, novos_semana: int, por_instituicao: array<int, array<string, mixed>>}
+     */
+    private function utilizadores(): array
+    {
+        return Cache::remember('central.dashboard.utilizadores', now()->addMinutes(5), function (): array {
+            $lista = Tenant::query()
+                ->whereIn('status', [TenantStatus::ACTIVE, TenantStatus::TRIAL, TenantStatus::SUSPENDED])
+                ->get()
+                ->map(function (Tenant $tenant): ?array {
+                    try {
+                        $dados = $tenant->run(function (): array {
+                            $base = User::query()->where('email', '!=', User::CENTRAL_SUPPORT_EMAIL);
 
-                        $porPerfil = fn (string $perfil): int => (clone $base)
-                            ->whereHas('roles', fn ($q) => $q->where('name', $perfil))
-                            ->count();
+                            $porPerfil = fn (string $perfil): int => (clone $base)
+                                ->whereHas('roles', fn ($q) => $q->where('name', $perfil))
+                                ->count();
 
-                        return [
-                            'total' => (clone $base)->count(),
-                            'novos' => (clone $base)->where('created_at', '>=', now()->subDays(7))->count(),
-                            'professores' => $porPerfil('Professor'),
-                            'alunos' => $porPerfil('Aluno'),
-                        ];
-                    });
-                } catch (Throwable $exception) {
-                    Log::warning('Dashboard: não foi possível contar os utilizadores do tenant.', [
-                        'tenant_id' => $tenant->getTenantKey(),
-                        'exception' => $exception,
-                    ]);
+                            return [
+                                'total' => (clone $base)->count(),
+                                'novos' => (clone $base)->where('created_at', '>=', now()->subDays(7))->count(),
+                                'professores' => $porPerfil('Professor'),
+                                'alunos' => $porPerfil('Aluno'),
+                            ];
+                        });
+                    } catch (Throwable $exception) {
+                        Log::warning('Dashboard: não foi possível contar os utilizadores do tenant.', [
+                            'tenant_id' => $tenant->getTenantKey(),
+                            'exception' => $exception,
+                        ]);
 
-                    return null;
-                }
+                        return null;
+                    }
 
-                return [
-                    'id' => (string) $tenant->getTenantKey(),
-                    'nome' => $tenant->instituicao_nome ?? (string) $tenant->getTenantKey(),
-                    'tipo' => $tenant->instituicao_tipo,
-                    'total' => $dados['total'],
-                    'novos' => $dados['novos'],
-                    'professores' => $dados['professores'],
-                    'alunos' => $dados['alunos'],
-                ];
-            })
-            ->filter()
-            ->sortByDesc('total')
-            ->values();
+                    return [
+                        'id' => (string) $tenant->getTenantKey(),
+                        'nome' => $tenant->instituicao_nome ?? (string) $tenant->getTenantKey(),
+                        'tipo' => $tenant->instituicao_tipo,
+                        'total' => $dados['total'],
+                        'novos' => $dados['novos'],
+                        'professores' => $dados['professores'],
+                        'alunos' => $dados['alunos'],
+                    ];
+                })
+                ->filter()
+                ->sortByDesc('total')
+                ->values();
 
-        return [
-            'total' => (int) $lista->sum('total'),
-            'novos_semana' => (int) $lista->sum('novos'),
-            'por_instituicao' => $lista->all(),
-        ];
-    });
-}
+            return [
+                'total' => (int) $lista->sum('total'),
+                'novos_semana' => (int) $lista->sum('novos'),
+                'por_instituicao' => $lista->all(),
+            ];
+        });
+    }
+
     /**
      * Logins por dia e utilizadores online, somando todos os tenants.
      * Em cache 30 segundos.
