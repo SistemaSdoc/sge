@@ -173,7 +173,8 @@ class GrupoPapAprovacaoController extends Controller
                 'estado_novo' => GrupoPap::APROVACAO_PENDENTE,
                 'tema' => $grupoPap->tema_grupo,
                 'problema' => $grupoPap->problema,
-                'objectivos' => $grupoPap->objectivos,
+                'objectivo_geral' => $grupoPap->objectivo_geral,
+                'objectivos_especificos' => $grupoPap->objectivos_especificos,
                 'comentario' => $validated['comentario'] ?? 'Aprovado pelo professor tutor.',
             ]);
         });
@@ -217,7 +218,8 @@ class GrupoPapAprovacaoController extends Controller
                 'estado_novo' => GrupoPap::APROVACAO_MELHORIA_TUTOR,
                 'tema' => $grupoPap->tema_grupo,
                 'problema' => $grupoPap->problema,
-                'objectivos' => $grupoPap->objectivos,
+                'objectivo_geral' => $grupoPap->objectivo_geral,
+                'objectivos_especificos' => $grupoPap->objectivos_especificos,
                 'comentario' => $validated['recomendacao'],
             ]);
         });
@@ -311,7 +313,8 @@ class GrupoPapAprovacaoController extends Controller
                 ),
             ],
             'problema' => ['nullable', 'string', 'max:2000'],
-            'objectivos' => ['nullable', 'string', 'max:2000'],
+            'objectivo_geral' => ['nullable', 'string', 'max:2000'],
+            'objectivos_especificos' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $grupoPap->update($validated);

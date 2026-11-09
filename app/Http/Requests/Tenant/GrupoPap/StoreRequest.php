@@ -44,7 +44,8 @@ class StoreRequest extends FormRequest
                 ),
             ],
             'problema' => 'nullable|string',
-            'objectivos' => 'nullable|string',
+            'objectivo_geral' => 'nullable|string',
+            'objectivos_especificos' => 'nullable|string',
             'alunos' => 'required|array|min:1',
             'alunos.*' => 'exists:alunos,id',
             'estudo_caso' => [

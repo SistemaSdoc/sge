@@ -271,10 +271,18 @@ export function TabAprovacao({ params, grupoPap, turma, can }) {
             </div>
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase">
-                Objectivos
+                Objectivo Geral
               </p>
               <p className="mt-1 text-sm font-medium">
-                {grupoPap.objectivos ?? '—'}
+                {grupoPap.objectivo_geral ?? '—'}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase">
+                Objectivos Específicos
+              </p>
+              <p className="mt-1 text-sm font-medium">
+                {grupoPap.objectivos_especificos ?? '—'}
               </p>
             </div>
           </div>

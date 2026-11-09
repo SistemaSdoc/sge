@@ -31,7 +31,8 @@ class ActualizarTemaRequest extends FormRequest
                 ),
             ],
             'problema' => ['nullable', 'string'],
-            'objectivos' => ['nullable', 'string'],
+            'objectivo_geral' => ['nullable', 'string'],
+            'objectivos_especificos' => ['nullable', 'string'],
             'estudo_caso' => [
                 'nullable',
                 'string',
@@ -56,7 +57,8 @@ class ActualizarTemaRequest extends FormRequest
             'tema_grupo.string' => 'O tema do grupo deve ser texto.',
             'tema_grupo.max' => 'O tema do grupo não pode ter mais de 255 caracteres.',
             'problema.string' => 'O problema deve ser texto.',
-            'objectivos.string' => 'Os objectivos devem ser texto.',
+            'objectivo_geral.string' => 'O objectivo geral deve ser texto.',
+            'objectivos_especificos.string' => 'Os objectivos específicos devem ser texto.',
             'estudo_caso.string' => 'O estudo de caso deve ser texto.',
         ];
     }

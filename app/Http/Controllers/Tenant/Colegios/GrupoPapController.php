@@ -358,7 +358,8 @@ class GrupoPapController extends Controller
                         'comentario' => $item->comentario,
                         'tema' => $item->tema,
                         'problema' => $item->problema,   // ← faltava
-                        'objectivos' => $item->objectivos, // ← faltava
+                        'objectivo_geral' => $item->objectivo_geral,
+                        'objectivos_especificos' => $item->objectivos_especificos,
                         'created_at' => $item->created_at?->toIso8601String(),
                         'utilizador' => [
                             // ← mesmo padrão: utilizador null quando externo

@@ -561,7 +561,8 @@ class GrupoPapViewService
                 'comentario' => $item->comentario,
                 'tema' => $item->tema,
                 'problema' => $item->problema,
-                'objectivos' => $item->objectivos,
+                'objectivo_geral' => $item->objectivo_geral,
+                'objectivos_especificos' => $item->objectivos_especificos,
                 'created_at' => $item->created_at?->toIso8601String(),
                 'utilizador' => [
                     'nome' => $mostrarNomeDoUtilizador
