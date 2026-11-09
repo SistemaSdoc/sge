@@ -36,7 +36,8 @@ class NotificacaoPlanificacaoService
         $notificacao = new PlanificacaoPublicadaNotificacao(
             $planificacao,
             $versao,
-            $primeiraVersao
+            $primeiraVersao,
+            tenant()?->domains()->first()?->domain
         );
 
         if ($professores->isNotEmpty()) {

@@ -256,6 +256,12 @@
             </div>
         @endif
 
+        <div style="text-align: center; padding: 8px 24px 24px;">
+            <a href="{{ $url }}" target="_blank" style="display: inline-block; background: #1a73e8; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; padding: 10px 24px; border-radius: 4px;">
+                Ver submissões de provas
+            </a>
+        </div>
+
         <div class="footer">
             <p>Este email foi enviado automaticamente pela plataforma {{ $instituicao->nome }}. Por favor, não responda
                 directamente a esta mensagem.</p>

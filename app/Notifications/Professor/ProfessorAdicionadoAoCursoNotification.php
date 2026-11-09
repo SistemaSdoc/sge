@@ -6,6 +6,7 @@ use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\CursoTuteladoProfessor;
 use App\Models\Tenant\Professor;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -17,6 +18,7 @@ class ProfessorAdicionadoAoCursoNotification extends Notification implements Sho
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public Professor $professor,
@@ -39,6 +41,7 @@ class ProfessorAdicionadoAoCursoNotification extends Notification implements Sho
                 'nome' => $this->professor->user->nome,
                 'nomeCurso' => $this->cursoTutelado->instituicaoCurso?->curso?->nome,
                 'instituicao' => $instituicao,
+                'url' => $this->tenantNotificationUrl('tenant.dashboard'),
                 'papeis' => $this->papeis(),
                 'artigoInstituicao' => match ($instituicao->tipo) {
                     'instituto', 'colegio' => 'ao',
@@ -56,6 +59,7 @@ class ProfessorAdicionadoAoCursoNotification extends Notification implements Sho
             'titulo' => 'Adicionado a um curso',
             'mensagem' => "Foi adicionado ao curso \"{$this->cursoTutelado->instituicaoCurso?->curso?->nome}\" com os papéis: ".implode(', ', $papeis).'.',
             'papeis' => $papeis,
+            'url' => $this->tenantNotificationUrl('tenant.dashboard'),
         ];
     }
 

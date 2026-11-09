@@ -6,6 +6,7 @@ use App\Models\Tenant\ClasseTurnoDisciplina;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -16,6 +17,7 @@ class ProfessorAtribuidoADisciplinaNotification extends Notification implements 
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public Professor $professor,
@@ -38,7 +40,9 @@ class ProfessorAtribuidoADisciplinaNotification extends Notification implements 
                 'nome' => $this->professor->user->nome,
                 'nomeDisciplina' => $this->classeTurnoDisciplina->disciplina?->nome,
                 'nomeTurma' => $this->turma->nome,
+                'nomeClasse' => $this->turma->cursoClasseTurno?->cursoClasse?->classe?->nome ?? '—',
                 'instituicao' => $instituicao,
+                'url' => $this->tenantNotificationUrl('tenant.dashboard'),
                 'artigoInstituicao' => match ($instituicao->tipo) {
                     'instituto', 'colegio' => 'ao',
                     default => 'à',
@@ -48,10 +52,14 @@ class ProfessorAtribuidoADisciplinaNotification extends Notification implements 
 
     public function toArray(object $notifiable): array
     {
+        $nomeClasse = $this->turma->cursoClasseTurno?->cursoClasse?->classe?->nome ?? '—';
+
         return [
             'tipo' => 'professor_atribuido_disciplina',
             'titulo' => 'Atribuído a uma disciplina',
-            'mensagem' => "Foi atribuído à disciplina \"{$this->classeTurnoDisciplina->disciplina?->nome}\" na turma \"{$this->turma->nome}\".",
+            'mensagem' => "Foi atribuído à disciplina \"{$this->classeTurnoDisciplina->disciplina?->nome}\" na classe \"{$nomeClasse}\" e turma \"{$this->turma->nome}\".",
+            'classe' => $nomeClasse,
+            'url' => $this->tenantNotificationUrl('tenant.dashboard'),
         ];
     }
 }

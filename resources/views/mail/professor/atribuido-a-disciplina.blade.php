@@ -151,6 +151,11 @@
     <div class="email-wrapper">
         @include('mail.partials.institution-logo')
 
+        {{-- <div class="header">
+            <h1>Atribuído a uma disciplina</h1>
+            <div class="account-badge">{{ $instituicao->nome ?? 'SGE' }}</div>
+        </div> --}}
+
         <hr class="divider">
 
         <br>
@@ -166,7 +171,7 @@
         <p class="section-label">Detalhes da atribuição</p>
 
         <div class="credential-item">
-           
+
             <div class="item-text">
                 <div class="label">Disciplina</div>
                 <div class="sublabel">{{ $nomeDisciplina }}</div>
@@ -174,7 +179,15 @@
         </div>
 
         <div class="credential-item">
-            
+            <div class="item-text">
+                <div class="label">Classe</div>
+                <div class="sublabel">{{ $nomeClasse }}</div>
+            </div>
+        </div>
+
+
+        <div class="credential-item">
+
             <div class="item-text">
                 <div class="label">Turma</div>
                 <div class="sublabel">{{ $nomeTurma }}</div>
@@ -186,6 +199,13 @@
                 <div class="title">Informação</div>
                 <p>Já pode aceder à plataforma para consultar os detalhes da disciplina e os alunos da turma.</p>
             </div>
+        </div>
+
+        <div style="text-align: center; padding: 8px 24px 24px;">
+            <a href="{{ $url }}" target="_blank"
+                style="display: inline-block; background: #1a73e8; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 500; padding: 10px 24px; border-radius: 4px;">
+                Aceder ao painel
+            </a>
         </div>
 
         <div class="footer">

@@ -4,6 +4,7 @@ namespace App\Notifications\Professor;
 
 use App\Models\Tenant\JustificativaNaoSubmissao;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -14,6 +15,7 @@ class JustificativaAvaliadaNotificacao extends Notification implements ShouldQue
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public JustificativaNaoSubmissao $justificativa
@@ -48,7 +50,7 @@ class JustificativaAvaliadaNotificacao extends Notification implements ShouldQue
                 'parecer' => $this->justificativa->parecer_diretor,
                 'prazoExtraAte' => $prazoExtraAte,
                 'diasRestantes' => $this->justificativa->diasRestantes(),
-                'url' => url('/dashboard/professor/provas'),
+                'url' => $this->tenantNotificationUrl('tenant.dashboard.professor.provas.index'),
                 'instituicao' => $notifiable->instituicao,
             ]);
     }
@@ -71,7 +73,7 @@ class JustificativaAvaliadaNotificacao extends Notification implements ShouldQue
             'titulo' => $aceita ? 'Justificativa aceite' : 'Justificativa recusada',
             'mensagem' => $mensagem,
             'nova_data_limite' => $prazoExtra,
-            'url' => '/dashboard/professor/provas',
+            'url' => $this->tenantNotificationUrl('tenant.dashboard.professor.provas.index'),
         ];
     }
 
