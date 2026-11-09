@@ -1,10 +1,10 @@
-import { useDrawer } from '@/hooks/use-drawer';
 import { Head, router } from '@inertiajs/react';
 import { index as grupoPapIndex } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { useDrawer } from '@/hooks/use-drawer';
 import { useTableSearch } from '@/hooks/use-table-search';
-import { GrupoPapCards } from './components/grupo-pap-cards';
-import { Header } from './components/header';
 import GrupoPapForm from './components/grupo-pap-form';
+import { GrupoPapCards } from './components/listagem/grupo-pap-cards/grupo-pap-cards';
+import { Header } from './components/listagem/header';
 
 export default function Index({
   instituicao,
@@ -18,16 +18,17 @@ export default function Index({
   filters,
 }) {
   const { openForm, closeDrawer } = useDrawer();
+
   const { search, onChange, submit, applied } = useTableSearch(
     filters?.search,
-    {
-      only: ['gruposPap', 'filters'],
-    },
+    { only: ['gruposPap', 'filters'] },
   );
+
   const gruposDaLista = gruposPap.data ?? gruposPap ?? [];
 
   const visitarFiltros = (alteracoes, only = ['gruposPap', 'filters']) => {
     const query = { ...filters, ...alteracoes };
+
     delete query.page;
 
     router.visit(grupoPapIndex['/dashboard/pap']({ query }), {

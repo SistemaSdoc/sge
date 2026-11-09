@@ -1,3 +1,4 @@
+import { FileText, Landmark } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -7,56 +8,7 @@ import {
   CardTitle,
   CardDescription,
 } from '@/components/ui/card';
-import {
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Clock,
-  RefreshCw,
-  FileText,
-  Landmark,
-} from 'lucide-react';
-
-const STATUS = {
-  pendente: {
-    label: 'Em análise — Coordenação',
-    icon: Clock,
-    badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
-    barClass: 'bg-purple-500',
-  },
-  aprovado: {
-    label: 'Aprovado',
-    icon: CheckCircle,
-    badgeClass: 'bg-green-50 text-green-700 border-green-200',
-    barClass: 'bg-green-500',
-  },
-  reprovado: {
-    label: 'Reprovado',
-    icon: XCircle,
-    badgeClass: 'bg-red-50 text-red-700 border-red-200',
-    barClass: 'bg-red-500',
-  },
-  'melhoria-solicitada-tutor': {
-    label: 'Correção solicitada — Tutor',
-    icon: AlertCircle,
-    badgeClass: 'bg-amber-50 text-amber-700 border-amber-200',
-    barClass: 'bg-amber-500',
-  },
-  'melhoria-solicitada-coordenacao': {
-    label: 'Correção solicitada — Coordenação',
-    icon: AlertCircle,
-    badgeClass: 'bg-orange-50 text-orange-700 border-orange-200',
-    barClass: 'bg-orange-500',
-  },
-  submetido: {
-    label: 'Reenviado',
-    icon: RefreshCw,
-    badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
-    barClass: 'bg-blue-500',
-  },
-};
-
-const getStatus = (s) => STATUS[s] || STATUS.pendente;
+import { getStatusHistorico } from '@/pages/tenant/pap/config/status-historico';
 
 const formatDate = (d) =>
   d
@@ -93,7 +45,7 @@ export function TabHistorico({ historico = [] }) {
         ) : (
           <div className="divide-y">
             {historico.map((item) => {
-              const config = getStatus(item.estado_novo);
+              const config = getStatusHistorico(item.estado_novo);
               const Icon = config.icon;
 
               return (

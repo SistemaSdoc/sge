@@ -1,17 +1,17 @@
-import { router } from '@inertiajs/react';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Link, router } from '@inertiajs/react';
 import { CheckCircle, XCircle, AlertCircle, Clock } from 'lucide-react';
-import ModalDecisaoAprovacao from '@/pages/tenant/pap/components/ModalDecisaoAprovacao';
+import { useState } from 'react';
 import {
   aprovar,
   reprovar,
   solicitarMelhoria,
-  aprovarTutor,
-  solicitarMelhoriaComoTutor,
+  formAprovarTutor,
+  formSolicitarMelhoriaTutor,
 } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapAprovacaoController';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ModalDecisaoAprovacao from '@/pages/tenant/pap/components/aprovacao/ModalDecisaoAprovacao';
 
 const STATUS = {
   rascunho: {
@@ -60,49 +60,21 @@ export function TabAprovacao({ params, grupoPap, turma, can }) {
     setOpen(true);
   };
   const fechar = () => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
+
     setOpen(false);
     setAction(null);
     setComentario('');
   };
 
   const confirmar = () => {
-    if (!action) return;
+    if (!action) {
+      return;
+    }
+
     setLoading(true);
-
-    if (action === 'aprovarTutor') {
-      router.post(
-        aprovarTutor.url(params),
-        { comentario: comentario || null },
-        {
-          preserveScroll: true,
-          onSuccess: () => {
-            setLoading(false);
-            fechar();
-            router.reload();
-          },
-          onError: () => setLoading(false),
-        },
-      );
-      return;
-    }
-
-    if (action === 'melhoriaComoTutor') {
-      router.post(
-        solicitarMelhoriaComoTutor.url(params),
-        { recomendacao: comentario },
-        {
-          preserveScroll: true,
-          onSuccess: () => {
-            setLoading(false);
-            fechar();
-            router.reload();
-          },
-          onError: () => setLoading(false),
-        },
-      );
-      return;
-    }
 
     const rota =
       action === 'aprovar'
@@ -152,15 +124,15 @@ export function TabAprovacao({ params, grupoPap, turma, can }) {
           </p>
           {can?.aprovarComoTutor && (
             <div className="flex flex-wrap justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => abrir('melhoriaComoTutor')}
-                disabled={loading}
-              >
-                <AlertCircle className="size-4" /> Solicitar Melhoria
+              <Button asChild variant="outline" disabled={loading}>
+                <Link href={formSolicitarMelhoriaTutor.url(params)}>
+                  <AlertCircle className="size-4" /> Solicitar Melhoria
+                </Link>
               </Button>
-              <Button onClick={() => abrir('aprovarTutor')} disabled={loading}>
-                <CheckCircle className="size-4" /> Enviar para coordenação
+              <Button asChild disabled={loading}>
+                <Link href={formAprovarTutor.url(params)}>
+                  <CheckCircle className="size-4" /> Enviar para coordenação
+                </Link>
               </Button>
             </div>
           )}

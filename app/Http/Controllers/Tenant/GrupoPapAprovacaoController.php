@@ -3,17 +3,25 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\HistoricoAprovacaoPap;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
 use App\Rules\EstudoCasoPapUnico;
 use App\Rules\TemaPapUnico;
 use App\Services\Tenant\AprovacaoTemaService;
 use App\Traits\NotificaGrupoPap;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class GrupoPapAprovacaoController extends Controller
 {
@@ -69,8 +77,56 @@ class GrupoPapAprovacaoController extends Controller
         ]);
     }
 
-    public function aprovarTutor(Request $request, GrupoPap $grupoPap)
-    {
+    public function formAprovarTutor(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): Response {
+        $user = $this->autorizarDecisaoPap();
+        Gate::forUser($user)->authorize('aprovarComoTutor', $grupoPap);
+
+        $params = compact('instituicao', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
+
+        return Inertia::render('tenant/pap/decisao-tutor/enviar-para-coordenacao', [
+            'grupoPap' => $grupoPap->only('id', 'nome_grupo', 'tema_grupo', 'problema', 'objectivos'),
+            'turma' => $turma->only('nome'),
+            'submitUrl' => route('tenant.dashboard.grupo-pap-aprovacao.aprovar-tutor', $params),
+            'backUrl' => route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params),
+        ]);
+    }
+
+    public function formSolicitarMelhoriaTutor(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): Response {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('solicitarMelhoriaComoTutor', $grupoPap);
+
+        $params = compact('instituicao', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
+
+        return Inertia::render('tenant/pap/decisao-tutor/solicitar-melhoria', [
+            'grupoPap' => $grupoPap->only('id', 'nome_grupo', 'tema_grupo', 'problema', 'objectivos'),
+            'turma' => $turma->only('nome'),
+            'submitUrl' => route('tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria-tutor', $params),
+            'backUrl' => route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params),
+        ]);
+    }
+
+    public function aprovarTutor(
+        Request $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): RedirectResponse {
         $user = $this->autorizarDecisaoPap();
         Gate::forUser($user)->authorize('aprovarComoTutor', $grupoPap);
 
@@ -99,7 +155,14 @@ class GrupoPapAprovacaoController extends Controller
         $this->notificarTemaValidadoPeloTutor($grupoPap);
         // ──────────────────────────────────────────────────────
 
-        return back()->with('toast', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', compact(
+            'instituicao',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        ))->with('toast', [
             'type' => 'success',
             'message' => 'Tema enviado para a coordenação.',
         ]);
@@ -108,8 +171,15 @@ class GrupoPapAprovacaoController extends Controller
     /**
      * Solicitar melhoria no tema PAP como tutor.
      */
-    public function solicitarMelhoriaComoTutor(Request $request, GrupoPap $grupoPap)
-    {
+    public function solicitarMelhoriaComoTutor(
+        Request $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): RedirectResponse {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('solicitarMelhoriaComoTutor', $grupoPap);
 
         $validated = $request->validate([
@@ -137,7 +207,14 @@ class GrupoPapAprovacaoController extends Controller
         $grupoPap->load('alunos.user');
         $this->notificarMelhoriasSolicitadas($grupoPap, 'tutor');
 
-        return back()->with('toast', [
+        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', compact(
+            'instituicao',
+            'cursoTutelado',
+            'cursoClasse',
+            'cursoClasseTurno',
+            'turma',
+            'grupoPap',
+        ))->with('toast', [
             'type' => 'warning',
             'message' => 'Melhoria solicitada aos alunos.',
         ]);

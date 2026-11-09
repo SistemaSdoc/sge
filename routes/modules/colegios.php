@@ -51,8 +51,14 @@ Route::prefix('colegios')->group(function () {
                 Route::post('/solicitar-melhoria', [GrupoPapAprovacaoController::class, 'solicitarMelhoria'])
                     ->name('colegio.grupo-pap-aprovacao.solicitar-melhoria');
 
+                Route::get('/aprovar-tutor', [GrupoPapAprovacaoController::class, 'formAprovarTutor'])
+                    ->name('colegio.grupo-pap-aprovacao.aprovar-tutor.form');
+
                 Route::post('/aprovar-tutor', [GrupoPapAprovacaoController::class, 'aprovarTutor'])
                     ->name('colegio.grupo-pap-aprovacao.aprovar-tutor');
+
+                Route::get('/solicitar-melhoria-tutor', [GrupoPapAprovacaoController::class, 'formSolicitarMelhoriaTutor'])
+                    ->name('colegio.grupo-pap-aprovacao.solicitar-melhoria-tutor.form');
 
                 Route::post('/solicitar-melhoria-tutor', [GrupoPapAprovacaoController::class, 'solicitarMelhoriaComoTutor'])
                     ->name('colegio.grupo-pap-aprovacao.solicitar-melhoria-tutor');

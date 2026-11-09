@@ -2,13 +2,13 @@ import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
-import InfoGrupoBox from './components/InfoGrupoBox';
-import RecomendacaoBox from './components/RecomendacaoBox';
+import InfoGrupoBox from './components/aprovacao/InfoGrupoBox';
+import RecomendacaoBox from './components/aprovacao/RecomendacaoBox';
 
 const STATUS_CONFIG = {
   reprovado: {

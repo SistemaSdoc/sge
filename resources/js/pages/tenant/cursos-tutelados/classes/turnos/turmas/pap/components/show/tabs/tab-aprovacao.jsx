@@ -1,17 +1,17 @@
-import { router } from '@inertiajs/react';
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Link, router } from '@inertiajs/react';
 import { CheckCircle, XCircle, AlertCircle, Clock } from 'lucide-react';
-import ModalDecisaoAprovacao from '@/pages/tenant/pap/components/ModalDecisaoAprovacao';
+import { useState } from 'react';
 import {
   aprovar,
   reprovar,
   solicitarMelhoria,
-  aprovarTutor,
-  solicitarMelhoriaComoTutor,
+  formAprovarTutor,
+  formSolicitarMelhoriaTutor,
 } from '@/actions/App/Http/Controllers/Tenant/GrupoPapAprovacaoController';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ModalDecisaoAprovacao from '@/pages/tenant/pap/components/aprovacao/ModalDecisaoAprovacao';
 
 const STATUS = {
   rascunho: {
@@ -53,7 +53,7 @@ const STATUS = {
 
 const getStatus = (status) => STATUS[status?.toLowerCase()] || STATUS.pendente;
 
-export function TabAprovacao({ params, grupoPap, can }) {
+export function TabAprovacao({ grupoPap, params, can }) {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState(null);
   const [comentario, setComentario] = useState('');
@@ -66,50 +66,21 @@ export function TabAprovacao({ params, grupoPap, can }) {
   };
 
   const fechar = () => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
+
     setOpen(false);
     setAction(null);
     setComentario('');
   };
 
   const confirmar = () => {
-    if (!action) return;
+    if (!action) {
+      return;
+    }
+
     setLoading(true);
-
-    // Acção do tutor — rota diferente
-    if (action === 'aprovarTutor') {
-      router.post(
-        aprovarTutor.url({ grupoPap: grupoPap.id }),
-        { comentario: comentario || null },
-        {
-          preserveScroll: true,
-          onSuccess: () => {
-            setLoading(false);
-            fechar();
-            router.reload();
-          },
-          onError: () => setLoading(false),
-        },
-      );
-      return;
-    }
-
-    if (action === 'melhoriaComoTutor') {
-      router.post(
-        solicitarMelhoriaComoTutor.url({ grupoPap: grupoPap.id }),
-        { recomendacao: comentario },
-        {
-          preserveScroll: true,
-          onSuccess: () => {
-            setLoading(false);
-            fechar();
-            router.reload();
-          },
-          onError: () => setLoading(false),
-        },
-      );
-      return;
-    }
 
     const rota =
       action === 'aprovar'
@@ -140,8 +111,6 @@ export function TabAprovacao({ params, grupoPap, can }) {
   const statusAtual = (grupoPap.status_aprovacao || '').toLowerCase();
   const config = getStatus(statusAtual);
   const StatusIcon = config.icon;
-  const isFinalizado = ['aprovado'].includes(statusAtual);
-
   const renderAreaDecisao = () => {
     // Tema ainda não submetido
     if (statusAtual === 'rascunho') {
@@ -157,23 +126,21 @@ export function TabAprovacao({ params, grupoPap, can }) {
       return (
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            {can?.aprovarComoTutor
-              ? 'Revê o tema submetido pelos alunos e envia para a coordenação.'
-              : 'Aguarda revisão do professor tutor.'}
+            {can?.aprovarComoTutor ? '' : 'Aguarda revisão do professor tutor.'}
           </p>
+
           {can?.aprovarComoTutor && (
             <div className="flex flex-wrap justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => abrir('melhoriaComoTutor')} // ← novo
-                disabled={loading}
-              >
-                <AlertCircle className="size-4" />
-                Solicitar Melhoria
+              <Button asChild variant="outline" disabled={loading}>
+                <Link href={formSolicitarMelhoriaTutor.url(params)}>
+                  Solicitar Melhoria
+                </Link>
               </Button>
-              <Button onClick={() => abrir('aprovarTutor')} disabled={loading}>
-                <CheckCircle className="size-4" />
-                Enviar para coordenação
+
+              <Button asChild disabled={loading}>
+                <Link href={formAprovarTutor.url(params)}>
+                  Enviar para coordenação
+                </Link>
               </Button>
             </div>
           )}
@@ -184,7 +151,7 @@ export function TabAprovacao({ params, grupoPap, can }) {
     // Finalizado
     /* if (isFinalizado) {
       return (
-        <div className="flex items-center gap-2 rounded-md bg-muted/40 px-4 py-3">
+        <div className="flex items-center gap-2 px-4 py-3 rounded-md bg-muted/40">
           <StatusIcon className="size-4 shrink-0 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
             Tema aprovado. Pode agora definir a data e local de defesa.
@@ -248,48 +215,28 @@ export function TabAprovacao({ params, grupoPap, can }) {
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6 pt-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <CardContent className="pt-6 space-y-6">
+          <div className="grid grid-cols-1 gap-6">
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Grupo
-              </p>
-              <p className="mt-1 text-sm font-medium">{grupoPap.nome_grupo}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
+              <p className="text-xs font-bold uppercase text-muted-foreground">
                 Tema
               </p>
               <p className="mt-1 text-sm font-medium">
                 {grupoPap.tema_grupo ?? '—'}
               </p>
             </div>
+
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Turma
-              </p>
-              <p className="mt-1 text-sm font-medium">
-                {grupoPap.turma?.nome ?? '—'}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
+              <p className="text-xs font-bold uppercase text-muted-foreground">
                 Problema
               </p>
               <p className="mt-1 text-sm font-medium">
                 {grupoPap.problema ?? '—'}
               </p>
             </div>
+
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Professor Tutor
-              </p>
-              <p className="mt-1 text-sm font-medium">
-                {grupoPap.professor?.nome ?? '—'}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
+              <p className="text-xs font-bold uppercase text-muted-foreground">
                 Objectivos
               </p>
               <p className="mt-1 text-sm font-medium">
@@ -297,8 +244,6 @@ export function TabAprovacao({ params, grupoPap, can }) {
               </p>
             </div>
           </div>
-
-          <div className="border-t" />
 
           {renderAreaDecisao()}
         </CardContent>

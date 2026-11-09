@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -5,10 +7,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function ModalDecisaoAprovacao({
   open,
@@ -21,10 +21,6 @@ export default function ModalDecisaoAprovacao({
   loading,
 }) {
   const [submitted, setSubmitted] = useState(false);
-
-  useEffect(() => {
-    if (open) setSubmitted(false);
-  }, [open, action]);
 
   const MODAL_CONFIG = {
     aprovar: {
@@ -53,23 +49,6 @@ export default function ModalDecisaoAprovacao({
       confirmVariant: 'outline',
       placeholder: 'Informe as recomendações de melhoria...',
     },
-    aprovarTutor: {
-      titulo: 'Enviar para a coordenação',
-      descricao: 'O tema será enviado para análise da coordenação do curso.',
-      obrigatorio: false,
-      confirmLabel: 'Enviar para coordenação',
-      confirmVariant: 'default',
-      placeholder: 'Comentário opcional...',
-    },
-    melhoriaComoTutor: {
-      titulo: 'Solicitar Melhoria',
-      descricao:
-        'Informe as alterações que o grupo deverá realizar antes de reenviar o tema.',
-      obrigatorio: true,
-      confirmLabel: 'Solicitar Melhoria',
-      confirmVariant: 'outline',
-      placeholder: 'Informe as recomendações de melhoria...',
-    },
   };
 
   const config = MODAL_CONFIG[action] ?? {};
@@ -84,7 +63,11 @@ export default function ModalDecisaoAprovacao({
   const podeConfirmar = !config.obrigatorio || !comentarioError;
 
   const handleClose = () => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
+
+    setSubmitted(false);
     onClose();
   };
 
@@ -92,7 +75,9 @@ export default function ModalDecisaoAprovacao({
     <Dialog
       open={open}
       onOpenChange={(o) => {
-        if (!o) handleClose();
+        if (!o) {
+          handleClose();
+        }
       }}
     >
       <DialogContent className="sm:max-w-md">
@@ -147,7 +132,12 @@ export default function ModalDecisaoAprovacao({
             variant={config.confirmVariant ?? 'default'}
             onClick={() => {
               setSubmitted(true);
-              if (!podeConfirmar) return;
+
+              if (!podeConfirmar) {
+                return;
+              }
+
+              setSubmitted(false);
               onConfirmar();
             }}
             disabled={loading}

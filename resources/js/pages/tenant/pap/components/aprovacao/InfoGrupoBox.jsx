@@ -14,6 +14,7 @@ export default function InfoGrupoBox({
     overrideCurso ??
     turma?.cursoClasseTurno?.cursoClasse?.cursoTutelado?.instituicaoCurso
       ?.curso;
+
   return (
     <Card>
       <CardHeader>

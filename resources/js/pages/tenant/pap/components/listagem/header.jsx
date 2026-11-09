@@ -1,3 +1,4 @@
+import { ChevronDown } from 'lucide-react';
 import { TableSearch } from '@/components/table-search';
 import {
   Breadcrumb,
@@ -7,12 +8,14 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
+import { Card, CardDescription, CardHeader } from '@/components/ui/card';
 import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Select,
   SelectContent,
@@ -20,16 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { ChevronDown, Download } from 'lucide-react';
-import { exportarLista } from '@/routes/tenant/dashboard/grupos-pap';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
+import { exportarLista } from '@/routes/tenant/dashboard/grupos-pap';
 
 const normalizeFilterValue = (value) =>
   value === null || value === undefined || value === '' ? '' : String(value);
