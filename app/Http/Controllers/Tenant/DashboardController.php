@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\Professor;
 use App\Models\Tenant\User;
+use App\Services\Tenant\PrazosAlertaService;
 use App\Services\Tenant\Dashboards\DashboardAlunoService;
 use App\Services\Tenant\Dashboards\DashboardDirectorService;
 use App\Services\Tenant\Dashboards\DashboardProfessorService;
@@ -28,7 +29,7 @@ class DashboardController extends Controller
      * Este método decide a experiência correta do dashboard no servidor
      * com base na função do usuário, evitando a troca de funções apenas no frontend.
      */
-    public function index(): Response|RedirectResponse
+    public function index(PrazosAlertaService $prazosAlerta): Response|RedirectResponse
     {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
@@ -51,6 +52,7 @@ class DashboardController extends Controller
                 'avisos' => $this->dashboardProfessorService->obterAvisos($professor, 6),
                 'anoLectivoId' => $anoLectivoId,          // ← NOVO
                 'anosLectivos' => AnoLectivo::all(),      // ← NOVO
+                'prazosAlerta' => $prazosAlerta->paraProfessor(auth()->user())->values()->all(),
             ]);
         }
 

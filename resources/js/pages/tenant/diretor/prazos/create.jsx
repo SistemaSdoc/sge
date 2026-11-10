@@ -1,50 +1,31 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
+  Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList,
+  BreadcrumbPage, BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
+  Card, CardAction, CardContent, CardDescription, CardHeader,
 } from '@/components/ui/card';
 import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
+  Field, FieldError, FieldGroup, FieldLabel, FieldSet,
 } from '@/components/ui/field';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import MultipleSelector from '@/components/ui/multiselect';
 import { Spinner } from '@/components/spinner';
 
-export default function Create({
-  disciplinas = [],
-  classes = [],
-  periodos = [],
-}) {
+export default function Create({ disciplinas = [], classes = [], periodos = [] }) {
   const { data, setData, post, processing, errors } = useForm({
     titulo: '',
     tipo_prova: 'Prova-Trimestral',
+    todas_disciplinas: false,
     disciplina_ids: [],
     classe_ids: [],
     periodo: '',
@@ -54,16 +35,14 @@ export default function Create({
     permite_reenvio: true,
   });
 
-  const disciplinaOptions =
-    disciplinas?.map((d) => ({ value: d.id, label: d.nome })) || [];
-  const classeOptions =
-    classes?.map((c) => ({ value: c.id, label: c.nome })) || [];
+  const disciplinaOptions = disciplinas?.map((d) => ({ value: d.id, label: d.nome })) || [];
+  const classeOptions = classes?.map((c) => ({ value: c.id, label: c.nome })) || [];
   const periodoOptions = periodos ?? [];
 
   const submit = (e) => {
     e.preventDefault();
 
-    if (data.disciplina_ids.length === 0) {
+    if (!data.todas_disciplinas && data.disciplina_ids.length === 0) {
       toast.error('Selecione pelo menos uma disciplina.');
       return;
     }
@@ -78,15 +57,15 @@ export default function Create({
 
     const payload = {
       ...data,
-      disciplina_ids: data.disciplina_ids.map((item) => item.value),
-      classe_ids: data.classe_ids.map((item) => item.value),
+      disciplina_ids: data.todas_disciplinas
+        ? []
+        : data.disciplina_ids.map((i) => i.value),
+      classe_ids: data.classe_ids.map((i) => i.value),
     };
 
     post('/dashboard/diretor/prazos', payload, {
       preserveScroll: true,
-      onSuccess: () => {
-        toast.success('Prazo(s) criado(s) com sucesso!');
-      },
+      onSuccess: () => toast.success('Prazo(s) criado(s) com sucesso!'),
       onError: (errs) => {
         toast.error('Erro ao criar prazo. Verifique os campos.');
         console.error(errs);
@@ -127,7 +106,6 @@ export default function Create({
                 Será criado um prazo para cada combinação.
               </CardDescription>
             </div>
-
             <CardAction>
               <Button variant="outline" size="sm" asChild>
                 <Link href="/dashboard/diretor/prazos">
@@ -143,74 +121,92 @@ export default function Create({
               <FieldGroup>
                 <FieldSet>
                   {/* Título */}
-                  <Field>
-                    <FieldLabel htmlFor="titulo">Título (opcional)</FieldLabel>
-                    <Input
-                      id="titulo"
-                      type="text"
-                      placeholder="Ex: Exame Final 1º Trimestre"
-                      value={data.titulo}
-                      onChange={(e) => setData('titulo', e.target.value)}
-                      disabled={processing}
-                    />
-                    {errors.titulo && <FieldError>{errors.titulo}</FieldError>}
-                  </Field>
+<Field>
+  <FieldLabel htmlFor="titulo">
+    Título{' '}
+    <span className="text-xs font-normal text-muted-foreground">
+      (opcional — se vazio, será usado "Prova Trimestral — 1º Trimestre")
+    </span>
+  </FieldLabel>
+  <Input
+    id="titulo"
+    value={data.titulo}
+    onChange={(e) => setData('titulo', e.target.value)}
+    placeholder="Ex: Exame Final 1º Trimestre"
+    disabled={processing}
+  />
+  {errors.titulo && <FieldError>{errors.titulo}</FieldError>}
+</Field>
 
                   {/* Tipo de Prova */}
                   <Field>
-                    <FieldLabel htmlFor="tipo_prova">
-                      Tipo de Prova *
-                    </FieldLabel>
+                    <FieldLabel htmlFor="tipo_prova">Tipo de Prova *</FieldLabel>
                     <Select
                       value={data.tipo_prova}
-                      onValueChange={(value) => setData('tipo_prova', value)}
+                      onValueChange={(v) => setData('tipo_prova', v)}
                       disabled={processing}
                     >
                       <SelectTrigger id="tipo_prova" className="w-full">
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Prova-Trimestral">
-                          Prova Trimestral
-                        </SelectItem>
+                        <SelectItem value="Prova-Trimestral">Prova Trimestral</SelectItem>
                         <SelectItem value="Recurso">Recurso</SelectItem>
-                        <SelectItem value="Exame-especial">
-                          Exame Especial
-                        </SelectItem>
+                        <SelectItem value="Exame-especial">Exame Especial</SelectItem>
                       </SelectContent>
                     </Select>
-                    {errors.tipo_prova && (
-                      <FieldError>{errors.tipo_prova}</FieldError>
-                    )}
+                    {errors.tipo_prova && <FieldError>{errors.tipo_prova}</FieldError>}
                   </Field>
 
-                  {/* Disciplinas */}
+                  {/* Toggle "Todas as disciplinas" */}
                   <Field>
-                    <FieldLabel>Disciplinas *</FieldLabel>
-                    <MultipleSelector
-                      value={data.disciplina_ids}
-                      onChange={(newSelected) =>
-                        setData('disciplina_ids', newSelected)
-                      }
-                      options={disciplinaOptions}
-                      placeholder="Selecione pelo menos uma disciplina "
-                      emptyIndicator="Nenhuma disciplina encontrada"
-                      className="w-full"
-                      disabled={processing}
-                    />
-                    {errors.disciplina_ids && (
-                      <FieldError>{errors.disciplina_ids}</FieldError>
-                    )}
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="todas_disciplinas"
+                        checked={data.todas_disciplinas}
+                        onCheckedChange={(checked) => {
+                          setData('todas_disciplinas', checked);
+                          if (checked) setData('disciplina_ids', []);
+                        }}
+                        disabled={processing}
+                      />
+                      <FieldLabel
+                        htmlFor="todas_disciplinas"
+                        className="text-sm font-normal"
+                      >
+                        Aplicar a todas as disciplinas
+                      </FieldLabel>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Se ativo, será criado um prazo para cada disciplina da instituição.
+                    </p>
                   </Field>
+
+                  {/* Disciplinas (condicional) */}
+                  {!data.todas_disciplinas && (
+                    <Field>
+                      <FieldLabel>Disciplinas *</FieldLabel>
+                      <MultipleSelector
+                        value={data.disciplina_ids}
+                        onChange={(s) => setData('disciplina_ids', s)}
+                        options={disciplinaOptions}
+                        placeholder="Selecione pelo menos uma disciplina..."
+                        emptyIndicator="Nenhuma disciplina encontrada"
+                        className="w-full"
+                        disabled={processing}
+                      />
+                      {errors.disciplina_ids && (
+                        <FieldError>{errors.disciplina_ids}</FieldError>
+                      )}
+                    </Field>
+                  )}
 
                   {/* Classes */}
                   <Field>
                     <FieldLabel>Classes *</FieldLabel>
                     <MultipleSelector
                       value={data.classe_ids}
-                      onChange={(newSelected) =>
-                        setData('classe_ids', newSelected)
-                      }
+                      onChange={(s) => setData('classe_ids', s)}
                       options={classeOptions}
                       placeholder="Selecione pelo menos uma classe..."
                       emptyIndicator="Nenhuma classe encontrada"
@@ -227,7 +223,7 @@ export default function Create({
                     <FieldLabel htmlFor="periodo">Período *</FieldLabel>
                     <Select
                       value={data.periodo}
-                      onValueChange={(value) => setData('periodo', value)}
+                      onValueChange={(v) => setData('periodo', v)}
                       disabled={processing}
                     >
                       <SelectTrigger id="periodo" className="w-full">
@@ -241,17 +237,13 @@ export default function Create({
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.periodo && (
-                      <FieldError>{errors.periodo}</FieldError>
-                    )}
+                    {errors.periodo && <FieldError>{errors.periodo}</FieldError>}
                   </Field>
 
                   {/* Datas */}
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <Field>
-                      <FieldLabel htmlFor="data_inicio">
-                        Data de Início *
-                      </FieldLabel>
+                      <FieldLabel htmlFor="data_inicio">Data de Início *</FieldLabel>
                       <Input
                         id="data_inicio"
                         type="datetime-local"
@@ -264,11 +256,8 @@ export default function Create({
                         <FieldError>{errors.data_inicio}</FieldError>
                       )}
                     </Field>
-
                     <Field>
-                      <FieldLabel htmlFor="data_limite">
-                        Data Limite *
-                      </FieldLabel>
+                      <FieldLabel htmlFor="data_limite">Data Limite *</FieldLabel>
                       <Input
                         id="data_limite"
                         type="datetime-local"
@@ -283,14 +272,20 @@ export default function Create({
                     </Field>
                   </div>
 
-                  {/* Observações */}
+                  {/* Observações / Diretrizes — corpo da notificação */}
                   <Field>
-                    <FieldLabel htmlFor="observacoes">Observações</FieldLabel>
+                    <FieldLabel htmlFor="observacoes">
+                      Observações / Diretrizes{' '}
+                      <span className="text-xs font-normal text-muted-foreground">
+                        (visível na notificação ao professor)
+                      </span>
+                    </FieldLabel>
                     <Textarea
                       id="observacoes"
-                      rows={3}
+                      rows={4}
                       value={data.observacoes}
                       onChange={(e) => setData('observacoes', e.target.value)}
+                      placeholder="Ex: As provas devem seguir o modelo institucional anexado. Não serão aceites submissões fora do prazo."
                       disabled={processing}
                     />
                     {errors.observacoes && (
@@ -304,9 +299,7 @@ export default function Create({
                       <Switch
                         id="permiteReenvio"
                         checked={data.permite_reenvio}
-                        onCheckedChange={(checked) =>
-                          setData('permite_reenvio', checked)
-                        }
+                        onCheckedChange={(c) => setData('permite_reenvio', c)}
                         disabled={processing}
                       />
                       <FieldLabel
@@ -320,7 +313,6 @@ export default function Create({
                 </FieldSet>
               </FieldGroup>
 
-              {/* Botões */}
               <div className="mt-6 flex flex-col-reverse gap-2 border-t pt-4 sm:flex-row sm:justify-end">
                 <Button
                   type="button"

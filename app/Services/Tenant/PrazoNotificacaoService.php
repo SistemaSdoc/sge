@@ -90,7 +90,7 @@ class PrazoNotificacaoService
             }
 
             try {
-                $professor->user->notify(new PrazoProvaNotificacao($prazo, $tipo));
+                $professor->user->notify(new PrazoProvaNotificacao($prazo, $tipo, []));
                 $enviadas++;
             } catch (\Throwable $e) {
                 Log::error('Erro ao notificar professor', [
@@ -239,7 +239,7 @@ class PrazoNotificacaoService
         // Prazo geral (sem disciplina)
         if (is_null($prazo->disciplina_id)) {
             $query = Professor::with('user')
-                ->whereHas('user', fn ($q) => $q->where('instituicao_id', $prazo->instituicao_id));
+                ->whereHas('user', fn($q) => $q->where('instituicao_id', $prazo->instituicao_id));
 
             if ($prazo->classe_id) {
                 $query->whereExists(function ($q) use ($prazo): void {
@@ -266,9 +266,9 @@ class PrazoNotificacaoService
                     ->join('curso_classe', 'curso_classe_turno.curso_classe_id', '=', 'curso_classe.id')
                     ->whereColumn('turma_disciplina_professor.professor_id', 'professores.id')
                     ->where('classe_turno_disciplina.disciplina_id', $prazo->disciplina_id)
-                    ->when($prazo->classe_id, fn ($q) => $q->where('curso_classe.classe_id', $prazo->classe_id));
+                    ->when($prazo->classe_id, fn($q) => $q->where('curso_classe.classe_id', $prazo->classe_id));
             })
-            ->whereHas('user', fn ($q) => $q->where('instituicao_id', $prazo->instituicao_id))
+            ->whereHas('user', fn($q) => $q->where('instituicao_id', $prazo->instituicao_id))
             ->get();
     }
 
@@ -333,17 +333,17 @@ class PrazoNotificacaoService
         $submissoes = SubmissaoProva::where('prazo_prova_id', $prazo->id)
             ->where('estado', '!=', 'substituido')
             ->get()
-            ->groupBy(fn ($s) => $s->professor_id.'|'.$s->turma_id)
-            ->map(fn ($g) => $g->sortByDesc('versao')->first());
+            ->groupBy(fn($s) => $s->professor_id . '|' . $s->turma_id)
+            ->map(fn($g) => $g->sortByDesc('versao')->first());
 
         // Justificativas: por (professor + turma)
         $justificativas = JustificativaNaoSubmissao::where('prazo_prova_id', $prazo->id)
             ->get()
-            ->groupBy(fn ($j) => $j->professor_id.'|'.$j->turma_id)
-            ->map(fn ($g) => $g->first());
+            ->groupBy(fn($j) => $j->professor_id . '|' . $j->turma_id)
+            ->map(fn($g) => $g->first());
 
         return $atribuicoes->map(function ($atr) use ($submissoes, $justificativas) {
-            $key = $atr->professor_id.'|'.$atr->turma_id;
+            $key = $atr->professor_id . '|' . $atr->turma_id;
 
             return [
                 'professor_nome' => $atr->professor_nome,
@@ -352,5 +352,145 @@ class PrazoNotificacaoService
                 'justificativa_status' => $justificativas->get($key)?->status,
             ];
         })->toArray();
+    }
+
+    /**
+     * Notifica cada professor UMA ÚNICA VEZ, agrupando todos os prazos
+     * (disciplinas + turmas) que lhe dizem respeito.
+     *
+     * @param  PrazoProva[]  $prazos
+     */
+    public function notificarProfessoresConsolidado(array $prazos, string $tipo): int
+    {
+        if (empty($prazos)) {
+            return 0;
+        }
+
+        // 1. Agrupar por utilizador (professor)
+        $porProfessor = [];
+
+        foreach ($prazos as $prazo) {
+            $elegiveis = $this->professoresElegiveisComDisciplina($prazo);
+
+            foreach ($elegiveis as $info) {
+                $userId = $info['professor']->user?->id;
+                if (! $userId) {
+                    continue;
+                }
+
+                if (! isset($porProfessor[$userId])) {
+                    $porProfessor[$userId] = [
+                        'user'      => $info['professor']->user,
+                        'professor' => $info['professor'],
+                        'prazos'    => [],
+                    ];
+                }
+
+                $porProfessor[$userId]['prazos'][] = [
+                    'prazo_id'    => $prazo->id,
+                    'titulo' => $prazo->titulo_apresentacao,
+                    'disciplina'  => $info['disciplina'],
+                    'turmas'      => $info['turmas'],
+                    'data_limite' => $prazo->data_limite?->format('d/m/Y H:i'),
+                    'periodo'     => $prazo->periodo,
+                    'descricao'   => $prazo->observacoes, // diretrizes do diretor
+                ];
+            }
+        }
+
+        // 2. Enviar 1 notificação por professor
+        $enviadas = 0;
+
+        foreach ($porProfessor as $userId => $bloco) {
+            try {
+                $bloco['user']->notify(
+                    new PrazoProvaNotificacao(
+                        prazo: null,
+                        tipo: $tipo,
+                        prazosConsolidados: $bloco['prazos'] ?? [],
+                    )
+                );
+
+                $enviadas++;
+            } catch (\Throwable $e) {
+                Log::error('Erro ao notificar professor (consolidado)', [
+                    'user_id' => $userId,
+                    'tipo'    => $tipo,
+                    'error'   => $e->getMessage(),
+                ]);
+            }
+        }
+
+        Log::info('Notificações consolidadas enviadas', [
+            'tipo'                    => $tipo,
+            'professores_notificados' => $enviadas,
+            'prazos_agrupados'        => count($prazos),
+        ]);
+
+        return $enviadas;
+    }
+
+    /**
+     * Retorna, por professor elegível, a disciplina e a lista de turmas
+     * onde ele tem de submeter.
+     *
+     * @return array<int, array{professor: Professor, disciplina: string, turmas: string[]}>
+     */
+    private function professoresElegiveisComDisciplina(PrazoProva $prazo): array
+    {
+        $professores = $this->professoresElegiveis($prazo);
+
+        if ($professores->isEmpty()) {
+            return [];
+        }
+
+        $resultado = [];
+
+        foreach ($professores as $professor) {
+            $turmas = DB::table('turma_disciplina_professor as tdp')
+                ->join('classe_turno_disciplina as ctd', 'tdp.classe_turno_disciplina_id', '=', 'ctd.id')
+                ->join('curso_classe_turno as cct', 'ctd.curso_classe_turno_id', '=', 'cct.id')
+                ->join('turmas as t', 't.curso_classe_turno_id', '=', 'cct.id')
+                ->join('curso_classe as cc', 'cct.curso_classe_id', '=', 'cc.id')
+                ->where('tdp.professor_id', $professor->id)
+                ->when($prazo->disciplina_id, fn($q) => $q->where('ctd.disciplina_id', $prazo->disciplina_id))
+                ->when($prazo->classe_id,    fn($q) => $q->where('cc.classe_id', $prazo->classe_id))
+                ->pluck('t.nome')
+                ->unique()
+                ->values()
+                ->all();
+
+            if (empty($turmas)) {
+                continue;
+            }
+
+            $resultado[] = [
+                'professor'  => $professor,
+                'disciplina' => $prazo->disciplina?->nome ?? 'Todas as disciplinas',
+                'turmas'     => $turmas,
+            ];
+        }
+
+        return $resultado;
+    }
+
+    /**
+     * Job diário — notifica prazos a expirar em 2 dias.
+     */
+    public function notificarAExpirar(): void
+    {
+        $prazos = PrazoProva::query()
+            ->where('status', 'aberto')
+            ->whereDate('data_limite', now()->addDays(2))
+            ->get();
+
+        if ($prazos->isEmpty()) {
+            return;
+        }
+
+        $this->notificarProfessoresConsolidado(
+            $prazos->all(),
+            PrazoProvaNotificacao::TIPO_A_EXPIRAR
+        );
     }
 }

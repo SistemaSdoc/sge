@@ -1,6 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { CalendarDays } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { index as horariosIndex } from '@/actions/App/Http/Controllers/Tenant/HorarioController';
 import { GreetingHeader } from './components/greeting-header';
 import { getGreeting, getTodayFormatted } from '@/utils/greeting';
@@ -8,15 +8,18 @@ import { DashboardSummary } from './components/dashboard-summary';
 import { ProximasAulas } from './components/proximas-aulas';
 import { AvisosEventos } from './components/avisos-eventos';
 import { DashboardPanel } from '@/components/dashboard-panel';
-import { ArrowUpRight } from 'lucide-react';
+import { PrazosAlertaProfessor } from '@/components/prazos-alerta-professor';
 
 export default function ProfessorDashboard({
+  prazosAlerta = [],
   proximasAulas = [],
   avisos = [],
 }) {
   const { auth } = usePage().props;
   const greeting = getGreeting();
   const todayFormatted = getTodayFormatted();
+
+  const alertas = Array.isArray(prazosAlerta) ? prazosAlerta : [];
 
   return (
     <div className="space-y-6 p-6">
@@ -25,6 +28,9 @@ export default function ProfessorDashboard({
         userName={auth?.user?.nome}
         todayFormatted={todayFormatted}
       />
+
+      {/* ← Alerta de prazos: no topo, FORA dos DashboardPanel */}
+      <PrazosAlertaProfessor prazos={alertas} />
 
       <DashboardSummary aulas={proximasAulas} />
 
