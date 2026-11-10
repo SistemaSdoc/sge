@@ -1,5 +1,5 @@
 import { Form } from '@inertiajs/react';
-import { router, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { update } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
 import { show } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import GrupoPapForm from './components/grupo-pap-form';
@@ -43,17 +43,6 @@ export default function Edit() {
         professor_tutor_id: professorTutorId,
         alunos: alunoIds,
       })}
-      onSuccess={() =>
-        router.visit(
-          show({
-            instituicao: instituicao.id,
-            cursoTutelado: cursoTutelado.id,
-            cursoClasse: cursoClasse.id,
-            cursoClasseTurno: cursoClasseTurno.id,
-            turma: turma.id,
-          }),
-        )
-      }
     >
       {({ errors, processing }) => (
         <GrupoPapForm

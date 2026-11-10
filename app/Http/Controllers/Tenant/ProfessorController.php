@@ -37,6 +37,11 @@ class ProfessorController extends Controller
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
         $instituicaoId = $user?->instituicaoFiltro();
+        $funcaoSelecionada = $request->string('funcao')->toString();
+
+        if (! in_array($funcaoSelecionada, ['tutor_pap', 'grupo_disciplinar', 'coordenador'], true)) {
+            $funcaoSelecionada = 'todas';
+        }
 
         $professores = Professor::select([
             'id',
@@ -54,6 +59,18 @@ class ProfessorController extends Controller
                     fn ($q) => $q->where('instituicao_id', $instituicaoId)
                 )
             )
+            ->when($funcaoSelecionada !== 'todas', function ($query) use ($funcaoSelecionada): void {
+                $query->whereHas('cursosTutelados', function ($cursoQuery) use ($funcaoSelecionada): void {
+                    if ($funcaoSelecionada === 'grupo_disciplinar') {
+                        $cursoQuery->whereIn('curso_tutelado_professor.grupo_disciplinar', ['membro', 'coordenador']);
+
+                        return;
+                    }
+
+                    $colunaPivot = $funcaoSelecionada === 'tutor_pap' ? 'opap' : 'coordenador';
+                    $cursoQuery->where("curso_tutelado_professor.{$colunaPivot}", true);
+                });
+            })
             ->orderBy('created_at', 'desc')
             ->paginate(10)
             ->withQueryString();
@@ -64,7 +81,10 @@ class ProfessorController extends Controller
 
         return Inertia::render('tenant/professores/index', [
             'professores' => $professores,
-            'filters' => $request->only('search'),
+            'filters' => [
+                'search' => $request->string('search')->toString(),
+                'funcao' => $funcaoSelecionada,
+            ],
         ]);
     }
 

@@ -28,6 +28,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 import {
   create,
@@ -52,7 +61,31 @@ export function ProfessorTable({
       only: ['professores', 'filters'],
     },
   );
-  const isEmpty = !professores || professores.length === 0;
+  const hasActiveFilters = Boolean(
+    applied || (filters?.funcao && filters.funcao !== 'todas'),
+  );
+  const isEmpty = !professores?.data?.length;
+
+  const handleFunctionChange = (funcao) => {
+    const params = Object.fromEntries(
+      new URLSearchParams(window.location.search),
+    );
+    delete params.page;
+
+    if (funcao === 'todas') {
+      delete params.funcao;
+    } else {
+      params.funcao = funcao;
+    }
+
+    router.visit(window.location.pathname, {
+      data: params,
+      preserveScroll: true,
+      preserveState: true,
+      replace: true,
+      only: ['professores', 'filters'],
+    });
+  };
 
   return (
     <Card className="mx-auto w-full max-w-7xl gap-0">
@@ -69,17 +102,46 @@ export function ProfessorTable({
       </CardHeader>
 
       <CardContent className="p-0!">
-        <TableSearch value={search} onChange={onChange} onSubmit={submit} />
+        <TableSearch value={search} onChange={onChange} onSubmit={submit}>
+          <div className="flex w-full items-center gap-2 sm:w-auto">
+            <Select
+              value={filters?.funcao ?? 'todas'}
+              onValueChange={handleFunctionChange}
+            >
+              <SelectTrigger
+                id="funcao"
+                className="w-full sm:w-48"
+                aria-label="Filtrar por função"
+              >
+                <SelectValue placeholder="Todas as funções" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="todas">Todos</SelectItem>
+                  <SelectItem value="tutor_pap">Tutores da PAP</SelectItem>
+                  <SelectItem value="grupo_disciplinar">
+                   Membros do Grupo disciplinar
+                  </SelectItem>
+                  <SelectItem value="coordenador">
+                    Coordenadores dos cursos
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+        </TableSearch>
         {isEmpty ? (
           <EmptyState
             variant="table"
             icon={LayersIcon}
             title={
-              applied
+              hasActiveFilters
                 ? 'Nenhum professor encontrado'
                 : 'Nenhum professor cadastrado'
             }
-            description={applied ? 'Tenta ajustar a pesquisa.' : undefined}
+            description={
+              hasActiveFilters ? 'Tenta ajustar os filtros.' : undefined
+            }
             action={{
               label: 'Adicionar Professor',
               href: create().url,

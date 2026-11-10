@@ -449,9 +449,12 @@ class GrupoPapViewService
     ): array {
         return [
             'professores' => Professor::query()
-                ->whereHas('cursosTutelados', fn ($query) => $query
-                    ->where('curso_tutelado_id', $cursoTutelado->getKey())
-                    ->where('opap', true))
+                ->where(function ($query) use ($cursoTutelado, $grupoPap): void {
+                    $query->whereHas('cursosTutelados', fn ($courseQuery) => $courseQuery
+                        ->where('curso_tutelado_id', $cursoTutelado->getKey())
+                        ->where('opap', true))
+                        ->orWhereKey($grupoPap->professor_tutor_id);
+                })
                 ->with('user:id,nome')
                 ->get(),
             'alunos' => $turma->alunos()
