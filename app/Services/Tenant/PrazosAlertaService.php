@@ -17,7 +17,7 @@ class PrazosAlertaService
      * de submissão por turma.
      *
      * Regras:
-     *  - status do prazo = 'aberto'  (expirado continua a ser mostrado
+     *  - status do prazo = 'aberto'  (expirado ja não continua a ser mostrado
      *    enquanto não for fechado manualmente)
      *  - só prazos onde o professor tem turmas a submeter
      *  - desaparece quando:
@@ -35,7 +35,7 @@ public function paraProfessor(User $user): Collection
 
     $prazos = PrazoProva::query()
         ->where('instituicao_id', $user->instituicao_id)
-        ->whereIn('status', ['aberto', 'expirado'])
+        ->whereIn('status', ['aberto'])
         ->orderBy('data_limite')
         ->with(['disciplina', 'classe'])
         ->get();

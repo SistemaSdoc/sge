@@ -85,7 +85,7 @@ export default function Index({ prazos, filters, disciplinas }) {
                   <BreadcrumbSeparator />
                   <BreadcrumbItem className="min-w-0">
                     <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
-                      Prazos de Provas
+                      Propostas de Provas
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>

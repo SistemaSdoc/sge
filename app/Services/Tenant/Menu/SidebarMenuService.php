@@ -250,7 +250,7 @@ final class SidebarMenuService
             new MenuGroup('Avaliação', [
                 new MenuItem(
                     key: 'prazos-provas',
-                    title: 'Prazos de Provas',
+                    title: 'Proposta de Provas',
                     href: action([PrazoProvaController::class, 'index']),
                     icon: 'FileText',
                     can: fn () => $gate->allows('prazo-prova.viewAny')

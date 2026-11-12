@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,18 +23,23 @@ export function NotificacoesDrawer({
   onRefresh: onRefreshProp,
 } = {}) {
   const notificacoesState = useNotificacoes();
+
+  //   Uma única fonte de verdade
   const notificacoes = notificacoesProp ?? notificacoesState.notificacoes;
-  const notificacoesNaoLidas = notificacoes.filter(
-    (notificacao) => !notificacao.lida,
-  );
   const naoLidas = naoLidasProp ?? notificacoesState.naoLidas;
   const onRefresh = onRefreshProp ?? notificacoesState.carregar;
+
   const { closeDrawer } = useDrawer();
 
-  const handleMarcarTodasLidas = () => {
-    if (naoLidas === 0) {
-      return;
-    }
+  //   Memoizar a lista filtrada (estável entre renders)
+  const notificacoesNaoLidas = useMemo(
+    () => notificacoes.filter((n) => !n.lida),
+    [notificacoes],
+  );
+
+  //   Memoizar handler
+  const handleMarcarTodasLidas = useCallback(() => {
+    if (naoLidas === 0) return;
 
     router.post(
       markAllAsRead().url,
@@ -42,11 +47,17 @@ export function NotificacoesDrawer({
       {
         preserveScroll: true,
         preserveState: true,
-        onSuccess: onRefresh,
-        onError: onRefresh,
+      
       },
     );
-  };
+  }, [naoLidas]);
+
+  //   Handler estável para o Link (evita desmontagem prematura)
+  const handleLinkClick = useCallback(() => {
+    // setTimeout garante que o router.visit é processado
+    // antes do drawer fechar
+    setTimeout(closeDrawer, 0);
+  }, [closeDrawer]);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -56,7 +67,8 @@ export function NotificacoesDrawer({
             ? `${naoLidas} ${naoLidas === 1 ? 'não lida' : 'não lidas'}`
             : 'Todas as notificações estão lidas'}
         </p>
-        {naoLidas > 0 && (
+        {/*   Ternário em vez de `&&` (evita `0` no DOM) */}
+        {naoLidas > 0 ? (
           <Button
             type="button"
             variant="outline"
@@ -66,7 +78,7 @@ export function NotificacoesDrawer({
           >
             Marcar todas como lidas
           </Button>
-        )}
+        ) : null}
       </div>
 
       <div className="flex-1">
@@ -76,7 +88,7 @@ export function NotificacoesDrawer({
               Sem notificações por ler.
             </p>
             <Button asChild variant="outline" size="sm">
-              <Link href={index().url} onClick={closeDrawer}>
+              <Link href={index().url} onClick={handleLinkClick}>
                 Abrir central de notificações
               </Link>
             </Button>
@@ -86,7 +98,7 @@ export function NotificacoesDrawer({
             <Link
               key={notificacao.id}
               href={show(notificacao.id).url}
-              onClick={closeDrawer}
+              onClick={handleLinkClick}
               className={cn(
                 'block border-b px-4 py-3 text-left transition-colors hover:bg-muted/50',
                 'bg-muted/20',
@@ -108,9 +120,10 @@ export function NotificacoesDrawer({
               {notificacao.tipo === 'propina_atraso' &&
                 notificacao.meses?.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1">
-                    {notificacao.meses.map((mes) => (
+                    {/*   Deduplicar `meses` para evitar key duplicada */}
+                    {[...new Set(notificacao.meses)].map((mes) => (
                       <Badge
-                        key={mes}
+                        key={`${notificacao.id}-${mes}`}
                         variant="destructive"
                         className="font-normal"
                       >
@@ -134,30 +147,50 @@ export function NotificacoesDrawer({
   );
 }
 
+// ─────────────────────────────────────────────────────
+// Hook — com singleton para evitar múltiplos setInterval
+// ─────────────────────────────────────────────────────
+let _intervaloGlobal = null;
+let _listeners = new Set();
+
 export function useNotificacoes() {
   const [notificacoes, setNotificacoes] = useState([]);
   const [naoLidas, setNaoLidas] = useState(0);
 
-  const carregar = async () => {
+  const carregar = useCallback(async () => {
     try {
       const response = await fetch(sino().url, {
         headers: { Accept: 'application/json' },
       });
       const data = await response.json();
-
       setNotificacoes(data.notificacoes ?? []);
       setNaoLidas(data.nao_lidas ?? 0);
     } catch {
-      // A área de notificações permanece disponível mesmo sem resposta da API.
+      // silencioso — a área de notificações fica disponível mesmo sem API
     }
-  };
+  }, []);
 
   useEffect(() => {
-    carregar();
-    const intervalo = setInterval(carregar, 30000);
+    //   Registo do listener local
+    _listeners.add(carregar);
 
-    return () => clearInterval(intervalo);
-  }, []);
+    //   Um único intervalo global (não um por instância)
+    if (!_intervaloGlobal) {
+      _intervaloGlobal = setInterval(() => {
+        _listeners.forEach((fn) => fn());
+      }, 30000);
+    }
+
+    carregar();
+
+    return () => {
+      _listeners.delete(carregar);
+      if (_listeners.size === 0 && _intervaloGlobal) {
+        clearInterval(_intervaloGlobal);
+        _intervaloGlobal = null;
+      }
+    };
+  }, [carregar]);
 
   return { notificacoes, naoLidas, carregar };
 }

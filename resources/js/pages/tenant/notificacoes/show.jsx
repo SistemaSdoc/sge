@@ -1,15 +1,23 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
-import { ArrowLeft, Check, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
+import { NotificacaoItem } from '@/components/notificacao-item';
 import {
   index,
   aprovarTutela,
@@ -23,10 +31,17 @@ const CAMPOS_OCULTOS = new Set([
   'tipo',
   'titulo',
   'mensagem',
+  'intro',
+  'linhas',
+  'diretrizes',
+  'fecho',
+  'assinatura',
   'status',
   'url',
   'comentario',
   'data',
+  'dados',
+  'prazos',
   'grupo_pap_id',
   'troca_tutela_final',
   'curso_tutelado_shared_id',
@@ -34,11 +49,10 @@ const CAMPOS_OCULTOS = new Set([
   'tenant_tutor_anterior_id',
   'tenant_tutelado_id',
   'resultado',
-  'assinatura',
 ]);
 
 // ─────────────────────────────────────────────────────────────
-// Labels amigáveis para os campos que mostramos
+// Labels amigáveis
 // ─────────────────────────────────────────────────────────────
 const LABELS = {
   prazo_titulo: 'Prazo',
@@ -65,19 +79,66 @@ const labelDe = (key) =>
   LABELS[key] ??
   key.replaceAll('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 
-const deveMostrar = (key) => {
-  // Esconde tudo o que termina em _id
+// ─────────────────────────────────────────────────────────────
+// Filtro — esconde campos técnicos e objectos aninhados
+// ─────────────────────────────────────────────────────────────
+const deveMostrar = (key, value) => {
   if (/_id$/.test(key)) return false;
-
-  // Esconde campos explicitamente listados
   if (CAMPOS_OCULTOS.has(key)) return false;
+
+  // Esconde objectos aninhados
+  if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+    return false;
+  }
+
+  // Esconde arrays de objectos
+  if (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.some((v) => v !== null && typeof v === 'object')
+  ) {
+    return false;
+  }
 
   return true;
 };
 
+// ─────────────────────────────────────────────────────────────
+// Render seguro — nunca devolve "[object Object]"
+// ─────────────────────────────────────────────────────────────
+function renderValor(value) {
+  if (value === null || value === undefined || value === '') {
+    return <span className="text-muted-foreground">—</span>;
+  }
+
+  if (Array.isArray(value)) {
+    if (value.every((v) => v === null || typeof v !== 'object')) {
+      return value.join(', ');
+    }
+    return null;
+  }
+
+  if (typeof value === 'object') {
+    return null;
+  }
+
+  return String(value);
+}
+
+// ─────────────────────────────────────────────────────────────
+// Componente
+// ─────────────────────────────────────────────────────────────
 export default function Show({ notificacao }) {
   const [decidido, setDecidido] = useState(false);
 
+  const dados = notificacao.dados ?? notificacao.data ?? {};
+
+  // É uma notificação formal de prazo?
+  const isFormalPrazo = Boolean(
+    dados.intro || dados.linhas || dados.diretrizes || dados.fecho,
+  );
+
+  // ─── Lógica de tutela ───
   const isTutelaAction = [
     'solicitacao_tutela',
     'troca_tutela',
@@ -94,11 +155,8 @@ export default function Show({ notificacao }) {
     'conversao_tutela_propria',
   ].includes(notificacao.tipo);
 
-  const temReferenciaCentral = Boolean(
-    notificacao.dados?.curso_tutelado_shared_id,
-  );
-
-  const status = notificacao.dados?.status ?? 'pendente';
+  const temReferenciaCentral = Boolean(dados.curso_tutelado_shared_id);
+  const status = dados.status ?? 'pendente';
   const isPendente = ['pendente', 'pendente_troca'].includes(status);
   const podeDecidir =
     podeDecidirTipo && temReferenciaCentral && isPendente && !decidido;
@@ -118,10 +176,10 @@ export default function Show({ notificacao }) {
     },
     troca_tutela_rejeitada: {
       label: 'Troca rejeitada',
-      variant: 'destructive',
+      variant: 'outline',
     },
-    rejeitado: { label: 'Rejeitada', variant: 'destructive' },
-    rejeitada: { label: 'Rejeitada', variant: 'destructive' },
+    rejeitado: { label: 'Rejeitada', variant: 'outline' },
+    rejeitada: { label: 'Rejeitada', variant: 'outline' },
     encerrado: { label: 'Encerrada', variant: 'outline' },
     conversao_tutela_propria_resultado: {
       label: 'Conversão decidida',
@@ -133,92 +191,145 @@ export default function Show({ notificacao }) {
     variant: 'outline',
   };
 
-  // Constrói a lista de campos a mostrar
-  const camposVisiveis = Object.entries(notificacao.dados ?? {}).filter(
-    ([key, value]) => {
-      if (!deveMostrar(key)) return false;
-      if (value === null || value === undefined || value === '') return false;
-      if (Array.isArray(value) && value.length === 0) return false;
-      return true;
-    },
-  );
+  // Campos custom (só para tutela — prazo usa o NotificacaoItem)
+  const camposVisiveis = !isFormalPrazo
+    ? Object.entries(dados).filter(([key, value]) => {
+        if (!deveMostrar(key, value)) return false;
+        if (value === null || value === undefined || value === '') return false;
+        if (Array.isArray(value) && value.length === 0) return false;
+        return true;
+      })
+    : [];
 
   return (
-    <div className="mx-auto w-full max-w-3xl p-6">
-      <Head title={notificacao.titulo || 'Notificação'} />
+    <>
+      <Head title={notificacao.titulo ?? 'Notificação'} />
 
-      <Link
-        href={index().url}
-        className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft data-icon="inline-start" />
-        Voltar às notificações
-      </Link>
+      <div className="mx-auto w-full max-w-3xl space-y-4 p-4 sm:p-6">
+        <Card className="gap-0">
+          {/* Header */}
+          <CardHeader className="border-b border-foreground/10">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <Breadcrumb>
+                  <BreadcrumbList className="flex-wrap">
+                    <BreadcrumbItem className="min-w-0">
+                      <BreadcrumbLink asChild>
+                        <Link
+                          href={index().url}
+                          className="line-clamp-2 text-sm font-semibold text-primary"
+                        >
+                          Notificações
+                        </Link>
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem className="min-w-0">
+                      <BreadcrumbPage className="line-clamp-2 text-sm font-semibold text-secondary">
+                        Detalhe
+                      </BreadcrumbPage>
+                    </BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+                <CardDescription className="mt-1">
+                  {notificacao.criada_em ?? '—'}
+                </CardDescription>
+              </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <Badge variant="secondary">{notificacao.tipo}</Badge>
-              <CardTitle className="mt-3">{notificacao.titulo}</CardTitle>
-              <CardDescription className="mt-2">
-                {notificacao.criada_em}
-              </CardDescription>
+              <CardAction className="flex flex-wrap items-center gap-2">
+                {notificacao.lida && (
+                  <Badge variant="outline" className="text-[10px]">
+                    Lida
+                  </Badge>
+                )}
+                {isTutelaAction && (
+                  <Badge variant={statusAtual.variant} className="text-[10px]">
+                    {statusAtual.label}
+                  </Badge>
+                )}
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={index().url}>Voltar</Link>
+                </Button>
+              </CardAction>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {notificacao.lida && <Badge variant="outline">Lida</Badge>}
-              {isTutelaAction && (
-                <Badge variant={statusAtual.variant}>{statusAtual.label}</Badge>
-              )}
-            </div>
-          </div>
-        </CardHeader>
+          </CardHeader>
 
-        <CardContent className="flex flex-col gap-6">
-          <p className="text-sm leading-6">{notificacao.mensagem}</p>
-
-          {camposVisiveis.length > 0 && (
-            <div className="flex flex-col gap-4">
-              {camposVisiveis.map(([key, value]) => (
-                <div key={key} className="border-t pt-4">
-                  <p className="text-xs font-medium text-muted-foreground uppercase">
-                    {labelDe(key)}
-                  </p>
-                  <p className="mt-1 text-sm">
-                    {Array.isArray(value) ? value.join(', ') : String(value)}
-                  </p>
+          <CardContent className="p-0!">
+            {/* ─── Formato formal (prazo) ─── */}
+            {isFormalPrazo ? (
+              <NotificacaoItem
+                notificacao={{ ...notificacao, data: dados }}
+                variant="full"
+                onClick={() => {}}
+              />
+            ) : (
+              /* ─── Formato tutela / outro ─── */
+              <div className="space-y-5 p-4 sm:p-6">
+                <div className="space-y-2">
+                  {notificacao.titulo && (
+                    <h3 className="text-base font-semibold leading-snug">
+                      {notificacao.titulo}
+                    </h3>
+                  )}
+                  {notificacao.mensagem && (
+                    <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                      {notificacao.mensagem}
+                    </p>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
 
-          {podeDecidir && (
-            <div className="flex flex-wrap gap-3 border-t pt-6">
-              <Button
-                type="button"
-                onClick={() => {
-                  setDecidido(true);
-                  router.post(aprovarTutela(notificacao.id).url);
-                }}
-              >
-                <Check data-icon="inline-start" />
-                {isTrocaTutela ? 'Aprovar troca de tutela' : 'Aprovar tutela'}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setDecidido(true);
-                  router.post(rejeitarTutela(notificacao.id).url);
-                }}
-              >
-                <X data-icon="inline-start" />
-                {isTrocaTutela ? 'Rejeitar troca' : 'Rejeitar solicitação'}
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+                {camposVisiveis.length > 0 && (
+                  <div className="divide-y border">
+                    {camposVisiveis.map(([key, value]) => {
+                      const conteudo = renderValor(value);
+                      if (conteudo === null) return null;
+
+                      return (
+                        <div key={key} className="px-4 py-3">
+                          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                            {labelDe(key)}
+                          </p>
+                          <p className="mt-1 text-sm">{conteudo}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {podeDecidir && (
+                  <div className="flex flex-wrap gap-2 border-t pt-4">
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setDecidido(true);
+                        router.post(aprovarTutela(notificacao.id).url);
+                      }}
+                      className="hover:cursor-pointer"
+                    >
+                      {isTrocaTutela
+                        ? 'Aprovar troca de tutela'
+                        : 'Aprovar tutela'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setDecidido(true);
+                        router.post(rejeitarTutela(notificacao.id).url);
+                      }}
+                      className="hover:cursor-pointer"
+                    >
+                      {isTrocaTutela
+                        ? 'Rejeitar troca'
+                        : 'Rejeitar solicitação'}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }

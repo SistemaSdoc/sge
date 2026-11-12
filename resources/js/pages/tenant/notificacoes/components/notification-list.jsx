@@ -1,18 +1,11 @@
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from '@/components/ui/empty';
-import { Bell, BellDot } from 'lucide-react';
+import { BellDot } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { NotificationItem } from './notification-item';
 import { EmptyState } from '@/components/empty-state';
 
 export function NotificationsList({ notificacoes = [] }) {
-  const naoLidas = notificacoes.filter((notificacao) => !notificacao.lida);
-  const lidas = notificacoes.filter((notificacao) => notificacao.lida);
+  const naoLidas = notificacoes.filter((n) => !n.lida);
+  const lidas = notificacoes.filter((n) => n.lida);
 
   return (
     <Tabs
@@ -26,7 +19,7 @@ export function NotificationsList({ notificacoes = [] }) {
         </TabsTrigger>
 
         <TabsTrigger value="lidas" className="hover:cursor-pointer">
-          Lidas
+          Lidas{' '}
           <span className="font-bold text-secondary">{lidas.length}</span>
         </TabsTrigger>
       </TabsList>
@@ -45,7 +38,7 @@ export function NotificationsList({ notificacoes = [] }) {
           <EmptyState
             icon={BellDot}
             title="Sem notificações por ler"
-            description="As notificações que receberes aparecerão aqui."
+            description="As notificações que receber aparecerão aqui."
             variant="table"
           />
         )}
@@ -64,8 +57,8 @@ export function NotificationsList({ notificacoes = [] }) {
         ) : (
           <EmptyState
             icon={BellDot}
-            title="Sem notificações por ler"
-            description="As notificações que receberes aparecerão aqui."
+            title="Sem notificações lidas"
+            description="As notificações que já leu aparecerão aqui."
             variant="table"
           />
         )}

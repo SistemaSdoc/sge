@@ -32,3 +32,4 @@ yarn-error.log
 /.agents
 # Storage por tenant (uploads de utilizadores)
 /storage/tenant*
+.env.bak

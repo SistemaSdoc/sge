@@ -121,22 +121,22 @@ export default function Create({ disciplinas = [], classes = [], periodos = [] }
               <FieldGroup>
                 <FieldSet>
                   {/* Título */}
-<Field>
-  <FieldLabel htmlFor="titulo">
-    Título{' '}
-    <span className="text-xs font-normal text-muted-foreground">
-      (opcional — se vazio, será usado "Prova Trimestral — 1º Trimestre")
-    </span>
-  </FieldLabel>
-  <Input
-    id="titulo"
-    value={data.titulo}
-    onChange={(e) => setData('titulo', e.target.value)}
-    placeholder="Ex: Exame Final 1º Trimestre"
-    disabled={processing}
-  />
-  {errors.titulo && <FieldError>{errors.titulo}</FieldError>}
-</Field>
+                  <Field>
+                    <FieldLabel htmlFor="titulo">
+                      Título{' '}
+                      <span className="text-xs font-normal text-muted-foreground">
+                        (opcional — se vazio, será usado "Prova Trimestral — 1º Trimestre")
+                      </span>
+                    </FieldLabel>
+                    <Input
+                      id="titulo"
+                      value={data.titulo}
+                      onChange={(e) => setData('titulo', e.target.value)}
+                      placeholder="Ex: Exame Final 1º Trimestre"
+                      disabled={processing}
+                    />
+                    {errors.titulo && <FieldError>{errors.titulo}</FieldError>}
+                  </Field>
 
                   {/* Tipo de Prova */}
                   <Field>

@@ -11,7 +11,7 @@ export function PrazosAlertaProfessor({ prazos = [] }) {
   );
 
   return (
-    <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm">
+    <div className="overflow-hidden border bg-card text-card-foreground shadow-sm">
       {/* Header */}
       <div className="border-b px-4 py-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
@@ -123,7 +123,7 @@ function PrazoItem({ prazo }) {
       </div>
 
       {/* Lista de turmas */}
-      <div className="overflow-hidden rounded border">
+      <div className="overflow-hidden border">
         <div className="divide-y">
           {turmas.map((t) => (
             <div
