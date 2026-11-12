@@ -16,7 +16,6 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
-use App\Notifications\Pap\TemaValidadoPeloTutorNotification;
 use App\Notifications\Pap\TrabalhoSubmetidoNotification;
 use App\Services\Tenant\CrossTenantAccessService;
 use App\Services\Tenant\GrupoPap\GrupoPapViewService;
@@ -68,7 +67,7 @@ afterEach(function (): void {
     }
 });
 
-test('membro do grupo disciplinar ve os grupos associados e recebe submissao pap remota sem coordenador', function (): void {
+test('membro do grupo disciplinar ve e decide sobre um grupo PAP tutelado sem coordenador', function (): void {
     $tenantTutor = Tenant::query()->findOrFail('pap-discipline-tutor');
     $tenantColegio = Tenant::query()->findOrFail('pap-discipline-colegio');
     $tenantTutor->domains()->create(['domain' => 'pap-discipline-tutor.test']);
@@ -177,6 +176,8 @@ test('membro do grupo disciplinar ve os grupos associados e recebe submissao pap
         $user->givePermissionTo(
             Permission::findOrCreate('grupopap.view', 'tenant'),
             Permission::findOrCreate('grupopap.aprovar', 'tenant'),
+            Permission::findOrCreate('grupopap.reprovar', 'tenant'),
+            Permission::findOrCreate('grupopap.solicitarMelhoria', 'tenant'),
         );
 
         return $user;
@@ -248,4 +249,53 @@ test('membro do grupo disciplinar ve os grupos associados e recebe submissao pap
             ->where('can.reprovar', true)
             ->where('can.solicitarMelhoria', true)
         );
+
+    $coordinationForms = [
+        [
+            'tenant.dashboard.colegio.grupo-pap-aprovacao.solicitar-melhoria-coordenacao.form',
+            'tenant/pap/decisao-coordenacao/solicitar-melhoria',
+            'tenant.dashboard.colegio.grupo-pap-aprovacao.solicitar-melhoria',
+        ],
+        [
+            'tenant.dashboard.colegio.grupo-pap-aprovacao.aprovar-coordenacao.form',
+            'tenant/pap/decisao-coordenacao/aprovar',
+            'tenant.dashboard.colegio.grupo-pap-aprovacao.aprovar',
+        ],
+        [
+            'tenant.dashboard.colegio.grupo-pap-aprovacao.reprovar-coordenacao.form',
+            'tenant/pap/decisao-coordenacao/reprovar',
+            'tenant.dashboard.colegio.grupo-pap-aprovacao.reprovar',
+        ],
+    ];
+
+    foreach ($coordinationForms as [$route, $component, $submitRoute]) {
+        $this->get(route($route, $papRouteParameters))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component($component)
+                ->where('grupoPap.id', $papRouteParameters['grupoPap'])
+                ->where('grupoPap.tema_grupo', 'Tema')
+                ->where('submitUrl', route($submitRoute, $papRouteParameters, false))
+                ->where('backUrl', route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $papRouteParameters, false))
+            );
+    }
+
+    $submitUrl = route(
+        'tenant.dashboard.colegio.grupo-pap-aprovacao.solicitar-melhoria',
+        $papRouteParameters,
+        false,
+    );
+
+    $showUrl = route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $papRouteParameters, false);
+
+    $this->from($showUrl)
+        ->post($submitUrl, ['recomendacao' => 'Clarificar o problema e os objectivos propostos.'])
+        ->assertRedirect($showUrl)
+        ->assertSessionHas('success', 'Recomendação de melhoria enviada com sucesso.');
+
+    $this->get($showUrl)->assertOk();
+
+    expect($tenantColegio->run(
+        fn (): string => GrupoPap::query()->findOrFail($papRouteParameters['grupoPap'])->status_aprovacao,
+    ))->toBe(GrupoPap::APROVACAO_MELHORIA_COORDENACAO);
 });

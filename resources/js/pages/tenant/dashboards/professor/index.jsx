@@ -22,7 +22,7 @@ export default function ProfessorDashboard({
   const alertas = Array.isArray(prazosAlerta) ? prazosAlerta : [];
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="p-6 space-y-6">
       <GreetingHeader
         greeting={greeting}
         userName={auth?.user?.nome}
@@ -30,7 +30,7 @@ export default function ProfessorDashboard({
       />
 
       {/* ← Alerta de prazos: no topo, FORA dos DashboardPanel */}
-      <PrazosAlertaProfessor prazos={alertas} />
+      {/* <PrazosAlertaProfessor prazos={alertas} /> */}
 
       <DashboardSummary aulas={proximasAulas} />
 

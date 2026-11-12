@@ -95,13 +95,12 @@ class GrupoPapAprovacaoController extends Controller
     }
 
     public function formSolicitarMelhoriaCoordenacao(
-        Instituicao $instituicao,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
     ): Response {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
@@ -112,11 +111,11 @@ class GrupoPapAprovacaoController extends Controller
         $params = compact('colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
         $proposta = $this->withExternalGrupo(
             $colegio,
-            (string) $cursoTutelado->getKey(),
-            (string) $cursoClasse->getKey(),
-            (string) $cursoClasseTurno->getKey(),
-            (string) $turma->getKey(),
-            (string) $grupoPap->getKey(),
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
+            $grupoPap,
             $user,
             function (GrupoPap $grupo): array {
                 abort_unless($grupo->podeSerAprovado(), 403);
@@ -138,19 +137,18 @@ class GrupoPapAprovacaoController extends Controller
 
         return Inertia::render('tenant/pap/decisao-coordenacao/solicitar-melhoria', [
             ...$proposta,
-            'submitUrl' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.solicitar-melhoria', $params),
-            'backUrl' => route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params),
+            'submitUrl' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.solicitar-melhoria', $params, false),
+            'backUrl' => route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params, false),
         ]);
     }
 
     public function formAprovarCoordenacao(
-        Instituicao $instituicao,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
     ): Response {
         return $this->renderFormularioCoordenacao(
             'tenant/pap/decisao-coordenacao/aprovar',
@@ -166,13 +164,12 @@ class GrupoPapAprovacaoController extends Controller
     }
 
     public function formReprovarCoordenacao(
-        Instituicao $instituicao,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
     ): Response {
         return $this->renderFormularioCoordenacao(
             'tenant/pap/decisao-coordenacao/reprovar',
@@ -192,11 +189,11 @@ class GrupoPapAprovacaoController extends Controller
         string $permission,
         string $submitRoute,
         string $colegio,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
     ): Response {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
@@ -207,11 +204,11 @@ class GrupoPapAprovacaoController extends Controller
         $params = compact('colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
         $proposta = $this->withExternalGrupo(
             $colegio,
-            (string) $cursoTutelado->getKey(),
-            (string) $cursoClasse->getKey(),
-            (string) $cursoClasseTurno->getKey(),
-            (string) $turma->getKey(),
-            (string) $grupoPap->getKey(),
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
+            $grupoPap,
             $user,
             function (GrupoPap $grupo, string $actorTenantId): array {
                 abort_unless($grupo->podeSerAprovado(), 403);
@@ -233,8 +230,8 @@ class GrupoPapAprovacaoController extends Controller
 
         return Inertia::render($component, [
             ...$proposta,
-            'submitUrl' => route($submitRoute, $params),
-            'backUrl' => route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params),
+            'submitUrl' => route($submitRoute, $params, false),
+            'backUrl' => route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params, false),
         ]);
     }
 
@@ -283,8 +280,11 @@ class GrupoPapAprovacaoController extends Controller
             ]);
         }
 
-        // ✅ FORÇA RELOAD COMPLETO
-        return redirect()->back()->with(
+        return redirect()->to(route(
+            'tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show',
+            compact('colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap'),
+            false,
+        ))->with(
             'success',
             'Tema aprovado com sucesso.'
         );
@@ -488,7 +488,11 @@ class GrupoPapAprovacaoController extends Controller
             ]);
         }
 
-        return back()->with(
+        return redirect()->to(route(
+            'tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show',
+            compact('colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap'),
+            false,
+        ))->with(
             'success',
             'Tema reprovado com sucesso.'
         );
@@ -583,7 +587,11 @@ class GrupoPapAprovacaoController extends Controller
             ]);
         }
 
-        return back()->with(
+        return redirect()->to(route(
+            'tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show',
+            compact('colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap'),
+            false,
+        ))->with(
             'success',
             'Recomendação de melhoria enviada com sucesso.'
         );

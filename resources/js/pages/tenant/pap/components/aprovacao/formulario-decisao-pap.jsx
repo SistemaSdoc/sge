@@ -1,4 +1,4 @@
-import { Link, router, useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import {
   ArrowUpLeft,
   CheckCircle,
@@ -113,7 +113,6 @@ export default function FormularioDecisaoPap({
   turma,
   submitUrl,
   backUrl,
-  successUrl,
   tipo,
 }) {
   const config = CONFIG[tipo];
@@ -125,13 +124,7 @@ export default function FormularioDecisaoPap({
 
   const submeter = (event) => {
     event.preventDefault();
-    post(submitUrl, {
-      onSuccess: () => {
-        if (successUrl) {
-          router.visit(successUrl);
-        }
-      },
-    });
+    post(submitUrl);
   };
 
   return (
