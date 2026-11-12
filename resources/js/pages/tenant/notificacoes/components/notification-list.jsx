@@ -19,8 +19,7 @@ export function NotificationsList({ notificacoes = [] }) {
         </TabsTrigger>
 
         <TabsTrigger value="lidas" className="hover:cursor-pointer">
-          Lidas{' '}
-          <span className="font-bold text-secondary">{lidas.length}</span>
+          Lidas <span className="font-bold text-secondary">{lidas.length}</span>
         </TabsTrigger>
       </TabsList>
 

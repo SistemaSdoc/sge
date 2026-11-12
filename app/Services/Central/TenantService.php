@@ -13,6 +13,7 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\InstituicaoCurso;
 use App\Models\Tenant\User;
 use App\Notifications\TenantPendenteNotification;
+use App\Services\Tenant\TenantUrlGenerator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -23,6 +24,8 @@ use Stancl\Tenancy\Exceptions\TenantDatabaseDoesNotExistException;
 
 class TenantService
 {
+    public function __construct(private readonly TenantUrlGenerator $tenantUrlGenerator) {}
+
     /**
      * Lista tenants com as instituições carregadas.
      */
@@ -223,7 +226,10 @@ class TenantService
             nomeInstituicao: $data['nome'],
             nomeUser: $data['user_nome'],
             subdomain: $data['domain'],
-            url: 'http://'.$tenant->id.'.'.config('app.domain'),
+            url: $this->tenantUrlGenerator->route(
+                'tenant.login',
+                domain: $tenant->domains()->value('domain'),
+            ),
             sigla: $data['sigla'],
         ));
 

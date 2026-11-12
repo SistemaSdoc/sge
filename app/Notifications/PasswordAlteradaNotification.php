@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -13,12 +14,12 @@ class PasswordAlteradaNotification extends Notification implements ShouldQueue, 
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public string $nomeUser,
         public string $email,
         public string $alteradoPor,
-        public string $url,
         public ?string $password = null,
     ) {}
 
@@ -38,7 +39,7 @@ class PasswordAlteradaNotification extends Notification implements ShouldQueue, 
                 'nomeUser' => $this->nomeUser,
                 'email' => $this->email,
                 'alteradoPor' => $this->alteradoPor,
-                'url' => $this->url,
+                'url' => $this->tenantNotificationUrl('tenant.login'),
                 'password' => $this->password,
             ]);
     }

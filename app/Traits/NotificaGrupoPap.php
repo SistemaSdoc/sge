@@ -24,8 +24,11 @@ use App\Notifications\Pap\TemaValidadoPeloTutorNotification;
 use App\Notifications\Pap\TrabalhoAprovadoNotification;
 use App\Notifications\Pap\TrabalhoSubmetidoConfirmacaoNotification;
 use App\Notifications\Pap\TrabalhoSubmetidoNotification;
+use App\Services\Tenant\TenantUrlGenerator;
+use Closure;
 use Illuminate\Notifications\Notification as NotificationInstance;
 use Illuminate\Support\Facades\Notification;
+use LogicException;
 
 trait NotificaGrupoPap
 {
@@ -78,7 +81,14 @@ trait NotificaGrupoPap
 
         if ($isTutelaExterna) {
             // Só o instituto tutor recebe — o colégio não coordena
-            $this->notificarCoordenadoresDoFluxo($grupoPap, $notification);
+            $this->notificarCoordenadoresDoFluxo(
+                $grupoPap,
+                $notification,
+                fn (Tenant $tenantTutor): NotificationInstance => new TemaValidadoPeloTutorNotification(
+                    $grupoPap,
+                    $this->urlGrupoPapNaTutora($grupoPap, $tenantTutor),
+                ),
+            );
         } else {
             $this->notificarCoordenadoresLocais($grupoPap, $notification);
             $this->notificarGrupoDisciplinar($grupoPap, $notification);
@@ -129,10 +139,13 @@ trait NotificaGrupoPap
 
     /**
      * Envia a notificação dentro do tenant que possui os destinatários.
+     *
+     * @param  (Closure(Tenant): NotificationInstance)|null  $notificationForTutor
      */
     protected function notificarCoordenadoresDoFluxo(
         GrupoPap $grupoPap,
         NotificationInstance $notification,
+        ?Closure $notificationForTutor = null,
     ): void {
         $grupoPap->loadMissing(
             'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao'
@@ -191,7 +204,13 @@ trait NotificaGrupoPap
                 ->toArray() ?? [];
         });
 
-        $tenantTutor->run(function () use ($coordenadoresIds, $instituicaoTutoraId, $notification): void {
+        $tenantTutor->run(function () use (
+            $coordenadoresIds,
+            $instituicaoTutoraId,
+            $notification,
+            $notificationForTutor,
+            $tenantTutor
+        ): void {
             $coordenadores = User::query()->whereIn('id', $coordenadoresIds)->get();
             $membrosGrupoDisciplinar = $instituicaoTutoraId
                 ? User::role(['Coordenador do Grupo Disciplinar', 'Membro do Grupo Disciplinar'])
@@ -199,8 +218,47 @@ trait NotificaGrupoPap
                     ->get()
                 : collect();
 
-            Notification::send($coordenadores->merge($membrosGrupoDisciplinar)->unique('id'), $notification);
+            $destinatarios = $coordenadores->merge($membrosGrupoDisciplinar)->unique('id');
+
+            if ($destinatarios->isEmpty()) {
+                return;
+            }
+
+            Notification::send(
+                $destinatarios,
+                $notificationForTutor
+                    ? $notificationForTutor($tenantTutor)
+                    : $notification,
+            );
         });
+    }
+
+    protected function urlGrupoPapNaTutora(GrupoPap $grupoPap, Tenant $tenantTutor): string
+    {
+        $domain = $tenantTutor->domains()->value('domain');
+
+        if (! $domain) {
+            throw new LogicException("O tenant tutor [{$tenantTutor->getTenantKey()}] não tem domínio registado.");
+        }
+
+        $turma = $grupoPap->turma;
+        $turno = $turma->cursoClasseTurno;
+        $classe = $turno->cursoClasse;
+        $cursoTutelado = $classe->cursoTutelado;
+        $colegio = $cursoTutelado->instituicaoCurso->instituicao;
+
+        return app(TenantUrlGenerator::class)->route(
+            'tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show',
+            [
+                'colegio' => $colegio->id,
+                'cursoTutelado' => $cursoTutelado->id,
+                'cursoClasse' => $classe->id,
+                'cursoClasseTurno' => $turno->id,
+                'turma' => $turma->id,
+                'grupoPap' => $grupoPap->id,
+            ],
+            $domain,
+        );
     }
 
     /**
@@ -225,7 +283,14 @@ trait NotificaGrupoPap
 
         if ($isTutelaExterna) {
             // Só o instituto tutor recebe — o colégio não tem papel na coordenação
-            $this->notificarCoordenadoresDoFluxo($grupoPap, $notification);
+            $this->notificarCoordenadoresDoFluxo(
+                $grupoPap,
+                $notification,
+                fn (Tenant $tenantTutor): NotificationInstance => new TrabalhoSubmetidoNotification(
+                    $grupoPap,
+                    $this->urlGrupoPapNaTutora($grupoPap, $tenantTutor),
+                ),
+            );
         } else {
             // Auto-tutela: coordenadores locais
             $this->notificarCoordenadoresLocais($grupoPap, $notification);

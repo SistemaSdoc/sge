@@ -3,6 +3,7 @@
 namespace App\Notifications\Pap;
 
 use App\Models\Tenant\GrupoPap;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -10,6 +11,7 @@ use Illuminate\Notifications\Notification;
 class TrabalhoSubmetidoNotification extends Notification
 {
     use Queueable;
+    use TenantNotificationUrl;
 
     public function __construct(public GrupoPap $grupoPap, public ?string $urlExterno = null) {}
 
@@ -26,7 +28,7 @@ class TrabalhoSubmetidoNotification extends Notification
         $cursoTutelado = $classe->cursoTutelado;
         $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
-        $url = $this->urlExterno ?? route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
+        $url = $this->urlExterno ?? $this->tenantNotificationUrl('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $classe->id,

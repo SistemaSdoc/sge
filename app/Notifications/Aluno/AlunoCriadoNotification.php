@@ -4,6 +4,7 @@ namespace App\Notifications\Aluno;
 
 use App\Models\Tenant\User;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -16,6 +17,7 @@ class AlunoCriadoNotification extends Notification implements ShouldQueue, Shoul
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public User $user,
@@ -42,7 +44,7 @@ class AlunoCriadoNotification extends Notification implements ShouldQueue, Shoul
                 'nome' => $this->user->nome,
                 'email' => $this->user->email,
                 'password' => $this->passwordPlain,
-                'url' => $this->loginUrl ?? route('tenant.login'),
+                'url' => $this->loginUrl ?? $this->tenantNotificationUrl('tenant.login'),
                 'instituicao' => $this->user->instituicao,
                 'artigoInstituicao' => match ($this->user->instituicao->tipo) {
                     'instituto' => 'ao',

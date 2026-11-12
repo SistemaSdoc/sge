@@ -4,6 +4,7 @@ namespace App\Notifications\CursoTutelado;
 
 use App\Models\Tenant\SugestaoTemaPap;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -14,6 +15,7 @@ class SugestaoTemaPapNotification extends Notification implements ShouldQueue, S
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public const string CRIADA = 'criada';
 
@@ -31,6 +33,7 @@ class SugestaoTemaPapNotification extends Notification implements ShouldQueue, S
         public SugestaoTemaPap $sugestao,
         public string $evento,
         public array $channels = ['database', 'mail'],
+        public ?string $tenantDomain = null,
     ) {}
 
     public function via(object $notifiable): array
@@ -135,9 +138,13 @@ class SugestaoTemaPapNotification extends Notification implements ShouldQueue, S
     {
         $cursoTutelado = $this->sugestao->cursoTutelado;
 
-        return route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
-            'instituicao' => $cursoTutelado->instituicaoCurso?->instituicao_id,
-            'cursoTutelado' => $cursoTutelado->getKey(),
-        ]);
+        return $this->tenantNotificationUrl(
+            'tenant.dashboard.instituicoes.cursos-tutelados.show',
+            [
+                'instituicao' => $cursoTutelado->instituicaoCurso?->instituicao_id,
+                'cursoTutelado' => $cursoTutelado->getKey(),
+            ],
+            $this->tenantDomain,
+        );
     }
 }

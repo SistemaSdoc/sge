@@ -16,6 +16,7 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
+use App\Notifications\Pap\TemaValidadoPeloTutorNotification;
 use App\Notifications\Pap\TrabalhoSubmetidoNotification;
 use App\Services\Tenant\CrossTenantAccessService;
 use App\Services\Tenant\GrupoPap\GrupoPapViewService;
@@ -68,6 +69,7 @@ afterEach(function (): void {
 test('membro do grupo disciplinar ve os grupos associados e recebe submissao pap remota sem coordenador', function (): void {
     $tenantTutor = Tenant::query()->findOrFail('pap-discipline-tutor');
     $tenantColegio = Tenant::query()->findOrFail('pap-discipline-colegio');
+    $tenantTutor->domains()->create(['domain' => 'pap-discipline-tutor.test']);
     $colegio = $tenantColegio->run(
         fn (): Instituicao => Instituicao::create(['nome' => 'Colégio Tutelado PAP', 'tipo' => 'colegio'])
     );
@@ -130,7 +132,14 @@ test('membro do grupo disciplinar ve os grupos associados e recebe submissao pap
                 'curso_id' => $curso->id,
             ]);
 
-            return ['curso_id' => $curso->id, 'grupo_id' => $grupo->id];
+            return [
+                'curso_id' => $curso->id,
+                'curso_tutelado_id' => $cursoTutelado->id,
+                'curso_classe_id' => $cursoClasse->id,
+                'curso_classe_turno_id' => $cursoClasseTurno->id,
+                'turma_id' => $turma->id,
+                'grupo_id' => $grupo->id,
+            ];
         })->all();
     });
 
@@ -198,10 +207,12 @@ test('membro do grupo disciplinar ve os grupos associados e recebe submissao pap
 
         public function enviar(GrupoPap $grupoPap): void
         {
-            $this->notificarCoordenadoresDoFluxo(
-                $grupoPap,
-                new TrabalhoSubmetidoNotification($grupoPap),
-            );
+            $this->notificarTrabalhoAosCoordenadores($grupoPap);
+        }
+
+        public function enviarTemaValidado(GrupoPap $grupoPap): void
+        {
+            $this->notificarTemaValidadoPeloTutor($grupoPap);
         }
     };
 
@@ -209,5 +220,52 @@ test('membro do grupo disciplinar ve os grupos associados e recebe submissao pap
         $notificador->enviar(GrupoPap::query()->findOrFail($cursosRemotos['Curso do grupo disciplinar']['grupo_id']));
     });
 
-    Notification::assertSentTo($membro, TrabalhoSubmetidoNotification::class);
+    $grupoRemoto = $cursosRemotos['Curso do grupo disciplinar'];
+    Notification::assertSentTo(
+        $membro,
+        TrabalhoSubmetidoNotification::class,
+        function (TrabalhoSubmetidoNotification $notification) use ($colegio, $grupoRemoto, $membro): bool {
+            $url = $notification->toMail($membro)->viewData['url'];
+            $path = sprintf(
+                '/dashboard/colegios/%s/cursos/%s/classes/%s/turnos/%s/turmas/%s/pap/%s',
+                $colegio->id,
+                $grupoRemoto['curso_tutelado_id'],
+                $grupoRemoto['curso_classe_id'],
+                $grupoRemoto['curso_classe_turno_id'],
+                $grupoRemoto['turma_id'],
+                $grupoRemoto['grupo_id'],
+            );
+
+            return parse_url($url, PHP_URL_HOST) === 'pap-discipline-tutor.test'
+                && parse_url($url, PHP_URL_PATH) === $path
+                && $notification->toArray($membro)['url'] === $url;
+        },
+    );
+
+    $tenantColegio->run(function () use ($cursosRemotos, $notificador): void {
+        $notificador->enviarTemaValidado(
+            GrupoPap::query()->findOrFail($cursosRemotos['Curso do grupo disciplinar']['grupo_id'])
+        );
+    });
+
+    Notification::assertSentTo(
+        $membro,
+        TemaValidadoPeloTutorNotification::class,
+        function (TemaValidadoPeloTutorNotification $notification) use ($colegio, $grupoRemoto, $membro): bool {
+            $url = $notification->toMail($membro)->viewData['url'];
+            $path = sprintf(
+                '/dashboard/colegios/%s/cursos/%s/classes/%s/turnos/%s/turmas/%s/pap/%s',
+                $colegio->id,
+                $grupoRemoto['curso_tutelado_id'],
+                $grupoRemoto['curso_classe_id'],
+                $grupoRemoto['curso_classe_turno_id'],
+                $grupoRemoto['turma_id'],
+                $grupoRemoto['grupo_id'],
+            );
+
+            return parse_url($url, PHP_URL_HOST) === 'pap-discipline-tutor.test'
+                && parse_url($url, PHP_URL_PATH) === $path
+                && $notification->toArray($membro)['url'] === $url;
+        },
+    );
 });

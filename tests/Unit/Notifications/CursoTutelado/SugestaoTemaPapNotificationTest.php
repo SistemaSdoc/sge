@@ -13,6 +13,9 @@ use Illuminate\Routing\RouteCollection;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Notification;
+use Tests\TestCase;
+
+uses(TestCase::class);
 
 beforeEach(function () {
     $routes = new RouteCollection;
@@ -57,6 +60,7 @@ it('formats theme suggestion decisions for database and email notifications', fu
             'observacao_aprovacao' => 'Indicar melhor a metodologia.',
         ])->setRelation('aprovadoPor', $aprovador),
         SugestaoTemaPapNotification::MELHORIA_SOLICITADA,
+        tenantDomain: 'tenant.test',
     );
 
     expect($notification->via($user))->toBe(['database', 'mail'])
@@ -81,7 +85,11 @@ it('includes the approver in the approval notification message', function () {
     $sugestao = criarSugestaoTemaParaNotificacao([
         'estado_aprovacao' => 'aprovada',
     ])->setRelation('aprovadoPor', $aprovador);
-    $notification = new SugestaoTemaPapNotification($sugestao, SugestaoTemaPapNotification::APROVADA);
+    $notification = new SugestaoTemaPapNotification(
+        $sugestao,
+        SugestaoTemaPapNotification::APROVADA,
+        tenantDomain: 'tenant.test',
+    );
 
     expect($notification->toArray(new User))
         ->toMatchArray([
@@ -96,7 +104,11 @@ it('does not label a pending suggestion as approved by coordination', function (
     $sugestao = criarSugestaoTemaParaNotificacao([
         'estado_aprovacao' => 'pendente',
     ]);
-    $notification = new SugestaoTemaPapNotification($sugestao, SugestaoTemaPapNotification::CRIADA);
+    $notification = new SugestaoTemaPapNotification(
+        $sugestao,
+        SugestaoTemaPapNotification::CRIADA,
+        tenantDomain: 'tenant.test',
+    );
 
     expect($notification->toArray(new User))
         ->toMatchArray([

@@ -5,6 +5,7 @@ namespace App\Notifications\Pauta;
 use App\Models\Tenant\SolicitacaoEdicaoPauta;
 use App\Models\Tenant\User;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -15,6 +16,7 @@ class SolicitacaoEdicaoPautaDirectorNotification extends Notification implements
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public SolicitacaoEdicaoPauta $solicitacao,
@@ -52,7 +54,7 @@ class SolicitacaoEdicaoPautaDirectorNotification extends Notification implements
                 'turma' => $solicitacao->turmaDisciplinaProfessor->turma->nome ?? '—',
                 'periodo' => $solicitacao->periodo,
                 'motivo' => $solicitacao->motivo,
-                'urlSolicitacoes' => route('tenant.dashboard.pautas.solicitacoes.index'),
+                'urlSolicitacoes' => $this->tenantNotificationUrl('tenant.dashboard.pautas.solicitacoes.index'),
             ]);
     }
 

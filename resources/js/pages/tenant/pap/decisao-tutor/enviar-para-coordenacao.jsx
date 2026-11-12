@@ -1,5 +1,5 @@
-import FormularioDecisaoTutor from './components/formulario';
+import FormularioDecisaoPap from '../components/aprovacao/formulario-decisao-pap';
 
 export default function EnviarParaCoordenacao(props) {
-  return <FormularioDecisaoTutor {...props} tipo="coordenacao" />;
+  return <FormularioDecisaoPap {...props} tipo="coordenacao" />;
 }

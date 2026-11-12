@@ -14,6 +14,7 @@ use App\Notifications\TrocaTutelaNotification;
 use App\Notifications\TrocaTutelaRejeitadaNotification;
 use App\Notifications\TrocaTutelaResultadoNotification;
 use App\Services\Central\TenantService;
+use App\Services\Tenant\TenantUrlGenerator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -25,7 +26,10 @@ class TutelaNotificationService
     /**
      * Recebe o serviço usado para localizar instituições noutros tenants.
      */
-    public function __construct(private readonly TenantService $tenantService) {}
+    public function __construct(
+        private readonly TenantService $tenantService,
+        private readonly TenantUrlGenerator $tenantUrlGenerator,
+    ) {}
 
     /**
      * Envia a notificação ao administrador do tenant tutor.
@@ -441,11 +445,10 @@ class TutelaNotificationService
      */
     private function url(Tenant $tenant, string $notificationId): string
     {
-        $domain = $tenant->domains()->first()?->domain;
-        $scheme = parse_url((string) config('app.url'), PHP_URL_SCHEME) ?: 'http';
-
-        return $domain
-            ? "{$scheme}://{$domain}/dashboard/notificacoes/{$notificationId}"
-            : url("/dashboard/notificacoes/{$notificationId}");
+        return $this->tenantUrlGenerator->route(
+            'tenant.dashboard.notificacoes.show',
+            ['notification' => $notificationId],
+            $tenant->domains()->value('domain'),
+        );
     }
 }

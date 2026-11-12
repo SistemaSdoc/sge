@@ -2,10 +2,10 @@
 
 namespace App\Models\Tenant;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class PrazoProva extends Model
 {
@@ -63,41 +63,42 @@ class PrazoProva extends Model
 
     // app/Models/Tenant/PrazoProva.php
 
-/**
- * Label amigável do tipo de prova (sem hífens).
- */
-protected function tipoProvaLabel(): Attribute
-{
-    return Attribute::make(
-        get: fn () => match ($this->tipo_prova) {
-            'Prova-Trimestral' => 'Prova Trimestral',
-            'Exame-especial'   => 'Exame Especial',
-            'Recurso'          => 'Recurso',
-            default            => ucwords(str_replace('-', ' ', (string) $this->tipo_prova)),
-        },
-    );
-}
+    /**
+     * Label amigável do tipo de prova (sem hífens).
+     */
+    protected function tipoProvaLabel(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => match ($this->tipo_prova) {
+                'Prova-Trimestral' => 'Prova Trimestral',
+                'Exame-especial' => 'Exame Especial',
+                'Recurso' => 'Recurso',
+                default => ucwords(str_replace('-', ' ', (string) $this->tipo_prova)),
+            },
+        );
+    }
 
-/**
- * Título a apresentar no UI.
- * Prioridade: título personalizado > label do tipo + período > label do tipo.
- */
-protected function tituloApresentacao(): Attribute
-{
-    return Attribute::make(
-        get: function () {
-            if (! empty($this->titulo)) {
-                return $this->titulo;
-            }
+    /**
+     * Título a apresentar no UI.
+     * Prioridade: título personalizado > label do tipo + período > label do tipo.
+     */
+    protected function tituloApresentacao(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if (! empty($this->titulo)) {
+                    return $this->titulo;
+                }
 
-            $base = $this->tipo_prova_label;
+                $base = $this->tipo_prova_label;
 
-            return $this->periodo
-                ? "{$base} — {$this->periodo}"
-                : $base;
-        },
-    );
-}
+                return $this->periodo
+                    ? "{$base} — {$this->periodo}"
+                    : $base;
+            },
+        );
+    }
+
     public function instituicao()
     {
         return $this->belongsTo(Instituicao::class);

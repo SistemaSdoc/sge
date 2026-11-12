@@ -2,26 +2,46 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import {
-  Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList,
-  BreadcrumbPage, BreadcrumbSeparator,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import {
-  Card, CardAction, CardContent, CardDescription, CardHeader,
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
 } from '@/components/ui/card';
 import {
-  Field, FieldError, FieldGroup, FieldLabel, FieldSet,
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
 } from '@/components/ui/field';
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import MultipleSelector from '@/components/ui/multiselect';
 import { Spinner } from '@/components/spinner';
 
-export default function Create({ disciplinas = [], classes = [], periodos = [] }) {
+export default function Create({
+  disciplinas = [],
+  classes = [],
+  periodos = [],
+}) {
   const { data, setData, post, processing, errors } = useForm({
     titulo: '',
     tipo_prova: 'Prova-Trimestral',
@@ -35,8 +55,10 @@ export default function Create({ disciplinas = [], classes = [], periodos = [] }
     permite_reenvio: true,
   });
 
-  const disciplinaOptions = disciplinas?.map((d) => ({ value: d.id, label: d.nome })) || [];
-  const classeOptions = classes?.map((c) => ({ value: c.id, label: c.nome })) || [];
+  const disciplinaOptions =
+    disciplinas?.map((d) => ({ value: d.id, label: d.nome })) || [];
+  const classeOptions =
+    classes?.map((c) => ({ value: c.id, label: c.nome })) || [];
   const periodoOptions = periodos ?? [];
 
   const submit = (e) => {
@@ -125,7 +147,8 @@ export default function Create({ disciplinas = [], classes = [], periodos = [] }
                     <FieldLabel htmlFor="titulo">
                       Título{' '}
                       <span className="text-xs font-normal text-muted-foreground">
-                        (opcional — se vazio, será usado "Prova Trimestral — 1º Trimestre")
+                        (opcional — se vazio, será usado "Prova Trimestral — 1º
+                        Trimestre")
                       </span>
                     </FieldLabel>
                     <Input
@@ -140,7 +163,9 @@ export default function Create({ disciplinas = [], classes = [], periodos = [] }
 
                   {/* Tipo de Prova */}
                   <Field>
-                    <FieldLabel htmlFor="tipo_prova">Tipo de Prova *</FieldLabel>
+                    <FieldLabel htmlFor="tipo_prova">
+                      Tipo de Prova *
+                    </FieldLabel>
                     <Select
                       value={data.tipo_prova}
                       onValueChange={(v) => setData('tipo_prova', v)}
@@ -150,12 +175,18 @@ export default function Create({ disciplinas = [], classes = [], periodos = [] }
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Prova-Trimestral">Prova Trimestral</SelectItem>
+                        <SelectItem value="Prova-Trimestral">
+                          Prova Trimestral
+                        </SelectItem>
                         <SelectItem value="Recurso">Recurso</SelectItem>
-                        <SelectItem value="Exame-especial">Exame Especial</SelectItem>
+                        <SelectItem value="Exame-especial">
+                          Exame Especial
+                        </SelectItem>
                       </SelectContent>
                     </Select>
-                    {errors.tipo_prova && <FieldError>{errors.tipo_prova}</FieldError>}
+                    {errors.tipo_prova && (
+                      <FieldError>{errors.tipo_prova}</FieldError>
+                    )}
                   </Field>
 
                   {/* Toggle "Todas as disciplinas" */}
@@ -178,7 +209,8 @@ export default function Create({ disciplinas = [], classes = [], periodos = [] }
                       </FieldLabel>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Se ativo, será criado um prazo para cada disciplina da instituição.
+                      Se ativo, será criado um prazo para cada disciplina da
+                      instituição.
                     </p>
                   </Field>
 
@@ -237,13 +269,17 @@ export default function Create({ disciplinas = [], classes = [], periodos = [] }
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.periodo && <FieldError>{errors.periodo}</FieldError>}
+                    {errors.periodo && (
+                      <FieldError>{errors.periodo}</FieldError>
+                    )}
                   </Field>
 
                   {/* Datas */}
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <Field>
-                      <FieldLabel htmlFor="data_inicio">Data de Início *</FieldLabel>
+                      <FieldLabel htmlFor="data_inicio">
+                        Data de Início *
+                      </FieldLabel>
                       <Input
                         id="data_inicio"
                         type="datetime-local"
@@ -257,7 +293,9 @@ export default function Create({ disciplinas = [], classes = [], periodos = [] }
                       )}
                     </Field>
                     <Field>
-                      <FieldLabel htmlFor="data_limite">Data Limite *</FieldLabel>
+                      <FieldLabel htmlFor="data_limite">
+                        Data Limite *
+                      </FieldLabel>
                       <Input
                         id="data_limite"
                         type="datetime-local"

@@ -59,7 +59,6 @@ class UpdateUser
                 nomeUser: $user->nome,
                 email: $user->email,
                 alteradoPor: $actor->is($user) ? 'si próprio' : $actor->nome,
-                url: route('tenant.login'),
                 password: $plainPassword,
             ));
         }

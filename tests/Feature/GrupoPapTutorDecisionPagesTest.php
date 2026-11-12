@@ -81,7 +81,8 @@ function createGrupoPapTutorDecisionContext(): array
         'nome_grupo' => 'Grupo PAP',
         'tema_grupo' => 'Tema de teste',
         'problema' => 'Problema de teste',
-        'objectivos' => 'Objectivos de teste',
+        'objectivo_geral' => 'Objectivo geral de teste',
+        'objectivos_especificos' => 'Objectivos específicos de teste',
         'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
     ]);
 
@@ -159,3 +160,89 @@ it('denies users who are not the tutor access to the tutor decision forms', func
     'coordination form' => ['tenant.dashboard.grupo-pap-aprovacao.aprovar-tutor.form'],
     'improvement form' => ['tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria-tutor.form'],
 ]);
+
+it('renders the coordination improvement page for an authorized coordinator', function () {
+    $context = createGrupoPapTutorDecisionContext();
+    $context['tutor']->givePermissionTo('grupopap.solicitarMelhoria');
+    $params = [
+        'instituicao' => $context['instituicao']->id,
+        'cursoTutelado' => $context['cursoTutelado']->id,
+        'cursoClasse' => $context['cursoClasse']->id,
+        'cursoClasseTurno' => $context['cursoClasseTurno']->id,
+        'turma' => $context['turma']->id,
+        'grupoPap' => $context['grupoPap']->id,
+    ];
+
+    $response = $this->actingAs($context['tutor'], 'tenant')
+        ->get(route(
+            'tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria-coordenacao.form',
+            $params,
+        ));
+
+    $response->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tenant/pap/decisao-coordenacao/solicitar-melhoria')
+            ->where('grupoPap.tema_grupo', 'Tema de teste')
+            ->where('grupoPap.problema', 'Problema de teste')
+            ->where('submitUrl', route(
+                'tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria',
+                ['grupoPap' => $context['grupoPap']->id],
+            ))
+            ->where('backUrl', route(
+                'tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show',
+                $params,
+            ))
+        );
+});
+
+dataset('coordination decision forms', [
+    'approve theme' => [
+        'tenant.dashboard.grupo-pap-aprovacao.aprovar-coordenacao.form',
+        'tenant/pap/decisao-coordenacao/aprovar',
+        'grupopap.aprovar',
+        'tenant.dashboard.grupo-pap-aprovacao.aprovar',
+    ],
+    'reject theme' => [
+        'tenant.dashboard.grupo-pap-aprovacao.reprovar-coordenacao.form',
+        'tenant/pap/decisao-coordenacao/reprovar',
+        'grupopap.reprovar',
+        'tenant.dashboard.grupo-pap-aprovacao.reprovar',
+    ],
+]);
+
+it('renders dedicated coordination decision pages with the correct proposal and submit route', function (
+    string $formRoute,
+    string $component,
+    string $permission,
+    string $submitRoute,
+) {
+    $context = createGrupoPapTutorDecisionContext();
+    $context['tutor']->givePermissionTo($permission);
+    $params = [
+        'instituicao' => $context['instituicao']->id,
+        'cursoTutelado' => $context['cursoTutelado']->id,
+        'cursoClasse' => $context['cursoClasse']->id,
+        'cursoClasseTurno' => $context['cursoClasseTurno']->id,
+        'turma' => $context['turma']->id,
+        'grupoPap' => $context['grupoPap']->id,
+    ];
+
+    $response = $this->actingAs($context['tutor'], 'tenant')
+        ->get(route($formRoute, $params));
+
+    $response->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component($component)
+            ->where('grupoPap.tema_grupo', 'Tema de teste')
+            ->where('grupoPap.problema', 'Problema de teste')
+            ->where('grupoPap.objectivo_geral', 'Objectivo geral de teste')
+            ->where('grupoPap.objectivos_especificos', 'Objectivos específicos de teste')
+            ->where('submitUrl', route($submitRoute, [
+                'grupoPap' => $context['grupoPap']->id,
+            ]))
+            ->where('backUrl', route(
+                'tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show',
+                $params,
+            ))
+        );
+})->with('coordination decision forms');

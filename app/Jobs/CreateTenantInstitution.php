@@ -7,6 +7,7 @@ use App\Models\Central\Tenant;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\User;
 use App\Notifications\TenantActivadoNotification;
+use App\Services\Tenant\TenantUrlGenerator;
 use Database\Seeders\Tenant\CentralSupportUserSeeder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -94,7 +95,10 @@ class CreateTenantInstitution implements ShouldQueue
                     nomeUser: $user->nome,
                     email: $user->email,
                     subdomain: $this->tenant->id,
-                    url: 'http://'.$this->tenant->id.'.'.env('APP_DOMAIN', 'localhost'),
+                    url: app(TenantUrlGenerator::class)->route(
+                        'tenant.login',
+                        domain: $this->tenant->domains()->value('domain'),
+                    ),
                     sigla: $pending->sigla,
                     password: $userCreated ? '12345678' : null,
                 ));

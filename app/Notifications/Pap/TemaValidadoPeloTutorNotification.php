@@ -3,6 +3,7 @@
 namespace App\Notifications\Pap;
 
 use App\Models\Tenant\GrupoPap;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -10,8 +11,12 @@ use Illuminate\Notifications\Notification;
 class TemaValidadoPeloTutorNotification extends Notification
 {
     use Queueable;
+    use TenantNotificationUrl;
 
-    public function __construct(public GrupoPap $grupoPap) {}
+    public function __construct(
+        public GrupoPap $grupoPap,
+        public ?string $url = null,
+    ) {}
 
     public function via(object $notifiable): array
     {
@@ -26,7 +31,7 @@ class TemaValidadoPeloTutorNotification extends Notification
         $cursoTutelado = $classe->cursoTutelado;
         $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
-        $url = route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
+        $url = $this->url ?? $this->tenantNotificationUrl('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
             'cursoClasse' => $classe->id,
@@ -59,7 +64,7 @@ class TemaValidadoPeloTutorNotification extends Notification
             'titulo' => 'Tema aguarda aprovação da coordenação',
             'mensagem' => "O tutor validou o tema \"{$this->grupoPap->tema_grupo}\" do grupo \"{$this->grupoPap->nome_grupo}\" do {$nomeInstituicao}. Aguarda a sua aprovação.",
             'grupo_pap_id' => $this->grupoPap->id,
-            'url' => "/grupos-pap/{$this->grupoPap->id}",
+            'url' => $this->url ?? "/grupos-pap/{$this->grupoPap->id}",
         ];
     }
 }

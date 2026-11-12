@@ -94,6 +94,150 @@ class GrupoPapAprovacaoController extends Controller
 
     }
 
+    public function formSolicitarMelhoriaCoordenacao(
+        Instituicao $instituicao,
+        string $colegio,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): Response {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        abort_if($user->hasRole('Secretario do Curso'), 403);
+        abort_unless($user->can('grupopap.solicitarMelhoria'), 403);
+
+        $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
+        $params = compact('colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
+        $proposta = $this->withExternalGrupo(
+            $colegio,
+            (string) $cursoTutelado->getKey(),
+            (string) $cursoClasse->getKey(),
+            (string) $cursoClasseTurno->getKey(),
+            (string) $turma->getKey(),
+            (string) $grupoPap->getKey(),
+            $user,
+            function (GrupoPap $grupo): array {
+                abort_unless($grupo->podeSerAprovado(), 403);
+
+                return [
+                    'grupoPap' => $grupo->only(
+                        'id',
+                        'nome_grupo',
+                        'tema_grupo',
+                        'problema',
+                        'objectivo_geral',
+                        'objectivos_especificos',
+                    ),
+                    'turma' => $grupo->turma?->only('nome'),
+                ];
+            },
+            $tenantTutorId,
+        );
+
+        return Inertia::render('tenant/pap/decisao-coordenacao/solicitar-melhoria', [
+            ...$proposta,
+            'submitUrl' => route('tenant.dashboard.colegio.grupo-pap-aprovacao.solicitar-melhoria', $params),
+            'backUrl' => route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params),
+        ]);
+    }
+
+    public function formAprovarCoordenacao(
+        Instituicao $instituicao,
+        string $colegio,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): Response {
+        return $this->renderFormularioCoordenacao(
+            'tenant/pap/decisao-coordenacao/aprovar',
+            'grupopap.aprovar',
+            'tenant.dashboard.colegio.grupo-pap-aprovacao.aprovar',
+            $colegio,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
+            $grupoPap,
+        );
+    }
+
+    public function formReprovarCoordenacao(
+        Instituicao $instituicao,
+        string $colegio,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): Response {
+        return $this->renderFormularioCoordenacao(
+            'tenant/pap/decisao-coordenacao/reprovar',
+            'grupopap.reprovar',
+            'tenant.dashboard.colegio.grupo-pap-aprovacao.reprovar',
+            $colegio,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
+            $grupoPap,
+        );
+    }
+
+    private function renderFormularioCoordenacao(
+        string $component,
+        string $permission,
+        string $submitRoute,
+        string $colegio,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+    ): Response {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        abort_if($user->hasRole('Secretario do Curso'), 403);
+        abort_unless($user->can($permission), 403);
+
+        $tenantTutorId = (string) tenancy()->tenant->getTenantKey();
+        $params = compact('colegio', 'cursoTutelado', 'cursoClasse', 'cursoClasseTurno', 'turma', 'grupoPap');
+        $proposta = $this->withExternalGrupo(
+            $colegio,
+            (string) $cursoTutelado->getKey(),
+            (string) $cursoClasse->getKey(),
+            (string) $cursoClasseTurno->getKey(),
+            (string) $turma->getKey(),
+            (string) $grupoPap->getKey(),
+            $user,
+            function (GrupoPap $grupo, string $actorTenantId): array {
+                abort_unless($grupo->podeSerAprovado(), 403);
+
+                return [
+                    'grupoPap' => $grupo->only(
+                        'id',
+                        'nome_grupo',
+                        'tema_grupo',
+                        'problema',
+                        'objectivo_geral',
+                        'objectivos_especificos',
+                    ),
+                    'turma' => $grupo->turma?->only('nome'),
+                ];
+            },
+            $tenantTutorId,
+        );
+
+        return Inertia::render($component, [
+            ...$proposta,
+            'submitUrl' => route($submitRoute, $params),
+            'backUrl' => route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $params),
+        ]);
+    }
+
     /**
      * Aprovar tema PAP
      */

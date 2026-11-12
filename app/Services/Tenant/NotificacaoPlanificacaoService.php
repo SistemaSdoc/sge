@@ -37,7 +37,7 @@ class NotificacaoPlanificacaoService
             $planificacao,
             $versao,
             $primeiraVersao,
-            tenant()?->domains()->first()?->domain
+            tenant()?->domains()->value('domain')
         );
 
         if ($professores->isNotEmpty()) {

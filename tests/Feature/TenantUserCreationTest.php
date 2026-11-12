@@ -52,11 +52,11 @@ test('it creates a professor user profile and sends credentials notification', f
     $this->assertDatabaseHas('users', ['email' => 'maria.professora@teste.local']);
     $this->assertDatabaseHas('professores', ['user_id' => $created->id]);
 
-    Notification::assertSentTo($created, UserCriadoNotification::class, function (UserCriadoNotification $notification, array $channels) {
-        return $notification->passwordPlain === 'secret123'
-            && in_array('mail', $channels, true)
-            && in_array('database', $channels, true);
-    });
+    $notifications = Notification::sent($created, UserCriadoNotification::class);
+
+    expect($notifications)->toHaveCount(1)
+        ->and($notifications->first()->passwordPlain)->toBe('secret123')
+        ->and($notifications->first()->via($created))->toBe(['database', 'mail']);
 });
 
 test('a director cannot remove their own role when updating their user profile', function (): void {

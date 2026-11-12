@@ -1,17 +1,15 @@
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { CheckCircle, XCircle, AlertCircle, Clock } from 'lucide-react';
-import { useState } from 'react';
 import {
-  aprovar,
-  reprovar,
-  solicitarMelhoria,
   formAprovarTutor,
   formSolicitarMelhoriaTutor,
+  formSolicitarMelhoriaCoordenacao,
+  formAprovarCoordenacao,
+  formReprovarCoordenacao,
 } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapAprovacaoController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import ModalDecisaoAprovacao from '@/pages/tenant/pap/components/aprovacao/ModalDecisaoAprovacao';
 
 const STATUS = {
   rascunho: {
@@ -48,59 +46,7 @@ const STATUS = {
 
 const getStatus = (status) => STATUS[status?.toLowerCase()] || STATUS.pendente;
 
-export function TabAprovacao({ params, grupoPap, turma, can }) {
-  const [open, setOpen] = useState(false);
-  const [action, setAction] = useState(null);
-  const [comentario, setComentario] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const abrir = (tipo) => {
-    setAction(tipo);
-    setComentario('');
-    setOpen(true);
-  };
-  const fechar = () => {
-    if (loading) {
-      return;
-    }
-
-    setOpen(false);
-    setAction(null);
-    setComentario('');
-  };
-
-  const confirmar = () => {
-    if (!action) {
-      return;
-    }
-
-    setLoading(true);
-
-    const rota =
-      action === 'aprovar'
-        ? aprovar
-        : action === 'reprovar'
-          ? reprovar
-          : solicitarMelhoria;
-
-    const body =
-      action === 'aprovar'
-        ? { comentario: comentario || null }
-        : action === 'reprovar'
-          ? { motivo: comentario }
-          : { recomendacao: comentario };
-
-    router.post(rota.url(params), body, {
-      preserveScroll: true,
-      onSuccess: () => {
-        setLoading(false);
-        fechar();
-        router.reload();
-      },
-      onError: () => setLoading(false),
-    });
-  };
-
+export function TabAprovacao({ params, grupoPap, can }) {
   const statusAtual = (grupoPap.status_aprovacao || '').toLowerCase();
   const config = getStatus(statusAtual);
   const StatusIcon = config.icon;
@@ -124,12 +70,12 @@ export function TabAprovacao({ params, grupoPap, turma, can }) {
           </p>
           {can?.aprovarComoTutor && (
             <div className="flex flex-wrap justify-end gap-2">
-              <Button asChild variant="outline" disabled={loading}>
+              <Button asChild variant="outline">
                 <Link href={formSolicitarMelhoriaTutor.url(params)}>
                   <AlertCircle className="size-4" /> Solicitar Melhoria
                 </Link>
               </Button>
-              <Button asChild disabled={loading}>
+              <Button asChild>
                 <Link href={formAprovarTutor.url(params)}>
                   <CheckCircle className="size-4" /> Enviar para coordenação
                 </Link>
@@ -159,26 +105,24 @@ export function TabAprovacao({ params, grupoPap, turma, can }) {
         {(can?.aprovar || can?.reprovar || can?.solicitarMelhoria) && (
           <div className="flex flex-wrap justify-end gap-2">
             {can?.solicitarMelhoria && (
-              <Button
-                variant="outline"
-                onClick={() => abrir('melhoria')}
-                disabled={loading}
-              >
-                <AlertCircle className="size-4" /> Solicitar Melhoria
+              <Button asChild variant="outline">
+                <Link href={formSolicitarMelhoriaCoordenacao.url(params)}>
+                  <AlertCircle className="size-4" /> Solicitar Melhoria
+                </Link>
               </Button>
             )}
             {can?.reprovar && (
-              <Button
-                variant="destructive"
-                onClick={() => abrir('reprovar')}
-                disabled={loading}
-              >
-                <XCircle className="size-4" /> Reprovar
+              <Button asChild variant="destructive">
+                <Link href={formReprovarCoordenacao.url(params)}>
+                  <XCircle className="size-4" /> Reprovar
+                </Link>
               </Button>
             )}
             {can?.aprovar && (
-              <Button onClick={() => abrir('aprovar')} disabled={loading}>
-                <CheckCircle className="size-4" /> Aprovar
+              <Button asChild>
+                <Link href={formAprovarCoordenacao.url(params)}>
+                  <CheckCircle className="size-4" /> Aprovar
+                </Link>
               </Button>
             )}
           </div>
@@ -206,13 +150,7 @@ export function TabAprovacao({ params, grupoPap, turma, can }) {
         <CardContent className="space-y-6 pt-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Grupo
-              </p>
-              <p className="mt-1 text-sm font-medium">{grupoPap.nome_grupo}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
+              <p className="text-xs font-bold text-muted-foreground uppercase">
                 Tema
               </p>
               <p className="mt-1 text-sm font-medium">
@@ -220,13 +158,7 @@ export function TabAprovacao({ params, grupoPap, turma, can }) {
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Turma
-              </p>
-              <p className="mt-1 text-sm font-medium">{turma?.nome ?? '—'}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
+              <p className="text-xs font-bold text-muted-foreground uppercase">
                 Problema
               </p>
               <p className="mt-1 text-sm font-medium">
@@ -234,15 +166,7 @@ export function TabAprovacao({ params, grupoPap, turma, can }) {
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Professor Tutor
-              </p>
-              <p className="mt-1 text-sm font-medium">
-                {grupoPap.professor?.nome ?? '—'}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
+              <p className="text-xs font-bold text-muted-foreground uppercase">
                 Objectivo Geral
               </p>
               <p className="mt-1 text-sm font-medium">
@@ -250,7 +174,7 @@ export function TabAprovacao({ params, grupoPap, turma, can }) {
               </p>
             </div>
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
+              <p className="text-xs font-bold text-muted-foreground uppercase">
                 Objectivos Específicos
               </p>
               <p className="mt-1 text-sm font-medium">
@@ -264,17 +188,6 @@ export function TabAprovacao({ params, grupoPap, turma, can }) {
           {renderAreaDecisao()}
         </CardContent>
       </Card>
-
-      <ModalDecisaoAprovacao
-        open={open}
-        onClose={fechar}
-        tema={grupoPap}
-        action={action}
-        comentario={comentario}
-        onComentarioChange={setComentario}
-        onConfirmar={confirmar}
-        loading={loading}
-      />
     </div>
   );
 }

@@ -47,7 +47,6 @@ export function NotificacoesDrawer({
       {
         preserveScroll: true,
         preserveState: true,
-      
       },
     );
   }, [naoLidas]);

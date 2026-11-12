@@ -25,15 +25,7 @@ class CreateUser
             $user->syncRoles($roles);
             $this->userProfileService->syncRoleProfiles($user, $roles);
 
-            $user->notify(new UserCriadoNotification(
-                $user,
-                (string) $passwordPlain,
-                route('tenant.login'),
-            ));
-
-            if (! blank($passwordPlain)) {
-                $user->notify(new UserCriadoNotification($user, (string) $passwordPlain));
-            }
+            $user->notify(new UserCriadoNotification($user, (string) $passwordPlain));
 
             return $user->load('roles:id,name');
         });

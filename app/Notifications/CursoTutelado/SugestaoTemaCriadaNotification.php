@@ -4,6 +4,7 @@ namespace App\Notifications\CursoTutelado;
 
 use App\Models\Tenant\SugestaoTemaPap;
 use App\Models\Tenant\User;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -11,6 +12,7 @@ use Illuminate\Notifications\Notification;
 class SugestaoTemaCriadaNotification extends Notification
 {
     use Queueable;
+    use TenantNotificationUrl;
 
     public function __construct(
         public SugestaoTemaPap $sugestao,
@@ -27,7 +29,7 @@ class SugestaoTemaCriadaNotification extends Notification
         $cursoTutelado = $this->sugestao->cursoTutelado;
         $instituicao = $cursoTutelado->instituicaoCurso->instituicao;
 
-        $url = route('tenant.dashboard.instituicoes.cursos-tutelados.show', [
+        $url = $this->tenantNotificationUrl('tenant.dashboard.instituicoes.cursos-tutelados.show', [
             'instituicao' => $instituicao->id,
             'cursoTutelado' => $cursoTutelado->id,
         ]);

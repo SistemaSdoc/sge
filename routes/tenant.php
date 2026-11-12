@@ -709,6 +709,15 @@ Route::middleware([
             Route::post('grupo-pap-aprovacao/{grupoPap}/solicitar-melhoria', [GrupoPapAprovacaoController::class, 'solicitarMelhoria'])
                 ->name('grupo-pap-aprovacao.solicitar-melhoria');
 
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/solicitar-melhoria-coordenacao', [GrupoPapAprovacaoController::class, 'formSolicitarMelhoriaCoordenacao'])
+                ->name('grupo-pap-aprovacao.solicitar-melhoria-coordenacao.form');
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/aprovar-coordenacao', [GrupoPapAprovacaoController::class, 'formAprovarCoordenacao'])
+                ->name('grupo-pap-aprovacao.aprovar-coordenacao.form');
+
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/reprovar-coordenacao', [GrupoPapAprovacaoController::class, 'formReprovarCoordenacao'])
+                ->name('grupo-pap-aprovacao.reprovar-coordenacao.form');
+
             Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/aprovar-tutor', [GrupoPapAprovacaoController::class, 'formAprovarTutor'])
                 ->name('grupo-pap-aprovacao.aprovar-tutor.form');
 

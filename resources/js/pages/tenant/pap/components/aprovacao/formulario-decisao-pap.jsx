@@ -1,9 +1,9 @@
-import { Link, useForm } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import {
-  ArrowLeft,
   ArrowUpLeft,
   CheckCircle,
   MessageSquareText,
+  XCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -33,7 +33,11 @@ const CONFIG = {
     campo: 'comentario',
     campoLabel: 'Comentário',
     placeholder: 'Adicione um comentário opcional para a coordenação...',
+    campoDescricao:
+      'O comentário é opcional e ficará registado no histórico da aprovação.',
     confirmacao: 'Enviar para coordenação',
+    minimumLength: 0,
+    required: false,
     icon: CheckCircle,
   },
   melhoria: {
@@ -43,8 +47,53 @@ const CONFIG = {
     campo: 'recomendacao',
     campoLabel: 'Recomendações de melhoria',
     placeholder: 'Descreva as recomendações de melhoria...',
+    campoDescricao:
+      'A recomendação será partilhada com o grupo e ficará registada no histórico.',
     confirmacao: 'Solicitar melhoria',
+    minimumLength: 10,
+    required: true,
     icon: MessageSquareText,
+  },
+  melhoriaCoordenacao: {
+    titulo: 'Solicitar melhoria do tema',
+    descricao:
+      'Descreva com detalhe as alterações que o grupo deverá realizar antes de reenviar o tema.',
+    campo: 'recomendacao',
+    campoLabel: 'Recomendações de melhoria',
+    placeholder: 'Descreva as recomendações de melhoria...',
+    campoDescricao:
+      'A recomendação será partilhada com o grupo e ficará registada no histórico.',
+    confirmacao: 'Solicitar melhoria',
+    minimumLength: 10,
+    required: true,
+    icon: MessageSquareText,
+  },
+  aprovarCoordenacao: {
+    titulo: 'Aprovar tema PAP',
+    descricao:
+      'O tema será aprovado e o grupo poderá avançar para a próxima fase da PAP.',
+    campo: 'comentario',
+    campoLabel: 'Comentário',
+    placeholder: 'Comentário opcional...',
+    campoDescricao:
+      'O comentário é opcional e ficará registado no histórico da aprovação.',
+    confirmacao: 'Aprovar tema',
+    minimumLength: 0,
+    required: false,
+    icon: CheckCircle,
+  },
+  reprovarCoordenacao: {
+    titulo: 'Reprovar tema PAP',
+    descricao: 'Informe o motivo pelo qual o tema não foi aprovado.',
+    campo: 'motivo',
+    campoLabel: 'Motivo da reprovação',
+    placeholder: 'Informe o motivo da reprovação...',
+    campoDescricao:
+      'O motivo será partilhado com o grupo e ficará registado no histórico.',
+    confirmacao: 'Reprovar tema',
+    minimumLength: 10,
+    required: true,
+    icon: XCircle,
   },
 };
 
@@ -59,11 +108,12 @@ function CampoTema({ label, value }) {
   );
 }
 
-export default function FormularioDecisaoTutor({
+export default function FormularioDecisaoPap({
   grupoPap,
   turma,
   submitUrl,
   backUrl,
+  successUrl,
   tipo,
 }) {
   const config = CONFIG[tipo];
@@ -75,7 +125,13 @@ export default function FormularioDecisaoTutor({
 
   const submeter = (event) => {
     event.preventDefault();
-    post(submitUrl);
+    post(submitUrl, {
+      onSuccess: () => {
+        if (successUrl) {
+          router.visit(successUrl);
+        }
+      },
+    });
   };
 
   return (
@@ -146,18 +202,14 @@ export default function FormularioDecisaoTutor({
       <Card>
         <CardHeader className="border-b">
           <CardTitle>{config.campoLabel}</CardTitle>
-          <CardDescription>
-            {tipo === 'melhoria'
-              ? 'A recomendação será partilhada com o grupo e ficará registada no histórico.'
-              : 'O comentário é opcional e ficará registado no histórico da aprovação.'}
-          </CardDescription>
+          <CardDescription>{config.campoDescricao}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={submeter} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor={config.campo}>
                 {config.campoLabel}
-                {tipo === 'melhoria' ? ' *' : ' (opcional)'}
+                {config.required ? ' *' : ' (opcional)'}
               </Label>
               <Textarea
                 id={config.campo}
@@ -168,7 +220,7 @@ export default function FormularioDecisaoTutor({
                 onChange={(event) => setData(config.campo, event.target.value)}
                 placeholder={config.placeholder}
                 disabled={processing}
-                required={tipo === 'melhoria'}
+                required={config.required}
                 aria-invalid={Boolean(errors[config.campo])}
               />
               <div className="flex flex-wrap justify-between gap-2 text-sm">
@@ -189,7 +241,8 @@ export default function FormularioDecisaoTutor({
                 type="submit"
                 disabled={
                   processing ||
-                  (tipo === 'melhoria' && comentario.trim().length < 10)
+                  (config.required &&
+                    comentario.trim().length < config.minimumLength)
                 }
               >
                 {processing ? 'A processar...' : config.confirmacao}

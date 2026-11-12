@@ -267,12 +267,12 @@ export default function Show({ notificacao }) {
               <div className="space-y-5 p-4 sm:p-6">
                 <div className="space-y-2">
                   {notificacao.titulo && (
-                    <h3 className="text-base font-semibold leading-snug">
+                    <h3 className="text-base leading-snug font-semibold">
                       {notificacao.titulo}
                     </h3>
                   )}
                   {notificacao.mensagem && (
-                    <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                    <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
                       {notificacao.mensagem}
                     </p>
                   )}
@@ -286,7 +286,7 @@ export default function Show({ notificacao }) {
 
                       return (
                         <div key={key} className="px-4 py-3">
-                          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                          <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
                             {labelDe(key)}
                           </p>
                           <p className="mt-1 text-sm">{conteudo}</p>

@@ -120,7 +120,7 @@ export function ProfessorTable({
                   <SelectItem value="todas">Todos</SelectItem>
                   <SelectItem value="tutor_pap">Tutores da PAP</SelectItem>
                   <SelectItem value="grupo_disciplinar">
-                   Membros do Grupo disciplinar
+                    Membros do Grupo disciplinar
                   </SelectItem>
                   <SelectItem value="coordenador">
                     Coordenadores dos cursos

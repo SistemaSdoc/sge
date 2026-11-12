@@ -10,9 +10,12 @@ use App\Notifications\Aluno\AlunoCriadoNotification;
 use App\Notifications\Aluno\AlunoTransferidoTurmaNotification;
 use App\Notifications\Aluno\PagamentoRegistadoNotification;
 use App\Notifications\Aluno\PropinaEmAtrasoNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 
 trait NotificaAluno
 {
+    use TenantNotificationUrl;
+
     /**
      * Notifica o aluno com as credenciais da conta recém-criada.
      */
@@ -20,15 +23,10 @@ trait NotificaAluno
         User $user,
         string $passwordPlain
     ): void {
-        $domain = tenant()?->domains?->first()?->domain;
-        $loginUrl = $domain
-            ? tenant_route($domain, 'tenant.login')
-            : route('tenant.login');
-
         $user->notify(new AlunoCriadoNotification(
             $user,
             $passwordPlain,
-            $loginUrl,
+            $this->tenantNotificationUrl('tenant.login'),
         ));
     }
 

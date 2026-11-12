@@ -32,6 +32,7 @@ use App\Policies\Tenant\PrazoProvaPolicy;
 use App\Policies\Tenant\RolePolicy;
 use App\Policies\Tenant\SubmissaoProvaPolicy;
 use App\Policies\Tenant\UserPolicy;
+use App\Services\Tenant\TenantUrlGenerator;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\ChannelManager;
@@ -117,10 +118,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         ResetPassword::createUrlUsing(function ($user, string $token) {
-            $domain = tenant()?->domains()->first()?->domain;
-
-            return 'http://'.$domain.'/reset-password/'.$token
-                .'?email='.urlencode($user->getEmailForPasswordReset());
+            return app(TenantUrlGenerator::class)->route('password.reset', [
+                'token' => $token,
+                'email' => $user->getEmailForPasswordReset(),
+            ]);
         });
 
         Gate::define('confirmacoes.matricula.viewAny', [ConfirmacaoMatriculaPolicy::class, 'viewAny']);

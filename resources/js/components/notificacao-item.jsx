@@ -10,11 +10,7 @@ import { cn } from '@/lib/utils';
  *   B) { data: { titulo, intro, linhas, ... } }  ← Laravel directo
  *   C) { data: { mensagem: "..." } }             ← formato antigo
  */
-export function NotificacaoItem({
-  notificacao,
-  onClick,
-  variant = 'full',
-}) {
+export function NotificacaoItem({ notificacao, onClick, variant = 'full' }) {
   // ─── Normalizar de onde vêm os campos ───
   const raw = notificacao.data ?? notificacao.dados ?? {};
 
@@ -49,7 +45,12 @@ export function NotificacaoItem({
 
     if (variant === 'compact') {
       return (
-        <ItemWrap notificacao={notificacao} lida={lida} url={url} onClick={onClick}>
+        <ItemWrap
+          notificacao={notificacao}
+          lida={lida}
+          url={url}
+          onClick={onClick}
+        >
           <div className="flex min-w-0 items-start gap-2">
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{titulo}</p>
@@ -60,19 +61,23 @@ export function NotificacaoItem({
             <span className="shrink-0 text-[10px] text-muted-foreground">
               {notificacao.criada_em}
             </span>
-            {!lida && (
-              <span className="mt-1 size-2 shrink-0 bg-destructive" />
-            )}
+            {!lida && <span className="mt-1 size-2 shrink-0 bg-destructive" />}
           </div>
         </ItemWrap>
       );
     }
 
     return (
-      <ItemWrap notificacao={notificacao} lida={lida} url={url} onClick={onClick} block>
+      <ItemWrap
+        notificacao={notificacao}
+        lida={lida}
+        url={url}
+        onClick={onClick}
+        block
+      >
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-base font-semibold leading-snug">{titulo}</h3>
+            <h3 className="text-base leading-snug font-semibold">{titulo}</h3>
             <Badge variant="outline" className="text-[10px]">
               {badgeLabel(tipo)}
             </Badge>
@@ -100,11 +105,11 @@ export function NotificacaoItem({
           )}
 
           {diretrizes && (
-            <div className=" border bg-muted/40 p-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="border bg-muted/40 p-3">
+              <p className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
                 Diretrizes da Direção
               </p>
-              <p className="mt-1 whitespace-pre-line text-sm leading-relaxed">
+              <p className="mt-1 text-sm leading-relaxed whitespace-pre-line">
                 {diretrizes}
               </p>
             </div>
@@ -113,7 +118,7 @@ export function NotificacaoItem({
           {fecho && <p className="text-sm leading-relaxed">{fecho}</p>}
 
           {assinatura && (
-            <p className="whitespace-pre-line border-t pt-3 text-xs text-muted-foreground">
+            <p className="border-t pt-3 text-xs whitespace-pre-line text-muted-foreground">
               {assinatura}
             </p>
           )}
@@ -132,10 +137,17 @@ export function NotificacaoItem({
 
     if (variant === 'compact') {
       return (
-        <ItemWrap notificacao={notificacao} lida={lida} url={url} onClick={onClick}>
+        <ItemWrap
+          notificacao={notificacao}
+          lida={lida}
+          url={url}
+          onClick={onClick}
+        >
           <div className="flex min-w-0 items-start gap-2">
             <div className="min-w-0 flex-1">
-              {titulo && <p className="truncate text-sm font-medium">{titulo}</p>}
+              {titulo && (
+                <p className="truncate text-sm font-medium">{titulo}</p>
+              )}
               {mensagem && (
                 <p className="mt-0.5 line-clamp-2 text-xs whitespace-pre-line text-muted-foreground">
                   {mensagem}
@@ -145,20 +157,24 @@ export function NotificacaoItem({
             <span className="shrink-0 text-[10px] text-muted-foreground">
               {notificacao.criada_em}
             </span>
-            {!lida && (
-              <span className="mt-1 size-2 shrink-0 bg-destructive" />
-            )}
+            {!lida && <span className="mt-1 size-2 shrink-0 bg-destructive" />}
           </div>
         </ItemWrap>
       );
     }
 
     return (
-      <ItemWrap notificacao={notificacao} lida={lida} url={url} onClick={onClick} block>
+      <ItemWrap
+        notificacao={notificacao}
+        lida={lida}
+        url={url}
+        onClick={onClick}
+        block
+      >
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             {titulo && (
-              <h3 className="text-base font-semibold leading-snug">{titulo}</h3>
+              <h3 className="text-base leading-snug font-semibold">{titulo}</h3>
             )}
             {!lida && (
               <Badge variant="secondary" className="text-[10px]">
@@ -167,7 +183,7 @@ export function NotificacaoItem({
             )}
           </div>
           {mensagem && (
-            <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+            <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
               {mensagem}
             </p>
           )}

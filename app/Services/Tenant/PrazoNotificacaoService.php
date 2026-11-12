@@ -239,7 +239,7 @@ class PrazoNotificacaoService
         // Prazo geral (sem disciplina)
         if (is_null($prazo->disciplina_id)) {
             $query = Professor::with('user')
-                ->whereHas('user', fn($q) => $q->where('instituicao_id', $prazo->instituicao_id));
+                ->whereHas('user', fn ($q) => $q->where('instituicao_id', $prazo->instituicao_id));
 
             if ($prazo->classe_id) {
                 $query->whereExists(function ($q) use ($prazo): void {
@@ -266,9 +266,9 @@ class PrazoNotificacaoService
                     ->join('curso_classe', 'curso_classe_turno.curso_classe_id', '=', 'curso_classe.id')
                     ->whereColumn('turma_disciplina_professor.professor_id', 'professores.id')
                     ->where('classe_turno_disciplina.disciplina_id', $prazo->disciplina_id)
-                    ->when($prazo->classe_id, fn($q) => $q->where('curso_classe.classe_id', $prazo->classe_id));
+                    ->when($prazo->classe_id, fn ($q) => $q->where('curso_classe.classe_id', $prazo->classe_id));
             })
-            ->whereHas('user', fn($q) => $q->where('instituicao_id', $prazo->instituicao_id))
+            ->whereHas('user', fn ($q) => $q->where('instituicao_id', $prazo->instituicao_id))
             ->get();
     }
 
@@ -333,17 +333,17 @@ class PrazoNotificacaoService
         $submissoes = SubmissaoProva::where('prazo_prova_id', $prazo->id)
             ->where('estado', '!=', 'substituido')
             ->get()
-            ->groupBy(fn($s) => $s->professor_id . '|' . $s->turma_id)
-            ->map(fn($g) => $g->sortByDesc('versao')->first());
+            ->groupBy(fn ($s) => $s->professor_id.'|'.$s->turma_id)
+            ->map(fn ($g) => $g->sortByDesc('versao')->first());
 
         // Justificativas: por (professor + turma)
         $justificativas = JustificativaNaoSubmissao::where('prazo_prova_id', $prazo->id)
             ->get()
-            ->groupBy(fn($j) => $j->professor_id . '|' . $j->turma_id)
-            ->map(fn($g) => $g->first());
+            ->groupBy(fn ($j) => $j->professor_id.'|'.$j->turma_id)
+            ->map(fn ($g) => $g->first());
 
         return $atribuicoes->map(function ($atr) use ($submissoes, $justificativas) {
-            $key = $atr->professor_id . '|' . $atr->turma_id;
+            $key = $atr->professor_id.'|'.$atr->turma_id;
 
             return [
                 'professor_nome' => $atr->professor_nome,
@@ -380,20 +380,20 @@ class PrazoNotificacaoService
 
                 if (! isset($porProfessor[$userId])) {
                     $porProfessor[$userId] = [
-                        'user'      => $info['professor']->user,
+                        'user' => $info['professor']->user,
                         'professor' => $info['professor'],
-                        'prazos'    => [],
+                        'prazos' => [],
                     ];
                 }
 
                 $porProfessor[$userId]['prazos'][] = [
-                    'prazo_id'    => $prazo->id,
+                    'prazo_id' => $prazo->id,
                     'titulo' => $prazo->titulo_apresentacao,
-                    'disciplina'  => $info['disciplina'],
-                    'turmas'      => $info['turmas'],
+                    'disciplina' => $info['disciplina'],
+                    'turmas' => $info['turmas'],
                     'data_limite' => $prazo->data_limite?->format('d/m/Y H:i'),
-                    'periodo'     => $prazo->periodo,
-                    'descricao'   => $prazo->observacoes, // diretrizes do diretor
+                    'periodo' => $prazo->periodo,
+                    'descricao' => $prazo->observacoes, // diretrizes do diretor
                 ];
             }
         }
@@ -415,16 +415,16 @@ class PrazoNotificacaoService
             } catch (\Throwable $e) {
                 Log::error('Erro ao notificar professor (consolidado)', [
                     'user_id' => $userId,
-                    'tipo'    => $tipo,
-                    'error'   => $e->getMessage(),
+                    'tipo' => $tipo,
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         Log::info('Notificações consolidadas enviadas', [
-            'tipo'                    => $tipo,
+            'tipo' => $tipo,
             'professores_notificados' => $enviadas,
-            'prazos_agrupados'        => count($prazos),
+            'prazos_agrupados' => count($prazos),
         ]);
 
         return $enviadas;
@@ -453,8 +453,8 @@ class PrazoNotificacaoService
                 ->join('turmas as t', 't.curso_classe_turno_id', '=', 'cct.id')
                 ->join('curso_classe as cc', 'cct.curso_classe_id', '=', 'cc.id')
                 ->where('tdp.professor_id', $professor->id)
-                ->when($prazo->disciplina_id, fn($q) => $q->where('ctd.disciplina_id', $prazo->disciplina_id))
-                ->when($prazo->classe_id,    fn($q) => $q->where('cc.classe_id', $prazo->classe_id))
+                ->when($prazo->disciplina_id, fn ($q) => $q->where('ctd.disciplina_id', $prazo->disciplina_id))
+                ->when($prazo->classe_id, fn ($q) => $q->where('cc.classe_id', $prazo->classe_id))
                 ->pluck('t.nome')
                 ->unique()
                 ->values()
@@ -465,9 +465,9 @@ class PrazoNotificacaoService
             }
 
             $resultado[] = [
-                'professor'  => $professor,
+                'professor' => $professor,
                 'disciplina' => $prazo->disciplina?->nome ?? 'Todas as disciplinas',
-                'turmas'     => $turmas,
+                'turmas' => $turmas,
             ];
         }
 

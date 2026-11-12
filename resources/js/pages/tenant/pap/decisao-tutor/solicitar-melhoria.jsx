@@ -1,5 +1,5 @@
-import FormularioDecisaoTutor from './components/formulario';
+import FormularioDecisaoPap from '../components/aprovacao/formulario-decisao-pap';
 
 export default function SolicitarMelhoria(props) {
-  return <FormularioDecisaoTutor {...props} tipo="melhoria" />;
+  return <FormularioDecisaoPap {...props} tipo="melhoria" />;
 }

@@ -1,17 +1,15 @@
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { CheckCircle, XCircle, AlertCircle, Clock } from 'lucide-react';
-import { useState } from 'react';
 import {
-  aprovar,
-  reprovar,
-  solicitarMelhoria,
   formAprovarTutor,
   formSolicitarMelhoriaTutor,
+  formSolicitarMelhoriaCoordenacao,
+  formAprovarCoordenacao,
+  formReprovarCoordenacao,
 } from '@/actions/App/Http/Controllers/Tenant/GrupoPapAprovacaoController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import ModalDecisaoAprovacao from '@/pages/tenant/pap/components/aprovacao/ModalDecisaoAprovacao';
 
 const STATUS = {
   rascunho: {
@@ -54,60 +52,6 @@ const STATUS = {
 const getStatus = (status) => STATUS[status?.toLowerCase()] || STATUS.pendente;
 
 export function TabAprovacao({ grupoPap, params, can }) {
-  const [open, setOpen] = useState(false);
-  const [action, setAction] = useState(null);
-  const [comentario, setComentario] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const abrir = (tipo) => {
-    setAction(tipo);
-    setComentario('');
-    setOpen(true);
-  };
-
-  const fechar = () => {
-    if (loading) {
-      return;
-    }
-
-    setOpen(false);
-    setAction(null);
-    setComentario('');
-  };
-
-  const confirmar = () => {
-    if (!action) {
-      return;
-    }
-
-    setLoading(true);
-
-    const rota =
-      action === 'aprovar'
-        ? aprovar
-        : action === 'reprovar'
-          ? reprovar
-          : solicitarMelhoria;
-
-    router.post(
-      rota.url({ grupoPap: grupoPap.id }),
-      action === 'aprovar'
-        ? { comentario: comentario || null }
-        : action === 'reprovar'
-          ? { motivo: comentario }
-          : { recomendacao: comentario },
-      {
-        preserveScroll: true,
-        onSuccess: () => {
-          setLoading(false);
-          fechar();
-          router.reload();
-        },
-        onError: () => setLoading(false),
-      },
-    );
-  };
-
   const statusAtual = (grupoPap.status_aprovacao || '').toLowerCase();
   const config = getStatus(statusAtual);
   const StatusIcon = config.icon;
@@ -131,13 +75,13 @@ export function TabAprovacao({ grupoPap, params, can }) {
 
           {can?.aprovarComoTutor && (
             <div className="flex flex-wrap justify-end gap-2">
-              <Button asChild variant="outline" disabled={loading}>
+              <Button asChild variant="outline">
                 <Link href={formSolicitarMelhoriaTutor.url(params)}>
                   Solicitar Melhoria
                 </Link>
               </Button>
 
-              <Button asChild disabled={loading}>
+              <Button asChild>
                 <Link href={formAprovarTutor.url(params)}>
                   Enviar para coordenação
                 </Link>
@@ -169,29 +113,27 @@ export function TabAprovacao({ grupoPap, params, can }) {
         {(can?.aprovar || can?.reprovar || can?.solicitarMelhoria) && (
           <div className="flex flex-wrap justify-end gap-2">
             {can?.solicitarMelhoria && (
-              <Button
-                variant="outline"
-                onClick={() => abrir('melhoria')}
-                disabled={loading}
-              >
-                <AlertCircle className="size-4" />
-                Solicitar Melhoria
+              <Button asChild variant="outline">
+                <Link href={formSolicitarMelhoriaCoordenacao.url(params)}>
+                  <AlertCircle className="size-4" />
+                  Solicitar Melhoria
+                </Link>
               </Button>
             )}
             {can?.reprovar && (
-              <Button
-                variant="destructive"
-                onClick={() => abrir('reprovar')}
-                disabled={loading}
-              >
-                <XCircle className="size-4" />
-                Reprovar
+              <Button asChild variant="destructive">
+                <Link href={formReprovarCoordenacao.url(params)}>
+                  <XCircle className="size-4" />
+                  Reprovar
+                </Link>
               </Button>
             )}
             {can?.aprovar && (
-              <Button onClick={() => abrir('aprovar')} disabled={loading}>
-                <CheckCircle className="size-4" />
-                Aprovar
+              <Button asChild>
+                <Link href={formAprovarCoordenacao.url(params)}>
+                  <CheckCircle className="size-4" />
+                  Aprovar
+                </Link>
               </Button>
             )}
           </div>
@@ -236,16 +178,7 @@ export function TabAprovacao({ grupoPap, params, can }) {
             </div>
 
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
-                Professor Tutor
-              </p>
-              <p className="mt-1 text-sm font-medium">
-                {grupoPap.professor?.nome ?? '—'}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
+              <p className="text-xs font-bold text-muted-foreground uppercase">
                 Objectivo Geral
               </p>
 
@@ -255,7 +188,7 @@ export function TabAprovacao({ grupoPap, params, can }) {
             </div>
 
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase">
+              <p className="text-xs font-bold text-muted-foreground uppercase">
                 Objectivos Específicos
               </p>
 
@@ -268,17 +201,6 @@ export function TabAprovacao({ grupoPap, params, can }) {
           {renderAreaDecisao()}
         </CardContent>
       </Card>
-
-      <ModalDecisaoAprovacao
-        open={open}
-        onClose={fechar}
-        tema={grupoPap}
-        action={action}
-        comentario={comentario}
-        onComentarioChange={setComentario}
-        onConfirmar={confirmar}
-        loading={loading}
-      />
     </div>
   );
 }

@@ -16,7 +16,7 @@ export function PrazosAlertaProfessor({ prazos = [] }) {
       <div className="border-b px-4 py-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="text-base font-semibold leading-none">
+            <h3 className="text-base leading-none font-semibold">
               Prazos de submissão
             </h3>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -113,7 +113,7 @@ function PrazoItem({ prazo }) {
         </div>
 
         <div className="shrink-0 text-right">
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+          <p className="text-[11px] tracking-wide text-muted-foreground uppercase">
             Turmas
           </p>
           <p className="font-mono text-sm tabular-nums">
@@ -156,9 +156,7 @@ function PrazoItem({ prazo }) {
                   size="sm"
                   className="h-7 text-xs hover:cursor-pointer"
                 >
-                  <Link href={`${url}?turma_id=${t.turma_id}`}>
-                    Submeter
-                  </Link>
+                  <Link href={`${url}?turma_id=${t.turma_id}`}>Submeter</Link>
                 </Button>
               )}
             </div>

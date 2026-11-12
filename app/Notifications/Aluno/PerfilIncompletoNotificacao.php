@@ -3,6 +3,7 @@
 namespace App\Notifications\Aluno;
 
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -13,17 +14,11 @@ class PerfilIncompletoNotificacao extends Notification implements ShouldQueue, S
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function via(object $notifiable): array
     {
         return ['mail'];
-    }
-
-    public ?string $domain = null;
-
-    public function __construct()
-    {
-        $this->domain = tenant()?->domains()->first()?->domain;
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -32,7 +27,7 @@ class PerfilIncompletoNotificacao extends Notification implements ShouldQueue, S
             ->subject('Ação necessária: complete o seu perfil')
             ->view('mail.aluno.perfil-incompleto', [
                 'nome' => $notifiable->nome,
-                'url' => 'http://'.$this->domain.'/dashboard/settings/profile',
+                'url' => $this->tenantNotificationUrl('tenant.dashboard.profile.edit'),
                 'instituicao' => $notifiable->instituicao,
             ]);
     }

@@ -4,6 +4,7 @@ namespace App\Notifications\User;
 
 use App\Models\Tenant\User;
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -15,11 +16,11 @@ class UserCriadoNotification extends Notification implements ShouldQueue, Should
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
     public function __construct(
         public User $user,
         public string $passwordPlain,
-        public ?string $loginUrl = null,
     ) {}
 
     public function via(object $notifiable): array
@@ -35,7 +36,7 @@ class UserCriadoNotification extends Notification implements ShouldQueue, Should
                 'nome' => $this->user->nome,
                 'email' => $this->user->email,
                 'password' => $this->passwordPlain,
-                'url' => $this->loginUrl ?? route('tenant.login'),
+                'url' => $this->tenantNotificationUrl('tenant.login'),
                 'instituicao' => $this->user->instituicao,
                 'artigoInstituicao' => match ($this->user->instituicao?->tipo ?? 'instituto') {
                     'instituto' => 'ao',

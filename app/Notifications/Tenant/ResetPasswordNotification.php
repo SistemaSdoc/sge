@@ -3,6 +3,7 @@
 namespace App\Notifications\Tenant;
 
 use App\Notifications\Concerns\ReliableNotification;
+use App\Notifications\Concerns\TenantNotificationUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
@@ -13,16 +14,9 @@ class ResetPasswordNotification extends Notification implements ShouldQueue, Sho
 {
     use Queueable;
     use ReliableNotification;
+    use TenantNotificationUrl;
 
-    /**
-     * Get the mail representation of the notification.
-     */
-    public ?string $domain = null;
-
-    public function __construct(public string $token)
-    {
-        $this->domain = tenant()?->domains()->first()?->domain;
-    }
+    public function __construct(public string $token) {}
 
     public function via(object $notifiable): array
     {
@@ -31,16 +25,14 @@ class ResetPasswordNotification extends Notification implements ShouldQueue, Sho
 
     public function toMail(object $notifiable): MailMessage
     {
-        $path = route('password.reset', [
-            'token' => $this->token,
-            'email' => $notifiable->getEmailForPasswordReset(),
-        ], false);
-
         return (new MailMessage)
             ->subject('Redefinição da sua password')
             ->view('mail.tenant.reset-password', [
                 'nome' => $notifiable->nome,
-                'url' => 'http://'.$this->domain.$path,
+                'url' => $this->tenantNotificationUrl('password.reset', [
+                    'token' => $this->token,
+                    'email' => $notifiable->getEmailForPasswordReset(),
+                ]),
             ]);
     }
 

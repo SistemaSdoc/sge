@@ -2,6 +2,8 @@
 
 namespace App\Notifications\Concerns;
 
+use App\Services\Tenant\TenantUrlGenerator;
+
 trait TenantNotificationUrl
 {
     /**
@@ -12,10 +14,6 @@ trait TenantNotificationUrl
         array $parameters = [],
         ?string $domain = null
     ): string {
-        $domain ??= tenant()?->domains()->first()?->domain;
-
-        return $domain
-            ? tenant_route($domain, $routeName, $parameters)
-            : route($routeName, $parameters);
+        return app(TenantUrlGenerator::class)->route($routeName, $parameters, $domain);
     }
 }

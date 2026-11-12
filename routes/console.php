@@ -1,17 +1,14 @@
 <?php
 
 use App\Console\Commands\FinalizarPautasVencidas;
+use App\Services\Tenant\PrazoNotificacaoService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
-use App\Services\Tenant\PrazoNotificacaoService;
-
-
 
 Schedule::call(fn () => app(PrazoNotificacaoService::class)->notificarAExpirar())
     ->dailyAt('08:00')
     ->name('notificar-prazos-a-expirar');
-
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -33,4 +30,3 @@ Schedule::command(FinalizarPautasVencidas::class)
     ->appendOutputTo(storage_path('logs/pautas-finalizadas.log'));
 
 Schedule::command('prazos:verificar')->everyFiveMinutes();
-
