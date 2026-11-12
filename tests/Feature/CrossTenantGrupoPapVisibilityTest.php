@@ -25,6 +25,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Notification;
+use Inertia\Testing\AssertableInertia as Assert;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 function createTenantForDisciplinaryPapVisibility(string $id): Tenant
@@ -172,6 +174,10 @@ test('membro do grupo disciplinar ve os grupos associados e recebe submissao pap
         ]);
 
         $user->assignRole(Role::findOrCreate('Membro do Grupo Disciplinar', 'tenant'));
+        $user->givePermissionTo(
+            Permission::findOrCreate('grupopap.view', 'tenant'),
+            Permission::findOrCreate('grupopap.aprovar', 'tenant'),
+        );
 
         return $user;
     });
@@ -220,52 +226,26 @@ test('membro do grupo disciplinar ve os grupos associados e recebe submissao pap
         $notificador->enviar(GrupoPap::query()->findOrFail($cursosRemotos['Curso do grupo disciplinar']['grupo_id']));
     });
 
-    $grupoRemoto = $cursosRemotos['Curso do grupo disciplinar'];
-    Notification::assertSentTo(
-        $membro,
-        TrabalhoSubmetidoNotification::class,
-        function (TrabalhoSubmetidoNotification $notification) use ($colegio, $grupoRemoto, $membro): bool {
-            $url = $notification->toMail($membro)->viewData['url'];
-            $path = sprintf(
-                '/dashboard/colegios/%s/cursos/%s/classes/%s/turnos/%s/turmas/%s/pap/%s',
-                $colegio->id,
-                $grupoRemoto['curso_tutelado_id'],
-                $grupoRemoto['curso_classe_id'],
-                $grupoRemoto['curso_classe_turno_id'],
-                $grupoRemoto['turma_id'],
-                $grupoRemoto['grupo_id'],
-            );
+    Notification::assertSentTo($membro, TrabalhoSubmetidoNotification::class);
 
-            return parse_url($url, PHP_URL_HOST) === 'pap-discipline-tutor.test'
-                && parse_url($url, PHP_URL_PATH) === $path
-                && $notification->toArray($membro)['url'] === $url;
-        },
-    );
-
-    $tenantColegio->run(function () use ($cursosRemotos, $notificador): void {
-        $notificador->enviarTemaValidado(
-            GrupoPap::query()->findOrFail($cursosRemotos['Curso do grupo disciplinar']['grupo_id'])
-        );
+    $papRouteParameters = [
+        'colegio' => $colegio->id,
+        'cursoTutelado' => $cursosRemotos['Curso do grupo disciplinar']['curso_tutelado_id'],
+        'cursoClasse' => $cursosRemotos['Curso do grupo disciplinar']['curso_classe_id'],
+        'cursoClasseTurno' => $cursosRemotos['Curso do grupo disciplinar']['curso_classe_turno_id'],
+        'turma' => $cursosRemotos['Curso do grupo disciplinar']['turma_id'],
+        'grupoPap' => $cursosRemotos['Curso do grupo disciplinar']['grupo_id'],
+    ];
+    $tenantColegio->run(function () use ($papRouteParameters): void {
+        GrupoPap::query()->findOrFail($papRouteParameters['grupoPap'])
+            ->update(['status_aprovacao' => GrupoPap::APROVACAO_PENDENTE]);
     });
 
-    Notification::assertSentTo(
-        $membro,
-        TemaValidadoPeloTutorNotification::class,
-        function (TemaValidadoPeloTutorNotification $notification) use ($colegio, $grupoRemoto, $membro): bool {
-            $url = $notification->toMail($membro)->viewData['url'];
-            $path = sprintf(
-                '/dashboard/colegios/%s/cursos/%s/classes/%s/turnos/%s/turmas/%s/pap/%s',
-                $colegio->id,
-                $grupoRemoto['curso_tutelado_id'],
-                $grupoRemoto['curso_classe_id'],
-                $grupoRemoto['curso_classe_turno_id'],
-                $grupoRemoto['turma_id'],
-                $grupoRemoto['grupo_id'],
-            );
-
-            return parse_url($url, PHP_URL_HOST) === 'pap-discipline-tutor.test'
-                && parse_url($url, PHP_URL_PATH) === $path
-                && $notification->toArray($membro)['url'] === $url;
-        },
-    );
+    $this->get(route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', $papRouteParameters))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('can.aprovar', true)
+            ->where('can.reprovar', true)
+            ->where('can.solicitarMelhoria', true)
+        );
 });

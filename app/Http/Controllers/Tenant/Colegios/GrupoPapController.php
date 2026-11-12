@@ -116,13 +116,15 @@ class GrupoPapController extends Controller
         $user = Auth::guard('tenant')->user();
         $instituicao = Instituicao::findOrFail($user->instituicao_id);
         abort_unless($user->can('grupopap.view'), 403);
+        $isReadOnlyCourseSecretary = $user->hasRole('Secretario do Curso');
+        $canApprovePapTheme = $user->can('grupopap.aprovar');
         $shared = CursoTuteladoShared::query()
             ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
             ->where('curso_tutelado_tutelado_id', $cursoTutelado)
             ->where('status', 'activo')
             ->firstOrFail();
 
-        if ($user->hasRole('Secretario do Curso')) {
+        if ($isReadOnlyCourseSecretary) {
             abort_unless(
                 $user->instituicao?->tipo === 'instituto'
                     && $shared->curso_id !== null
@@ -135,12 +137,12 @@ class GrupoPapController extends Controller
 
         $tenantTutelado = Tenant::query()->findOrFail($shared->tenant_tutelado_id);
 
-        return $tenantTutelado->run(function () use ($user, $instituicao, $colegio, $cursoTutelado, $cursoClasse, $cursoClasseTurno, $turma, $grupoPap, $shared) {
+        return $tenantTutelado->run(function () use ($user, $instituicao, $colegio, $cursoTutelado, $cursoClasse, $cursoClasseTurno, $turma, $grupoPap, $shared, $isReadOnlyCourseSecretary, $canApprovePapTheme) {
             $colegioModel = Instituicao::findOrFail($colegio);
             $cursoTuteladoModel = CursoTutelado::query()
                 ->whereKey($cursoTutelado)
                 ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->id))
-                ->when($user->hasRole('Secretario do Curso'), fn ($query) => $query->whereHas(
+                ->when($isReadOnlyCourseSecretary, fn ($query) => $query->whereHas(
                     'instituicaoCurso',
                     fn ($query) => $query->where('curso_id', $shared->curso_id),
                 ))
@@ -171,6 +173,8 @@ class GrupoPapController extends Controller
                 $turmaModel,
                 $grupoPapModel,
                 $user,
+                $isReadOnlyCourseSecretary,
+                $canApprovePapTheme,
             );
         });
     }
@@ -243,6 +247,8 @@ class GrupoPapController extends Controller
         Turma $turma,
         GrupoPap $grupoPap,
         User $user,
+        bool $isReadOnlyCourseSecretary,
+        bool $canApprovePapTheme,
     ) {
         // ← REMOVER esta linha que anulava o $user
         // $user = Auth::guard('tenant')->user();
@@ -265,8 +271,7 @@ class GrupoPapController extends Controller
             'aprovadoPor:id,nome,instituicao_id',
         ])->first();
 
-        $isReadOnlyCourseSecretary = $user->hasRole('Secretario do Curso');
-        $canManageTheme = $user?->can('grupopap.aprovar')
+        $canManageTheme = $canApprovePapTheme
             && $grupoPap->podeSerAprovado();
         $canDefineDefenseDate = $user?->can('grupopap.definirData')
             && $grupoPap->status_aprovacao === GrupoPap::APROVACAO_APROVADO;

@@ -60,7 +60,8 @@ test('grupo pap deletion flashes feedback when blocked by students and when succ
     ]);
     $cursoTutelado = CursoTutelado::create([
         'instituicao_curso_id' => $instituicaoCurso->id,
-        'instituicao_tutora_id' => $instituicao->id,
+        'instituicao_tutora_id' => null,
+        'tipo_tutela' => 'externa',
     ]);
     $cursoClasse = CursoClasse::create([
         'curso_tutelado_id' => $cursoTutelado->id,

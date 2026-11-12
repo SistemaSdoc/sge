@@ -13,7 +13,10 @@ class ElementoGrupoPapPolicy
         $instituicaoId = $user->instituicao_id;
 
         return $instituicaoId !== null
-            && $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado?->instituicao_tutora_id === $instituicaoId;
+            && (
+                $grupoPap->instituicao()?->id === $instituicaoId
+                || $grupoPap->instituicaoTutora()?->id === $instituicaoId
+            );
     }
 
     /**
