@@ -29,8 +29,8 @@ export default function ProfessorDashboard({
         todayFormatted={todayFormatted}
       />
 
-      {/* ← Alerta de prazos: no topo, FORA dos DashboardPanel */}
-      {/* <PrazosAlertaProfessor prazos={alertas} /> */}
+      {/* ← Alerta de prazos: no topo, DENTRO dos DashboardPanel */}
+      <PrazosAlertaProfessor prazos={alertas} /> 
 
       <DashboardSummary aulas={proximasAulas} />
 
