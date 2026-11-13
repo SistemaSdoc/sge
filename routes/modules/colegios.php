@@ -7,10 +7,10 @@ use App\Http\Controllers\Tenant\Colegios\CursoClasseController;
 use App\Http\Controllers\Tenant\Colegios\CursoTuteladoController;
 use App\Http\Controllers\Tenant\Colegios\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\Colegios\ExportarListaAlunosTurmaController;
-use App\Http\Controllers\Tenant\Colegios\GrupoPapAprovacaoController;
-use App\Http\Controllers\Tenant\Colegios\GrupoPapController;
 use App\Http\Controllers\Tenant\Colegios\NotaDisciplinaController;
-use App\Http\Controllers\Tenant\Colegios\TrabalhoPapController;
+use App\Http\Controllers\Tenant\Colegios\Pap\AprovacaoTemaPapController as GrupoPapAprovacaoController;
+use App\Http\Controllers\Tenant\Colegios\Pap\GrupoPapController;
+use App\Http\Controllers\Tenant\Colegios\Pap\TrabalhoPapController;
 use Illuminate\Support\Facades\Route;
 
 // colegios.php

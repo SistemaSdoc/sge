@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\Tenant\Pap;
 
-use App\Actions\Tenant\GrupoPap\CreateGrupoPap;
 use App\Actions\Tenant\GrupoPap\DeleteGrupoPap;
-use App\Actions\Tenant\GrupoPap\UpdateGrupoPap;
+use App\Actions\Tenant\Pap\Grupo\CreateGrupoPap;
+use App\Actions\Tenant\Pap\Grupo\UpdateGrupoPap;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenant\GrupoPap\StoreRequest;
-use App\Http\Requests\Tenant\GrupoPap\UpdateRequest;
-use App\Http\Requests\Tenant\StoreIndependenteRequest;
-use App\Http\Resources\Tenant\GrupoPap\BancaResource;
-use App\Http\Resources\Tenant\GrupoPap\CreateResource;
-use App\Http\Resources\Tenant\GrupoPap\EditResource;
-use App\Http\Resources\Tenant\GrupoPap\ElementoResource;
-use App\Http\Resources\Tenant\GrupoPap\IndexResource;
-use App\Http\Resources\Tenant\GrupoPap\ShowResource;
+use App\Http\Requests\Tenant\Pap\Grupo\ActualizarGrupoPapRequest;
+use App\Http\Requests\Tenant\Pap\Grupo\CriarGrupoPapIndependenteRequest;
+use App\Http\Requests\Tenant\Pap\Grupo\CriarGrupoPapRequest;
+use App\Http\Resources\Tenant\Pap\BancaJuriPapResource;
+use App\Http\Resources\Tenant\Pap\ElementoGrupoPapResource;
+use App\Http\Resources\Tenant\Pap\GrupoPapCriacaoResource;
+use App\Http\Resources\Tenant\Pap\GrupoPapDetalheResource;
+use App\Http\Resources\Tenant\Pap\GrupoPapEdicaoResource;
+use App\Http\Resources\Tenant\Pap\GrupoPapListagemResource;
 use App\Models\Central\AnoLectivo;
 use App\Models\Tenant\BancaJuriPap;
 use App\Models\Tenant\CursoClasse;
@@ -26,8 +26,9 @@ use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
 use App\Notifications\Pap\GrupoCriadoNotification;
 use App\Services\Tenant\AnoLectivo\AnoLectivoResolverService;
-use App\Services\Tenant\GrupoPap\GrupoPapService;
-use App\Services\Tenant\GrupoPap\GrupoPapViewService;
+use App\Services\Tenant\Pap\Consultas\ListarGruposPapService;
+use App\Services\Tenant\Pap\Consultas\PrepararDetalheGrupoPapService;
+use App\Services\Tenant\Pap\Consultas\PrepararFormularioGrupoPapService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -41,8 +42,9 @@ class GrupoPapController extends Controller
      */
     public function __construct(
         private readonly AnoLectivoResolverService $anoLectivoResolverService,
-        private readonly GrupoPapViewService $grupoPapViewService,
-        private readonly GrupoPapService $cascataService,
+        private readonly ListarGruposPapService $listarGruposPapService,
+        private readonly PrepararFormularioGrupoPapService $prepararFormularioGrupoPapService,
+        private readonly PrepararDetalheGrupoPapService $prepararDetalheGrupoPapService,
         private readonly CreateGrupoPap $createGrupoPap,
         private readonly UpdateGrupoPap $updateGrupoPap,
         private readonly DeleteGrupoPap $deleteGrupoPap,
@@ -72,7 +74,7 @@ class GrupoPapController extends Controller
         }
 
         $cursoIdFiltro = $request->input('curso_id') ?: null;
-        $grupos = $this->grupoPapViewService->index(
+        $grupos = $this->listarGruposPapService->listar(
             $user,
             $anoLectivoId,
             $instituicaoIdFiltro,
@@ -92,9 +94,9 @@ class GrupoPapController extends Controller
             return $grupo;
         });
 
-        $cursosTutelados = $this->grupoPapViewService->tutoredCourses($user, $instituicaoIdFiltro);
-        $cursosFiltro = $this->grupoPapViewService->courseFilterOptions($cursosTutelados);
-        $instituicoes = $this->grupoPapViewService->papInstitutions($user);
+        $cursosTutelados = $this->listarGruposPapService->cursosTutelados($user, $instituicaoIdFiltro);
+        $cursosFiltro = $this->listarGruposPapService->opcoesFiltroCurso($cursosTutelados);
+        $instituicoes = $this->listarGruposPapService->instituicoesPAP($user);
 
         return Inertia::render('tenant/pap/index', [
             'instituicao' => [
@@ -105,7 +107,7 @@ class GrupoPapController extends Controller
             'cursosTutelados' => $cursosTutelados,
             'cursosFiltro' => $cursosFiltro,
             'gruposPap' => [
-                'data' => IndexResource::collection($grupos)->resolve(),
+                'data' => GrupoPapListagemResource::collection($grupos)->resolve(),
             ],
             'anoLectivoId' => $anoLectivoId,
             'anosLectivos' => AnoLectivo::all(),
@@ -139,7 +141,7 @@ class GrupoPapController extends Controller
     ) {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('create', GrupoPap::class);
 
-        $options = $this->grupoPapViewService->createOptions($cursoTutelado, $turma);
+        $options = $this->prepararFormularioGrupoPapService->opcoesCriacao($cursoTutelado, $turma);
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/create', [
             'instituicao' => $instituicao->only('id'),
@@ -149,10 +151,7 @@ class GrupoPapController extends Controller
             'turma' => $turma->only('id'),
             'anoLectivoId' => $turma->ano_lectivo_id,
             'anosLectivos' => AnoLectivo::all(),
-            'form' => new CreateResource((object) [
-                'professores' => $options['professores'],
-                'alunos' => $options['alunos'],
-            ]),
+            'form' => new GrupoPapCriacaoResource((object) $options),
         ]);
     }
 
@@ -160,7 +159,7 @@ class GrupoPapController extends Controller
      * Cria um grupo PAP e os seus elementos.
      */
     public function store(
-        StoreRequest $request,
+        CriarGrupoPapRequest $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -198,10 +197,10 @@ class GrupoPapController extends Controller
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
         $isReadOnlyCourseSecretary = $user->hasRole('Secretario do Curso');
-        $this->grupoPapViewService->prepareShow($grupoPap);
+        $this->prepararDetalheGrupoPapService->prepararDetalhe($grupoPap);
         $instituicaoTutora = $grupoPap->instituicaoTutora();
         $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
-        $detalhes = $this->grupoPapViewService->paginatedDetails($grupoPap);
+        $detalhes = $this->prepararDetalheGrupoPapService->detalhesPaginados($grupoPap);
         $can = fn (string $ability): bool => ! $isReadOnlyCourseSecretary
             && $user->can($ability, $grupoPap);
 
@@ -213,22 +212,22 @@ class GrupoPapController extends Controller
             'turma' => $turma->only('id', 'nome'),
             'anoLectivoId' => $turma->ano_lectivo_id,
             'anosLectivos' => AnoLectivo::all(),
-            'grupoPap' => new ShowResource($grupoPap),
+            'grupoPap' => new GrupoPapDetalheResource($grupoPap),
             'currentUserId' => (string) $user->getKey(),
-            'historico' => $this->grupoPapViewService->history(
+            'historico' => $this->prepararDetalheGrupoPapService->historico(
                 $grupoPap,
                 $instituicaoTutora?->id,
                 $nomeCurso,
                 $instituicaoTutora?->sigla,
             ),
-            'trabalho' => $this->grupoPapViewService->workDetails(
+            'trabalho' => $this->prepararDetalheGrupoPapService->detalhesTrabalho(
                 $grupoPap,
                 $instituicaoTutora,
                 $nomeCurso,
                 $instituicaoTutora?->sigla,
             ),
-            'banca' => BancaResource::collection($detalhes['banca']),
-            'elementos' => ElementoResource::collection($detalhes['elementos']),
+            'banca' => BancaJuriPapResource::collection($detalhes['banca']),
+            'elementos' => ElementoGrupoPapResource::collection($detalhes['elementos']),
             'can' => [
                 'update' => $can('update'),
                 'definirData' => $can('definirData'),
@@ -286,7 +285,7 @@ class GrupoPapController extends Controller
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
         Gate::forUser($user)->authorize('update', $grupoPap);
-        $options = $this->grupoPapViewService->editOptions($cursoTutelado, $turma, $grupoPap);
+        $options = $this->prepararFormularioGrupoPapService->opcoesEdicao($cursoTutelado, $turma, $grupoPap);
 
         return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/edit', [
             'instituicao' => $instituicao->only('id', 'nome'),
@@ -296,7 +295,7 @@ class GrupoPapController extends Controller
             'turma' => $turma->only('id', 'nome'),
             'anoLectivoId' => $turma->ano_lectivo_id,
             'anosLectivos' => AnoLectivo::all(),
-            'form' => new EditResource((object) [
+            'form' => new GrupoPapEdicaoResource((object) [
                 'professores' => $options['professores'],
                 'alunos' => $options['alunos'],
                 'grupoPap' => $grupoPap,
@@ -310,7 +309,7 @@ class GrupoPapController extends Controller
      * Actualiza os dados e os elementos de um grupo PAP.
      */
     public function update(
-        UpdateRequest $request,
+        ActualizarGrupoPapRequest $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -370,8 +369,10 @@ class GrupoPapController extends Controller
      */
     public function classes(Request $request, Instituicao $instituicao)
     {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('create', GrupoPap::class);
+
         return response()->json(
-            $this->cascataService->classes((string) $request->input('curso_tutelado_id'))
+            $this->prepararFormularioGrupoPapService->classesParaGrupo((string) $request->input('curso_tutelado_id'))
         );
     }
 
@@ -380,8 +381,10 @@ class GrupoPapController extends Controller
      */
     public function turnos(Request $request, Instituicao $instituicao)
     {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('create', GrupoPap::class);
+
         return response()->json(
-            $this->cascataService->turnos((string) $request->input('curso_classe_id'))
+            $this->prepararFormularioGrupoPapService->turnosParaGrupo((string) $request->input('curso_classe_id'))
         );
     }
 
@@ -390,12 +393,13 @@ class GrupoPapController extends Controller
      */
     public function turmas(Request $request, Instituicao $instituicao)
     {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('create', GrupoPap::class);
         $anoLectivoId = filled($request->input('ano_lectivo_id'))
             ? (string) $request->input('ano_lectivo_id')
             : $this->anoLectivoResolverService->obterAnoLectivoDefault();
 
         return response()->json(
-            $this->cascataService->turmas(
+            $this->prepararFormularioGrupoPapService->turmasParaGrupo(
                 (string) $request->input('curso_classe_turno_id'),
                 $anoLectivoId,
             )
@@ -407,11 +411,30 @@ class GrupoPapController extends Controller
      */
     public function formOptions(Request $request, Instituicao $instituicao)
     {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('create', GrupoPap::class);
+
         return response()->json(
-            $this->cascataService->formOptions(
+            $this->prepararFormularioGrupoPapService->opcoesFormularioIndependente(
                 (string) $request->input('curso_tutelado_id'),
                 (string) $request->input('turma_id'),
             )
+        );
+    }
+
+    /**
+     * Devolve os alunos disponíveis para uma turma.
+     */
+    public function alunosDisponiveis(
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+    ) {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('create', GrupoPap::class);
+
+        return response()->json(
+            $this->prepararFormularioGrupoPapService->alunosDisponiveisParaTurma($turma)
         );
     }
 
@@ -427,7 +450,7 @@ class GrupoPapController extends Controller
 
         return Inertia::render('tenant/pap/create', [
             'instituicao' => $instituicao->only('id', 'nome'),
-            'cursosTutelados' => $this->grupoPapViewService->tutoredCourses($user)
+            'cursosTutelados' => $this->listarGruposPapService->cursosTutelados($user)
                 ->map(fn (array $curso): array => [
                     'id' => $curso['id'],
                     'nome' => $curso['nome'],
@@ -447,7 +470,7 @@ class GrupoPapController extends Controller
     /**
      * Cria um grupo PAP a partir do formulário independente.
      */
-    public function storeIndependente(StoreIndependenteRequest $request, Instituicao $instituicao)
+    public function storeIndependente(CriarGrupoPapIndependenteRequest $request, Instituicao $instituicao)
     {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('create', GrupoPap::class);
         $validated = $request->validated();

@@ -24,7 +24,7 @@ import { useTableSearch } from '@/hooks/use-table-search';
 import {
   create,
   show,
-} from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+} from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
 import exportarListaGruposPap from '@/actions/App/Actions/Tenant/Turma/ExportarListaGruposPap';
 import {
   DropdownMenu,

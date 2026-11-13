@@ -2,27 +2,24 @@
 
 namespace App\Http\Controllers\Tenant\Pap;
 
+use App\Actions\Tenant\Pap\Tema\ActualizarTemaPap;
+use App\Actions\Tenant\Pap\Tema\DefinirTemaPap;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenant\GrupoPap\ActualizarTemaRequest;
-use App\Http\Resources\Tenant\GrupoPap\ShowResource;
-use App\Http\Resources\Tenant\GrupoPap\TemaCreateResource;
-use App\Models\Central\AnoLectivo;
+use App\Http\Requests\Tenant\Pap\Tema\ActualizarPropostaTemaPapRequest;
+use App\Http\Requests\Tenant\Pap\Tema\CorrigirTemaPapRequest;
+use App\Http\Requests\Tenant\Pap\Tema\DefinirTemaPapRequest;
+use App\Http\Resources\Tenant\Pap\GrupoPapDetalheResource;
+use App\Http\Resources\Tenant\Pap\TemaPapCriacaoResource;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
 use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
-use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
-use App\Notifications\Pap\TemaDefinidoNotification;
-use App\Rules\EstudoCasoPapUnico;
-use App\Rules\TemaPapUnico;
-use App\Services\Tenant\TemaPapUnicidadeService;
-use Illuminate\Http\Request;
+use App\Services\Tenant\Pap\Consultas\PrepararFormularioTemaPapService;
+use App\Services\Tenant\Pap\Tema\TemaPapUnicidadeService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class TemaPapController extends Controller
@@ -30,7 +27,12 @@ class TemaPapController extends Controller
     /**
      * Recebe o serviço de unicidade das propostas de tema.
      */
-    public function __construct(private readonly TemaPapUnicidadeService $temaPapUnicidadeService) {}
+    public function __construct(
+        private readonly TemaPapUnicidadeService $temaPapUnicidadeService,
+        private readonly PrepararFormularioTemaPapService $prepararFormularioTemaPapService,
+        private readonly DefinirTemaPap $definirTemaPap,
+        private readonly ActualizarTemaPap $actualizarTemaPap,
+    ) {}
 
     /**
      * Apresenta o formulário para definir a proposta de tema do grupo.
@@ -48,10 +50,8 @@ class TemaPapController extends Controller
         abort_unless($cursoTuteladoDoGrupo?->is($cursoTutelado), 404);
         $anoLectivoId = $turma->ano_lectivo_id;
 
-        $professores = Professor::whereHas('cursosTutelados', function ($query) use ($cursoTutelado) {
-            $query->where('curso_tutelado_id', $cursoTutelado->id)
-                ->where('opap', true);
-        })->with('user:id,nome')->get();
+        $professores = $this->prepararFormularioTemaPapService
+            ->professoresParaTema((string) $cursoTutelado->getKey());
         $titulosUsados = $this->temaPapUnicidadeService->titulosUsadosNoTurno(
             (string) $cursoTuteladoDoGrupo->getKey(),
             (string) $anoLectivoId,
@@ -73,7 +73,7 @@ class TemaPapController extends Controller
             'turma' => $turma->only('id', 'nome'),
             'anoLectivoId' => $anoLectivoId,
             'grupoPap' => $grupoPap->only('id'),
-            'form' => new TemaCreateResource((object) [
+            'form' => new TemaPapCriacaoResource((object) [
                 'professores' => $professores,
                 'sugestoes_temas' => $sugestoesTemas,
             ]),
@@ -84,7 +84,7 @@ class TemaPapController extends Controller
      * Guarda a proposta de tema e notifica os seus destinatários.
      */
     public function store(
-        Request $request,
+        DefinirTemaPapRequest $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -95,102 +95,18 @@ class TemaPapController extends Controller
         Gate::forUser(Auth::guard('tenant')->user())->authorize('definirTema', $grupoPap);
         $cursoTuteladoDoGrupo = $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado;
         abort_unless($cursoTuteladoDoGrupo?->is($cursoTutelado), 404);
-        $titulosUsados = $this->temaPapUnicidadeService->titulosUsadosNoTurno(
-            (string) $cursoTuteladoDoGrupo->getKey(),
-            (string) $turma->ano_lectivo_id,
-            (string) $cursoClasseTurno->getKey(),
-            (string) $grupoPap->getKey(),
-        );
-        $sugestoesTemas = collect($cursoTuteladoDoGrupo->resolverSugestoesTemas())
-            ->filter(fn ($sugestao) => (bool) data_get($sugestao, 'ativo', true))
-            ->reject(fn ($sugestao) => $titulosUsados->contains(
-                $this->temaPapUnicidadeService->normalizarTitulo((string) data_get($sugestao, 'titulo'))
-            ))
-            ->values();
-        $idsSugestoes = $sugestoesTemas
-            ->pluck('id')
-            ->map(fn ($id) => (string) $id)
-            ->all();
-
-        $validated = $request->validate([
-            'origem_tema' => ['required', Rule::in(['sugerido', 'autoral'])],
-            'tema_sugerido_id' => [
-                'nullable',
-                'required_if:origem_tema,sugerido',
-                'string',
-                Rule::in($idsSugestoes),
-            ],
-            'tema_grupo' => [
-                Rule::requiredIf($request->input('origem_tema') === 'autoral'),
-                'nullable',
-                'string',
-                'max:255',
-                new TemaPapUnico(
-                    (string) $cursoTuteladoDoGrupo->getKey(),
-                    (string) $turma->ano_lectivo_id,
-                    (string) $cursoClasseTurno->getKey(),
-                    (string) $grupoPap->id,
-                ),
-            ],
-            'professor_tutor_id' => ['required', 'exists:professores,id'],
-            'problema' => ['required', 'string', 'max:1000'],
-            'objectivo_geral' => ['required', 'string', 'max:1000'],
-            'objectivos_especificos' => ['required', 'string', 'max:1000'],
-            'estudo_caso' => [
-                'required',
-                'string',
-                'max:1000',
-                new EstudoCasoPapUnico(
-                    (string) $cursoTuteladoDoGrupo->getKey(),
-                    (string) $turma->ano_lectivo_id,
-                    (string) $cursoClasseTurno->getKey(),
-                    $request->input('tema_grupo'),
-                    (string) $grupoPap->id,
-                ),
-            ],
-        ], [
-            'tema_grupo.required' => 'Indique o tema proposto pelo grupo.',
-            'professor_tutor_id.required' => 'Seleccione o professor tutor do grupo.',
-            'professor_tutor_id.exists' => 'O professor tutor seleccionado não existe.',
-            'problema.required' => 'Descreva o problema que o trabalho pretende resolver.',
-            'objectivo_geral.required' => 'Indique o objectivo geral do trabalho.',
-            'objectivos_especificos.required' => 'Indique os objectivos específicos do trabalho.',
-            'estudo_caso.required' => 'Descreva o estudo de caso do trabalho.',
-        ]);
+        $validated = $request->validated();
 
         if ($validated['origem_tema'] === 'sugerido') {
-            $sugestaoEscolhida = $sugestoesTemas->first(
+            $sugestaoEscolhida = collect($cursoTuteladoDoGrupo->resolverSugestoesTemas())->first(
                 fn ($sugestao) => (string) data_get($sugestao, 'id') === $validated['tema_sugerido_id']
             );
             $validated['tema_grupo'] = data_get($sugestaoEscolhida, 'titulo');
         }
 
-        $campoErroTema = $validated['origem_tema'] === 'sugerido'
-            ? 'tema_sugerido_id'
-            : 'tema_grupo';
-        $this->temaPapUnicidadeService->validarUnicidade(
-            $validated,
-            (string) $cursoTuteladoDoGrupo->getKey(),
-            (string) $turma->ano_lectivo_id,
-            (string) $cursoClasseTurno->getKey(),
-            (string) $grupoPap->getKey(),
-            $campoErroTema,
-        );
+        $campoTema = $validated['origem_tema'] === 'sugerido' ? 'tema_sugerido_id' : 'tema_grupo';
         unset($validated['origem_tema'], $validated['tema_sugerido_id']);
-        $grupoPap->update([
-            ...$validated,
-            'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
-        ]);
-
-        $alunosUsers = $grupoPap->alunos->map->user->filter();
-        $tutorUser = $grupoPap->professor?->user;
-        $destinatarios = $alunosUsers;
-
-        if ($tutorUser) {
-            $destinatarios = $destinatarios->push($tutorUser)->unique('id');
-        }
-
-        Notification::send($destinatarios, new TemaDefinidoNotification($grupoPap));
+        $this->definirTemaPap->handle($grupoPap, $validated, $campoTema);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
@@ -225,7 +141,7 @@ class TemaPapController extends Controller
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => $turma->only('id', 'nome'),
             'anoLectivoId' => $turma->ano_lectivo_id,
-            'grupoPap' => new ShowResource($grupoPap),
+            'grupoPap' => new GrupoPapDetalheResource($grupoPap),
         ]);
     }
 
@@ -233,7 +149,7 @@ class TemaPapController extends Controller
      * Actualiza a proposta de tema submetida pelo grupo.
      */
     public function update(
-        Request $request,
+        ActualizarPropostaTemaPapRequest $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -242,63 +158,7 @@ class TemaPapController extends Controller
         GrupoPap $grupoPap,
     ) {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('definirTema', $grupoPap);
-        $validated = $request->validate([
-            'tema_grupo' => [
-                'required',
-                'string',
-                'max:255',
-                new TemaPapUnico(
-                    (string) $cursoTutelado->getKey(),
-                    (string) $turma->ano_lectivo_id,
-                    (string) $cursoClasseTurno->getKey(),
-                    (string) $grupoPap->getKey(),
-                ),
-            ],
-            'professor_tutor_id' => ['required', 'exists:professores,id'],
-            'problema' => ['required', 'string', 'max:1000'],
-            'objectivo_geral' => ['required', 'string', 'max:1000'],
-            'objectivos_especificos' => ['required', 'string', 'max:1000'],
-            'estudo_caso' => [
-                'required',
-                'string',
-                'max:1000',
-                new EstudoCasoPapUnico(
-                    (string) $cursoTutelado->getKey(),
-                    (string) $turma->ano_lectivo_id,
-                    (string) $cursoClasseTurno->getKey(),
-                    $request->input('tema_grupo', $grupoPap->tema_grupo),
-                    (string) $grupoPap->getKey(),
-                ),
-            ],
-        ], [
-            'professor_tutor_id.required' => 'Seleccione o professor tutor do grupo.',
-            'professor_tutor_id.exists' => 'O professor tutor seleccionado não existe.',
-            'problema.required' => 'Descreva o problema que o trabalho pretende resolver.',
-            'objectivo_geral.required' => 'Indique o objectivo geral do trabalho.',
-            'objectivos_especificos.required' => 'Indique os objectivos específicos do trabalho.',
-            'estudo_caso.required' => 'Descreva o estudo de caso do trabalho.',
-        ]);
-        $this->temaPapUnicidadeService->validarUnicidade(
-            $validated,
-            (string) $cursoTutelado->getKey(),
-            (string) $turma->ano_lectivo_id,
-            (string) $cursoClasseTurno->getKey(),
-            (string) $grupoPap->getKey(),
-        );
-        $grupoPap->update([
-            ...$validated,
-            'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
-        ]);
-
-        $alunosUsers = $grupoPap->alunos->map->user->filter();
-        $tutorUser = $grupoPap->professor?->user;
-        $destinatarios = $alunosUsers;
-
-        if ($tutorUser) {
-            $destinatarios = $destinatarios->push($tutorUser)->unique('id');
-        }
-
-        Notification::send($destinatarios, new TemaDefinidoNotification($grupoPap));
+        $this->actualizarTemaPap->handle($grupoPap, $request->validated(), notificarDestinatarios: true);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,
@@ -333,8 +193,8 @@ class TemaPapController extends Controller
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => $turma->only('id', 'nome'),
             'anoLectivoId' => $turma->ano_lectivo_id,
-            'anosLectivos' => AnoLectivo::all(),
-            'grupoPap' => new ShowResource($grupoPap),
+            'anosLectivos' => $this->prepararFormularioTemaPapService->anosLectivos(),
+            'grupoPap' => new GrupoPapDetalheResource($grupoPap),
         ]);
     }
 
@@ -342,7 +202,7 @@ class TemaPapController extends Controller
      * Guarda a correcção do tema e devolve o grupo ao tutor.
      */
     public function actualizarTema(
-        ActualizarTemaRequest $request,
+        CorrigirTemaPapRequest $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -351,11 +211,7 @@ class TemaPapController extends Controller
         GrupoPap $grupoPap,
     ) {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('corrigirTema', $grupoPap);
-        $validated = $request->validated();
-        $grupoPap->update([
-            ...$validated,
-            'status_aprovacao' => GrupoPap::APROVACAO_SUBMETIDO,
-        ]);
+        $this->actualizarTemaPap->handle($grupoPap, $request->validated());
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
             'instituicao' => $instituicao->id,

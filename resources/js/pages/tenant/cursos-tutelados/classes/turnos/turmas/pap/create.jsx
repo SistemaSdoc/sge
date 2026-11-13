@@ -1,6 +1,6 @@
 import { Form } from '@inertiajs/react';
 import { router, usePage } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
 import { show } from '@/actions/App/Http/Controllers/Tenant/ClasseTurnoTurmaController';
 import GrupoPapForm from './components/grupo-pap-form';
 import { useState } from 'react';

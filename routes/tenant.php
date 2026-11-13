@@ -34,9 +34,6 @@ use App\Http\Controllers\Tenant\ElementoGrupoPapController;
 use App\Http\Controllers\Tenant\FichaMatriculaController;
 use App\Http\Controllers\Tenant\FolhaAprovacaoController;
 use App\Http\Controllers\Tenant\GrelhaCurricularController;
-use App\Http\Controllers\Tenant\GrupoPapAprovacaoController;
-use App\Http\Controllers\Tenant\GrupoPapController;
-use App\Http\Controllers\Tenant\GrupoPapTemaController;
 use App\Http\Controllers\Tenant\HorarioController;
 use App\Http\Controllers\Tenant\InscricaoController;
 use App\Http\Controllers\Tenant\InstituicaoController;
@@ -47,6 +44,11 @@ use App\Http\Controllers\Tenant\NotaDisciplinaController;
 use App\Http\Controllers\Tenant\NotaDisciplinaRecursoController;
 use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PagamentoController;
+use App\Http\Controllers\Tenant\Pap\AprovacaoTemaPapController as GrupoPapAprovacaoController;
+use App\Http\Controllers\Tenant\Pap\DefesaPapController;
+use App\Http\Controllers\Tenant\Pap\GrupoPapController;
+use App\Http\Controllers\Tenant\Pap\TemaPapController as GrupoPapTemaController;
+use App\Http\Controllers\Tenant\Pap\TrabalhoPapController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PeriodoLancamentoNotasController;
 use App\Http\Controllers\Tenant\PlanificacaoController;
@@ -61,7 +63,6 @@ use App\Http\Controllers\Tenant\RelatorioPropinaController;
 use App\Http\Controllers\Tenant\RoleController;
 use App\Http\Controllers\Tenant\SolicitacaoEdicaoPautaController;
 use App\Http\Controllers\Tenant\SubmissaoProvaController;
-use App\Http\Controllers\Tenant\TrabalhoPapController;
 use App\Http\Controllers\Tenant\TurmaController;
 use App\Http\Controllers\Tenant\TurnoController;
 use App\Http\Controllers\Tenant\UserController;
@@ -572,7 +573,7 @@ Route::middleware([
                     'pap' => 'grupoPap',
                 ]);
 
-            Route::put('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/data-defesa', [GrupoPapController::class, 'definirData'])
+            Route::put('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/data-defesa', [DefesaPapController::class, 'definirData'])
                 ->name('turma.pap.definir-data');
 
             Route::prefix('instituicoes/{instituicao}/pap')->group(function () {

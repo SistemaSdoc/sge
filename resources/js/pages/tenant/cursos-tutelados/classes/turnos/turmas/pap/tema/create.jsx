@@ -1,8 +1,8 @@
 import { Form } from '@inertiajs/react';
 import { useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
-import { store } from '@/actions/App/Http/Controllers/Tenant/GrupoPapTemaController';
-import { show } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { store } from '@/actions/App/Http/Controllers/Tenant/Pap/TemaPapController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
 import { TemaForm } from './components/tema-form';
 
 export default function Create() {

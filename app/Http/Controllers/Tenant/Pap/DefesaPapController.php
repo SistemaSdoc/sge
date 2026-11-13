@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Tenant\Pap;
 
-use App\Actions\Tenant\GrupoPap\DefinirDataDefesa;
+use App\Actions\Tenant\Pap\Defesa\DefinirDataDefesa;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenant\GrupoPap\DefinirDataDefesaRequest;
+use App\Http\Requests\Tenant\Pap\Defesa\DefinirDataDefesaRequest;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;

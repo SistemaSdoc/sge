@@ -2,7 +2,6 @@
 
 namespace App\Services\Tenant\GrupoPap;
 
-use App\Http\Controllers\Tenant\GrupoPapController;
 use App\Models\Tenant\User;
 
 class GrupoPapNavigationService
@@ -12,7 +11,7 @@ class GrupoPapNavigationService
      */
     public function resolve(?User $user): array
     {
-        $indexUrl = action([GrupoPapController::class, 'index']);
+        $indexUrl = route('tenant.dashboard.grupos-pap.index');
 
         if (! $user?->hasRole('Aluno')) {
             return [
@@ -50,7 +49,7 @@ class GrupoPapNavigationService
 
         return [
             'title' => 'Meu Grupo PAP',
-            'href' => action([GrupoPapController::class, 'show'], [
+            'href' => route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
                 'instituicao' => $instituicao->getKey(),
                 'cursoTutelado' => $cursoTutelado->getKey(),
                 'cursoClasse' => $cursoClasse->getKey(),

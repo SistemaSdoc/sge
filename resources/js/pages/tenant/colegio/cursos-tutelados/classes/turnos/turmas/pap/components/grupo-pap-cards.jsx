@@ -1,6 +1,6 @@
 import { router, Link } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
-import { show } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/GrupoPapController';
 import { show as showAluno } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
 import { show as showUser } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
 import {

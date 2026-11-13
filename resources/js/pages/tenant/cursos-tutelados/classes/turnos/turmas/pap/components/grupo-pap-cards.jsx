@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import {
   index,
   show,
-} from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+} from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
 import { show as showAluno } from '@/actions/App/Http/Controllers/Tenant/AlunoController';
 import { show as showUser } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
 import {

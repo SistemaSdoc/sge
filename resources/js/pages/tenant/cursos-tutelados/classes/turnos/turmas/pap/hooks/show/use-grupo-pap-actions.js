@@ -7,8 +7,8 @@ import {
 import {
   edit,
   destroy as destroyGrupoPap,
-} from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
-import { create as createTema } from '@/actions/App/Http/Controllers/Tenant/GrupoPapTemaController';
+} from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
+import { create as createTema } from '@/actions/App/Http/Controllers/Tenant/Pap/TemaPapController';
 import { useDialog } from '@/hooks/use-dialog';
 
 export function useGrupoPapActions(params) {

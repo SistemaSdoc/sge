@@ -6,7 +6,7 @@ import {
   formSolicitarMelhoriaCoordenacao,
   formAprovarCoordenacao,
   formReprovarCoordenacao,
-} from '@/actions/App/Http/Controllers/Tenant/GrupoPapAprovacaoController';
+} from '@/actions/App/Http/Controllers/Tenant/Pap/AprovacaoTemaPapController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

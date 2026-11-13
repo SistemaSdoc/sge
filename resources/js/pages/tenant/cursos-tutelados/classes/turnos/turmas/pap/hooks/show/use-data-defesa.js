@@ -1,6 +1,6 @@
 import { router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
-import { definirData } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { definirData } from '@/actions/App/Http/Controllers/Tenant/Pap/DefesaPapController';
 
 export function useDataDefesa(grupoPap, params) {
   const [open, setOpen] = useState(false);

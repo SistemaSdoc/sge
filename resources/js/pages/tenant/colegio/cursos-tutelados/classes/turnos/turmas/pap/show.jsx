@@ -4,9 +4,9 @@ import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/Colegios/BancaJuriPapController';
 import { actualizarNota } from '@/actions/App/Http/Controllers/Tenant/Colegios/ElementoGrupoPapController';
-import { definirData } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapController';
-import { editar as editarTema } from '@/actions/App/Http/Controllers/Tenant/GrupoPapAprovacaoController'; // ajustar o import real
-import { edit } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { definirData } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/GrupoPapController';
+import { editar as editarTema } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/AprovacaoTemaPapController';
+import { edit } from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

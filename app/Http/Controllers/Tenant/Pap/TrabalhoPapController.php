@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Tenant\Pap;
 
-use App\Helpers\PapHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\Pap\Trabalho\AprovarTrabalhoPapRequest;
+use App\Http\Requests\Tenant\Pap\Trabalho\SolicitarCorrecaoTrabalhoPapRequest;
+use App\Http\Requests\Tenant\Pap\Trabalho\SubmeterTrabalhoPapRequest;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -11,9 +13,11 @@ use App\Models\Tenant\GrupoPap;
 use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\User;
-use App\Services\Tenant\TrabalhoPapService;
+use App\Services\Tenant\Pap\Consultas\PrepararDetalheGrupoPapService;
+use App\Services\Tenant\Pap\Trabalho\RevisaoTrabalhoPapCoordenacaoService;
+use App\Services\Tenant\Pap\Trabalho\RevisaoTrabalhoPapTutorService;
+use App\Services\Tenant\Pap\Trabalho\SubmissaoTrabalhoPapService;
 use Illuminate\Filesystem\FilesystemAdapter;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -23,7 +27,12 @@ class TrabalhoPapController extends Controller
     /**
      * Recebe o serviço responsável pelo ciclo de vida do trabalho PAP.
      */
-    public function __construct(private readonly TrabalhoPapService $service) {}
+    public function __construct(
+        private readonly SubmissaoTrabalhoPapService $submissaoTrabalhoPapService,
+        private readonly RevisaoTrabalhoPapTutorService $revisaoTrabalhoPapTutorService,
+        private readonly RevisaoTrabalhoPapCoordenacaoService $revisaoTrabalhoPapCoordenacaoService,
+        private readonly PrepararDetalheGrupoPapService $prepararDetalheGrupoPapService,
+    ) {}
 
     /**
      * Apresenta o estado, as versões e o histórico de feedback do trabalho.
@@ -40,13 +49,7 @@ class TrabalhoPapController extends Controller
 
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
-        $trabalho = $grupoPap->trabalhoPap()->with([
-            'versoes.submetidoPor:id,nome',
-            'versoes.feedbacks.utilizador:id,nome',
-            'feedbacks.utilizador:id,nome',
-            'feedbacks.versao:id,numero_versao',
-            'aprovadoPor:id,nome,instituicao_id',
-        ])->first();
+        $trabalho = $grupoPap->trabalhoPap;
         $instituicaoTutora = $cursoTutelado->instituicaoTutora;
         $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
 
@@ -56,6 +59,14 @@ class TrabalhoPapController extends Controller
             ]);
         }
 
+        $trabalhoDetalhes = $this->prepararDetalheGrupoPapService->detalhesTrabalho(
+            $grupoPap,
+            $instituicaoTutora,
+            $nomeCurso,
+            $instituicaoTutora?->sigla
+                ?? $this->prepararDetalheGrupoPapService->siglaTutoraExterna($cursoTutelado),
+        );
+
         return inertia('cursos-tutelados/classes/turnos/turmas/pap/trabalho/show', [
             'instituicao' => $instituicao->only('id', 'nome'),
             'cursoTutelado' => $cursoTutelado->only('id'),
@@ -63,33 +74,7 @@ class TrabalhoPapController extends Controller
             'cursoClasseTurno' => $cursoClasseTurno->only('id'),
             'turma' => $turma->only('id', 'nome'),
             'grupoPap' => $grupoPap->only('id', 'nome_grupo'),
-            'trabalho' => [
-                'id' => $trabalho->id,
-                'status' => $trabalho->status,
-                'data_aprovacao' => $trabalho->data_aprovacao?->toIso8601String(),
-                'aprovado_por' => $trabalho->aprovadoPor
-                    ? PapHelper::nomeAprovador($trabalho->aprovadoPor, $instituicaoTutora, $nomeCurso)
-                    : ($trabalho->aprovado_por_nome ?? '—'),
-                'versoes' => $trabalho->versoes->map(fn ($versao) => [
-                    'id' => $versao->id,
-                    'numero_versao' => $versao->numero_versao,
-                    'nome_original' => $versao->nome_original,
-                    'status_quando_submetido' => $versao->status_quando_submetido,
-                    'submetido_por' => $versao->submetidoPor?->nome,
-                    'created_at' => $versao->created_at?->toIso8601String(),
-                    'feedbacks' => $versao->feedbacks->map(fn ($feedback) => [
-                        'id' => $feedback->id,
-                        'tipo' => $feedback->tipo,
-                        'comentario' => $feedback->comentario,
-                        'utilizador' => $feedback->utilizador
-                            ? PapHelper::nomeAprovador($feedback->utilizador, $instituicaoTutora, $nomeCurso)
-                            : ($feedback->utilizador_nome ?? '—'),
-                        'created_at' => $feedback->created_at?->toIso8601String(),
-                        'tem_ficheiro_correcao' => ! is_null($feedback->caminho_ficheiro_correcao),
-                        'nome_original_correcao' => $feedback->nome_original_correcao,
-                    ]),
-                ]),
-            ],
+            'trabalho' => $trabalhoDetalhes,
             'can' => [
                 'submeter' => $user->can('submeterTrabalho', $grupoPap),
                 'aprovarComoTutor' => $user->can('aprovarTrabalhoComoTutor', $grupoPap),
@@ -135,7 +120,7 @@ class TrabalhoPapController extends Controller
      * Recebe uma nova versão do trabalho submetida pelo aluno.
      */
     public function submeter(
-        Request $request,
+        SubmeterTrabalhoPapRequest $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -144,11 +129,7 @@ class TrabalhoPapController extends Controller
         GrupoPap $grupoPap,
     ) {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('submeterTrabalho', $grupoPap);
-        $request->validate([
-            'ficheiro' => ['required', 'file', 'mimes:pdf', 'max:20480'],
-        ], [
-            'ficheiro.uploaded' => 'O servidor não conseguiu receber o trabalho. Tente novamente.',
-        ]);
+        $validated = $request->validated();
         $trabalho = $grupoPap->trabalhoPap;
 
         if (! $trabalho || ! $trabalho->podeSerSubmetido()) {
@@ -157,7 +138,11 @@ class TrabalhoPapController extends Controller
             ]);
         }
 
-        $this->service->submeter($trabalho, Auth::user(), $request->file('ficheiro'));
+        $this->submissaoTrabalhoPapService->submeter(
+            $trabalho,
+            Auth::guard('tenant')->user(),
+            $validated['ficheiro'],
+        );
 
         return back()->with('toast', [
             'type' => 'success',
@@ -169,7 +154,7 @@ class TrabalhoPapController extends Controller
      * Regista a aprovação do trabalho pelo tutor.
      */
     public function aprovarComoTutor(
-        Request $request,
+        AprovarTrabalhoPapRequest $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -181,9 +166,7 @@ class TrabalhoPapController extends Controller
         $user = Auth::guard('tenant')->user();
         abort_unless(! $user->hasAnyRole(['Director', 'Subdirector']), 403);
         Gate::forUser($user)->authorize('aprovarTrabalhoComoTutor', $grupoPap);
-        $validated = $request->validate([
-            'comentario' => ['nullable', 'string', 'max:2000'],
-        ]);
+        $validated = $request->validated();
         $trabalho = $grupoPap->trabalhoPap;
 
         if (! $trabalho || ! $trabalho->podeSerAnalisadoPeloTutor()) {
@@ -192,7 +175,7 @@ class TrabalhoPapController extends Controller
             ]);
         }
 
-        $this->service->aprovarComoTutor($trabalho, $user, $validated['comentario'] ?? null);
+        $this->revisaoTrabalhoPapTutorService->aprovar($trabalho, $user, $validated['comentario'] ?? null);
 
         return back()->with('toast', [
             'type' => 'success',
@@ -204,7 +187,7 @@ class TrabalhoPapController extends Controller
      * Regista um pedido de correcção do trabalho feito pelo tutor.
      */
     public function solicitarCorrecaoComoTutor(
-        Request $request,
+        SolicitarCorrecaoTrabalhoPapRequest $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -213,10 +196,7 @@ class TrabalhoPapController extends Controller
         GrupoPap $grupoPap,
     ) {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('solicitarCorrecaoTrabalhoComoTutor', $grupoPap);
-        $validated = $request->validate([
-            'comentario' => ['required', 'string', 'min:10', 'max:2000'],
-            'ficheiro' => ['nullable', 'file', 'mimes:pdf', 'max:20480'],
-        ]);
+        $validated = $request->validated();
         $trabalho = $grupoPap->trabalhoPap;
 
         if (! $trabalho || ! $trabalho->podeSerAnalisadoPeloTutor()) {
@@ -225,9 +205,9 @@ class TrabalhoPapController extends Controller
             ]);
         }
 
-        $this->service->solicitarCorrecaoComoTutor(
+        $this->revisaoTrabalhoPapTutorService->solicitarCorrecao(
             $trabalho,
-            Auth::user(),
+            Auth::guard('tenant')->user(),
             $validated['comentario'],
             $request->file('ficheiro'),
         );
@@ -246,7 +226,7 @@ class TrabalhoPapController extends Controller
      * Regista a aprovação definitiva do trabalho pela coordenação.
      */
     public function aprovarComoCoordenacao(
-        Request $request,
+        AprovarTrabalhoPapRequest $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -258,9 +238,7 @@ class TrabalhoPapController extends Controller
         $user = Auth::guard('tenant')->user();
         abort_unless(! $user->hasAnyRole(['Director', 'Subdirector']), 403);
         Gate::forUser($user)->authorize('aprovarTrabalhoComoCoordenacao', $grupoPap);
-        $validated = $request->validate([
-            'comentario' => ['nullable', 'string', 'max:2000'],
-        ]);
+        $validated = $request->validated();
         $trabalho = $grupoPap->trabalhoPap;
 
         if (! $trabalho || ! $trabalho->podeSerAnalisadoPelaCoordenacao()) {
@@ -269,7 +247,11 @@ class TrabalhoPapController extends Controller
             ]);
         }
 
-        $this->service->aprovarComoCoordenacao($trabalho, $user, $validated['comentario'] ?? null);
+        $this->revisaoTrabalhoPapCoordenacaoService->aprovar(
+            $trabalho,
+            $user,
+            $validated['comentario'] ?? null,
+        );
 
         return back()->with('toast', [
             'type' => 'success',
@@ -281,7 +263,7 @@ class TrabalhoPapController extends Controller
      * Regista um pedido de correcção do trabalho feito pela coordenação.
      */
     public function solicitarCorrecaoComoCoordenacao(
-        Request $request,
+        SolicitarCorrecaoTrabalhoPapRequest $request,
         Instituicao $instituicao,
         CursoTutelado $cursoTutelado,
         CursoClasse $cursoClasse,
@@ -293,10 +275,7 @@ class TrabalhoPapController extends Controller
         $user = Auth::guard('tenant')->user();
         abort_unless(! $user->hasAnyRole(['Director', 'Subdirector']), 403);
         Gate::forUser($user)->authorize('solicitarCorrecaoTrabalhoComoCoordenacao', $grupoPap);
-        $validated = $request->validate([
-            'comentario' => ['required', 'string', 'min:10', 'max:2000'],
-            'ficheiro' => ['nullable', 'file', 'mimes:pdf', 'max:20480'],
-        ]);
+        $validated = $request->validated();
         $trabalho = $grupoPap->trabalhoPap;
 
         if (! $trabalho || ! $trabalho->podeSerAnalisadoPelaCoordenacao()) {
@@ -305,7 +284,7 @@ class TrabalhoPapController extends Controller
             ]);
         }
 
-        $this->service->solicitarCorrecaoComoCoordenacao(
+        $this->revisaoTrabalhoPapCoordenacaoService->solicitarCorrecao(
             $trabalho,
             $user,
             $validated['comentario'],

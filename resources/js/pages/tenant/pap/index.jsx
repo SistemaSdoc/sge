@@ -1,5 +1,5 @@
 import { Head, router } from '@inertiajs/react';
-import { index as grupoPapIndex } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { index as grupoPapIndex } from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
 import { useDrawer } from '@/hooks/use-drawer';
 import { useTableSearch } from '@/hooks/use-table-search';
 import GrupoPapForm from './components/grupo-pap-form';

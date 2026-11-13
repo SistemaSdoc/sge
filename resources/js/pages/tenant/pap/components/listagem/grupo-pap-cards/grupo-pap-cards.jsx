@@ -1,7 +1,7 @@
 import { router, Link } from '@inertiajs/react';
 import { UsersIcon } from 'lucide-react';
-import { show as showColegio } from '@/actions/App/Http/Controllers/Tenant/Colegios/GrupoPapController';
-import { show } from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+import { show as showColegio } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/GrupoPapController';
+import { show } from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
 import { show as showProfessor } from '@/actions/App/Http/Controllers/Tenant/ProfessorController';
 import { show as showUser } from '@/actions/App/Http/Controllers/Tenant/UserProfileController';
 import { EmptyState } from '@/components/empty-state';

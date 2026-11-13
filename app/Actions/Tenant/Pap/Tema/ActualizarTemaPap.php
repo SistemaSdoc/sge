@@ -4,7 +4,7 @@ namespace App\Actions\Tenant\Pap\Tema;
 
 use App\Models\Tenant\GrupoPap;
 use App\Notifications\Pap\TemaDefinidoNotification;
-use App\Services\Tenant\TemaPapUnicidadeService;
+use App\Services\Tenant\Pap\Tema\TemaPapUnicidadeService;
 use Illuminate\Support\Facades\Notification;
 
 class ActualizarTemaPap

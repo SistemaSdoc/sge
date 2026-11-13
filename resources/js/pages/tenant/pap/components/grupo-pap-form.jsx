@@ -23,7 +23,7 @@ import {
   turnos as turnosRoute,
   turmas as turmasRoute,
   formOptions as formOptionsRoute,
-} from '@/actions/App/Http/Controllers/Tenant/GrupoPapController';
+} from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
 
 export default function GrupoPapForm({
   instituicao,
