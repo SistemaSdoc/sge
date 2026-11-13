@@ -89,7 +89,6 @@ class QuadroHonraController extends Controller
                 'tipo' => $quadro->tipo->value,
                 'curso' => $quadro->cursoTutelado?->instituicaoCurso?->curso?->nome,
                 'media_minima' => $quadro->media_minima,
-                'limite_alunos' => $quadro->limite_alunos,
                 'quantidade_alunos' => $quadro->itens_count,
                 'gerado_em' => $quadro->gerado_em?->toISOString(),
                 'gerado_por' => $quadro->geradoPor?->nome,
@@ -146,6 +145,9 @@ class QuadroHonraController extends Controller
         return back()->with('success', "Quadro de Honra gerado com {$quadro->itens()->count()} aluno(s).");
     }
 
+    /**
+     * Reutiliza as regras da geração e devolve apenas os campos apresentados na pré-visualização.
+     */
     public function previsualizar(GerarQuadroHonraRequest $request): JsonResponse
     {
         $dados = $request->validated();
@@ -161,8 +163,17 @@ class QuadroHonraController extends Controller
         );
 
         return response()->json([
-            'candidatos' => $candidatos,
-            'quantidade' => $candidatos->count(),
+            // A resposta contém apenas os dados que o formulário apresenta.
+            'candidatos' => $candidatos
+                ->map(fn (array $candidato): array => [
+                    'turma_aluno_id' => $candidato['turma_aluno_id'],
+                    'nome_aluno' => $candidato['nome_aluno'],
+                    'classe' => $candidato['classe'],
+                    'curso' => $candidato['curso'],
+                    'turma' => $candidato['turma'],
+                    'media' => $candidato['media'],
+                ])
+                ->values(),
         ]);
     }
 

@@ -30,6 +30,7 @@ class GerarQuadroHonra
         $cursoTuteladoId = $tipo === TipoQuadroHonra::CURSO
             ? $dados['curso_tutelado_id']
             : null;
+        // O âmbito estável faz uma nova geração substituir o quadro do mesmo ano e curso.
         $escopo = $tipo === TipoQuadroHonra::GERAL
             ? TipoQuadroHonra::GERAL->value
             : 'curso:'.$cursoTuteladoId;
@@ -42,6 +43,7 @@ class GerarQuadroHonra
             abort(403, 'O utilizador não está associado a uma instituição.');
         }
 
+        // O quadro e a lista completa de elegíveis são gravados atomicamente.
         $quadro = DB::transaction(function () use (
             $dados,
             $utilizador,
@@ -115,6 +117,7 @@ class GerarQuadroHonra
 
         $primeiroUtilizador = $alunosComUtilizador->first()['user'];
         $utilizadoresJaNotificados = DatabaseNotification::query()
+            // O tipo antigo evita repetir felicitações já gravadas antes da renomeação.
             ->whereIn('type', [
                 AlunoQuadroHonraNotification::class,
                 'App\\Notifications\\Aluno\\AlunoNoQuadroHonraNotification',

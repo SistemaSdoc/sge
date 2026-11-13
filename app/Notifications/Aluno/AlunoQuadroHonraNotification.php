@@ -4,6 +4,7 @@ namespace App\Notifications\Aluno;
 
 use Illuminate\Notifications\Notification;
 
+/** Felicita o aluno através do canal interno de notificações da aplicação. */
 class AlunoQuadroHonraNotification extends Notification
 {
     public function __construct(

@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/** Guarda os dados apresentados no quadro no momento em que este foi gerado. */
+/**
+ * Preserva o retrato dos dados usado no quadro no momento da geração,
+ * mesmo que a matrícula ou as notas do aluno mudem posteriormente.
+ */
 #[Fillable([
     'quadro_honra_id',
     'turma_aluno_id',
@@ -41,11 +44,6 @@ class QuadroHonraItem extends Model
     public function quadroHonra(): BelongsTo
     {
         return $this->belongsTo(QuadroHonra::class);
-    }
-
-    public function turmaAluno(): BelongsTo
-    {
-        return $this->belongsTo(TurmaAluno::class);
     }
 
     public function aluno(): BelongsTo

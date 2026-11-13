@@ -1,3 +1,8 @@
+<?php
+
+use App\Models\Tenant\User;
+use App\Notifications\Aluno\AlunoQuadroHonraNotification;
+
 it('Congratula o aluno incluído no Quadro de Honra geral.', function () {
     $notification = new AlunoQuadroHonraNotification(
         'quadro-id',
@@ -14,7 +19,7 @@ it('Congratula o aluno incluído no Quadro de Honra geral.', function () {
         ->toMatchArray([
             'tipo' => 'quadro_honra',
             'titulo' => 'Felicitações! Foi distinguido(a) com a inclusão no Quadro de Honra.',
-            'mensagem' => 'Informa-se que foi distinguido(a) com a inclusão no Quadro de Honra geral do ano letivo de 2026/2027, tendo alcançado a 1.ª classificação, com a média final de 17,5 valores.',
+            'mensagem' => 'Informa-se que foi distinguido(a) com a inclusão no Quadro de Honra geral, do ano letivo de 2026/2027, tendo alcançado a 1.ª classificação, com a média final de 17,5 valores.',
             'quadro_honra_id' => 'quadro-id',
             'ano_lectivo' => '2026/2027',
             'tipo_quadro' => 'geral',

@@ -18,14 +18,6 @@ class ResolverCriteriosQuadroHonra
     /**
      * @return array{media_minima: float, limite_alunos: int}
      */
-    public function padrao(): array
-    {
-        return $this->resolver();
-    }
-
-    /**
-     * @return array{media_minima: float, limite_alunos: int}
-     */
     public function resolver(?float $mediaMinima = null, ?int $limiteAlunos = null): array
     {
         $mediaMinima ??= self::MEDIA_MINIMA;

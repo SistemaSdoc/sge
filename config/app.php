@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'http://sge.localhost'),
 
     /*
     |--------------------------------------------------------------------------
@@ -64,7 +64,7 @@ return [
     |
     */
 
-    'domain' => env('APP_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST) ?? 'localhost'),
+    'domain' => env('APP_DOMAIN', parse_url(env('APP_URL', 'http://sge.localhost'), PHP_URL_HOST) ?? 'sge.localhost'),
 
     /*
     |--------------------------------------------------------------------------
