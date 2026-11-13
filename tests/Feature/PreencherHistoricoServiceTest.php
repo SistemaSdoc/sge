@@ -18,7 +18,7 @@ use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
 use App\Services\Tenant\PreencherHistoricoService;
 
-it('mantém a classe em curso quando existe turma_aluno sem notas finalizadas', function () {
+it('separa matrículas regulares dos vínculos de histórico em curso', function () {
     $instituicao = Instituicao::create([
         'nome' => 'Instituição Teste',
         'sigla' => 'INST',
@@ -129,14 +129,31 @@ it('mantém a classe em curso quando existe turma_aluno sem notas finalizadas', 
         'ano_lectivo_id' => $anoLectivo->id,
     ]);
 
-    TurmaAluno::create([
+    $matriculaRegular = TurmaAluno::create([
         'aluno_id' => $aluno->id,
         'turma_id' => $turmaAnterior->id,
         'ano_lectivo_id' => $anoLectivo->id,
         'activo' => true,
     ]);
 
-    $pendentes = app(PreencherHistoricoService::class)->obterClassesFaltando($aluno);
+    $service = app(PreencherHistoricoService::class);
+    $pendentesSemHistorico = $service->obterClassesFaltando($aluno);
+
+    expect($pendentesSemHistorico)->toHaveCount(1)
+        ->and($pendentesSemHistorico[0]['em_curso'])->toBeFalse()
+        ->and($pendentesSemHistorico[0]['turma_aluno_id'])->toBeNull();
+
+    $turmaAlunoHistorico = $service->criarTurmaAlunoHistorico(
+        $aluno,
+        $turmaAnterior->id,
+        $instituicao->id,
+    );
+
+    expect((bool) $turmaAlunoHistorico->is_historico)->toBeTrue()
+        ->and($turmaAlunoHistorico->id)->not->toBe($matriculaRegular->id)
+        ->and((bool) $matriculaRegular->fresh()->is_historico)->toBeFalse();
+
+    $pendentes = $service->obterClassesFaltando($aluno);
 
     expect($pendentes)->toHaveCount(1)
         ->and($pendentes[0]['em_curso'])->toBeTrue()
