@@ -1,0 +1,440 @@
+<?php
+
+namespace App\Http\Controllers\Tenant\Colegios\Pap;
+
+use App\Actions\Tenant\GrupoPap\CreateGrupoPap;
+use App\Helpers\PapHelper;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Tenant\GrupoPap\DefinirDataDefesaRequest;
+use App\Http\Requests\Tenant\GrupoPap\StoreRequest;
+use App\Http\Resources\Tenant\GrupoPap\BancaResource;
+use App\Http\Resources\Tenant\GrupoPap\ElementoResource;
+use App\Http\Resources\Tenant\GrupoPap\IndexResource;
+use App\Http\Resources\Tenant\GrupoPap\ShowResource;
+use App\Models\Central\AnoLectivo;
+use App\Models\Central\CursoTuteladoShared;
+use App\Models\Central\Tenant;
+use App\Models\Tenant\CursoClasse;
+use App\Models\Tenant\CursoClasseTurno;
+use App\Models\Tenant\CursoTutelado;
+use App\Models\Tenant\GrupoPap;
+use App\Models\Tenant\Instituicao;
+use App\Models\Tenant\TrabalhoPap;
+use App\Models\Tenant\Turma;
+use App\Models\Tenant\User;
+use App\Traits\NotificaGrupoPap;
+use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+
+class GrupoPapController extends Controller
+{
+    use NotificaGrupoPap;
+
+    /**
+     * Lista os grupos PAP visíveis ao utilizador do colégio.
+     */
+    public function index()
+    {
+        $this->authorize('viewAny', GrupoPap::class);
+
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        $instituicaoId = $user ? $user->instituicaoFiltro() : null;
+        $anoLectivoId = request('ano_lectivo_id')
+            ?? AnoLectivo::where('activo', 1)->first()?->id;
+        $grupos = GrupoPap::with([
+            'professor.user:id,nome',
+            'turma.cursoClasseTurno.turno:id,nome',
+            'turma.cursoClasseTurno.cursoClasse.classe:id,nome',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso:id,nome',
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.instituicao:id,nome',
+            'elementos.aluno.inscricao.candidato:id,nome',
+        ])->when($instituicaoId, fn ($query) => $query->whereHas(
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso',
+            fn ($query) => $query->where('instituicao_id', $instituicaoId)
+        ))
+            ->when($anoLectivoId, fn ($query) => $query->whereHas(
+                'turma',
+                fn ($query) => $query->where('ano_lectivo_id', $anoLectivoId)
+            ))
+            ->latest()->paginate(10)->withQueryString();
+
+        $grupos->getCollection()->transform(function ($grupo) use ($user) {
+            $grupo->can = [
+                'view' => $user->can('view', $grupo),
+                'update' => $user->can('update', $grupo),
+                'delete' => $user->can('delete', $grupo),
+                'definirData' => $user->can('definirData', $grupo),
+            ];
+
+            return $grupo;
+        });
+
+        return Inertia::render('tenant/pap/index', [
+            'gruposPap' => IndexResource::collection($grupos),
+            'anoLectivoId' => $anoLectivoId,
+            'anosLectivos' => AnoLectivo::all(),
+            'can' => [
+                'create' => $user->can('create', GrupoPap::class),
+            ],
+        ]);
+    }
+
+    /**
+     * Cria um grupo PAP no contexto do colégio.
+     */
+    public function store(
+        StoreRequest $request,
+        Instituicao $instituicao,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        CreateGrupoPap $createGrupoPap,
+    ) {
+        $this->authorize('create', GrupoPap::class);
+        $grupo = $createGrupoPap->handle($turma, $request->validated());
+
+        return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', [
+            'colegio' => $instituicao->id,
+            'cursoTutelado' => $cursoTutelado->id,
+            'cursoClasse' => $cursoClasse->id,
+            'cursoClasseTurno' => $cursoClasseTurno->id,
+            'turma' => $turma->id,
+            'grupoPap' => $grupo->id,
+        ]);
+    }
+
+    /**
+     * Carrega o grupo PAP no tenant tutelado e prepara os seus detalhes.
+     */
+    public function show(
+        string $colegio,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
+    ) {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        $instituicao = Instituicao::findOrFail($user->instituicao_id);
+        abort_unless($user->can('grupopap.view'), 403);
+        $isReadOnlyCourseSecretary = $user->hasRole('Secretario do Curso');
+        $canApprovePapTheme = $user->can('grupopap.aprovar');
+        $shared = CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
+            ->where('curso_tutelado_tutelado_id', $cursoTutelado)
+            ->where('status', 'activo')
+            ->firstOrFail();
+
+        if ($isReadOnlyCourseSecretary) {
+            abort_unless(
+                $user->instituicao?->tipo === 'instituto'
+                    && $shared->curso_id !== null
+                    && $user->cursosSecretariados()
+                        ->whereHas('instituicaoCurso', fn ($query) => $query->where('curso_id', $shared->curso_id))
+                        ->exists(),
+                404,
+            );
+        }
+
+        $tenantTutelado = Tenant::query()->findOrFail($shared->tenant_tutelado_id);
+
+        return $tenantTutelado->run(function () use (
+            $user,
+            $instituicao,
+            $colegio,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
+            $grupoPap,
+            $shared,
+            $isReadOnlyCourseSecretary,
+            $canApprovePapTheme,
+        ) {
+            $colegioModel = Instituicao::findOrFail($colegio);
+            $cursoTuteladoModel = CursoTutelado::query()
+                ->whereKey($cursoTutelado)
+                ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->id))
+                ->when($isReadOnlyCourseSecretary, fn ($query) => $query->whereHas(
+                    'instituicaoCurso',
+                    fn ($query) => $query->where('curso_id', $shared->curso_id),
+                ))
+                ->firstOrFail();
+            $cursoClasseModel = CursoClasse::query()
+                ->whereKey($cursoClasse)
+                ->where('curso_tutelado_id', $cursoTuteladoModel->id)
+                ->firstOrFail();
+            $cursoClasseTurnoModel = CursoClasseTurno::query()
+                ->whereKey($cursoClasseTurno)
+                ->where('curso_classe_id', $cursoClasseModel->id)
+                ->firstOrFail();
+            $turmaModel = Turma::query()
+                ->whereKey($turma)
+                ->where('curso_classe_turno_id', $cursoClasseTurnoModel->id)
+                ->firstOrFail();
+            $grupoPapModel = GrupoPap::query()
+                ->whereKey($grupoPap)
+                ->where('turma_id', $turmaModel->id)
+                ->firstOrFail();
+
+            return $this->showFromTenant(
+                $instituicao,
+                $colegioModel,
+                $cursoTuteladoModel,
+                $cursoClasseModel,
+                $cursoClasseTurnoModel,
+                $turmaModel,
+                $grupoPapModel,
+                $user,
+                $isReadOnlyCourseSecretary,
+                $canApprovePapTheme,
+            );
+        });
+    }
+
+    /**
+     * Define a data de defesa do grupo PAP através do contexto do colégio.
+     */
+    public function definirData(
+        DefinirDataDefesaRequest $request,
+        string $colegio,
+        string $cursoTutelado,
+        string $cursoClasse,
+        string $cursoClasseTurno,
+        string $turma,
+        string $grupoPap,
+    ) {
+        /** @var User $user */
+        $user = Auth::guard('tenant')->user();
+        abort_if($user->hasRole('Secretario do Curso'), 403);
+        abort_unless($user->can('grupopap.definirData'), 403);
+        $shared = CursoTuteladoShared::query()
+            ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
+            ->where('curso_tutelado_tutelado_id', $cursoTutelado)
+            ->where('status', 'activo')
+            ->firstOrFail();
+
+        Tenant::query()->findOrFail($shared->tenant_tutelado_id)->run(function () use (
+            $colegio,
+            $cursoTutelado,
+            $cursoClasse,
+            $cursoClasseTurno,
+            $turma,
+            $grupoPap,
+            $request,
+        ): void {
+            $colegioModel = Instituicao::findOrFail($colegio);
+            $cursoTuteladoModel = CursoTutelado::query()
+                ->whereKey($cursoTutelado)
+                ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->id))
+                ->firstOrFail();
+            $cursoClasseModel = CursoClasse::query()
+                ->whereKey($cursoClasse)
+                ->where('curso_tutelado_id', $cursoTuteladoModel->id)
+                ->firstOrFail();
+            $cursoClasseTurnoModel = CursoClasseTurno::query()
+                ->whereKey($cursoClasseTurno)
+                ->where('curso_classe_id', $cursoClasseModel->id)
+                ->firstOrFail();
+            $turmaModel = Turma::query()
+                ->whereKey($turma)
+                ->where('curso_classe_turno_id', $cursoClasseTurnoModel->id)
+                ->firstOrFail();
+            $grupoPapModel = GrupoPap::query()
+                ->whereKey($grupoPap)
+                ->where('turma_id', $turmaModel->id)
+                ->firstOrFail();
+            abort_unless($grupoPapModel->status_aprovacao === GrupoPap::APROVACAO_APROVADO, 422);
+
+            $grupoPapModel->update([
+                'data_defesa' => $request->data_defesa.' '.$request->hora_defesa.':00',
+                'local_defesa' => $request->local_defesa,
+            ]);
+            $this->notificarDataDefesaDefinida($grupoPapModel->fresh());
+        });
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => 'Data e local da defesa definidos com sucesso!',
+        ]);
+    }
+
+    /**
+     * Prepara a resposta do detalhe do grupo no tenant onde os dados residem.
+     */
+    private function showFromTenant(
+        Instituicao $instituicao,
+        Instituicao $colegioModel,
+        CursoTutelado $cursoTutelado,
+        CursoClasse $cursoClasse,
+        CursoClasseTurno $cursoClasseTurno,
+        Turma $turma,
+        GrupoPap $grupoPap,
+        User $user,
+        bool $isReadOnlyCourseSecretary,
+        bool $canApprovePapTheme,
+    ) {
+        $anoLectivoId = $turma->ano_lectivo_id;
+        $instituicaoTutoraModel = $instituicao;
+        $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
+        $grupoPap->load([
+            'professor.user:id,nome,email',
+            'historicoAprovacao.utilizador:id,nome,instituicao_id',
+        ]);
+        $cursoTutelado->load(['instituicaoCurso.curso']);
+        /** @var TrabalhoPap|null $trabalho */
+        $trabalho = $grupoPap->trabalhoPap()->with([
+            'versoes.submetidoPor:id,nome',
+            'versoes.feedbacks.utilizador:id,nome,instituicao_id',
+            'aprovadoPor:id,nome,instituicao_id',
+        ])->first();
+        $canManageTheme = $canApprovePapTheme && $grupoPap->podeSerAprovado();
+        $canDefineDefenseDate = $user?->can('grupopap.definirData')
+            && $grupoPap->status_aprovacao === GrupoPap::APROVACAO_APROVADO;
+        $canManageWorkAsCoordination = ! $user->hasAnyRole(['Director', 'Subdirector'])
+            && $user?->can('grupopap.aprovar')
+            && $trabalho?->podeSerAnalisadoPelaCoordenacao();
+        $canViewWorkVersions = $user?->can('grupopap.view') && $trabalho !== null;
+        $banca = $grupoPap->jurados()
+            ->with('professor.user:id,nome,email')
+            ->orderByDesc('created_at')
+            ->paginate(10, ['*'], 'page_banca');
+        $elementos = $grupoPap->elementos()
+            ->with([
+                'aluno.inscricao.candidato:id,nome,email',
+                'aluno:id,user_id,matricula,inscricao_id',
+                'aluno.user:id,avatar',
+            ])
+            ->latest('created_at')
+            ->paginate(10, ['*'], 'page_elementos');
+        /** @var FilesystemAdapter $storage */
+        $storage = Storage::disk(config('filesystems.default'));
+
+        return Inertia::render('tenant/colegio/cursos-tutelados/classes/turnos/turmas/pap/show', [
+            'instituicao' => [
+                'id' => $instituicao->id,
+                'nome' => $instituicao->nome,
+                'sigla' => $instituicao->sigla,
+            ],
+            'colegio' => [
+                'id' => $colegioModel->id,
+                'nome' => $colegioModel->nome,
+            ],
+            'cursoTutelado' => [
+                'id' => $cursoTutelado->id,
+                'nome' => $cursoTutelado->instituicaoCurso?->curso?->nome,
+            ],
+            'cursoClasse' => ['id' => $cursoClasse->id],
+            'cursoClasseTurno' => ['id' => $cursoClasseTurno->id],
+            'turma' => ['id' => $turma->id, 'nome' => $turma->nome],
+            'anoLectivoId' => $anoLectivoId,
+            'anosLectivos' => AnoLectivo::all(),
+            'grupoPap' => new ShowResource($grupoPap),
+            'currentUserId' => (string) $user->getKey(),
+            'trabalho' => $trabalho ? [
+                'id' => $trabalho->id,
+                'status' => $trabalho->status,
+                'data_aprovacao' => $trabalho->data_aprovacao?->toIso8601String(),
+                'aprovado_por' => PapHelper::nomeAprovador(
+                    $trabalho->aprovadoPor,
+                    $instituicaoTutoraModel,
+                    $nomeCurso,
+                    $trabalho->aprovado_por_externo_tenant_id,
+                ),
+                'versoes' => $trabalho->versoes->map(fn ($versao) => [
+                    'id' => $versao->id,
+                    'numero_versao' => $versao->numero_versao,
+                    'nome_original' => $versao->nome_original,
+                    'status_quando_submetido' => $versao->status_quando_submetido,
+                    'submetido_por' => $versao->submetidoPor?->nome,
+                    'created_at' => $versao->created_at?->toIso8601String(),
+                    'feedbacks' => $versao->feedbacks->map(fn ($feedback) => [
+                        'id' => $feedback->id,
+                        'tipo' => $feedback->tipo,
+                        'comentario' => $feedback->comentario,
+                        'utilizador' => PapHelper::nomeAprovador(
+                            $feedback->utilizador,
+                            $instituicaoTutoraModel,
+                            $nomeCurso,
+                            $feedback->utilizador_externo_tenant_id,
+                        ),
+                        'created_at' => $feedback->created_at?->toIso8601String(),
+                        'tem_ficheiro_correcao' => ! is_null($feedback->caminho_ficheiro_correcao),
+                        'nome_original_correcao' => $feedback->nome_original_correcao,
+                    ]),
+                ]),
+            ] : null,
+            'historico' => $grupoPap->historicoAprovacao->map(function ($item) use ($instituicaoTutoraModel, $nomeCurso) {
+                return [
+                    'id' => $item->id,
+                    'estado_anterior' => $item->estado_anterior,
+                    'estado_novo' => $item->estado_novo,
+                    'comentario' => $item->comentario,
+                    'tema' => $item->tema,
+                    'problema' => $item->problema,
+                    'objectivo_geral' => $item->objectivo_geral,
+                    'objectivos_especificos' => $item->objectivos_especificos,
+                    'created_at' => $item->created_at?->toIso8601String(),
+                    'utilizador' => [
+                        'nome' => in_array($item->estado_novo, [
+                            GrupoPap::APROVACAO_MELHORIA_TUTOR,
+                            GrupoPap::APROVACAO_SUBMETIDO,
+                        ], true)
+                            ? ($item->utilizador?->nome ?? $item->utilizador_nome ?? '—')
+                            : PapHelper::nomeAprovador(
+                                $item->utilizador,
+                                $instituicaoTutoraModel,
+                                $nomeCurso,
+                                $item->utilizador_externo_tenant_id ?? null,
+                            ),
+                    ],
+                ];
+            })->values(),
+            'criterios_pap_url' => $cursoTutelado->criterios_pap_path
+                ? $storage->url($cursoTutelado->criterios_pap_path)
+                : null,
+            'banca' => BancaResource::collection($banca),
+            'elementos' => ElementoResource::collection($elementos),
+            'can' => [
+                'update' => ! $isReadOnlyCourseSecretary && $user?->can('update', $grupoPap),
+                'definirData' => ! $isReadOnlyCourseSecretary && $canDefineDefenseDate,
+                'delete' => ! $isReadOnlyCourseSecretary && $user?->can('delete', $grupoPap),
+                'corrigirTema' => ! $isReadOnlyCourseSecretary && $user?->can('corrigirTema', $grupoPap),
+                'aprovar' => ! $isReadOnlyCourseSecretary && $canManageTheme,
+                'reprovar' => ! $isReadOnlyCourseSecretary && $canManageTheme,
+                'solicitarMelhoria' => ! $isReadOnlyCourseSecretary && $canManageTheme,
+                'aprovarComoTutor' => false,
+                'solicitarMelhoriaComoTutor' => false,
+                'submeter' => ! $isReadOnlyCourseSecretary && $user?->can('submeterTrabalho', $grupoPap),
+                'aprovarTrabalhoComoTutor' => false,
+                'solicitarCorrecaoComoTutor' => false,
+                'aprovarComoCoordenacao' => ! $isReadOnlyCourseSecretary && $canManageWorkAsCoordination,
+                'solicitarCorrecaoComoCoordenacao' => ! $isReadOnlyCourseSecretary && $canManageWorkAsCoordination,
+                'downloadVersao' => ! $isReadOnlyCourseSecretary && $canViewWorkVersions,
+                'elementos' => [
+                    'create' => false,
+                    'atualizarNota' => ! $isReadOnlyCourseSecretary && $user?->can('elementogrupopap.atualizarNota')
+                        && ! is_null($grupoPap->data_defesa)
+                        && ! $grupoPap->data_defesa->isFuture()
+                        && $grupoPap->jurados()->exists(),
+                    'delete' => false,
+                ],
+                'verBanca' => $isReadOnlyCourseSecretary || $instituicaoTutoraModel?->id === $user->instituicao_id,
+                'banca' => [
+                    'create' => ! $isReadOnlyCourseSecretary && $user?->can('bancajuripap.create')
+                        && ! is_null($grupoPap->data_defesa)
+                        && $instituicaoTutoraModel?->id === $user->instituicao_id,
+                    'update' => ! $isReadOnlyCourseSecretary && $user?->can('bancajuripap.update')
+                        && $instituicaoTutoraModel?->id === $user->instituicao_id,
+                    'delete' => ! $isReadOnlyCourseSecretary && $user?->can('bancajuripap.delete')
+                        && $instituicaoTutoraModel?->id === $user->instituicao_id,
+                ],
+            ],
+        ]);
+    }
+}
