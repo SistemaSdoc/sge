@@ -117,9 +117,7 @@ export default function LancamentosTable({
   });
 
   // ── 5. DADOS ────────────────────────────────────────────────────
-  const alunos = [...(data?.alunos?.data ?? [])].sort((a, b) =>
-    (a?.nome ?? '').localeCompare(b?.nome ?? '', 'pt', { sensitivity: 'base' }),
-  );
+  const alunos = data?.alunos?.data ?? [];
   const isEmpty = alunos.length === 0;
 
   const todosAbertos =
@@ -469,7 +467,9 @@ export default function LancamentosTable({
 
                   return (
                     <TableRow key={aluno.turma_aluno_id}>
-                      <TableCell className="px-4">{index + 1}</TableCell>
+                      <TableCell className="px-4">
+                        {(data?.alunos?.from ?? 1) + index}
+                      </TableCell>
                       <TableCell className="px-4">{aluno.nome}</TableCell>
 
                       <TableCell>

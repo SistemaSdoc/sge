@@ -58,3 +58,43 @@ it('fills the roster template and extends it for classes with more than 22 stude
         unlink($path);
     }
 });
+
+it('sorts accented student names using Portuguese alphabetical order', function (): void {
+    $alunos = [
+        [
+            'numero' => 1,
+            'nome' => 'Josimar',
+            'processo' => '00001',
+            'idade' => 18,
+            'sexo' => 'Masculino',
+            'contacto' => '923000001',
+        ],
+        [
+            'numero' => 2,
+            'nome' => 'José',
+            'processo' => '00002',
+            'idade' => 18,
+            'sexo' => 'Masculino',
+            'contacto' => '923000002',
+        ],
+    ];
+
+    $path = (new ListaAlunosTurmaExport)->gerar([
+        'instituicao' => 'Instituto de Teste',
+        'subdirector' => 'Ana Subdirectora',
+        'curso' => 'Informática',
+        'ano_lectivo' => '2025/26',
+        'classe' => '10ª',
+        'turma' => '10A',
+        'sala' => '2',
+    ], $alunos);
+
+    try {
+        $sheet = IOFactory::load($path)->getActiveSheet();
+
+        expect($sheet->getCell('B16')->getValue())->toBe('José');
+        expect($sheet->getCell('B17')->getValue())->toBe('Josimar');
+    } finally {
+        unlink($path);
+    }
+});

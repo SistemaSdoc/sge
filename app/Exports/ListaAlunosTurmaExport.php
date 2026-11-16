@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -19,7 +20,7 @@ class ListaAlunosTurmaExport
     public function gerar(array $cabecalho, array $alunos): string
     {
         $alunos = collect($alunos)
-            ->sortBy('nome', SORT_NATURAL | SORT_FLAG_CASE)
+            ->sortBy(fn (array $aluno): string => Str::ascii($aluno['nome'], 'pt'), SORT_NATURAL | SORT_FLAG_CASE)
             ->values()
             ->map(fn (array $aluno, int $index): array => [...$aluno, 'numero' => $index + 1])
             ->all();

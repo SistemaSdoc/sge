@@ -226,7 +226,8 @@ class NotaDisciplinaController extends Controller
                         ->where('turma_aluno.activo', true);
                 })->orWhere('turma_aluno.situacao', 'concluido');
             })
-            ->latest('turma_aluno.created_at')
+            ->orderBy('candidatos.nome')
+            ->orderBy('turma_aluno.id')
             ->paginate(20, ['*'], 'page_alunos');
 
         $alunosMapeados = $turmaAlunos->getCollection()->map(fn ($ta) => [
@@ -300,6 +301,7 @@ class NotaDisciplinaController extends Controller
                     'data' => $alunosMapeados,
                     'current_page' => $turmaAlunos->currentPage(),
                     'last_page' => $turmaAlunos->lastPage(),
+                    'from' => $turmaAlunos->firstItem(),
                 ],
                 'periodos_lancados' => $periodosLancados,
                 'periodos_disponiveis' => $periodosDisponiveis,
