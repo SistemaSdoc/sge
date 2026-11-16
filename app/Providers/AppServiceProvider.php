@@ -38,7 +38,6 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -63,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->make(ChannelManager::class)->extend(
             'mail',
-            fn($app) => $app->make(InstitutionLogoMailChannel::class)
+            fn ($app) => $app->make(InstitutionLogoMailChannel::class)
         );
 
         Inertia::handleExceptionsUsing(function (ExceptionResponse $response): ?ExceptionResponse {
@@ -121,7 +120,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('aula.publicar', [AulaPolicy::class, 'publicar']);
         Gate::define('aula.cancelar', [AulaPolicy::class, 'cancelar']);
 
-        
         Gate::policy(Aula::class, AulaPolicy::class);
         Gate::policy(Role::class, RolePolicy::class);
         Gate::policy(User::class, UserPolicy::class);
@@ -131,8 +129,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(ItemPagavel::class, ItemPagavelPolicy::class);
         Gate::policy(Planificacao::class, PlanificacaoPolicy::class);
         Gate::policy(TurmaAluno::class, ConfirmacaoMatriculaPolicy::class);
-
-
 
         Gate::before(function ($user, $ability, array $arguments) {
             if ($ability === 'delete' && ($arguments[0] ?? null) instanceof Aluno) {
@@ -165,13 +161,13 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Password::defaults(
-            fn(): ?Password => app()->isProduction()
+            fn (): ?Password => app()->isProduction()
                 ? Password::min(12)
-                ->mixedCase()
-                ->letters()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised()
                 : null,
         );
     }

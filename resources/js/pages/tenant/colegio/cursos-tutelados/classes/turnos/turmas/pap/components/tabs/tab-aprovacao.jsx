@@ -1,12 +1,10 @@
 import { Link } from '@inertiajs/react';
 import { CheckCircle, XCircle, AlertCircle, Clock } from 'lucide-react';
-import {
-  formAprovarTutor,
-  formSolicitarMelhoriaTutor,
-  formSolicitarMelhoriaCoordenacao,
-  formAprovarCoordenacao,
-  formReprovarCoordenacao,
-} from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/AprovacaoTemaPapController';
+import { create as formAprovarCoordenacao } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Aprovacao/Coordenacao/AprovarTemaPapController';
+import { create as formReprovarCoordenacao } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Aprovacao/Coordenacao/ReprovarTemaPapController';
+import { create as formSolicitarMelhoriaCoordenacao } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Aprovacao/Coordenacao/SolicitarMelhoriaTemaPapController';
+import { create as formAprovarTutor } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Aprovacao/Tutor/AprovarTemaPapController';
+import { create as formSolicitarMelhoriaTutor } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Aprovacao/Tutor/SolicitarMelhoriaTemaPapController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

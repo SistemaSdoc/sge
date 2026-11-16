@@ -29,4 +29,22 @@ class SolicitarCorrecaoTrabalhoPapRequest extends FormRequest
             'ficheiro' => ['nullable', 'file', 'mimes:pdf', 'max:20480'],
         ];
     }
+
+    /**
+     * Devolve as mensagens específicas do pedido de correcção do trabalho.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'comentario.required' => 'Descreva as correcções necessárias.',
+            'comentario.string' => 'O comentário deve ser um texto.',
+            'comentario.min' => 'O comentário deve ter pelo menos 10 caracteres.',
+            'comentario.max' => 'O comentário não pode exceder 2000 caracteres.',
+            'ficheiro.file' => 'O ficheiro de correcção não é válido.',
+            'ficheiro.mimes' => 'O ficheiro de correcção deve estar em formato PDF.',
+            'ficheiro.max' => 'O ficheiro de correcção não pode exceder 20 MB.',
+        ];
+    }
 }

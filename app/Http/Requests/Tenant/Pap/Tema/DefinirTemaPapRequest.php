@@ -145,14 +145,28 @@ class DefinirTemaPapRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'origem_tema.required' => 'Seleccione como pretende definir o tema.',
+            'origem_tema.in' => 'Seleccione uma opção válida para definir o tema.',
+            'tema_sugerido_id.string' => 'A sugestão de tema seleccionada não é válida.',
             'tema_grupo.required' => 'Indique o tema proposto pelo grupo.',
+            'tema_grupo.string' => 'O tema do grupo deve ser um texto.',
+            'tema_grupo.max' => 'O tema do grupo não pode exceder 255 caracteres.',
             'tema_sugerido_id.required_if' => 'Seleccione uma sugestão de tema.',
+            'tema_sugerido_id.in' => 'A sugestão seleccionada já não está disponível. Escolha outra.',
             'professor_tutor_id.required' => 'Seleccione o professor tutor do grupo.',
             'professor_tutor_id.exists' => 'O professor tutor seleccionado não existe.',
             'problema.required' => 'Descreva o problema que o trabalho pretende resolver.',
+            'problema.string' => 'O problema deve ser um texto.',
+            'problema.max' => 'O problema não pode exceder 1000 caracteres.',
             'objectivo_geral.required' => 'Indique o objectivo geral do trabalho.',
+            'objectivo_geral.string' => 'O objectivo geral deve ser um texto.',
+            'objectivo_geral.max' => 'O objectivo geral não pode exceder 1000 caracteres.',
             'objectivos_especificos.required' => 'Indique os objectivos específicos do trabalho.',
+            'objectivos_especificos.string' => 'Os objectivos específicos devem ser um texto.',
+            'objectivos_especificos.max' => 'Os objectivos específicos não podem exceder 1000 caracteres.',
             'estudo_caso.required' => 'Descreva o estudo de caso do trabalho.',
+            'estudo_caso.string' => 'O estudo de caso deve ser um texto.',
+            'estudo_caso.max' => 'O estudo de caso não pode exceder 1000 caracteres.',
         ];
     }
 

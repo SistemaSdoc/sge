@@ -5,7 +5,7 @@ export default function AprovarTemaCoordenacao(props) {
     <FormularioDecisaoPap
       {...props}
       tipo="aprovarCoordenacao"
-      successUrl={props.backUrl}
+      redirectAfterSuccess
     />
   );
 }

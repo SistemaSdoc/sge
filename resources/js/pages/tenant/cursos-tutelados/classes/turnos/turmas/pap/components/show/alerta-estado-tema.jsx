@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { AlertCircle } from 'lucide-react';
-import { editar as editarTema } from '@/actions/App/Http/Controllers/Tenant/Pap/AprovacaoTemaPapController';
+import { edit as editarTema } from '@/actions/App/Http/Controllers/Tenant/Pap/TemaPapController';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 

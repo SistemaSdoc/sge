@@ -39,6 +39,7 @@ class DefesaPapController extends Controller
         Gate::forUser(Auth::guard('tenant')->user())->authorize('definirData', $grupoPap);
 
         $this->definirDataDefesa->handle($grupoPap, $request->validated());
+
         $this->notificarDataDefesaDefinida($grupoPap);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [

@@ -76,7 +76,7 @@ export function TemaForm({
                 )}
               </Field>
 
-              <Field>
+              <Field data-invalid={!!errors.origem_tema}>
                 <FieldLabel>Escolha do tema</FieldLabel>
                 <input type="hidden" name="origem_tema" value={origemTema} />
                 <div className="grid gap-2 sm:grid-cols-2">
@@ -105,6 +105,9 @@ export function TemaForm({
                     Propor tema do grupo
                   </Button>
                 </div>
+                {errors.origem_tema && (
+                  <FieldError>{errors.origem_tema}</FieldError>
+                )}
 
                 {origemTema === 'sugerido' ? (
                   <>
@@ -155,6 +158,7 @@ export function TemaForm({
                     disabled={processing}
                     placeholder="Ex.: Sistema de Gestão Escolar"
                     defaultValue={grupoPap?.tema_grupo ?? ''}
+                    aria-invalid={Boolean(errors.tema_grupo)}
                   />
                 )}
                 {errors.tema_grupo && (

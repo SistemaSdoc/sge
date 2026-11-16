@@ -50,4 +50,27 @@ class ActualizarTemaPapPeloColegioRequest extends FormRequest
             'objectivos_especificos' => ['nullable', 'string', 'max:2000'],
         ];
     }
+
+    /**
+     * Devolve as mensagens específicas da correcção da proposta pelo colégio.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'nome_grupo.required' => 'O nome do grupo é obrigatório.',
+            'nome_grupo.string' => 'O nome do grupo deve ser um texto.',
+            'nome_grupo.max' => 'O nome do grupo não pode exceder 255 caracteres.',
+            'tema_grupo.required' => 'O tema do grupo é obrigatório.',
+            'tema_grupo.string' => 'O tema do grupo deve ser um texto.',
+            'tema_grupo.max' => 'O tema do grupo não pode exceder 255 caracteres.',
+            'problema.string' => 'O problema deve ser um texto.',
+            'problema.max' => 'O problema não pode exceder 2000 caracteres.',
+            'objectivo_geral.string' => 'O objectivo geral deve ser um texto.',
+            'objectivo_geral.max' => 'O objectivo geral não pode exceder 2000 caracteres.',
+            'objectivos_especificos.string' => 'Os objectivos específicos devem ser um texto.',
+            'objectivos_especificos.max' => 'Os objectivos específicos não podem exceder 2000 caracteres.',
+        ];
+    }
 }

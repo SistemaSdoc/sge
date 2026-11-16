@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { destroy as destroyJurado } from '@/actions/App/Http/Controllers/Tenant/Colegios/BancaJuriPapController';
 import { actualizarNota } from '@/actions/App/Http/Controllers/Tenant/Colegios/ElementoGrupoPapController';
 import { definirData } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/GrupoPapController';
-import { editar as editarTema } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/AprovacaoTemaPapController';
+import { edit as editarTema } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/TemaPapController';
 import { edit } from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -396,7 +396,12 @@ export default function Show({
                     : 'default'
                 }
                 onClick={() =>
-                  router.visit(editarTema.url({ grupoPap: grupoPap.id }))
+                  router.visit(
+                    editarTema.url({
+                      colegio: colegio.id,
+                      grupoPap: grupoPap.id,
+                    }),
+                  )
                 }
               >
                 {(grupoPap.status_aprovacao || '').toLowerCase() === 'reprovado'

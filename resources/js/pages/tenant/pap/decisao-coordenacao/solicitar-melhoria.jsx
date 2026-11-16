@@ -5,7 +5,7 @@ export default function SolicitarMelhoriaCoordenacao(props) {
     <FormularioDecisaoPap
       {...props}
       tipo="melhoriaCoordenacao"
-      successUrl={props.backUrl}
+      redirectAfterSuccess
     />
   );
 }

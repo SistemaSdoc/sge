@@ -28,4 +28,17 @@ class AprovarTrabalhoPapRequest extends FormRequest
             'comentario' => ['nullable', 'string', 'max:2000'],
         ];
     }
+
+    /**
+     * Devolve as mensagens específicas da aprovação do trabalho.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'comentario.string' => 'O comentário deve ser um texto.',
+            'comentario.max' => 'O comentário não pode exceder 2000 caracteres.',
+        ];
+    }
 }

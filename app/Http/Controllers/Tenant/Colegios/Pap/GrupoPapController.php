@@ -8,9 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tenant\GrupoPap\StoreRequest;
 use App\Http\Requests\Tenant\Pap\Defesa\DefinirDataDefesaRequest;
 use App\Http\Resources\Tenant\GrupoPap\IndexResource;
-use App\Http\Resources\Tenant\Pap\BancaJuriPapResource;
-use App\Http\Resources\Tenant\Pap\ElementoGrupoPapResource;
-use App\Http\Resources\Tenant\Pap\GrupoPapDetalheResource;
+use App\Http\Resources\Tenant\Pap\Grupo\BancaJuriPapResource;
+use App\Http\Resources\Tenant\Pap\Grupo\ElementoGrupoPapResource;
+use App\Http\Resources\Tenant\Pap\Grupo\GrupoPapDetalheResource;
 use App\Models\Central\AnoLectivo;
 use App\Models\Central\CursoTuteladoShared;
 use App\Models\Central\Tenant;
@@ -44,9 +44,12 @@ class GrupoPapController extends Controller
 
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
         $instituicaoId = $user ? $user->instituicaoFiltro() : null;
+
         $anoLectivoId = request('ano_lectivo_id')
             ?? AnoLectivo::where('activo', 1)->first()?->id;
+
         $grupos = GrupoPap::with([
             'professor.user:id,nome',
             'turma.cursoClasseTurno.turno:id,nome',
@@ -98,6 +101,7 @@ class GrupoPapController extends Controller
         CreateGrupoPap $createGrupoPap,
     ) {
         $this->authorize('create', GrupoPap::class);
+
         $grupo = $createGrupoPap->handle($turma, $request->validated());
 
         return to_route('tenant.dashboard.colegios.cursos.classes.turnos.turmas.pap.show', [
@@ -123,10 +127,15 @@ class GrupoPapController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
         $instituicao = Instituicao::findOrFail($user->instituicao_id);
+
         abort_unless($user->can('grupopap.view'), 403);
+
         $isReadOnlyCourseSecretary = $user->hasRole('Secretario do Curso');
+
         $canApprovePapTheme = $user->can('grupopap.aprovar');
+
         $shared = CursoTuteladoShared::query()
             ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
             ->where('curso_tutelado_tutelado_id', $cursoTutelado)
@@ -160,6 +169,7 @@ class GrupoPapController extends Controller
             $canApprovePapTheme,
         ) {
             $colegioModel = Instituicao::findOrFail($colegio);
+
             $cursoTuteladoModel = CursoTutelado::query()
                 ->whereKey($cursoTutelado)
                 ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->id))
@@ -168,18 +178,22 @@ class GrupoPapController extends Controller
                     fn ($query) => $query->where('curso_id', $shared->curso_id),
                 ))
                 ->firstOrFail();
+
             $cursoClasseModel = CursoClasse::query()
                 ->whereKey($cursoClasse)
                 ->where('curso_tutelado_id', $cursoTuteladoModel->id)
                 ->firstOrFail();
+
             $cursoClasseTurnoModel = CursoClasseTurno::query()
                 ->whereKey($cursoClasseTurno)
                 ->where('curso_classe_id', $cursoClasseModel->id)
                 ->firstOrFail();
+
             $turmaModel = Turma::query()
                 ->whereKey($turma)
                 ->where('curso_classe_turno_id', $cursoClasseTurnoModel->id)
                 ->firstOrFail();
+
             $grupoPapModel = GrupoPap::query()
                 ->whereKey($grupoPap)
                 ->where('turma_id', $turmaModel->id)
@@ -214,8 +228,11 @@ class GrupoPapController extends Controller
     ) {
         /** @var User $user */
         $user = Auth::guard('tenant')->user();
+
         abort_if($user->hasRole('Secretario do Curso'), 403);
+
         abort_unless($user->can('grupopap.definirData'), 403);
+
         $shared = CursoTuteladoShared::query()
             ->where('tenant_tutor_id', tenancy()->tenant->getTenantKey())
             ->where('curso_tutelado_tutelado_id', $cursoTutelado)
@@ -232,29 +249,36 @@ class GrupoPapController extends Controller
             $request,
         ): void {
             $colegioModel = Instituicao::findOrFail($colegio);
+
             $cursoTuteladoModel = CursoTutelado::query()
                 ->whereKey($cursoTutelado)
                 ->whereHas('instituicaoCurso', fn ($query) => $query->where('instituicao_id', $colegioModel->id))
                 ->firstOrFail();
+
             $cursoClasseModel = CursoClasse::query()
                 ->whereKey($cursoClasse)
                 ->where('curso_tutelado_id', $cursoTuteladoModel->id)
                 ->firstOrFail();
+
             $cursoClasseTurnoModel = CursoClasseTurno::query()
                 ->whereKey($cursoClasseTurno)
                 ->where('curso_classe_id', $cursoClasseModel->id)
                 ->firstOrFail();
+
             $turmaModel = Turma::query()
                 ->whereKey($turma)
                 ->where('curso_classe_turno_id', $cursoClasseTurnoModel->id)
                 ->firstOrFail();
+
             $grupoPapModel = GrupoPap::query()
                 ->whereKey($grupoPap)
                 ->where('turma_id', $turmaModel->id)
                 ->firstOrFail();
+
             abort_unless($grupoPapModel->status_aprovacao === GrupoPap::APROVACAO_APROVADO, 422);
 
             $this->definirDataDefesa->handle($grupoPapModel, $request->validated());
+
             $this->notificarDataDefesaDefinida($grupoPapModel->fresh());
         });
 
@@ -280,18 +304,28 @@ class GrupoPapController extends Controller
         bool $canApprovePapTheme,
     ) {
         $anoLectivoId = $turma->ano_lectivo_id;
+
         $instituicaoTutoraModel = $instituicao;
+
         $nomeCurso = $cursoTutelado->instituicaoCurso?->curso?->nome;
+
         $this->prepararDetalheGrupoPapService->prepararDetalhe($grupoPap);
+
         $cursoTutelado->load(['instituicaoCurso.curso']);
+
         $trabalho = $grupoPap->trabalhoPap;
+
         $canManageTheme = $canApprovePapTheme && $grupoPap->podeSerAprovado();
+
         $canDefineDefenseDate = $user?->can('grupopap.definirData')
             && $grupoPap->status_aprovacao === GrupoPap::APROVACAO_APROVADO;
+
         $canManageWorkAsCoordination = ! $user->hasAnyRole(['Director', 'Subdirector'])
             && $user?->can('grupopap.aprovar')
             && $trabalho?->podeSerAnalisadoPelaCoordenacao();
+
         $canViewWorkVersions = $user?->can('grupopap.view') && $trabalho !== null;
+
         $detalhesPaginados = $this->prepararDetalheGrupoPapService->detalhesPaginados($grupoPap);
 
         return Inertia::render('tenant/colegio/cursos-tutelados/classes/turnos/turmas/pap/show', [

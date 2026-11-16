@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers\Tenant\Pap;
 
-use App\Actions\Tenant\Pap\Tema\ActualizarTemaPap;
 use App\Actions\Tenant\Pap\Tema\DefinirTemaPap;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Tenant\Pap\Tema\ActualizarPropostaTemaPapRequest;
-use App\Http\Requests\Tenant\Pap\Tema\CorrigirTemaPapRequest;
+use App\Http\Requests\Tenant\Pap\Aprovacao\ActualizarTemaPapPelaCoordenacaoRequest;
 use App\Http\Requests\Tenant\Pap\Tema\DefinirTemaPapRequest;
-use App\Http\Resources\Tenant\Pap\GrupoPapDetalheResource;
-use App\Http\Resources\Tenant\Pap\TemaPapCriacaoResource;
+use App\Http\Resources\Tenant\Pap\Tema\TemaPapCriacaoResource;
 use App\Models\Tenant\CursoClasse;
 use App\Models\Tenant\CursoClasseTurno;
 use App\Models\Tenant\CursoTutelado;
@@ -18,9 +15,11 @@ use App\Models\Tenant\Instituicao;
 use App\Models\Tenant\Turma;
 use App\Services\Tenant\Pap\Consultas\PrepararFormularioTemaPapService;
 use App\Services\Tenant\Pap\Tema\TemaPapUnicidadeService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class TemaPapController extends Controller
 {
@@ -31,7 +30,6 @@ class TemaPapController extends Controller
         private readonly TemaPapUnicidadeService $temaPapUnicidadeService,
         private readonly PrepararFormularioTemaPapService $prepararFormularioTemaPapService,
         private readonly DefinirTemaPap $definirTemaPap,
-        private readonly ActualizarTemaPap $actualizarTemaPap,
     ) {}
 
     /**
@@ -46,18 +44,23 @@ class TemaPapController extends Controller
         GrupoPap $grupoPap,
     ) {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('definirTema', $grupoPap);
+
         $cursoTuteladoDoGrupo = $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado;
+
         abort_unless($cursoTuteladoDoGrupo?->is($cursoTutelado), 404);
+
         $anoLectivoId = $turma->ano_lectivo_id;
 
         $professores = $this->prepararFormularioTemaPapService
             ->professoresParaTema((string) $cursoTutelado->getKey());
+
         $titulosUsados = $this->temaPapUnicidadeService->titulosUsadosNoTurno(
             (string) $cursoTuteladoDoGrupo->getKey(),
             (string) $anoLectivoId,
             (string) $cursoClasseTurno->getKey(),
             (string) $grupoPap->getKey(),
         );
+
         $sugestoesTemas = collect($cursoTuteladoDoGrupo->resolverSugestoesTemas())
             ->filter(fn ($sugestao) => (bool) data_get($sugestao, 'ativo', true))
             ->reject(fn ($sugestao) => $titulosUsados->contains(
@@ -93,8 +96,11 @@ class TemaPapController extends Controller
         GrupoPap $grupoPap,
     ) {
         Gate::forUser(Auth::guard('tenant')->user())->authorize('definirTema', $grupoPap);
+
         $cursoTuteladoDoGrupo = $grupoPap->turma?->cursoClasseTurno?->cursoClasse?->cursoTutelado;
+
         abort_unless($cursoTuteladoDoGrupo?->is($cursoTutelado), 404);
+
         $validated = $request->validated();
 
         if ($validated['origem_tema'] === 'sugerido') {
@@ -105,7 +111,9 @@ class TemaPapController extends Controller
         }
 
         $campoTema = $validated['origem_tema'] === 'sugerido' ? 'tema_sugerido_id' : 'tema_grupo';
+
         unset($validated['origem_tema'], $validated['tema_sugerido_id']);
+
         $this->definirTemaPap->handle($grupoPap, $validated, $campoTema);
 
         return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
@@ -122,107 +130,51 @@ class TemaPapController extends Controller
     }
 
     /**
-     * Apresenta o formulário de edição da proposta do grupo.
+     * Apresenta o formulário para corrigir um tema com melhorias pedidas.
      */
-    public function edit(
-        Instituicao $instituicao,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
-    ) {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('definirTema', $grupoPap);
+    public function edit(GrupoPap $grupoPap): Response
+    {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('atualizarTema', $grupoPap);
 
-        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/tema/edit', [
-            'instituicao' => $instituicao->only('id', 'nome'),
-            'cursoTutelado' => $cursoTutelado->only('id'),
-            'cursoClasse' => $cursoClasse->only('id'),
-            'cursoClasseTurno' => $cursoClasseTurno->only('id'),
-            'turma' => $turma->only('id', 'nome'),
-            'anoLectivoId' => $turma->ano_lectivo_id,
-            'grupoPap' => new GrupoPapDetalheResource($grupoPap),
+        $grupoPap->load([
+            'turma.cursoClasseTurno.cursoClasse.cursoTutelado.instituicaoCurso.curso',
+            'professor.user',
+        ]);
+
+        return Inertia::render('tenant/pap/EditarTemaMelhoria', [
+            'grupoPap' => $grupoPap,
+            'routeContext' => 'instituicao',
+            'routeParams' => [
+                'grupoPap' => $grupoPap->id,
+            ],
         ]);
     }
 
     /**
-     * Actualiza a proposta de tema submetida pelo grupo.
+     * Actualiza o tema depois de uma melhoria solicitada.
      */
     public function update(
-        ActualizarPropostaTemaPapRequest $request,
-        Instituicao $instituicao,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
-    ) {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('definirTema', $grupoPap);
-        $this->actualizarTemaPap->handle($grupoPap, $request->validated(), notificarDestinatarios: true);
+        ActualizarTemaPapPelaCoordenacaoRequest $request,
+        GrupoPap $grupoPap
+    ): RedirectResponse {
+        Gate::forUser(Auth::guard('tenant')->user())->authorize('atualizarTema', $grupoPap);
 
-        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
-            'instituicao' => $instituicao->id,
-            'cursoTutelado' => $cursoTutelado->id,
-            'cursoClasse' => $cursoClasse->id,
-            'cursoClasseTurno' => $cursoClasseTurno->id,
-            'turma' => $turma->id,
-            'grupoPap' => $grupoPap->id,
-        ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Proposta do grupo PAP actualizada com sucesso!',
-        ]);
-    }
+        $validated = $request->validated();
 
-    /**
-     * Apresenta o formulário para corrigir o tema do grupo.
-     */
-    public function editarTema(
-        Instituicao $instituicao,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
-    ) {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('corrigirTema', $grupoPap);
+        $grupoPap->loadMissing('turma.cursoClasseTurno.cursoClasse');
 
-        return Inertia::render('tenant/cursos-tutelados/classes/turnos/turmas/pap/editar-tema', [
-            'instituicao' => $instituicao->only('id', 'nome'),
-            'cursoTutelado' => $cursoTutelado->only('id'),
-            'cursoClasse' => $cursoClasse->only('id'),
-            'cursoClasseTurno' => $cursoClasseTurno->only('id'),
-            'turma' => $turma->only('id', 'nome'),
-            'anoLectivoId' => $turma->ano_lectivo_id,
-            'anosLectivos' => $this->prepararFormularioTemaPapService->anosLectivos(),
-            'grupoPap' => new GrupoPapDetalheResource($grupoPap),
-        ]);
-    }
+        $turma = $grupoPap->turma;
 
-    /**
-     * Guarda a correcção do tema e devolve o grupo ao tutor.
-     */
-    public function actualizarTema(
-        CorrigirTemaPapRequest $request,
-        Instituicao $instituicao,
-        CursoTutelado $cursoTutelado,
-        CursoClasse $cursoClasse,
-        CursoClasseTurno $cursoClasseTurno,
-        Turma $turma,
-        GrupoPap $grupoPap,
-    ) {
-        Gate::forUser(Auth::guard('tenant')->user())->authorize('corrigirTema', $grupoPap);
-        $this->actualizarTemaPap->handle($grupoPap, $request->validated());
+        $this->temaPapUnicidadeService->validarUnicidade(
+            $validated,
+            (string) $turma?->cursoClasseTurno?->cursoClasse?->curso_tutelado_id,
+            (string) $turma?->ano_lectivo_id,
+            (string) $turma?->curso_classe_turno_id,
+            (string) $grupoPap->getKey(),
+        );
 
-        return to_route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', [
-            'instituicao' => $instituicao->id,
-            'cursoTutelado' => $cursoTutelado->id,
-            'cursoClasse' => $cursoClasse->id,
-            'cursoClasseTurno' => $cursoClasseTurno->id,
-            'turma' => $turma->id,
-            'grupoPap' => $grupoPap->id,
-        ])->with('toast', [
-            'type' => 'success',
-            'message' => 'Tema corrigido. Aguarda revisão do professor tutor.',
-        ]);
+        $grupoPap->update($validated);
+
+        return back()->with('success', 'Tema atualizado com sucesso.');
     }
 }

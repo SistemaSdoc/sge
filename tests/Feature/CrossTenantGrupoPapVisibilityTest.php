@@ -16,7 +16,6 @@ use App\Models\Tenant\Professor;
 use App\Models\Tenant\Turma;
 use App\Models\Tenant\Turno;
 use App\Models\Tenant\User;
-use App\Notifications\Pap\TemaValidadoPeloTutorNotification;
 use App\Notifications\Pap\TrabalhoSubmetidoNotification;
 use App\Services\Tenant\CrossTenantAccessService;
 use App\Services\Tenant\GrupoPap\GrupoPapViewService;

@@ -100,19 +100,16 @@ function createGrupoPapTutorDecisionContext(): array
 dataset('tutor decision forms', [
     'sending theme to coordination' => [
         'tenant.dashboard.grupo-pap-aprovacao.aprovar-tutor.form',
-        'tenant.dashboard.grupo-pap-aprovacao.aprovar-tutor',
         'tenant/pap/decisao-tutor/enviar-para-coordenacao',
     ],
     'requesting theme improvement' => [
         'tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria-tutor.form',
-        'tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria-tutor',
         'tenant/pap/decisao-tutor/solicitar-melhoria',
     ],
 ]);
 
 it('renders the dedicated tutor decision page with the group and route context', function (
     string $formRoute,
-    string $submitRoute,
     string $component,
 ) {
     $context = createGrupoPapTutorDecisionContext();
@@ -134,8 +131,8 @@ it('renders the dedicated tutor decision page with the group and route context',
             ->where('grupoPap.nome_grupo', 'Grupo PAP')
             ->where('grupoPap.tema_grupo', 'Tema de teste')
             ->where('turma.nome', 'Turma 1')
-            ->where('submitUrl', route($submitRoute, $params))
-            ->where('backUrl', route('tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show', $params))
+            ->where('routeContext', 'instituicao')
+            ->where('routeParams', $params)
         );
 })->with('tutor decision forms');
 
@@ -184,14 +181,8 @@ it('renders the coordination improvement page for an authorized coordinator', fu
             ->component('tenant/pap/decisao-coordenacao/solicitar-melhoria')
             ->where('grupoPap.tema_grupo', 'Tema de teste')
             ->where('grupoPap.problema', 'Problema de teste')
-            ->where('submitUrl', route(
-                'tenant.dashboard.grupo-pap-aprovacao.solicitar-melhoria',
-                ['grupoPap' => $context['grupoPap']->id],
-            ))
-            ->where('backUrl', route(
-                'tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show',
-                $params,
-            ))
+            ->where('routeContext', 'instituicao')
+            ->where('routeParams', $params)
         );
 });
 
@@ -200,21 +191,18 @@ dataset('coordination decision forms', [
         'tenant.dashboard.grupo-pap-aprovacao.aprovar-coordenacao.form',
         'tenant/pap/decisao-coordenacao/aprovar',
         'grupopap.aprovar',
-        'tenant.dashboard.grupo-pap-aprovacao.aprovar',
     ],
     'reject theme' => [
         'tenant.dashboard.grupo-pap-aprovacao.reprovar-coordenacao.form',
         'tenant/pap/decisao-coordenacao/reprovar',
         'grupopap.reprovar',
-        'tenant.dashboard.grupo-pap-aprovacao.reprovar',
     ],
 ]);
 
-it('renders dedicated coordination decision pages with the correct proposal and submit route', function (
+it('renders dedicated coordination decision pages with the correct proposal and route context', function (
     string $formRoute,
     string $component,
     string $permission,
-    string $submitRoute,
 ) {
     $context = createGrupoPapTutorDecisionContext();
     $context['tutor']->givePermissionTo($permission);
@@ -237,12 +225,7 @@ it('renders dedicated coordination decision pages with the correct proposal and 
             ->where('grupoPap.problema', 'Problema de teste')
             ->where('grupoPap.objectivo_geral', 'Objectivo geral de teste')
             ->where('grupoPap.objectivos_especificos', 'Objectivos específicos de teste')
-            ->where('submitUrl', route($submitRoute, [
-                'grupoPap' => $context['grupoPap']->id,
-            ]))
-            ->where('backUrl', route(
-                'tenant.dashboard.instituicoes.cursos-tutelados.classes.turnos.turmas.pap.show',
-                $params,
-            ))
+            ->where('routeContext', 'instituicao')
+            ->where('routeParams', $params)
         );
 })->with('coordination decision forms');

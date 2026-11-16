@@ -7,16 +7,16 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useState } from 'react';
+import { store as submeter } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Trabalho/SubmeterTrabalhoPapController';
+import { store as aprovarComoTutor } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Trabalho/Tutor/AprovarTrabalhoPapController';
+import { store as solicitarCorrecaoComoTutor } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Trabalho/Tutor/SolicitarCorrecaoTrabalhoPapController';
+import { store as aprovarComoCoordenacao } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Trabalho/Coordenacao/AprovarTrabalhoPapController';
+import { store as solicitarCorrecaoComoCoordenacao } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Trabalho/Coordenacao/SolicitarCorrecaoTrabalhoPapController';
 import {
-  submeter,
-  aprovarComoTutor,
-  solicitarCorrecaoComoTutor,
-  aprovarComoCoordenacao,
-  solicitarCorrecaoComoCoordenacao,
   download,
   visualizar,
   downloadCorrecao,
-} from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/TrabalhoPapController';
+} from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Trabalho/TrabalhoPapController';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

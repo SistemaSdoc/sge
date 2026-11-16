@@ -24,6 +24,18 @@ import {
 } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { store as aprovarTemaCoordenacaoInstituicao } from '@/actions/App/Http/Controllers/Tenant/Pap/Aprovacao/Coordenacao/AprovarTemaPapController';
+import { store as reprovarTemaCoordenacaoInstituicao } from '@/actions/App/Http/Controllers/Tenant/Pap/Aprovacao/Coordenacao/ReprovarTemaPapController';
+import { store as solicitarMelhoriaCoordenacaoInstituicao } from '@/actions/App/Http/Controllers/Tenant/Pap/Aprovacao/Coordenacao/SolicitarMelhoriaTemaPapController';
+import { store as aprovarTemaTutorInstituicao } from '@/actions/App/Http/Controllers/Tenant/Pap/Aprovacao/Tutor/AprovarTemaPapController';
+import { store as solicitarMelhoriaTutorInstituicao } from '@/actions/App/Http/Controllers/Tenant/Pap/Aprovacao/Tutor/SolicitarMelhoriaTemaPapController';
+import { show as showGrupoPapInstituicao } from '@/actions/App/Http/Controllers/Tenant/Pap/GrupoPapController';
+import { store as aprovarTemaCoordenacaoColegio } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Aprovacao/Coordenacao/AprovarTemaPapController';
+import { store as reprovarTemaCoordenacaoColegio } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Aprovacao/Coordenacao/ReprovarTemaPapController';
+import { store as solicitarMelhoriaCoordenacaoColegio } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Aprovacao/Coordenacao/SolicitarMelhoriaTemaPapController';
+import { store as aprovarTemaTutorColegio } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Aprovacao/Tutor/AprovarTemaPapController';
+import { store as solicitarMelhoriaTutorColegio } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Aprovacao/Tutor/SolicitarMelhoriaTemaPapController';
+import { show as showGrupoPapColegio } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/GrupoPapController';
 
 const CONFIG = {
   coordenacao: {
@@ -111,13 +123,45 @@ function CampoTema({ label, value }) {
 export default function FormularioDecisaoPap({
   grupoPap,
   turma,
-  submitUrl,
-  backUrl,
-  successUrl,
+  routeContext,
+  routeParams,
+  redirectAfterSuccess = false,
   tipo,
 }) {
   const config = CONFIG[tipo];
   const Icon = config.icon;
+  const routes = {
+    instituicao: {
+      back: showGrupoPapInstituicao,
+      actions: {
+        aprovarCoordenacao: aprovarTemaCoordenacaoInstituicao,
+        reprovarCoordenacao: reprovarTemaCoordenacaoInstituicao,
+        melhoriaCoordenacao: solicitarMelhoriaCoordenacaoInstituicao,
+        coordenacao: aprovarTemaTutorInstituicao,
+        melhoria: solicitarMelhoriaTutorInstituicao,
+      },
+    },
+    colegio: {
+      back: showGrupoPapColegio,
+      actions: {
+        aprovarCoordenacao: aprovarTemaCoordenacaoColegio,
+        reprovarCoordenacao: reprovarTemaCoordenacaoColegio,
+        melhoriaCoordenacao: solicitarMelhoriaCoordenacaoColegio,
+        coordenacao: aprovarTemaTutorColegio,
+        melhoria: solicitarMelhoriaTutorColegio,
+      },
+    },
+  }[routeContext];
+  const submitRoute = routes?.actions[tipo];
+
+  if (!routes || !submitRoute) {
+    throw new Error(
+      `Rota de decisão PAP inválida para o contexto "${routeContext}" e tipo "${tipo}".`,
+    );
+  }
+
+  const submitUrl = submitRoute.url(routeParams);
+  const backUrl = routes.back.url(routeParams);
   const { data, setData, post, processing, errors } = useForm({
     [config.campo]: '',
   });
@@ -127,8 +171,8 @@ export default function FormularioDecisaoPap({
     event.preventDefault();
     post(submitUrl, {
       onSuccess: () => {
-        if (successUrl) {
-          router.visit(successUrl);
+        if (redirectAfterSuccess) {
+          router.visit(backUrl);
         }
       },
     });

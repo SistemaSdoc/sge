@@ -37,6 +37,10 @@ class SubmeterTrabalhoPapRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'ficheiro.required' => 'Seleccione o ficheiro PDF do trabalho.',
+            'ficheiro.file' => 'O ficheiro submetido não é válido.',
+            'ficheiro.mimes' => 'O trabalho deve estar em formato PDF.',
+            'ficheiro.max' => 'O trabalho não pode exceder 20 MB.',
             'ficheiro.uploaded' => 'O servidor não conseguiu receber o trabalho. Tente novamente.',
         ];
     }

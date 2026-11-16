@@ -28,4 +28,19 @@ class ReprovarTemaPapRequest extends FormRequest
             'motivo' => ['required', 'string', 'min:10', 'max:2000'],
         ];
     }
+
+    /**
+     * Devolve as mensagens específicas da reprovação do tema.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'motivo.required' => 'Indique o motivo da reprovação.',
+            'motivo.string' => 'O motivo da reprovação deve ser um texto.',
+            'motivo.min' => 'O motivo da reprovação deve ter pelo menos 10 caracteres.',
+            'motivo.max' => 'O motivo da reprovação não pode exceder 2000 caracteres.',
+        ];
+    }
 }

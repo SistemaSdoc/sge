@@ -6,6 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { store as reenviarTemaInstituicao } from '@/actions/App/Http/Controllers/Tenant/Pap/Aprovacao/Coordenacao/ReenviarTemaPapController';
+import { update as atualizarTemaInstituicao } from '@/actions/App/Http/Controllers/Tenant/Pap/TemaPapController';
+import { store as reenviarTemaColegio } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/Aprovacao/Coordenacao/ReenviarTemaPapController';
+import { update as atualizarTemaColegio } from '@/actions/App/Http/Controllers/Tenant/Colegios/Pap/TemaPapController';
 
 import InfoGrupoBox from './components/aprovacao/InfoGrupoBox';
 import RecomendacaoBox from './components/aprovacao/RecomendacaoBox';
@@ -48,8 +52,8 @@ const STATUS_CONFIG = {
 export default function EditarTemaMelhoria({
   grupoPap,
   historico = [],
-  rotaAtualizar,
-  rotaReenviar,
+  routeContext,
+  routeParams,
 }) {
   const statusKey = String(grupoPap?.status_aprovacao || '').toLowerCase();
   const config =
@@ -64,28 +68,48 @@ export default function EditarTemaMelhoria({
   const [objectivosEspecificos, setObjectivosEspecificos] = useState(
     grupoPap?.objectivos_especificos || '',
   );
+  const [estudoCaso, setEstudoCaso] = useState(grupoPap?.estudo_caso || '');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const rotas = {
+    instituicao: {
+      atualizar: atualizarTemaInstituicao,
+      reenviar: reenviarTemaInstituicao,
+    },
+    colegio: {
+      atualizar: atualizarTemaColegio,
+      reenviar: reenviarTemaColegio,
+    },
+  }[routeContext];
+
+  if (!rotas) {
+    throw new Error(`Contexto de rota PAP inválido: ${routeContext}`);
+  }
 
   const atualizar = () => {
     setLoading(true);
-    router.put(
-      rotaAtualizar.replace(':id', grupoPap.id),
-      {
-        nome_grupo: nomeGrupo,
-        tema_grupo: tema,
-        problema,
-        objectivo_geral: objectivoGeral,
-        objectivos_especificos: objectivosEspecificos,
-      },
-      { onError: setErrors, onFinish: () => setLoading(false) },
-    );
+    const dadosTema = {
+      nome_grupo: nomeGrupo,
+      tema_grupo: tema,
+      problema,
+      objectivo_geral: objectivoGeral,
+      objectivos_especificos: objectivosEspecificos,
+    };
+
+    if (routeContext === 'instituicao') {
+      dadosTema.estudo_caso = estudoCaso;
+    }
+
+    router.put(rotas.atualizar.url(routeParams), dadosTema, {
+      onError: setErrors,
+      onFinish: () => setLoading(false),
+    });
   };
 
   const reenviar = () => {
     setLoading(true);
-    router.put(
-      rotaReenviar.replace(':id', grupoPap.id),
+    router.post(
+      rotas.reenviar.url(routeParams),
       {
         nome_grupo: nomeGrupo,
         tema_grupo: tema,
@@ -146,6 +170,7 @@ export default function EditarTemaMelhoria({
               value={nomeGrupo}
               onChange={(e) => setNomeGrupo(e.target.value)}
               disabled={loading}
+              aria-invalid={Boolean(errors.nome_grupo)}
             />
             {errors.nome_grupo && (
               <p className="text-xs text-red-500">{errors.nome_grupo}</p>
@@ -159,6 +184,7 @@ export default function EditarTemaMelhoria({
               value={tema}
               onChange={(e) => setTema(e.target.value)}
               disabled={loading}
+              aria-invalid={Boolean(errors.tema_grupo)}
             />
             {errors.tema_grupo && (
               <p className="text-xs text-red-500">{errors.tema_grupo}</p>
@@ -173,6 +199,7 @@ export default function EditarTemaMelhoria({
               onChange={(e) => setProblema(e.target.value)}
               disabled={loading}
               className="min-h-32"
+              aria-invalid={Boolean(errors.problema)}
             />
             {errors.problema && (
               <p className="text-xs text-red-500">{errors.problema}</p>
@@ -187,6 +214,7 @@ export default function EditarTemaMelhoria({
               onChange={(e) => setObjectivoGeral(e.target.value)}
               disabled={loading}
               className="min-h-32"
+              aria-invalid={Boolean(errors.objectivo_geral)}
             />
             {errors.objectivo_geral && (
               <p className="text-xs text-red-500">{errors.objectivo_geral}</p>
@@ -203,6 +231,7 @@ export default function EditarTemaMelhoria({
               onChange={(e) => setObjectivosEspecificos(e.target.value)}
               disabled={loading}
               className="min-h-32"
+              aria-invalid={Boolean(errors.objectivos_especificos)}
             />
             {errors.objectivos_especificos && (
               <p className="text-xs text-red-500">
@@ -210,6 +239,23 @@ export default function EditarTemaMelhoria({
               </p>
             )}
           </div>
+
+          {routeContext === 'instituicao' && (
+            <div className="space-y-1.5">
+              <Label htmlFor="estudo-caso">Estudo de Caso</Label>
+              <Textarea
+                id="estudo-caso"
+                value={estudoCaso}
+                onChange={(e) => setEstudoCaso(e.target.value)}
+                disabled={loading}
+                className="min-h-32"
+                aria-invalid={Boolean(errors.estudo_caso)}
+              />
+              {errors.estudo_caso && (
+                <p className="text-xs text-red-500">{errors.estudo_caso}</p>
+              )}
+            </div>
+          )}
 
           <div className="flex flex-wrap justify-end gap-3 border-t pt-4">
             <Button variant="outline" onClick={atualizar} disabled={loading}>

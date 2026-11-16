@@ -44,11 +44,21 @@ use App\Http\Controllers\Tenant\NotaDisciplinaController;
 use App\Http\Controllers\Tenant\NotaDisciplinaRecursoController;
 use App\Http\Controllers\Tenant\NotificacaoController;
 use App\Http\Controllers\Tenant\PagamentoController;
-use App\Http\Controllers\Tenant\Pap\AprovacaoTemaPapController as GrupoPapAprovacaoController;
+use App\Http\Controllers\Tenant\Pap\Aprovacao\Coordenacao\AprovarTemaPapController as AprovarTemaPapCoordenacaoController;
+use App\Http\Controllers\Tenant\Pap\Aprovacao\Coordenacao\ReenviarTemaPapController as ReenviarTemaPapCoordenacaoController;
+use App\Http\Controllers\Tenant\Pap\Aprovacao\Coordenacao\ReprovarTemaPapController as ReprovarTemaPapCoordenacaoController;
+use App\Http\Controllers\Tenant\Pap\Aprovacao\Coordenacao\SolicitarMelhoriaTemaPapController as SolicitarMelhoriaTemaPapCoordenacaoController;
+use App\Http\Controllers\Tenant\Pap\Aprovacao\Tutor\AprovarTemaPapController as AprovarTemaPapTutorController;
+use App\Http\Controllers\Tenant\Pap\Aprovacao\Tutor\SolicitarMelhoriaTemaPapController as SolicitarMelhoriaTemaPapTutorController;
 use App\Http\Controllers\Tenant\Pap\DefesaPapController;
 use App\Http\Controllers\Tenant\Pap\GrupoPapController;
 use App\Http\Controllers\Tenant\Pap\TemaPapController as GrupoPapTemaController;
-use App\Http\Controllers\Tenant\Pap\TrabalhoPapController;
+use App\Http\Controllers\Tenant\Pap\Trabalho\Coordenacao\AprovarTrabalhoPapController as AprovarTrabalhoPapCoordenacaoController;
+use App\Http\Controllers\Tenant\Pap\Trabalho\Coordenacao\SolicitarCorrecaoTrabalhoPapController as SolicitarCorrecaoTrabalhoPapCoordenacaoController;
+use App\Http\Controllers\Tenant\Pap\Trabalho\SubmeterTrabalhoPapController;
+use App\Http\Controllers\Tenant\Pap\Trabalho\TrabalhoPapController as TrabalhoPapLeituraController;
+use App\Http\Controllers\Tenant\Pap\Trabalho\Tutor\AprovarTrabalhoPapController as AprovarTrabalhoPapTutorController;
+use App\Http\Controllers\Tenant\Pap\Trabalho\Tutor\SolicitarCorrecaoTrabalhoPapController as SolicitarCorrecaoTrabalhoPapTutorController;
 use App\Http\Controllers\Tenant\PautaController;
 use App\Http\Controllers\Tenant\PeriodoLancamentoNotasController;
 use App\Http\Controllers\Tenant\PlanificacaoController;
@@ -606,7 +616,7 @@ Route::middleware([
                     'turnos' => 'cursoClasseTurno',
                     'turmas' => 'turma',
                     'pap' => 'grupoPap',
-                ])->only(['create', 'store', 'edit', 'update']);
+                ])->only(['create', 'store']);
 
             /*
             |--------------------------------------------------------------------------
@@ -637,33 +647,33 @@ Route::middleware([
             |--------------------------------------------------------------------------
             */
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho', [TrabalhoPapController::class, 'show'])
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho', [TrabalhoPapLeituraController::class, 'show'])
                 ->name('pap.trabalho.show');
 
-            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/submeter', [TrabalhoPapController::class, 'submeter'])
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/submeter', [SubmeterTrabalhoPapController::class, 'store'])
                 ->name('pap.trabalho.submeter');
 
-            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/tutor/aprovar', [TrabalhoPapController::class, 'aprovarComoTutor'])
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/tutor/aprovar', [AprovarTrabalhoPapTutorController::class, 'store'])
                 ->name('pap.trabalho.tutor.aprovar');
 
-            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/tutor/correcao', [TrabalhoPapController::class, 'solicitarCorrecaoComoTutor'])
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/tutor/correcao', [SolicitarCorrecaoTrabalhoPapTutorController::class, 'store'])
                 ->name('pap.trabalho.tutor.correcao');
 
-            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/coordenacao/aprovar', [TrabalhoPapController::class, 'aprovarComoCoordenacao'])
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/coordenacao/aprovar', [AprovarTrabalhoPapCoordenacaoController::class, 'store'])
                 ->name('pap.trabalho.coordenacao.aprovar');
 
-            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/coordenacao/correcao', [TrabalhoPapController::class, 'solicitarCorrecaoComoCoordenacao'])
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/coordenacao/correcao', [SolicitarCorrecaoTrabalhoPapCoordenacaoController::class, 'store'])
                 ->name('pap.trabalho.coordenacao.correcao');
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/versao/{numeroVersao}/download', [TrabalhoPapController::class, 'download'])
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/versao/{numeroVersao}/download', [TrabalhoPapLeituraController::class, 'download'])
                 ->name('pap.trabalho.versao.download')
                 ->whereNumber('numeroVersao');
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/versao/{numeroVersao}/visualizar', [TrabalhoPapController::class, 'visualizar'])
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/versao/{numeroVersao}/visualizar', [TrabalhoPapLeituraController::class, 'visualizar'])
                 ->name('pap.trabalho.versao.visualizar')
                 ->whereNumber('numeroVersao');
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/correcao/{feedbackId}/download', [TrabalhoPapController::class, 'downloadCorrecao'])
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/trabalho/correcao/{feedbackId}/download', [TrabalhoPapLeituraController::class, 'downloadCorrecao'])
                 ->name('pap.trabalho.correcao.download');
 
             /*
@@ -698,53 +708,44 @@ Route::middleware([
             |--------------------------------------------------------------------------
             */
 
-            Route::get('grupo-pap-aprovacao/pendentes', [GrupoPapAprovacaoController::class, 'pendentes'])
-                ->name('grupo-pap-aprovacao.pendentes');
-
-            Route::post('grupo-pap-aprovacao/{grupoPap}/aprovar', [GrupoPapAprovacaoController::class, 'aprovar'])
+            Route::post('grupo-pap-aprovacao/{grupoPap}/aprovar', [AprovarTemaPapCoordenacaoController::class, 'store'])
                 ->name('grupo-pap-aprovacao.aprovar');
 
-            Route::post('grupo-pap-aprovacao/{grupoPap}/reprovar', [GrupoPapAprovacaoController::class, 'reprovar'])
+            Route::post('grupo-pap-aprovacao/{grupoPap}/reprovar', [ReprovarTemaPapCoordenacaoController::class, 'store'])
                 ->name('grupo-pap-aprovacao.reprovar');
 
-            Route::post('grupo-pap-aprovacao/{grupoPap}/solicitar-melhoria', [GrupoPapAprovacaoController::class, 'solicitarMelhoria'])
+            Route::post('grupo-pap-aprovacao/{grupoPap}/solicitar-melhoria', [SolicitarMelhoriaTemaPapCoordenacaoController::class, 'store'])
                 ->name('grupo-pap-aprovacao.solicitar-melhoria');
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/solicitar-melhoria-coordenacao', [GrupoPapAprovacaoController::class, 'formSolicitarMelhoriaCoordenacao'])
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/solicitar-melhoria-coordenacao', [SolicitarMelhoriaTemaPapCoordenacaoController::class, 'create'])
                 ->name('grupo-pap-aprovacao.solicitar-melhoria-coordenacao.form');
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/aprovar-coordenacao', [GrupoPapAprovacaoController::class, 'formAprovarCoordenacao'])
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/aprovar-coordenacao', [AprovarTemaPapCoordenacaoController::class, 'create'])
                 ->name('grupo-pap-aprovacao.aprovar-coordenacao.form');
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/reprovar-coordenacao', [GrupoPapAprovacaoController::class, 'formReprovarCoordenacao'])
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/reprovar-coordenacao', [ReprovarTemaPapCoordenacaoController::class, 'create'])
                 ->name('grupo-pap-aprovacao.reprovar-coordenacao.form');
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/aprovar-tutor', [GrupoPapAprovacaoController::class, 'formAprovarTutor'])
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/aprovar-tutor', [AprovarTemaPapTutorController::class, 'create'])
                 ->name('grupo-pap-aprovacao.aprovar-tutor.form');
 
-            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/aprovar-tutor', [GrupoPapAprovacaoController::class, 'aprovarTutor'])
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/aprovar-tutor', [AprovarTemaPapTutorController::class, 'store'])
                 ->name('grupo-pap-aprovacao.aprovar-tutor');
 
-            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/solicitar-melhoria-tutor', [GrupoPapAprovacaoController::class, 'formSolicitarMelhoriaTutor'])
+            Route::get('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/solicitar-melhoria-tutor', [SolicitarMelhoriaTemaPapTutorController::class, 'create'])
                 ->name('grupo-pap-aprovacao.solicitar-melhoria-tutor.form');
 
-            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/solicitar-melhoria-tutor', [GrupoPapAprovacaoController::class, 'solicitarMelhoriaComoTutor'])
+            Route::post('instituicoes/{instituicao}/cursos-tutelados/{cursoTutelado}/classes/{cursoClasse}/turnos/{cursoClasseTurno}/turmas/{turma}/pap/{grupoPap}/solicitar-melhoria-tutor', [SolicitarMelhoriaTemaPapTutorController::class, 'store'])
                 ->name('grupo-pap-aprovacao.solicitar-melhoria-tutor');
 
-            Route::get('grupo-pap-aprovacao/{grupoPap}/editar', [GrupoPapAprovacaoController::class, 'editar'])
+            Route::get('grupo-pap-aprovacao/{grupoPap}/editar', [GrupoPapTemaController::class, 'edit'])
                 ->name('grupo-pap-aprovacao.editar');
 
-            Route::put('grupo-pap-aprovacao/{grupoPap}', [GrupoPapAprovacaoController::class, 'atualizar'])
+            Route::put('grupo-pap-aprovacao/{grupoPap}', [GrupoPapTemaController::class, 'update'])
                 ->name('grupo-pap-aprovacao.atualizar');
 
-            Route::put('grupo-pap-aprovacao/{grupoPap}/reenviar', [GrupoPapAprovacaoController::class, 'reenviar'])
+            Route::post('grupo-pap-aprovacao/{grupoPap}/reenviar', [ReenviarTemaPapCoordenacaoController::class, 'store'])
                 ->name('grupo-pap-aprovacao.reenviar');
-
-            Route::get('grupo-pap-aprovacao/melhorias', [GrupoPapAprovacaoController::class, 'melhorias'])
-                ->name('grupo-pap-aprovacao.melhorias');
-
-            Route::get('grupo-pap-aprovacao/{grupoPap}/historico', [GrupoPapAprovacaoController::class, 'historico'])
-                ->name('grupo-pap-aprovacao.historico');
 
             /*
             |--------------------------------------------------------------------------

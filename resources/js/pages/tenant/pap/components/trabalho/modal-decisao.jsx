@@ -58,6 +58,8 @@ export function ModalDecisao({
   action,
   onConfirmar,
   loading,
+  errors = {},
+  onClearError = () => {},
   minimumCommentLength = 1,
   validateOnSubmit = false,
 }) {
@@ -128,12 +130,27 @@ export function ModalDecisao({
                 id="ficheiro-correcao"
                 type="file"
                 accept=".pdf"
-                onChange={(e) => setFicheiro(e.target.files?.[0] ?? null)}
+                onChange={(e) => {
+                  onClearError('ficheiro');
+                  setFicheiro(e.target.files?.[0] ?? null);
+                }}
+                aria-invalid={Boolean(errors.ficheiro)}
+                aria-describedby={
+                  errors.ficheiro ? 'ficheiro-correcao-error' : undefined
+                }
               />
               {ficheiro && (
                 <p className="text-xs text-muted-foreground">
                   {ficheiro.name} ({(ficheiro.size / 1024 / 1024).toFixed(2)}{' '}
                   MB)
+                </p>
+              )}
+              {errors.ficheiro && (
+                <p
+                  id="ficheiro-correcao-error"
+                  className="text-xs text-destructive"
+                >
+                  {errors.ficheiro}
                 </p>
               )}
             </div>
@@ -147,15 +164,29 @@ export function ModalDecisao({
               id="comentario-trabalho"
               rows={4}
               value={comentario}
-              onChange={(e) => setComentario(e.target.value)}
+              onChange={(e) => {
+                onClearError('comentario');
+                setComentario(e.target.value);
+              }}
+              aria-invalid={Boolean(comentarioError || errors.comentario)}
+              aria-describedby={
+                comentarioError || errors.comentario
+                  ? 'comentario-trabalho-error'
+                  : undefined
+              }
               placeholder={
                 config.obrigatorio
                   ? 'Descreve as correções necessárias...'
                   : 'Adiciona um comentário opcional...'
               }
             />
-            {comentarioError && (
-              <p className="text-xs text-red-500">{comentarioError}</p>
+            {(comentarioError || errors.comentario) && (
+              <p
+                id="comentario-trabalho-error"
+                className="text-xs text-destructive"
+              >
+                {comentarioError || errors.comentario}
+              </p>
             )}
           </div>
         </div>
